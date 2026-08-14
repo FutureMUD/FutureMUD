@@ -53,9 +53,7 @@ public class AlertCommandSourceIntegrationTests
 		StringAssert.Contains(source, "public const AudioVolume AlertVolume = AudioVolume.ExtremelyLoud;");
 		StringAssert.Contains(source, "public const int MaximumStoredAlertEmoteLength = 500;");
 		StringAssert.Contains(source, "actor.Body.Communications.CanVocalise(actor.Body, AlertVolume)");
-		StringAssert.Contains(source, "witness.CanHear(actor)");
-		StringAssert.Contains(source, "witness.Location.LocalAudioDifficulty(witness, volume, proximity)");
-		StringAssert.Contains(source, "CheckType.GenericListenCheck");
+		StringAssert.Contains(source, "AudioPerception.CanHear(witness, actor, volume, proximity)");
 		StringAssert.Contains(source, "witness.HandleEvent(EventType.CharacterAlertHeard");
 		StringAssert.Contains(source, "actor.Location.CellsInVicinity(AlertRoomRange");
 		StringAssert.Contains(source, "npc.AIs.OfType<IOverrideAlertEmote>()");

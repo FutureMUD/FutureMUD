@@ -247,4 +247,133 @@ public class NoiseEmissionTests
 		{
 		}
 	}
+
+	[TestMethod]
+	public void RaiseReceivedEvent_UsesDocumentedReceiverPayload()
+	{
+		var origin = new Mock<ICell>();
+		var source = new Mock<ICharacter>();
+		var listener = new Mock<ICharacter>();
+		object[]? payload = null;
+		listener.Setup(x => x.HandleEvent(EventType.NoiseReceived, It.IsAny<object[]>()))
+			.Callback<EventType, object[]>((_, arguments) => payload = arguments);
+
+		NoiseEmission.RaiseReceivedEvent(
+			listener.Object,
+			origin.Object,
+			source.Object,
+			AudioVolume.Quiet,
+			Proximity.VeryDistant,
+			" impact ",
+			"from the north",
+			"A crash sounds {0}.");
+
+		Assert.IsNotNull(payload);
+		Assert.AreEqual(8, payload.Length);
+		Assert.AreSame(listener.Object, payload[0]);
+		Assert.AreSame(origin.Object, payload[1]);
+		Assert.AreSame(source.Object, payload[2]);
+		Assert.AreEqual((int)AudioVolume.Quiet, payload[3]);
+		Assert.AreEqual((int)Proximity.VeryDistant, payload[4]);
+		Assert.AreEqual("impact", payload[5]);
+		Assert.AreEqual("from the north", payload[6]);
+		Assert.AreEqual("A crash sounds {0}.", payload[7]);
+	}
+
+	[TestMethod]
+	public void EmitNoise_ExtendedArguments_UseBoundedStructuredPath()
+	{
+		FutureProgTestBootstrap.EnsureInitialised();
+		var origin = new Mock<ICell>();
+		var source = new Mock<ICharacter>();
+		source.SetupGet(x => x.Location).Returns(origin.Object);
+		source.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var compiler = FutureProg.GetFunctionCompilerInformations()
+			.Single(x => x.FunctionName.EqualTo("emitnoise") &&
+			             x.Parameters.SequenceEqual([
+				             ProgVariableTypes.Perceivable,
+				             ProgVariableTypes.Number,
+				             ProgVariableTypes.Number,
+				             ProgVariableTypes.Text,
+				             ProgVariableTypes.Text,
+				             ProgVariableTypes.Text
+			             ]));
+		var function = compiler.CompilerFunction(
+			[
+				new ConstantFunction(source.Object),
+				new ConstantFunction(new NumberVariable((int)AudioVolume.VeryLoud)),
+				new ConstantFunction(new NumberVariable(20)),
+				new ConstantFunction(new TextVariable("coordinate")),
+				new ConstantFunction(new TextVariable("impact")),
+				new ConstantFunction(new TextVariable("A crash sounds {0} at {1} volume."))
+			],
+			FutureProgTestBootstrap.Gameworld);
+
+		var result = function.Execute(new Mock<IVariableSpace>().Object);
+
+		Assert.AreEqual(StatementResult.Normal, result);
+		Assert.AreEqual(true, function.Result?.GetObject);
+		origin.Verify(x => x.HandleAudioEcho(
+			"A crash sounds {0} at {1} volume.",
+			AudioVolume.VeryLoud,
+			20.0,
+			AudioPropagationMode.CoordinateAware,
+			source.Object,
+			RoomLayer.GroundLevel,
+			true,
+			"impact"), Times.Once);
+	}
+
+	[TestMethod]
+	public void EmitNoise_ExtendedArguments_RejectInvalidBudgetAndMode()
+	{
+		FutureProgTestBootstrap.EnsureInitialised();
+		var origin = new Mock<ICell>();
+		var source = new Mock<ICharacter>();
+		source.SetupGet(x => x.Location).Returns(origin.Object);
+		var compiler = FutureProg.GetFunctionCompilerInformations()
+			.Single(x => x.FunctionName.EqualTo("emitnoise") && x.Parameters.Count() == 6);
+
+		foreach (var (budget, mode) in new[] { (0, "topological"), (5, "geometric") })
+		{
+			var function = compiler.CompilerFunction(
+				[
+					new ConstantFunction(source.Object),
+					new ConstantFunction(new NumberVariable((int)AudioVolume.Loud)),
+					new ConstantFunction(new NumberVariable(budget)),
+					new ConstantFunction(new TextVariable(mode)),
+					new ConstantFunction(new TextVariable("impact")),
+					new ConstantFunction(new TextVariable("A crash sounds {0}."))
+				],
+				FutureProgTestBootstrap.Gameworld);
+
+			Assert.AreEqual(StatementResult.Normal, function.Execute(new Mock<IVariableSpace>().Object));
+			Assert.AreEqual(false, function.Result?.GetObject);
+		}
+
+		origin.Verify(x => x.HandleAudioEcho(
+			It.IsAny<string>(), It.IsAny<AudioVolume>(), It.IsAny<double>(),
+			It.IsAny<AudioPropagationMode>(), It.IsAny<IPerceiver>(), It.IsAny<RoomLayer>(),
+			It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void FutureProgContract_RegistersReceivedNoiseHearingDecision()
+	{
+		FutureProgTestBootstrap.EnsureInitialised();
+		var compiler = FutureProg.GetFunctionCompilerInformations()
+			.Single(x => x.FunctionName.EqualTo("canhearnoise"));
+
+		CollectionAssert.AreEqual(
+			new[]
+			{
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Perceivable,
+				ProgVariableTypes.Number,
+				ProgVariableTypes.Number
+			},
+			compiler.Parameters.ToArray());
+		Assert.AreEqual(ProgVariableTypes.Boolean, compiler.ReturnType);
+		Assert.AreEqual(146, (int)EventType.NoiseReceived);
+	}
 }

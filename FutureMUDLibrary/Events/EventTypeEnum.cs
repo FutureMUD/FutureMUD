@@ -750,6 +750,9 @@ namespace MudSharp.Events
         TrapSignalReceived = 144,
 
         [EventInfo("Fires on a registered perceivable when its proximity to another perceivable changes. Parameters are the receiver, counterpart, previous proximity, current proximity and change cause.", ["perceivable", "perceivable", "number", "number", "text"], ["receiver", "counterpart", "previousproximity", "currentproximity", "cause"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
-        PerceivableProximityChanged = 145
+        PerceivableProximityChanged = 145,
+
+        [EventInfo("Fires on a character when a bounded structured noise reaches that character's exact spatial location. Reception does not imply a successful hearing check.", ["character", "location", "perceivable", "number", "number", "text", "text", "text"], ["listener", "origin", "source", "volume", "proximity", "type", "direction", "echo"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
+        NoiseReceived = 146
     }
 }

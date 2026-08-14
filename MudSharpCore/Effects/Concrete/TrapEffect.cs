@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Globalization;
+using ExpressionEngine;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Body;
@@ -136,13 +137,14 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	}
 
 	public TrapEffect(IPerceivable owner, ITrapTemplate template, ICharacter? creator = null, ICellExit? boundExit = null,
-		IEnumerable<TrapComponentBinding>? components = null)
+		IEnumerable<TrapComponentBinding>? components = null, SpellPower power = SpellPower.Standard)
 		: base(owner)
 	{
 		InstanceId = Guid.NewGuid();
 		TemplateId = template.Id;
 		TemplateRevision = template.RevisionNumber;
 		CreatorId = creator?.Id ?? 0L;
+		Power = power;
 		ChargesRemaining = template.Charges;
 		State = TrapState.Armed;
 		BoundExitId = boundExit?.Exit.Id;
@@ -150,13 +152,15 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		_components.AddRange(components ?? []);
 	}
 
-	internal TrapEffect(IPerceivable owner, ITrapTemplate template, Guid instanceId, long creatorId)
+	internal TrapEffect(IPerceivable owner, ITrapTemplate template, Guid instanceId, long creatorId,
+		SpellPower power = SpellPower.Standard)
 		: base(owner)
 	{
 		InstanceId = instanceId;
 		TemplateId = template.Id;
 		TemplateRevision = template.RevisionNumber;
 		CreatorId = creatorId;
+		Power = power;
 		ChargesRemaining = 0;
 		State = TrapState.Resolving;
 	}
@@ -169,6 +173,10 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		TemplateId = long.Parse(effect.Element("TemplateId")!.Value);
 		TemplateRevision = int.Parse(effect.Element("TemplateRevision")!.Value);
 		CreatorId = long.Parse(effect.Element("CreatorId")?.Value ?? "0");
+		Power = TrapParameterValidation.TryParseDefinedEnum<SpellPower>(effect.Element("Power")?.Value ?? string.Empty,
+			out var power)
+			? power
+			: SpellPower.Standard;
 		ChargesRemaining = int.Parse(effect.Element("ChargesRemaining")?.Value ?? "0");
 		State = Enum.TryParse(effect.Element("State")?.Value, true, out TrapState state)
 			? state
@@ -186,6 +194,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	public int TemplateRevision { get; }
 	public int TemplateRevisionNumber => TemplateRevision;
 	public long CreatorId { get; }
+	public SpellPower Power { get; }
 	public int ChargesRemaining { get; private set; }
 	public int RemainingCharges => ChargesRemaining;
 	public long? BoundExitId { get; }
@@ -244,6 +253,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 			new XElement("TemplateId", TemplateId),
 			new XElement("TemplateRevision", TemplateRevision),
 			new XElement("CreatorId", CreatorId),
+			new XElement("Power", Power),
 			new XElement("ChargesRemaining", ChargesRemaining),
 			new XElement("State", State),
 			BoundExitId.HasValue ? new XElement("BoundExitId", BoundExitId.Value) : null,
@@ -524,7 +534,8 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		if (!force)
 		{
 			var activeTrigger = trigger!;
-			if (!PassesTriggerFilter(activeTrigger, triggerer, triggerSource) || !PassesChance(activeTrigger.Parameters))
+			if (!TrapTriggerDefinition.TryValidateParameters(activeTrigger.TriggerType, activeTrigger.Parameters, out _) ||
+			    !PassesTriggerFilter(activeTrigger, triggerer, triggerSource) || !PassesChance(activeTrigger.Parameters))
 			{
 				return false;
 			}
@@ -558,7 +569,13 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 		foreach ((ITrapPayload payload, int index) in template.Payloads.Select((payload, index) => (payload, index)))
 		{
-			if (payload.PayloadType is TrapPayloadType.DetonateItem or TrapPayloadType.EmitSignal or TrapPayloadType.GasCloud)
+			if (payload.Delay < TimeSpan.Zero || !Enum.IsDefined(payload.TargetSelector) ||
+			    !TrapPayloadDefinition.TryValidateParameters(payload.PayloadType, payload.Parameters, out _))
+			{
+				continue;
+			}
+
+			if (payload.PayloadType is TrapPayloadType.DetonateItem or TrapPayloadType.EmitSignal or TrapPayloadType.GasCloud or TrapPayloadType.ExplosiveDamage)
 			{
 				ScheduleOrExecutePayload(payload, index, null);
 				continue;
@@ -583,6 +600,11 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 	private bool MatchesEvent(ITrapTrigger trigger, EventType eventType, dynamic[] arguments)
 	{
+		if (!TrapTriggerDefinition.TryValidateParameters(trigger.TriggerType, trigger.Parameters, out _))
+		{
+			return false;
+		}
+
 		switch (trigger.TriggerType)
 		{
 			case TrapTriggerType.Openable:
@@ -785,6 +807,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 					TemplateId,
 					TemplateRevision,
 					CreatorId,
+					Power,
 					index,
 					target?.Id ?? 0L),
 				payload.Delay);
@@ -897,6 +920,12 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 	private void ExecutePayload(ITrapPayload payload, ICharacter? target)
 	{
+		if (payload.Delay < TimeSpan.Zero || !Enum.IsDefined(payload.TargetSelector) ||
+		    !TrapPayloadDefinition.TryValidateParameters(payload.PayloadType, payload.Parameters, out _))
+		{
+			return;
+		}
+
 		SendEcho(payload.Parameters, "echo", target);
 
 		switch (payload.PayloadType)
@@ -927,6 +956,10 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 				}
 				break;
 
+			case TrapPayloadType.ExplosiveDamage:
+				ExecuteExplosiveDamagePayload(payload);
+				break;
+
 			case TrapPayloadType.LiquidDischarge:
 				if (target is not null)
 				{
@@ -950,7 +983,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	private void ExecuteSpellPayload(ITrapPayload payload, ICharacter target)
 	{
 		if (!payload.Parameters.TryGetValue("spell", out var spellText) ||
-		    !long.TryParse(spellText, out var spellId))
+		    !TrapParameterValidation.TryParsePositiveLong(spellText, out var spellId))
 		{
 			return;
 		}
@@ -959,30 +992,48 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		var caster = CreatorId > 0 ? Gameworld.TryGetCharacter(CreatorId, true) : null;
 		if (spell is not null && caster is not null)
 		{
-			var power = payload.Parameters.TryGetValue("power", out var powerText) &&
-			            Enum.TryParse(powerText, true, out SpellPower parsedPower)
-				? parsedPower
-				: SpellPower.Standard;
+			var power = SpellPower.Standard;
+			if (payload.Parameters.TryGetValue("power", out var powerText))
+			{
+				if (!TrapParameterValidation.TryParseDefinedEnum<SpellPower>(powerText, out power))
+				{
+					return;
+				}
+			}
+
 			spell.ResolveTriggeredSpell(caster, target, power);
 		}
 	}
 
 	private void ExecuteSignalPayload(ITrapPayload payload)
 	{
-		var targetItem = payload.Parameters.TryGetValue("targetitem", out var targetItemText) &&
-		                 long.TryParse(targetItemText, out var targetItemId) &&
-		                 targetItemId > 0L
-			? Gameworld.TryGetItem(targetItemId, true)
-			: FindPayloadItem(x => x.Components.OfType<ISignalSink>().Any());
+		IGameItem? targetItem;
+		if (payload.Parameters.TryGetValue("targetitem", out var targetItemText))
+		{
+			if (!TrapParameterValidation.TryParsePositiveLong(targetItemText, out var targetItemId))
+			{
+				return;
+			}
+
+			targetItem = Gameworld.TryGetItem(targetItemId, true);
+		}
+		else
+		{
+			targetItem = FindPayloadItem(x => x.Components.OfType<ISignalSink>().Any());
+		}
+
 		if (targetItem is null)
 		{
 			return;
 		}
 
-		var value = payload.Parameters.TryGetValue("value", out var valueText) &&
-		            double.TryParse(valueText, out var parsedValue)
-			? parsedValue
-			: 1.0;
+		var value = 1.0;
+		if (payload.Parameters.TryGetValue("value", out var valueText) &&
+		    !TrapParameterValidation.TryParseFiniteDouble(valueText, out value))
+		{
+			return;
+		}
+
 		var signal = new ComputerSignal(value, null, null);
 		var source = new TrapSignalSource(this, signal);
 		foreach (ISignalSink sink in targetItem.Components.OfType<ISignalSink>())
@@ -994,7 +1045,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	private void ExecuteProgPayload(ITrapPayload payload, ICharacter? target)
 	{
 		if (!payload.Parameters.TryGetValue("prog", out var progText) ||
-		    !long.TryParse(progText, out var progId))
+		    !TrapParameterValidation.TryParsePositiveLong(progText, out var progId))
 		{
 			return;
 		}
@@ -1025,32 +1076,108 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 	private void ExecuteDamagePayload(ITrapPayload payload, ICharacter target)
 	{
-		var amount = payload.Parameters.TryGetValue("damage", out var amountText) &&
-		             double.TryParse(amountText, out var parsedAmount)
-			? Math.Max(0.0, parsedAmount)
-			: 1.0;
-		amount *= PayloadQualityMultiplier;
-		var damageType = payload.Parameters.TryGetValue("damagetype", out var damageTypeText) &&
-		                 Enum.TryParse(damageTypeText, true, out DamageType parsedType)
-			? parsedType
-			: DamageType.Piercing;
+		if (!payload.Parameters.TryGetValue("damage", out var damageFormula) ||
+		    !TrapParameterValidation.TryEvaluateDamageExpression(damageFormula, PayloadQuality, Power, 0.0,
+			    out var damage, out _) ||
+		    !TryEvaluateDamageFormula(payload, "pain", damage, out var pain) ||
+		    !TryEvaluateDamageFormula(payload, "stun", damage, out var stun) ||
+		    damage <= 0.0 && pain <= 0.0 && stun <= 0.0)
+		{
+			return;
+		}
+
+		var damageType = DamageType.Piercing;
+		if (payload.Parameters.TryGetValue("damagetype", out var damageTypeText) &&
+		    !TrapParameterValidation.TryParseDefinedEnum<DamageType>(damageTypeText, out damageType))
+		{
+			return;
+		}
+
 		target.SufferDamage(new Damage
 		{
 			ActorOrigin = CreatorId > 0 ? Gameworld.TryGetCharacter(CreatorId, true) : null,
 			ToolOrigin = FindPayloadItem(_ => true),
 			Bodypart = target.Body.RandomBodypart,
-			DamageAmount = amount,
-			PainAmount = amount,
-			StunAmount = amount,
+			DamageAmount = damage,
+			PainAmount = pain,
+			StunAmount = stun,
 			DamageType = damageType
 		}).ProcessPassiveWounds();
 		RecordHarmCrime(target);
 	}
 
+	private bool TryEvaluateDamageFormula(ITrapPayload payload, string parameterName, double damage,
+		out double result)
+	{
+		result = damage;
+		return !payload.Parameters.TryGetValue(parameterName, out var formula) ||
+		       TrapParameterValidation.TryEvaluateDamageExpression(formula, PayloadQuality, Power, damage,
+			       out result, out _);
+	}
+
+	private void ExecuteExplosiveDamagePayload(ITrapPayload payload)
+	{
+		if (!payload.Parameters.TryGetValue("damage", out var damageFormula) ||
+		    !TrapParameterValidation.TryEvaluateDamageExpression(damageFormula, PayloadQuality, Power, 0.0,
+			    out var damage, out _) ||
+		    !TryEvaluateDamageFormula(payload, "pain", damage, out var pain) ||
+		    !TryEvaluateDamageFormula(payload, "stun", damage, out var stun) ||
+		    damage <= 0.0 && pain <= 0.0 && stun <= 0.0)
+		{
+			return;
+		}
+
+		var damageType = DamageType.Shockwave;
+		if (payload.Parameters.TryGetValue("damagetype", out var damageTypeText) &&
+		    !TrapParameterValidation.TryParseDefinedEnum<DamageType>(damageTypeText, out damageType))
+		{
+			return;
+		}
+
+		var explosionSize = SizeCategory.Normal;
+		if (payload.Parameters.TryGetValue("explosionsize", out var explosionSizeText) &&
+		    !TrapParameterValidation.TryParseDefinedEnum<SizeCategory>(explosionSizeText, out explosionSize))
+		{
+			return;
+		}
+
+		var maximumProximity = Proximity.Proximate;
+		if (payload.Parameters.TryGetValue("maximumproximity", out var maximumProximityText) &&
+		    !TrapParameterValidation.TryParseExplosionMaximumProximity(maximumProximityText, out maximumProximity))
+		{
+			return;
+		}
+
+		var elevation = 0.0;
+		if (payload.Parameters.TryGetValue("elevation", out var elevationText) &&
+		    !TrapParameterValidation.TryParseFiniteDouble(elevationText, out elevation))
+		{
+			return;
+		}
+
+		var explosiveDamage = new ExplosiveDamage(
+			new[]
+			{
+				new Damage
+				{
+					ActorOrigin = CreatorId > 0 ? Gameworld.TryGetCharacter(CreatorId, true) : null,
+					ToolOrigin = FindPayloadItem(_ => true),
+					DamageAmount = damage,
+					PainAmount = pain,
+					StunAmount = stun,
+					DamageType = damageType
+				}
+			},
+			elevation,
+			explosionSize,
+			maximumProximity);
+		Owner.ExplosionEmantingFromPerceivable(explosiveDamage).ProcessPassiveWounds();
+	}
+
 	private void ExecuteLiquidPayload(ITrapPayload payload, ICharacter target)
 	{
 		if (!payload.Parameters.TryGetValue("liquid", out var liquidText) ||
-		    !long.TryParse(liquidText, out var liquidId))
+		    !TrapParameterValidation.TryParsePositiveLong(liquidText, out var liquidId))
 		{
 			return;
 		}
@@ -1061,10 +1188,13 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 			return;
 		}
 
-		var amount = payload.Parameters.TryGetValue("amount", out var amountText) &&
-		             double.TryParse(amountText, out var parsedAmount)
-			? Math.Max(0.0, parsedAmount)
-			: 0.1;
+		var amount = 0.1;
+		if (payload.Parameters.TryGetValue("amount", out var amountText) &&
+		    (!TrapParameterValidation.TryParseFiniteDouble(amountText, out amount) || amount <= 0.0))
+		{
+			return;
+		}
+
 		amount *= PayloadQualityMultiplier;
 		var mixture = new LiquidMixture(liquid, amount, Gameworld);
 		target.Body.ExposeToLiquid(mixture,
@@ -1075,7 +1205,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	private void ExecuteGasPayload(ITrapPayload payload, ICharacter? target)
 	{
 		if (!payload.Parameters.TryGetValue("gas", out var gasText) ||
-		    !long.TryParse(gasText, out var gasId))
+		    !TrapParameterValidation.TryParsePositiveLong(gasText, out var gasId))
 		{
 			return;
 		}
@@ -1087,14 +1217,20 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 			return;
 		}
 
-		var duration = payload.Parameters.TryGetValue("duration", out var durationText) &&
-		               TimeSpan.TryParse(durationText, out var parsedDuration) && parsedDuration > TimeSpan.Zero
-			? parsedDuration
-			: TimeSpan.FromSeconds(30);
-		var dose = payload.Parameters.TryGetValue("dose", out var doseText) &&
-		           double.TryParse(doseText, out var parsedDose)
-			? Math.Max(0.0, parsedDose)
-			: gas.DrugGramsPerUnitVolume;
+		var duration = TimeSpan.FromSeconds(30);
+		if (payload.Parameters.TryGetValue("duration", out var durationText) &&
+		    (!TimeSpan.TryParse(durationText, CultureInfo.InvariantCulture, out duration) || duration <= TimeSpan.Zero))
+		{
+			return;
+		}
+
+		var dose = gas.DrugGramsPerUnitVolume;
+		if (payload.Parameters.TryGetValue("dose", out var doseText) &&
+		    (!TrapParameterValidation.TryParseFiniteDouble(doseText, out dose) || dose <= 0.0))
+		{
+			return;
+		}
+
 		dose *= PayloadQualityMultiplier;
 		var echo = payload.Parameters.TryGetValue("cloudecho", out var cloudEcho)
 			? cloudEcho
@@ -1104,10 +1240,13 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 	private void ExecuteRestraintPayload(ITrapPayload payload, ICharacter target)
 	{
-		var duration = payload.Parameters.TryGetValue("duration", out var durationText) &&
-		               TimeSpan.TryParse(durationText, out var parsedDuration) && parsedDuration > TimeSpan.Zero
-			? parsedDuration
-			: TimeSpan.FromSeconds(30);
+		var duration = TimeSpan.FromSeconds(30);
+		if (payload.Parameters.TryGetValue("duration", out var durationText) &&
+		    (!TimeSpan.TryParse(durationText, CultureInfo.InvariantCulture, out duration) || duration <= TimeSpan.Zero))
+		{
+			return;
+		}
+
 		duration *= PayloadQualityMultiplier;
 		var description = payload.Parameters.TryGetValue("description", out var descriptionText)
 			? descriptionText
@@ -1144,7 +1283,11 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 			return;
 		}
 
-		(target.Location ?? Owner.Location)?.HandleRoomEcho(new EmoteOutput(new Emote(echo, target, target)));
+		var emote = new Emote(echo, target, target);
+		if (emote.Valid)
+		{
+			(target.Location ?? Owner.Location)?.HandleRoomEcho(new EmoteOutput(emote));
+		}
 	}
 
 	private static Difficulty ParseDifficulty(IReadOnlyDictionary<string, string> parameters, string parameterName,
@@ -1259,6 +1402,20 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 	private double PayloadQualityMultiplier => Math.Clamp(1.0 + QualityStageScore(TrapComponentRole.Payload) * 0.05,
 		0.5, 1.5);
+
+	private double PayloadQuality
+	{
+		get
+		{
+			var weighted = _components
+				.Where(x => x.Role.HasFlag(TrapComponentRole.Payload) && x.Item is not null && x.QualityWeight > 0.0)
+				.Select(x => (Quality: (double)(int)x.Item!.Quality, x.QualityWeight))
+				.ToList();
+			return weighted.Count == 0
+				? (int)ItemQuality.Standard
+				: weighted.Sum(x => x.Quality * x.QualityWeight) / weighted.Sum(x => x.QualityWeight);
+		}
+	}
 
 	private void ReserveComponents()
 	{
@@ -1462,13 +1619,14 @@ public sealed class TrapPayloadScheduleEffect : Effect
 	}
 
 	public TrapPayloadScheduleEffect(IPerceivable owner, Guid trapInstanceId, long templateId, int templateRevision,
-		long creatorId, int payloadIndex, long targetCharacterId)
+		long creatorId, SpellPower power, int payloadIndex, long targetCharacterId)
 		: base(owner)
 	{
 		TrapInstanceId = trapInstanceId;
 		TemplateId = templateId;
 		TemplateRevision = templateRevision;
 		CreatorId = creatorId;
+		Power = power;
 		PayloadIndex = payloadIndex;
 		TargetCharacterId = targetCharacterId;
 	}
@@ -1481,6 +1639,10 @@ public sealed class TrapPayloadScheduleEffect : Effect
 		TemplateId = long.Parse(effect.Element("TemplateId")?.Value ?? "0");
 		TemplateRevision = int.Parse(effect.Element("TemplateRevision")?.Value ?? "0");
 		CreatorId = long.Parse(effect.Element("CreatorId")?.Value ?? "0");
+		Power = TrapParameterValidation.TryParseDefinedEnum<SpellPower>(effect.Element("Power")?.Value ?? string.Empty,
+			out var power)
+			? power
+			: SpellPower.Standard;
 		PayloadIndex = int.Parse(effect.Element("PayloadIndex")!.Value);
 		TargetCharacterId = long.Parse(effect.Element("TargetCharacterId")!.Value);
 	}
@@ -1489,6 +1651,7 @@ public sealed class TrapPayloadScheduleEffect : Effect
 	public long TemplateId { get; }
 	public int TemplateRevision { get; }
 	public long CreatorId { get; }
+	public SpellPower Power { get; }
 	public int PayloadIndex { get; }
 	public long TargetCharacterId { get; }
 	public override bool SavingEffect => true;
@@ -1501,6 +1664,7 @@ public sealed class TrapPayloadScheduleEffect : Effect
 			new XElement("TemplateId", TemplateId),
 			new XElement("TemplateRevision", TemplateRevision),
 			new XElement("CreatorId", CreatorId),
+			new XElement("Power", Power),
 			new XElement("PayloadIndex", PayloadIndex),
 			new XElement("TargetCharacterId", TargetCharacterId));
 	}
@@ -1516,7 +1680,7 @@ public sealed class TrapPayloadScheduleEffect : Effect
 			var template = Gameworld.TrapTemplates.Get(TemplateId, TemplateRevision);
 			if (template is not null)
 			{
-				trap = new TrapEffect(Owner, template, TrapInstanceId, CreatorId);
+				trap = new TrapEffect(Owner, template, TrapInstanceId, CreatorId, Power);
 			}
 		}
 

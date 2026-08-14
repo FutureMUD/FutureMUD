@@ -216,7 +216,7 @@ public sealed class TrapSeeder : IDatabaseSeeder
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Safe,
 				Trigger(TrapTriggerType.ExitTraversal),
 				[Component(tags["Tripwire Trigger"], TrapComponentRole.Trigger, 85.0), Component(tags["Signal Trap Payload"], TrapComponentRole.Payload, 95.0)],
-				Payload(TrapPayloadType.EmitSignal, ("targetitem", "0"), ("value", "1"))));
+				Payload(TrapPayloadType.EmitSignal, ("value", "1"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Tripwire Explosive",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Risky,
 				Trigger(TrapTriggerType.ExitTraversal),
@@ -226,7 +226,7 @@ public sealed class TrapSeeder : IDatabaseSeeder
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Risky,
 				Trigger(TrapTriggerType.CellEntry),
 				[Component(tags["Pressure Trap Mechanism"], TrapComponentRole.TriggerAndPayload, 70.0)],
-				Payload(TrapPayloadType.DirectDamage, ("damage", "8"), ("damagetype", "Crushing"))));
+				Payload(TrapPayloadType.DirectDamage, ("damage", "8 * quality / 5"), ("pain", "6 * quality / 5"), ("stun", "4 * quality / 5"), ("damagetype", "Crushing"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Trapped Chest Liquid Splash",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Safe,
 				Trigger(TrapTriggerType.Openable),
@@ -236,12 +236,12 @@ public sealed class TrapSeeder : IDatabaseSeeder
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Risky,
 				Trigger(TrapTriggerType.Openable),
 				[Component(tags["Needle Trap Mechanism"], TrapComponentRole.TriggerAndPayload, 65.0)],
-				Payload(TrapPayloadType.DirectDamage, ("damage", "3"), ("damagetype", "Piercing"))));
+				Payload(TrapPayloadType.DirectDamage, ("damage", "3 * quality / 5"), ("pain", "2 * quality / 5"), ("stun", "quality / 5"), ("damagetype", "Piercing"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Bear Trap",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Risky,
 				Trigger(TrapTriggerType.Proximity),
 				[Component(tags["Bear Trap Mechanism"], TrapComponentRole.TriggerAndPayload, 80.0)],
-				Payload(TrapPayloadType.DirectDamage, ("damage", "10"), ("damagetype", "Piercing")),
+				Payload(TrapPayloadType.DirectDamage, ("damage", "10 * quality / 5"), ("pain", "8 * quality / 5"), ("stun", "4 * quality / 5"), ("damagetype", "Piercing")),
 				Payload(TrapPayloadType.Restraint, ("duration", "00:00:30"), ("description", "caught in a bear trap"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Spider Web",
 			Definition(TrapSourceKind.Natural, TrapDisarmPolicy.Safe,
@@ -254,7 +254,13 @@ public sealed class TrapSeeder : IDatabaseSeeder
 				[],
 				spellId > 0
 					? Payload(TrapPayloadType.CastSpell, ("spell", spellId.ToString()), ("power", "Standard"))
-					: Payload(TrapPayloadType.DirectDamage, ("damage", "5"), ("damagetype", "Electrical"))));
+					: Payload(TrapPayloadType.DirectDamage, ("damage", "power"), ("pain", "power * 1.5"), ("stun", "power / 2"), ("damagetype", "Electrical"))));
+		EnsureTemplate(context, ref nextId, accountId, now, "Magical Explosion Glyph",
+			Definition(TrapSourceKind.Magical, TrapDisarmPolicy.Dispellable,
+				Trigger(TrapTriggerType.CellEntry),
+				[],
+				Payload(TrapPayloadType.ExplosiveDamage, ("damage", "power * 2"), ("pain", "damage"), ("stun", "power"),
+					("damagetype", "Shockwave"), ("explosionsize", "Normal"), ("maximumproximity", "Proximate"), ("elevation", "0"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Gas Release",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Safe,
 				Trigger(TrapTriggerType.Openable),

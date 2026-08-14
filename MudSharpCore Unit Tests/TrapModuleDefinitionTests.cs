@@ -2,6 +2,8 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Body;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
@@ -93,13 +95,15 @@ public class TrapModuleDefinitionTests
 		template.SetupGet(x => x.RevisionNumber).Returns(4);
 		template.SetupGet(x => x.Charges).Returns(1);
 
-		var trap = new TrapEffect(cell.Object, template.Object, null, cellExit.Object);
+		var trap = new TrapEffect(cell.Object, template.Object, null, cellExit.Object, power: SpellPower.Strong);
 		var xml = trap.SaveToXml(new Dictionary<IEffect, TimeSpan>());
 
 		Assert.AreEqual(200L, trap.BoundExitId);
 		Assert.AreEqual(100L, trap.BoundExitOriginId);
+		Assert.AreEqual(SpellPower.Strong, trap.Power);
 		Assert.AreEqual("200", xml.Descendants("BoundExitId").Single().Value);
 		Assert.AreEqual("100", xml.Descendants("BoundExitOriginId").Single().Value);
+		Assert.AreEqual("Strong", xml.Descendants("Power").Single().Value);
 	}
 
 	[TestMethod]
@@ -122,17 +126,58 @@ public class TrapModuleDefinitionTests
 	}
 
 	[TestMethod]
+	public void MalformedTrapDefinitions_PreserveValuesAndFailClosed()
+	{
+		var malformedTrigger = TrapTriggerDefinition.LoadFromXml(
+			XElement.Parse("<Trigger type=\"Openable\"><Parameter name=\"chance\">101</Parameter></Trigger>"));
+		Assert.AreEqual("101", malformedTrigger.Parameters["chance"]);
+		Assert.IsFalse(TrapTriggerDefinition.TryValidateParameters(malformedTrigger.TriggerType,
+			malformedTrigger.Parameters, out _));
+
+		var malformedPayload = TrapPayloadDefinition.LoadFromXml(
+			XElement.Parse("<Payload type=\"DirectDamage\" delay=\"not-a-timespan\" target=\"NotASelector\"><Parameter name=\"damage\">traitbonus</Parameter></Payload>"));
+		Assert.AreEqual("traitbonus", malformedPayload.Parameters["damage"]);
+		Assert.IsTrue(malformedPayload.Delay < TimeSpan.Zero);
+		Assert.IsFalse(Enum.IsDefined(malformedPayload.TargetSelector));
+		Assert.IsFalse(TrapPayloadDefinition.TryValidateParameters(malformedPayload.PayloadType,
+			malformedPayload.Parameters, out _));
+
+		Assert.IsFalse(TrapTriggerDefinition.TryValidateParameters((TrapTriggerType)999,
+			new Dictionary<string, string>(), out _));
+		Assert.IsFalse(TrapPayloadDefinition.TryValidateParameters((TrapPayloadType)999,
+			new Dictionary<string, string>(), out _));
+		Assert.IsFalse(new TrapPayloadDefinition((TrapPayloadType)999).CompatibleSourceKinds.Any());
+	}
+
+	[TestMethod]
 	public void PayloadDefinitions_AdvertiseOnlySupportedParametersWithGuidance()
 	{
 		var damageParameters = TrapPayloadDefinition.ParametersFor(TrapPayloadType.DirectDamage)
 			.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 		CollectionAssert.AreEquivalent(
-			new[] { "echo", "damage", "damagetype" },
+			new[] { "echo", "damage", "pain", "stun", "damagetype" },
 			damageParameters.Keys.ToList());
 		Assert.AreEqual("required", damageParameters["damage"].DefaultValue);
+		Assert.AreEqual("<expression>", damageParameters["damage"].Syntax);
+		Assert.AreEqual("damage", damageParameters["pain"].DefaultValue);
+		Assert.AreEqual("damage", damageParameters["stun"].DefaultValue);
+		Assert.AreEqual("<damage type|none>", damageParameters["damagetype"].Syntax);
+		StringAssert.Contains(damageParameters["damage"].Description, "quality");
+		StringAssert.Contains(damageParameters["pain"].Description, "damage");
 		StringAssert.Contains(damageParameters["damagetype"].Description, "damage type");
 		Assert.IsTrue(TrapPayloadDefinition.IsSupportedParameter(TrapPayloadType.DirectDamage, "damage"));
 		Assert.IsFalse(TrapPayloadDefinition.IsSupportedParameter(TrapPayloadType.DirectDamage, "liquid"));
+
+		var explosiveParameters = TrapPayloadDefinition.ParametersFor(TrapPayloadType.ExplosiveDamage)
+			.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+		CollectionAssert.AreEquivalent(
+			new[] { "echo", "damage", "pain", "stun", "damagetype", "explosionsize", "maximumproximity", "elevation" },
+			explosiveParameters.Keys.ToList());
+		Assert.AreEqual("Shockwave", explosiveParameters["damagetype"].DefaultValue);
+		Assert.AreEqual("Normal", explosiveParameters["explosionsize"].DefaultValue);
+		Assert.AreEqual("Proximate", explosiveParameters["maximumproximity"].DefaultValue);
+		Assert.AreEqual("0", explosiveParameters["elevation"].DefaultValue);
+		StringAssert.Contains(explosiveParameters["elevation"].Description, "height");
 
 		var gasParameters = TrapPayloadDefinition.ParametersFor(TrapPayloadType.GasCloud)
 			.Select(x => x.Name)
@@ -140,6 +185,226 @@ public class TrapModuleDefinitionTests
 		CollectionAssert.IsSubsetOf(
 			new[] { "echo", "gas", "dose", "duration", "cloudecho" },
 			gasParameters.ToList());
+	}
+
+	[TestMethod]
+	public void TrapParameterValidation_RejectsInvalidValuesForEveryTypedParameter()
+	{
+		var invalidTriggerParameters = new[]
+		{
+			(Type: TrapTriggerType.Openable, Name: "chance", Value: "101"),
+			(Type: TrapTriggerType.Openable, Name: "spotdifficulty", Value: "not-a-difficulty"),
+			(Type: TrapTriggerType.Openable, Name: "avoiddifficulty", Value: "not-a-difficulty"),
+			(Type: TrapTriggerType.Openable, Name: "filterprog", Value: "0"),
+			(Type: TrapTriggerType.Openable, Name: "triggerecho", Value: " "),
+			(Type: TrapTriggerType.ExitTraversal, Name: "movementtypes", Value: "Teleporting"),
+			(Type: TrapTriggerType.ExitTraversal, Name: "minimumsize", Value: "Colossal"),
+			(Type: TrapTriggerType.ExitTraversal, Name: "maximumsize", Value: "Colossal"),
+			(Type: TrapTriggerType.Proximity, Name: "maximumproximity", Value: "Adjacent"),
+			(Type: TrapTriggerType.Signal, Name: "minimumvalue", Value: "NaN"),
+			(Type: TrapTriggerType.Signal, Name: "maximumvalue", Value: "Infinity")
+		};
+		foreach (var parameter in invalidTriggerParameters)
+		{
+			Assert.IsFalse(TrapTriggerDefinition.TryValidateParameter(parameter.Type, parameter.Name, parameter.Value, out _),
+				$"{parameter.Type} {parameter.Name} accepted {parameter.Value}.");
+		}
+
+		var invalidPayloadParameters = new[]
+		{
+			(Type: TrapPayloadType.DirectDamage, Name: "echo", Value: " "),
+			(Type: TrapPayloadType.CastSpell, Name: "spell", Value: "0"),
+			(Type: TrapPayloadType.CastSpell, Name: "power", Value: "Impossible"),
+			(Type: TrapPayloadType.EmitSignal, Name: "targetitem", Value: "0"),
+			(Type: TrapPayloadType.EmitSignal, Name: "value", Value: "NaN"),
+			(Type: TrapPayloadType.ExecuteProg, Name: "prog", Value: "0"),
+			(Type: TrapPayloadType.DirectDamage, Name: "damage", Value: "traitbonus + 1"),
+			(Type: TrapPayloadType.DirectDamage, Name: "damage", Value: "-1"),
+			(Type: TrapPayloadType.DirectDamage, Name: "pain", Value: "damage - 1"),
+			(Type: TrapPayloadType.DirectDamage, Name: "damagetype", Value: "Disintegration"),
+			(Type: TrapPayloadType.ExplosiveDamage, Name: "explosionsize", Value: "Unreal"),
+			(Type: TrapPayloadType.ExplosiveDamage, Name: "maximumproximity", Value: "Unapproximable"),
+			(Type: TrapPayloadType.ExplosiveDamage, Name: "elevation", Value: "NaN"),
+			(Type: TrapPayloadType.LiquidDischarge, Name: "liquid", Value: "0"),
+			(Type: TrapPayloadType.LiquidDischarge, Name: "amount", Value: "-0.1"),
+			(Type: TrapPayloadType.GasCloud, Name: "gas", Value: "0"),
+			(Type: TrapPayloadType.GasCloud, Name: "dose", Value: "0"),
+			(Type: TrapPayloadType.GasCloud, Name: "duration", Value: "-00:00:01"),
+			(Type: TrapPayloadType.GasCloud, Name: "cloudecho", Value: " "),
+			(Type: TrapPayloadType.Restraint, Name: "duration", Value: "00:00:00"),
+			(Type: TrapPayloadType.Restraint, Name: "description", Value: " ")
+		};
+		foreach (var parameter in invalidPayloadParameters)
+		{
+			Assert.IsFalse(TrapPayloadDefinition.TryValidateParameter(parameter.Type, parameter.Name, parameter.Value, out _),
+				$"{parameter.Type} {parameter.Name} accepted {parameter.Value}.");
+		}
+	}
+
+	[TestMethod]
+	public void TrapParameterValidation_RejectsInvalidRangesAndRestoresOptionalDefaults()
+	{
+		Assert.IsFalse(TrapTriggerDefinition.TryValidateParameters(TrapTriggerType.Signal,
+			new Dictionary<string, string>
+			{
+				["minimumvalue"] = "2",
+				["maximumvalue"] = "1"
+			}, out var signalError));
+		StringAssert.Contains(signalError, "minimumvalue");
+
+		Assert.IsFalse(TrapTriggerDefinition.TryValidateParameters(TrapTriggerType.ExitTraversal,
+			new Dictionary<string, string>
+			{
+				["minimumsize"] = "Large",
+				["maximumsize"] = "Small"
+			}, out var sizeError));
+		StringAssert.Contains(sizeError, "minimumsize");
+
+		Assert.IsFalse(TrapPayloadDefinition.TryValidateParameters(TrapPayloadType.DirectDamage,
+			new Dictionary<string, string> { ["damagetype"] = "999" }, out var damageError));
+		StringAssert.Contains(damageError, "damagetype");
+
+		var payload = new TrapPayloadDefinition(TrapPayloadType.DirectDamage);
+		payload.SetParameter("echo", "A sharp crack sounds.");
+		payload.SetParameter("echo", "none");
+		Assert.IsFalse(payload.Parameters.ContainsKey("echo"));
+		Assert.IsTrue(payload.SetParameter("damage", "1d40 + quality"));
+		Assert.AreEqual("1d40 + quality", payload.Parameters["damage"]);
+		Assert.IsTrue(payload.SetParameter("pain", "damage + power"));
+		Assert.AreEqual("damage + power", payload.Parameters["pain"]);
+		Assert.IsFalse(payload.SetParameter("stun", "damage / 0"));
+		Assert.IsFalse(payload.Parameters.ContainsKey("stun"));
+
+		Assert.IsTrue(TrapParameterValidation.TryEvaluateDamageExpression("damage + quality + power", 7.0,
+			SpellPower.Strong, 3.0, out var evaluated, out _));
+		Assert.AreEqual(16.0, evaluated);
+	}
+
+	[TestMethod]
+	public void DirectDamagePayload_EvaluatesDamagePainAndStunFormulasAtResolution()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var owner = new Mock<ICell>();
+		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var template = new Mock<ITrapTemplate>();
+		template.SetupGet(x => x.Id).Returns(300L);
+		template.SetupGet(x => x.RevisionNumber).Returns(4);
+		template.SetupGet(x => x.Charges).Returns(1);
+		var templates = new RevisableAll<ITrapTemplate>();
+		templates.Add(template.Object);
+		gameworld.SetupGet(x => x.TrapTemplates).Returns(templates);
+		var bodypart = new Mock<IBodypart>();
+		var body = new Mock<IBody>();
+		body.SetupGet(x => x.RandomBodypart).Returns(bodypart.Object);
+		var target = new Mock<ICharacter>();
+		target.SetupGet(x => x.Body).Returns(body.Object);
+		target.Setup(x => x.SufferDamage(It.IsAny<IDamage>()))
+			.Returns(Enumerable.Empty<IWound>());
+		var payload = new TrapPayloadDefinition(TrapPayloadType.DirectDamage);
+		Assert.IsTrue(payload.SetParameter("damage", "quality + power"));
+		Assert.IsTrue(payload.SetParameter("pain", "damage + 2"));
+		Assert.IsTrue(payload.SetParameter("stun", "power"));
+
+		var trap = new TrapEffect(owner.Object, template.Object, power: SpellPower.Strong);
+		typeof(TrapEffect).GetMethod("ExecuteDamagePayload", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(trap, [payload, target.Object]);
+
+		target.Verify(x => x.SufferDamage(It.Is<IDamage>(damage =>
+			damage.DamageAmount == 11.0 && damage.PainAmount == 13.0 && damage.StunAmount == 6.0)), Times.Once);
+	}
+
+	[TestMethod]
+	public void InvalidPayloadTargetSelector_FailsClosedAtRuntime()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var owner = new Mock<ICell>();
+		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var template = new Mock<ITrapTemplate>();
+		template.SetupGet(x => x.Id).Returns(300L);
+		template.SetupGet(x => x.RevisionNumber).Returns(4);
+		template.SetupGet(x => x.Charges).Returns(1);
+		var templates = new RevisableAll<ITrapTemplate>();
+		templates.Add(template.Object);
+		gameworld.SetupGet(x => x.TrapTemplates).Returns(templates);
+		var target = new Mock<ICharacter>();
+		target.Setup(x => x.SufferDamage(It.IsAny<IDamage>())).Returns(Enumerable.Empty<IWound>());
+		var payload = new TrapPayloadDefinition(TrapPayloadType.DirectDamage);
+		Assert.IsTrue(payload.SetParameter("damage", "1"));
+		payload.SetTargetSelector((TrapTargetSelector)(-1));
+
+		var trap = new TrapEffect(owner.Object, template.Object);
+		typeof(TrapEffect).GetMethod("ExecutePayload", BindingFlags.Instance | BindingFlags.NonPublic, null,
+			[typeof(ITrapPayload), typeof(ICharacter)], null)!
+			.Invoke(trap, [payload, target.Object]);
+
+		target.Verify(x => x.SufferDamage(It.IsAny<IDamage>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void InvalidManualTrigger_FailsClosedBeforeConsumingACharge()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var owner = new Mock<ICell>();
+		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var invalidManualTrigger = TrapTriggerDefinition.LoadFromXml(
+			XElement.Parse("<Trigger type=\"Manual\"><Parameter name=\"chance\">101</Parameter></Trigger>"));
+		var template = new Mock<ITrapTemplate>();
+		template.SetupGet(x => x.Id).Returns(300L);
+		template.SetupGet(x => x.RevisionNumber).Returns(4);
+		template.SetupGet(x => x.Charges).Returns(1);
+		template.SetupGet(x => x.Triggers).Returns(new ITrapTrigger[] { invalidManualTrigger });
+		template.SetupGet(x => x.Payloads).Returns(Array.Empty<ITrapPayload>());
+		var templates = new RevisableAll<ITrapTemplate>();
+		templates.Add(template.Object);
+		gameworld.SetupGet(x => x.TrapTemplates).Returns(templates);
+
+		var trap = new TrapEffect(owner.Object, template.Object);
+
+		Assert.IsFalse(trap.TriggerManually());
+		Assert.AreEqual(TrapState.Armed, trap.State);
+		Assert.AreEqual(1, trap.ChargesRemaining);
+	}
+
+	[TestMethod]
+	public void ExplosiveDamagePayload_UsesStandardExplosionHandlingWithConfiguredPacket()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var owner = new Mock<ICell>();
+		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		IExplosiveDamage? resolvedExplosion = null;
+		owner.Setup(x => x.ExplosionEmantingFromPerceivable(It.IsAny<IExplosiveDamage>()))
+			.Callback<IExplosiveDamage>(explosion => resolvedExplosion = explosion)
+			.Returns(Enumerable.Empty<IWound>());
+		var template = new Mock<ITrapTemplate>();
+		template.SetupGet(x => x.Id).Returns(300L);
+		template.SetupGet(x => x.RevisionNumber).Returns(4);
+		template.SetupGet(x => x.Charges).Returns(1);
+		var templates = new RevisableAll<ITrapTemplate>();
+		templates.Add(template.Object);
+		gameworld.SetupGet(x => x.TrapTemplates).Returns(templates);
+		var payload = new TrapPayloadDefinition(TrapPayloadType.ExplosiveDamage);
+		Assert.IsTrue(payload.SetParameter("damage", "quality + power"));
+		Assert.IsTrue(payload.SetParameter("pain", "damage + 2"));
+		Assert.IsTrue(payload.SetParameter("stun", "power"));
+		Assert.IsTrue(payload.SetParameter("damagetype", "Electrical"));
+		Assert.IsTrue(payload.SetParameter("explosionsize", "Large"));
+		Assert.IsTrue(payload.SetParameter("maximumproximity", "Distant"));
+		Assert.IsTrue(payload.SetParameter("elevation", "1.5"));
+
+		var trap = new TrapEffect(owner.Object, template.Object, power: SpellPower.Strong);
+		typeof(TrapEffect).GetMethod("ExecuteExplosiveDamagePayload", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(trap, [payload]);
+
+		owner.Verify(x => x.ExplosionEmantingFromPerceivable(It.IsAny<IExplosiveDamage>()), Times.Once);
+		Assert.IsNotNull(resolvedExplosion);
+		Assert.AreEqual(SizeCategory.Large, resolvedExplosion.ExplosionSize);
+		Assert.AreEqual(Proximity.Distant, resolvedExplosion.MaximumProximity);
+		Assert.AreEqual(1.5, resolvedExplosion.Elevation);
+		var damage = resolvedExplosion.ReferenceDamages.Single();
+		Assert.AreEqual(DamageType.Electrical, damage.DamageType);
+		Assert.AreEqual(11.0, damage.DamageAmount);
+		Assert.AreEqual(13.0, damage.PainAmount);
+		Assert.AreEqual(6.0, damage.StunAmount);
 	}
 
 	[TestMethod]

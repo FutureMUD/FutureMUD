@@ -140,7 +140,7 @@ public sealed class CreateTrapSpellEffect : IMagicSpellEffectTemplate
 			return null;
 		}
 
-		var trap = new TrapEffect(anchor, template, caster, boundExit);
+		var trap = new TrapEffect(anchor, template, caster, boundExit, power: power);
 		if (TrapEffect.HasTimedLifetime(template))
 		{
 			anchor.AddEffect(trap, template.Lifespan!.Value);

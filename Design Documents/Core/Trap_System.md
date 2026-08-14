@@ -69,12 +69,27 @@ Payload parameters are named so template XML remains extensible without schema c
 | CastSpell | spell, optional power | Resolves prepared spell effects using the recorded creator as caster, with duration and target resistance but no second cast action/resource cost; an unavailable creator fails safely |
 | EmitSignal | optional targetitem, optional value | Delivers a ComputerSignal to the explicit item, or to a matched payload component with signal sinks when omitted |
 | ExecuteProg | prog | Calls a matching character or character+anchor FutureProg |
-| DirectDamage | damage, optional damagetype | Applies a normal damage packet to a random target bodypart |
+| DirectDamage | damage, optional pain, optional stun, optional damagetype | Applies a normal damage packet to a random target bodypart |
+| ExplosiveDamage | damage, optional pain, stun, damagetype, explosionsize, maximumproximity, elevation | Creates an outward `IExplosiveDamage` packet at the trap anchor without requiring or deleting an explosive item; every nearby target is resolved by the established explosion handler |
 | LiquidDischarge | liquid, optional amount | Exposes target bodyparts to a LiquidMixture |
 | GasCloud | gas, optional duration, dose, cloudecho | Creates temporary local-layer gas cloud without changing bulk room atmosphere |
 | Restraint | optional duration, description | Applies a timed movement-blocking TrapRestraintEffect |
 
 A payload can target the triggerer, all same-layer anchor occupants, or a snapshot excluding the triggerer. Delayed payloads retain intended target ID rather than dynamically choosing a later bystander.
+
+### Parameter syntax and validation
+
+`traptemplate set trigger <number>` and `traptemplate set payload <number>` list each setting as `name <syntax> = current value`, with the accepted value form and default beside it. Set an optional parameter to `none` to remove its stored value and restore the documented default; `none` is never emitted as literal echo text. Required references must be positive IDs, and the builder verifies that referenced spells, FutureProgs, liquids, gases, and signal-sink items exist and are compatible before it records the change.
+
+Numeric parameters accept finite decimal values only. Chance is 0–100; damage, liquid amount, dose, and configured durations must be positive; signal values may be any finite number. Direct damage is a single positive number (for example, `25`), not a dice expression such as `1d40`. Enum parameters accept only named defined values, and paired signal bounds and exit size bounds cannot be inverted. A malformed legacy definition is rejected at template validation and fails closed at runtime rather than falling through to a harmful default.
+
+#### Direct and Explosive Damage formulas
+
+The generic numeric `damage` rule above applies to payload families that use a scalar damage value; it does not apply to Direct Damage or Explosive Damage.
+
+The Direct and Explosive Damage-specific formula rules supersede the numeric `damage` rule above. `damage` is a required `IExpression`; `pain` and `stun` are separate optional expressions that default to the resolved damage. Formulas may use `quality` (the weighted payload-item quality, with Standard = 5) and `power` (the spell power that created a magical trap, with Standard = 5); pain and stun formulas may additionally use the resolved `damage`. Dice syntax such as `1d40` is supported. The builder checks formula syntax, permitted names, and a finite non-negative evaluation before it accepts the setting, and runtime repeats the guard before applying the resulting damage packet.
+
+Explosive Damage has safe defaults suitable for a magical blast: `damagetype` is `Shockwave`, `explosionsize` is `Normal`, `maximumproximity` is `Proximate`, and `elevation` is `0` metres at the anchor. It uses the outward, local `IExplosiveDamage` path: no explosive item is required or deleted, and no contained-item or inventory branch is used. The target selector is ignored and this payload resolves once per activation; the established explosion handler selects affected body areas and applies its normal proximity and size propagation rules. `Unapproximable` is rejected as a maximum proximity because it cannot affect a local target.
 
 ## Detection, avoidance, and disarming
 
@@ -89,6 +104,8 @@ Disarm policy is Impossible, Safe, Risky, or Dispellable. Risky failure manually
 Mechanical templates require positive setup, disarm (when disarmable), and recovery times before review. `trap lay`, `trap disarm`, and `trap recover` use cancellable general/movement actions for non-administrators and revalidate the anchor and trap state at completion. With no `using` clauses, `trap lay` first matches usable held or wielded parts, then loose parts at the actor's current layer; explicit clauses constrain that choice. Before the trap is installed, an inventory plan validates and moves each matched component to the current location using normal drop rules, then captures its installed spatial position. This includes persistence, reservation, custody/location, drop feasibility, and the ordinary `CanManipulateItem` access decision for every selected physical item. Administrative operations remain immediate. Magical and natural deployment continue to use their spell, AI, or FutureProg action timing rather than the mundane setup timer.
 
 Component quality is averaged by configured quality weight relative to Standard. Each trigger-quality stage changes configured trigger chance by 2.5 percentage points; every two stages change spot and avoidance difficulty by one step. Payload quality scales direct damage, discharged liquid, gas dose, and restraint duration by 5% per stage, clamped to 50-150%; specialised item payloads such as explosives retain their own item implementation as well. Safe dismantling returns every extant component. Dismantling a spent trap rolls each distinct item's base recovery chance plus 5 percentage points per weighted quality stage; failures delete the broken item. Spent traps retain their no-get reservations while any component has a non-zero recovery opportunity. If no recoverable component remains, the effect and any zero-chance remnants are removed automatically after the final delayed payload, preventing persistent clutter.
+
+Direct and Explosive Damage formulas receive the unmodified weighted payload quality value instead, so template authors choose exactly how it affects damage, pain, and stun; magical traps likewise retain the creating spell's power through delayed payload resolution.
 
 ## Commands
 
@@ -109,7 +126,7 @@ arm item recognises an item-anchored trap. disarm item directs players to the sa
 
 Administrators additionally use `trap list` for every active trap in the game, plus trap create, trap debug, trap arm, trap trigger, trap reset, trap reveal, and trap delete. `impdebug cleartraps` deletes every installed trap and its pending trap payload/cooldown effects after an explicit ACCEPT confirmation.
 
-Builders author revisions through traptemplate (aliases `trapt` and `tt`), with list, show, edit, set, and review lifecycle. set domain, set trigger, set payload, set component, set charges, set cooldown, set setuptime, set disarmtime, set recoverytime, set knowprog, set disarm, set lifecycle, and set validate are the first-party builder surface. `component add <trigger|payload|both> <tag> [spent recovery %] [quality weight]` and `component remove <number>` manage physical requirements. `traptemplate set trigger <number>` and `traptemplate set payload <number>` display every supported setting and parameter with its current or default value, valid values, and guidance. Invalid trigger or payload editing syntax returns this contextual help rather than a generic parameter error.
+Builders author revisions through traptemplate (aliases `trapt` and `tt`), with list, show, edit, set, and review lifecycle. set domain, set trigger, set payload, set component, set charges, set cooldown, set setuptime, set disarmtime, set recoverytime, set knowprog, set disarm, set lifecycle, and set validate are the first-party builder surface. `component add <trigger|payload|both> <tag> [spent recovery %] [quality weight]` and `component remove <number>` manage physical requirements. `traptemplate set trigger <number>` and `traptemplate set payload <number>` display every supported setting and parameter with its current/default value, exact syntax, valid values, and guidance. Invalid values are rejected immediately with the relevant syntax help; template review remains a second guard for imported or legacy XML definitions.
 
 ## FutureProg and automation integration
 
@@ -125,7 +142,7 @@ Balance defaults are conservative: one charge, normal deployment difficulty, har
 
 ## Seeder content
 
-The trap seeder supplies a Traps skill; check definitions; a `Functions / Trap Components` tag family; and current template examples: tripwire alarm, tripwire explosive, pressure plate, trapped chest liquid splash, trapped chest needle, bear trap, spider web, magical glyph, and gas release. Every stock mechanical example has tagged trigger and payload requirements, including dual-role pressure, needle, and bear-trap mechanisms. The seeder deliberately provides the reusable tag contract rather than inventing duplicate item prototypes: games apply those tags to their own crafted or seeded wire, mechanisms, explosives, reservoirs, and automation hardware. Signal-trigger parts must additionally implement the existing automation signal-source interface, while signal payload parts without an explicit target must implement a signal sink.
+The trap seeder supplies a Traps skill; check definitions; a `Functions / Trap Components` tag family; and current template examples: tripwire alarm, tripwire explosive, pressure plate, trapped chest liquid splash, trapped chest needle, bear trap, spider web, magical glyph, magical explosion glyph, and gas release. Every stock mechanical example has tagged trigger and payload requirements, including dual-role pressure, needle, and bear-trap mechanisms. The seeder deliberately provides the reusable tag contract rather than inventing duplicate item prototypes: games apply those tags to their own crafted or seeded wire, mechanisms, explosives, reservoirs, and automation hardware. Signal-trigger parts must additionally implement the existing automation signal-source interface, while signal payload parts without an explicit target must implement a signal sink.
 
 These examples are trap templates and reusable tag contracts, not new hard-coded item component types or duplicate physical item prototypes. NPCs create natural traps through a dedicated natural-trap AI/Prog action that deploys a current natural template with its NPC as creator.
 

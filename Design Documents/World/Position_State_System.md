@@ -113,6 +113,8 @@ On a `SwimToLand` transition, the swimmer uses their most upright available land
 - other states use `TransitionOnMovement` if present, otherwise the current state;
 - zero gravity can replace that with `PositionFloatingInZeroGravity`.
 
+Posture-specific limb checks use that effective movement position. In particular, crawling requires at least one usable arm, leg, appendage, or wing whether the character was already prone or starts movement from a state, such as sprawled, that transitions to prone.
+
 `CouldMove` follows similar rules and finds an available `IMoveSpeed` for the moving position. The ordinary fallback path only tries standing, prostrate, prone, and zero-gravity floating. This is why non-legged actors should generally be modeled with appropriate standing/upright move speeds rather than a new "wheeled" or "tracked" posture state.
 
 Movement display text comes primarily from `IMoveSpeed` (`FirstPersonVerb`, `ThirdPersonVerb`, `PresentParticiple`), not from `IPositionState.DescribeLocationMovement3rd`.

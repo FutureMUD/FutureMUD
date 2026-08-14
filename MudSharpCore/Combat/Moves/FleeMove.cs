@@ -259,12 +259,12 @@ public class FleeMove : CombatMoveBase
                     style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 
             Assailant.MeleeRange = false;
-            Assailant.RemoveAllEffects<ClinchEffect>();
+            Assailant.RemoveAllEffects<ClinchEffect>(fireRemovalAction: true);
             foreach (IPerceiver opponent in Assailant.Combat.Combatants.Where(x => x.CombatTarget == Assailant && x.MeleeRange)
                                               .ToList())
             {
                 opponent.MeleeRange = false;
-                opponent.RemoveAllEffects<ClinchEffect>(x => x.Target == Assailant);
+                opponent.RemoveAllEffects<ClinchEffect>(x => x.Target == Assailant, true);
             }
 
 			RouteCombatMovementUtilities.TryRetreatAlongRoute(Assailant, pursuers);

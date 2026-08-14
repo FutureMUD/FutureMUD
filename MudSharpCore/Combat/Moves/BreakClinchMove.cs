@@ -107,8 +107,8 @@ public class BreakClinchMove : CombatMoveBase
                 new EmoteOutput(
                     new Emote($"{attackEmote}{dodgeEmote}".Fullstop(), Assailant, Assailant, CharacterTarget),
                     style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            Assailant.RemoveAllEffects(x => x.GetSubtype<ClinchEffect>()?.Target == CharacterTarget);
-            CharacterTarget.RemoveAllEffects(x => x.GetSubtype<ClinchEffect>()?.Target == Assailant);
+            Assailant.RemoveAllEffects(x => x.GetSubtype<ClinchEffect>()?.Target == CharacterTarget, true);
+            CharacterTarget.RemoveAllEffects(x => x.GetSubtype<ClinchEffect>()?.Target == Assailant, true);
             CharacterTarget.AddEffect(new ClinchCooldown(CharacterTarget, CharacterTarget.Combat),
                 TimeSpan.FromSeconds(30 * CombatBase.CombatSpeedMultiplier));
             return new CombatMoveResult
@@ -149,8 +149,8 @@ public class BreakClinchMove : CombatMoveBase
             new EmoteOutput(
                 new Emote($"{attackEmote}, and $1 $1|are|is unable to stop &0.", Assailant, Assailant,
                     CharacterTarget), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-        Assailant.RemoveAllEffects(x => x.GetSubtype<ClinchEffect>()?.Target == CharacterTarget);
-        CharacterTarget.RemoveAllEffects(x => x.GetSubtype<ClinchEffect>()?.Target == Assailant);
+        Assailant.RemoveAllEffects(x => x.GetSubtype<ClinchEffect>()?.Target == CharacterTarget, true);
+        CharacterTarget.RemoveAllEffects(x => x.GetSubtype<ClinchEffect>()?.Target == Assailant, true);
         CharacterTarget.AddEffect(new ClinchCooldown(CharacterTarget, CharacterTarget.Combat),
             TimeSpan.FromSeconds(30 * CombatBase.CombatSpeedMultiplier));
         return new CombatMoveResult { RecoveryDifficulty = Difficulty.Automatic };

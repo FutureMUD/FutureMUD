@@ -6,6 +6,7 @@ using MudSharp.Events;
 using MudSharp.Framework;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace MudSharp_Unit_Tests;
 
@@ -42,6 +43,10 @@ public class AlertCommandSourceIntegrationTests
 		StringAssert.Contains(source, "actor.CustomDistantAlertEmote = emoteText;");
 		StringAssert.Contains(source, "AlertUtilities.ValidateStoredAlertEmote(emoteText, actor, out var error)");
 		StringAssert.Contains(source, "AlertUtilities.ValidateStoredDistantAlertEmote(emoteText, actor, out var error)");
+		var alertSetStart = source.IndexOf("private static void AlertSet(", StringComparison.Ordinal);
+		var alertSetEnd = source.IndexOf("private static void AlertSetDistant(", alertSetStart, StringComparison.Ordinal);
+		StringAssert.Contains(source[alertSetStart..alertSetEnd],
+			"AlertUtilities.ValidateStoredAlertEmote(emoteText, actor, out var error)");
 	}
 
 	[TestMethod]
@@ -72,6 +77,26 @@ public class AlertCommandSourceIntegrationTests
 		StringAssert.Contains(localError, AlertUtilities.MaximumStoredAlertEmoteLength.ToString("N0"));
 		Assert.IsFalse(AlertUtilities.ValidateStoredDistantAlertEmote(longDistant, perceiver, out var distantError));
 		StringAssert.Contains(distantError, AlertUtilities.MaximumStoredAlertEmoteLength.ToString("N0"));
+	}
+
+	[TestMethod]
+	public void DistantAlertValidator_RejectsAlignmentFormatItems()
+	{
+		var perceiver = new DummyPerceiver();
+
+		Assert.IsFalse(AlertUtilities.ValidateDistantAlertEmote(
+			"A sharp alert can be heard {0}{0,9999}.", perceiver, out var error));
+		StringAssert.Contains(error, "Use only {0}");
+	}
+
+	[TestMethod]
+	public void DistantAlertValidator_RejectsExcessiveFormattedOutput()
+	{
+		var perceiver = new DummyPerceiver();
+		var emoteText = string.Concat(Enumerable.Repeat("{0}", 50));
+
+		Assert.IsFalse(AlertUtilities.ValidateDistantAlertEmote(emoteText, perceiver, out var error));
+		StringAssert.Contains(error, "1,000");
 	}
 
 	[TestMethod]

@@ -1192,7 +1192,7 @@ Your in-room emote uses normal emote syntax. If you omit the #6@#0 token, your s
         }
 
         var emoteText = ss.SafeRemainingArgument;
-        if (!AlertUtilities.ValidateAlertEmote(emoteText, actor, out var error))
+        if (!AlertUtilities.ValidateStoredAlertEmote(emoteText, actor, out var error))
         {
             actor.OutputHandler.Send(error);
             return;
@@ -1567,7 +1567,7 @@ You can use the following syntax with this command:
         foreach (IBoardPost post in boardItem.Board.Posts.OrderBy(x => x.PostTime)
                                        .ThenBy(x => x.Id))
         {
-            sb.AppendLine($"\t{i++.ToString("N0", actor)}) {post.Title.SubstituteANSIColour().ColourIfNotColoured(Telnet.BoldWhite)}");
+            sb.AppendLine($"\t{i++.ToString("N0", actor)}) {post.Title.SubstituteANSIColour().ColourIfNotColoured(Telnet.BoldWhite)}{Telnet.RESET}");
         }
 
         actor.OutputHandler.Send(sb.ToString());

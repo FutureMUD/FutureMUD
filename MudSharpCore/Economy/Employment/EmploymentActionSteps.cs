@@ -3424,6 +3424,12 @@ public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymen
 			return false;
 		}
 
+		if (!context.IsTaskManagedContainer(actor, container))
+		{
+			reason = $"{container.Name} is not under this task's custody and cannot be returned.";
+			return false;
+		}
+
 		if (DestinationContainerSelector is not null && ResolveDestinationContainer(context, actor) is null)
 		{
 			reason = $"There is no destination container matching {EmploymentItemSelectorResolver.Describe(DestinationContainerSelector)}.";
@@ -3440,6 +3446,17 @@ public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymen
 		if (container is null)
 		{
 			return EmploymentActionStepResult.Blocked("The return container is not available.");
+		}
+
+		if (container.GetItemType<IContainer>() is null)
+		{
+			return EmploymentActionStepResult.Blocked($"{container.Name} is not a container.");
+		}
+
+		if (!context.IsTaskManagedContainer(actor, container))
+		{
+			return EmploymentActionStepResult.Blocked(
+				$"{container.Name} is not under this task's custody and cannot be returned.");
 		}
 
 		if (!ActorCarriesTaskItem(context, actor, container))

@@ -387,6 +387,7 @@ Current unified-employment operating notes:
 
 - `employment <host type> <id|name> ...` is the explicit command surface; `employment clan <clan> ...` resolves by clan id, name, full name, or alias. Local host aliases such as `shop tasks ...`, `stable tasks ...`, `bank tasks ...`, `auction tasks ...`, `arena tasks ...`, and `roomrent tasks ...` resolve the current local host as shorthand.
 - `tasks actions [all|category|action]` and `tasks conditions [all|category|condition]` are the canonical discovery surfaces for action and scheduled-rule syntax.
+- `return container` only operates on a real container already carried in task custody or previously registered by that task's load workflow. A reachable container in an assigned work location is not automatically eligible for return.
 - scheduled rules are AND-composed in this slice; OR expressions, reusable named predicates, and grouped expressions remain future work.
 - host staff boards are communication only. Scheduled rules, active tasks, and manager goals live on employment-host services and do not propagate through board posts.
 - hotels have durable root `Hotel` rows for employment ownership and finance, and hotel room/rental/furnishing/lost-property state is normalized into hotel-specific EF tables; hospitals have durable root `Hospital` rows plus service, request, room-role, and debt-account tables.

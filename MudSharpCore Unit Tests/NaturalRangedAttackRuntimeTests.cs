@@ -10,6 +10,7 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Health;
+using MudSharp.PerceptionEngine;
 using System;
 using System.Linq;
 using System.Xml.Linq;
@@ -162,6 +163,33 @@ public class NaturalRangedAttackRuntimeTests
 		var profile = new FireProfile(root, gameworld.Object);
 
 		Assert.AreEqual(TimeSpan.FromSeconds(0.1), profile.TickFrequency);
+	}
+
+	[TestMethod]
+	public void FireProfile_BuilderRejectsIntervalBelowSchedulerMinimum()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var actor = new Mock<ICharacter>();
+		var output = new Mock<IOutputHandler>();
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		var profile = new FireProfile(gameworld.Object);
+
+		var changed = profile.BuildingCommand(actor.Object, new StringStack("interval 00:00:00.0000001"));
+
+		Assert.IsFalse(changed);
+		Assert.AreEqual(TimeSpan.FromSeconds(10), profile.TickFrequency);
+		output.Verify(x => x.Send(It.Is<string>(message => message.Contains("at least")),
+			It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void OnFire_SchedulerClampsNonBuilderProfilesToMinimumInterval()
+	{
+		var profile = new Mock<IFireProfile>();
+		profile.SetupGet(x => x.TickFrequency).Returns(TimeSpan.FromTicks(1));
+
+		Assert.AreEqual(FireProfile.MinimumTickFrequency,
+			MudSharp.Effects.Concrete.OnFire.SafeTickFrequency(profile.Object));
 	}
 
 	[TestMethod]

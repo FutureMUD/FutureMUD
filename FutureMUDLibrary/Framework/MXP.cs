@@ -106,8 +106,29 @@ namespace MudSharp.Framework
             {
                 sendtext = input;
             }
-            return input.FluentTagMXP("send", $"href='{sendtext.SanitiseMXP(null)}' hint='{hinttext?.SanitiseMXP(null) ?? $"Send the text {sendtext.SanitiseMXP(null)} to the MUD"}'");
+
+			var safeSendText = sendtext.SanitiseMXPAttribute();
+			var safeHintText = (hinttext ?? $"Send the text {sendtext} to the MUD").SanitiseMXPAttribute();
+			return input.FluentTagMXP("send", $"href='{safeSendText}' hint='{safeHintText}'");
         }
+
+		/// <summary>
+		/// Escapes untrusted text for use inside a quoted MXP attribute value. The control-character ampersand
+		/// placeholder preserves entities through the final output sanitisation pass.
+		/// </summary>
+		public static string SanitiseMXPAttribute(this string input)
+		{
+			return (input ?? string.Empty)
+				.Replace(BeginMXP, string.Empty)
+				.Replace(EndMXP, string.Empty)
+				.Replace(AmpersandMXP, string.Empty)
+				.Replace(QuoteMXP, string.Empty)
+				.Replace("&", $"{AmpersandMXP}amp;")
+				.Replace("\"", $"{AmpersandMXP}quot;")
+				.Replace("'", $"{AmpersandMXP}apos;")
+				.Replace("<", $"{AmpersandMXP}lt;")
+				.Replace(">", $"{AmpersandMXP}gt;");
+		}
 
         /// <summary>
         ///     Creates a standalone MXP tag

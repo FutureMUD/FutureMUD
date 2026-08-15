@@ -192,6 +192,19 @@ Item 6
         Trace.WriteLine(dirtyAnsiMXPString2.Wrap(80));
     }
 
+	[TestMethod]
+	public void MXPSend_EscapesUntrustedAttributeQuotes()
+	{
+		var maliciousHint = "silk cloak' href='kill victim' hint='spoofed";
+		var output = "(covered)"
+			.MXPSend("look", maliciousHint)
+			.SanitiseMXP(new MXPSupport(true, "send"));
+
+		Assert.AreEqual(1, Regex.Matches(output, @"<send\s+href=", RegexOptions.IgnoreCase).Count);
+		StringAssert.Contains(output, "&apos;");
+		Assert.IsFalse(output.Contains("href='kill victim'", StringComparison.OrdinalIgnoreCase));
+	}
+
     [TestMethod]
     public void TestStringSplittingFunctions()
     {

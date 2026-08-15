@@ -5192,6 +5192,46 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void ReturnAssetActionStep_RejectsContainerOutsideTaskCustody()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var source = Cell(47, "stock room").Object;
+		var destination = Cell(48, "loading bay").Object;
+		var container = ContainerItem(470, "unrelated trunk", [source], [], []).Object;
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(source, [container]);
+		var step = new ReturnAssetActionStep(container, null, destination);
+
+		Assert.IsFalse(step.CanExecute(context, manager, out var reason));
+		StringAssert.Contains(reason, "not under this task's custody");
+	}
+
+	[TestMethod]
+	public void ReturnAssetActionStep_AcceptsContainerUsedByTaskLoad()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var source = Cell(49, "stock room").Object;
+		var destination = Cell(50, "loading bay").Object;
+		var stock = Item(490, "stock bundle").Object;
+		var container = ContainerItem(491, "task crate", [source], [], []).Object;
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(source, [stock, container]);
+		Assert.IsTrue(context.TryCollectTaskItem(manager, stock, source, out var collectReason), collectReason);
+		Assert.IsTrue(context.TryLoadCarriedTaskItems(manager, container, out var loadReason, out _), loadReason);
+		var step = new ReturnAssetActionStep(container, null, destination);
+
+		Assert.IsTrue(step.CanExecute(context, manager, out var reason), reason);
+	}
+
+	[TestMethod]
 	public void TaskBoard_CreateActiveTaskRequiresActionPlanAuthority()
 	{
 		var currency = Currency();

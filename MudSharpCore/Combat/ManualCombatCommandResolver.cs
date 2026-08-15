@@ -138,6 +138,12 @@ public static class ManualCombatCommandResolver
 			return ManualCombatMoveResolution.Failed("That manual combat command does not have a weapon attack configured.");
 		}
 
+		if (!NaturalAttack.IsValidTarget(attack, target))
+		{
+			return ManualCombatMoveResolution.Failed(
+				"That aquatic attack can only target a combatant aboard a vehicle with an intact exterior.");
+		}
+
 		var possibleWeaponAttacks = WeaponSourcesInPreferenceOrder(actor)
 		                            .SelectMany(x => x.Weapon.WeaponType
 		                                             .UsableAttacks(actor, x.Weapon.Parent, target,

@@ -617,8 +617,8 @@ namespace MudSharp.Body
                                 x =>
                                     (x.Item1 == WearableItemCoverStatus.Covered) ||
                                     (x.Item1 == WearableItemCoverStatus.TransparentlyCovered))
-                                ? "(covered)".FluentTagMXP("send", $"href='look' hint='{coveritems}'")
-                                : "(partially covered)".FluentTagMXP("send", $"href='look' hint='{coveritems}'"));
+								? "(covered)".MXPSend("look", coveritems)
+								: "(partially covered)".MXPSend("look", coveritems));
                     }
 
                     continue;
@@ -665,8 +665,8 @@ namespace MudSharp.Body
                             x =>
                                 (x.Item1 == WearableItemCoverStatus.Covered) ||
                                 (x.Item1 == WearableItemCoverStatus.TransparentlyCovered))
-                            ? "(covered)".FluentTagMXP("send", $"href='look' hint='{coveritems}'")
-                            : "(partially covered)".FluentTagMXP("send", $"href='look' hint='{coveritems}'"));
+							? "(covered)".MXPSend("look", coveritems)
+							: "(partially covered)".MXPSend("look", coveritems));
                 }
             }
 

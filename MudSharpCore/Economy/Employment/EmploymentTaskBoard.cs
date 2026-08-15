@@ -39,6 +39,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	private readonly Dictionary<long, HashSet<long>> _contextManagedCarriedTaskItemIds = new();
 	private readonly Dictionary<long, List<IGameItem>> _containerContents = new();
 	private readonly Dictionary<long, HashSet<long>> _loadedTaskItemIds = new();
+	private readonly HashSet<long> _taskManagedContainerIds = new();
 	private readonly Dictionary<long, HashSet<string>> _itemTags = new();
 	private readonly List<CommodityProfile> _commodityProfiles = new();
 	private readonly HashSet<long> _transportBundleIds = new();
@@ -244,6 +245,12 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	public IReadOnlyCollection<IGameItem> LoadedTaskItems(ICharacter actor, IGameItem container)
 	{
 		return ResolveLoadedTaskItems(actor, container).DistinctBy(x => x.Id).ToList();
+	}
+
+	public bool IsTaskManagedContainer(ICharacter actor, IGameItem container)
+	{
+		return _taskManagedContainerIds.Contains(container.Id) ||
+		       CarriedTaskItems(actor).Any(x => x.Id == container.Id);
 	}
 
 	public bool CanAssignVehicle(ICharacter actor, IVehicle vehicle, out string reason)
@@ -1029,6 +1036,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 				LoadedAssets: FormatLoadedAssets("return", targetContainer?.Id ?? destination.Id, placedItems),
 				SelectedResources: $"Returned container {container.Id} to {(targetContainer is null ? $"cell {destination.Id}" : $"container {targetContainer.Id}")}");
 			reason = string.Empty;
+			_taskManagedContainerIds.Remove(container.Id);
 			return true;
 		}
 
@@ -1065,6 +1073,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			LoadedAssets: FormatLoadedAssets("return", targetContainer?.Id ?? destination.Id, [container]),
 			SelectedResources: $"Returned container {container.Id} to {(targetContainer is null ? $"cell {destination.Id}" : $"container {targetContainer.Id}")}");
 		reason = string.Empty;
+		_taskManagedContainerIds.Remove(container.Id);
 		return true;
 	}
 
@@ -1284,6 +1293,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 	private void MarkLoadedTaskItems(IGameItem container, IEnumerable<IGameItem> items)
 	{
+		_taskManagedContainerIds.Add(container.Id);
 		if (!_loadedTaskItemIds.TryGetValue(container.Id, out var loadedIds))
 		{
 			loadedIds = new HashSet<long>();

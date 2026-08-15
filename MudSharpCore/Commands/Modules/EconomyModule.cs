@@ -4953,7 +4953,7 @@ The syntax for using banks is as follows:
 	#3bank preview <type>#0 - previews the fees/interest of a bank account type
 	#3bank close <account#>#0 - permanently closes a bank account
 	#3bank show <account#>#0 - shows information about an account
-	#3bank transactions <account#>#0 - shows transaction history for a bank account
+	#3bank transactions <account#>#0 - shows the 100 most recently recorded transactions for a bank account
 	#3bank deposit <account#> <amount>#0 - deposits money into an account
 	#3bank withdraw <account#> <amount>#0 - withdraws money from an account
 	#3bank transfer <fromaccount#> <toaccount#> <amount>#0 - transfers money to another account
@@ -4977,7 +4977,7 @@ The syntax for using banks is as follows:
 	#3bank preview <type>#0 - previews the fees/interest of a bank account type
 	#3bank close <account#>#0 - permanently closes a bank account
 	#3bank show <account#>#0 - shows information about an account
-	#3bank transactions <account#>#0 - shows transaction history for a bank account
+	#3bank transactions <account#>#0 - shows the 100 most recently recorded transactions for a bank account
 	#3bank deposit <account#> <amount>#0 - deposits money into an account
 	#3bank withdraw <account#> <amount>#0 - withdraws money from an account
 	#3bank transfer <fromaccount#>#0 <toaccount#> <amount>#0 - transfers money to another account
@@ -5066,7 +5066,7 @@ Syntax Option 1:
 	#3bank alias <account#>#0 - sets the alias of a bank account
 	#3bank closeaccount <account#>#0 - permanently closes a bank account
 	#3bank showaccount <account#>#0 - shows information about an account
-	#3bank transactions <account#>#0 - shows transaction history for a bank account
+	#3bank transactions <account#>#0 - shows the 100 most recently recorded transactions for a bank account
 	#3bank deposit <account#> <amount>#0 - deposits money into an account
 	#3bank withdraw <account#> <amount>#0 - withdraws money from an account
 	#3bank transfer <fromaccount#> <toaccount#> <amount>#0 - transfers money to another account
@@ -5084,7 +5084,7 @@ Syntax Option 2:
 	#3bank account alias <account#>#0 - sets the alias of a bank account
 	#3bank account close <account#>#0 - permanently closes a bank account
 	#3bank account show <account#>#0 - shows information about an account
-	#3bank account transactions <account#>#0 - shows transaction history for a bank account
+	#3bank account transactions <account#>#0 - shows the 100 most recently recorded transactions for a bank account
 	#3bank account deposit <account#> <amount>#0 - deposits money into an account
 	#3bank account withdraw <account#> <amount>#0 - withdraws money from an account
 	#3bank account transfer <fromaccount#> <toaccount#> <amount>#0 - transfers money to another account
@@ -5414,7 +5414,7 @@ Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full action and
 	#3bank account alias <account#>#0 - sets the alias of a bank account
 	#3bank account close <account#>#0 - permanently closes a bank account
 	#3bank account show <account#>#0 - shows information about an account
-	#3bank account transactions <account#>#0 - shows transaction history for an account
+	#3bank account transactions <account#>#0 - shows the 100 most recently recorded transactions for an account
 	#3bank account deposit <account#> <amount>#0 - deposits money into an account
 	#3bank account preview <type>#0 - previews an account type
 	#3bank account withdraw <account#> <amount>#0 - withdraws money from an account

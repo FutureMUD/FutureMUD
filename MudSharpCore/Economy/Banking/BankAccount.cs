@@ -242,37 +242,139 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public MudDateTime AccountCreationDate { get; set; }
     public BankAccountStatus AccountStatus { get; set; }
-    private bool _transactionsLoaded;
-    private readonly List<IBankAccountTransaction> _transactions = new();
+    private readonly List<IBankAccountTransaction> _recentTransactions = new();
+    private readonly List<IBankAccountTransaction> _loadedTransactions = new();
+    private readonly List<IBankAccountTransaction> _displayedTransactions = new();
+    private readonly HashSet<long> _loadedTransactionIds = new();
+    private bool _transactionHistoryLoadRequested;
+    private bool _transactionHistoryLoadQueued;
+    private long? _nextTransactionHistoryId;
 
-    public IEnumerable<IBankAccountTransaction> Transactions
+    public IEnumerable<IBankAccountTransaction> Transactions => _transactionHistoryLoadRequested
+        ? _loadedTransactions.ToList()
+        : GetRecentTransactions();
+
+    private IEnumerable<IBankAccountTransaction> GetRecentTransactions()
     {
-        get
-        {
-            if (!_transactionsLoaded)
-            {
-                LoadTransactions();
-            }
+        List<IBankAccountTransaction> transactions = _recentTransactions.ToList();
+        HashSet<long> recentTransactionIds = new(_recentTransactions
+            .Where(x => x.Id != 0L)
+            .Select(x => x.Id));
 
-            return _transactions;
+        using (new FMDB())
+        {
+            transactions.AddRange(BankAccountTransactionHistory
+                .LoadMostRecent(FMDB.Context.BankAccountTransactions, Id)
+                .Where(x => !recentTransactionIds.Contains(x.Id))
+                .Select(x => new BankAccountTransaction(x, this)));
         }
+
+        return transactions
+            .OrderByDescending(x => x.TransactionTime)
+            .ThenByDescending(x => x.Id)
+            .Take(BankAccountTransactionHistory.MaximumTransactionHistoryEntries)
+            .ToList();
     }
 
-    private void LoadTransactions()
+    private void RequestTransactionHistoryLazyLoad()
     {
-        if (_transactionsLoaded)
+        if (_transactionHistoryLoadRequested)
         {
             return;
         }
 
-        _transactionsLoaded = true;
+        List<IBankAccountTransaction> persistedTransactions;
         using (new FMDB())
         {
-            Models.BankAccountTransaction[] transactions = FMDB.Context.BankAccountTransactions.Where(x => x.BankAccountId == Id).ToArray();
-            foreach (Models.BankAccountTransaction transaction in transactions)
+            persistedTransactions = BankAccountTransactionHistory
+                .LoadMostRecent(FMDB.Context.BankAccountTransactions, Id)
+                .Select(x => (IBankAccountTransaction)new BankAccountTransaction(x, this))
+                .ToList();
+        }
+
+        _transactionHistoryLoadRequested = true;
+        foreach (IBankAccountTransaction transaction in persistedTransactions)
+        {
+            AddLoadedTransaction(transaction);
+        }
+
+        foreach (IBankAccountTransaction transaction in _recentTransactions)
+        {
+            AddLoadedTransaction(transaction);
+        }
+
+        AddDisplayedTransactions(persistedTransactions.Concat(_recentTransactions));
+        _nextTransactionHistoryId = persistedTransactions.Count == BankAccountTransactionHistory.MaximumTransactionHistoryEntries
+            ? persistedTransactions[^1].Id
+            : null;
+        QueueNextTransactionHistoryLoad();
+    }
+
+    private void QueueNextTransactionHistoryLoad()
+    {
+        if (!_nextTransactionHistoryId.HasValue || _transactionHistoryLoadQueued)
+        {
+            return;
+        }
+
+        _transactionHistoryLoadQueued = true;
+        Gameworld.SaveManager.AddLazyLoad(this);
+    }
+
+    private void AddLoadedTransaction(IBankAccountTransaction transaction)
+    {
+        if (transaction.Id != 0L && !_loadedTransactionIds.Add(transaction.Id))
+        {
+            return;
+        }
+
+        if (transaction.Id == 0L && _loadedTransactions.Contains(transaction))
+        {
+            return;
+        }
+
+        _loadedTransactions.Add(transaction);
+    }
+
+    private void AddDisplayedTransactions(IEnumerable<IBankAccountTransaction> transactions)
+    {
+        foreach (IBankAccountTransaction transaction in transactions)
+        {
+            if (transaction.Id != 0L && _displayedTransactions.Any(x => x.Id == transaction.Id))
             {
-                _transactions.Add(new BankAccountTransaction(transaction, this));
+                continue;
             }
+
+            if (transaction.Id == 0L && _displayedTransactions.Contains(transaction))
+            {
+                continue;
+            }
+
+            _displayedTransactions.Add(transaction);
+        }
+
+        List<IBankAccountTransaction> displayed = _displayedTransactions
+            .OrderByDescending(x => x.TransactionTime)
+            .ThenByDescending(x => x.Id)
+            .Take(BankAccountTransactionHistory.MaximumTransactionHistoryEntries)
+            .ToList();
+        _displayedTransactions.Clear();
+        _displayedTransactions.AddRange(displayed);
+    }
+
+    private void RecordTransaction(BankAccountTransaction transaction)
+    {
+        _recentTransactions.Add(transaction);
+        if (_recentTransactions.Count > BankAccountTransactionHistory.MaximumTransactionHistoryEntries)
+        {
+            _recentTransactions.RemoveRange(0,
+                _recentTransactions.Count - BankAccountTransactionHistory.MaximumTransactionHistoryEntries);
+        }
+
+        if (_transactionHistoryLoadRequested)
+        {
+            AddLoadedTransaction(transaction);
+            AddDisplayedTransactions([transaction]);
         }
     }
 
@@ -317,8 +419,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
     public void Withdraw(decimal amount)
     {
         MudDateTime time = Bank.EconomicZone.ZoneForTimePurposes.DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar);
-        LoadTransactions();
-        _transactions.Add(new BankAccountTransaction(this, BankTransactionType.Withdrawal, amount,
+        RecordTransaction(new BankAccountTransaction(this, BankTransactionType.Withdrawal, amount,
             CurrentBalance - amount, time,
             $"Withdraw {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)} at branch"));
         if (CurrentBalance < amount)
@@ -338,8 +439,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
     public void WithdrawFromTransaction(decimal amount, string transactionReference)
     {
         MudDateTime time = Bank.EconomicZone.ZoneForTimePurposes.DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar);
-        LoadTransactions();
-        _transactions.Add(new BankAccountTransaction(this, BankTransactionType.WithdrawalFromTransaction, amount,
+        RecordTransaction(new BankAccountTransaction(this, BankTransactionType.WithdrawalFromTransaction, amount,
             CurrentBalance - amount, time,
             $"Withdraw {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)} from transaction{(!string.IsNullOrEmpty(transactionReference) ? $" - {transactionReference}" : "")}"));
         if (CurrentBalance < amount)
@@ -359,8 +459,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
     public void WithdrawFromTransfer(decimal amount, string toBankCode, int toAccount, string transferReference)
     {
         MudDateTime time = Bank.EconomicZone.ZoneForTimePurposes.DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar);
-        LoadTransactions();
-        _transactions.Add(new BankAccountTransaction(this, BankTransactionType.WithdrawalFromTransfer, amount,
+        RecordTransaction(new BankAccountTransaction(this, BankTransactionType.WithdrawalFromTransfer, amount,
             CurrentBalance - amount, time,
             $"Withdraw {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)} from {toAccount} ({toBankCode}){(!string.IsNullOrEmpty(transferReference) ? $" - {transferReference}" : "")}"));
         if (CurrentBalance < amount)
@@ -387,9 +486,8 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public void Deposit(decimal amount)
     {
-        LoadTransactions();
         MudDateTime time = Bank.EconomicZone.ZoneForTimePurposes.DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar);
-        _transactions.Add(new BankAccountTransaction(this, BankTransactionType.Deposit, amount, CurrentBalance + amount,
+        RecordTransaction(new BankAccountTransaction(this, BankTransactionType.Deposit, amount, CurrentBalance + amount,
             time, $"Deposit {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)} at branch"));
         CurrentBalance += amount;
         BankAccountType.DoTransactionFeesDeposit(this, amount);
@@ -398,9 +496,8 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public void DepositFromTransfer(decimal amount, string fromBankCode, int fromAccount, string transferReference)
     {
-        LoadTransactions();
         MudDateTime time = Bank.EconomicZone.ZoneForTimePurposes.DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar);
-        _transactions.Add(new BankAccountTransaction(this, BankTransactionType.DepositFromTransfer, amount,
+        RecordTransaction(new BankAccountTransaction(this, BankTransactionType.DepositFromTransfer, amount,
             CurrentBalance + amount, time,
             $"Deposit {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)} from {fromAccount} ({fromBankCode}){(!string.IsNullOrEmpty(transferReference) ? $" - {transferReference}" : "")}"));
         CurrentBalance += amount;
@@ -410,9 +507,8 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public void DepositFromTransaction(decimal amount, string transactionReference)
     {
-        LoadTransactions();
         MudDateTime time = Bank.EconomicZone.ZoneForTimePurposes.DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar);
-        _transactions.Add(new BankAccountTransaction(this, BankTransactionType.DepositFromTransaction, amount,
+        RecordTransaction(new BankAccountTransaction(this, BankTransactionType.DepositFromTransaction, amount,
             CurrentBalance + amount, time,
             $"Deposit {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)} from transaction{(!string.IsNullOrEmpty(transactionReference) ? $" - {transactionReference}" : "")}"));
         CurrentBalance += amount;
@@ -422,9 +518,8 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public void DoAccountCredit(decimal amount, string reason)
     {
-        LoadTransactions();
         MudDateTime time = Bank.EconomicZone.ZoneForTimePurposes.DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar);
-        _transactions.Add(new BankAccountTransaction(this, BankTransactionType.DepositFromTransfer, amount,
+        RecordTransaction(new BankAccountTransaction(this, BankTransactionType.DepositFromTransfer, amount,
             CurrentBalance + amount, time,
             $"Credit {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)} - {reason}"));
         CurrentBalance += amount;
@@ -450,22 +545,20 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
         CurrentBalance = 0.0M;
         CurrentMonthInterest = 0.0M;
         CurrentMonthFees = 0.0M;
-        LoadTransactions();
         MudDateTime time = Bank.EconomicZone.ZoneForTimePurposes.DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar);
-        _transactions.Add(new BankAccountTransaction(this, BankTransactionType.Withdrawal, change, 0.0M, time,
+        RecordTransaction(new BankAccountTransaction(this, BankTransactionType.Withdrawal, change, 0.0M, time,
             $"Account Rolled Over and Finalised"));
         Changed = true;
     }
 
     public void FinaliseMonth()
     {
-        LoadTransactions();
         MudDateTime time = Bank.EconomicZone.ZoneForTimePurposes.DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar);
         CurrentBalance -= CurrentMonthFees;
-        _transactions.Add(new BankAccountTransaction(this, BankTransactionType.ServiceFee, CurrentMonthFees,
+        RecordTransaction(new BankAccountTransaction(this, BankTransactionType.ServiceFee, CurrentMonthFees,
             CurrentBalance, time, $"Monthly Account Fees"));
         CurrentBalance += CurrentMonthInterest;
-        _transactions.Add(new BankAccountTransaction(this, BankTransactionType.InterestEarned, CurrentMonthInterest,
+        RecordTransaction(new BankAccountTransaction(this, BankTransactionType.InterestEarned, CurrentMonthInterest,
             CurrentBalance, time, $"Interest Earned"));
         CurrentMonthFees = 0.0M;
         CurrentMonthInterest = 0.0M;
@@ -474,7 +567,6 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public void ChargeFee(decimal amount, BankTransactionType transactionType, string feeDescription)
     {
-        LoadTransactions();
         MudDateTime time = Bank.EconomicZone.ZoneForTimePurposes.DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar);
         string feeType = "Other Fee";
         switch (transactionType)
@@ -518,7 +610,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
         }
 
         CurrentBalance -= amount;
-        _transactions.Add(new BankAccountTransaction(this, BankTransactionType.ServiceFee, amount, CurrentBalance, time,
+        RecordTransaction(new BankAccountTransaction(this, BankTransactionType.ServiceFee, amount, CurrentBalance, time,
             $"{feeType}: {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)}"));
         Changed = true;
     }
@@ -600,6 +692,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public string ShowTransactions(ICharacter actor)
     {
+        RequestTransactionHistoryLazyLoad();
         StringBuilder sb = new();
         if (actor.IsAdministrator())
         {
@@ -611,8 +704,9 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
         }
 
         sb.AppendLine();
+        sb.AppendLine($"Showing up to {BankAccountTransactionHistory.MaximumTransactionHistoryEntries.ToString("N0", actor)} most recently recorded transactions.");
         sb.Append(StringUtilities.GetTextTable(
-            from transaction in Transactions.OrderByDescending(x => x.TransactionTime)
+            from transaction in _displayedTransactions
             select new List<string>
             {
                 transaction.TransactionTime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
@@ -699,7 +793,30 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public void DoLoad()
     {
-        LoadTransactions();
+        _transactionHistoryLoadQueued = false;
+        if (!_transactionHistoryLoadRequested || !_nextTransactionHistoryId.HasValue)
+        {
+            return;
+        }
+
+        List<IBankAccountTransaction> transactions;
+        using (new FMDB())
+        {
+            transactions = BankAccountTransactionHistory
+                .LoadOlderThan(FMDB.Context.BankAccountTransactions, Id, _nextTransactionHistoryId.Value)
+                .Select(x => (IBankAccountTransaction)new BankAccountTransaction(x, this))
+                .ToList();
+        }
+
+        foreach (IBankAccountTransaction transaction in transactions)
+        {
+            AddLoadedTransaction(transaction);
+        }
+
+        _nextTransactionHistoryId = transactions.Count == BankAccountTransactionHistory.MaximumTransactionHistoryEntries
+            ? transactions[^1].Id
+            : null;
+        QueueNextTransactionHistoryLoad();
     }
 
     #endregion

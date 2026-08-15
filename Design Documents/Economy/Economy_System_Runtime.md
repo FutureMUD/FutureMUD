@@ -36,7 +36,7 @@ The economy system is loaded late in the boot sequence, after the world, future 
 - `LoadJobs()` runs after `LoadEconomy()`.
 - new character materialisation is explicitly blocked during boot until `LoadNPCs()` begins, so pre-NPC loaders must not force a fresh `TryGetCharacter(...)` from the database.
 - economy or other pre-NPC loaders that genuinely need character-dependent resolution must defer that work through `IPostCharacterLoadFinalisable.FinaliseLoading()`, which now runs immediately after `LoadNPCs()`.
-- bank accounts load their durable balance and owner references during `LoadEconomy()`, but transaction history remains demand-loaded by `Transactions`. Startup must not prewarm every open account's transaction history; account commands and transaction operations already call the same one-shot loader when history is actually required.
+- bank accounts load their durable balance and owner references during `LoadEconomy()`, but do not prewarm transaction history. The first player `bank transactions` request loads only its newest-recorded display window of 100 rows, then queues the account for idle-time history hydration. Each idle callback loads at most 100 older rows, returns control, and requeues itself when more remain. Balance-changing operations record only their new transaction and never synchronously hydrate historical rows.
 
 ### Verified current scheduled runtime hooks
 - market populations receive an hourly heartbeat through the scheduler
@@ -144,6 +144,8 @@ Account types are especially important because they hold much of the policy:
 - fees, interest, overdraw rules, and payment-item allowances
 
 Banks and bank accounts also register FutureProg variable support, so the system is designed to be scripted as well as built.
+
+Bank transaction history presentation is intentionally bounded at 100 most recently recorded entries. The first player-facing `bank transactions` request starts a demand-driven idle loader that hydrates older persisted records in 100-row database batches and requeues after each batch. The command always renders its bounded display cache rather than sorting the growing hydrated collection, so the command path remains bounded. This is a presentation/history window, not an accounting retention policy: all transaction records remain persisted.
 
 ### Virtual Establishment Balances and Ledgers
 Several economy systems can now operate without a live settlement bank account by using a persisted virtual cash reserve. Player-facing cash remains physical currency items at the character edge; establishment cash is stored as `VirtualCashBalance` rows keyed by owner type, owner id, and currency.

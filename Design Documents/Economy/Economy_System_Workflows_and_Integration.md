@@ -32,6 +32,8 @@ Most economy content is authored as world data, not hard-coded content. The engi
 - market category tags
 - bank accounts and payment items
 
+Player and administrator `bank transactions` requests show the 100 most recently recorded entries for the selected account. The first request also starts demand-driven idle hydration of older records in 100-row batches; each batch yields back to the game loop and requeues only when more remain. The cap is deliberate: command output never hydrates or renders an unbounded ledger synchronously.
+
 The current stock seeder path now covers two useful starting points:
 
 - `CurrencySeeder` for currencies, divisions, coins, and parsing/description patterns

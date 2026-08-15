@@ -8,6 +8,7 @@ using MudSharp.Form.Audio;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.RPG.Checks;
+using System.Text;
 
 namespace MudSharp.Communication;
 
@@ -16,6 +17,7 @@ public static class AlertUtilities
 	public const uint AlertRoomRange = 2;
 	public const AudioVolume AlertVolume = AudioVolume.ExtremelyLoud;
 	public const int MaximumStoredAlertEmoteLength = 500;
+	private const int MaximumFormattedDistantAlertEmoteLength = 1_000;
 	private const string SampleDirectionText = "immediately to the north";
 
 	public static bool ValidateAlertEmote(string emoteText, IPerceiver source, out string error)
@@ -33,12 +35,6 @@ public static class AlertUtilities
 
 	public static bool ValidateDistantAlertEmote(string emoteText, IPerceiver source, out string error)
 	{
-		if (!emoteText.Contains("{0}", StringComparison.InvariantCulture))
-		{
-			error = "The distant alert emote must include {0} where the direction and distance text should appear.";
-			return false;
-		}
-
 		if (!TryFormatDistantAlertEmote(emoteText, SampleDirectionText, out var formattedText, out error))
 		{
 			return false;
@@ -295,18 +291,66 @@ public static class AlertUtilities
 	private static bool TryFormatDistantAlertEmote(string emoteText, string directionText, out string formattedText,
 		out string error)
 	{
-		try
+		formattedText = string.Empty;
+		var builder = new StringBuilder();
+		var hasDirectionPlaceholder = false;
+		for (var i = 0; i < emoteText.Length; i++)
 		{
-			formattedText = string.Format(emoteText, directionText);
-			error = string.Empty;
-			return true;
+			var isDirectionPlaceholder = emoteText[i] == '{' &&
+			                             i + 2 < emoteText.Length &&
+			                             emoteText[i + 1] == '0' &&
+			                             emoteText[i + 2] == '}';
+			var isEscapedOpeningBrace = emoteText[i] == '{' &&
+			                            i + 1 < emoteText.Length &&
+			                            emoteText[i + 1] == '{';
+			var isEscapedClosingBrace = emoteText[i] == '}' &&
+			                            i + 1 < emoteText.Length &&
+			                            emoteText[i + 1] == '}';
+			var text = isDirectionPlaceholder
+				? directionText
+				: isEscapedOpeningBrace
+					? "{"
+					: isEscapedClosingBrace
+						? "}"
+						: emoteText[i] switch
+			{
+				'{' or '}' => null,
+				_ => emoteText[i].ToString()
+			};
+
+			if (text is null)
+			{
+				error = "That distant alert emote has invalid format placeholders. Use only {0} for the direction and distance.";
+				return false;
+			}
+
+			if (builder.Length + text.Length > MaximumFormattedDistantAlertEmoteLength)
+			{
+				error = $"That distant alert emote expands to more than {MaximumFormattedDistantAlertEmoteLength.ToString("N0")} characters.";
+				return false;
+			}
+
+			builder.Append(text);
+			if (isDirectionPlaceholder)
+			{
+				hasDirectionPlaceholder = true;
+				i += 2;
+			}
+			else if (isEscapedOpeningBrace || isEscapedClosingBrace)
+			{
+				i++;
+			}
 		}
-		catch (FormatException)
+
+		if (!hasDirectionPlaceholder)
 		{
-			formattedText = string.Empty;
-			error = "That distant alert emote has invalid format placeholders. Use only {0} for the direction and distance.";
+			error = "The distant alert emote must include {0} where the direction and distance text should appear.";
 			return false;
 		}
+
+		formattedText = builder.ToString();
+		error = string.Empty;
+		return true;
 	}
 
 	private static bool ValidateStoredAlertLength(string emoteText, out string error)

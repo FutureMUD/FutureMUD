@@ -188,15 +188,20 @@ public class ShowModule : Module<ICharacter>
 	#3weatherevent <id|name>#0 - shows a specific weather event
 	#3writingstyles#0 - shows writing styles";
 
-    private const string ShowHelpText = @"The #3show#0 command is the read-only catalogue browser for engine data. The available topics vary with your permissions; use it to inspect an individual object by ID or name where the listed topic accepts a #6<which>#0 argument.
+    private const string ShowHelpIntroduction = @"The #3show#0 command is the read-only catalogue browser for engine data. The available topics vary with your permissions; use it to inspect an individual object by ID or name where the listed topic accepts a #6<which>#0 argument.
 
-Using #3show#0 on its own displays the topic list appropriate to your current permission level. The administrative list below includes the full command surface.
+Using #3show#0 on its own displays the topic list appropriate to your current permission level.
 
-" + AdminShowDefaultText;
+";
+
+    private const string PlayerShowHelpText = ShowHelpIntroduction + PlayerShowDefaultText;
+    private const string GuideShowHelpText = ShowHelpIntroduction + GuideShowDefaultText;
+    private const string AdminShowHelpText = ShowHelpIntroduction + AdminShowDefaultText;
 
     [PlayerCommand("Show", "show")]
     [CustomModuleName("Game")]
-    [HelpInfo("show", ShowHelpText, AutoHelp.HelpArg)]
+    [HelpInfo("show", PlayerShowHelpText, AutoHelp.HelpArg, AdminShowHelpText)]
+    [ConditionalHelpInfo(nameof(CanSeeGuideShowHelp), GuideShowHelpText)]
     protected static void Show(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -543,6 +548,11 @@ Using #3show#0 on its own displays the topic list appropriate to your current pe
 
                 return;
         }
+    }
+
+    private static bool CanSeeGuideShowHelp(ICharacter actor)
+    {
+        return actor.PermissionLevel == PermissionLevel.Guide;
     }
 
     private static void Show_BloodTypes(ICharacter actor, StringStack ss)

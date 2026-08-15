@@ -1439,8 +1439,14 @@ public class Calendar : SaveableItem, ICalendar
         if (structured.Success)
         {
             var day = structured.Groups["day"].Value.GetIntFromOrdinal() ?? 0;
+            if (!int.TryParse(structured.Groups["year"].Value, out var year))
+            {
+                error = "The regnal year must be a valid whole number.";
+                return false;
+            }
+
             return TryGetDateFromRegnalDate(structured.Groups["key"].Value,
-                int.Parse(structured.Groups["year"].Value), day, structured.Groups["month"].Value,
+                year, day, structured.Groups["month"].Value,
                 allowProjected, out date, out error);
         }
 
@@ -1454,8 +1460,14 @@ public class Calendar : SaveableItem, ICalendar
                 return false;
             }
 
+            if (!int.TryParse(canonical.Groups["year"].Value, out var year))
+            {
+                error = "The regnal year must be a valid whole number.";
+                return false;
+            }
+
             return TryGetDateFromRegnalDate(canonical.Groups["key"].Value,
-                int.Parse(canonical.Groups["year"].Value), day, month,
+                year, day, month,
                 allowProjected, out date, out error);
         }
 

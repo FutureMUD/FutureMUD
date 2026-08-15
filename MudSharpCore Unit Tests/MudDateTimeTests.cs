@@ -272,6 +272,21 @@ public class MudDateTimeTests
     }
 
     [TestMethod]
+    public void Calendar_TryGetDate_RejectsOversizedRegnalYearsWithoutThrowing()
+    {
+        var calendar = CreateRegnalCalendar();
+        var oversizedYear = new string('9', 30);
+
+        Assert.IsFalse(calendar.TryGetDate($"regnal:charles-iii:{oversizedYear}:month5:3", out _,
+            out var structuredError));
+        StringAssert.Contains(structuredError, "regnal year");
+
+        Assert.IsFalse(calendar.TryGetDate($"month5 3rd RY{oversizedYear} @charles-iii", out _,
+            out var canonicalError));
+        StringAssert.Contains(canonicalError, "regnal year");
+    }
+
+    [TestMethod]
     public void MudDateTime_TryParse_AcceptsRegnalDateInput()
     {
         var calendar = CreateRegnalCalendar();

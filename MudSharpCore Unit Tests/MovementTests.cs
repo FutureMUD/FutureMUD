@@ -117,6 +117,23 @@ public class MovementTests
 			"Reaching dry land must not preserve the swimming position.");
 	}
 
+	[TestMethod]
+	public void CanMoveInternal_SprawledTransitioningToProne_RequiresUsableCrawlingLimb()
+	{
+		var movementSource = File.ReadAllText(GetCoreSourcePath("Character", "CharacterMovement.cs"));
+		var canMoveInternalStart = movementSource.IndexOf("private CanMoveResponse CanMoveInternal(",
+			StringComparison.Ordinal);
+		var canMoveStart = movementSource.IndexOf("public CanMoveResponse CanMove(CanMoveFlags flags)",
+			canMoveInternalStart, StringComparison.Ordinal);
+
+		Assert.IsTrue(canMoveInternalStart >= 0, "Character.CanMoveInternal should exist.");
+		Assert.IsTrue(canMoveStart > canMoveInternalStart,
+			"The public CanMove wrapper should follow CanMoveInternal.");
+		var canMoveInternal = movementSource[canMoveInternalStart..canMoveStart];
+		StringAssert.Contains(canMoveInternal, "movingPosition == PositionProne.Instance");
+		StringAssert.Contains(canMoveInternal, "You need at least one working arm, leg, limb or other appendage to crawl.");
+	}
+
     [TestMethod]
     public void FinalStep_SoloMoverWithQueuedCommand_ExecutesQueuedMove()
     {

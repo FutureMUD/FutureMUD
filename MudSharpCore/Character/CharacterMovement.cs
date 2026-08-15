@@ -847,6 +847,7 @@ public partial class Character
         }
 
         if ((PositionState == PositionProne.Instance ||
+             movingPosition == PositionProne.Instance ||
              movingPosition.TransitionOnMovement == PositionProne.Instance) &&
             !Body.Limbs.Any(x =>
                 x.LimbType.In(LimbType.Leg, LimbType.Arm, LimbType.Appendage, LimbType.Wing) &&

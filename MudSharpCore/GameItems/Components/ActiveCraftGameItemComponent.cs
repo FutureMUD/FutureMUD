@@ -139,7 +139,7 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
         foreach (XElement item in root.Element("Consumed").Elements())
         {
             ICraftInput input = Craft.Inputs.First(x => x.Id == long.Parse(item.Attribute("inputid").Value));
-            XElement data = item.Element("Data");
+            XElement data = item.Element("Data") ?? item.Element("Input");
             if (data != null)
             {
                 ICraftInputData loadedData = input.LoadDataFromXml(data, Gameworld);

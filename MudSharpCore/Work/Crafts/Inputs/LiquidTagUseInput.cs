@@ -263,6 +263,8 @@ public class LiquidTagUseInput : BaseInput, ICraftInputConsumeLiquid
                     OriginalItems.Add(gitem);
                 }
             }
+            _perceivable = new DummyPerceivable(ConsumedMixture.ColouredLiquidDescription,
+                ConsumedMixture.LiquidDescription);
         }
 
         public XElement SaveToXml()

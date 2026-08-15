@@ -178,7 +178,7 @@ It also serializes:
 - check outcome
 - reserved input data
 
-Reserved input reload accepts both the standard `Data` payload and the `Input` payload emitted by liquid-use inputs. Each saved payload is loaded once so an interrupted craft retains its consumed-liquid reservation across persistence.
+Reserved input reload accepts both the standard `Data` payload and the `Input` payload emitted by liquid-use inputs. Each saved payload is loaded once so an interrupted craft retains its consumed-liquid reservation across persistence. Reloaded liquid data also reconstructs its temporary perceivable so resume-time clash solving can safely exclude already consumed inputs.
 
 The component decorates the in-progress item's short and full description so the progress item visibly represents the craft.
 

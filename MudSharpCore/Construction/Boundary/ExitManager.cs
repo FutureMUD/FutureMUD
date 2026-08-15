@@ -19,6 +19,9 @@ public class ExitManager : IExitManager, IHaveFuturemud
     }
 
     public IFuturemud Gameworld { get; protected set; }
+	public event Action<ITransientExit> TransientExitRegistered;
+	public event Action<ITransientExit, ITransientExit> TransientExitReplaced;
+	public event Action<ITransientExit> TransientExitUnregistered;
 
     public IPathfindingService PathfindingService { get; }
 	public ISpatialPathfinder SpatialPathfinder { get; }
@@ -258,17 +261,67 @@ public class ExitManager : IExitManager, IHaveFuturemud
             return;
         }
 
+		var registered = false;
         foreach (var cell in exit.Cells)
         {
             if (!TransientExitDictionary[cell].Contains(exit))
             {
                 TransientExitDictionary.Add(cell, exit);
+				registered = true;
             }
         }
 
+		if (!registered)
+		{
+			return;
+		}
+
         PathfindingService.InvalidateTopology();
 		SpatialPathfinder.InvalidateTopology();
+		if (exit is ITransientExit transientExit)
+		{
+			TransientExitRegistered?.Invoke(transientExit);
+		}
     }
+
+	public bool ReplaceTransientExit(IExit existingExit, IExit replacementExit)
+	{
+		if (existingExit is not ITransientExit existingTransient ||
+		    replacementExit is not ITransientExit replacementTransient ||
+		    !existingTransient.StableKey.Equals(replacementTransient.StableKey, StringComparison.Ordinal) ||
+		    !existingExit.Cells.Select(x => x.Id).OrderBy(x => x)
+			    .SequenceEqual(replacementExit.Cells.Select(x => x.Id).OrderBy(x => x)))
+		{
+			UnregisterTransientExit(existingExit);
+			RegisterTransientExit(replacementExit);
+			return false;
+		}
+
+		var wasRegistered = existingExit.Cells.Any(cell => TransientExitDictionary[cell].Contains(existingExit));
+		if (!wasRegistered)
+		{
+			RegisterTransientExit(replacementExit);
+			return false;
+		}
+
+		foreach (var cell in existingExit.Cells)
+		{
+			TransientExitDictionary.Remove(cell, existingExit);
+		}
+
+		foreach (var cell in replacementExit.Cells)
+		{
+			if (!TransientExitDictionary[cell].Contains(replacementExit))
+			{
+				TransientExitDictionary.Add(cell, replacementExit);
+			}
+		}
+
+		PathfindingService.InvalidateTopology();
+		SpatialPathfinder.InvalidateTopology();
+		TransientExitReplaced?.Invoke(existingTransient, replacementTransient);
+		return true;
+	}
 
     public void UnregisterTransientExit(IExit exit)
     {
@@ -277,6 +330,12 @@ public class ExitManager : IExitManager, IHaveFuturemud
             return;
         }
 
+		var wasRegistered = exit.Cells.Any(cell => TransientExitDictionary[cell].Contains(exit));
+		if (!wasRegistered)
+		{
+			return;
+		}
+
         foreach (var cell in exit.Cells)
         {
             TransientExitDictionary.Remove(cell, exit);
@@ -284,6 +343,10 @@ public class ExitManager : IExitManager, IHaveFuturemud
 
         PathfindingService.InvalidateTopology();
 		SpatialPathfinder.InvalidateTopology();
+		if (exit is ITransientExit transientExit)
+		{
+			TransientExitUnregistered?.Invoke(transientExit);
+		}
     }
 
     public void UpdateCellOverlayExits(ICell cell, ICellOverlay overlay)

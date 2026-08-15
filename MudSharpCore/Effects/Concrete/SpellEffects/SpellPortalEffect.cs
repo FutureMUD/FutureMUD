@@ -20,6 +20,7 @@ public class SpellPortalEffect : MagicSpellEffectBase
 		string outboundDescription, string inboundDescription, double timeMultiplier, IFutureProg? prog = null)
 		: base(owner, parent, prog)
 	{
+		PortalInstanceId = Guid.NewGuid();
 		SourceCellId = source.Id;
 		DestinationCellId = destination.Id;
 		Verb = verb;
@@ -35,6 +36,15 @@ public class SpellPortalEffect : MagicSpellEffectBase
 	private SpellPortalEffect(XElement root, IPerceivable owner) : base(root, owner)
 	{
 		var trueRoot = root.Element("Effect");
+		if (Guid.TryParse(trueRoot?.Element("PortalInstanceId")?.Value, out var portalInstanceId))
+		{
+			PortalInstanceId = portalInstanceId;
+		}
+		else
+		{
+			PortalInstanceId = Guid.NewGuid();
+			Changed = true;
+		}
 		SourceCellId = long.Parse(trueRoot?.Element("SourceCell")?.Value ?? "0");
 		DestinationCellId = long.Parse(trueRoot?.Element("DestinationCell")?.Value ?? "0");
 		Verb = trueRoot?.Element("Verb")?.Value ?? "enter";
@@ -48,6 +58,7 @@ public class SpellPortalEffect : MagicSpellEffectBase
 	}
 
 	public long SourceCellId { get; }
+	public Guid PortalInstanceId { get; }
 	public long DestinationCellId { get; }
 	public string Verb { get; }
 	public string OutboundKeyword { get; }
@@ -89,7 +100,7 @@ public class SpellPortalEffect : MagicSpellEffectBase
 
 		_registeredExit = new TransientExit(Gameworld, source, destination, Verb, OutboundKeyword, InboundKeyword,
 			OutboundTarget, InboundTarget, OutboundDescription, InboundDescription, TimeMultiplier,
-			ParentEffect?.Caster, Spell, this);
+			ParentEffect?.Caster, Spell, this, $"spell-portal:{PortalInstanceId:D}");
 		Gameworld.ExitManager.RegisterTransientExit(_registeredExit);
 	}
 
@@ -108,6 +119,7 @@ public class SpellPortalEffect : MagicSpellEffectBase
 	{
 		return new XElement("Effect",
 			new XElement("ApplicabilityProg", ApplicabilityProg?.Id ?? 0),
+			new XElement("PortalInstanceId", PortalInstanceId),
 			new XElement("SourceCell", SourceCellId),
 			new XElement("DestinationCell", DestinationCellId),
 			new XElement("Verb", new XCData(Verb)),

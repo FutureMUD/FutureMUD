@@ -130,6 +130,8 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	private readonly List<TrapComponentBinding> _components = [];
 	private IProximityEventRegistration? _proximityRegistration;
 	private bool _ownerLifecycleSubscribed;
+	private bool _transientExitLifecycleSubscribed;
+	private bool _destroyComponentsOnRemoval;
 
 	public static void InitialiseEffectType()
 	{
@@ -149,6 +151,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		State = TrapState.Armed;
 		BoundExitId = boundExit?.Exit.Id;
 		BoundExitOriginId = boundExit?.Origin.Id;
+		BoundTransientExitKey = (boundExit?.Exit as ITransientExit)?.StableKey;
 		_components.AddRange(components ?? []);
 	}
 
@@ -185,6 +188,8 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		BoundExitOriginId = long.TryParse(effect.Element("BoundExitOriginId")?.Value, out var boundExitOriginId)
 			? boundExitOriginId
 			: null;
+		var boundTransientExitKey = effect.Element("BoundTransientExitKey")?.Value;
+		BoundTransientExitKey = string.IsNullOrWhiteSpace(boundTransientExitKey) ? null : boundTransientExitKey;
 		_components.AddRange(effect.Element("Components")?.Elements("Component")
 			.Select(x => TrapComponentBinding.LoadFromXml(x, Gameworld)) ?? []);
 	}
@@ -197,8 +202,9 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	public SpellPower Power { get; }
 	public int ChargesRemaining { get; private set; }
 	public int RemainingCharges => ChargesRemaining;
-	public long? BoundExitId { get; }
+	public long? BoundExitId { get; private set; }
 	public long? BoundExitOriginId { get; }
+	public string? BoundTransientExitKey { get; }
 	public TrapState State { get; private set; }
 	public IReadOnlyList<ITrapComponentBinding> Components => _components;
 	public ITrapTemplate? Template => Gameworld.TrapTemplates.Get(TemplateId, TemplateRevision);
@@ -219,8 +225,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	{
 		if (BoundExitId.HasValue && (Owner as ICell ?? Owner.Location) is { } cell)
 		{
-			var exit = cell.ExitsFor(voyeur, true)
-				.FirstOrDefault(x => x.Exit.Id == BoundExitId.Value && x.Origin.Id == BoundExitOriginId);
+			var exit = cell.ExitsFor(voyeur, true).FirstOrDefault(MatchesExit);
 			if (exit is not null)
 			{
 				return Owner is IGameItem
@@ -258,6 +263,9 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 			new XElement("State", State),
 			BoundExitId.HasValue ? new XElement("BoundExitId", BoundExitId.Value) : null,
 			BoundExitOriginId.HasValue ? new XElement("BoundExitOriginId", BoundExitOriginId.Value) : null,
+			BoundTransientExitKey is not null
+				? new XElement("BoundTransientExitKey", new XCData(BoundTransientExitKey))
+				: null,
 			new XElement("Components", _components.Select(x => x.SaveToXml())));
 	}
 
@@ -291,6 +299,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		}
 
 		RecoverInterruptedResolution();
+		SubscribeTransientExitLifecycle();
 		SubscribeSignalTriggers();
 		SubscribeProximityTriggers();
 		SubscribeOwnerLifecycle();
@@ -303,9 +312,30 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		UnsubscribeSignalTriggers();
 		UnsubscribeProximityTriggers();
 		UnsubscribeOwnerLifecycle();
-		RestoreInstalledComponents();
-		ReleaseComponentReservations();
+		UnsubscribeTransientExitLifecycle();
+		if (_destroyComponentsOnRemoval)
+		{
+			ReleaseComponentReservations();
+			DeleteInstalledComponents();
+		}
+		else
+		{
+			RestoreInstalledComponents();
+			ReleaseComponentReservations();
+		}
 		base.RemovalEffect();
+	}
+
+	public bool MatchesExit(ICellExit exit)
+	{
+		if (BoundExitOriginId != exit.Origin.Id)
+		{
+			return false;
+		}
+
+		return BoundTransientExitKey is not null && exit.Exit is ITransientExit transientExit
+			? BoundTransientExitKey.Equals(transientExit.StableKey, StringComparison.Ordinal)
+			: BoundExitId == exit.Exit.Id;
 	}
 
 	public override void ExpireEffect()
@@ -640,7 +670,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 				}
 
 				if (BoundExitId.HasValue && (arguments.Length < 3 || arguments[2] is not ICellExit exit ||
-				    exit.Exit.Id != BoundExitId.Value || exit.Origin.Id != BoundExitOriginId))
+				    !MatchesExit(exit)))
 				{
 					return false;
 				}
@@ -1508,9 +1538,134 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		_ownerLifecycleSubscribed = false;
 	}
 
+	private void SubscribeTransientExitLifecycle()
+	{
+		if (_transientExitLifecycleSubscribed || BoundTransientExitKey is null)
+		{
+			return;
+		}
+
+		Gameworld.ExitManager.TransientExitRegistered += TransientExitRegistered;
+		Gameworld.ExitManager.TransientExitReplaced += TransientExitReplaced;
+		Gameworld.ExitManager.TransientExitUnregistered += TransientExitUnregistered;
+		_transientExitLifecycleSubscribed = true;
+		var currentExit = Gameworld.ExitManager.TransientExits
+			.OfType<ITransientExit>()
+			.FirstOrDefault(TransientExitMatchesBinding);
+		if (currentExit is not null)
+		{
+			BindToTransientExit(currentExit);
+		}
+	}
+
+	private void UnsubscribeTransientExitLifecycle()
+	{
+		if (!_transientExitLifecycleSubscribed)
+		{
+			return;
+		}
+
+		Gameworld.ExitManager.TransientExitRegistered -= TransientExitRegistered;
+		Gameworld.ExitManager.TransientExitReplaced -= TransientExitReplaced;
+		Gameworld.ExitManager.TransientExitUnregistered -= TransientExitUnregistered;
+		_transientExitLifecycleSubscribed = false;
+	}
+
+	private bool TransientExitMatchesBinding(ITransientExit exit)
+	{
+		return BoundTransientExitKey is not null &&
+		       BoundTransientExitKey.Equals(exit.StableKey, StringComparison.Ordinal) &&
+		       BoundExitOriginId.HasValue &&
+		       exit.Cells.Any(x => x.Id == BoundExitOriginId.Value);
+	}
+
+	private void BindToTransientExit(ITransientExit exit)
+	{
+		if (!TransientExitMatchesBinding(exit) || BoundExitId == exit.Id)
+		{
+			return;
+		}
+
+		BoundExitId = exit.Id;
+		Changed = true;
+	}
+
+	private void TransientExitRegistered(ITransientExit exit)
+	{
+		BindToTransientExit(exit);
+	}
+
+	private void TransientExitReplaced(ITransientExit oldExit, ITransientExit replacementExit)
+	{
+		if (TransientExitMatchesBinding(oldExit))
+		{
+			BindToTransientExit(replacementExit);
+		}
+	}
+
+	private void TransientExitUnregistered(ITransientExit exit)
+	{
+		if (TransientExitMatchesBinding(exit))
+		{
+			DestroyForTransientExitRemoval();
+		}
+	}
+
+	internal bool ReconcileTransientExitBinding()
+	{
+		if (BoundTransientExitKey is null)
+		{
+			if (BoundExitId is >= 0 or null)
+			{
+				return true;
+			}
+
+			DestroyForTransientExitRemoval();
+			return false;
+		}
+
+		var currentExit = Gameworld.ExitManager.TransientExits
+			.OfType<ITransientExit>()
+			.FirstOrDefault(TransientExitMatchesBinding);
+		if (currentExit is null)
+		{
+			DestroyForTransientExitRemoval();
+			return false;
+		}
+
+		BindToTransientExit(currentExit);
+		return true;
+	}
+
+	internal void DestroyForTransientExitRemoval()
+	{
+		if (_destroyComponentsOnRemoval)
+		{
+			return;
+		}
+
+		_destroyComponentsOnRemoval = true;
+		Owner.RemoveAllEffects<TrapPayloadScheduleEffect>(x => x.TrapInstanceId == InstanceId, true);
+		Owner.RemoveAllEffects<TrapResetEffect>(x => x.TrapInstanceId == InstanceId, true);
+		Owner.RemoveAllEffects<TrapSpentCleanupEffect>(x => x.TrapInstanceId == InstanceId, true);
+		Owner.RemoveEffect(this, true);
+	}
+
 	private void OwnerDeleted(IPerceivable _)
 	{
 		RestoreInstalledComponents();
+	}
+
+	private void DeleteInstalledComponents()
+	{
+		foreach (var item in _components
+		         .Select(x => x.Item)
+		         .Where(x => x is not null && !x.Deleted)
+		         .Cast<IGameItem>()
+		         .Distinct<IGameItem>(ReferenceEqualityComparer.Instance))
+		{
+			item.Delete();
+		}
 	}
 
 	private void ReleaseComponentReservations()

@@ -357,11 +357,6 @@ internal class TrapModule : Module<ICharacter>
 			return;
 		}
 		var (anchor, exit, suppliedComponents) = target.Value;
-		if (exit is not null && exit.Exit.Id <= 0)
-		{
-			actor.Send("That temporary exit cannot hold a persistent trap.");
-			return;
-		}
 		var componentCandidates = GetTrapComponentCandidates(actor, anchor, suppliedComponents);
 		var bindings = MatchComponents(actor, template, componentCandidates);
 		if (bindings is null)
@@ -372,7 +367,8 @@ internal class TrapModule : Module<ICharacter>
 			.SelectNotNull(x => x?.Item)
 			.Distinct()
 			.ToList();
-		if (!CanPrepareTrapComponents(actor, componentItems, out var componentPreparationError))
+		var placementItems = GetTrapPlacementItems(actor, anchor, componentItems);
+		if (!CanPrepareTrapComponents(actor, placementItems, out var componentPreparationError))
 		{
 			actor.Send(componentPreparationError);
 			return;
@@ -417,7 +413,7 @@ internal class TrapModule : Module<ICharacter>
 		void Complete(IPerceivable _)
 		{
 			if (!AnchorStillAvailable(actor, anchor, exit) ||
-			    !CanPrepareTrapComponents(actor, componentItems, out componentPreparationError) ||
+			    !CanPrepareTrapComponents(actor, placementItems, out componentPreparationError) ||
 			    anchor.EffectsOfType<TrapEffect>()
 			    .Any(x => x.State is not TrapState.Spent and not TrapState.Expired && SameBinding(x, exit)))
 			{
@@ -437,11 +433,11 @@ internal class TrapModule : Module<ICharacter>
 				}
 			}
 
-			var componentPlan = CreateTrapComponentInventoryPlan(actor, componentItems);
+			var componentPlan = CreateTrapComponentInventoryPlan(actor, placementItems);
 			var componentResults = componentPlan.ExecuteWholePlan().ToList();
-			if (componentResults.Count != componentItems.Count ||
+			if (componentResults.Count != placementItems.Count ||
 			    componentResults.Any(x => x.ActionState != DesiredItemState.InRoom) ||
-			    componentItems.Any(x => x.InInventoryOf is not null || x.ContainedIn is not null ||
+			    placementItems.Any(x => x.InInventoryOf is not null || x.ContainedIn is not null ||
 			                            !ReferenceEquals(x.Location, actor.Location)))
 			{
 				componentPlan.FinalisePlan();
@@ -747,6 +743,20 @@ internal class TrapModule : Module<ICharacter>
 			.ToList();
 	}
 
+	private static List<IGameItem> GetTrapPlacementItems(ICharacter actor, IPerceivable anchor,
+		IReadOnlyList<IGameItem> componentItems)
+	{
+		var placementItems = componentItems.ToList();
+		if (anchor is IGameItem anchorItem && actor.Body.ItemsInHands.Any(x => ReferenceEquals(x, anchorItem)))
+		{
+			placementItems.Add(anchorItem);
+		}
+
+		return placementItems
+			.Distinct<IGameItem>(ReferenceEqualityComparer.Instance)
+			.ToList();
+	}
+
 	private static bool CanPrepareTrapComponents(ICharacter actor, IReadOnlyList<IGameItem> components,
 		out string error)
 	{
@@ -893,7 +903,7 @@ internal class TrapModule : Module<ICharacter>
 		if (exit is not null)
 		{
 			var exitTrap = actor.Location.EffectsOfType<TrapEffect>()
-				.FirstOrDefault(x => x.BoundExitId == exit.Exit.Id && x.BoundExitOriginId == actor.Location.Id);
+				.FirstOrDefault(x => x.MatchesExit(exit));
 			if (exitTrap is not null)
 			{
 				return (actor.Location, exit, exitTrap);
@@ -901,8 +911,7 @@ internal class TrapModule : Module<ICharacter>
 
 			var boundItemTrap = actor.Location.LayerGameItems(actor.RoomLayer)
 				.SelectMany(x => x.EffectsOfType<TrapEffect>().Select(trap => (Item: x, Trap: trap)))
-				.FirstOrDefault(x => x.Trap.BoundExitId == exit.Exit.Id &&
-				                     x.Trap.BoundExitOriginId == actor.Location.Id);
+				.FirstOrDefault(x => x.Trap.MatchesExit(exit));
 			return boundItemTrap.Trap is null ? null : (boundItemTrap.Item, exit, boundItemTrap.Trap);
 		}
 
@@ -916,7 +925,7 @@ internal class TrapModule : Module<ICharacter>
 		foreach (var trap in actor.Location.EffectsOfType<TrapEffect>())
 		{
 			var exit = trap.BoundExitId.HasValue
-				? actor.Location.ExitsFor(actor, true).FirstOrDefault(x => x.Exit.Id == trap.BoundExitId.Value)
+				? actor.Location.ExitsFor(actor, true).FirstOrDefault(trap.MatchesExit)
 				: null;
 			yield return (actor.Location, exit, trap);
 		}
@@ -932,7 +941,7 @@ internal class TrapModule : Module<ICharacter>
 
 	private static bool SameBinding(TrapEffect trap, ICellExit? exit) => exit is null
 		? !trap.BoundExitId.HasValue
-		: trap.BoundExitId == exit.Exit.Id && trap.BoundExitOriginId == exit.Origin.Id;
+		: trap.MatchesExit(exit);
 
 	private static bool AnchorStillAvailable(ICharacter actor, IPerceivable anchor, ICellExit? exit)
 	{

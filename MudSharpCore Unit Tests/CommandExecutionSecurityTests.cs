@@ -33,6 +33,7 @@ using MudSharp.Magic.SpellEffects;
 using MudSharp.Magic.SpellTriggers;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
+using MudSharp.Traps;
 using MudSharp.Work.Agriculture;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Crafts.Inputs;
@@ -436,6 +437,38 @@ public class CommandExecutionSecurityTests
 	}
 
 	[TestMethod]
+	public void TrapLay_HeldNonComponentAnchor_IsIncludedInPlacementPlan()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var body = new Mock<IBody>();
+		var anchor = new Mock<IGameItem>();
+		var component = new Mock<IGameItem>();
+		actor.SetupGet(x => x.Body).Returns(body.Object);
+		body.SetupGet(x => x.ItemsInHands).Returns([anchor.Object]);
+
+		var placementItems = InvokeStatic<List<IGameItem>>(typeof(TrapModule), "GetTrapPlacementItems",
+			actor.Object, anchor.Object, new List<IGameItem> { component.Object });
+
+		CollectionAssert.AreEqual(new List<IGameItem> { component.Object, anchor.Object }, placementItems);
+	}
+
+	[TestMethod]
+	public void TrapLay_HeldAnchorThatIsAComponent_IsPlacedOnlyOnce()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var body = new Mock<IBody>();
+		var anchor = new Mock<IGameItem>();
+		actor.SetupGet(x => x.Body).Returns(body.Object);
+		body.SetupGet(x => x.ItemsInHands).Returns([anchor.Object]);
+
+		var placementItems = InvokeStatic<List<IGameItem>>(typeof(TrapModule), "GetTrapPlacementItems",
+			actor.Object, anchor.Object, new List<IGameItem> { anchor.Object });
+
+		Assert.AreEqual(1, placementItems.Count);
+		Assert.AreSame(anchor.Object, placementItems.Single());
+	}
+
+	[TestMethod]
 	public void TrapLay_ItemInAnotherInventory_IsRejected()
 	{
 		var actor = Character(PermissionLevel.Player);
@@ -528,6 +561,128 @@ public class CommandExecutionSecurityTests
 		Assert.AreEqual(RoomLayer.InAir, item.Object.RoomLayer);
 		item.Verify(x => x.MoveTo(location, null, false), Times.Once);
 		cell.Verify(x => x.Insert(item.Object, true), Times.Once);
+	}
+
+	[TestMethod]
+	public void Arm_KnownManipulableDisarmedTrap_RearmsTrap()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var output = OutputHandler();
+		var target = new Mock<IGameItem>();
+		var template = new Mock<ITrapTemplate>();
+		template.SetupGet(x => x.Id).Returns(10L);
+		template.SetupGet(x => x.RevisionNumber).Returns(1);
+		template.SetupGet(x => x.Charges).Returns(1);
+		target.SetupGet(x => x.Gameworld).Returns(new Mock<IFuturemud>().Object);
+		var trap = new TrapEffect(target.Object, template.Object);
+		Assert.IsTrue(trap.Disarm());
+		var knowledge = new TrapKnowledgeEffect(actor.Object, trap.InstanceId, trap.TemplateId, trap.TemplateRevisionNumber);
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		actor.Setup(x => x.TargetItem("box")).Returns(target.Object);
+		actor.Setup(x => x.CanManipulateItem(target.Object)).Returns((true, string.Empty));
+		actor.Setup(x => x.EffectsOfType<TrapKnowledgeEffect>(It.IsAny<Predicate<TrapKnowledgeEffect>>()))
+			.Returns([knowledge]);
+		target.Setup(x => x.EffectsOfType<TrapEffect>(It.IsAny<Predicate<TrapEffect>>())).Returns([trap]);
+
+		InvokeStatic(typeof(ManipulationModule), "Arm", actor.Object, "arm box");
+
+		Assert.AreEqual(TrapState.Armed, trap.State);
+		actor.Verify(x => x.CanManipulateItem(target.Object), Times.Once);
+	}
+
+	[TestMethod]
+	public void Arm_TrapWithoutManipulationPermission_DoesNotRearm()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var output = OutputHandler();
+		var target = new Mock<IGameItem>();
+		var template = new Mock<ITrapTemplate>();
+		template.SetupGet(x => x.Id).Returns(10L);
+		template.SetupGet(x => x.RevisionNumber).Returns(1);
+		template.SetupGet(x => x.Charges).Returns(1);
+		target.SetupGet(x => x.Gameworld).Returns(new Mock<IFuturemud>().Object);
+		var trap = new TrapEffect(target.Object, template.Object);
+		Assert.IsTrue(trap.Disarm());
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		actor.Setup(x => x.TargetItem("box")).Returns(target.Object);
+		actor.Setup(x => x.CanManipulateItem(target.Object)).Returns((false, "You cannot reach that."));
+		target.Setup(x => x.EffectsOfType<TrapEffect>(It.IsAny<Predicate<TrapEffect>>())).Returns([trap]);
+
+		InvokeStatic(typeof(ManipulationModule), "Arm", actor.Object, "arm box");
+
+		Assert.AreEqual(TrapState.Disarmed, trap.State);
+		output.Verify(x => x.Send("You cannot reach that.", true, false), Times.Once);
+	}
+
+	[TestMethod]
+	public void Arm_UnknownTrap_DoesNotRevealOrRearmTrap()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var output = OutputHandler();
+		var target = new Mock<IGameItem>();
+		var template = new Mock<ITrapTemplate>();
+		template.SetupGet(x => x.Id).Returns(10L);
+		template.SetupGet(x => x.RevisionNumber).Returns(1);
+		template.SetupGet(x => x.Charges).Returns(1);
+		target.SetupGet(x => x.Gameworld).Returns(new Mock<IFuturemud>().Object);
+		target.Setup(x => x.HowSeen(actor.Object, true, It.IsAny<DescriptionType>(), It.IsAny<bool>(),
+			It.IsAny<PerceiveIgnoreFlags>())).Returns("a box");
+		var trap = new TrapEffect(target.Object, template.Object);
+		Assert.IsTrue(trap.Disarm());
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		actor.Setup(x => x.TargetItem("box")).Returns(target.Object);
+		actor.Setup(x => x.CanManipulateItem(target.Object)).Returns((true, string.Empty));
+		actor.Setup(x => x.EffectsOfType<TrapKnowledgeEffect>(It.IsAny<Predicate<TrapKnowledgeEffect>>()))
+			.Returns([]);
+		target.Setup(x => x.EffectsOfType<TrapEffect>(It.IsAny<Predicate<TrapEffect>>())).Returns([trap]);
+
+		InvokeStatic(typeof(ManipulationModule), "Arm", actor.Object, "arm box");
+
+		Assert.AreEqual(TrapState.Disarmed, trap.State);
+		output.Verify(x => x.Send("a box does not have an armable explosive trigger.", true, false), Times.Once);
+	}
+
+	[TestMethod]
+	public void Arm_ActiveKnownTrap_DoesNotBypassItsLifecycleState()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var output = OutputHandler();
+		var target = new Mock<IGameItem>();
+		var template = new Mock<ITrapTemplate>();
+		template.SetupGet(x => x.Id).Returns(10L);
+		template.SetupGet(x => x.RevisionNumber).Returns(1);
+		template.SetupGet(x => x.Charges).Returns(1);
+		target.SetupGet(x => x.Gameworld).Returns(new Mock<IFuturemud>().Object);
+		var trap = new TrapEffect(target.Object, template.Object);
+		var knowledge = new TrapKnowledgeEffect(actor.Object, trap.InstanceId, trap.TemplateId, trap.TemplateRevisionNumber);
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		actor.Setup(x => x.TargetItem("box")).Returns(target.Object);
+		actor.Setup(x => x.CanManipulateItem(target.Object)).Returns((true, string.Empty));
+		actor.Setup(x => x.EffectsOfType<TrapKnowledgeEffect>(It.IsAny<Predicate<TrapKnowledgeEffect>>()))
+			.Returns([knowledge]);
+		target.Setup(x => x.EffectsOfType<TrapEffect>(It.IsAny<Predicate<TrapEffect>>())).Returns([trap]);
+
+		InvokeStatic(typeof(ManipulationModule), "Arm", actor.Object, "arm box");
+
+		Assert.AreEqual(TrapState.Armed, trap.State);
+		output.Verify(x => x.Send("Only an unarmed or disarmed trap can be armed this way.", true, false), Times.Once);
+	}
+
+	[TestMethod]
+	public void Arm_OrdinaryExplosiveTrigger_RemainsAvailable()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var target = new Mock<IGameItem>();
+		var trigger = new Mock<IArmableExplosiveTrigger>();
+		actor.Setup(x => x.TargetItem("charge")).Returns(target.Object);
+		actor.Setup(x => x.CanManipulateItem(target.Object)).Returns((true, string.Empty));
+		target.Setup(x => x.EffectsOfType<TrapEffect>(It.IsAny<Predicate<TrapEffect>>())).Returns([]);
+		target.Setup(x => x.GetItemType<IArmableExplosiveTrigger>()).Returns(trigger.Object);
+		trigger.Setup(x => x.CanArm(actor.Object, string.Empty)).Returns(true);
+
+		InvokeStatic(typeof(ManipulationModule), "Arm", actor.Object, "arm charge");
+
+		trigger.Verify(x => x.Arm(actor.Object, string.Empty, It.IsAny<IEmote>()), Times.Once);
 	}
 
 	[TestMethod]

@@ -107,6 +107,140 @@ public class TrapModuleDefinitionTests
 	}
 
 	[TestMethod]
+	public void TransientExitBoundTrap_PersistsStableKeyAndMatchesRebuiltExit()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var origin = new Mock<ICell>();
+		origin.SetupGet(x => x.Id).Returns(100L);
+		origin.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var destination = new Mock<ICell>();
+		destination.SetupGet(x => x.Id).Returns(101L);
+		var firstExit = new TransientExit(gameworld.Object, origin.Object, destination.Object, "enter", "portal",
+			"portal", "a portal", "a portal", "through", "through", 1.0,
+			stableKey: "test-portal:42");
+		var rebuiltExit = new TransientExit(gameworld.Object, origin.Object, destination.Object, "enter", "portal",
+			"portal", "a portal", "a portal", "through", "through", 1.0,
+			stableKey: "test-portal:42");
+		var template = new Mock<ITrapTemplate>();
+		template.SetupGet(x => x.Id).Returns(300L);
+		template.SetupGet(x => x.RevisionNumber).Returns(4);
+		template.SetupGet(x => x.Charges).Returns(1);
+
+		var trap = new TrapEffect(origin.Object, template.Object, boundExit: firstExit.CellExitFor(origin.Object));
+		var xml = trap.SaveToXml(new Dictionary<IEffect, TimeSpan>());
+
+		Assert.AreNotEqual(firstExit.Id, rebuiltExit.Id);
+		Assert.AreEqual("test-portal:42", trap.BoundTransientExitKey);
+		Assert.AreEqual("test-portal:42", xml.Descendants("BoundTransientExitKey").Single().Value);
+		Assert.IsTrue(trap.MatchesExit(rebuiltExit.CellExitFor(origin.Object)!));
+	}
+
+	[TestMethod]
+	public void TransientExitReplacement_RebindsTrapAndTrueRemovalDestroysInstalledComponents()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var manager = new ExitManager(gameworld.Object);
+		gameworld.SetupGet(x => x.ExitManager).Returns(manager);
+		var templates = new RevisableAll<ITrapTemplate>();
+		gameworld.SetupGet(x => x.TrapTemplates).Returns(templates);
+		var origin = new Mock<ICell>();
+		origin.SetupGet(x => x.Id).Returns(100L);
+		origin.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		origin.SetupProperty(x => x.EffectsChanged);
+		var destination = new Mock<ICell>();
+		destination.SetupGet(x => x.Id).Returns(101L);
+		var component = new Mock<IGameItem>();
+		component.SetupGet(x => x.Id).Returns(500L);
+		component.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		component.SetupGet(x => x.Deleted).Returns(false);
+		component.Setup(x => x.EffectsOfType<TrapComponentReservationEffect>(
+			It.IsAny<Predicate<TrapComponentReservationEffect>>())).Returns([]);
+		var template = new Mock<ITrapTemplate>();
+		template.SetupGet(x => x.Id).Returns(300L);
+		template.SetupGet(x => x.RevisionNumber).Returns(4);
+		template.SetupGet(x => x.Charges).Returns(1);
+		template.SetupGet(x => x.Triggers).Returns([]);
+		templates.Add(template.Object);
+		var binding = new TrapComponentBinding(gameworld.Object, component.Object,
+			TrapComponentRole.TriggerAndPayload, 50.0, 1.0);
+		var firstExit = new TransientExit(gameworld.Object, origin.Object, destination.Object, "enter", "portal",
+			"portal", "a portal", "a portal", "through", "through", 1.0,
+			stableKey: "test-portal:42");
+		manager.RegisterTransientExit(firstExit);
+		var trap = new TrapEffect(origin.Object, template.Object, boundExit: firstExit.CellExitFor(origin.Object),
+			components: [binding]);
+		origin.Setup(x => x.RemoveEffect(trap, true)).Callback(trap.RemovalEffect);
+		trap.InitialEffect();
+		var replacementExit = new TransientExit(gameworld.Object, origin.Object, destination.Object, "enter", "portal",
+			"portal", "a portal", "a portal", "through", "through", 1.0,
+			stableKey: "test-portal:42");
+
+		Assert.IsTrue(manager.ReplaceTransientExit(firstExit, replacementExit));
+		Assert.AreEqual(replacementExit.Id, trap.BoundExitId);
+		origin.Verify(x => x.RemoveEffect(trap, true), Times.Never);
+
+		manager.UnregisterTransientExit(replacementExit);
+
+		origin.Verify(x => x.RemoveEffect(trap, true), Times.Once);
+		component.Verify(x => x.Delete(), Times.Once);
+		origin.Verify(x => x.RemoveAllEffects<TrapPayloadScheduleEffect>(
+			It.IsAny<Predicate<TrapPayloadScheduleEffect>>(), true), Times.Once);
+		origin.Verify(x => x.RemoveAllEffects<TrapResetEffect>(
+			It.IsAny<Predicate<TrapResetEffect>>(), true), Times.Once);
+		origin.Verify(x => x.RemoveAllEffects<TrapSpentCleanupEffect>(
+			It.IsAny<Predicate<TrapSpentCleanupEffect>>(), true), Times.Once);
+	}
+
+	[TestMethod]
+	public void TransientExitReplacement_WithChangedEndpointIsLogicalRemoval()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var manager = new ExitManager(gameworld.Object);
+		var origin = new Mock<ICell>();
+		origin.SetupGet(x => x.Id).Returns(100L);
+		var destination = new Mock<ICell>();
+		destination.SetupGet(x => x.Id).Returns(101L);
+		var movedDestination = new Mock<ICell>();
+		movedDestination.SetupGet(x => x.Id).Returns(102L);
+		var firstExit = new TransientExit(gameworld.Object, origin.Object, destination.Object, "enter", "portal",
+			"portal", "a portal", "a portal", "through", "through", 1.0,
+			stableKey: "test-portal:42");
+		var replacementExit = new TransientExit(gameworld.Object, origin.Object, movedDestination.Object, "enter",
+			"portal", "portal", "a portal", "a portal", "through", "through", 1.0,
+			stableKey: "test-portal:42");
+		var removed = 0;
+		manager.TransientExitUnregistered += _ => removed++;
+		manager.RegisterTransientExit(firstExit);
+
+		Assert.IsFalse(manager.ReplaceTransientExit(firstExit, replacementExit));
+		Assert.AreEqual(1, removed);
+		Assert.AreSame(replacementExit, manager.GetExitByID(replacementExit.Id));
+	}
+
+	[TestMethod]
+	public void LegacyNegativeExitBinding_IsDestructivelyRemovedDuringReconciliation()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var origin = new Mock<ICell>();
+		origin.SetupGet(x => x.Id).Returns(100L);
+		origin.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var legacyExit = new Mock<IExit>();
+		legacyExit.SetupGet(x => x.Id).Returns(-1L);
+		var cellExit = new Mock<ICellExit>();
+		cellExit.SetupGet(x => x.Exit).Returns(legacyExit.Object);
+		cellExit.SetupGet(x => x.Origin).Returns(origin.Object);
+		var template = new Mock<ITrapTemplate>();
+		template.SetupGet(x => x.Id).Returns(300L);
+		template.SetupGet(x => x.RevisionNumber).Returns(4);
+		template.SetupGet(x => x.Charges).Returns(1);
+		var trap = new TrapEffect(origin.Object, template.Object, boundExit: cellExit.Object);
+		origin.Setup(x => x.RemoveEffect(trap, true)).Callback(trap.RemovalEffect);
+
+		Assert.IsFalse(trap.ReconcileTransientExitBinding());
+		origin.Verify(x => x.RemoveEffect(trap, true), Times.Once);
+	}
+
+	[TestMethod]
 	public void PayloadDefinition_SaveAndLoad_PreservesDelayTargetAndParameters()
 	{
 		var payload = new TrapPayloadDefinition(

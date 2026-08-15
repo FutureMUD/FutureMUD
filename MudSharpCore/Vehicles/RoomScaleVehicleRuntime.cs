@@ -83,17 +83,19 @@ public sealed class VehicleCompartmentLink : FrameworkItem, IVehicleCompartmentL
 	public IVehicleCompartment DestinationCompartment { get; }
 	public long? ExitId => _exit?.Id;
 	public IExit? Exit => _exit;
+	internal static string TransientExitKey(long vehicleId, long prototypeId) =>
+		$"vehicle:{vehicleId}:compartment-link:{prototypeId}";
 
 	internal bool Rebuild()
 	{
-		Remove();
 		if (SourceCompartment.InteriorCell is not { } source ||
 		    DestinationCompartment.InteriorCell is not { } destination)
 		{
+			Remove();
 			return false;
 		}
 
-		_exit = new TransientExit(
+		var replacement = new TransientExit(
 			Vehicle.Gameworld,
 			source,
 			destination,
@@ -104,8 +106,17 @@ public sealed class VehicleCompartmentLink : FrameworkItem, IVehicleCompartmentL
 			Prototype.InboundDescription,
 			"towards",
 			"from",
-			1.0);
-		Vehicle.Gameworld.ExitManager.RegisterTransientExit(_exit);
+			1.0,
+			stableKey: TransientExitKey(Vehicle.Id, Prototype.Id));
+		if (_exit is not null)
+		{
+			Vehicle.Gameworld.ExitManager.ReplaceTransientExit(_exit, replacement);
+		}
+		else
+		{
+			Vehicle.Gameworld.ExitManager.RegisterTransientExit(replacement);
+		}
+		_exit = replacement;
 		return true;
 	}
 
@@ -156,11 +167,11 @@ public sealed class VehicleDocking : FrameworkItem, IVehicleDocking
 	public IExit TransientExit => _transientExit!;
 	internal long? StopId => _stopId;
 	internal bool IsRegistered => _registered;
+	internal static string TransientExitKey(long dockingId) => $"vehicle-docking:{dockingId}";
 
 	internal void Rebind(ICell exteriorCell, RoomLayer exteriorLayer, bool boardingOpen,
 		IVehicleRouteStop? stop = null)
 	{
-		Suspend(false);
 		ExteriorCell = exteriorCell;
 		ExteriorLayer = exteriorLayer;
 		_stopId = stop?.Id;
@@ -171,7 +182,6 @@ public sealed class VehicleDocking : FrameworkItem, IVehicleDocking
 
 	internal void SetBoardingOpen(bool open)
 	{
-		Suspend(false);
 		_state = open ? VehicleDockingState.BoardingOpen : VehicleDockingState.DockedClosed;
 		Persist();
 		BuildAndRegisterIfOpen();
@@ -200,12 +210,13 @@ public sealed class VehicleDocking : FrameworkItem, IVehicleDocking
 		    ExteriorCell is null ||
 		    AccessPoint.IsDisabled || AccessPoint.IsLocked || !AccessPoint.IsOpen)
 		{
+			Suspend(false);
 			return;
 		}
 
 		var exteriorTarget = Vehicle.ExteriorItem?.Name ?? Vehicle.Name;
 		var interiorTarget = AccessPoint.Prototype.Description.IfNullOrWhiteSpace(AccessPoint.Name);
-		_transientExit = new TransientExit(
+		var replacement = new TransientExit(
 			Vehicle.Gameworld,
 			ExteriorCell,
 			interior,
@@ -216,8 +227,18 @@ public sealed class VehicleDocking : FrameworkItem, IVehicleDocking
 			exteriorTarget,
 			"through",
 			"towards",
-			1.0);
-		Vehicle.Gameworld.ExitManager.RegisterTransientExit(_transientExit);
+			1.0,
+			stableKey: TransientExitKey(Id));
+		if (_registered && _transientExit is not null)
+		{
+			Vehicle.Gameworld.ExitManager.ReplaceTransientExit(_transientExit, replacement);
+		}
+		else
+		{
+			Vehicle.Gameworld.ExitManager.RegisterTransientExit(replacement);
+		}
+
+		_transientExit = replacement;
 		_registered = true;
 	}
 

@@ -926,7 +926,7 @@ public class MagicPortalTopologyExit : TransientExit, IMagicPortalTopologyExit
 	public MagicPortalTopologyExit(IMagicPortalNetwork network, IMagicPortalLink link, ICell source, ICell destination)
 		: base(network.Gameworld, source, destination, network.Verb, network.OutboundKeyword, network.InboundKeyword,
 			network.OutboundTarget, network.InboundTarget, network.OutboundDescription, network.InboundDescription,
-			network.TimeMultiplier)
+			network.TimeMultiplier, stableKey: $"magic-portal-network:{network.Id}:link:{link.Id}")
 	{
 		Network = network;
 		Link = link;
@@ -957,9 +957,15 @@ public class MagicPortalTopologyService : IMagicPortalTopologyService
 
 	public void RebuildNetwork(IMagicPortalNetwork network)
 	{
-		RemoveNetworkExits(network);
+		var existingExits = MaterializedExits(network.Gameworld)
+			.Where(x => x.Network.Id == network.Id)
+			.ToDictionary(x => ((ITransientExit)x.Exit).StableKey, StringComparer.Ordinal);
 		if (!network.IsActive)
 		{
+			foreach (var existingExit in existingExits.Values)
+			{
+				network.Gameworld.ExitManager.UnregisterTransientExit(existingExit.Exit);
+			}
 			return;
 		}
 
@@ -977,8 +983,19 @@ public class MagicPortalTopologyService : IMagicPortalTopologyService
 				continue;
 			}
 
-			network.Gameworld.ExitManager.RegisterTransientExit(
-				new MagicPortalTopologyExit(network, link, source, destination));
+			var replacement = new MagicPortalTopologyExit(network, link, source, destination);
+			if (existingExits.Remove(replacement.StableKey, out var existingExit))
+			{
+				network.Gameworld.ExitManager.ReplaceTransientExit(existingExit.Exit, replacement);
+				continue;
+			}
+
+			network.Gameworld.ExitManager.RegisterTransientExit(replacement);
+		}
+
+		foreach (var existingExit in existingExits.Values)
+		{
+			network.Gameworld.ExitManager.UnregisterTransientExit(existingExit.Exit);
 		}
 	}
 

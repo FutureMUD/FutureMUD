@@ -66,7 +66,11 @@ namespace MudSharp.Construction.Boundary
 
         IExit GetExitByID(long id);
         IEnumerable<IExit> TransientExits { get; }
+		event Action<ITransientExit> TransientExitRegistered;
+		event Action<ITransientExit, ITransientExit> TransientExitReplaced;
+		event Action<ITransientExit> TransientExitUnregistered;
         void RegisterTransientExit(IExit exit);
+		bool ReplaceTransientExit(IExit existingExit, IExit replacementExit);
         void UnregisterTransientExit(IExit exit);
 
         /// <summary>

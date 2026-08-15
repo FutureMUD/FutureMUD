@@ -18,6 +18,7 @@ using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine.Lists;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
+using MudSharp.Traps;
 using MudSharp.Vehicles;
 using System.Text.RegularExpressions;
 using static MudSharp.Effects.Concrete.Dragging;
@@ -7224,7 +7225,7 @@ The syntax is:
 
 	[PlayerCommand("Arm", "arm")]
 	[RequiredCharacterState(CharacterState.Able)]
-	[HelpInfo("arm", @"The #3arm#0 command arms an explosive trigger. Countdown triggers accept a duration, clock triggers accept an exact in-game date and time, and signal triggers need no additional argument.
+	[HelpInfo("arm", @"The #3arm#0 command re-arms a known trap on an item or arms an explosive trigger. You must be able to manipulate the item. Countdown triggers accept a duration, clock triggers accept an exact in-game date and time, and signal triggers need no additional argument.
 
 The syntax is:
 
@@ -7245,9 +7246,22 @@ The syntax is:
 			return;
 		}
 
-		var trap = target.EffectsOfType<TrapEffect>().FirstOrDefault();
+		var (truth, error) = actor.CanManipulateItem(target);
+		if (!truth)
+		{
+			actor.Send(error);
+			return;
+		}
+
+		var trap = target.EffectsOfType<TrapEffect>().FirstOrDefault(x => x.IsKnownBy(actor));
 		if (trap is not null)
 		{
+			if (trap.State is not (TrapState.Unarmed or TrapState.Disarmed))
+			{
+				actor.Send("Only an unarmed or disarmed trap can be armed this way.");
+				return;
+			}
+
 			if (!trap.Arm())
 			{
 				actor.Send("That trap cannot be armed in its current state.");
@@ -7262,13 +7276,6 @@ The syntax is:
 		if (trigger is null)
 		{
 			actor.Send($"{target.HowSeen(actor, true)} does not have an armable explosive trigger.");
-			return;
-		}
-
-		var (truth, error) = actor.CanManipulateItem(target);
-		if (!truth)
-		{
-			actor.Send(error);
 			return;
 		}
 

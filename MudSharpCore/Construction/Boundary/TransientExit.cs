@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace MudSharp.Construction.Boundary;
 
-public class TransientExit : PerceivedItem, IExit, IMagicPortalExit
+public class TransientExit : PerceivedItem, ITransientExit, IMagicPortalExit
 {
 	private static long _nextId;
 	private readonly List<ICell> _cells = new();
@@ -18,7 +18,7 @@ public class TransientExit : PerceivedItem, IExit, IMagicPortalExit
 	public TransientExit(IFuturemud gameworld, ICell origin, ICell destination, string verb, string outboundKeyword,
 		string inboundKeyword, string outboundTarget, string inboundTarget, string outboundDescription,
 		string inboundDescription, double timeMultiplier, ICharacter? caster = null, IMagicSpell? spell = null,
-		IEffect? sourceEffect = null)
+		IEffect? sourceEffect = null, string? stableKey = null)
 	{
 		Gameworld = gameworld;
 		_id = Interlocked.Decrement(ref _nextId);
@@ -34,6 +34,7 @@ public class TransientExit : PerceivedItem, IExit, IMagicPortalExit
 		Caster = caster;
 		Spell = spell;
 		SourceEffect = sourceEffect;
+		StableKey = stableKey ?? $"runtime:{Guid.NewGuid():D}";
 		Verb = verb;
 		OutboundKeyword = outboundKeyword;
 		InboundKeyword = inboundKeyword;
@@ -75,6 +76,7 @@ public class TransientExit : PerceivedItem, IExit, IMagicPortalExit
 	public ICharacter? Caster { get; }
 	public IMagicSpell? Spell { get; }
 	public IEffect? SourceEffect { get; }
+	public string StableKey { get; }
 	public string Verb { get; }
 	public string OutboundKeyword { get; }
 	public string InboundKeyword { get; }

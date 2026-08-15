@@ -23,6 +23,13 @@ namespace MudSharp_Unit_Tests;
 public class RoomScaleVehicleRuntimeTests
 {
 	[TestMethod]
+	public void TransientExitKeys_AreDeterministicAndNamespaced()
+	{
+		Assert.AreEqual("vehicle:101:compartment-link:202", VehicleCompartmentLink.TransientExitKey(101, 202));
+		Assert.AreEqual("vehicle-docking:303", VehicleDocking.TransientExitKey(303));
+	}
+
+	[TestMethod]
 	[DataRow("indoors", CellOutdoorsType.Indoors)]
 	[DataRow("windows", CellOutdoorsType.IndoorsWithWindows)]
 	[DataRow("outdoors", CellOutdoorsType.Outdoors)]

@@ -165,7 +165,7 @@ public sealed class CreateTrapSpellEffect : IMagicSpellEffectTemplate
 
 	private static bool HasSameBinding(TrapEffect trap, ICellExit? exit) => exit is null
 		? !trap.BoundExitId.HasValue
-		: trap.BoundExitId == exit.Exit.Id && trap.BoundExitOriginId == exit.Origin.Id;
+		: trap.MatchesExit(exit);
 
 	public IMagicSpellEffectTemplate Clone()
 	{

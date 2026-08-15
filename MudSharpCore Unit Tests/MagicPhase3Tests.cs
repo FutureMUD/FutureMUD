@@ -5,6 +5,7 @@ using Moq;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Effects;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
@@ -18,6 +19,7 @@ using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Linq;
 
 namespace MudSharp_Unit_Tests;
@@ -159,6 +161,25 @@ public class MagicPhase3Tests
 		manager.UnregisterTransientExit(exit);
 
 		Assert.IsNull(manager.GetExitByID(exit.Id));
+	}
+
+	[TestMethod]
+	public void SpellPortalEffect_PersistsStablePortalInstanceIdentity()
+	{
+		var gameworld = CreateGameworld();
+		var owner = CreatePerceivable(gameworld.Object);
+		var source = CreateCell(1, "Source", gameworld.Object);
+		var destination = CreateCell(2, "Destination", gameworld.Object);
+		var effect = new SpellPortalEffect(owner.Object, CreateParent().Object, source.Object, destination.Object,
+			"enter", "portal", "portal", "a portal", "a portal", "through", "through", 1.0);
+		var xml = effect.SaveToXml(new Dictionary<IEffect, TimeSpan>());
+
+		var loaded = (SpellPortalEffect)Activator.CreateInstance(typeof(SpellPortalEffect),
+			BindingFlags.Instance | BindingFlags.NonPublic, null, [xml, owner.Object], null)!;
+
+		Assert.AreEqual(effect.PortalInstanceId, loaded.PortalInstanceId);
+		Assert.AreEqual(effect.PortalInstanceId.ToString(),
+			xml.Descendants("PortalInstanceId").Single().Value);
 	}
 
 	[TestMethod]

@@ -34,4 +34,15 @@ namespace MudSharp.Construction.Boundary
         void RemoveBlockedLayer(RoomLayer layer);
         void Delete();
     }
+
+	/// <summary>
+	/// A runtime-only exit whose database-independent identity can be used by effects that must survive reconstruction.
+	/// </summary>
+	public interface ITransientExit : IExit
+	{
+		/// <summary>
+		/// A namespaced identity that remains stable whenever the same logical exit is rebuilt.
+		/// </summary>
+		string StableKey { get; }
+	}
 }

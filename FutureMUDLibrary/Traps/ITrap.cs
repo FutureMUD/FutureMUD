@@ -2,6 +2,7 @@
 
 using MudSharp.Effects;
 using MudSharp.Character;
+using MudSharp.Construction.Boundary;
 using MudSharp.GameItems;
 using System.Collections.Generic;
 using System;
@@ -22,8 +23,10 @@ public interface ITrap : IEffect
 	int RemainingCharges { get; }
 	long? BoundExitId { get; }
 	long? BoundExitOriginId { get; }
+	string? BoundTransientExitKey { get; }
 	IReadOnlyList<ITrapComponentBinding> Components { get; }
 	bool IsKnownBy(ICharacter character);
+	bool MatchesExit(ICellExit exit);
 }
 
 public interface ITrapComponentBinding

@@ -42,6 +42,7 @@ public class MagicPortalTopologyTests
 		Assert.AreEqual("enter", portal.Verb);
 		Assert.AreEqual("north", portal.SourceEndpoint.Key);
 		Assert.AreEqual("south", portal.DestinationEndpoint.Key);
+		Assert.AreEqual("magic-portal-network:10:link:20", ((ITransientExit)portal.Exit).StableKey);
 	}
 
 	[TestMethod]
@@ -54,11 +55,16 @@ public class MagicPortalTopologyTests
 		manager.RegisterTransientExit(legacy);
 
 		new MagicPortalTopologyService().RebuildNetwork(network);
+		var firstTopologyExit = manager.TransientExits.OfType<IMagicPortalTopologyExit>().Single();
 		new MagicPortalTopologyService().RebuildNetwork(network);
+		var rebuiltTopologyExit = manager.TransientExits.OfType<IMagicPortalTopologyExit>().Single();
 
 		Assert.AreSame(legacy, manager.TransientExits.First(x => ReferenceEquals(x, legacy)));
 		Assert.AreEqual(1, manager.TransientExits.OfType<IMagicPortalTopologyExit>().Count());
 		Assert.AreEqual(2, manager.TransientExits.Count());
+		Assert.AreNotEqual(firstTopologyExit.Exit.Id, rebuiltTopologyExit.Exit.Id);
+		Assert.AreEqual(((ITransientExit)firstTopologyExit.Exit).StableKey,
+			((ITransientExit)rebuiltTopologyExit.Exit).StableKey);
 	}
 
 	[TestMethod]

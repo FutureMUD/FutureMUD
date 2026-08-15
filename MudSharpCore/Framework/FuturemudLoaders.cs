@@ -401,6 +401,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
             game.LoadVehicleHitchLinks(); // Needs vehicles, world items and NPCs available for endpoint recovery
 			game.LoadVehicleOperations(); // Needs routes, vehicles and hitch links before recovery/scheduling
             game.LoadMagicPortalTopology(); // Needs world items and cells available before exit pathing preload
+			ReconcileTransientExitTrapEffects(); // Needs every reboot-surviving transient exit source to be rebuilt
             FinalisePostCharacterLoadObjects();
             game.LoadGroupAIs(); // Needs to come after LoadNPCs
             ExitManager.PreloadCriticalExits(); // Needs to come after LoadGameItemProtos
@@ -577,6 +578,18 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 		ConsoleUtilities.WriteLine("Initialised #2{0:N0}#0 cell {1}.", traps.Count,
 			traps.Count == 1 ? "trap" : "traps");
+	}
+
+	private void ReconcileTransientExitTrapEffects()
+	{
+		ConsoleUtilities.WriteLine("#EReconciling Transient Exit Traps...#0");
+		var traps = _cells
+			.SelectMany(x => x.EffectsOfType<TrapEffect>())
+			.Where(x => x.BoundTransientExitKey is not null || x.BoundExitId < 0)
+			.ToList();
+		var retained = traps.Count(x => x.ReconcileTransientExitBinding());
+		ConsoleUtilities.WriteLine("Retained #2{0:N0}#0 and removed #2{1:N0}#0 transient exit {2}.", retained,
+			traps.Count - retained, traps.Count == 1 ? "trap" : "traps");
 	}
 
     private void EnsureCoreHelpfiles()

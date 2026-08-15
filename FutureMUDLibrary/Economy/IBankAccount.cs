@@ -48,6 +48,11 @@ public interface IBankAccount : IFrameworkItem, ISaveable, IProgVariable
 
     MudDateTime AccountCreationDate { get; }
     BankAccountStatus AccountStatus { get; }
+
+    /// <summary>
+    /// Returns the transaction history currently hydrated for this account. Calling the player-facing history
+    /// command starts idle-time hydration of remaining persisted records in bounded batches.
+    /// </summary>
     IEnumerable<IBankAccountTransaction> Transactions { get; }
 
     IBankAccount NominatedBenefactor { get; }

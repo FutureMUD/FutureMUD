@@ -42,6 +42,12 @@ namespace MudSharp.Form.Audio
         DangerouslyLoud = 7
     }
 
+    public enum AudioPropagationMode
+    {
+        Topological = 0,
+        CoordinateAware = 1
+    }
+
     public enum AudioQuality
     {
         Intermittent = 0,

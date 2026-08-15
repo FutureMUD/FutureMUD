@@ -272,20 +272,7 @@ public static class AlertUtilities
 
 	private static bool CanHearAlert(ICharacter actor, ICharacter witness, AudioVolume volume, Proximity proximity)
 	{
-		if (witness.IsSelf(actor))
-		{
-			return true;
-		}
-
-		if (!witness.CanHear(actor))
-		{
-			return false;
-		}
-
-		var difficulty = witness.Location.LocalAudioDifficulty(witness, volume, proximity);
-		return witness.Gameworld.GetCheck(CheckType.GenericListenCheck)
-		              .Check(witness, difficulty, actor)
-		              .IsPass();
+		return AudioPerception.CanHear(witness, actor, volume, proximity);
 	}
 
 	private static bool TryFormatDistantAlertEmote(string emoteText, string directionText, out string formattedText,

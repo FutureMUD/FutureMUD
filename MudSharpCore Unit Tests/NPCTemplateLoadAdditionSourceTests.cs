@@ -1,8 +1,12 @@
 #nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.IO;
+using MudSharp.Events;
+using MudSharp.Events.Hooks;
+using MudSharp.NPC.Templates;
 
 namespace MudSharp_Unit_Tests;
 
@@ -80,6 +84,15 @@ public class NPCTemplateLoadAdditionSourceTests
         StringAssert.Contains(source, "HookIsValidForCharacter");
         StringAssert.Contains(source, "character.Body.InstallImplant(implant)");
         StringAssert.Contains(source, "character.Body.InstallProsthetic(prosthetic)");
+    }
+
+    [TestMethod]
+    public void NpcTemplateLoadAdditions_AcceptTheStructuredNoiseReceiverEvent()
+    {
+        var hook = new Mock<IHook>();
+        hook.SetupGet(x => x.Type).Returns(EventType.CharacterNoiseReceived);
+
+        Assert.IsTrue(NPCTemplateBase.HookIsValidForCharacter(hook.Object));
     }
 
     private static void AssertApplyBeforeOnLoad(params string[] parts)

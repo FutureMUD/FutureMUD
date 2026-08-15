@@ -712,7 +712,7 @@ public abstract partial class NPCTemplateBase
         return character is not ILateInitialisingItem item || item.IdHasBeenRegistered;
     }
 
-    private static bool HookIsValidForCharacter(IHook hook)
+    internal static bool HookIsValidForCharacter(IHook hook)
     {
         if (hook.Type is EventType.CommandInput or EventType.SelfCommandInput
             or EventType.FiveSecondTick or EventType.TenSecondTick or EventType.MinuteTick or EventType.HourTick

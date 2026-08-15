@@ -2027,6 +2027,33 @@ public partial class Cell : Location, IDisposable, ICell
         }
     }
 
+    public void HandleAudioEcho(string audioText, AudioVolume volume, double propagationBudget,
+        AudioPropagationMode propagationMode, IPerceiver source, RoomLayer originalLayer,
+        bool ignoreOriginLayer, string noiseType)
+    {
+		if (!Enum.IsDefined(propagationMode))
+		{
+			throw new ArgumentOutOfRangeException(nameof(propagationMode));
+		}
+
+        if (volume == AudioVolume.Silent)
+        {
+            return;
+        }
+
+        NoiseEmission.RaiseEvent(this, source, volume, noiseType, audioText);
+        StructuredNoisePropagation.Instance.Propagate(
+            this,
+            audioText,
+            volume,
+            propagationBudget,
+            propagationMode,
+            source,
+            originalLayer,
+            ignoreOriginLayer,
+            noiseType);
+    }
+
 
     private long _foragableProfileId;
     private IForagableProfile _foragableProfile;

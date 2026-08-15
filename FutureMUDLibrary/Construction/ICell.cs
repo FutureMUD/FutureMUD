@@ -168,5 +168,12 @@ namespace MudSharp.Construction
         {
             HandleAudioEcho(audioText, volume, source, originalLayer, ignoreOriginLayer);
         }
+
+        /// <summary>
+        /// Emits structured received noise using a finite propagation budget independent of AudioVolume.
+        /// </summary>
+        void HandleAudioEcho(string audioText, AudioVolume volume, double propagationBudget,
+            AudioPropagationMode propagationMode, IPerceiver source, RoomLayer originalLayer,
+            bool ignoreOriginLayer, string noiseType);
     }
 }

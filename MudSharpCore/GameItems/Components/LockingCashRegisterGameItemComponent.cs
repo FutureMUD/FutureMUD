@@ -185,11 +185,21 @@ public class LockingCashRegisterGameItemComponent : CashRegisterGameItemComponen
 	private void EmitLockChange(ICharacter actor, IKey key, IPerceivable containingPerceivable, IEmote playerEmote,
 		bool locked)
 	{
-		actor.OutputHandler.Handle(new MixedEmoteOutput(
-			new Emote(locked ? _prototype.LockEmote : _prototype.UnlockEmote, actor, actor, Parent, key.Parent),
-			flags: OutputFlags.SuppressObscured).Append(playerEmote));
+		if (actor is not null && key is not null)
+		{
+			actor.OutputHandler.Handle(new MixedEmoteOutput(
+				new Emote(locked ? _prototype.LockEmote : _prototype.UnlockEmote, actor, actor, Parent, key.Parent),
+				flags: OutputFlags.SuppressObscured).Append(playerEmote));
+		}
+		else
+		{
+			Parent.OutputHandler.Handle(new EmoteOutput(
+				new Emote(locked ? _prototype.LockEmoteNoActor : _prototype.UnlockEmoteNoActor, Parent, Parent),
+				flags: OutputFlags.SuppressObscured));
+		}
+
 		HandleItemLockEvent(locked ? EventType.ItemLocked : EventType.ItemUnlocked,
-			locked ? EventType.ItemLockedWitness : EventType.ItemUnlockedWitness, actor, key.Parent,
+			locked ? EventType.ItemLockedWitness : EventType.ItemUnlockedWitness, actor, key?.Parent,
 			containingPerceivable);
 	}
 

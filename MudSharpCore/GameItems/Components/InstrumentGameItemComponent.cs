@@ -79,6 +79,11 @@ public class InstrumentGameItemComponent : GameItemComponent, IInstrument
 			return $"{Parent.HowSeen(actor, true)} is already being played.";
 		}
 
+		if (actor.EffectsOfType<PlayingInstrument>().Any())
+		{
+			return "You are already playing another instrument.";
+		}
+
 		if (!CharacterState.Able.HasFlag(actor.State))
 		{
 			return "You are not in a fit state to play an instrument.";

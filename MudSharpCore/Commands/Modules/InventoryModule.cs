@@ -378,6 +378,12 @@ The syntax is as follows:
             return;
         }
 
+		if (!actor.ColocatedWith(target))
+		{
+			actor.Send("You are not close enough to undo their bindings.");
+			return;
+		}
+
         IGameItem item = null;
         if (ss.IsFinished)
         {

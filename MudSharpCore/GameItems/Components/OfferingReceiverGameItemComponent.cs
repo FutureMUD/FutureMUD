@@ -538,8 +538,8 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 		_lastLiquidOfferingUtc = DateTime.UtcNow;
 		Changed = true;
 
-		var echo = string.Format(System.Globalization.CultureInfo.InvariantCulture, _prototype.LiquidAcceptEcho,
-			offered.ColouredLiquidDescription);
+		var echo = _prototype.LiquidAcceptEcho.Replace("{0}", offered.ColouredLiquidDescription,
+			StringComparison.Ordinal);
 		actor.OutputHandler.Handle(
 			new MixedEmoteOutput(new Emote(echo, actor, actor, source, Parent)).Append(playerEmote));
 		_prototype.OnOfferLiquidProg?.Execute(actor, Parent, source, offered, offered.TotalVolume);

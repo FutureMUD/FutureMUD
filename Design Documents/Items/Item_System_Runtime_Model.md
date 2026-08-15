@@ -642,7 +642,7 @@ Crossbows may author a required spanning-tool tag. The inventory plan must acqui
 
 ## Runtime Integration: Instruments and Military Standards
 
-An active `Instrument` performance is a non-saving character effect. Its initial check outcome is retained for hook consumers; output occurs immediately and every authored interval, and stamina is drained at admission and on each tick. Movement, melee engagement, item loss, invalid posture, incapacity, exhaustion, deletion, quit, or logout ends it. Audible propagation uses `ICell.HandleAudioEcho` and does not create alert events.
+An active `Instrument` performance is a non-saving, character-exclusive effect. A character must stop the current performance before starting another instrument. Its initial check outcome is retained for hook consumers; output occurs immediately and every authored interval, and stamina is drained at admission and on each tick. Movement, melee engagement, item loss, invalid posture, incapacity, exhaustion, deletion, quit, or logout ends it. Audible propagation uses `ICell.HandleAudioEcho` and does not create alert events.
 
 Physical hand requirements use functioning `IWield` body locations rather than `IGrab` inventory locations. This distinction matters for inventory-model bodies, whose carried items share one non-unary grab location while their physical hands remain separate wielding locations. A location occupied by the item being used still counts toward that item's requirement; a location occupied by another item or disabled by injury does not. Ranged readying, ammunition manipulation, instruments, and signal instruments all use this shared rule.
 

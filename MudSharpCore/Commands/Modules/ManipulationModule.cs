@@ -1098,6 +1098,12 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
                 return;
             }
 
+			if (!actor.ColocatedWith(help))
+			{
+				actor.Send($"{help.HowSeen(actor, true)} is too far away for you to help with the drag.");
+				return;
+			}
+
             if (CharacterInstanceIdentityComparer.SamePhysicalInstance(help, actor))
             {
                 actor.Send("You cannot help yourself to drag something.");
@@ -1188,6 +1194,12 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
             actor.Send("You don't see anything or anyone like that to drag.");
             return;
         }
+
+		if (!actor.ColocatedWith(target))
+		{
+			actor.Send($"{target.HowSeen(actor, true)} is too far away for you to drag.");
+			return;
+		}
 
         if (CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(actor, target))
         {
@@ -1767,6 +1779,12 @@ The syntax is as follows:
             return;
         }
 
+		if (!character.ColocatedWith(targetCharacter))
+		{
+			character.Send($"{targetCharacter.HowSeen(character, true)} is too far away for you to apply anything to.");
+			return;
+		}
+
         if (ss.IsFinished)
         {
             character.Send($"Which bodypart of {targetCharacter.HowSeen(character, type: DescriptionType.Possessive)} do you want to apply {item.HowSeen(character)} to?");
@@ -2339,6 +2357,12 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
             return;
         }
 
+		if (!character.ColocatedWith(targetCharacter))
+		{
+			character.Send($"{targetCharacter.HowSeen(character, true)} is too far away for you to inject.");
+			return;
+		}
+
         if (ss.IsFinished)
         {
             character.Send(
@@ -2518,6 +2542,12 @@ You can use the following syntaxes with this command:
             character.Send("You can't feed yourself. Use the eat, drink and swallow commands instead.");
             return;
         }
+
+		if (!character.ColocatedWith(target))
+		{
+			character.Send($"{target.HowSeen(character, true)} is too far away for you to feed.");
+			return;
+		}
 
         PlayerEmote emote = null;
         if (ss.PeekSpeech().EqualTo("from"))
@@ -3325,6 +3355,13 @@ The syntax to use this command is as follows:
                 return;
             }
 
+			if (!character.ColocatedWith(containerOwner))
+			{
+				character.OutputHandler.Send(
+					$"{containerOwner.HowSeen(character, true)} is too far away for you to fill from one of {containerOwner.ApparentGender(character).Possessive()} containers.");
+				return;
+			}
+
             if (!containerOwner.WillingToPermitInventoryManipulation(character))
             {
                 character.OutputHandler.Send(
@@ -3415,6 +3452,13 @@ The syntax to use this command is as follows:
             character.Send(error);
             return;
         }
+
+		(truth, error) = character.CanManipulateItem(container);
+		if (!truth)
+		{
+			character.Send(error);
+			return;
+		}
 
         if (containerOwner == null)
         {
@@ -3904,6 +3948,12 @@ The syntax is as follows:
                 return;
             }
 
+			if (!character.ColocatedWith(charTarget))
+			{
+				character.Send($"{charTarget.HowSeen(character, true)} is too far away for you to spill anything on.");
+				return;
+			}
+
             target = charTarget.Inventory.GetFromItemListByKeyword(match.Groups["subtarget"].Value, character);
             if (target == null)
             {
@@ -3920,6 +3970,13 @@ The syntax is as follows:
                 character.Send("You don't see anything like that upon which you can spill anything.");
                 return;
             }
+
+			var (canManipulate, manipulationError) = character.CanManipulateItem(target);
+			if (!canManipulate)
+			{
+				character.Send(manipulationError);
+				return;
+			}
         }
 
         double amount = vesselContainer.LiquidMixture.TotalVolume;
@@ -4269,6 +4326,21 @@ The syntax is:
             return;
         }
 
+		if (ignition is IGameItem ignitionItem)
+		{
+			var (canManipulateIgnition, ignitionError) = character.CanManipulateItem(ignitionItem);
+			if (!canManipulateIgnition)
+			{
+				character.Send(ignitionError);
+				return;
+			}
+		}
+		else if (ignition is not null && !character.ColocatedWith(ignition))
+		{
+			character.Send($"{ignition.HowSeen(character, true)} is too far away to use as an ignition source.");
+			return;
+		}
+
         ILightable lightable = target.GetItemType<ILightable>();
         if (lightable == null)
         {
@@ -4329,6 +4401,13 @@ The syntax is:
             character.Send("{0} is not something that can be extinguished.", target.HowSeen(character, true));
             return;
         }
+
+		var (canManipulate, manipulationError) = character.CanManipulateItem(target);
+		if (!canManipulate)
+		{
+			character.Send(manipulationError);
+			return;
+		}
 
         string emoteText = ss.PopParentheses();
         PlayerEmote emote = null;
@@ -4602,7 +4681,12 @@ The syntax is as follows:
 
 	private static bool TargetRemainsPresentForInstall(ICharacter character, IGameItem targetItem, ICellExit exit)
 	{
-		if (targetItem?.TrueLocations.Contains(character.Location) == true)
+		if (targetItem is null || !character.CanManipulateItem(targetItem).Truth)
+		{
+			return false;
+		}
+
+		if (targetItem.TrueLocations.Contains(character.Location))
 		{
 			return true;
 		}
@@ -4646,6 +4730,13 @@ The syntax is as follows:
                 targetItem.HowSeen(character, true));
             return;
         }
+
+		var (canManipulateTarget, targetError) = character.CanManipulateItem(targetItem);
+		if (!canManipulateTarget)
+		{
+			character.Send(targetError);
+			return;
+		}
 
 		if (!theLock.CanBeInstalled)
 		{
@@ -4860,6 +4951,13 @@ The syntax is as follows:
             return;
         }
 
+		var (canManipulate, manipulationError) = character.CanManipulateItem(targetItem);
+		if (!canManipulate)
+		{
+			character.Send(manipulationError);
+			return;
+		}
+
         if (CrimeExtensions.HandleCrimesAndLawfulActing(character, CrimeTypes.BreakAndEnter, null, targetItem))
         {
             return;
@@ -4989,7 +5087,8 @@ The syntax is as follows:
 
         void lockUninstallAction(IPerceivable perceivable)
         {
-            if (!lockableItem.TrueLocations.Contains(character.Location))
+			if (!lockableItem.TrueLocations.Contains(character.Location) ||
+			    !character.CanManipulateItem(lockableItem).Truth)
             {
                 character.OutputHandler.Handle(
                     new EmoteOutput(new Emote("@ stop|stops removing the lock as it is no longer there.", character)));
@@ -5549,6 +5648,13 @@ The syntax is as follows:
 		    (targetAsBeltable is null ||
 		     musket.CanAttachBeltable(targetAsBeltable) == IBeltCanAttachBeltableResult.NotValidType))
 		{
+			var (canManipulateMusket, musketError) = actor.CanManipulateItem(musket.Parent);
+			if (!canManipulateMusket)
+			{
+				actor.Send(musketError);
+				return;
+			}
+
 			if (!musket.TryInstallIgnitionStone(actor, targetItem, out var ignitionReason))
 			{
 				actor.Send(ignitionReason);
@@ -5854,6 +5960,22 @@ The syntax is as follows:
     private static bool CanAttachProsthetic(ICharacter actor, ICharacter target, IProsthetic targetProsthetic,
         bool delayed)
     {
+		if (!actor.ColocatedWith(target))
+		{
+			if (delayed)
+			{
+				actor.OutputHandler.Handle(
+					new EmoteOutput(new Emote("@ stop|stops attaching $1 because &0's patient is no longer close enough.",
+						actor, actor, targetProsthetic.Parent)));
+			}
+			else
+			{
+				actor.Send($"{target.HowSeen(actor, true)} is too far away for you to attach a prosthetic to.");
+			}
+
+			return false;
+		}
+
         if (delayed)
         {
             if (target.State.HasFlag(CharacterState.Dead))
@@ -5861,14 +5983,6 @@ The syntax is as follows:
                 actor.OutputHandler.Handle(
                     new EmoteOutput(new Emote("@ stop|stops attaching $1 because &0's patient has died.", actor,
                         actor, targetProsthetic.Parent)));
-                return false;
-            }
-
-            if (!Equals(actor.Location, target.Location))
-            {
-                actor.OutputHandler.Handle(
-                    new EmoteOutput(new Emote("@ stop|stops attaching $1 because &0's patient is no longer there.",
-                        actor, actor, targetProsthetic.Parent)));
                 return false;
             }
 
@@ -5984,6 +6098,16 @@ The syntax is as follows:
         string cmd = ss.PopSpeech();
 
         IGameItem targetBelt = actor.TargetItem(cmd);
+		if (targetBelt is not null)
+		{
+			var (canManipulate, manipulationError) = actor.CanManipulateItem(targetBelt);
+			if (!canManipulate)
+			{
+				actor.Send(manipulationError);
+				return;
+			}
+		}
+
         if (targetBelt?.GetItemType<IFirearmAttachmentHost>() is { } firearmHost)
         {
             DetachFirearmAttachment(actor, targetBelt, firearmHost, ss);
@@ -6171,12 +6295,12 @@ The syntax is as follows:
                 return false;
             }
 
-            if (!Equals(actor.Location, target.Location))
+			if (!actor.ColocatedWith(target))
             {
                 actor.OutputHandler.Handle(
                     new EmoteOutput(
                         new Emote(
-                            "@ stop|stops removing $2 from $1 because &0's patient is no longer in the same location.",
+							"@ stop|stops removing $2 from $1 because &0's patient is no longer close enough.",
                             actor, actor, target, targetItem.Parent)));
                 return false;
             }
@@ -6961,6 +7085,12 @@ The syntax is:
             targetActor = actor.TargetActor(ss.Last);
             if (targetActor != null)
             {
+				if (!actor.ColocatedWith(targetActor))
+				{
+					actor.Send($"{targetActor.HowSeen(actor, true)} is too far away for you to connect anything to.");
+					return;
+				}
+
                 target2 = ss.IsFinished
                     ? targetActor.Body.Implants.FirstOrDefault(x => x.External && x.Parent.IsItemType<IConnectable>())
                                  ?.Parent
@@ -7075,6 +7205,12 @@ The syntax is:
             targetActor = actor.TargetActor(ss.Last);
             if (targetActor != null)
             {
+				if (!actor.ColocatedWith(targetActor))
+				{
+					actor.Send($"{targetActor.HowSeen(actor, true)} is too far away for you to disconnect anything from.");
+					return;
+				}
+
                 target2 = ss.IsFinished
                     ? targetActor.Body.Implants.FirstOrDefault(x => x.External && x.Parent.IsItemType<IConnectable>())
                                  ?.Parent
@@ -8914,6 +9050,13 @@ The syntax is:
                 actor.OutputHandler.Send("You can only roll things onto tables that accept contents.");
                 return;
             }
+
+			var (canManipulateSurface, surfaceError) = actor.CanManipulateItem(surfaceTarget);
+			if (!canManipulateSurface)
+			{
+				actor.OutputHandler.Send(surfaceError);
+				return;
+			}
 
             if (!surfaceTarget.GetItemType<IContainer>().CanPut(target))
             {

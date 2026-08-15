@@ -289,6 +289,44 @@ public class SealAndMeasurementComponentTests
 	}
 
 	[TestMethod]
+	public void Instrument_ActorAlreadyPlayingAnotherInstrument_IsRejected()
+	{
+		var gameworld = CreateGameworld();
+		var proto = CreateProto<InstrumentGameItemComponentProto>(gameworld.Object,
+			ComponentProtoModel(628, "Instrument", new XElement("Definition",
+				new XElement("Family", "Lyre"),
+				new XElement("PerformanceTrait", 0),
+				new XElement("Difficulty", Difficulty.Automatic),
+				new XElement("Volume", "Decent"),
+				new XElement("RequiredHands", 0),
+				new XElement("UseModes", "Room"),
+				new XElement("InitialStamina", 0.0),
+				new XElement("TickStamina", 0.0),
+				new XElement("TickSeconds", 10),
+				new XElement("Positions"),
+				new XElement("Styles", new XElement("Style", "hymn")),
+				new XElement("LocalPlayEmote", "@ play|plays $1."),
+				new XElement("LocalTickEmote", "@ continue|continues playing $1."),
+				new XElement("DistantPlayEmote", "You hear music {0}."),
+				new XElement("FailureEmote", "@ fail|fails to play $1."),
+				new XElement("StopEmote", "@ stop|stops playing $1.")).ToString()));
+		var firstParent = CreateParent(gameworld.Object, 629L, "first lyre");
+		var secondParent = CreateParent(gameworld.Object, 630L, "second lyre");
+		var (actor, _, _) = CreateInstrumentActor(gameworld.Object, firstParent);
+		var first = (InstrumentGameItemComponent)proto.CreateNew(firstParent.Object, temporary: true);
+		var second = (InstrumentGameItemComponent)proto.CreateNew(secondParent.Object, temporary: true);
+		var activePerformance = new PlayingInstrument(actor.Object, first);
+		actor.Setup(x => x.EffectsOfType<PlayingInstrument>(It.IsAny<Predicate<PlayingInstrument>>()))
+		     .Returns<Predicate<PlayingInstrument>>(predicate =>
+			     predicate is null || predicate(activePerformance) ? [activePerformance] : []);
+
+		Assert.AreEqual("You are already playing another instrument.",
+			second.WhyCannotPlay(actor.Object, "hymn"));
+		Assert.IsFalse(second.Play(actor.Object, "hymn"));
+		actor.Verify(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()), Times.Never);
+	}
+
+	[TestMethod]
 	public void SignalInstrument_FailedSignalIsNeutralSuppressesHookAndAppliesCooldown()
 	{
 		var trait = new Mock<ITraitDefinition>();

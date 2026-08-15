@@ -83,6 +83,9 @@ Because of this, the item system exposes:
 In a RouteCell, a top-level item also has an exact longitudinal coordinate. `look`, local target discovery, item groups, stack merging, manipulation, illumination, heat, scent, audio, explosions, crime witnesses, and other ordinary local integrations must query from the viewer or source coordinate; they must not present every item in a ten-kilometre cell as nearby. Relative descriptions can identify an item as ahead or behind and show a localised distance where that helps the player.
 
 Nested or hosted items inherit the position of their carrier, container, installation host, hitch cohort, or RoomScale vehicle exterior. The inherited coordinate is a presentation/integration projection and is not separately persisted on the nested item.
+
+Visibility of a carried, implanted, prosthetic, or otherwise character-hosted item does not grant physical reach in a RouteCell. Commands that fill or spill from another character's possessions, attach or remove prosthetics, or connect external implants require the acting character and host to be `ColocatedWith` one another before inspecting or mutating hosted state. Delayed operations repeat that check when they commit.
+
 - `ContainedIn`
 - `InInventoryOf`
 - deep and shallow item traversal helpers
@@ -358,6 +361,7 @@ When vehicle cover intercepts an attack, the exterior item is the visible cover 
 ## Instruments, Signals, and Standards Presentation
 
 - Instrument output is an ordinary local emote plus spatial audio. The sustained tick retains the initial quality result but does not expose a numeric roll unless a game chooses to do so through hooks.
+- Attempting to start a second sustained performance reports that the character is already playing another instrument; players must use `stop playing` before switching instruments.
 - A failed named signal is audible as a garbled call; distant listeners do not learn the attempted pattern. Successful calls use the configured named output.
 - Planted standards gain a short-description marker. Full inspection shows custody, planted state, and capture count; identity, design, and association require recognition or administrator access.
 - The standard component exposes stable hooks and FutureProg queries for announcements, scoring, quests, NPC reactions, surrender, prize law, and later morale systems. Those integrations must decide their own policy and must not infer legal ownership transfer from capture custody.

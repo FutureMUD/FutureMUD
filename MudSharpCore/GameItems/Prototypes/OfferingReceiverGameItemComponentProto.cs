@@ -545,7 +545,7 @@ public class OfferingReceiverGameItemComponentProto : GameItemComponentProto, IO
 		}
 
 		var validationText = liquidDescriptionPlaceholder
-			? string.Format(System.Globalization.CultureInfo.InvariantCulture, text, "some liquid")
+			? text.Replace("{0}", "some liquid", StringComparison.Ordinal)
 			: text;
 		var emote = new Emote(validationText, actor, actor);
 		if (!emote.Valid)

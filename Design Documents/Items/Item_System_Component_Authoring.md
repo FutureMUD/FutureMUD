@@ -225,6 +225,8 @@ Use `OfferingReceiver` for altars, votive basins, funeral trays, libation tables
 
 Enable consumptive libations with `liquids on`, then configure `liquidallow`, `liquidblock`, `liquidminimum`, `liquidmaximum`, `liquidcanprog`, `liquidwhyprog`, `liquidofferprog`, `oracleprog`, `liquidecho`, and `liquidrejectecho`. Blocked liquid tags win; an empty allowed list is unrestricted; and every constituent liquid in a mixture must satisfy an allowed family. Liquid-enabled definitions remain backward compatible because missing fields default to disabled/unrestricted/zero.
 
+`liquidecho` must contain the literal `{0}` token for the coloured liquid description. The runtime replaces that token literally rather than treating builder text as a composite .NET format string, so other braces remain ordinary emote text and malformed legacy definitions cannot throw during `libate`.
+
 `CanOfferProg`, `OnOfferProg`, and `OnBurnProg` receive `(Character actor, Item focus, Item offering)`. Liquid progs receive `(Character actor, Item focus, Item source, LiquidMixture liquid, Number amount)`; the gate is Boolean, the rejection/oracle progs return Text, and the success hook returns Void. `OfferingReceiver` raises item offering/burning events plus `LiquidOfferingReceived` and `LiquidOfferingReceivedWitness`. The witness variants append the witnessing perceivable. Detailed history, ownership policy, cooldown, legal, clan, and religion rules belong in external consumers rather than the stock component.
 
 ### Readable book components
@@ -523,6 +525,7 @@ When adding similar capabilities in future:
 ## Historical Firearm and Storage Authoring
 
 - `lockingcashregister` authors till capacity, maximum item size, lock type, picking difficulty, and forcing difficulty. Use it instead of combining two container components.
+- Keyless administrator lock and unlock operations use the prototype's no-actor lock echoes, matching the established `ILock` contract; keyed operations use the actor-and-key echoes.
 - `container allow <tag>` and `container block <tag>` toggle admission rules; `allow clear` and `block clear` reset the respective list. Blocked matches always win and legacy definitions remain unrestricted.
 - `musketcartridge powder <mass>|legacy` authors an explicit charge or restores weapon-defined charge behavior; `wad` toggles included wadding.
 - `bayonetattachment style <plug|socket|sword>` and `bore <minimum> <maximum>` author the firearm attachment contract. Add an ordinary melee component to the same item prototype.
@@ -531,6 +534,7 @@ When adding similar capabilities in future:
 ## Instrument and Standard Authoring
 
 - `instrument` authors family, performance trait and difficulty, volume, hands, handheld/worn/room use modes, allowed positions, styles, initial and tick stamina, interval, five emotes, and `CanPlay`, denial, play, and stop progs.
+- A character can sustain only one active instrument performance at a time. Stop the current performance before beginning another, including when both instruments support room-positioned or zero-hand use.
 - `signalinstrument` inherits those settings and adds named local/distant/failure signal patterns, signal stamina, cooldown, and `CanSignal`, denial, and success progs. Do not compose it with a second `Instrument` component.
 - `militarystandard` authors family, default identity and design, optional unit/ship association, recognition check, named visual patterns, plant/take-up/recognition emotes, bearer and recognition gates, and transition hooks.
 - Use `standard set <item> ...` for scenario-specific copy identity, association, custody, or capture count. `standard reset <item> ...` restores prototype identity or clean objective state. Use the existing `ownership` command to establish the standard's lawful character or clan side.

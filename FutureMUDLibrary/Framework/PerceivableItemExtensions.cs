@@ -12,6 +12,7 @@ namespace MudSharp.Framework
                 if (item.IsSingleEntity)
                 {
                     yield return item;
+                    continue;
                 }
 
                 foreach (IPerceivable subItem in ((IPerceivableGroup)item).Members)

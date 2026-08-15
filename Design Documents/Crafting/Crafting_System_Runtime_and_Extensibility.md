@@ -178,6 +178,8 @@ It also serializes:
 - check outcome
 - reserved input data
 
+Reserved input reload accepts both the standard `Data` payload and the legacy `Input` payload previously emitted by liquid-use inputs. New liquid saves use the standard `Data` payload. Each saved payload is loaded once so an interrupted craft retains its consumed-liquid reservation across persistence. Reloaded liquid data also reconstructs its temporary perceivable so resume-time clash solving can safely exclude already consumed inputs. Active-craft copies reuse those exact payloads and reconstructed perceivables.
+
 The component decorates the in-progress item's short and full description so the progress item visibly represents the craft.
 
 ### 5. Phase execution
@@ -428,6 +430,8 @@ Subtype-specific prog use also exists in products such as:
 - `ProgProduct`
 - `ProgVariableProduct`
 - `NPCProduct`
+
+`ProgVariableProduct` supplies its variable progs with consumed inputs in the craft's configured input order. Single inputs remain single entries, while perceivable groups are expanded to their members. A prog accepting a collection of perceivables receives every individual consumed perceivable; a prog accepting a collection of items receives only consumed game items.
 
 ### Item system integration
 Crafting leans heavily on the item system.

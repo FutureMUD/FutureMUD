@@ -72,11 +72,16 @@ public class LiquidUseInput : BaseInput, ICraftInputConsumeLiquid
                     OriginalItems.Add(gitem);
                 }
             }
+            _perceivable = new DummyPerceivable(
+                voyeur =>
+                    $"{voyeur.Gameworld.UnitManager.DescribeMostSignificantExact(Amount, UnitType.FluidVolume, voyeur)} of {Liquid.Name}",
+                voyeur =>
+                    $"{voyeur.Gameworld.UnitManager.DescribeMostSignificantExact(Amount, UnitType.FluidVolume, voyeur)} of {Liquid.Name}");
         }
 
         public XElement SaveToXml()
         {
-            return new XElement("Input",
+            return new XElement("Data",
                 new XElement("Liquid", Liquid.Id),
                 new XElement("Amount", Amount),
                 new XElement("Quality", (int)Quality),

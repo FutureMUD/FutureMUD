@@ -16,7 +16,7 @@ internal sealed record ReceivedNoisePath(
 	ICharacter Listener,
 	SpatialLocation Location,
 	double Cost,
-	IReadOnlyList<ICellExit> TraversedExits);
+	string Direction);
 
 /// <summary>
 /// Bounded cheapest-path propagation for structured noise. Coordinates only price authored
@@ -71,7 +71,6 @@ internal sealed class StructuredNoisePropagation
 			var proximity = ReferenceEquals(originCell, result.Location.Cell)
 				? result.Listener.GetProximity(source)
 				: Proximity.VeryDistant;
-			var direction = DescribeDirection(origin, result.Location, result.TraversedExits);
 			NoiseEmission.RaiseReceivedEvent(
 				result.Listener,
 				originCell,
@@ -79,7 +78,7 @@ internal sealed class StructuredNoisePropagation
 				receivedVolume,
 				proximity,
 				noiseType,
-				direction,
+				result.Direction,
 				audioText);
 
 			if (ignoreOriginLayer && result.Cost <= CostEpsilon)
@@ -89,7 +88,7 @@ internal sealed class StructuredNoisePropagation
 
 			var output = new AudioOutput(
 				new Emote(
-					string.Format(audioText, direction, receivedVolume.DescribeEnum(true)),
+					string.Format(audioText, result.Direction, receivedVolume.DescribeEnum(true)),
 					source),
 				receivedVolume,
 				flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers);
@@ -117,10 +116,15 @@ internal sealed class StructuredNoisePropagation
 			throw new ArgumentOutOfRangeException(nameof(propagationBudget));
 		}
 
+		if (!Enum.IsDefined(propagationMode))
+		{
+			throw new ArgumentOutOfRangeException(nameof(propagationMode));
+		}
+
 		var initial = TraversalState.From(origin);
 		var bestStates = new Dictionary<TraversalState, TraversalRoute>(TraversalStateComparer.Instance)
 		{
-			[initial] = new TraversalRoute(0.0, [])
+			[initial] = new TraversalRoute(0.0, null)
 		};
 		var bestListeners = new Dictionary<ICharacter, ReceivedNoisePath>(ReferenceEqualityComparer.Instance);
 		var queue = new PriorityQueue<TraversalState, double>();
@@ -146,8 +150,7 @@ internal sealed class StructuredNoisePropagation
 					continue;
 				}
 
-				var exits = route.Exits.Append(edge.Exit).ToArray();
-				bestStates[edge.Destination] = new TraversalRoute(candidateCost, exits);
+				bestStates[edge.Destination] = new TraversalRoute(candidateCost, edge.Exit);
 				queue.Enqueue(edge.Destination, candidateCost);
 			}
 		}
@@ -193,7 +196,11 @@ internal sealed class StructuredNoisePropagation
 				continue;
 			}
 
-			listeners[listener] = new ReceivedNoisePath(listener, location, cost, route.Exits);
+			listeners[listener] = new ReceivedNoisePath(
+				listener,
+				location,
+				cost,
+				DescribeDirection(state.ToSpatialLocation(), location, route.IncomingExit));
 		}
 	}
 
@@ -330,28 +337,27 @@ internal sealed class StructuredNoisePropagation
 	}
 
 	private static string DescribeDirection(
-		SpatialLocation origin,
+		SpatialLocation reachedLocation,
 		SpatialLocation listener,
-		IReadOnlyList<ICellExit> exits)
+		ICellExit? incomingExit)
 	{
-		var reverse = exits.Reverse().Select(x => x.Opposite).Where(x => x is not null).Cast<ICellExit>().ToArray();
-		if (reverse.Length > 0)
+		if (ReferenceEquals(reachedLocation.Cell, listener.Cell) &&
+			reachedLocation.RoutePositionMetres.HasValue && listener.RoutePositionMetres.HasValue &&
+			Math.Abs(reachedLocation.RoutePositionMetres.Value - listener.RoutePositionMetres.Value) > CostEpsilon)
 		{
-			return reverse.DescribeDirectionsToFrom();
+			var route = reachedLocation.Cell.RouteDefinition!;
+			return $"from {(reachedLocation.RoutePositionMetres > listener.RoutePositionMetres ? route.PositiveDirectionName : route.NegativeDirectionName)}";
 		}
 
-		if (ReferenceEquals(origin.Cell, listener.Cell) &&
-			origin.RoutePositionMetres.HasValue && listener.RoutePositionMetres.HasValue &&
-			Math.Abs(origin.RoutePositionMetres.Value - listener.RoutePositionMetres.Value) > CostEpsilon)
+		if (incomingExit?.Opposite is { } reverse)
 		{
-			var route = origin.Cell.RouteDefinition!;
-			return $"from {(origin.RoutePositionMetres > listener.RoutePositionMetres ? route.PositiveDirectionName : route.NegativeDirectionName)}";
+			return new[] { reverse }.DescribeDirectionsToFrom();
 		}
 
 		return "here";
 	}
 
-	private sealed record TraversalRoute(double Cost, IReadOnlyList<ICellExit> Exits);
+	private readonly record struct TraversalRoute(double Cost, ICellExit? IncomingExit);
 	private readonly record struct TraversalEdge(TraversalState Destination, double Cost, ICellExit Exit);
 	private readonly record struct TraversalState(ICell Cell, RoomLayer Layer, double? CoordinateMetres)
 	{

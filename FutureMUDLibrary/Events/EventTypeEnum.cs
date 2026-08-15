@@ -753,6 +753,6 @@ namespace MudSharp.Events
         PerceivableProximityChanged = 145,
 
         [EventInfo("Fires on a character when a bounded structured noise reaches that character's exact spatial location. Reception does not imply a successful hearing check.", ["character", "location", "perceivable", "number", "number", "text", "text", "text"], ["listener", "origin", "source", "volume", "proximity", "type", "direction", "echo"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
-        NoiseReceived = 146
+        CharacterNoiseReceived = 146
     }
 }

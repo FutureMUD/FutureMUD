@@ -255,7 +255,7 @@ public class NoiseEmissionTests
 		var source = new Mock<ICharacter>();
 		var listener = new Mock<ICharacter>();
 		object[]? payload = null;
-		listener.Setup(x => x.HandleEvent(EventType.NoiseReceived, It.IsAny<object[]>()))
+		listener.Setup(x => x.HandleEvent(EventType.CharacterNoiseReceived, It.IsAny<object[]>()))
 			.Callback<EventType, object[]>((_, arguments) => payload = arguments);
 
 		NoiseEmission.RaiseReceivedEvent(
@@ -374,6 +374,6 @@ public class NoiseEmissionTests
 			},
 			compiler.Parameters.ToArray());
 		Assert.AreEqual(ProgVariableTypes.Boolean, compiler.ReturnType);
-		Assert.AreEqual(146, (int)EventType.NoiseReceived);
+		Assert.AreEqual(146, (int)EventType.CharacterNoiseReceived);
 	}
 }

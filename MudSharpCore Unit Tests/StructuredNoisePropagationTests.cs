@@ -91,7 +91,6 @@ public class StructuredNoisePropagationTests
 
 		Assert.AreEqual(1, results.Count);
 		Assert.AreEqual(2.0, results[0].Cost, 0.0001);
-		Assert.AreEqual(2, results[0].TraversedExits.Count);
 	}
 
 	[TestMethod]
@@ -152,6 +151,58 @@ public class StructuredNoisePropagationTests
 	}
 
 	[TestMethod]
+	public void Find_ReportsInitialExitDirectionRatherThanTheRouteAggregate()
+	{
+		var fixture = new NoiseGraphFixture();
+		var a = fixture.Cell();
+		var b = fixture.Cell();
+		var c = fixture.Cell();
+		fixture.Exit(a, b, 1.0, CardinalDirection.East, CardinalDirection.West);
+		fixture.Exit(b, c, 1.0, CardinalDirection.North, CardinalDirection.South);
+		var listener = fixture.Listener(c);
+
+		var result = fixture.Subject.Find(
+			fixture.Location(a),
+			10.0,
+			AudioPropagationMode.Topological)
+			.Single(x => ReferenceEquals(x.Listener, listener.Object));
+
+		StringAssert.Contains(result.Direction, "South");
+		Assert.IsFalse(result.Direction.Contains("West", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
+	public void Find_PrioritisesTheListenerRouteCellLongitudinalDirection()
+	{
+		var fixture = new NoiseGraphFixture();
+		var origin = fixture.Cell();
+		var route = fixture.Cell(routeLength: 100.0, positiveDirection: "upstream", negativeDirection: "downstream");
+		var entry = fixture.Exit(origin, route, 1.0, CardinalDirection.North, CardinalDirection.South);
+		fixture.SetArrivalAnchor(entry, route, 0.0);
+		var listener = fixture.Listener(route, position: 10.0);
+
+		var result = fixture.Subject.Find(
+			fixture.Location(origin),
+			20.0,
+			AudioPropagationMode.Topological)
+			.Single(x => ReferenceEquals(x.Listener, listener.Object));
+
+		Assert.AreEqual("from downstream", result.Direction);
+	}
+
+	[TestMethod]
+	public void Find_RejectsUndefinedPropagationModes()
+	{
+		var fixture = new NoiseGraphFixture();
+		var origin = fixture.Cell();
+
+		Assert.ThrowsException<ArgumentOutOfRangeException>(() => fixture.Subject.Find(
+			fixture.Location(origin),
+			1.0,
+			(AudioPropagationMode)99));
+	}
+
+	[TestMethod]
 	public void Attenuate_UsesBudgetIndependentlyAndRemainsNonSilentWithinBudget()
 	{
 		Assert.AreEqual(AudioVolume.VeryLoud,
@@ -182,7 +233,10 @@ public class StructuredNoisePropagationTests
 
 		public StructuredNoisePropagation Subject { get; }
 
-		public Mock<ICell> Cell(double? routeLength = null)
+		public Mock<ICell> Cell(
+			double? routeLength = null,
+			string positiveDirection = "positive",
+			string negativeDirection = "negative")
 		{
 			var cell = new Mock<ICell>();
 			var exits = new List<ICellExit>();
@@ -195,6 +249,8 @@ public class StructuredNoisePropagationTests
 				route.SetupGet(x => x.Cell).Returns(cell.Object);
 				route.SetupGet(x => x.LengthMetres).Returns(routeLength.Value);
 				route.SetupGet(x => x.MetresPerRoomEquivalent).Returns(1.0);
+				route.SetupGet(x => x.PositiveDirectionName).Returns(positiveDirection);
+				route.SetupGet(x => x.NegativeDirectionName).Returns(negativeDirection);
 				route.SetupGet(x => x.ExitAnchors).Returns(Array.Empty<IRouteExitAnchor>());
 				cell.SetupGet(x => x.RouteDefinition).Returns(route.Object);
 			}
@@ -208,7 +264,12 @@ public class StructuredNoisePropagationTests
 			return cell;
 		}
 
-		public void Exit(Mock<ICell> origin, Mock<ICell> destination, double coordinateCost)
+		public Mock<ICellExit> Exit(
+			Mock<ICell> origin,
+			Mock<ICell> destination,
+			double coordinateCost,
+			CardinalDirection outboundDirection = CardinalDirection.Unknown,
+			CardinalDirection inboundDirection = CardinalDirection.Unknown)
 		{
 			var underlying = new Mock<IExit>();
 			underlying.SetupProperty(x => x.TimeMultiplier, 1.0);
@@ -216,11 +277,31 @@ public class StructuredNoisePropagationTests
 			exit.SetupGet(x => x.Exit).Returns(underlying.Object);
 			exit.SetupGet(x => x.Origin).Returns(origin.Object);
 			exit.SetupGet(x => x.Destination).Returns(destination.Object);
+			exit.SetupGet(x => x.OutboundDirection).Returns(outboundDirection);
+			var opposite = new Mock<ICellExit>();
+			opposite.SetupGet(x => x.OutboundDirection).Returns(inboundDirection);
+			exit.SetupGet(x => x.Opposite).Returns(opposite.Object);
 			exit.Setup(x => x.WhichLayersExitAppears()).Returns([RoomLayer.GroundLevel]);
 			exit.Setup(x => x.MovementTransition(It.IsAny<IPerceiver>()))
 				.Returns((CellMovementTransition.GroundToGround, RoomLayer.GroundLevel));
 			_exits[origin.Object].Add(exit.Object);
 			origin.Setup(x => x.EstimatedDirectDistanceTo(destination.Object)).Returns(coordinateCost);
+			return exit;
+		}
+
+		public void SetArrivalAnchor(Mock<ICellExit> exit, Mock<ICell> routeCell, double arrivalPosition)
+		{
+			var anchor = new Mock<IRouteExitAnchor>();
+			anchor.SetupGet(x => x.ArrivalPositionMetres).Returns(arrivalPosition);
+			_spatial.Setup(x => x.TryGetExitAnchor(
+					exit.Object,
+					routeCell.Object,
+					out It.Ref<IRouteExitAnchor?>.IsAny))
+				.Returns((ICellExit _, ICell _, out IRouteExitAnchor? resolved) =>
+				{
+					resolved = anchor.Object;
+					return true;
+				});
 		}
 
 		public Mock<ICharacter> Listener(

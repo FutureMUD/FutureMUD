@@ -2031,6 +2031,11 @@ public partial class Cell : Location, IDisposable, ICell
         AudioPropagationMode propagationMode, IPerceiver source, RoomLayer originalLayer,
         bool ignoreOriginLayer, string noiseType)
     {
+		if (!Enum.IsDefined(propagationMode))
+		{
+			throw new ArgumentOutOfRangeException(nameof(propagationMode));
+		}
+
         if (volume == AudioVolume.Silent)
         {
             return;

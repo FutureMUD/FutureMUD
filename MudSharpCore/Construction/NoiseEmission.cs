@@ -42,7 +42,7 @@ internal static class NoiseEmission
 		string audioText)
 	{
 		listener.HandleEvent(
-			EventType.NoiseReceived,
+			EventType.CharacterNoiseReceived,
 			listener,
 			origin,
 			source,

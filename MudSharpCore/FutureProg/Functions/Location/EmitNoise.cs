@@ -120,7 +120,7 @@ internal sealed class EmitNoise : BuiltInFunction
 				"A stable category such as impact, alarm, gunshot, or machinery.",
 				"The distant-audio template. Use {0} for direction and optionally {1} for volume."
 			],
-			"Emits a bounded, attenuated structured sound. Each reached listener receives one NoiseReceived event by the cheapest valid route.",
+			"Emits a bounded, attenuated structured sound. Each reached listener receives one CharacterNoiseReceived event by the cheapest valid route.",
 			"Rooms",
 			ProgVariableTypes.Boolean));
 	}

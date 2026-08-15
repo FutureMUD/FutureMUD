@@ -64,8 +64,8 @@ internal sealed class CanHearNoise : BuiltInFunction
 			[
 				"The character deciding whether the sound was heard.",
 				"The source of the sound.",
-				"The received AudioVolume value from the NoiseReceived event.",
-				"The native Proximity numeric value from the NoiseReceived event."
+				"The received AudioVolume value from the CharacterNoiseReceived event.",
+				"The native Proximity numeric value from the CharacterNoiseReceived event."
 			],
 			"Uses the engine's native audibility, local Hearing Profile and GenericListenCheck rule to decide whether a received sound is noticed.",
 			"Rooms",

@@ -5,6 +5,8 @@ namespace MudSharp.Combat;
 
 public class FireProfile : IFireProfile
 {
+	public static readonly TimeSpan MinimumTickFrequency = TimeSpan.FromSeconds(0.1);
+
     private readonly IFuturemud _gameworld;
     private readonly List<ITag> _extinguishTags = new();
 
@@ -31,7 +33,7 @@ public class FireProfile : IFireProfile
         SpreadChance = double.Parse(root.Element("SpreadChance")?.Value ?? "0", CultureInfo.InvariantCulture);
         MinimumOxidation = double.Parse(root.Element("MinimumOxidation")?.Value ?? "0", CultureInfo.InvariantCulture);
         SelfOxidising = bool.Parse(root.Element("SelfOxidising")?.Value ?? "false");
-		TickFrequency = TimeSpan.FromSeconds(Math.Max(0.1,
+		TickFrequency = TimeSpan.FromSeconds(Math.Max(MinimumTickFrequency.TotalSeconds,
 			double.Parse(root.Element("TickFrequencySeconds")?.Value ?? "10", CultureInfo.InvariantCulture)));
         foreach (XElement tag in root.Element("ExtinguishTags")?.Elements("Tag") ?? Enumerable.Empty<XElement>())
         {
@@ -128,9 +130,10 @@ public class FireProfile : IFireProfile
 			case "frequency":
 			case "tick":
 				if (!TimeSpan.TryParse(command.SafeRemainingArgument, actor, out TimeSpan interval) ||
-					interval <= TimeSpan.Zero)
+					interval < MinimumTickFrequency)
 				{
-					actor.OutputHandler.Send("You must enter a positive tick interval.");
+					actor.OutputHandler.Send(
+						$"You must enter a tick interval of at least {MinimumTickFrequency.Describe(actor).ColourValue()}.");
 					return false;
 				}
 
@@ -212,7 +215,7 @@ public class FireProfile : IFireProfile
 	#3fire spread <percentage>#0 - sets the per-tick spread chance
 	#3fire oxidation <factor>#0 - sets the minimum atmospheric oxidation
 	#3fire selfoxidising#0 - toggles self-oxidising fire
-	#3fire interval <timespan>#0 - sets the tick interval
+	#3fire interval <timespan>#0 - sets the tick interval (minimum 0.1 seconds)
 	#3fire extinguish <tag>#0 - toggles a liquid tag that extinguishes the fire";
 
     public XElement SaveToXml()

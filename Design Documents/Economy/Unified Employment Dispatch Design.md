@@ -1036,6 +1036,8 @@ The recommended active milestone is **manager autonomy and administrative-servic
 - implement remaining recursive scheduled-rule create/edit, hard active-task state marking, and manager-goal administrative actions through their owning services with full provenance;
 - continue native subsystem closure for cross-currency transfers, parent/consolidated settlements, durable grants, route-pair scoping, persisted attendance/time-record evidence, remaining wage disbursement forms, remaining bank rollover/teller/vault/cash-custody design, and remaining arena/hotel/stable host-specific workflows.
 
+Container return steps fail closed unless the selected object is a real container already carried in task custody or previously used by that task's load workflow. Reachability inside an assigned work location is not sufficient to let a return step adopt an unrelated world container.
+
 ## 27. Suggested next Codex goal
 
 ```text

@@ -22,13 +22,20 @@ public class OnFire : Effect
         if (existing is not null)
         {
             existing.FireProfile = profile;
-            owner.Reschedule(existing, profile.TickFrequency);
+            owner.Reschedule(existing, SafeTickFrequency(profile));
             return existing;
         }
 
         OnFire effect = new(owner, profile);
-        owner.AddEffect(effect, profile.TickFrequency);
+        owner.AddEffect(effect, SafeTickFrequency(profile));
 		return effect;
+	}
+
+	internal static TimeSpan SafeTickFrequency(IFireProfile profile)
+	{
+		return profile.TickFrequency < MudSharp.Combat.FireProfile.MinimumTickFrequency
+			? MudSharp.Combat.FireProfile.MinimumTickFrequency
+			: profile.TickFrequency;
 	}
 
 	internal static bool IsExtinguishing(IFireProfile profile, IEnumerable<ILiquid> liquids)
@@ -171,6 +178,6 @@ public class OnFire : Effect
         ApplyBurnDamage().ProcessPassiveWounds();
         ApplyThermalLoad();
         AttemptSpread();
-        Owner.Reschedule(this, FireProfile.TickFrequency);
+        Owner.Reschedule(this, SafeTickFrequency(FireProfile));
     }
 }

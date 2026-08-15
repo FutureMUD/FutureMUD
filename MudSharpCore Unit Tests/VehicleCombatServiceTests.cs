@@ -157,6 +157,29 @@ public class VehicleCombatServiceTests
 	}
 
 	[TestMethod]
+	public void AquaticVehicleAttack_OrdinaryCharacterIsNotAValidTarget()
+	{
+		var attack = new Mock<IWeaponAttack>();
+		attack.SetupGet(x => x.MoveType).Returns(BuiltInCombatMoveType.AquaticVehicleAttack);
+		var target = new Mock<ICharacter>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.Vehicles).Returns(new All<IVehicle>());
+		target.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+
+		Assert.IsFalse(NaturalAttack.IsValidTarget(attack.Object, target.Object));
+	}
+
+	[TestMethod]
+	public void AquaticVehicleAttack_IntactVehicleOccupantIsAValidTarget()
+	{
+		var harness = CreateHarness();
+		var attack = new Mock<IWeaponAttack>();
+		attack.SetupGet(x => x.MoveType).Returns(BuiltInCombatMoveType.AquaticVehicleAttack);
+
+		Assert.IsTrue(NaturalAttack.IsValidTarget(attack.Object, harness.Target.Object));
+	}
+
+	[TestMethod]
 	public void ResolveDisplacement_ConfiguredCheck_StagesDifficultyFromSuccessDegrees()
 	{
 		var harness = CreateHarness();

@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body;
 using MudSharp.GameItems;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat;
 
@@ -24,6 +25,7 @@ public class NaturalAttack : INaturalAttack
         params BuiltInCombatMoveType[] type)
     {
         return type.Contains(Attack.MoveType) &&
+		       IsValidTarget(Attack, target) &&
 		       attacker.Body.Bodyparts.Contains(Bodypart) &&
                attacker.Body.CanUseBodypart(Bodypart) == CanUseBodypartResult.CanUse &&
                !attacker.Body.HeldItemsFor(Bodypart).Any() &&
@@ -33,4 +35,15 @@ public class NaturalAttack : INaturalAttack
                (ignorePosition || Attack.RequiredPositionStates.Contains(attacker.PositionState)) &&
                (Attack.UsabilityProg?.ExecuteBool(attacker, null, target) ?? true);
     }
+
+	public static bool IsValidTarget(IWeaponAttack attack, IPerceiver target)
+	{
+		if (attack.MoveType != BuiltInCombatMoveType.AquaticVehicleAttack)
+		{
+			return true;
+		}
+
+		return target is ICharacter character &&
+		       VehicleCombatService.Instance.VehicleFor(character)?.ExteriorItem is { Deleted: false, Destroyed: false };
+	}
 }

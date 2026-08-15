@@ -175,7 +175,8 @@ Generic ranged-natural multi-target resolution creates an independent normal att
 Breath fire profiles expose `name`, `type`, `damage`, `pain`, `stun`, `thermal`, `spread`,
 `oxidation`, `selfoxidising`, `interval`, and `extinguish` subcommands. Liquid builders expose
 `reaction add`, `reaction <#> delete`, and per-reaction `tag`, `type`, `damage`, `pain`, and `stun`
-editing.
+editing. Fire tick intervals have a runtime and authoring minimum of 0.1 seconds so recurring effects
+cannot continuously become due within one scheduler pass.
 
 ## Release Status
 

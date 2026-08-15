@@ -585,6 +585,7 @@ public interface IEmploymentTaskContext
 		string? destinationContainerTag, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
 	IReadOnlyCollection<IGameItem> LoadedTaskItems(ICharacter actor, IGameItem container);
+	bool IsTaskManagedContainer(ICharacter actor, IGameItem container);
 	bool CanAssignVehicle(ICharacter actor, IVehicle vehicle, out string reason);
 	bool TryAssignVehicle(ICharacter actor, IVehicle vehicle, out string reason,
 		out EmploymentActionStepOperationalState operationalState);

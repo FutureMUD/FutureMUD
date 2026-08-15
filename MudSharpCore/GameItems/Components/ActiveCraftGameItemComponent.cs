@@ -117,9 +117,8 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
         _checkOutcome = rhs._checkOutcome;
         foreach (KeyValuePair<ICraftInput, (IPerceivable Input, ICraftInputData Data)> input in rhs.ConsumedInputs)
         {
-            ConsumedInputs[input.Key] =
-                (input.Value.Input, input.Key.LoadDataFromXml(new XElement("Dummy", input.Value.Data.SaveToXml()),
-                    Gameworld));
+            ICraftInputData data = input.Key.LoadDataFromXml(input.Value.Data.SaveToXml(), Gameworld);
+            ConsumedInputs[input.Key] = (data.Perceivable, data);
         }
     }
 

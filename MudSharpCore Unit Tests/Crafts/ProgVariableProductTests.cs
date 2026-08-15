@@ -10,7 +10,6 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
-using MudSharp.PerceptionEngine.Lists;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Crafts.Products;
 using System;
@@ -25,40 +24,44 @@ namespace MudSharp_Unit_Tests.Crafts;
 public class ProgVariableProductTests
 {
 	[TestMethod]
-	public void GetIndividualPerceivables_FlattensMixedSinglesAndGroupsInOrder()
+	public void ProduceProduct_SuppliesCraftOrderedInputsThatMatchEachVariableProgContract()
 	{
-		var single = new DummyPerceivable("single");
+		var single = new Mock<IGameItem>();
+		single.SetupGet(x => x.IsSingleEntity).Returns(true);
 		var liquidDummy = new DummyPerceivable("liquid");
-		var firstMember = new DummyPerceivable("first member");
-		var secondMember = new DummyPerceivable("second member");
-		var group = new PerceivableGroup([firstMember, secondMember]);
+		var firstMember = new Mock<IGameItem>();
+		firstMember.SetupGet(x => x.IsSingleEntity).Returns(true);
+		var secondMember = new Mock<IGameItem>();
+		secondMember.SetupGet(x => x.IsSingleEntity).Returns(true);
+		var group = new Mock<IPerceivableGroup>();
+		group.SetupGet(x => x.IsSingleEntity).Returns(false);
+		group.SetupGet(x => x.Members).Returns([firstMember.Object, secondMember.Object]);
+		IReadOnlyList<IPerceivable> perceivablesSupplied = null;
+		IReadOnlyList<IPerceivable> itemsSupplied = null;
+		IReadOnlyList<IPerceivable> anyParametersSupplied = null;
 
-		var result = new IPerceivable[] { single, liquidDummy, group }
-			.GetIndividualPerceivables()
-			.ToArray();
-
-		CollectionAssert.AreEqual(
-			new IPerceivable[] { single, liquidDummy, firstMember, secondMember },
-			result);
-	}
-
-	[TestMethod]
-	public void ProduceProduct_SuppliesFlattenedConsumedPerceivablesToVariableProg()
-	{
-		var single = new DummyPerceivable("single");
-		var liquidDummy = new DummyPerceivable("liquid");
-		var firstMember = new DummyPerceivable("first member");
-		var secondMember = new DummyPerceivable("second member");
-		var group = new PerceivableGroup([firstMember, secondMember]);
-		IReadOnlyList<IPerceivable> supplied = null;
-
-		var prog = new Mock<IFutureProg>();
-		prog.SetupGet(x => x.Id).Returns(900);
-		prog.Setup(x => x.ExecuteLong(0L, It.IsAny<object[]>()))
+		var perceivableProg = new Mock<IFutureProg>();
+		perceivableProg.SetupGet(x => x.Id).Returns(900);
+		perceivableProg.SetupGet(x => x.Parameters).Returns([ProgVariableTypes.Collection | ProgVariableTypes.Perceivable]);
+		perceivableProg.Setup(x => x.ExecuteLong(0L, It.IsAny<object[]>()))
 			.Callback((long _, object[] arguments) =>
-				supplied = ((IEnumerable<IPerceivable>)arguments.Single()).ToArray())
+				perceivablesSupplied = ((IEnumerable<IPerceivable>)arguments.Single()).ToArray())
 			.Returns(300);
-		var progs = UneditableRepository([prog.Object]);
+		var itemProg = new Mock<IFutureProg>();
+		itemProg.SetupGet(x => x.Id).Returns(901);
+		itemProg.SetupGet(x => x.Parameters).Returns([ProgVariableTypes.Collection | ProgVariableTypes.Item]);
+		itemProg.Setup(x => x.ExecuteLong(0L, It.IsAny<object[]>()))
+			.Callback((long _, object[] arguments) =>
+				itemsSupplied = ((IEnumerable<IPerceivable>)arguments.Single()).ToArray())
+			.Returns(300);
+		var anyParametersProg = new Mock<IFutureProg>();
+		anyParametersProg.SetupGet(x => x.Id).Returns(902);
+		anyParametersProg.SetupGet(x => x.AcceptsAnyParameters).Returns(true);
+		anyParametersProg.Setup(x => x.ExecuteLong(0L, It.IsAny<object[]>()))
+			.Callback((long _, object[] arguments) =>
+				anyParametersSupplied = ((IEnumerable<IPerceivable>)arguments.Single()).ToArray())
+			.Returns(300);
+		var progs = UneditableRepository([perceivableProg.Object, itemProg.Object, anyParametersProg.Object]);
 
 		var definition = new Mock<ICharacteristicDefinition>();
 		definition.SetupGet(x => x.Id).Returns(200);
@@ -89,11 +92,13 @@ public class ProgVariableProductTests
 		var firstInput = new Mock<ICraftInput>();
 		var secondInput = new Mock<ICraftInput>();
 		var thirdInput = new Mock<ICraftInput>();
+		var craft = new Mock<ICraft>();
+		craft.SetupGet(x => x.Inputs).Returns([firstInput.Object, secondInput.Object, thirdInput.Object]);
 		var consumed = new Dictionary<ICraftInput, (IPerceivable Input, ICraftInputData Data)>
 		{
-			[firstInput.Object] = (single, new TestCraftInputData(single)),
+			[thirdInput.Object] = (group.Object, new TestCraftInputData(group.Object)),
 			[secondInput.Object] = (liquidDummy, new TestCraftInputData(liquidDummy)),
-			[thirdInput.Object] = (group, new TestCraftInputData(group))
+			[firstInput.Object] = (single.Object, new TestCraftInputData(single.Object))
 		};
 		var parent = new Mock<IGameItem>();
 		parent.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
@@ -101,15 +106,25 @@ public class ProgVariableProductTests
 		component.SetupGet(x => x.Parent).Returns(parent.Object);
 		component.SetupGet(x => x.ConsumedInputs).Returns(consumed);
 
-		Product(gameworld.Object).ProduceProduct(component.Object, ItemQuality.Good);
+		Product(gameworld.Object, craft.Object, perceivableProg.Object.Id).ProduceProduct(component.Object, ItemQuality.Good);
+		Product(gameworld.Object, craft.Object, itemProg.Object.Id).ProduceProduct(component.Object, ItemQuality.Good);
+		Product(gameworld.Object, craft.Object, anyParametersProg.Object.Id).ProduceProduct(component.Object, ItemQuality.Good);
 
 		CollectionAssert.AreEqual(
-			new IPerceivable[] { single, liquidDummy, firstMember, secondMember },
-			supplied!.ToArray());
-		prog.Verify(x => x.ExecuteLong(0L, It.IsAny<object[]>()), Times.Once);
+			new IPerceivable[] { single.Object, liquidDummy, firstMember.Object, secondMember.Object },
+			perceivablesSupplied!.ToArray());
+		CollectionAssert.AreEqual(
+			new IPerceivable[] { single.Object, firstMember.Object, secondMember.Object },
+			itemsSupplied!.ToArray());
+		CollectionAssert.AreEqual(
+			new IPerceivable[] { single.Object, liquidDummy, firstMember.Object, secondMember.Object },
+			anyParametersSupplied!.ToArray());
+		perceivableProg.Verify(x => x.ExecuteLong(0L, It.IsAny<object[]>()), Times.Once);
+		itemProg.Verify(x => x.ExecuteLong(0L, It.IsAny<object[]>()), Times.Once);
+		anyParametersProg.Verify(x => x.ExecuteLong(0L, It.IsAny<object[]>()), Times.Once);
 	}
 
-	private static ProgVariableProduct Product(IFuturemud gameworld)
+	private static ProgVariableProduct Product(IFuturemud gameworld, ICraft craft, long progId)
 	{
 		var product = new CraftProduct
 		{
@@ -119,14 +134,14 @@ public class ProgVariableProductTests
 				new XElement("ProductProducedId", 100),
 				new XElement("Quantity", 1),
 				new XElement("Skin", 0),
-				new XElement("Variable", new XAttribute("prog", 900), 200)).ToString(),
+				new XElement("Variable", new XAttribute("prog", progId), 200)).ToString(),
 			OriginalAdditionTime = DateTime.UtcNow
 		};
 		return (ProgVariableProduct)Activator.CreateInstance(
 			typeof(ProgVariableProduct),
 			BindingFlags.Instance | BindingFlags.NonPublic,
 			null,
-			[product, new Mock<ICraft>().Object, gameworld],
+			[product, craft, gameworld],
 			null)!;
 	}
 

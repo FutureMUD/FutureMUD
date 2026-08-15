@@ -269,7 +269,7 @@ public class LiquidTagUseInput : BaseInput, ICraftInputConsumeLiquid
 
         public XElement SaveToXml()
         {
-            return new XElement("Input",
+            return new XElement("Data",
                 new XElement("TagId", Target.Id),
                 new XElement("Amount", Amount),
                 new XElement("Quality", (int)Quality),

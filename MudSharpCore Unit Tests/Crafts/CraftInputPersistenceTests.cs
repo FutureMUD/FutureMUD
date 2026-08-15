@@ -5,6 +5,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Crafts.Inputs;
@@ -17,7 +18,7 @@ namespace MudSharp_Unit_Tests.Crafts;
 public class CraftInputPersistenceTests
 {
 	[TestMethod]
-	public void ActiveCraft_RoundTripsStandardAndLiquidConsumedInputData()
+    public void ActiveCraft_RoundTripsAndCopiesStandardAndLiquidConsumedInputData()
 	{
 		var standardXml = new XElement("Data",
 			new XElement("Item", 101),
@@ -61,9 +62,16 @@ public class CraftInputPersistenceTests
 		loaded.LoadDefinition(saved);
 
 		Assert.AreEqual(3, loaded.ConsumedInputs.Count);
-		standard.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, standardXml)), gameworld.Object), Times.Once);
-		liquid.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, liquidXml)), gameworld.Object), Times.Once);
-		taggedLiquid.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, taggedLiquidXml)), gameworld.Object), Times.Once);
+        standard.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, standardXml)), gameworld.Object), Times.Once);
+        liquid.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, liquidXml)), gameworld.Object), Times.Once);
+        taggedLiquid.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, taggedLiquidXml)), gameworld.Object), Times.Once);
+
+        var copy = (IActiveCraftGameItemComponent)source.Copy(parent.Object, true);
+
+        Assert.AreEqual(3, copy.ConsumedInputs.Count);
+        standard.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, standardXml)), gameworld.Object), Times.Exactly(2));
+        liquid.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, liquidXml)), gameworld.Object), Times.Exactly(2));
+        taggedLiquid.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, taggedLiquidXml)), gameworld.Object), Times.Exactly(2));
 	}
 
 	[TestMethod]
@@ -75,10 +83,11 @@ public class CraftInputPersistenceTests
 		var data = new LiquidUseInput.LiquidUseInputData(xml, setup.Gameworld.Object);
 
 		Assert.IsNotNull(data.Perceivable);
-		Assert.AreEqual(setup.Liquid.Object, data.Liquid);
-		Assert.AreEqual(2.0, data.Amount);
-		Assert.AreEqual(1, data.OriginalItems.Count);
-		AssertResumeClashSolverAccepts(data.Perceivable);
+        Assert.AreEqual(setup.Liquid.Object, data.Liquid);
+        Assert.AreEqual(2.0, data.Amount);
+        Assert.AreEqual(1, data.OriginalItems.Count);
+        Assert.AreEqual("Data", data.SaveToXml().Name.LocalName);
+        AssertResumeClashSolverAccepts(data.Perceivable);
 	}
 
 	[TestMethod]
@@ -95,10 +104,11 @@ public class CraftInputPersistenceTests
 		var data = new LiquidTagUseInput.LiquidUseInputData(xml, setup.Gameworld.Object);
 
 		Assert.IsNotNull(data.Perceivable);
-		Assert.AreEqual(tag.Object, data.Target);
-		Assert.AreEqual(2.0, data.Amount);
-		Assert.AreEqual(1, data.OriginalItems.Count);
-		AssertResumeClashSolverAccepts(data.Perceivable);
+        Assert.AreEqual(tag.Object, data.Target);
+        Assert.AreEqual(2.0, data.Amount);
+        Assert.AreEqual(1, data.OriginalItems.Count);
+        Assert.AreEqual("Data", data.SaveToXml().Name.LocalName);
+        AssertResumeClashSolverAccepts(data.Perceivable);
 	}
 
 	private static XElement LiquidXml(string targetElement, long targetId, long containerId)

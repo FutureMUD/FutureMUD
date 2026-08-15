@@ -81,7 +81,7 @@ public class LiquidUseInput : BaseInput, ICraftInputConsumeLiquid
 
         public XElement SaveToXml()
         {
-            return new XElement("Input",
+            return new XElement("Data",
                 new XElement("Liquid", Liquid.Id),
                 new XElement("Amount", Amount),
                 new XElement("Quality", (int)Quality),

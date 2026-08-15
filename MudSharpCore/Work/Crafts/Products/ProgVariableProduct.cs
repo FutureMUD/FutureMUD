@@ -179,10 +179,21 @@ namespace MudSharp.Work.Crafts.Products
                 throw new ApplicationException("Couldn't find a valid proto for craft product to load.");
             }
 
+            List<IPerceivable> consumedInputs = Craft.Inputs
+                                                      .Where(component.ConsumedInputs.ContainsKey)
+                                                      .Select(x => component.ConsumedInputs[x].Data.Perceivable)
+                                                      .OfType<IPerceivable>()
+                                                      .GetIndividualPerceivables()
+                                                      .ToList();
             List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)> variables = new();
             foreach ((ICharacteristicDefinition definition, IFutureProg prog) in Characteristics)
             {
-                ICharacteristicValue value = Gameworld.CharacteristicValues.Get(prog.ExecuteLong(0L, new List<IPerceivable>(component.ConsumedInputs.Values.SelectNotNull(x => x.Data.Perceivable).GetIndividualPerceivables())));
+                IEnumerable<IPerceivable> inputsForProg = !prog.AcceptsAnyParameters &&
+                                                          prog.Parameters.Single() ==
+                                                          (ProgVariableTypes.Collection | ProgVariableTypes.Item)
+                    ? consumedInputs.OfType<IGameItem>()
+                    : consumedInputs;
+                ICharacteristicValue value = Gameworld.CharacteristicValues.Get(prog.ExecuteLong(0L, inputsForProg.ToList()));
                 value ??= definition.GetRandomValue();
                 variables.Add((definition, value));
             }

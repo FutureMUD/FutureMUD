@@ -139,7 +139,7 @@ Expected active no-move cases mirror `StandardMelee`.
 
 A melee strategy that tries to enter and fight in clinch range. It starts a clinch when upright, not cooling down, and able to clinch the target. Once clinching, it rolls between clinch weapon attacks and unarmed clinch attacks. It suppresses the base clinch-breaking behaviour because clinch is the desired state.
 
-Each pairwise clinch expires when either linked participant leaves combat, including departure caused by death or incapacitation. Other clinches in a multi-holder combat remain independent.
+Each pairwise clinch expires when either linked participant leaves combat, including departure caused by death or incapacitation. Every direct clinch-removal path also runs the effect removal lifecycle so that both participant event subscriptions detach immediately. Other clinches in a multi-holder combat remain independent.
 
 If it discovers it has no viable clinch attacks but has viable normal melee attacks, it switches back to `StandardMelee`.
 

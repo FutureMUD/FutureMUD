@@ -102,10 +102,10 @@ public class StaggeringBlowMove : MeleeWeaponAttack
         if (cr.Outcome.IsFail())
         {
             Target.RemoveAllEffects(x =>
-                x.GetSubtype<ClinchEffect>() is ClinchEffect ce && ce.Clincher == Target && ce.Target == Assailant);
+                x.GetSubtype<ClinchEffect>() is ClinchEffect ce && ce.Clincher == Target && ce.Target == Assailant, true);
             Target.RemoveAllEffects(x => x.GetSubtype<Grappling>() is Grappling gr && gr.Target == Assailant);
             Assailant.RemoveAllEffects(x =>
-                x.GetSubtype<ClinchEffect>() is ClinchEffect ce && ce.Clincher == Assailant && ce.Target == Target);
+                x.GetSubtype<ClinchEffect>() is ClinchEffect ce && ce.Clincher == Assailant && ce.Target == Target, true);
             Assailant.RemoveAllEffects(x => x.GetSubtype<Grappling>() is Grappling gr && gr.Target == Target);
             if (Target.Combat != null)
             {

@@ -1380,7 +1380,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                     return;
                 }
 
-                if (actor.Location.GetForagableYield(type) <= 0.0)
+                if (!actor.Location.CanConsumeYield(type, 1.0))
                 {
                     actor.OutputHandler.Handle(
                         new EmoteOutput(
@@ -1414,7 +1414,15 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                         return;
                     }
 
-                    actor.Location.ConsumeYield(type, 1.0);
+                    if (!actor.Location.TryConsumeYield(type, 1.0))
+                    {
+                        actor.OutputHandler.Handle(
+                            new EmoteOutput(
+                                new Emote(
+                                    "@ finish|finishes foraging, but are|is not successful in finding what #0 were|was looking for.",
+                                    actor, actor)));
+                        return;
+                    }
                     if (foragable.ItemProto.IsItemType<StackableGameItemComponentProto>())
                     {
                         IGameItem newItem = foragable.ItemProto.CreateNew(actor);
@@ -1449,7 +1457,15 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                         return;
                     }
 
-                    actor.Location.ConsumeYield(type, 1.0);
+                    if (!actor.Location.TryConsumeYield(type, 1.0))
+                    {
+                        actor.OutputHandler.Handle(
+                            new EmoteOutput(
+                                new Emote(
+                                    "@ finish|finishes foraging, but are|is not successful in finding what #0 were|was looking for.",
+                                    actor, actor)));
+                        return;
+                    }
                     if (CommodityGameItemComponentProto.ItemPrototype == null)
                     {
                         CommodityGameItemComponentProto.InitialiseItemType(actor.Gameworld);

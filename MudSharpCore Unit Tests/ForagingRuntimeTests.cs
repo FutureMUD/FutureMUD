@@ -2,7 +2,11 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Body.Needs;
+using MudSharp.Character;
+using MudSharp.Character.Heritage;
 using MudSharp.Construction;
+using MudSharp.Effects;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -10,12 +14,16 @@ using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
+using MudSharp.NPC.AI;
 using MudSharp.RPG.Checks;
 using MudSharp.Work.Foraging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using DbCell = MudSharp.Models.Cell;
 using DbCellsForagableYield = MudSharp.Models.CellsForagableYield;
 using DbEditableItem = MudSharp.Models.EditableItem;
@@ -29,6 +37,128 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ForagingRuntimeTests
 {
+	[TestMethod]
+	public void Cell_FractionalRecoveryPersistsAndBecomesDiscreteYieldOnTick48()
+	{
+		const long profileId = 77L;
+		var profiles = new RevisableAll<IForagableProfile>();
+		var profile = CreateRecoveringProfileMock(profileId, "junk", 3.0, 1.0 / 48.0);
+		profiles.Add(profile.Object);
+		var heartbeat = new Mock<IHeartbeatManager>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
+		gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
+		var cell = CreateLoadedCell(gameworld.Object, profileId, "junk", 0.0);
+
+		RunYieldTicks(cell, 24);
+		var persistedYield = cell.GetForagableYield("junk");
+		var reloadedCell = CreateLoadedCell(gameworld.Object, profileId, "junk", persistedYield);
+		RunYieldTicks(reloadedCell, 23);
+
+		Assert.IsFalse(reloadedCell.CanConsumeYield("junk", 1.0));
+		RunYieldTicks(reloadedCell, 1);
+		Assert.IsTrue(reloadedCell.CanConsumeYield("junk", 1.0));
+		Assert.IsTrue(reloadedCell.TryConsumeYield("junk", 1.0));
+		Assert.AreEqual(0.0, reloadedCell.GetForagableYield("junk"), 1.0e-12);
+		Assert.IsFalse(reloadedCell.TryConsumeYield("junk", 1.0));
+	}
+
+	[DataTestMethod]
+	[DataRow("item")]
+	[DataRow("commodity")]
+	public void Cell_DiscreteItemAndCommodityRequireAWholeYield(string yieldType)
+	{
+		var profile = CreateProfileMock(78L, (yieldType, 2.0));
+		var profiles = new RevisableAll<IForagableProfile>();
+		profiles.Add(profile.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(Mock.Of<IHeartbeatManager>());
+		gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
+		var cell = CreateLoadedCell(gameworld.Object, 78L, yieldType, 0.999);
+
+		Assert.IsFalse(cell.CanConsumeYield(yieldType, 1.0));
+		Assert.IsFalse(cell.TryConsumeYield(yieldType, 1.0));
+	}
+
+	[TestMethod]
+	public void Cell_ConcurrentDiscreteCompletionsSpendFinalPointOnce()
+	{
+		var profile = CreateProfileMock(79L, ("junk", 2.0));
+		var profiles = new RevisableAll<IForagableProfile>();
+		profiles.Add(profile.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(Mock.Of<IHeartbeatManager>());
+		gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
+		var cell = CreateLoadedCell(gameworld.Object, 79L, "junk", 1.0);
+		var successes = 0;
+
+		Parallel.For(0, 2, _ =>
+		{
+			if (cell.TryConsumeYield("junk", 1.0))
+			{
+				Interlocked.Increment(ref successes);
+			}
+		});
+
+		Assert.AreEqual(1, successes);
+		Assert.AreEqual(0.0, cell.GetForagableYield("junk"));
+	}
+
+	[TestMethod]
+	public void ForagerAI_DirectEdibleYieldRemainsFractional()
+	{
+		var race = new Mock<IRace>();
+		race.SetupGet(x => x.EdibleForagableYields).Returns(new[]
+		{
+			new EdibleForagableYield { YieldType = "grazing", YieldPerBite = 0.1 }
+		});
+		race.Setup(x => x.CanEatForagableYield("grazing")).Returns(true);
+		var character = new Mock<MudSharp.Character.ICharacter>();
+		character.SetupGet(x => x.Race).Returns(race.Object);
+		var cell = new Mock<ICell>();
+		cell.Setup(x => x.GetForagableYield("grazing")).Returns(0.1);
+
+		Assert.IsTrue(ForagerAIHelpers.HasDirectEdibleYield(character.Object, cell.Object));
+		cell.Verify(x => x.CanConsumeYield(It.IsAny<string>(), It.IsAny<double>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void ForagerAI_DiscreteFoodRequiresAWholeYield()
+	{
+		var proto = new Mock<IGameItemProto>();
+		proto.Setup(x => x.IsItemType<FoodGameItemComponentProto>()).Returns(true);
+		var foragable = new Mock<IForagable>();
+		foragable.SetupGet(x => x.ItemProto).Returns(proto.Object);
+		foragable.SetupGet(x => x.ForagableTypes).Returns(new[] { "food" });
+		foragable.Setup(x => x.CanForage(It.IsAny<MudSharp.Character.ICharacter>(), Outcome.MajorPass)).Returns(true);
+		var profile = new Mock<IForagableProfile>();
+		profile.SetupGet(x => x.Foragables).Returns(new[] { foragable.Object });
+		var cell = new Mock<ICell>();
+		cell.SetupGet(x => x.ForagableProfile).Returns(profile.Object);
+		cell.Setup(x => x.CanConsumeYield("food", 1.0)).Returns(false);
+		var needs = new Mock<INeedsModel>();
+		needs.SetupGet(x => x.Status).Returns(NeedsResult.Hungry);
+		var race = new Mock<IRace>();
+		race.SetupGet(x => x.EdibleForagableYields).Returns(Array.Empty<EdibleForagableYield>());
+		var character = new Mock<MudSharp.Character.ICharacter>();
+		character.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		character.SetupGet(x => x.Effects).Returns(Array.Empty<IEffect>());
+		character.SetupGet(x => x.NeedsModel).Returns(needs.Object);
+		character.SetupGet(x => x.Race).Returns(race.Object);
+		character.SetupGet(x => x.Location).Returns(cell.Object);
+
+		Assert.IsFalse(ForagerAIHelpers.HasEligibleForageableFood(character.Object, cell.Object));
+		Assert.IsFalse(ForagerAIHelpers.TryForageForFood(character.Object));
+
+		cell.Setup(x => x.CanConsumeYield("food", 1.0)).Returns(true);
+		Assert.IsTrue(ForagerAIHelpers.HasEligibleForageableFood(character.Object, cell.Object));
+		Assert.IsTrue(ForagerAIHelpers.TryForageForFood(character.Object));
+		character.Verify(x => x.ExecuteCommand("forage food"), Times.Once);
+	}
+
 	[TestMethod]
 	public void Cell_ExplicitProfileLoadedAfterConstruction_ResolvesAndRestoresPersistedYields()
 	{
@@ -328,6 +458,24 @@ public class ForagingRuntimeTests
 		return cell;
 	}
 
+	private static Cell CreateLoadedCell(IFuturemud gameworld, long profileId, string yieldType, double yield)
+	{
+		var cell = CreateForagingCell(gameworld, null, profileId);
+		var dbCell = new DbCell { ForagableProfileId = profileId };
+		dbCell.CellsForagableYields.Add(new DbCellsForagableYield { ForagableType = yieldType, Yield = yield });
+		cell.PostLoadTasks(dbCell);
+		return cell;
+	}
+
+	private static void RunYieldTicks(Cell cell, int count)
+	{
+		var yieldTick = typeof(Cell).GetMethod("YieldTick", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		for (var i = 0; i < count; i++)
+		{
+			yieldTick.Invoke(cell, null);
+		}
+	}
+
 	private static Mock<IForagableProfile> CreateProfileMock(long id,
 		params (string Type, double Maximum)[] yields)
 	{
@@ -339,6 +487,15 @@ public class ForagingRuntimeTests
 			.Returns(yields.ToDictionary(x => x.Type, x => x.Maximum));
 		profile.SetupGet(x => x.HourlyYieldPoints)
 			.Returns(new Dictionary<string, double>(StringComparer.InvariantCultureIgnoreCase));
+		return profile;
+	}
+
+	private static Mock<IForagableProfile> CreateRecoveringProfileMock(long id, string type, double maximum,
+		double hourly)
+	{
+		var profile = CreateProfileMock(id, (type, maximum));
+		profile.SetupGet(x => x.HourlyYieldPoints)
+			.Returns(new Dictionary<string, double>(StringComparer.InvariantCultureIgnoreCase) { [type] = hourly });
 		return profile;
 	}
 }

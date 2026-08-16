@@ -2100,11 +2100,41 @@ public partial class Cell : Location, IDisposable, ICell
     }
 
     private readonly Dictionary<string, double> _foragableYields = new(StringComparer.InvariantCultureIgnoreCase);
+    private const double YieldComparisonTolerance = 1.0e-9;
 
     public double GetForagableYield(string foragableType)
     {
         SynchroniseForagableYields(ResolveForagableProfile());
         return _foragableYields.ContainsKey(foragableType) ? _foragableYields[foragableType] : 0.0;
+    }
+
+    public bool CanConsumeYield(string foragableType, double yield)
+    {
+        return yield > 0.0 && GetForagableYield(foragableType) + YieldComparisonTolerance >= yield;
+    }
+
+    public bool TryConsumeYield(string foragableType, double yield)
+    {
+        if (yield <= 0.0)
+        {
+            return false;
+        }
+
+        lock (_foragableYields)
+        {
+            SynchroniseForagableYields(ResolveForagableProfile());
+            var available = _foragableYields.GetValueOrDefault(foragableType);
+            if (available + YieldComparisonTolerance < yield)
+            {
+                return false;
+            }
+
+            _foragableYields[foragableType] = Math.Max(0.0, available - yield);
+            YieldsChanged = true;
+            Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
+            Gameworld.HeartbeatManager.HourHeartbeat += YieldTick;
+            return true;
+        }
     }
 
     public void ConsumeYieldFor(IForagable foragable)

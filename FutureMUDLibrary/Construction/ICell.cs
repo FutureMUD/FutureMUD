@@ -100,6 +100,8 @@ namespace MudSharp.Construction
             PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None);
         int LoadItems(IEnumerable<Models.GameItem> items);
         double GetForagableYield(string foragableType);
+        bool CanConsumeYield(string foragableType, double yield);
+        bool TryConsumeYield(string foragableType, double yield);
         void ConsumeYieldFor(IForagable foragable);
         void ConsumeYield(string foragableType, double yield);
         IEnumerable<string> ForagableTypes { get; }

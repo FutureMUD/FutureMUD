@@ -46,7 +46,7 @@ internal static class ForagerAIHelpers
 		              .Where(x => x.CanForage(character, RPG.Checks.Outcome.MajorPass))
 		              .SelectMany(x => x.ForagableTypes)
 		              .Where(x => !string.IsNullOrWhiteSpace(x))
-		              .Any(x => cell.GetForagableYield(x) > 0.0);
+		              .Any(x => cell.CanConsumeYield(x, 1.0));
 	}
 
 	public static bool HasFoodOpportunity(ICharacter character, ICell cell)
@@ -121,7 +121,7 @@ internal static class ForagerAIHelpers
 		                            .Where(x => x.CanForage(character, RPG.Checks.Outcome.MajorPass))
 		                            .SelectMany(x => x.ForagableTypes)
 		                            .Where(x => !string.IsNullOrWhiteSpace(x))
-		                            .Where(x => character.Location.GetForagableYield(x) > 0.0)
+		                            .Where(x => character.Location.CanConsumeYield(x, 1.0))
 		                            .Distinct()
 		                            .GetRandomElement();
 		if (forageType is null)

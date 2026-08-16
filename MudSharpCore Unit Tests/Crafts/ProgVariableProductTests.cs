@@ -44,8 +44,7 @@ public class ProgVariableProductTests
 		perceivableProg.SetupGet(x => x.Id).Returns(900);
 		perceivableProg.SetupGet(x => x.Parameters).Returns([ProgVariableTypes.Collection | ProgVariableTypes.Perceivable]);
 		perceivableProg.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>()))
-			.Returns((IEnumerable<ProgVariableTypes> parameters) => parameters.SequenceEqual(
-				[ProgVariableTypes.Collection | ProgVariableTypes.Perceivable]));
+			.Returns(true);
 		perceivableProg.Setup(x => x.ExecuteLong(0L, It.IsAny<object[]>()))
 			.Callback((long _, object[] arguments) =>
 				perceivablesSupplied = ((IEnumerable<IPerceivable>)arguments.Single()).ToArray())

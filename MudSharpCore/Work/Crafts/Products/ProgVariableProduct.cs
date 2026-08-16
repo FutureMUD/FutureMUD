@@ -192,8 +192,11 @@ namespace MudSharp.Work.Crafts.Products
             List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)> variables = new();
             foreach ((ICharacteristicDefinition definition, IFutureProg prog) in Characteristics)
             {
-                IEnumerable<IPerceivable> inputsForProg = !prog.AcceptsAnyParameters &&
-                                                          prog.MatchesParameters(ItemCollectionParameters)
+                ProgVariableTypes[] parameters = prog.AcceptsAnyParameters
+                    ? []
+                    : prog.Parameters.Take(2).ToArray();
+                IEnumerable<IPerceivable> inputsForProg = parameters.Length == 1 &&
+                                                          parameters[0] == ItemCollectionParameters[0]
                     ? consumedInputs.OfType<IGameItem>()
                     : consumedInputs;
                 ICharacteristicValue value = Gameworld.CharacteristicValues.Get(prog.ExecuteLong(0L, inputsForProg.ToList()));

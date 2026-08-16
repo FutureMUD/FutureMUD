@@ -1207,7 +1207,8 @@ public partial class Cell : Location, IDisposable, ICell
         }
 
         CurrentOverlay = _overlays.First(x => x.Id == cell.CurrentOverlayId);
-        _foragableProfile = Gameworld.ForagableProfiles.Get(cell.ForagableProfileId ?? 0);
+        _foragableProfile = null;
+        _foragableProfileId = cell.ForagableProfileId ?? 0;
         Movements = new List<IMovement>();
         LoadHooks(cell.HooksPerceivables, "Cell");
         LoadEffects(XElement.Parse(cell.EffectData.IfNullOrWhiteSpace("<Effects/>")));
@@ -2085,7 +2086,13 @@ public partial class Cell : Location, IDisposable, ICell
     {
         if (_foragableProfileId != 0)
         {
-            _foragableProfile = Gameworld.ForagableProfiles.Get(_foragableProfileId);
+            var profile = Gameworld.ForagableProfiles.Get(_foragableProfileId);
+            if (profile == null)
+            {
+                return null;
+            }
+
+            _foragableProfile = profile;
             _foragableProfileId = 0;
         }
 

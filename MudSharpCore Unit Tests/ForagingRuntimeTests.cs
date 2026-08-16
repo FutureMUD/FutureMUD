@@ -2,9 +2,12 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Construction;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.Framework.Save;
+using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
@@ -12,6 +15,9 @@ using MudSharp.Work.Foraging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using DbCell = MudSharp.Models.Cell;
+using DbCellsForagableYield = MudSharp.Models.CellsForagableYield;
 using DbEditableItem = MudSharp.Models.EditableItem;
 using DbForagable = MudSharp.Models.Foragable;
 using DbForagableProfile = MudSharp.Models.ForagableProfile;
@@ -23,6 +29,58 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ForagingRuntimeTests
 {
+	[TestMethod]
+	public void Cell_ExplicitProfileLoadedAfterConstruction_ResolvesAndRestoresPersistedYields()
+	{
+		var profiles = new RevisableAll<IForagableProfile>();
+		var heartbeat = new Mock<IHeartbeatManager>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
+		var cell = CreateForagingCell(gameworld.Object, null, 42L);
+
+		Assert.IsNull(cell.ForagableProfile);
+
+		var profile = CreateProfileMock(42L, ("food", 10.0), ("wood", 8.0), ("stone", 5.0));
+		profiles.Add(profile.Object);
+		var dbCell = new DbCell { Id = 100L, ForagableProfileId = 42L };
+		dbCell.CellsForagableYields.Add(new DbCellsForagableYield { ForagableType = "food", Yield = 3.0 });
+		dbCell.CellsForagableYields.Add(new DbCellsForagableYield { ForagableType = "wood", Yield = 2.0 });
+		dbCell.CellsForagableYields.Add(new DbCellsForagableYield { ForagableType = "stone", Yield = 1.0 });
+
+		cell.PostLoadTasks(dbCell);
+
+		Assert.AreSame(profile.Object, cell.ForagableProfile);
+		Assert.AreEqual(3.0, cell.GetForagableYield("food"));
+		Assert.AreEqual(2.0, cell.GetForagableYield("wood"));
+		Assert.AreEqual(1.0, cell.GetForagableYield("stone"));
+		CollectionAssert.AreEquivalent(new[] { "food", "wood", "stone" }, cell.ForagableTypes.ToArray());
+		Assert.IsFalse(cell.YieldsChanged);
+	}
+
+	[TestMethod]
+	public void Cell_NullExplicitProfile_StillUsesInheritedProfileAndPersistedYields()
+	{
+		var inheritedProfile = CreateProfileMock(55L, ("food", 6.0));
+		var zone = new Mock<IZone>();
+		zone.SetupGet(x => x.ForagableProfile).Returns(inheritedProfile.Object);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Zone).Returns(zone.Object);
+		var heartbeat = new Mock<IHeartbeatManager>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(new RevisableAll<IForagableProfile>());
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
+		var cell = CreateForagingCell(gameworld.Object, room.Object, null);
+		var dbCell = new DbCell();
+		dbCell.CellsForagableYields.Add(new DbCellsForagableYield { ForagableType = "food", Yield = 2.5 });
+
+		cell.PostLoadTasks(dbCell);
+
+		Assert.AreSame(inheritedProfile.Object, cell.ForagableProfile);
+		Assert.AreEqual(2.5, cell.GetForagableYield("food"));
+		Assert.IsFalse(cell.YieldsChanged);
+	}
+
 	[TestMethod]
 	public void Foragable_LoadFromDb_IgnoresBlankAndDuplicateTypes()
 	{
@@ -252,5 +310,35 @@ public class ForagingRuntimeTests
 			BuilderAccountId = 1,
 			BuilderDate = DateTime.UtcNow
 		};
+	}
+
+	private static Cell CreateForagingCell(IFuturemud gameworld, IRoom? room, long? explicitProfileId)
+	{
+		var cell = TestObjectFactory.CreateUninitialized<Cell>();
+		typeof(LateKeywordedInitialisingItem)
+			.GetProperty(nameof(LateKeywordedInitialisingItem.Gameworld),
+				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
+			.SetValue(cell, gameworld);
+		typeof(Cell).GetField("<Room>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(cell, room);
+		typeof(Cell).GetField("_foragableYields", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(cell, new Dictionary<string, double>(StringComparer.InvariantCultureIgnoreCase));
+		typeof(Cell).GetField("_foragableProfileId", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(cell, explicitProfileId ?? 0);
+		return cell;
+	}
+
+	private static Mock<IForagableProfile> CreateProfileMock(long id,
+		params (string Type, double Maximum)[] yields)
+	{
+		var profile = new Mock<IForagableProfile>();
+		profile.SetupGet(x => x.Id).Returns(id);
+		profile.SetupGet(x => x.RevisionNumber).Returns(1);
+		profile.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
+		profile.SetupGet(x => x.MaximumYieldPoints)
+			.Returns(yields.ToDictionary(x => x.Type, x => x.Maximum));
+		profile.SetupGet(x => x.HourlyYieldPoints)
+			.Returns(new Dictionary<string, double>(StringComparer.InvariantCultureIgnoreCase));
+		return profile;
 	}
 }

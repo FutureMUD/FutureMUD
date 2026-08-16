@@ -329,6 +329,8 @@ cell set atmosphere none
 cell set safequit
 ```
 
+An explicit `cell set forage <profile>` override is stored on the Cell and takes precedence over Zone and Terrain forage defaults. On startup, Cells retain that explicit profile identity until forage profiles have loaded, then restore their persisted yield pools without resetting partly depleted values. `cell set forage clear` removes the override and returns the Cell to normal Zone/Terrain inheritance.
+
 Outdoors type:
 
 | Command value | Runtime meaning | Typical use |

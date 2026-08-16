@@ -9,6 +9,8 @@ using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.Framework.Units;
+using MudSharp.GameItems;
 using MudSharp.Models;
 using EditableItem = MudSharp.Framework.Revision.EditableItem;
 using DbLootTable = MudSharp.Models.LootTable;
@@ -74,23 +76,45 @@ public sealed class LootTable : EditableItem, ILootTable
 	public override string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Loot Table #{Id.ToStringN0(actor)}r{RevisionNumber.ToStringN0(actor)} - {Name.ColourName()} - {Status.DescribeColour()}");
+		sb.AppendLine($"Loot Table #{Id.ToStringN0(actor)}r{RevisionNumber.ToStringN0(actor)}: {Name.ColourName()}");
+		sb.AppendLine();
+		sb.AppendLine($"Status: {Status.DescribeColour()}");
 		sb.AppendLine($"Algorithm: {AlgorithmVersion.ToString().ColourValue()}");
 		sb.AppendLine($"Definition Hash: {DefinitionHash.ColourValue()}");
 		foreach (var variant in Definition.Variants)
 		{
-			sb.AppendLine($"Variant {variant.Key.ColourName()}");
+			sb.AppendLine();
+			sb.AppendLine($"Variant: {variant.Key.ColourName()}");
+			var rows = new List<List<string>>();
 			for (var i = 0; i < variant.Groups.Count; i++)
 			{
 				var group = variant.Groups[i];
-				sb.AppendLine($"  {i + 1}. {group.Key.ColourName()} repeat {group.RepeatMinimum}-{group.RepeatMaximum} into {group.DestinationKey.ColourValue()}");
 				var total = group.Choices.Sum(x => x.Weight);
+				if (group.Choices.Count == 0)
+				{
+					rows.Add([
+						$"{i + 1}. {group.Key}", DescribeRange(group.RepeatMinimum, group.RepeatMaximum),
+						DescribeDestination(group.DestinationKey), "(none)", "", "No choices configured"
+					]);
+					continue;
+				}
+
 				for (var j = 0; j < group.Choices.Count; j++)
 				{
 					var choice = group.Choices[j];
-					sb.AppendLine($"     {j + 1}. {choice.Key.ColourName()} weight {choice.Weight:N0} ({(total > 0 ? (double)choice.Weight / total : 0.0):P2}) {DescribeChoice(choice)}");
+					rows.Add([
+						$"{i + 1}. {group.Key}", DescribeRange(group.RepeatMinimum, group.RepeatMaximum),
+						DescribeDestination(group.DestinationKey), $"{j + 1}. {choice.Key}",
+						total > 0 ? $"{choice.Weight:N0} ({(double)choice.Weight / total:P2})" : $"{choice.Weight:N0}",
+						DescribeChoice(choice, actor)
+					]);
 				}
 			}
+			sb.AppendLine(variant.Groups.Count == 0
+				? "(no groups)".ColourError()
+				: StringUtilities.GetTextTable(rows,
+					["Group", "Repeat", "Destination", "Choice", "Weight / Chance", "Result"], actor,
+					Telnet.Cyan, truncatableColumnIndex: 5));
 		}
 		var errors = LootTableValidator.Validate(this, Gameworld);
 		if (errors.Count > 0)
@@ -101,14 +125,54 @@ public sealed class LootTable : EditableItem, ILootTable
 		return sb.ToString();
 	}
 
-	private static string DescribeChoice(LootChoiceDefinition choice) => choice.Kind switch
+	private static string DescribeRange(int minimum, int maximum) => minimum == maximum ? minimum.ToString("N0") : $"{minimum:N0}-{maximum:N0}";
+	private static string DescribeDestination(string key) => key.EqualTo("target") ? "Outer target" : $"Inside '{key}'";
+
+	private string DescribeChoice(LootChoiceDefinition choice, ICharacter actor) => choice.Kind switch
 	{
-		LootChoiceKind.Nothing => "nothing",
-		LootChoiceKind.Item => $"item #{choice.ItemPrototypeId}r{choice.ItemPrototypeRevision} x{choice.QuantityMinimum}-{choice.QuantityMaximum} quality {choice.QualityMinimum}-{choice.QualityMaximum}{(string.IsNullOrEmpty(choice.ResultKey) ? "" : $" as {choice.ResultKey}")}",
-		LootChoiceKind.Commodity => $"commodity material #{choice.CommodityMaterialId}{(choice.CommodityTagId is null ? "" : $" tag #{choice.CommodityTagId}")} mass {choice.MassMinimum:R}-{choice.MassMaximum:R}",
-		LootChoiceKind.LootTable => $"table #{choice.NestedTableId}r{choice.NestedTableRevision} variant {choice.NestedVariant}",
+		LootChoiceKind.Nothing => "Nothing",
+		LootChoiceKind.Item => DescribeItemChoice(choice),
+		LootChoiceKind.Commodity => DescribeCommodityChoice(choice, actor),
+		LootChoiceKind.LootTable => DescribeNestedChoice(choice),
 		_ => "unknown"
 	};
+
+	private string DescribeItemChoice(LootChoiceDefinition choice)
+	{
+		var proto = Gameworld.ItemProtos.Get(choice.ItemPrototypeId, choice.ItemPrototypeRevision);
+		var quantity = DescribeRange(choice.QuantityMinimum, choice.QuantityMaximum);
+		var quality = choice.QualityMinimum == choice.QualityMaximum
+			? ((ItemQuality)choice.QualityMinimum).Describe()
+			: $"{((ItemQuality)choice.QualityMinimum).Describe()}-{((ItemQuality)choice.QualityMaximum).Describe()}";
+		var variables = choice.Characteristics.Select(x =>
+		{
+			var definition = Gameworld.Characteristics.Get(x.DefinitionId);
+			var value = Gameworld.CharacteristicValues.Get(x.ValueId);
+			return definition is null || value is null
+				? $"#{x.DefinitionId}=#{x.ValueId}"
+				: $"{definition.Name}={value.Name}";
+		}).ToList();
+		return $"Item #{choice.ItemPrototypeId}r{choice.ItemPrototypeRevision} {(proto?.ShortDescription ?? "(missing prototype)")}; quantity {quantity}; quality {quality}" +
+		       (string.IsNullOrEmpty(choice.ResultKey) ? "" : $"; provides key '{choice.ResultKey}'") +
+		       (variables.Count == 0 ? "" : $"; variables {string.Join(", ", variables)}");
+	}
+
+	private string DescribeCommodityChoice(LootChoiceDefinition choice, ICharacter actor)
+	{
+		var material = Gameworld.Materials.Get(choice.CommodityMaterialId);
+		var tag = choice.CommodityTagId is null ? null : Gameworld.Tags.Get(choice.CommodityTagId.Value);
+		var mass = choice.MassMinimum == choice.MassMaximum
+			? Gameworld.UnitManager.DescribeExact(choice.MassMinimum, UnitType.Mass, actor)
+			: $"{Gameworld.UnitManager.DescribeExact(choice.MassMinimum, UnitType.Mass, actor)}-{Gameworld.UnitManager.DescribeExact(choice.MassMaximum, UnitType.Mass, actor)}";
+		return $"Commodity #{choice.CommodityMaterialId} {material?.Name ?? "(missing material)"}; mass {mass}" +
+		       (choice.CommodityTagId is null ? "" : $"; tag #{choice.CommodityTagId} {tag?.Name ?? "(missing tag)"}");
+	}
+
+	private string DescribeNestedChoice(LootChoiceDefinition choice)
+	{
+		var nested = Gameworld.LootTables.Get(choice.NestedTableId, choice.NestedTableRevision);
+		return $"LootTable #{choice.NestedTableId}r{choice.NestedTableRevision} {nested?.Name ?? "(missing table)"}; variant '{choice.NestedVariant}'";
+	}
 
 	public override IEditableRevisableItem CreateNewRevision(ICharacter initiator)
 	{

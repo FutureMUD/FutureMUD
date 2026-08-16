@@ -293,6 +293,50 @@ public class LootTableDefinitionTests
 		Assert.AreEqual(LootChoiceKind.Nothing, added.Kind);
 	}
 
+	[TestMethod]
+	public void Show_RendersHumanReadableVariantChoiceTable()
+	{
+		var definition = new LootTableDefinition();
+		var variant = new LootVariantDefinition { Key = "default" };
+		var group = new LootRollGroupDefinition { Key = "selection", DestinationKey = "target" };
+		group.Choices.Add(new LootChoiceDefinition { Key = "empty", Kind = LootChoiceKind.Nothing, Weight = 3 });
+		variant.Groups.Add(group);
+		definition.Variants.Add(variant);
+		var row = new MudSharp.Models.LootTable
+		{
+			Id = 7,
+			RevisionNumber = 2,
+			Name = "Readable Test",
+			AlgorithmVersion = LootTableDefinition.CurrentAlgorithmVersion,
+			Definition = definition.ToCanonicalXml(),
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionNumber = 2,
+				RevisionStatus = (int)RevisionStatus.Current,
+				BuilderAccountId = 1,
+				BuilderDate = DateTime.UtcNow
+			}
+		};
+		var gameworld = new Mock<IFuturemud>();
+		var account = new Mock<MudSharp.Accounts.IAccount>();
+		account.Setup(x => x.LineFormatLength).Returns(160);
+		account.Setup(x => x.UseUnicode).Returns(true);
+		var actor = new Mock<ICharacter>();
+		actor.Setup(x => x.Account).Returns(account.Object);
+		var table = new MudSharp.Work.Loot.LootTable(row, gameworld.Object);
+
+		var shown = table.Show(actor.Object).StripANSIColour();
+
+		StringAssert.Contains(shown, "Loot Table #7r2: Readable Test");
+		StringAssert.Contains(shown, "Variant: default");
+		foreach (var heading in new[] { "Group", "Repeat", "Destination", "Choice", "Weight / Chance", "Result" })
+			StringAssert.Contains(shown, heading);
+		StringAssert.Contains(shown, "1. selection");
+		StringAssert.Contains(shown, "Outer target");
+		StringAssert.Contains(shown, "3 (100.00%)");
+		StringAssert.Contains(shown, "Nothing");
+	}
+
 	private static LootTableDefinition RepresentativeDefinition()
 	{
 		var definition = new LootTableDefinition();

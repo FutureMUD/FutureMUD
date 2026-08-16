@@ -233,7 +233,8 @@ public sealed class LootTable : EditableItem, ILootTable
 	{
 		var action = command.PopSpeech().ToLowerInvariant();
 		var variant = Definition.Variants.FirstOrDefault(x => x.Key.EqualTo(command.PopSpeech()));
-		var group = variant?.Groups.FirstOrDefault(x => x.Key.EqualTo(command.PopSpeech()));
+		var groupKey = command.PopSpeech();
+		var group = variant?.Groups.FirstOrDefault(x => x.Key.EqualTo(groupKey));
 		if (group is null) { actor.Send("There is no such variant/group."); return false; }
 		var key = command.PopSpeech().ToLowerInvariant();
 		var choice = group.Choices.FirstOrDefault(x => x.Key.EqualTo(key));

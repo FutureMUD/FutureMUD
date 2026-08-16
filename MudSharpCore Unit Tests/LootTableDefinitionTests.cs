@@ -5,7 +5,9 @@ using MudSharp.Work.Loot;
 using MudSharp.FutureProg;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.Framework.Save;
 using MudSharp.Character;
+using MudSharp.PerceptionEngine;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -252,6 +254,43 @@ public class LootTableDefinitionTests
 		var method = typeof(EditableItemReviewProposal<ILootTable>).GetMethod("GetAppropriateAll", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 		Assert.IsNotNull(method);
 		Assert.AreSame(registry.Object, method.Invoke(proposal, null));
+	}
+
+	[TestMethod]
+	public void BuildingCommand_ChoiceAdd_TargetsNamedNonFirstGroupWithoutConsumingArguments()
+	{
+		var definition = RepresentativeDefinition();
+		definition.Variants.Single().Groups[1].Choices.Clear();
+		var row = new MudSharp.Models.LootTable
+		{
+			Id = 1,
+			RevisionNumber = 0,
+			Name = "Builder Test",
+			AlgorithmVersion = LootTableDefinition.CurrentAlgorithmVersion,
+			Definition = definition.ToCanonicalXml(),
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = (int)RevisionStatus.UnderDesign,
+				BuilderAccountId = 1,
+				BuilderDate = DateTime.UtcNow
+			}
+		};
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.Setup(x => x.SaveManager).Returns(new Mock<ISaveManager>().Object);
+		var table = new MudSharp.Work.Loot.LootTable(row, gameworld.Object);
+		var output = new Mock<IOutputHandler>();
+		var actor = new Mock<ICharacter>();
+		actor.Setup(x => x.OutputHandler).Returns(output.Object);
+
+		var result = table.BuildingCommand(actor.Object,
+			new StringStack("choice add default contents salvage 1 nothing"));
+
+		Assert.IsTrue(result);
+		Assert.AreEqual(1, table.Definition.Variants.Single().Groups[0].Choices.Count);
+		var added = table.Definition.Variants.Single().Groups[1].Choices.Single();
+		Assert.AreEqual("salvage", added.Key);
+		Assert.AreEqual(LootChoiceKind.Nothing, added.Kind);
 	}
 
 	private static LootTableDefinition RepresentativeDefinition()

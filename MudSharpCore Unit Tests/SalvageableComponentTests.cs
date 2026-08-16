@@ -253,7 +253,11 @@ public class SalvageableComponentTests
 		source.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		source.SetupGet(x => x.Effects).Returns(() => targetEffects);
 		source.Setup(x => x.AddEffect(It.IsAny<IEffect>()))
-			.Callback<IEffect>(effect => targetEffects.Add(effect));
+			.Callback<IEffect>(effect =>
+			{
+				Assert.IsNotNull(effect, "The base CharacterActionWithTarget constructor invokes virtual setup before the derived constructor body.");
+				targetEffects.Add(effect);
+			});
 		source.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>()))
 			.Callback<IEffect, bool>((effect, _) => targetEffects.Remove(effect));
 

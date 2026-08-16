@@ -30,7 +30,7 @@ public class ItemSalvaging : StagedCharacterActionWithTarget, IAffectProximity
 
 	private readonly ISalvageable _salvageable;
 	private readonly IGameItem? _tool;
-	private readonly BeingSalvaged _lock;
+	private BeingSalvaged? _lock;
 	private readonly Queue<string> _emotes;
 
 	public ItemSalvaging(ICharacter salvager, ISalvageable salvageable, IGameItem? tool)
@@ -38,7 +38,6 @@ public class ItemSalvaging : StagedCharacterActionWithTarget, IAffectProximity
 	{
 		_salvageable = salvageable;
 		_tool = tool;
-		_lock = new BeingSalvaged(Target, salvager);
 		var stages = salvageable.Stages.ToList();
 		_emotes = new Queue<string>(stages.Select(x => x.Emote));
 		TimesBetweenTicks = new Queue<TimeSpan>(stages.Skip(1).Select(x => TimeSpan.FromSeconds(x.Delay)));
@@ -51,7 +50,7 @@ public class ItemSalvaging : StagedCharacterActionWithTarget, IAffectProximity
 		void Final(IPerceivable perceivable)
 		{
 			SendStageEmote();
-			if (!Target.Effects.Contains(_lock))
+			if (_lock is null || !Target.Effects.Contains(_lock))
 			{
 				return;
 			}
@@ -104,6 +103,7 @@ public class ItemSalvaging : StagedCharacterActionWithTarget, IAffectProximity
 	protected override void SetupEventHandlers()
 	{
 		base.SetupEventHandlers();
+		_lock ??= new BeingSalvaged(Target, CharacterOwner);
 		if (_tool is not null)
 		{
 			_tool.OnDeleted -= ToolGone;
@@ -146,7 +146,10 @@ public class ItemSalvaging : StagedCharacterActionWithTarget, IAffectProximity
 			CharacterOwner.Body.OnInventoryChange -= CheckInventoryChange;
 		}
 
-		Target.RemoveEffect(_lock);
+		if (_lock is not null)
+		{
+			Target.RemoveEffect(_lock);
+		}
 	}
 
 	public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)

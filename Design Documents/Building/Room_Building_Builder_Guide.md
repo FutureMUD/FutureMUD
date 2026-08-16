@@ -329,7 +329,7 @@ cell set atmosphere none
 cell set safequit
 ```
 
-An explicit `cell set forage <profile>` override is stored on the Cell and takes precedence over Zone and Terrain forage defaults. On startup, Cells retain that explicit profile identity until forage profiles have loaded, then restore their persisted yield pools without resetting partly depleted values. Fractional hourly recovery remains stored across restarts; discrete item and commodity finds require one complete yield point and consume it atomically. Direct edible and grazing yields may still consume fractional amounts. `cell set forage clear` removes the override and returns the Cell to normal Zone/Terrain inheritance.
+An explicit `cell set forage <profile>` override is stored on the Cell and takes precedence over Zone and Terrain forage defaults. On startup, Cells, Zones, and Terrains retain their configured profile identity until forage profiles have loaded, then Cells restore compatible persisted yield pools without resetting partly depleted values. Persisted pools are constrained to the active profile's valid yield types and maximums. Fractional hourly recovery remains stored across restarts; discrete item and commodity finds require one complete yield point and consume it atomically. Direct edible and grazing yields may still consume fractional amounts. `cell set forage clear` removes the override and returns the Cell to normal Zone/Terrain inheritance.
 
 Outdoors type:
 

@@ -3,10 +3,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body.Needs;
+using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Construction;
 using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -37,6 +39,47 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ForagingRuntimeTests
 {
+	[TestMethod]
+	public void Zone_PendingForagableProfile_ResolvesAfterProfilesLoad()
+	{
+		const long profileId = 75L;
+		var profiles = new RevisableAll<IForagableProfile>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		var zone = TestObjectFactory.CreateUninitialized<Zone>();
+		SetLateInitialisingGameworld(zone, gameworld.Object);
+		typeof(Zone).GetField("_foragableProfileId", BindingFlags.Instance | BindingFlags.NonPublic)!
+		            .SetValue(zone, profileId);
+
+		Assert.IsNull(zone.ForagableProfile);
+
+		var profile = CreateProfileMock(profileId, ("food", 1.0));
+		profiles.Add(profile.Object);
+
+		Assert.AreSame(profile.Object, zone.ForagableProfile);
+	}
+
+	[TestMethod]
+	public void Terrain_PendingForagableProfile_ResolvesAfterProfilesLoad()
+	{
+		const long profileId = 76L;
+		var profiles = new RevisableAll<IForagableProfile>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		var terrain = TestObjectFactory.CreateUninitialized<Terrain>();
+		typeof(SaveableItem).GetField("_gameworld", BindingFlags.Instance | BindingFlags.NonPublic)!
+		                    .SetValue(terrain, gameworld.Object);
+		typeof(Terrain).GetField("_foragableProfileId", BindingFlags.Instance | BindingFlags.NonPublic)!
+		               .SetValue(terrain, profileId);
+
+		Assert.IsNull(terrain.ForagableProfile);
+
+		var profile = CreateProfileMock(profileId, ("food", 1.0));
+		profiles.Add(profile.Object);
+
+		Assert.AreSame(profile.Object, terrain.ForagableProfile);
+	}
+
 	[TestMethod]
 	public void Cell_FractionalRecoveryPersistsAndBecomesDiscreteYieldOnTick48()
 	{
@@ -80,6 +123,129 @@ public class ForagingRuntimeTests
 
 		Assert.IsFalse(cell.CanConsumeYield(yieldType, 1.0));
 		Assert.IsFalse(cell.TryConsumeYield(yieldType, 1.0));
+	}
+
+	[TestMethod]
+	public void Cell_PersistedYields_AreClampedToTheActiveProfile()
+	{
+		var profile = CreateProfileMock(80L, ("food", 1.0));
+		var profiles = new RevisableAll<IForagableProfile>();
+		profiles.Add(profile.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(Mock.Of<IHeartbeatManager>());
+		gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
+
+		var overfullCell = CreateLoadedCell(gameworld.Object, 80L, "food", 1.5);
+		var negativeCell = CreateLoadedCell(gameworld.Object, 80L, "food", -0.5);
+
+		Assert.AreEqual(1.0, overfullCell.GetForagableYield("food"));
+		Assert.AreEqual(0.0, negativeCell.GetForagableYield("food"));
+	}
+
+	[TestMethod]
+	public void Cell_NonFiniteYields_CannotBeConsumedOrPersisted()
+	{
+		var profile = CreateProfileMock(81L, ("food", 1.0));
+		var profiles = new RevisableAll<IForagableProfile>();
+		profiles.Add(profile.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(Mock.Of<IHeartbeatManager>());
+		gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
+		var cell = CreateLoadedCell(gameworld.Object, 81L, "food", 1.0);
+		var persistedNonFiniteCell = CreateLoadedCell(gameworld.Object, 81L, "food", double.NaN);
+		var yields = (Dictionary<string, double>)typeof(Cell)
+			.GetField("_foragableYields", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.GetValue(cell)!;
+		yields["food"] = double.NaN;
+
+		Assert.IsFalse(cell.CanConsumeYield("food", 1.0));
+		Assert.IsFalse(cell.TryConsumeYield("food", 1.0));
+		Assert.IsFalse(cell.TryConsumeYield("food", double.NaN));
+		cell.ConsumeYield("food", double.NaN);
+		Assert.AreEqual(0.0, cell.GetForagableYield("food"));
+		Assert.AreEqual(0.0, persistedNonFiniteCell.GetForagableYield("food"));
+	}
+
+	[TestMethod]
+	public void Cell_NonFiniteHourlyRecovery_DoesNotPoisonYieldPool()
+	{
+		var profile = CreateRecoveringProfileMock(83L, "food", 1.0, double.NaN);
+		var profiles = new RevisableAll<IForagableProfile>();
+		profiles.Add(profile.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(Mock.Of<IHeartbeatManager>());
+		gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
+		var cell = CreateLoadedCell(gameworld.Object, 83L, "food", 0.5);
+
+		RunYieldTicks(cell, 1);
+
+		Assert.AreEqual(0.5, cell.GetForagableYield("food"));
+		Assert.IsFalse(cell.TryConsumeYield("food", 1.0));
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	[DoNotParallelize]
+	public void Forage_DiscreteItemAndCommodityOutput_RejectsFractionalYield(bool commodityOutput)
+	{
+		using var forageTime = new ForageTimeExpressionScope();
+		const long profileId = 82L;
+		var profile = CreateProfileMock(profileId, ("food", 2.0));
+		var profiles = new RevisableAll<IForagableProfile>();
+		profiles.Add(profile.Object);
+		var check = new Mock<ICheck>();
+		check.Setup(x => x.CheckAgainstAllDifficulties(It.IsAny<IPerceivableHaveTraits>(), It.IsAny<Difficulty>(),
+			     It.IsAny<ITraitDefinition>(), It.IsAny<IPerceivable?>(), It.IsAny<double>(),
+			     It.IsAny<TraitUseType>(), It.IsAny<(string Parameter, object value)[]>()))
+		     .Returns(Enum.GetValues<Difficulty>()
+		                  .ToDictionary(x => x, x => CheckOutcome.SimpleOutcome(CheckType.ForageCheck, Outcome.MajorPass)));
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(Mock.Of<IHeartbeatManager>());
+		gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
+		gameworld.Setup(x => x.GetCheck(CheckType.ForageCheck)).Returns(check.Object);
+		var cell = CreateLoadedCell(gameworld.Object, profileId, "food", 0.999);
+		var foragable = new Mock<IForagable>();
+		foragable.SetupGet(x => x.ForagableTypes).Returns(["food"]);
+		foragable.SetupGet(x => x.ForageDifficulty).Returns(Difficulty.Normal);
+		if (commodityOutput)
+		{
+			foragable.SetupGet(x => x.CommodityMaterial).Returns(Mock.Of<ISolid>());
+			foragable.SetupGet(x => x.CommodityWeightExpression).Returns("1");
+		}
+		else
+		{
+			foragable.SetupGet(x => x.ItemProto).Returns(Mock.Of<IGameItemProto>());
+		}
+
+		profile.SetupGet(x => x.Foragables).Returns([foragable.Object]);
+		profile.Setup(x => x.GetForageResult(It.IsAny<MudSharp.Character.ICharacter>(),
+			              It.IsAny<IReadOnlyDictionary<Difficulty, CheckOutcome>>(), "food"))
+		       .Returns(foragable.Object);
+		var character = new Mock<MudSharp.Character.ICharacter>();
+		character.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		character.SetupGet(x => x.Location).Returns(cell);
+		SimpleCharacterAction? action = null;
+		character.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
+		         .Callback<IEffect, TimeSpan>((effect, _) =>
+		         {
+			         Assert.IsInstanceOfType(effect, typeof(SimpleCharacterAction));
+			         action = (SimpleCharacterAction)effect;
+		         });
+
+		var forageMethod = typeof(Cell).Assembly
+		                              .GetType("MudSharp.Commands.Modules.GameModule")!
+		                              .GetMethod("Forage", BindingFlags.Static | BindingFlags.NonPublic)!;
+		forageMethod.Invoke(null, [character.Object, "forage food"]);
+
+		Assert.IsNotNull(action);
+		action.Action(character.Object);
+		Assert.AreEqual(0.999, cell.GetForagableYield("food"));
+		gameworld.Verify(x => x.Add(It.IsAny<IGameItem>()), Times.Never);
 	}
 
 	[TestMethod]
@@ -445,10 +611,7 @@ public class ForagingRuntimeTests
 	private static Cell CreateForagingCell(IFuturemud gameworld, IRoom? room, long? explicitProfileId)
 	{
 		var cell = TestObjectFactory.CreateUninitialized<Cell>();
-		typeof(LateKeywordedInitialisingItem)
-			.GetProperty(nameof(LateKeywordedInitialisingItem.Gameworld),
-				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
-			.SetValue(cell, gameworld);
+		SetLateInitialisingGameworld(cell, gameworld);
 		typeof(Cell).GetField("<Room>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.SetValue(cell, room);
 		typeof(Cell).GetField("_foragableYields", BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -456,6 +619,36 @@ public class ForagingRuntimeTests
 		typeof(Cell).GetField("_foragableProfileId", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.SetValue(cell, explicitProfileId ?? 0);
 		return cell;
+	}
+
+	private static void SetLateInitialisingGameworld(object item, IFuturemud gameworld)
+	{
+		typeof(LateKeywordedInitialisingItem)
+			.GetProperty(nameof(LateKeywordedInitialisingItem.Gameworld),
+				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
+			.SetValue(item, gameworld);
+	}
+
+	private sealed class ForageTimeExpressionScope : IDisposable
+	{
+		private readonly Futuremud _game;
+		private readonly List<Futuremud> _games;
+
+		public ForageTimeExpressionScope()
+		{
+			_game = TestObjectFactory.CreateUninitialized<Futuremud>();
+			typeof(Futuremud).GetField("_staticConfigurations", BindingFlags.Instance | BindingFlags.NonPublic)!
+			                 .SetValue(_game, new Dictionary<string, string> { ["BaseForageTimeExpression"] = "1" });
+			_games = (List<Futuremud>)typeof(Futuremud)
+				.GetField("_allgames", BindingFlags.Static | BindingFlags.NonPublic)!
+				.GetValue(null)!;
+			_games.Insert(0, _game);
+		}
+
+		public void Dispose()
+		{
+			_games.Remove(_game);
+		}
 	}
 
 	private static Cell CreateLoadedCell(IFuturemud gameworld, long profileId, string yieldType, double yield)

@@ -547,7 +547,13 @@ public class Terrain : SaveableItem, ITerrain
         {
             if (_foragableProfileId != 0)
             {
-                _foragableProfile = Gameworld.ForagableProfiles.Get(_foragableProfileId);
+                var profile = Gameworld.ForagableProfiles.Get(_foragableProfileId);
+                if (profile is null)
+                {
+                    return null;
+                }
+
+                _foragableProfile = profile;
                 _foragableProfileId = 0;
             }
 

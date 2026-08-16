@@ -386,6 +386,12 @@ Yield types are the resource pools in a location. Foragables are the item or com
             return false;
         }
 
+        if (!double.IsFinite(maximumYield))
+        {
+            actor.Send("The maximum yield must be a finite number.");
+            return false;
+        }
+
         if (maximumYield <= 0.0)
         {
             return RemoveYield(actor, forageType);
@@ -403,9 +409,9 @@ Yield types are the resource pools in a location. Foragables are the item or com
             return false;
         }
 
-        if (hourlyGain < 0.0)
+        if (!double.IsFinite(hourlyGain) || hourlyGain < 0.0)
         {
-            actor.Send("The hourly yield recovery cannot be negative.");
+            actor.Send("The hourly yield recovery must be a finite, non-negative number.");
             return false;
         }
 

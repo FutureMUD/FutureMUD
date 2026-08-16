@@ -2105,17 +2105,21 @@ public partial class Cell : Location, IDisposable, ICell
     public double GetForagableYield(string foragableType)
     {
         SynchroniseForagableYields(ResolveForagableProfile());
-        return _foragableYields.ContainsKey(foragableType) ? _foragableYields[foragableType] : 0.0;
+        var yield = _foragableYields.GetValueOrDefault(foragableType);
+        return double.IsFinite(yield) && yield > 0.0 ? yield : 0.0;
     }
 
     public bool CanConsumeYield(string foragableType, double yield)
     {
-        return yield > 0.0 && GetForagableYield(foragableType) + YieldComparisonTolerance >= yield;
+        return !string.IsNullOrWhiteSpace(foragableType) &&
+               double.IsFinite(yield) &&
+               yield > 0.0 &&
+               GetForagableYield(foragableType) + YieldComparisonTolerance >= yield;
     }
 
     public bool TryConsumeYield(string foragableType, double yield)
     {
-        if (yield <= 0.0)
+        if (string.IsNullOrWhiteSpace(foragableType) || !double.IsFinite(yield) || yield <= 0.0)
         {
             return false;
         }
@@ -2124,7 +2128,7 @@ public partial class Cell : Location, IDisposable, ICell
         {
             SynchroniseForagableYields(ResolveForagableProfile());
             var available = _foragableYields.GetValueOrDefault(foragableType);
-            if (available + YieldComparisonTolerance < yield)
+            if (!double.IsFinite(available) || available + YieldComparisonTolerance < yield)
             {
                 return false;
             }
@@ -2151,6 +2155,11 @@ public partial class Cell : Location, IDisposable, ICell
 
     public void ConsumeYield(string foragableType, double yield)
     {
+        if (string.IsNullOrWhiteSpace(foragableType) || !double.IsFinite(yield) || yield <= 0.0)
+        {
+            return;
+        }
+
         _foragableYields[foragableType] = Math.Max(0.0, GetForagableYield(foragableType) - yield);
         YieldsChanged = true;
         Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
@@ -2165,7 +2174,8 @@ public partial class Cell : Location, IDisposable, ICell
             return 0.0;
         }
 
-        return profile.MaximumYieldPoints[type];
+        var yield = profile.MaximumYieldPoints[type];
+        return double.IsFinite(yield) && yield > 0.0 ? yield : 0.0;
     }
 
     private double GetHourlyYield(string type)
@@ -2176,7 +2186,8 @@ public partial class Cell : Location, IDisposable, ICell
             return 0.0;
         }
 
-        return profile.HourlyYieldPoints[type];
+        var yield = profile.HourlyYieldPoints[type];
+        return double.IsFinite(yield) && yield >= 0.0 ? yield : 0.0;
     }
 
     private void YieldTick()
@@ -2248,17 +2259,33 @@ public partial class Cell : Location, IDisposable, ICell
         }
         else
         {
-            var validTypes = profile.MaximumYieldPoints.Keys.ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+            var validYields = profile.MaximumYieldPoints
+                                     .Where(x => double.IsFinite(x.Value) && x.Value > 0.0)
+                                     .ToList();
+            var validTypes = validYields.Select(x => x.Key).ToHashSet(StringComparer.InvariantCultureIgnoreCase);
             foreach (var type in _foragableYields.Keys.Where(x => !validTypes.Contains(x)).ToList())
             {
                 _foragableYields.Remove(type);
                 changed = true;
             }
 
-            foreach (var yield in profile.MaximumYieldPoints.Where(x => !_foragableYields.ContainsKey(x.Key)))
+            foreach (var yield in validYields)
             {
-                _foragableYields[yield.Key] = yield.Value;
-                changed = true;
+                if (!_foragableYields.TryGetValue(yield.Key, out var currentYield))
+                {
+                    _foragableYields[yield.Key] = yield.Value;
+                    changed = true;
+                    continue;
+                }
+
+                var normalisedYield = double.IsFinite(currentYield)
+                    ? Math.Clamp(currentYield, 0.0, yield.Value)
+                    : 0.0;
+                if (normalisedYield != currentYield)
+                {
+                    _foragableYields[yield.Key] = normalisedYield;
+                    changed = true;
+                }
             }
 
             if (_foragableYields.Any(x => GetMaxYield(x.Key) > x.Value))

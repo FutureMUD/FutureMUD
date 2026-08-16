@@ -431,7 +431,7 @@ Subtype-specific prog use also exists in products such as:
 - `ProgVariableProduct`
 - `NPCProduct`
 
-`ProgVariableProduct` supplies its variable progs with consumed inputs in the craft's configured input order. Single inputs remain single entries, while perceivable groups are expanded to their members. A prog accepting a collection of perceivables receives every individual consumed perceivable; a prog accepting a collection of items receives only consumed game items. Input selection uses the prog's current `MatchesParameters` contract, so a later builder edit to a referenced prog's signature cannot cause craft completion to assume a singleton parameter list; the product's validity check reports a no-longer-matching signature for correction.
+`ProgVariableProduct` supplies its variable progs with consumed inputs in the craft's configured input order. Single inputs remain single entries, while perceivable groups are expanded to their members. A prog accepting a collection of perceivables receives every individual consumed perceivable; a prog accepting a collection of items receives only consumed game items. Input selection uses a bounded snapshot of the prog's declared parameters, rather than compatibility matching or a singleton assumption, so a later builder edit to the referenced signature cannot cause craft completion to throw or to filter perceivables incorrectly; the product's validity check reports a no-longer-matching signature for correction.
 
 ### Item system integration
 Crafting leans heavily on the item system.

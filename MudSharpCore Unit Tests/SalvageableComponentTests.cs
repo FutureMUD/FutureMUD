@@ -86,6 +86,34 @@ public class SalvageableComponentTests
 		Assert.AreEqual(3.5, proto.MaximumOutputWeight(10.0, false), 1.0e-9);
 	}
 
+	[TestMethod]
+	public void CleanLoad_ItemPrototypeProvisionedLater_RetainsExactReferenceForFirstConsumer()
+	{
+		var fixture = CreateFixture(addItemProto: false);
+		var proto = (SalvageableGameItemComponentProto)new GameItemComponentManager()
+			.GetProto(CreateDatabaseProto(), fixture.Gameworld.Object);
+		var product = proto.ItemProducts.Single();
+
+		Assert.AreEqual(200L, product.ItemPrototypeId);
+		Assert.AreEqual(1, product.ItemPrototypeRevision);
+		Assert.IsNull(product.ItemPrototype);
+		Assert.IsFalse(proto.ConfigurationIsComplete(out var unresolvedReason));
+		StringAssert.Contains(unresolvedReason, "#200r1 is unavailable");
+
+		var component = (ISalvageable)proto.CreateNew(CreateParent(fixture.Gameworld.Object, 10.0).Object,
+			temporary: true);
+		Assert.IsFalse(component.CanSalvage(out var consumerReason));
+		StringAssert.Contains(consumerReason, "#200r1 is unavailable");
+
+		fixture.ItemProtos.Add(fixture.ItemProto.Object);
+
+		Assert.AreSame(fixture.ItemProto.Object, product.ItemPrototype);
+		Assert.IsTrue(component.CanSalvage(out var resolvedReason), resolvedReason);
+		var plan = proto.CreateProductPlan(10.0, true, () => 0.0);
+		Assert.AreSame(fixture.ItemProto.Object, plan.Items.Single().Product.ItemPrototype);
+		Assert.AreEqual(2, plan.Items.Single().Quantity);
+	}
+
 	[DataTestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
@@ -294,7 +322,8 @@ public class SalvageableComponentTests
 		return parent;
 	}
 
-	private static (Mock<IFuturemud> Gameworld, Mock<ITraitDefinition> Trait) CreateFixture()
+	private static (Mock<IFuturemud> Gameworld, Mock<ITraitDefinition> Trait,
+		RevisableAll<IGameItemProto> ItemProtos, Mock<IGameItemProto> ItemProto) CreateFixture(bool addItemProto = true)
 	{
 		var trait = new Mock<ITraitDefinition>();
 		trait.SetupGet(x => x.Id).Returns(50);
@@ -315,14 +344,17 @@ public class SalvageableComponentTests
 		itemProto.SetupGet(x => x.Weight).Returns(2.0);
 		itemProto.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
 		var itemProtos = new RevisableAll<IGameItemProto>();
-		itemProtos.Add(itemProto.Object);
+		if (addItemProto)
+		{
+			itemProtos.Add(itemProto.Object);
+		}
 
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.Traits).Returns(traits);
 		gameworld.SetupGet(x => x.Materials).Returns(materials);
 		gameworld.SetupGet(x => x.Tags).Returns(new All<ITag>());
 		gameworld.SetupGet(x => x.ItemProtos).Returns(itemProtos);
-		return (gameworld, trait);
+		return (gameworld, trait, itemProtos, itemProto);
 	}
 
 	private static Mock<ISolid> CreateMaterial(long id, string name)

@@ -163,9 +163,11 @@ public class SalvageableGameItemComponent : GameItemComponent, ISalvageable
 
 		foreach (var (product, quantity) in plan.Items)
 		{
-			if (product.ItemPrototype.IsItemType<StackableGameItemComponentProto>())
+			var itemPrototype = product.ItemPrototype ?? throw new InvalidOperationException(
+				$"Salvage item product #{product.ItemPrototypeId}r{product.ItemPrototypeRevision} was unresolved after validation.");
+			if (itemPrototype.IsItemType<StackableGameItemComponentProto>())
 			{
-				var item = product.ItemPrototype.CreateNew(actor);
+				var item = itemPrototype.CreateNew(actor);
 				item.GetItemType<IStackable>().Quantity = quantity;
 				InitialiseProduct(actor, item);
 				products.Add(item);
@@ -174,7 +176,7 @@ public class SalvageableGameItemComponent : GameItemComponent, ISalvageable
 
 			for (var i = 0; i < quantity; i++)
 			{
-				var item = product.ItemPrototype.CreateNew(actor);
+				var item = itemPrototype.CreateNew(actor);
 				InitialiseProduct(actor, item);
 				products.Add(item);
 			}

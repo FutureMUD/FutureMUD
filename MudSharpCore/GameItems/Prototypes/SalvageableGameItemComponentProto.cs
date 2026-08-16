@@ -27,13 +27,36 @@ public sealed record SalvageCommodityProduct(
 	}
 }
 
-public sealed record SalvageItemProduct(
-	IGameItemProto ItemPrototype,
-	int SuccessQuantity,
-	int FailureQuantity,
-	double SuccessChance,
-	double FailureChance)
+public sealed class SalvageItemProduct
 {
+	private readonly IFuturemud _gameworld;
+
+	public SalvageItemProduct(IFuturemud gameworld, long itemPrototypeId, int itemPrototypeRevision,
+		int successQuantity, int failureQuantity, double successChance, double failureChance)
+	{
+		_gameworld = gameworld;
+		ItemPrototypeId = itemPrototypeId;
+		ItemPrototypeRevision = itemPrototypeRevision;
+		SuccessQuantity = successQuantity;
+		FailureQuantity = failureQuantity;
+		SuccessChance = successChance;
+		FailureChance = failureChance;
+	}
+
+	public SalvageItemProduct(IFuturemud gameworld, IGameItemProto itemPrototype,
+		int successQuantity, int failureQuantity, double successChance, double failureChance)
+		: this(gameworld, itemPrototype.Id, itemPrototype.RevisionNumber, successQuantity, failureQuantity,
+			failureChance: failureChance, successChance: successChance)
+	{
+	}
+
+	public long ItemPrototypeId { get; }
+	public int ItemPrototypeRevision { get; }
+	public IGameItemProto? ItemPrototype => _gameworld.ItemProtos.Get(ItemPrototypeId, ItemPrototypeRevision);
+	public int SuccessQuantity { get; }
+	public int FailureQuantity { get; }
+	public double SuccessChance { get; }
+	public double FailureChance { get; }
 	public int Quantity(bool success) => success ? SuccessQuantity : FailureQuantity;
 	public double Chance(bool success) => success ? SuccessChance : FailureChance;
 }
@@ -98,16 +121,10 @@ public class SalvageableGameItemComponentProto : GameItemComponentProto, ISalvag
 
 		foreach (var element in root.Element("ItemProducts")?.Elements("Product") ?? [])
 		{
-			var itemProto = Gameworld.ItemProtos.Get(
-				long.Parse(element.Attribute("id")!.Value),
-				int.Parse(element.Attribute("revision")!.Value));
-			if (itemProto is null)
-			{
-				continue;
-			}
-
 			_itemProducts.Add(new SalvageItemProduct(
-				itemProto,
+				Gameworld,
+				long.Parse(element.Attribute("id")!.Value),
+				int.Parse(element.Attribute("revision")!.Value),
 				int.Parse(element.Attribute("successQuantity")!.Value),
 				int.Parse(element.Attribute("failureQuantity")!.Value),
 				double.Parse(element.Attribute("successChance")!.Value, CultureInfo.InvariantCulture),
@@ -132,8 +149,8 @@ public class SalvageableGameItemComponentProto : GameItemComponentProto, ISalvag
 					new XAttribute("failure", x.FailureAmount)))),
 			new XElement("ItemProducts",
 				_itemProducts.Select(x => new XElement("Product",
-					new XAttribute("id", x.ItemPrototype.Id),
-					new XAttribute("revision", x.ItemPrototype.RevisionNumber),
+					new XAttribute("id", x.ItemPrototypeId),
+					new XAttribute("revision", x.ItemPrototypeRevision),
 					new XAttribute("successQuantity", x.SuccessQuantity),
 					new XAttribute("failureQuantity", x.FailureQuantity),
 					new XAttribute("successChance", x.SuccessChance),
@@ -153,7 +170,7 @@ public class SalvageableGameItemComponentProto : GameItemComponentProto, ISalvag
 	public double MaximumOutputWeight(double sourceBaseWeight, bool success)
 	{
 		return _commodityProducts.Sum(x => x.Weight(sourceBaseWeight, success)) +
-		       _itemProducts.Sum(x => x.ItemPrototype.Weight * x.Quantity(success));
+		       _itemProducts.Sum(x => (x.ItemPrototype?.Weight ?? double.PositiveInfinity) * x.Quantity(success));
 	}
 
 	public SalvageProductPlan CreateProductPlan(double sourceBaseWeight, bool success, Func<double>? random = null)
@@ -188,6 +205,13 @@ public class SalvageableGameItemComponentProto : GameItemComponentProto, ISalvag
 		if (_commodityProducts.Count + _itemProducts.Count == 0)
 		{
 			reason = "it has no salvage products configured";
+			return false;
+		}
+
+		var unresolvedProduct = _itemProducts.FirstOrDefault(x => x.ItemPrototype is null);
+		if (unresolvedProduct is not null)
+		{
+			reason = $"its configured item product #{unresolvedProduct.ItemPrototypeId:N0}r{unresolvedProduct.ItemPrototypeRevision:N0} is unavailable";
 			return false;
 		}
 
@@ -415,7 +439,7 @@ public class SalvageableGameItemComponentProto : GameItemComponentProto, ISalvag
 			return false;
 		}
 
-		_itemProducts.Add(new SalvageItemProduct(itemProto, successQuantity, failureQuantity, successChance, failureChance));
+		_itemProducts.Add(new SalvageItemProduct(Gameworld, itemProto, successQuantity, failureQuantity, successChance, failureChance));
 		Changed = true;
 		actor.OutputHandler.Send($"Item prototype {itemProto.EditHeader().ColourName()} has been added as a product.");
 		return true;
@@ -464,7 +488,9 @@ public class SalvageableGameItemComponentProto : GameItemComponentProto, ISalvag
 		}
 		foreach (var product in _itemProducts)
 		{
-			sb.AppendLine($"  {productIndex++:N0}. item {product.ItemPrototype.EditHeader()}; success {product.SuccessQuantity:N0} @ {product.SuccessChance:P2}, failure {product.FailureQuantity:N0} @ {product.FailureChance:P2}");
+			var productDescription = product.ItemPrototype?.EditHeader() ??
+			                         $"unresolved item #{product.ItemPrototypeId:N0}r{product.ItemPrototypeRevision:N0}";
+			sb.AppendLine($"  {productIndex++:N0}. item {productDescription}; success {product.SuccessQuantity:N0} @ {product.SuccessChance:P2}, failure {product.FailureQuantity:N0} @ {product.FailureChance:P2}");
 		}
 		return sb.ToString();
 	}

@@ -225,7 +225,11 @@ public sealed class LootTable : EditableItem, ILootTable
 
 	protected override IEnumerable<IEditableRevisableItem> GetAllSameId() => Gameworld.LootTables.GetAll(Id);
 
-	private const string BuildingHelp = @"Use NAME <name>, VARIANT ADD|REMOVE|RENAME, GROUP ADD|REPEAT|DESTINATION|SWAP|REMOVE, CHOICE ADD|WEIGHT|VARIABLES|REMOVE. See HELP LOOTTABLE for syntax.";
+	private const string BuildingHelp = @"Edit this LootTable with NAME, VARIANT, GROUP or CHOICE.
+
+Groups run in displayed order. An item choice may provide a local key with AS <key>; later groups use GROUP ... DESTINATION <key> to put their results inside that generated container. Nested tables inherit the destination of the group that invokes them.
+
+Use HELP LOOTTABLE for complete syntax and an example.";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -325,7 +329,11 @@ public sealed class LootTable : EditableItem, ILootTable
 			{
 				case "nothing": choice.Kind = LootChoiceKind.Nothing; break;
 				case "item" when long.TryParse(command.PopSpeech(), out var proto): choice.Kind = LootChoiceKind.Item; choice.ItemPrototypeId = proto; choice.ItemPrototypeRevision = Gameworld.ItemProtos.Get(proto)?.RevisionNumber ?? 0; ParseItemOptions(choice, command); break;
-				case "commodity" when long.TryParse(command.PopSpeech(), out var material): choice.Kind = LootChoiceKind.Commodity; choice.CommodityMaterialId = material; ParseCommodityOptions(choice, command); break;
+				case "commodity" when long.TryParse(command.PopSpeech(), out var material):
+					choice.Kind = LootChoiceKind.Commodity;
+					choice.CommodityMaterialId = material;
+					if (!ParseCommodityOptions(choice, command, actor)) return false;
+					break;
 				case "table" when long.TryParse(command.PopSpeech(), out var table) && int.TryParse(command.PopSpeech(), out var revision) && !command.IsFinished: choice.Kind = LootChoiceKind.LootTable; choice.NestedTableId = table; choice.NestedTableRevision = revision; choice.NestedVariant = command.PopSpeech().ToLowerInvariant(); break;
 				default: actor.Send("Invalid choice type or arguments."); return false;
 			}
@@ -349,15 +357,29 @@ public sealed class LootTable : EditableItem, ILootTable
 		}
 	}
 
-	private static void ParseCommodityOptions(LootChoiceDefinition choice, StringStack command)
+	private bool ParseCommodityOptions(LootChoiceDefinition choice, StringStack command, ICharacter actor)
 	{
 		while (!command.IsFinished)
 		{
 			switch (command.PopSpeech().ToLowerInvariant())
 			{
 				case "tag" when long.TryParse(command.PopSpeech(), out var tag): choice.CommodityTagId = tag; break;
-				case "mass" when double.TryParse(command.PopSpeech(), out var min) && double.TryParse(command.PopSpeech(), out var max): choice.MassMinimum = min; choice.MassMaximum = max; break;
+				case "mass":
+					var minimumText = command.PopSpeech();
+					var maximumText = command.PopSpeech();
+					if (!TryParseMass(minimumText, actor, out var min) || !TryParseMass(maximumText, actor, out var max))
+					{
+						actor.Send("Mass ranges must be numbers in engine base units or values with explicit units, such as 125g or 1.5kg.");
+						return false;
+					}
+					choice.MassMinimum = min;
+					choice.MassMaximum = max;
+					break;
 			}
 		}
+		return true;
 	}
+
+	private bool TryParseMass(string text, ICharacter actor, out double value) =>
+		double.TryParse(text, out value) || Gameworld.UnitManager.TryGetBaseUnits(text, UnitType.Mass, actor, out value);
 }

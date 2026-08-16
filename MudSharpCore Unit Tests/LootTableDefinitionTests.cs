@@ -6,6 +6,7 @@ using MudSharp.FutureProg;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using MudSharp.Framework.Units;
 using MudSharp.Character;
 using MudSharp.PerceptionEngine;
 using Moq;
@@ -335,6 +336,51 @@ public class LootTableDefinitionTests
 		StringAssert.Contains(shown, "Outer target");
 		StringAssert.Contains(shown, "3 (100.00%)");
 		StringAssert.Contains(shown, "Nothing");
+	}
+
+	[TestMethod]
+	public void BuildingCommand_CommodityMass_AcceptsExplicitHumanUnits()
+	{
+		var definition = new LootTableDefinition();
+		var variant = new LootVariantDefinition { Key = "default" };
+		variant.Groups.Add(new LootRollGroupDefinition { Key = "contents" });
+		definition.Variants.Add(variant);
+		var row = new MudSharp.Models.LootTable
+		{
+			Id = 8,
+			RevisionNumber = 0,
+			Name = "Unit Test",
+			AlgorithmVersion = LootTableDefinition.CurrentAlgorithmVersion,
+			Definition = definition.ToCanonicalXml(),
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = (int)RevisionStatus.UnderDesign,
+				BuilderAccountId = 1,
+				BuilderDate = DateTime.UtcNow
+			}
+		};
+		var minimum = 125.0;
+		var maximum = 250.0;
+		var units = new Mock<IUnitManager>();
+		var actor = new Mock<ICharacter>();
+		units.Setup(x => x.TryGetBaseUnits("125g", UnitType.Mass, actor.Object, out minimum)).Returns(true);
+		units.Setup(x => x.TryGetBaseUnits("250g", UnitType.Mass, actor.Object, out maximum)).Returns(true);
+		var saveManager = new Mock<ISaveManager>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.Setup(x => x.UnitManager).Returns(units.Object);
+		gameworld.Setup(x => x.SaveManager).Returns(saveManager.Object);
+		var output = new Mock<IOutputHandler>();
+		actor.Setup(x => x.OutputHandler).Returns(output.Object);
+		var table = new MudSharp.Work.Loot.LootTable(row, gameworld.Object);
+
+		var result = table.BuildingCommand(actor.Object,
+			new StringStack("choice add default contents steel 1 commodity 24 mass 125g 250g"));
+
+		Assert.IsTrue(result);
+		var choice = table.Definition.Variants.Single().Groups.Single().Choices.Single();
+		Assert.AreEqual(125.0, choice.MassMinimum);
+		Assert.AreEqual(250.0, choice.MassMaximum);
 	}
 
 	private static LootTableDefinition RepresentativeDefinition()

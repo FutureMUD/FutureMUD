@@ -1590,19 +1590,59 @@ The syntax to use this command is as follows:
 
 		#region Loot Tables
 
-		private const string LootTableHelp = @"Loot tables are revisioned deterministic item/commodity graphs.
+		private const string LootTableHelp = @"Loot tables create an ordered graph of items and commodities in one atomic operation.
 
-#3loottable list [filters]#0
+A table contains named #6variants#0. Each variant runs its #6groups#0 from top to bottom. A group repeats a number of times and selects one weighted #6choice#0 each time. A choice can create an exact item revision, create a commodity, run an exact nested LootTable revision, or create nothing.
+
+An item choice can #6provide a local key#0. Later groups may use that key as their destination, which puts their results inside that particular generated container. Running a nested table does not itself imply containment: the nested group's destination controls where the child table's outer-target results go.
+
+#6Example realised structure:#0
+Outer target
+|- envelope provided as key 'vessel'
+|  '- 125 grams of carbon steel directed inside 'vessel'
+'- envelope produced by a nested child table directed to the outer target
+
+#6Create and inspect:#0
+#3loottable new <name>#0
+#3loottable edit <id|name> [revision]#0
+#3loottable edit#0
+#3loottable close#0
 #3loottable show <id|name> [revision]#0
-#3loottable edit new <name>|<id|name>|close|submit|delete|obsolete#0
-#3loottable revise <id|name>#0
-#3loottable review ...#0
-#3loottable set variant|group|choice ...#0
-#3loottable validate <id|name> [revision]#0
-#3loottable preview <id|name> [revision] <variant> [seed]#0
-#3loottable load <id|name> [revision] <variant> [seed] here|into <item>|to <character>#0
+#3loottable list [filters]#0
 
-Group and choice editing syntax is shown by #3loottable set#0.";
+#6Variants:#0
+#3loottable set variant add <key>#0
+#3loottable set variant remove <key>#0
+#3loottable set variant rename <old> <new>#0
+
+#6Ordered groups:#0
+#3loottable set group add <variant> <key> [repeat <min> <max>] [into <target|earlier-key>]#0
+#3loottable set group repeat <variant> <key> <min> <max>#0
+#3loottable set group destination <variant> <key> <target|earlier-key>#0
+#3loottable set group swap <variant> <key> <position>#0
+#3loottable set group remove <variant> <key>#0
+
+#6Weighted choices:#0
+#3loottable set choice add <variant> <group> <key> <weight> nothing#0
+#3loottable set choice add <variant> <group> <key> <weight> item <prototype> [revision <rev>] [quantity <min> <max>] [quality <min> <max>] [as <local-key>]#0
+#3loottable set choice add <variant> <group> <key> <weight> commodity <material> [tag <tag>] [mass <min> <max>]#0
+#3loottable set choice add <variant> <group> <key> <weight> table <id> <revision> <variant>#0
+#3loottable set choice weight <variant> <group> <key> <weight>#0
+#3loottable set choice variables <variant> <group> <key> <definition=value ...|clear>#0
+#3loottable set choice remove <variant> <group> <key>#0
+
+Commodity mass accepts explicit units such as #3125g#0 or #31.5kg#0. Bare numbers remain supported as engine base mass units for compatibility.
+
+#6Validate and test:#0
+#3loottable validate <id|name> [revision]#0 - checks references, destinations, cycles and limits
+#3loottable preview <id|name> [revision] <variant> [seed]#0 - shows the deterministic plan without creating anything
+#3loottable load <id|name> [revision] <variant> [seed] here|into <item>|to <character>#0 - atomically creates the plan
+
+#6Revision lifecycle:#0
+#3loottable clone <id|name> [revision] <new name>#0
+#3loottable revise <id|name>#0
+#3loottable submit <comment>#0
+#3loottable review <id|name> [revision]#0";
 
 		[PlayerCommand("LootTable", "loottable", "lt")]
 		[CommandPermission(PermissionLevel.Admin)]

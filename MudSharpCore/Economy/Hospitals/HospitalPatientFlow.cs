@@ -373,17 +373,36 @@ public static class HospitalPatientFlow
 	public static bool IsTheatreAvailable(IHospital hospital, IHospitalServiceRequest request, ICell theatre,
 		out string reason)
 	{
+		return IsTheatreAvailable(hospital, theatre, candidate => !IsSameRequest(candidate, request),
+			occupant => IsRequestPatient(request, occupant), out reason);
+	}
+
+	/// <summary>
+	/// Checks whether a theatre can accept a new hospital request before that request has been created. This must
+	/// use the same reservation and occupant checks as the task runner, without mutating a request merely to test
+	/// availability.
+	/// </summary>
+	public static bool IsTheatreAvailableForNewRequest(IHospital hospital, ICharacter? patient, ICell theatre,
+		out string reason)
+	{
+		return IsTheatreAvailable(hospital, theatre, _ => true,
+			occupant => IsRequestPatient(patient, occupant), out reason);
+	}
+
+	private static bool IsTheatreAvailable(IHospital hospital, ICell theatre,
+		Func<IHospitalServiceRequest, bool> isConflictingRequest, Func<ICharacter, bool> isRequestPatient,
+		out string reason)
+	{
 		var conflictingRequest = (hospital.ActiveServiceRequests ?? Array.Empty<IHospitalServiceRequest>())
 		                                 .FirstOrDefault(x =>
-			                                 !IsSameRequest(x, request) &&
-			                                 x.OperatingTheatreCellId == theatre.Id);
+			                                 isConflictingRequest(x) && x.OperatingTheatreCellId == theatre.Id);
 		if (conflictingRequest is not null)
 		{
 			reason = $"Operating theatre {theatre.Name} is already reserved for active hospital request #{conflictingRequest.Id.ToString("N0")}.";
 			return false;
 		}
 
-		if ((theatre.Characters ?? Array.Empty<ICharacter>()).Any(x => !x.IsAdministrator() && !hospital.IsEmployee(x) && !IsRequestPatient(request, x)))
+		if ((theatre.Characters ?? Array.Empty<ICharacter>()).Any(x => !x.IsAdministrator() && !hospital.IsEmployee(x) && !isRequestPatient(x)))
 		{
 			reason = $"Operating theatre {theatre.Name} is occupied by someone unrelated to this request.";
 			return false;
@@ -416,6 +435,13 @@ public static class HospitalPatientFlow
 
 		return request.PatientId > 0 &&
 		       CharacterInstanceIdentityComparer.IdentityId(occupant) == request.PatientId;
+	}
+
+	private static bool IsRequestPatient(ICharacter? patient, ICharacter occupant)
+	{
+		return patient is not null &&
+		       (CharacterInstanceIdentityComparer.SamePhysicalInstance(occupant, patient) ||
+		        CharacterInstanceIdentityComparer.SameIdentity(occupant, patient));
 	}
 
 	private static void MoveCharacter(ICharacter character, ICell destination)

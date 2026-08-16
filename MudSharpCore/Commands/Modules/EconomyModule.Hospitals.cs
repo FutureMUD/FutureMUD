@@ -52,7 +52,7 @@ Hospital managers and proprietors standing in the hospital can use #3hospital he
 	#3hospital maxdebt <amount>#0 - sets the default debt ceiling for new patients
 	#3hospital room add|remove <waiting|theatre|supply|recovery|staff> [here|<direction>|<#>]#0 - flags hospital rooms
 	#3hospital service add <type> <price> <name>#0 - creates a service
-	#3hospital service set <service> price|active|debt|theatre|recovery|offering|blood|equipment|procedure|implant|implantpower|implantinterface|anesthesia|cannulation|parameters|name|desc <value>#0 - edits a service; equipment add accepts optional consumable|reusable after quantity
+	#3hospital service set <service> price|active|debt|theatre|recovery|offering|consent|blood|equipment|procedure|implant|implantpower|implantinterface|anesthesia|cannulation|parameters|name|desc <value>#0 - edits a service; equipment add accepts optional consumable|reusable after quantity
 	#3hospital bloodstock [show|set|clear] ...#0 - manages blood type target stock and donor prices
 	#3hospital deposit <amount>#0 - deposits held cash into the hospital's virtual cash balance
 	#3hospital withdraw <amount>#0 - withdraws cash from the hospital's virtual cash balance
@@ -448,7 +448,7 @@ Administrators can also use:
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Which property do you want to set? Options are price, active, debt, theatre, recovery, offering, blood, equipment, procedure, implant, implantpower, implantinterface, anesthesia, cannulation, parameters, name, and desc.");
+			actor.OutputHandler.Send("Which property do you want to set? Options are price, active, debt, theatre, recovery, offering, consent, blood, equipment, procedure, implant, implantpower, implantinterface, anesthesia, cannulation, parameters, name, and desc.");
 			return;
 		}
 
@@ -514,6 +514,10 @@ Administrators can also use:
 			case "mode":
 			case "visibility":
 				HospitalServiceSetOfferingMode(actor, service, ss);
+				return;
+			case "consent":
+			case "consentpolicy":
+				HospitalServiceSetConsentPolicy(actor, service, ss);
 				return;
 			case "blood":
 			case "bloodvolume":
@@ -599,6 +603,36 @@ Administrators can also use:
 		actor.OutputHandler.Send($"{service.Name.ColourName()} will use {amount.ToString("N2", actor).ColourValue()}L for blood donation/transfusion procedures.");
 	}
 
+	private static void HospitalServiceSetConsentPolicy(ICharacter actor, IHospitalService service, StringStack ss)
+	{
+		if (ss.IsFinished || !TryParseHospitalServiceConsentPolicy(ss.PopSpeech(), out var policy))
+		{
+			actor.OutputHandler.Send("Which consent policy should this service use? Valid policies are informed and emergency.");
+			return;
+		}
+
+		service.ConsentPolicy = policy;
+		actor.OutputHandler.Send($"{service.Name.ColourName()} now uses the {policy.DescribeEnum().ColourName()} policy.");
+	}
+
+	private static bool TryParseHospitalServiceConsentPolicy(string text, out HospitalServiceConsentPolicy policy)
+	{
+		switch (text.CollapseString().ToLowerInvariant())
+		{
+			case "informed":
+			case "consent":
+			case "required":
+				policy = HospitalServiceConsentPolicy.InformedConsentRequired;
+				return true;
+			case "emergency":
+			case "presumed":
+				policy = HospitalServiceConsentPolicy.EmergencyPresumedConsent;
+				return true;
+		}
+
+		return text.TryParseEnum(out policy);
+	}
+
 	private static void HospitalServiceSetOfferingMode(ICharacter actor, IHospitalService service, StringStack ss)
 	{
 		if (ss.IsFinished || !TryParseHospitalServiceOfferingMode(ss.PopSpeech(), out var mode))
@@ -658,6 +692,13 @@ Administrators can also use:
 		{
 			case "clear":
 			case "none":
+				if (!CanEditHospitalServiceEquipment(actor, service,
+				        service.RequiredEquipment.Select(x => x.ItemType), out var clearMessage))
+				{
+					actor.OutputHandler.Send(clearMessage);
+					return;
+				}
+
 				service.ClearRequiredEquipment();
 				actor.OutputHandler.Send($"{service.Name.ColourName()} no longer requires prepared equipment.");
 				return;
@@ -666,6 +707,13 @@ Administrators can also use:
 				if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var index) || index < 1 || index > service.RequiredEquipment.Count)
 				{
 					actor.OutputHandler.Send("Which equipment requirement number do you want to remove?");
+					return;
+				}
+
+				if (!CanEditHospitalServiceEquipment(actor, service,
+				        [service.RequiredEquipment[index - 1].ItemType], out var removeMessage))
+				{
+					actor.OutputHandler.Send(removeMessage);
 					return;
 				}
 
@@ -699,6 +747,12 @@ Administrators can also use:
 					return;
 				}
 
+				if (!CanEditHospitalServiceEquipment(actor, service, [itemType], out var addMessage))
+				{
+					actor.OutputHandler.Send(addMessage);
+					return;
+				}
+
 				service.AddRequiredEquipment(new HospitalServiceEquipmentRequirement(quantity, selector, itemType));
 				actor.OutputHandler.Send($"{service.Name.ColourName()} now requires {quantity.ToString("N0", actor).ColourValue()}x {EmploymentItemSelectorResolver.Describe(selector).ColourCommand()} as {itemType.DescribeEnum().ColourName()} to be prepared.");
 				return;
@@ -706,6 +760,41 @@ Administrators can also use:
 				actor.OutputHandler.Send("Hospital service equipment syntax is equipment show|clear|remove <#>|add <quantity> [consumable|reusable] <prototype id|*item id|&tag|keyword>.");
 				return;
 		}
+	}
+
+	private static bool CanEditHospitalServiceEquipment(ICharacter actor, IHospitalService service,
+		IEnumerable<HospitalServiceSupplyItemType> itemTypes, out string message)
+	{
+		message = string.Empty;
+		if (actor.IsAdministrator())
+		{
+			return true;
+		}
+
+		var affectedItemTypes = itemTypes.Distinct().ToHashSet();
+		if (!affectedItemTypes.Any())
+		{
+			return true;
+		}
+
+		var goals = service.Hospital.ManagerGoalBoard.Goals
+			.Where(x => x.Status is ManagerGoalStatus.Active or ManagerGoalStatus.Satisfied)
+			.Where(x => HospitalSupplyStockGoalPlanner.IsHospitalStockGoal(x.GoalType))
+			.Where(x => affectedItemTypes.Contains(HospitalSupplyStockGoalPlanner.ItemTypeForGoal(x.GoalType)))
+			.OrderBy(x => x.Id)
+			.ToList();
+		foreach (var goal in goals)
+		{
+			if (service.Hospital.HasAuthority(actor, goal.RequiredAuthority.Authorities))
+			{
+				continue;
+			}
+
+			message = $"You cannot change equipment used by active hospital stock goal #{goal.Id.ToString("N0", actor).ColourValue()} without its delegated {goal.RequiredAuthority.Authorities.DescribeEnum().ColourName()} authority.";
+			return false;
+		}
+
+		return true;
 	}
 
 	private static void ShowServiceEquipment(ICharacter actor, IHospitalService service)
@@ -1425,7 +1514,19 @@ Administrators can also use:
 			actor.OutputHandler.Send(message);
 		}
 
-		if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(actor, patient) && !patient.IsHelpless)
+		if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(actor, patient) && patient.IsHelpless)
+		{
+			if (service.ConsentPolicy != HospitalServiceConsentPolicy.EmergencyPresumedConsent)
+			{
+				actor.OutputHandler.Send($"{service.Name.ColourName()} requires the patient's informed consent and cannot be requested for a helpless patient by another person.");
+				return;
+			}
+
+			CreateRequest();
+			return;
+		}
+
+		if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(actor, patient))
 		{
 			patient.AddEffect(new Accept(patient, new GenericProposal(
 				text =>
@@ -1549,7 +1650,7 @@ Administrators can also use:
 		var task = HospitalTaskForRequest(hospital, request);
 		var abortedProcedures = CancelHospitalSurgicalEffects(hospital, request, task);
 		var cleanedBloodWorkflow = HospitalMedicalServiceRunner.CleanupBloodWorkflowForTerminalRequest(hospital, request,
-			task, actor);
+			task);
 		var reason = $"Cancelled by {actor.HowSeen(actor, colour: false)}.";
 		request.MarkStatus(HospitalServiceRequestStatus.Cancelled,
 			$"{reason} Amounts already paid or charged remain on the request; cancellation does not refund completed or partially completed work.");
@@ -1581,20 +1682,17 @@ Administrators can also use:
 	private static int CancelHospitalSurgicalEffects(IHospital hospital, IHospitalServiceRequest request,
 		IEmploymentActiveTask? task)
 	{
-		var patient = request.Patient;
 		var employees = hospital.ActiveEmploymentContracts()
 		                        .Select(x => x.Employee)
 		                        .Concat(task?.AssignedEmployee is null ? [] : [task.AssignedEmployee])
 		                        .Where(x => x is not null)
 		                        .DistinctPhysicalInstances()
 		                        .ToList();
-		var procedures = HospitalServiceProcedures(hospital, request.Service).Select(x => x.Id).ToHashSet();
 		var count = 0;
 		foreach (var employee in employees)
 		{
 			var effects = (employee.CombinedEffectsOfType<SurgicalProcedureEffect>() ?? [])
-			              .Where(x => patient is null || CharacterInstanceIdentityComparer.SameIdentity(x.Patient, patient))
-			              .Where(x => !procedures.Any() || procedures.Contains(x.Procedure.Id))
+			              .Where(x => x.HospitalRequestId == request.Id)
 			              .ToList();
 			foreach (var effect in effects)
 			{
@@ -1605,36 +1703,6 @@ Administrators can also use:
 		}
 
 		return count;
-	}
-
-	private static IEnumerable<ISurgicalProcedure> HospitalServiceProcedures(IHospital hospital, IHospitalService service)
-	{
-		if (service.SurgicalProcedure is not null)
-		{
-			yield return service.SurgicalProcedure;
-		}
-		else if (HospitalMedicalServiceRunner.ServiceTypeToSurgicalProcedureType(service.ServiceType) is { } procedureType)
-		{
-			foreach (var procedure in hospital.Gameworld.SurgicalProcedures.Where(x => x.Procedure == procedureType))
-			{
-				yield return procedure;
-			}
-		}
-
-		if (service.AnesthesiaCannulationProcedure is not null)
-		{
-			yield return service.AnesthesiaCannulationProcedure;
-		}
-
-		if (service.ImplantPowerProcedure is not null)
-		{
-			yield return service.ImplantPowerProcedure;
-		}
-
-		if (service.ImplantInterfaceProcedure is not null)
-		{
-			yield return service.ImplantInterfaceProcedure;
-		}
 	}
 
 	private static bool TryCreateHospitalRequest(ICharacter requester, IHospital hospital, IHospitalService service,

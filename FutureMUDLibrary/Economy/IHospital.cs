@@ -54,6 +54,12 @@ public enum HospitalServiceOfferingMode
 	CombinedOnly
 }
 
+public enum HospitalServiceConsentPolicy
+{
+	InformedConsentRequired,
+	EmergencyPresumedConsent
+}
+
 public enum HospitalServiceRequestStatus
 {
 	PendingConsent,
@@ -105,6 +111,7 @@ public interface IHospitalService : IFrameworkItem, ISaveable, IKeywordedItem
 	bool AllowDebt { get; set; }
 	bool PreferOperatingTheatre { get; set; }
 	HospitalServiceOfferingMode OfferingMode { get; set; }
+	HospitalServiceConsentPolicy ConsentPolicy { get; set; }
 	int SortOrder { get; set; }
 	ISurgicalProcedure? SurgicalProcedure { get; set; }
 	IGameItemProto? ImplantItemPrototype { get; set; }

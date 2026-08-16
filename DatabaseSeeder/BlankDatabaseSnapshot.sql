@@ -14880,3 +14880,19 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 
 -- Dump completed on 2026-08-11 07:49:01
 -- Total time: 0:0:0:1:642 (d:h:m:s:ms)
+
+-- EF-generated idempotent delta: 20260816012516_HospitalServiceConsentPolicy
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260816012516_HospitalServiceConsentPolicy') THEN
+        ALTER TABLE `hospitalservices` ADD `ConsentPolicy` int(11) NOT NULL DEFAULT 0;
+        UPDATE `hospitalservices` SET `ConsentPolicy` = 1 WHERE `ServiceType` = 10;
+        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+        VALUES ('20260816012516_HospitalServiceConsentPolicy', '9.0.11');
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;

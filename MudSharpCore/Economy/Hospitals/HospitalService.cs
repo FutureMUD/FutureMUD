@@ -24,6 +24,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 	private bool _allowDebt;
 	private bool _preferOperatingTheatre;
 	private HospitalServiceOfferingMode _offeringMode;
+	private HospitalServiceConsentPolicy _consentPolicy;
 	private int _sortOrder;
 	private long? _surgicalProcedureId;
 	private ISurgicalProcedure? _surgicalProcedure;
@@ -57,6 +58,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 		_allowDebt = true;
 		_preferOperatingTheatre = DefaultPreferOperatingTheatre(serviceType);
 		_offeringMode = HospitalServiceOfferingMode.StandaloneAndCombined;
+		_consentPolicy = DefaultConsentPolicy(serviceType);
 		_sortOrder = hospital.Services.Any() ? hospital.Services.Max(x => x.SortOrder) + 1 : 0;
 		_procedureParameters = string.Empty;
 		_bloodVolumeLitres = 0.5;
@@ -77,6 +79,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 				AllowDebt = true,
 				PreferOperatingTheatre = _preferOperatingTheatre,
 				OfferingMode = (int)_offeringMode,
+				ConsentPolicy = (int)_consentPolicy,
 				SortOrder = _sortOrder,
 				ProcedureParameters = string.Empty,
 				RequiredEquipmentJson = "[]",
@@ -106,6 +109,9 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 		_offeringMode = Enum.IsDefined(typeof(HospitalServiceOfferingMode), service.OfferingMode)
 			? (HospitalServiceOfferingMode)service.OfferingMode
 			: HospitalServiceOfferingMode.StandaloneAndCombined;
+		_consentPolicy = Enum.IsDefined(typeof(HospitalServiceConsentPolicy), service.ConsentPolicy)
+			? (HospitalServiceConsentPolicy)service.ConsentPolicy
+			: DefaultConsentPolicy(_serviceType);
 		_sortOrder = service.SortOrder;
 		_surgicalProcedureId = service.SurgicalProcedureId;
 		_implantItemPrototypeId = service.ImplantItemPrototypeId;
@@ -197,6 +203,16 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 		set
 		{
 			_offeringMode = value;
+			Changed = true;
+		}
+	}
+
+	public HospitalServiceConsentPolicy ConsentPolicy
+	{
+		get => _consentPolicy;
+		set
+		{
+			_consentPolicy = value;
 			Changed = true;
 		}
 	}
@@ -413,6 +429,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 		dbitem.AllowDebt = AllowDebt;
 		dbitem.PreferOperatingTheatre = PreferOperatingTheatre;
 		dbitem.OfferingMode = (int)OfferingMode;
+		dbitem.ConsentPolicy = (int)ConsentPolicy;
 		dbitem.SortOrder = SortOrder;
 		dbitem.SurgicalProcedureId = SurgicalProcedure?.Id;
 		dbitem.ImplantItemPrototypeId = ImplantItemPrototype?.Id;
@@ -442,6 +459,7 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 		sb.AppendLine($"Allow Debt: {(HospitalServiceBilling.IsDonorPaidServiceType(ServiceType) ? "not applicable".ColourValue() : AllowDebt.ToColouredString())}");
 		sb.AppendLine($"Prefer Theatre: {PreferOperatingTheatre.ToColouredString()}");
 		sb.AppendLine($"Offering Mode: {OfferingMode.DescribeEnum().ColourName()}");
+		sb.AppendLine($"Consent Policy: {ConsentPolicy.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Requires Recovery: {RequiresRecovery.ToColouredString()}");
 		sb.AppendLine($"Blood Volume: {BloodVolumeLitres.ToString("N2", actor).ColourValue()}L");
 		sb.AppendLine($"Sort Order: {SortOrder.ToString("N0", actor).ColourValue()}");
@@ -492,6 +510,13 @@ public class HospitalService : SavableKeywordedItem, IHospitalService
 			HospitalServiceType.BoneSetting or HospitalServiceType.BloodDonation or HospitalServiceType.BloodTransfusion or
 			HospitalServiceType.Stabilisation or HospitalServiceType.FullTreatment ||
 			HospitalMedicalServiceRunner.ServiceTypeToSurgicalProcedureType(serviceType) is not null;
+	}
+
+	private static HospitalServiceConsentPolicy DefaultConsentPolicy(HospitalServiceType serviceType)
+	{
+		return serviceType == HospitalServiceType.Stabilisation
+			? HospitalServiceConsentPolicy.EmergencyPresumedConsent
+			: HospitalServiceConsentPolicy.InformedConsentRequired;
 	}
 
 	private static bool DefaultRequiresRecovery(HospitalServiceType serviceType)

@@ -4640,41 +4640,141 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			return false;
 		}
 
-		var needsConfiguredSupplies = request.Service.RequiredEquipment.Any() &&
-		                             !TreatmentLocationAlreadyHasConfiguredSupplies(hospital, request);
-		if (!needsConfiguredSupplies && !HospitalMedicalServiceRunner.UsesCommandRoutedWoundCare(request.Service) &&
-		    !RequiresImplicitBloodSupply(request))
+		return RequiresSupplyPreparation(hospital, request.Service, request.Patient,
+			TreatmentLocationCandidates(hospital, request));
+	}
+
+	/// <summary>
+	/// Determines whether the supplied service needs a worker to stage hospital supplies. This is deliberately
+	/// shared by availability checks and task construction so that a request is never paid for when its first
+	/// required action cannot be assigned to an eligible supply worker.
+	/// </summary>
+	public static bool RequiresSupplyPreparation(IHospital hospital, IHospitalService service, ICharacter? patient)
+	{
+		return RequiresSupplyPreparation(hospital, service, patient, out _);
+	}
+
+	/// <summary>
+	/// Determines whether a new request needs supplies staged and returns the exact treatment location candidates
+	/// that the request would use. Availability checks use these candidates so stock in a reserved or occupied
+	/// theatre cannot make a different request appear executable.
+	/// </summary>
+	public static bool RequiresSupplyPreparation(IHospital hospital, IHospitalService service, ICharacter? patient,
+		out IReadOnlyCollection<ICell> treatmentLocations)
+	{
+		treatmentLocations = PreflightTreatmentLocationCandidates(hospital, service, patient).ToList();
+		return RequiresSupplyPreparation(hospital, service, patient, treatmentLocations);
+	}
+
+	/// <summary>
+	/// Confirms that an eligible supply employee can reach both a suitable supply room and the treatment location
+	/// for the preflight supply plan. This mirrors the locations used by the supply preparation action before a
+	/// request is charged or persisted.
+	/// </summary>
+	public static bool CanPrepareRequiredSupplies(IHospital hospital, IHospitalService service, ICharacter? patient,
+		ICharacter employee, IReadOnlyCollection<ICell> treatmentLocations, IEmploymentTaskContext context,
+		out string reason)
+	{
+		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(service).ToList();
+		var requiresBloodSupplies = RequiresImplicitBloodSupply(service, patient);
+		if (!treatmentLocations.Any())
+		{
+			reason = "there is no available treatment location for the required supplies";
+			return false;
+		}
+
+		foreach (var theatre in treatmentLocations)
+		{
+			foreach (var room in hospital.SupplyRooms ?? Enumerable.Empty<ICell>())
+			{
+				if (!SuppliesSatisfyService(hospital, (room.GameItems ?? Enumerable.Empty<IGameItem>())
+					.Concat(theatre.GameItems ?? Enumerable.Empty<IGameItem>()), service, patient, treatmentTypes,
+					requiresBloodSupplies))
+				{
+					continue;
+				}
+
+				if (!context.CanPath(employee, room) || !context.CanPath(employee, theatre))
+				{
+					continue;
+				}
+
+				reason = string.Empty;
+				return true;
+			}
+		}
+
+		reason = "no available supply employee can reach a suitable hospital supply room and treatment location";
+		return false;
+	}
+
+	/// <summary>
+	/// Returns whether every explicit and implicit supply requirement is already staged in one of the selected
+	/// treatment locations. Unlike <see cref="RequiresSupplyPreparation"/>, this remains false when stock is
+	/// absent altogether, allowing request preflight to reject the service before charging the patient.
+	/// </summary>
+	public static bool TreatmentLocationSuppliesAreReady(IHospital hospital, IHospitalService service,
+		ICharacter? patient, IReadOnlyCollection<ICell> treatmentLocations)
+	{
+		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(service).ToList();
+		var requiresBloodSupplies = RequiresImplicitBloodSupply(service, patient);
+		if (!service.RequiredEquipment.Any() && !treatmentTypes.Any() && !requiresBloodSupplies)
+		{
+			return true;
+		}
+
+		if (!treatmentLocations.Any())
+		{
+			return hospital.SupplyRooms.Any(room => SuppliesSatisfyService(hospital,
+				room.GameItems ?? Enumerable.Empty<IGameItem>(), service, patient, treatmentTypes,
+				requiresBloodSupplies));
+		}
+
+		return treatmentLocations.Any(theatre => SuppliesSatisfyService(hospital,
+			theatre.GameItems ?? Enumerable.Empty<IGameItem>(), service, patient, treatmentTypes,
+			requiresBloodSupplies));
+	}
+
+	private static bool RequiresSupplyPreparation(IHospital hospital, IHospitalService service, ICharacter? patient,
+		IEnumerable<ICell> treatmentLocations)
+	{
+		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(service).ToList();
+		var requiresBloodSupplies = RequiresImplicitBloodSupply(service, patient);
+		if (!service.RequiredEquipment.Any() && !treatmentTypes.Any() && !requiresBloodSupplies)
 		{
 			return false;
 		}
 
-		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(request.Service).ToList();
-		var needsTreatmentSupplies = treatmentTypes.Any() &&
-		                             !TreatmentLocationAlreadyHasImplicitTreatmentSupplies(hospital, request, treatmentTypes);
-		var needsBloodSupplies = RequiresImplicitBloodSupply(request) &&
-		                         !TreatmentLocationAlreadyHasImplicitBloodSupplies(hospital, request);
-		if (!needsConfiguredSupplies && !needsTreatmentSupplies && !needsBloodSupplies)
+		var treatmentLocationList = treatmentLocations.DistinctBy(x => x.Id).ToList();
+		if (!treatmentLocationList.Any())
+		{
+			return hospital.SupplyRooms.Any(room => SuppliesSatisfyService(hospital,
+				room.GameItems ?? Enumerable.Empty<IGameItem>(), service, patient, treatmentTypes, requiresBloodSupplies));
+		}
+
+		if (TreatmentLocationSuppliesAreReady(hospital, service, patient, treatmentLocationList))
 		{
 			return false;
 		}
 
-		var stagedItems = TreatmentLocationCandidates(hospital, request)
-			.SelectMany(theatre => theatre.GameItems ?? Enumerable.Empty<IGameItem>())
+		return hospital.SupplyRooms.Any(room => treatmentLocationList.Any(theatre =>
+			SuppliesSatisfyService(hospital, (room.GameItems ?? Enumerable.Empty<IGameItem>())
+				.Concat(theatre.GameItems ?? Enumerable.Empty<IGameItem>()), service, patient, treatmentTypes,
+				requiresBloodSupplies)));
+	}
+
+	private static bool SuppliesSatisfyService(IHospital hospital, IEnumerable<IGameItem> items, IHospitalService service,
+		ICharacter? patient, IReadOnlyCollection<TreatmentType> treatmentTypes, bool requiresBloodSupplies)
+	{
+		var available = items
 			.SelectMany(DeepItemsOrSelf)
 			.DistinctBy(x => x.Id)
 			.ToList();
-		return hospital.SupplyRooms.Any(room =>
-		{
-			var available = (room.GameItems ?? Enumerable.Empty<IGameItem>())
-				.SelectMany(DeepItemsOrSelf)
-				.Concat(stagedItems)
-				.DistinctBy(x => x.Id)
-				.ToList();
-			return (!needsConfiguredSupplies || RequirementsSatisfiedByItems(available, request.Service.RequiredEquipment)) &&
-			       (!needsTreatmentSupplies || treatmentTypes.All(type => available.Any(item =>
-				       item.GetItemType<ITreatment>() is { } treatment && treatment.IsTreatmentType(type)))) &&
-			       (!needsBloodSupplies || TryFindImplicitBloodSupplyItems(available, request, out _));
-		});
+		return (!service.RequiredEquipment.Any() || RequirementsSatisfiedByItems(available, service.RequiredEquipment)) &&
+		       (!treatmentTypes.Any() || treatmentTypes.All(type => available.Any(item =>
+			       item.GetItemType<ITreatment>() is { } treatment && treatment.IsTreatmentType(type)))) &&
+		       (!requiresBloodSupplies || TryFindImplicitBloodSupplyItems(available, hospital, service, patient,
+			       out _));
 	}
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
@@ -5045,6 +5145,24 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		               .Take(1);
 	}
 
+	private static IEnumerable<ICell> PreflightTreatmentLocationCandidates(IHospital hospital, IHospitalService service,
+		ICharacter? patient)
+	{
+		if (!HospitalMedicalServiceRunner.ShouldUseTreatmentTheatre(service))
+		{
+			return patient?.Location is { } patientLocation
+				? [patientLocation]
+				: (hospital.WaitingRooms ?? Enumerable.Empty<ICell>())
+					.Concat(hospital.OperatingTheatres ?? Enumerable.Empty<ICell>())
+					.Concat(hospital.SupplyRooms ?? Enumerable.Empty<ICell>())
+					.Take(1);
+		}
+
+		return (hospital.OperatingTheatres ?? Enumerable.Empty<ICell>())
+		       .Where(theatre => HospitalPatientFlow.IsTheatreAvailableForNewRequest(hospital, patient, theatre, out _))
+		       .Take(1);
+	}
+
 	private IEnumerable<IGameItem> TreatmentLocationSupplyItems(IEmploymentTaskContext context, ICell theatre)
 	{
 		return context.AvailableItems(theatre)
@@ -5199,12 +5317,17 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 	}
 	private static bool RequiresImplicitBloodSupply(IHospitalServiceRequest request)
 	{
-		return request.Service.ServiceType switch
+		return RequiresImplicitBloodSupply(request.Service, request.Patient);
+	}
+
+	private static bool RequiresImplicitBloodSupply(IHospitalService service, ICharacter? patient)
+	{
+		return service.ServiceType switch
 		{
 			HospitalServiceType.BloodDonation or HospitalServiceType.BloodTransfusion => true,
-			HospitalServiceType.Stabilisation => request.Patient?.Body is { TotalBloodVolumeLitres: > 0.0 } body &&
+			HospitalServiceType.Stabilisation => patient?.Body is { TotalBloodVolumeLitres: > 0.0 } body &&
 			                                     body.CurrentBloodVolumeLitres < body.TotalBloodVolumeLitres * 0.75,
-			HospitalServiceType.FullTreatment => request.Patient?.Body is { TotalBloodVolumeLitres: > 0.0 } body &&
+			HospitalServiceType.FullTreatment => patient?.Body is { TotalBloodVolumeLitres: > 0.0 } body &&
 			                                    body.CurrentBloodVolumeLitres < body.TotalBloodVolumeLitres,
 			_ => false
 		};
@@ -5213,11 +5336,18 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 	private static bool TryFindImplicitBloodSupplyItems(IReadOnlyCollection<IGameItem> available,
 		IHospitalServiceRequest request, out IReadOnlyCollection<IGameItem> items)
 	{
+		return TryFindImplicitBloodSupplyItems(available, request.Hospital, request.Service, request.Patient,
+			out items);
+	}
+
+	private static bool TryFindImplicitBloodSupplyItems(IReadOnlyCollection<IGameItem> available,
+		IHospital hospital, IHospitalService service, ICharacter? patient, out IReadOnlyCollection<IGameItem> items)
+	{
 		items = [];
 		var selected = new List<IGameItem>();
 		var used = new HashSet<long>();
-		var switchMode = request.Service.ServiceType == HospitalServiceType.BloodDonation ? "drain" : "drip";
-		if (!TryFindBloodAccessItems(available, request, switchMode, selected, used))
+		var switchMode = service.ServiceType == HospitalServiceType.BloodDonation ? "drain" : "drip";
+		if (!TryFindBloodAccessItems(available, patient, switchMode, selected, used))
 		{
 			return false;
 		}
@@ -5229,10 +5359,10 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		                 .Where(x => x.Container is not null)
 		                 .Select(x => (x.Item, Container: x.Container!))
 		                 .ToList();
-		switch (request.Service.ServiceType)
+		switch (service.ServiceType)
 		{
 			case HospitalServiceType.BloodDonation:
-				if (!TryFindDonationContainer(containers, request, out var donationItems))
+				if (!TryFindDonationContainer(containers, patient, out var donationItems))
 				{
 					return false;
 				}
@@ -5241,7 +5371,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 				items = selected;
 				return true;
 			case HospitalServiceType.BloodTransfusion:
-				if (!TryFindTransfusionContainers(containers, request, false, out var transfusionItems))
+				if (!TryFindTransfusionContainers(containers, hospital, service, patient, false, out var transfusionItems))
 				{
 					return false;
 				}
@@ -5251,7 +5381,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 				return true;
 			case HospitalServiceType.Stabilisation:
 			case HospitalServiceType.FullTreatment:
-				if (!TryFindTransfusionContainers(containers, request, true, out var combinedItems))
+				if (!TryFindTransfusionContainers(containers, hospital, service, patient, true, out var combinedItems))
 				{
 					return false;
 				}
@@ -5265,14 +5395,14 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 	}
 
 	private static bool TryFindBloodAccessItems(IReadOnlyCollection<IGameItem> available,
-		IHospitalServiceRequest request, string switchMode, List<IGameItem> selected, HashSet<long> used)
+		ICharacter? patient, string switchMode, List<IGameItem> selected, HashSet<long> used)
 	{
-		if (request.Patient?.Body.Implants.Any(x => x.Parent.GetItemType<ICannula>() is not null) != true)
+		if (patient?.Body.Implants.Any(x => x.Parent?.GetItemType<ICannula>() is not null) != true)
 		{
 			var cannulaItem = available.FirstOrDefault(x =>
 				!used.Contains(x.Id) &&
 				x.GetItemType<ICannula>() is { } cannula &&
-				(request.Patient is null || request.Patient.Body.Prototype.CountsAs(cannula.TargetBody)));
+				(patient is null || patient.Body.Prototype.CountsAs(cannula.TargetBody)));
 			if (cannulaItem is null)
 			{
 				return false;
@@ -5297,10 +5427,10 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 	private static bool TryFindDonationContainer(
 		IReadOnlyCollection<(IGameItem Item, ILiquidContainer Container)> containers,
-		IHospitalServiceRequest request, out IReadOnlyCollection<IGameItem> items)
+		ICharacter? patient, out IReadOnlyCollection<IGameItem> items)
 	{
 		items = [];
-		var donorBlood = request.Patient?.Body.BloodLiquid;
+		var donorBlood = patient?.Body.BloodLiquid;
 		var selected = containers.FirstOrDefault(x =>
 			x.Container.LiquidCapacity - x.Container.LiquidVolume > 0.0 &&
 			(donorBlood is null ||
@@ -5318,16 +5448,16 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 	private static bool TryFindTransfusionContainers(
 		IReadOnlyCollection<(IGameItem Item, ILiquidContainer Container)> containers,
-		IHospitalServiceRequest request, bool allowBloodVolumeSubstitute,
+		IHospital hospital, IHospitalService service, ICharacter? patient, bool allowBloodVolumeSubstitute,
 		out IReadOnlyCollection<IGameItem> items)
 	{
 		items = [];
-		if (request.Patient?.Body.Bloodtype is not { } bloodtype)
+		if (patient?.Body.Bloodtype is not { } bloodtype)
 		{
 			return false;
 		}
 
-		var amount = RequestedTransfusionLiquidAmount(request);
+		var amount = RequestedTransfusionLiquidAmount(hospital, service, patient);
 		if (amount <= 0.0)
 		{
 			return false;
@@ -5402,14 +5532,20 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 	private static double RequestedTransfusionLiquidAmount(IHospitalServiceRequest request)
 	{
-		if (request.Patient?.Body is not { TotalBloodVolumeLitres: > 0.0 } body)
+		return RequestedTransfusionLiquidAmount(request.Hospital, request.Service, request.Patient);
+	}
+
+	private static double RequestedTransfusionLiquidAmount(IHospital hospital, IHospitalService service,
+		ICharacter? patient)
+	{
+		if (patient?.Body is not { TotalBloodVolumeLitres: > 0.0 } body)
 		{
 			return 0.0;
 		}
 
-		var neededLitres = Math.Min(request.Service.BloodVolumeLitres > 0.0 ? request.Service.BloodVolumeLitres : 0.5,
+		var neededLitres = Math.Min(service.BloodVolumeLitres > 0.0 ? service.BloodVolumeLitres : 0.5,
 			body.TotalBloodVolumeLitres - body.CurrentBloodVolumeLitres);
-		return Math.Max(0.0, neededLitres) / request.Hospital.Gameworld.UnitManager.BaseFluidToLitres;
+		return Math.Max(0.0, neededLitres) / hospital.Gameworld.UnitManager.BaseFluidToLitres;
 	}
 
 	private static IEnumerable<IGameItem> DeepItemsOrSelf(IGameItem item)

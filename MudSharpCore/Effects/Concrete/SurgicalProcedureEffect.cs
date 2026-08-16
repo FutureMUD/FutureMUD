@@ -36,6 +36,7 @@ public class SurgicalProcedureEffect : StagedCharacterActionWithTarget
     public ICharacter Surgeon { get; set; }
     public ICharacter Patient { get; set; }
     public object[] AdditionalArguments { get; set; }
+    public long? HospitalRequestId { get; set; }
     public Action<SurgicalProcedureEffect, bool, CheckOutcome>? OnProcedureResolved { get; set; }
     public override bool CanBeStoppedByPlayer => true;
 

@@ -350,3 +350,7 @@ When extending the seeder side of the economy:
 - avoid seeding world-specific retail or property content until the seeder has a clean story for cells, items, and institutions
 - treat probate and morgue seeding as a world-integration problem rather than a missing runtime feature
 - keep the economy design docs updated whenever new seeder support changes the practical setup path
+
+### Hospital persistence note
+
+The blank-database snapshot and manifest include migration `20260816012516_HospitalServiceConsentPolicy`. It adds the non-null `HospitalServices.ConsentPolicy` column, defaults services to informed consent, and backfills existing Stabilisation rows to emergency presumed consent. Hospital stock content remains world-specific; when seeded later, its manager-goal authority requirements must be delegated deliberately alongside service-equipment editing rights.

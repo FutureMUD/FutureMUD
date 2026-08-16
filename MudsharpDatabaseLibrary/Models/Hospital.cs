@@ -55,6 +55,7 @@ public class HospitalService
 	public bool AllowDebt { get; set; }
 	public bool PreferOperatingTheatre { get; set; }
 	public int OfferingMode { get; set; }
+	public int ConsentPolicy { get; set; }
 	public int SortOrder { get; set; }
 	public long? SurgicalProcedureId { get; set; }
 	public long? ImplantItemPrototypeId { get; set; }

@@ -128,6 +128,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.AllowDebt).HasColumnType("bit(1)").HasDefaultValue(true);
 			entity.Property(e => e.PreferOperatingTheatre).HasColumnType("bit(1)").HasDefaultValue(false);
 			entity.Property(e => e.OfferingMode).HasColumnType("int(11)").HasDefaultValue(0);
+			entity.Property(e => e.ConsentPolicy).HasColumnType("int(11)").HasDefaultValue(0);
 			entity.Property(e => e.SortOrder).HasColumnType("int(11)");
 			entity.Property(e => e.SurgicalProcedureId).HasColumnType("bigint(20)");
 			entity.Property(e => e.ImplantItemPrototypeId).HasColumnType("bigint(20)");

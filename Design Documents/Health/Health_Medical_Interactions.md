@@ -307,3 +307,9 @@ The strongest current extension pressure points are:
 
 - more stock drugs that use the remaining runtime drug framework, including concrete stock examples for rage, magic-facing, and more niche specialist effects
 - more complete stock support for implant and defibrillator workflows
+
+## Hospital Security and Integrity
+
+Hospital services explicitly choose informed or emergency presumed consent. Informed services cannot be requested by a third party for a helpless patient; conscious third parties still accept normally. Stabilisation is the migration default emergency service. The request and its payment are created only after a complete medical and supply-executor preflight succeeds.
+
+Hospital-staged surgical effects record the originating request id, so cancellation can abort only that request's procedure. A service-supplied implant is request-owned pending state: parameter resolution, procedure validation, exposure preparation, and procedure start must all succeed, otherwise normal item deletion removes it from the employee, location, and game world. Successful implant procedures retain it through power and interface follow-up stages.

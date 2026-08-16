@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260816094719_AddLootTables")]
+    partial class AddLootTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -13074,11 +13077,6 @@ namespace MudSharp.Migrations
                         .HasColumnType("double")
                         .HasDefaultValue(0.5);
 
-                    b.Property<int>("ConsentPolicy")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int(11)")
-                        .HasDefaultValue(0);
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("mediumtext")
@@ -21422,40 +21420,6 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_TraitExpressionParameters_TraitExpression");
 
                     b.ToTable("TraitExpressionParameters");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.TrapTemplate", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<int>("RevisionNumber")
-                        .HasColumnType("int(11)");
-
-                    b.Property<string>("Definition")
-                        .IsRequired()
-                        .HasColumnType("mediumtext")
-                        .UseCollation("utf8mb4_unicode_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8mb4");
-
-                    b.Property<long>("EditableItemId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .UseCollation("utf8mb4_unicode_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8mb4");
-
-                    b.HasKey("Id", "RevisionNumber")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("EditableItemId")
-                        .HasDatabaseName("FK_TrapTemplates_EditableItems_idx");
-
-                    b.ToTable("TrapTemplates");
                 });
 
             modelBuilder.Entity("MudSharp.Models.UnitOfMeasure", b =>
@@ -33795,18 +33759,6 @@ namespace MudSharp.Migrations
                     b.Navigation("TraitExpression");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.TrapTemplate", b =>
-                {
-                    b.HasOne("MudSharp.Models.EditableItem", "EditableItem")
-                        .WithMany("TrapTemplates")
-                        .HasForeignKey("EditableItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_TrapTemplates_EditableItems");
-
-                    b.Navigation("EditableItem");
-                });
-
             modelBuilder.Entity("MudSharp.Models.Vehicle", b =>
                 {
                     b.HasOne("MudSharp.Models.VehiclePropulsionProfileProto", "ActivePropulsionProfileProto")
@@ -36092,8 +36044,6 @@ namespace MudSharp.Migrations
                     b.Navigation("Npctemplates");
 
                     b.Navigation("Projects");
-
-                    b.Navigation("TrapTemplates");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Election", b =>

@@ -9,6 +9,7 @@ using MudSharp.NPC.AI;
 using MudSharp.NPC.Templates;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
+using MudSharp.Work.Loot;
 using MudSharp.Work.Projects;
 using MudSharp.Traps;
 
@@ -1067,7 +1068,68 @@ internal class EditableRevisableItemHelper
         };
 
         #endregion
-    }
+
+		#region Loot Tables
+
+		LootTableHelper = new EditableRevisableItemHelper
+		{
+			ItemName = "Loot Table",
+			ItemNamePlural = "Loot Tables",
+			DeleteEditableItemAction = item =>
+			{
+				using (new FMDB())
+				{
+					var row = FMDB.Context.LootTables.Find(item.Id, item.RevisionNumber);
+					if (row is not null)
+					{
+						FMDB.Context.LootTables.Remove(row);
+						FMDB.Context.EditableItems.Remove(row.EditableItem);
+						FMDB.Context.SaveChanges();
+					}
+				}
+				item.Gameworld.Destroy((ILootTable)item);
+			},
+			SetEditableItemAction = (character, item) =>
+			{
+				character.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<ILootTable>>());
+				if (item is not null) character.AddEffect(new BuilderEditingEffect<ILootTable>(character) { EditingItem = (ILootTable)item });
+			},
+			GetEditableItemFunc = character => character.EffectsOfType<BuilderEditingEffect<ILootTable>>().FirstOrDefault()?.EditingItem,
+			EditableNewAction = (actor, input) =>
+			{
+				var name = input.SafeRemainingArgument;
+				if (string.IsNullOrWhiteSpace(name)) { actor.Send("What name should the new loot table have?"); return; }
+				var item = new LootTable(actor.Account, name);
+				actor.Gameworld.Add(item);
+				actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<ILootTable>>());
+				actor.AddEffect(new BuilderEditingEffect<ILootTable>(actor) { EditingItem = item });
+				actor.Send($"You create loot table #{item.Id.ToStringN0(actor)}r0, which you are now editing.");
+			},
+			AddItemToGameWorldAction = item => item.Gameworld.Add((ILootTable)item),
+			GetAllEditableItems = character => character.Gameworld.LootTables,
+			GetAllEditableItemsByIdFunc = (character, id) => character.Gameworld.LootTables.GetAll(id),
+			GetEditableItemByIdFunc = (character, id) => character.Gameworld.LootTables.Get(id),
+			GetEditableItemByIdRevNumFunc = (character, id, revision) => character.Gameworld.LootTables.Get(id, revision),
+			GetReviewTableContentsFunc = (actor, items) => items.OfType<ILootTable>().Select(item => new[]
+			{
+				item.Id.ToStringN0(actor), item.RevisionNumber.ToStringN0(actor), item.Name,
+				item.Definition.Variants.Count.ToStringN0(actor), item.DefinitionHash[..12], item.BuilderComment ?? ""
+			}),
+			GetReviewTableHeaderFunc = _ => new[] { "ID", "Rev", "Name", "Variants", "Hash", "Comment" },
+			GetListTableContentsFunc = (actor, items) => items.OfType<ILootTable>().Select(item => new[]
+			{
+				item.Id.ToStringN0(actor), item.RevisionNumber.ToStringN0(actor), item.Name,
+				item.Definition.Variants.Count.ToStringN0(actor), item.Status.Describe()
+			}),
+			GetListTableHeaderFunc = _ => new[] { "ID", "Rev", "Name", "Variants", "Status" },
+			GetReviewProposalEffectFunc = (items, character) => new Accept(character,
+				new EditableItemReviewProposal<ILootTable>(character, items.Cast<ILootTable>().ToList())),
+			CastToType = typeof(ILootTable),
+			CustomSearch = (items, keyword, gameworld) => items
+		};
+
+		#endregion
+	}
 
     public static EditableRevisableItemHelper GameItemHelper { get; }
     public static EditableRevisableItemHelper GameItemComponentHelper { get; private set; }
@@ -1079,6 +1141,7 @@ internal class EditableRevisableItemHelper
     public static EditableRevisableItemHelper ProjectHelper { get; }
     public static EditableRevisableItemHelper TattooHelper { get; }
     public static EditableRevisableItemHelper ItemSkinHelper { get; }
+	public static EditableRevisableItemHelper LootTableHelper { get; }
 
     public string ItemName { get; private set; }
     public string ItemNamePlural { get; private set; }

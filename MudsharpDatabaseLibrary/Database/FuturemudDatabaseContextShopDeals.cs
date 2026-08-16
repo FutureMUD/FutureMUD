@@ -24,6 +24,7 @@ namespace MudSharp.Database
 			ConfigureRouteCells(modelBuilder);
 			ConfigureVehicleRoutesAndServices(modelBuilder);
 			ConfigureSeederManagedRecords(modelBuilder);
+			ConfigureLootTables(modelBuilder);
 
 			modelBuilder.Entity<ShopDeal>(entity =>
             {
@@ -103,6 +104,26 @@ namespace MudSharp.Database
                       .HasDefaultValue(0.01m);
             });
         }
+
+		private static void ConfigureLootTables(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<LootTable>(entity =>
+			{
+				entity.ToTable("LootTables");
+				entity.HasKey(e => new { e.Id, e.RevisionNumber }).HasName("PRIMARY");
+				entity.HasIndex(e => e.EditableItemId).HasDatabaseName("FK_LootTables_EditableItems_idx");
+				entity.Property(e => e.Id).HasColumnType("bigint(20)");
+				entity.Property(e => e.RevisionNumber).HasColumnType("int(11)");
+				entity.Property(e => e.EditableItemId).HasColumnType("bigint(20)");
+				entity.Property(e => e.Name).IsRequired().HasColumnType("varchar(200)")
+				      .HasCharSet("utf8mb4").UseCollation("utf8mb4_unicode_ci");
+				entity.Property(e => e.Definition).IsRequired().HasColumnType("mediumtext")
+				      .HasCharSet("utf8mb4").UseCollation("utf8mb4_unicode_ci");
+				entity.Property(e => e.AlgorithmVersion).HasColumnType("int(11)");
+				entity.HasOne(e => e.EditableItem).WithMany(e => e.LootTables)
+				      .HasForeignKey(e => e.EditableItemId).HasConstraintName("FK_LootTables_EditableItems");
+			});
+		}
 
 		private static void ConfigureOutfitTemplates(ModelBuilder modelBuilder)
 		{

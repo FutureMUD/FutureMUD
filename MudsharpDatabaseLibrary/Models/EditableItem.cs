@@ -14,6 +14,7 @@ namespace MudSharp.Models
             Foragables = new HashSet<Foragable>();
             GameItemComponentProtos = new HashSet<GameItemComponentProto>();
             GameItemProtos = new HashSet<GameItemProto>();
+			LootTables = new HashSet<LootTable>();
             Npctemplates = new HashSet<NpcTemplate>();
             Projects = new HashSet<Project>();
             TrapTemplates = new HashSet<TrapTemplate>();
@@ -37,6 +38,7 @@ namespace MudSharp.Models
         public virtual ICollection<Foragable> Foragables { get; set; }
         public virtual ICollection<GameItemComponentProto> GameItemComponentProtos { get; set; }
         public virtual ICollection<GameItemProto> GameItemProtos { get; set; }
+		public virtual ICollection<LootTable> LootTables { get; set; }
         public virtual ICollection<NpcTemplate> Npctemplates { get; set; }
         public virtual ICollection<Project> Projects { get; set; }
         public virtual ICollection<TrapTemplate> TrapTemplates { get; set; }

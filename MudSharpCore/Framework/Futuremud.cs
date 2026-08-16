@@ -71,6 +71,7 @@ using MudSharp.Vehicles;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
+using MudSharp.Work.Loot;
 using MudSharp.Work.Projects;
 using System.Diagnostics;
 using System.Numerics;
@@ -1252,6 +1253,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         _trapTemplates.Add(trapTemplate);
     }
 
+    public void Add(ILootTable lootTable)
+    {
+        _lootTables.Add(lootTable);
+    }
+
     public void Add(IForagable foragable)
     {
         _foragables.Add(foragable);
@@ -2293,6 +2299,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Destroy(ITrapTemplate trapTemplate)
     {
         _trapTemplates.Remove(trapTemplate);
+    }
+
+    public void Destroy(ILootTable lootTable)
+    {
+        _lootTables.Remove(lootTable);
     }
 
     public void Destroy(IForagable foragable)

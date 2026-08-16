@@ -401,6 +401,9 @@ namespace MudSharp.Body
         IGameItem? Get(IGameItem item, int quantity, IEmote? playerEmote, bool silent, ItemCanGetIgnore ignoreFlags,
             IEnumerable<IHandleEvents> witnessHandlers);
 
+		/// <summary>Places a complete item into held inventory without merging it into an existing stack.</summary>
+		IGameItem? GetWithoutMerge(IGameItem item, bool silent = true);
+
         void Get(IGameItem item, IGameItem containerItem, int quantity = 0, IEmote? playerEmote = null, bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
 
         IGameItem? Get(IGameItem item, IGameItem containerItem, int quantity, IEmote? playerEmote, bool silent,

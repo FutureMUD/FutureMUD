@@ -68,6 +68,7 @@ using MudSharp.Vehicles;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
+using MudSharp.Work.Loot;
 using MudSharp.Work.Projects;
 
 #nullable enable
@@ -168,6 +169,7 @@ public sealed partial class Futuremud : IDisposable
     private readonly RevisableAll<IForagable> _foragables = new();
     private readonly RevisableAll<IForagableProfile> _foragableProfiles = new();
     private readonly RevisableAll<ITrapTemplate> _trapTemplates = new();
+    private readonly RevisableAll<ILootTable> _lootTables = new();
     private readonly All<IFutureProg> _futureProgs = new();
     private readonly All<IGrid> _grids = new();
     private readonly All<IHealthStrategy> _healthStrategies = new();
@@ -434,6 +436,7 @@ public sealed partial class Futuremud : IDisposable
 
     public IUneditableRevisableAll<IForagableProfile> ForagableProfiles => _foragableProfiles;
     public IUneditableRevisableAll<ITrapTemplate> TrapTemplates => _trapTemplates;
+    public IUneditableRevisableAll<ILootTable> LootTables => _lootTables;
 
     public IUneditableAll<IFutureProg> FutureProgs => _futureProgs;
 

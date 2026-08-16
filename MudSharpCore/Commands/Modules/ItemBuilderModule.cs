@@ -8,6 +8,7 @@ using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Groups;
 using MudSharp.Models;
+using MudSharp.Work.Loot;
 
 namespace MudSharp.Commands.Modules
 {
@@ -1586,5 +1587,106 @@ The syntax to use this command is as follows:
         }
 
         #endregion
+
+		#region Loot Tables
+
+		private const string LootTableHelp = @"Loot tables are revisioned deterministic item/commodity graphs.
+
+#3loottable list [filters]#0
+#3loottable show <id|name> [revision]#0
+#3loottable edit new <name>|<id|name>|close|submit|delete|obsolete#0
+#3loottable revise <id|name>#0
+#3loottable review ...#0
+#3loottable set variant|group|choice ...#0
+#3loottable validate <id|name> [revision]#0
+#3loottable preview <id|name> [revision] <variant> [seed]#0
+#3loottable load <id|name> [revision] <variant> [seed] here|into <item>|to <character>#0
+
+Group and choice editing syntax is shown by #3loottable set#0.";
+
+		[PlayerCommand("LootTable", "loottable", "lt")]
+		[CommandPermission(PermissionLevel.Admin)]
+		[HelpInfo("loottable", LootTableHelp, AutoHelp.HelpArgOrNoArg)]
+		protected static void LootTableCommand(ICharacter actor, string input)
+		{
+			var command = new StringStack(input.RemoveFirstWord());
+			var action = command.PeekSpeech().ToLowerInvariant();
+			if (action == "new") command = new StringStack($"edit new {command.SafeRemainingArgument.RemoveFirstWord()}");
+			else if (action == "revise") command = new StringStack($"edit {command.SafeRemainingArgument.RemoveFirstWord()}");
+			else if (action is "close" or "submit") command = new StringStack($"edit {command.SafeRemainingArgument}");
+			action = command.PeekSpeech().ToLowerInvariant();
+			if (action is not ("validate" or "preview" or "load" or "clone"))
+			{
+				GenericRevisableBuildingCommand(actor, command, EditableRevisableItemHelper.LootTableHelper);
+				return;
+			}
+			command.PopSpeech();
+			if (action == "clone") { LootTableClone(actor, command); return; }
+			if (!TryGetLootTable(actor, command, out var table)) return;
+			if (action == "validate")
+			{
+				var errors = LootTableValidator.Validate(table, actor.Gameworld);
+				actor.Send(errors.Count == 0 ? $"Loot table #{table.Id}r{table.RevisionNumber} validates successfully.".Colour(Telnet.Green) : $"ERROR validation failed:\n{errors.Select(x => $"- {x}").ListToString(separator: "\n")}".ColourError());
+				return;
+			}
+			if (command.IsFinished) { actor.Send("Which variant do you want to use?"); return; }
+			var variant = command.PopSpeech();
+			var seed = !command.IsFinished && long.TryParse(command.PeekSpeech(), out var suppliedSeed) ? (command.PopSpeech(), suppliedSeed).Item2 : Random.Shared.NextInt64(long.MaxValue);
+			var materialiser = new LootTableMaterialiser(actor.Gameworld);
+			if (action == "preview")
+			{
+				var preview = materialiser.Preview(table, variant, seed);
+				if (!preview.Success) { actor.Send($"ERROR code={preview.ErrorCode} message={preview.ErrorMessage}".ColourError()); return; }
+				var plan = preview.Plan!;
+				var sb = new StringBuilder();
+				sb.AppendLine($"Preview #{table.Id}r{table.RevisionNumber} {variant} seed {seed} digest {plan.Digest}");
+				foreach (var leaf in plan.Leaves) sb.AppendLine($"- {leaf.Kind} into {leaf.DestinationKey}: {(leaf.Kind == LootChoiceKind.Item ? $"#{leaf.ItemPrototypeId}r{leaf.ItemPrototypeRevision} x{leaf.Quantity} quality {leaf.Quality}" : $"material #{leaf.CommodityMaterialId} mass {leaf.Mass:R}")}");
+				actor.Send(sb.ToString()); return;
+			}
+			if (command.IsFinished) { actor.Send("Specify HERE, INTO <item>, or TO <character>."); return; }
+			LootMaterialisationResult result;
+			switch (command.PopSpeech().ToLowerInvariant())
+			{
+				case "here": result = materialiser.Materialise(table, variant, seed, actor.Location); break;
+				case "into":
+					var item = actor.TargetItem(command.SafeRemainingArgument);
+					if (item is null) { actor.Send("You do not see that item."); return; }
+					result = materialiser.Materialise(table, variant, seed, item); break;
+				case "to":
+					var target = actor.TargetActor(command.SafeRemainingArgument);
+					if (target is null) { actor.Send("You do not see that character."); return; }
+					result = materialiser.Materialise(table, variant, seed, target); break;
+				default: actor.Send("Specify HERE, INTO <item>, or TO <character>."); return;
+			}
+			actor.Send(result.Success ? result.Receipt.Colour(Telnet.Green) : result.Receipt.ColourError());
+		}
+
+		private static bool TryGetLootTable(ICharacter actor, StringStack command, out ILootTable table)
+		{
+			table = null;
+			if (command.IsFinished) { actor.Send("Which loot table?"); return false; }
+			var token = command.PopSpeech();
+			if (long.TryParse(token, out var id))
+			{
+				table = !command.IsFinished && int.TryParse(command.PeekSpeech(), out var revision)
+					? actor.Gameworld.LootTables.Get(id, (command.PopSpeech(), revision).Item2)
+					: actor.Gameworld.LootTables.Get(id);
+			}
+			else table = actor.Gameworld.LootTables.GetByName(token, ignoreCase: true);
+			if (table is not null) return true;
+			actor.Send("There is no such loot table revision."); return false;
+		}
+
+		private static void LootTableClone(ICharacter actor, StringStack command)
+		{
+			if (!TryGetLootTable(actor, command, out var source) || command.IsFinished) { actor.Send("Specify a source and new name."); return; }
+			var clone = ((MudSharp.Work.Loot.LootTable)source).Clone(actor.Account, command.SafeRemainingArgument);
+			clone.Save(); actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<ILootTable>>());
+			actor.AddEffect(new BuilderEditingEffect<ILootTable>(actor) { EditingItem = clone });
+			actor.Send($"You clone #{source.Id}r{source.RevisionNumber} as #{clone.Id}r0 and begin editing it.");
+		}
+
+		#endregion
     }
 }

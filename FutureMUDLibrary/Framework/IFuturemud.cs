@@ -77,6 +77,7 @@ using MudSharp.Work.Butchering;
 using MudSharp.Work.Agriculture;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
+using MudSharp.Work.Loot;
 using MudSharp.Work.Projects;
 using System;
 using System.Collections.Generic;
@@ -190,6 +191,7 @@ namespace MudSharp.Framework
         IUneditableRevisableAll<IForagable> Foragables { get; }
         IUneditableRevisableAll<IForagableProfile> ForagableProfiles { get; }
         IUneditableRevisableAll<ITrapTemplate> TrapTemplates { get; }
+        IUneditableRevisableAll<ILootTable> LootTables { get; }
         IUneditableAll<IFutureProg> FutureProgs { get; }
         IUneditableAll<IGas> Gases { get; }
         IUneditableAll<IGrid> Grids { get; }
@@ -523,6 +525,7 @@ namespace MudSharp.Framework
         void Add(IBodypart proto);
         void Add(IForagableProfile foragableProfile);
         void Add(ITrapTemplate trapTemplate);
+        void Add(ILootTable lootTable);
         void Add(IForagable foragable);
         void Add(IGameItemGroup group);
         void Add(ICorpseModel model);
@@ -675,6 +678,7 @@ namespace MudSharp.Framework
         void Destroy(IBodypart proto);
         void Destroy(IForagableProfile foragableProfile);
         void Destroy(ITrapTemplate trapTemplate);
+        void Destroy(ILootTable lootTable);
         void Destroy(IForagable foragable);
         void Destroy(ICorpseModel model);
         void Destroy(IGameItemGroup group);

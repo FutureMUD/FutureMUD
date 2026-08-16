@@ -524,3 +524,11 @@ When extending the economy:
 4. integrate with existing factories, loaders, or editable-item helpers where possible
 5. expose builder-facing workflows rather than requiring raw database edits
 6. update the economy design docs when runtime behavior or command surface changes
+
+## Hospital Security and Integrity Workflow
+
+Configure every service's consent policy with `hospital service set <service> consent informed|emergency`. The default informed policy requires an accepting conscious patient and prohibits a third party from enrolling a helpless patient. Emergency presumed consent permits that request; the migration classifies only Stabilisation this way by default.
+
+Before billing, hospital availability validates the complete supply action plan. Loose explicit equipment, implicit treatment items, and IV/blood supplies require an available orderly or another worker with both supply authority and the hospital-supply capability. A doctor can progress a fully staged theatre bundle without that capability. Equipment mutation remains a hospital-manager operation, but a manager must also hold the combined authority required by each affected Active or Satisfied automated stock goal.
+
+On terminal completion or cancellation, resource cleanup is derived from the persisted request task, not the cancelling player. Only request-recorded IV container ids return to storage. Likewise, cancellation terminates only staged surgical effects tagged with the exact request id, never a different request or ordinary surgery for the same patient.

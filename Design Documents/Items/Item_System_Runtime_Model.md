@@ -649,3 +649,7 @@ Physical hand requirements use functioning `IWield` body locations rather than `
 `SignalInstrument` shares the same physical-use and skill rules. A per-character, per-item cooldown effect prevents repeated calls. Failed calls use neutral garbled audio and suppress `OnSignalProg`.
 
 `MilitaryStandard` instance XML stores optional identity/design/association overrides, planted state, custody, and capture count. Copies retain identity overrides but reset planted state and capture history. Durable ownership remains on the item: an authorised carrier produces `Friendly` custody, an unauthorised carrier produces one `Captured` transition and count increment, and hostile-to-hostile transfers do not increment again. An authorised recovery returns the state to `Friendly`; dropping or planting preserves custody.
+
+## Hospital IV Lifecycle Integrity
+
+Hospital IV workflows persist the currently connected container id and every used container id in their employment operational payload. Completion, failure, and cancellation resolve those ids through the request's assigned worker and return only disconnected, tracked IV containers. No ambient theatre, contained, held, or cancelling-player item is inferred to be workflow-owned merely because it is IV-capable.

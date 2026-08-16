@@ -75,6 +75,16 @@ public static class HospitalServiceAvailability
 			return Unavailable(transfusionReason);
 		}
 
+		var requiresSupplyPreparation = HospitalSupplyPreparationActionStep.RequiresSupplyPreparation(hospital, service,
+			patient, out var treatmentLocations);
+		var suppliesAlreadyStaged = HospitalSupplyPreparationActionStep.TreatmentLocationSuppliesAreReady(hospital,
+			service, patient, treatmentLocations);
+		if ((requiresSupplyPreparation || !suppliesAlreadyStaged) &&
+		    !TryGetAvailableSupplyEmployee(hospital, service, patient, treatmentLocations, out var supplyReason))
+		{
+			return Unavailable(supplyReason);
+		}
+
 		return new HospitalServiceAvailabilityResult(true, string.Empty);
 	}
 
@@ -121,6 +131,46 @@ public static class HospitalServiceAvailability
 		return false;
 	}
 
+	private static bool TryGetAvailableSupplyEmployee(IHospital hospital, IHospitalService service,
+		ICharacter? patient, IReadOnlyCollection<ICell> treatmentLocations, out string reason)
+	{
+		var contracts = hospital.EmploymentContracts ?? Array.Empty<IEmploymentContract>();
+		var activeTasks = hospital.TaskBoard?.ActiveTasks ?? Array.Empty<IEmploymentActiveTask>();
+		var context = new EmploymentTaskContext(hospital, usePhysicalItemMovement: true);
+		foreach (var contract in contracts.Where(x =>
+			         x.Status == EmploymentStatus.Active &&
+			         x.Authority.Contains(EmploymentAuthority.PrepareMedicalSupplies)))
+		{
+			var candidate = contract.Employee;
+			if (!CharacterState.Able.HasFlag(candidate.State) || candidate.Location is null ||
+			    !CanPrepareHospitalSupplies(hospital, candidate))
+			{
+				continue;
+			}
+
+			var employeeId = CharacterInstanceIdentityComparer.IdentityId(candidate);
+			if (activeTasks.Any(x =>
+				    CharacterInstanceIdentityComparer.IdentityId(x.AssignedEmployee) == employeeId &&
+				    x.Status is EmploymentTaskStatus.Assigned or EmploymentTaskStatus.InProgress or
+					    EmploymentTaskStatus.Blocked))
+			{
+				continue;
+			}
+
+			if (!HospitalSupplyPreparationActionStep.CanPrepareRequiredSupplies(hospital, service, patient,
+				candidate, treatmentLocations, context, out _))
+			{
+				continue;
+			}
+
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = "no hospital supply employee available to prepare required supplies";
+		return false;
+	}
+
 	private static bool CanFundDonationPayout(IHospital hospital, IHospitalService service, ICharacter? donor,
 		out string reason)
 	{
@@ -152,9 +202,24 @@ public static class HospitalServiceAvailability
 		return npc.AIs
 		          .OfType<EmploymentWorkerAI>()
 		          .Any(x =>
+		          x.TaskingEnabled &&
+		          (x.HostTypeFilter is null || x.HostTypeFilter.Value == hospital.EmploymentHostType) &&
+		          x.Capabilities.Contains(EmploymentAICapability.CanPerformMedicalServices));
+	}
+
+	private static bool CanPrepareHospitalSupplies(IHospital hospital, ICharacter employee)
+	{
+		if (employee is not INPC npc)
+		{
+			return false;
+		}
+
+		return npc.AIs
+		          .OfType<EmploymentWorkerAI>()
+		          .Any(x =>
 			          x.TaskingEnabled &&
 			          (x.HostTypeFilter is null || x.HostTypeFilter.Value == hospital.EmploymentHostType) &&
-			          x.Capabilities.Contains(EmploymentAICapability.CanPerformMedicalServices));
+			          x.Capabilities.Contains(EmploymentAICapability.CanPrepareHospitalSupplies));
 	}
 
 	private static bool TryFindRequiredEquipmentBundle(IHospital hospital, IHospitalService service, ICharacter? actor,

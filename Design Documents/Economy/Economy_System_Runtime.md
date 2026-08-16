@@ -661,3 +661,11 @@ When adding future economy features, the safest path is usually:
 4. expose the feature through builder commands rather than relying on manual database setup
 
 That sequence is inferred from current implementation style rather than enforced by one base class, but it matches the design of the existing subsystem well.
+
+## Hospital Security and Integrity
+
+`HospitalService.ConsentPolicy` persists either `InformedConsentRequired` or `EmergencyPresumedConsent`. Informed consent is the default; a third party cannot create that service for a helpless patient. Conscious third parties continue through the normal acceptance proposal. Stabilisation is the sole existing service backfilled to emergency presumed consent by `20260816012516_HospitalServiceConsentPolicy`, and managers set the policy with `hospital service set <service> consent informed|emergency`.
+
+Availability calculates the same explicit-equipment, implicit wound-care, and implicit IV/blood supply plan that task creation uses. If those supplies are not fully staged, an able, unassigned worker with both `PrepareMedicalSupplies` and `CanPrepareHospitalSupplies` is required before any cash, debt, request, or task is created. A medical worker may acknowledge an already staged bundle. Edits to equipment used by an Active or Satisfied hospital stock goal additionally require the goal's complete authority set, except for administrators.
+
+Cancellation is exact-request scoped. Hospital-started `SurgicalProcedureEffect` instances carry their originating hospital request id and only matching effects are aborted. Blood cleanup uses the linked task's assigned worker plus its persisted current/used IV container ids; it moves no untracked theatre, container, employee, or cancelling-player bag.

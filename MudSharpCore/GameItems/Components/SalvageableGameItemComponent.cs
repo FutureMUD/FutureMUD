@@ -48,6 +48,17 @@ public class SalvageableGameItemComponent : GameItemComponent, ISalvageable
 
 	protected override string SaveToXml() => "<Definition />";
 
+	public override bool DescriptionDecorator(DescriptionType type)
+	{
+		return type == DescriptionType.Full;
+	}
+
+	public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type,
+		bool colour, PerceiveIgnoreFlags flags)
+	{
+		return type == DescriptionType.Full ? $"{description}\n\nIt can be salvaged." : description;
+	}
+
 	private double SourceBaseWeight => Parent.Prototype.Weight * Parent.Quantity;
 
 	public double MaximumOutputWeight(bool success) => _prototype.MaximumOutputWeight(SourceBaseWeight, success);

@@ -8,6 +8,7 @@ using MudSharp.Commands.Modules;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
+using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
@@ -30,6 +31,51 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SalvageableComponentTests
 {
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void FullDescriptionDecoration_LifecycleAndMovementVariants_AddOneStableDisclosure(bool preventsMovement)
+	{
+		var fixture = CreateFixture();
+		var proto = (SalvageableGameItemComponentProto)new GameItemComponentManager()
+			.GetProto(CreateDatabaseProto(), fixture.Gameworld.Object);
+		var parent = CreateParent(fixture.Gameworld.Object, 10.0);
+		parent.Setup(x => x.PreventsMovement()).Returns(preventsMovement);
+		var component = (SalvageableGameItemComponent)proto.CreateNew(
+			parent.Object, temporary: true);
+		var copy = (SalvageableGameItemComponent)component.Copy(
+			CreateParent(fixture.Gameworld.Object, 10.0).Object, temporary: true);
+		var loaded = (SalvageableGameItemComponent)proto.LoadComponent(
+			new DbGameItemComponent { Id = 99, Definition = "<Definition />" },
+			CreateParent(fixture.Gameworld.Object, 10.0).Object);
+		var voyeur = Mock.Of<IPerceiver>();
+		const string baseDescription = "This is an otherwise identical test item.";
+
+		Assert.IsTrue(component.DescriptionDecorator(DescriptionType.Full));
+		Assert.IsFalse(component.DescriptionDecorator(DescriptionType.Short));
+		Assert.IsFalse(component.DescriptionDecorator(DescriptionType.Long));
+		Assert.IsFalse(component.DescriptionDecorator(DescriptionType.Evaluate));
+
+		string Render(params IGameItemComponent[] components) => components
+			.Where(x => x.DescriptionDecorator(DescriptionType.Full))
+			.OrderBy(x => x.DecorationPriority)
+			.Aggregate(baseDescription, (current, decorator) => decorator.Decorate(voyeur, "test item", current,
+				DescriptionType.Full, colour: false, PerceiveIgnoreFlags.None));
+
+		Assert.AreEqual(baseDescription, Render());
+		foreach (var candidate in new[] { component, copy, loaded })
+		{
+			var firstRender = Render(candidate);
+			var repeatedRender = Render(candidate);
+
+			Assert.AreEqual($"{baseDescription}\n\nIt can be salvaged.", firstRender);
+			Assert.AreEqual(firstRender, repeatedRender);
+			Assert.AreEqual(1, firstRender.Split("It can be salvaged.").Length - 1);
+		}
+
+		parent.Verify(x => x.PreventsMovement(), Times.Never);
+	}
+
 	[TestMethod]
 	public void ComponentRegistrationXmlCopyAndLoad_PreserveCanonicalContract()
 	{

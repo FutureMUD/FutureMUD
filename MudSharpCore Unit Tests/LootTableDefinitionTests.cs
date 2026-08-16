@@ -3,6 +3,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Work.Loot;
 using MudSharp.FutureProg;
+using MudSharp.Framework;
+using MudSharp.Framework.Revision;
+using MudSharp.Character;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -234,6 +238,20 @@ public class LootTableDefinitionTests
 			var registrations = (System.Collections.IList)field!.GetValue(null)!;
 			foreach (var registration in added) registrations.Remove(registration);
 		}
+	}
+
+	[TestMethod]
+	public void ReviewProposal_ResolvesLootTableRegistryThroughRealLifecycleOwner()
+	{
+		var registry = new Mock<IUneditableRevisableAll<ILootTable>>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.Setup(x => x.LootTables).Returns(registry.Object);
+		var actor = new Mock<ICharacter>();
+		actor.Setup(x => x.Gameworld).Returns(gameworld.Object);
+		var proposal = new EditableItemReviewProposal<ILootTable>(actor.Object, []);
+		var method = typeof(EditableItemReviewProposal<ILootTable>).GetMethod("GetAppropriateAll", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+		Assert.IsNotNull(method);
+		Assert.AreSame(registry.Object, method.Invoke(proposal, null));
 	}
 
 	private static LootTableDefinition RepresentativeDefinition()

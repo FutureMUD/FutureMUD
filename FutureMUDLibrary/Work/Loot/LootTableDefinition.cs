@@ -62,6 +62,14 @@ public sealed class LootTableDefinition
 								new XAttribute("quantityMax", choice.QuantityMaximum),
 								new XAttribute("qualityMin", choice.QualityMinimum),
 								new XAttribute("qualityMax", choice.QualityMaximum));
+							if (choice.StartsClosed)
+							{
+								choiceElement.Add(new XAttribute("closed", true));
+							}
+							if (choice.StartsLocked)
+							{
+								choiceElement.Add(new XAttribute("locked", true));
+							}
 							if (!string.IsNullOrEmpty(choice.ResultKey))
 							{
 								choiceElement.Add(new XAttribute("resultKey", choice.ResultKey));
@@ -165,6 +173,8 @@ public sealed class LootTableDefinition
 							choice.QuantityMaximum = RequiredInt(choiceElement, "quantityMax");
 							choice.QualityMinimum = RequiredInt(choiceElement, "qualityMin");
 							choice.QualityMaximum = RequiredInt(choiceElement, "qualityMax");
+							choice.StartsClosed = OptionalBool(choiceElement, "closed");
+							choice.StartsLocked = OptionalBool(choiceElement, "locked");
 							choice.ResultKey = (string?)choiceElement.Attribute("resultKey");
 							foreach (var characteristic in choiceElement.Elements("Characteristic"))
 							{
@@ -211,6 +221,8 @@ public sealed class LootTableDefinition
 		long.TryParse((string?)element.Attribute(name), NumberStyles.Integer, CultureInfo.InvariantCulture, out var value)
 			? value
 			: null;
+	private static bool OptionalBool(XElement element, string name) =>
+		bool.TryParse((string?)element.Attribute(name), out var value) && value;
 	private static double RequiredDouble(XElement element, string name) =>
 		double.Parse(RequiredString(element, name), NumberStyles.Float, CultureInfo.InvariantCulture);
 }
@@ -242,6 +254,8 @@ public sealed class LootChoiceDefinition
 	public int QuantityMaximum { get; set; } = 1;
 	public int QualityMinimum { get; set; } = 5;
 	public int QualityMaximum { get; set; } = 5;
+	public bool StartsClosed { get; set; }
+	public bool StartsLocked { get; set; }
 	public string? ResultKey { get; set; }
 	public List<LootCharacteristicValue> Characteristics { get; } = [];
 

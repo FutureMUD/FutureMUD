@@ -42,6 +42,9 @@ public static class LootTableValidator
 							var proto = gameworld.ItemProtos.Get(choice.ItemPrototypeId, choice.ItemPrototypeRevision);
 							if (proto is null) errors.Add($"{choicePath}: exact item prototype does not exist.");
 							else if (proto.Status != RevisionStatus.Current) errors.Add($"{choicePath}: exact item prototype is not approved/current.");
+							if (choice.StartsClosed && proto?.Components.Any(x => x is IOpenablePrototype) != true) errors.Add($"{choicePath}: a closed item must use an openable prototype.");
+							if (choice.StartsLocked && !choice.StartsClosed) errors.Add($"{choicePath}: a locked item must also start closed.");
+							if (choice.StartsLocked && proto?.Components.Any(x => x is ILockPrototype) != true) errors.Add($"{choicePath}: a locked item must have a built-in lock.");
 							if (choice.QuantityMinimum < 1 || choice.QuantityMaximum < choice.QuantityMinimum) errors.Add($"{choicePath}: quantity range is invalid.");
 							if (choice.QualityMinimum < 0 || choice.QualityMaximum > 11 || choice.QualityMaximum < choice.QualityMinimum) errors.Add($"{choicePath}: quality range is invalid.");
 							foreach (var value in choice.Characteristics)

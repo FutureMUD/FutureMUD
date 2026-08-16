@@ -1624,7 +1624,7 @@ Outer target
 
 #6Weighted choices:#0
 #3loottable set choice add <variant> <group> <key> <weight> nothing#0
-#3loottable set choice add <variant> <group> <key> <weight> item <prototype> [revision <rev>] [quantity <min> <max>] [quality <min> <max>] [as <local-key>]#0
+#3loottable set choice add <variant> <group> <key> <weight> item <prototype> [revision <rev>] [quantity <min> <max>] [quality <min> <max>] [closed|locked] [as <local-key>]#0
 #3loottable set choice add <variant> <group> <key> <weight> commodity <material> [tag <tag>] [mass <min> <max>]#0
 #3loottable set choice add <variant> <group> <key> <weight> table <id> <revision> <variant>#0
 #3loottable set choice weight <variant> <group> <key> <weight>#0
@@ -1632,6 +1632,8 @@ Outer target
 #3loottable set choice remove <variant> <group> <key>#0
 
 Commodity mass accepts explicit units such as #3125g#0 or #31.5kg#0. Bare numbers remain supported as engine base mass units for compatibility.
+
+Item choices start open and unlocked unless marked #3closed#0 or #3locked#0. #3locked#0 also closes the item and requires a prototype with a built-in lock.
 
 #6Validate and test:#0
 #3loottable validate <id|name> [revision]#0 - checks references, destinations, cycles and limits
@@ -1680,7 +1682,7 @@ Commodity mass accepts explicit units such as #3125g#0 or #31.5kg#0. Bare number
 				var plan = preview.Plan!;
 				var sb = new StringBuilder();
 				sb.AppendLine($"Preview #{table.Id}r{table.RevisionNumber} {variant} seed {seed} digest {plan.Digest}");
-				foreach (var leaf in plan.Leaves) sb.AppendLine($"- {leaf.Kind} into {leaf.DestinationKey}: {(leaf.Kind == LootChoiceKind.Item ? $"#{leaf.ItemPrototypeId}r{leaf.ItemPrototypeRevision} x{leaf.Quantity} quality {leaf.Quality}" : $"material #{leaf.CommodityMaterialId} mass {leaf.Mass:R}")}");
+				foreach (var leaf in plan.Leaves) sb.AppendLine($"- {leaf.Kind} into {leaf.DestinationKey}: {(leaf.Kind == LootChoiceKind.Item ? $"#{leaf.ItemPrototypeId}r{leaf.ItemPrototypeRevision} x{leaf.Quantity} quality {leaf.Quality}{(leaf.StartsLocked ? " closed+locked" : leaf.StartsClosed ? " closed" : "")}" : $"material #{leaf.CommodityMaterialId} mass {leaf.Mass:R}")}");
 				actor.Send(sb.ToString()); return;
 			}
 			if (command.IsFinished) { actor.Send("Specify HERE, INTO <item>, or TO <character>."); return; }

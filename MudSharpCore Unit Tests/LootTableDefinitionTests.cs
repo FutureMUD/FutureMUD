@@ -8,6 +8,9 @@ using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Units;
 using MudSharp.Character;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
 using Moq;
 using System;
@@ -44,6 +47,28 @@ public class LootTableDefinitionTests
 		second.Variants.Single().Groups[0].Choices.Single().Characteristics.Reverse();
 
 		Assert.AreEqual(first.ComputeHash(), second.ComputeHash());
+	}
+
+	[TestMethod]
+	public void CanonicalXml_ItemInitialState_RoundTripsAndLegacyPayloadDefaultsOpenUnlocked()
+	{
+		var definition = RepresentativeDefinition();
+		var choice = definition.Variants.Single().Groups[0].Choices.Single();
+		choice.StartsClosed = true;
+		choice.StartsLocked = true;
+
+		var xml = definition.ToCanonicalXml();
+		var loaded = LootTableDefinition.Load(xml);
+
+		StringAssert.Contains(xml, "closed=\"true\"");
+		StringAssert.Contains(xml, "locked=\"true\"");
+		Assert.IsTrue(loaded.Variants.Single().Groups[0].Choices.Single().StartsClosed);
+		Assert.IsTrue(loaded.Variants.Single().Groups[0].Choices.Single().StartsLocked);
+
+		var legacy = LootTableDefinition.Load(xml.Replace(" closed=\"true\"", string.Empty)
+			.Replace(" locked=\"true\"", string.Empty));
+		Assert.IsFalse(legacy.Variants.Single().Groups[0].Choices.Single().StartsClosed);
+		Assert.IsFalse(legacy.Variants.Single().Groups[0].Choices.Single().StartsLocked);
 	}
 
 	[TestMethod]
@@ -158,6 +183,44 @@ public class LootTableDefinitionTests
 		Assert.IsTrue(contents.Quantity <= 4);
 		Assert.IsTrue(contents.Quality >= 3);
 		Assert.IsTrue(contents.Quality <= 7);
+	}
+
+	[TestMethod]
+	public void Planner_ItemInitialState_IsPartOfPlanAndDigest()
+	{
+		var definition = RepresentativeDefinition();
+		var open = new LootTablePlanner((_, _) => null).CreatePlan(Source(1, 0, definition), "default", 9);
+		definition.Variants.Single().Groups[0].Choices.Single().StartsClosed = true;
+		var closed = new LootTablePlanner((_, _) => null).CreatePlan(Source(1, 0, definition), "default", 9);
+
+		Assert.IsTrue(open.Success, open.ErrorMessage);
+		Assert.IsTrue(closed.Success, closed.ErrorMessage);
+		Assert.IsFalse(open.Plan!.Leaves[0].StartsClosed);
+		Assert.IsTrue(closed.Plan!.Leaves[0].StartsClosed);
+		Assert.AreNotEqual(open.Plan.Digest, closed.Plan.Digest);
+	}
+
+	[TestMethod]
+	public void Materialiser_InitialClosedLockedState_IsAppliedAfterCreationWithoutEcho()
+	{
+		var isOpen = true;
+		var isLocked = false;
+		var openable = new Mock<IOpenable>();
+		openable.SetupGet(x => x.IsOpen).Returns(() => isOpen);
+		openable.Setup(x => x.Close()).Callback(() => isOpen = false);
+		var lockComponent = new Mock<ILock>();
+		lockComponent.SetupGet(x => x.IsLocked).Returns(() => isLocked);
+		lockComponent.Setup(x => x.SetLocked(true, false)).Callback(() => isLocked = true).Returns(true);
+		var item = new Mock<IGameItem>();
+		item.Setup(x => x.GetItemType<IOpenable>()).Returns(openable.Object);
+		item.Setup(x => x.GetItemType<ILock>()).Returns(lockComponent.Object);
+
+		LootTableMaterialiser.ApplyInitialState(item.Object, true, true);
+
+		Assert.IsFalse(isOpen);
+		Assert.IsTrue(isLocked);
+		openable.Verify(x => x.Close(), Times.Once);
+		lockComponent.Verify(x => x.SetLocked(true, false), Times.Once);
 	}
 
 	[TestMethod]
@@ -279,6 +342,7 @@ public class LootTableDefinitionTests
 		};
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.Setup(x => x.SaveManager).Returns(new Mock<ISaveManager>().Object);
+		gameworld.Setup(x => x.ItemProtos).Returns(new Mock<IUneditableRevisableAll<IGameItemProto>>().Object);
 		var table = new MudSharp.Work.Loot.LootTable(row, gameworld.Object);
 		var output = new Mock<IOutputHandler>();
 		var actor = new Mock<ICharacter>();
@@ -381,6 +445,46 @@ public class LootTableDefinitionTests
 		var choice = table.Definition.Variants.Single().Groups.Single().Choices.Single();
 		Assert.AreEqual(125.0, choice.MassMinimum);
 		Assert.AreEqual(250.0, choice.MassMaximum);
+	}
+
+	[TestMethod]
+	public void BuildingCommand_ItemLocked_AlsoAuthorsClosedState()
+	{
+		var definition = new LootTableDefinition();
+		var variant = new LootVariantDefinition { Key = "default" };
+		variant.Groups.Add(new LootRollGroupDefinition { Key = "vessel" });
+		definition.Variants.Add(variant);
+		var row = new MudSharp.Models.LootTable
+		{
+			Id = 9,
+			RevisionNumber = 0,
+			Name = "State Test",
+			AlgorithmVersion = LootTableDefinition.CurrentAlgorithmVersion,
+			Definition = definition.ToCanonicalXml(),
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = (int)RevisionStatus.UnderDesign,
+				BuilderAccountId = 1,
+				BuilderDate = DateTime.UtcNow
+			}
+		};
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.Setup(x => x.SaveManager).Returns(new Mock<ISaveManager>().Object);
+		gameworld.Setup(x => x.ItemProtos).Returns(new Mock<IUneditableRevisableAll<IGameItemProto>>().Object);
+		var output = new Mock<IOutputHandler>();
+		var actor = new Mock<ICharacter>();
+		actor.Setup(x => x.OutputHandler).Returns(output.Object);
+		var table = new MudSharp.Work.Loot.LootTable(row, gameworld.Object);
+
+		var result = table.BuildingCommand(actor.Object,
+			new StringStack("choice add default vessel cage 1 item 1010 revision 1 locked as vessel"));
+
+		Assert.IsTrue(result);
+		var choice = table.Definition.Variants.Single().Groups.Single().Choices.Single();
+		Assert.IsTrue(choice.StartsClosed);
+		Assert.IsTrue(choice.StartsLocked);
+		Assert.AreEqual("vessel", choice.ResultKey);
 	}
 
 	private static LootTableDefinition RepresentativeDefinition()

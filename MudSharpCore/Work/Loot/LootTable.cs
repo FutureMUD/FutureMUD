@@ -153,6 +153,7 @@ public sealed class LootTable : EditableItem, ILootTable
 				: $"{definition.Name}={value.Name}";
 		}).ToList();
 		return $"Item #{choice.ItemPrototypeId}r{choice.ItemPrototypeRevision} {(proto?.ShortDescription ?? "(missing prototype)")}; quantity {quantity}; quality {quality}" +
+		       (choice.StartsLocked ? "; starts closed and locked" : choice.StartsClosed ? "; starts closed" : "") +
 		       (string.IsNullOrEmpty(choice.ResultKey) ? "" : $"; provides key '{choice.ResultKey}'") +
 		       (variables.Count == 0 ? "" : $"; variables {string.Join(", ", variables)}");
 	}
@@ -352,6 +353,8 @@ Use HELP LOOTTABLE for complete syntax and an example.";
 				case "revision" when int.TryParse(command.PopSpeech(), out var revision): choice.ItemPrototypeRevision = revision; break;
 				case "quantity" when int.TryParse(command.PopSpeech(), out var min) && int.TryParse(command.PopSpeech(), out var max): choice.QuantityMinimum = min; choice.QuantityMaximum = max; break;
 				case "quality" when int.TryParse(command.PopSpeech(), out var min) && int.TryParse(command.PopSpeech(), out var max): choice.QualityMinimum = min; choice.QualityMaximum = max; break;
+				case "closed": choice.StartsClosed = true; break;
+				case "locked": choice.StartsClosed = true; choice.StartsLocked = true; break;
 				case "as" when !command.IsFinished: choice.ResultKey = command.PopSpeech().ToLowerInvariant(); break;
 			}
 		}

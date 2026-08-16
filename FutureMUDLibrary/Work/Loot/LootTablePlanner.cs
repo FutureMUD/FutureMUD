@@ -21,6 +21,8 @@ public sealed record LootPlannedLeaf(
 	int ItemPrototypeRevision,
 	int Quantity,
 	int Quality,
+	bool StartsClosed,
+	bool StartsLocked,
 	IReadOnlyList<LootCharacteristicValue> Characteristics,
 	long CommodityMaterialId,
 	long? CommodityTagId,
@@ -165,6 +167,8 @@ public sealed class LootTablePlanner
 									choice.QuantityMaximum),
 								DrawIntInclusive(seed, choicePath + "|field:quality", choice.QualityMinimum,
 									choice.QualityMaximum),
+								choice.StartsClosed,
+								choice.StartsLocked,
 								choice.Characteristics.Select(x => new LootCharacteristicValue
 								{
 									DefinitionId = x.DefinitionId,
@@ -190,6 +194,8 @@ public sealed class LootTablePlanner
 								0,
 								1,
 								0,
+								false,
+								false,
 								[],
 								choice.CommodityMaterialId,
 								choice.CommodityTagId,
@@ -304,6 +310,8 @@ public sealed class LootTablePlanner
 			leaf.ItemPrototypeRevision.ToString(CultureInfo.InvariantCulture),
 			leaf.Quantity.ToString(CultureInfo.InvariantCulture),
 			leaf.Quality.ToString(CultureInfo.InvariantCulture),
+			leaf.StartsClosed.ToString(CultureInfo.InvariantCulture),
+			leaf.StartsLocked.ToString(CultureInfo.InvariantCulture),
 			string.Join(',', leaf.Characteristics.OrderBy(x => x.DefinitionId).ThenBy(x => x.ValueId)
 				.Select(x => $"{x.DefinitionId}:{x.ValueId}")),
 			leaf.CommodityMaterialId.ToString(CultureInfo.InvariantCulture),

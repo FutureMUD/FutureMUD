@@ -66,6 +66,10 @@ public sealed class LootTableMaterialiser
 						if (!ReferenceEquals(pair.Item.ContainedIn, target)) throw new LootMaterialisationException("PLACEMENT_FAILED", "A planned item was not inserted into its local container.");
 					}
 					foreach (var item in items.Where(x => x.Leaf.DestinationKey == "target").Select(x => x.Item)) PlaceRoot(destination, item);
+					foreach (var pair in items.Where(x => x.Leaf.Kind == LootChoiceKind.Item))
+					{
+						ApplyInitialState(pair.Item, pair.Leaf.StartsClosed, pair.Leaf.StartsLocked);
+					}
 					foreach (var item in items.Select(x => x.Item))
 					{
 						_gameworld.Add(item);
@@ -111,6 +115,35 @@ public sealed class LootTableMaterialiser
 		var items = proto.CreateNew(null!, null!, leaf.Quantity, variables).ToList();
 		foreach (var item in items) item.Quality = (ItemQuality)leaf.Quality;
 		return items;
+	}
+
+	public static void ApplyInitialState(IGameItem item, bool startsClosed, bool startsLocked)
+	{
+		if (startsClosed)
+		{
+			var openable = item.GetItemType<IOpenable>() ??
+			               throw new LootMaterialisationException("ITEM_NOT_OPENABLE", "A planned item cannot start closed because it is not openable.");
+			if (openable.IsOpen)
+			{
+				openable.Close();
+			}
+			if (openable.IsOpen)
+			{
+				throw new LootMaterialisationException("ITEM_STATE_FAILED", "A planned item could not be closed.");
+			}
+		}
+
+		if (!startsLocked)
+		{
+			return;
+		}
+
+		var lockComponent = item.GetItemType<ILock>() ??
+		                    throw new LootMaterialisationException("ITEM_NOT_LOCKABLE", "A planned item cannot start locked because it has no built-in lock.");
+		if (!lockComponent.SetLocked(true, false) || !lockComponent.IsLocked)
+		{
+			throw new LootMaterialisationException("ITEM_STATE_FAILED", "A planned item could not be locked.");
+		}
 	}
 
 	private static void PreflightDestinations(IEnumerable<(LootPlannedLeaf Leaf, IGameItem Item)> items, IReadOnlyDictionary<string, IGameItem> keyed, Destination root)

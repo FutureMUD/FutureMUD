@@ -35,7 +35,7 @@ Changing Group 3's destination from `target` to `vessel` would place the child t
 
 Each revision stores a canonical XML definition and SHA-256 hash. A definition contains named variants; each variant contains explicitly ordered roll groups; and each group selects one positively weighted choice per repetition. Groups target either the invocation target or a stable item key produced exactly once by an earlier group.
 
-Choices create an exact item-prototype revision, create a commodity from an exact solid and optional tag, invoke an exact nested loot-table revision and variant, or explicitly create nothing. Item choices may author quantity, quality, characteristic values and a result key. Commodity choices author a mass range. Nesting is acyclic and a realised plan is limited to 1,000 leaves.
+Choices create an exact item-prototype revision, create a commodity from an exact solid and optional tag, invoke an exact nested loot-table revision and variant, or explicitly create nothing. Item choices may author quantity, quality, characteristic values, initial open/lock state and a result key. Commodity choices author a mass range. Nesting is acyclic and a realised plan is limited to 1,000 leaves.
 
 Deterministic decisions use algorithm version 1 (`sha256-path-v1`). Semantic decision paths include exact table revision, variant, group key, repetition, choice key and field. Integer selection uses rejection sampling. Canonical saves preserve explicit group and choice ordering and sort only unordered semantic collections such as variants and characteristic assignments.
 
@@ -70,6 +70,8 @@ loottable edit
 | Result | The resolved item, commodity or exact nested-table reference and its authored ranges. |
 
 Commodity mass accepts explicit units such as `125g` and `1.5kg`. Bare numeric values remain accepted as engine base mass units for compatibility, but new definitions should use explicit units.
+
+Items start in their prototype's normal open and unlocked state. Add `closed` when a generated openable item must begin closed, or `locked` when a generated item with a built-in lock must begin closed and locked. These states are applied only after all planned contents have been inserted, so the full package remains atomic.
 
 `loottable validate` resolves every exact reference, confirms local destinations, rejects nesting cycles and enforces the expansion limit. `loottable preview` produces the complete realised plan and digest without creating anything. `loottable load` is the administrator test path and accepts `here`, `into <item>` or `to <character>`.
 

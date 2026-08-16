@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Collections.Concurrent;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -11,10 +12,13 @@ namespace MudSharp.Network;
 public sealed class TCPServer : IServer, IAsyncServer, IRuntimeNetworkPerformanceSource, INetworkTelemetrySink
 {
 	private readonly object _lifecycleLock = new();
+	private readonly object _floodLock = new();
 	private readonly TimeProvider _timeProvider;
 	private readonly ConcurrentQueue<PlayerConnection> _pendingConnections = new();
 	private readonly ConcurrentDictionary<PlayerConnection, byte> _activeConnections = new();
+	private readonly ConcurrentDictionary<Task, byte> _connectionAdmissionTasks = new();
 	private readonly Queue<(IPAddress Address, DateTime Expires)> _floodExpirations = new();
+	private readonly HashSet<IPAddress> _trustedProxyAddresses;
 	private AddConnectionCallback? _addConnection;
 	private IEnumerable<IPlayerConnection>? _connections;
 	private ConnectionSnapshotRegistry? _connectionRegistry;
@@ -24,11 +28,18 @@ public sealed class TCPServer : IServer, IAsyncServer, IRuntimeNetworkPerformanc
 	private NetworkCounters _counters = new();
 	private int _isListening;
 
-	public TCPServer(IPAddress host, int port, TimeProvider? timeProvider = null)
+	public TCPServer(
+		IPAddress host,
+		int port,
+		TimeProvider? timeProvider = null,
+		IEnumerable<IPAddress>? trustedProxyAddresses = null)
 	{
 		IPAddress = host;
 		Port = port;
 		_timeProvider = timeProvider ?? TimeProvider.System;
+		_trustedProxyAddresses = (trustedProxyAddresses ?? [System.Net.IPAddress.Loopback, System.Net.IPAddress.IPv6Loopback])
+			.Select(NormaliseAddress)
+			.ToHashSet();
 	}
 
 	public IPAddress IPAddress { get; }
@@ -100,6 +111,12 @@ public sealed class TCPServer : IServer, IAsyncServer, IRuntimeNetworkPerformanc
 		if (acceptTask is not null)
 		{
 			await ObserveExpectedCancellationAsync(acceptTask);
+		}
+
+		var admissionTasks = _connectionAdmissionTasks.Keys.ToArray();
+		if (admissionTasks.Length > 0)
+		{
+			await Task.WhenAll(admissionTasks.Select(ObserveExpectedCancellationAsync));
 		}
 
 		foreach (var connection in _activeConnections.Keys)
@@ -185,22 +202,25 @@ public sealed class TCPServer : IServer, IAsyncServer, IRuntimeNetworkPerformanc
 
 	internal bool RecordConnectionAttempt(IPAddress address, DateTime utcNow)
 	{
-		PruneConnectionDictionary(utcNow);
-		if (ConnectionDictionary.TryGetValue(address, out var info))
+		lock (_floodLock)
 		{
-			info.NumberOfConnections++;
-		}
-		else
-		{
-			ConnectionDictionary[address] = info = new TcpConnectionInformation
+			PruneConnectionDictionary(utcNow);
+			if (ConnectionDictionary.TryGetValue(address, out var info))
 			{
-				StartOfPeriod = utcNow,
-				NumberOfConnections = 1
-			};
-			_floodExpirations.Enqueue((address, utcNow + IpFloodKeepAlive));
-		}
+				info.NumberOfConnections++;
+			}
+			else
+			{
+				ConnectionDictionary[address] = info = new TcpConnectionInformation
+				{
+					StartOfPeriod = utcNow,
+					NumberOfConnections = 1
+				};
+				_floodExpirations.Enqueue((address, utcNow + IpFloodKeepAlive));
+			}
 
-		return info.NumberOfConnections > 30;
+			return info.NumberOfConnections > 30;
+		}
 	}
 
 	internal void PruneConnectionDictionary(DateTime utcNow)
@@ -310,23 +330,9 @@ public sealed class TCPServer : IServer, IAsyncServer, IRuntimeNetworkPerformanc
 					continue;
 				}
 
-				var address = client.Client.RemoteEndPoint is IPEndPoint endpoint
-					? endpoint.Address
-					: IPAddress.None;
-				if (RecordConnectionAttempt(address, _timeProvider.GetUtcNow().UtcDateTime))
-				{
-					Interlocked.Increment(ref Volatile.Read(ref _counters).FloodRejectedConnections);
-					client.Dispose();
-					continue;
-				}
-
-				Console.WriteLine("Accepted TCP connection from {0}", client.Client.RemoteEndPoint);
-				var connection = new PlayerConnection(
-					new SocketConnectionTransport(client), _timeProvider, this);
-				_activeConnections.TryAdd(connection, 0);
-				Interlocked.Increment(ref Volatile.Read(ref _counters).AcceptedConnections);
-				_pendingConnections.Enqueue(connection);
-				_ = RemoveCompletedConnectionAsync(connection);
+				var admissionTask = AdmitConnectionAsync(client, cancellationToken);
+				_connectionAdmissionTasks.TryAdd(admissionTask, 0);
+				_ = ObserveConnectionAdmissionAsync(admissionTask);
 			}
 		}
 		finally
@@ -334,6 +340,157 @@ public sealed class TCPServer : IServer, IAsyncServer, IRuntimeNetworkPerformanc
 			Volatile.Write(ref _isListening, 0);
 			listener.Stop();
 		}
+	}
+
+	private async Task AdmitConnectionAsync(TcpClient client, CancellationToken cancellationToken)
+	{
+		try
+		{
+			var peerAddress = client.Client.RemoteEndPoint is IPEndPoint endpoint
+				? NormaliseAddress(endpoint.Address)
+				: IPAddress.None;
+			var effectiveAddress = peerAddress;
+			ReadOnlyMemory<byte> initialBytes = default;
+			if (_trustedProxyAddresses.Contains(peerAddress))
+			{
+				var preamble = await ReadProxyPreambleAsync(client, peerAddress, cancellationToken);
+				if (!preamble.Accepted)
+				{
+					client.Dispose();
+					return;
+				}
+
+				effectiveAddress = preamble.SourceAddress;
+				initialBytes = preamble.InitialBytes;
+			}
+
+			if (RecordConnectionAttempt(effectiveAddress, _timeProvider.GetUtcNow().UtcDateTime))
+			{
+				Interlocked.Increment(ref Volatile.Read(ref _counters).FloodRejectedConnections);
+				client.Dispose();
+				return;
+			}
+
+			Console.WriteLine("Accepted TCP connection from {0} (effective address {1})",
+				client.Client.RemoteEndPoint,
+				effectiveAddress);
+			var connection = new PlayerConnection(
+				new SocketConnectionTransport(client, effectiveAddress, initialBytes), _timeProvider, this);
+			_activeConnections.TryAdd(connection, 0);
+			Interlocked.Increment(ref Volatile.Read(ref _counters).AcceptedConnections);
+			_pendingConnections.Enqueue(connection);
+			_ = RemoveCompletedConnectionAsync(connection);
+		}
+		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+		{
+			client.Dispose();
+		}
+		catch (Exception e) when (e is IOException or SocketException or ObjectDisposedException)
+		{
+			Interlocked.Increment(ref Volatile.Read(ref _counters).AcceptErrors);
+			client.Dispose();
+			Console.WriteLine("Warning: Exception admitting a TCP connection - " + e.Message);
+		}
+		catch (Exception e)
+		{
+			Interlocked.Increment(ref Volatile.Read(ref _counters).AcceptErrors);
+			client.Dispose();
+			Console.WriteLine("Warning: Unexpected exception admitting a TCP connection - " + e);
+		}
+	}
+
+	private async Task ObserveConnectionAdmissionAsync(Task admissionTask)
+	{
+		try
+		{
+			await admissionTask;
+		}
+		finally
+		{
+			_connectionAdmissionTasks.TryRemove(admissionTask, out _);
+		}
+	}
+
+	private static async Task<ProxyPreambleResult> ReadProxyPreambleAsync(
+		TcpClient client,
+		IPAddress peerAddress,
+		CancellationToken cancellationToken)
+	{
+		var bytes = new byte[ProxyProtocolV1.MaximumHeaderBytes + 4096];
+		var count = 0;
+		using var detectionTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+		detectionTimeout.CancelAfter(TimeSpan.FromMilliseconds(250));
+		try
+		{
+			while (count < ProxyProtocolV1.Prefix.Length)
+			{
+				var read = await client.Client.ReceiveAsync(bytes.AsMemory(count), SocketFlags.None, detectionTimeout.Token);
+				if (read == 0)
+				{
+					return new ProxyPreambleResult(false, peerAddress, default);
+				}
+
+				count += read;
+				var prefixLength = Math.Min(count, ProxyProtocolV1.Prefix.Length);
+				if (!bytes.AsSpan(0, prefixLength).SequenceEqual(ProxyProtocolV1.Prefix[..prefixLength]))
+				{
+					return new ProxyPreambleResult(true, peerAddress, bytes.AsMemory(0, count).ToArray());
+				}
+			}
+		}
+		catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+		{
+			return count == 0
+				? new ProxyPreambleResult(true, peerAddress, default)
+				: new ProxyPreambleResult(false, peerAddress, default);
+		}
+
+		using var headerTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+		headerTimeout.CancelAfter(TimeSpan.FromSeconds(2));
+		try
+		{
+			while (count < bytes.Length)
+			{
+				var lineEnd = bytes.AsSpan(0, count).IndexOf("\r\n"u8);
+				if (lineEnd >= 0)
+				{
+					var headerLength = lineEnd + 2;
+					if (!ProxyProtocolV1.TryParseHeader(bytes.AsSpan(0, headerLength), out var sourceAddress))
+					{
+						return new ProxyPreambleResult(false, peerAddress, default);
+					}
+
+					return new ProxyPreambleResult(
+						true,
+						NormaliseAddress(sourceAddress),
+						bytes.AsMemory(headerLength, count - headerLength).ToArray());
+				}
+
+				if (count >= ProxyProtocolV1.MaximumHeaderBytes)
+				{
+					return new ProxyPreambleResult(false, peerAddress, default);
+				}
+
+				var read = await client.Client.ReceiveAsync(bytes.AsMemory(count), SocketFlags.None, headerTimeout.Token);
+				if (read == 0)
+				{
+					return new ProxyPreambleResult(false, peerAddress, default);
+				}
+
+				count += read;
+			}
+		}
+		catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+		{
+			return new ProxyPreambleResult(false, peerAddress, default);
+		}
+
+		return new ProxyPreambleResult(false, peerAddress, default);
+	}
+
+	private static IPAddress NormaliseAddress(IPAddress address)
+	{
+		return address.IsIPv4MappedToIPv6 ? address.MapToIPv4() : address;
 	}
 
 	private async Task RemoveCompletedConnectionAsync(PlayerConnection connection)
@@ -386,4 +543,9 @@ public sealed class TCPServer : IServer, IAsyncServer, IRuntimeNetworkPerformanc
 		public long ReadErrors;
 		public long WriteErrors;
 	}
+
+	private readonly record struct ProxyPreambleResult(
+		bool Accepted,
+		IPAddress SourceAddress,
+		ReadOnlyMemory<byte> InitialBytes);
 }

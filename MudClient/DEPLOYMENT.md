@@ -129,7 +129,8 @@ During a first install, edit the durable proxy configuration at `/etc/mudclient/
 {
   "MudServer": {
     "Address": "127.0.0.1",
-    "Port": "4000"
+    "Port": "4000",
+	"SendProxyProtocol": true
   },
   "WebSocketServer": {
     "Path": "/ws",
@@ -151,6 +152,16 @@ During a first install, edit the durable proxy configuration at `/etc/mudclient/
 ```
 
 Set `MudServer` to the telnet address and port as seen from the web server. For the intended same-server install, keep `127.0.0.1`.
+
+Keep `SendProxyProtocol` enabled. The proxy sends the real browser address to the MUD before Telnet traffic begins, so the MUD's database-backed `Bans` table, connection flood limit, and registration-IP checks remain the single source of truth for both Telnet and WebSocket users. The MUD trusts PROXY headers only from addresses listed on the optional third line of `Connection.config`. Existing two-line files trust `127.0.0.1` and `::1` for compatibility with the recommended same-host deployment. To use a proxy on another private host, add only that host's exact address; use a blank third line to disable PROXY headers entirely.
+
+`SendProxyProtocol` defaults to `true` when an older durable proxy settings file does not contain the key. Upgrade the FutureMUD engine before this proxy release; older engines do not understand the identity header.
+
+```text
+0.0.0.0
+4000
+127.0.0.1,::1
+```
 
 Set `AllowedOrigins` to the exact public web origin. Use `http://...` only for local testing; production should be `https://...`.
 

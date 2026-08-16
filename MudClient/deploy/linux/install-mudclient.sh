@@ -83,7 +83,7 @@ if [[ -n "$domain" && "$had_proxy_settings" == false ]]; then
 {
   "Logging": { "LogLevel": { "Default": "Information", "Microsoft.AspNetCore": "Warning" } },
   "AllowedHosts": "*",
-  "MudServer": { "Address": "$mud_host", "Port": $mud_port },
+  "MudServer": { "Address": "$mud_host", "Port": $mud_port, "SendProxyProtocol": true },
   "WebSocketServer": { "Path": "/ws", "RequireOrigin": true, "AllowedOrigins": [ "https://$domain" ] },
   "ProxyLimits": { "MaximumConcurrentConnections": 200, "MaximumConnectionsPerIp": 20, "MaximumClientMessageBytes": 65536, "MaximumClientMessagesPerSecond": 30, "MaximumClientBytesPerSecond": 131072, "MaximumMudBytesPerSecond": 2097152, "MudConnectionTimeoutSeconds": 10 }
 }

@@ -21,6 +21,8 @@ Outbound bot-to-engine commands continue to use UTF-16 with the existing newline
 
 Every recognized command other than `login` is marked as requiring authentication by `DiscordTcpCommandRouter`. Unknown and empty commands are rejected before dispatch. Authentication success and failure retain the existing `authsuccess` and `authfailure` response commands.
 
+Discord `showaccount` and `showcharacter` requests carry the linked MUD account ID, but the engine remains the authorization boundary: the requester must currently resolve to at least `JuniorAdmin`. Malformed request, requester, or character identifiers are rejected without throwing through the game loop. Account-detail rendering occurs while its `FMDB` scope is alive because the formatter reads account navigation data and related character rows.
+
 ## Settings and account links
 
 `settings.json` must deserialize to a non-null settings object with a positive port, non-empty token, server authentication secret, and game name, plus non-null prefix, administrator, and custom-reaction collections. Malformed or incomplete JSON is reported and is not partially applied.

@@ -4,6 +4,7 @@ using Moq;
 using MudSharp.Accounts;
 using MudSharp.Discord;
 using MudSharp.Framework;
+using MudSharp.Network;
 using System;
 
 namespace MudSharp_Unit_Tests;
@@ -41,6 +42,27 @@ public class ExternalIntegrationSecurityTests
 	{
 		Assert.IsFalse(DiscordConnection.DiscordRequesterCanUseShowCommands(AccountWithAuthority(PermissionLevel.Player)));
 		Assert.IsTrue(DiscordConnection.DiscordRequesterCanUseShowCommands(AccountWithAuthority(PermissionLevel.JuniorAdmin)));
+	}
+
+	[TestMethod]
+	public void TryParseShowRequest_RejectsMalformedIdentifiersWithoutThrowing()
+	{
+		Assert.IsFalse(DiscordConnection.TryParseShowRequest(
+			new StringStack("request-id account-id target"),
+			out _,
+			out _,
+			out _));
+	}
+
+	[TestMethod]
+	public void DetachConnectionClose_RequestsAsyncTransportDrain()
+	{
+		Mock<IPlayerConnection> connection = new();
+		Mock<IAsyncPlayerConnection> asyncConnection = connection.As<IAsyncPlayerConnection>();
+
+		FuturemudControlContext.RequestConnectionClose(connection.Object);
+
+		asyncConnection.Verify(x => x.RequestClose(ConnectionCloseMode.Drain), Times.Once);
 	}
 
 	private static IAccount AccountWithAuthority(PermissionLevel level)

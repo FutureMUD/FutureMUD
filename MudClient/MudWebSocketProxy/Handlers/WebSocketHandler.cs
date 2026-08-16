@@ -55,6 +55,25 @@ public sealed class WebSocketHandler
 			tcpClient.NoDelay = true;
 			_logger.LogInformation("MUD connection established to {Address}:{Port}", mudServerAddress, mudServerPort);
 			await using var networkStream = tcpClient.GetStream();
+			if (_configuration.GetValue("MudServer:SendProxyProtocol", true))
+			{
+				var clientAddress = context.Connection.RemoteIpAddress;
+				if (clientAddress == null)
+				{
+					_logger.LogWarning("Rejected WebSocket connection because its client address is unavailable.");
+					await CloseIfOpenAsync(
+						webSocket,
+						WebSocketCloseStatus.PolicyViolation,
+						"Client address is unavailable");
+					return;
+				}
+
+				var proxyHeader = ProxyProtocolV1Header.Build(
+					clientAddress,
+					context.Connection.RemotePort,
+					mudServerPort);
+				await networkStream.WriteAsync(proxyHeader, connectionCancellation.Token);
+			}
 
 			var receiveFromWebSocketTask = ReceiveFromWebSocketAsync(webSocket, networkStream, connectionCancellation.Token);
 			var sendToWebSocketTask = SendToWebSocketAsync(webSocket, networkStream, connectionCancellation.Token);

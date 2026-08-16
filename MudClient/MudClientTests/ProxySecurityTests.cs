@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using MudWebSocketProxy.Security;
+using System.Net;
+using System.Text;
 
 namespace MudClientTests;
 
@@ -98,7 +100,35 @@ public class ProxySecurityTests
 			{
 				["MudServer:Address"] = "127.0.0.1",
 				["MudServer:Port"] = "4000",
+				["MudServer:SendProxyProtocol"] = "true",
 				["WebSocketServer:RequireOrigin"] = "false",
+				["WebSocketServer:AllowedOrigins:0"] = "https://play.example.com"
+			})
+			.Build();
+
+		Assert.Throws<InvalidOperationException>(() => ProxyConfigurationValidator.Validate(configuration));
+	}
+
+	[Fact]
+	public void ProxyProtocolHeader_ContainsTheForwardedClientAddress()
+	{
+		var header = ProxyProtocolV1Header.Build(IPAddress.Parse("203.0.113.42"), 43210, 4000);
+
+		Assert.Equal(
+			"PROXY TCP4 203.0.113.42 0.0.0.0 43210 4000\r\n",
+			Encoding.ASCII.GetString(header));
+	}
+
+	[Fact]
+	public void ProxyConfigurationValidator_RequiresClientIpPropagation()
+	{
+		var configuration = new ConfigurationBuilder()
+			.AddInMemoryCollection(new Dictionary<string, string?>
+			{
+				["MudServer:Address"] = "127.0.0.1",
+				["MudServer:Port"] = "4000",
+				["MudServer:SendProxyProtocol"] = "false",
+				["WebSocketServer:RequireOrigin"] = "true",
 				["WebSocketServer:AllowedOrigins:0"] = "https://play.example.com"
 			})
 			.Build();

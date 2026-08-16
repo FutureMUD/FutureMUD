@@ -650,42 +650,47 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	private void HandleShowAccountTcpCommand(StringStack ss)
 	{
-		ulong request = ulong.Parse(ss.PopSpeech());
-		long requesterId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-		string which = ss.PopSpeech();
+		if (!TryParseShowRequest(ss, out ulong request, out long requesterId, out string which))
+		{
+			return;
+		}
 
-		IAccount viewer;
-        MudSharp.Models.Account dbitem;
-        IAccount account;
 		using (new FMDB())
 		{
-			viewer = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterId));
+			IAccount viewer = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterId));
 			if (!DiscordRequesterCanUseShowCommands(viewer))
 			{
 				SendClientMessage($"request {request} notauthorised");
 				return;
 			}
 
-			dbitem = long.TryParse(which, out long value)
+			MudSharp.Models.Account dbitem = long.TryParse(which, out long value)
 					? FMDB.Context.Accounts.FirstOrDefault(x => x.Id == value)
 					: FMDB.Context.Accounts.FirstOrDefault(x => x.Name == which);
-            if (dbitem == null)
-            {
-                SendClientMessage($"request {request} nosuchaccount {which}");
-                return;
-            }
-            account = Gameworld.TryAccount(dbitem);
-        }
+			if (dbitem == null)
+			{
+				SendClientMessage($"request {request} nosuchaccount {which}");
+				return;
+			}
 
-        string text = ShowModule.BuildAccountInfo(viewer ?? account, dbitem, account).RawText();
-        SendClientMessage($"request {request} accountinfo {text}");
-    }
+			IAccount account = Gameworld.TryAccount(dbitem);
+			string text = ShowModule.BuildAccountInfo(viewer, dbitem, account).RawText();
+			SendClientMessage($"request {request} accountinfo {text}");
+		}
+	}
 
 	private void HandleShowCharacterTcpCommand(StringStack ss)
 	{
-		ulong request = ulong.Parse(ss.PopSpeech());
-		long requesterId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-		long which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+		if (!TryParseShowRequest(ss, out ulong request, out long requesterId, out string target))
+		{
+			return;
+		}
+
+		if (!long.TryParse(target, NumberStyles.Integer, CultureInfo.InvariantCulture, out long which))
+		{
+			SendClientMessage($"request {request} nosuchcharacter {target}");
+			return;
+		}
 
 		IAccount viewer;
 		using (new FMDB())
@@ -713,6 +718,25 @@ public sealed class DiscordConnection : IDiscordConnection
 	internal static bool DiscordRequesterCanUseShowCommands(IAccount account)
 	{
 		return account?.Authority?.Level >= PermissionLevel.JuniorAdmin;
+	}
+
+	internal static bool TryParseShowRequest(
+		StringStack ss,
+		out ulong request,
+		out long requesterId,
+		out string target)
+	{
+		request = 0;
+		requesterId = 0;
+		target = string.Empty;
+		if (!ulong.TryParse(ss.PopSpeech(), NumberStyles.Integer, CultureInfo.InvariantCulture, out request) ||
+		    !long.TryParse(ss.PopSpeech(), NumberStyles.Integer, CultureInfo.InvariantCulture, out requesterId))
+		{
+			return false;
+		}
+
+		target = ss.PopSpeech();
+		return !string.IsNullOrWhiteSpace(target);
 	}
 
     private void HandleMapTcpCommand(StringStack ss)

@@ -184,6 +184,71 @@ public class NetworkWorkflowTests
 	}
 
 	[TestMethod]
+	public async Task TcpServer_TrustedProxyHeaderUsesForwardedAddressForAdmissionAndConnection()
+	{
+		var connections = new List<IPlayerConnection>();
+		var context = CreateControlContext(new List<string>());
+		var server = new TCPServer(IPAddress.Loopback, 0);
+		server.Bind(connections, connection =>
+		{
+			connection.Bind(context.Object);
+			connections.Add(connection);
+		});
+
+		await server.StartAsync();
+		using var client = new TcpClient();
+		await client.ConnectAsync(IPAddress.Loopback, server.BoundPort);
+		await client.GetStream().WriteAsync(
+			"PROXY TCP4 203.0.113.42 127.0.0.1 43210 4000\r\n"u8.ToArray());
+		await WaitUntil(() => server.GetNetworkPerformanceSnapshot().AcceptedConnections == 1);
+		server.ProcessPendingConnections();
+
+		Assert.AreEqual("203.0.113.42", connections.Single().IP);
+		Assert.IsTrue(server.ConnectionDictionary.ContainsKey(IPAddress.Parse("203.0.113.42")));
+
+		client.Dispose();
+		await server.StopAsync();
+		connections[0].Dispose();
+	}
+
+	[TestMethod]
+	public async Task TcpServer_DirectClientInitialBytesArePreservedDuringProxyDetection()
+	{
+		var connections = new List<IPlayerConnection>();
+		var commands = new List<string>();
+		var context = CreateControlContext(commands);
+		var server = new TCPServer(IPAddress.Loopback, 0);
+		server.Bind(connections, connection =>
+		{
+			connection.Bind(context.Object);
+			connections.Add(connection);
+		});
+
+		await server.StartAsync();
+		using var client = new TcpClient();
+		await client.ConnectAsync(IPAddress.Loopback, server.BoundPort);
+		await client.GetStream().WriteAsync("look\r"u8.ToArray());
+		await WaitUntil(() => server.GetNetworkPerformanceSnapshot().AcceptedConnections == 1);
+		server.ProcessPendingConnections();
+		await WaitUntil(() => connections.Single().HasIncomingCommands);
+		connections[0].AttemptCommand();
+
+		CollectionAssert.AreEqual(new[] { "look" }, commands);
+
+		client.Dispose();
+		await server.StopAsync();
+		connections[0].Dispose();
+	}
+
+	[TestMethod]
+	public void ProxyProtocolV1_RejectsAddressFamilyMismatch()
+	{
+		Assert.IsFalse(ProxyProtocolV1.TryParseHeader(
+			"PROXY TCP4 2001:db8::1 :: 1234 4000\r\n"u8,
+			out _));
+	}
+
+	[TestMethod]
 	public async Task TcpServer_DuplicateStartThrowsAndRepeatedStopIsSafe()
 	{
 		var server = new TCPServer(IPAddress.Loopback, 0);

@@ -90,6 +90,8 @@ Visibility of a carried, implanted, prosthetic, or otherwise character-hosted it
 - `InInventoryOf`
 - deep and shallow item traversal helpers
 
+The ordinary `look in` command exposes contents when a container is open or when a closed container is transparent. A closed opaque container must be opened first. Closed sheaths and liquid containers without the ordinary container transparency capability retain the normal closed-item refusal.
+
 ### Why this matters for component authors
 Any component that changes where an item effectively "is" in the world needs to consider:
 - location resolution

@@ -1147,7 +1147,7 @@ public partial class Body
 
         if (item.GetItemType<IOpenable>()?.IsOpen == false)
         {
-            if (item.GetItemType<IContainer>()?.Transparent != false)
+            if (item.GetItemType<IContainer>()?.Transparent != true)
             {
                 return thing.HowSeen(Actor, true) + " is closed, and must be opened before you can look in it.";
             }

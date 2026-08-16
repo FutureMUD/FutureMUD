@@ -10,7 +10,7 @@ public class ProxyStartupValidationTests
 		var settingsPath = Path.Combine(Path.GetTempPath(), $"mudclient-settings-{Guid.NewGuid():N}.json");
 		File.WriteAllText(settingsPath, """
 		{
-		  "MudServer": { "Address": "127.0.0.1", "Port": 4000 },
+		  "MudServer": { "Address": "127.0.0.1", "Port": 4000, "SendProxyProtocol": true },
 		  "WebSocketServer": {
 		    "Path": "/ws",
 		    "RequireOrigin": true,

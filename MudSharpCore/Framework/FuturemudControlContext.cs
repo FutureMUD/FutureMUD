@@ -111,7 +111,7 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
             return;
         }
 
-        _connection.State = ConnectionState.Closing;
+        RequestConnectionClose(_connection);
         _connection = null;
         Account?.Gameworld.SystemMessage($"Account {Account.Name.Proper()} has disconnected.", true);
         ICharacter characterContext = _context as ICharacter;
@@ -154,6 +154,17 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
             }
         }
     }
+
+	internal static void RequestConnectionClose(IPlayerConnection connection)
+	{
+		if (connection is IAsyncPlayerConnection asyncConnection)
+		{
+			asyncConnection.RequestClose(ConnectionCloseMode.Drain);
+			return;
+		}
+
+		connection.State = ConnectionState.Closing;
+	}
 
     public void AddObservee(IMonitorable observee)
     {

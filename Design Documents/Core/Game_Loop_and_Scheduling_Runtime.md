@@ -30,4 +30,8 @@ Junior administrators can use `debug performance`, `debug performance on`, `debu
 
 This runtime model intentionally keeps the 250 ms game loop, save/log cadence, heartbeat callback semantics, Telnet protocol, and one-command-per-ready-connection behavior. `IServer` and `IPlayerConnection` remain source-compatible; event-driven implementations advertise optional async lifecycle interfaces, while synchronous implementations retain their existing entry points.
 
-The listener still binds only to the IP address and port in `Connection.config`. TLS termination, `MudClientProxy`, Discord transport, callback coalescing, and schedule execution budgets are outside this runtime boundary. No networking state or diagnostic session is persisted.
+The listener binds to the IP address and port on the first two lines of `Connection.config`. Its optional third line is a comma-separated allowlist of trusted PROXY protocol senders. Two-line legacy files trust loopback (`127.0.0.1` and `::1`) so the recommended same-host `MudClientProxy` deployment preserves the browser's real address. A blank third line disables the trust boundary. PROXY headers from any other peer are treated as ordinary Telnet input, so operators must list only the exact private proxy addresses they control.
+
+The trusted proxy address is resolved before admission and flood accounting. The resulting client address is then used by `PlayerConnection`, the database-backed site-ban check, duplicate-registration checks, and the TCP flood window. Consequently the `Bans` table remains the single authoritative ban list for direct Telnet and WebSocket clients; the proxy does not maintain a second list that can drift.
+
+TLS termination, Discord transport, callback coalescing, and schedule execution budgets are outside this runtime boundary. No networking state or diagnostic session is persisted.

@@ -114,7 +114,8 @@ Open `C:\ProgramData\FutureMUD\MudClient\proxy\appsettings.json` in Notepad and 
   "AllowedHosts": "*",
   "MudServer": {
     "Address": "127.0.0.1",
-    "Port": 4000
+    "Port": 4000,
+	"SendProxyProtocol": true
   },
   "WebSocketServer": {
     "Path": "/ws",
@@ -138,6 +139,16 @@ Open `C:\ProgramData\FutureMUD\MudClient\proxy\appsettings.json` in Notepad and 
 Do not use your public hostname as the `MudServer` address. That would send the proxy out to the Internet instead of keeping the game connection inside the server.
 
 The allowed origin must match the player URL exactly: it has no trailing slash, no extra `www`, and uses `https` in production.
+
+The proxy passes the browser's real IP address to FutureMUD so the engine's site bans, connection limit, and registration checks work identically for Telnet and web players. Update the MUD's `Connection.config` to include the trusted local proxy addresses on line three (existing two-line files use these loopback defaults automatically):
+
+```text
+0.0.0.0
+4000
+127.0.0.1,::1
+```
+
+Do not add a public or untrusted address to that line. If the proxy is on a separate private server, list only that server's exact private IP. Install the matching FutureMUD engine patch before upgrading the proxy; older engines do not understand the identity header.
 
 ## Step 4: Verify the private proxy Windows Service
 

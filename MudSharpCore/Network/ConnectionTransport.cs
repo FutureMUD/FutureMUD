@@ -19,16 +19,21 @@ internal sealed class SocketConnectionTransport : IConnectionTransport
 {
 	private readonly TcpClient _client;
 	private readonly Socket _socket;
+	private ReadOnlyMemory<byte> _initialBytes;
 	private int _closed;
 
-	public SocketConnectionTransport(TcpClient client)
+	public SocketConnectionTransport(
+		TcpClient client,
+		IPAddress? effectiveRemoteAddress = null,
+		ReadOnlyMemory<byte> initialBytes = default)
 	{
 		_client = client;
 		_socket = client.Client;
+		_initialBytes = initialBytes;
 		_socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-		IP = _socket.RemoteEndPoint is IPEndPoint endpoint
+		IP = effectiveRemoteAddress?.ToString() ?? (_socket.RemoteEndPoint is IPEndPoint endpoint
 			? endpoint.Address.ToString()
-			: "0.0.0.0";
+			: "0.0.0.0");
 	}
 
 	public string IP { get; }
@@ -36,6 +41,14 @@ internal sealed class SocketConnectionTransport : IConnectionTransport
 
 	public ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancellationToken)
 	{
+		if (!_initialBytes.IsEmpty)
+		{
+			var count = Math.Min(buffer.Length, _initialBytes.Length);
+			_initialBytes[..count].CopyTo(buffer);
+			_initialBytes = _initialBytes[count..];
+			return ValueTask.FromResult(count);
+		}
+
 		return _socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken);
 	}
 

@@ -124,6 +124,7 @@ Please press enter to begin.".WriteLineConsole();
                     FileAccess.Write));
             config.WriteLine("0.0.0.0");
             config.WriteLine("4000");
+			config.WriteLine("127.0.0.1,::1");
 
             StartupScriptGenerationResult scriptResult = StartupScriptGenerator.EnsureStartScript(
                 installationDirectory,

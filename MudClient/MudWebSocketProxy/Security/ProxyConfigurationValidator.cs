@@ -13,6 +13,12 @@ public static class ProxyConfigurationValidator
 			throw new InvalidOperationException("MudServer:Address and a valid MudServer:Port are required.");
 		}
 
+		if (!configuration.GetValue("MudServer:SendProxyProtocol", true))
+		{
+			throw new InvalidOperationException(
+				"MudServer:SendProxyProtocol must remain enabled in a deployed proxy so the MUD can enforce IP security controls.");
+		}
+
 		if (!configuration.GetValue("WebSocketServer:RequireOrigin", true))
 		{
 			throw new InvalidOperationException("WebSocketServer:RequireOrigin must remain enabled in a deployed proxy.");

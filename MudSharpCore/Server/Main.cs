@@ -31,6 +31,8 @@ internal class MudSharp
 
         IPAddress hostIp;
         int tcpPort;
+		IReadOnlyCollection<IPAddress> trustedProxyAddresses =
+			[IPAddress.Loopback, IPAddress.IPv6Loopback];
 
         using (FileStream fs = File.Create("BOOTING"))
         {
@@ -49,11 +51,12 @@ internal class MudSharp
         {
             try
             {
-                FileStream fs = new("Connection.config", FileMode.Open, FileAccess.Read);
-                StreamReader reader = new(fs);
-                hostIp = IPAddress.Parse(reader.ReadLine());
-                tcpPort = Convert.ToInt32(reader.ReadLine());
-                reader.Close();
+				var connectionSettings = File.ReadAllLines("Connection.config");
+				hostIp = IPAddress.Parse(connectionSettings[0]);
+				tcpPort = Convert.ToInt32(connectionSettings[1]);
+				trustedProxyAddresses = connectionSettings.Length >= 3
+					? ParseTrustedProxyAddresses(connectionSettings[2])
+					: [IPAddress.Loopback, IPAddress.IPv6Loopback];
             }
             catch (Exception e)
             {
@@ -73,7 +76,9 @@ internal class MudSharp
                 StreamWriter writer = new(fs);
                 writer.WriteLine("127.0.0.1");
                 writer.WriteLine("4000");
+				writer.WriteLine("127.0.0.1,::1");
                 writer.Close();
+				trustedProxyAddresses = [IPAddress.Loopback, IPAddress.IPv6Loopback];
             }
             catch (Exception e)
             {
@@ -105,7 +110,10 @@ internal class MudSharp
         using (FutureMUDConsoleWriter consoleWriter =
                new($"./Console Log {DateTime.UtcNow:yyyy MMMM dd HH mm ss}.txt"))
         {
-            Futuremud mud = new(new TCPServer(hostIp, tcpPort));
+            Futuremud mud = new(new TCPServer(
+				hostIp,
+				tcpPort,
+				trustedProxyAddresses: trustedProxyAddresses));
 
             Thread.CurrentThread.Name = "Main Game Thread";
 
@@ -182,6 +190,21 @@ internal class MudSharp
 		}
 #endif
     }
+
+	internal static IReadOnlyCollection<IPAddress> ParseTrustedProxyAddresses(string configurationLine)
+	{
+		if (string.IsNullOrWhiteSpace(configurationLine))
+		{
+			return [];
+		}
+
+		return configurationLine
+			.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+			.Select(IPAddress.Parse)
+			.Select(address => address.IsIPv4MappedToIPv6 ? address.MapToIPv4() : address)
+			.Distinct()
+			.ToArray();
+	}
 
 	private static bool TryRunDocumentationExport(string[] args)
 	{

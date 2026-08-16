@@ -43,6 +43,9 @@ public class ProgVariableProductTests
 		var perceivableProg = new Mock<IFutureProg>();
 		perceivableProg.SetupGet(x => x.Id).Returns(900);
 		perceivableProg.SetupGet(x => x.Parameters).Returns([ProgVariableTypes.Collection | ProgVariableTypes.Perceivable]);
+		perceivableProg.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>()))
+			.Returns((IEnumerable<ProgVariableTypes> parameters) => parameters.SequenceEqual(
+				[ProgVariableTypes.Collection | ProgVariableTypes.Perceivable]));
 		perceivableProg.Setup(x => x.ExecuteLong(0L, It.IsAny<object[]>()))
 			.Callback((long _, object[] arguments) =>
 				perceivablesSupplied = ((IEnumerable<IPerceivable>)arguments.Single()).ToArray())
@@ -50,6 +53,9 @@ public class ProgVariableProductTests
 		var itemProg = new Mock<IFutureProg>();
 		itemProg.SetupGet(x => x.Id).Returns(901);
 		itemProg.SetupGet(x => x.Parameters).Returns([ProgVariableTypes.Collection | ProgVariableTypes.Item]);
+		itemProg.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>()))
+			.Returns((IEnumerable<ProgVariableTypes> parameters) => parameters.SequenceEqual(
+				[ProgVariableTypes.Collection | ProgVariableTypes.Item]));
 		itemProg.Setup(x => x.ExecuteLong(0L, It.IsAny<object[]>()))
 			.Callback((long _, object[] arguments) =>
 				itemsSupplied = ((IEnumerable<IPerceivable>)arguments.Single()).ToArray())
@@ -122,6 +128,85 @@ public class ProgVariableProductTests
 		perceivableProg.Verify(x => x.ExecuteLong(0L, It.IsAny<object[]>()), Times.Once);
 		itemProg.Verify(x => x.ExecuteLong(0L, It.IsAny<object[]>()), Times.Once);
 		anyParametersProg.Verify(x => x.ExecuteLong(0L, It.IsAny<object[]>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void ProduceProduct_ProgSignatureChangesAfterConfiguration_DoesNotThrow()
+	{
+		var zeroParameterProgParameters = new List<ProgVariableTypes>
+		{
+			ProgVariableTypes.Collection | ProgVariableTypes.Item
+		};
+		var multipleParameterProgParameters = new List<ProgVariableTypes>
+		{
+			ProgVariableTypes.Collection | ProgVariableTypes.Item
+		};
+		var zeroParameterProg = MutableSignatureProg(900, zeroParameterProgParameters);
+		var multipleParameterProg = MutableSignatureProg(901, multipleParameterProgParameters);
+		var progs = UneditableRepository([zeroParameterProg.Object, multipleParameterProg.Object]);
+
+		var definition = new Mock<ICharacteristicDefinition>();
+		definition.SetupGet(x => x.Id).Returns(200);
+		var definitions = UneditableRepository([definition.Object]);
+		var value = new Mock<ICharacteristicValue>();
+		value.SetupGet(x => x.Id).Returns(300);
+		var values = UneditableRepository([value.Object]);
+
+		var output = new Mock<IGameItem>();
+		output.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
+		output.SetupProperty(x => x.Quality, ItemQuality.Standard);
+		output.SetupProperty(x => x.Material);
+		var proto = new Mock<IGameItemProto>();
+		proto.SetupGet(x => x.Id).Returns(100);
+		proto.Setup(x => x.IsItemType<StackableGameItemComponentProto>()).Returns(false);
+		proto.Setup(x => x.CreateNew(null, null, 1,
+			It.IsAny<IEnumerable<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>()))
+			.Returns([output.Object]);
+
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.FutureProgs).Returns(progs.Object);
+		gameworld.SetupGet(x => x.Characteristics).Returns(definitions.Object);
+		gameworld.SetupGet(x => x.CharacteristicValues).Returns(values.Object);
+		gameworld.SetupGet(x => x.ItemProtos).Returns(RevisableRepository([proto.Object]).Object);
+		gameworld.SetupGet(x => x.ItemSkins).Returns(RevisableRepository(Array.Empty<IGameItemSkin>()).Object);
+		gameworld.Setup(x => x.GetStaticBool("DisableCraftQualityCalculation")).Returns(false);
+
+		var craft = new Mock<ICraft>();
+		craft.SetupGet(x => x.Inputs).Returns([]);
+		var parent = new Mock<IGameItem>();
+		parent.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var component = new Mock<IActiveCraftGameItemComponent>();
+		component.SetupGet(x => x.Parent).Returns(parent.Object);
+		component.SetupGet(x => x.ConsumedInputs).Returns(new Dictionary<ICraftInput, (IPerceivable Input, ICraftInputData Data)>());
+
+		var zeroParameterProduct = Product(gameworld.Object, craft.Object, zeroParameterProg.Object.Id);
+		var multipleParameterProduct = Product(gameworld.Object, craft.Object, multipleParameterProg.Object.Id);
+		Assert.IsTrue(zeroParameterProduct.IsValid());
+		Assert.IsTrue(multipleParameterProduct.IsValid());
+
+		zeroParameterProgParameters.Clear();
+		multipleParameterProgParameters.Add(ProgVariableTypes.Number);
+
+		Assert.IsFalse(zeroParameterProduct.IsValid());
+		Assert.IsFalse(multipleParameterProduct.IsValid());
+
+		zeroParameterProduct.ProduceProduct(component.Object, ItemQuality.Good);
+		multipleParameterProduct.ProduceProduct(component.Object, ItemQuality.Good);
+
+		zeroParameterProg.Verify(x => x.ExecuteLong(0L, It.IsAny<object[]>()), Times.Once);
+		multipleParameterProg.Verify(x => x.ExecuteLong(0L, It.IsAny<object[]>()), Times.Once);
+	}
+
+	private static Mock<IFutureProg> MutableSignatureProg(long id, List<ProgVariableTypes> parameters)
+	{
+		var prog = new Mock<IFutureProg>();
+		prog.SetupGet(x => x.Id).Returns(id);
+		prog.SetupGet(x => x.Parameters).Returns(() => parameters);
+		prog.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Number);
+		prog.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>()))
+			.Returns((IEnumerable<ProgVariableTypes> suppliedParameters) => parameters.SequenceEqual(suppliedParameters));
+		prog.Setup(x => x.ExecuteLong(0L, It.IsAny<object[]>())).Returns(300);
+		return prog;
 	}
 
 	private static ProgVariableProduct Product(IFuturemud gameworld, ICraft craft, long progId)

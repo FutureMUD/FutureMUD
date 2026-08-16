@@ -8,6 +8,16 @@ namespace MudSharp.Work.Crafts.Products
 {
     internal class ProgVariableProduct : SimpleProduct
     {
+        private static readonly ProgVariableTypes[] ItemCollectionParameters =
+        [
+            ProgVariableTypes.Item | ProgVariableTypes.Collection
+        ];
+
+        private static readonly ProgVariableTypes[] PerceivableCollectionParameters =
+        [
+            ProgVariableTypes.Perceivable | ProgVariableTypes.Collection
+        ];
+
         protected ProgVariableProduct(Models.CraftProduct product, ICraft craft, IFuturemud gameworld) : base(product, craft,
         gameworld)
         {
@@ -131,14 +141,8 @@ namespace MudSharp.Work.Crafts.Products
 
         private static bool ProgMatchesParameters(IFutureProg prog)
         {
-            return prog.MatchesParameters(new[]
-                   {
-                       ProgVariableTypes.Item | ProgVariableTypes.Collection
-                   }) ||
-                   prog.MatchesParameters(new[]
-                   {
-                       ProgVariableTypes.Perceivable | ProgVariableTypes.Collection
-                   });
+            return prog.MatchesParameters(ItemCollectionParameters) ||
+                   prog.MatchesParameters(PerceivableCollectionParameters);
         }
 
         public override string WhyNotValid()
@@ -189,8 +193,7 @@ namespace MudSharp.Work.Crafts.Products
             foreach ((ICharacteristicDefinition definition, IFutureProg prog) in Characteristics)
             {
                 IEnumerable<IPerceivable> inputsForProg = !prog.AcceptsAnyParameters &&
-                                                          prog.Parameters.Single() ==
-                                                          (ProgVariableTypes.Collection | ProgVariableTypes.Item)
+                                                          prog.MatchesParameters(ItemCollectionParameters)
                     ? consumedInputs.OfType<IGameItem>()
                     : consumedInputs;
                 ICharacteristicValue value = Gameworld.CharacteristicValues.Get(prog.ExecuteLong(0L, inputsForProg.ToList()));

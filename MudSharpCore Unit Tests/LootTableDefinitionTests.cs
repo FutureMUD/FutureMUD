@@ -487,7 +487,7 @@ public class LootTableDefinitionTests
 			StringAssert.Contains(shown, heading);
 		StringAssert.Contains(shown, "1. selection");
 		StringAssert.Contains(shown, "Outer target");
-		StringAssert.Contains(shown, "3 (100.00%)");
+		StringAssert.Contains(shown, $"{3:N0} ({1.0:P2})");
 		StringAssert.Contains(shown, "Nothing");
 	}
 

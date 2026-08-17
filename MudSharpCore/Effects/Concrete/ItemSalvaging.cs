@@ -66,7 +66,19 @@ public class ItemSalvaging : StagedCharacterActionWithTarget, IAffectProximity
 			                            .Check(CharacterOwner, _salvageable.Difficulty, _salvageable.Trait, Target)
 			                            .IsPass();
 			ReleaseEventHandlers();
-			var products = _salvageable.CreateProducts(CharacterOwner, success).ToList();
+			IReadOnlyList<IGameItem> products;
+			try
+			{
+				products = _salvageable.CreateProducts(CharacterOwner, success);
+			}
+			catch
+			{
+				CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
+					"@ stop|stops salvaging $1 because the products cannot be recovered safely.",
+					CharacterOwner, CharacterOwner, Target)));
+				return;
+			}
+
 			var result = products.Count == 0
 				? "no usable products"
 				: products.Select(x => x.HowSeen(CharacterOwner)).ListToString();

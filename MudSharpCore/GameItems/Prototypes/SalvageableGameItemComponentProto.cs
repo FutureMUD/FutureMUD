@@ -67,6 +67,8 @@ public sealed record SalvageProductPlan(
 
 public class SalvageableGameItemComponentProto : GameItemComponentProto, ISalvageablePrototype
 {
+	public const int MaximumItemProductsPerSalvage = 100;
+
 	public override string TypeDescription => "Salvageable";
 	public ITraitDefinition? Trait { get; private set; }
 	public Difficulty Difficulty { get; private set; } = Difficulty.Normal;
@@ -202,9 +204,57 @@ public class SalvageableGameItemComponentProto : GameItemComponentProto, ISalvag
 			return false;
 		}
 
+		if (_stages.Any(x => !double.IsFinite(x.Delay) || x.Delay <= 0.0))
+		{
+			reason = "it has a salvage stage with an invalid delay";
+			return false;
+		}
+
+		var invalidEmote = _stages
+			.Select(x => new Emote(x.Emote, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable(),
+				new DummyPerceivable()))
+			.FirstOrDefault(x => !x.Valid);
+		if (invalidEmote is not null)
+		{
+			reason = $"it has an invalid salvage stage emote: {invalidEmote.ErrorMessage}";
+			return false;
+		}
+
 		if (_commodityProducts.Count + _itemProducts.Count == 0)
 		{
 			reason = "it has no salvage products configured";
+			return false;
+		}
+
+		if (_commodityProducts.Any(x =>
+			!double.IsFinite(x.SuccessAmount) ||
+			!double.IsFinite(x.FailureAmount) ||
+			x.SuccessAmount < 0.0 ||
+			x.FailureAmount < 0.0 ||
+			x.IsFraction && (x.SuccessAmount > 1.0 || x.FailureAmount > 1.0)))
+		{
+			reason = "it has an invalid commodity product amount";
+			return false;
+		}
+
+		if (_itemProducts.Any(x =>
+			!double.IsFinite(x.SuccessChance) ||
+			!double.IsFinite(x.FailureChance) ||
+			x.SuccessChance < 0.0 ||
+			x.SuccessChance > 1.0 ||
+			x.FailureChance < 0.0 ||
+			x.FailureChance > 1.0 ||
+			x.SuccessQuantity < 0 ||
+			x.FailureQuantity < 0))
+		{
+			reason = "it has an invalid item product quantity or chance";
+			return false;
+		}
+
+		if (_itemProducts.Sum(x => (long)Math.Max(x.SuccessQuantity, x.FailureQuantity)) >
+			MaximumItemProductsPerSalvage)
+		{
+			reason = $"it has more than {MaximumItemProductsPerSalvage:N0} possible item products";
 			return false;
 		}
 
@@ -254,7 +304,7 @@ public class SalvageableGameItemComponentProto : GameItemComponentProto, ISalvag
 			trait <trait> - sets the skill or attribute used by the salvage check
 			difficulty <difficulty> - sets the salvage check difficulty
 			tool <tag|none> - sets or clears the required held-tool tag
-			stage add <seconds> <emote> - adds a visible salvage stage
+		stage add <seconds> <emote> - adds a visible salvage stage; use $0 for the salvager, $1 for the source and $2 for the held tool
 			stage remove <number> - removes a stage
 			commodity fixed <material> <success weight> <failure weight> [<tag>] - adds fixed commodity output
 			commodity fraction <material> <success percent> <failure percent> [<tag>] - adds source-base-mass fractional output
@@ -351,13 +401,23 @@ public class SalvageableGameItemComponentProto : GameItemComponentProto, ISalvag
 			return true;
 		}
 
-		if (!action.EqualToAny("add", "new") || !double.TryParse(command.PopSpeech(), out var delay) || delay <= 0.0 || command.IsFinished)
+		if (!action.EqualToAny("add", "new") || !double.TryParse(command.PopSpeech(), out var delay) ||
+			!double.IsFinite(delay) || delay <= 0.0 || command.IsFinished)
 		{
 			actor.OutputHandler.Send("Use stage add <seconds> <emote> or stage remove <number>.");
 			return false;
 		}
 
-		_stages.Add((command.SafeRemainingArgument, delay));
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable(),
+			new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		_stages.Add((emoteText, delay));
 		Changed = true;
 		actor.OutputHandler.Send($"A {delay:N1}-second salvage stage has been added.");
 		return true;
@@ -396,9 +456,12 @@ public class SalvageableGameItemComponentProto : GameItemComponentProto, ISalvag
 			return false;
 		}
 
-		if (success < 0.0 || failure < 0.0)
+		if (!double.IsFinite(success) || !double.IsFinite(failure) || success < 0.0 || failure < 0.0 ||
+			mode == "fraction" && (success > 1.0 || failure > 1.0))
 		{
-			actor.OutputHandler.Send("Product amounts cannot be negative.");
+			actor.OutputHandler.Send(mode == "fraction"
+				? "Fractional product amounts must be finite percentages from 0% to 100%."
+				: "Product amounts must be finite and cannot be negative.");
 			return false;
 		}
 
@@ -433,9 +496,13 @@ public class SalvageableGameItemComponentProto : GameItemComponentProto, ISalvag
 		if (!int.TryParse(command.PopSpeech(), out var successQuantity) || successQuantity < 0 ||
 		    !int.TryParse(command.PopSpeech(), out var failureQuantity) || failureQuantity < 0 ||
 		    !command.PopSpeech().TryParsePercentage(out var successChance) ||
-		    !command.PopSpeech().TryParsePercentage(out var failureChance))
+		    !command.PopSpeech().TryParsePercentage(out var failureChance) ||
+		    !double.IsFinite(successChance) || !double.IsFinite(failureChance) ||
+		    successChance is < 0.0 or > 1.0 || failureChance is < 0.0 or > 1.0 ||
+		    _itemProducts.Sum(x => (long)Math.Max(x.SuccessQuantity, x.FailureQuantity)) +
+		    Math.Max(successQuantity, failureQuantity) > MaximumItemProductsPerSalvage)
 		{
-			actor.OutputHandler.Send("Specify non-negative success/failure quantities and valid success/failure chances.");
+			actor.OutputHandler.Send($"Specify non-negative success/failure quantities, chances from 0% to 100%, and no more than {MaximumItemProductsPerSalvage:N0} possible item products.");
 			return false;
 		}
 

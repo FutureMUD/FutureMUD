@@ -160,6 +160,30 @@ public class SalvageableComponentTests
 		Assert.AreEqual(2, plan.Items.Single().Quantity);
 	}
 
+	[TestMethod]
+	public void ConfigurationIsComplete_RejectsNonFiniteAndOutOfRangeAuthoringPayloads()
+	{
+		var fixture = CreateFixture();
+		var cases = new[]
+		{
+			(From: "delay=\"1\"", To: "delay=\"NaN\"", Expected: "invalid delay"),
+			(From: "successChance=\"0.5\"", To: "successChance=\"1.1\"", Expected: "invalid item product"),
+			(From: "successQuantity=\"2\"", To: "successQuantity=\"101\"", Expected: "more than 100")
+		};
+
+		foreach (var testCase in cases)
+		{
+			var databaseProto = CreateDatabaseProto();
+			databaseProto.Definition = databaseProto.Definition.Replace(testCase.From, testCase.To,
+				StringComparison.Ordinal);
+			var proto = (SalvageableGameItemComponentProto)new GameItemComponentManager()
+				.GetProto(databaseProto, fixture.Gameworld.Object);
+
+			Assert.IsFalse(proto.ConfigurationIsComplete(out var reason));
+			StringAssert.Contains(reason, testCase.Expected);
+		}
+	}
+
 	[DataTestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
@@ -229,6 +253,20 @@ public class SalvageableComponentTests
 
 		salvageable.Verify(x => x.CreateProducts(actor.Object, success), Times.Once);
 		source.Verify(x => x.Delete(), Times.Once);
+		source.Verify(x => x.RemoveEffect(It.IsAny<IEffect>(), false), Times.Once);
+	}
+
+	[TestMethod]
+	public void ItemSalvaging_ProductCreationFailure_PreservesSource()
+	{
+		var (action, actor, source, salvageable, actorEffects, targetEffects) = CreateActionFixture();
+		actorEffects.Add(action);
+		salvageable.Setup(x => x.CreateProducts(actor.Object, true))
+			.Throws(new InvalidOperationException("product creation failed"));
+
+		action.ExpireEffect();
+
+		source.Verify(x => x.Delete(), Times.Never);
 		source.Verify(x => x.RemoveEffect(It.IsAny<IEffect>(), false), Times.Once);
 	}
 
@@ -342,7 +380,8 @@ public class SalvageableComponentTests
 		salvageable.SetupGet(x => x.Difficulty).Returns(Difficulty.Normal);
 		salvageable.Setup(x => x.CanSalvage(out It.Ref<string>.IsAny))
 			.Returns((out string reason) => { reason = string.Empty; return true; });
-		salvageable.Setup(x => x.CreateProducts(actor.Object, It.IsAny<bool>())).Returns([]);
+		salvageable.Setup(x => x.CreateProducts(actor.Object, It.IsAny<bool>()))
+			.Returns(Array.Empty<IGameItem>());
 
 		var action = new ItemSalvaging(actor.Object, salvageable.Object, null);
 		return (action, actor, source, salvageable, actorEffects, targetEffects);

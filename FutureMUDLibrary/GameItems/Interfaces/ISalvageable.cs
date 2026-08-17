@@ -21,5 +21,9 @@ public interface ISalvageable : IGameItemComponent
 	IEnumerable<(string Emote, double Delay)> Stages { get; }
 	bool CanSalvage(out string reason);
 	double MaximumOutputWeight(bool success);
-	IEnumerable<IGameItem> CreateProducts(ICharacter actor, bool success);
+	/// <summary>
+	/// Creates every salvage product eagerly. Implementations must either return the complete set or clean up any
+	/// partially-created products before throwing.
+	/// </summary>
+	IReadOnlyList<IGameItem> CreateProducts(ICharacter actor, bool success);
 }

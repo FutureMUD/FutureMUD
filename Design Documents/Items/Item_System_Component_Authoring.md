@@ -79,13 +79,13 @@ The component proto owns the check trait and difficulty, one optional required h
 
 - `trait <trait>` and `difficulty <difficulty>`
 - `tool <tag|none>`
-- `stage add <seconds> <emote>` and `stage remove <number>`
+- `stage add <seconds> <emote>` and `stage remove <number>`; stage emotes use `$0` for the salvager, `$1` for the source and `$2` for the optional held tool
 - `commodity fixed <material> <success weight> <failure weight> [<tag>]`
 - `commodity fraction <material> <success percent> <failure percent> [<tag>]`
 - `item <prototype> <success quantity> <failure quantity> <success chance> <failure chance>`
 - `product remove <number>`
 
-Products are always explicit; source material and description never select them. Both success and failure consume the source after the final stage, with the authored branch controlling reduced failure recovery. The worst-case product mass for each branch must fit the source prototype's base mass (multiplied by stack quantity); item chance does not discount this validation.
+Products are always explicit; source material and description never select them. Both success and failure consume the source after the final stage, with the authored branch controlling reduced failure recovery. The worst-case product mass for each branch must fit the source prototype's base mass (multiplied by stack quantity); item chance does not discount this validation. Product amounts and chances must be finite; fractional outputs and chances are between 0% and 100%, and a salvage action may create at most 100 item products. Product construction is rollback-safe: a failure leaves the source and no partial recovered products.
 
 The current-instance guard refuses an item that contains liquid or another item, or has any attached or connected item. This ensures deleting the source cannot silently delete independent state. It deliberately does not test size, carryability, fixture status, or movement prevention: component attachment is the definition-level eligibility boundary. The staged action is not saved, so interruption or restart before completion leaves the source intact and creates no products.
 

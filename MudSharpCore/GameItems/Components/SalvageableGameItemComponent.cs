@@ -156,44 +156,63 @@ public class SalvageableGameItemComponent : GameItemComponent, ISalvageable
 		}
 	}
 
-	public IEnumerable<IGameItem> CreateProducts(ICharacter actor, bool success)
+	public IReadOnlyList<IGameItem> CreateProducts(ICharacter actor, bool success)
 	{
 		var products = new List<IGameItem>();
-		var plan = _prototype.CreateProductPlan(SourceBaseWeight, success);
-		foreach (var (product, weight) in plan.Commodities)
+		try
 		{
-			if (CommodityGameItemComponentProto.ItemPrototype is null)
+			var plan = _prototype.CreateProductPlan(SourceBaseWeight, success);
+			foreach (var (product, weight) in plan.Commodities)
 			{
-				CommodityGameItemComponentProto.InitialiseItemType(Gameworld);
-			}
+				if (CommodityGameItemComponentProto.ItemPrototype is null)
+				{
+					CommodityGameItemComponentProto.InitialiseItemType(Gameworld);
+				}
 
-			var item = CommodityGameItemComponentProto.CreateNewCommodity(product.Material, weight, product.Tag);
-			InitialiseProduct(actor, item);
-			products.Add(item);
-		}
-
-		foreach (var (product, quantity) in plan.Items)
-		{
-			var itemPrototype = product.ItemPrototype ?? throw new InvalidOperationException(
-				$"Salvage item product #{product.ItemPrototypeId}r{product.ItemPrototypeRevision} was unresolved after validation.");
-			if (itemPrototype.IsItemType<StackableGameItemComponentProto>())
-			{
-				var item = itemPrototype.CreateNew(actor);
-				item.GetItemType<IStackable>().Quantity = quantity;
-				InitialiseProduct(actor, item);
+				var item = CommodityGameItemComponentProto.CreateNewCommodity(product.Material, weight, product.Tag);
 				products.Add(item);
-				continue;
-			}
-
-			for (var i = 0; i < quantity; i++)
-			{
-				var item = itemPrototype.CreateNew(actor);
 				InitialiseProduct(actor, item);
-				products.Add(item);
 			}
-		}
 
-		return products;
+			foreach (var (product, quantity) in plan.Items)
+			{
+				var itemPrototype = product.ItemPrototype ?? throw new InvalidOperationException(
+					$"Salvage item product #{product.ItemPrototypeId}r{product.ItemPrototypeRevision} was unresolved after validation.");
+				if (itemPrototype.IsItemType<StackableGameItemComponentProto>())
+				{
+					var item = itemPrototype.CreateNew(actor);
+					item.GetItemType<IStackable>().Quantity = quantity;
+					products.Add(item);
+					InitialiseProduct(actor, item);
+					continue;
+				}
+
+				for (var i = 0; i < quantity; i++)
+				{
+					var item = itemPrototype.CreateNew(actor);
+					products.Add(item);
+					InitialiseProduct(actor, item);
+				}
+			}
+
+			return products;
+		}
+		catch
+			{
+			foreach (var product in products.AsEnumerable().Reverse().Where(x => !x.Deleted))
+			{
+				try
+				{
+					product.Delete();
+				}
+				catch
+				{
+					// Preserve the original creation failure while making a best-effort rollback of every staged product.
+				}
+			}
+
+			throw;
+		}
 	}
 
 	private void InitialiseProduct(ICharacter actor, IGameItem item)

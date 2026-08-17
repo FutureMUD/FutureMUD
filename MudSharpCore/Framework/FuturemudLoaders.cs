@@ -74,6 +74,7 @@ using MudSharp.TimeAndDate.Time;
 using MudSharp.Vehicles;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Projects;
+using MudSharp.Work.Loot;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
@@ -353,6 +354,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
             // End Game Item Related Loads
 
             game.LoadForagables(); // Depends on LoadGameItemProtos
+			game.LoadLootTables(); // Depends on item prototypes, materials, tags and characteristics
 
             game.LoadNameCultures();
             game.LoadEthnicities(); // depends on LoadCharacteristics and LoadNameCultures
@@ -2321,6 +2323,20 @@ For information on the syntax to use in emotes (such as those included in bracke
 #endif
         var count = templates.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Trap Template" : "Trap Templates");
+    }
+
+    void IFuturemudLoader.LoadLootTables()
+    {
+        ConsoleUtilities.WriteLine("\nLoading #5Loot Tables#0...");
+        using (new FMDB())
+        {
+            var rows = FMDB.Context.LootTables.Include(x => x.EditableItem).AsNoTracking().ToList();
+            foreach (var row in rows)
+            {
+                _lootTables.Add(new MudSharp.Work.Loot.LootTable(row, this));
+            }
+            ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", rows.Count, rows.Count == 1 ? "Loot Table" : "Loot Tables");
+        }
     }
 
     void IFuturemudLoader.LoadCorpseModels()

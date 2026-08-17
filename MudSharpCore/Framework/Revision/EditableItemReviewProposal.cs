@@ -5,6 +5,7 @@ using MudSharp.NPC.Templates;
 using MudSharp.Traps;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
+using MudSharp.Work.Loot;
 using MudSharp.Work.Projects;
 
 namespace MudSharp.Framework.Revision;
@@ -75,6 +76,11 @@ public class EditableItemReviewProposal<T> : Proposal, IProposal where T : IEdit
 		if (typeof(T) == typeof(ITrapTemplate))
 		{
 			return _proponent.Gameworld.TrapTemplates;
+		}
+
+		if (typeof(T) == typeof(ILootTable))
+		{
+			return _proponent.Gameworld.LootTables;
 		}
 
         throw new NotSupportedException("Not supported type in EDitableItemREviewProposal");

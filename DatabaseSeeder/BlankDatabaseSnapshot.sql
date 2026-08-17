@@ -14896,3 +14896,56 @@ END //
 DELIMITER ;
 CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
+
+-- EF-generated idempotent delta: 20260816094719_AddLootTables
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260816094719_AddLootTables') THEN
+
+    CREATE TABLE `loottables` (
+        `Id` bigint(20) NOT NULL,
+        `RevisionNumber` int(11) NOT NULL,
+        `EditableItemId` bigint(20) NOT NULL,
+        `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+        `Definition` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+        `AlgorithmVersion` int(11) NOT NULL,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`, `RevisionNumber`),
+        CONSTRAINT `FK_LootTables_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`) ON DELETE CASCADE
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260816094719_AddLootTables') THEN
+
+    CREATE INDEX `FK_LootTables_EditableItems_idx` ON `loottables` (`EditableItemId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260816094719_AddLootTables') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20260816094719_AddLootTables', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;

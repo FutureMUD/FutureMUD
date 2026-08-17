@@ -1598,11 +1598,22 @@ public partial class Body
     public void Get(IGameItem item, int quantity = 0, IEmote? playerEmote = null, bool silent = false,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
-        Get(item, quantity, playerEmote, silent, ignoreFlags, null);
+		GetInternal(item, quantity, playerEmote, silent, ignoreFlags, null, true);
     }
 
     public IGameItem? Get(IGameItem item, int quantity, IEmote? playerEmote, bool silent,
-        ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers)
+		ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers)
+	{
+		return GetInternal(item, quantity, playerEmote, silent, ignoreFlags, witnessHandlers, true);
+	}
+
+	public IGameItem? GetWithoutMerge(IGameItem item, bool silent = true)
+	{
+		return GetInternal(item, 0, null, silent, ItemCanGetIgnore.None, null, false);
+	}
+
+	private IGameItem? GetInternal(IGameItem item, int quantity, IEmote? playerEmote, bool silent,
+		ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers, bool allowMerge)
     {
         if (!CanGet(item, quantity, ignoreFlags))
         {
@@ -1623,7 +1634,7 @@ public partial class Body
 
             if (!_heldItems.Any(x => x.Item1 == gottenItem))
             {
-                if (HeldOrWieldedItems.Any(x => x.CanMerge(gottenItem)))
+                if (allowMerge && HeldOrWieldedItems.Any(x => x.CanMerge(gottenItem)))
                 {
                     HeldOrWieldedItems.First(x => x.CanMerge(gottenItem)).Merge(gottenItem);
                 }
@@ -1656,7 +1667,7 @@ public partial class Body
         {
             IGameItem newItem = item.Get(this, quantity);
             gottenItem = newItem;
-            if (HeldOrWieldedItems.Any(x => x.CanMerge(gottenItem)))
+            if (allowMerge && HeldOrWieldedItems.Any(x => x.CanMerge(gottenItem)))
             {
                 HeldOrWieldedItems.First(x => x.CanMerge(gottenItem)).Merge(gottenItem);
             }

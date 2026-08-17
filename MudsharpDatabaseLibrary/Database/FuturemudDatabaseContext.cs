@@ -270,6 +270,7 @@ namespace MudSharp.Database
         public virtual DbSet<ForagableProfilesHourlyYieldGains> ForagableProfilesHourlyYieldGains { get; set; }
         public virtual DbSet<ForagableProfilesMaximumYields> ForagableProfilesMaximumYields { get; set; }
         public virtual DbSet<Foragable> Foragables { get; set; }
+		public virtual DbSet<LootTable> LootTables { get; set; }
         public virtual DbSet<Models.FutureProg> FutureProgs { get; set; }
         public virtual DbSet<FutureProgsParameter> FutureProgsParameters { get; set; }
         public virtual DbSet<GameItemComponentProto> GameItemComponentProtos { get; set; }

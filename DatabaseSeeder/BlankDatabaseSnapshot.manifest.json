@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.1.0.0",
-  "LatestMigrationId": "20260816012516_HospitalServiceConsentPolicy",
-  "GeneratedUtc": "2026-08-16T01:25:16Z"
+  "LatestMigrationId": "20260816094719_AddLootTables",
+  "GeneratedUtc": "2026-08-17T03:22:27Z"
 }

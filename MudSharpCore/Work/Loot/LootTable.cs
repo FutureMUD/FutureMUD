@@ -311,16 +311,18 @@ Use HELP LOOTTABLE for complete syntax and an example.";
 		else if (action == "weight" && choice is not null && long.TryParse(command.PopSpeech(), out var weight)) choice.Weight = weight;
 		else if (action == "variables" && choice is not null && choice.Kind == LootChoiceKind.Item)
 		{
-			choice.Characteristics.Clear();
+			var characteristics = new List<LootCharacteristicValue>();
 			if (!command.PeekSpeech().EqualTo("clear"))
 			{
 				while (!command.IsFinished)
 				{
 					var pair = command.PopSpeech().Split('=', 2);
 					if (pair.Length != 2 || !long.TryParse(pair[0], out var definition) || !long.TryParse(pair[1], out var value)) { actor.Send("Variables must be exact numeric definition=value pairs."); return false; }
-					choice.Characteristics.Add(new LootCharacteristicValue { DefinitionId = definition, ValueId = value });
+					characteristics.Add(new LootCharacteristicValue { DefinitionId = definition, ValueId = value });
 				}
 			}
+			choice.Characteristics.Clear();
+			choice.Characteristics.AddRange(characteristics);
 		}
 		else if (action == "add" && choice is null && long.TryParse(command.PopSpeech(), out var newWeight))
 		{

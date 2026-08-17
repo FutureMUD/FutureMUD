@@ -43,7 +43,7 @@ public sealed class LootTableMaterialiser
 		var plan = planned.Plan!;
 		var created = new List<IGameItem>();
 		IReadOnlyList<(LootPlannedLeaf Leaf, IGameItem Item)> plannedItems = [];
-		var keyed = new Dictionary<string, IGameItem>(StringComparer.Ordinal);
+		var keyed = new Dictionary<string, IGameItem>(StringComparer.OrdinalIgnoreCase);
 		try
 		{
 			plannedItems = LootAtomicBatch.Execute<LootPlannedLeaf, (LootPlannedLeaf Leaf, IGameItem Item)>(
@@ -112,7 +112,16 @@ public sealed class LootTableMaterialiser
 			if (value.Definition.Id != definition.Id) throw new LootMaterialisationException("CHARACTERISTIC_MISMATCH", "A planned characteristic value does not belong to its definition.");
 			return (definition, value);
 		}).ToList();
-		var items = proto.CreateNew(null!, null!, leaf.Quantity, variables).ToList();
+		var items = new List<IGameItem>();
+		var quantityPerCreation = proto.IsItemType<IStackablePrototype>() ? leaf.Quantity : 1;
+		for (var remaining = leaf.Quantity; remaining > 0; remaining -= quantityPerCreation)
+		{
+			items.AddRange(proto.CreateNew(null!, null!, quantityPerCreation, variables));
+		}
+		if (items.Count == 0)
+		{
+			throw new LootMaterialisationException("PROTOTYPE_CREATE_FAILED", "A planned item prototype did not create an item.");
+		}
 		foreach (var item in items) item.Quality = (ItemQuality)leaf.Quality;
 		return items;
 	}
@@ -184,7 +193,17 @@ public sealed class LootTableMaterialiser
 
 	private static void Cleanup(IEnumerable<IGameItem> items)
 	{
-		foreach (var item in items.Reverse().Where(x => !x.Deleted)) item.Delete();
+		foreach (var item in items.Reverse().Where(x => !x.Deleted))
+		{
+			try
+			{
+				item.Delete();
+			}
+			catch
+			{
+				// Preserve the original materialisation failure while attempting every remaining cleanup.
+			}
+		}
 	}
 
 	private LootTablePlanner Planner() => new((id, revision) =>

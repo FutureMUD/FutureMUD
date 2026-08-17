@@ -52,7 +52,8 @@ public class BlankDatabaseSnapshotTests
 		         {
 			         "__EFMigrationsHistory", "Vehicles", "VehicleOccupantSlotProtos",
 			         "VehicleMovementProfileProtos", "VehiclePropulsionProfileProtos",
-			         "CharacterCombatSettings", "TraitDefinitions", "RangedCovers"
+			         "CharacterCombatSettings", "TraitDefinitions", "RangedCovers", "LootTables",
+			         "EditableItems"
 		         })
 		{
 			Assert.IsFalse(deltas.Contains($"`{table}`", StringComparison.Ordinal),

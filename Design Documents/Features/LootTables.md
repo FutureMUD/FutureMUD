@@ -1,6 +1,6 @@
 # Loot Tables
 
-Loot tables let a builder describe a package of generated items and commodities in a form that another human can inspect. The engine plans the whole package first and then creates it atomically: either every result reaches its intended destination, or every staged result is removed.
+Loot tables let a builder describe a package of generated items and commodities in a form that another human can inspect. The engine plans the whole package first and then creates it atomically: item existence and placement either complete as a package or are rolled back. Prototype on-load scripts are ordinary engine side effects and must be safe to run in this context.
 
 A caller supplies an exact table revision, variant, destination and optional deterministic seed. Tables do not own depletion, one-shot state, Region bindings or gameplay conditions.
 
@@ -35,7 +35,7 @@ Changing Group 3's destination from `target` to `vessel` would place the child t
 
 Each revision stores a canonical XML definition and SHA-256 hash. A definition contains named variants; each variant contains explicitly ordered roll groups; and each group selects one positively weighted choice per repetition. Groups target either the invocation target or a stable item key produced exactly once by an earlier group.
 
-Choices create an exact item-prototype revision, create a commodity from an exact solid and optional tag, invoke an exact nested loot-table revision and variant, or explicitly create nothing. Item choices may author quantity, quality, characteristic values, initial open/lock state and a result key. Commodity choices author a mass range. Nesting is acyclic and a realised plan is limited to 1,000 leaves.
+Choices create an exact item-prototype revision, create a commodity from an exact solid and optional tag, invoke an exact nested loot-table revision and variant, or explicitly create nothing. Item choices may author quantity, quality, characteristic values, initial open/lock state and a result key. Commodity choices author a mass range. Nesting is acyclic and every possible branch is bounded to 1,000 generated items, counting an item choice's full quantity.
 
 Deterministic decisions use algorithm version 1 (`sha256-path-v1`). Semantic decision paths include exact table revision, variant, group key, repetition, choice key and field. Integer selection uses rejection sampling. Canonical saves preserve explicit group and choice ordering and sort only unordered semantic collections such as variants and characteristic assignments.
 
@@ -88,7 +88,7 @@ loadloottable(Number tableId, Number revision, Character target, Text variant) -
 loadloottable(Number tableId, Number revision, Character target, Text variant, Number seed) -> Text
 ```
 
-Success returns a canonical `OK` receipt with exact revision/hash, algorithm, variant, actual seed, root item IDs, created count and plan digest. Failure returns a stable `ERROR code=...` receipt. Creation is staged, all destinations are preflighted, merging is disabled, and any creation, placement, event or persistence failure deletes every staged object and leaves no residue.
+Success returns a canonical `OK` receipt with exact revision/hash, algorithm, variant, actual seed, root item IDs, created count and plan digest. Failure returns a stable `ERROR code=...` receipt. Creation is staged, all destinations are preflighted, merging is disabled, and any creation, placement, event or persistence failure attempts to delete every staged object. Item existence and placement are rollback-safe; prototype on-load FutureProg side effects execute during creation and therefore must themselves be safe to run in this context, because arbitrary script side effects cannot be unwound by the loot system.
 
 ## Persistence
 

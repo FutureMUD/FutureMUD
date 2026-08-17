@@ -8,6 +8,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Units;
 using MudSharp.Character;
+using MudSharp.Form.Characteristics;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
@@ -16,6 +17,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace MudSharp_Unit_Tests;
 
@@ -157,6 +159,83 @@ public class LootTableDefinitionTests
 	}
 
 	[TestMethod]
+	public void Planner_ItemQuantity_ContributesToExpansionLimit()
+	{
+		var definition = new LootTableDefinition();
+		var variant = new LootVariantDefinition { Key = "default" };
+		var group = new LootRollGroupDefinition { Key = "large-result" };
+		group.Choices.Add(new LootChoiceDefinition
+		{
+			Key = "many-items",
+			Kind = LootChoiceKind.Item,
+			ItemPrototypeId = 1,
+			QuantityMinimum = LootTablePlanner.MaximumPlannedItems + 1,
+			QuantityMaximum = LootTablePlanner.MaximumPlannedItems + 1
+		});
+		variant.Groups.Add(group);
+		definition.Variants.Add(variant);
+
+		var result = new LootTablePlanner((_, _) => null).CreatePlan(Source(1, 0, definition), "default", 0);
+
+		Assert.IsFalse(result.Success);
+		Assert.AreEqual("EXPANSION_LIMIT", result.ErrorCode);
+	}
+
+	[TestMethod]
+	public void Validator_ExaminesUnselectedNestedChoicePathsForCycles()
+	{
+		var definition = new LootTableDefinition();
+		var variant = new LootVariantDefinition { Key = "default" };
+		var group = new LootRollGroupDefinition { Key = "selection" };
+		group.Choices.Add(new LootChoiceDefinition { Key = "empty", Kind = LootChoiceKind.Nothing });
+		group.Choices.Add(new LootChoiceDefinition
+		{
+			Key = "recursive", Kind = LootChoiceKind.LootTable, NestedTableId = 1,
+			NestedTableRevision = 0, NestedVariant = "default"
+		});
+		variant.Groups.Add(group);
+		definition.Variants.Add(variant);
+		var table = LootTableMock(1, 0, definition);
+		var tables = new Mock<IUneditableRevisableAll<ILootTable>>();
+		tables.Setup(x => x.Get(1, 0)).Returns(table.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.LootTables).Returns(tables.Object);
+
+		var errors = LootTableValidator.Validate(table.Object, gameworld.Object);
+
+		Assert.IsTrue(errors.Any(x => x.Contains("cycle", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void Validator_RejectsWorstCaseQuantityAboveExpansionLimit()
+	{
+		var definition = new LootTableDefinition();
+		var variant = new LootVariantDefinition { Key = "default" };
+		var group = new LootRollGroupDefinition { Key = "selection" };
+		group.Choices.Add(new LootChoiceDefinition
+		{
+			Key = "many-items", Kind = LootChoiceKind.Item, ItemPrototypeId = 101, ItemPrototypeRevision = 0,
+			QuantityMinimum = LootTablePlanner.MaximumPlannedItems + 1,
+			QuantityMaximum = LootTablePlanner.MaximumPlannedItems + 1
+		});
+		variant.Groups.Add(group);
+		definition.Variants.Add(variant);
+		var table = LootTableMock(1, 0, definition);
+		var prototype = new Mock<IGameItemProto>();
+		prototype.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
+		prototype.SetupGet(x => x.Components).Returns(Array.Empty<IGameItemComponentProto>());
+		var prototypes = new Mock<IUneditableRevisableAll<IGameItemProto>>();
+		prototypes.Setup(x => x.Get(101, 0)).Returns(prototype.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ItemProtos).Returns(prototypes.Object);
+		gameworld.SetupGet(x => x.LootTables).Returns(new Mock<IUneditableRevisableAll<ILootTable>>().Object);
+
+		var errors = LootTableValidator.Validate(table.Object, gameworld.Object);
+
+		Assert.IsTrue(errors.Any(x => x.Contains("maximum expansion", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
 	public void DrawBounded_Boundaries_AlwaysFallWithinUnbiasedRange()
 	{
 		foreach (var bound in new ulong[] { 1, 2, 3, 7, 10, 65537, ulong.MaxValue })
@@ -251,6 +330,16 @@ public class LootTableDefinitionTests
 		Assert.ThrowsException<InvalidOperationException>(() => LootAtomicBatch.Execute(
 			new[] { 1, 2, 3 }, Create, _ => { }, _ => { }, items => rolledBack.AddRange(items)));
 		CollectionAssert.AreEqual(new[] { 1, 2 }, rolledBack);
+	}
+
+	[TestMethod]
+	public void AtomicBatch_RollbackFailure_PreservesOriginalOperationFailure()
+	{
+		var error = Assert.ThrowsException<InvalidOperationException>(() => LootAtomicBatch.Execute(
+			new[] { 1 }, _ => new[] { 1 }, _ => throw new InvalidOperationException("creation"), _ => { },
+			_ => throw new InvalidOperationException("rollback")));
+
+		Assert.AreEqual("creation", error.Message);
 	}
 
 	[TestMethod]
@@ -487,6 +576,96 @@ public class LootTableDefinitionTests
 		Assert.AreEqual("vessel", choice.ResultKey);
 	}
 
+	[TestMethod]
+	public void BuildingCommand_ChoiceVariables_InvalidInputPreservesExistingAssignments()
+	{
+		var definition = RepresentativeDefinition();
+		var row = new MudSharp.Models.LootTable
+		{
+			Id = 10,
+			RevisionNumber = 0,
+			Name = "Variables Test",
+			AlgorithmVersion = LootTableDefinition.CurrentAlgorithmVersion,
+			Definition = definition.ToCanonicalXml(),
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = (int)RevisionStatus.UnderDesign,
+				BuilderAccountId = 1,
+				BuilderDate = DateTime.UtcNow
+			}
+		};
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.SaveManager).Returns(new Mock<ISaveManager>().Object);
+		gameworld.SetupGet(x => x.ItemProtos).Returns(new Mock<IUneditableRevisableAll<IGameItemProto>>().Object);
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
+		var table = new MudSharp.Work.Loot.LootTable(row, gameworld.Object);
+		var choice = table.Definition.Variants.Single().Groups.Single(x => x.Key == "container").Choices.Single();
+		choice.Characteristics.Add(new LootCharacteristicValue { DefinitionId = 10, ValueId = 100 });
+
+		var result = table.BuildingCommand(actor.Object,
+			new StringStack("choice variables default container box 20=not-a-number"));
+
+		Assert.IsFalse(result);
+		Assert.AreEqual(1, choice.Characteristics.Count);
+		Assert.AreEqual(10L, choice.Characteristics.Single().DefinitionId);
+		Assert.AreEqual(100L, choice.Characteristics.Single().ValueId);
+	}
+
+	[TestMethod]
+	public void BuilderLookup_NamedRevision_SelectsRequestedRevision()
+	{
+		var current = LootTableMock(41, 0, new LootTableDefinition());
+		var requested = LootTableMock(41, 3, new LootTableDefinition());
+		var tables = new Mock<IUneditableRevisableAll<ILootTable>>();
+		tables.Setup(x => x.GetByName("parcel", true)).Returns(current.Object);
+		tables.Setup(x => x.Get(41, 3)).Returns(requested.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.LootTables).Returns(tables.Object);
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
+		var method = typeof(Futuremud).Assembly
+			.GetType("MudSharp.Commands.Modules.ItemBuilderModule")!
+			.GetMethod("TryGetLootTable", BindingFlags.NonPublic | BindingFlags.Static)!;
+		object?[] arguments = [actor.Object, new StringStack("parcel 3"), null];
+
+		var success = (bool)method.Invoke(null, arguments)!;
+
+		Assert.IsTrue(success);
+		Assert.AreSame(requested.Object, arguments[2]);
+	}
+
+	[TestMethod]
+	public void Materialiser_NonStackableQuantity_CreatesEveryAuthoredItem()
+	{
+		var item = new Mock<IGameItem>();
+		var prototype = new Mock<IGameItemProto>();
+		prototype.Setup(x => x.IsItemType<IStackablePrototype>()).Returns(false);
+		prototype.SetupGet(x => x.Components).Returns(Array.Empty<IGameItemComponentProto>());
+		prototype.Setup(x => x.CreateNew<List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>(
+				It.IsAny<ICharacter>(), It.IsAny<IGameItemSkin>(), 1,
+				It.IsAny<List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>()))
+			.Returns([item.Object]);
+		var prototypes = new Mock<IUneditableRevisableAll<IGameItemProto>>();
+		prototypes.Setup(x => x.Get(501, 2)).Returns(prototype.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ItemProtos).Returns(prototypes.Object);
+		var materialiser = new LootTableMaterialiser(gameworld.Object);
+		var leaf = new LootPlannedLeaf(LootChoiceKind.Item, "test", "target", null, 501, 2, 12, 5,
+			false, false, [], 0, null, 0.0);
+		var method = typeof(LootTableMaterialiser).GetMethod("CreateLeaf",
+			BindingFlags.NonPublic | BindingFlags.Instance)!;
+
+		var created = ((IEnumerable<IGameItem>)method.Invoke(materialiser, [leaf])!).ToList();
+
+		Assert.AreEqual(12, created.Count);
+		prototype.Verify(x => x.CreateNew<List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>(
+			It.IsAny<ICharacter>(), It.IsAny<IGameItemSkin>(), 1,
+			It.IsAny<List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>()), Times.Exactly(12));
+	}
+
 	private static LootTableDefinition RepresentativeDefinition()
 	{
 		var definition = new LootTableDefinition();
@@ -548,4 +727,15 @@ public class LootTableDefinitionTests
 
 	private static LootTablePlanSource Source(long id, int revision, LootTableDefinition definition) =>
 		new(id, revision, definition.ComputeHash(), definition);
+
+	private static Mock<ILootTable> LootTableMock(long id, int revision, LootTableDefinition definition)
+	{
+		var table = new Mock<ILootTable>();
+		table.SetupGet(x => x.Id).Returns(id);
+		table.SetupGet(x => x.RevisionNumber).Returns(revision);
+		table.SetupGet(x => x.Definition).Returns(definition);
+		table.SetupGet(x => x.DefinitionHash).Returns(definition.ComputeHash());
+		table.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
+		return table;
+	}
 }

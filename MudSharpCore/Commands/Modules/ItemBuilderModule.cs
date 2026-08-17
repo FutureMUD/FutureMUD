@@ -1714,7 +1714,19 @@ Item choices start open and unlocked unless marked #3closed#0 or #3locked#0. #3l
 					? actor.Gameworld.LootTables.Get(id, (command.PopSpeech(), revision).Item2)
 					: actor.Gameworld.LootTables.Get(id);
 			}
-			else table = actor.Gameworld.LootTables.GetByName(token, ignoreCase: true);
+			else
+			{
+				var named = actor.Gameworld.LootTables.GetByName(token, ignoreCase: true);
+				if (named is not null && !command.IsFinished && int.TryParse(command.PeekSpeech(), out var revision))
+				{
+					command.PopSpeech();
+					table = actor.Gameworld.LootTables.Get(named.Id, revision);
+				}
+				else
+				{
+					table = named;
+				}
+			}
 			if (table is not null) return true;
 			actor.Send("There is no such loot table revision."); return false;
 		}

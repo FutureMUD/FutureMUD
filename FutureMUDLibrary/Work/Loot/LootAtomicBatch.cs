@@ -25,7 +25,14 @@ public static class LootAtomicBatch
 		}
 		catch
 		{
-			rollback(created);
+			try
+			{
+				rollback(created);
+			}
+			catch
+			{
+				// The operation failure is more useful to callers than a secondary rollback error.
+			}
 			throw;
 		}
 	}

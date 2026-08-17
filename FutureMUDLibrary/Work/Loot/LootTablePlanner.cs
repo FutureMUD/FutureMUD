@@ -47,7 +47,8 @@ public sealed class LootTablePlanResult
 
 public sealed class LootTablePlanner
 {
-	public const int MaximumPlannedLeaves = 1000;
+	public const int MaximumPlannedItems = 1000;
+	public const int MaximumPlannedLeaves = MaximumPlannedItems;
 
 	private readonly Func<long, int, LootTablePlanSource?> _resolver;
 
@@ -71,13 +72,10 @@ public sealed class LootTablePlanner
 		try
 		{
 			var leaves = new List<LootPlannedLeaf>();
-			var ancestry = new HashSet<(long Id, int Revision)>();
+			var ancestry = new HashSet<(long Id, int Revision, string Variant)>();
+			var plannedItemCount = 0;
 			var rootIdentity = $"a:{root.Definition.AlgorithmVersion}|root:{root.Id}r{root.Revision}|seed:{seed}";
-			Expand(root, variant, seed, rootIdentity, "target", ancestry, leaves);
-			if (leaves.Count > MaximumPlannedLeaves)
-			{
-				return Error("EXPANSION_LIMIT", $"The realised plan exceeds {MaximumPlannedLeaves} leaves.");
-			}
+			Expand(root, variant, seed, rootIdentity, "target", ancestry, leaves, ref plannedItemCount);
 
 			return new LootTablePlanResult
 			{
@@ -107,23 +105,25 @@ public sealed class LootTablePlanner
 		long seed,
 		string path,
 		string targetDestination,
-		HashSet<(long Id, int Revision)> ancestry,
-		List<LootPlannedLeaf> leaves)
+		HashSet<(long Id, int Revision, string Variant)> ancestry,
+		List<LootPlannedLeaf> leaves,
+		ref int plannedItemCount)
 	{
-		if (!ancestry.Add((source.Id, source.Revision)))
+		var variant = source.Definition.Variants.SingleOrDefault(x =>
+			x.Key.Equals(variantKey, StringComparison.OrdinalIgnoreCase));
+		if (variant is null)
+		{
+			throw new LootPlanningException("VARIANT_NOT_FOUND", $"Variant {variantKey} does not exist.");
+		}
+
+		var identity = (source.Id, source.Revision, variant.Key);
+		if (!ancestry.Add(identity))
 		{
 			throw new LootPlanningException("CYCLE", "A nested LootTable cycle was encountered.");
 		}
 
 		try
 		{
-			var variant = source.Definition.Variants.SingleOrDefault(x =>
-				x.Key.Equals(variantKey, StringComparison.OrdinalIgnoreCase));
-			if (variant is null)
-			{
-				throw new LootPlanningException("VARIANT_NOT_FOUND", $"Variant {variantKey} does not exist.");
-			}
-
 			var scope = $"{path}|table:{source.Id}r{source.Revision}|variant:{variant.Key}";
 			foreach (var group in variant.Groups)
 			{
@@ -151,20 +151,21 @@ public sealed class LootTablePlanner
 					var choicePath = $"{repetitionPath}|choice:{choice.Key}";
 					switch (choice.Kind)
 					{
-						case LootChoiceKind.Nothing:
-							break;
-						case LootChoiceKind.Item:
-							ValidateIntegerRange(choice.QuantityMinimum, choice.QuantityMaximum, "INVALID_QUANTITY");
-							ValidateIntegerRange(choice.QualityMinimum, choice.QualityMaximum, "INVALID_QUALITY");
-							leaves.Add(new LootPlannedLeaf(
-								LootChoiceKind.Item,
+					case LootChoiceKind.Nothing:
+						break;
+					case LootChoiceKind.Item:
+						ValidateItemQuantityRange(choice.QuantityMinimum, choice.QuantityMaximum);
+						ValidateIntegerRange(choice.QualityMinimum, choice.QualityMaximum, "INVALID_QUALITY");
+						var quantity = DrawIntInclusive(seed, choicePath + "|field:quantity", choice.QuantityMinimum,
+							choice.QuantityMaximum);
+						AddLeaf(leaves, new LootPlannedLeaf(
+							LootChoiceKind.Item,
 								choicePath,
 								destination,
 								string.IsNullOrEmpty(choice.ResultKey) ? null : $"{scope}|key:{choice.ResultKey}",
 								choice.ItemPrototypeId,
 								choice.ItemPrototypeRevision,
-								DrawIntInclusive(seed, choicePath + "|field:quantity", choice.QuantityMinimum,
-									choice.QuantityMaximum),
+							quantity,
 								DrawIntInclusive(seed, choicePath + "|field:quality", choice.QualityMinimum,
 									choice.QualityMaximum),
 								choice.StartsClosed,
@@ -174,10 +175,10 @@ public sealed class LootTablePlanner
 									DefinitionId = x.DefinitionId,
 									ValueId = x.ValueId
 								}).ToList(),
-								0,
-								null,
-								0.0));
-							break;
+							0,
+							null,
+							0.0), quantity, ref plannedItemCount);
+						break;
 						case LootChoiceKind.Commodity:
 							if (!double.IsFinite(choice.MassMinimum) || !double.IsFinite(choice.MassMaximum) ||
 							    choice.MassMinimum <= 0.0 || choice.MassMaximum < choice.MassMinimum)
@@ -185,7 +186,7 @@ public sealed class LootTablePlanner
 								throw new LootPlanningException("INVALID_MASS", "A commodity mass range is invalid.");
 							}
 
-							leaves.Add(new LootPlannedLeaf(
+						AddLeaf(leaves, new LootPlannedLeaf(
 								LootChoiceKind.Commodity,
 								choicePath,
 								destination,
@@ -198,9 +199,9 @@ public sealed class LootTablePlanner
 								false,
 								[],
 								choice.CommodityMaterialId,
-								choice.CommodityTagId,
-								DrawDoubleInclusive(seed, choicePath + "|field:mass", choice.MassMinimum,
-									choice.MassMaximum)));
+							choice.CommodityTagId,
+							DrawDoubleInclusive(seed, choicePath + "|field:mass", choice.MassMinimum,
+								choice.MassMaximum)), 1, ref plannedItemCount);
 							break;
 						case LootChoiceKind.LootTable:
 							var nested = _resolver(choice.NestedTableId, choice.NestedTableRevision);
@@ -210,22 +211,39 @@ public sealed class LootTablePlanner
 									$"Nested LootTable {choice.NestedTableId}r{choice.NestedTableRevision} does not exist.");
 							}
 
-							Expand(nested, choice.NestedVariant, seed, choicePath, destination, ancestry, leaves);
-							break;
-					}
-
-					if (leaves.Count > MaximumPlannedLeaves)
-					{
-						throw new LootPlanningException("EXPANSION_LIMIT",
-							$"The realised plan exceeds {MaximumPlannedLeaves} leaves.");
-					}
+						Expand(nested, choice.NestedVariant, seed, choicePath, destination, ancestry, leaves,
+							ref plannedItemCount);
+						break;
+				}
 				}
 			}
 		}
 		finally
 		{
-			ancestry.Remove((source.Id, source.Revision));
+			ancestry.Remove(identity);
 		}
+	}
+
+	private static void AddLeaf(List<LootPlannedLeaf> leaves, LootPlannedLeaf leaf, int itemCount,
+		ref int plannedItemCount)
+	{
+		try
+		{
+			plannedItemCount = checked(plannedItemCount + itemCount);
+		}
+		catch (OverflowException)
+		{
+			throw new LootPlanningException("EXPANSION_LIMIT",
+				$"The realised plan exceeds {MaximumPlannedItems} generated items.");
+		}
+
+		if (plannedItemCount > MaximumPlannedItems)
+		{
+			throw new LootPlanningException("EXPANSION_LIMIT",
+				$"The realised plan exceeds {MaximumPlannedItems} generated items.");
+		}
+
+		leaves.Add(leaf);
 	}
 
 	private static LootChoiceDefinition SelectChoice(long seed, string path, IReadOnlyList<LootChoiceDefinition> choices)
@@ -296,6 +314,14 @@ public sealed class LootTablePlanner
 		if (minimum < 0 || maximum < minimum)
 		{
 			throw new LootPlanningException(code, "An integer range is invalid.");
+		}
+	}
+
+	private static void ValidateItemQuantityRange(int minimum, int maximum)
+	{
+		if (minimum < 1 || maximum < minimum)
+		{
+			throw new LootPlanningException("INVALID_QUANTITY", "An item quantity range is invalid.");
 		}
 	}
 

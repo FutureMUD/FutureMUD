@@ -66,6 +66,9 @@ public static class LootTableValidator
 							else if (nested.Status != RevisionStatus.Current && nested.Id != table.Id) errors.Add($"{choicePath}: exact nested table is not approved/current.");
 							else if (!nested.Definition.Variants.Any(x => x.Key.EqualTo(choice.NestedVariant))) errors.Add($"{choicePath}: nested variant does not exist.");
 							break;
+						default:
+							errors.Add($"{choicePath}: choice kind is invalid.");
+							break;
 					}
 				}
 				var stableKeys = group.Choices.Where(x => x.Kind == LootChoiceKind.Item && !string.IsNullOrWhiteSpace(x.ResultKey)).Select(x => x.ResultKey!).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
@@ -80,16 +83,106 @@ public static class LootTableValidator
 			}
 		}
 
-		var planner = new LootTablePlanner((id, revision) =>
-		{
-			var nested = gameworld.LootTables.Get(id, revision);
-			return nested is null ? null : new LootTablePlanSource(nested.Id, nested.RevisionNumber, nested.DefinitionHash, nested.Definition);
-		});
-		foreach (var variant in definition.Variants)
-		{
-			var plan = planner.CreatePlan(new LootTablePlanSource(table.Id, table.RevisionNumber, table.DefinitionHash, table.Definition), variant.Key, 0);
-			if (!plan.Success && plan.ErrorCode is "CYCLE" or "EXPANSION_LIMIT") errors.Add($"Nesting validation failed for '{variant.Key}': {plan.ErrorCode} {plan.ErrorMessage}");
-		}
+		ValidateEveryNestingPath(table, gameworld, errors);
 		return errors.Distinct().ToList();
 	}
+
+	private static void ValidateEveryNestingPath(ILootTable root, IFuturemud gameworld, ICollection<string> errors)
+	{
+		foreach (var variant in root.Definition.Variants)
+		{
+			var maximum = MaximumGeneratedItems(root, variant.Key, gameworld, new HashSet<NestingIdentity>(),
+				errors, $"{root.Id}r{root.RevisionNumber}/{variant.Key}");
+			if (maximum > LootTablePlanner.MaximumPlannedItems)
+			{
+				errors.Add($"Nesting validation failed for '{variant.Key}': the maximum expansion exceeds {LootTablePlanner.MaximumPlannedItems:N0} generated items.");
+			}
+		}
+	}
+
+	private static long MaximumGeneratedItems(ILootTable table, string variantKey, IFuturemud gameworld,
+		ISet<NestingIdentity> ancestry, ICollection<string> errors, string path)
+	{
+		var variant = table.Definition.Variants.SingleOrDefault(x => x.Key.EqualTo(variantKey));
+		if (variant is null)
+		{
+			return 0;
+		}
+
+		var identity = new NestingIdentity(table.Id, table.RevisionNumber, variant.Key);
+		if (!ancestry.Add(identity))
+		{
+			errors.Add($"Nesting validation failed at '{path}': a nested LootTable cycle was encountered.");
+			return 0;
+		}
+
+		try
+		{
+			long total = 0;
+			foreach (var group in variant.Groups)
+			{
+				long maximumChoice = 0;
+				foreach (var choice in group.Choices)
+				{
+					var choicePath = $"{path}/{group.Key}/{choice.Key}";
+					var generatedItems = choice.Kind switch
+					{
+						LootChoiceKind.Item => Math.Max(0, choice.QuantityMaximum),
+						LootChoiceKind.Commodity => 1,
+						LootChoiceKind.LootTable => MaximumNestedGeneratedItems(choice, gameworld, ancestry, errors,
+							choicePath),
+						_ => 0
+					};
+					maximumChoice = Math.Max(maximumChoice, generatedItems);
+				}
+
+				total = AddCapped(total, MultiplyCapped(Math.Max(0, group.RepeatMaximum), maximumChoice));
+				if (total > LootTablePlanner.MaximumPlannedItems)
+				{
+					return total;
+				}
+			}
+
+			return total;
+		}
+		finally
+		{
+			ancestry.Remove(identity);
+		}
+	}
+
+	private static long MaximumNestedGeneratedItems(LootChoiceDefinition choice, IFuturemud gameworld,
+		ISet<NestingIdentity> ancestry, ICollection<string> errors, string path)
+	{
+		var nested = gameworld.LootTables.Get(choice.NestedTableId, choice.NestedTableRevision);
+		return nested is null
+			? 0
+			: MaximumGeneratedItems(nested, choice.NestedVariant, gameworld, ancestry, errors, path);
+	}
+
+	private static long AddCapped(long left, long right)
+	{
+		if (left > LootTablePlanner.MaximumPlannedItems || right > LootTablePlanner.MaximumPlannedItems ||
+		    left > LootTablePlanner.MaximumPlannedItems - right)
+		{
+			return LootTablePlanner.MaximumPlannedItems + 1L;
+		}
+
+		return left + right;
+	}
+
+	private static long MultiplyCapped(long left, long right)
+	{
+		if (left == 0 || right == 0)
+		{
+			return 0;
+		}
+
+		return left > LootTablePlanner.MaximumPlannedItems || right > LootTablePlanner.MaximumPlannedItems ||
+		       left > LootTablePlanner.MaximumPlannedItems / right
+			? LootTablePlanner.MaximumPlannedItems + 1L
+			: left * right;
+	}
+
+	private sealed record NestingIdentity(long TableId, int Revision, string Variant);
 }

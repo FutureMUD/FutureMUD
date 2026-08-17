@@ -564,6 +564,10 @@ public interface ISelectablePrototype : IExclusiveGameItemComponentPrototype<ISe
 {
 }
 
+public interface ISalvageablePrototype : IExclusiveGameItemComponentPrototype<ISalvageable>
+{
+}
+
 public interface ISeveredBodypartPrototype : IExclusiveGameItemComponentPrototype<ISeveredBodypart>, IContainerPrototype, IButcherablePrototype
 {
 }

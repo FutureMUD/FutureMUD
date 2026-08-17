@@ -43,6 +43,8 @@ Components can decorate item descriptions by overriding:
 
 This is how components add behavioural presentation without forcing all description logic into `GameItem` itself.
 
+An ordinary item with the revisioned `Salvageable` component contributes the concise full-description addendum `It can be salvaged.` through this component decorator path. The indication is present only while that component is attached, is not copied into prototype prose, and does not alter short, long, contents, or evaluate descriptions.
+
 Examples include:
 - containers showing fullness, open state, and contents
 - commodity piles replacing the generated short/full description with quantity, commodity characteristics, material, and optional tag; when a functional tag already begins with the material name, the decorator presents it once (`gunpowder commodities`, not `gunpowder gunpowder commodities`)

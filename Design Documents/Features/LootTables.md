@@ -1,6 +1,6 @@
 # Loot Tables
 
-Loot tables let a builder describe a package of generated items and commodities in a form that another human can inspect. The engine plans the whole package first and then creates it atomically: item existence and placement either complete as a package or are rolled back. Prototype on-load scripts are ordinary engine side effects and must be safe to run in this context.
+Loot tables let a builder describe a package of generated items and commodities in a form that another human can inspect. The engine plans, creates and places the whole package before committing it: item existence and placement either complete as a package or are rolled back. Prototype OnLoad scripts and other hooks are not database transactions, so they run only after the package has committed and must be idempotent.
 
 A caller supplies an exact table revision, variant, destination and optional deterministic seed. Tables do not own depletion, one-shot state, Region bindings or gameplay conditions.
 
@@ -88,7 +88,9 @@ loadloottable(Number tableId, Number revision, Character target, Text variant) -
 loadloottable(Number tableId, Number revision, Character target, Text variant, Number seed) -> Text
 ```
 
-Success returns a canonical `OK` receipt with exact revision/hash, algorithm, variant, actual seed, root item IDs, created count and plan digest. Failure returns a stable `ERROR code=...` receipt. Creation is staged, all destinations are preflighted, merging is disabled, and any creation, placement, event or persistence failure attempts to delete every staged object. Item existence and placement are rollback-safe; prototype on-load FutureProg side effects execute during creation and therefore must themselves be safe to run in this context, because arbitrary script side effects cannot be unwound by the loot system.
+Success returns a canonical `OK` receipt with exact revision/hash, algorithm, variant, actual seed, root item IDs, created count and plan digest. Failure before commitment returns a stable `ERROR code=...` receipt. Creation is staged without prototype OnLoad execution, initial item-state validity and all destinations are preflighted, merging is disabled, and any pre-commit creation, placement or persistence failure attempts to delete every staged object.
+
+After every item is physically placed and registered with the game world, the materialiser crosses its commit boundary. It then executes prototype OnLoad progs, `ItemFinishedLoading`, and `Login` for the committed items. These operations can make arbitrary external changes and therefore cannot be rolled back; a post-commit failure is reported to administrators and the successful receipt includes `postcommitwarnings=<count>`, while the completed package remains in the world. Character destinations deliberately do not fire `CharacterGotItem`, `ItemGotten`, inventory-change, or witness hooks: loading a loot package is not a player `get` action, and suppressing those hooks prevents a later staging failure from granting an irreversible reward.
 
 ## Persistence
 

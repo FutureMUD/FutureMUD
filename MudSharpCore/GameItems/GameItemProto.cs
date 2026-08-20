@@ -295,6 +295,12 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 
     public IEnumerable<IGameItem> CreateNew<T>(ICharacter loader, IGameItemSkin skin, int quantity, T variables) where T : IEnumerable<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>
     {
+        return CreateNew(loader, skin, quantity, variables, true);
+    }
+
+    public IEnumerable<IGameItem> CreateNew<T>(ICharacter loader, IGameItemSkin skin, int quantity, T variables,
+        bool executeOnLoadProgs) where T : IEnumerable<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>
+    {
         List<IGameItem> items = new();
         StackableGameItemComponentProto stackableProto = GetItemType<StackableGameItemComponentProto>();
         if (stackableProto is null && quantity > 1)
@@ -306,7 +312,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 
             for (int i = 0; i < quantity; i++)
             {
-                items.Add(CreateNew(loader, skin, 1, variables).First());
+                items.Add(CreateNew(loader, skin, 1, variables, executeOnLoadProgs).First());
             }
 
             return items;
@@ -336,12 +342,20 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
         IStackable stackable = newItem.GetItemType<IStackable>();
         stackable?.Quantity = quantity;
 
-        foreach (IFutureProg prog in OnLoadProgs)
+        if (executeOnLoadProgs)
         {
-            prog.Execute(newItem, loader);
+            ExecuteOnLoadProgs(newItem, loader);
         }
 
         return items;
+    }
+
+    public void ExecuteOnLoadProgs(IGameItem item, ICharacter? loader)
+    {
+        foreach (IFutureProg prog in OnLoadProgs)
+        {
+            prog.Execute(item, loader);
+        }
     }
 
     public IEnumerable<IGameItem> CreateNew(ICharacter loader, IGameItemSkin skin, int quantity, string loadString)

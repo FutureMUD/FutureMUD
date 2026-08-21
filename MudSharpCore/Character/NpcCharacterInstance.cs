@@ -9,6 +9,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
+using MudSharp.NPC.AI.Groups;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine.Handlers;
 
@@ -48,6 +49,7 @@ public sealed class NpcCharacterInstance : Character, INPC
 	public override ICharacterInstance? FocusedInstance => _identity.FocusedInstance;
 	public override bool IsPlayerCharacter => false;
 	public INPCTemplate Template => _npcIdentity.Template;
+	public IGroupAI GroupAI => _npcIdentity.GroupAI;
 	public IEnumerable<IArtificialIntelligence> AIs => _AIs;
 
 	internal Character OwningCharacter => _identity;
@@ -55,6 +57,7 @@ public sealed class NpcCharacterInstance : Character, INPC
 	internal void RefreshArtificialIntelligencesFromIdentity()
 	{
 		ReleaseEventSubscriptions();
+		NeedsModel = ResolveSecondaryNeedsModel(_identity);
 		_AIs.Clear();
 		_AIs.AddRange(_npcIdentity.AIs);
 		SetupEventSubscriptions();

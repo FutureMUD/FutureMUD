@@ -3,6 +3,8 @@ using MudSharp.Events;
 using MudSharp.Models;
 using MudSharp.Construction;
 
+#nullable enable annotations
+
 namespace MudSharp.NPC.AI;
 
 internal class StealthAI : ArtificialIntelligenceBase
@@ -29,15 +31,21 @@ internal class StealthAI : ArtificialIntelligenceBase
         WillSneak = true;
         HideWhenOthersArePresent = true;
         UseSubtleSneak = false;
+        ActivityProg = Gameworld.AlwaysTrueProg;
+        HabitatProg = Gameworld.AlwaysTrueProg;
         DatabaseInitialise();
     }
 
     private void LoadFromXml(XElement root)
     {
-        HideWhenOthersArePresent = bool.Parse(root.Element("HideWhenOthersArePresent").Value);
-        WillHide = bool.Parse(root.Element("WillHide").Value);
-        WillSneak = bool.Parse(root.Element("WillSneak").Value);
-        UseSubtleSneak = bool.Parse(root.Element("UseSubtleSneak").Value);
+        HideWhenOthersArePresent = bool.Parse(root.Element("HideWhenOthersArePresent")?.Value ?? "true");
+        WillHide = bool.Parse(root.Element("WillHide")?.Value ?? "true");
+        WillSneak = bool.Parse(root.Element("WillSneak")?.Value ?? "true");
+        UseSubtleSneak = bool.Parse(root.Element("UseSubtleSneak")?.Value ?? "false");
+        ActivityProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("ActivityProg")?.Value ?? "0")) ??
+            Gameworld.AlwaysTrueProg;
+        HabitatProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("HabitatProg")?.Value ?? "0")) ??
+            Gameworld.AlwaysTrueProg;
     }
 
     protected override string SaveToXml()
@@ -46,7 +54,9 @@ internal class StealthAI : ArtificialIntelligenceBase
             new XElement("HideWhenOthersArePresent", HideWhenOthersArePresent),
             new XElement("WillHide", WillHide),
             new XElement("WillSneak", WillSneak),
-            new XElement("UseSubtleSneak", UseSubtleSneak)
+            new XElement("UseSubtleSneak", UseSubtleSneak),
+            new XElement("ActivityProg", ActivityProg?.Id ?? 0),
+            new XElement("HabitatProg", HabitatProg?.Id ?? 0)
         ).ToString();
     }
 
@@ -54,6 +64,8 @@ internal class StealthAI : ArtificialIntelligenceBase
     public bool WillHide { get; protected set; }
     public bool WillSneak { get; protected set; }
     public bool UseSubtleSneak { get; protected set; }
+    public IFutureProg ActivityProg { get; protected set; }
+    public IFutureProg HabitatProg { get; protected set; }
 
     /// <inheritdoc />
     public override bool HandleEvent(EventType type, params dynamic[] arguments)
@@ -75,6 +87,12 @@ internal class StealthAI : ArtificialIntelligenceBase
 
     private bool HandleTenSecondTick(ICharacter ch)
     {
+        if (!ActivityProg.ExecuteBool(false, ch) ||
+            !HabitatProg.ExecuteBool(false, ch, ch.Location))
+        {
+            return false;
+        }
+
         if (WillSneak && !ch.AffectedBy<ISneakEffect>())
         {
             ch.AddEffect(UseSubtleSneak ? new SneakSubtle(ch) : new Sneak(ch));
@@ -113,7 +131,9 @@ internal class StealthAI : ArtificialIntelligenceBase
     protected override string TypeHelpText => @"	#3hide#0 - toggles hiding
 	#3sneak#0 - toggles sneaking
 	#3subtle#0 - toggles using subtle sneak
-	#3alone#0 - toggles hiding when not alone";
+	#3alone#0 - toggles hiding when not alone
+	#3activity <prog>#0 - sets when stealth activity is allowed
+	#3habitat <prog>#0 - sets habitats in which stealth activity is allowed";
 
     /// <inheritdoc />
     public override string Show(ICharacter actor)
@@ -126,6 +146,8 @@ internal class StealthAI : ArtificialIntelligenceBase
         sb.AppendLine($"Will Sneak: {WillSneak.ToColouredString()}");
         sb.AppendLine($"Sneak Subtly: {UseSubtleSneak.ToColouredString()}");
         sb.AppendLine($"Hide When Not Alone: {HideWhenOthersArePresent.ToColouredString()}");
+        sb.AppendLine($"Activity Prog: {ActivityProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        sb.AppendLine($"Habitat Prog: {HabitatProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         return sb.ToString();
     }
 
@@ -142,6 +164,10 @@ internal class StealthAI : ArtificialIntelligenceBase
                 return BuildingCommandSubtle(actor);
             case "alone":
                 return BuildingCommandAlone(actor);
+            case "activity":
+                return BuildingCommandActivityProg(actor, command);
+            case "habitat":
+                return BuildingCommandHabitatProg(actor, command);
         }
 
         return base.BuildingCommand(actor, command.GetUndo());
@@ -177,6 +203,53 @@ internal class StealthAI : ArtificialIntelligenceBase
         WillHide = !WillHide;
         Changed = true;
         actor.OutputHandler.Send($"This AI will {WillHide.NowNoLonger()} now attempt to hide.");
+        return true;
+    }
+
+    private bool BuildingCommandActivityProg(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which prog should decide whether stealth activity is currently allowed?");
+            return false;
+        }
+
+        IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+            ProgVariableTypes.Boolean, new[] { ProgVariableTypes.Character }).LookupProg();
+        if (prog is null)
+        {
+            return false;
+        }
+
+        ActivityProg = prog;
+        Changed = true;
+        actor.OutputHandler.Send($"This stealth AI will now use {prog.MXPClickableFunctionName()} to decide when it is active.");
+        return true;
+    }
+
+    private bool BuildingCommandHabitatProg(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which prog should identify habitats where stealth activity is allowed?");
+            return false;
+        }
+
+        IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+            ProgVariableTypes.Boolean,
+            new[]
+            {
+                new List<ProgVariableTypes> { ProgVariableTypes.Character, ProgVariableTypes.Location },
+                new List<ProgVariableTypes> { ProgVariableTypes.Location }
+            }).LookupProg();
+        if (prog is null)
+        {
+            return false;
+        }
+
+        HabitatProg = prog;
+        Changed = true;
+        actor.OutputHandler.Send($"This stealth AI will now use {prog.MXPClickableFunctionName()} to decide allowed habitats.");
         return true;
     }
 }

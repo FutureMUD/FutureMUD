@@ -65,6 +65,11 @@ public abstract class HerdGrazers : GroupAIType
 
     public sealed override void HandleTenSecondTick(IGroupAI group)
     {
+		if (!group.GroupMembers.Any())
+		{
+			return;
+		}
+
         base.HandleTenSecondTick(group);
         EvaluateAlertLevel(group);
         GatherStragglers(group);
@@ -105,6 +110,11 @@ public abstract class HerdGrazers : GroupAIType
     protected (IEnumerable<ICharacter> MainGroup, IEnumerable<ICharacter> Stragglers, IEnumerable<ICharacter> Outsiders)
         GetGroups(IGroupAI group)
     {
+		if (!group.GroupMembers.Any())
+		{
+			return (Enumerable.Empty<ICharacter>(), Enumerable.Empty<ICharacter>(), Enumerable.Empty<ICharacter>());
+		}
+
         if (!group.GroupRoles.Any(x => x.Value == GroupRole.Leader))
         {
             EnsureLeaderExists(group);

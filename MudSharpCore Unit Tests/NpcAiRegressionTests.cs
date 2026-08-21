@@ -15,6 +15,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Form.Material;
+using MudSharp.Form.Shape;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
@@ -24,6 +25,9 @@ using MudSharp.Models;
 using MudSharp.Movement;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
+using MudSharp.NPC.AI.Groups;
+using MudSharp.NPC.AI.Groups.GroupTypes;
+using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using MudSharp.Work.Crafts;
 using System;
@@ -52,11 +56,35 @@ public class NpcAiRegressionTests
         return prog;
     }
 
-    private static AnimalAI LoadAnimalAIFromDefinition(string definition)
+	private static (Mock<ICharacter> Actor, List<string> Messages) BuilderActor()
+	{
+		List<string> messages = [];
+		Mock<IOutputHandler> output = new();
+		output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+			.Callback<string, bool, bool>((text, _, _) => messages.Add(text))
+			.Returns(true);
+		Mock<ICharacter> actor = new();
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		return (actor, messages);
+	}
+
+	private static void AssertEnumValuesListed<TEnum>(string message)
+		where TEnum : struct, Enum
+	{
+		StringAssert.Contains(message, "Valid values are");
+		foreach (TEnum value in Enum.GetValues<TEnum>())
+		{
+			StringAssert.Contains(message, value.DescribeEnum());
+		}
+	}
+
+    private static AnimalAI LoadAnimalAIFromDefinition(string definition,
+        Action<Mock<IFutureProg>>? configurePrimaryProg = null)
     {
         Mock<IFutureProg> alwaysTrue = MockProg(1);
         Mock<IFutureProg> alwaysFalse = MockProg(2);
         Mock<IFutureProg> alwaysOne = MockProg(3);
+		configurePrimaryProg?.Invoke(alwaysTrue);
 
         Mock<IUneditableAll<IFutureProg>> futureProgs = new();
         futureProgs.Setup(x => x.Get(It.IsAny<long>()))
@@ -240,6 +268,36 @@ public class NpcAiRegressionTests
         Assert.IsTrue(animal.HandlesEvent(EventType.MinuteTick));
         Assert.IsTrue(animal.HandlesEvent(EventType.NPCOnGameLoadFinished));
     }
+
+	[TestMethod]
+	public void AnimalAI_InactiveActivityPolicySuppressesAmbientPathing()
+	{
+		AnimalAI animal = LoadAnimalAIFromDefinition("""
+			<Definition>
+			  <Feeding type="None" />
+			  <Water type="Off" />
+			  <Activity type="Custom">
+			    <ActiveTime>Dawn</ActiveTime>
+			  </Activity>
+			</Definition>
+			""");
+		Mock<ICell> location = new();
+		location.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Night);
+		Mock<ICharacter> character = new();
+		character.SetupGet(x => x.Location).Returns(location.Object);
+
+		MethodInfo? shouldRemainAtRest = typeof(AnimalAI).GetMethod("ShouldRemainAtRest",
+			BindingFlags.Instance | BindingFlags.NonPublic);
+		MethodInfo? wouldMove = typeof(AnimalAI).GetMethod("WouldMove",
+			BindingFlags.Instance | BindingFlags.NonPublic);
+		Assert.IsNotNull(shouldRemainAtRest);
+		Assert.IsNotNull(wouldMove);
+		Assert.IsTrue(shouldRemainAtRest.Invoke(animal, new object[] { character.Object }) is true);
+		Assert.IsFalse(wouldMove.Invoke(animal, new object[] { character.Object }) is true);
+
+		location.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Dawn);
+		Assert.IsFalse(shouldRemainAtRest.Invoke(animal, new object[] { character.Object }) is true);
+	}
 
     [TestMethod]
     public void AnimalAI_ValidateConfiguration_RejectsInvalidSlotCombinations()
@@ -482,6 +540,304 @@ public class NpcAiRegressionTests
         Assert.AreEqual("true", saved.Element("Ecology")?.Element("NestingEnabled")?.Value);
     }
 
+	[TestMethod]
+	public void AnimalAI_WildlifeConfiguration_RoundTripsHabitatsThreatsSensesAndDormancy()
+	{
+		AnimalAI animal = LoadAnimalAIFromDefinition("""
+			<Definition>
+			  <Movement type="Ground">
+			    <PreferredHabitatProg>1</PreferredHabitatProg>
+			    <ToleratedHabitatProg>2</ToleratedHabitatProg>
+			  </Movement>
+			  <Home type="Denning"><AllowGroupShelterSharing>true</AllowGroupShelterSharing></Home>
+			  <Threat type="Defend">
+			    <OrdinaryResponse>Avoid</OrdinaryResponse>
+			    <HungryPreyResponse>Attack</HungryPreyResponse>
+			    <AttackedResponse>Attack</AttackedResponse>
+			    <TerritoryResponse>Posture</TerritoryResponse>
+			    <ParentingResponse>Attack</ParentingResponse>
+			    <SeasonalResponse>Posture</SeasonalResponse>
+			    <PostureEmote>@ posture|postures at $1.</PostureEmote>
+			    <PostureDurationDiceExpression>1d12+8</PostureDurationDiceExpression>
+			  </Threat>
+			  <Awareness type="Wary"><Senses>Tracking</Senses></Awareness>
+			  <Activity type="Diurnal">
+			    <DormancyMode>Hibernation</DormancyMode>
+			    <DormantSeasonGroup>Winter</DormantSeasonGroup>
+			    <AggressiveSeasonGroup>Spring</AggressiveSeasonGroup>
+			    <NestingSeasonGroup>Summer</NestingSeasonGroup>
+			  </Activity>
+			  <Ecology><SeasonalHabitat seasonGroup="Autumn">3</SeasonalHabitat></Ecology>
+			</Definition>
+			""");
+
+		Assert.AreEqual(1L, animal.PreferredHabitatProg.Id);
+		Assert.AreEqual(2L, animal.ToleratedHabitatProg.Id);
+		Assert.IsTrue(animal.AllowGroupShelterSharing);
+		Assert.AreEqual(AnimalThreatResponseType.Posture, animal.TerritoryThreatResponse);
+		Assert.AreEqual(AnimalThreatResponseType.Attack, animal.ParentingThreatResponse);
+		Assert.AreEqual(AnimalSensesStrategyType.Tracking, animal.SensesStrategy);
+		Assert.AreEqual(AnimalDormancyMode.Hibernation, animal.DormancyMode);
+		CollectionAssert.Contains(animal.DormantSeasonGroups.ToArray(), "Winter");
+		CollectionAssert.Contains(animal.AggressiveSeasonGroups.ToArray(), "Spring");
+		CollectionAssert.Contains(animal.NestingSeasonGroups.ToArray(), "Summer");
+		Assert.AreEqual(3L, animal.SeasonalHabitatProgs["Autumn"].Id);
+
+		XElement saved = animal.SaveDefinition();
+		Assert.AreEqual("1", saved.Element("Movement")?.Element("PreferredHabitatProg")?.Value);
+		Assert.AreEqual("2", saved.Element("Movement")?.Element("ToleratedHabitatProg")?.Value);
+		Assert.AreEqual("Posture", saved.Element("Threat")?.Element("TerritoryResponse")?.Value);
+		Assert.AreEqual("Tracking", saved.Element("Awareness")?.Element("Senses")?.Value);
+		Assert.AreEqual("Hibernation", saved.Element("Activity")?.Element("DormancyMode")?.Value);
+		Assert.AreEqual("Summer", saved.Element("Activity")?.Element("NestingSeasonGroup")?.Value);
+		Assert.AreEqual("3", saved.Element("Ecology")?.Element("SeasonalHabitat")?.Value);
+	}
+
+	[TestMethod]
+	public void AnimalAI_LegacyXml_DefaultsNewWildlifeSettingsWithoutChangingLegacyBehaviour()
+	{
+		AnimalAI animal = LoadAnimalAIFromDefinition("""
+			<Definition>
+			  <Movement type="Ground" />
+			  <Threat type="Flee" />
+			  <Awareness type="Wary" />
+			  <Activity type="Nocturnal" />
+			</Definition>
+			""");
+
+		Assert.AreEqual(AnimalDormancyMode.Rest, animal.DormancyMode);
+		Assert.AreEqual(AnimalSensesStrategyType.None, animal.SensesStrategy);
+		Assert.AreEqual(AnimalThreatResponseType.Inherit, animal.OrdinaryThreatResponse);
+		Assert.AreEqual(AnimalThreatResponseType.Inherit, animal.AttackedThreatResponse);
+		Assert.AreEqual(1L, animal.PreferredHabitatProg.Id,
+			"Omitted habitat selectors must remain the old unrestricted default.");
+		Assert.AreEqual(1L, animal.ToleratedHabitatProg.Id,
+			"Omitted habitat selectors must remain the old unrestricted default.");
+		Assert.IsFalse(animal.UseActiveNeeds,
+			"Legacy AnimalAI definitions must retain their existing passive/no-needs model unless explicitly opted in.");
+	}
+
+	[TestMethod]
+	public void AnimalAI_ActiveNeedsOption_RoundTripsWithoutChangingTheLegacyDefault()
+	{
+		AnimalAI finishedProfile = LoadAnimalAIFromDefinition("""
+			<Definition>
+			  <Feeding type="Forager">
+			    <UseActiveNeeds>true</UseActiveNeeds>
+			  </Feeding>
+			</Definition>
+			""");
+		AnimalAI legacyProfile = LoadAnimalAIFromDefinition("""
+			<Definition><Feeding type="Forager" /></Definition>
+			""");
+
+		Assert.IsTrue(finishedProfile.UseActiveNeeds);
+		Assert.AreEqual("true", finishedProfile.SaveDefinition().Element("Feeding")?.Element("UseActiveNeeds")?.Value);
+		Assert.IsFalse(legacyProfile.UseActiveNeeds);
+	}
+
+	[TestMethod]
+	public void AnimalAI_TerritoryHabitatPolicy_AcceptsCharacterFirstAndLegacyLocationFirstProgs()
+	{
+		Mock<ICharacter> character = new();
+		Mock<ICell> cell = new();
+		MethodInfo? isSuitableTerritory = typeof(AnimalAI).GetMethod("IsSuitableTerritory",
+			BindingFlags.Instance | BindingFlags.NonPublic);
+		Assert.IsNotNull(isSuitableTerritory);
+
+		AnimalAI characterFirst = LoadAnimalAIFromDefinition("""
+			<Definition><Home type="Territorial"><SuitableTerritoryProg>1</SuitableTerritoryProg></Home></Definition>
+			""", prog =>
+		{
+			prog.Setup(x => x.MatchesParameters(It.Is<IEnumerable<ProgVariableTypes>>(types =>
+				types.SequenceEqual(new[] { ProgVariableTypes.Character, ProgVariableTypes.Location })))).Returns(true);
+			prog.Setup(x => x.ExecuteBool(false, It.Is<object[]>(values => values.Length == 2 &&
+				ReferenceEquals(values[0], character.Object) && ReferenceEquals(values[1], cell.Object))))
+				.Returns(true);
+		});
+		AnimalAI legacyLocationFirst = LoadAnimalAIFromDefinition("""
+			<Definition><Home type="Territorial"><SuitableTerritoryProg>1</SuitableTerritoryProg></Home></Definition>
+			""", prog =>
+		{
+			prog.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(false);
+			prog.Setup(x => x.ExecuteBool(false, It.Is<object[]>(values => values.Length == 2 &&
+				ReferenceEquals(values[0], cell.Object) && ReferenceEquals(values[1], character.Object))))
+				.Returns(true);
+		});
+
+		Assert.IsTrue(isSuitableTerritory.Invoke(characterFirst, [character.Object, cell.Object]) is true,
+			"Finished wildlife profiles reuse character-first habitat progs for territory selection.");
+		Assert.IsTrue(isSuitableTerritory.Invoke(legacyLocationFirst, [character.Object, cell.Object]) is true,
+			"Older location-first territory progs remain loadable and functional.");
+	}
+
+	[TestMethod]
+	public void WildlifeGroupAIType_LoadsScopeAndExcludesSameRaceBeforeTemplateThreatChecks()
+	{
+		Mock<IFutureProg> preferred = MockProg(1);
+		Mock<IFutureProg> shelter = MockProg(2);
+		Mock<IUneditableAll<IFutureProg>> futureProgs = new();
+		futureProgs.Setup(x => x.Get(1)).Returns(preferred.Object);
+		futureProgs.Setup(x => x.Get(2)).Returns(shelter.Object);
+		Mock<IFuturemud> gameworld = new();
+		gameworld.SetupGet(x => x.FutureProgs).Returns(futureProgs.Object);
+		gameworld.SetupGet(x => x.AlwaysTrueProg).Returns(preferred.Object);
+		gameworld.SetupGet(x => x.AlwaysFalseProg).Returns(shelter.Object);
+
+		XElement root = XElement.Parse("""
+			<GroupType typename="wildlife">
+			  <Gender>0</Gender><ActiveTimes><Time>1</Time><Time>2</Time></ActiveTimes>
+			  <Kind>Pack</Kind><Tactic>Hunting</Tactic><ControlScope>Movement, Feeding, Threats, Senses</ControlScope>
+			  <PreferredCellProg>1</PreferredCellProg><ShelterCellProg>2</ShelterCellProg>
+			  <MovementRange>24</MovementRange><WanderChancePerMinute>0.3</WanderChancePerMinute>
+			</GroupType>
+			""");
+		WildlifeGroupAIType type = (WildlifeGroupAIType)GroupAITypeFactory.LoadFromDatabase(root, gameworld.Object);
+
+		Assert.AreEqual(WildlifeGroupKind.Pack, type.Kind);
+		Assert.AreEqual(WildlifeGroupTactic.Hunting, type.Tactic);
+		Assert.IsTrue(type.ControlScope.HasFlag(GroupAIControlScope.Feeding));
+		Assert.IsTrue(type.ControlScope.HasFlag(GroupAIControlScope.Threats));
+		Assert.IsTrue(type.ControlScope.HasFlag(GroupAIControlScope.Senses));
+		Assert.AreEqual(24, type.MovementRange);
+		Assert.AreEqual("wildlife", type.SaveToXml().Attribute("typename")?.Value);
+
+		Mock<IRace> race = new();
+		race.Setup(x => x.SameRace(race.Object)).Returns(true);
+		Mock<ICharacter> member = new();
+		member.SetupGet(x => x.Race).Returns(race.Object);
+		Mock<ICharacter> sameRaceTarget = new();
+		sameRaceTarget.SetupGet(x => x.Race).Returns(race.Object);
+		Mock<IGroupAI> group = new();
+		group.SetupGet(x => x.GroupMembers).Returns(new[] { member.Object });
+
+		Assert.IsFalse(type.ConsidersThreat(sameRaceTarget.Object, group.Object, GroupAlertness.Aggressive));
+	}
+
+	[TestMethod]
+	public void WildlifeGroupAIType_BuilderEnumErrorsListEveryAcceptedValue()
+	{
+		Mock<IFuturemud> gameworld = new();
+		(IGroupAIType invalidGender, string genderError) = GroupAITypeFactory.LoadFromBuilderArguments(
+			"wildlife", "invalid pack hunting always", gameworld.Object);
+		Assert.IsNull(invalidGender);
+		AssertEnumValuesListed<Gender>(genderError);
+
+		(IGroupAIType invalidKind, string kindError) = GroupAITypeFactory.LoadFromBuilderArguments(
+			"wildlife", "male invalid hunting always", gameworld.Object);
+		Assert.IsNull(invalidKind);
+		AssertEnumValuesListed<WildlifeGroupKind>(kindError);
+
+		(IGroupAIType invalidTactic, string tacticError) = GroupAITypeFactory.LoadFromBuilderArguments(
+			"wildlife", "male pack invalid always", gameworld.Object);
+		Assert.IsNull(invalidTactic);
+		AssertEnumValuesListed<WildlifeGroupTactic>(tacticError);
+
+		Mock<IFutureProg> preferred = MockProg(1);
+		Mock<IFutureProg> shelter = MockProg(2);
+		Mock<IUneditableAll<IFutureProg>> futureProgs = new();
+		futureProgs.Setup(x => x.Get(1)).Returns(preferred.Object);
+		futureProgs.Setup(x => x.Get(2)).Returns(shelter.Object);
+		gameworld.SetupGet(x => x.FutureProgs).Returns(futureProgs.Object);
+		gameworld.SetupGet(x => x.AlwaysTrueProg).Returns(preferred.Object);
+		gameworld.SetupGet(x => x.AlwaysFalseProg).Returns(shelter.Object);
+		WildlifeGroupAIType type = (WildlifeGroupAIType)GroupAITypeFactory.LoadFromDatabase(XElement.Parse("""
+			<GroupType typename="wildlife">
+			  <Gender>0</Gender><ActiveTimes><Time>1</Time></ActiveTimes>
+			  <Kind>Pack</Kind><Tactic>Hunting</Tactic><ControlScope>Movement</ControlScope>
+			  <PreferredCellProg>1</PreferredCellProg><ShelterCellProg>2</ShelterCellProg>
+			</GroupType>
+			"""), gameworld.Object);
+		(Mock<ICharacter> actor, List<string> messages) = BuilderActor();
+
+		Assert.IsFalse(type.BuildingCommand(actor.Object, new StringStack("kind invalid")));
+		AssertEnumValuesListed<WildlifeGroupKind>(messages.Single());
+		messages.Clear();
+		Assert.IsFalse(type.BuildingCommand(actor.Object, new StringStack("scope invalid")));
+		AssertEnumValuesListed<GroupAIControlScope>(messages.Single());
+	}
+
+	[TestMethod]
+	public void AnimalAI_BuilderEnumErrorsListEveryAcceptedValue()
+	{
+		AnimalAI animal = LoadAnimalAIFromDefinition("<Definition />");
+		(Mock<ICharacter> actor, List<string> messages) = BuilderActor();
+
+		Assert.IsFalse(animal.BuildingCommand(actor.Object, new StringStack("activity dormancy invalid")));
+		AssertEnumValuesListed<AnimalDormancyMode>(messages.Single());
+		messages.Clear();
+		Assert.IsFalse(animal.BuildingCommand(actor.Object, new StringStack("movement flying invalid")));
+		AssertEnumValuesListed<RoomLayer>(messages.Single());
+		messages.Clear();
+		Assert.IsFalse(animal.BuildingCommand(actor.Object, new StringStack("activity active invalid")));
+		AssertEnumValuesListed<TimeOfDay>(messages.Single());
+		messages.Clear();
+		Assert.IsFalse(animal.BuildingCommand(actor.Object, new StringStack("awareness senses invalid")));
+		AssertEnumValuesListed<AnimalSensesStrategyType>(messages.Single());
+		messages.Clear();
+		Assert.IsFalse(animal.BuildingCommand(actor.Object, new StringStack("threat response ordinary invalid")));
+		AssertEnumValuesListed<AnimalThreatResponseType>(messages.Single());
+	}
+
+	[TestMethod]
+	public void AnimalAI_GroupControlScopesAndSocialTrustPreventCompetingOrFriendlyThreatHandling()
+	{
+		Mock<IGroupAIType> groupType = new();
+		groupType.As<IGroupAIControlPolicy>()
+			.SetupGet(x => x.ControlScope)
+			.Returns(GroupAIControlScope.Movement | GroupAIControlScope.Feeding | GroupAIControlScope.Senses);
+		Mock<IGroupAI> group = new();
+		group.SetupGet(x => x.GroupAIType).Returns(groupType.Object);
+
+		Mock<IRace> ownerRace = new();
+		Mock<IRace> differentRace = new();
+		Mock<ICharacter> groupMate = new();
+		groupMate.SetupGet(x => x.Race).Returns(differentRace.Object);
+		group.SetupGet(x => x.GroupMembers).Returns(new[] { groupMate.Object });
+
+		Mock<INPC> owner = new();
+		owner.SetupGet(x => x.GroupAI).Returns(group.Object);
+		owner.SetupGet(x => x.Race).Returns(ownerRace.Object);
+
+		AnimalAI animal = LoadAnimalAIFromDefinition("<Definition />");
+		MethodInfo? isGroupControlled = typeof(AnimalAI).GetMethod("IsGroupControlled",
+			BindingFlags.Instance | BindingFlags.NonPublic);
+		MethodInfo? isSociallyTrusted = typeof(AnimalAI).GetMethod("IsSociallyTrusted",
+			BindingFlags.Instance | BindingFlags.NonPublic);
+		Assert.IsNotNull(isGroupControlled);
+		Assert.IsNotNull(isSociallyTrusted);
+
+		Assert.IsTrue(isGroupControlled.Invoke(animal,
+			new object[] { owner.Object, GroupAIControlScope.Feeding }) is true);
+		Assert.IsFalse(isGroupControlled.Invoke(animal,
+			new object[] { owner.Object, GroupAIControlScope.Threats }) is true);
+		Assert.IsTrue(isSociallyTrusted.Invoke(animal, new object[] { owner.Object, groupMate.Object }) is true);
+
+		Mock<ICharacter> sameRace = new();
+		sameRace.SetupGet(x => x.Race).Returns(ownerRace.Object);
+		ownerRace.Setup(x => x.SameRace(ownerRace.Object)).Returns(true);
+		Assert.IsTrue(isSociallyTrusted.Invoke(animal, new object[] { owner.Object, sameRace.Object }) is true);
+	}
+
+	[TestMethod]
+	public void GroupAI_ReconcileLegacyDuplicateMemberships_KeepsLowestIdGroup()
+	{
+		Mock<ICharacter> member = new();
+		var firstMembers = new List<ICharacter> { member.Object };
+		var secondMembers = new List<ICharacter> { member.Object };
+		Mock<IGroupAI> first = new();
+		first.SetupGet(x => x.Id).Returns(5L);
+		first.SetupGet(x => x.GroupMembers).Returns(() => firstMembers);
+		Mock<IGroupAI> second = new();
+		second.SetupGet(x => x.Id).Returns(10L);
+		second.SetupGet(x => x.GroupMembers).Returns(() => secondMembers);
+		second.Setup(x => x.RemoveFromGroup(It.IsAny<ICharacter>())).Callback<ICharacter>(x => secondMembers.Remove(x));
+
+		Assert.AreEqual(1, GroupAI.ReconcileLegacyDuplicateMemberships([second.Object, first.Object]));
+		CollectionAssert.AreEqual(new[] { member.Object }, firstMembers);
+		second.Verify(x => x.RemoveFromGroup(member.Object), Times.Once);
+	}
+
     [TestMethod]
     public void NpcKnownThreatLocationsEffect_PersistsAndExpiresThreatMemory()
     {
@@ -657,6 +1013,44 @@ public class NpcAiRegressionTests
 
         StringAssert.Contains(xml, "PendingVictimId=\"12\"");
         StringAssert.Contains(xml, "FoodItemId=\"34\"");
+    }
+
+    [TestMethod]
+    public void WildlifeShelterClaimEffect_LegacyZeroSentinelsRemainAnIndividualClaimAfterReload()
+    {
+        Mock<IUneditableAll<IFutureProg>> futureProgs = new();
+        futureProgs.Setup(x => x.Get(It.IsAny<long>())).Returns((IFutureProg)null!);
+        Mock<IFuturemud> gameworld = new();
+        gameworld.SetupGet(x => x.FutureProgs).Returns(futureProgs.Object);
+        Mock<IGameItem> shelter = new();
+        shelter.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+
+        XElement root = XElement.Parse("""
+            <Effect>
+              <ApplicabilityProg>0</ApplicabilityProg>
+              <Type>WildlifeShelterClaim</Type>
+              <Effect OwnerCharacterId="42" OwnerInstanceId="0" GroupId="0" AllowGroupSharing="false" LastOccupiedUtc="2026-08-20T00:00:00.0000000Z" />
+            </Effect>
+            """);
+        ConstructorInfo? constructor = typeof(WildlifeShelterClaimEffect).GetConstructor(
+            BindingFlags.Instance | BindingFlags.NonPublic,
+            null,
+            new[] { typeof(XElement), typeof(IPerceivable) },
+            null);
+        Assert.IsNotNull(constructor, "Could not find the wildlife shelter claim load constructor.");
+        WildlifeShelterClaimEffect effect = (WildlifeShelterClaimEffect)constructor.Invoke(new object[]
+        {
+            root,
+            shelter.Object
+        });
+        Mock<ICharacter> claimant = new();
+        claimant.SetupGet(x => x.Id).Returns(42L);
+        claimant.SetupGet(x => x.InstanceId).Returns(0L);
+
+        Assert.IsTrue(effect.BelongsTo(claimant.Object, false));
+        XElement savedDefinition = effect.SaveToXml(new Dictionary<IEffect, TimeSpan>()).Element("Effect")!;
+        Assert.IsNull(savedDefinition.Attribute("OwnerInstanceId"));
+        Assert.IsNull(savedDefinition.Attribute("GroupId"));
     }
 
     [TestMethod]

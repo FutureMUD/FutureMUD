@@ -67,6 +67,14 @@ public class NeutralHerdGrazers : HerdGrazers
 
             ChildAttacked = bool.Parse(root.Element("ChildAttacked")?.Value ?? "false");
         }
+
+		public override XElement SaveToXml()
+		{
+			XElement item = base.SaveToXml();
+			item.Add(new XElement("LastAdultDeath", LastAdultDeath?.ToString("O") ?? string.Empty));
+			item.Add(new XElement("ChildAttacked", ChildAttacked));
+			return item;
+		}
     }
 
     public NeutralHerdGrazers(XElement root, IFuturemud gameworld) : base(root, gameworld)

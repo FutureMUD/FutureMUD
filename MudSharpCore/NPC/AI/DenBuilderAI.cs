@@ -16,6 +16,7 @@ public class DenBuilderAI : PathingAIBase
     public IFutureProg BuildEnabledProg { get; private set; } = null!;
     public IFutureProg WillDefendDenProg { get; private set; } = null!;
     public IFutureProg? AnchorItemProg { get; private set; }
+    public bool AllowGroupShelterSharing { get; private set; }
 
     protected DenBuilderAI(ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
     {
@@ -30,6 +31,7 @@ public class DenBuilderAI : PathingAIBase
         DenSiteProg = Gameworld.AlwaysTrueProg;
         BuildEnabledProg = Gameworld.AlwaysTrueProg;
         WillDefendDenProg = Gameworld.AlwaysFalseProg;
+        AllowGroupShelterSharing = false;
         OpenDoors = false;
         UseKeys = false;
         UseDoorguards = false;
@@ -59,6 +61,7 @@ public class DenBuilderAI : PathingAIBase
         WillDefendDenProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WillDefendDenProg")?.Value ?? "0")) ?? Gameworld.AlwaysFalseProg;
         long anchorProgId = long.Parse(root.Element("AnchorItemProg")?.Value ?? "0");
         AnchorItemProg = anchorProgId > 0 ? Gameworld.FutureProgs.Get(anchorProgId) : null;
+        AllowGroupShelterSharing = bool.Parse(root.Element("AllowGroupShelterSharing")?.Value ?? "false");
     }
 
     protected override string SaveToXml()
@@ -69,6 +72,7 @@ public class DenBuilderAI : PathingAIBase
             new XElement("BuildEnabledProg", BuildEnabledProg?.Id ?? 0),
             new XElement("WillDefendDenProg", WillDefendDenProg?.Id ?? 0),
             new XElement("AnchorItemProg", AnchorItemProg?.Id ?? 0),
+            new XElement("AllowGroupShelterSharing", AllowGroupShelterSharing),
             new XElement("OpenDoors", OpenDoors),
             new XElement("UseKeys", UseKeys),
             new XElement("SmashLockedDoors", SmashLockedDoors),
@@ -86,6 +90,7 @@ public class DenBuilderAI : PathingAIBase
         sb.AppendLine($"Build Enabled Prog: {BuildEnabledProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Defend Den Prog: {WillDefendDenProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Anchor Item Prog: {AnchorItemProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        sb.AppendLine($"Allow Same-Group Shelter Sharing: {AllowGroupShelterSharing.ToColouredString()}");
         return sb.ToString();
     }
 
@@ -95,7 +100,8 @@ public class DenBuilderAI : PathingAIBase
 	#3enabled <prog>#0 - sets the prog that controls whether den building is active
 	#3defend <prog>#0 - sets the prog that decides who to attack near the den
 	#3anchor <prog>#0 - sets the prog that identifies the completed den anchor item
-	#3anchor clear#0 - clears the anchor-identification prog";
+	#3anchor clear#0 - clears the anchor-identification prog
+	#3sharegroup#0 - toggles whether members of the same live group may share a claimed shelter";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -115,6 +121,9 @@ public class DenBuilderAI : PathingAIBase
             case "anchor":
             case "anchorprog":
                 return BuildingCommandAnchorProg(actor, command);
+            case "sharegroup":
+            case "shareshelter":
+                return BuildingCommandShareGroup(actor);
         }
 
         return base.BuildingCommand(actor, command.GetUndo());
@@ -237,6 +246,14 @@ public class DenBuilderAI : PathingAIBase
         return true;
     }
 
+    private bool BuildingCommandShareGroup(ICharacter actor)
+    {
+        AllowGroupShelterSharing = !AllowGroupShelterSharing;
+        Changed = true;
+        actor.OutputHandler.Send($"This den builder will {AllowGroupShelterSharing.NowNoLonger()} allow same-group shelter sharing.");
+        return true;
+    }
+
     public override bool HandleEvent(EventType type, params dynamic[] arguments)
     {
         ICharacter? ch = arguments[0] as ICharacter;
@@ -266,11 +283,14 @@ public class DenBuilderAI : PathingAIBase
         return base.HandlesEvent(types);
     }
 
-    internal static IGameItem? SelectAnchorItem(ICharacter character, IFutureProg? anchorItemProg)
+    internal static IGameItem? SelectAnchorItem(ICharacter character, IFutureProg? anchorItemProg,
+        bool allowGroupShelterSharing = false)
     {
         return character.Location.LayerGameItems(character.RoomLayer)
             .Where(x => x.GetItemType<IActiveCraftGameItemComponent>() is null)
             .Where(x => anchorItemProg?.ExecuteBool(character, x) != false)
+			.Where(x => anchorItemProg is null ||
+			            WildlifeShelterClaimEffect.CanUse(x, character, allowGroupShelterSharing))
             .FirstOrDefault();
     }
 
@@ -346,12 +366,24 @@ public class DenBuilderAI : PathingAIBase
     {
         if (home.AnchorItem is not null && ReferenceEquals(home.AnchorItem.Location, home.HomeCell))
         {
-            return;
+			if (AnchorItemProg is null)
+			{
+				// Older XML had no explicit anchor selector. Preserve its use of a remembered
+				// anchor, but never turn an arbitrary old item into a WildlifeShelterClaim.
+				return;
+			}
+
+			if (AnchorItemProg.ExecuteBool(character, home.AnchorItem) &&
+			    WildlifeShelterClaimEffect.ClaimOrRefresh(home.AnchorItem, character, AllowGroupShelterSharing))
+			{
+				return;
+			}
         }
 
         home.ClearAnchorItem();
-        IGameItem? anchor = SelectAnchorItem(character, AnchorItemProg);
-        if (anchor is not null)
+		IGameItem? anchor = SelectAnchorItem(character, AnchorItemProg, AllowGroupShelterSharing);
+		if (anchor is not null &&
+		    (AnchorItemProg is null || WildlifeShelterClaimEffect.ClaimOrRefresh(anchor, character, AllowGroupShelterSharing)))
         {
             home.SetAnchorItem(anchor);
         }

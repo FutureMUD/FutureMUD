@@ -18,7 +18,7 @@ public class GillBreather : IBreathingStrategy
 
     public bool CanBreathe(IBody body)
     {
-        if (!body.Race.BreathableFluids.Contains(BreathingFluid(body)))
+        if (!BreathingStrategyHelper.CanBreatheFluid(body, BreathingFluid(body)))
         {
             return false;
         }

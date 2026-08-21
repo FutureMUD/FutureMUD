@@ -58,6 +58,9 @@ namespace MudSharp.GameItems
         IGameItem CreateNew(ICharacter? loader = null);
         IEnumerable<IGameItem> CreateNew(ICharacter loader, IGameItemSkin skin, int quantity, string loadString);
         IEnumerable<IGameItem> CreateNew<T>(ICharacter loader, IGameItemSkin skin, int quantity, T variables) where T : IEnumerable<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>;
+        IEnumerable<IGameItem> CreateNew<T>(ICharacter loader, IGameItemSkin skin, int quantity, T variables,
+            bool executeOnLoadProgs) where T : IEnumerable<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>;
+        void ExecuteOnLoadProgs(IGameItem item, ICharacter? loader);
 
         bool CheckForComponentPrototypeUpdates();
         IGameItemProto Clone(ICharacter builder);

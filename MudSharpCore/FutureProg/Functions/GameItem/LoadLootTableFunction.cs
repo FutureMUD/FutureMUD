@@ -77,7 +77,7 @@ internal sealed class LoadLootTableFunction : BuiltInFunction
 			"loadloottable", types,
 			(pars, gameworld) => new LoadLootTableFunction(pars, gameworld, targetType, seeded),
 			names, descriptions,
-			"Atomically materialises an exact LootTable revision into a location, container item, or character inventory. Returns a canonical OK or ERROR receipt.",
+			"Atomically stages and commits an exact LootTable revision into a location, container item, or character inventory. Returns a canonical OK or ERROR receipt.",
 			"Items", ProgVariableTypes.Text));
 	}
 }

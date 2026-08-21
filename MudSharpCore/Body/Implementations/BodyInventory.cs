@@ -1607,13 +1607,14 @@ public partial class Body
 		return GetInternal(item, quantity, playerEmote, silent, ignoreFlags, witnessHandlers, true);
 	}
 
-	public IGameItem? GetWithoutMerge(IGameItem item, bool silent = true)
+	public IGameItem? GetWithoutMerge(IGameItem item, bool silent = true, bool triggerEvents = true)
 	{
-		return GetInternal(item, 0, null, silent, ItemCanGetIgnore.None, null, false);
+		return GetInternal(item, 0, null, silent, ItemCanGetIgnore.None, null, false, triggerEvents);
 	}
 
 	private IGameItem? GetInternal(IGameItem item, int quantity, IEmote? playerEmote, bool silent,
-		ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers, bool allowMerge)
+		ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers, bool allowMerge,
+		bool triggerEvents = true)
     {
         if (!CanGet(item, quantity, ignoreFlags))
         {
@@ -1697,22 +1698,26 @@ public partial class Body
             OutputHandler.Handle(output);
         }
 
-        OnInventoryChange?.Invoke(InventoryState.Dropped, InventoryState.Held, gottenItem);
-        gottenItem.InvokeInventoryChange(InventoryState.Dropped, InventoryState.Held);
-        // Handle events
-        HandleEvent(EventType.CharacterGotItem, Actor, gottenItem);
-        gottenItem.HandleEvent(EventType.ItemGotten, Actor, gottenItem);
-        foreach (IHandleEvents witness in FilterWitnessHandlers(witnessHandlers, Actor))
+        if (triggerEvents)
         {
-            witness.HandleEvent(EventType.CharacterGotItemWitness, Actor, gottenItem, witness);
+            OnInventoryChange?.Invoke(InventoryState.Dropped, InventoryState.Held, gottenItem);
+            gottenItem.InvokeInventoryChange(InventoryState.Dropped, InventoryState.Held);
+            // Handle events
+            HandleEvent(EventType.CharacterGotItem, Actor, gottenItem);
+            gottenItem.HandleEvent(EventType.ItemGotten, Actor, gottenItem);
+            foreach (IHandleEvents witness in FilterWitnessHandlers(witnessHandlers, Actor))
+            {
+                witness.HandleEvent(EventType.CharacterGotItemWitness, Actor, gottenItem, witness);
+            }
+
+            foreach (IGameItem witness in FilterExternalItemWitnesses(witnessHandlers, gottenItem))
+            {
+                witness.HandleEvent(EventType.CharacterGotItemWitness, Actor, gottenItem, witness);
+            }
+
+            CheckConsequences();
         }
 
-        foreach (IGameItem witness in FilterExternalItemWitnesses(witnessHandlers, gottenItem))
-        {
-            witness.HandleEvent(EventType.CharacterGotItemWitness, Actor, gottenItem, witness);
-        }
-
-        CheckConsequences();
         return gottenItem;
     }
 

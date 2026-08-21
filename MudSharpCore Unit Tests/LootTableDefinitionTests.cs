@@ -8,6 +8,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Units;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Form.Characteristics;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
@@ -646,7 +647,7 @@ public class LootTableDefinitionTests
 		prototype.SetupGet(x => x.Components).Returns(Array.Empty<IGameItemComponentProto>());
 		prototype.Setup(x => x.CreateNew<List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>(
 				It.IsAny<ICharacter>(), It.IsAny<IGameItemSkin>(), 1,
-				It.IsAny<List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>()))
+				It.IsAny<List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>(), false))
 			.Returns([item.Object]);
 		var prototypes = new Mock<IUneditableRevisableAll<IGameItemProto>>();
 		prototypes.Setup(x => x.Get(501, 2)).Returns(prototype.Object);
@@ -663,7 +664,61 @@ public class LootTableDefinitionTests
 		Assert.AreEqual(12, created.Count);
 		prototype.Verify(x => x.CreateNew<List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>(
 			It.IsAny<ICharacter>(), It.IsAny<IGameItemSkin>(), 1,
-			It.IsAny<List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>()), Times.Exactly(12));
+			It.IsAny<List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>(), false), Times.Exactly(12));
+	}
+
+	[TestMethod]
+	public void Materialiser_PostCommitOnLoadFailure_LeavesCommittedPackageAndReportsWarning()
+	{
+		var definition = new LootTableDefinition();
+		var variant = new LootVariantDefinition { Key = "default" };
+		var group = new LootRollGroupDefinition { Key = "root" };
+		group.Choices.Add(new LootChoiceDefinition
+		{
+			Key = "item",
+			Kind = LootChoiceKind.Item,
+			ItemPrototypeId = 501,
+			ItemPrototypeRevision = 2,
+			QuantityMinimum = 1,
+			QuantityMaximum = 1,
+			QualityMinimum = 5,
+			QualityMaximum = 5
+		});
+		variant.Groups.Add(group);
+		definition.Variants.Add(variant);
+		var table = LootTableMock(17, 0, definition);
+		table.SetupGet(x => x.AlgorithmVersion).Returns(LootTableDefinition.CurrentAlgorithmVersion);
+		var cell = new Mock<ICell>();
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(75L);
+		item.SetupGet(x => x.Deleted).Returns(false);
+		item.SetupGet(x => x.Location).Returns(cell.Object);
+		var committed = false;
+		var prototype = new Mock<IGameItemProto>();
+		prototype.SetupGet(x => x.Components).Returns(Array.Empty<IGameItemComponentProto>());
+		prototype.Setup(x => x.IsItemType<IStackablePrototype>()).Returns(false);
+		prototype.Setup(x => x.CreateNew<List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>(
+				It.IsAny<ICharacter>(), It.IsAny<IGameItemSkin>(), 1,
+				It.IsAny<List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>>(), false))
+			.Returns([item.Object]);
+		prototype.Setup(x => x.ExecuteOnLoadProgs(item.Object, null))
+			.Callback(() => Assert.IsTrue(committed, "OnLoad must execute only after the package commits."))
+			.Throws<InvalidOperationException>();
+		item.SetupGet(x => x.Prototype).Returns(prototype.Object);
+		var prototypes = new Mock<IUneditableRevisableAll<IGameItemProto>>();
+		prototypes.Setup(x => x.Get(501, 2)).Returns(prototype.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ItemProtos).Returns(prototypes.Object);
+		gameworld.Setup(x => x.Add(item.Object)).Callback(() => committed = true);
+		var materialiser = new LootTableMaterialiser(gameworld.Object);
+
+		var result = materialiser.Materialise(table.Object, "default", 12, cell.Object);
+
+		Assert.IsTrue(result.Success, result.Receipt);
+		StringAssert.Contains(result.Receipt, "postcommitwarnings=1");
+		prototype.Verify(x => x.ExecuteOnLoadProgs(item.Object, null), Times.Once);
+		gameworld.Verify(x => x.Add(item.Object), Times.Once);
+		item.Verify(x => x.Delete(), Times.Never);
 	}
 
 	private static LootTableDefinition RepresentativeDefinition()

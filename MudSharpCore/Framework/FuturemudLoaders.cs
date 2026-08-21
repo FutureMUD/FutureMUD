@@ -2976,6 +2976,14 @@ For information on the syntax to use in emotes (such as those included in bracke
         {
             _groupAIs.Add(new NPC.AI.Groups.GroupAI(ai, this));
         }
+
+		int reconciledMemberships = NPC.AI.Groups.GroupAI.ReconcileLegacyDuplicateMemberships(_groupAIs);
+		if (reconciledMemberships > 0)
+		{
+			ConsoleUtilities.WriteLine(
+				"#1Warning:#0 reconciled {0:N0} duplicate legacy Group AI membership{1}; the lowest-ID group was retained.",
+				reconciledMemberships, reconciledMemberships == 1 ? string.Empty : "s");
+		}
 #if DEBUG
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");

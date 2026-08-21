@@ -91,12 +91,16 @@ public class FamilyPredatorGroup : PredatorGroupBase
 
                 UntrustedRaces.Add(race);
             }
+
+			long homeLocationId = long.Parse(root.Element("HomeLocation")?.Value ?? "0");
+			HomeLocation = homeLocationId > 0 ? gameworld.Cells.Get(homeLocationId) : null;
         }
 
         public override XElement SaveToXml()
         {
             XElement item = base.SaveToXml();
             item.Add(new XElement("UntrustedRaces", from race in UntrustedRaces select new XElement("Race", race.Id)));
+			item.Add(new XElement("HomeLocation", HomeLocation?.Id ?? 0));
             return item;
         }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
+using MudSharp.Body.Needs;
 using MudSharp.CharacterCreation;
 using MudSharp.Combat;
 using MudSharp.Database;
@@ -7,6 +8,7 @@ using MudSharp.Events;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.NPC.AI;
+using MudSharp.NPC.AI.Groups;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine.Handlers;
 
@@ -38,6 +40,7 @@ public class NPC : Character.Character, INPC
         : base(dbchar, gameworld)
     {
         LoadNPCFromDB(npc);
+        var enabledWildlifeNeeds = EnsureProductionWildlifeNeeds();
         RefreshLoadedNpcSecondaryInstances();
         if (dbchar.CurrentCombatSettingId == null || Gameworld.CharacterCombatSettings.Get(dbchar.CurrentCombatSettingId.Value) is null)
         {
@@ -50,12 +53,17 @@ public class NPC : Character.Character, INPC
         PermissionLevel = PermissionLevel.NPC;
         CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
         Register(new NonPlayerOutputHandler());
+        if (enabledWildlifeNeeds)
+        {
+            StartNeedsHeartbeat();
+        }
     }
 
     public NPC(IFuturemud gameworld, ICharacterTemplate template, INPCTemplate npcTemplate)
         : base(gameworld, template)
     {
         _AIs.AddRange(npcTemplate.ArtificialIntelligences);
+        var enabledWildlifeNeeds = EnsureProductionWildlifeNeeds();
         Template = npcTemplate;
         SetCombatSettingsProvisional(MudSharp.Combat.CharacterCombatSettingsResolver.ResolveProvisional(this, Template));
         NPCController controller = new();
@@ -64,9 +72,22 @@ public class NPC : Character.Character, INPC
         PermissionLevel = PermissionLevel.NPC;
         CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
         Register(new NonPlayerOutputHandler());
+        if (enabledWildlifeNeeds)
+        {
+            StartNeedsHeartbeat();
+        }
     }
 
     public INPCTemplate Template { get; private set; }
+
+	/// <summary>
+	/// Gets this NPC's authoritative live group. Older databases can contain duplicate memberships;
+	/// the lowest-ID group wins until a builder removes the stale membership.
+	/// </summary>
+	public IGroupAI GroupAI => Gameworld.GroupAIs
+		.Where(x => x.GroupMembers.ContainsPhysicalInstance(this))
+		.OrderBy(x => x.Id)
+		.FirstOrDefault();
 
     public override bool IsPlayerCharacter => false;
 
@@ -199,6 +220,17 @@ public class NPC : Character.Character, INPC
     public override object DatabaseInsert()
     {
         object co = base.DatabaseInsert();
+        if (UsesProductionWildlifeNeeds)
+        {
+            var dbcharacter = (Models.Character)co;
+            dbcharacter.NeedsModel = "Active";
+            dbcharacter.AlcoholLitres = NeedsModel.AlcoholLitres;
+            dbcharacter.WaterLitres = NeedsModel.WaterLitres;
+            dbcharacter.DrinkSatiatedHours = NeedsModel.DrinkSatiatedHours;
+            dbcharacter.FoodSatiatedHours = NeedsModel.FoodSatiatedHours;
+            dbcharacter.SatiationReserve = NeedsModel.SatiationReserve;
+        }
+
         Npc dbitem = new();
         FMDB.Context.Npcs.Add(dbitem);
         dbitem.Character = (MudSharp.Models.Character)co;
@@ -230,6 +262,15 @@ public class NPC : Character.Character, INPC
     /// <summary>Tells the object to perform whatever save action it needs to do</summary>
     public override void Save()
     {
+        if (UsesProductionWildlifeNeeds)
+        {
+            var dbcharacter = FMDB.Context.Characters.Find(Id);
+            if (dbcharacter is not null)
+            {
+                dbcharacter.NeedsModel = "Active";
+            }
+        }
+
         Npc dbnpc = FMDB.Context.Npcs.Find(_npcID);
         if (dbnpc != null)
         {
@@ -268,6 +309,12 @@ public class NPC : Character.Character, INPC
     {
         ReleaseEventSubscriptions();
         _AIs.Add(ai);
+        if (EnsureProductionWildlifeNeeds())
+        {
+            StartNeedsHeartbeat();
+        }
+
+        RefreshLoadedNpcSecondaryInstances();
         AIChanged = true;
         SetupEventSubscriptions();
     }
@@ -276,7 +323,29 @@ public class NPC : Character.Character, INPC
     {
         ReleaseEventSubscriptions();
         _AIs.Remove(ai);
+        RefreshLoadedNpcSecondaryInstances();
         AIChanged = true;
         SetupEventSubscriptions();
+    }
+
+    private bool UsesProductionWildlifeNeeds => _AIs
+        .OfType<AnimalAI>()
+        .Any(x => x.UseActiveNeeds);
+
+    /// <summary>
+    /// Production wildlife must gain hunger and thirst even when a builder used the normal simple
+    /// NPC-template workflow, whose template deliberately defaults to <see cref="NoNeedsModel"/>.
+    /// Legacy AnimalAI XML opts out unless it contains the explicit UseActiveNeeds setting.
+    /// </summary>
+    private bool EnsureProductionWildlifeNeeds()
+    {
+        if (!UsesProductionWildlifeNeeds || NeedsModel is ActiveNeedsModel)
+        {
+            return false;
+        }
+
+        NeedsModel = new ActiveNeedsModel(this);
+        Changed = true;
+        return true;
     }
 }

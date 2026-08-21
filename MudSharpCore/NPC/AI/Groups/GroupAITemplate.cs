@@ -203,6 +203,17 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
             case "emote":
                 return BuildingCommandEmote(actor, command);
             default:
+				if (GroupAIType is IEditableGroupAIType editableGroupType)
+				{
+					var result = editableGroupType.BuildingCommand(actor, command.GetUndo());
+					if (result)
+					{
+						Changed = true;
+					}
+
+					return result;
+				}
+
                 actor.OutputHandler.Send(@"You can use the following options with this command:
 
 	#3name <name>#0 - renames this template
@@ -766,6 +777,16 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
         {
             sb.AppendLine($"\t[{(i + 1).ToString("N0", actor)}] {_groupEmotes[i].DescribeForShow()}");
         }
+
+		if (GroupAIType is IEditableGroupAIType editableGroupType)
+		{
+			var typeText = editableGroupType.Show(actor);
+			if (!string.IsNullOrWhiteSpace(typeText))
+			{
+				sb.AppendLine();
+				sb.AppendLine(typeText);
+			}
+		}
 
         return sb.ToString();
     }

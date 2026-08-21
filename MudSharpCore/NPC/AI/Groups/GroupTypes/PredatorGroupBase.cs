@@ -401,7 +401,22 @@ public abstract class PredatorGroupBase : GroupAIType
 
     protected virtual void EvaluateAlertLevel(IGroupAI group, PredatorGroupData data)
     {
-        throw new NotImplementedException();
+		if (!group.GroupMembers.Any())
+		{
+			return;
+		}
+
+		bool hasThreats = GetThreats(group, data).Any();
+		if (hasThreats && group.Alertness < GroupAlertness.Agitated)
+		{
+			group.Alertness = GroupAlertness.Agitated;
+			return;
+		}
+
+		if (!hasThreats && group.Alertness > GroupAlertness.NotAlert)
+		{
+			group.Alertness--;
+		}
     }
 
     protected (IEnumerable<ICharacter> MainGroup, IEnumerable<ICharacter> Stragglers, IEnumerable<ICharacter> Vulnerable

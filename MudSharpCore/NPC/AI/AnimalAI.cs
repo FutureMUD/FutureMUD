@@ -898,6 +898,10 @@ public class AnimalAI : PathingAIBase
 	/// </summary>
 	public string DebugSummary(ICharacter character)
 	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Animal AI #{Id.ToStringN0(character)} ({Name.ColourName()}):");
+		sb.AppendLine($"\tStatus: {(IsActivityInactive(character) ? "inactive".Colour(Telnet.BoldYellow) : "active".Colour(Telnet.Green))}");
+		
 		var season = character.Location?.CurrentSeason(character)?.SeasonGroup ?? "unknown";
 		var dormantForSeason = IsSeasonIn(_dormantSeasonGroups, character);
 		var restingForTimeOfDay = !ActivityStrategyHandler.IsActive(this, character);
@@ -906,22 +910,28 @@ public class AnimalAI : PathingAIBase
 			: restingForTimeOfDay
 				? "rest period"
 				: "active period";
+		sb.AppendLine($"\tActivity: {activityReason.ColourValue()}");
+		sb.AppendLine($"\tSeason: {season.ColourValue()}");
+		sb.AppendLine($"\tDormancy: {DormancyMode.DescribeEnum().ColourValue()}");
+
+
 		var habitat = character.Location is null
-			? "unknown"
+			? "unknown".Colour(Telnet.Magenta)
 			: IsWithinPreferredHabitat(character, character.Location)
-				? "preferred"
+				? "preferred".Colour(Telnet.Green)
 				: IsWithinToleratedHabitat(character, character.Location)
-					? "tolerated transit"
-					: "forbidden";
+					? "tolerated transit".Colour(Telnet.Yellow)
+					: "forbidden".Colour(Telnet.Red);
+		sb.AppendLine($"\tHabitat: {habitat}");
+
 		var groupControl = character is INPC npc &&
 		                   npc.GroupAI?.GroupAIType is IGroupAIControlPolicy policy
-			? policy.ControlScope.ToString()
-			: "None";
+			? policy.ControlScope.GetSingleFlags().ListToColouredString()
+			: "None".ColourValue();
+		sb.AppendLine($"\tSurvival Needs: {(SurvivalNeedsSatisfied(character) ? "satisfied".ColourValue() : "urgent".ColourError())}");
+		sb.AppendLine($"\tGroup Control: {groupControl}");
 
-		return $"{Name}: {(IsActivityInactive(character) ? "inactive" : "active")}; " +
-		       $"activity {activityReason}; season {season}; dormancy {DormancyMode.DescribeEnum()}; habitat {habitat}; " +
-		       $"survival needs {(SurvivalNeedsSatisfied(character) ? "satisfied" : "urgent")}; " +
-		       $"group control {groupControl}";
+		return sb.ToString();
 	}
 
 	/// <summary>

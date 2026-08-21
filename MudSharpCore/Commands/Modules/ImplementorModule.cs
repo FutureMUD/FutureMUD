@@ -1212,10 +1212,11 @@ The syntax is:
 		foreach (var diagnostic in diagnostics)
 		{
 			INPC npc = diagnostic.Npc;
-			sb.AppendLine($"#{npc.Id.ToString("N0", actor)}:{npc.InstanceId.ToString("N0", actor)} {npc.HowSeen(actor)}");
+			sb.AppendLine($"#{npc.Id.ToString("N0", actor)}:{npc.InstanceId.ToString("N0", actor)} - {npc.HowSeen(actor)}");
 			foreach (AnimalAI animalAi in diagnostic.AnimalAis)
 			{
 				sb.AppendLine($"\t{animalAi.DebugSummary(npc)}");
+                sb.AppendLine();
 			}
 
 			if (npc.GroupAI is { } group)
@@ -1223,12 +1224,14 @@ The syntax is:
 				GroupRole role = group.GroupRoles.TryGetValue(npc, out var configuredRole)
 					? configuredRole
 					: GroupRole.Adult;
-				sb.AppendLine(
-					$"\tGroup #{group.Id.ToString("N0", actor)} {group.Name}; template {group.Template.Name}; role {role.DescribeEnum()}; alertness {group.Alertness.DescribeEnum()}; action {group.CurrentAction.DescribeEnum()}");
+                sb.AppendLine($"Group #{group.Id.ToString("N0", actor)} ({group.Name.ColourName()})");
+                sb.AppendLine($"\tAlertness: {group.Alertness.DescribeEnum().ColourValue()}");
+				sb.AppendLine($"\tAction: {group.CurrentAction.DescribeEnum().ColourValue()}");
+                sb.AppendLine();
 			}
 			else
 			{
-				sb.AppendLine("\tGroup: none");
+				sb.AppendLine($"\tGroup: {"None".ColourValue()}");
 			}
 		}
 

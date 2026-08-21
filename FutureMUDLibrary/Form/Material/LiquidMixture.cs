@@ -372,12 +372,13 @@ namespace MudSharp.Form.Material
                     return _instances[0].LiquidDescription;
                 }
 
-                return "a mixture of " + _instances
+                List<string> descriptions = _instances
                     .Where(x => (x.Amount / (TotalVolume != 0.0 ? TotalVolume : 1.0)) >= 0.05)
                     .DefaultIfEmpty(_instances.First())
                     .Select(x => x.LiquidDescription)
                     .Distinct()
-                    .ListToString();
+                    .ToList();
+                return descriptions.Count == 1 ? descriptions[0] : "a mixture of " + descriptions.ListToString();
             }
         }
 
@@ -408,12 +409,13 @@ namespace MudSharp.Form.Material
                     return _instances[0].LiquidDescription.Colour(_instances[0].Liquid.DisplayColour);
                 }
 
-                return "a mixture of " + _instances
+                List<string> descriptions = _instances
                     .Where(x => (x.Amount / (TotalVolume != 0.0 ? TotalVolume : 1.0)) >= 0.05)
                     .DefaultIfEmpty(_instances.First())
                     .Select(x => x.LiquidDescription.Colour(x.Liquid.DisplayColour))
                     .Distinct()
-                    .ListToString();
+                    .ToList();
+                return descriptions.Count == 1 ? descriptions[0] : "a mixture of " + descriptions.ListToString();
             }
         }
 
@@ -426,12 +428,13 @@ namespace MudSharp.Form.Material
                     return _instances[0].LiquidLongDescription.Colour(_instances[0].Liquid.DisplayColour);
                 }
 
-                return "a mixture of " + _instances
+                List<string> descriptions = _instances
                     .Where(x => (x.Amount / (TotalVolume != 0.0 ? TotalVolume : 1.0)) >= 0.05)
                     .DefaultIfEmpty(_instances.First())
                     .Select(x => x.LiquidLongDescription.Colour(x.Liquid.DisplayColour))
                     .Distinct()
-                    .ListToString();
+                    .ToList();
+                return descriptions.Count == 1 ? descriptions[0] : "a mixture of " + descriptions.ListToString();
             }
         }
 

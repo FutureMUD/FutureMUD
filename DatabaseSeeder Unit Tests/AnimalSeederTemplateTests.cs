@@ -493,6 +493,94 @@ public class AnimalSeederTemplateTests
     }
 
 	[TestMethod]
+	public void RaceTemplatesForTesting_FullyAquaticFamiliesUseNoThirstNeedsAndExcludeAmphibiansAndWaterfowl()
+	{
+		HashSet<string> fullyAquaticBodies =
+		[
+			"Piscine", "Decapod", "Malacostracan", "Cephalopod", "Jellyfish", "Pinniped", "Cetacean"
+		];
+		HashSet<string> expected = AnimalSeeder.RaceTemplatesForTesting.Values
+			.Where(x => fullyAquaticBodies.Contains(x.BodyKey))
+			.Select(x => x.Name)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		HashSet<string> actual = AnimalSeeder.RaceTemplatesForTesting.Values
+			.Where(x => x.UsesActiveNoThirstNeeds)
+			.Select(x => x.Name)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+		Assert.IsTrue(expected.SetEquals(actual),
+			"Every fully aquatic stock template, and only those templates, should use ActiveNoThirst needs.");
+		CollectionAssert.IsSubsetOf(
+			new[] { "Salmon", "Shark", "Crab", "Jellyfish", "Giant Squid", "Seal", "Orca" },
+			actual.ToArray());
+		Assert.IsFalse(AnimalSeeder.RaceTemplatesForTesting["Frog"].UsesActiveNoThirstNeeds,
+			"Amphibians still use ordinary active thirst needs.");
+		Assert.IsFalse(AnimalSeeder.RaceTemplatesForTesting["Duck"].UsesActiveNoThirstNeeds,
+			"Waterfowl still use ordinary active thirst needs.");
+	}
+
+	[TestMethod]
+	public void EnsureAnimalNeedsModelConfiguration_RepairsRegisterProgAndStockRaceValuesIdempotently()
+	{
+		using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext();
+
+		Assert.IsTrue(AnimalSeeder.HasMissingAnimalNeedsModelConfiguration(context));
+		AnimalSeeder.EnsureAnimalNeedsModelConfiguration(context);
+		context.SaveChanges();
+
+		Assert.IsFalse(AnimalSeeder.HasMissingAnimalNeedsModelConfiguration(context));
+		Assert.AreEqual(1, context.VariableDefinitions.AsEnumerable().Count(x =>
+			x.OwnerType == (long)ProgVariableTypes.Race &&
+			x.Property.Equals(AnimalSeeder.ActiveNoThirstNeedsRegister, StringComparison.OrdinalIgnoreCase)));
+		Assert.AreEqual(1, context.VariableDefaults.AsEnumerable().Count(x =>
+			x.OwnerType == (long)ProgVariableTypes.Race &&
+			x.Property.Equals(AnimalSeeder.ActiveNoThirstNeedsRegister, StringComparison.OrdinalIgnoreCase) &&
+			x.DefaultValue == "<var>False</var>"));
+		Assert.AreEqual(AnimalSeeder.WhichNeedsModelFunctionText,
+			context.FutureProgs.Single(x => x.FunctionName == "WhichNeedsModel").FunctionText);
+
+		foreach ((string raceName, AnimalSeeder.AnimalRaceTemplate template) in AnimalSeeder.RaceTemplatesForTesting)
+		{
+			Race race = context.Races.Single(x => x.Name == raceName);
+			bool configured = context.VariableValues.AsEnumerable().Any(x =>
+				x.ReferenceType == (long)ProgVariableTypes.Race &&
+				x.ReferenceId == race.Id &&
+				x.ReferenceProperty.Equals(AnimalSeeder.ActiveNoThirstNeedsRegister,
+					StringComparison.OrdinalIgnoreCase) &&
+				x.ValueDefinition == "<var>True</var>");
+			Assert.AreEqual(template.UsesActiveNoThirstNeeds, configured, raceName);
+		}
+
+		int definitions = context.VariableDefinitions.Count();
+		int defaults = context.VariableDefaults.Count();
+		int progs = context.FutureProgs.Count();
+		int values = context.VariableValues.Count();
+		AnimalSeeder.EnsureAnimalNeedsModelConfiguration(context);
+		context.SaveChanges();
+		Assert.AreEqual(definitions, context.VariableDefinitions.Count());
+		Assert.AreEqual(defaults, context.VariableDefaults.Count());
+		Assert.AreEqual(progs, context.FutureProgs.Count());
+		Assert.AreEqual(values, context.VariableValues.Count());
+
+		Race frog = context.Races.Single(x => x.Name == "Frog");
+		context.VariableValues.Add(new VariableValue
+		{
+			ReferenceType = (long)ProgVariableTypes.Race,
+			ReferenceId = frog.Id,
+			ReferenceProperty = AnimalSeeder.ActiveNoThirstNeedsRegister,
+			ValueType = (long)ProgVariableTypes.Boolean,
+			ValueDefinition = "<var>True</var>"
+		});
+		context.SaveChanges();
+		Assert.IsTrue(AnimalSeeder.HasMissingAnimalNeedsModelConfiguration(context),
+			"A drifted non-aquatic stock value must make the AnimalSeeder repeatable again.");
+
+		AnimalSeeder.EnsureAnimalNeedsModelConfiguration(context);
+		context.SaveChanges();
+		Assert.IsFalse(AnimalSeeder.HasMissingAnimalNeedsModelConfiguration(context));
+	}
+
+	[TestMethod]
 	public void RaceTemplatesForTesting_SharedAdjectives_GenerateUniqueFluidNames()
 	{
 		var sharedAdjectives = AnimalSeeder.RaceTemplatesForTesting.Values
@@ -1554,9 +1642,22 @@ public class AnimalSeederTemplateTests
         using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext(includeDietSettings: true);
         SeedAnimalAiPrerequisiteProgs(context);
         AnimalSeeder.SeedAnimalAIStockTemplatesForTesting(context);
+		AnimalSeeder.EnsureAnimalNeedsModelConfiguration(context);
+		context.SaveChanges();
 
         Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, new AnimalSeeder().ShouldSeedData(context),
             "Once the expanded animal catalogue is present, the seeder should stop advertising extra stock content.");
+    }
+
+    [TestMethod]
+    public void ShouldSeedData_ExistingCatalogueMissingAquaticNeedsConfiguration_ReturnsExtraPackagesAvailable()
+    {
+        using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext(includeDietSettings: true);
+        SeedAnimalAiPrerequisiteProgs(context);
+        AnimalSeeder.SeedAnimalAIStockTemplatesForTesting(context);
+
+        Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, new AnimalSeeder().ShouldSeedData(context),
+            "Missing aquatic no-thirst configuration should advertise a safe Animal Seeder rerun.");
     }
 
     [TestMethod]

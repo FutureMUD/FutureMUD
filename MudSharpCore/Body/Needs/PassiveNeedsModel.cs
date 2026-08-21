@@ -7,6 +7,10 @@ namespace MudSharp.Body.Needs;
 /// </summary>
 public class PassiveNeedsModel : ChangingNeedsModelBase
 {
+    public const string ModelNameValue = "Passive";
+
+    public override string ModelName => ModelNameValue;
+
     public PassiveNeedsModel(ICharacter character)
     {
         Owner = character;

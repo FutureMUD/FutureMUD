@@ -303,6 +303,8 @@ Common transition types include:
 
 When an exit requires climbing, swimming, or flying, ordinary directional movement uses the corresponding movement position and capability checks. Safe-movement settings can require the player to confirm entry into water with `!`.
 
+`immwalk` is the staff traversal override. Once the exit and its layer topology are valid, an immwalker bypasses those ordinary capability, posture, safe-movement, size, stamina, climbing, flying, and swimming checks. It remains in its current position state when it crosses a swim-only exit; the override is a traversal permission, not a forced swimming-state change.
+
 ### How a multi-layer vertical journey is resolved
 
 Consider a `talltrees` cell:

@@ -604,6 +604,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
         if (NeedsModel.NeedsSave)
         {
+            dbchar.NeedsModel = NeedsModel.ModelName;
             dbchar.AlcoholLitres = NeedsModel.AlcoholLitres;
             dbchar.WaterLitres = NeedsModel.WaterLitres;
             dbchar.DrinkSatiatedHours = NeedsModel.DrinkSatiatedHours;

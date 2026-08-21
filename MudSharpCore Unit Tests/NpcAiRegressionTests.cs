@@ -32,6 +32,7 @@ using MudSharp.RPG.Checks;
 using MudSharp.Work.Crafts;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
@@ -884,9 +885,9 @@ public class NpcAiRegressionTests
         Assert.IsFalse(xml.Contains("id=\"11\"", StringComparison.Ordinal));
     }
 
-    [TestMethod]
-    public void PredatorAIHelpers_IsHungry_UsesNeedModelHungerStatus()
-    {
+	[TestMethod]
+	public void PredatorAIHelpers_IsHungry_UsesNeedModelHungerStatus()
+	{
         Mock<INeedsModel> hungryNeeds = new();
         hungryNeeds.SetupGet(x => x.Status).Returns(NeedsResult.Hungry);
         Mock<ICharacter> hungryCharacter = new();
@@ -898,8 +899,122 @@ public class NpcAiRegressionTests
         fullCharacter.SetupGet(x => x.NeedsModel).Returns(fullNeeds.Object);
 
         Assert.IsTrue(PredatorAIHelpers.IsHungry(hungryCharacter.Object));
-        Assert.IsFalse(PredatorAIHelpers.IsHungry(fullCharacter.Object));
-    }
+		Assert.IsFalse(PredatorAIHelpers.IsHungry(fullCharacter.Object));
+	}
+
+	[TestMethod]
+	public void PredatorAIHelpers_EatLocalCorpseIfHungry_EatsAnAccessibleEdibleCorpse()
+	{
+		Mock<INeedsModel> needs = new();
+		needs.SetupGet(x => x.Status).Returns(NeedsResult.Hungry);
+		Mock<IRace> race = new();
+		race.SetupGet(x => x.CanEatCorpses).Returns(true);
+		race.SetupGet(x => x.BiteWeight).Returns(1.0);
+		Mock<ICell> location = new();
+		Mock<ICharacter> predator = new();
+		predator.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		predator.SetupGet(x => x.NeedsModel).Returns(needs.Object);
+		predator.SetupGet(x => x.Race).Returns(race.Object);
+		predator.SetupGet(x => x.Location).Returns(location.Object);
+		predator.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		predator.SetupGet(x => x.Effects).Returns(Array.Empty<IEffect>());
+
+		Mock<ICorpse> corpse = new();
+		Mock<IGameItem> corpseItem = new();
+		corpse.SetupGet(x => x.Parent).Returns(corpseItem.Object);
+		corpseItem.Setup(x => x.ShallowAccessibleItems(predator.Object)).Returns([corpseItem.Object]);
+		corpseItem.Setup(x => x.GetItemType<ICorpse>()).Returns(corpse.Object);
+		location.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([corpseItem.Object]);
+		predator.Setup(x => x.CanEat(corpse.Object, 1.0)).Returns((true, string.Empty));
+		predator.Setup(x => x.Eat(corpse.Object, 1.0, null)).Returns((true, string.Empty));
+
+		Assert.IsTrue(PredatorAIHelpers.EatLocalCorpseIfHungry(predator.Object));
+		predator.Verify(x => x.SetTarget(corpseItem.Object), Times.Once);
+		predator.Verify(x => x.Eat(corpse.Object, 1.0, null), Times.Once);
+	}
+
+	[TestMethod]
+	public void AnimalAI_GroundPredatorRejectsUnderwaterPreyBeforePathSelection()
+	{
+		AnimalAI animal = LoadAnimalAIFromDefinition("""
+			<Definition>
+			  <Movement type="Ground" />
+			  <Feeding type="Predator"><WillAttackProg>1</WillAttackProg></Feeding>
+			</Definition>
+			""");
+		Mock<IRace> wolfRace = new();
+		Mock<IRace> salmonRace = new();
+		wolfRace.Setup(x => x.SameRace(salmonRace.Object)).Returns(false);
+		Mock<ICharacter> wolf = new();
+		wolf.SetupGet(x => x.Race).Returns(wolfRace.Object);
+		Mock<ICell> water = new();
+		Mock<ICharacter> salmon = new();
+		salmon.SetupGet(x => x.Race).Returns(salmonRace.Object);
+		salmon.SetupGet(x => x.Location).Returns(water.Object);
+		salmon.SetupGet(x => x.RoomLayer).Returns(RoomLayer.Underwater);
+
+		Assert.IsFalse(animal.CanHuntTarget(wolf.Object, salmon.Object));
+	}
+
+	[TestMethod]
+	public void WildlifeHunting_UsesSeenTargetsDropsUnreachablePreyAndPrioritisesCarrion()
+	{
+		string animalSource = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..",
+			"..", "..", "MudSharpCore", "NPC", "AI", "AnimalAI.cs")));
+		string groupSource = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..",
+			"..", "..", "MudSharpCore", "NPC", "AI", "Groups", "GroupTypes", "WildlifeGroupAIType.cs")));
+
+		int remoteCandidates = animalSource.IndexOf("private IEnumerable<ICharacter> RemotePredatorCandidates",
+			StringComparison.Ordinal);
+		int seenTargets = animalSource.IndexOf("character.SeenTargets", remoteCandidates, StringComparison.Ordinal);
+		int currentVisibility = animalSource.IndexOf("IsCurrentVisibleRangedTarget", StringComparison.Ordinal);
+		int layerGate = animalSource.IndexOf("CanReachTargetLayer", StringComparison.Ordinal);
+		int dropsUnreachable = animalSource.IndexOf("ch.LoseTarget(prey);", StringComparison.Ordinal);
+		Assert.IsTrue(remoteCandidates >= 0 && seenTargets > remoteCandidates && currentVisibility >= 0 &&
+			layerGate >= 0 && dropsUnreachable >= 0);
+
+		int eatCarrion = groupSource.IndexOf("EatLocalCorpseIfHungry", StringComparison.Ordinal);
+		int findCarrion = groupSource.IndexOf("FindLocalEdibleCorpse", StringComparison.Ordinal);
+		int huntTargets = groupSource.IndexOf("return HuntingTargets(group, hungryMembers);", StringComparison.Ordinal);
+		Assert.IsTrue(eatCarrion >= 0 && findCarrion > eatCarrion && huntTargets > findCarrion,
+			"A hungry wildlife group must resolve accessible carrion before it selects live prey.");
+
+		int predatorStrategy = animalSource.IndexOf("private sealed class PredatorFeedingStrategy",
+			StringComparison.Ordinal);
+		int denPredatorStrategy = animalSource.IndexOf("private sealed class DenPredatorFeedingStrategy",
+			StringComparison.Ordinal);
+		string predatorStrategyBlock = animalSource[predatorStrategy..denPredatorStrategy];
+		StringAssert.Contains(predatorStrategyBlock, "return PredatorAIHelpers.EatLocalCorpseIfHungry(character);");
+		StringAssert.Contains(predatorStrategyBlock,
+			"return PredatorAIHelpers.FindLocalEdibleCorpse(character) is not null ||");
+		StringAssert.Contains(predatorStrategyBlock, "if (!WouldMove(ai, character))");
+
+		int observedCharacters = animalSource.IndexOf("private IEnumerable<ICharacter> ObservedCharacters",
+			StringComparison.Ordinal);
+		int visibleAwarenessThreats = animalSource.IndexOf("private IEnumerable<ICharacter> VisibleAwarenessThreats",
+			StringComparison.Ordinal);
+		int shouldAvoidCell = animalSource.IndexOf("private bool ShouldAvoidCell", StringComparison.Ordinal);
+		int visibleEcologyCharacters = animalSource.IndexOf("private IEnumerable<ICharacter> VisibleEcologyCharacters",
+			StringComparison.Ordinal);
+		int trySleepAtRefuge = animalSource.IndexOf("private bool TrySleepAtRefuge", StringComparison.Ordinal);
+		int contextualThreatCandidates = animalSource.IndexOf("private IEnumerable<ICharacter> ContextualThreatCandidates",
+			StringComparison.Ordinal);
+		int hasProtectedYoung = animalSource.IndexOf("private bool HasProtectedYoung", StringComparison.Ordinal);
+		Assert.IsTrue(observedCharacters >= 0 && visibleAwarenessThreats >= 0 && shouldAvoidCell > visibleAwarenessThreats &&
+			visibleEcologyCharacters >= 0 && trySleepAtRefuge > visibleEcologyCharacters &&
+			contextualThreatCandidates >= 0 && hasProtectedYoung > contextualThreatCandidates);
+		string awarenessBlock = animalSource[visibleAwarenessThreats..shouldAvoidCell];
+		string ecologyBlock = animalSource[visibleEcologyCharacters..trySleepAtRefuge];
+		string contextualBlock = animalSource[contextualThreatCandidates..hasProtectedYoung];
+		StringAssert.Contains(awarenessBlock, "ObservedCharacters(character)");
+		StringAssert.Contains(ecologyBlock, "ObservedCharacters(character)");
+		StringAssert.Contains(contextualBlock, "ObservedCharacters(character)");
+		Assert.IsFalse(awarenessBlock.Contains("CellsInVicinity", StringComparison.Ordinal));
+		Assert.IsFalse(ecologyBlock.Contains("CellsInVicinity", StringComparison.Ordinal));
+		Assert.IsFalse(contextualBlock.Contains("CellsInVicinity", StringComparison.Ordinal));
+		StringAssert.Contains(groupSource, "AnimalAI.CanGroupObserveTarget(member, target)");
+		StringAssert.Contains(groupSource, "AnimalAI.CanGroupObserveTarget(x, y)");
+	}
 
     [TestMethod]
     public void AnimalAI_CellSupportsSurfaceWater_RequiresWaterAndSurfaceLayer()

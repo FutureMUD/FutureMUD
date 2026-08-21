@@ -16,6 +16,12 @@ public abstract class ChangingNeedsModelBase : INeedsModel
     protected double DrinkSatiationLimit => GetEffectiveDrinkSatiationLimit(
         Owner?.Race?.MaximumDrinkSatiatedHours ?? RacialSatiationDefaults.MaximumDrinkSatiatedHours);
 
+    /// <summary>
+    ///     Whether this model tracks thirst and hydration. Aquatic active-needs models still use
+    ///     hunger and alcohol mechanics but deliberately remain sated.
+    /// </summary>
+    protected virtual bool TracksThirst => true;
+
     #region INeedsModel Members
 
     public NeedsResult FulfilNeeds(INeedFulfiller fulfiller, bool ignoreDelays = false)
@@ -30,9 +36,16 @@ public abstract class ChangingNeedsModelBase : INeedsModel
         double thirstDelta = fulfiller.ThirstPoints * thirstMult;
         double previousFoodSatiatedHours = FoodSatiatedHours;
 
-        WaterLitres += fulfiller.WaterLitres;
+        if (TracksThirst)
+        {
+            WaterLitres += fulfiller.WaterLitres;
+        }
+
         FoodSatiatedHours += satiationDelta;
-        DrinkSatiatedHours += thirstDelta;
+        if (TracksThirst)
+        {
+            DrinkSatiatedHours += thirstDelta;
+        }
         SatiationReserve =
             ApplySatiationReserveFromFulfiller(SatiationReserve, previousFoodSatiatedHours, satiationDelta,
                 FoodSatiationLimit);
@@ -68,7 +81,7 @@ public abstract class ChangingNeedsModelBase : INeedsModel
 
         NormaliseValues();
 
-        return NeedsChanged(oldStatus, fulfiller.SatiationPoints < 0, fulfiller.ThirstPoints < 0,
+        return NeedsChanged(oldStatus, fulfiller.SatiationPoints < 0, TracksThirst && fulfiller.ThirstPoints < 0,
             fulfiller.AlcoholLitres > 0);
     }
 
@@ -86,26 +99,33 @@ public abstract class ChangingNeedsModelBase : INeedsModel
             FoodSatiatedHours = foodMinimum;
         }
 
-        double drinkLimit = DrinkSatiationLimit;
-        if (DrinkSatiatedHours > drinkLimit)
+        if (TracksThirst)
         {
-            DrinkSatiatedHours = drinkLimit;
-        }
+            double drinkLimit = DrinkSatiationLimit;
+            if (DrinkSatiatedHours > drinkLimit)
+            {
+                DrinkSatiatedHours = drinkLimit;
+            }
 
-        double drinkMinimum = -0.5 * drinkLimit;
-        if (DrinkSatiatedHours < drinkMinimum)
+            double drinkMinimum = -0.5 * drinkLimit;
+            if (DrinkSatiatedHours < drinkMinimum)
+            {
+                DrinkSatiatedHours = drinkMinimum;
+            }
+
+            if (WaterLitres > Owner.Body.CurrentBloodVolumeLitres / 6.0)
+            {
+                WaterLitres = Owner.Body.CurrentBloodVolumeLitres / 6.0;
+            }
+        }
+        else
         {
-            DrinkSatiatedHours = drinkMinimum;
+            DrinkSatiatedHours = DrinkSatiationLimit;
         }
 
         if (AlcoholLitres < 0)
         {
             AlcoholLitres = 0;
-        }
-
-        if (WaterLitres > Owner.Body.CurrentBloodVolumeLitres / 6.0)
-        {
-            WaterLitres = Owner.Body.CurrentBloodVolumeLitres / 6.0;
         }
     }
 
@@ -421,7 +441,9 @@ public abstract class ChangingNeedsModelBase : INeedsModel
         {
             NeedsResult result = NeedsResult.None;
             result |= GetHungerStatus(FoodSatiatedHours, FoodSatiationLimit);
-            result |= GetThirstStatus(DrinkSatiatedHours, DrinkSatiationLimit);
+            result |= TracksThirst
+                ? GetThirstStatus(DrinkSatiatedHours, DrinkSatiationLimit)
+                : NeedsResult.Sated;
 
             double bac = 10.0 * AlcoholLitres / Owner.Body.CurrentBloodVolumeLitres;
             if (bac >= 0.25)
@@ -458,6 +480,8 @@ public abstract class ChangingNeedsModelBase : INeedsModel
     }
 
     public abstract void NeedsHeartbeat();
+
+    public abstract string ModelName { get; }
 
     private double _alcoholLitres;
 

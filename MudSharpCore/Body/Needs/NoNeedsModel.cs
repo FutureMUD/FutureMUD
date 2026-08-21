@@ -8,6 +8,10 @@ public class NoNeedsModel : INeedsModel
 {
     #region INeedsModel Members
 
+    public const string ModelNameValue = "NoNeeds";
+
+    public string ModelName => ModelNameValue;
+
     public NeedsResult FulfilNeeds(INeedFulfiller fulfiller, bool ignoreDelays = false)
     {
         return NeedsResult.None;

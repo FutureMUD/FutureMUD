@@ -223,7 +223,7 @@ public class NPC : Character.Character, INPC
         if (UsesProductionWildlifeNeeds)
         {
             var dbcharacter = (Models.Character)co;
-            dbcharacter.NeedsModel = "Active";
+            dbcharacter.NeedsModel = NeedsModel.ModelName;
             dbcharacter.AlcoholLitres = NeedsModel.AlcoholLitres;
             dbcharacter.WaterLitres = NeedsModel.WaterLitres;
             dbcharacter.DrinkSatiatedHours = NeedsModel.DrinkSatiatedHours;
@@ -267,7 +267,7 @@ public class NPC : Character.Character, INPC
             var dbcharacter = FMDB.Context.Characters.Find(Id);
             if (dbcharacter is not null)
             {
-                dbcharacter.NeedsModel = "Active";
+                dbcharacter.NeedsModel = NeedsModel.ModelName;
             }
         }
 
@@ -332,19 +332,24 @@ public class NPC : Character.Character, INPC
         .OfType<AnimalAI>()
         .Any(x => x.UseActiveNeeds);
 
+    private string ProductionWildlifeNeedsModelName =>
+        Gameworld.VariableRegister.GetValue(Race, "UseActiveNoThirstNeeds").GetObject is bool useActiveNoThirst && useActiveNoThirst
+            ? ActiveNoThirstNeedsModel.ModelNameValue
+            : ActiveNeedsModel.ModelNameValue;
+
     /// <summary>
-    /// Production wildlife must gain hunger and thirst even when a builder used the normal simple
+    /// Production wildlife must gain active survival needs even when a builder used the normal simple
     /// NPC-template workflow, whose template deliberately defaults to <see cref="NoNeedsModel"/>.
     /// Legacy AnimalAI XML opts out unless it contains the explicit UseActiveNeeds setting.
     /// </summary>
     private bool EnsureProductionWildlifeNeeds()
     {
-        if (!UsesProductionWildlifeNeeds || NeedsModel is ActiveNeedsModel)
+        if (!UsesProductionWildlifeNeeds || NeedsModel.ModelName == ProductionWildlifeNeedsModelName)
         {
             return false;
         }
 
-        NeedsModel = new ActiveNeedsModel(this);
+        NeedsModel = NeedsModelFactory.ConvertNeedsModel(ProductionWildlifeNeedsModelName, this, NeedsModel);
         Changed = true;
         return true;
     }

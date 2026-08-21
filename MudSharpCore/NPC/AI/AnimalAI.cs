@@ -2442,6 +2442,11 @@ public class AnimalAI : PathingAIBase
 			case EventType.CharacterStopMovementClosedDoor:
 			case EventType.LeaveCombat:
 			case EventType.TenSecondTick:
+				if (type == EventType.TenSecondTick && !IsGroupControlled(ch, GroupAIControlScope.Senses))
+				{
+					AcquireRangedTargets(ch);
+				}
+
 				if (TryAwarenessResponse(ch, null))
 				{
 					return true;
@@ -2661,6 +2666,85 @@ public class AnimalAI : PathingAIBase
 		? AwarenessRange + 2
 		: AwarenessRange;
 
+	private uint EffectiveScanRange(ICharacter character)
+	{
+		return (uint)Math.Min(Math.Max(0, EffectiveAwarenessRange), (int)character.MaximumPerceptionRange);
+	}
+
+	/// <summary>
+	/// Performs the animal equivalent of a silent scan. Group-led animals are intentionally scanned by their
+	/// leader and sentries instead, avoiding one identical check per group member.
+	/// </summary>
+	internal IReadOnlyList<ICharacter> AcquireRangedTargets(ICharacter character)
+	{
+		uint range = EffectiveScanRange(character);
+		if (range == 0 || character.Location is null || character.Combat is not null || character.Movement is not null)
+		{
+			return [];
+		}
+
+		return ScanTargetAcquisition.AcquireVisibleCharacters(character, range);
+	}
+
+	/// <summary>
+	/// Gives a group member a sentry's already-successful scan only when that member presently has
+	/// the same unobstructed, in-range view. This shares group intelligence without granting sight
+	/// through doors, around corners, across layers or beyond the normal targeting range.
+	/// </summary>
+	internal void ReceiveGroupSighting(ICharacter character, ICharacter target)
+	{
+		if (ScanTargetAcquisition.IsVisibleRangedTarget(character, target, EffectiveScanRange(character), false))
+		{
+			character.SeeTarget(target);
+		}
+	}
+
+	internal static bool CanGroupHuntTarget(ICharacter character, ICharacter target)
+	{
+		return character is INPC npc &&
+		       npc.AIs.OfType<AnimalAI>().Any(ai => ai.CanHuntTarget(character, target));
+	}
+
+	internal static bool CanGroupObserveTarget(ICharacter character, ICharacter target)
+	{
+		return character is INPC npc &&
+		       npc.AIs.OfType<AnimalAI>().Any(ai => ai.CanObserveTarget(character, target));
+	}
+
+	internal bool CanHuntTarget(ICharacter character, ICharacter target)
+	{
+		if (target.Location is null || IsSociallyTrusted(character, target) ||
+			!MovementStrategyHandler.CanReachTargetLayer(this, character, target.RoomLayer) ||
+			!PredatorAIHelpers.WillAttack(character, target, WillAttackProg, true))
+		{
+			return false;
+		}
+
+		if (IsLocalHuntTarget(character, target))
+		{
+			return character.CanSee(target);
+		}
+
+		return ScanTargetAcquisition.IsCurrentVisibleRangedTarget(character, target, EffectiveScanRange(character));
+	}
+
+	internal bool CanHuntLocalTarget(ICharacter character, ICharacter target)
+	{
+		return IsLocalHuntTarget(character, target) && CanHuntTarget(character, target);
+	}
+
+	private static bool IsLocalHuntTarget(ICharacter character, ICharacter target)
+	{
+		if (character.Location is null || target.Location is null ||
+			!ReferenceEquals(character.Location, target.Location) || character.RoomLayer != target.RoomLayer)
+		{
+			return false;
+		}
+
+		return character.Location.RouteDefinition is null ||
+		       RouteSpatialService.Instance.GetProximity(character, target) <= Proximity.Proximate;
+	}
+
 	private bool IsGroupControlled(ICharacter character, GroupAIControlScope scope)
 	{
 		return character is INPC npc &&
@@ -2761,22 +2845,14 @@ public class AnimalAI : PathingAIBase
 		if (witnessedTarget is not null &&
 		    !IsSociallyTrusted(character, witnessedTarget) &&
 		    AwarenessThreatProg.ExecuteBool(false, character, witnessedTarget) &&
-		    character.CanSee(witnessedTarget))
+		    CanObserveTarget(character, witnessedTarget))
 		{
 			threats.Add(witnessedTarget);
 		}
 
-		IEnumerable<ICharacter> candidates = character.Location
-		                                              .LayerCharacters(character.RoomLayer)
-		                                              .Concat(EffectiveAwarenessRange > 0
-		                                              ? character.Location.CellsInVicinity((uint)EffectiveAwarenessRange, true, true)
-			                                                         .SelectMany(x => x.Characters)
-			                                              : Enumerable.Empty<ICharacter>());
-
-		foreach (ICharacter target in candidates.Distinct())
+		foreach (ICharacter target in ObservedCharacters(character))
 		{
 			if (IsSociallyTrusted(character, target) ||
-			    !character.CanSee(target) ||
 			    !AwarenessThreatProg.ExecuteBool(false, character, target))
 			{
 				continue;
@@ -2786,6 +2862,38 @@ public class AnimalAI : PathingAIBase
 		}
 
 		return threats;
+	}
+
+	/// <summary>
+	/// Returns immediate same-layer targets plus remote targets that a prior silent scan registered and
+	/// that remain visible under the normal scan rules. This prevents secondary awareness and ecology
+	/// behaviours from treating vicinity enumeration as omniscient sight.
+	/// </summary>
+	private IEnumerable<ICharacter> ObservedCharacters(ICharacter character)
+	{
+		if (character.Location is null)
+		{
+			return [];
+		}
+
+		return character.Location
+		                .LayerCharacters(character.RoomLayer)
+		                .Where(x => IsLocalHuntTarget(character, x))
+		                .Concat(character.SeenTargets.OfType<ICharacter>())
+		                .Where(x => !ReferenceEquals(character, x) && CanObserveTarget(character, x))
+		                .DistinctPhysicalInstances();
+	}
+
+	private bool CanObserveTarget(ICharacter character, ICharacter target)
+	{
+		if (ReferenceEquals(character, target) || target.Location is null)
+		{
+			return false;
+		}
+
+		return IsLocalHuntTarget(character, target)
+			? character.CanSee(target)
+			: ScanTargetAcquisition.IsCurrentVisibleRangedTarget(character, target, EffectiveScanRange(character));
 	}
 
 	private bool ShouldAvoidCell(ICharacter character, ICell cell)
@@ -3185,16 +3293,8 @@ public class AnimalAI : PathingAIBase
 
 	private IEnumerable<ICharacter> VisibleEcologyCharacters(ICharacter character, bool includeSociallyTrusted = false)
 	{
-		return character.Location
-		                .LayerCharacters(character.RoomLayer)
-		                .Concat(AwarenessRange > 0
-			                ? character.Location.CellsInVicinity((uint)AwarenessRange, true, true)
-			                           .SelectMany(x => x.Characters)
-				                : Enumerable.Empty<ICharacter>())
-		                .Where(x => !ReferenceEquals(character, x) &&
-		                            (includeSociallyTrusted || !IsSociallyTrusted(character, x)) &&
-		                            character.CanSee(x))
-		                .Distinct();
+		return ObservedCharacters(character)
+			.Where(x => includeSociallyTrusted || !IsSociallyTrusted(character, x));
 	}
 
 	private bool IsParentingThreat(ICharacter character, ICharacter target)
@@ -3235,21 +3335,16 @@ public class AnimalAI : PathingAIBase
 
 	private IEnumerable<ICharacter> ContextualThreatCandidates(ICharacter character, ICharacter? witnessedTarget)
 	{
-		IEnumerable<ICharacter> local = character.Location
-			.LayerCharacters(character.RoomLayer)
-			.Concat(EffectiveAwarenessRange > 0
-				? character.Location.CellsInVicinity((uint)EffectiveAwarenessRange, true, true)
-					.SelectMany(x => x.Characters)
-				: Enumerable.Empty<ICharacter>());
+		IEnumerable<ICharacter> candidates = ObservedCharacters(character);
 		if (witnessedTarget is not null)
 		{
-			local = local.Append(witnessedTarget);
+			candidates = candidates.Append(witnessedTarget);
 		}
 
-		return local
+		return candidates
 			.DistinctPhysicalInstances()
 			.Where(x => !IsSociallyTrusted(character, x))
-			.Where(x => character.CanSee(x))
+			.Where(x => CanObserveTarget(character, x))
 			.Where(x => AwarenessThreatProg.ExecuteBool(false, character, x) ||
 			            WillAttackProg.ExecuteBool(false, character, x) ||
 			            ReferenceEquals(x.CombatTarget, character));
@@ -3333,7 +3428,7 @@ public class AnimalAI : PathingAIBase
 			IEnumerable<ICharacter> targets)
 		{
 			List<ICharacter> activeTargets = targets
-				.Where(x => !IsSociallyTrusted(character, x) && character.CanSee(x))
+				.Where(x => !IsSociallyTrusted(character, x) && CanObserveTarget(character, x))
 				.ToList();
 			if (!activeTargets.Any())
 			{
@@ -3580,6 +3675,9 @@ public class AnimalAI : PathingAIBase
 			AnimalThreatResponseType.Flee when character.Combat is not null => SetFleeCombatStrategy(character),
 			AnimalThreatResponseType.Flee => TryFlee(character, target),
 			AnimalThreatResponseType.Posture => BeginPosturing(character, target),
+			AnimalThreatResponseType.Attack when PredatorAIHelpers.IsHungry(character) &&
+				HungryPreyResponse == AnimalThreatResponseType.Attack =>
+				TryHungryPredatorAttack(character, target),
 			AnimalThreatResponseType.Attack => PredatorAIHelpers.CheckForAttack(character, target, WillAttackProg,
 				EngageDelayDiceExpression, EngageEmote, false),
 			_ => false
@@ -3607,7 +3705,7 @@ public class AnimalAI : PathingAIBase
 
 	private bool TryHungryPredatorAttack(ICharacter character, ICharacter target)
 	{
-		if (IsSociallyTrusted(character, target))
+		if (!CanHuntTarget(character, target))
 		{
 			return false;
 		}
@@ -4168,14 +4266,91 @@ public class AnimalAI : PathingAIBase
 
 	private (ICell? Target, IEnumerable<ICellExit> Path) GetPredatorFoodPath(ICharacter ch)
 	{
-		Tuple<IPerceivable, IEnumerable<ICellExit>> targetPath = ch.AcquireTargetAndPath(
-			x => x is ICharacter target && !IsSociallyTrusted(ch, target) &&
-			     PredatorAIHelpers.WillAttack(ch, target, WillAttackProg, true),
-			DefaultNeedRange,
-			GetAnimalSuitabilityFunction(ch));
-		return targetPath.Item1 is ICharacter prey && targetPath.Item2.Any()
-			? (prey.Location, targetPath.Item2)
-			: (null, Enumerable.Empty<ICellExit>());
+		foreach (ICharacter prey in RemotePredatorCandidates(ch))
+		{
+			if (!CanHuntTarget(ch, prey))
+			{
+				ch.LoseTarget(prey);
+				continue;
+			}
+
+			if (prey.Location!.RouteDefinition is not null || ch.Location.RouteDefinition is not null)
+			{
+				if (TryFindSpatialPath(ch, RouteSpatialService.Instance.GetEffectiveLocation(prey), DefaultNeedRange,
+						GetAnimalSuitabilityFunction(ch), out _))
+				{
+					return (prey.Location, Enumerable.Empty<ICellExit>());
+				}
+
+				ch.LoseTarget(prey);
+				continue;
+			}
+
+			List<ICellExit> path = ch.PathBetween(prey.Location, DefaultNeedRange,
+				GetAnimalSuitabilityFunction(ch)).ToList();
+			if (path.Any())
+			{
+				return (prey.Location, path);
+			}
+
+			ch.LoseTarget(prey);
+		}
+
+		return (null, Enumerable.Empty<ICellExit>());
+	}
+
+	/// <summary>
+	/// Supplies an exact-coordinate RouteCell path for a remotely scanned prey target. The regular
+	/// exit path is still used for ordinary cells; keeping the spatial path here avoids reducing a
+	/// live RouteCell target to the route's default coordinate.
+	/// </summary>
+	protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+	{
+		if (!FeedingStrategy.In(AnimalFeedingStrategyType.Predator, AnimalFeedingStrategyType.DenPredator,
+			    AnimalFeedingStrategyType.Omnivore, AnimalFeedingStrategyType.DenOmnivore) ||
+		    !PredatorAIHelpers.IsHungry(ch) ||
+		    HasLocalFoodOpportunity(ch))
+		{
+			return (null, null);
+		}
+
+		foreach (ICharacter prey in RemotePredatorCandidates(ch))
+		{
+			if (!CanHuntTarget(ch, prey))
+			{
+				ch.LoseTarget(prey);
+				continue;
+			}
+
+			if (prey.Location!.RouteDefinition is null && ch.Location.RouteDefinition is null)
+			{
+				continue;
+			}
+
+			if (TryFindSpatialPath(ch, RouteSpatialService.Instance.GetEffectiveLocation(prey), DefaultNeedRange,
+					GetAnimalSuitabilityFunction(ch), out ISpatialPath? path) &&
+				path is not null && path.Steps.Count > 0)
+			{
+				return (prey.Location, path);
+			}
+
+			ch.LoseTarget(prey);
+		}
+
+		return (null, null);
+	}
+
+	private IEnumerable<ICharacter> RemotePredatorCandidates(ICharacter character)
+	{
+		return character.SeenTargets
+		                .OfType<ICharacter>()
+		                .Where(x => !IsLocalHuntTarget(character, x))
+		                .OrderBy(x =>
+		                {
+			                int distance = character.DistanceBetween(x, DefaultNeedRange);
+			                return distance < 0 ? int.MaxValue : distance;
+			                })
+		                .ToList();
 	}
 
 	private (ICell? Target, IEnumerable<ICellExit> Path) GetForagerFoodPath(ICharacter ch)
@@ -4536,8 +4711,7 @@ public class AnimalAI : PathingAIBase
 			return PredatorAIHelpers.FindLocalEdibleCorpse(character) is not null ||
 			       character.Location.LayerCharacters(character.RoomLayer)
 			                .Except(character)
-			                .Any(x => !ai.IsSociallyTrusted(character, x) &&
-			                          PredatorAIHelpers.WillAttack(character, x, ai.WillAttackProg, true));
+			                .Any(x => ai.CanHuntLocalTarget(character, x));
 		}
 
 		public bool WouldMove(AnimalAI ai, ICharacter character)
@@ -5003,10 +5177,11 @@ public class AnimalAI : PathingAIBase
 				return false;
 			}
 
-			foreach (ICharacter target in character.Location.CellsInVicinity(range, true, true)
-			                                    .Except(character.Location)
-			                                    .SelectMany(x => x.Characters)
+			foreach (ICharacter target in ai.ObservedCharacters(character)
 			                                    .Where(x => !ai.IsSociallyTrusted(character, x))
+			                                    .Where(x => !IsLocalHuntTarget(character, x))
+			                                    .Where(x => ScanTargetAcquisition.IsVisibleRangedTarget(character, x, range,
+				                                    false))
 			                                    .ToList())
 			{
 				if (TryAttack(ai, character, target))
@@ -5355,6 +5530,7 @@ public class AnimalAI : PathingAIBase
 	private interface IAnimalMovementStrategy
 	{
 		bool CellMatches(AnimalAI ai, ICharacter character, ICell cell);
+		bool CanReachTargetLayer(AnimalAI ai, ICharacter character, RoomLayer targetLayer);
 		(ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character);
 		FollowingPath CreatePathingEffect(AnimalAI ai, ICharacter character, IEnumerable<ICellExit> path);
 	}
@@ -5366,6 +5542,11 @@ public class AnimalAI : PathingAIBase
 		public bool CellMatches(AnimalAI ai, ICharacter character, ICell cell)
 		{
 			return ai.MovementCellProg.ExecuteBool(false, character, cell, character.Location);
+		}
+
+		public bool CanReachTargetLayer(AnimalAI ai, ICharacter character, RoomLayer targetLayer)
+		{
+			return targetLayer == RoomLayer.GroundLevel;
 		}
 
 		public (ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character)
@@ -5388,6 +5569,11 @@ public class AnimalAI : PathingAIBase
 			return character.Race.CanSwim &&
 			       CellSupportsSwimming(character, cell) &&
 			       ai.MovementCellProg.ExecuteBool(false, character, cell, character.Location);
+		}
+
+		public bool CanReachTargetLayer(AnimalAI ai, ICharacter character, RoomLayer targetLayer)
+		{
+			return targetLayer == RoomLayer.GroundLevel || targetLayer.IsUnderwater();
 		}
 
 		public (ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character)
@@ -5413,6 +5599,11 @@ public class AnimalAI : PathingAIBase
 			return ai.MovementCellProg.ExecuteBool(false, character, cell, character.Location);
 		}
 
+		public bool CanReachTargetLayer(AnimalAI ai, ICharacter character, RoomLayer targetLayer)
+		{
+			return !targetLayer.IsUnderwater();
+		}
+
 		public (ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character)
 		{
 			return GetWeightedAmbientPath(ai, character, CellMatches);
@@ -5433,6 +5624,11 @@ public class AnimalAI : PathingAIBase
 			return ai.MovementCellProg.ExecuteBool(false, character, cell, character.Location) &&
 			       (ArborealWandererAI.CellSupportsTreeLayers(character, cell) ||
 			        ai.AllowDescentProg.ExecuteBool(false, character, cell));
+		}
+
+		public bool CanReachTargetLayer(AnimalAI ai, ICharacter character, RoomLayer targetLayer)
+		{
+			return targetLayer.In(RoomLayer.GroundLevel, RoomLayer.InTrees, RoomLayer.HighInTrees);
 		}
 
 		public (ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character)
@@ -5525,6 +5721,11 @@ public class AnimalAI : PathingAIBase
 			return CellSupportsSwimming(character, cell)
 				? ai.AmphibiousWaterCellProg.ExecuteBool(false, character, cell, character.Location)
 				: ai.AmphibiousLandCellProg.ExecuteBool(false, character, cell, character.Location);
+		}
+
+		public bool CanReachTargetLayer(AnimalAI ai, ICharacter character, RoomLayer targetLayer)
+		{
+			return targetLayer == RoomLayer.GroundLevel || targetLayer.IsUnderwater();
 		}
 
 		public (ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character)

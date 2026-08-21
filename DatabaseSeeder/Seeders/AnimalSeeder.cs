@@ -270,11 +270,14 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 .AsEnumerable()
                 .First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
             RefreshExistingAnimalBaseBodies();
+            bool hasMissingNeedsModelConfiguration = HasMissingAnimalNeedsModelConfiguration(_context);
             bool hasMissingAnimalWearProfiles = HasMissingAnimalWearProfiles(_context);
             bool hasMissingCatalogue = HasMissingAnimalCatalogue(_context);
             bool hasMissingAnimalAiTemplates = HasMissingAnimalAIStockTemplates(_context);
             bool hasMissingDietSettings = HasMissingAnimalDietSettings(_context);
             RefreshExistingAnimalCombatBalance();
+            EnsureAnimalNeedsModelConfiguration(_context);
+            context.SaveChanges();
 
             if (hasMissingDisfigurementTemplates)
             {
@@ -301,6 +304,11 @@ public partial class AnimalSeeder : IDatabaseSeeder
             if (hasMissingCatalogue)
             {
                 updates.Add("backfilled missing animal catalogue content");
+            }
+
+            if (hasMissingNeedsModelConfiguration)
+            {
+                updates.Add("repaired stock aquatic no-thirst needs settings");
             }
 
             if (hasMissingAnimalWearProfiles || updatedAnimalWearProfiles)
@@ -866,6 +874,8 @@ public partial class AnimalSeeder : IDatabaseSeeder
         CloneBodyPositionsAndSpeeds(toedQuadruped, reptilianBody);
         CloneBodyPositionsAndSpeeds(toedQuadruped, anuranBody);
         ApplyDefaultCombatSettingsToSeededRaces();
+        EnsureAnimalNeedsModelConfiguration(context);
+		context.SaveChanges();
         SeedAnimalAIStockTemplates();
         CombatAuxiliarySeedResult freshAuxiliaryResult = CombatAuxiliarySeederHelper.EnsureAnimalAuxiliaryLinks(context);
 
@@ -886,6 +896,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
         if (context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
         {
             return HasMissingAnimalDisfigurementTemplates(context) ||
+                   HasMissingAnimalNeedsModelConfiguration(context) ||
                    HasMissingAnimalCatalogue(context) ||
                    HasMissingAnimalWearProfiles(context) ||
                    HasMissingAnimalAIStockTemplates(context) ||

@@ -345,6 +345,14 @@ Each `INPC` exposes its loaded `GroupAI` membership without a duplicate database
 
 Group types can expose a `GroupAIControlScope` to claim `Movement`, `Feeding`, `Threats`, `Activity`, `Shelter`, and/or `Senses`. A group owns only the scopes it claims; `AnimalAI` retains direct combat, urgent survival, and unclaimed reactions. This prevents a social animal from simultaneously wandering, fleeing, or seeking food to competing individual and group instructions. If every live member's `AnimalAI` requires rest, a wildlife group also rests even if the group template's activity window is open; combat, immediate threats, and urgent needs remain valid interruptions.
 
+### Wildlife perception and feeding priority
+
+`AnimalAI` acquires remote characters with a silent scan rather than treating pathfinding as omniscient perception. The scan uses `ScanPerceptionCheck`, cell spot difficulty adjusted by distance, contextual scan size, ordinary visible-door and corner rules, layer visibility, obscurity, and `CanSee`. It is capped at the smaller of the profile's effective awareness range and the engine's five-cell ranged-target memory. Successful scans register the character through `SeeTarget`; a remote live prey candidate must remain a current visible seen target before a predator selects it.
+
+Local prey in the same reachable layer remains immediately eligible, so an immediate threat or defensive reaction is not delayed by a scan. Movement profiles additionally validate the prey's target layer before hunting: ground predators do not select underwater or aerial prey, swimmers can use water layers, flyers cannot use underwater layers, and arboreal profiles restrict their hunt to ground/tree layers. A failed, stale, or movement-unreachable prey target is discarded rather than repeatedly rebuilding an empty route. RouteCells use their authored longitudinal positions and room-equivalent range for the same scan gate.
+
+Group-controlled animals perform those scan checks through their leader and sentries instead of every member. Before a hunting or scavenging group issues a fresh-kill attack, hungry members use the ordinary accessible local-corpse eating path. A remaining edible same-layer corpse suppresses the live hunt; the individual predator order remains local carrion, remote scavenging, remote foraging, then live prey.
+
 Use group AI when the behavior needs to coordinate across multiple NPCs and maintain shared group state.
 
 ## Builder Workflow

@@ -118,6 +118,35 @@ public class MovementTests
 	}
 
 	[TestMethod]
+	public void Immwalk_UsesOnlyTopologyValidationAndPreservesNonSwimmingPosture()
+	{
+		var movementSource = File.ReadAllText(GetCoreSourcePath("Character", "CharacterMovement.cs"));
+		int canMoveStart = movementSource.IndexOf("public CanMoveResponse CanMove(ICellExit exit",
+			StringComparison.Ordinal);
+		int couldMoveStart = movementSource.IndexOf("public (bool Success, IPositionState MovingState, IMoveSpeed Speed) CouldMove",
+			StringComparison.Ordinal);
+		int startMoveStart = movementSource.IndexOf("public void StartMove(IMovement movement)",
+			StringComparison.Ordinal);
+		int executeMoveStart = movementSource.IndexOf("public void ExecuteMove(IMovement movement",
+			StringComparison.Ordinal);
+
+		Assert.IsTrue(canMoveStart >= 0 && couldMoveStart > canMoveStart && startMoveStart >= 0 &&
+			executeMoveStart > startMoveStart);
+		string canMove = movementSource[canMoveStart..couldMoveStart];
+		string startMove = movementSource[startMoveStart..canMoveStart];
+		string executeMove = movementSource[executeMoveStart..];
+
+		int topologyGuard = canMove.IndexOf("CellMovementTransition.NoViableTransition", StringComparison.Ordinal);
+		int immwalkBypass = canMove.IndexOf("EffectsOfType<IImmwalkEffect>().Any()", StringComparison.Ordinal);
+		Assert.IsTrue(topologyGuard >= 0 && immwalkBypass > topologyGuard,
+			"Immwalk must retain exit and layer topology validation before bypassing physical movement checks.");
+		StringAssert.Contains(startMove,
+			"requiredPosition == PositionSwimming.Instance && EffectsOfType<IImmwalkEffect>().Any()");
+		StringAssert.Contains(executeMove,
+			"PositionState != PositionSwimming.Instance && !EffectsOfType<IImmwalkEffect>().Any()");
+	}
+
+	[TestMethod]
 	public void CanMoveInternal_SprawledTransitioningToProne_RequiresUsableCrawlingLimb()
 	{
 		var movementSource = File.ReadAllText(GetCoreSourcePath("Character", "CharacterMovement.cs"));

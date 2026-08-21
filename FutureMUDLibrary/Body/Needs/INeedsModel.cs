@@ -2,6 +2,11 @@
 {
     public interface INeedsModel
     {
+        /// <summary>
+        ///     The stable persisted discriminator for this needs-model implementation.
+        /// </summary>
+        string ModelName { get; }
+
         NeedsResult Status { get; }
 
         /// <summary>

@@ -2248,7 +2248,7 @@ The syntax is as follows:
     private const string ImmWalkHelp =
         @"The #3immwalk#0 command toggles Imm Walk on yourself for staff movement.
 
-Use this when staff movement needs to bypass normal movement restrictions handled by the Imm Walk effect.
+Use this when staff movement needs to bypass ordinary physical traversal restrictions. After the exit and its layer topology have been validated, Imm Walk ignores safe-movement confirmation, stamina, size, posture, climbing, flying, and swimming requirements. It does not turn you into a swimmer or otherwise change your current posture when crossing a swim-only exit.
 
 This command takes no arguments and toggles the effect on or off.
 

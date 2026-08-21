@@ -40,6 +40,8 @@ Breathing matters because it directly participates in:
 - `IStopBreathing` effects that can forcibly prevent breathing
 - gas support from any `IProvideGasForBreathing` source, not only rebreathers
 
+The breathing heartbeat first respects the body's effective `NeedsToBreathe` property. An immortal administrator whose body suspends physical contact therefore does not invoke its breathing strategy, receive held-breath text, accumulate held-breath time, or begin hypoxia ticks. While breathing is exempt, any stale held-breath timer is cleared so removing the exemption resumes ordinary breathing cleanly. Lung, gill, blowhole, non-breather, and partless-breather behavior is otherwise unchanged.
+
 ## Needs
 ### Core model
 Needs are separated from wounds but still participate in health because they alter long-term survival and body-state management.
@@ -54,6 +56,9 @@ Race data controls both the rate and capacity of hunger and thirst. `HungerRate`
 | `NoNeedsModel` | No active need decay | Explicitly used for some defaults, chargen settings, and all dead characters |
 | `PassiveNeedsModel` | Supports change when something acts on the needs directly, but does not drive active decay in the same way as the full model | Runtime support present |
 | `ActiveNeedsModel` | Full ticking hunger, thirst, alcohol, and water behavior with merit and effect modifiers | Runtime support present |
+| `ActiveNoThirstNeedsModel` | Full ticking hunger, satiation reserve, and alcohol behavior while thirst remains permanently sated and water loss does not decay | Fully aquatic stock wildlife |
+
+Needs models persist their stable `ModelName` discriminator. `ActiveNoThirst` is the persisted token for the aquatic model. The seeded race register `UseActiveNoThirstNeeds` takes precedence over `UseActiveNeeds` in `WhichNeedsModel`; the rerunnable Animal and Wildlife Catalogue seeders repair that register, its false default, the FutureProg, and stock aquatic race values. Fully aquatic fish, sharks, crustaceans, jellyfish, cephalopods, pinnipeds, and cetaceans use it; amphibians and waterfowl do not.
 
 ### Health interaction
 Needs influence health indirectly rather than by creating `IWound` objects.

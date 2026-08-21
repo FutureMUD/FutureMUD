@@ -488,15 +488,7 @@ return @ch.Weight / 20000"
             AcceptsAnyParameters = false,
             Public = true,
             StaticType = 0,
-            FunctionText = @"if (@ch.Guest)
-  return ""Passive""
-else
-  if (not(@ch.NPC) or GetRegister(@ch.Race, ""UseActiveNeeds""))
-	return ""Active""
-  else
-	return ""NoNeeds""
-  end if
-end if"
+            FunctionText = AnimalSeeder.WhichNeedsModelFunctionText
         };
         chargenNeedsProg.FutureProgsParameters.Add(new FutureProgsParameter
         {
@@ -517,6 +509,18 @@ end if"
         {
             OwnerType = (long)ProgVariableTypes.Race,
             Property = "useactiveneeds",
+            DefaultValue = "<var>False</var>"
+        });
+        _context.VariableDefinitions.Add(new VariableDefinition
+        {
+            OwnerType = (long)ProgVariableTypes.Race,
+            ContainedType = (long)ProgVariableTypes.Boolean,
+            Property = AnimalSeeder.ActiveNoThirstNeedsRegister
+        });
+        _context.VariableDefaults.Add(new VariableDefault
+        {
+            OwnerType = (long)ProgVariableTypes.Race,
+            Property = AnimalSeeder.ActiveNoThirstNeedsRegister,
             DefaultValue = "<var>False</var>"
         });
 

@@ -66,6 +66,7 @@ public sealed class WildlifeCatalogueSeeder : IDatabaseSeeder
 		using var transaction = context.Database.BeginTransaction();
 		try
 		{
+			AnimalSeeder.EnsureAnimalNeedsModelConfiguration(context);
 			var tags = EnsureWildlifeTags(context);
 			EnsureWildlifeHabitatTagsOnStockTerrains(context, tags.Habitats);
 			var progs = EnsureSupportProgs(context);

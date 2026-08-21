@@ -352,15 +352,46 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 
 	private List<ICharacter> GetThreats(IGroupAI group, IEnumerable<ICharacter> members)
 	{
-		if (Tactic.In(WildlifeGroupTactic.Hunting, WildlifeGroupTactic.Scavenging) &&
-		    !members.Any(PredatorAIHelpers.IsHungry))
+		if (Tactic.In(WildlifeGroupTactic.Hunting, WildlifeGroupTactic.Scavenging))
 		{
-			return [];
+			List<ICharacter> hungryMembers = members.Where(PredatorAIHelpers.IsHungry).ToList();
+			if (!hungryMembers.Any())
+			{
+				return [];
+			}
+
+			// Carrion is a cheaper and safer meal than a fresh attack. If eating could not begin this
+			// instant, keep the live hunt suppressed while the accessible corpse remains available.
+			if (hungryMembers.Any(PredatorAIHelpers.EatLocalCorpseIfHungry) ||
+			    hungryMembers.Any(x => PredatorAIHelpers.FindLocalEdibleCorpse(x) is not null))
+			{
+				return [];
+			}
+
+			return HuntingTargets(group, hungryMembers);
 		}
 
 		return members
-			.SelectMany(x => x.Location.CharactersInSpatialVicinity(x).Where(y => x.CanSee(y)))
+			.SelectMany(member => member.Location
+				.LayerCharacters(member.RoomLayer)
+				.Concat(member.SeenTargets.OfType<ICharacter>())
+				.Where(target => AnimalAI.CanGroupObserveTarget(member, target)))
 			.OfType<ICharacter>()
+			.DistinctPhysicalInstances()
+			.Where(x => !group.GroupMembers.ContainsPhysicalInstance(x))
+			.Where(x => !group.GroupMembers.Any(y => y.Race.SameRace(x.Race)))
+			.Where(x => group.ConsidersThreat(x, group.Alertness))
+			.ToList();
+	}
+
+	private static List<ICharacter> HuntingTargets(IGroupAI group, IEnumerable<ICharacter> members)
+	{
+		return members
+			.SelectMany(member => member.Location
+				.LayerCharacters(member.RoomLayer)
+				.Concat(member.SeenTargets.OfType<ICharacter>())
+				.Where(target => AnimalAI.CanGroupObserveTarget(member, target) &&
+				                 AnimalAI.CanGroupHuntTarget(member, target)))
 			.DistinctPhysicalInstances()
 			.Where(x => !group.GroupMembers.ContainsPhysicalInstance(x))
 			.Where(x => !group.GroupMembers.Any(y => y.Race.SameRace(x.Race)))
@@ -448,7 +479,10 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 		}
 
 		foreach (ICharacter member in members.Where(x => RoleFor(group, x) != GroupRole.Child &&
-		                                                  x.Combat is null && x.CanSee(target)))
+		                                                  x.Combat is null && AnimalAI.CanGroupObserveTarget(x, target) &&
+		                                                  (!Tactic.In(WildlifeGroupTactic.Hunting,
+				                                                   WildlifeGroupTactic.Scavenging) ||
+			                                           AnimalAI.CanGroupHuntTarget(x, target))))
 		{
 			PredatorAIHelpers.CheckForAttack(member, target, Gameworld.AlwaysTrueProg,
 				"1d600+900", string.Empty, false);
@@ -467,10 +501,38 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 			return;
 		}
 
-		IEnumerable<ICharacter> sentries = members.Where(x => ReferenceEquals(x, leader) ||
-		                                                     RoleFor(group, x) == GroupRole.Elder);
+		List<ICharacter> sentries = members.Where(x => ReferenceEquals(x, leader) ||
+		                                           RoleFor(group, x) == GroupRole.Elder).ToList();
+		List<ICharacter> sightings = [];
+		foreach (ICharacter sentry in sentries)
+		{
+			if (sentry is not INPC npc)
+			{
+				continue;
+			}
+
+			foreach (AnimalAI animalAi in npc.AIs.OfType<AnimalAI>())
+			{
+				sightings.AddRange(animalAi.AcquireRangedTargets(sentry));
+			}
+		}
+
+		foreach (ICharacter target in sightings.DistinctPhysicalInstances())
+		{
+			foreach (INPC member in members.OfType<INPC>())
+			{
+				foreach (AnimalAI animalAi in member.AIs.OfType<AnimalAI>())
+				{
+					animalAi.ReceiveGroupSighting(member, target);
+				}
+			}
+		}
+
 		bool sightedThreat = sentries
-			.SelectMany(x => x.Location.CharactersInSpatialVicinity(x).Where(y => x.CanSee(y)))
+			.SelectMany(x => x.Location
+				.LayerCharacters(x.RoomLayer)
+				.Concat(x.SeenTargets.OfType<ICharacter>())
+				.Where(y => AnimalAI.CanGroupObserveTarget(x, y)))
 			.OfType<ICharacter>()
 			.DistinctPhysicalInstances()
 			.Where(x => !group.GroupMembers.ContainsPhysicalInstance(x))

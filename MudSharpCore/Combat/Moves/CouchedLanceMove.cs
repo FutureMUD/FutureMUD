@@ -48,7 +48,7 @@ public class CouchedLanceMove : MeleeWeaponAttack
 		Assailant.OffensiveAdvantage += mountSpeed * Math.Max(1, reach) / MaximumChargeReach;
 
 		var result = base.ResolveMove(defenderMove);
-		var target = CharacterTargets.FirstOrDefault();
+		var target = PrimaryCharacterTarget;
 		if (target?.RidingMount is not null && result.MoveWasSuccessful && result.AttackerOutcome.IsPass())
 		{
 			target.OutputHandler.Handle(new EmoteOutput(new Emote(

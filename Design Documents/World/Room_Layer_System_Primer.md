@@ -757,7 +757,7 @@ Do not describe the surface layer as the seabed just because its enum name is `G
 
 ### 10. A roof edge with a real fall
 
-Use `rooftopsonly` for the roof. Add an explicit downward fall/climb exit to the street or courtyard below. The roof remains the normal landing surface, but a fall that takes the downward endpoint can continue into the lower cell.
+Use `rooftopsonly` for the roof. Add an explicit downward fall/climb exit to the street or courtyard below. The roof remains the normal supported landing surface, so an occupant already on `OnRooftops` does not repeat fall processing; a fall descending from the air can still take the downward endpoint into the lower cell.
 
 This pattern is better than inventing a nonexistent `GroundLevel` inside a roofscape cell. It keeps the street and roof descriptions separate and makes the vertical danger explicit.
 

@@ -29,7 +29,7 @@ Auxiliary actions use `auxiliary set targets <1-100>`. Setting the value to `1` 
 
 ## Target Eligibility
 
-The explicitly selected target is always first. Additional targets must be hostile characters in the same combat, must pass the same target-specific attack eligibility as the primary victim (including authored bodypart-shape requirements), and must not be allies of the assailant. Auxiliary actions evaluate their usability prog for each victim.
+The explicitly selected target is always first. Each child move records that selected victim as its primary target, so contact/vehicle checks and post-hit control effects cannot instead use the assailant's pre-existing combat target. Additional targets must be hostile characters in the same combat, must pass the same target-specific attack eligibility as the primary victim (including authored bodypart-shape requirements), and must not be allies of the assailant. Auxiliary actions evaluate their usability prog for each victim.
 
 For ordinary melee weapon, natural, and auxiliary moves, an additional victim must:
 

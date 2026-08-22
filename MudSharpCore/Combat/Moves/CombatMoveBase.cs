@@ -45,6 +45,8 @@ public abstract class CombatMoveBase : ICombatMove
 
     public IEnumerable<IPerceiver> Targets => _targets;
 
+    protected ICharacter? PrimaryCharacterTarget => PrimaryTarget as ICharacter ?? CharacterTargets.FirstOrDefault();
+
     public virtual IPerceiver PrimaryTarget
     {
         get => _targets.FirstOrDefault() ??

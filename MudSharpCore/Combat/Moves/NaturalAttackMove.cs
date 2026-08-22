@@ -14,16 +14,13 @@ public class NaturalAttackMove : WeaponAttackMove
 {
     public NaturalAttackMove(ICharacter owner, INaturalAttack attack, ICharacter target) : base(attack.Attack)
     {
+        if (target is not null)
+        {
+            PrimaryTarget = target;
+        }
+
         Assailant = owner;
         NaturalAttack = attack;
-        if (target == null && owner.CombatTarget is ICharacter ct)
-        {
-            _characterTargets.Add(ct);
-        }
-        else if (target != null)
-        {
-            _characterTargets.Add(target);
-        }
     }
 
     #region Overrides of CombatMoveBase
@@ -70,7 +67,7 @@ public class NaturalAttackMove : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
-		var boundaryTarget = CharacterTargets.FirstOrDefault();
+		var boundaryTarget = PrimaryCharacterTarget;
 		if (boundaryTarget is not null &&
 		    !VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, boundaryTarget, false, false,
 			    out var boundaryReason))
@@ -80,7 +77,7 @@ public class NaturalAttackMove : WeaponAttackMove
 		}
         if (defenderMove == null)
         {
-            defenderMove = new HelplessDefenseMove { Assailant = Assailant.CombatTarget as ICharacter };
+            defenderMove = new HelplessDefenseMove { Assailant = PrimaryCharacterTarget ?? CharacterTargets.First() };
         }
 
         WorsenCombatPosition(defenderMove.Assailant, Assailant);

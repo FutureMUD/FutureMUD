@@ -61,35 +61,32 @@ public class MedicalRuntimeRegressionTests
 	}
 
 	[TestMethod]
-	public void WoundsCoveredByProfile_ReturnsFracturesUnderCoveredWearLocations()
+	public void WoundsCoveredByWearLocations_UsesActualWornLimb()
 	{
-		var bone = new Mock<IBone>();
-		var wearLocation = new Mock<IWear>();
-		wearLocation.SetupGet(x => x.BoneInfo)
+		var leftBone = new Mock<IBone>();
+		var rightBone = new Mock<IBone>();
+		var leftWearLocation = new Mock<IWear>();
+		leftWearLocation.SetupGet(x => x.BoneInfo)
 		            .Returns(new Dictionary<IBone, BodypartInternalInfo>
 		            {
-			            [bone.Object] = new BodypartInternalInfo(1.0, true, "arm")
+		            [leftBone.Object] = new BodypartInternalInfo(1.0, true, "left arm")
 		            });
-		var wearProfile = new Mock<IWearProfile>();
 		var body = new Mock<IBody>();
-		wearProfile.Setup(x => x.Profile(body.Object))
-		           .Returns(new Dictionary<IWear, IWearlocProfile>
-		           {
-			           [wearLocation.Object] = Mock.Of<IWearlocProfile>()
-		           });
-		var covered = new Mock<IImmobilisableWound>();
-		covered.SetupGet(x => x.Bodypart).Returns(bone.Object);
-		var uncovered = new Mock<IImmobilisableWound>();
-		uncovered.SetupGet(x => x.Bodypart).Returns(Mock.Of<IBone>());
-		body.SetupGet(x => x.Wounds).Returns(new IWound[] { covered.Object, uncovered.Object });
+		var leftFracture = new Mock<IImmobilisableWound>();
+		leftFracture.SetupGet(x => x.Bodypart).Returns(leftBone.Object);
+		var rightFracture = new Mock<IImmobilisableWound>();
+		rightFracture.SetupGet(x => x.Bodypart).Returns(rightBone.Object);
+		body.SetupGet(x => x.Wounds).Returns(new IWound[] { leftFracture.Object, rightFracture.Object });
 
-		var result = ImmobilisingGameItemComponent.WoundsCoveredByProfile(body.Object, wearProfile.Object).ToList();
+		var result = ImmobilisingGameItemComponent
+			.WoundsCoveredByWearLocations(body.Object, [leftWearLocation.Object])
+			.ToList();
 
-		CollectionAssert.AreEqual(new[] { covered.Object }, result);
+		CollectionAssert.AreEqual(new[] { leftFracture.Object }, result);
 	}
 
 	[TestMethod]
-	public void FindReplacementImmobilisingItem_UsesAnotherWornSplintCoveringTheFracture()
+	public void FindReplacementImmobilisingItem_UsesOnlyActuallyWornSplints()
 	{
 		var bone = new Mock<IBone>();
 		var wearLocation = new Mock<IWear>();
@@ -98,24 +95,27 @@ public class MedicalRuntimeRegressionTests
 		            {
 			            [bone.Object] = new BodypartInternalInfo(1.0, true, "arm")
 		            });
-		var wearProfile = new Mock<IWearProfile>();
 		var body = new Mock<IBody>();
-		wearProfile.Setup(x => x.Profile(body.Object))
-		           .Returns(new Dictionary<IWear, IWearlocProfile>
-		           {
-			           [wearLocation.Object] = Mock.Of<IWearlocProfile>()
-		           });
 		var wound = new Mock<IImmobilisableWound>();
 		wound.SetupGet(x => x.Bodypart).Returns(bone.Object);
 		body.SetupGet(x => x.Wounds).Returns(new IWound[] { wound.Object });
-		var remainingSplint = Mock.Of<IGameItem>();
+		var wornSplint = new Mock<IGameItem>();
+		wornSplint.Setup(x => x.IsItemType<IImmobilise>()).Returns(true);
+		var beltAttachedSplint = new Mock<IGameItem>();
+		beltAttachedSplint.Setup(x => x.IsItemType<IImmobilise>()).Returns(true);
+		body.SetupGet(x => x.WornItems).Returns([wornSplint.Object, beltAttachedSplint.Object]);
+		body.SetupGet(x => x.WornItemsFullInfo).Returns([
+			(wornSplint.Object, wearLocation.Object, Mock.Of<IWearlocProfile>())
+		]);
+		var removedSplint = Mock.Of<IGameItem>();
 
 		var result = ImmobilisingGameItemComponent.FindReplacementImmobilisingItem(
 			body.Object,
 			wound.Object,
-			new[] { (remainingSplint, wearProfile.Object) });
+			removedSplint);
 
-		Assert.AreSame(remainingSplint, result);
+		Assert.AreSame(wornSplint.Object, result);
+		body.VerifyGet(x => x.WornItems, Times.Never);
 	}
 
 }

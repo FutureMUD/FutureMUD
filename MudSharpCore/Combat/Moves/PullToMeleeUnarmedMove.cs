@@ -18,8 +18,8 @@ public class PullToMeleeUnarmedMove : NaturalAttackMove
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
 		var result = base.ResolveMove(defenderMove);
-		var target = CharacterTargets.First();
-		if (!ShouldResolvePull(result, target))
+		var target = PrimaryCharacterTarget;
+		if (target is null || !ShouldResolvePull(result, target))
 		{
 			return result;
 		}

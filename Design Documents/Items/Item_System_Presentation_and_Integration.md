@@ -117,7 +117,7 @@ Common examples:
 - `IImplant`
 - `IProsthetic`
 
-Inventory output treats belted attachments as part of the wearer's equipment, not loose room contents. If the belt is covered, attached items such as scabbards should still appear in inventory with the same covered or partially covered marker style used by worn items rather than disappearing from the list.
+Inventory output treats belted attachments as part of the wearer's equipment, not loose room contents. If the belt is covered, attached items such as scabbards should still appear in inventory with the same covered or partially covered marker style used by worn items rather than disappearing from the list. A belt attachment is nevertheless not directly worn for mechanics that depend on actual wear coverage, such as fracture immobilisation.
 
 MXP links in inventory presentation must pass player-authored names and descriptions through attribute-value escaping. Covered and partially covered hints use the shared `MXPSend` path so apostrophes, quotation marks, angle brackets, ampersands, and embedded MXP control characters cannot alter the generated `SEND` attributes.
 

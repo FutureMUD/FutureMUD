@@ -9,6 +9,7 @@ using MudSharp.Combat.Moves;
 using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,41 @@ public class MultiTargetCombatMoveTests
 			(int)BuiltInCombatMoveType.PullToMelee);
 		Assert.AreEqual((int)BuiltInCombatMoveType.PullToMelee + 1,
 			(int)BuiltInCombatMoveType.PullToMeleeUnarmed);
+	}
+
+	[TestMethod]
+	public void MeleeWeaponAttack_ExplicitSecondaryTarget_IsThePrimaryTarget()
+	{
+		var assailant = new Mock<ICharacter>();
+		var originalTarget = new Mock<ICharacter>();
+		var secondaryTarget = new Mock<ICharacter>();
+		assailant.SetupGet(x => x.CombatTarget).Returns(originalTarget.Object);
+		assailant.Setup(x => x.ColocatedWith(secondaryTarget.Object)).Returns(true);
+
+		var move = new MeleeWeaponAttack(
+			assailant.Object,
+			new Mock<IMeleeWeapon>().Object,
+			new Mock<IWeaponAttack>().Object,
+			secondaryTarget.Object);
+
+		Assert.AreSame(secondaryTarget.Object, move.PrimaryTarget);
+		CollectionAssert.Contains(move.CharacterTargets.ToList(), secondaryTarget.Object);
+	}
+
+	[TestMethod]
+	public void NaturalAttackMove_ExplicitSecondaryTarget_IsThePrimaryTarget()
+	{
+		var assailant = new Mock<ICharacter>();
+		var originalTarget = new Mock<ICharacter>();
+		var secondaryTarget = new Mock<ICharacter>();
+		var naturalAttack = new Mock<INaturalAttack>();
+		naturalAttack.SetupGet(x => x.Attack).Returns(new Mock<IWeaponAttack>().Object);
+		assailant.SetupGet(x => x.CombatTarget).Returns(originalTarget.Object);
+
+		var move = new NaturalAttackMove(assailant.Object, naturalAttack.Object, secondaryTarget.Object);
+
+		Assert.AreSame(secondaryTarget.Object, move.PrimaryTarget);
+		CollectionAssert.Contains(move.CharacterTargets.ToList(), secondaryTarget.Object);
 	}
 
 	[TestMethod]

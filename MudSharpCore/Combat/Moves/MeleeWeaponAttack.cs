@@ -25,16 +25,13 @@ public class MeleeWeaponAttack : WeaponAttackMove
             throw new ApplicationException("Melee attack at range!");
         }
 #endif
+        if (target is not null)
+        {
+            PrimaryTarget = target;
+        }
+
         Assailant = owner;
         Weapon = weapon;
-        if (target == null && owner.CombatTarget is ICharacter ct)
-        {
-            _characterTargets.Add(ct);
-        }
-        else if (target != null)
-        {
-            _characterTargets.Add(target);
-        }
     }
 
     public override BuiltInCombatMoveType MoveType => BuiltInCombatMoveType.UseWeaponAttack;
@@ -81,7 +78,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
-		var boundaryTarget = CharacterTargets.FirstOrDefault();
+		var boundaryTarget = PrimaryCharacterTarget;
 		if (boundaryTarget is not null &&
 		    !VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, boundaryTarget, false, false,
 			    out var boundaryReason))
@@ -91,7 +88,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
 		}
         if (defenderMove == null)
         {
-            defenderMove = new HelplessDefenseMove { Assailant = CharacterTargets.First() };
+            defenderMove = new HelplessDefenseMove { Assailant = PrimaryCharacterTarget ?? CharacterTargets.First() };
         }
 
         WorsenCombatPosition(defenderMove.Assailant, Assailant);

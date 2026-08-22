@@ -188,7 +188,7 @@ The wound model cares about sequence and local state. Examples:
 - Wounds with lodged objects block several other treatments until the object is removed.
 - Wounds must generally be trauma-controlled before they can be closed.
 - Bone fractures must be relocated before non-surgical immobilization is valid.
-- A worn immobilising component derives its active fracture association from the bones beneath its wear profile. Removing or changing the worn profile clears that association, while load-time inventory restoration recomputes it without a separate persistence record.
+- A worn immobilising component derives its active fracture association from its actual stored wear locations, rather than re-evaluating a potentially state-dependent wear profile. Removing or changing the worn profile clears that association; another immobiliser can take it over only when it is directly worn over the same fracture, while load-time inventory restoration recomputes it without a separate persistence record.
 - Robot wounds use fluid-leak and repair semantics rather than organic infection and antiseptic logic.
 - Robot wounds do not contribute pain, while robot status still hinges on organ function, stun, fluid loss, positronic-brain integrity, and power-core integrity.
 

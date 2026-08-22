@@ -1554,6 +1554,11 @@ public partial class Character
             return false;
         }
 
+        if (IsSupportedRooftopsOnlyLayer(Location, this, RoomLayer))
+        {
+            return false;
+        }
+
         if (!RoomLayer.IsHigherThan(RoomLayer.GroundLevel))
         {
             return false;

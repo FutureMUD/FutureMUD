@@ -42,19 +42,25 @@ public class ImmobilisingGameItemComponent : WearableGameItemComponent, IImmobil
             return;
         }
 
-        foreach (var wound in WoundsCoveredByProfile(body, profile))
+        foreach (var wound in WoundsCoveredByWearLocations(
+                     body,
+                     body.WornItemsFullInfo
+                         .Where(x => x.Item == Parent)
+                         .Select(x => x.Wearloc)))
         {
             wound.ImmobilisingItem ??= Parent;
         }
     }
 
-    internal static IEnumerable<IImmobilisableWound> WoundsCoveredByProfile(IBody body, IWearProfile profile)
+    internal static IEnumerable<IImmobilisableWound> WoundsCoveredByWearLocations(
+        IBody body,
+        IEnumerable<IWear> wearLocations)
     {
-        var coveredBones = profile.Profile(body)
-                                  .SelectMany(x => x.Key.BoneInfo.Keys)
-                                  .ToHashSet();
+        var coveredBones = wearLocations
+            .SelectMany(x => x.BoneInfo.Keys)
+            .ToHashSet();
         return body.Wounds.OfType<IImmobilisableWound>()
-                   .Where(x => coveredBones.Contains(x.Bodypart));
+            .Where(x => coveredBones.Contains(x.Bodypart));
     }
 
     private void ClearImmobilisedWounds()
@@ -67,22 +73,26 @@ public class ImmobilisingGameItemComponent : WearableGameItemComponent, IImmobil
         foreach (var wound in WornBy.Wounds.OfType<IImmobilisableWound>()
                                     .Where(x => x.ImmobilisingItem == Parent))
         {
-            wound.ImmobilisingItem = FindReplacementImmobilisingItem(
-                WornBy,
-                wound,
-                WornBy.WornItems
-                      .Where(x => x != Parent && x.IsItemType<IImmobilise>())
-                      .Select(x => (Item: x, Profile: x.GetItemType<IWearable>()?.CurrentProfile))
-                      .Where(x => x.Profile is not null));
+            wound.ImmobilisingItem = FindReplacementImmobilisingItem(WornBy, wound, Parent);
         }
     }
 
     internal static IGameItem FindReplacementImmobilisingItem(
         IBody body,
         IImmobilisableWound wound,
-        IEnumerable<(IGameItem Item, IWearProfile Profile)> candidates)
+        IGameItem removedItem)
     {
-        return candidates.FirstOrDefault(x => WoundsCoveredByProfile(body, x.Profile).Contains(wound)).Item;
+        foreach (var candidate in body.WornItemsFullInfo
+                     .Where(x => x.Item != removedItem && x.Item.IsItemType<IImmobilise>())
+                     .GroupBy(x => x.Item))
+        {
+            if (WoundsCoveredByWearLocations(body, candidate.Select(x => x.Wearloc)).Contains(wound))
+            {
+                return candidate.Key;
+            }
+        }
+
+        return null;
     }
 
     #endregion

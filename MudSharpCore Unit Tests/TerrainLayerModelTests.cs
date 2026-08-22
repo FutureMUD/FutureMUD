@@ -71,6 +71,27 @@ public class TerrainLayerModelTests
 	}
 
 	[TestMethod]
+	public void RooftopsOnlyLayer_IsSupportedAndDoesNotRepeatFallProcessing()
+	{
+		var rooftopOnly = CreateCell(CreateTerrain("rooftopsonly"));
+		var ordinaryRooftops = CreateCell(CreateTerrain("rooftops"));
+		var perceiver = new Mock<IPerceiver>();
+
+		Assert.IsTrue(PerceiverItem.IsSupportedRooftopsOnlyLayer(
+			rooftopOnly.Object,
+			perceiver.Object,
+			RoomLayer.OnRooftops));
+		Assert.IsFalse(PerceiverItem.IsSupportedRooftopsOnlyLayer(
+			rooftopOnly.Object,
+			perceiver.Object,
+			RoomLayer.InAir));
+		Assert.IsFalse(PerceiverItem.IsSupportedRooftopsOnlyLayer(
+			ordinaryRooftops.Object,
+			perceiver.Object,
+			RoomLayer.OnRooftops));
+	}
+
+	[TestMethod]
 	public void LayerExits_CharacterOverload_UsesCharactersCurrentLayer()
 	{
 		var character = new Mock<ICharacter>();

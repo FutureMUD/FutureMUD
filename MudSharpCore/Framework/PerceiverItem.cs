@@ -347,6 +347,12 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 
     #endregion
 
+    internal static bool IsSupportedRooftopsOnlyLayer(ICell? location, IPerceiver perceiver, RoomLayer roomLayer)
+    {
+        return roomLayer == RoomLayer.OnRooftops &&
+               location?.Terrain(perceiver).TerrainLayers.Contains(RoomLayer.GroundLevel) == false;
+    }
+
     public virtual bool ShouldFall()
     {
         if (PositionState?.SafeFromFalling == true)
@@ -360,6 +366,11 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
         }
 
         if (ZeroGravityMovementHelper.IsZeroGravity(Location, RoomLayer, this))
+        {
+            return false;
+        }
+
+        if (IsSupportedRooftopsOnlyLayer(Location, this, RoomLayer))
         {
             return false;
         }

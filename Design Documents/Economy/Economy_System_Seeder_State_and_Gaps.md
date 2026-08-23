@@ -354,3 +354,7 @@ When extending the seeder side of the economy:
 ### Hospital persistence note
 
 The blank-database snapshot and manifest include migration `20260816012516_HospitalServiceConsentPolicy`. It adds the non-null `HospitalServices.ConsentPolicy` column, defaults services to informed consent, and backfills existing Stabilisation rows to emergency presumed consent. Hospital stock content remains world-specific; when seeded later, its manager-goal authority requirements must be delegated deliberately alongside service-equipment editing rights.
+
+### Restaurant seeding posture
+
+Restaurants are runtime-ready but deliberately have no stock cafe or restaurant package. A useful restaurant needs world-specific cells, physical table furniture, shop merchandise and stock sources, optionally world-specific crafts, plates, containers, bags, staff, payment instruments, service presentation, and legal policy. Seeding a generic venue would therefore create more misleading content than useful content. The blank-database snapshot includes both the restaurant service migration and its service-presentation/cleanup-cadence follow-up migration, so a fresh world can author one through normal builder commands without manual schema work.

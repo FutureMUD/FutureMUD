@@ -60,6 +60,8 @@ public abstract partial class Shop : SaveableItem, IShop
         {
             case "Permanent":
                 return new PermanentShop(shop, gameworld);
+            case "Restaurant":
+                return new Restaurant(shop, gameworld);
             case "Transient":
                 return new TransientShop(shop, gameworld);
             default:
@@ -2070,6 +2072,11 @@ public abstract partial class Shop : SaveableItem, IShop
         {
             if (_id != 0)
             {
+                if (this is Restaurant restaurant)
+                {
+                    restaurant.StopService();
+                }
+
                 Changed = false;
                 Gameworld.SaveManager.Abort(this);
                 Gameworld.Destroy(this);

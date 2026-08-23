@@ -443,6 +443,15 @@ namespace MudSharp.Database
         public virtual DbSet<HospitalServiceRequest> HospitalServiceRequests { get; set; }
         public virtual DbSet<HospitalPatientDebtAccount> HospitalPatientDebtAccounts { get; set; }
         public virtual DbSet<HospitalBloodStockPolicy> HospitalBloodStockPolicies { get; set; }
+        public virtual DbSet<Restaurant> Restaurants { get; set; }
+        public virtual DbSet<RestaurantCell> RestaurantCells { get; set; }
+        public virtual DbSet<RestaurantTable> RestaurantTables { get; set; }
+        public virtual DbSet<RestaurantMenuItem> RestaurantMenuItems { get; set; }
+        public virtual DbSet<RestaurantTableSession> RestaurantTableSessions { get; set; }
+        public virtual DbSet<RestaurantTableParticipant> RestaurantTableParticipants { get; set; }
+        public virtual DbSet<RestaurantOrder> RestaurantOrders { get; set; }
+        public virtual DbSet<RestaurantPayment> RestaurantPayments { get; set; }
+        public virtual DbSet<RestaurantOrderItem> RestaurantOrderItems { get; set; }
         public virtual DbSet<Stable> Stables { get; set; }
         public virtual DbSet<StableStay> StableStays { get; set; }
         public virtual DbSet<StableStayLedgerEntry> StableStayLedgerEntries { get; set; }

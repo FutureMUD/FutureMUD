@@ -616,3 +616,7 @@ For the standards, signals, and instruments tranche, additionally verify:
 3. all six standard profiles begin unowned, unclaimed, unassociated, unplanted, and at zero captures;
 4. character and clan ownership, a configured `CanBearProg`, hostile transfers, recovery, planting, ownership changes, copy/reset behavior, and exact-once hooks follow the custody contract;
 5. rerunning either seeder repairs owned definitions and associations without duplicating rows or altering unrelated builder content.
+
+## Restaurant Serviceware Workflow
+
+When authoring a cafe menu, first create and test the real items: stock drinks or dishes, optional craft output, a reusable plate or tray, a takeaway carton, and an optional bag. Build tables as `Table` plus `Container` furniture and place them in the intended service cells. Use normal item containment tests to verify that the food fits every nesting level. Then configure the restaurant menu against the corresponding shop merchandise. Keep menu entries inactive while changing `mode`, `craft`, `plate`, `package`, or `bag`; activation is the builder-facing compatibility check. Test one dine-in order with a real chef craft, plating, a server placing the plate onto the table, a diner eating from it, and the paced empty-plate cleanup; also test prepaid takeaway, opening, outer-bag delivery, and destroyed/missing-container failure before publishing a venue.

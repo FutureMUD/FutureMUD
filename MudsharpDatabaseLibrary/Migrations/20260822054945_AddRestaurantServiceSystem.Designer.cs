@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260822054945_AddRestaurantServiceSystem")]
+    partial class AddRestaurantServiceSystem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -19186,35 +19189,6 @@ namespace MudSharp.Migrations
                         .HasColumnType("bit(1)")
                         .HasDefaultValue(0ul);
 
-                    b.Property<string>("ChefOpenEmote")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(1000)")
-                        .HasDefaultValue("@ open|opens $0 for service.");
-
-                    b.Property<string>("ChefPlateEmote")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(1000)")
-                        .HasDefaultValue("@ plate|plates $0 on $1.");
-
-                    b.Property<string>("ChefReadyEmote")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(1000)")
-                        .HasDefaultValue("@ finish|finishes preparing $0 for service.");
-
-                    b.Property<string>("ChefStartEmote")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(1000)")
-                        .HasDefaultValue("@ begin|begins preparing $0.");
-
-                    b.Property<int>("CleanupIntervalSeconds")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int(11)")
-                        .HasDefaultValue(120);
-
                     b.Property<int>("HandlingSeconds")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int(11)")
@@ -19224,24 +19198,6 @@ namespace MudSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int(11)")
                         .HasDefaultValue(90);
-
-                    b.Property<string>("ServerClearEmote")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(1000)")
-                        .HasDefaultValue("@ clear|clears $0 from $1.");
-
-                    b.Property<string>("ServerReturnEmote")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(1000)")
-                        .HasDefaultValue("@ put|puts $0 aside in the kitchen.");
-
-                    b.Property<string>("ServerServeEmote")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(1000)")
-                        .HasDefaultValue("@ place|places $0 before $1 on $2.");
 
                     b.Property<ulong>("SimulateCrafting")
                         .ValueGeneratedOnAdd()

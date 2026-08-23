@@ -47,7 +47,11 @@ public class PermanentShop : Shop, IPermanentShop
         InitialiseShop();
     }
 
-    public PermanentShop(IEconomicZone zone, ICell originalShopFront, string name) : base(zone, originalShopFront, name, "Permanent")
+    public PermanentShop(IEconomicZone zone, ICell originalShopFront, string name) : this(zone, originalShopFront, name, "Permanent")
+    {
+    }
+
+    protected PermanentShop(IEconomicZone zone, ICell originalShopFront, string name, string shopType) : base(zone, originalShopFront, name, shopType)
     {
         AddShopfrontCell(originalShopFront);
         InitialiseShop();

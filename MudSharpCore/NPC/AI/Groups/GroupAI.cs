@@ -9,6 +9,32 @@ namespace MudSharp.NPC.AI.Groups;
 
 public class GroupAI : LateInitialisingItem, IGroupAI
 {
+	/// <summary>
+	/// Older data could place the same physical NPC in more than one live group. Keep the
+	/// lowest-ID group and mark later groups changed so the canonical membership is saved.
+	/// </summary>
+	public static int ReconcileLegacyDuplicateMemberships(IEnumerable<IGroupAI> groups)
+	{
+		Dictionary<ICharacter, IGroupAI> claims = new(CharacterPhysicalInstanceEqualityComparer.Instance);
+		int reconciled = 0;
+		foreach (IGroupAI group in groups.OrderBy(x => x.Id))
+		{
+			foreach (ICharacter member in group.GroupMembers.ToList())
+			{
+				if (claims.ContainsKey(member))
+				{
+					group.RemoveFromGroup(member);
+					reconciled++;
+					continue;
+				}
+
+				claims[member] = group;
+			}
+		}
+
+		return reconciled;
+	}
+
     public GroupAI(GroupAi ai, IFuturemud gameworld)
     {
         Gameworld = gameworld;
@@ -50,7 +76,7 @@ public class GroupAI : LateInitialisingItem, IGroupAI
             new XElement("Alertness", (int)Alertness),
             new XElement("Members",
                 from ch in GroupMembers
-                select SaveMemberReference(ch)
+                select SaveMemberReference(ch, RoleFor(ch))
             )
         );
     }
@@ -75,21 +101,25 @@ public class GroupAI : LateInitialisingItem, IGroupAI
                 var instanceId = long.TryParse(element.Attribute("instance")?.Value, out var parsedInstanceId)
                     ? parsedInstanceId
                     : (long?)null;
-                yield return new GroupMemberReference(characterId, instanceId);
+                GroupRole? role = Enum.TryParse(element.Attribute("role")?.Value, true, out GroupRole parsedRole)
+                    ? parsedRole
+                    : null;
+                yield return new GroupMemberReference(characterId, instanceId, role);
                 continue;
             }
 
             if (long.TryParse(element.Value, out var legacyId))
             {
-                yield return new GroupMemberReference(legacyId, null);
+                yield return new GroupMemberReference(legacyId, null, null);
             }
         }
     }
 
-    private static XElement SaveMemberReference(ICharacter character)
+    private static XElement SaveMemberReference(ICharacter character, GroupRole role)
     {
         var element = new XElement("Member",
-            new XAttribute("character", CharacterInstanceIdentityComparer.IdentityId(character)));
+            new XAttribute("character", CharacterInstanceIdentityComparer.IdentityId(character)),
+            new XAttribute("role", role));
         var instanceId = CharacterInstanceIdentityComparer.InstanceId(character);
         if (instanceId is not null)
         {
@@ -148,7 +178,7 @@ public class GroupAI : LateInitialisingItem, IGroupAI
         }
     }
 
-    private readonly record struct GroupMemberReference(long CharacterId, long? InstanceId);
+    private readonly record struct GroupMemberReference(long CharacterId, long? InstanceId, GroupRole? Role);
 
     private readonly List<GroupMemberReference> _groupMemberReferences = new();
     private List<ICharacter> _groupMembers;
@@ -158,20 +188,28 @@ public class GroupAI : LateInitialisingItem, IGroupAI
     {
         if (_groupMembers == null)
         {
-            _groupMembers = _groupMemberReferences
-                            .Select(x => CharacterInstanceIdentityComparer.ResolvePhysicalInstance(
-                                Gameworld,
-                                x.CharacterId,
-                                x.InstanceId,
-                                fallbackToPrimary: x.InstanceId is null))
-                            .Where(x => x is not null)
-                            .Select(x => x!)
-                            .DistinctPhysicalInstances()
-                            .ToList();
+            var resolvedMembers = _groupMemberReferences
+                .Select(x => (Reference: x, Character: CharacterInstanceIdentityComparer.ResolvePhysicalInstance(
+                    Gameworld,
+                    x.CharacterId,
+                    x.InstanceId,
+                    fallbackToPrimary: x.InstanceId is null)))
+                .Where(x => x.Character is not null)
+                .Select(x => (x.Reference, Character: x.Character!))
+                .GroupBy(x => x.Character, CharacterPhysicalInstanceEqualityComparer.Instance)
+                .Select(x => x.First())
+                .ToList();
+
+            _groupMembers = resolvedMembers.Select(x => x.Character).ToList();
+            foreach (var (reference, character) in resolvedMembers.Where(x => x.Reference.Role.HasValue))
+            {
+                GroupRoles[character] = reference.Role!.Value;
+            }
             _groupMemberReferences.Clear();
             _groupMemberReferences.AddRange(_groupMembers.Select(x => new GroupMemberReference(
                 CharacterInstanceIdentityComparer.IdentityId(x),
-                CharacterInstanceIdentityComparer.InstanceId(x))));
+                CharacterInstanceIdentityComparer.InstanceId(x),
+                RoleFor(x))));
         }
     }
 
@@ -194,10 +232,16 @@ public class GroupAI : LateInitialisingItem, IGroupAI
             return;
         }
 
+		if (character is INPC npc && npc.GroupAI is { } existingGroup && !ReferenceEquals(existingGroup, this))
+		{
+			return;
+		}
+
         _groupMembers.Add(character);
         _groupMemberReferences.Add(new GroupMemberReference(
             CharacterInstanceIdentityComparer.IdentityId(character),
-            CharacterInstanceIdentityComparer.InstanceId(character)));
+            CharacterInstanceIdentityComparer.InstanceId(character),
+            GroupRole.Adult));
         Changed = true;
     }
 

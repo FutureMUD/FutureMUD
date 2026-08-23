@@ -69,7 +69,7 @@ The screen treats free and earlier picks as already selected. It only shows the 
 ### Suggested Skill Selection
 `SkillPicker` can optionally execute a `SuggestedSkillsProg` with the signature `(chargen) -> collection of traits` when the screen opens. This is intended for earlier selections such as profession roles to recommend an initial skill package without granting those skills for free.
 
-Returned traits are considered in prog order. The screen ignores duplicates, free skills, hidden traits, non-skill traits, and skills that are not currently available in chargen, and stops accepting suggestions at the normal skill-pick limit. Accepted suggestions are ordinary selections: they count toward costs and the pick limit and can be removed or replaced by the player. A missing or zero prog leaves the existing manual-selection behaviour unchanged.
+Returned traits are considered in prog order. The screen ignores duplicates, free skills, hidden traits, non-skill traits, and skills that are not currently available in chargen, and evaluates the normal skill-pick limit afresh for each suggestion. It also revalidates that limit when the player finishes the screen, so a dynamic limit prog cannot leave an over-limit selection. Accepted suggestions are ordinary selections: they count toward costs and the pick limit and can be removed or replaced by the player. A missing or zero prog leaves the existing manual-selection behaviour unchanged.
 
 ## Application Types
 Chargen tracks `ApplicationType` explicitly:

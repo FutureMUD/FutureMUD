@@ -249,7 +249,7 @@ internal sealed class EmploymentManagerGoalAuthoringService
 
 		RemoveDraft(actor, host);
 		var draft = new EmploymentManagerGoalDraft(host, definition, description);
-		EnsureNativeHospitalStockDefaults(draft);
+		EnsureNativeStockDefaults(draft);
 		actor.AddEffect(new EmploymentManagerGoalDraftEffect(actor, draft));
 		message =
 			$"You begin a {definition.Key.ColourCommand()} manager goal draft named {draft.Description.ColourName()} for {host.EmploymentHostName.ColourName()}.";
@@ -273,7 +273,7 @@ internal sealed class EmploymentManagerGoalAuthoringService
 
 		RemoveDraft(actor, host);
 		var draft = new EmploymentManagerGoalDraft(host, goal, description);
-		EnsureNativeHospitalStockDefaults(draft);
+		EnsureNativeStockDefaults(draft);
 		actor.AddEffect(new EmploymentManagerGoalDraftEffect(actor, draft));
 		message =
 			$"You copy manager goal #{goal.Id.ToString("N0", actor).ColourValue()} into a draft named {draft.Description.ColourName()}. Finalise the draft and cancel the old goal when you are ready to replace it.";
@@ -307,7 +307,7 @@ internal sealed class EmploymentManagerGoalAuthoringService
 		}
 
 		draft.SetGoalType(definition);
-		EnsureNativeHospitalStockDefaults(draft);
+		EnsureNativeStockDefaults(draft);
 		message = $"You set the manager goal draft type to {definition.Key.ColourCommand()}.";
 		return true;
 	}
@@ -603,9 +603,11 @@ internal sealed class EmploymentManagerGoalAuthoringService
 			return false;
 		}
 
-		if (IsNativeHospitalStockGoal(draft.GoalType))
+		if (IsNativeStockGoal(draft.GoalType))
 		{
-			message = "Hospital stock manager goals generate their purchase and delivery steps automatically from current service requirements and inventory.";
+			message = IsNativeRestaurantStockGoal(draft.GoalType)
+				? "Restaurant ingredient manager goals generate purchase and delivery steps automatically from active craft menu inputs and ingredient storage."
+				: "Hospital stock manager goals generate their purchase and delivery steps automatically from current service requirements and inventory.";
 			return false;
 		}
 
@@ -711,13 +713,15 @@ internal sealed class EmploymentManagerGoalAuthoringService
 			return false;
 		}
 
-		if (IsNativeHospitalStockGoal(draft.GoalType) && !HasMatchingHospitalStockCondition(draft))
+		if (IsNativeStockGoal(draft.GoalType) && !HasMatchingNativeStockCondition(draft))
 		{
-			message = "Hospital stock manager goals require a matching hospital stock or theatre stock condition.";
+			message = IsNativeRestaurantStockGoal(draft.GoalType)
+				? "Restaurant ingredient manager goals require a restaurant stock condition."
+				: "Hospital stock manager goals require a matching hospital stock or theatre stock condition.";
 			return false;
 		}
 
-		if (!draft.Steps.Any() && !IsNativeHospitalStockGoal(draft.GoalType))
+		if (!draft.Steps.Any() && !IsNativeStockGoal(draft.GoalType))
 		{
 			message = "You cannot finalise a manager goal draft with no action steps.";
 			return false;
@@ -896,6 +900,16 @@ internal sealed class EmploymentManagerGoalAuthoringService
 		return HospitalSupplyStockGoalPlanner.IsHospitalStockGoal(goalType);
 	}
 
+	private static bool IsNativeRestaurantStockGoal(ManagerGoalType goalType)
+	{
+		return RestaurantIngredientStockGoalPlanner.IsRestaurantStockGoal(goalType);
+	}
+
+	private static bool IsNativeStockGoal(ManagerGoalType goalType)
+	{
+		return IsNativeHospitalStockGoal(goalType) || IsNativeRestaurantStockGoal(goalType);
+	}
+
 	private static bool TryValidateGoalTypeForHost(IEmploymentHost host, EmploymentManagerGoalDefinition definition,
 		out string message)
 	{
@@ -905,19 +919,35 @@ internal sealed class EmploymentManagerGoalAuthoringService
 			return false;
 		}
 
+		if (IsNativeRestaurantStockGoal(definition.GoalType) && host is not IRestaurant)
+		{
+			message = $"{definition.Key.ColourCommand()} manager goals can only be created for restaurant employment hosts.";
+			return false;
+		}
+
 		message = string.Empty;
 		return true;
 	}
 
-	private static void EnsureNativeHospitalStockDefaults(EmploymentManagerGoalDraft draft)
+	private static void EnsureNativeStockDefaults(EmploymentManagerGoalDraft draft)
 	{
-		if (!IsNativeHospitalStockGoal(draft.GoalType))
+		if (!IsNativeStockGoal(draft.GoalType))
 		{
 			return;
 		}
 
-		var itemType = HospitalSupplyStockGoalPlanner.ItemTypeForGoal(draft.GoalType);
 		draft.ClearSteps();
+		if (IsNativeRestaurantStockGoal(draft.GoalType))
+		{
+			if (!draft.Conditions.OfType<RestaurantIngredientStockCondition>().Any())
+			{
+				draft.AddCondition(new RestaurantIngredientStockCondition(30, "any", null));
+			}
+
+			return;
+		}
+
+		var itemType = HospitalSupplyStockGoalPlanner.ItemTypeForGoal(draft.GoalType);
 		if (HospitalTheatreStockGoalPlanner.IsHospitalTheatreStockGoal(draft.GoalType))
 		{
 			draft.RemoveConditions(x => x is HospitalTheatreStockCondition stock && stock.ItemType != itemType);
@@ -936,8 +966,13 @@ internal sealed class EmploymentManagerGoalAuthoringService
 		}
 	}
 
-	private static bool HasMatchingHospitalStockCondition(EmploymentManagerGoalDraft draft)
+	private static bool HasMatchingNativeStockCondition(EmploymentManagerGoalDraft draft)
 	{
+		if (IsNativeRestaurantStockGoal(draft.GoalType))
+		{
+			return draft.Conditions.OfType<RestaurantIngredientStockCondition>().Any();
+		}
+
 		if (!IsNativeHospitalStockGoal(draft.GoalType))
 		{
 			return false;

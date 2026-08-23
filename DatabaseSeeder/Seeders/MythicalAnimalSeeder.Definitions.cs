@@ -66,7 +66,8 @@ public partial class MythicalAnimalSeeder
         string CombatStrategyKey = "Beast Brawler",
         IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null,
 		double MaximumFoodSatiatedHours = RacialSatiationDefaults.MaximumFoodSatiatedHours,
-		double MaximumDrinkSatiatedHours = RacialSatiationDefaults.MaximumDrinkSatiatedHours
+		double MaximumDrinkSatiatedHours = RacialSatiationDefaults.MaximumDrinkSatiatedHours,
+		bool WildlifeEligible = false
     );
 
     internal static IReadOnlyDictionary<string, MythicalRaceTemplate> TemplatesForTesting => Templates;
@@ -206,7 +207,8 @@ public partial class MythicalAnimalSeeder
                         null,
                         null,
                         additionalCharacteristics,
-                        CombatStrategyKey: combatStrategyKey
+					CombatStrategyKey: combatStrategyKey,
+					WildlifeEligible: true
                     );
         }
 

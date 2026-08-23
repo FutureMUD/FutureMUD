@@ -68,6 +68,13 @@ public static class EmploymentConditionCatalog
 			EmploymentAuthority.ManageDeliveryRoutes,
 			"Satisfied when operating theatres are missing staged hospital tools or consumables for active service requirements.",
 			Aliases("theatrestock", "theatresupplies", "operatingtheatrestock", "hospitalstaging")),
+		Definition("restaurantstock", EmploymentConditionCategory.Stock, EmploymentTaskConditionType.RestaurantIngredientStock,
+			"tasks rule condition restaurantstock <meal-count> [from <shop id|name|any>] [max <amount>]",
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageDeliveryRoutes,
+			"Satisfied when ingredient containers lack the inputs needed to craft the configured number of every active craft-backed menu item.",
+			Aliases("restaurantingredients", "kitchenstock", "menustock", "mealstock")),
 		Definition("account", EmploymentConditionCategory.Finance, EmploymentTaskConditionType.AccountBalance,
 			"tasks rule condition account cash|bank|available|key <key> below|atleast <amount>",
 			EmploymentAuthority.CreateScheduledRules,

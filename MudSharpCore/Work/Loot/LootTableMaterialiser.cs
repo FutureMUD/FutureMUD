@@ -51,6 +51,10 @@ public sealed class LootTableMaterialiser
 				leaf => CreateLeaf(leaf).Select(item => (leaf, item)),
 				items =>
 				{
+					foreach (var pair in items.Where(x => x.Leaf.Kind == LootChoiceKind.Item))
+					{
+						ValidateInitialState(pair.Item, pair.Leaf.StartsClosed, pair.Leaf.StartsLocked);
+					}
 					foreach (var grouping in items.Where(x => x.Leaf.ResultKey is not null).GroupBy(x => x.Leaf.ResultKey!))
 					{
 						if (grouping.Count() != 1 || !keyed.TryAdd(grouping.Key, grouping.Single().Item)) throw new LootMaterialisationException("INVALID_RESULT_KEY", "A result key did not resolve to exactly one item.");
@@ -73,16 +77,16 @@ public sealed class LootTableMaterialiser
 					foreach (var item in items.Select(x => x.Item))
 					{
 						_gameworld.Add(item);
-						item.HandleEvent(EventType.ItemFinishedLoading, item);
-						item.Login();
 					}
 				},
 				items => Cleanup(items.Select(x => x.Item)));
 			created.AddRange(plannedItems.Select(x => x.Item));
+			var postCommitWarnings = FinaliseCommittedItems(created);
 			var roots = plannedItems.Where(x => x.Leaf.DestinationKey == "target").Select(x => x.Item).ToList();
 			var rootIds = string.Join(',', roots.Select(x => x.Id));
+			var warningReceipt = postCommitWarnings == 0 ? string.Empty : $" postcommitwarnings={postCommitWarnings}";
 			return new LootMaterialisationResult(true,
-				$"OK table={table.Id}r{table.RevisionNumber} hash={table.DefinitionHash} algorithm={table.AlgorithmVersion} variant={variant} seed={seed} roots={rootIds} created={created.Count} digest={plan.Digest}", plan);
+				$"OK table={table.Id}r{table.RevisionNumber} hash={table.DefinitionHash} algorithm={table.AlgorithmVersion} variant={variant} seed={seed} roots={rootIds} created={created.Count} digest={plan.Digest}{warningReceipt}", plan);
 		}
 		catch (LootMaterialisationException ex)
 		{
@@ -116,7 +120,7 @@ public sealed class LootTableMaterialiser
 		var quantityPerCreation = proto.IsItemType<IStackablePrototype>() ? leaf.Quantity : 1;
 		for (var remaining = leaf.Quantity; remaining > 0; remaining -= quantityPerCreation)
 		{
-			items.AddRange(proto.CreateNew(null!, null!, quantityPerCreation, variables));
+			items.AddRange(proto.CreateNew(null!, null!, quantityPerCreation, variables, executeOnLoadProgs: false));
 		}
 		if (items.Count == 0)
 		{
@@ -124,6 +128,19 @@ public sealed class LootTableMaterialiser
 		}
 		foreach (var item in items) item.Quality = (ItemQuality)leaf.Quality;
 		return items;
+	}
+
+	private static void ValidateInitialState(IGameItem item, bool startsClosed, bool startsLocked)
+	{
+		if (startsClosed && item.GetItemType<IOpenable>() is null)
+		{
+			throw new LootMaterialisationException("ITEM_NOT_OPENABLE", "A planned item cannot start closed because it is not openable.");
+		}
+
+		if (startsLocked && item.GetItemType<ILock>() is null)
+		{
+			throw new LootMaterialisationException("ITEM_NOT_LOCKABLE", "A planned item cannot start locked because it has no built-in lock.");
+		}
 	}
 
 	public static void ApplyInitialState(IGameItem item, bool startsClosed, bool startsLocked)
@@ -186,9 +203,52 @@ public sealed class LootTableMaterialiser
 		}
 		else if (target.Character is not null)
 		{
-			if (target.Character.Body.GetWithoutMerge(item, silent: true) is null) throw new LootMaterialisationException("PLACEMENT_FAILED", "A planned item was not inserted into the target inventory.");
+			if (target.Character.Body.GetWithoutMerge(item, silent: true, triggerEvents: false) is null) throw new LootMaterialisationException("PLACEMENT_FAILED", "A planned item was not inserted into the target inventory.");
 		}
 		else throw new LootMaterialisationException("NULL_TARGET", "The materialisation target was null.");
+	}
+
+	private int FinaliseCommittedItems(IEnumerable<IGameItem> items)
+	{
+		var warnings = 0;
+		foreach (var item in items)
+		{
+			warnings += TryFinalise(item, "OnLoad", () => item.Prototype.ExecuteOnLoadProgs(item, null));
+		}
+
+		foreach (var item in items)
+		{
+			warnings += TryFinalise(item, "ItemFinishedLoading", () => item.HandleEvent(EventType.ItemFinishedLoading, item));
+		}
+
+		foreach (var item in items)
+		{
+			warnings += TryFinalise(item, "Login", item.Login);
+		}
+
+		return warnings;
+	}
+
+	private int TryFinalise(IGameItem item, string operation, Action action)
+	{
+		try
+		{
+			action();
+			return 0;
+		}
+		catch (Exception ex)
+		{
+			try
+			{
+				_gameworld.SystemMessage($"LootTable post-commit {operation} failed for item #{item.Id:N0}: {ex.Message}", true);
+			}
+			catch
+			{
+				// A diagnostics failure must not make a committed loot package look as though it rolled back.
+			}
+
+			return 1;
+		}
 	}
 
 	private static void Cleanup(IEnumerable<IGameItem> items)

@@ -593,6 +593,16 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		])
 	];
 
+	// Agriculture herd records intentionally remain abstract economy records. This explicit
+	// bridge lets the wildlife catalogue recommend a managed controller when a builder later
+	// materialises NPCs from one of those records, without coupling either subsystem to live NPCs.
+	internal static IReadOnlyCollection<string> StockHerdAnimalRaceNamesForWildlife =>
+	[
+		"Cow", "Ox", "Buffalo", "Bison", "Sheep", "Goat", "Pig", "Horse", "Donkey", "Mule", "Camel",
+		"Llama", "Alpaca", "Reindeer", "Rabbit", "Guinea Pig", "Chicken", "Duck", "Goose", "Turkey",
+		"Pigeon", "Quail", "Pheasant", "Peacock", "Ostrich", "Emu", "Rhea"
+	];
+
 	private static readonly WoodlandSeed[] Woodlands =
 	[
 		new("Hazel Coppice", "A managed hazel coppice cut on a short cycle for rods, stakes, nuts, and firewood.", "coppice", 180, 365, [Yield("hazel", 2500000), Yield("hazelnut", 250000), Yield("firewood", 800000)]),

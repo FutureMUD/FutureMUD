@@ -299,6 +299,25 @@ public static class SeederMetadataRegistry
                 RerunSummary: "Reruns retain the installed animal package choices and reconcile stock bodies, races, attacks and supporting content.",
                 DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder)]
             ),
+            nameof(WildlifeCatalogueSeeder) => new SeederMetadata(
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.FullReconcile,
+                [
+                    Requirement("The Core foundation must include an account, FutureProgs, materials, a craft trait and the Holdable component.", context =>
+                        context.Accounts.Any() &&
+                        context.FutureProgs.Any() &&
+                        context.Materials.Any() &&
+						context.TraitDefinitions.Any() &&
+                        context.GameItemComponentProtos.Any(x => x.Name == "Holdable")),
+                    Requirement("The Animal seeder must have installed its animal foundations.", context =>
+                        context.Races.Any(x => x.Name == "Wolf") &&
+                        context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
+                ],
+                RerunSummary: "Reruns repair the stock-owned Wildlife and Managed Animal controller catalogue, group templates, habitat tags, shelter anchors and supporting progs without changing legacy Animal examples.",
+                UpdateSummary: "Finished wildlife rows are canonical stock definitions; clone them before intentional customisation.",
+                OwnershipSummary: "Only Wildlife- and Managed Animal-prefixed rows plus named wildlife support records are reconciled. Builder-created terrain tags and legacy examples are preserved.",
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(AttributeSeeder), typeof(UsefulSeeder), typeof(AnimalSeeder)]
+            ),
             nameof(MythicalAnimalSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
                 SeederUpdateCapability.InstallMissing,

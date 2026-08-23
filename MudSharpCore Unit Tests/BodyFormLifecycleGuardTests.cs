@@ -5,6 +5,7 @@ using Moq;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
+using MudSharp.Health.Breathing;
 using ConcreteBody = MudSharp.Body.Implementations.Body;
 using ConcreteCharacter = MudSharp.Character.Character;
 using System;
@@ -49,6 +50,29 @@ public class BodyFormLifecycleGuardTests
 		body.CheckDrugTick();
 		body.CheckHealthStatus();
 		body.DoBreathing();
+	}
+
+	[TestMethod]
+	public void DoBreathing_ImmortalBodyClearsStaleHeldBreathWithoutInvokingStrategy()
+	{
+		var body = TestObjectFactory.CreateUninitialized<ConcreteBody>();
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.CurrentBody).Returns(body);
+		actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		actor.Setup(x => x.IsAdministrator()).Returns(true);
+		body.Actor = actor.Object;
+
+		var strategy = new Mock<IBreathingStrategy>();
+		strategy.SetupGet(x => x.NeedsToBreathe).Returns(true);
+		typeof(ConcreteBody)
+			.GetField("_breathingStrategy", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(body, strategy.Object);
+		body.HeldBreathTime = TimeSpan.FromSeconds(30);
+
+		body.DoBreathing();
+
+		Assert.AreEqual(TimeSpan.Zero, body.HeldBreathTime);
+		strategy.Verify(x => x.Breathe(body), Times.Never);
 	}
 
 	[TestMethod]

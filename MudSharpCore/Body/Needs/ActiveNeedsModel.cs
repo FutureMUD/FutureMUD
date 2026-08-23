@@ -7,6 +7,10 @@ namespace MudSharp.Body.Needs;
 /// </summary>
 public class ActiveNeedsModel : ChangingNeedsModelBase
 {
+    public const string ModelNameValue = "Active";
+
+    public override string ModelName => ModelNameValue;
+
     public ActiveNeedsModel(MudSharp.Models.Character dbcharacter, ICharacter character)
     {
         Owner = character;
@@ -28,6 +32,17 @@ public class ActiveNeedsModel : ChangingNeedsModelBase
         SatiationReserve = 0.0;
     }
 
+    internal ActiveNeedsModel(INeedsModel existingNeeds, ICharacter character)
+    {
+        Owner = character;
+        DrinkSatiatedHours = existingNeeds.DrinkSatiatedHours;
+        FoodSatiatedHours = existingNeeds.FoodSatiatedHours;
+        AlcoholLitres = existingNeeds.AlcoholLitres;
+        WaterLitres = existingNeeds.WaterLitres;
+        SatiationReserve = existingNeeds.SatiationReserve;
+        NormaliseValues();
+    }
+
     public override void NeedsHeartbeat()
     {
         List<INeedRateChangingMerit> ownerMerits = Owner.Merits.OfType<INeedRateChangingMerit>().Where(x => x.Applies(Owner)).ToList();
@@ -38,14 +53,18 @@ public class ActiveNeedsModel : ChangingNeedsModelBase
         NeedsResult oldStatus = Status;
         double hoursPassed = 1 / 60.0 * RealSecondsToInGameSeconds;
 
-        DrinkSatiatedHours -= hoursPassed * Owner.Race.ThirstRate *
-                              ownerMerits.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier) * thirstMult;
+        if (TracksThirst)
+        {
+            DrinkSatiatedHours -= hoursPassed * Owner.Race.ThirstRate *
+                                  ownerMerits.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier) * thirstMult;
+            WaterLitres -= hoursPassed * Owner.Body.WaterLossLitresPerHour *
+                           ownerMerits.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier) * thirstMult;
+        }
+
         FoodSatiatedHours -= hoursPassed * Owner.Race.HungerRate *
                              ownerMerits.Aggregate(1.0, (x, y) => x * y.HungerMultiplier) * hungerMult;
         AlcoholLitres -= hoursPassed * Owner.Body.LiverAlcoholRemovalKilogramsPerHour *
                          ownerMerits.Aggregate(1.0, (x, y) => x * y.DrunkennessMultiplier) * drunkMult;
-        WaterLitres -= hoursPassed * Owner.Body.WaterLossLitresPerHour *
-                       ownerMerits.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier) * thirstMult;
 
         double satiationUse = hoursPassed * Owner.Race.HungerRate *
                            ownerMerits.Aggregate(1.0, (x, y) => x * y.HungerMultiplier) * hungerMult;
@@ -64,6 +83,6 @@ public class ActiveNeedsModel : ChangingNeedsModelBase
         }
 
         NormaliseValues();
-        NeedsChanged(oldStatus, true, true, false);
+        NeedsChanged(oldStatus, true, TracksThirst, false);
     }
 }

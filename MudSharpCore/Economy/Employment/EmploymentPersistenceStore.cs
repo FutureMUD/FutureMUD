@@ -3120,6 +3120,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					record.ThresholdDecimal),
 			EmploymentTaskConditionType.HospitalTheatreStock =>
 				HospitalTheatreStockCondition.FromRecord(record.Key ?? string.Empty, record.ThresholdInt ?? 1),
+			EmploymentTaskConditionType.RestaurantIngredientStock =>
+				RestaurantIngredientStockCondition.FromRecord(record.Key ?? string.Empty, record.ThresholdInt ?? 30,
+					record.ThresholdDecimal),
 			_ => null
 		};
 	}
@@ -3210,6 +3213,11 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			case HospitalTheatreStockCondition theatreStock:
 				record.Key = theatreStock.Key;
 				record.ThresholdInt = theatreStock.ProcedureCount;
+				break;
+			case RestaurantIngredientStockCondition restaurantStock:
+				record.Key = restaurantStock.Key;
+				record.ThresholdInt = restaurantStock.MealCount;
+				record.ThresholdDecimal = restaurantStock.MaximumLineAmount;
 				break;
 		}
 

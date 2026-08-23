@@ -1,5 +1,5 @@
 -- MySqlBackup.NET 2.6.5.0
--- Dump Time: 2026-08-11 07:49:00
+-- Dump Time: 2026-08-23 09:44:35
 -- --------------------------------------
 -- Server version 8.0.45 MySQL Community Server - GPL
 
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `__efmigrationshistory` (
 --
 
 /*!40000 ALTER TABLE `__efmigrationshistory` DISABLE KEYS */;
-INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20200626070704_InitialDatabase','9.0.11'),('20200728125151_MoveChargenToTables','9.0.11'),('20200807044450_EnforcementUpdate','9.0.11'),('20200810141606_ClanVoting','9.0.11'),('20200817061844_Elections','9.0.11'),('20200830233741_TerrainUpdate','9.0.11'),('20200905062837_CurrencyPatternEnhancement','9.0.11'),('20200928025908_KnowledgeBuilding','9.0.11'),('20201013213328_CheckFixing','9.0.11'),('20201014230837_FixingEmailTemplates','9.0.11'),('20201106014706_LineOfCreditAccounts','9.0.11'),('20201106040133_AttributesUpdate','9.0.11'),('20201108122141_EconomicZoneUpdate','9.0.11'),('20201113050353_EconomicZonesTouchup','9.0.11'),('20201120022913_EnforcermentAndMisc','9.0.11'),('20201120045951_MinorFixForCrime','9.0.11'),('20201129225407_SafeQuit','9.0.11'),('20201130014025_JournalUpdates','9.0.11'),('20201130041538_JournalUpdate','9.0.11'),('20201201052916_DrugReform','9.0.11'),('20201217051236_Changes','9.0.11'),('20201217051726_ExtraDescriptions','9.0.11'),('20201218014631_RacialBreathingChange','9.0.11'),('20201221031703_ClanFame','9.0.11'),('20201227120935_CantRemember','9.0.11'),('20210113052107_IndexFixForBodyparts','9.0.11'),('20210114010706_IndexAdditions','9.0.11'),('20210116210204_MagicSpells','9.0.11'),('20210118053537_MoreSpellStuff','9.0.11'),('20210119034150_MoreSpellStuff2','9.0.11'),('20210119035740_MoreSpellStuff3','9.0.11'),('20210120031933_MoreSpellStuff4','9.0.11'),('20210127032929_Jan21EnforcementWorkaround','9.0.11'),('20210202002906_RemovingChildClans','9.0.11'),('20210211035327_GameStatistics','9.0.11'),('20210224105856_NewSun','9.0.11'),('20210302112347_OngoingCheckForCharacteristics','9.0.11'),('20210331025006_BanksV1','9.0.11'),('20210423014825_WeaponAttackAddPositionRequirement','9.0.11'),('20210626110830_AuctionHouses','9.0.11'),('20210810123837_PropertyV1','9.0.11'),('20210902052233_PropertyV2','9.0.11'),('20210914132733_Sep21LawUpdate','9.0.11'),('20211025020630_JusticeOverhaulOct21','9.0.11'),('20211217034326_TerrainMapColourAddition','9.0.11'),('20211220045847_Skins','9.0.11'),('20211222033658_Skins-Pt2','9.0.11'),('20211226134159_ClanBankAccounts','9.0.11'),('20211229004501_PlayerBoards','9.0.11'),('20220104134109_JobsV1','9.0.11'),('20220105004035_ProjectsJobsUpdate','9.0.11'),('20220108004307_BoardBugFix','9.0.11'),('20220117102755_BoardsDescriptions','9.0.11'),('20220210215752_LongerAuthorFullDescs','9.0.11'),('20220225125641_ClanFKFixing','9.0.11'),('20220327052829_NPCSpawners','9.0.11'),('20220421132846_BodyCharacteristicsFix','9.0.11'),('20220625122517_ClanDiscordUpdate','9.0.11'),('20220625125136_ChargenResourcesAsDouble','9.0.11'),('20220718132632_MaterialsRefactor','9.0.11'),('20220731064708_TheoreticalCraftChecks','9.0.11'),('20220807101509_IntToDoubleParryBonus','9.0.11'),('20220814231930_RaceDefaultHwModels','9.0.11'),('20221030044209_ShopBankAccountsAndFinance','9.0.11'),('20221030125929_BankPaymentsAtShops','9.0.11'),('20221031113757_MagicSpellExclusivity','9.0.11'),('20221201081057_NameCulturesGenderExpansion','9.0.11'),('20221201133628_NameCulturesChargenExpansion','9.0.11'),('20230101133831_CurrencyPatternRegexCaseFix','9.0.11'),('20230110120837_RelativeEnthalpyForLiquids','9.0.11'),('20230124124618_SurgicalProcedureCheckTraits','9.0.11'),('20230311060208_SurgeryBodyUpdate','9.0.11'),('20230407151210_OpenAIv1','9.0.11'),('20230428004425_GlobalCurrencyChanges','9.0.11'),('20230603125906_CraftUseToolDuration','9.0.11'),('20230706055610_AuxiliaryMoves','9.0.11'),('20230714035824_AuxiliaryMoves2','9.0.11'),('20230727121209_SeasonsDisplayUpdate','9.0.11'),('20230731055842_SeederChoices','9.0.11'),('20230810071403_CellForeignKeyUpdates','9.0.11'),('20230825052231_NpcSpawnerMulti','9.0.11'),('20230825061651_ShopTypes','9.0.11'),('20230914142042_ScriptedEvents','9.0.11'),('20230917131132_ClanForeignKeyUpdate','9.0.11'),('20231031085439_MagicResourceColours','9.0.11'),('20231102120820_NewPlayerHints','9.0.11'),('20231110224309_HungerThirstRatesForRaces','9.0.11'),('20231125084220_ClimateModelSimplification','9.0.11'),('20231208235024_HeritageChargenCostBugFix','9.0.11'),('20240112055830_ChargenResourcesControlProg','9.0.11'),('20240119120217_CoinsChangeFlag','9.0.11'),('20240129025113_CurrencyForeignKeyUpdateJan24','9.0.11'),('20240305110906_BuyingMerchandise','9.0.11'),('20240325104238_MarketsV1','9.0.11'),('20240418112441_MarketsShopIntegration','9.0.11'),('20240427013621_MarketPopulations','9.0.11'),('20240601141550_DiscordOutputForChannels','9.0.11'),('20240615065145_ShopAutopayTaxes','9.0.11'),('20240730123726_TrackingV1','9.0.11'),('20240804070126_FixDatabaseAutoTrueBug','9.0.11'),('20240808232211_TrackingNameForBodyProtos','9.0.11'),('20240809155707_BMIUnits','9.0.11'),('20240816134208_ArmourPenaltyToDouble','9.0.11'),('20240817112644_HeightWeightModelDirectSetWeights','9.0.11'),('20240828105208_AutoReacquireTargetsSetting','9.0.11'),('20240828124859_CombatSettingsAugust24','9.0.11'),('20240831005804_BodypartGroupDescribersAugust2024','9.0.11'),('20240925062238_CrimesUpdate2024Sep25','9.0.11'),('20241011073405_StockroomNonMorphing','9.0.11'),('20241016054103_ItemProtoIsHiddenFromPlayers','9.0.11'),('20241016123415_BodyOverrideHealthStrategy','9.0.11'),('20241018071518_LiquidLeaveResidueInRooms','9.0.11'),('20241121010653_RemovingBreathableFluidsRaces','9.0.11'),('20241129002416_CriminalDescUpdates','9.0.11'),('20241216062012_RandomNamesBinaryUnicodeSort','9.0.11'),('20241220091815_EthnicitiesNameCultures','9.0.11'),('20241231030836_TagsForTerrains','9.0.11'),('20250101232454_SkewnessForHWModels','9.0.11'),('20250210095915_Shoppers','9.0.11'),('20250210233555_ShopsFeb25','9.0.11'),('20250211100238_ShopsFeb25P2','9.0.11'),('20250304042559_PreserveRegisterVariablesItemFlag','9.0.11'),('20250304104024_CraftPhaseExertionAndStamina','9.0.11'),('20250304114440_MerchandiseTransactionRecordsFix','9.0.11'),('20250424052852_SpellTriggerNullTargets','9.0.11'),('20250628230040_PropertyRekeyOnLeaseEnd','9.0.11'),('20251110082110_CombatArenaSchema','9.0.11'),('20251115120000_ArenaSignupEcho','9.0.11'),('20260211095519_AIStorytellers','9.0.11'),('20260211124139_AIStorytellerEventSubscriptions','9.0.11'),('20260216092441_AIStorytellerTimeSystemPrompt','9.0.11'),('20260216095426_AIStorytellerScopedModelReasoning','9.0.11'),('20260218120142_ArenaAutoScheduling','9.0.11'),('20260221112947_AIStorytellerSituationScopes','9.0.11'),('20260222081900_ArenaEventTypeEliminationModes','9.0.11'),('20260222112522_ArenaNpcCompletionRestore','9.0.11'),('20260225115630_ArenaStageNameProfile','9.0.11'),('20260225233442_ArenaEloStrategyOptions','9.0.11'),('20260226124500_ArenaSideRatingRanges','9.0.11'),('20260227120000_ArenaPhaseProgAppearancePayouts','9.0.11'),('20260308065322_ClimateDescriptions','9.0.11'),('20260309072751_WeatherModelSimplification','9.0.11'),('20260309222608_ReplaceCharacterCaloriesWithSatiationReserve','9.0.11'),('20260309225356_DropObsoleteNutritionCalories','9.0.11'),('20260310122815_InfectionVirulenceMultiplier','9.0.11'),('20260316112529_NaturalRangedAttacksAndElementalContact','9.0.11'),('20260320180000_CombatSettingPriorityAndRaceDefault','9.0.11'),('20260321102002_FutureProgTypeDefinitionsStage1','9.0.11'),('20260321102139_FutureProgTypeDefinitionsStage2','9.0.11'),('20260327103014_ShopDeals','9.0.11'),('20260327124234_EstateProbateAuctionLiquidation','9.0.11'),('20260328123631_EstateProbateMorgueWorkflow','9.0.11'),('20260329110346_EconomicZoneEstatesEnabledToggle','9.0.11'),('20260329223130_EstateWillsPayoutsAndPropertyShares','9.0.11'),('20260331222122_AddSolidMaterialAliases','9.0.11'),('20260402053811_RemoveOldSunCelestialDefault','9.0.11'),('20260415122407_MarketPopulationIncomeAndPricePressure','9.0.11'),('20260415225956_MarketCombinationCategoriesAndStressHysteresisReady','9.0.11'),('20260416225128_AddCharacterComputerWorkspace','9.0.11'),('20260418111319_AddComputerMailService','9.0.11'),('20260420105205_AddBodypartSeverFormula','9.0.11'),('20260421064024_ProjectQueueAndCancellationContinuity','9.0.11'),('20260422035105_Phase1MultiBodyForms','9.0.11'),('20260423090353_Phase15BodyFormProvisioning','9.0.11'),('20260423093000_CharacterBodyTraumaMode','9.0.11'),('20260423114308_Phase15FormTransformationEcho','9.0.11'),('20260424000000_RaceAttributeAlterations','9.0.11'),('20260424035904_RaceSatiationLimits','9.0.11'),('20260424040025_PlanesAndPlanarData','9.0.11'),('20260424044647_PlaneRoomPresentation','9.0.11'),('20260425131140_HotelRoomRentals','9.0.11'),('20260425131520_StableMountStabling','9.0.11'),('20260425132107_AddTerrainGravity','9.0.11'),('20260426114113_DefaultFormTransformationEchoNonSelf','9.0.11'),('20260427110022_RecurringIntervalOrdinalFields','9.0.11'),('20260501090000_PlaneRemoteObservationTag','9.0.11'),('20260501132243_RaceAgeColumnsNoDatabaseDefaults','9.0.11'),('20260506102652_PrintedWritingAuthorNullable','9.0.11'),('20260506103358_ClanBudgetsAndPayrollHistory','9.0.11'),('20260507091523_VirtualCashLedgerAndBanklessSettlement','9.0.11'),('20260507092824_ClanBudgetVirtualTreasuryFallback','9.0.11'),('20260510212610_PatrolRouteStrategyData','9.0.11'),('20260513234412_ManualCombatCommands','9.0.11'),('20260515130602_VehiclesHybridModel','9.0.11'),('20260515232922_VehicleSystemsPhase2','9.0.11'),('20260519132419_VehicleCharacterHitchPullMultiplier','9.0.11'),('20260520000533_VehiclePersistentHitchLinks','9.0.11'),('20260520011927_AgricultureSystem','9.0.11'),('20260523000000_CommoditySpoilageRules','9.0.11'),('20260523125349_ItemProtoUniqueNameBuilderNotes','9.0.11'),('20260523134149_NpcTemplateUniqueNameBuilderNotes','9.0.11'),('20260523205847_ForagableCommodityOutput','9.0.11'),('20260526091744_UnifiedEmploymentPersistence','9.0.11'),('20260526120456_SurfaceLiquidState','9.0.11'),('20260529001356_EmploymentPayrollLiabilities','9.0.11'),('20260529025718_EmploymentActionStepOperationalState','9.0.11'),('20260529230237_MagicPortalTopology','9.0.11'),('20260530235915_EmploymentScheduledRuleStatus','9.0.11'),('20260601012012_AutomaticCrimeContext','9.0.11'),('20260601111355_HotelNormalizedPersistence','9.0.11'),('20260601122909_CommodityMerchandiseWeightedSales','9.0.11'),('20260606072630_RichEmploymentScheduledRuleExpressions','9.0.11'),('20260606103736_OutfitTemplates','9.0.11'),('20260612134150_CharacterInstances','9.0.11'),('20260614233932_CharacterInstanceNpcPatrolStableInstances','9.0.11'),('20260615024353_CharacterInstanceActorReferences','9.0.11'),('20260615120000_CharacterInstanceProjectLabour','9.0.11'),('20260616135417_DrugExpansionDependenceExposures','9.0.11'),('20260620054424_EmploymentApplicationSnapshots','9.0.11'),('20260627000000_VehicleTowStressPolicy','9.0.11'),('20260701121756_AlertEmotes','9.0.11'),('20260701122720_ClanHallCellsForEmploymentHosts','9.0.11'),('20260703095705_WritingCollections','9.0.11'),('20260703125041_HospitalServicesAndEmploymentHosts','9.0.11'),('20260703143217_HospitalAnesthesiaBloodStockPolicies','9.0.11'),('20260703232840_HospitalCannulationAndCombinedServices','9.0.11'),('20260706141430_ActiveProjectPaymentSettings','9.0.11'),('20260708120000_HospitalClinicalPlanning','9.0.11'),('20260719104654_VehicleSurfaceWaterMovementProfiles','9.0.11'),('20260719124626_VehicleSurfaceWaterPropulsion','9.0.11'),('20260720063425_VehicleBoatCombat','9.0.11'),('20260721125028_MultiTargetCombatActions','9.0.11'),('20260722063400_RouteCellSpatialFoundation','9.0.11'),('20260722071041_RoomScaleVehicleInteriors','9.0.11'),('20260722100951_VehicleRoutesAndServices','9.0.11'),('20260726211600_VehicleTerrestrialEnginePower','9.0.11'),('20260726211712_VehicleRiderPoweredPropulsion','9.0.11'),('20260727101435_CombatPositionAttackPreference','9.0.11'),('20260730053720_FirearmAttachmentsAndProjectileAmmunition','9.0.11'),('20260804125523_SeederManagedRecordProvenance','9.0.11'),('20260805124030_ProjectQueueSchedulingAndLaunchEntries','9.0.11'),('20260808112940_AddBodypartLimbSeverDescription','9.0.11'),('20260810130800_AddTrapTemplates','9.0.11');
+INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20200626070704_InitialDatabase','9.0.11'),('20200728125151_MoveChargenToTables','9.0.11'),('20200807044450_EnforcementUpdate','9.0.11'),('20200810141606_ClanVoting','9.0.11'),('20200817061844_Elections','9.0.11'),('20200830233741_TerrainUpdate','9.0.11'),('20200905062837_CurrencyPatternEnhancement','9.0.11'),('20200928025908_KnowledgeBuilding','9.0.11'),('20201013213328_CheckFixing','9.0.11'),('20201014230837_FixingEmailTemplates','9.0.11'),('20201106014706_LineOfCreditAccounts','9.0.11'),('20201106040133_AttributesUpdate','9.0.11'),('20201108122141_EconomicZoneUpdate','9.0.11'),('20201113050353_EconomicZonesTouchup','9.0.11'),('20201120022913_EnforcermentAndMisc','9.0.11'),('20201120045951_MinorFixForCrime','9.0.11'),('20201129225407_SafeQuit','9.0.11'),('20201130014025_JournalUpdates','9.0.11'),('20201130041538_JournalUpdate','9.0.11'),('20201201052916_DrugReform','9.0.11'),('20201217051236_Changes','9.0.11'),('20201217051726_ExtraDescriptions','9.0.11'),('20201218014631_RacialBreathingChange','9.0.11'),('20201221031703_ClanFame','9.0.11'),('20201227120935_CantRemember','9.0.11'),('20210113052107_IndexFixForBodyparts','9.0.11'),('20210114010706_IndexAdditions','9.0.11'),('20210116210204_MagicSpells','9.0.11'),('20210118053537_MoreSpellStuff','9.0.11'),('20210119034150_MoreSpellStuff2','9.0.11'),('20210119035740_MoreSpellStuff3','9.0.11'),('20210120031933_MoreSpellStuff4','9.0.11'),('20210127032929_Jan21EnforcementWorkaround','9.0.11'),('20210202002906_RemovingChildClans','9.0.11'),('20210211035327_GameStatistics','9.0.11'),('20210224105856_NewSun','9.0.11'),('20210302112347_OngoingCheckForCharacteristics','9.0.11'),('20210331025006_BanksV1','9.0.11'),('20210423014825_WeaponAttackAddPositionRequirement','9.0.11'),('20210626110830_AuctionHouses','9.0.11'),('20210810123837_PropertyV1','9.0.11'),('20210902052233_PropertyV2','9.0.11'),('20210914132733_Sep21LawUpdate','9.0.11'),('20211025020630_JusticeOverhaulOct21','9.0.11'),('20211217034326_TerrainMapColourAddition','9.0.11'),('20211220045847_Skins','9.0.11'),('20211222033658_Skins-Pt2','9.0.11'),('20211226134159_ClanBankAccounts','9.0.11'),('20211229004501_PlayerBoards','9.0.11'),('20220104134109_JobsV1','9.0.11'),('20220105004035_ProjectsJobsUpdate','9.0.11'),('20220108004307_BoardBugFix','9.0.11'),('20220117102755_BoardsDescriptions','9.0.11'),('20220210215752_LongerAuthorFullDescs','9.0.11'),('20220225125641_ClanFKFixing','9.0.11'),('20220327052829_NPCSpawners','9.0.11'),('20220421132846_BodyCharacteristicsFix','9.0.11'),('20220625122517_ClanDiscordUpdate','9.0.11'),('20220625125136_ChargenResourcesAsDouble','9.0.11'),('20220718132632_MaterialsRefactor','9.0.11'),('20220731064708_TheoreticalCraftChecks','9.0.11'),('20220807101509_IntToDoubleParryBonus','9.0.11'),('20220814231930_RaceDefaultHwModels','9.0.11'),('20221030044209_ShopBankAccountsAndFinance','9.0.11'),('20221030125929_BankPaymentsAtShops','9.0.11'),('20221031113757_MagicSpellExclusivity','9.0.11'),('20221201081057_NameCulturesGenderExpansion','9.0.11'),('20221201133628_NameCulturesChargenExpansion','9.0.11'),('20230101133831_CurrencyPatternRegexCaseFix','9.0.11'),('20230110120837_RelativeEnthalpyForLiquids','9.0.11'),('20230124124618_SurgicalProcedureCheckTraits','9.0.11'),('20230311060208_SurgeryBodyUpdate','9.0.11'),('20230407151210_OpenAIv1','9.0.11'),('20230428004425_GlobalCurrencyChanges','9.0.11'),('20230603125906_CraftUseToolDuration','9.0.11'),('20230706055610_AuxiliaryMoves','9.0.11'),('20230714035824_AuxiliaryMoves2','9.0.11'),('20230727121209_SeasonsDisplayUpdate','9.0.11'),('20230731055842_SeederChoices','9.0.11'),('20230810071403_CellForeignKeyUpdates','9.0.11'),('20230825052231_NpcSpawnerMulti','9.0.11'),('20230825061651_ShopTypes','9.0.11'),('20230914142042_ScriptedEvents','9.0.11'),('20230917131132_ClanForeignKeyUpdate','9.0.11'),('20231031085439_MagicResourceColours','9.0.11'),('20231102120820_NewPlayerHints','9.0.11'),('20231110224309_HungerThirstRatesForRaces','9.0.11'),('20231125084220_ClimateModelSimplification','9.0.11'),('20231208235024_HeritageChargenCostBugFix','9.0.11'),('20240112055830_ChargenResourcesControlProg','9.0.11'),('20240119120217_CoinsChangeFlag','9.0.11'),('20240129025113_CurrencyForeignKeyUpdateJan24','9.0.11'),('20240305110906_BuyingMerchandise','9.0.11'),('20240325104238_MarketsV1','9.0.11'),('20240418112441_MarketsShopIntegration','9.0.11'),('20240427013621_MarketPopulations','9.0.11'),('20240601141550_DiscordOutputForChannels','9.0.11'),('20240615065145_ShopAutopayTaxes','9.0.11'),('20240730123726_TrackingV1','9.0.11'),('20240804070126_FixDatabaseAutoTrueBug','9.0.11'),('20240808232211_TrackingNameForBodyProtos','9.0.11'),('20240809155707_BMIUnits','9.0.11'),('20240816134208_ArmourPenaltyToDouble','9.0.11'),('20240817112644_HeightWeightModelDirectSetWeights','9.0.11'),('20240828105208_AutoReacquireTargetsSetting','9.0.11'),('20240828124859_CombatSettingsAugust24','9.0.11'),('20240831005804_BodypartGroupDescribersAugust2024','9.0.11'),('20240925062238_CrimesUpdate2024Sep25','9.0.11'),('20241011073405_StockroomNonMorphing','9.0.11'),('20241016054103_ItemProtoIsHiddenFromPlayers','9.0.11'),('20241016123415_BodyOverrideHealthStrategy','9.0.11'),('20241018071518_LiquidLeaveResidueInRooms','9.0.11'),('20241121010653_RemovingBreathableFluidsRaces','9.0.11'),('20241129002416_CriminalDescUpdates','9.0.11'),('20241216062012_RandomNamesBinaryUnicodeSort','9.0.11'),('20241220091815_EthnicitiesNameCultures','9.0.11'),('20241231030836_TagsForTerrains','9.0.11'),('20250101232454_SkewnessForHWModels','9.0.11'),('20250210095915_Shoppers','9.0.11'),('20250210233555_ShopsFeb25','9.0.11'),('20250211100238_ShopsFeb25P2','9.0.11'),('20250304042559_PreserveRegisterVariablesItemFlag','9.0.11'),('20250304104024_CraftPhaseExertionAndStamina','9.0.11'),('20250304114440_MerchandiseTransactionRecordsFix','9.0.11'),('20250424052852_SpellTriggerNullTargets','9.0.11'),('20250628230040_PropertyRekeyOnLeaseEnd','9.0.11'),('20251110082110_CombatArenaSchema','9.0.11'),('20251115120000_ArenaSignupEcho','9.0.11'),('20260211095519_AIStorytellers','9.0.11'),('20260211124139_AIStorytellerEventSubscriptions','9.0.11'),('20260216092441_AIStorytellerTimeSystemPrompt','9.0.11'),('20260216095426_AIStorytellerScopedModelReasoning','9.0.11'),('20260218120142_ArenaAutoScheduling','9.0.11'),('20260221112947_AIStorytellerSituationScopes','9.0.11'),('20260222081900_ArenaEventTypeEliminationModes','9.0.11'),('20260222112522_ArenaNpcCompletionRestore','9.0.11'),('20260225115630_ArenaStageNameProfile','9.0.11'),('20260225233442_ArenaEloStrategyOptions','9.0.11'),('20260226124500_ArenaSideRatingRanges','9.0.11'),('20260227120000_ArenaPhaseProgAppearancePayouts','9.0.11'),('20260308065322_ClimateDescriptions','9.0.11'),('20260309072751_WeatherModelSimplification','9.0.11'),('20260309222608_ReplaceCharacterCaloriesWithSatiationReserve','9.0.11'),('20260309225356_DropObsoleteNutritionCalories','9.0.11'),('20260310122815_InfectionVirulenceMultiplier','9.0.11'),('20260316112529_NaturalRangedAttacksAndElementalContact','9.0.11'),('20260320180000_CombatSettingPriorityAndRaceDefault','9.0.11'),('20260321102002_FutureProgTypeDefinitionsStage1','9.0.11'),('20260321102139_FutureProgTypeDefinitionsStage2','9.0.11'),('20260327103014_ShopDeals','9.0.11'),('20260327124234_EstateProbateAuctionLiquidation','9.0.11'),('20260328123631_EstateProbateMorgueWorkflow','9.0.11'),('20260329110346_EconomicZoneEstatesEnabledToggle','9.0.11'),('20260329223130_EstateWillsPayoutsAndPropertyShares','9.0.11'),('20260331222122_AddSolidMaterialAliases','9.0.11'),('20260402053811_RemoveOldSunCelestialDefault','9.0.11'),('20260415122407_MarketPopulationIncomeAndPricePressure','9.0.11'),('20260415225956_MarketCombinationCategoriesAndStressHysteresisReady','9.0.11'),('20260416225128_AddCharacterComputerWorkspace','9.0.11'),('20260418111319_AddComputerMailService','9.0.11'),('20260420105205_AddBodypartSeverFormula','9.0.11'),('20260421064024_ProjectQueueAndCancellationContinuity','9.0.11'),('20260422035105_Phase1MultiBodyForms','9.0.11'),('20260423090353_Phase15BodyFormProvisioning','9.0.11'),('20260423093000_CharacterBodyTraumaMode','9.0.11'),('20260423114308_Phase15FormTransformationEcho','9.0.11'),('20260424000000_RaceAttributeAlterations','9.0.11'),('20260424035904_RaceSatiationLimits','9.0.11'),('20260424040025_PlanesAndPlanarData','9.0.11'),('20260424044647_PlaneRoomPresentation','9.0.11'),('20260425131140_HotelRoomRentals','9.0.11'),('20260425131520_StableMountStabling','9.0.11'),('20260425132107_AddTerrainGravity','9.0.11'),('20260426114113_DefaultFormTransformationEchoNonSelf','9.0.11'),('20260427110022_RecurringIntervalOrdinalFields','9.0.11'),('20260501090000_PlaneRemoteObservationTag','9.0.11'),('20260501132243_RaceAgeColumnsNoDatabaseDefaults','9.0.11'),('20260506102652_PrintedWritingAuthorNullable','9.0.11'),('20260506103358_ClanBudgetsAndPayrollHistory','9.0.11'),('20260507091523_VirtualCashLedgerAndBanklessSettlement','9.0.11'),('20260507092824_ClanBudgetVirtualTreasuryFallback','9.0.11'),('20260510212610_PatrolRouteStrategyData','9.0.11'),('20260513234412_ManualCombatCommands','9.0.11'),('20260515130602_VehiclesHybridModel','9.0.11'),('20260515232922_VehicleSystemsPhase2','9.0.11'),('20260519132419_VehicleCharacterHitchPullMultiplier','9.0.11'),('20260520000533_VehiclePersistentHitchLinks','9.0.11'),('20260520011927_AgricultureSystem','9.0.11'),('20260523000000_CommoditySpoilageRules','9.0.11'),('20260523125349_ItemProtoUniqueNameBuilderNotes','9.0.11'),('20260523134149_NpcTemplateUniqueNameBuilderNotes','9.0.11'),('20260523205847_ForagableCommodityOutput','9.0.11'),('20260526091744_UnifiedEmploymentPersistence','9.0.11'),('20260526120456_SurfaceLiquidState','9.0.11'),('20260529001356_EmploymentPayrollLiabilities','9.0.11'),('20260529025718_EmploymentActionStepOperationalState','9.0.11'),('20260529230237_MagicPortalTopology','9.0.11'),('20260530235915_EmploymentScheduledRuleStatus','9.0.11'),('20260601012012_AutomaticCrimeContext','9.0.11'),('20260601111355_HotelNormalizedPersistence','9.0.11'),('20260601122909_CommodityMerchandiseWeightedSales','9.0.11'),('20260606072630_RichEmploymentScheduledRuleExpressions','9.0.11'),('20260606103736_OutfitTemplates','9.0.11'),('20260612134150_CharacterInstances','9.0.11'),('20260614233932_CharacterInstanceNpcPatrolStableInstances','9.0.11'),('20260615024353_CharacterInstanceActorReferences','9.0.11'),('20260615120000_CharacterInstanceProjectLabour','9.0.11'),('20260616135417_DrugExpansionDependenceExposures','9.0.11'),('20260620054424_EmploymentApplicationSnapshots','9.0.11'),('20260627000000_VehicleTowStressPolicy','9.0.11'),('20260701121756_AlertEmotes','9.0.11'),('20260701122720_ClanHallCellsForEmploymentHosts','9.0.11'),('20260703095705_WritingCollections','9.0.11'),('20260703125041_HospitalServicesAndEmploymentHosts','9.0.11'),('20260703143217_HospitalAnesthesiaBloodStockPolicies','9.0.11'),('20260703232840_HospitalCannulationAndCombinedServices','9.0.11'),('20260706141430_ActiveProjectPaymentSettings','9.0.11'),('20260708120000_HospitalClinicalPlanning','9.0.11'),('20260719104654_VehicleSurfaceWaterMovementProfiles','9.0.11'),('20260719124626_VehicleSurfaceWaterPropulsion','9.0.11'),('20260720063425_VehicleBoatCombat','9.0.11'),('20260721125028_MultiTargetCombatActions','9.0.11'),('20260722063400_RouteCellSpatialFoundation','9.0.11'),('20260722071041_RoomScaleVehicleInteriors','9.0.11'),('20260722100951_VehicleRoutesAndServices','9.0.11'),('20260726211600_VehicleTerrestrialEnginePower','9.0.11'),('20260726211712_VehicleRiderPoweredPropulsion','9.0.11'),('20260727101435_CombatPositionAttackPreference','9.0.11'),('20260730053720_FirearmAttachmentsAndProjectileAmmunition','9.0.11'),('20260804125523_SeederManagedRecordProvenance','9.0.11'),('20260805124030_ProjectQueueSchedulingAndLaunchEntries','9.0.11'),('20260808112940_AddBodypartLimbSeverDescription','9.0.11'),('20260810130800_AddTrapTemplates','9.0.11'),('20260816012516_HospitalServiceConsentPolicy','9.0.11'),('20260816094719_AddLootTables','9.0.11'),('20260822054945_AddRestaurantServiceSystem','9.0.11'),('20260822233623_AddRestaurantServicePresentation','9.0.11');
 /*!40000 ALTER TABLE `__efmigrationshistory` ENABLE KEYS */;
 
 --
@@ -4964,6 +4964,30 @@ CREATE TABLE IF NOT EXISTS `loginips` (
 
 /*!40000 ALTER TABLE `loginips` DISABLE KEYS */;
 /*!40000 ALTER TABLE `loginips` ENABLE KEYS */;
+
+--
+-- Definition of loottables
+--
+
+DROP TABLE IF EXISTS `loottables`;
+CREATE TABLE IF NOT EXISTS `loottables` (
+  `Id` bigint NOT NULL,
+  `RevisionNumber` int NOT NULL,
+  `EditableItemId` bigint NOT NULL,
+  `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Definition` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `AlgorithmVersion` int NOT NULL,
+  PRIMARY KEY (`Id`,`RevisionNumber`),
+  KEY `FK_LootTables_EditableItems_idx` (`EditableItemId`),
+  CONSTRAINT `FK_LootTables_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table loottables
+--
+
+/*!40000 ALTER TABLE `loottables` DISABLE KEYS */;
+/*!40000 ALTER TABLE `loottables` ENABLE KEYS */;
 
 --
 -- Definition of magicgenerators
@@ -9947,6 +9971,272 @@ CREATE TABLE IF NOT EXISTS `merchandises` (
 /*!40000 ALTER TABLE `merchandises` ENABLE KEYS */;
 
 --
+-- Definition of restaurants
+--
+
+DROP TABLE IF EXISTS `restaurants`;
+CREATE TABLE IF NOT EXISTS `restaurants` (
+  `ShopId` bigint NOT NULL,
+  `AutomatedService` bit(1) NOT NULL DEFAULT b'0',
+  `SimulateCrafting` bit(1) NOT NULL DEFAULT b'0',
+  `HandlingSeconds` int NOT NULL DEFAULT '15',
+  `MaximumBatchWaitSeconds` int NOT NULL DEFAULT '90',
+  `ChefOpenEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ open|opens $0 for service.',
+  `ChefPlateEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ plate|plates $0 on $1.',
+  `ChefReadyEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ finish|finishes preparing $0 for service.',
+  `ChefStartEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ begin|begins preparing $0.',
+  `CleanupIntervalSeconds` int NOT NULL DEFAULT '120',
+  `ServerClearEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ clear|clears $0 from $1.',
+  `ServerReturnEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ put|puts $0 aside in the kitchen.',
+  `ServerServeEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ place|places $0 before $1 on $2.',
+  PRIMARY KEY (`ShopId`),
+  CONSTRAINT `FK_Restaurants_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurants
+--
+
+/*!40000 ALTER TABLE `restaurants` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurants` ENABLE KEYS */;
+
+--
+-- Definition of restaurantcells
+--
+
+DROP TABLE IF EXISTS `restaurantcells`;
+CREATE TABLE IF NOT EXISTS `restaurantcells` (
+  `RestaurantShopId` bigint NOT NULL,
+  `CellId` bigint NOT NULL,
+  `Role` int NOT NULL,
+  PRIMARY KEY (`RestaurantShopId`,`CellId`,`Role`),
+  KEY `IX_RestaurantCells_Cell` (`CellId`),
+  KEY `IX_RestaurantCells_Restaurant_Role` (`RestaurantShopId`,`Role`),
+  CONSTRAINT `FK_RestaurantCells_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurantcells
+--
+
+/*!40000 ALTER TABLE `restaurantcells` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurantcells` ENABLE KEYS */;
+
+--
+-- Definition of restaurantmenuitems
+--
+
+DROP TABLE IF EXISTS `restaurantmenuitems`;
+CREATE TABLE IF NOT EXISTS `restaurantmenuitems` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RestaurantShopId` bigint NOT NULL,
+  `MerchandiseId` bigint NOT NULL,
+  `Description` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `FulfilmentMode` int NOT NULL,
+  `IsActive` bit(1) NOT NULL DEFAULT b'1',
+  `DineInAvailable` bit(1) NOT NULL DEFAULT b'1',
+  `TakeawayAvailable` bit(1) NOT NULL DEFAULT b'1',
+  `PreparationSeconds` int NOT NULL,
+  `CraftId` bigint DEFAULT NULL,
+  `CraftRevisionNumber` int DEFAULT NULL,
+  `ServingContainerPrototypeId` bigint DEFAULT NULL,
+  `ServingContainerPrototypeRevisionNumber` int DEFAULT NULL,
+  `TakeawayContainerPrototypeId` bigint DEFAULT NULL,
+  `TakeawayContainerPrototypeRevisionNumber` int DEFAULT NULL,
+  `TakeawayBagPrototypeId` bigint DEFAULT NULL,
+  `TakeawayBagPrototypeRevisionNumber` int DEFAULT NULL,
+  `SortOrder` int NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_RestaurantMenuItems_Merchandises_idx` (`MerchandiseId`),
+  KEY `FK_RestaurantMenuItems_Restaurants_idx` (`RestaurantShopId`),
+  KEY `IX_RestaurantMenuItems_Restaurant_Sort` (`RestaurantShopId`,`SortOrder`),
+  CONSTRAINT `FK_RestaurantMenuItems_Merchandises` FOREIGN KEY (`MerchandiseId`) REFERENCES `merchandises` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_RestaurantMenuItems_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurantmenuitems
+--
+
+/*!40000 ALTER TABLE `restaurantmenuitems` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurantmenuitems` ENABLE KEYS */;
+
+--
+-- Definition of restauranttables
+--
+
+DROP TABLE IF EXISTS `restauranttables`;
+CREATE TABLE IF NOT EXISTS `restauranttables` (
+  `RestaurantShopId` bigint NOT NULL,
+  `GameItemId` bigint NOT NULL,
+  PRIMARY KEY (`RestaurantShopId`,`GameItemId`),
+  KEY `IX_RestaurantTables_GameItem` (`GameItemId`),
+  CONSTRAINT `FK_RestaurantTables_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restauranttables
+--
+
+/*!40000 ALTER TABLE `restauranttables` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restauranttables` ENABLE KEYS */;
+
+--
+-- Definition of restauranttablesessions
+--
+
+DROP TABLE IF EXISTS `restauranttablesessions`;
+CREATE TABLE IF NOT EXISTS `restauranttablesessions` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RestaurantShopId` bigint NOT NULL,
+  `TableGameItemId` bigint NOT NULL,
+  `Status` int NOT NULL,
+  `CreatedAtUtc` datetime(6) NOT NULL,
+  `LastUpdatedAtUtc` datetime(6) NOT NULL,
+  `ClosedAtUtc` datetime(6) DEFAULT NULL,
+  `AbandonmentPendingAtUtc` datetime(6) DEFAULT NULL,
+  `AbandonmentReported` bit(1) NOT NULL DEFAULT b'0',
+  PRIMARY KEY (`Id`),
+  KEY `FK_RestaurantTableSessions_Restaurants_idx` (`RestaurantShopId`),
+  KEY `IX_RestaurantTableSessions_Table_Status` (`RestaurantShopId`,`TableGameItemId`,`Status`),
+  CONSTRAINT `FK_RestaurantTableSessions_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restauranttablesessions
+--
+
+/*!40000 ALTER TABLE `restauranttablesessions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restauranttablesessions` ENABLE KEYS */;
+
+--
+-- Definition of restaurantorders
+--
+
+DROP TABLE IF EXISTS `restaurantorders`;
+CREATE TABLE IF NOT EXISTS `restaurantorders` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RestaurantShopId` bigint NOT NULL,
+  `RestaurantTableSessionId` bigint DEFAULT NULL,
+  `RestaurantMenuItemId` bigint NOT NULL,
+  `OrderType` int NOT NULL,
+  `Status` int NOT NULL,
+  `OrdererCharacterId` bigint NOT NULL,
+  `OrdererCharacterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `RecipientCharacterId` bigint NOT NULL,
+  `RecipientCharacterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Quantity` int NOT NULL,
+  `PretaxPrice` decimal(58,29) NOT NULL,
+  `Tax` decimal(58,29) NOT NULL,
+  `Price` decimal(58,29) NOT NULL,
+  `AmountPaid` decimal(58,29) NOT NULL,
+  `RevenueRecognised` bit(1) NOT NULL DEFAULT b'0',
+  `CreatedAtUtc` datetime(6) NOT NULL,
+  `LastUpdatedAtUtc` datetime(6) NOT NULL,
+  `ExpectedReadyAtUtc` datetime(6) DEFAULT NULL,
+  `ReadyAtUtc` datetime(6) DEFAULT NULL,
+  `ServedAtUtc` datetime(6) DEFAULT NULL,
+  `PreparedByEmployeeId` bigint DEFAULT NULL,
+  `ServedByEmployeeId` bigint DEFAULT NULL,
+  `OperationalNotes` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_RestaurantOrders_MenuItems_idx` (`RestaurantMenuItemId`),
+  KEY `FK_RestaurantOrders_Restaurants_idx` (`RestaurantShopId`),
+  KEY `FK_RestaurantOrders_Sessions_idx` (`RestaurantTableSessionId`),
+  KEY `IX_RestaurantOrders_Restaurant_Status` (`RestaurantShopId`,`Status`),
+  KEY `IX_RestaurantOrders_Session_Debtor` (`RestaurantTableSessionId`,`OrdererCharacterId`),
+  CONSTRAINT `FK_RestaurantOrders_MenuItems` FOREIGN KEY (`RestaurantMenuItemId`) REFERENCES `restaurantmenuitems` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_RestaurantOrders_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE,
+  CONSTRAINT `FK_RestaurantOrders_Sessions` FOREIGN KEY (`RestaurantTableSessionId`) REFERENCES `restauranttablesessions` (`Id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurantorders
+--
+
+/*!40000 ALTER TABLE `restaurantorders` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurantorders` ENABLE KEYS */;
+
+--
+-- Definition of restaurantorderitems
+--
+
+DROP TABLE IF EXISTS `restaurantorderitems`;
+CREATE TABLE IF NOT EXISTS `restaurantorderitems` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RestaurantOrderId` bigint NOT NULL,
+  `GameItemId` bigint DEFAULT NULL,
+  `Role` int NOT NULL,
+  `Delivered` bit(1) NOT NULL DEFAULT b'0',
+  `CreatedAtUtc` datetime(6) NOT NULL,
+  `DeliveredAtUtc` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_RestaurantOrderItems_Orders_idx` (`RestaurantOrderId`),
+  KEY `IX_RestaurantOrderItems_GameItem` (`GameItemId`),
+  CONSTRAINT `FK_RestaurantOrderItems_Orders` FOREIGN KEY (`RestaurantOrderId`) REFERENCES `restaurantorders` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurantorderitems
+--
+
+/*!40000 ALTER TABLE `restaurantorderitems` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurantorderitems` ENABLE KEYS */;
+
+--
+-- Definition of restaurantpayments
+--
+
+DROP TABLE IF EXISTS `restaurantpayments`;
+CREATE TABLE IF NOT EXISTS `restaurantpayments` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RestaurantOrderId` bigint NOT NULL,
+  `PayerCharacterId` bigint NOT NULL,
+  `PayerCharacterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Amount` decimal(58,29) NOT NULL,
+  `IsRefund` bit(1) NOT NULL DEFAULT b'0',
+  `PaymentMethod` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Reference` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `PaidAtUtc` datetime(6) NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_RestaurantPayments_Orders_idx` (`RestaurantOrderId`),
+  CONSTRAINT `FK_RestaurantPayments_Orders` FOREIGN KEY (`RestaurantOrderId`) REFERENCES `restaurantorders` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurantpayments
+--
+
+/*!40000 ALTER TABLE `restaurantpayments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurantpayments` ENABLE KEYS */;
+
+--
+-- Definition of restauranttableparticipants
+--
+
+DROP TABLE IF EXISTS `restauranttableparticipants`;
+CREATE TABLE IF NOT EXISTS `restauranttableparticipants` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RestaurantTableSessionId` bigint NOT NULL,
+  `CharacterId` bigint NOT NULL,
+  `CharacterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Accepted` bit(1) NOT NULL,
+  `JoinedAtUtc` datetime(6) NOT NULL,
+  `LeftAtUtc` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `IX_RestaurantTableParticipants_Session_Character` (`RestaurantTableSessionId`,`CharacterId`),
+  KEY `FK_RestaurantTableParticipants_Sessions_idx` (`RestaurantTableSessionId`),
+  CONSTRAINT `FK_RestaurantTableParticipants_Sessions` FOREIGN KEY (`RestaurantTableSessionId`) REFERENCES `restauranttablesessions` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restauranttableparticipants
+--
+
+/*!40000 ALTER TABLE `restauranttableparticipants` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restauranttableparticipants` ENABLE KEYS */;
+
+--
 -- Definition of shopfinancialperiodresults
 --
 
@@ -10905,6 +11195,7 @@ CREATE TABLE IF NOT EXISTS `hospitalservices` (
   `ImplantPowerProcedureId` bigint DEFAULT NULL,
   `AnesthesiaCannulationProcedureId` bigint DEFAULT NULL,
   `OfferingMode` int NOT NULL DEFAULT '0',
+  `ConsentPolicy` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
   KEY `FK_HospitalServices_GameItemProtos_idx` (`ImplantItemPrototypeId`,`ImplantItemPrototypeRevisionNumber`),
   KEY `FK_HospitalServices_Hospitals_idx` (`HospitalId`),
@@ -14878,74 +15169,5 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 
--- Dump completed on 2026-08-11 07:49:01
--- Total time: 0:0:0:1:642 (d:h:m:s:ms)
-
--- EF-generated idempotent delta: 20260816012516_HospitalServiceConsentPolicy
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260816012516_HospitalServiceConsentPolicy') THEN
-        ALTER TABLE `hospitalservices` ADD `ConsentPolicy` int(11) NOT NULL DEFAULT 0;
-        UPDATE `hospitalservices` SET `ConsentPolicy` = 1 WHERE `ServiceType` = 10;
-        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
-        VALUES ('20260816012516_HospitalServiceConsentPolicy', '9.0.11');
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
--- EF-generated idempotent delta: 20260816094719_AddLootTables
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260816094719_AddLootTables') THEN
-
-    CREATE TABLE `loottables` (
-        `Id` bigint(20) NOT NULL,
-        `RevisionNumber` int(11) NOT NULL,
-        `EditableItemId` bigint(20) NOT NULL,
-        `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-        `Definition` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-        `AlgorithmVersion` int(11) NOT NULL,
-        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`, `RevisionNumber`),
-        CONSTRAINT `FK_LootTables_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`) ON DELETE CASCADE
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260816094719_AddLootTables') THEN
-
-    CREATE INDEX `FK_LootTables_EditableItems_idx` ON `loottables` (`EditableItemId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260816094719_AddLootTables') THEN
-
-    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
-    VALUES ('20260816094719_AddLootTables', '9.0.11');
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
+-- Dump completed on 2026-08-23 09:44:36
+-- Total time: 0:0:0:1:626 (d:h:m:s:ms)

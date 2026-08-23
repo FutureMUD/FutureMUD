@@ -155,9 +155,10 @@ public partial class AnimalSeeder
         string? BodyAuditKey = null,
         IReadOnlyList<AnimalBodypartUsageTemplate>? AdditionalBodypartUsages = null,
         string CombatStrategyKey = "Beast Brawler",
-        IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null,
+		IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null,
 		double MaximumFoodSatiatedHours = RacialSatiationDefaults.MaximumFoodSatiatedHours,
-		double MaximumDrinkSatiatedHours = RacialSatiationDefaults.MaximumDrinkSatiatedHours
+		double MaximumDrinkSatiatedHours = RacialSatiationDefaults.MaximumDrinkSatiatedHours,
+		bool UsesActiveNoThirstNeeds = false
     );
 
     internal static IReadOnlyDictionary<string, AnimalAgeProfileTemplate> AgeProfilesForTesting => AgeProfiles;

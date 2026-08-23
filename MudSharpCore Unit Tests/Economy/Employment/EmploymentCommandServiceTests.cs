@@ -3430,6 +3430,7 @@ public class EmploymentCommandServiceTests
 		StringAssert.Contains(allTypes, "bankbalancehigh");
 		StringAssert.Contains(allTypes, "pricemargin");
 		StringAssert.Contains(allTypes, "staffing");
+		StringAssert.Contains(allTypes, "restaurantingredients");
 		StringAssert.Contains(allTypes, "hospitaltheatreconsumables");
 		StringAssert.Contains(allTypes, "hospitaltheatretools");
 
@@ -3444,6 +3445,10 @@ public class EmploymentCommandServiceTests
 		var payroll = authoring.RenderGoalTypes(actor, "payroll");
 		StringAssert.Contains(payroll, "payroll settle");
 		StringAssert.Contains(payroll, "KeepEmploymentPayrollCurrent");
+
+		var restaurantIngredients = authoring.RenderGoalTypes(actor, "restaurantingredients");
+		StringAssert.Contains(restaurantIngredients, "restaurantstock");
+		StringAssert.Contains(restaurantIngredients, "MaintainRestaurantIngredientStock");
 	}
 
 	[TestMethod]
@@ -3565,6 +3570,57 @@ public class EmploymentCommandServiceTests
 		var theatreStock = theatreGoal.Configuration.Conditions!.OfType<HospitalTheatreStockCondition>().Last();
 		Assert.AreEqual(HospitalServiceSupplyItemType.Consumable, theatreStock.ItemType);
 		Assert.AreEqual(2, theatreStock.ProcedureCount);
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_ManagerGoalDraftFinaliseCreatesRestaurantIngredientGoalWithoutStaticSteps()
+	{
+		var currency = Currency();
+		var restaurant = new Mock<IRestaurant>();
+		restaurant.SetupGet(x => x.Id).Returns(11);
+		restaurant.SetupGet(x => x.Name).Returns("the green bowl");
+		restaurant.SetupGet(x => x.FrameworkItemType).Returns("Restaurant");
+		restaurant.SetupGet(x => x.EmploymentHostName).Returns("the green bowl");
+		restaurant.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Shop);
+		restaurant.SetupGet(x => x.Market).Returns((IMarket?)null);
+		restaurant.SetupGet(x => x.Currency).Returns(currency.Object);
+		restaurant.SetupGet(x => x.BankAccount).Returns((IBankAccount)null!);
+		restaurant.SetupGet(x => x.CashBalance).Returns(100.0M);
+		var state = new EmploymentHostState(restaurant.Object);
+		restaurant.SetupGet(x => x.Employment).Returns(state);
+		restaurant.SetupGet(x => x.EmploymentRegister).Returns(state.EmploymentRegister);
+		restaurant.SetupGet(x => x.TaskBoard).Returns(state.TaskBoard);
+		restaurant.SetupGet(x => x.ManagerGoalBoard).Returns(state.ManagerGoalBoard);
+		restaurant.SetupGet(x => x.Payroll).Returns(state.Payroll);
+		restaurant.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
+		restaurant.SetupGet(x => x.JobOpenings).Returns(() => state.JobOpenings);
+		restaurant.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+			.Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		var manager = Character(289, "Restaurant Manager").Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageDeliveryRoutes |
+			EmploymentAuthority.PostToHostBoard), null);
+		var authoring = new EmploymentManagerGoalAuthoringService();
+
+		Assert.IsTrue(authoring.TryStartDraft(manager, restaurant.Object, "restaurantingredients",
+			"Maintain kitchen ingredients", out var message), message);
+		Assert.IsTrue(authoring.TryAddCondition(manager, restaurant.Object,
+			new StringStack("restaurantstock 12 from any max 25"), out message), message);
+		Assert.IsFalse(authoring.TryAddStep(manager, restaurant.Object,
+			new StringStack("board Stock = Buy ingredients."), out message));
+		StringAssert.Contains(message, "automatically");
+		Assert.IsTrue(authoring.TryFinaliseDraft(manager, restaurant.Object, out var goal, out message), message);
+
+		Assert.IsNotNull(goal);
+		Assert.AreEqual(ManagerGoalType.MaintainRestaurantIngredientStock, goal!.GoalType);
+		Assert.IsNull(goal.Configuration.ActionPlan);
+		var custom = goal.Configuration.Conditions!.OfType<RestaurantIngredientStockCondition>().Last();
+		Assert.AreEqual(12, custom.MealCount);
+		Assert.AreEqual(25.0M, custom.MaximumLineAmount);
+		Assert.AreEqual("any", custom.SupplierSelector);
 	}
 
 	[TestMethod]

@@ -24,7 +24,7 @@ public class SkillPickerScreenTests
 		var skill = Skill(TraitType.Skill, false, "language");
 
 		var result = SkillPickerScreenStoryboard.SkillPickerScreen.CanSelectSuggestedSkill(
-			skill, [], [skill], [], 1.0);
+			skill, [], [skill], [], () => 1.0);
 
 		Assert.IsTrue(result);
 	}
@@ -40,15 +40,15 @@ public class SkillPickerScreenTests
 		var available = new[] { freeSkill, hiddenSkill, attribute, selectedSkill };
 
 		Assert.IsFalse(SkillPickerScreenStoryboard.SkillPickerScreen.CanSelectSuggestedSkill(
-			freeSkill, [freeSkill], available, [freeSkill], 2.0));
+			freeSkill, [freeSkill], available, [freeSkill], () => 2.0));
 		Assert.IsFalse(SkillPickerScreenStoryboard.SkillPickerScreen.CanSelectSuggestedSkill(
-			hiddenSkill, [], available, [], 2.0));
+			hiddenSkill, [], available, [], () => 2.0));
 		Assert.IsFalse(SkillPickerScreenStoryboard.SkillPickerScreen.CanSelectSuggestedSkill(
-			attribute, [], available, [], 2.0));
+			attribute, [], available, [], () => 2.0));
 		Assert.IsFalse(SkillPickerScreenStoryboard.SkillPickerScreen.CanSelectSuggestedSkill(
-			unavailableSkill, [], available, [], 2.0));
+			unavailableSkill, [], available, [], () => 2.0));
 		Assert.IsFalse(SkillPickerScreenStoryboard.SkillPickerScreen.CanSelectSuggestedSkill(
-			selectedSkill, [], available, [selectedSkill], 2.0));
+			selectedSkill, [], available, [selectedSkill], () => 2.0));
 	}
 
 	[TestMethod]
@@ -63,7 +63,7 @@ public class SkillPickerScreenTests
 		foreach (var suggestion in new[] { first, first, second, third })
 		{
 			if (SkillPickerScreenStoryboard.SkillPickerScreen.CanSelectSuggestedSkill(
-					suggestion, [], available, selected, 2.0))
+					suggestion, [], available, selected, () => 2.0))
 			{
 				selected.Add(suggestion);
 			}
@@ -72,7 +72,40 @@ public class SkillPickerScreenTests
 		CollectionAssert.AreEqual(new[] { first, second }, selected);
 		selected.Remove(first);
 		Assert.IsTrue(SkillPickerScreenStoryboard.SkillPickerScreen.CanSelectSuggestedSkill(
-			first, [], available, selected, 2.0));
+			first, [], available, selected, () => 2.0));
+	}
+
+	[TestMethod]
+	public void CanSelectSuggestedSkill_DynamicPickLimit_ReevaluatesBeforeEachSuggestion()
+	{
+		var first = Skill();
+		var second = Skill();
+		var selected = new List<ITraitDefinition>();
+		var available = new[] { first, second };
+
+		foreach (var suggestion in new[] { first, second })
+		{
+			if (SkillPickerScreenStoryboard.SkillPickerScreen.CanSelectSuggestedSkill(
+					suggestion,
+					[],
+					available,
+					selected,
+					() => selected.Count == 0 ? 2.0 : 1.0))
+			{
+				selected.Add(suggestion);
+			}
+		}
+
+		CollectionAssert.AreEqual(new[] { first }, selected);
+	}
+
+	[TestMethod]
+	public void DoesNotExceedSkillPickLimit_CurrentLimitDropsBelowExistingSelections_ReturnsFalse()
+	{
+		Assert.IsFalse(SkillPickerScreenStoryboard.SkillPickerScreen.DoesNotExceedSkillPickLimit(
+			[],
+			[Skill(), Skill()],
+			1.0));
 	}
 
 	[TestMethod]

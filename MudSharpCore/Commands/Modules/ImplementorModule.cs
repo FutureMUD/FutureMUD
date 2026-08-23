@@ -30,6 +30,8 @@ using MudSharp.Logging;
 using MudSharp.Models;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
+using MudSharp.NPC.AI.Groups;
+using MudSharp.NPC.AI.Groups.GroupTypes;
 using MudSharp.NPC.Templates;
 using MudSharp.OpenAI;
 using MudSharp.PerceptionEngine.Handlers;
@@ -395,6 +397,10 @@ The syntax is:
 	#3employment legacy#0 - reports legacy job/new employment-host contract divergence
 	#3freezetime#0 - freezes all in game clocks
 	#3unfreezetime#0 - resumes all in game clocks
+	#3flush#0 - flushes queued saves to the database (useful before persistence checks)
+	#3wildlife [here|<npc id>]#0 - reports live AnimalAI activity, habitat, needs and group-control state
+	#3wildlife hungry <npc id>#0 - makes a loaded wildlife NPC hungry for deterministic feeding and pack-hunt tests
+	#3wildlife group <group id>#0 - reports a wildlife group's activity, candidate and threat-filter state
 	#3cleartraps#0 - permanently deletes every installed trap and cancels its delayed payloads after confirmation
 	#3weatherstats <controller> [years <n>] [burnin <n>] [seed <n>] [file <basename>]#0 - runs a non-destructive Monte Carlo weather analysis and writes multiple CSVs", AutoHelp.HelpArgOrNoArg)]
     [CommandPermission(PermissionLevel.Founder)]
@@ -409,6 +415,10 @@ The syntax is:
             case "unfreezetime":
                 DebugUnfreezeTime(actor);
                 return;
+			case "flush":
+			case "flushsave":
+				DebugFlushSaveQueue(actor);
+				return;
             case "cleartraps":
             case "deletetraps":
                 DebugClearTraps(actor, ss);
@@ -425,6 +435,9 @@ The syntax is:
             case "heartbeat":
                 Debug_Heartbeat(actor, ss);
                 return;
+			case "wildlife":
+				DebugWildlife(actor, ss);
+				return;
             case "payroll":
             case "employmentpayroll":
             case "emppayroll":
@@ -1142,6 +1155,149 @@ The syntax is:
 
         actor.OutputHandler.Send("The valid values are #3hour#0, #3minute#0, #3second#0, #35second#0, #310second#0, and #330second#0.".SubstituteANSIColour());
     }
+
+	private static void DebugWildlife(ICharacter actor, StringStack ss)
+	{
+		if (!ss.IsFinished && ss.Peek().EqualTo("group"))
+		{
+			ss.PopSpeech();
+			DebugWildlifeGroup(actor, ss);
+			return;
+		}
+
+		if (!ss.IsFinished && ss.Peek().EqualTo("hungry"))
+		{
+			ss.PopSpeech();
+			DebugWildlifeHunger(actor, ss);
+			return;
+		}
+
+		IEnumerable<INPC> npcs;
+		if (ss.IsFinished || ss.Peek().EqualTo("here"))
+		{
+			npcs = actor.Location.Characters.OfType<INPC>();
+		}
+		else if (long.TryParse(ss.PopSpeech(), out var npcId))
+		{
+			var npc = actor.Gameworld.NPCs.OfType<INPC>().FirstOrDefault(x => x.Id == npcId);
+			if (npc is null)
+			{
+				actor.OutputHandler.Send($"There is no loaded NPC with ID {npcId.ToString("N0", actor).ColourCommand()}.");
+				return;
+			}
+
+			npcs = [npc];
+		}
+		else
+		{
+			actor.OutputHandler.Send($"The syntax is {"impdebug wildlife [here|<npc id>]".ColourCommand()}.");
+			return;
+		}
+
+		var diagnostics = npcs
+			.Select(npc => new
+			{
+				Npc = npc,
+				AnimalAis = npc.AIs.OfType<AnimalAI>().ToList()
+			})
+			.Where(x => x.AnimalAis.Any())
+			.ToList();
+		if (!diagnostics.Any())
+		{
+			actor.OutputHandler.Send("There are no loaded NPCs with AnimalAI routines in that scope.");
+			return;
+		}
+
+		StringBuilder sb = new("Wildlife Runtime Diagnostics\n\n");
+		foreach (var diagnostic in diagnostics)
+		{
+			INPC npc = diagnostic.Npc;
+			sb.AppendLine($"#{npc.Id.ToString("N0", actor)}:{npc.InstanceId.ToString("N0", actor)} - {npc.HowSeen(actor)}");
+			foreach (AnimalAI animalAi in diagnostic.AnimalAis)
+			{
+				sb.AppendLine($"\t{animalAi.DebugSummary(npc)}");
+                sb.AppendLine();
+			}
+
+			if (npc.GroupAI is { } group)
+			{
+				GroupRole role = group.GroupRoles.TryGetValue(npc, out var configuredRole)
+					? configuredRole
+					: GroupRole.Adult;
+                sb.AppendLine($"Group #{group.Id.ToString("N0", actor)} ({group.Name.ColourName()})");
+                sb.AppendLine($"\tAlertness: {group.Alertness.DescribeEnum().ColourValue()}");
+				sb.AppendLine($"\tAction: {group.CurrentAction.DescribeEnum().ColourValue()}");
+                sb.AppendLine();
+			}
+			else
+			{
+				sb.AppendLine($"\tGroup: {"None".ColourValue()}");
+			}
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void DebugWildlifeGroup(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished || !long.TryParse(ss.PopSpeech(), out var groupId))
+		{
+			actor.OutputHandler.Send($"The syntax is {"impdebug wildlife group <group id>".ColourCommand()}.");
+			return;
+		}
+
+		var group = actor.Gameworld.GroupAIs.FirstOrDefault(x => x.Id == groupId);
+		if (group?.GroupAIType is not WildlifeGroupAIType wildlifeGroup)
+		{
+			actor.OutputHandler.Send($"There is no loaded wildlife group with ID {groupId.ToString("N0", actor).ColourCommand()}.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"Wildlife Group Diagnostics #{group.Id.ToString("N0", actor)} {group.Name}\n\n{wildlifeGroup.DebugSummary(group)}");
+	}
+
+	/// <summary>
+	/// Drives the existing needs model into hunger for a bounded, repeatable wildlife test. This
+	/// does not create an attack or alter an AI definition; the normal individual or group feeding
+	/// policy must decide what to do on its next heartbeat.
+	/// </summary>
+	private static void DebugWildlifeHunger(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished || !long.TryParse(ss.PopSpeech(), out var npcId))
+		{
+			actor.OutputHandler.Send($"The syntax is {"impdebug wildlife hungry <npc id>".ColourCommand()}.");
+			return;
+		}
+
+		var npc = actor.Gameworld.NPCs
+			.OfType<INPC>()
+			.FirstOrDefault(x => x.Id == npcId);
+		if (npc is null || !npc.AIs.OfType<AnimalAI>().Any())
+		{
+			actor.OutputHandler.Send($"There is no loaded wildlife NPC with ID {npcId.ToString("N0", actor).ColourCommand()}.");
+			return;
+		}
+
+		if (npc.State.IsDead())
+		{
+			actor.OutputHandler.Send("You cannot change the needs of a dead wildlife NPC.");
+			return;
+		}
+
+		var before = npc.NeedsModel.Status;
+		npc.FulfilNeeds(new NeedFulfiller
+		{
+			SatiationPoints = -(Math.Max(0.0, npc.NeedsModel.FoodSatiatedHours) + 0.01)
+		}, true);
+		var after = npc.NeedsModel.Status;
+		if (!after.IsHungry())
+		{
+			actor.OutputHandler.Send($"{npc.HowSeen(actor, true)} uses a needs model that cannot be made hungry by this diagnostic.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"{npc.HowSeen(actor, true)} is now {after.Describe().ColourValue()} (was {before.Describe().ColourName()}).");
+	}
 
 
     private static void Debug_Crash(ICharacter actor)
@@ -2386,6 +2542,17 @@ div.function-generalhelp {
     {
         actor.Send(actor.Gameworld.SaveManager.DebugInfo(actor.Gameworld));
     }
+
+	/// <summary>
+	/// Forces pending asynchronous saves to complete. This is intentionally Founder-only through
+	/// <see cref="ImpDebug"/> and is useful when a development server will be restarted immediately.
+	/// </summary>
+	private static void DebugFlushSaveQueue(ICharacter actor)
+	{
+		actor.Gameworld.SaveManager.Flush();
+		actor.Gameworld.ForceOutgoingMessages();
+		actor.Send("All queued saves have been flushed to the database.");
+	}
 
     private static void CleanupAllPCsLoaded(IFuturemud gameworld, IEnumerable<ICharacter> loadedPCs)
     {

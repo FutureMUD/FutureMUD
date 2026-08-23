@@ -1178,6 +1178,21 @@ For information on the syntax to use in emotes (such as those included in bracke
                         .Include(x => x.ShopsStoreroomCells)
                         .Include(x => x.LineOfCreditAccounts)
                         .ThenInclude(x => x.AccountUsers)
+                        .Include(x => x.Restaurant)
+                        .ThenInclude(x => x.Cells)
+                        .Include(x => x.Restaurant)
+                        .ThenInclude(x => x.Tables)
+                        .Include(x => x.Restaurant)
+                        .ThenInclude(x => x.MenuItems)
+                        .Include(x => x.Restaurant)
+                        .ThenInclude(x => x.TableSessions)
+                        .ThenInclude(x => x.Participants)
+                        .Include(x => x.Restaurant)
+                        .ThenInclude(x => x.Orders)
+                        .ThenInclude(x => x.Payments)
+                        .Include(x => x.Restaurant)
+                        .ThenInclude(x => x.Orders)
+                        .ThenInclude(x => x.ProducedItems)
                         .AsSplitQuery()
                         .AsNoTracking()
                         .ToList();
@@ -2976,6 +2991,14 @@ For information on the syntax to use in emotes (such as those included in bracke
         {
             _groupAIs.Add(new NPC.AI.Groups.GroupAI(ai, this));
         }
+
+		int reconciledMemberships = NPC.AI.Groups.GroupAI.ReconcileLegacyDuplicateMemberships(_groupAIs);
+		if (reconciledMemberships > 0)
+		{
+			ConsoleUtilities.WriteLine(
+				"#1Warning:#0 reconciled {0:N0} duplicate legacy Group AI membership{1}; the lowest-ID group was retained.",
+				reconciledMemberships, reconciledMemberships == 1 ? string.Empty : "s");
+		}
 #if DEBUG
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");

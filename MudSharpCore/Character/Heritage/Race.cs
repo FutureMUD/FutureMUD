@@ -1841,16 +1841,20 @@ public partial class Race : SaveableItem, IRace
 
     public (bool Truth, double RateMultiplier) CanBreatheFluid(IFluid fluid)
     {
-        KeyValuePair<IFluid, double> best = _fluidBreathingMultipliers
-            .Where(x => !_removeBreathableFluids.Contains(x.Key))
-            .Where(x => fluid.CountsAs(x.Key) && fluid.CountAsQuality(x.Key) != ItemQuality.Terrible)
-            .FirstMax(x => x.Value / fluid.CountsAsMultiplier(x.Key));
-        if (best.Value <= 0.0)
+        if (fluid is null || _removeBreathableFluids.Contains(fluid))
         {
             return (false, 0.0);
         }
 
-        return (true, best.Value);
+        KeyValuePair<IFluid, double> best = _fluidBreathingMultipliers
+            .Where(x => fluid.CountsAs(x.Key) && fluid.CountAsQuality(x.Key) != ItemQuality.Terrible)
+            .FirstMax(x => x.Value / fluid.CountsAsMultiplier(x.Key));
+        if (best.Value > 0.0)
+        {
+            return (true, best.Value);
+        }
+
+        return ParentRace?.CanBreatheFluid(fluid) ?? (false, 0.0);
     }
 
     public ITraitExpression BreathingVolumeExpression { get; set; }

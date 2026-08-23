@@ -335,6 +335,14 @@ public partial class Character
 
 	protected void RefreshLoadedNpcSecondaryInstances()
 	{
+		// The primary character normally initialises this collection before any AI is attached.
+		// Keeping the guard makes the refresh safe for partially constructed characters during
+		// bootstrap and diagnostic/test workflows as well.
+		if (_secondaryInstances is null)
+		{
+			return;
+		}
+
 		foreach (var instance in _secondaryInstances.OfType<NpcCharacterInstance>())
 		{
 			instance.RefreshArtificialIntelligencesFromIdentity();

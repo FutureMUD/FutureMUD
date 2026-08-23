@@ -84,6 +84,7 @@ namespace MudSharp.RPG.Law
         UnlawfulUseOfMagic,
         UnlawfulUseOfPsionics,
         IllegalConsumption,
-        BoobyTrapping
+        BoobyTrapping,
+        SkippingBill
     }
 }

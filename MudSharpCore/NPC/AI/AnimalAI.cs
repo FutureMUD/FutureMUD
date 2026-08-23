@@ -9,6 +9,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.GameItems;
 using MudSharp.Models;
+using MudSharp.NPC.AI.Groups;
 using MudSharp.Work.Crafts;
 
 namespace MudSharp.NPC.AI;
@@ -86,6 +87,45 @@ public enum AnimalActivityStrategyType
 	Custom
 }
 
+/// <summary>
+/// Specifies how an inactive seasonal animal rests. Older XML implicitly uses Rest, preserving
+/// its existing activity behaviour; Hibernation and Torpor make a configured dormant season
+/// authoritative until survival needs, combat or an immediate threat interrupts it.
+/// </summary>
+public enum AnimalDormancyMode
+{
+	Rest,
+	Hibernation,
+	Torpor
+}
+
+/// <summary>
+/// The response an animal takes when a contextual threat rule applies. Inherit keeps the
+/// legacy <see cref="AnimalThreatStrategyType"/> behaviour, which is also the default for
+/// older XML definitions.
+/// </summary>
+public enum AnimalThreatResponseType
+{
+	Inherit,
+	Ignore,
+	Avoid,
+	Flee,
+	Posture,
+	Attack
+}
+
+/// <summary>
+/// Extra animal sensory behaviour layered over the existing awareness strategies.
+/// </summary>
+public enum AnimalSensesStrategyType
+{
+	None,
+	Vigilant,
+	Hiding,
+	Stalking,
+	Tracking
+}
+
 public class AnimalAI : PathingAIBase
 {
 	private const int DefaultGroundRange = 10;
@@ -102,10 +142,19 @@ public class AnimalAI : PathingAIBase
 	public AnimalAwarenessStrategyType AwarenessStrategy { get; private set; }
 	public AnimalRefugeStrategyType RefugeStrategy { get; private set; }
 	public AnimalActivityStrategyType ActivityStrategy { get; private set; }
+	public AnimalDormancyMode DormancyMode { get; private set; }
+	public AnimalSensesStrategyType SensesStrategy { get; private set; }
+	/// <summary>
+	/// When enabled, an NPC carrying this profile receives an active needs model if its template
+	/// would otherwise supply passive or no needs. Omitted legacy XML remains false.
+	/// </summary>
+	public bool UseActiveNeeds { get; private set; }
 	public bool WaterEnabled => WaterStrategy != AnimalWaterStrategyType.Off;
 
 	public IFutureProg MovementEnabledProg { get; private set; } = null!;
 	public IFutureProg MovementCellProg { get; private set; } = null!;
+	public IFutureProg PreferredHabitatProg { get; private set; } = null!;
+	public IFutureProg ToleratedHabitatProg { get; private set; } = null!;
 	public IFutureProg AmphibiousLandCellProg { get; private set; } = null!;
 	public IFutureProg AmphibiousWaterCellProg { get; private set; } = null!;
 	public IFutureProg AllowDescentProg { get; private set; } = null!;
@@ -125,8 +174,19 @@ public class AnimalAI : PathingAIBase
 	public IFutureProg? HomeLocationProg { get; private set; }
 	public IFutureProg? AnchorItemProg { get; private set; }
 	public ICraft? BurrowCraft { get; private set; }
+	public AnimalThreatResponseType OrdinaryThreatResponse { get; private set; }
+	public AnimalThreatResponseType HungryPreyResponse { get; private set; }
+	public AnimalThreatResponseType AttackedThreatResponse { get; private set; }
+	public AnimalThreatResponseType TerritoryThreatResponse { get; private set; }
+	public AnimalThreatResponseType ParentingThreatResponse { get; private set; }
+	public AnimalThreatResponseType SeasonalThreatResponse { get; private set; }
 
 	private readonly List<TimeOfDay> _activeTimesOfDay = new();
+	private readonly List<string> _dormantSeasonGroups = new();
+	private readonly List<string> _aggressiveSeasonGroups = new();
+	private readonly List<string> _nestingSeasonGroups = new();
+	private readonly Dictionary<string, IFutureProg> _seasonalHabitatProgs =
+		new(StringComparer.InvariantCultureIgnoreCase);
 
 	public int MovementRange { get; private set; }
 	public double AmphibiousWaterBias { get; private set; }
@@ -134,6 +194,8 @@ public class AnimalAI : PathingAIBase
 	public string WanderEmote { get; private set; } = string.Empty;
 	public string EngageDelayDiceExpression { get; private set; } = "1000+1d1000";
 	public string EngageEmote { get; private set; } = string.Empty;
+	public string PostureEmote { get; private set; } = string.Empty;
+	public string PostureDurationDiceExpression { get; private set; } = "1d20+20";
 	public int AwarenessRange { get; private set; }
 	public int AwarenessMemoryMinutes { get; private set; }
 	public int RefugeReturnSeconds { get; private set; }
@@ -150,10 +212,20 @@ public class AnimalAI : PathingAIBase
 	public bool EcologyParentingEnabled { get; private set; }
 	public bool WillShareTerritory { get; private set; }
 	public bool WillShareTerritoryWithOtherRaces { get; private set; }
+	public bool AllowGroupShelterSharing { get; private set; }
 	public IEnumerable<TimeOfDay> ActiveTimesOfDay => _activeTimesOfDay;
+	public IEnumerable<string> DormantSeasonGroups => _dormantSeasonGroups;
+	public IEnumerable<string> AggressiveSeasonGroups => _aggressiveSeasonGroups;
+	public IEnumerable<string> NestingSeasonGroups => _nestingSeasonGroups;
+	public IReadOnlyDictionary<string, IFutureProg> SeasonalHabitatProgs => _seasonalHabitatProgs;
 
 	public override bool CountsAsAggressive => ThreatStrategy.In(AnimalThreatStrategyType.Defend,
-		AnimalThreatStrategyType.HungryPredator);
+		AnimalThreatStrategyType.HungryPredator) ||
+		new[]
+		{
+			OrdinaryThreatResponse, HungryPreyResponse, AttackedThreatResponse, TerritoryThreatResponse,
+			ParentingThreatResponse, SeasonalThreatResponse
+		}.Contains(AnimalThreatResponseType.Attack);
 
 	public override bool IsReadyToBeUsed => GetReadiness().Ready;
 
@@ -188,12 +260,23 @@ public class AnimalAI : PathingAIBase
 		AwarenessStrategy = AnimalAwarenessStrategyType.None;
 		RefugeStrategy = AnimalRefugeStrategyType.None;
 		ActivityStrategy = AnimalActivityStrategyType.Always;
+		DormancyMode = AnimalDormancyMode.Rest;
+		SensesStrategy = AnimalSensesStrategyType.None;
+		UseActiveNeeds = false;
 		MovementRange = DefaultGroundRange;
 		AmphibiousWaterBias = 0.50;
 		WanderChancePerMinute = 0.33;
 		WanderEmote = string.Empty;
 		EngageDelayDiceExpression = "1000+1d1000";
 		EngageEmote = string.Empty;
+		PostureEmote = string.Empty;
+		PostureDurationDiceExpression = "1d20+20";
+		OrdinaryThreatResponse = AnimalThreatResponseType.Inherit;
+		HungryPreyResponse = AnimalThreatResponseType.Inherit;
+		AttackedThreatResponse = AnimalThreatResponseType.Inherit;
+		TerritoryThreatResponse = AnimalThreatResponseType.Inherit;
+		ParentingThreatResponse = AnimalThreatResponseType.Inherit;
+		SeasonalThreatResponse = AnimalThreatResponseType.Inherit;
 		AwarenessRange = 5;
 		AwarenessMemoryMinutes = 10;
 		RefugeReturnSeconds = 60;
@@ -210,13 +293,20 @@ public class AnimalAI : PathingAIBase
 		EcologyParentingEnabled = false;
 		_activeTimesOfDay.Clear();
 		_activeTimesOfDay.AddRange(Enum.GetValues<TimeOfDay>());
+		_dormantSeasonGroups.Clear();
+		_aggressiveSeasonGroups.Clear();
+		_nestingSeasonGroups.Clear();
+		_seasonalHabitatProgs.Clear();
 		WillShareTerritory = false;
 		WillShareTerritoryWithOtherRaces = true;
+		AllowGroupShelterSharing = false;
 
 		if (Gameworld is not null)
 		{
 			MovementEnabledProg = Gameworld.AlwaysTrueProg;
 			MovementCellProg = Gameworld.AlwaysTrueProg;
+			PreferredHabitatProg = Gameworld.AlwaysTrueProg;
+			ToleratedHabitatProg = Gameworld.AlwaysTrueProg;
 			AmphibiousLandCellProg = Gameworld.AlwaysTrueProg;
 			AmphibiousWaterCellProg = Gameworld.AlwaysTrueProg;
 			AllowDescentProg = Gameworld.AlwaysFalseProg;
@@ -257,6 +347,12 @@ public class AnimalAI : PathingAIBase
 		MovementCellProg =
 			Gameworld.FutureProgs.Get(long.Parse(movement.Element("MovementCellProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysTrueProg;
+		PreferredHabitatProg =
+			Gameworld.FutureProgs.Get(long.Parse(movement.Element("PreferredHabitatProg")?.Value ?? "0")) ??
+			Gameworld.AlwaysTrueProg;
+		ToleratedHabitatProg =
+			Gameworld.FutureProgs.Get(long.Parse(movement.Element("ToleratedHabitatProg")?.Value ?? "0")) ??
+			Gameworld.AlwaysTrueProg;
 		AmphibiousLandCellProg =
 			Gameworld.FutureProgs.Get(long.Parse(movement.Element("AmphibiousLandCellProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysTrueProg;
@@ -278,6 +374,7 @@ public class AnimalAI : PathingAIBase
 		WillShareTerritory = bool.Parse(home.Element("WillShareTerritory")?.Value ?? "false");
 		WillShareTerritoryWithOtherRaces =
 			bool.Parse(home.Element("WillShareTerritoryWithOtherRaces")?.Value ?? "true");
+		AllowGroupShelterSharing = bool.Parse(home.Element("AllowGroupShelterSharing")?.Value ?? "false");
 		long craftId = long.Parse(home.Element("BurrowCraftId")?.Value ?? "0");
 		BurrowCraft = craftId > 0 ? Gameworld.Crafts.Get(craftId) : null;
 		BurrowSiteProg =
@@ -296,6 +393,7 @@ public class AnimalAI : PathingAIBase
 		WillAttackProg =
 			Gameworld.FutureProgs.Get(long.Parse(feeding.Element("WillAttackProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysFalseProg;
+		UseActiveNeeds = bool.Parse(feeding.Element("UseActiveNeeds")?.Value ?? "false");
 		EngageDelayDiceExpression = feeding.Element("EngageDelayDiceExpression")?.Value ?? "1000+1d1000";
 		EngageEmote = feeding.Element("EngageEmote")?.Value ?? string.Empty;
 
@@ -308,6 +406,20 @@ public class AnimalAI : PathingAIBase
 
 		XElement threat = root.Element("Threat") ?? new XElement("Threat");
 		ThreatStrategy = ParseEnum(threat.Attribute("type")?.Value, AnimalThreatStrategyType.Passive);
+		OrdinaryThreatResponse = ParseEnum(threat.Element("OrdinaryResponse")?.Value,
+			AnimalThreatResponseType.Inherit);
+		HungryPreyResponse = ParseEnum(threat.Element("HungryPreyResponse")?.Value,
+			AnimalThreatResponseType.Inherit);
+		AttackedThreatResponse = ParseEnum(threat.Element("AttackedResponse")?.Value,
+			AnimalThreatResponseType.Inherit);
+		TerritoryThreatResponse = ParseEnum(threat.Element("TerritoryResponse")?.Value,
+			AnimalThreatResponseType.Inherit);
+		ParentingThreatResponse = ParseEnum(threat.Element("ParentingResponse")?.Value,
+			AnimalThreatResponseType.Inherit);
+		SeasonalThreatResponse = ParseEnum(threat.Element("SeasonalResponse")?.Value,
+			AnimalThreatResponseType.Inherit);
+		PostureEmote = threat.Element("PostureEmote")?.Value ?? string.Empty;
+		PostureDurationDiceExpression = threat.Element("PostureDurationDiceExpression")?.Value ?? "1d20+20";
 
 		XElement awareness = root.Element("Awareness") ?? new XElement("Awareness");
 		AwarenessStrategy = ParseEnum(awareness.Attribute("type")?.Value, AnimalAwarenessStrategyType.None);
@@ -319,6 +431,7 @@ public class AnimalAI : PathingAIBase
 			Gameworld.AlwaysFalseProg;
 		AwarenessRange = int.Parse(awareness.Element("Range")?.Value ?? "5");
 		AwarenessMemoryMinutes = int.Parse(awareness.Element("MemoryMinutes")?.Value ?? "10");
+		SensesStrategy = ParseEnum(awareness.Element("Senses")?.Value, AnimalSensesStrategyType.None);
 
 		XElement refuge = root.Element("Refuge") ?? new XElement("Refuge");
 		RefugeStrategy = ParseEnum(refuge.Attribute("type")?.Value, AnimalRefugeStrategyType.None);
@@ -330,9 +443,22 @@ public class AnimalAI : PathingAIBase
 
 		XElement activity = root.Element("Activity") ?? new XElement("Activity");
 		ActivityStrategy = ParseEnum(activity.Attribute("type")?.Value, AnimalActivityStrategyType.Always);
+		DormancyMode = ParseEnum(activity.Element("DormancyMode")?.Value, AnimalDormancyMode.Rest);
 		ActivitySleepEnabled = bool.Parse(activity.Element("SleepEnabled")?.Value ?? "false");
 		ActivityRestEmote = activity.Element("RestEmote")?.Value ?? string.Empty;
 		LoadActiveTimes(activity);
+		_dormantSeasonGroups.AddRange(activity.Elements("DormantSeasonGroup")
+			.Select(x => x.Value.Trim())
+			.Where(x => !string.IsNullOrEmpty(x))
+			.Distinct(StringComparer.InvariantCultureIgnoreCase));
+		_aggressiveSeasonGroups.AddRange(activity.Elements("AggressiveSeasonGroup")
+			.Select(x => x.Value.Trim())
+			.Where(x => !string.IsNullOrEmpty(x))
+			.Distinct(StringComparer.InvariantCultureIgnoreCase));
+		_nestingSeasonGroups.AddRange(activity.Elements("NestingSeasonGroup")
+			.Select(x => x.Value.Trim())
+			.Where(x => !string.IsNullOrEmpty(x))
+			.Distinct(StringComparer.InvariantCultureIgnoreCase));
 
 		XElement ecology = root.Element("Ecology") ?? new XElement("Ecology");
 		EcologyShelterEnabled = bool.Parse(ecology.Element("ShelterEnabled")?.Value ?? "false");
@@ -354,6 +480,20 @@ public class AnimalAI : PathingAIBase
 		ProtectProg =
 			Gameworld.FutureProgs.Get(long.Parse(ecology.Element("ProtectProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysFalseProg;
+		foreach (XElement element in ecology.Elements("SeasonalHabitat"))
+		{
+			string seasonGroup = element.Attribute("seasonGroup")?.Value.Trim() ?? string.Empty;
+			if (string.IsNullOrEmpty(seasonGroup) || !long.TryParse(element.Value, out long progId))
+			{
+				continue;
+			}
+
+			IFutureProg? prog = Gameworld.FutureProgs.Get(progId);
+			if (prog is not null)
+			{
+				_seasonalHabitatProgs[seasonGroup] = prog;
+			}
+		}
 	}
 
 	protected override string SaveToXml()
@@ -372,6 +512,8 @@ public class AnimalAI : PathingAIBase
 				new XElement("WanderEmote", new XCData(WanderEmote)),
 				new XElement("MovementEnabledProg", MovementEnabledProg?.Id ?? 0),
 				new XElement("MovementCellProg", MovementCellProg?.Id ?? 0),
+				new XElement("PreferredHabitatProg", PreferredHabitatProg?.Id ?? 0),
+				new XElement("ToleratedHabitatProg", ToleratedHabitatProg?.Id ?? 0),
 				new XElement("AmphibiousLandCellProg", AmphibiousLandCellProg?.Id ?? 0),
 				new XElement("AmphibiousWaterCellProg", AmphibiousWaterCellProg?.Id ?? 0),
 				new XElement("AllowDescentProg", AllowDescentProg?.Id ?? 0),
@@ -385,6 +527,7 @@ public class AnimalAI : PathingAIBase
 				new XElement("DesiredTerritorySizeProg", DesiredTerritorySizeProg?.Id ?? 0),
 				new XElement("WillShareTerritory", WillShareTerritory),
 				new XElement("WillShareTerritoryWithOtherRaces", WillShareTerritoryWithOtherRaces),
+				new XElement("AllowGroupShelterSharing", AllowGroupShelterSharing),
 				new XElement("BurrowCraftId", BurrowCraft?.Id ?? 0),
 				new XElement("BurrowSiteProg", BurrowSiteProg?.Id ?? 0),
 				new XElement("BuildEnabledProg", BuildEnabledProg?.Id ?? 0),
@@ -393,16 +536,27 @@ public class AnimalAI : PathingAIBase
 			new XElement("Feeding",
 				new XAttribute("type", FeedingStrategy),
 				new XElement("WillAttackProg", WillAttackProg?.Id ?? 0),
+				new XElement("UseActiveNeeds", UseActiveNeeds),
 				new XElement("EngageDelayDiceExpression", new XCData(EngageDelayDiceExpression)),
 				new XElement("EngageEmote", new XCData(EngageEmote))),
 			new XElement("Water", new XAttribute("type", WaterStrategy)),
-			new XElement("Threat", new XAttribute("type", ThreatStrategy)),
+			new XElement("Threat",
+				new XAttribute("type", ThreatStrategy),
+				new XElement("OrdinaryResponse", OrdinaryThreatResponse),
+				new XElement("HungryPreyResponse", HungryPreyResponse),
+				new XElement("AttackedResponse", AttackedThreatResponse),
+				new XElement("TerritoryResponse", TerritoryThreatResponse),
+				new XElement("ParentingResponse", ParentingThreatResponse),
+				new XElement("SeasonalResponse", SeasonalThreatResponse),
+				new XElement("PostureEmote", new XCData(PostureEmote)),
+				new XElement("PostureDurationDiceExpression", new XCData(PostureDurationDiceExpression))),
 			new XElement("Awareness",
 				new XAttribute("type", AwarenessStrategy),
 				new XElement("ThreatProg", AwarenessThreatProg?.Id ?? 0),
 				new XElement("AvoidCellProg", AwarenessAvoidCellProg?.Id ?? 0),
 				new XElement("Range", AwarenessRange),
-				new XElement("MemoryMinutes", AwarenessMemoryMinutes)),
+				new XElement("MemoryMinutes", AwarenessMemoryMinutes),
+				new XElement("Senses", SensesStrategy)),
 			new XElement("Refuge",
 				new XAttribute("type", RefugeStrategy),
 				new XElement("Layer", RefugeLayer),
@@ -411,7 +565,11 @@ public class AnimalAI : PathingAIBase
 			new XElement("Activity",
 				new XAttribute("type", ActivityStrategy),
 				new XElement("SleepEnabled", ActivitySleepEnabled),
+				new XElement("DormancyMode", DormancyMode),
 				new XElement("RestEmote", new XCData(ActivityRestEmote)),
+				_dormantSeasonGroups.Select(x => new XElement("DormantSeasonGroup", x)),
+				_aggressiveSeasonGroups.Select(x => new XElement("AggressiveSeasonGroup", x)),
+				_nestingSeasonGroups.Select(x => new XElement("NestingSeasonGroup", x)),
 				_activeTimesOfDay.Select(x => new XElement("ActiveTime", x))),
 			new XElement("Ecology",
 				new XElement("ShelterEnabled", EcologyShelterEnabled),
@@ -422,7 +580,11 @@ public class AnimalAI : PathingAIBase
 				new XElement("ShelterCellProg", ShelterCellProg?.Id ?? 0),
 				new XElement("SeasonalCellProg", SeasonalCellProg?.Id ?? 0),
 				new XElement("NestSiteProg", NestSiteProg?.Id ?? 0),
-				new XElement("ProtectProg", ProtectProg?.Id ?? 0)),
+				new XElement("ProtectProg", ProtectProg?.Id ?? 0),
+				_seasonalHabitatProgs
+					.OrderBy(x => x.Key, StringComparer.InvariantCultureIgnoreCase)
+					.Select(x => new XElement("SeasonalHabitat",
+						new XAttribute("seasonGroup", x.Key), x.Value.Id))),
 			new XElement("OpenDoors", OpenDoors),
 			new XElement("UseKeys", UseKeys),
 			new XElement("SmashLockedDoors", SmashLockedDoors),
@@ -660,6 +822,8 @@ public class AnimalAI : PathingAIBase
 		sb.AppendLine($"Amphibious Water Bias: {AmphibiousWaterBias.ToString("P2", actor).ColourValue()}");
 		sb.AppendLine($"Movement Enabled Prog: {MovementEnabledProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Movement Cell Prog: {MovementCellProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Preferred Habitat Prog: {PreferredHabitatProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Tolerated Habitat Prog: {ToleratedHabitatProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Amphibious Land Cell Prog: {AmphibiousLandCellProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Amphibious Water Cell Prog: {AmphibiousWaterCellProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Wander Chance: {WanderChancePerMinute.ToString("P2", actor).ColourValue()} per minute");
@@ -675,6 +839,7 @@ public class AnimalAI : PathingAIBase
 		sb.AppendLine($"Territory Size Prog: {DesiredTerritorySizeProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Share Territory: {WillShareTerritory.ToColouredString()}");
 		sb.AppendLine($"Share With Other Races: {WillShareTerritoryWithOtherRaces.ToColouredString()}");
+		sb.AppendLine($"Share Shelter With Group: {AllowGroupShelterSharing.ToColouredString()}");
 		sb.AppendLine($"Burrow Craft: {BurrowCraft?.Name.ColourName() ?? "None".ColourError()}");
 		sb.AppendLine($"Burrow Site Prog: {BurrowSiteProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Build Enabled Prog: {BuildEnabledProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
@@ -685,14 +850,19 @@ public class AnimalAI : PathingAIBase
 		sb.AppendLine($"Water: {WaterStrategy.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Threat: {ThreatStrategy.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Attack Prog: {WillAttackProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Active Needs: {UseActiveNeeds.ToColouredString()}");
 		sb.AppendLine($"Engage Delay: {EngageDelayDiceExpression.ColourValue()} milliseconds");
 		sb.AppendLine($"Engage Emote: {EngageEmote.ColourCommand()}");
+		sb.AppendLine($"Threat Responses: ordinary {OrdinaryThreatResponse.DescribeEnum().ColourName()}, hungry prey {HungryPreyResponse.DescribeEnum().ColourName()}, attacked {AttackedThreatResponse.DescribeEnum().ColourName()}, territory {TerritoryThreatResponse.DescribeEnum().ColourName()}, parenting {ParentingThreatResponse.DescribeEnum().ColourName()}, seasonal {SeasonalThreatResponse.DescribeEnum().ColourName()}");
+		sb.AppendLine($"Posture Duration: {PostureDurationDiceExpression.ColourValue()}");
+		sb.AppendLine($"Posture Emote: {PostureEmote.ColourCommand()}");
 		sb.AppendLine();
 		sb.AppendLine($"Awareness: {AwarenessStrategy.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Threat Filter Prog: {AwarenessThreatProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Avoid Cell Prog: {AwarenessAvoidCellProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Awareness Range: {AwarenessRange.ToString("N0", actor).ColourValue()} rooms");
 		sb.AppendLine($"Threat Memory: {AwarenessMemoryMinutes.ToString("N0", actor).ColourValue()} minutes");
+		sb.AppendLine($"Senses: {SensesStrategy.DescribeEnum().ColourName()}");
 		sb.AppendLine();
 		sb.AppendLine($"Refuge: {RefugeStrategy.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Refuge Layer: {RefugeLayer.DescribeEnum().ColourValue()}");
@@ -702,7 +872,11 @@ public class AnimalAI : PathingAIBase
 		sb.AppendLine($"Activity: {ActivityStrategy.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Active Times: {_activeTimesOfDay.Select(x => x.DescribeEnum().ColourName()).ListToString()}");
 		sb.AppendLine($"Sleep When Inactive: {ActivitySleepEnabled.ToColouredString()}");
+		sb.AppendLine($"Dormancy Mode: {DormancyMode.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Rest Emote: {ActivityRestEmote.ColourCommand()}");
+		sb.AppendLine($"Dormant Season Groups: {_dormantSeasonGroups.Select(x => x.ColourName()).ListToString()}");
+		sb.AppendLine($"Aggressive Season Groups: {_aggressiveSeasonGroups.Select(x => x.ColourName()).ListToString()}");
+		sb.AppendLine($"Nesting Season Groups: {_nestingSeasonGroups.Select(x => x.ColourName()).ListToString()}");
 		sb.AppendLine();
 		sb.AppendLine($"Ecology Shelter: {EcologyShelterEnabled.ToColouredString()}");
 		sb.AppendLine($"Ecology Seasonal: {EcologySeasonalEnabled.ToColouredString()}");
@@ -711,9 +885,63 @@ public class AnimalAI : PathingAIBase
 		sb.AppendLine($"Shelter Needed Prog: {ShelterNeededProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Shelter Cell Prog: {ShelterCellProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Seasonal Cell Prog: {SeasonalCellProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Seasonal Habitat Progs: {_seasonalHabitatProgs.OrderBy(x => x.Key, StringComparer.InvariantCultureIgnoreCase).Select(x => $"{x.Key.ColourName()}: {x.Value.MXPClickableFunctionName()}").ListToString()}");
 		sb.AppendLine($"Nest Site Prog: {NestSiteProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Protect Prog: {ProtectProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		return sb.ToString();
+	}
+
+	/// <summary>
+	/// Produces the small amount of per-instance state that is useful when diagnosing live wildlife.
+	/// Builder <see cref="Show"/> describes the shared definition; this reports the current animal,
+	/// season and group-control context without persisting any diagnostic state.
+	/// </summary>
+	public string DebugSummary(ICharacter character)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Animal AI #{Id.ToStringN0(character)} ({Name.ColourName()}):");
+		sb.AppendLine($"\tStatus: {(IsActivityInactive(character) ? "inactive".Colour(Telnet.BoldYellow) : "active".Colour(Telnet.Green))}");
+		
+		var season = character.Location?.CurrentSeason(character)?.SeasonGroup ?? "unknown";
+		var dormantForSeason = IsSeasonIn(_dormantSeasonGroups, character);
+		var restingForTimeOfDay = !ActivityStrategyHandler.IsActive(this, character);
+		var activityReason = dormantForSeason
+			? $"seasonal dormancy ({season})"
+			: restingForTimeOfDay
+				? "rest period"
+				: "active period";
+		sb.AppendLine($"\tActivity: {activityReason.ColourValue()}");
+		sb.AppendLine($"\tSeason: {season.ColourValue()}");
+		sb.AppendLine($"\tDormancy: {DormancyMode.DescribeEnum().ColourValue()}");
+
+
+		var habitat = character.Location is null
+			? "unknown".Colour(Telnet.Magenta)
+			: IsWithinPreferredHabitat(character, character.Location)
+				? "preferred".Colour(Telnet.Green)
+				: IsWithinToleratedHabitat(character, character.Location)
+					? "tolerated transit".Colour(Telnet.Yellow)
+					: "forbidden".Colour(Telnet.Red);
+		sb.AppendLine($"\tHabitat: {habitat}");
+
+		var groupControl = character is INPC npc &&
+		                   npc.GroupAI?.GroupAIType is IGroupAIControlPolicy policy
+			? policy.ControlScope.GetSingleFlags().ListToColouredString()
+			: "None".ColourValue();
+		sb.AppendLine($"\tSurvival Needs: {(SurvivalNeedsSatisfied(character) ? "satisfied".ColourValue() : "urgent".ColourError())}");
+		sb.AppendLine($"\tGroup Control: {groupControl}");
+
+		return sb.ToString();
+	}
+
+	/// <summary>
+	/// Returns whether this animal's own activity policy requires rest. Group controllers use this
+	/// to avoid waking a satiated, seasonally dormant or off-period animal merely because the
+	/// group controls activity.
+	/// </summary>
+	public bool IsActivityRestRequired(ICharacter character)
+	{
+		return IsActivityInactive(character) && SurvivalNeedsSatisfied(character);
 	}
 
 	protected override string TypeHelpText => $@"{base.TypeHelpText}
@@ -723,6 +951,8 @@ public class AnimalAI : PathingAIBase
 	#3movement chance <%>#0 - sets the ambient movement chance per minute
 	#3movement enabled <prog>#0 - sets whether ambient movement is enabled
 	#3movement room <prog>#0 - sets which cells can be ambient movement targets
+	#3movement preferredhabitat <prog>#0 - sets habitats preferred for ambient destinations
+	#3movement toleratedhabitat <prog>#0 - sets habitats allowed for all animal routing
 	#3movement landprog <prog>#0 - sets amphibious land cells
 	#3movement waterprog <prog>#0 - sets amphibious water cells
 	#3movement flying <layer>#0 - sets the flying travel layer
@@ -736,34 +966,45 @@ public class AnimalAI : PathingAIBase
 	#3home size <prog>#0 - sets desired territory size
 	#3home share#0 - toggles sharing territory with same-race NPCs
 	#3home shareother#0 - toggles sharing territory with other races
+	#3home shareshelter#0 - toggles same-live-group sharing of claimed wildlife shelters
 	#3home craft <craft|clear>#0 - sets the optional burrow craft
 	#3home site <prog>#0 - sets suitable burrow cells
 	#3home location <prog|clear>#0 - sets fallback home location
 	#3home enabled <prog>#0 - sets whether burrow building is active
 	#3home anchor <prog|clear>#0 - sets burrow anchor detection
 	#3feeding none|predator|denpredator|forager|scavenger|opportunist|omnivore|denomnivore#0 - sets feeding behavior
+	#3feeding needs active|legacy#0 - toggles active hunger and thirst for simple NPCs using this AI
 	#3feeding attackprog <prog>#0 - sets predator target selection
 	#3feeding delay <dice>#0 - sets predator attack delay
 	#3feeding emote <text|clear>#0 - sets predator engage emote
 	#3water off|drink|immerse|surface#0 - sets thirst and water-memory behavior
-	#3threat passive|flee|defend|hungrypredator#0 - sets threat behavior
+	#3threat passive|flee|defend|hungrypredator#0 - sets legacy threat behavior
+	#3threat response <context> <response>#0 - sets ordinary, hungry-prey, attacked, territory, parenting or seasonal response
+	#3threat posture <text|clear>#0 - sets the emote used before posture escalation
+	#3threat duration <dice>#0 - sets posture duration in seconds
 	#3awareness none|wary|wimpy|skittish|guarding#0 - sets non-combat awareness behavior
 	#3awareness threat <prog>#0 - sets the character filter for disliked or feared targets
 	#3awareness avoid <prog>#0 - sets the cell filter for places this animal avoids
 	#3awareness range <rooms>#0 - sets how far the animal notices threats
 	#3awareness memory <minutes>#0 - sets how long threat locations are remembered
+	#3awareness senses none|vigilant|hiding|stalking|tracking#0 - adds animal-specific senses behavior
 	#3refuge none|home|den|trees|sky|water|prog#0 - sets where the animal retreats or rests
 	#3refuge layer <layer>#0 - sets the refuge layer for trees or sky
 	#3refuge cell <prog>#0 - sets the refuge-cell selector for prog refuge
 	#3refuge return <seconds>#0 - sets the return delay after refuge work
-	#3activity always|diurnal|nocturnal|crepuscular|custom#0 - sets active periods
-	#3activity active <timeofday...>#0 - sets active times for custom activity
-	#3activity sleep on|off#0 - toggles sleeping while inactive at refuge
+#3activity always|diurnal|nocturnal|crepuscular|custom#0 - sets active periods
+#3activity active <timeofday...>#0 - sets active times for custom activity
+#3activity sleep on|off#0 - toggles sleeping while inactive at refuge
+#3activity dormancy rest|hibernation|torpor#0 - selects the seasonal dormant-state policy
 	#3activity restemote <text|clear>#0 - sets an optional rest emote
+	#3activity dormantseason <season group|clear>#0 - toggles hibernation / torpor for a hemisphere-aware season group
+	#3activity aggressiveseason <season group|clear>#0 - toggles an aggressive season group
+	#3activity nestingseason <season group|clear>#0 - toggles the hemisphere-aware nesting season group
 	#3ecology shelter|seasonal|nesting|parenting on|off#0 - toggles ecology behaviors
 	#3ecology shelterneeded <prog>#0 - sets when shelter is required
 	#3ecology sheltercell <prog>#0 - sets valid shelter cells
 	#3ecology seasonalcell <prog>#0 - sets valid seasonal range cells
+	#3ecology seasonalhabitat <season group> <prog|clear>#0 - sets or clears a season-specific preferred habitat
 	#3ecology nestsite <prog>#0 - sets valid nest cells
 	#3ecology protect <prog>#0 - sets protected young or friends";
 
@@ -830,6 +1071,15 @@ public class AnimalAI : PathingAIBase
 			case "cell":
 			case "cellprog":
 				return BuildingCommandMovementCellProg(actor, command);
+			case "preferredhabitat":
+			case "preferhabitat":
+				return BuildingCommandMovementHabitatProg(actor, command, x => PreferredHabitatProg = x,
+					"preferred habitat");
+			case "toleratedhabitat":
+			case "toleratehabitat":
+			case "tolerated":
+				return BuildingCommandMovementHabitatProg(actor, command, x => ToleratedHabitatProg = x,
+					"tolerated transit habitat");
 			case "landprog":
 			case "land":
 				return BuildingCommandAmphibiousCellProg(actor, command, x => AmphibiousLandCellProg = x, "land");
@@ -988,9 +1238,16 @@ public class AnimalAI : PathingAIBase
 
 	private bool BuildingCommandLayer(ICharacter actor, StringStack command, Action<RoomLayer> setter, string label)
 	{
-		if (command.IsFinished || !command.SafeRemainingArgument.TryParseEnum(out RoomLayer value))
+		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("You must specify a valid room layer.");
+			actor.OutputHandler.Send($"You must specify a room layer. Valid values are {Enum.GetValues<RoomLayer>().ListToColouredString()}.");
+			return false;
+		}
+
+		string valueText = command.SafeRemainingArgument;
+		if (!valueText.TryParseEnum(out RoomLayer value))
+		{
+			actor.OutputHandler.Send($"The text {valueText.ColourCommand()} is not a valid room layer. Valid values are {Enum.GetValues<RoomLayer>().ListToColouredString()}.");
 			return false;
 		}
 
@@ -1002,12 +1259,17 @@ public class AnimalAI : PathingAIBase
 
 	private bool BuildingCommandTreeLayer(ICharacter actor, StringStack command, Action<RoomLayer> setter, string label)
 	{
-		if (command.IsFinished ||
-		    !command.SafeRemainingArgument.TryParseEnum(out RoomLayer value) ||
-		    !value.In(RoomLayer.InTrees, RoomLayer.HighInTrees))
+		RoomLayer[] validLayers = [RoomLayer.InTrees, RoomLayer.HighInTrees];
+		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("You must specify either #3InTrees#0 or #3HighInTrees#0."
-			                         .SubstituteANSIColour());
+			actor.OutputHandler.Send($"You must specify a tree layer. Valid values are {validLayers.ListToColouredString()}.");
+			return false;
+		}
+
+		string valueText = command.SafeRemainingArgument;
+		if (!valueText.TryParseEnum(out RoomLayer value) || !validLayers.Contains(value))
+		{
+			actor.OutputHandler.Send($"The text {valueText.ColourCommand()} is not a valid tree layer. Valid values are {validLayers.ListToColouredString()}.");
 			return false;
 		}
 
@@ -1083,6 +1345,9 @@ public class AnimalAI : PathingAIBase
 			case "shareother":
 			case "shareothers":
 				return ToggleShareOtherTerritory(actor);
+			case "shareshelter":
+			case "sharegroup":
+				return ToggleShareGroupShelter(actor);
 			case "craft":
 			case "burrowcraft":
 				return BuildingCommandBurrowCraft(actor, command);
@@ -1127,7 +1392,8 @@ public class AnimalAI : PathingAIBase
 			new[]
 			{
 				new[] { ProgVariableTypes.Location },
-				new[] { ProgVariableTypes.Location, ProgVariableTypes.Character }
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Location }
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -1341,6 +1607,9 @@ public class AnimalAI : PathingAIBase
 			case "emote":
 			case "engageemote":
 				return BuildingCommandEngageEmote(actor, command);
+			case "needs":
+			case "activeneeds":
+				return BuildingCommandFeedingNeeds(actor, command);
 		}
 
 		actor.OutputHandler.Send(TypeHelpText.SubstituteANSIColour());
@@ -1482,6 +1751,13 @@ public class AnimalAI : PathingAIBase
 
 		switch (command.PopForSwitch())
 		{
+			case "response":
+				return BuildingCommandThreatResponse(actor, command);
+			case "posture":
+				return BuildingCommandThreatPostureEmote(actor, command);
+			case "duration":
+			case "postureduration":
+				return BuildingCommandThreatPostureDuration(actor, command);
 			case "passive":
 				ThreatStrategy = AnimalThreatStrategyType.Passive;
 				break;
@@ -1527,6 +1803,9 @@ public class AnimalAI : PathingAIBase
 			case "guarding":
 			case "guard":
 				return SetAwarenessStrategy(actor, AnimalAwarenessStrategyType.Guarding);
+			case "senses":
+			case "sense":
+				return BuildingCommandAwarenessSenses(actor, command);
 			case "threat":
 			case "threatprog":
 				return BuildingCommandAwarenessThreatProg(actor, command);
@@ -1757,9 +2036,25 @@ public class AnimalAI : PathingAIBase
 				return BuildingCommandActivityActive(actor, command);
 			case "sleep":
 				return BuildingCommandActivitySleep(actor, command);
+			case "dormancy":
+			case "dormancymode":
+				return BuildingCommandActivityDormancy(actor, command);
 			case "restemote":
 			case "emote":
 				return BuildingCommandActivityRestEmote(actor, command);
+			case "dormantseason":
+			case "hibernate":
+			case "torpor":
+				return BuildingCommandActivitySeasonGroup(actor, command, _dormantSeasonGroups,
+					"dormant / hibernation");
+			case "aggressiveseason":
+			case "aggressionseason":
+				return BuildingCommandActivitySeasonGroup(actor, command, _aggressiveSeasonGroups,
+					"aggressive");
+			case "nestingseason":
+			case "nestseason":
+				return BuildingCommandActivitySeasonGroup(actor, command, _nestingSeasonGroups,
+					"nesting");
 		}
 
 		actor.OutputHandler.Send(TypeHelpText.SubstituteANSIColour());
@@ -1780,7 +2075,8 @@ public class AnimalAI : PathingAIBase
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("You must specify one or more active times of day, or #3all#0.".SubstituteANSIColour());
+			actor.OutputHandler.Send($"You must specify one or more active times of day. Valid values are {Enum.GetValues<TimeOfDay>().ListToColouredString()}; you may also use #3all#0."
+				.SubstituteANSIColour());
 			return false;
 		}
 
@@ -1810,7 +2106,7 @@ public class AnimalAI : PathingAIBase
 				default:
 					if (!token.TryParseEnum(out TimeOfDay time))
 					{
-						actor.OutputHandler.Send($"The text {token.ColourCommand()} is not a valid time of day.");
+						actor.OutputHandler.Send($"The text {token.ColourCommand()} is not a valid time of day. Valid values are {Enum.GetValues<TimeOfDay>().ListToColouredString()}.");
 						return false;
 					}
 
@@ -1855,6 +2151,52 @@ public class AnimalAI : PathingAIBase
 
 		Changed = true;
 		actor.OutputHandler.Send($"This animal AI will {ActivitySleepEnabled.NowNoLonger()} sleep while inactive at refuge.");
+		return true;
+	}
+
+	private bool BuildingCommandFeedingNeeds(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify #3active#0 or #3legacy#0 needs behavior.".SubstituteANSIColour());
+			return false;
+		}
+
+		switch (command.PopForSwitch())
+		{
+			case "active":
+			case "on":
+			case "yes":
+			case "true":
+				UseActiveNeeds = true;
+				break;
+			case "legacy":
+			case "off":
+			case "no":
+			case "false":
+				UseActiveNeeds = false;
+				break;
+			default:
+				actor.OutputHandler.Send("You must specify #3active#0 or #3legacy#0 needs behavior.".SubstituteANSIColour());
+				return false;
+		}
+
+		Changed = true;
+		actor.OutputHandler.Send($"This animal AI will {(UseActiveNeeds ? "use" : "retain legacy")} needs behavior for simple NPCs.");
+		return true;
+	}
+
+	private bool BuildingCommandActivityDormancy(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParseEnum(out AnimalDormancyMode mode))
+		{
+			actor.OutputHandler.Send($"You must specify a dormancy mode. Valid values are {Enum.GetValues<AnimalDormancyMode>().ListToColouredString()}.");
+			return false;
+		}
+
+		DormancyMode = mode;
+		Changed = true;
+		actor.OutputHandler.Send($"This animal AI will now use {mode.DescribeEnum().ColourName()} while a configured dormant season is active.");
 		return true;
 	}
 
@@ -1915,6 +2257,9 @@ public class AnimalAI : PathingAIBase
 			case "seasonalprog":
 			case "seasoncell":
 				return BuildingCommandEcologyCellProg(actor, command, value => SeasonalCellProg = value, "seasonal range cells");
+			case "seasonalhabitat":
+			case "seasonhabitat":
+				return BuildingCommandEcologySeasonalHabitat(actor, command);
 			case "nestsite":
 			case "nestprog":
 				return BuildingCommandEcologyCellProg(actor, command, value => NestSiteProg = value, "nest sites");
@@ -1989,6 +2334,63 @@ public class AnimalAI : PathingAIBase
 		return true;
 	}
 
+	private bool BuildingCommandEcologySeasonalHabitat(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a quoted season group and a habitat prog, or use #3clear#0 to remove every seasonal habitat preference.".SubstituteANSIColour());
+			return false;
+		}
+
+		string seasonGroup = command.PopSpeech();
+		if (seasonGroup.EqualToAny("clear", "none", "remove", "delete"))
+		{
+			_seasonalHabitatProgs.Clear();
+			Changed = true;
+			actor.OutputHandler.Send("This animal AI no longer has any season-specific habitat preferences.");
+			return true;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a habitat prog, or #3clear#0 to remove this season group's preference.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("clear", "none", "remove", "delete"))
+		{
+			if (_seasonalHabitatProgs.Remove(seasonGroup))
+			{
+				Changed = true;
+				actor.OutputHandler.Send($"This animal AI no longer has a seasonal habitat preference for {seasonGroup.ColourValue()}.");
+			}
+			else
+			{
+				actor.OutputHandler.Send($"This animal AI did not have a seasonal habitat preference for {seasonGroup.ColourValue()}.");
+			}
+
+			return true;
+		}
+
+		IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			ProgVariableTypes.Boolean,
+			new[]
+			{
+				new List<ProgVariableTypes> { ProgVariableTypes.Character, ProgVariableTypes.Location },
+				new List<ProgVariableTypes> { ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Location },
+				new List<ProgVariableTypes> { ProgVariableTypes.Location }
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		_seasonalHabitatProgs[seasonGroup] = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This animal AI will now use {prog.MXPClickableFunctionName()} as its preferred habitat during {seasonGroup.ColourValue()}.");
+		return true;
+	}
+
 	private bool BuildingCommandEcologyProg(ICharacter actor, StringStack command, Action<IFutureProg> setter,
 		string label, ProgVariableTypes returnType, IEnumerable<ProgVariableTypes> parameters)
 	{
@@ -2040,7 +2442,17 @@ public class AnimalAI : PathingAIBase
 			case EventType.CharacterStopMovementClosedDoor:
 			case EventType.LeaveCombat:
 			case EventType.TenSecondTick:
+				if (type == EventType.TenSecondTick && !IsGroupControlled(ch, GroupAIControlScope.Senses))
+				{
+					AcquireRangedTargets(ch);
+				}
+
 				if (TryAwarenessResponse(ch, null))
+				{
+					return true;
+				}
+
+				if (type == EventType.TenSecondTick && EvaluateSenses(ch))
 				{
 					return true;
 				}
@@ -2050,12 +2462,19 @@ public class AnimalAI : PathingAIBase
 					return true;
 				}
 
-				if (EvaluateEcology(ch))
+				if (type == EventType.TenSecondTick && TryThreatResponse(ch, null))
 				{
 					return true;
 				}
 
-				if (type == EventType.TenSecondTick && TryThreatResponse(ch, null))
+				if (ShouldRemainAtRest(ch))
+				{
+					// Returning true is important here: PathingAIBase otherwise starts ambient
+					// pathing for NPCOnGameLoadFinished, movement completion and similar events.
+					return true;
+				}
+
+				if (EvaluateEcology(ch))
 				{
 					return true;
 				}
@@ -2071,9 +2490,20 @@ public class AnimalAI : PathingAIBase
 					return true;
 				}
 
-				if (EvaluateImmediateNeedsAndFeeding(ch) ||
-				    EvaluateEcology(ch) ||
-				    EvaluateActivity(ch))
+				if (EvaluateImmediateNeedsAndFeeding(ch))
+				{
+					return true;
+				}
+
+				if (ShouldRemainAtRest(ch))
+				{
+					// EvaluateActivity may put an animal to sleep at an already-authored refuge,
+					// but it never allows the pathing base to start movement or territory work.
+					_ = EvaluateActivity(ch);
+					return true;
+				}
+
+				if (EvaluateEcology(ch) || EvaluateActivity(ch))
 				{
 					return true;
 				}
@@ -2092,13 +2522,31 @@ public class AnimalAI : PathingAIBase
 					return true;
 				}
 
-				if (EvaluateEcology(ch))
+				if (TryThreatResponse(ch, (ICharacter)arguments[0]))
 				{
 					return true;
 				}
 
-				return TryThreatResponse(ch, (ICharacter)arguments[0]);
+				if (ShouldRemainAtRest(ch))
+				{
+					return true;
+				}
+
+				return EvaluateEcology(ch);
+			case EventType.FiveSecondTick:
+			case EventType.CommandDelayExpired:
+				if (ShouldRemainAtRest(ch))
+				{
+					return true;
+				}
+
+				break;
 			case EventType.LayerChangeBlockExpired:
+				if (ShouldRemainAtRest(ch))
+				{
+					return true;
+				}
+
 				CheckPathingEffect(ch, false);
 				break;
 		}
@@ -2152,27 +2600,43 @@ public class AnimalAI : PathingAIBase
 			return false;
 		}
 
-		if (WaterStrategyHandler.TrySatisfyImmediateNeed(this, character))
+		// Hunger and thirst are explicitly allowed to interrupt inactivity. Wake before asking the
+		// feeding strategies to path or scan; sleeping characters cannot perceive their food or
+		// water opportunities even when their policy has correctly left the rest gate open.
+		if (!SurvivalNeedsSatisfied(character) && character.State.IsAsleep())
+		{
+			character.Awaken();
+		}
+
+		if (!IsGroupControlled(character, GroupAIControlScope.Feeding) &&
+		    WaterStrategyHandler.TrySatisfyImmediateNeed(this, character))
 		{
 			return true;
 		}
 
-		if (WaterStrategyHandler.IsThirsty(this, character))
+		if (!IsGroupControlled(character, GroupAIControlScope.Feeding) && WaterStrategyHandler.IsThirsty(this, character))
 		{
 			return false;
 		}
 
-		if (FeedingStrategyHandler.TrySatisfyImmediateNeed(this, character))
+		if (!IsGroupControlled(character, GroupAIControlScope.Feeding) &&
+		    FeedingStrategyHandler.TrySatisfyImmediateNeed(this, character))
 		{
 			return true;
 		}
 
-		if (ShouldReturnToRefuge(character) && TryMoveToRefugeLayer(character))
+		if (!IsGroupControlled(character, GroupAIControlScope.Shelter) &&
+		    ShouldReturnToRefuge(character) && TryMoveToRefugeLayer(character))
 		{
 			return true;
 		}
 
-		if (SurvivalNeedsSatisfied(character))
+		// Den construction and other idle home maintenance are optional long-term behaviour. They
+		// must not wake a satiated nocturnal, diurnal or seasonally dormant animal after the
+		// immediate needs / refuge work above has finished.
+		if (!IsGroupControlled(character, GroupAIControlScope.Shelter) &&
+		    SurvivalNeedsSatisfied(character) &&
+		    !IsActivityInactive(character))
 		{
 			HomeStrategyHandler.EvaluateIdle(this, character);
 		}
@@ -2198,34 +2662,197 @@ public class AnimalAI : PathingAIBase
 
 	private TimeSpan AwarenessMemory => TimeSpan.FromMinutes(AwarenessMemoryMinutes);
 
+	private int EffectiveAwarenessRange => SensesStrategy == AnimalSensesStrategyType.Vigilant
+		? AwarenessRange + 2
+		: AwarenessRange;
+
+	private uint EffectiveScanRange(ICharacter character)
+	{
+		return (uint)Math.Min(Math.Max(0, EffectiveAwarenessRange), (int)character.MaximumPerceptionRange);
+	}
+
+	/// <summary>
+	/// Performs the animal equivalent of a silent scan. Group-led animals are intentionally scanned by their
+	/// leader and sentries instead, avoiding one identical check per group member.
+	/// </summary>
+	internal IReadOnlyList<ICharacter> AcquireRangedTargets(ICharacter character)
+	{
+		uint range = EffectiveScanRange(character);
+		if (range == 0 || character.Location is null || character.Combat is not null || character.Movement is not null)
+		{
+			return [];
+		}
+
+		return ScanTargetAcquisition.AcquireVisibleCharacters(character, range);
+	}
+
+	/// <summary>
+	/// Gives a group member a sentry's already-successful scan only when that member presently has
+	/// the same unobstructed, in-range view. This shares group intelligence without granting sight
+	/// through doors, around corners, across layers or beyond the normal targeting range.
+	/// </summary>
+	internal void ReceiveGroupSighting(ICharacter character, ICharacter target)
+	{
+		if (ScanTargetAcquisition.IsVisibleRangedTarget(character, target, EffectiveScanRange(character), false))
+		{
+			character.SeeTarget(target);
+		}
+	}
+
+	internal static bool CanGroupHuntTarget(ICharacter character, ICharacter target)
+	{
+		return character is INPC npc &&
+		       npc.AIs.OfType<AnimalAI>().Any(ai => ai.CanHuntTarget(character, target));
+	}
+
+	internal static bool CanGroupObserveTarget(ICharacter character, ICharacter target)
+	{
+		return character is INPC npc &&
+		       npc.AIs.OfType<AnimalAI>().Any(ai => ai.CanObserveTarget(character, target));
+	}
+
+	internal bool CanHuntTarget(ICharacter character, ICharacter target)
+	{
+		if (target.Location is null || IsSociallyTrusted(character, target) ||
+			!MovementStrategyHandler.CanReachTargetLayer(this, character, target.RoomLayer) ||
+			!PredatorAIHelpers.WillAttack(character, target, WillAttackProg, true))
+		{
+			return false;
+		}
+
+		if (IsLocalHuntTarget(character, target))
+		{
+			return character.CanSee(target);
+		}
+
+		return ScanTargetAcquisition.IsCurrentVisibleRangedTarget(character, target, EffectiveScanRange(character));
+	}
+
+	internal bool CanHuntLocalTarget(ICharacter character, ICharacter target)
+	{
+		return IsLocalHuntTarget(character, target) && CanHuntTarget(character, target);
+	}
+
+	private static bool IsLocalHuntTarget(ICharacter character, ICharacter target)
+	{
+		if (character.Location is null || target.Location is null ||
+			!ReferenceEquals(character.Location, target.Location) || character.RoomLayer != target.RoomLayer)
+		{
+			return false;
+		}
+
+		return character.Location.RouteDefinition is null ||
+		       RouteSpatialService.Instance.GetProximity(character, target) <= Proximity.Proximate;
+	}
+
+	private bool IsGroupControlled(ICharacter character, GroupAIControlScope scope)
+	{
+		return character is INPC npc &&
+		       npc.GroupAI?.GroupAIType is IGroupAIControlPolicy policy &&
+		       policy.ControlScope.HasFlag(scope);
+	}
+
+	private bool IsSociallyTrusted(ICharacter character, ICharacter target)
+	{
+		if (ReferenceEquals(character, target) || character.Race.SameRace(target.Race))
+		{
+			return true;
+		}
+
+		return character is INPC npc &&
+		       npc.GroupAI?.GroupMembers.ContainsPhysicalInstance(target) == true;
+	}
+
+	private bool IsWithinToleratedHabitat(ICharacter character, ICell cell)
+	{
+		return ToleratedHabitatProg.ExecuteBool(false, character, cell, character.Location);
+	}
+
+	private bool IsWithinPreferredHabitat(ICharacter character, ICell cell)
+	{
+		IFutureProg habitatProg = PreferredHabitatProg;
+		string? seasonGroup = character.Location?.CurrentSeason(character)?.SeasonGroup;
+		if (!string.IsNullOrWhiteSpace(seasonGroup) && _seasonalHabitatProgs.TryGetValue(seasonGroup, out IFutureProg? seasonalProg))
+		{
+			habitatProg = seasonalProg;
+		}
+
+		return habitatProg.ExecuteBool(false, character, cell, character.Location);
+	}
+
+	/// <summary>
+	/// Territory selection predates the character-first cell-policy convention used by AnimalAI
+	/// movement and ecology. Accept both contracts so old location-first definitions remain valid
+	/// while finished wildlife profiles can reuse their habitat progs unchanged.
+	/// </summary>
+	private bool IsSuitableTerritory(ICharacter character, ICell cell)
+	{
+		if (SuitableTerritoryProg.MatchesParameters(
+			    new[] { ProgVariableTypes.Character, ProgVariableTypes.Location }))
+		{
+			return SuitableTerritoryProg.ExecuteBool(false, character, cell);
+		}
+
+		return SuitableTerritoryProg.ExecuteBool(false, cell, character);
+	}
+
+	private bool IsSeasonIn(IEnumerable<string> seasonGroups, ICharacter character)
+	{
+		string? seasonGroup = character.Location?.CurrentSeason(character)?.SeasonGroup;
+		return !string.IsNullOrWhiteSpace(seasonGroup) &&
+		       seasonGroups.Any(x => string.Equals(x, seasonGroup, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private bool IsActivityInactive(ICharacter character)
+	{
+		return IsSeasonIn(_dormantSeasonGroups, character) ||
+		       !ActivityStrategyHandler.IsActive(this, character);
+	}
+
+	/// <summary>
+	/// Determines whether activity policy must suppress ambient pathing. Callers that process a
+	/// direct threat do so before this check, preserving the allowed combat and immediate-threat
+	/// interruptions to rest, hibernation and torpor.
+	/// </summary>
+	private bool ShouldRemainAtRest(ICharacter character)
+	{
+		return !IsGroupControlled(character, GroupAIControlScope.Activity) &&
+		       IsActivityRestRequired(character);
+	}
+
+	private bool IsAggressiveSeason(ICharacter character)
+	{
+		return IsSeasonIn(_aggressiveSeasonGroups, character);
+	}
+
+	private bool IsNestingSeason(ICharacter character)
+	{
+		return !_nestingSeasonGroups.Any() || IsSeasonIn(_nestingSeasonGroups, character);
+	}
+
 	private Func<ICellExit, bool> GetAnimalSuitabilityFunction(ICharacter character, bool ignoreSafeMovement = false)
 	{
 		Func<ICellExit, bool> baseSuitability = base.GetSuitabilityFunction(character, ignoreSafeMovement);
-		return exit => baseSuitability(exit) && !ShouldAvoidCell(character, exit.Destination);
+		return exit => baseSuitability(exit) &&
+		               MovementStrategyHandler.CellMatches(this, character, exit.Destination) &&
+		               IsWithinToleratedHabitat(character, exit.Destination) &&
+		               !ShouldAvoidCell(character, exit.Destination);
 	}
 
 	private IEnumerable<ICharacter> VisibleAwarenessThreats(ICharacter character, ICharacter? witnessedTarget)
 	{
 		HashSet<ICharacter> threats = new();
 		if (witnessedTarget is not null &&
-		    !ReferenceEquals(witnessedTarget, character) &&
+		    !IsSociallyTrusted(character, witnessedTarget) &&
 		    AwarenessThreatProg.ExecuteBool(false, character, witnessedTarget) &&
-		    character.CanSee(witnessedTarget))
+		    CanObserveTarget(character, witnessedTarget))
 		{
 			threats.Add(witnessedTarget);
 		}
 
-		IEnumerable<ICharacter> candidates = character.Location
-		                                              .LayerCharacters(character.RoomLayer)
-		                                              .Concat(AwarenessRange > 0
-			                                              ? character.Location.CellsInVicinity((uint)AwarenessRange, true, true)
-			                                                         .SelectMany(x => x.Characters)
-			                                              : Enumerable.Empty<ICharacter>());
-
-		foreach (ICharacter target in candidates.Distinct())
+		foreach (ICharacter target in ObservedCharacters(character))
 		{
-			if (ReferenceEquals(target, character) ||
-			    !character.CanSee(target) ||
+			if (IsSociallyTrusted(character, target) ||
 			    !AwarenessThreatProg.ExecuteBool(false, character, target))
 			{
 				continue;
@@ -2235,6 +2862,38 @@ public class AnimalAI : PathingAIBase
 		}
 
 		return threats;
+	}
+
+	/// <summary>
+	/// Returns immediate same-layer targets plus remote targets that a prior silent scan registered and
+	/// that remain visible under the normal scan rules. This prevents secondary awareness and ecology
+	/// behaviours from treating vicinity enumeration as omniscient sight.
+	/// </summary>
+	private IEnumerable<ICharacter> ObservedCharacters(ICharacter character)
+	{
+		if (character.Location is null)
+		{
+			return [];
+		}
+
+		return character.Location
+		                .LayerCharacters(character.RoomLayer)
+		                .Where(x => IsLocalHuntTarget(character, x))
+		                .Concat(character.SeenTargets.OfType<ICharacter>())
+		                .Where(x => !ReferenceEquals(character, x) && CanObserveTarget(character, x))
+		                .DistinctPhysicalInstances();
+	}
+
+	private bool CanObserveTarget(ICharacter character, ICharacter target)
+	{
+		if (ReferenceEquals(character, target) || target.Location is null)
+		{
+			return false;
+		}
+
+		return IsLocalHuntTarget(character, target)
+			? character.CanSee(target)
+			: ScanTargetAcquisition.IsCurrentVisibleRangedTarget(character, target, EffectiveScanRange(character));
 	}
 
 	private bool ShouldAvoidCell(ICharacter character, ICell cell)
@@ -2273,7 +2932,8 @@ public class AnimalAI : PathingAIBase
 
 	private bool TryAwarenessResponse(ICharacter character, ICharacter? witnessedTarget)
 	{
-		if (character.Combat is not null ||
+		if (IsGroupControlled(character, GroupAIControlScope.Senses) ||
+		    character.Combat is not null ||
 		    character.Movement is not null ||
 		    character.Effects.Any(x => x.IsBlockingEffect("general") || x.IsBlockingEffect("movement")))
 		{
@@ -2302,9 +2962,9 @@ public class AnimalAI : PathingAIBase
 		List<ICell> threatCells = threats.Select(x => x.Location).Distinct().ToList();
 		ICellExit? exit = character.Location.ExitsFor(character)
 		                           .Where(GetAnimalSuitabilityFunction(character))
-		                           .Where(x => !threatCells.Contains(x.Destination))
-		                           .Where(x => !x.Destination.Characters.Any(y =>
-			                           !ReferenceEquals(y, character) &&
+			.Where(x => !threatCells.Contains(x.Destination))
+			.Where(x => !x.Destination.Characters.Any(y =>
+			                           !IsSociallyTrusted(character, y) &&
 			                           AwarenessThreatProg.ExecuteBool(false, character, y)))
 		                           .GetRandomElement();
 		return exit is not null && character.CanMove(exit) && character.Move(exit);
@@ -2404,18 +3064,71 @@ public class AnimalAI : PathingAIBase
 	private bool EvaluateActivity(ICharacter character)
 	{
 		if (!SurvivalNeedsSatisfied(character) ||
-		    ActivityStrategyHandler.IsActive(this, character))
+		    IsActivityInactive(character) == false)
 		{
 			return false;
 		}
 
-		if (!IsAtRefuge(character))
+		// An animal without an established den, territory or roost still rests in place.
+		// Choosing or building long-term shelter belongs to active-period ecology; it must not
+		// turn a diurnal, nocturnal or seasonally dormant animal into an ambient pathfinder.
+		return IsAtRefuge(character) && TrySleepAtRefuge(character);
+	}
+
+	private bool EvaluateSenses(ICharacter character)
+	{
+		if (IsGroupControlled(character, GroupAIControlScope.Senses) ||
+		    IsActivityInactive(character) ||
+		    character.Combat is not null ||
+		    character.Movement is not null ||
+		    character.Effects.Any(x => x.IsBlockingEffect("general") || x.IsBlockingEffect("movement")))
 		{
-			CheckPathingEffect(character, true);
+			return false;
+		}
+
+		if (SensesStrategy.In(AnimalSensesStrategyType.Hiding, AnimalSensesStrategyType.Stalking) &&
+		    !character.AffectedBy<ISneakEffect>())
+		{
+			character.AddEffect(new Sneak(character));
 			return true;
 		}
 
-		return TrySleepAtRefuge(character);
+		if (SensesStrategy == AnimalSensesStrategyType.Hiding &&
+		    !character.AffectedBy<IHideEffect>() &&
+		    character.Location.CharactersInSpatialVicinity(character).Except(character).Any(x => character.CanSee(x)))
+		{
+			character.ExecuteCommand("hide");
+			return true;
+		}
+
+		return false;
+	}
+
+	private bool WouldTrackKnownPrey(ICharacter character)
+	{
+		return SensesStrategy == AnimalSensesStrategyType.Tracking &&
+		       PredatorAIHelpers.IsHungry(character) &&
+		       NpcKnownThreatLocationsEffect.Get(character)?.KnownThreatLocations(AwarenessMemory)
+		       .Any(x => !ReferenceEquals(x, character.Location)) == true;
+	}
+
+	private (ICell? Target, IEnumerable<ICellExit> Path) GetKnownPreyPath(ICharacter character)
+	{
+		IEnumerable<ICell> locations = NpcKnownThreatLocationsEffect.Get(character)
+			?.KnownThreatLocations(AwarenessMemory)
+			.Where(x => !ReferenceEquals(x, character.Location))
+			?? Enumerable.Empty<ICell>();
+		foreach (ICell location in locations)
+		{
+			List<ICellExit> path = character.PathBetween(location, (uint)MovementRange,
+				GetAnimalSuitabilityFunction(character)).ToList();
+			if (path.Any())
+			{
+				return (location, path);
+			}
+		}
+
+		return (null, Enumerable.Empty<ICellExit>());
 	}
 
 	private bool EvaluateEcology(ICharacter character)
@@ -2432,12 +3145,22 @@ public class AnimalAI : PathingAIBase
 			return true;
 		}
 
+		// Rest is authoritative. Shelter, nesting and seasonal range choices are deliberate
+		// long-term behaviour and must not wake a satiated animal outside its active period.
+		if (!IsGroupControlled(character, GroupAIControlScope.Activity) &&
+		    IsActivityInactive(character) &&
+		    SurvivalNeedsSatisfied(character))
+		{
+			return false;
+		}
+
 		if (!SurvivalNeedsSatisfied(character) || !EcologyWouldMove(character))
 		{
 			return false;
 		}
 
-		if (EcologyNestingEnabled && HomeStrategy == AnimalHomeStrategyType.Denning && IsAtNest(character))
+		if (EcologyNestingEnabled && IsNestingSeason(character) && HomeStrategy == AnimalHomeStrategyType.Denning &&
+		    IsAtNest(character))
 		{
 			EvaluateBurrowLifecycle(character);
 			return true;
@@ -2456,7 +3179,7 @@ public class AnimalAI : PathingAIBase
 
 		return EcologyShelterEnabled && ShelterNeededProg.ExecuteBool(false, character) && !IsAtEcologyCell(character, ShelterCellProg) ||
 		       EcologySeasonalEnabled && !IsAtEcologyCell(character, SeasonalCellProg) ||
-		       EcologyNestingEnabled && !IsAtNest(character);
+		       EcologyNestingEnabled && IsNestingSeason(character) && !IsAtNest(character);
 	}
 
 	private (ICell? Target, IEnumerable<ICellExit> Path) GetEcologyPath(ICharacter character)
@@ -2473,7 +3196,7 @@ public class AnimalAI : PathingAIBase
 			return GetEcologyCellPath(character, SeasonalCellProg);
 		}
 
-		if (EcologyNestingEnabled && !IsAtNest(character))
+		if (EcologyNestingEnabled && IsNestingSeason(character) && !IsAtNest(character))
 		{
 			return GetNestPath(character);
 		}
@@ -2531,12 +3254,12 @@ public class AnimalAI : PathingAIBase
 
 	private bool TryParentalGuard(ICharacter character)
 	{
-		if (!EcologyParentingEnabled)
+		if (!EcologyParentingEnabled || !IsNestingSeason(character))
 		{
 			return false;
 		}
 
-		List<ICharacter> protectedTargets = VisibleEcologyCharacters(character)
+		List<ICharacter> protectedTargets = VisibleEcologyCharacters(character, includeSociallyTrusted: true)
 		                                    .Where(x => ProtectProg.ExecuteBool(false, character, x))
 		                                    .ToList();
 		if (!protectedTargets.Any())
@@ -2546,10 +3269,16 @@ public class AnimalAI : PathingAIBase
 
 		foreach (ICharacter threat in VisibleEcologyCharacters(character).Except(protectedTargets).Shuffle())
 		{
-			if (ReferenceEquals(threat, character) ||
+			if (IsSociallyTrusted(character, threat) ||
 			    !IsParentingThreat(character, threat))
 			{
 				continue;
+			}
+
+			AnimalThreatResponseType response = ResolveThreatResponse(character, threat);
+			if (response != AnimalThreatResponseType.Inherit)
+			{
+				return TryApplyThreatResponse(character, threat, response);
 			}
 
 			if (PredatorAIHelpers.CheckForAttack(character, threat, WillAttackProg,
@@ -2562,16 +3291,10 @@ public class AnimalAI : PathingAIBase
 		return false;
 	}
 
-	private IEnumerable<ICharacter> VisibleEcologyCharacters(ICharacter character)
+	private IEnumerable<ICharacter> VisibleEcologyCharacters(ICharacter character, bool includeSociallyTrusted = false)
 	{
-		return character.Location
-		                .LayerCharacters(character.RoomLayer)
-		                .Concat(AwarenessRange > 0
-			                ? character.Location.CellsInVicinity((uint)AwarenessRange, true, true)
-			                           .SelectMany(x => x.Characters)
-			                : Enumerable.Empty<ICharacter>())
-		                .Where(x => !ReferenceEquals(x, character) && character.CanSee(x))
-		                .Distinct();
+		return ObservedCharacters(character)
+			.Where(x => includeSociallyTrusted || !IsSociallyTrusted(character, x));
 	}
 
 	private bool IsParentingThreat(ICharacter character, ICharacter target)
@@ -2582,7 +3305,9 @@ public class AnimalAI : PathingAIBase
 
 	private bool TrySleepAtRefuge(ICharacter character)
 	{
-		if (!ActivitySleepEnabled ||
+		bool seasonalDormancy = IsSeasonIn(_dormantSeasonGroups, character) &&
+		                         DormancyMode != AnimalDormancyMode.Rest;
+		if ((!ActivitySleepEnabled && !seasonalDormancy) ||
 		    character.State.IsAsleep() ||
 		    character.Combat is not null ||
 		    character.Movement is not null ||
@@ -2608,34 +3333,400 @@ public class AnimalAI : PathingAIBase
 		return true;
 	}
 
+	private IEnumerable<ICharacter> ContextualThreatCandidates(ICharacter character, ICharacter? witnessedTarget)
+	{
+		IEnumerable<ICharacter> candidates = ObservedCharacters(character);
+		if (witnessedTarget is not null)
+		{
+			candidates = candidates.Append(witnessedTarget);
+		}
+
+		return candidates
+			.DistinctPhysicalInstances()
+			.Where(x => !IsSociallyTrusted(character, x))
+			.Where(x => CanObserveTarget(character, x))
+			.Where(x => AwarenessThreatProg.ExecuteBool(false, character, x) ||
+			            WillAttackProg.ExecuteBool(false, character, x) ||
+			            ReferenceEquals(x.CombatTarget, character));
+	}
+
+	private bool HasProtectedYoung(ICharacter character)
+	{
+		return EcologyParentingEnabled && IsNestingSeason(character) &&
+		       VisibleEcologyCharacters(character, includeSociallyTrusted: true)
+		       .Any(x => ProtectProg.ExecuteBool(false, character, x));
+	}
+
+	private AnimalThreatResponseType ResolveThreatResponse(ICharacter character, ICharacter target)
+	{
+		if ((ReferenceEquals(character.CombatTarget, target) || ReferenceEquals(target.CombatTarget, character)) &&
+		    AttackedThreatResponse != AnimalThreatResponseType.Inherit)
+		{
+			return AttackedThreatResponse;
+		}
+
+		if (HasProtectedYoung(character) && IsParentingThreat(character, target) &&
+		    ParentingThreatResponse != AnimalThreatResponseType.Inherit)
+		{
+			return ParentingThreatResponse;
+		}
+
+		if (HomeStrategyHandler.IsDefendingLocation(this, character) &&
+		    TerritoryThreatResponse != AnimalThreatResponseType.Inherit)
+		{
+			return TerritoryThreatResponse;
+		}
+
+		if (IsAggressiveSeason(character) && SeasonalThreatResponse != AnimalThreatResponseType.Inherit)
+		{
+			return SeasonalThreatResponse;
+		}
+
+		if (PredatorAIHelpers.IsHungry(character) &&
+		    WillAttackProg.ExecuteBool(false, character, target) &&
+		    HungryPreyResponse != AnimalThreatResponseType.Inherit)
+		{
+			return HungryPreyResponse;
+		}
+
+		return OrdinaryThreatResponse;
+	}
+
+	private void EmitPosture(ICharacter character, ICharacter target)
+	{
+		if (string.IsNullOrWhiteSpace(PostureEmote))
+		{
+			return;
+		}
+
+		Emote emote = new(PostureEmote, character, character, target);
+		if (emote.Valid)
+		{
+			character.OutputHandler.Handle(new EmoteOutput(emote, flags: OutputFlags.InnerWrap));
+		}
+	}
+
+	private bool BeginPosturing(ICharacter character, ICharacter target)
+	{
+		if (character.Combat is not null || character.Movement is not null)
+		{
+			return false;
+		}
+
+		AIPosturingEffect? existing = character.EffectsOfType<AIPosturingEffect>().FirstOrDefault();
+		if (existing is not null)
+		{
+			if (!existing.PosturingTargets.ContainsPhysicalInstance(target))
+			{
+				existing.PosturingTargets.Add(target);
+			}
+
+			return true;
+		}
+
+		(double Threat, bool StillPosturing, TimeSpan PostureLength) OnPostureExpired(double threat,
+			IEnumerable<ICharacter> targets)
+		{
+			List<ICharacter> activeTargets = targets
+				.Where(x => !IsSociallyTrusted(character, x) && CanObserveTarget(character, x))
+				.ToList();
+			if (!activeTargets.Any())
+			{
+				return (0.0, false, TimeSpan.Zero);
+			}
+
+			if (threat >= 1.0)
+			{
+				foreach (ICharacter activeTarget in activeTargets.Shuffle())
+				{
+					AnimalThreatResponseType response = ResolveThreatResponse(character, activeTarget);
+					if (response == AnimalThreatResponseType.Attack &&
+					    PredatorAIHelpers.CheckForAttack(character, activeTarget, WillAttackProg,
+						    EngageDelayDiceExpression, EngageEmote, false))
+					{
+						return (0.0, false, TimeSpan.Zero);
+					}
+				}
+
+				TryFlee(character, activeTargets.First());
+				return (0.0, false, TimeSpan.Zero);
+			}
+
+			EmitPosture(character, activeTargets.First());
+			return (1.0, true, TimeSpan.FromSeconds(Math.Max(1, Dice.Roll(PostureDurationDiceExpression))));
+		}
+
+		AIPosturingEffect effect = new(character, new[] { target }, OnPostureExpired);
+		effect.ThreatLevel = 0.0;
+		character.AddEffect(effect, TimeSpan.FromSeconds(Math.Max(1, Dice.Roll(PostureDurationDiceExpression))));
+		EmitPosture(character, target);
+		return true;
+	}
+
+	private bool ToggleShareGroupShelter(ICharacter actor)
+	{
+		AllowGroupShelterSharing = !AllowGroupShelterSharing;
+		Changed = true;
+		actor.OutputHandler.Send($"This animal AI will {AllowGroupShelterSharing.NowNoLonger()} share claimed wildlife shelters with its live group.");
+		return true;
+	}
+
+	private bool BuildingCommandActivitySeasonGroup(ICharacter actor, StringStack command, List<string> seasonGroups,
+		string label)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must supply a season group name, or use #3clear#0 to remove all {label} season groups.".SubstituteANSIColour());
+			return false;
+		}
+
+		string value = command.SafeRemainingArgument.Trim();
+		if (value.EqualToAny("clear", "none", "remove", "delete"))
+		{
+			seasonGroups.Clear();
+			Changed = true;
+			actor.OutputHandler.Send($"This animal AI no longer has any {label} season groups.");
+			return true;
+		}
+
+		if (seasonGroups.Any(x => string.Equals(x, value, StringComparison.InvariantCultureIgnoreCase)))
+		{
+			seasonGroups.RemoveAll(x => string.Equals(x, value, StringComparison.InvariantCultureIgnoreCase));
+			actor.OutputHandler.Send($"This animal AI will no longer treat {value.ColourValue()} as a {label} season group.");
+		}
+		else
+		{
+			seasonGroups.Add(value);
+			actor.OutputHandler.Send($"This animal AI will now treat {value.ColourValue()} as a {label} season group.");
+		}
+
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandAwarenessSenses(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParseEnum(out AnimalSensesStrategyType strategy))
+		{
+			actor.OutputHandler.Send($"You must specify an animal senses strategy. Valid values are {Enum.GetValues<AnimalSensesStrategyType>().ListToColouredString()}.");
+			return false;
+		}
+
+		SensesStrategy = strategy;
+		Changed = true;
+		actor.OutputHandler.Send($"This animal AI will now use {strategy.DescribeEnum().ColourName()} senses.");
+		return true;
+	}
+
+	private bool BuildingCommandThreatResponse(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				"You must specify a context (ordinary, hungryprey, attacked, territory, parenting or seasonal) and a response (inherit, ignore, avoid, flee, posture or attack).");
+			return false;
+		}
+
+		string context = command.PopForSwitch();
+		if (command.IsFinished || !command.PopSpeech().TryParseEnum(out AnimalThreatResponseType response))
+		{
+			actor.OutputHandler.Send($"You must specify a threat response. Valid values are {Enum.GetValues<AnimalThreatResponseType>().ListToColouredString()}.");
+			return false;
+		}
+
+		switch (context)
+		{
+			case "ordinary":
+				OrdinaryThreatResponse = response;
+				break;
+			case "hungryprey":
+			case "prey":
+			case "hungry":
+				HungryPreyResponse = response;
+				break;
+			case "attacked":
+			case "cornered":
+				AttackedThreatResponse = response;
+				break;
+			case "territory":
+			case "den":
+				TerritoryThreatResponse = response;
+				break;
+			case "parenting":
+			case "young":
+				ParentingThreatResponse = response;
+				break;
+			case "seasonal":
+			case "season":
+				SeasonalThreatResponse = response;
+				break;
+			default:
+				actor.OutputHandler.Send("That is not a valid threat context.");
+				return false;
+		}
+
+		Changed = true;
+		actor.OutputHandler.Send($"This animal AI will now {response.DescribeEnum().ColourName()} for {context.ColourValue()} threats.");
+		return true;
+	}
+
+	private bool BuildingCommandThreatPostureEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must supply a posture emote, or use #3clear#0 to remove it. $0 is the animal and $1 is its target.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("clear", "none", "remove", "delete"))
+		{
+			PostureEmote = string.Empty;
+			Changed = true;
+			actor.OutputHandler.Send("This animal AI will no longer emit a posture emote.");
+			return true;
+		}
+
+		Emote emote = new(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(),
+			new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		PostureEmote = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"This animal AI will now use the posture emote {PostureEmote.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandThreatPostureDuration(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !Dice.IsDiceExpression(command.SafeRemainingArgument))
+		{
+			actor.OutputHandler.Send("You must specify a valid dice expression for posture duration in seconds.");
+			return false;
+		}
+
+		PostureDurationDiceExpression = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"Postures will now last {PostureDurationDiceExpression.ColourValue()} seconds before escalating.");
+		return true;
+	}
+
+	private bool BuildingCommandMovementHabitatProg(ICharacter actor, StringStack command, Action<IFutureProg> setter,
+		string label)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which prog should identify {label} cells?");
+			return false;
+		}
+
+		IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			ProgVariableTypes.Boolean,
+			new[]
+			{
+				new List<ProgVariableTypes> { ProgVariableTypes.Character, ProgVariableTypes.Location },
+				new List<ProgVariableTypes> { ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Location },
+				new List<ProgVariableTypes> { ProgVariableTypes.Location }
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		setter(prog);
+		Changed = true;
+		actor.OutputHandler.Send($"This animal AI will now use {prog.MXPClickableFunctionName()} for {label} cells.");
+		return true;
+	}
+
+	private bool TryContextualThreatResponse(ICharacter character, ICharacter? witnessedTarget)
+	{
+		List<ICharacter> candidates = ContextualThreatCandidates(character, witnessedTarget).ToList();
+		if (SensesStrategy == AnimalSensesStrategyType.Tracking)
+		{
+			RememberThreats(character, candidates);
+		}
+
+		foreach (ICharacter target in candidates.Shuffle())
+		{
+			AnimalThreatResponseType response = ResolveThreatResponse(character, target);
+			if (response == AnimalThreatResponseType.Inherit)
+			{
+				continue;
+			}
+
+			return TryApplyThreatResponse(character, target, response);
+		}
+
+		return false;
+	}
+
+	private bool TryApplyThreatResponse(ICharacter character, ICharacter target,
+		AnimalThreatResponseType response)
+	{
+		return response switch
+		{
+			AnimalThreatResponseType.Ignore => true,
+			AnimalThreatResponseType.Avoid => character.Combat is null &&
+				TryMoveAwayFromAwarenessThreats(character, new[] { target }),
+			AnimalThreatResponseType.Flee when character.Combat is not null => SetFleeCombatStrategy(character),
+			AnimalThreatResponseType.Flee => TryFlee(character, target),
+			AnimalThreatResponseType.Posture => BeginPosturing(character, target),
+			AnimalThreatResponseType.Attack when PredatorAIHelpers.IsHungry(character) &&
+				HungryPreyResponse == AnimalThreatResponseType.Attack =>
+				TryHungryPredatorAttack(character, target),
+			AnimalThreatResponseType.Attack => PredatorAIHelpers.CheckForAttack(character, target, WillAttackProg,
+				EngageDelayDiceExpression, EngageEmote, false),
+			_ => false
+		};
+	}
+
+	private static bool SetFleeCombatStrategy(ICharacter character)
+	{
+		character.CombatStrategyMode = CombatStrategyMode.Flee;
+		return true;
+	}
+
 	private bool TryThreatResponse(ICharacter character, ICharacter? witnessedTarget)
 	{
-		if (character.Combat is not null ||
+		if ((IsGroupControlled(character, GroupAIControlScope.Threats) && character.Combat is null) ||
 		    character.Movement is not null ||
 		    character.Effects.Any(x => x.IsBlockingEffect("combat-engage") || x.IsBlockingEffect("general")))
 		{
 			return false;
 		}
 
-		return ThreatStrategyHandler.TryRespond(this, character, witnessedTarget);
+		return TryContextualThreatResponse(character, witnessedTarget) ||
+		       (character.Combat is null && ThreatStrategyHandler.TryRespond(this, character, witnessedTarget));
 	}
 
 	private bool TryHungryPredatorAttack(ICharacter character, ICharacter target)
 	{
+		if (!CanHuntTarget(character, target))
+		{
+			return false;
+		}
+
 		return PredatorAIHelpers.CheckForAttack(character, target, WillAttackProg, EngageDelayDiceExpression,
 			EngageEmote, true);
 	}
 
 	private bool TryDefensiveAttack(ICharacter character, ICharacter target)
 	{
-		return HomeStrategyHandler.IsDefendingLocation(this, character) &&
+		return !IsSociallyTrusted(character, target) &&
+		       HomeStrategyHandler.IsDefendingLocation(this, character) &&
 		       PredatorAIHelpers.CheckForAttack(character, target, WillAttackProg, EngageDelayDiceExpression,
 			       EngageEmote, false);
 	}
 
 	private bool TryFlee(ICharacter character, ICharacter target)
 	{
-		if (!WillAttackProg.ExecuteBool(character, target))
+		if (IsSociallyTrusted(character, target) ||
+		    (!WillAttackProg.ExecuteBool(false, character, target) &&
+		     !AwarenessThreatProg.ExecuteBool(false, character, target)))
 		{
 			return false;
 		}
@@ -2863,12 +3954,24 @@ public class AnimalAI : PathingAIBase
 	{
 		if (home.AnchorItem is not null && ReferenceEquals(home.AnchorItem.Location, home.HomeCell))
 		{
-			return;
+			if (AnchorItemProg is null)
+			{
+				// Legacy AnimalAI XML had no explicit anchor policy. Retain its remembered
+				// anchor without claiming an arbitrary item under the new shelter model.
+				return;
+			}
+
+			if (AnchorItemProg.ExecuteBool(character, home.AnchorItem) &&
+			    WildlifeShelterClaimEffect.ClaimOrRefresh(home.AnchorItem, character, AllowGroupShelterSharing))
+			{
+				return;
+			}
 		}
 
 		home.ClearAnchorItem();
-		IGameItem? anchor = DenBuilderAI.SelectAnchorItem(character, AnchorItemProg);
-		if (anchor is not null)
+		IGameItem? anchor = DenBuilderAI.SelectAnchorItem(character, AnchorItemProg, AllowGroupShelterSharing);
+		if (anchor is not null &&
+		    (AnchorItemProg is null || WildlifeShelterClaimEffect.ClaimOrRefresh(anchor, character, AllowGroupShelterSharing)))
 		{
 			home.SetAnchorItem(anchor);
 		}
@@ -2892,7 +3995,7 @@ public class AnimalAI : PathingAIBase
 		ICollection<ICell> claimedTerritory = GetClaimedTerritory(character);
 		if (cells.Count == 0)
 		{
-			if (SuitableTerritoryProg.Execute<bool?>(character.Location, character) == true &&
+			if (IsSuitableTerritory(character, character.Location) &&
 			    !claimedTerritory.Contains(character.Location))
 			{
 				territoryEffect.AddCell(character.Location);
@@ -2900,7 +4003,7 @@ public class AnimalAI : PathingAIBase
 			}
 
 			(IPerceivable target, IEnumerable<ICellExit> _) = character.AcquireTargetAndPath(
-				loc => SuitableTerritoryProg.Execute<bool?>(loc, character) == true &&
+				loc => loc is ICell candidate && IsSuitableTerritory(character, candidate) &&
 				       !claimedTerritory.Contains(loc),
 				20,
 				GetAnimalSuitabilityFunction(character));
@@ -2916,7 +4019,7 @@ public class AnimalAI : PathingAIBase
 		{
 			ICell expand = cell
 			               .ExitsFor(character, true)
-			               .Where(x => SuitableTerritoryProg.Execute<bool?>(x.Destination, character) == true &&
+				               .Where(x => IsSuitableTerritory(character, x.Destination) &&
 			                           !claimedTerritory.Contains(x.Destination))
 			               .Select(x => x.Destination)
 			               .GetRandomElement();
@@ -2955,42 +4058,51 @@ public class AnimalAI : PathingAIBase
 			return false;
 		}
 
-		if (AwarenessStrategyHandler.WouldMove(this, ch))
+		if (!IsGroupControlled(ch, GroupAIControlScope.Senses) &&
+		    AwarenessStrategyHandler.WouldMove(this, ch))
 		{
 			return true;
 		}
 
-		if (WaterStrategyHandler.WouldMove(this, ch))
+		if (!IsGroupControlled(ch, GroupAIControlScope.Feeding) && WaterStrategyHandler.WouldMove(this, ch))
 		{
 			return true;
 		}
 
-		if (FeedingStrategyHandler.WouldMove(this, ch))
+		if (!IsGroupControlled(ch, GroupAIControlScope.Feeding) && FeedingStrategyHandler.WouldMove(this, ch))
 		{
 			return true;
 		}
 
-		if (EcologyWouldMove(ch))
+		if (!IsGroupControlled(ch, GroupAIControlScope.Activity) &&
+		    IsActivityInactive(ch) &&
+		    SurvivalNeedsSatisfied(ch))
+		{
+			return false;
+		}
+
+		if (!IsGroupControlled(ch, GroupAIControlScope.Shelter) && EcologyWouldMove(ch))
 		{
 			return true;
 		}
 
-		if (ShouldReturnToRefuge(ch))
+		if (!IsGroupControlled(ch, GroupAIControlScope.Shelter) && ShouldReturnToRefuge(ch))
 		{
 			return true;
 		}
 
-		if (ActivityStrategyHandler.WouldMove(this, ch))
+		if (!IsGroupControlled(ch, GroupAIControlScope.Senses) && WouldTrackKnownPrey(ch))
 		{
 			return true;
 		}
 
-		if (HomeStrategyHandler.WouldMove(this, ch))
+		if (!IsGroupControlled(ch, GroupAIControlScope.Movement) && HomeStrategyHandler.WouldMove(this, ch))
 		{
 			return true;
 		}
 
-		return MovementEnabledProg.ExecuteBool(false, ch) &&
+		return !IsGroupControlled(ch, GroupAIControlScope.Movement) &&
+		       MovementEnabledProg.ExecuteBool(false, ch) &&
 		       RandomUtilities.DoubleRandom(0.0, 1.0) <= WanderChancePerMinute;
 	}
 
@@ -3001,31 +4113,48 @@ public class AnimalAI : PathingAIBase
 
 	protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
-		(ICell? target, IEnumerable<ICellExit> path) = AwarenessStrategyHandler.GetPath(this, ch);
-		if (target is not null && path.Any())
+		(ICell? target, IEnumerable<ICellExit> path) = (null, Enumerable.Empty<ICellExit>());
+		if (!IsGroupControlled(ch, GroupAIControlScope.Senses))
 		{
-			return (target, path);
+			(target, path) = AwarenessStrategyHandler.GetPath(this, ch);
+			if (target is not null && path.Any())
+			{
+				return (target, path);
+			}
 		}
 
-		(target, path) = WaterStrategyHandler.GetPath(this, ch);
-		if (target is not null && path.Any())
+		if (!IsGroupControlled(ch, GroupAIControlScope.Feeding))
 		{
-			return (target, path);
+			(target, path) = WaterStrategyHandler.GetPath(this, ch);
+			if (target is not null && path.Any())
+			{
+				return (target, path);
+			}
+
+			(target, path) = FeedingStrategyHandler.GetPath(this, ch);
+			if (target is not null && path.Any())
+			{
+				return (target, path);
+			}
 		}
 
-		(target, path) = FeedingStrategyHandler.GetPath(this, ch);
-		if (target is not null && path.Any())
+		if (!IsGroupControlled(ch, GroupAIControlScope.Activity) &&
+		    IsActivityInactive(ch) &&
+		    SurvivalNeedsSatisfied(ch))
 		{
-			return (target, path);
+			return (ch.Location, Enumerable.Empty<ICellExit>());
 		}
 
-		(target, path) = GetEcologyPath(ch);
-		if (target is not null && path.Any())
+		if (!IsGroupControlled(ch, GroupAIControlScope.Shelter))
 		{
-			return (target, path);
+			(target, path) = GetEcologyPath(ch);
+			if (target is not null && path.Any())
+			{
+				return (target, path);
+			}
 		}
 
-		if (ShouldReturnToRefuge(ch))
+		if (!IsGroupControlled(ch, GroupAIControlScope.Shelter) && ShouldReturnToRefuge(ch))
 		{
 			(target, path) = GetRefugePath(ch);
 			if (target is not null && path.Any())
@@ -3034,22 +4163,30 @@ public class AnimalAI : PathingAIBase
 			}
 		}
 
-		(target, path) = ActivityStrategyHandler.GetPath(this, ch);
-		if (target is not null && path.Any())
+		if (!IsGroupControlled(ch, GroupAIControlScope.Senses) && WouldTrackKnownPrey(ch))
 		{
-			return (target, path);
+			(target, path) = GetKnownPreyPath(ch);
+			if (target is not null && path.Any())
+			{
+				return (target, path);
+			}
 		}
 
-		(target, path) = HomeStrategyHandler.GetPath(this, ch);
-		if (target is not null && path.Any())
+		if (!IsGroupControlled(ch, GroupAIControlScope.Movement))
 		{
-			return (target, path);
+			(target, path) = HomeStrategyHandler.GetPath(this, ch);
+			if (target is not null && path.Any())
+			{
+				return (target, path);
+			}
+
+			(ICell? ambientTarget, IEnumerable<ICellExit> ambientPath) = MovementStrategyHandler.GetAmbientPath(this, ch);
+			return ambientTarget is not null
+				? (ambientTarget, ambientPath)
+				: (ch.Location, ambientPath);
 		}
 
-		(ICell? ambientTarget, IEnumerable<ICellExit> ambientPath) = MovementStrategyHandler.GetAmbientPath(this, ch);
-		return ambientTarget is not null
-			? (ambientTarget, ambientPath)
-			: (ch.Location, ambientPath);
+		return (ch.Location, Enumerable.Empty<ICellExit>());
 	}
 
 	private (ICell? Target, IEnumerable<ICellExit> Path) GetBurrowFoodPath(ICharacter ch)
@@ -3129,13 +4266,91 @@ public class AnimalAI : PathingAIBase
 
 	private (ICell? Target, IEnumerable<ICellExit> Path) GetPredatorFoodPath(ICharacter ch)
 	{
-		Tuple<IPerceivable, IEnumerable<ICellExit>> targetPath = ch.AcquireTargetAndPath(
-			x => x is ICharacter target && PredatorAIHelpers.WillAttack(ch, target, WillAttackProg, true),
-			DefaultNeedRange,
-			GetAnimalSuitabilityFunction(ch));
-		return targetPath.Item1 is ICharacter prey && targetPath.Item2.Any()
-			? (prey.Location, targetPath.Item2)
-			: (null, Enumerable.Empty<ICellExit>());
+		foreach (ICharacter prey in RemotePredatorCandidates(ch))
+		{
+			if (!CanHuntTarget(ch, prey))
+			{
+				ch.LoseTarget(prey);
+				continue;
+			}
+
+			if (prey.Location!.RouteDefinition is not null || ch.Location.RouteDefinition is not null)
+			{
+				if (TryFindSpatialPath(ch, RouteSpatialService.Instance.GetEffectiveLocation(prey), DefaultNeedRange,
+						GetAnimalSuitabilityFunction(ch), out _))
+				{
+					return (prey.Location, Enumerable.Empty<ICellExit>());
+				}
+
+				ch.LoseTarget(prey);
+				continue;
+			}
+
+			List<ICellExit> path = ch.PathBetween(prey.Location, DefaultNeedRange,
+				GetAnimalSuitabilityFunction(ch)).ToList();
+			if (path.Any())
+			{
+				return (prey.Location, path);
+			}
+
+			ch.LoseTarget(prey);
+		}
+
+		return (null, Enumerable.Empty<ICellExit>());
+	}
+
+	/// <summary>
+	/// Supplies an exact-coordinate RouteCell path for a remotely scanned prey target. The regular
+	/// exit path is still used for ordinary cells; keeping the spatial path here avoids reducing a
+	/// live RouteCell target to the route's default coordinate.
+	/// </summary>
+	protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+	{
+		if (!FeedingStrategy.In(AnimalFeedingStrategyType.Predator, AnimalFeedingStrategyType.DenPredator,
+			    AnimalFeedingStrategyType.Omnivore, AnimalFeedingStrategyType.DenOmnivore) ||
+		    !PredatorAIHelpers.IsHungry(ch) ||
+		    HasLocalFoodOpportunity(ch))
+		{
+			return (null, null);
+		}
+
+		foreach (ICharacter prey in RemotePredatorCandidates(ch))
+		{
+			if (!CanHuntTarget(ch, prey))
+			{
+				ch.LoseTarget(prey);
+				continue;
+			}
+
+			if (prey.Location!.RouteDefinition is null && ch.Location.RouteDefinition is null)
+			{
+				continue;
+			}
+
+			if (TryFindSpatialPath(ch, RouteSpatialService.Instance.GetEffectiveLocation(prey), DefaultNeedRange,
+					GetAnimalSuitabilityFunction(ch), out ISpatialPath? path) &&
+				path is not null && path.Steps.Count > 0)
+			{
+				return (prey.Location, path);
+			}
+
+			ch.LoseTarget(prey);
+		}
+
+		return (null, null);
+	}
+
+	private IEnumerable<ICharacter> RemotePredatorCandidates(ICharacter character)
+	{
+		return character.SeenTargets
+		                .OfType<ICharacter>()
+		                .Where(x => !IsLocalHuntTarget(character, x))
+		                .OrderBy(x =>
+		                {
+			                int distance = character.DistanceBetween(x, DefaultNeedRange);
+			                return distance < 0 ? int.MaxValue : distance;
+			                })
+		                .ToList();
 	}
 
 	private (ICell? Target, IEnumerable<ICellExit> Path) GetForagerFoodPath(ICharacter ch)
@@ -3496,7 +4711,7 @@ public class AnimalAI : PathingAIBase
 			return PredatorAIHelpers.FindLocalEdibleCorpse(character) is not null ||
 			       character.Location.LayerCharacters(character.RoomLayer)
 			                .Except(character)
-			                .Any(x => PredatorAIHelpers.WillAttack(character, x, ai.WillAttackProg, true));
+			                .Any(x => ai.CanHuntLocalTarget(character, x));
 		}
 
 		public bool WouldMove(AnimalAI ai, ICharacter character)
@@ -3911,13 +5126,14 @@ public class AnimalAI : PathingAIBase
 
 		public bool TryRespond(AnimalAI ai, ICharacter character, ICharacter? witnessedTarget)
 		{
-			if (witnessedTarget is not null)
+			if (witnessedTarget is not null && !ai.IsSociallyTrusted(character, witnessedTarget))
 			{
 				return ai.TryFlee(character, witnessedTarget);
 			}
 
 			foreach (ICharacter target in character.Location.LayerCharacters(character.RoomLayer)
 			                                    .Except(character)
+			                                    .Where(x => !ai.IsSociallyTrusted(character, x))
 			                                    .Shuffle())
 			{
 				if (ai.TryFlee(character, target))
@@ -3934,13 +5150,14 @@ public class AnimalAI : PathingAIBase
 	{
 		public bool TryRespond(AnimalAI ai, ICharacter character, ICharacter? witnessedTarget)
 		{
-			if (witnessedTarget is not null)
+			if (witnessedTarget is not null && !ai.IsSociallyTrusted(character, witnessedTarget))
 			{
 				return TryAttack(ai, character, witnessedTarget);
 			}
 
 			foreach (ICharacter target in character.Location.LayerCharacters(character.RoomLayer)
 			                                    .Except(character)
+			                                    .Where(x => !ai.IsSociallyTrusted(character, x))
 			                                    .Shuffle())
 			{
 				if (TryAttack(ai, character, target))
@@ -3960,9 +5177,11 @@ public class AnimalAI : PathingAIBase
 				return false;
 			}
 
-			foreach (ICharacter target in character.Location.CellsInVicinity(range, true, true)
-			                                    .Except(character.Location)
-			                                    .SelectMany(x => x.Characters)
+			foreach (ICharacter target in ai.ObservedCharacters(character)
+			                                    .Where(x => !ai.IsSociallyTrusted(character, x))
+			                                    .Where(x => !IsLocalHuntTarget(character, x))
+			                                    .Where(x => ScanTargetAcquisition.IsVisibleRangedTarget(character, x, range,
+				                                    false))
 			                                    .ToList())
 			{
 				if (TryAttack(ai, character, target))
@@ -4311,6 +5530,7 @@ public class AnimalAI : PathingAIBase
 	private interface IAnimalMovementStrategy
 	{
 		bool CellMatches(AnimalAI ai, ICharacter character, ICell cell);
+		bool CanReachTargetLayer(AnimalAI ai, ICharacter character, RoomLayer targetLayer);
 		(ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character);
 		FollowingPath CreatePathingEffect(AnimalAI ai, ICharacter character, IEnumerable<ICellExit> path);
 	}
@@ -4322,6 +5542,11 @@ public class AnimalAI : PathingAIBase
 		public bool CellMatches(AnimalAI ai, ICharacter character, ICell cell)
 		{
 			return ai.MovementCellProg.ExecuteBool(false, character, cell, character.Location);
+		}
+
+		public bool CanReachTargetLayer(AnimalAI ai, ICharacter character, RoomLayer targetLayer)
+		{
+			return targetLayer == RoomLayer.GroundLevel;
 		}
 
 		public (ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character)
@@ -4344,6 +5569,11 @@ public class AnimalAI : PathingAIBase
 			return character.Race.CanSwim &&
 			       CellSupportsSwimming(character, cell) &&
 			       ai.MovementCellProg.ExecuteBool(false, character, cell, character.Location);
+		}
+
+		public bool CanReachTargetLayer(AnimalAI ai, ICharacter character, RoomLayer targetLayer)
+		{
+			return targetLayer == RoomLayer.GroundLevel || targetLayer.IsUnderwater();
 		}
 
 		public (ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character)
@@ -4369,6 +5599,11 @@ public class AnimalAI : PathingAIBase
 			return ai.MovementCellProg.ExecuteBool(false, character, cell, character.Location);
 		}
 
+		public bool CanReachTargetLayer(AnimalAI ai, ICharacter character, RoomLayer targetLayer)
+		{
+			return !targetLayer.IsUnderwater();
+		}
+
 		public (ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character)
 		{
 			return GetWeightedAmbientPath(ai, character, CellMatches);
@@ -4391,12 +5626,18 @@ public class AnimalAI : PathingAIBase
 			        ai.AllowDescentProg.ExecuteBool(false, character, cell));
 		}
 
+		public bool CanReachTargetLayer(AnimalAI ai, ICharacter character, RoomLayer targetLayer)
+		{
+			return targetLayer.In(RoomLayer.GroundLevel, RoomLayer.InTrees, RoomLayer.HighInTrees);
+		}
+
 		public (ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character)
 		{
 			List<(ICell Cell, int Distance)> treeTargets = character.CellsAndDistancesInVicinity(
 					(uint)ai.MovementRange,
 					ai.GetAnimalSuitabilityFunction(character, true),
 					cell => ai.MovementCellProg.ExecuteBool(false, character, cell, character.Location) &&
+					        ai.IsWithinPreferredHabitat(character, cell) &&
 					        ArborealWandererAI.CellSupportsTreeLayers(character, cell))
 				.ToList();
 
@@ -4415,6 +5656,7 @@ public class AnimalAI : PathingAIBase
 					(uint)ai.MovementRange,
 					ai.GetAnimalSuitabilityFunction(character, true),
 					cell => ai.MovementCellProg.ExecuteBool(false, character, cell, character.Location) &&
+					        ai.IsWithinPreferredHabitat(character, cell) &&
 					        !ArborealWandererAI.CellSupportsTreeLayers(character, cell) &&
 					        ai.AllowDescentProg.ExecuteBool(false, character, cell))
 				.ToList();
@@ -4481,6 +5723,11 @@ public class AnimalAI : PathingAIBase
 				: ai.AmphibiousLandCellProg.ExecuteBool(false, character, cell, character.Location);
 		}
 
+		public bool CanReachTargetLayer(AnimalAI ai, ICharacter character, RoomLayer targetLayer)
+		{
+			return targetLayer == RoomLayer.GroundLevel || targetLayer.IsUnderwater();
+		}
+
 		public (ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character)
 		{
 			bool preferWater = RandomUtilities.DoubleRandom(0.0, 1.0) <= ai.AmphibiousWaterBias;
@@ -4524,7 +5771,7 @@ public class AnimalAI : PathingAIBase
 		List<(ICell Cell, int Distance)> vicinity = character.CellsAndDistancesInVicinity(
 				(uint)ai.MovementRange,
 				ai.GetAnimalSuitabilityFunction(character, true),
-				cell => predicate(ai, character, cell))
+				cell => predicate(ai, character, cell) && ai.IsWithinPreferredHabitat(character, cell))
 			.ToList();
 		ICell? target = vicinity.GetWeightedRandom(x => Math.Sqrt(x.Distance)).Cell;
 		if (target is null)

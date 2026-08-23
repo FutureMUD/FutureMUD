@@ -9,9 +9,22 @@ public static class EmploymentCandidateMatcher
 {
 	public static IReadOnlySet<EmploymentAICapability> ImplicitCapabilitiesForRole(EmploymentRole role)
 	{
-		return role == EmploymentRole.Manager
-			? new HashSet<EmploymentAICapability> { EmploymentAICapability.CanManageEmploymentHost }
-			: new HashSet<EmploymentAICapability>();
+		return role switch
+		{
+			EmploymentRole.Manager => new HashSet<EmploymentAICapability>
+			{
+				EmploymentAICapability.CanManageEmploymentHost
+			},
+			EmploymentRole.Chef => new HashSet<EmploymentAICapability>
+			{
+				EmploymentAICapability.CanCraft
+			},
+			EmploymentRole.Server => new HashSet<EmploymentAICapability>
+			{
+				EmploymentAICapability.CanDeliverItems
+			},
+			_ => new HashSet<EmploymentAICapability>()
+		};
 	}
 
 	public static bool IsMatch(IJobOpening opening, EmploymentCandidateProfile candidate, out string reason)

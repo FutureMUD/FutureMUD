@@ -10,6 +10,7 @@ using MudSharp.Economy.Employment;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Models;
+using RestaurantShop = MudSharp.Economy.Shops.Restaurant;
 
 #nullable enable
 
@@ -492,7 +493,17 @@ public class EmploymentWorkerAI : PathingAIBase
 		}
 
 		var host = ActiveEmploymentHost(character);
-		return host is not null && TryClaimOrAdvanceTask(character, host);
+		if (host is null)
+		{
+			return false;
+		}
+
+		if (host is RestaurantShop restaurant && restaurant.TryHandleNpcService(character, _capabilities))
+		{
+			return true;
+		}
+
+		return TryClaimOrAdvanceTask(character, host);
 	}
 
 	internal bool HandleMinuteTick(ICharacter character)

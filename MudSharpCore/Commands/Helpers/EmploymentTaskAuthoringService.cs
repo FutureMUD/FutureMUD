@@ -5392,14 +5392,16 @@ internal sealed class EmploymentTaskAuthoringService
 			EmploymentRole.Clerk or
 			EmploymentRole.Courier or
 			EmploymentRole.StableHand or
-			EmploymentRole.HotelWorker => new EmploymentAuthoritySet(EmploymentAuthority.ManageDeliveryRoutes),
+			EmploymentRole.HotelWorker or
+			EmploymentRole.Server => new EmploymentAuthoritySet(EmploymentAuthority.ManageDeliveryRoutes),
 			EmploymentRole.HospitalOrderly => new EmploymentAuthoritySet(
 				EmploymentAuthority.PrepareMedicalSupplies |
 				EmploymentAuthority.ManageDeliveryRoutes),
 			EmploymentRole.MedicalWorker => new EmploymentAuthoritySet(
 				EmploymentAuthority.PerformMedicalServices |
 				EmploymentAuthority.ManageDeliveryRoutes),
-			EmploymentRole.Crafter => new EmploymentAuthoritySet(
+			EmploymentRole.Crafter or
+			EmploymentRole.Chef => new EmploymentAuthoritySet(
 				EmploymentAuthority.ManageCraftRules |
 				EmploymentAuthority.ManageDeliveryRoutes),
 			EmploymentRole.BankTeller => new EmploymentAuthoritySet(

@@ -2157,18 +2157,18 @@ The syntax is:
     [NoHideCommand]
     [NoMovementCommand]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
-    [HelpInfo("salvage", @"The #3salvage#0 command begins dismantling a non-organic wreck or part into its configured components. Some targets have product subcategories, which you can name to process only that portion. The required tools and results depend on the target's salvage profile.
+    [HelpInfo("salvage", @"The #3salvage#0 command begins dismantling an explicitly salvageable ordinary item or a non-organic corpse/body part into its configured products. Ordinary items do not have subcategories. Corpse/bodypart profiles may have product subcategories. The required tools and results depend on the target's salvage configuration.
 
 The syntax is:
 
-	#3salvage <wreck|part> [<subcategory>]#0", AutoHelp.HelpArgOrNoArg)]
+	#3salvage <item> [<corpse/bodypart subcategory>]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Salvage(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
         if (ss.IsFinished || ss.Peek().EqualToAny("?", "help"))
         {
             actor.Send(
-                $"This command is used to take apart non-organic corpses and wrecks into their component parts.\nThe syntax is {"salvage <wreck|part> [<subcategory>]".ColourCommand()}.");
+                $"This command is used to take apart explicitly salvageable ordinary items or non-organic corpses/bodyparts.\nThe syntax is {"salvage <item> [<corpse/bodypart subcategory>]".ColourCommand()}.");
             return;
         }
 
@@ -2176,6 +2176,13 @@ The syntax is:
         if (target == null)
         {
             actor.Send("You don't see anything like that to salvage.");
+            return;
+        }
+
+        var targetAsSalvageable = target.GetItemType<ISalvageable>();
+        if (targetAsSalvageable is not null)
+        {
+            SalvageOrdinaryItem(actor, target, targetAsSalvageable, ss);
             return;
         }
 
@@ -2244,6 +2251,54 @@ The syntax is:
         actor.AddEffect(
             new Butchering(actor, targetAsButcherable, subcategory,
                 ButcheryToolFromPlanResults(results)), TimeSpan.FromSeconds(10));
+        actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins to salvage $0.", actor, target)));
+        plan.FinalisePlanNoRestore();
+    }
+
+    private static void SalvageOrdinaryItem(ICharacter actor, IGameItem target, ISalvageable salvageable,
+        StringStack command)
+    {
+        if (!command.IsFinished)
+        {
+            actor.Send("Ordinary-item salvage does not support subcategories.");
+            return;
+        }
+
+        if (target.EffectsOfType<ItemSalvaging.BeingSalvaged>().Any())
+        {
+            actor.Send($"Someone is already salvaging {target.HowSeen(actor)}.");
+            return;
+        }
+
+        if (!salvageable.CanSalvage(out var reason))
+        {
+            actor.Send($"{target.HowSeen(actor, true)} cannot be salvaged because {reason}.");
+            return;
+        }
+
+        var stages = salvageable.Stages.ToList();
+        if (stages.Any(x => x.Emote.Contains("$2", StringComparison.Ordinal)) &&
+            salvageable.RequiredToolTag is null)
+        {
+            actor.Send($"{target.HowSeen(actor, true)} cannot be salvaged because its stage emotes require a tool but no held tool is configured.");
+            return;
+        }
+
+        var plan = salvageable.ToolTemplate.CreatePlan(actor);
+        switch (plan.PlanIsFeasible())
+        {
+            case InventoryPlanFeasibility.NotFeasibleMissingItems:
+                actor.Send("You do not have the required salvage tool.");
+                return;
+            case InventoryPlanFeasibility.NotFeasibleNotEnoughHands:
+            case InventoryPlanFeasibility.NotFeasibleNotEnoughWielders:
+                actor.Send("You do not have enough free hands to ready the required salvage tool.");
+                return;
+        }
+
+        var results = plan.ExecuteWholePlan().ToList();
+        var tool = ButcheryToolFromPlanResults(results);
+        actor.AddEffect(new ItemSalvaging(actor, salvageable, tool), TimeSpan.FromSeconds(stages[0].Delay));
         actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins to salvage $0.", actor, target)));
         plan.FinalisePlanNoRestore();
     }

@@ -11,7 +11,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BlankDatabaseSnapshotTests
 {
-	private const string LatestMigrationId = "20260805124030_ProjectQueueSchedulingAndLaunchEntries";
+	private const string LatestMigrationId = "20260822233623_AddRestaurantServicePresentation";
 
     [TestMethod]
     public void CommittedBlankSnapshotManifest_TracksLatestMigration()

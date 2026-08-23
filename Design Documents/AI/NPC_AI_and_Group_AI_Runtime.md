@@ -216,6 +216,17 @@ Group AI instances subscribe themselves directly on creation/load:
 
 `GroupAI` then delegates those ticks to its `GroupAIType`.
 
+### Founder Live Wildlife Diagnostics
+For development and post-seed verification, Founder-level `impdebug` has a small retained wildlife toolkit:
+
+- `impdebug wildlife [here|<npc id>]` reports the live `AnimalAI` activity state and reason, local `SeasonGroup`, dormancy mode, habitat band, survival urgency, and group role/control/action.
+- `impdebug wildlife hungry <npc id>` drives a loaded wildlife NPC's existing needs model into hunger so the normal feeding or group-hunt path can be exercised deterministically. It never starts combat directly or changes an AI definition.
+- `impdebug wildlife group <group id>` reports the live group schedule, rest/need gating, visible non-member candidates, template matches, and actionable threat count without changing the group.
+- `impdebug heartbeat hour|minute|second|5second|10second|30second` invokes the selected cadence immediately. Use an hour heartbeat after `impdebug addtime <days:hours:minutes:seconds>` when a weather controller must refresh its seasonal state.
+- `impdebug flush` commits queued saves and outgoing messages before a local restart or a persistence check.
+
+These commands are diagnostics only; they do not alter a wildlife definition or bypass its normal AI logic.
+
 ## How AI Interacts with the Rest of the Engine
 ### NPC Templates and Spawned NPCs
 `NPCTemplateBase` stores a list of `ArtificialIntelligences`. Builders manage these with:
@@ -330,6 +341,18 @@ Group AI is a separate runtime system from per-NPC `IArtificialIntelligence`, bu
 - individual AI controls local reactive behavior
 - group AI controls collective priorities, movement, and alertness for the herd/pack/family
 
+Each `INPC` exposes its loaded `GroupAI` membership without a duplicate database column. An NPC can belong to one live group only. Builder attempts to add a member that already belongs to another group are rejected; on loading old data with duplicate memberships the lowest-id group wins, the later memberships are removed, and an administrative warning is emitted.
+
+Group types can expose a `GroupAIControlScope` to claim `Movement`, `Feeding`, `Threats`, `Activity`, `Shelter`, and/or `Senses`. A group owns only the scopes it claims; `AnimalAI` retains direct combat, urgent survival, and unclaimed reactions. This prevents a social animal from simultaneously wandering, fleeing, or seeking food to competing individual and group instructions. If every live member's `AnimalAI` requires rest, a wildlife group also rests even if the group template's activity window is open; combat, immediate threats, and urgent needs remain valid interruptions.
+
+### Wildlife perception and feeding priority
+
+`AnimalAI` acquires remote characters with a silent scan rather than treating pathfinding as omniscient perception. The scan uses `ScanPerceptionCheck`, cell spot difficulty adjusted by distance, contextual scan size, ordinary visible-door and corner rules, layer visibility, obscurity, and `CanSee`. It is capped at the smaller of the profile's effective awareness range and the engine's five-cell ranged-target memory. Successful scans register the character through `SeeTarget`; a remote live prey candidate must remain a current visible seen target before a predator selects it.
+
+Local prey in the same reachable layer remains immediately eligible, so an immediate threat or defensive reaction is not delayed by a scan. Movement profiles additionally validate the prey's target layer before hunting: ground predators do not select underwater or aerial prey, swimmers can use water layers, flyers cannot use underwater layers, and arboreal profiles restrict their hunt to ground/tree layers. A failed, stale, or movement-unreachable prey target is discarded rather than repeatedly rebuilding an empty route. RouteCells use their authored longitudinal positions and room-equivalent range for the same scan gate.
+
+Group-controlled animals perform those scan checks through their leader and sentries instead of every member. Before a hunting or scavenging group issues a fresh-kill attack, hungry members use the ordinary accessible local-corpse eating path. A remaining edible same-layer corpse suppresses the live hunt; the individual predator order remains local carrion, remote scavenging, remote foraging, then live prey.
+
 Use group AI when the behavior needs to coordinate across multiple NPCs and maintain shared group state.
 
 ## Builder Workflow
@@ -391,6 +414,10 @@ Key operations:
 - `gait set threat ...`
 - `gait set type <newtype> <builder args>`
 - `gait set emote ...`
+
+The production wildlife type is created with `gait set type wildlife <gender> <kind> <tactic> <activity>`. Once selected, `gait set kind`, `tactic`, `scope`, `preferred`, `shelter`, `range`, `wander`, and `activity` configure the type. `gait show` reports these settings. The `scope` value is a comma-separated `GroupAIControlScope` list, for example `Movement,Feeding,Threats,Activity,Senses`.
+
+When a wildlife builder setting expects an enum value, an omitted or invalid value reports the complete coloured list of accepted values. This applies when creating a wildlife group and when editing its kind, tactic, or control scope; the finished `AnimalAI` settings use the same feedback for layers, activity times, dormancy, senses, and threat responses.
 
 Template changes are immediate and non-revisable.
 
@@ -522,21 +549,20 @@ The current AI roster clusters into a few families:
 
 The `AnimalAI` water slot uses `NpcKnownWaterLocationsEffect` to persist water memories on each NPC. `water drink` remembers and uses drinkable local liquid sources. `water immerse` treats immersion in a valid aquatic cell as hydration, and `water surface` does the same while preferring cells with a surface-capable layer for air-breathing aquatic animals. When thirsty, animals satisfy water locally before eating, hunting, foraging, returning home, or building; pathing variants first attempt remembered water cells and then search nearby cells for a new compatible water source. If a remembered water cell is dry or no longer suitable when visited, the NPC forgets that location. The awareness slot similarly uses `NpcKnownThreatLocationsEffect` to remember recently seen threat cells with expiry. Wary, wimpy, and skittish animals consult current threats, avoid-cell progs, and remembered threat locations before survival needs.
 
-The `AnimalAI` feeding, refuge, activity, home, and ecology settings cover the former branch-only solo predator and forager behavior plus basic solitary animal instincts. Predator variants eat local edible corpses before hunting and only choose edible prey when using hungry-predator threat behavior. Den predators and den omnivores claim killed prey, drag the corpse back to the den, and resume fighting if attacked while dragging or eating. Forager variants eat direct edible yields first and use `FORAGE` when an eligible discrete forageable has at least one complete yield point; direct edible and grazing yields remain available at fractional amounts. Scavengers eat corpses, severed bodyparts, and edible items without hunting; opportunists combine scavenging and foraging without adding predator attacks; omnivores scavenge and forage before hunting. Denning animals return to their home cell when fed and watered, and can optionally create a burrow through the configured craft. Ecology settings let individual animals seek shelter, return to seasonal or nest cells, and defend protected young or friends through configured progs. Refuge and activity settings allow patterns such as wimpy animals retreating to a configured safe place, skittish arboreal animals returning to tree layers, and flyers returning to sky layers once thirst and hunger are satisfied.
+The `AnimalAI` feeding, refuge, activity, home, and ecology settings cover the former branch-only solo predator and forager behavior plus basic solitary animal instincts. Predator variants eat local edible corpses before hunting and only choose edible prey when using hungry-predator threat behavior. Den predators and den omnivores claim killed prey, drag the corpse back to the den, and resume fighting if attacked while dragging or eating. Forager variants eat direct edible yields first and use `FORAGE` when an eligible discrete forageable has at least one complete yield point; direct edible and grazing yields remain available at fractional amounts. Scavengers eat corpses, severed bodyparts, and edible items without hunting; opportunists combine scavenging and foraging without adding predator attacks; omnivores scavenge and forage before hunting. Denning animals return to their home cell when fed and watered, and can optionally create a burrow through the configured craft. Ecology settings let individual animals seek shelter, return to seasonal or nest cells, and defend protected young or friends through configured progs. Refuge and activity settings allow patterns such as wimpy animals retreating to a configured safe place, skittish arboreal animals returning to tree layers, and flyers returning to sky layers once thirst and hunger are satisfied. Finished catalogue profiles also set `feeding needs active`, so attaching one to an ordinary simple NPC template automatically supplies a persistent active needs model; no separate builder adjustment is required. Omitted legacy XML retains the older no-needs behavior.
+
+Activity is authoritative for finished wildlife profiles. Diurnal, nocturnal, crepuscular, and custom inactive periods keep an animal resting unless it is in combat, under an immediate threat, or must meet a survival need. `dormancy` additionally supports seasonal `rest`, `hibernation`, and `torpor` policy using the local hemisphere-aware `SeasonGroup` name. `activity nestingseason` gates nest-building and parental behaviour, while `ecology seasonalhabitat <season group> <prog>` changes the preferred habitat in that season without widening tolerated transit. Preferred habitats guide normal movement, tolerated habitats remain traversable transit, and all other habitats are forbidden. Threat selection excludes same-race and same-group creatures before any custom threat prog runs. Contextual policy distinguishes ordinary encounters, hungry prey, attack/cornering, territory or den intrusion, threatened young, and aggressive seasons, with ignore, avoid, flee, posture, and attack responses. Posture has an authored emote, duration, and escalation response.
+
+`senses` composes vigilant scanning, hiding, stalking/ambush, and lost-prey tracking with the compatible `StealthAI` and tracking runtime behavior. Stealth can now be gated by the same activity and habitat policy. Group-owned senses suppress only the overlapping individual cadence; direct threats and combat are still handled by the animal itself.
 
 ### Stock Individual Animal AI Templates
-`AnimalSeeder` and `MythicalAnimalSeeder` seed repeatable, builder-clonable individual `Animal` AI definitions. These rows are examples only: they are not group AI templates and they are not automatically attached to races or NPC templates. The seeders maintain an inventory mapping every stock animal race and mythical animal race to one recommended individual template so future catalogue additions must choose a behavior before the tests pass.
+`AnimalSeeder` and `MythicalAnimalSeeder` retain their broad `Animal ...` rows as legacy examples. The separately repeatable `WildlifeCatalogueSeeder` supplies the production stock definitions: canonical `Wildlife - ...` wild/feral individual AIs, `Managed Animal - ...` individual AIs, and finished wildlife group templates. Those rows are owned and repaired by the package; clone a stock row before deliberately changing it.
 
-The stock template set is deliberately grouped rather than one row per race. It includes small skittish foragers, burrowing foragers, territorial grazers, sheltering grazers, large defensive grazers, opportunist omnivores, hunting omnivores, denning omnivores, scavengers, territorial predators, denning predators, burrowing ambush predators, amphibious foragers, amphibious predators, arboreal foragers, arboreal predators, skittish birds, nesting birds, parental defenders, raptors, eternal flyers, flying scavengers, swimming foragers, swimming predators, surface-breathing swimming predators, swimming scavengers, plantlike foragers, mythic guardians, passive sapient placeholders, and large mythic flying predators.
+The catalogue is deliberately shared-archetype based rather than one AI row per race. Its generated recommendation manifest gives every installed normal animal and every explicitly eligible non-sapient mythical beast exactly one wild/feral individual profile, plus either a finished group template or `Solitary`. It also gives every Agriculture herd race and the stock domestic companion races a managed alternative. Humanoid and sapient mythical peoples are explicitly excluded from wildlife recommendations.
 
-The current stock inventory covers 174 normal animal races and 40 mythical animal races. Aquatic templates use `water immerse` or `water surface` where terrain-water hydration is the better default than drinking from containers. Amphibious templates can travel over land and water while applying a water-bias for ambient movement. Sapient mythical folk use a passive placeholder because social, occupational, conversational, legal, or faction behavior should be composed with more specific non-animal AIs.
+Finished profiles cover terrestrial, arboreal, flying, freshwater, marine, coastal, riverine, amphibious, burrowing, colonial, migratory, hibernating, ambush, hunting, scavenging, and managed ecology. Aquatic profiles use `water immerse` or `water surface` where terrain-water hydration is the better default than drinking from containers. The catalogue never creates NPC templates or live groups: attach the recommended individual AI to an NPC template, then create a live group from the recommended group template for social animals.
 
-Remaining behavior gaps for the seeded roster:
-
-- species-specific prey, fear, territory, shelter, and nest filters beyond broad stock starter progs
-- full seasonal calendars, breeding cycles, egg/offspring spawning, and long-distance migration schedules
-- group-level herd, flock, school, colony, and pack coordination, which still belongs in Group AI rather than these individual templates
-- sapient social, legal, faction, occupational, and conversational behavior for mythical folk
+The remaining intentional boundary is setting-specific content: species-specific prey/fear filters, breeding and offspring spawning, continent-scale migration routes, and sapient social behavior remain builder or game specific.
 
 ## Group AI Catalogue
 ### Current Group Types
@@ -548,12 +574,15 @@ Current builder-registered group AI types live under `MudSharpCore/NPC/AI/Groups
 | `NeutralHerdGrazers` | Herding grazers that react defensively but are not strongly territorial | Good baseline passive herd |
 | `TerritorialHerdGrazer` | Herd grazers with territorial behavior | Combines herd and territory pressure |
 | `WimpyHerdGrazers` | Highly evasive grazer herds | Strong flee/avoid posture |
+| `WildlifeGroupAIType` | Finished shared wildlife coordination | Configurable herd, pack, family, pride, flock, school, pod, colony, swarm, or managed group across land, air, trees, water, and amphibious habitats |
 
 There are also shared bases:
 
 - `GroupAIType`
 - `PredatorGroupBase`
 - `HerdGrazers`
+
+`WildlifeGroupAIType` supplies coordinated grazing and terrain-yield depletion, focus hunting, sentry/scout-style vigilant sensing, group posturing, controlled retreat, care of young, return to den/roost, and aquatic ambient movement. Its seeded templates include grazing and family herds; packs, a pride, and scavenger clan; ground, roosting, migratory, and waterfowl flocks; freshwater/marine/hunting schools and a surface-breathing pod; amphibious, burrowing, insect, and raptor colonies; a mythic hunting flight; and managed livestock, poultry/waterfowl, and companion groups.
 
 ### Alertness Model
 Current alertness states are:
@@ -635,6 +664,8 @@ The group type owns runtime XML data through `IGroupTypeData`. The shared base d
 - known threat locations
 
 Type-specific implementations extend that data with their own state.
+
+Membership XML stores each member role and accepts older XML without a role. The wildlife group data also persists its home/roost and recent foraging cell, while repaired legacy group data preserves previously dropped family-home, adult-death, and child-attack state.
 
 ## Event and Hook Relationship
 AI depends heavily on the event system but does not use it in exactly the same way as hooks.
@@ -762,7 +793,9 @@ The following individual-AI gaps described in earlier revisions of this document
 - can identify and remember a den anchor item once the build is complete
 - can optionally defend the claimed den via a prog
 
-This is supported by a persisted per-NPC home-base effect (`NpcHomeBaseEffect`) that stores the home cell and optional anchor item without leaking that state onto shared AI definitions.
+This is supported by a persisted per-NPC home-base effect (`NpcHomeBaseEffect`) that stores the home cell and optional anchor item without leaking that state onto shared AI definitions. Production wildlife shelters also receive a saving `WildlifeShelterClaimEffect`: it records the individual owner or live group, permits group sharing only where that profile enables it, releases an invalid claim after seven real-world days, and refreshes occupied AI-created shelters. Unoccupied created anchors morph away after thirty real-world days; missing or moved anchors are detected and rebuilt by the owning animal or group.
+
+The production catalogue also supplies natural-trap bundles for web builders and burrow ambushers. Their `NaturalTrapAI` only deploys the stock web-snare or burrow-ambush trap at a valid owned shelter site, rather than claiming arbitrary world items.
 
 ### Arboreal specialization
 `ArborealWandererAI` now fills the tree-dwelling movement gap by:
@@ -796,8 +829,8 @@ This is supported by a persisted per-NPC home-base effect (`NpcHomeBaseEffect`) 
 - `TerritorialWanderer` now accepts valid percentage input for the `chance` builder command.
 - `ScavengeAI` now validates and displays `OnScavengeItemProg` correctly.
 
-### Remaining out-of-scope note
-The group-AI runtime still has room to exploit more of the broader `GroupAction` surface, but that is separate from the individual-AI work described here.
+### Intentional content boundary
+The production runtime supplies shared behavioral archetypes. Species-specific breeding and offspring spawning, continent-scale migration routes, setting-specific prey or fear exceptions, and sapient social behaviour remain game-content decisions.
 
 ## Practical Extension Strategy
 When adding new AI, the safest progression is usually:

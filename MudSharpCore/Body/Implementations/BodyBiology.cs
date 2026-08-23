@@ -1870,8 +1870,21 @@ public partial class Body
             return;
         }
 
+        // NeedsToBreathe includes the administrator and incorporeality exemptions used by the
+        // prompt and health systems. Breathing strategies must not bypass that effective
+        // contract or they can emit hold-breath messages without any corresponding risk.
+        if (!NeedsToBreathe)
+        {
+            if (HeldBreathTime > TimeSpan.Zero)
+            {
+                HeldBreathTime = TimeSpan.Zero;
+            }
+
+            return;
+        }
+
         _breathingStrategy.Breathe(this);
-        if (!CanBreathe && _breathingStrategy.NeedsToBreathe)
+        if (!CanBreathe)
         {
             StartHealthTick();
         }

@@ -43,6 +43,8 @@ Components can decorate item descriptions by overriding:
 
 This is how components add behavioural presentation without forcing all description logic into `GameItem` itself.
 
+An ordinary item with the revisioned `Salvageable` component contributes the concise full-description addendum `It can be salvaged.` through this component decorator path. The indication is present only while that component is attached, is not copied into prototype prose, and does not alter short, long, contents, or evaluate descriptions.
+
 Examples include:
 - containers showing fullness, open state, and contents
 - commodity piles replacing the generated short/full description with quantity, commodity characteristics, material, and optional tag; when a functional tag already begins with the material name, the decorator presents it once (`gunpowder commodities`, not `gunpowder gunpowder commodities`)
@@ -90,6 +92,8 @@ Visibility of a carried, implanted, prosthetic, or otherwise character-hosted it
 - `InInventoryOf`
 - deep and shallow item traversal helpers
 
+The ordinary `look in` command exposes contents when a container is open or when a closed container is transparent. A closed opaque container must be opened first. Closed sheaths and liquid containers without the ordinary container transparency capability retain the normal closed-item refusal.
+
 ### Why this matters for component authors
 Any component that changes where an item effectively "is" in the world needs to consider:
 - location resolution
@@ -113,7 +117,7 @@ Common examples:
 - `IImplant`
 - `IProsthetic`
 
-Inventory output treats belted attachments as part of the wearer's equipment, not loose room contents. If the belt is covered, attached items such as scabbards should still appear in inventory with the same covered or partially covered marker style used by worn items rather than disappearing from the list.
+Inventory output treats belted attachments as part of the wearer's equipment, not loose room contents. If the belt is covered, attached items such as scabbards should still appear in inventory with the same covered or partially covered marker style used by worn items rather than disappearing from the list. A belt attachment is nevertheless not directly worn for mechanics that depend on actual wear coverage, such as fracture immobilisation.
 
 MXP links in inventory presentation must pass player-authored names and descriptions through attribute-value escaping. Covered and partially covered hints use the shared `MXPSend` path so apostrophes, quotation marks, angle brackets, ampersands, and embedded MXP control characters cannot alter the generated `SEND` attributes.
 
@@ -367,3 +371,7 @@ When vehicle cover intercepts an attack, the exterior item is the visible cover 
 - A failed named signal is audible as a garbled call; distant listeners do not learn the attempted pattern. Successful calls use the configured named output.
 - Planted standards gain a short-description marker. Full inspection shows custody, planted state, and capture count; identity, design, and association require recognition or administrator access.
 - The standard component exposes stable hooks and FutureProg queries for announcements, scoring, quests, NPC reactions, surrender, prize law, and later morale systems. Those integrations must decide their own policy and must not infer legal ownership transfer from capture custody.
+
+## Restaurant Service Presentation
+
+Restaurant delivery presents the outermost real item at the named recipient's designated table: a plated dish remains visibly on its plate in the table container, while takeaway can arrive in a carton and one or more restaurant-wide outer bags. The contained meal remains part of ordinary item inspection and weight behaviour. The server's native table placement is silent when the restaurant serving emote is present, so observers see the venue's narration once rather than a duplicate placement message. Empty serving containers can be cleared only from a designated table and only after their contents are gone; an employed server visibly gets all eligible items, bundles compatible ones, carries them to the kitchen, and unbundles them into servingware storage or, if unavailable/full, onto the kitchen floor. Chef start/open/plate/ready and server serve/clear/return events each produce an observable emote, with restaurant-level templates allowing the venue's own service voice. Menu and bill presentation uses the shop currency and identifies orderer, recipient, service state, paid amount, and outstanding amount so ordering for another participant does not obscure the actual debtor. A fully paid table can be visibly closed to new orders while its existing service completes.

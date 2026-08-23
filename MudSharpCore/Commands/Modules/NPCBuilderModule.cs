@@ -322,6 +322,8 @@ You can use the following options:
 	#3gait set threat <prog>#0 - sets the threat prog
 	#3gait set avoid none#0 - clears the avoid prog
 	#3gait set type <newtype>#0 - changes the type of this ai
+	#3gait set type wildlife <gender> <kind> <tactic> <activity>#0 - creates a configurable wildlife herd, pack, family, pride, flock, school, pod, colony, swarm or managed group
+	#3gait set kind|tactic|scope|preferred|shelter|range|wander|activity ...#0 - configures the currently selected wildlife group type
 	#3gait set emote add <text>#0 - adds a new emote. $0 is emoter, $1 is target
 	#3gait set emote remove <#>#0 - removes a particular emote
 	#3gait set emote <#> text <new text>#0 - changes an emote
@@ -611,7 +613,7 @@ You can use the following sub-commands:
 	#3group new <template> <name>#0 - creates a new group AI from the specified template
 	#3group delete <which>#0 - deletes a group AI
 	#3group show <which>#0 - shows a group AI's current status
-	#3group addmember <which> <who>#0 - adds the specified NPC to the specified group AI
+	#3group addmember <which> <who>#0 - adds the specified NPC to the specified group AI (an NPC may belong to one live group)
 	#3group removemember <which> <who>#0 - removes the specified NPC from the specified group AI
 	#3group setaction <which> <action>#0 - overrides the current action priority of a group
 	#3group setalertness <which> <alertness>#0 - overrides the alertness level of a group";
@@ -816,6 +818,13 @@ You can use the following sub-commands:
                     $"{target.HowSeen(actor, true)} is already a member of the Group AI {group.Name.Colour(Telnet.Cyan)}.");
                 return;
             }
+
+			if (target is INPC npc && npc.GroupAI is { } existingGroup && !ReferenceEquals(existingGroup, group))
+			{
+				actor.OutputHandler.Send(
+					$"{target.HowSeen(actor, true)} is already controlled by Group AI {existingGroup.Name.Colour(Telnet.Cyan)}. Remove it from that group before adding it here.");
+				return;
+			}
 
             group.AddToGroup(target);
             actor.OutputHandler.Send($"You add {target.HowSeen(actor)} to the Group AI {group.Name.Colour(Telnet.Cyan)}.");

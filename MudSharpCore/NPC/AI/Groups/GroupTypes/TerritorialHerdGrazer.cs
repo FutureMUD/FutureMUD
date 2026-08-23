@@ -2,7 +2,7 @@
 
 namespace MudSharp.NPC.AI.Groups.GroupTypes;
 
-public class TerritorialHerdGrazer : NeutralHerdGrazers
+public class TerritorialHerdGrazer : NeutralHerdGrazers, IEditableGroupAIType
 {
     public new static void RegisterGroupAIType()
     {
@@ -56,12 +56,15 @@ public class TerritorialHerdGrazer : NeutralHerdGrazers
         double confidence, IFuturemud gameworld) : base(dominantGender, activeTimesOfDay, confidence, gameworld)
     {
         Aggression = aggression;
+		IsAggressiveProg = gameworld.AlwaysFalseProg;
     }
 
     protected TerritorialHerdGrazer(XElement root, IFuturemud gameworld) : base(root, gameworld)
     {
         Confidence = double.Parse(root.Element("Confidence").Value);
         Aggression = double.Parse(root.Element("Aggression").Value);
+		IsAggressiveProg = gameworld.FutureProgs.Get(long.Parse(root.Element("IsAggressiveProg")?.Value ?? "0")) ??
+			gameworld.AlwaysFalseProg;
     }
 
     public override string Name
@@ -87,7 +90,51 @@ public class TerritorialHerdGrazer : NeutralHerdGrazers
             ),
             new XElement("Confidence", Confidence),
             new XElement("Aggression", Aggression),
+            new XElement("IsAggressiveProg", IsAggressiveProg?.Id ?? 0),
             new XElement("Gender", (short)DominantGender)
         );
     }
+
+	public override bool ConsidersThreat(ICharacter ch, IGroupAI group, GroupAlertness alertness)
+	{
+		return IsAggressiveProg.ExecuteBool(false, ch) || base.ConsidersThreat(ch, group, alertness);
+	}
+
+	protected override void EvaluateAlertLevel(IGroupAI group)
+	{
+		base.EvaluateAlertLevel(group);
+		if (group.GroupMembers
+			.SelectMany(x => x.Location.LayerCharacters(x.RoomLayer))
+			.OfType<ICharacter>()
+			.Any(x => !group.GroupMembers.ContainsPhysicalInstance(x) && IsAggressiveProg.ExecuteBool(false, x)))
+		{
+			group.Alertness = GroupAlertness.Aggressive;
+			group.CurrentAction = GroupAction.AttackThreats;
+		}
+	}
+
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		if (!command.PopForSwitch().EqualToAny("aggressive", "aggression", "aggressiveprog"))
+		{
+			actor.OutputHandler.Send("You can set #3aggressive <prog>#0 for this territorial group type.".SubstituteANSIColour());
+			return false;
+		}
+
+		IFutureProg prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			ProgVariableTypes.Boolean, new[] { ProgVariableTypes.Character }).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		IsAggressiveProg = prog;
+		actor.OutputHandler.Send($"This territorial group will now use {prog.MXPClickableFunctionName()} for aggression.");
+		return true;
+	}
+
+	public string Show(ICharacter actor)
+	{
+		return $"Territorial Aggression: {Aggression.ToString("P2", actor).ColourValue()}\nAggressive Prog: {IsAggressiveProg?.MXPClickableFunctionName() ?? "None".ColourError()}";
+	}
 }

@@ -1095,6 +1095,12 @@ Finally, you can filter the output of list by a keyword with #3list <keyword>#0.
         {
             if (shop is not null)
             {
+                if (shop is IRestaurant restaurant)
+                {
+                    actor.OutputHandler.Send(restaurant.ShowMenu(actor));
+                    return;
+                }
+
                 shop.ShowList(actor, actor);
                 return;
             }

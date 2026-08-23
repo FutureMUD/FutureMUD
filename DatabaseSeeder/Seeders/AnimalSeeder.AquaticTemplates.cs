@@ -70,7 +70,8 @@ public partial class AnimalSeeder
                     _ => null
                 },
                 null,
-                combatStrategyKey
+                combatStrategyKey,
+                UsesActiveNoThirstNeeds: true
             );
         }
 

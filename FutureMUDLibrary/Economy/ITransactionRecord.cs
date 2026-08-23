@@ -19,7 +19,8 @@ namespace MudSharp.Economy
         AccessCashDraw,
         Purchase,
         StockRemoval,
-        TaxPayment
+        TaxPayment,
+        Refund
     }
 
     public interface ITransactionRecord : ILateInitialisingItem

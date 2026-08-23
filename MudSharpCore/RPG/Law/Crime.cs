@@ -670,6 +670,8 @@ public class Crime : LateInitialisingItem, ICrime
                 return $"unlawfully used psionics{locationAddendum}";
             case CrimeTypes.IllegalConsumption:
                 return $"illegally consumed {thirdPartyDesc}{locationAddendum}";
+            case CrimeTypes.SkippingBill:
+                return $"left a restaurant without paying a bill{locationAddendum}";
             default:
                 return "committed an unknown crime";
         }

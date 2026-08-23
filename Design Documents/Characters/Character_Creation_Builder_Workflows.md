@@ -85,7 +85,7 @@ The `SkillPicker` storyboard can pre-select editable skill suggestions from earl
 - `chargen set suggestedskills <prog>` to configure a FutureProg returning a collection of traits from one `chargen` parameter
 - `chargen set suggestedskills none` to clear it
 
-Suggested skills are not free grants. They consume normal picks and resources and remain removable on the skill screen. Keep profession or background mapping in the prog; the screen itself only filters its results to distinct, currently selectable skills and applies them in returned order up to the pick limit.
+Suggested skills are not free grants. They consume normal picks and resources and remain removable on the skill screen. Keep profession or background mapping in the prog; the screen itself only filters its results to distinct, currently selectable skills and applies them in returned order up to the pick limit. If the picks prog depends on current chargen state, its allowance is recalculated for every suggested skill and again before the player can finish the screen.
 
 ## Resources
 Chargen resources are general-purpose account resources.

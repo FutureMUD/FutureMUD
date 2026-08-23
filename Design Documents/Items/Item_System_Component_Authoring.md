@@ -71,6 +71,24 @@ Terrestrial engines use a separate, extensible `IVehicleEngine` contract. Vehicl
 
 New engine families should implement `IVehicleEngine` and use the shared `IVehicleEnginePrototype` exclusivity interface. Keep fuel chemistry, power storage, steam pressure, magic, or other implementation-specific state inside that component; the vehicle service should continue to aggregate only the common mechanical-power contract.
 
+### Ordinary-item salvage
+
+Use the revisioned `Salvageable` component to opt an ordinary item prototype into the player `salvage` command. This is separate from corpse and severed-bodypart salvage: it does not use races, anatomy, `IButcherable`, decay, skinning, or product subcategories.
+
+The component proto owns the check trait and difficulty, one optional required held-tool tag, ordered timed stage emotes, and explicit products. Builder commands are:
+
+- `trait <trait>` and `difficulty <difficulty>`
+- `tool <tag|none>`
+- `stage add <seconds> <emote>` and `stage remove <number>`; stage emotes use `$0` for the salvager, `$1` for the source and `$2` for the optional held tool
+- `commodity fixed <material> <success weight> <failure weight> [<tag>]`
+- `commodity fraction <material> <success percent> <failure percent> [<tag>]`
+- `item <prototype> <success quantity> <failure quantity> <success chance> <failure chance>`
+- `product remove <number>`
+
+Products are always explicit; source material and description never select them. Both success and failure consume the source after the final stage, with the authored branch controlling reduced failure recovery. The worst-case product mass for each branch must fit the source prototype's base mass (multiplied by stack quantity); item chance does not discount this validation. Product amounts and chances must be finite; fractional outputs and chances are between 0% and 100%, and a salvage action may create at most 100 item products. Product construction is rollback-safe: a failure leaves the source and no partial recovered products.
+
+The current-instance guard refuses an item that contains liquid or another item, or has any attached or connected item. This ensures deleting the source cannot silently delete independent state. It deliberately does not test size, carryability, fixture status, or movement prevention: component attachment is the definition-level eligibility boundary. The staged action is not saved, so interruption or restart before completion leaves the source intact and creates no products.
+
 Computer-program and signal-automation work should follow the same rule:
 - shared contracts such as `IComputerHost`, `IComputerFileSystem`, `IComputerExecutable`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary/Computers`
 - broader mutable file-owner contracts such as `IComputerFileOwner` belong in `FutureMUDLibrary/Computers` when item components need to expose files without also exposing executable storage
@@ -538,3 +556,7 @@ When adding similar capabilities in future:
 - `signalinstrument` inherits those settings and adds named local/distant/failure signal patterns, signal stamina, cooldown, and `CanSignal`, denial, and success progs. Do not compose it with a second `Instrument` component.
 - `militarystandard` authors family, default identity and design, optional unit/ship association, recognition check, named visual patterns, plant/take-up/recognition emotes, bearer and recognition gates, and transition hooks.
 - Use `standard set <item> ...` for scenario-specific copy identity, association, custody, or capture count. `standard reset <item> ...` restores prototype identity or clean objective state. Use the existing `ownership` command to establish the standard's lawful character or clan side.
+
+## Restaurant Furniture and Serviceware Authoring
+
+No restaurant-specific item component is required. Create dining furniture with both `Table` and `Container` components, and create reusable plates, trays, cartons, and bags with a compatible `Container` component and adequate size/weight limits. A menu entry configured to `open` must use an item whose prototype supplies `IOpenable`; `plate` needs a serving-container prototype; and `package` needs an inner takeaway-container prototype. The outer takeaway bag is configured once on the restaurant and must have exactly one standard `Container` component so capacity is unambiguous. Put physical examples of reusable plates, inner containers, and bags into kitchen containers assigned the corresponding restaurant storage roles. Plates must be open/usable containers into which the crafted food can be put, and tables must be able to accept the loaded plate as well as allow a server to get it back after it is empty. Test actual containment before activating the menu entry, because restaurant validation rejects incompatible authored combinations.

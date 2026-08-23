@@ -19176,6 +19176,524 @@ namespace MudSharp.Migrations
                     b.ToTable("RegionalClimates_Seasons", (string)null);
                 });
 
+            modelBuilder.Entity("MudSharp.Models.Restaurant", b =>
+                {
+                    b.Property<long>("ShopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<ulong>("AutomatedService")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
+
+                    b.Property<string>("ChefOpenEmote")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(1000)")
+                        .HasDefaultValue("@ open|opens $0 for service.");
+
+                    b.Property<string>("ChefPlateEmote")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(1000)")
+                        .HasDefaultValue("@ plate|plates $0 on $1.");
+
+                    b.Property<string>("ChefReadyEmote")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(1000)")
+                        .HasDefaultValue("@ finish|finishes preparing $0 for service.");
+
+                    b.Property<string>("ChefStartEmote")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(1000)")
+                        .HasDefaultValue("@ begin|begins preparing $0.");
+
+                    b.Property<int>("CleanupIntervalSeconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(120);
+
+                    b.Property<int>("HandlingSeconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(15);
+
+                    b.Property<int>("MaximumBatchWaitSeconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(90);
+
+                    b.Property<string>("ServerClearEmote")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(1000)")
+                        .HasDefaultValue("@ clear|clears $0 from $1.");
+
+                    b.Property<string>("ServerReturnEmote")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(1000)")
+                        .HasDefaultValue("@ put|puts $0 aside in the kitchen.");
+
+                    b.Property<string>("ServerServeEmote")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(1000)")
+                        .HasDefaultValue("@ place|places $0 before $1 on $2.");
+
+                    b.Property<ulong>("SimulateCrafting")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
+
+                    b.Property<long?>("TakeawayBagPrototypeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int?>("TakeawayBagPrototypeRevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("ShopId")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("Restaurants", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantCell", b =>
+                {
+                    b.Property<long>("RestaurantShopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("CellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("RestaurantShopId", "CellId", "Role")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CellId")
+                        .HasDatabaseName("IX_RestaurantCells_Cell");
+
+                    b.HasIndex("RestaurantShopId", "Role")
+                        .HasDatabaseName("IX_RestaurantCells_Restaurant_Role");
+
+                    b.ToTable("RestaurantCells", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantMenuItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CraftId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int?>("CraftRevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<ulong>("DineInAvailable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(1ul);
+
+                    b.Property<int>("FulfilmentMode")
+                        .HasColumnType("int(11)");
+
+                    b.Property<ulong>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(1ul);
+
+                    b.Property<long>("MerchandiseId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("PreparationSeconds")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("RestaurantShopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ServingContainerPrototypeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int?>("ServingContainerPrototypeRevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<ulong>("TakeawayAvailable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(1ul);
+
+                    b.Property<long?>("TakeawayContainerPrototypeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int?>("TakeawayContainerPrototypeRevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("MerchandiseId")
+                        .HasDatabaseName("FK_RestaurantMenuItems_Merchandises_idx");
+
+                    b.HasIndex("RestaurantShopId")
+                        .HasDatabaseName("FK_RestaurantMenuItems_Restaurants_idx");
+
+                    b.HasIndex("RestaurantShopId", "SortOrder")
+                        .HasDatabaseName("IX_RestaurantMenuItems_Restaurant_Sort");
+
+                    b.ToTable("RestaurantMenuItems", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantOrder", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("AmountPaid")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("ExpectedReadyAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("LastUpdatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("OperationalNotes")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OperationalNotes"), "utf8");
+
+                    b.Property<int>("OrderType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("OrdererCharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("OrdererCharacterName")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OrdererCharacterName"), "utf8");
+
+                    b.Property<long?>("PreparedByEmployeeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("PretaxPrice")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int(11)");
+
+                    b.Property<DateTime?>("ReadyAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("RecipientCharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("RecipientCharacterName")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RecipientCharacterName"), "utf8");
+
+                    b.Property<long>("RestaurantMenuItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("RestaurantShopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("RestaurantTableSessionId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<ulong>("RevenueRecognised")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
+
+                    b.Property<DateTime?>("ServedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long?>("ServedByEmployeeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.Property<decimal>("Tax")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RestaurantMenuItemId")
+                        .HasDatabaseName("FK_RestaurantOrders_MenuItems_idx");
+
+                    b.HasIndex("RestaurantShopId")
+                        .HasDatabaseName("FK_RestaurantOrders_Restaurants_idx");
+
+                    b.HasIndex("RestaurantTableSessionId")
+                        .HasDatabaseName("FK_RestaurantOrders_Sessions_idx");
+
+                    b.HasIndex("RestaurantShopId", "Status")
+                        .HasDatabaseName("IX_RestaurantOrders_Restaurant_Status");
+
+                    b.HasIndex("RestaurantTableSessionId", "OrdererCharacterId")
+                        .HasDatabaseName("IX_RestaurantOrders_Session_Debtor");
+
+                    b.ToTable("RestaurantOrders", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantOrderItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<ulong>("Delivered")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
+
+                    b.Property<DateTime?>("DeliveredAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long?>("GameItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("RestaurantOrderId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("GameItemId")
+                        .HasDatabaseName("IX_RestaurantOrderItems_GameItem");
+
+                    b.HasIndex("RestaurantOrderId")
+                        .HasDatabaseName("FK_RestaurantOrderItems_Orders_idx");
+
+                    b.ToTable("RestaurantOrderItems", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantPayment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<ulong>("IsRefund")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
+
+                    b.Property<DateTime>("PaidAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("PayerCharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("PayerCharacterName")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PayerCharacterName"), "utf8");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PaymentMethod"), "utf8");
+
+                    b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Reference"), "utf8");
+
+                    b.Property<long>("RestaurantOrderId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RestaurantOrderId")
+                        .HasDatabaseName("FK_RestaurantPayments_Orders_idx");
+
+                    b.ToTable("RestaurantPayments", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantStorageContainer", b =>
+                {
+                    b.Property<long>("RestaurantShopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("GameItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Roles")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("RestaurantShopId", "GameItemId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("GameItemId")
+                        .HasDatabaseName("IX_RestaurantStorageContainers_GameItem");
+
+                    b.ToTable("RestaurantStorageContainers", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantTable", b =>
+                {
+                    b.Property<long>("RestaurantShopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("GameItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("RestaurantShopId", "GameItemId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("GameItemId")
+                        .HasDatabaseName("IX_RestaurantTables_GameItem");
+
+                    b.ToTable("RestaurantTables", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantTableParticipant", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<ulong>("Accepted")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("CharacterName")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CharacterName"), "utf8");
+
+                    b.Property<DateTime>("JoinedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("LeftAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("RestaurantTableSessionId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RestaurantTableSessionId")
+                        .HasDatabaseName("FK_RestaurantTableParticipants_Sessions_idx");
+
+                    b.HasIndex("RestaurantTableSessionId", "CharacterId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_RestaurantTableParticipants_Session_Character");
+
+                    b.ToTable("RestaurantTableParticipants", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantTableSession", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("AbandonmentPendingAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<ulong>("AbandonmentReported")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
+
+                    b.Property<DateTime?>("ClosedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("LastUpdatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("RestaurantShopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("TableGameItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RestaurantShopId")
+                        .HasDatabaseName("FK_RestaurantTableSessions_Restaurants_idx");
+
+                    b.HasIndex("RestaurantShopId", "TableGameItemId", "Status")
+                        .HasDatabaseName("IX_RestaurantTableSessions_Table_Status");
+
+                    b.ToTable("RestaurantTableSessions", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.Room", b =>
                 {
                     b.Property<long>("Id")
@@ -32821,6 +33339,152 @@ namespace MudSharp.Migrations
                     b.Navigation("Season");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.Restaurant", b =>
+                {
+                    b.HasOne("MudSharp.Models.Shop", "Shop")
+                        .WithOne("Restaurant")
+                        .HasForeignKey("MudSharp.Models.Restaurant", "ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Restaurants_Shops");
+
+                    b.Navigation("Shop");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantCell", b =>
+                {
+                    b.HasOne("MudSharp.Models.Restaurant", "Restaurant")
+                        .WithMany("Cells")
+                        .HasForeignKey("RestaurantShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RestaurantCells_Restaurants");
+
+                    b.Navigation("Restaurant");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantMenuItem", b =>
+                {
+                    b.HasOne("MudSharp.Models.Merchandise", "Merchandise")
+                        .WithMany()
+                        .HasForeignKey("MerchandiseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_RestaurantMenuItems_Merchandises");
+
+                    b.HasOne("MudSharp.Models.Restaurant", "Restaurant")
+                        .WithMany("MenuItems")
+                        .HasForeignKey("RestaurantShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RestaurantMenuItems_Restaurants");
+
+                    b.Navigation("Merchandise");
+
+                    b.Navigation("Restaurant");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantOrder", b =>
+                {
+                    b.HasOne("MudSharp.Models.RestaurantMenuItem", "MenuItem")
+                        .WithMany()
+                        .HasForeignKey("RestaurantMenuItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_RestaurantOrders_MenuItems");
+
+                    b.HasOne("MudSharp.Models.Restaurant", "Restaurant")
+                        .WithMany("Orders")
+                        .HasForeignKey("RestaurantShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RestaurantOrders_Restaurants");
+
+                    b.HasOne("MudSharp.Models.RestaurantTableSession", "TableSession")
+                        .WithMany("Orders")
+                        .HasForeignKey("RestaurantTableSessionId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_RestaurantOrders_Sessions");
+
+                    b.Navigation("MenuItem");
+
+                    b.Navigation("Restaurant");
+
+                    b.Navigation("TableSession");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantOrderItem", b =>
+                {
+                    b.HasOne("MudSharp.Models.RestaurantOrder", "Order")
+                        .WithMany("ProducedItems")
+                        .HasForeignKey("RestaurantOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RestaurantOrderItems_Orders");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantPayment", b =>
+                {
+                    b.HasOne("MudSharp.Models.RestaurantOrder", "Order")
+                        .WithMany("Payments")
+                        .HasForeignKey("RestaurantOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RestaurantPayments_Orders");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantStorageContainer", b =>
+                {
+                    b.HasOne("MudSharp.Models.Restaurant", "Restaurant")
+                        .WithMany("StorageContainers")
+                        .HasForeignKey("RestaurantShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RestaurantStorageContainers_Restaurants");
+
+                    b.Navigation("Restaurant");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantTable", b =>
+                {
+                    b.HasOne("MudSharp.Models.Restaurant", "Restaurant")
+                        .WithMany("Tables")
+                        .HasForeignKey("RestaurantShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RestaurantTables_Restaurants");
+
+                    b.Navigation("Restaurant");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantTableParticipant", b =>
+                {
+                    b.HasOne("MudSharp.Models.RestaurantTableSession", "Session")
+                        .WithMany("Participants")
+                        .HasForeignKey("RestaurantTableSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RestaurantTableParticipants_Sessions");
+
+                    b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantTableSession", b =>
+                {
+                    b.HasOne("MudSharp.Models.Restaurant", "Restaurant")
+                        .WithMany("TableSessions")
+                        .HasForeignKey("RestaurantShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RestaurantTableSessions_Restaurants");
+
+                    b.Navigation("Restaurant");
+                });
+
             modelBuilder.Entity("MudSharp.Models.Room", b =>
                 {
                     b.HasOne("MudSharp.Models.Zone", "Zone")
@@ -36910,6 +37574,35 @@ namespace MudSharp.Migrations
                     b.Navigation("WeatherControllers");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.Restaurant", b =>
+                {
+                    b.Navigation("Cells");
+
+                    b.Navigation("MenuItems");
+
+                    b.Navigation("Orders");
+
+                    b.Navigation("StorageContainers");
+
+                    b.Navigation("TableSessions");
+
+                    b.Navigation("Tables");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantOrder", b =>
+                {
+                    b.Navigation("Payments");
+
+                    b.Navigation("ProducedItems");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RestaurantTableSession", b =>
+                {
+                    b.Navigation("Orders");
+
+                    b.Navigation("Participants");
+                });
+
             modelBuilder.Entity("MudSharp.Models.Room", b =>
                 {
                     b.Navigation("AreasRooms");
@@ -36978,6 +37671,8 @@ namespace MudSharp.Migrations
                     b.Navigation("LineOfCreditAccounts");
 
                     b.Navigation("Merchandises");
+
+                    b.Navigation("Restaurant");
 
                     b.Navigation("ShopDeals");
 

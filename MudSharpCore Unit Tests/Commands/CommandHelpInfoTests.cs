@@ -113,6 +113,24 @@ public class CommandHelpInfoTests
 	}
 
 	[TestMethod]
+	public void EconomyModule_RestaurantHelpUsesTheCurrentMenuBagAndBillSyntax()
+	{
+		var commands = EconomyModule.Instance.Commands.TCommands;
+		var menuHelp = commands["menu"].HelpInfo!;
+		var billHelp = commands["bill"].HelpInfo!;
+		var restaurantHelp = commands["restaurant"].HelpInfo!;
+
+		StringAssert.Contains(menuHelp.DefaultHelp, "#3menu#0");
+		Assert.IsFalse(menuHelp.DefaultHelp.Contains("LIST", StringComparison.OrdinalIgnoreCase));
+		StringAssert.Contains(billHelp.DefaultHelp, "#3bill close#0");
+		StringAssert.Contains(restaurantHelp.DefaultHelp,
+			"#3restaurant set takeawaybag <prototype|none>#0");
+		StringAssert.Contains(restaurantHelp.DefaultHelp,
+			"#3restaurant storage add|remove <ingredients|tools|servingware|takeawaycontainers|takeawaybags> <container>#0");
+		Assert.IsFalse(restaurantHelp.DefaultHelp.Contains(" bag <", StringComparison.OrdinalIgnoreCase));
+	}
+
+	[TestMethod]
 	public void StorytellerModule_CommandsExposeDetailedBuiltInHelp()
 	{
 		var commands = StorytellerModule.Instance.Commands.TCommands;

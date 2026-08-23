@@ -167,11 +167,10 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
                                 .ToList();
             Chargen.SelectedSkills.AddRange(FreeSkills);
             SetCurrentSelectables();
-            double maximumSkillPicks = Convert.ToDouble(storyboard.NumberOfSkillPicksProg.Execute(chargen));
             foreach (ITraitDefinition skill in storyboard.SuggestedSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? [])
             {
                 if (!CanSelectSuggestedSkill(skill, FreeSkills, CurrentSelectables, Chargen.SelectedSkills,
-                        maximumSkillPicks))
+                        () => Convert.ToDouble(storyboard.NumberOfSkillPicksProg.Execute(chargen))))
                 {
                     continue;
                 }
@@ -185,7 +184,7 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
 
         internal static bool CanSelectSuggestedSkill(ITraitDefinition skill,
             IEnumerable<ITraitDefinition> freeSkills, IEnumerable<ITraitDefinition> currentSelectables,
-            IEnumerable<ITraitDefinition> selectedSkills, double maximumSkillPicks)
+            IEnumerable<ITraitDefinition> selectedSkills, Func<double> maximumSkillPicks)
         {
             return skill is not null &&
                    skill.TraitType == TraitType.Skill &&
@@ -193,7 +192,13 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
                    !freeSkills.Contains(skill) &&
                    currentSelectables.Contains(skill) &&
                    !selectedSkills.Contains(skill) &&
-                   selectedSkills.Except(freeSkills).Count() < maximumSkillPicks;
+                   selectedSkills.Except(freeSkills).Count() < maximumSkillPicks();
+        }
+
+        internal static bool DoesNotExceedSkillPickLimit(IEnumerable<ITraitDefinition> freeSkills,
+            IEnumerable<ITraitDefinition> selectedSkills, double maximumSkillPicks)
+        {
+            return selectedSkills.Except(freeSkills).Count() <= maximumSkillPicks;
         }
 
         public override ChargenStage AssociatedStage => ChargenStage.SelectSkills;
@@ -274,13 +279,25 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
 
         private bool CanProgress()
         {
-            return !Chargen.SelectedSkills.All(x => Chargen.Gameworld.Languages.All(y => y.LinkedTrait != x));
+            return DoesNotExceedSkillPickLimit(
+                       FreeSkills,
+                       Chargen.SelectedSkills,
+                       Convert.ToDouble(Storyboard.NumberOfSkillPicksProg.Execute(Chargen))) &&
+                   !Chargen.SelectedSkills.All(x => Chargen.Gameworld.Languages.All(y => y.LinkedTrait != x));
 
             // TODO - other reasons why skill selection couldn't continue
         }
 
         private string WhyCannotProgress()
         {
+            if (!DoesNotExceedSkillPickLimit(
+                    FreeSkills,
+                    Chargen.SelectedSkills,
+                    Convert.ToDouble(Storyboard.NumberOfSkillPicksProg.Execute(Chargen))))
+            {
+                return "You have selected more skills than your current skill-pick allowance. Remove a skill before continuing.";
+            }
+
             if (Chargen.SelectedSkills.All(x => Chargen.Gameworld.Languages.All(y => y.LinkedTrait != x)))
             {
                 return

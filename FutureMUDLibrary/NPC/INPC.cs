@@ -1,5 +1,6 @@
 ﻿using MudSharp.Character;
 using MudSharp.NPC.AI;
+using MudSharp.NPC.AI.Groups;
 using MudSharp.NPC.Templates;
 using System.Collections.Generic;
 
@@ -19,5 +20,6 @@ namespace MudSharp.NPC
     public interface INPC : IArtificialIntelligenceControlledCharacter
     {
         INPCTemplate Template { get; }
+	IGroupAI GroupAI { get; }
     }
 }

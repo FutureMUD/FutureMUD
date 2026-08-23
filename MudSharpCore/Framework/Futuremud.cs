@@ -2766,6 +2766,12 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     private void Dispose(bool disposed)
     {
         _allgames.Remove(this);
+		// A constructor failure can still run the finalizer before field initialisers have completed.
+		if (_connections is null)
+		{
+			return;
+		}
+
 		foreach (var connection in _connections.Snapshot)
 		{
 			connection.Dispose();

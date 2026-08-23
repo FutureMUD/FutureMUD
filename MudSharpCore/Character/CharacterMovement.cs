@@ -530,7 +530,8 @@ public partial class Character
         }
 
         IPositionState requiredPosition = GetRequiredMovementPosition(movement?.Exit);
-        if (requiredPosition is not null && PositionState != requiredPosition)
+        if (requiredPosition is not null && PositionState != requiredPosition &&
+            !(requiredPosition == PositionSwimming.Instance && EffectsOfType<IImmwalkEffect>().Any()))
         {
             SetState(requiredPosition);
             if (requiredPosition == PositionFlying.Instance)
@@ -909,11 +910,36 @@ public partial class Character
 
     public CanMoveResponse CanMove(ICellExit exit, CanMoveFlags flags)
     {
+        // An Immwalk effect bypasses physical movement requirements, not the map itself. Keep
+        // the exit anchored to this cell and ensure that it has a viable layer transition before
+        // applying the staff traversal override below.
+        if (exit is null ||
+            exit.Origin is null ||
+            exit.Destination is null ||
+            Location is null ||
+            exit.Origin.Id != Location.Id ||
+            exit.MovementTransition(this).TransitionType == CellMovementTransition.NoViableTransition)
+        {
+            return new CanMoveResponse
+            {
+                Result = false,
+                ErrorMessage = "That exit is not currently available to you."
+            };
+        }
+
         IPositionState requiredPosition = GetRequiredMovementPosition(exit);
         CanMoveResponse response = CanMoveInternal(flags, requiredPosition, exit);
         if (!response.Result)
         {
             return response;
+        }
+
+        // Immwalk is a staff traversal override. CanMoveInternal has already retained the
+        // vehicle-interior boundary check, but the remaining checks are ordinary physical and
+        // safe-movement restrictions that Immwalk deliberately bypasses.
+        if (EffectsOfType<IImmwalkEffect>().Any())
+        {
+            return CanMoveResponse.True;
         }
 
         response = ZeroGravityMovementHelper.CanMoveInZeroGravity(this, exit);
@@ -1530,6 +1556,11 @@ public partial class Character
             return false;
         }
 
+        if (IsSupportedRooftopsOnlyLayer(Location, this, RoomLayer))
+        {
+            return false;
+        }
+
         if (!RoomLayer.IsHigherThan(RoomLayer.GroundLevel))
         {
             return false;
@@ -1620,7 +1651,7 @@ public partial class Character
 
                 break;
             case CellMovementTransition.SwimOnly:
-                if (PositionState != PositionSwimming.Instance)
+                if (PositionState != PositionSwimming.Instance && !EffectsOfType<IImmwalkEffect>().Any())
                 {
                     SetPosition(PositionSwimming.Instance, PositionModifier.None, null, null);
                 }

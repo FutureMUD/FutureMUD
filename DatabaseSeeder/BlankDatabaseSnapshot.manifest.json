@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.1.0.0",
-  "LatestMigrationId": "20260816094719_AddLootTables",
-  "GeneratedUtc": "2026-08-17T03:22:27Z"
+  "LatestMigrationId": "20260822233623_AddRestaurantServicePresentation",
+  "GeneratedUtc": "2026-08-22T23:44:36.8538733Z"
 }

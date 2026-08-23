@@ -303,6 +303,8 @@ Common transition types include:
 
 When an exit requires climbing, swimming, or flying, ordinary directional movement uses the corresponding movement position and capability checks. Safe-movement settings can require the player to confirm entry into water with `!`.
 
+`immwalk` is the staff traversal override. Once the exit and its layer topology are valid, an immwalker bypasses those ordinary capability, posture, safe-movement, size, stamina, climbing, flying, and swimming checks. It remains in its current position state when it crosses a swim-only exit; the override is a traversal permission, not a forced swimming-state change.
+
 ### How a multi-layer vertical journey is resolved
 
 Consider a `talltrees` cell:
@@ -755,7 +757,7 @@ Do not describe the surface layer as the seabed just because its enum name is `G
 
 ### 10. A roof edge with a real fall
 
-Use `rooftopsonly` for the roof. Add an explicit downward fall/climb exit to the street or courtyard below. The roof remains the normal landing surface, but a fall that takes the downward endpoint can continue into the lower cell.
+Use `rooftopsonly` for the roof. Add an explicit downward fall/climb exit to the street or courtyard below. The roof remains the normal supported landing surface, so an occupant already on `OnRooftops` does not repeat fall processing; a fall descending from the air can still take the downward endpoint into the lower cell.
 
 This pattern is better than inventing a nonexistent `GroundLevel` inside a roofscape cell. It keeps the street and roof descriptions separate and makes the vertical danger explicit.
 

@@ -34,7 +34,9 @@ public enum EmploymentRole
 	BankTeller,
 	HotelWorker,
 	MedicalWorker,
-	HospitalOrderly
+	HospitalOrderly,
+	Chef,
+	Server
 }
 
 public enum EmploymentStatus

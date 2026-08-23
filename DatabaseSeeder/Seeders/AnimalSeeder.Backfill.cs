@@ -2,6 +2,7 @@
 
 using MudSharp.Body;
 using MudSharp.Database;
+using MudSharp.FutureProg;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,179 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class AnimalSeeder
 {
+	internal const string ActiveNoThirstNeedsRegister = "useactivenothirstneeds";
+
+	internal const string WhichNeedsModelFunctionText = @"if (@ch.Guest)
+  return ""Passive""
+else
+  if (GetRegister(@ch.Race, ""UseActiveNoThirstNeeds""))
+	return ""ActiveNoThirst""
+  end if
+  if (not(@ch.NPC) or GetRegister(@ch.Race, ""UseActiveNeeds""))
+	return ""Active""
+  else
+	return ""NoNeeds""
+  end if
+end if";
+
+	internal static bool HasMissingAnimalNeedsModelConfiguration(FuturemudDatabaseContext context)
+	{
+		VariableDefinition? definition = context.VariableDefinitions.AsEnumerable().FirstOrDefault(x =>
+			x.OwnerType == (long)ProgVariableTypes.Race &&
+			string.Equals(x.Property, ActiveNoThirstNeedsRegister, StringComparison.OrdinalIgnoreCase));
+		if (definition?.ContainedType != (long)ProgVariableTypes.Boolean)
+		{
+			return true;
+		}
+
+		VariableDefault? variableDefault = context.VariableDefaults.AsEnumerable().FirstOrDefault(x =>
+			x.OwnerType == (long)ProgVariableTypes.Race &&
+			string.Equals(x.Property, ActiveNoThirstNeedsRegister, StringComparison.OrdinalIgnoreCase));
+		if (!string.Equals(variableDefault?.DefaultValue, "<var>False</var>", StringComparison.Ordinal))
+		{
+			return true;
+		}
+
+		FutureProg? needsProg = context.FutureProgs.AsEnumerable().FirstOrDefault(x =>
+			string.Equals(x.FunctionName, "WhichNeedsModel", StringComparison.OrdinalIgnoreCase));
+		if (needsProg is null || !string.Equals(needsProg.FunctionText, WhichNeedsModelFunctionText, StringComparison.Ordinal))
+		{
+			return true;
+		}
+
+		foreach (AnimalRaceTemplate template in RaceTemplates.Values)
+		{
+			Race? race = context.Races.AsEnumerable().FirstOrDefault(x => x.Name == template.Name);
+			if (race is null || HasTrueRegisterValue(context, race.Id, ActiveNoThirstNeedsRegister) !=
+				template.UsesActiveNoThirstNeeds)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	internal static void EnsureAnimalNeedsModelConfiguration(FuturemudDatabaseContext context)
+	{
+		VariableDefinition? definition = context.VariableDefinitions.Local.FirstOrDefault(x =>
+			x.OwnerType == (long)ProgVariableTypes.Race &&
+			string.Equals(x.Property, ActiveNoThirstNeedsRegister, StringComparison.OrdinalIgnoreCase)) ??
+			context.VariableDefinitions.AsEnumerable().FirstOrDefault(x =>
+				x.OwnerType == (long)ProgVariableTypes.Race &&
+				string.Equals(x.Property, ActiveNoThirstNeedsRegister, StringComparison.OrdinalIgnoreCase));
+		if (definition is null)
+		{
+			definition = new VariableDefinition
+			{
+				OwnerType = (long)ProgVariableTypes.Race,
+				Property = ActiveNoThirstNeedsRegister,
+				ContainedType = (long)ProgVariableTypes.Boolean
+			};
+			context.VariableDefinitions.Add(definition);
+		}
+
+		definition.OwnerType = (long)ProgVariableTypes.Race;
+		definition.Property = ActiveNoThirstNeedsRegister;
+		definition.ContainedType = (long)ProgVariableTypes.Boolean;
+
+		VariableDefault? variableDefault = context.VariableDefaults.Local.FirstOrDefault(x =>
+			x.OwnerType == (long)ProgVariableTypes.Race &&
+			string.Equals(x.Property, ActiveNoThirstNeedsRegister, StringComparison.OrdinalIgnoreCase)) ??
+			context.VariableDefaults.AsEnumerable().FirstOrDefault(x =>
+				x.OwnerType == (long)ProgVariableTypes.Race &&
+				string.Equals(x.Property, ActiveNoThirstNeedsRegister, StringComparison.OrdinalIgnoreCase));
+		if (variableDefault is null)
+		{
+			variableDefault = new VariableDefault
+			{
+				OwnerType = (long)ProgVariableTypes.Race,
+				Property = ActiveNoThirstNeedsRegister,
+				DefaultValue = "<var>False</var>"
+			};
+			context.VariableDefaults.Add(variableDefault);
+		}
+
+		variableDefault.OwnerType = (long)ProgVariableTypes.Race;
+		variableDefault.Property = ActiveNoThirstNeedsRegister;
+		variableDefault.DefaultValue = "<var>False</var>";
+
+		SeederRepeatabilityHelper.EnsureProg(
+			context,
+			"WhichNeedsModel",
+			"Character",
+			"Biology",
+			ProgVariableTypes.Text,
+			"Determines the needs model to use for a character",
+			WhichNeedsModelFunctionText,
+			true,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Character, "ch"));
+
+		HashSet<string> aquaticNames = RaceTemplates.Values
+			.Where(x => x.UsesActiveNoThirstNeeds)
+			.Select(x => x.Name)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		foreach (Race race in context.Races
+			         .AsEnumerable()
+			         .Where(x => RaceTemplates.ContainsKey(x.Name))
+			         .ToList())
+		{
+			EnsureRegisterValue(context, race.Id, ActiveNoThirstNeedsRegister, aquaticNames.Contains(race.Name));
+		}
+	}
+
+	private static bool HasTrueRegisterValue(FuturemudDatabaseContext context, long raceId, string property)
+	{
+		return context.VariableValues.AsEnumerable().Any(x =>
+			x.ReferenceType == (long)ProgVariableTypes.Race &&
+			x.ReferenceId == raceId &&
+			string.Equals(x.ReferenceProperty, property, StringComparison.OrdinalIgnoreCase) &&
+			string.Equals(x.ValueDefinition, "<var>True</var>", StringComparison.Ordinal));
+	}
+
+	private static void EnsureRegisterValue(FuturemudDatabaseContext context, long raceId, string property, bool value)
+	{
+		VariableValue? existing = context.VariableValues.Local.FirstOrDefault(x =>
+			x.ReferenceType == (long)ProgVariableTypes.Race &&
+			x.ReferenceId == raceId &&
+			string.Equals(x.ReferenceProperty, property, StringComparison.OrdinalIgnoreCase)) ??
+			context.VariableValues.AsEnumerable().FirstOrDefault(x =>
+				x.ReferenceType == (long)ProgVariableTypes.Race &&
+				x.ReferenceId == raceId &&
+				string.Equals(x.ReferenceProperty, property, StringComparison.OrdinalIgnoreCase));
+
+		if (!value)
+		{
+			if (existing is not null)
+			{
+				context.VariableValues.Remove(existing);
+			}
+
+			return;
+		}
+
+		if (existing is null)
+		{
+			existing = new VariableValue
+			{
+				ReferenceType = (long)ProgVariableTypes.Race,
+				ReferenceId = raceId,
+				ReferenceProperty = property,
+				ValueType = (long)ProgVariableTypes.Boolean,
+				ValueDefinition = "<var>True</var>"
+			};
+			context.VariableValues.Add(existing);
+		}
+
+		existing.ReferenceType = (long)ProgVariableTypes.Race;
+		existing.ReferenceId = raceId;
+		existing.ReferenceProperty = property;
+		existing.ValueType = (long)ProgVariableTypes.Boolean;
+		existing.ValueDefinition = "<var>True</var>";
+	}
+
 	private static bool HasMissingAnimalCatalogue(FuturemudDatabaseContext context)
 	{
 		if (new[] { "Beetle", "Centipede" }.Any(bodyName => !context.BodyProtos.Any(x => x.Name == bodyName)))
@@ -77,6 +251,8 @@ public partial class AnimalSeeder
 		}
 
 		ApplyDefaultCombatSettingsToSeededRaces();
+		EnsureAnimalNeedsModelConfiguration(_context);
+		_context.SaveChanges();
 	}
 
 	private void RefreshExistingAnimalBaseBodies()

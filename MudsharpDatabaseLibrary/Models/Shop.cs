@@ -51,5 +51,6 @@ namespace MudSharp.Models
         public virtual ICollection<ShopsTill> ShopsTills { get; set; }
         public virtual ICollection<LineOfCreditAccount> LineOfCreditAccounts { get; set; }
         public virtual ICollection<ShopDeal> ShopDeals { get; set; }
+        public virtual Restaurant Restaurant { get; set; }
     }
 }

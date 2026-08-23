@@ -168,3 +168,7 @@ The item system includes reusable historical-equipment seams:
 - `Instrument` is the shared audible-performance capability. It supplies skill quality, stamina, posture and hand rules, styles, sustained ten-second ticks, route-aware audio, interruption, and play/stop hooks.
 - `SignalInstrument` specializes that capability for named calls with a cooldown and one-shot cost. Failed calls remain audible but do not reveal a recognisable pattern or fire the success hook.
 - `MilitaryStandard` is an identifiable and plantable objective. It preserves lawful item ownership while tracking `Unclaimed`, `Friendly`, or `Captured` custody and a distinct capture count. Scenario scoring, morale, AI, territory, and legal effects remain external consumers of its hooks and query functions.
+
+## Restaurant Service Items
+
+Restaurant service uses ordinary physical items rather than a restaurant-only virtual inventory. A designated dining table must combine `ITable` and `IContainer`; a serving plate, takeaway carton, and outer bag are ordinary compatible containers; an open-and-serve menu item must use an ordinary `IOpenable` item. Crafted meals remain real craft outputs. For dine-in service, a server carries the outermost serving item to the table and places it there in front of the named diner, so eating and empty-plate cleanup use normal table/container item interactions. The restaurant queue records each produced item and every packaging layer, so containment, weight, ownership, decay, destruction, and recovery continue through the regular item model.

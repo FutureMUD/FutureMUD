@@ -1936,6 +1936,7 @@ return true",
                 case CrimeTypes.Embezzlement:
                 case CrimeTypes.PossessingStolenGoods:
                 case CrimeTypes.TaxEvasion:
+				case CrimeTypes.SkippingBill:
                     CreateLaw(crime.DescribeEnum(true), crime, EnforcementStrategy.ArrestAndDetain, sophontVictims,
                         sophontPerps, crimeContext with
                         {

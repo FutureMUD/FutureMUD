@@ -8,6 +8,17 @@ namespace MudSharp.Economy;
 /// The purpose for which a cell belongs to a restaurant. Service and internal cells are both
 /// within the restaurant boundary; kitchen cells are also a useful builder-facing distinction.
 /// </summary>
+[Flags]
+public enum RestaurantStorageRole
+{
+	None = 0,
+	Ingredients = 1,
+	Tools = 2,
+	Servingware = 4,
+	TakeawayContainers = 8,
+	TakeawayBags = 16
+}
+
 public enum RestaurantCellRole
 {
 	Service,
@@ -49,7 +60,8 @@ public enum RestaurantTableSessionStatus
 	Active,
 	AbandonmentPending,
 	Abandoned,
-	Closed
+	Closed,
+	OrderingClosed
 }
 
 /// <summary>

@@ -26,11 +26,28 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.ServerServeEmote).HasColumnType("varchar(1000)").HasDefaultValue("@ place|places $0 before $1 on $2.");
 			entity.Property(e => e.ServerClearEmote).HasColumnType("varchar(1000)").HasDefaultValue("@ clear|clears $0 from $1.");
 			entity.Property(e => e.ServerReturnEmote).HasColumnType("varchar(1000)").HasDefaultValue("@ put|puts $0 aside in the kitchen.");
+			entity.Property(e => e.TakeawayBagPrototypeId).HasColumnType("bigint(20)");
+			entity.Property(e => e.TakeawayBagPrototypeRevisionNumber).HasColumnType("int(11)");
 			entity.HasOne(e => e.Shop)
 			      .WithOne(e => e.Restaurant)
 			      .HasForeignKey<Restaurant>(e => e.ShopId)
 			      .OnDelete(DeleteBehavior.Cascade)
 			      .HasConstraintName("FK_Restaurants_Shops");
+		});
+
+		modelBuilder.Entity<RestaurantStorageContainer>(entity =>
+		{
+			entity.ToTable("RestaurantStorageContainers");
+			entity.HasKey(e => new { e.RestaurantShopId, e.GameItemId }).HasName("PRIMARY");
+			entity.HasIndex(e => e.GameItemId).HasDatabaseName("IX_RestaurantStorageContainers_GameItem");
+			entity.Property(e => e.RestaurantShopId).HasColumnType("bigint(20)");
+			entity.Property(e => e.GameItemId).HasColumnType("bigint(20)");
+			entity.Property(e => e.Roles).HasColumnType("int(11)");
+			entity.HasOne(e => e.Restaurant)
+				  .WithMany(e => e.StorageContainers)
+				  .HasForeignKey(e => e.RestaurantShopId)
+				  .OnDelete(DeleteBehavior.Cascade)
+				  .HasConstraintName("FK_RestaurantStorageContainers_Restaurants");
 		});
 
 		modelBuilder.Entity<RestaurantCell>(entity =>
@@ -85,8 +102,6 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.ServingContainerPrototypeRevisionNumber).HasColumnType("int(11)");
 			entity.Property(e => e.TakeawayContainerPrototypeId).HasColumnType("bigint(20)");
 			entity.Property(e => e.TakeawayContainerPrototypeRevisionNumber).HasColumnType("int(11)");
-			entity.Property(e => e.TakeawayBagPrototypeId).HasColumnType("bigint(20)");
-			entity.Property(e => e.TakeawayBagPrototypeRevisionNumber).HasColumnType("int(11)");
 			entity.Property(e => e.SortOrder).HasColumnType("int(11)");
 			entity.HasOne(e => e.Restaurant)
 			      .WithMany(e => e.MenuItems)

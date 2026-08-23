@@ -86,6 +86,11 @@ public sealed class RestaurantTableSession : SaveableItem, IRestaurantTableSessi
 		return _participants.Any(x => x.Accepted && x.CharacterId == characterId);
 	}
 
+	public bool HasPresentAcceptedParticipant(long characterId)
+	{
+		return _participants.Any(x => x.Accepted && x.CharacterId == characterId && x.LeftAtUtc is null);
+	}
+
 	public RestaurantTableParticipant AddParticipant(ICharacter character)
 	{
 		var characterId = CharacterInstanceIdentityComparer.IdentityId(character);
@@ -178,6 +183,18 @@ public sealed class RestaurantTableSession : SaveableItem, IRestaurantTableSessi
 		_status = RestaurantTableSessionStatus.Closed;
 		_closedAtUtc = DateTime.UtcNow;
 		Touch();
+	}
+
+	public bool CloseOrdering()
+	{
+		if (_status != RestaurantTableSessionStatus.Active)
+		{
+			return false;
+		}
+
+		_status = RestaurantTableSessionStatus.OrderingClosed;
+		Touch();
+		return true;
 	}
 
 	public override void Save()

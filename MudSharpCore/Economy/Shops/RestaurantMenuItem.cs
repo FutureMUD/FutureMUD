@@ -26,9 +26,6 @@ public sealed class RestaurantMenuItem : SaveableItem, IRestaurantMenuItem
 	private long? _takeawayContainerPrototypeId;
 	private int? _takeawayContainerPrototypeRevisionNumber;
 	private IGameItemProto? _takeawayContainerPrototype;
-	private long? _takeawayBagPrototypeId;
-	private int? _takeawayBagPrototypeRevisionNumber;
-	private IGameItemProto? _takeawayBagPrototype;
 
 	public RestaurantMenuItem(Restaurant restaurant, IMerchandise merchandise)
 	{
@@ -85,8 +82,6 @@ public sealed class RestaurantMenuItem : SaveableItem, IRestaurantMenuItem
 		_servingContainerPrototypeRevisionNumber = item.ServingContainerPrototypeRevisionNumber;
 		_takeawayContainerPrototypeId = item.TakeawayContainerPrototypeId;
 		_takeawayContainerPrototypeRevisionNumber = item.TakeawayContainerPrototypeRevisionNumber;
-		_takeawayBagPrototypeId = item.TakeawayBagPrototypeId;
-		_takeawayBagPrototypeRevisionNumber = item.TakeawayBagPrototypeRevisionNumber;
 		SortOrder = item.SortOrder;
 	}
 
@@ -197,20 +192,6 @@ public sealed class RestaurantMenuItem : SaveableItem, IRestaurantMenuItem
 		}
 	}
 
-	public IGameItemProto? TakeawayBagPrototype
-	{
-		get => _takeawayBagPrototype ??= _takeawayBagPrototypeId.HasValue
-			? Gameworld.ItemProtos.Get(_takeawayBagPrototypeId.Value, _takeawayBagPrototypeRevisionNumber ?? 0)
-			: null;
-		set
-		{
-			_takeawayBagPrototype = value;
-			_takeawayBagPrototypeId = value?.Id;
-			_takeawayBagPrototypeRevisionNumber = value?.RevisionNumber;
-			Changed = true;
-		}
-	}
-
 	public bool IsValid(out string reason)
 	{
 		if (Merchandise is null)
@@ -222,7 +203,6 @@ public sealed class RestaurantMenuItem : SaveableItem, IRestaurantMenuItem
 		var craft = Craft;
 		var servingContainer = ServingContainerPrototype;
 		var takeawayContainer = TakeawayContainerPrototype;
-		var takeawayBag = TakeawayBagPrototype;
 		return RestaurantServiceRules.ValidateFulfilmentConfiguration(
 			FulfilmentMode,
 			DineInAvailable,
@@ -234,8 +214,10 @@ public sealed class RestaurantMenuItem : SaveableItem, IRestaurantMenuItem
 			servingContainer is null || servingContainer.IsItemType<IContainerPrototype>(),
 			takeawayContainer is not null,
 			takeawayContainer is null || takeawayContainer.IsItemType<IContainerPrototype>(),
-			takeawayBag is not null,
-			takeawayBag is null || takeawayBag.IsItemType<IContainerPrototype>(),
+			Restaurant.TakeawayBagPrototype is not null,
+			Restaurant.TakeawayBagPrototype is null || Restaurant.TakeawayBagPrototype.Components
+				.OfType<ContainerGameItemComponentProto>()
+				.Count() == 1,
 			out reason);
 	}
 
@@ -260,8 +242,6 @@ public sealed class RestaurantMenuItem : SaveableItem, IRestaurantMenuItem
 		dbitem.ServingContainerPrototypeRevisionNumber = ServingContainerPrototype?.RevisionNumber ?? _servingContainerPrototypeRevisionNumber;
 		dbitem.TakeawayContainerPrototypeId = TakeawayContainerPrototype?.Id ?? _takeawayContainerPrototypeId;
 		dbitem.TakeawayContainerPrototypeRevisionNumber = TakeawayContainerPrototype?.RevisionNumber ?? _takeawayContainerPrototypeRevisionNumber;
-		dbitem.TakeawayBagPrototypeId = TakeawayBagPrototype?.Id ?? _takeawayBagPrototypeId;
-		dbitem.TakeawayBagPrototypeRevisionNumber = TakeawayBagPrototype?.RevisionNumber ?? _takeawayBagPrototypeRevisionNumber;
 		dbitem.SortOrder = SortOrder;
 		Changed = false;
 	}

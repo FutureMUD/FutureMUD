@@ -9,12 +9,17 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Lists;
 using MudSharp.RPG.Law;
+using MudSharp.Work.Crafts;
 using System.Text;
 using DbRestaurant = MudSharp.Models.Restaurant;
 using DbRestaurantCell = MudSharp.Models.RestaurantCell;
+using DbRestaurantStorageContainer = MudSharp.Models.RestaurantStorageContainer;
 using DbRestaurantTable = MudSharp.Models.RestaurantTable;
 
 #nullable enable
@@ -49,11 +54,18 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		IReadOnlySet<long> PreExistingItemIds,
 		IReadOnlyDictionary<long, int> PreExistingOutputQuantities);
 
+	/// <summary>
+	/// A service container supplied from a configured kitchen store. A null source denotes a
+	/// container created for this service operation and therefore safe to delete on rollback.
+	/// </summary>
+	private sealed record KitchenContainerAllocation(IGameItem Item, IContainer? SourceStorage);
+
 	private readonly List<RestaurantCellAssignment> _cells = new();
 	private readonly HashSet<long> _tableIds = new();
 	private readonly List<IRestaurantMenuItem> _menuItems = new();
 	private readonly List<IRestaurantTableSession> _tableSessions = new();
 	private readonly List<IRestaurantOrder> _orders = new();
+	private readonly List<IRestaurantStorageContainer> _storageContainers = new();
 	private readonly Dictionary<Guid, PendingJoinRequest> _pendingJoinRequests = new();
 	private readonly Dictionary<long, NpcCraftJob> _npcCraftJobs = new();
 	private bool _automatedService;
@@ -69,6 +81,9 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 	private string _serverServeEmote = RestaurantServiceEmotes.DefaultServerServe;
 	private string _serverClearEmote = RestaurantServiceEmotes.DefaultServerClear;
 	private string _serverReturnEmote = RestaurantServiceEmotes.DefaultServerReturn;
+	private long? _takeawayBagPrototypeId;
+	private int? _takeawayBagPrototypeRevisionNumber;
+	private IGameItemProto? _takeawayBagPrototype;
 	private bool _heartbeatAttached;
 
 	public Restaurant(Models.Shop shop, IFuturemud gameworld) : base(shop, gameworld)
@@ -87,6 +102,8 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		_serverServeEmote = RestaurantServiceEmotes.Normalize(RestaurantServiceEmoteType.ServerServe, config.ServerServeEmote);
 		_serverClearEmote = RestaurantServiceEmotes.Normalize(RestaurantServiceEmoteType.ServerClear, config.ServerClearEmote);
 		_serverReturnEmote = RestaurantServiceEmotes.Normalize(RestaurantServiceEmoteType.ServerReturn, config.ServerReturnEmote);
+		_takeawayBagPrototypeId = config.TakeawayBagPrototypeId;
+		_takeawayBagPrototypeRevisionNumber = config.TakeawayBagPrototypeRevisionNumber;
 
 		foreach (var assignment in config.Cells)
 		{
@@ -114,6 +131,11 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		foreach (var table in config.Tables)
 		{
 			_tableIds.Add(table.GameItemId);
+		}
+
+		foreach (var storage in config.StorageContainers)
+		{
+			_storageContainers.Add(new RestaurantStorageContainer(storage, this));
 		}
 
 		foreach (var item in config.MenuItems.OrderBy(x => x.SortOrder).ThenBy(x => x.Id))
@@ -283,6 +305,20 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		set => SetServiceEmote(RestaurantServiceEmoteType.ServerReturn, value);
 	}
 
+	public IGameItemProto? TakeawayBagPrototype
+	{
+		get => _takeawayBagPrototype ??= _takeawayBagPrototypeId.HasValue
+			? Gameworld.ItemProtos.Get(_takeawayBagPrototypeId.Value, _takeawayBagPrototypeRevisionNumber ?? 0)
+			: null;
+		set
+		{
+			_takeawayBagPrototype = value;
+			_takeawayBagPrototypeId = value?.Id;
+			_takeawayBagPrototypeRevisionNumber = value?.RevisionNumber;
+			Changed = true;
+		}
+	}
+
 	public string GetServiceEmote(RestaurantServiceEmoteType type)
 	{
 		return type switch
@@ -348,6 +384,7 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 	public IEnumerable<IRestaurantMenuItem> MenuItems => _menuItems;
 	public IEnumerable<IRestaurantTableSession> TableSessions => _tableSessions;
 	public IEnumerable<IRestaurantOrder> Orders => _orders;
+	public IEnumerable<IRestaurantStorageContainer> StorageContainers => _storageContainers;
 
 	public override void PostLoadInitialisation()
 	{
@@ -359,7 +396,7 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		}
 
 		foreach (var session in _tableSessions.OfType<RestaurantTableSession>()
-		         .Where(x => x.Status is RestaurantTableSessionStatus.Active or RestaurantTableSessionStatus.AbandonmentPending))
+		         .Where(x => x.Status is RestaurantTableSessionStatus.Active or RestaurantTableSessionStatus.AbandonmentPending or RestaurantTableSessionStatus.OrderingClosed))
 		{
 			foreach (var participant in session.Participants.Where(x => x.Accepted))
 			{
@@ -395,30 +432,24 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		return cell is not null && _cells.Any(x => x.Cell.Id == cell.Id);
 	}
 
-	/// <summary>
-	/// The customer-facing restaurant boundary. Kitchen cells are deliberately omitted: they are
-	/// part of the shop for workers, but a diner may retain a table session only while in a service
-	/// or internal cell such as a bathroom.
-	/// </summary>
 	private bool IsWithinTableServiceBoundary(ICell? cell)
 	{
-		return cell is not null && _cells.Any(x => x.Cell.Id == cell.Id &&
-			(x.Role is RestaurantCellRole.Service or RestaurantCellRole.Internal));
+		return IsWithinRestaurant(cell);
 	}
 
 	public IRestaurantTableSession? TableSessionFor(IGameItem table)
 	{
 		return _tableSessions.FirstOrDefault(x =>
 			x.TableGameItemId == table.Id &&
-			x.Status is RestaurantTableSessionStatus.Active or RestaurantTableSessionStatus.AbandonmentPending);
+			x.Status is RestaurantTableSessionStatus.Active or RestaurantTableSessionStatus.AbandonmentPending or RestaurantTableSessionStatus.OrderingClosed);
 	}
 
 	public IRestaurantTableSession? TableSessionFor(ICharacter character)
 	{
 		var identityId = CharacterInstanceIdentityComparer.IdentityId(character);
-		return _tableSessions.FirstOrDefault(x =>
-			(x.Status is RestaurantTableSessionStatus.Active or RestaurantTableSessionStatus.AbandonmentPending) &&
-			x.HasAcceptedParticipant(identityId));
+		return _tableSessions.OfType<RestaurantTableSession>().FirstOrDefault(x =>
+			(x.Status is RestaurantTableSessionStatus.Active or RestaurantTableSessionStatus.AbandonmentPending or RestaurantTableSessionStatus.OrderingClosed) &&
+			x.HasPresentAcceptedParticipant(identityId));
 	}
 
 	public TimeSpan EstimateWait(ICharacter customer, IRestaurantMenuItem menuItem, int quantity = 1)
@@ -619,15 +650,24 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		ICharacter? recipient = null)
 	{
 		var session = TableSessionFor(orderer) as RestaurantTableSession;
-		if (session is null || session.Status != RestaurantTableSessionStatus.Active ||
-			!session.HasAcceptedParticipant(CharacterInstanceIdentityComparer.IdentityId(orderer)))
+		if (session is null || !session.HasAcceptedParticipant(CharacterInstanceIdentityComparer.IdentityId(orderer)))
 		{
 			return RestaurantOperationResult.Fail("You must be an accepted participant at a restaurant table before placing a dine-in order.");
 		}
 
+		if (session.Status == RestaurantTableSessionStatus.OrderingClosed)
+		{
+			return RestaurantOperationResult.Fail("That table has been closed to further orders because its bill is fully paid.");
+		}
+
+		if (session.Status != RestaurantTableSessionStatus.Active)
+		{
+			return RestaurantOperationResult.Fail("You must be an accepted participant at an active restaurant table before placing a dine-in order.");
+		}
+
 		if (!IsWithinTableServiceBoundary(orderer.Location))
 		{
-			return RestaurantOperationResult.Fail("You must remain in a restaurant service or internal cell to order at this table.");
+			return RestaurantOperationResult.Fail("You must remain within this restaurant to order at this table.");
 		}
 
 		var table = FindRestaurantItem(session.TableGameItemId);
@@ -705,6 +745,33 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		}
 
 		return RestaurantOperationResult.Succeed($"You pay {Currency.Describe(amount, CurrencyDescriptionPatternType.Short).ColourValue()} toward the table bill.");
+	}
+
+	public RestaurantOperationResult TryCloseTableOrdering(ICharacter closer, RestaurantTableSession session)
+	{
+		if (!session.HasPresentAcceptedParticipant(CharacterInstanceIdentityComparer.IdentityId(closer)))
+		{
+			return RestaurantOperationResult.Fail("You are not currently participating at that restaurant table.");
+		}
+
+		if (session.Status == RestaurantTableSessionStatus.OrderingClosed)
+		{
+			return RestaurantOperationResult.Fail("That table is already closed to further orders.");
+		}
+
+		if (session.Status != RestaurantTableSessionStatus.Active)
+		{
+			return RestaurantOperationResult.Fail("That table cannot be closed to further orders in its current state.");
+		}
+
+		if (session.Orders.OfType<RestaurantOrder>().Any(x => x.OutstandingBalance > 0.0M))
+		{
+			return RestaurantOperationResult.Fail("The table bill must be paid in full before you can close it to further orders.");
+		}
+
+		return session.CloseOrdering()
+			? RestaurantOperationResult.Succeed("The table is now closed to further orders. Existing orders will still be served.")
+			: RestaurantOperationResult.Fail("The table could not be closed to further orders.");
 	}
 
 	public string ShowBill(ICharacter viewer, RestaurantTableSession session)
@@ -891,8 +958,8 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return RestaurantOperationResult.Fail("That designated table no longer has a usable container component.");
 		}
 
-		var item = EligibleEmptyServiceware(tableContainer, server).FirstOrDefault();
-		if (item is null)
+		var items = EligibleEmptyServiceware(tableContainer, server).ToList();
+		if (!items.Any())
 		{
 			return RestaurantOperationResult.Fail("There are no eligible empty serving containers on that table to clear.");
 		}
@@ -904,19 +971,35 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 				: RestaurantOperationResult.Fail("You cannot reach that table to clear it.");
 		}
 
-		if (!server.Body.CanGet(item, table, 0))
+		foreach (var item in items)
 		{
-			return RestaurantOperationResult.Fail(server.Body.WhyCannotGet(item, table, 0));
+			if (!server.Body.CanGet(item, table, 0))
+			{
+				return RestaurantOperationResult.Fail(server.Body.WhyCannotGet(item, table, 0));
+			}
 		}
 
-		server.Body.Get(item, table, 0, null, false);
-		if (!ServerHasItem(server, item))
+		foreach (var item in items)
 		{
-			return RestaurantOperationResult.Fail("You could not take the empty serving container from the table.");
+			server.Body.Get(item, table, 0, null, true);
+			if (!ServerHasItem(server, item))
+			{
+				return RestaurantOperationResult.Fail("You could not take the empty serving container from the table.");
+			}
 		}
 
-		EmitServiceEmote(RestaurantServiceEmoteType.ServerClear, server, item, table);
-		return RestaurantOperationResult.Succeed($"You clear {item.HowSeen(server)} from the table.");
+		IPerceivable cleared = items.Count == 1 ? items[0] : new PerceivableGroup(items);
+		if (items.Count > 1 && items.All(x => x.CanBeBundled) && PileGameItemComponentProto.ItemPrototype is not null)
+		{
+			var bundle = PileGameItemComponentProto.CreateNewBundle(items);
+			Gameworld.Add(bundle);
+			bundle.RoomLayer = server.RoomLayer;
+			server.Location!.Insert(bundle, true);
+			server.Body.Get(bundle, silent: true);
+		}
+
+		EmitServiceEmote(RestaurantServiceEmoteType.ServerClear, server, cleared, table);
+		return RestaurantOperationResult.Succeed($"You clear {cleared.HowSeen(server)} from the table.");
 	}
 
 	/// <summary>
@@ -929,6 +1012,21 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		if (!IsWithinRestaurant(employee.Location))
 		{
 			return false;
+		}
+
+		if (capabilities.Contains(EmploymentAICapability.CanDeliverItems))
+		{
+			foreach (var readyOrder in _orders
+			         .OfType<RestaurantOrder>()
+			         .Where(x => x.Status == RestaurantOrderStatus.ReadyForService)
+			         .OrderBy(x => x.ReadyAtUtc)
+			         .ToList())
+			{
+				if (TryServeOrder(employee, readyOrder).Success)
+				{
+					return true;
+				}
+			}
 		}
 
 		if (capabilities.Contains(EmploymentAICapability.CanCraft))
@@ -944,6 +1042,12 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 				.Where(x => x.MenuItem.FulfilmentMode is not (RestaurantFulfilmentMode.CraftAndBring or RestaurantFulfilmentMode.CraftAndPlate))
 				.OrderBy(x => x.CreatedAtUtc)
 				.FirstOrDefault();
+			var kitchen = KitchenCells.FirstOrDefault() ?? StockroomCell;
+			if (nextPreparation is not null && kitchen is not null && !IsAtCell(employee, kitchen))
+			{
+				return TryMoveTowardsCell(employee, kitchen);
+			}
+
 			if (nextPreparation is not null && TryPrepareOrder(employee, nextPreparation).Success)
 			{
 				return true;
@@ -1078,6 +1182,54 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		return RestaurantOperationResult.Succeed($"Cell #{cell.Id:N0} is now a {role.DescribeEnum()} cell for this restaurant.");
 	}
 
+	public RestaurantOperationResult SetStorageRole(IGameItem item, RestaurantStorageRole role, bool add)
+	{
+		if (role == RestaurantStorageRole.None)
+		{
+			return RestaurantOperationResult.Fail("You must specify a restaurant storage role.");
+		}
+
+		if (item.GetItemType<IContainer>() is null)
+		{
+			return RestaurantOperationResult.Fail("That item is not a container.");
+		}
+
+		if (!item.TrueLocations.Any(x => KitchenCells.Any(y => y.Id == x.Id)))
+		{
+			return RestaurantOperationResult.Fail("Restaurant storage containers must be physically located in a configured kitchen cell.");
+		}
+
+		var storage = _storageContainers.OfType<RestaurantStorageContainer>()
+			.FirstOrDefault(x => x.GameItemId == item.Id);
+		if (storage is null)
+		{
+			if (!add)
+			{
+				return RestaurantOperationResult.Fail("That item does not have that restaurant storage role.");
+			}
+
+			storage = new RestaurantStorageContainer(this, item, role);
+			_storageContainers.Add(storage);
+			Changed = true;
+			return RestaurantOperationResult.Succeed($"{item.HowSeen(null)} is now configured for {role.DescribeEnum()} storage.");
+		}
+
+		var roles = add ? storage.Roles | role : storage.Roles & ~role;
+		if (roles == storage.Roles)
+		{
+			return RestaurantOperationResult.Fail($"That item is {(add ? "already" : "not")} configured for {role.DescribeEnum()} storage.");
+		}
+
+		storage.SetRoles(roles);
+		if (roles == RestaurantStorageRole.None)
+		{
+			_storageContainers.Remove(storage);
+		}
+
+		Changed = true;
+		return RestaurantOperationResult.Succeed($"{item.HowSeen(null)} {(add ? "now has" : "no longer has")} the {role.DescribeEnum()} storage role.");
+	}
+
 	public RestaurantOperationResult RemoveRestaurantCell(ICell cell, RestaurantCellRole role)
 	{
 		var assignment = _cells.FirstOrDefault(x => x.Cell.Id == cell.Id && x.Role == role);
@@ -1089,6 +1241,13 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		if (role == RestaurantCellRole.Service && ServiceCells.Count() <= 1)
 		{
 			return RestaurantOperationResult.Fail("A restaurant must retain at least one table-service cell.");
+		}
+
+		if (role == RestaurantCellRole.Kitchen && _storageContainers
+			.OfType<RestaurantStorageContainer>()
+			.Any(x => Gameworld.TryGetItem(x.GameItemId, true)?.TrueLocations.Any(y => y.Id == cell.Id) == true))
+		{
+			return RestaurantOperationResult.Fail("Remove or relocate the restaurant storage containers in that kitchen cell before removing its kitchen role.");
 		}
 
 		_cells.Remove(assignment);
@@ -1194,6 +1353,8 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		config.ServerServeEmote = ServerServeEmote;
 		config.ServerClearEmote = ServerClearEmote;
 		config.ServerReturnEmote = ServerReturnEmote;
+		config.TakeawayBagPrototypeId = TakeawayBagPrototype?.Id ?? _takeawayBagPrototypeId;
+		config.TakeawayBagPrototypeRevisionNumber = TakeawayBagPrototype?.RevisionNumber ?? _takeawayBagPrototypeRevisionNumber;
 
 		var existingCells = context.RestaurantCells.Where(x => x.RestaurantShopId == Id).ToList();
 		context.RestaurantCells.RemoveRange(existingCells);
@@ -1212,6 +1373,19 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		foreach (var tableId in _tableIds)
 		{
 			context.RestaurantTables.Add(new DbRestaurantTable { RestaurantShopId = Id, GameItemId = tableId });
+		}
+
+		var existingStorage = context.RestaurantStorageContainers.Where(x => x.RestaurantShopId == Id).ToList();
+		context.RestaurantStorageContainers.RemoveRange(existingStorage);
+		foreach (var storage in _storageContainers.OfType<RestaurantStorageContainer>()
+			         .Where(x => x.Roles != RestaurantStorageRole.None))
+		{
+			context.RestaurantStorageContainers.Add(new DbRestaurantStorageContainer
+			{
+				RestaurantShopId = Id,
+				GameItemId = storage.GameItemId,
+				Roles = (int)storage.Roles
+			});
 		}
 
 	}
@@ -1443,16 +1617,6 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 					}
 				}
 
-				if (order.OrderType == RestaurantOrderType.Takeaway && order.MenuItem.TakeawayBagPrototype is not null)
-				{
-					if (!TryPackageItem(order, deliveryItem, order.MenuItem.TakeawayBagPrototype,
-						RestaurantOrderItemRole.TakeawayBag, employee, out deliveryItem, out var bagReason))
-					{
-						order.MarkFailed(bagReason);
-						return RestaurantOperationResult.Fail(bagReason);
-					}
-				}
-
 				finalDeliveryItem = deliveryItem;
 			}
 			catch (Exception ex)
@@ -1481,13 +1645,22 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return false;
 		}
 
-		var containerItem = prototype.CreateNew();
-		Gameworld.Add(containerItem);
-		containerItem.Login();
+		var storageRole = role == RestaurantOrderItemRole.ServingContainer
+			? RestaurantStorageRole.Servingware
+			: RestaurantStorageRole.TakeawayContainers;
+		var containerAllocation = TakeStoredKitchenContainer(prototype, storageRole, employee);
+		var containerItem = containerAllocation?.Item ?? prototype.CreateNew();
+		containerAllocation ??= new KitchenContainerAllocation(containerItem, null);
+		if (containerAllocation.SourceStorage is null)
+		{
+			Gameworld.Add(containerItem);
+			containerItem.Login();
+		}
+
 		var container = containerItem.GetItemType<IContainer>();
 		if (container is null || !container.CanPut(item))
 		{
-			containerItem.Delete();
+			ReturnOrDisposeKitchenContainer(containerAllocation);
 			reason = "The configured serving or packaging container cannot hold the prepared item.";
 			return false;
 		}
@@ -1509,7 +1682,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 			if (!ServerHasItem(serviceEmployee, item))
 			{
-				containerItem.Delete();
+				ReturnOrDisposeKitchenContainer(containerAllocation);
 				reason = "The employee could not retrieve the prepared item for plating or packaging.";
 				return false;
 			}
@@ -1521,7 +1694,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 			if (!serviceEmployee.Body.CanPut(item, containerItem, null, 0, true))
 			{
-				containerItem.Delete();
+				ReturnOrDisposeKitchenContainer(containerAllocation);
 				reason = "The employee could not put the prepared item into the configured serving or packaging container.";
 				return false;
 			}
@@ -1539,7 +1712,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 		if (!container.Contents.Contains(item))
 		{
-			containerItem.Delete();
+			ReturnOrDisposeKitchenContainer(containerAllocation);
 			reason = "The prepared item could not be placed into the configured serving or packaging container.";
 			return false;
 		}
@@ -1576,12 +1749,6 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return true;
 		}
 
-		var kitchen = KitchenCells.FirstOrDefault();
-		if (kitchen is not null && !IsAtCell(chef, kitchen))
-		{
-			return TryMoveTowardsCell(chef, kitchen);
-		}
-
 		var order = _orders
 			.OfType<RestaurantOrder>()
 			.Where(x => x.Status == RestaurantOrderStatus.Queued)
@@ -1591,6 +1758,12 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		if (order?.MenuItem.Craft is not { } craft)
 		{
 			return false;
+		}
+
+		var kitchen = KitchenCells.FirstOrDefault();
+		if (kitchen is not null && !IsAtCell(chef, kitchen))
+		{
+			return TryMoveTowardsCell(chef, kitchen);
 		}
 
 		if (!craft.AppearInCraftsList(chef))
@@ -1649,7 +1822,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return true;
 		}
 
-	var interruptedCraft = chef.Location?
+		var interruptedCraft = chef.Location?
 			.LayerGameItems(chef.RoomLayer)
 			.SelectNotNull(x => x?.GetItemType<IActiveCraftGameItemComponent>())
 			.FirstOrDefault(x => x.Craft is not null && x.Craft.Id == craft.Id &&
@@ -1702,6 +1875,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		if (craftedOutput is null)
 		{
 			order.MarkFailed("The employed chef finished the craft without producing the configured menu output.");
+			StowCraftTools(chef, craft);
 			return true;
 		}
 
@@ -1709,6 +1883,8 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		{
 			order.MarkFailed("The real craft output could not be accepted by the restaurant service queue.");
 		}
+
+		StowCraftTools(chef, craft);
 
 		return true;
 	}
@@ -1775,7 +1951,11 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		var dirtyItem = dirtyServicewareIds
 			.Select(FindRestaurantItem)
 			.FirstOrDefault(x => x is not null && ServerHasItem(server, x));
-		if (dirtyItem is null)
+		var bundle = server.Body.ExternalItems
+			.FirstOrDefault(x => x.GetItemType<PileGameItemComponent>()?.Contents
+				.Any(y => dirtyServicewareIds.Contains(y.Id)) == true);
+		var returnItem = bundle ?? dirtyItem;
+		if (returnItem is null)
 		{
 			return false;
 		}
@@ -1791,14 +1971,119 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return TryMoveTowardsCell(server, kitchen);
 		}
 
-		if (!server.Body.HeldOrWieldedItems.Contains(dirtyItem))
+		if (!server.Body.HeldOrWieldedItems.Contains(returnItem))
 		{
-			server.Body.Take(dirtyItem);
+			server.Body.Take(returnItem);
 		}
 
-		server.Body.Drop(dirtyItem, silent: false);
-		EmitServiceEmote(RestaurantServiceEmoteType.ServerReturn, server, dirtyItem);
+		server.Body.Drop(returnItem, silent: true);
+		EmitServiceEmote(RestaurantServiceEmoteType.ServerReturn, server, returnItem);
+		if (returnItem.GetItemType<PileGameItemComponent>() is { } pile)
+		{
+			var contents = pile.Contents.ToList();
+			// Unbundle onto the kitchen floor first. Each item is then returned to the first store
+			// that can actually accept it; anything that fits nowhere intentionally remains on the
+			// floor rather than leaving the server holding a bundle.
+			pile.Empty(null!, null!);
+			foreach (var item in contents)
+			{
+				if (StorageContainersFor(RestaurantStorageRole.Servingware, server)
+					    .FirstOrDefault(x => x.CanPut(item)) is not { } storage)
+				{
+					continue;
+				}
+
+				item.Location?.Extract(item);
+				storage.Put(null, item, allowMerge: false);
+			}
+		}
+		else if (StorageContainersFor(RestaurantStorageRole.Servingware, server)
+				.FirstOrDefault(x => x.CanPut(returnItem)) is { } storage)
+		{
+			returnItem.Location?.Extract(returnItem);
+			storage.Put(null, returnItem, allowMerge: false);
+		}
 		return true;
+	}
+
+	private IEnumerable<IContainer> StorageContainersFor(RestaurantStorageRole role, ICharacter employee)
+	{
+		return _storageContainers
+			.OfType<RestaurantStorageContainer>()
+			.Where(x => x.Roles.HasFlag(role))
+			.OrderBy(x => x.GameItemId)
+			.Select(x => Gameworld.TryGetItem(x.GameItemId, true))
+			.Where(x => x is not null && x.TrueLocations.Any(y => y.Id == employee.Location?.Id))
+			.Select(x => x!.GetItemType<IContainer>())
+			.Where(x => x is not null)
+			.Cast<IContainer>();
+	}
+
+	private KitchenContainerAllocation? TakeStoredKitchenContainer(IGameItemProto prototype,
+		RestaurantStorageRole role, ICharacter? employee)
+	{
+		if (employee is null || !KitchenCells.Any(x => x.Id == employee.Location?.Id))
+		{
+			return null;
+		}
+
+		foreach (var storage in StorageContainersFor(role, employee))
+		{
+			var item = storage.Contents.FirstOrDefault(x =>
+				x.Prototype.Id == prototype.Id &&
+				x.Prototype.RevisionNumber == prototype.RevisionNumber &&
+				x.GetItemType<IContainer>()?.Contents.Any() != true);
+			if (item is null || !storage.CanTake(employee, item, 0))
+			{
+				continue;
+			}
+
+			storage.Take(employee, item, 0);
+			return new KitchenContainerAllocation(item, storage);
+		}
+
+		return null;
+	}
+
+	private void ReturnOrDisposeKitchenContainer(KitchenContainerAllocation allocation)
+	{
+		if (allocation.SourceStorage is not null && allocation.SourceStorage.CanPut(allocation.Item))
+		{
+			allocation.SourceStorage.Put(null, allocation.Item, allowMerge: false);
+			return;
+		}
+
+		if (allocation.SourceStorage is null)
+		{
+			allocation.Item.Delete();
+			return;
+		}
+
+		MoveToKitchen(allocation.Item);
+	}
+
+	private void StowCraftTools(ICharacter employee, ICraft craft)
+	{
+		if (!KitchenCells.Any(x => x.Id == employee.Location?.Id))
+		{
+			return;
+		}
+
+		foreach (var tool in employee.Body.HeldOrWieldedItems
+			.Where(item => craft.Tools.Any(x => x.IsTool(item)))
+			.ToList())
+		{
+			var storage = StorageContainersFor(RestaurantStorageRole.Tools, employee)
+				.FirstOrDefault(x => x.CanPut(tool));
+			if (storage is null)
+			{
+				continue;
+			}
+
+			employee.Body.Drop(tool, silent: true);
+			tool.Location?.Extract(tool);
+			storage.Put(null, tool, allowMerge: false);
+		}
 	}
 
 	private static bool ServerHasItem(ICharacter server, IGameItem item)
@@ -1834,7 +2119,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return false;
 		}
 
-		server.Body.Get(item, 0, null, false);
+		server.Body.Get(item, 0, null, true);
 		return ServerHasItem(server, item);
 	}
 
@@ -1906,6 +2191,11 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 	private bool DeliverOrder(RestaurantOrder order, ICharacter? server)
 	{
+		if (order.OrderType == RestaurantOrderType.Takeaway)
+		{
+			return DeliverTakeawayCohort(order, server);
+		}
+
 		var recipient = ActiveActor(order.RecipientCharacterId);
 		if (recipient is null)
 		{
@@ -1928,22 +2218,14 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return false;
 		}
 
-		var produced = order.ProducedItems.OfType<RestaurantOrderItem>().Where(x => !x.Delivered).ToList();
-		if (!produced.Any())
+		var roots = DeliveryRoots([order]).ToList();
+		if (!roots.Any())
 		{
 			order.MarkFailed("No recoverable prepared items were available for service.");
 			return false;
 		}
 
-		var root = produced
-			.OrderByDescending(x => x.Role)
-			.Select(x => x.GameItemId.HasValue ? FindRestaurantItem(x.GameItemId.Value) : null)
-			.FirstOrDefault(x => x is not null);
-		if (root is null)
-		{
-			order.MarkFailed("The prepared item was unavailable during service.");
-			return false;
-		}
+		var root = roots[0];
 
 		if (server is null)
 		{
@@ -1983,7 +2265,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 				return false;
 			}
 
-			server.Body.Put(root, table, null, 0, null, false);
+			server.Body.Put(root, table, null, 0, null, true);
 			if (!tableContainer.Contents.Contains(root))
 			{
 				return false;
@@ -2016,9 +2298,10 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			server.Body.Give(root, recipient.Body);
 		}
 
-		foreach (var item in produced)
+		MarkDeliveredForRoot([order], root);
+		if (order.ProducedItems.OfType<RestaurantOrderItem>().Any(x => !x.Delivered))
 		{
-			item.MarkDelivered();
+			return true;
 		}
 
 		order.MarkServed(server);
@@ -2028,6 +2311,233 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			recipient.OutputHandler.Send($"A server brings you {root.HowSeen(recipient)}.");
 		}
 		return true;
+	}
+
+	private bool DeliverTakeawayCohort(RestaurantOrder order, ICharacter? server)
+	{
+		var recipient = ActiveActor(order.RecipientCharacterId);
+		if (recipient is null || !IsWithinRestaurant(recipient.Location))
+		{
+			return false;
+		}
+
+		var cohort = _orders
+			.OfType<RestaurantOrder>()
+			.Where(x => x.OrderType == RestaurantOrderType.Takeaway)
+			.Where(x => x.RecipientCharacterId == order.RecipientCharacterId)
+			.Where(x => x.Status == RestaurantOrderStatus.ReadyForService)
+			.Where(CanReleaseForBatch)
+			.OrderBy(x => x.ReadyAtUtc)
+			.ToList();
+		if (!cohort.Any())
+		{
+			return false;
+		}
+
+		var roots = DeliveryRoots(cohort).ToList();
+		if (!roots.Any())
+		{
+			foreach (var failedOrder in cohort)
+			{
+				failedOrder.MarkFailed("No recoverable prepared items were available for takeaway collection.");
+			}
+
+			return false;
+		}
+
+		var existingBagRoots = cohort
+			.SelectMany(x => x.ProducedItems)
+			.OfType<RestaurantOrderItem>()
+			.Where(x => x.Role == RestaurantOrderItemRole.TakeawayBag && x.GameItemId.HasValue)
+			.Select(x => x.GameItemId!.Value)
+			.ToHashSet();
+		if (TakeawayBagPrototype is not null && !roots.All(x => existingBagRoots.Contains(x.Id)))
+		{
+			var kitchen = KitchenCells.FirstOrDefault() ?? StockroomCell;
+			if (server is not null && kitchen is not null && !IsAtCell(server, kitchen))
+			{
+				return TryMoveTowardsCell(server, kitchen);
+			}
+
+			if (!TryPackageTakeawayRoots(cohort, roots, server, out var bagReason))
+			{
+				foreach (var cohortOrder in cohort)
+				{
+					AddOperationalNoteOnce(cohortOrder, bagReason);
+				}
+
+				return false;
+			}
+
+			roots = DeliveryRoots(cohort).ToList();
+		}
+
+		foreach (var root in roots)
+		{
+			if (server is null)
+			{
+				if (recipient.Body.CanGet(root, 0))
+				{
+					recipient.Body.Get(root, silent: true);
+				}
+				else
+				{
+					root.InsertAtSource(recipient);
+				}
+			}
+			else
+			{
+				if (!ServerHasItem(server, root))
+				{
+					return TryRetrieveForService(server, root);
+				}
+
+				if (!IsAtCell(server, recipient.Location))
+				{
+					return TryMoveTowardsCell(server, recipient.Location);
+				}
+
+				if (!server.Body.CanGive(root, recipient.Body, 0))
+				{
+					return false;
+				}
+
+				server.Body.Give(root, recipient.Body);
+			}
+
+			MarkDeliveredForRoot(cohort, root);
+		}
+
+		foreach (var cohortOrder in cohort)
+		{
+			if (cohortOrder.ProducedItems.OfType<RestaurantOrderItem>().All(x => x.Delivered))
+			{
+				cohortOrder.MarkServed(server);
+				RecogniseSale(cohortOrder, server);
+			}
+		}
+
+		if (server is null)
+		{
+			recipient.OutputHandler.Send($"A server brings you {roots.Select(x => x.HowSeen(recipient)).ListToString()}.");
+		}
+
+		return true;
+	}
+
+	private IEnumerable<IGameItem> DeliveryRoots(IEnumerable<RestaurantOrder> orders)
+	{
+		var items = orders
+			.SelectMany(x => x.ProducedItems)
+			.OfType<RestaurantOrderItem>()
+			.Where(x => !x.Delivered && x.GameItemId.HasValue)
+			.Select(x => FindRestaurantItem(x.GameItemId!.Value))
+			.Where(x => x is not null)
+			.Cast<IGameItem>()
+			.DistinctBy(x => x.Id)
+			.ToList();
+		return items.Where(item => !items.Any(other => other.Id != item.Id && IsContainedBy(item, other)));
+	}
+
+	private static bool IsContainedBy(IGameItem item, IGameItem possibleContainer)
+	{
+		var current = item.ContainedIn;
+		while (current is not null)
+		{
+			if (current.Id == possibleContainer.Id)
+			{
+				return true;
+			}
+
+			current = current.ContainedIn;
+		}
+
+		return false;
+	}
+
+	private void MarkDeliveredForRoot(IEnumerable<RestaurantOrder> orders, IGameItem root)
+	{
+		foreach (var record in orders.SelectMany(x => x.ProducedItems).OfType<RestaurantOrderItem>()
+			         .Where(x => !x.Delivered && x.GameItemId.HasValue))
+		{
+			var item = FindRestaurantItem(record.GameItemId!.Value);
+			if (item is not null && (item.Id == root.Id || IsContainedBy(item, root)))
+			{
+				record.MarkDelivered();
+			}
+		}
+	}
+
+	private bool TryPackageTakeawayRoots(IReadOnlyCollection<RestaurantOrder> cohort,
+		IReadOnlyCollection<IGameItem> roots, ICharacter? employee, out string reason)
+	{
+		if (!RestaurantTakeawayBagPacking.TryPlan(TakeawayBagPrototype!, roots, out var packingPlan, out reason))
+		{
+			return false;
+		}
+
+		var bagAllocations = new List<KitchenContainerAllocation>();
+		foreach (var bagContents in packingPlan)
+		{
+			var bagAllocation = TakeStoredKitchenContainer(TakeawayBagPrototype!, RestaurantStorageRole.TakeawayBags,
+				employee);
+			var bag = bagAllocation?.Item ?? TakeawayBagPrototype!.CreateNew();
+			bagAllocation ??= new KitchenContainerAllocation(bag, null);
+			if (bagAllocation.SourceStorage is null)
+			{
+				Gameworld.Add(bag);
+				bag.Login();
+			}
+
+			var container = bag.GetItemType<IContainer>();
+			if (container is null)
+			{
+				ReturnOrDisposeKitchenContainer(bagAllocation);
+				RollbackTakeawayBags(bagAllocations);
+				reason = "The configured takeaway bag is no longer a usable container.";
+				return false;
+			}
+
+			bagAllocations.Add(bagAllocation);
+			foreach (var root in bagContents)
+			{
+				if (!container.CanPut(root))
+				{
+					RollbackTakeawayBags(bagAllocations);
+					reason = $"The configured takeaway bag cannot hold {root.HowSeen(null)}.";
+					return false;
+				}
+
+				root.InInventoryOf?.Take(root);
+				root.ContainedIn?.Take(root);
+				root.Location?.Extract(root);
+				container.Put(null, root, allowMerge: false);
+			}
+		}
+
+		foreach (var bagAllocation in bagAllocations)
+		{
+			MoveToKitchen(bagAllocation.Item);
+			cohort.First().AddProducedItem(bagAllocation.Item, RestaurantOrderItemRole.TakeawayBag);
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	private void RollbackTakeawayBags(IEnumerable<KitchenContainerAllocation> bags)
+	{
+		foreach (var allocation in bags)
+		{
+			var bag = allocation.Item;
+			foreach (var item in bag.GetItemType<IContainer>()?.Contents.ToList() ?? [])
+			{
+				bag.GetItemType<IContainer>()!.Take(null!, item, 0);
+				MoveToKitchen(item);
+			}
+
+			ReturnOrDisposeKitchenContainer(allocation);
+		}
 	}
 
 	private void RecogniseSale(RestaurantOrder order, ICharacter? employee)
@@ -2046,7 +2556,19 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 	private bool CanReleaseForBatch(RestaurantOrder order)
 	{
-		if (order.OrderType == RestaurantOrderType.Takeaway || order.TableSession is not RestaurantTableSession session)
+		if (order.OrderType == RestaurantOrderType.Takeaway)
+		{
+			var relatedTakeaway = _orders
+				.OfType<RestaurantOrder>()
+				.Where(x => x.OrderType == RestaurantOrderType.Takeaway)
+				.Where(x => x.RecipientCharacterId == order.RecipientCharacterId)
+				.Where(x => x.Status is RestaurantOrderStatus.Queued or RestaurantOrderStatus.Preparing or RestaurantOrderStatus.ReadyForService)
+				.ToList();
+			return RestaurantServiceRules.IsBatchReady(relatedTakeaway.All(x => x.Status == RestaurantOrderStatus.ReadyForService),
+				order.ReadyAtUtc, MaximumBatchWait, DateTime.UtcNow);
+		}
+
+		if (order.TableSession is not RestaurantTableSession session)
 		{
 			return true;
 		}
@@ -2122,7 +2644,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 	private void ProcessAbandonments()
 	{
-		foreach (var session in _tableSessions.OfType<RestaurantTableSession>().Where(x => x.Status is RestaurantTableSessionStatus.Active or RestaurantTableSessionStatus.AbandonmentPending).ToList())
+		foreach (var session in _tableSessions.OfType<RestaurantTableSession>().Where(x => x.Status is RestaurantTableSessionStatus.Active or RestaurantTableSessionStatus.AbandonmentPending or RestaurantTableSessionStatus.OrderingClosed).ToList())
 		{
 			var presentParticipant = session.Participants
 				.Where(x => x.Accepted)
@@ -2144,6 +2666,11 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 				{
 					session.Close();
 				}
+				continue;
+			}
+
+			if (session.Status == RestaurantTableSessionStatus.OrderingClosed)
+			{
 				continue;
 			}
 
@@ -2185,6 +2712,13 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		session.MarkParticipantPresence(character, IsWithinTableServiceBoundary(character.Location));
 		if (!IsWithinTableServiceBoundary(character.Location))
 		{
+			foreach (var effect in character.EffectsOfType<RestaurantTableParticipantEffect>()
+			             .Where(x => x.RestaurantId == Id && x.SessionId == sessionId)
+			             .ToList())
+			{
+				character.RemoveEffect(effect);
+			}
+
 			CleanInvalidJoinRequests();
 		}
 	}

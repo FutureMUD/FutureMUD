@@ -468,12 +468,11 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 					item.Name.ColourName(),
 					item.Description,
 					Currency.Describe(GetPriceCalculation(actor, item.Merchandise, 1).TotalPrice, CurrencyDescriptionPatternType.Short).ColourValue(),
-					item.FulfilmentMode.DescribeEnum().ColourCommand(),
 					available,
 					EstimateWait(actor, item).Describe(actor).ColourValue()
 				};
 			}),
-				new[] { "#", "Item", "Description", "Price", "Service", "Available", "Estimated Wait" },
+				["#", "Item", "Description", "Price", "Available", "Estimated Wait"],
 				actor.LineFormatLength,
 				truncatableColumnIndex: 2,
 				colour: Telnet.Yellow,
@@ -481,7 +480,9 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 			sb.AppendLine();
 		}
 		sb.AppendLine();
-		sb.AppendLine("Use ORDER TABLE <table> to start or join table service, ORDER <item> [quantity] [FOR <participant>] to order at your table, or ORDER TAKEAWAY <item> [quantity] to pay in advance.");
+		sb.AppendLine(@"Use #3order table <table>#0 to start or join table service
+Use #3order <item> [quantity] [for <participant>]#0 to order at your table
+Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeaway.".SubstituteANSIColour());
 		return sb.ToString();
 	}
 

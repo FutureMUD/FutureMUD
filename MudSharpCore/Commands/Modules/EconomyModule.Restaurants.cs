@@ -8,6 +8,7 @@ using MudSharp.Economy.Shops;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
+using MudSharp.TimeAndDate;
 using MudSharp.Work.Crafts;
 using System.Text;
 
@@ -17,25 +18,70 @@ namespace MudSharp.Commands.Modules;
 
 internal partial class EconomyModule
 {
-	private const string MenuHelp = @"MENU shows the menu for a cafe or restaurant in your current location. LIST without an argument also shows a restaurant menu.
+	private const string MenuHelp = @"The #6menu#0 command shows the menu for a cafe or restaurant in your current location. The #6list#0 command without an argument also shows a restaurant menu.
 
-	Use #3menu#0 to see each item, its price, service method, dine-in/takeaway availability and current estimated wait.";
+	Use #3menu#0 to see each item, its price, dine-in/takeaway availability and current estimated wait.";
 
-	private const string OrderHelp = @"ORDER is used to begin table service or place cafe and restaurant orders.
+	private const string OrderHelp = @"The #6order#0 command is used to begin table service or place cafe and restaurant orders.
 
 	#3order table <table>#0 begins a new table session at an unoccupied designated restaurant table, or tries to join its existing session. Party members and people whom an existing participant considers an ally join automatically; everyone else needs a current participant to #3ACCEPT#0 the transient request.
 
-	#3order <item> [quantity] [for <participant>]#0 creates an unpaid dine-in order at your accepted table. The person who places the order remains liable even when ordering for someone else. #3order takeaway <item> [quantity] [cash|credit <account>|with <payment item>]#0 pays up front and queues an order for collection.";
+	#3order <item> [quantity] [for <participant>]#0 creates an unpaid dine-in order at your accepted table. The person who places the order remains liable even when ordering for someone else. 
 
-	private const string BillHelp = @"BILL shows and settles the bill for your accepted restaurant table.
+	#3order takeaway <item> [quantity] [cash|credit <account>|with <payment item>]#0 pays up front and queues an order for collection.";
 
-	#3bill#0 shows the table's orders and liabilities. #3bill pay mine#0 pays the lines you ordered, #3bill pay all#0 pays the entire outstanding balance, and #3bill pay <amount>#0 makes a partial payment. Each can be followed by #3cash#0, #3credit <account>#0, or #3with <payment item>#0. #3bill split equal#0 shows a convenient equal payment suggestion; it never changes who is legally liable for an order.";
+	private const string BillHelp = @"The #6bill#0 command shows and settles the bill for your accepted restaurant table.
 
-	private const string RestaurantHelp = @"RESTAURANT configures a restaurant shop and lets its employees operate the shared preparation and serving queue.
+The syntax is as follows:
 
-	#3restaurant#0 shows the configuration. Managers and proprietors can use #3restaurant cell add|remove <service|internal|kitchen> [here|<cell>]#0, #3restaurant table add|remove <item>#0, #3restaurant menu add <merchandise>#0, #3restaurant menu remove <item>#0, #3restaurant menu set <item> ...#0, and #3restaurant set automation|simulate|handling|batchwait|cleanup <value>#0. Use #3restaurant emote list#0 to review visible service moments, or #3restaurant emote <moment> <emote|default>#0 to set a restaurant-specific chef or server emote. Disable a menu item before changing its fulfilment configuration, then reactivate it only when validation succeeds.
+	#3bill#0 - shows the table's orders and liabilities
+	#3bill pay mine [cash|credit <account>|with <payment item>]#0 - pays the lines you ordered
+	#3bill pay all [cash|credit <account>|with <payment item>]#0 - pays the entire outstanding balance
+	#3bill pay <amount> [cash|credit <account>|with <payment item>]#0 - makes a partial payment
+	#3bill split equal#0 - shows a convenient equal payment suggestion
 
-	#3restaurant chef <target>#0 and #3restaurant server <target>#0 create restaurant-specific employment contracts. Clocked-in employees use #3restaurant service list#0 to review their queue; chefs use #3restaurant service prepare <order> [with <crafted item>]#0, and servers use #3restaurant service serve <order>#0 or #3restaurant service clear <table>#0. Managers can use #3restaurant service cancel <order>#0 or #3restaurant service refund <order> <amount> [cash|credit <account>|with <payment item>]#0. Administrators can use #3restaurant create <name> <economic zone>#0 at a non-shop cell.";
+#6Note - paying a split bill does not change who is legally liable for the items ordered if someone dines and dashes.#0";
+
+	private const string RestaurantHelp = @"The #6restaurant#0 command is used to configure a restaurant shop and lets its employees operate the shared preparation and serving queue.
+
+Note - restaurants are also shops and the relevant #3shop#0 and #3merchandise#0 commands are available as well.
+
+For employees, the following commands are available:
+
+	#3restaurant service list#0 - review the service queue
+	#3restaurant service prepare <order> [with <crafted item>]#0 - prepare a queued order, optionally using a crafted item
+	#3restaurant service clear <table>#0 - clear a table of all its orders and reset it to unoccupied
+	#3restaurant service cancel <order>#0 - cancel a specific order
+	#3restaurant service refund <order> <amount> [cash|credit <account>|with <payment item>]#0 - issue a refuned for a specific order
+	
+
+The building syntax is as follows:
+
+	#3restaurant#0 - shows the configuration of the restaurant shop in your current location
+	#3restaurant table add|remove <item>#0 - adds or removes a designated restaurant table
+	#3restaurant menu add <item>#0 - adds a shop merchandise item to the restaurant menu (see #3merchandise#0 command)
+	#3restaurant menu remove <item>#0 - removes a shop merchandise item from the restaurant menu
+	#3restaurant menu set <item> active#0 - activates or deactivates a menu item
+	#3restaurant menu set <item> dinein#0 - sets whether a menu item is available for dine-in service
+	#3restaurant menu set <item> takeaway#0 - sets whether a menu item is available for takeaway service
+	#3restaurant menu set <item> mode#0 - sets the service mode for a menu item
+	#3restaurant menu set <item> prep#0 - sets the preparation method for a menu item
+	#3restaurant menu set <item> craft#0 - sets the crafting method for a menu item
+	#3restaurant menu set <item> plate#0 - sets the plating method for a menu item
+	#3restaurant menu set <item> package#0 - sets the packaging method for a menu item
+	#3restaurant menu set <item> bag#0 - sets the bagging method for a menu item
+	#3restaurant menu set <item> desc <value>#0 - sets the description for a menu item
+	#3restaurant emote list#0 - review visible service moments
+	#3restaurant emote <moment> <emote|default>#0 - set a restaurant-specific chef or server emote.
+	#3restaurant chef <target>#0 - create restaurant-specific employment contract for a chef.
+	#3restaurant server <target>#0 - create restaurant-specific employment contract for a server. 
+	
+Administrators have the following additional syntax options:
+
+	#3restaurant create <name> <economic zone>#0 - creates a new restaurant shop in your current location
+	#3restaurant cell add|remove <service|internal|kitchen> [here|<cell>]#0 - extends the restaurant shop to another cell, or removes a cell from the restaurant shop
+
+#6Tip: Disable a menu item before changing its fulfilment configuration, then reactivate it only when validation succeeds.#0";
 
 	[PlayerCommand("Menu", "menu")]
 	[RequiredCharacterState(CharacterState.Conscious)]
@@ -614,24 +660,83 @@ internal partial class EconomyModule
 				}
 				return;
 			case "craft":
-				menu.Craft = FindCraft(actor, ss.PopSpeech());
-				actor.OutputHandler.Send(menu.Craft is null ? "The craft has been cleared or was not found." : "The configured craft has been updated.");
+				if (ss.SafeRemainingArgument.EqualTo("none"))
+				{
+					menu.Craft = null;
+					actor.OutputHandler.Send($"The menu item {menu.Name.ColourName()} no longer has an associated craft.");
+					return;
+				}
+
+				var craft = FindCraft(actor, ss.SafeRemainingArgument);
+				if (craft is null)
+				{
+					actor.OutputHandler.Send($"There is no such craft identified by the text {ss.SafeRemainingArgument.ColourCommand()}.");
+					return;
+				}
+				menu.Craft = craft;
+				actor.OutputHandler.Send($"The menu item {menu.Name.ColourName()} is now made from the craft {craft.Name.ColourValue()}.");
 				return;
 			case "plate":
-				menu.ServingContainerPrototype = FindItemPrototype(actor, ss.PopSpeech());
-				actor.OutputHandler.Send(menu.ServingContainerPrototype is null ? "The serving container has been cleared or was not found." : "The serving container has been updated.");
+				if (ss.SafeRemainingArgument.EqualTo("none"))
+				{
+					menu.Craft = null;
+					actor.OutputHandler.Send($"The menu item {menu.Name.ColourName()} no longer has an associated plate prototype.");
+					return;
+				}
+
+				var servingContainerPrototype = FindItemPrototype(actor, ss.SafeRemainingArgument);
+				if (servingContainerPrototype is null)
+				{
+					actor.OutputHandler.Send($"There is no item prototype identified by the text {ss.SafeRemainingArgument.ColourCommand()}.");
+					return;
+				}
+
+				if (!servingContainerPrototype.IsItemType<IContainerPrototype>())
+				{
+					actor.OutputHandler.Send($"The item prototype {servingContainerPrototype.EditHeaderColour(actor)} is not a container.");
+					return;
+				}
+
+				menu.ServingContainerPrototype = servingContainerPrototype;
+				actor.OutputHandler.Send($"The menu item {menu.Name.ColourName()} now has the {servingContainerPrototype.EditHeaderColour(actor)} prototype as a serving plate.");
 				return;
 			case "package":
-				menu.TakeawayContainerPrototype = FindItemPrototype(actor, ss.PopSpeech());
-				actor.OutputHandler.Send(menu.TakeawayContainerPrototype is null ? "The takeaway inner container has been cleared or was not found." : "The takeaway inner container has been updated.");
+				if (ss.SafeRemainingArgument.EqualTo("none"))
+				{
+					menu.TakeawayContainerPrototype = null;
+					actor.OutputHandler.Send($"The menu item {menu.Name.ColourName()} no longer has an associated takeaway container prototype.");
+					return;
+				}
+
+				var takeawayContainerPrototype = FindItemPrototype(actor, ss.SafeRemainingArgument);
+				if (takeawayContainerPrototype is null)
+				{
+					actor.OutputHandler.Send($"There is no item prototype identified by the text {ss.SafeRemainingArgument.ColourCommand()}.");
+					return;
+				}
+
+				if (!takeawayContainerPrototype.IsItemType<IContainerPrototype>())
+				{
+					actor.OutputHandler.Send($"The item prototype {takeawayContainerPrototype.EditHeaderColour(actor)} is not a container.");
+					return;
+				}
+
+				menu.TakeawayContainerPrototype = takeawayContainerPrototype;
+				actor.OutputHandler.Send($"The menu item {menu.Name.ColourName()} now has the {takeawayContainerPrototype.EditHeaderColour(actor)} prototype as a takeaway container.");
 				return;
 			case "bag":
 				menu.TakeawayBagPrototype = FindItemPrototype(actor, ss.PopSpeech());
 				actor.OutputHandler.Send(menu.TakeawayBagPrototype is null ? "The takeaway bag has been cleared or was not found." : "The takeaway bag has been updated.");
 				return;
 			case "desc":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("What description would you like to set?");
+					return;
+				}
+
 				menu.Description = ss.SafeRemainingArgument;
-				actor.OutputHandler.Send("The menu description has been updated.");
+				actor.OutputHandler.Send($"The menu item {menu.Name.ColourName()} is now described as {menu.Description.ColourValue()}.");
 				return;
 			default:
 				actor.OutputHandler.Send("Unknown menu setting.");
@@ -646,62 +751,91 @@ internal partial class EconomyModule
 		{
 			case "automation":
 			case "automated":
-				if (bool.TryParse(ss.PopSpeech(), out var automated))
+				if (!actor.IsAdministrator())
+				{
+					actor.OutputHandler.Send("Only administrators can change the automated service setting.");
+					return;
+				}
+
+				if (bool.TryParse(ss.SafeRemainingArgument, out var automated))
 				{
 					restaurant.AutomatedService = automated;
 					actor.OutputHandler.Send($"Automated restaurant service is now {automated.ToColouredString()}.");
 				}
 				else
 				{
-					actor.OutputHandler.Send("You must specify true or false.");
+					restaurant.AutomatedService = !restaurant.AutomatedService;
+					actor.OutputHandler.Send($"Automated restaurant service is now {restaurant.AutomatedService.ToColouredString()}.");
 				}
 				return;
 			case "simulate":
 			case "simulatecrafting":
-				if (bool.TryParse(ss.PopSpeech(), out var simulate))
+				if (!actor.IsAdministrator())
+				{
+					actor.OutputHandler.Send("Only administrators can change the simulated service setting.");
+					return;
+				}
+
+				if (bool.TryParse(ss.SafeRemainingArgument, out var simulate))
 				{
 					restaurant.SimulateCrafting = simulate;
 					actor.OutputHandler.Send($"Simulated crafting fallback is now {simulate.ToColouredString()}.");
 				}
 				else
 				{
-					actor.OutputHandler.Send("You must specify true or false.");
+					restaurant.SimulateCrafting = !restaurant.SimulateCrafting;
+					actor.OutputHandler.Send($"Simulated crafting fallback is now {restaurant.SimulateCrafting.ToColouredString()}.");
 				}
 				return;
 			case "handling":
-				if (int.TryParse(ss.PopSpeech(), out var handling) && handling >= 0)
+				if (!MudTimeSpan.TryParse(ss.SafeRemainingArgument, out var handlingTime))
 				{
-					restaurant.HandlingTime = TimeSpan.FromSeconds(handling);
-					actor.OutputHandler.Send("The handling-time assumption has been updated.");
+					actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument} is not a valid time span.");
+					return;
 				}
-				else
+
+				if (handlingTime < MudTimeSpan.Zero)
 				{
-					actor.OutputHandler.Send("You must specify a non-negative number of seconds.");
+					actor.OutputHandler.Send("You must specify a non-negative time span.");
+					return;
 				}
+
+				restaurant.HandlingTime = handlingTime;
+				actor.OutputHandler.Send($"The restaurant will now assumed a handling time of {handlingTime.Describe(actor).ColourValue()}.");
 				return;
 			case "batchwait":
 			case "batch":
-				if (int.TryParse(ss.PopSpeech(), out var batch) && batch >= 0)
+				if (!MudTimeSpan.TryParse(ss.SafeRemainingArgument, out var batchTime))
 				{
-					restaurant.MaximumBatchWait = TimeSpan.FromSeconds(batch);
-					actor.OutputHandler.Send("The maximum service grouping wait has been updated.");
+					actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument} is not a valid time span.");
+					return;
 				}
-				else
+
+				if (batchTime < MudTimeSpan.Zero)
 				{
-					actor.OutputHandler.Send("You must specify a non-negative number of seconds.");
+					actor.OutputHandler.Send("You must specify a non-negative time span.");
+					return;
 				}
+
+				restaurant.MaximumBatchWait = batchTime;
+				actor.OutputHandler.Send($"The restaurant will now wait a maximum of {batchTime.Describe(actor).ColourValue()} before serving multiple orders to the same table.");
 				return;
 			case "cleanup":
 			case "cleanupinterval":
-				if (int.TryParse(ss.PopSpeech(), out var cleanup) && cleanup >= 0)
+				if (!MudTimeSpan.TryParse(ss.SafeRemainingArgument, out var cleanupTime))
 				{
-					restaurant.TableCleanupInterval = TimeSpan.FromSeconds(cleanup);
-					actor.OutputHandler.Send("The server table-cleanup cadence has been updated.");
+					actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument} is not a valid time span.");
+					return;
 				}
-				else
+
+				if (cleanupTime < MudTimeSpan.Zero)
 				{
-					actor.OutputHandler.Send("You must specify a non-negative number of seconds.");
+					actor.OutputHandler.Send("You must specify a non-negative time span.");
+					return;
 				}
+
+				restaurant.TableCleanupInterval = cleanupTime;
+				actor.OutputHandler.Send($"The restaurant will now wait {cleanupTime.Describe(actor).ColourValue()} before automatically clearing an unoccupied table.");
 				return;
 			default:
 				actor.OutputHandler.Send("Use RESTAURANT SET AUTOMATION|SIMULATE|HANDLING|BATCHWAIT|CLEANUP <value>.");

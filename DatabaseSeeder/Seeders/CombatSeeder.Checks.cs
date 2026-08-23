@@ -28,6 +28,7 @@ public partial class CombatSeeder
         {
             SeedUnarmedCombatMessage(context, questionAnswers);
         }
+		EnsureMountedCombatMessages(context);
 
         // Seed Combat Strategies
         SeedCombatStrategies(context, questionAnswers);
@@ -49,6 +50,9 @@ public partial class CombatSeeder
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Construct Brawler");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Construct Skirmisher");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Construct Artillery");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Cavalry Charge");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Mounted Skirmisher");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Mounted Hit and Run");
 
         // Set up shield types
         if (!context.ShieldTypes.Any())
@@ -131,6 +135,9 @@ public partial class CombatSeeder
         EnsureSkill(gerund ? "Warding" : "Ward");
         EnsureSkill(gerund ? "Throwing" : "Throwing");
 		EnsureSkill("Gunnery");
+		EnsureSkill(gerund ? "Riding" : "Ride");
+		EnsureSkill(gerund ? "Driving" : "Drive");
+		EnsureSkill("Seafaring");
         EnsureSkill(gerund ? "Veterancy" : "Veterancy", "Veterancy Skill");
         if (questionAnswers["parryoption"].ToLowerInvariant().EqualToAny("yes", "y"))
         {
@@ -372,6 +379,48 @@ public partial class CombatSeeder
 						new TraitExpression
 						{
 							Expression = $"(balance:{(skills.GetValueOrDefault("Balancing") ?? skills.GetValueOrDefault("Balance") ?? skills.GetValueOrDefault("Athletics") ?? skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id})"
+						}, template.Id, Difficulty.Impossible);
+					continue;
+				case CheckType.MountedChargeCheck:
+				case CheckType.AerialMountedChargeCheck:
+				case CheckType.AquaticMountedChargeCheck:
+					AddCheck(check,
+						new TraitExpression
+						{
+							Expression =
+								$"(0.7 * riding:{(skills.GetValueOrDefault("Riding") ?? skills.GetValueOrDefault("Ride") ?? skills["Athletics"]).Id}) + (0.3 * veterancy:{skills["Veterancy"].Id})"
+						}, template.Id, Difficulty.Impossible);
+					continue;
+				case CheckType.VehicleChargeCheck:
+					AddCheck(check,
+						new TraitExpression
+						{
+							Expression =
+								$"(0.7 * driving:{(skills.GetValueOrDefault("Driving") ?? skills.GetValueOrDefault("Drive") ?? skills.GetValueOrDefault("Riding") ?? skills["Athletics"]).Id}) + (0.3 * veterancy:{skills["Veterancy"].Id})"
+						}, template.Id, Difficulty.Impossible);
+					continue;
+				case CheckType.AquaticVehicleChargeCheck:
+					AddCheck(check,
+						new TraitExpression
+						{
+							Expression =
+								$"(0.7 * seafaring:{(skills.GetValueOrDefault("Seafaring") ?? skills.GetValueOrDefault("Driving") ?? skills["Athletics"]).Id}) + (0.3 * veterancy:{skills["Veterancy"].Id})"
+						}, template.Id, Difficulty.Impossible);
+					continue;
+				case CheckType.OpposeMountedChargeCheck:
+					AddCheck(check,
+						new TraitExpression
+						{
+							Expression =
+								$"(0.6 * balance:{(skills.GetValueOrDefault("Balancing") ?? skills.GetValueOrDefault("Balance") ?? skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id}) + (0.4 * veterancy:{skills["Veterancy"].Id})"
+						}, template.Id, Difficulty.Impossible);
+					continue;
+				case CheckType.AvoidMountFallCheck:
+					AddCheck(check,
+						new TraitExpression
+						{
+							Expression =
+								$"(0.7 * riding:{(skills.GetValueOrDefault("Riding") ?? skills.GetValueOrDefault("Ride") ?? skills["Athletics"]).Id}) + (0.3 * balance:{(skills.GetValueOrDefault("Balancing") ?? skills.GetValueOrDefault("Balance") ?? skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id})"
 						}, template.Id, Difficulty.Impossible);
 					continue;
                 case CheckType.StruggleFreeFromDrag:

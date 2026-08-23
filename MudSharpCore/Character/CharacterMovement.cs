@@ -6,6 +6,7 @@ using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
 using MudSharp.Character.Heritage;
 using MudSharp.Climate;
+using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
@@ -614,6 +615,7 @@ public partial class Character
 
         // TODO - check sprawled is a valid position and maybe give a chance (skill based?) to land in another position
         SetPosition(PositionSprawled.Instance, PositionModifier.None, PositionTarget, null);
+		MountedCombatService.Instance.ResolveMountSprawl(this, successDegrees);
     }
 
     public void DoFallOffHorse()

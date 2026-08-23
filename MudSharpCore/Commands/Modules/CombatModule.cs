@@ -4872,7 +4872,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
             from item in meleeStrategies
             select new List<string>
             {
-                item.DescribeEnum(),
+                item.Describe(),
                 item.DescribeWordy()
             },
             new List<string>
@@ -4916,7 +4916,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
             from item in rangeStrategies
             select new List<string>
             {
-                item.DescribeEnum(),
+                item.Describe(),
                 item.DescribeWordy()
             },
             new List<string>

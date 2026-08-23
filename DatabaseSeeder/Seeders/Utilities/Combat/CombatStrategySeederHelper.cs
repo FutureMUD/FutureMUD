@@ -29,7 +29,10 @@ internal static class CombatStrategySeederHelper
         "Beast Coward",
         "Construct Brawler",
         "Construct Skirmisher",
-        "Construct Artillery"
+		"Construct Artillery",
+		"Cavalry Charge",
+		"Mounted Skirmisher",
+		"Mounted Hit and Run"
     ];
 
     public static bool IsKnownStrategyName(string strategyName)
@@ -277,6 +280,30 @@ internal static class CombatStrategySeederHelper
                 AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
                 AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.Any, GrappleResponse.Counter,
                 0.5, 5.0, DefenseType.Dodge, defaultOrder, alwaysTrue),
+			"Cavalry Charge" => CreateStrategy(
+				"Cavalry Charge",
+				"Mounted or vehicle-borne shock combat that commits to opposed charges, counter-charges and impact attacks.",
+				1.0, 0.0, 0.0, true, true, true, true, true, true, false, true, true, false, true,
+				PursuitMode.AlwaysPursue, CombatStrategyMode.MountedCharge, CombatStrategyMode.MountedCharge,
+				AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
+				AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance,
+				0.5, 8.0, DefenseType.Parry, defaultOrder, humanoidProg),
+			"Mounted Skirmisher" => CreateStrategy(
+				"Mounted Skirmisher",
+				"Mounted ranged combat that uses the conveyance's mobility to evade charges and break contact.",
+				1.0, 0.0, 0.0, true, true, true, false, true, true, true, true, true, false, false,
+				PursuitMode.NeverPursue, CombatStrategyMode.MountedSkirmish, CombatStrategyMode.MountedSkirmish,
+				AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
+				AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.Any, GrappleResponse.Avoidance,
+				0.4, 6.0, DefenseType.Dodge, defaultOrder, humanoidProg),
+			"Mounted Hit and Run" => CreateStrategy(
+				"Mounted Hit and Run",
+				"Repeated mounted passes that charge, disengage from melee and rebuild momentum for another attack.",
+				1.0, 0.0, 0.0, true, true, true, false, true, true, true, true, true, false, true,
+				PursuitMode.AlwaysPursue, CombatStrategyMode.MountedHitAndRun, CombatStrategyMode.MountedHitAndRun,
+				AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
+				AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance,
+				0.5, 8.0, DefenseType.Dodge, defaultOrder, humanoidProg),
             _ => throw new InvalidOperationException($"No combat strategy definition exists for {strategyName}.")
         };
 

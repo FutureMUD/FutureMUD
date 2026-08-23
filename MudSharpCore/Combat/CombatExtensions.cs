@@ -406,6 +406,12 @@ public static class CombatExtensions
                 return "Physical Avoider";
             case CombatStrategyMode.Subdue:
                 return "Subdue";
+			case CombatStrategyMode.MountedCharge:
+				return "Mounted Charge";
+			case CombatStrategyMode.MountedSkirmish:
+				return "Mounted Skirmish";
+			case CombatStrategyMode.MountedHitAndRun:
+				return "Mounted Hit and Run";
             default:
                 throw new ApplicationException("Unknown CombatStrategyMode in Describe.");
         }
@@ -466,6 +472,12 @@ public static class CombatExtensions
                 return "use trips, staggers and pushbacks to keep enemies out of melee range";
             case CombatStrategyMode.Subdue:
                 return "use melee control attacks to stagger, trip or disarm opponents, then grapple them for control";
+			case CombatStrategyMode.MountedCharge:
+				return "use a mount or controlled vehicle to break the enemy with committed charges";
+			case CombatStrategyMode.MountedSkirmish:
+				return "use mounted mobility to evade contact and fight from range";
+			case CombatStrategyMode.MountedHitAndRun:
+				return "charge through the enemy, disengage, and build momentum for another pass";
             default:
                 throw new ApplicationException("Unknown CombatStrategyMode in Describe.");
         }
@@ -497,6 +509,9 @@ public static class CombatExtensions
             case CombatStrategyMode.Dropper:
             case CombatStrategyMode.PhysicalAvoider:
             case CombatStrategyMode.Subdue:
+			case CombatStrategyMode.MountedCharge:
+			case CombatStrategyMode.MountedSkirmish:
+			case CombatStrategyMode.MountedHitAndRun:
                 return true;
             default:
                 return false;
@@ -522,6 +537,9 @@ public static class CombatExtensions
             case CombatStrategyMode.FullAdvance:
             case CombatStrategyMode.Swooper:
             case CombatStrategyMode.PhysicalAvoider:
+			case CombatStrategyMode.MountedCharge:
+			case CombatStrategyMode.MountedSkirmish:
+			case CombatStrategyMode.MountedHitAndRun:
                 return true;
             default:
                 return false;
@@ -553,6 +571,7 @@ public static class CombatExtensions
             case CombatStrategyMode.Drowner:
             case CombatStrategyMode.Dropper:
             case CombatStrategyMode.Subdue:
+			case CombatStrategyMode.MountedCharge:
                 return true;
             default:
                 return false;
@@ -572,6 +591,8 @@ public static class CombatExtensions
             case CombatStrategyMode.StandardRange:
             case CombatStrategyMode.Swooper:
             case CombatStrategyMode.PhysicalAvoider:
+			case CombatStrategyMode.MountedSkirmish:
+			case CombatStrategyMode.MountedHitAndRun:
                 return true;
             default:
                 return false;
@@ -1094,6 +1115,10 @@ public static class CombatExtensions
 			case BuiltInCombatMoveType.PullToMelee:
 			case BuiltInCombatMoveType.PullToMeleeUnarmed:
 			case BuiltInCombatMoveType.CouchedLanceAttack:
+			case BuiltInCombatMoveType.MountedWeaponAttack:
+			case BuiltInCombatMoveType.MountedTrampleAttack:
+			case BuiltInCombatMoveType.AerialSweepAttack:
+			case BuiltInCombatMoveType.AquaticChargeAttack:
 			case BuiltInCombatMoveType.AquaticVehicleAttack:
                 return true;
             default:
@@ -1127,8 +1152,26 @@ public static class CombatExtensions
 				return "Pull to Melee (Natural)";
 			case BuiltInCombatMoveType.CouchedLanceAttack:
 				return "Couched Lance Attack";
+			case BuiltInCombatMoveType.MountedWeaponAttack:
+				return "Mounted Weapon Attack";
+			case BuiltInCombatMoveType.MountedTrampleAttack:
+				return "Mounted Trample Attack";
+			case BuiltInCombatMoveType.AerialSweepAttack:
+				return "Aerial Sweep Attack";
+			case BuiltInCombatMoveType.AquaticChargeAttack:
+				return "Aquatic Charge Attack";
 			case BuiltInCombatMoveType.AquaticVehicleAttack:
 				return "Aquatic Vehicle Attack";
+			case BuiltInCombatMoveType.MountedCharge:
+				return "Mounted Charge";
+			case BuiltInCombatMoveType.AerialMountedCharge:
+				return "Aerial Mounted Charge";
+			case BuiltInCombatMoveType.AquaticMountedCharge:
+				return "Aquatic Mounted Charge";
+			case BuiltInCombatMoveType.VehicleCharge:
+				return "Vehicle Charge";
+			case BuiltInCombatMoveType.AquaticVehicleCharge:
+				return "Aquatic Vehicle Charge";
             case BuiltInCombatMoveType.ChargeToMelee:
                 return "Charge to Melee";
             case BuiltInCombatMoveType.MoveToMelee:

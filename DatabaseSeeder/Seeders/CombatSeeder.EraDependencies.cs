@@ -214,7 +214,8 @@ public partial class CombatSeeder
 		}
 
 		WeaponType EnsureWeapon(string name, string componentName, string donorName, WeaponClassification classification,
-			int? reach = null, double? parryBonus = null)
+			int? reach = null, double? parryBonus = null,
+			IReadOnlyCollection<BuiltInCombatMoveType>? excludedMoveTypes = null)
 		{
 			var donor = context.WeaponTypes
 				.Include(x => x.WeaponAttacks)
@@ -242,7 +243,26 @@ public partial class CombatSeeder
 			weapon.StaminaPerParry = donor.StaminaPerParry;
 			context.SaveChanges();
 
-			foreach (var donorAttack in donor.WeaponAttacks)
+			var exclusions = excludedMoveTypes ?? Array.Empty<BuiltInCombatMoveType>();
+			foreach (var excludedAttack in donor.WeaponAttacks.Where(x =>
+				exclusions.Contains((BuiltInCombatMoveType)x.MoveType)))
+			{
+				var generatedName = $"{name}: {excludedAttack.Name}";
+				var staleAttack = context.WeaponAttacks
+					.Include(x => x.CombatMessagesWeaponAttacks)
+					.FirstOrDefault(x => x.WeaponTypeId == weapon.Id && x.Name == generatedName);
+				if (staleAttack is null)
+				{
+					continue;
+				}
+
+				context.CombatMessagesWeaponAttacks.RemoveRange(staleAttack.CombatMessagesWeaponAttacks);
+				context.WeaponAttacks.Remove(staleAttack);
+				context.SaveChanges();
+			}
+
+			foreach (var donorAttack in donor.WeaponAttacks.Where(x =>
+				!exclusions.Contains((BuiltInCombatMoveType)x.MoveType)))
 			{
 				var attackName = $"{name}: {donorAttack.Name}";
 				var attack = context.WeaponAttacks
@@ -462,20 +482,29 @@ public partial class CombatSeeder
 
 		EnsureWeapon("Bayonet", "Melee_Bayonet", "Dagger", WeaponClassification.Lethal, 2);
 		var hookedPolearm = EnsureWeapon("Hooked Polearm", "Melee_HookedPolearm", "Halberd", WeaponClassification.Lethal, 4);
-		var lance = EnsureWeapon("Lance", "Melee_Lance", "Long Spear", WeaponClassification.Lethal, 5);
+		var lance = EnsureWeapon("Lance", "Melee_Lance", "Long Spear", WeaponClassification.Lethal, 5,
+			excludedMoveTypes: new[] { BuiltInCombatMoveType.CouchedLanceAttack });
 		EnsureEarlyModernSpecialAttack(hookedPolearm, "Quarterstaff", "Quarterstaff Hook and Pull", "Hook and Pull", BuiltInCombatMoveType.PullToMelee);
 		EnsureEarlyModernSpecialAttack(lance, "Long Spear", null, "Couched Charge", BuiltInCombatMoveType.CouchedLanceAttack);
 		EnsureWeapon("Poleblade", "Melee_Poleblade", "Halberd", WeaponClassification.Lethal, 4);
-		EnsureWeapon("Sabre", "Melee_Sabre", "Longsword", WeaponClassification.Lethal, 3);
+		var sabre = EnsureWeapon("Sabre", "Melee_Sabre", "Longsword", WeaponClassification.Lethal, 3,
+			excludedMoveTypes: new[] { BuiltInCombatMoveType.MountedWeaponAttack });
+		EnsureEarlyModernSpecialAttack(sabre, "Longsword", null, "Mounted Sabre Cut", BuiltInCombatMoveType.MountedWeaponAttack);
 		EnsureWeapon("Smallsword", "Melee_Smallsword", "Rapier", WeaponClassification.Lethal, 2);
 		EnsureWeapon("Training Bayonet", "Melee_Training_Bayonet", "Training Dagger",
 			WeaponClassification.Training, 2);
-		EnsureWeapon("Training Lance", "Melee_Training_Lance", "Training Spear",
-			WeaponClassification.Training, 5);
+		var trainingLance = EnsureWeapon("Training Lance", "Melee_Training_Lance", "Training Spear",
+			WeaponClassification.Training, 5,
+			excludedMoveTypes: new[] { BuiltInCombatMoveType.CouchedLanceAttack });
+		EnsureEarlyModernSpecialAttack(trainingLance, "Training Spear", null, "Couched Charge",
+			BuiltInCombatMoveType.CouchedLanceAttack);
 		EnsureWeapon("Training Poleblade", "Melee_Training_Poleblade", "Training Halberd",
 			WeaponClassification.Training, 4);
-		EnsureWeapon("Training Sabre", "Melee_Training_Sabre", "Training Longsword",
-			WeaponClassification.Training, 3);
+		var trainingSabre = EnsureWeapon("Training Sabre", "Melee_Training_Sabre", "Training Longsword",
+			WeaponClassification.Training, 3,
+			excludedMoveTypes: new[] { BuiltInCombatMoveType.MountedWeaponAttack });
+		EnsureEarlyModernSpecialAttack(trainingSabre, "Training Longsword", null, "Mounted Sabre Cut",
+			BuiltInCombatMoveType.MountedWeaponAttack);
 		EnsureWeapon("Training Smallsword", "Melee_Training_Smallsword", "Training Rapier",
 			WeaponClassification.Training, 2);
 

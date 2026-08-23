@@ -22,15 +22,17 @@ namespace MudSharp_Unit_Tests;
 public class CombatActionAvailabilityTests
 {
 	[TestMethod]
-	public void GetCouchedLance_MountedWithoutCouchableWeapon_ReturnsNull()
+	public void GetMountedWeaponAttack_MountedWithoutChargeWeapon_ReturnsNull()
 	{
 		var body = new Mock<IBody>();
 		body.SetupGet(x => x.WieldedItems).Returns([]);
 		var assailant = new Mock<ICharacter>();
-		assailant.SetupGet(x => x.RidingMount).Returns(Mock.Of<ICharacter>());
+		var mount = new Mock<ICharacter>();
+		mount.Setup(x => x.IsPrimaryRider(assailant.Object)).Returns(true);
+		assailant.SetupGet(x => x.RidingMount).Returns(mount.Object);
 		assailant.SetupGet(x => x.Body).Returns(body.Object);
 		var move = new ChargeToMeleeMove { Assailant = assailant.Object };
-		var method = typeof(ChargeToMeleeMove).GetMethod("GetCouchedLance",
+		var method = typeof(ChargeToMeleeMove).GetMethod("GetMountedWeaponAttack",
 			BindingFlags.Instance | BindingFlags.NonPublic)!;
 
 		var result = method.Invoke(move, [Mock.Of<ICharacter>()]);

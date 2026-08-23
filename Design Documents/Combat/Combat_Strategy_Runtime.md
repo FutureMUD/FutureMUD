@@ -207,6 +207,20 @@ A cover-seeking ranged-to-melee strategy. It requires moving cover, manages body
 
 A pure movement strategy for closing distance. It ignores ranged weapon use, changes position as needed, moves across cells or layers toward the target, then charges or moves into melee. It performs no active ranged attacks.
 
+### MountedCharge
+
+A shock-combat strategy for primary riders and controlled-vehicle occupants. At range it selects the normal charge move, which becomes a domain-aware opposed mounted charge when a valid conveyance context exists. Controlled vehicles can initiate this colocated charge without requiring the seated controller to pass the ordinary walking-position gate. Against an incoming mounted charge, a mounted defender attempts a counter-charge; otherwise it inherits the usual receive-charge and melee defenses.
+
+### MountedSkirmish
+
+A mounted ranged strategy derived from `Skirmish`. Against an incoming mounted charge it uses an opposed mounted evasion while it still controls a mount or vehicle. Winning preserves ranged separation and defensive advantage; losing lets the attacker establish melee and resolve its mounted impact. When no mounted context exists, it falls back to ordinary skirmish behaviour.
+
+### MountedHitAndRun
+
+A repeated-pass strategy derived from `MountedCharge`. It charges while at range, then attempts `MountedDisengageMove` once in melee. That disengage opposes the conveyance's domain charge check against the target's mounted-charge defense; success clears mutual melee range without ending combat, while failure leaves the combatant committed and gives the target offensive advantage.
+
+The full domain, check, attack, and seeder contract is documented in [Mounted Combat](./Mounted_Combat.md).
+
 ### Swooper
 
 A ranged-family strategy for flying creatures. It can take flight automatically when movement management permits, change layers toward a same-cell target, skirmish against incoming melee approaches while airborne, and prefer breath swoop attacks when flying and offset from the target by room or layer. Otherwise it falls back to the shared ranged attack pipeline.

@@ -124,6 +124,27 @@ namespace MudSharp.Combat
 		/// not a general melee option; ChargeToMeleeMove invokes it when appropriate.
 		/// </summary>
 		CouchedLanceAttack,
+		/// <summary>
+		/// A one-handed weapon attack that is only delivered as part of a mounted or controlled-vehicle charge.
+		/// </summary>
+		MountedWeaponAttack,
+		/// <summary>
+		/// A hoof, paw or chassis-like natural impact delivered while a mount carries a rider through a target.
+		/// </summary>
+		MountedTrampleAttack,
+		/// <summary>
+		/// A flying mount's natural attack delivered during an aerial charge without remaining committed to the ground.
+		/// </summary>
+		AerialSweepAttack,
+		/// <summary>
+		/// An aquatic mount's natural impact delivered during a swimming charge.
+		/// </summary>
+		AquaticChargeAttack,
+		MountedCharge,
+		AerialMountedCharge,
+		AquaticMountedCharge,
+		VehicleCharge,
+		AquaticVehicleCharge,
 	}
 
     [Flags]
@@ -190,7 +211,10 @@ namespace MudSharp.Combat
         Drowner,
         Dropper,
         PhysicalAvoider,
-        Subdue
+        Subdue,
+		MountedCharge,
+		MountedSkirmish,
+		MountedHitAndRun
     }
 
     public enum RangedWeaponType

@@ -33,6 +33,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Combat Arenas Implementation Plan](./Combat/Combat_Arenas_Implementation_Plan.md)
 - [Combat Settings Defaults Design](./Combat/Combat_Settings_Defaults_Design.md)
 - [Combat Strategy Runtime](./Combat/Combat_Strategy_Runtime.md)
+- [Mounted Combat](./Combat/Mounted_Combat.md)
 - [Multi-Target Combat Attacks](./Combat/Multi_Target_Combat_Attacks.md)
 - [Modern Firearms, Attachments, and Alternate Fire Modes](./Combat/Modern_Firearms_and_Attachments.md)
 - [Natural Ranged Attacks Design](./Combat/Natural_Ranged_Attacks_Design.md)

@@ -336,6 +336,22 @@ public class EraItemDependencyCompletionTests
 		Assert.AreEqual(1, context.WeaponAttacks.Count(x =>
 			x.WeaponTypeId == lance.Id && x.Name == "Lance: Couched Charge" &&
 			x.MoveType == (int)MudSharp.Combat.BuiltInCombatMoveType.CouchedLanceAttack));
+		Assert.IsFalse(context.WeaponAttacks.Any(x =>
+			x.WeaponTypeId == lance.Id && x.Name == "Lance: Donor Mounted Fallback"));
+		WeaponType sabre = context.WeaponTypes.Single(x => x.Name == "Sabre");
+		Assert.AreEqual(1, context.WeaponAttacks.Count(x =>
+			x.WeaponTypeId == sabre.Id && x.Name == "Sabre: Mounted Sabre Cut" &&
+			x.MoveType == (int)MudSharp.Combat.BuiltInCombatMoveType.MountedWeaponAttack));
+		Assert.IsFalse(context.WeaponAttacks.Any(x =>
+			x.WeaponTypeId == sabre.Id && x.Name == "Sabre: Donor Mounted Fallback"));
+		WeaponType trainingLance = context.WeaponTypes.Single(x => x.Name == "Training Lance");
+		Assert.AreEqual(1, context.WeaponAttacks.Count(x =>
+			x.WeaponTypeId == trainingLance.Id && x.Name == "Training Lance: Couched Charge" &&
+			x.MoveType == (int)MudSharp.Combat.BuiltInCombatMoveType.CouchedLanceAttack));
+		WeaponType trainingSabre = context.WeaponTypes.Single(x => x.Name == "Training Sabre");
+		Assert.AreEqual(1, context.WeaponAttacks.Count(x =>
+			x.WeaponTypeId == trainingSabre.Id && x.Name == "Training Sabre: Mounted Sabre Cut" &&
+			x.MoveType == (int)MudSharp.Combat.BuiltInCombatMoveType.MountedWeaponAttack));
 		WeaponType hookedPolearm = context.WeaponTypes.Single(x => x.Name == "Hooked Polearm");
 		Assert.AreEqual(1, context.WeaponAttacks.Count(x =>
 			x.WeaponTypeId == hookedPolearm.Id && x.Name == "Hooked Polearm: Hook and Pull" &&
@@ -634,6 +650,27 @@ public class EraItemDependencyCompletionTests
 				AdditionalInfo = string.Empty,
 				RequiredPositionStateIds = string.Empty
 			});
+			if (name is "Long Spear" or "Training Spear" or "Longsword" or "Training Longsword")
+			{
+				weapon.WeaponAttacks.Add(new WeaponAttack
+				{
+					Id = attackId++,
+					Name = "Donor Mounted Fallback",
+					MoveType = name.Contains("Spear", StringComparison.Ordinal)
+						? (int)MudSharp.Combat.BuiltInCombatMoveType.CouchedLanceAttack
+						: (int)MudSharp.Combat.BuiltInCombatMoveType.MountedWeaponAttack,
+					Verb = 1,
+					DamageExpressionId = 1,
+					StunExpressionId = 1,
+					PainExpressionId = 1,
+					Weighting = 1.0,
+					MaximumTargets = 1,
+					StaminaCost = 1.0,
+					BaseDelay = 1.0,
+					AdditionalInfo = string.Empty,
+					RequiredPositionStateIds = string.Empty
+				});
+			}
 			context.WeaponTypes.Add(weapon);
 		}
 

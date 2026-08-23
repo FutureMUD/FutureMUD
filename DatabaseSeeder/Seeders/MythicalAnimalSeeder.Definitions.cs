@@ -375,7 +375,8 @@ public partial class MythicalAnimalSeeder
                     Attack("Claw Swipe", ItemQuality.Good, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
                     Attack("Talon Carry", ItemQuality.Good, "rfpaw", "lfpaw"),
                     Attack("Tail Slap", ItemQuality.Standard, "ltail"),
-                    Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
+                    Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase"),
+					Attack("Aerial Sweep Through", ItemQuality.Good, "rwingbase", "lwingbase")
                 ],
                 attributeProfile: BestialStats(7, 6, 3, 1, willpower: 3, perception: 4),
                 bodypartHealthMultiplier: 1.6,
@@ -405,7 +406,8 @@ public partial class MythicalAnimalSeeder
                     Attack("Beak Peck", ItemQuality.Standard, "beak"),
                     Attack("Beak Bite", ItemQuality.Poor, "beak"),
                     Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
-                    Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
+                    Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase"),
+					Attack("Aerial Sweep Through", ItemQuality.Standard, "rwingbase", "lwingbase")
                 ],
                 attributeProfile: BestialStats(6, 5, 3, 1, willpower: 2, perception: 3),
                 bodypartHealthMultiplier: 1.5,
@@ -1172,7 +1174,8 @@ public partial class MythicalAnimalSeeder
                 [
                     Attack("Herbivore Bite", ItemQuality.Standard, "mouth"),
                     Attack("Hoof Stomp", ItemQuality.Standard, "rfhoof", "lfhoof"),
-                    Attack("Tail Slap", ItemQuality.Good, "caudalfin")
+                    Attack("Tail Slap", ItemQuality.Good, "caudalfin"),
+					Attack("Aquatic Charge", ItemQuality.Good, "head")
                 ],
                 attributeProfile: Stats(6, 5, 3, 0, willpower: 2, perception: 2, aura: 3, intelligenceDiceExpression: "2d3"),
                 bodypartHealthMultiplier: 1.6,
@@ -1783,6 +1786,8 @@ public partial class MythicalAnimalSeeder
             "Talon Strike",
             "Talon Carry",
             "Wing Buffet",
+			"Aerial Sweep Through",
+			"Aquatic Charge",
             "Tail Spike",
             "Herbivore Bite",
             "Acid Spit",
@@ -1801,6 +1806,8 @@ public partial class MythicalAnimalSeeder
             "Talon Strike",
             "Talon Carry",
             "Wing Buffet",
+			"Aerial Sweep Through",
+			"Aquatic Charge",
             "Tail Spike",
             "Acid Spit",
             "Jab"

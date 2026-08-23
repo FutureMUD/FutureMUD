@@ -139,7 +139,8 @@ public partial class AnimalSeeder
                     ShapeAttack("barge", ItemQuality.Poor),
                     ShapeAttack("bargepushback", ItemQuality.Poor),
                     ShapeAttack("bargesmash", ItemQuality.Poor),
-                    ShapeAttack("hoofstomp", ItemQuality.Poor)
+					ShapeAttack("hoofstomp", ItemQuality.Poor),
+					ShapeAttack("mountedtrample", ItemQuality.Standard)
                 ]
             ),
             ["tusked-herbivore"] = new(
@@ -158,7 +159,8 @@ public partial class AnimalSeeder
                     ShapeAttack("barge", ItemQuality.Poor),
                     ShapeAttack("bargepushback", ItemQuality.Poor),
                     ShapeAttack("bargesmash", ItemQuality.Poor),
-                    ShapeAttack("llamaspit", ItemQuality.Standard)
+					ShapeAttack("llamaspit", ItemQuality.Standard),
+					ShapeAttack("mountedtrample", ItemQuality.Poor)
                 ]
             ),
             ["antlered-herbivore"] = new(
@@ -167,7 +169,8 @@ public partial class AnimalSeeder
                     ShapeAttack("barge", ItemQuality.Poor),
                     ShapeAttack("bargepushback", ItemQuality.Poor),
                     ShapeAttack("goreantler", ItemQuality.Standard),
-                    ShapeAttack("hoofstomp", ItemQuality.Poor)
+					ShapeAttack("hoofstomp", ItemQuality.Poor),
+					ShapeAttack("mountedtrample", ItemQuality.Standard)
                 ]
             ),
             ["bovid"] = new(
@@ -177,7 +180,8 @@ public partial class AnimalSeeder
                     ShapeAttack("bargepushback", ItemQuality.VeryGood),
                     ShapeAttack("bargesmash", ItemQuality.VeryGood),
                     ShapeAttack("gorehorn", ItemQuality.Standard),
-                    ShapeAttack("hoofstomp", ItemQuality.Standard)
+					ShapeAttack("hoofstomp", ItemQuality.Standard),
+					ShapeAttack("mountedtrample", ItemQuality.Good)
                 ]
             ),
             ["hippo"] = new(

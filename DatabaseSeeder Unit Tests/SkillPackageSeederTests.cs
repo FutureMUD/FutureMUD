@@ -3,6 +3,7 @@
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Models;
+using System.Linq;
 
 namespace MudSharp_Unit_Tests;
 
@@ -48,5 +49,22 @@ public class SkillPackageSeederTests
 		string result = SkillPackageSeeder.ResolveSeededSkillNameForTesting(existing, details, useGerund: false);
 
 		Assert.AreEqual("Enduring", result);
+	}
+
+	[TestMethod]
+	public void ComplexSkillPackage_IncludesDrivingForVehicleCombatChecks()
+	{
+		var names = new SkillPackageSeeder().ComplexNonGerundSkillNamesForTesting;
+
+		CollectionAssert.Contains(names.ToList(), "Drive");
+	}
+
+	[TestMethod]
+	public void SkillPackageChecks_MountSprawlUsesRidingAndBalance()
+	{
+		string source = SeederSourceTestHelper.ReadSeederSource("SkillPackageSeeder.cs");
+
+		StringAssert.Contains(source, "case CheckType.AvoidMountFallCheck:");
+		StringAssert.Contains(source, "(0.7*ride:{ridingTrait.Id})+(0.3*balance:{balancingTrait.Id})");
 	}
 }

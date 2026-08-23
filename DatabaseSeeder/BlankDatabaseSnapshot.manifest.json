@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.1.0.0",
-  "LatestMigrationId": "20260822233623_AddRestaurantServicePresentation",
-  "GeneratedUtc": "2026-08-22T23:44:36.8538733Z"
+  "LatestMigrationId": "20260823090841_RestaurantServiceWorkflowImprovements",
+  "GeneratedUtc": "2026-08-23T23:11:35.9382050Z"
 }

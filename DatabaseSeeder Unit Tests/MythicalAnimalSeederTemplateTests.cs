@@ -811,6 +811,17 @@ public class MythicalAnimalSeederTemplateTests
         Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting["Giant Eagle"].Attacks.Any(x => x.AttackName == "Talon Carry"));
     }
 
+	[TestMethod]
+	public void TemplatesForTesting_MythicalMounts_HaveDomainSpecificChargeAttacks()
+	{
+		Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting["Griffin"].Attacks
+			.Any(x => x.AttackName == "Aerial Sweep Through"));
+		Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting["Hippogriff"].Attacks
+			.Any(x => x.AttackName == "Aerial Sweep Through"));
+		Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting["Hippocamp"].Attacks
+			.Any(x => x.AttackName == "Aquatic Charge"));
+	}
+
     [TestMethod]
     public void TemplatesForTesting_SecondPassAttributeProfiles_ReflectMythicBodyPlans()
     {

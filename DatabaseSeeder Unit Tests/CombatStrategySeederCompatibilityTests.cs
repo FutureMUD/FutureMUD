@@ -3,6 +3,7 @@
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Combat;
 using MudSharp.Database;
 using MudSharp.Models;
 using System;
@@ -63,7 +64,10 @@ public class CombatStrategySeederCompatibilityTests
                 "Beast Coward",
                 "Construct Brawler",
                 "Construct Skirmisher",
-                "Construct Artillery"
+				"Construct Artillery",
+				"Cavalry Charge",
+				"Mounted Skirmisher",
+				"Mounted Hit and Run"
             },
             CombatStrategySeederHelper.CanonicalStrategyNames.ToArray());
     }
@@ -133,6 +137,28 @@ public class CombatStrategySeederCompatibilityTests
 		}
 	}
 
+	[TestMethod]
+	public void EnsureCombatStrategy_MountedVariants_UseMountedModesAtAllRanges()
+	{
+		using var context = BuildContext();
+		context.FutureProgs.AddRange(
+			CreateFutureProg(1, "AlwaysTrue"),
+			CreateFutureProg(2, "IsHumanoid"));
+		context.SaveChanges();
+
+		foreach (var (name, mode) in new[]
+		         {
+			         ("Cavalry Charge", CombatStrategyMode.MountedCharge),
+			         ("Mounted Skirmisher", CombatStrategyMode.MountedSkirmish),
+			         ("Mounted Hit and Run", CombatStrategyMode.MountedHitAndRun)
+		         })
+		{
+			var setting = CombatStrategySeederHelper.EnsureCombatStrategy(context, name);
+			Assert.AreEqual((int)mode, setting.PreferredMeleeMode, name);
+			Assert.AreEqual((int)mode, setting.PreferredRangedMode, name);
+		}
+	}
+
     [TestMethod]
     public void SeederSources_DependentSeeders_EnsureStrategiesByNameBeforeApplyingRaceDefaults()
     {
@@ -156,6 +182,7 @@ public class CombatStrategySeederCompatibilityTests
 		StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Aquatic Brawler\");");
         StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Dropper\");");
         StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Physical Avoider\");");
+		StringAssert.Contains(source, "EnsureMountedCombatMessages(context);");
         Assert.IsFalse(source.Contains("if (!context.CharacterCombatSettings.Any())"),
             "CombatSeeder should no longer skip combat strategy seeding just because the table is non-empty.");
     }

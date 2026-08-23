@@ -398,6 +398,65 @@ public class CombatStrategyRuntimeTests
 	}
 
 	[TestMethod]
+	public void CombatStrategyModeExtensions_MountedModes_AreClassifiedAndCreated()
+	{
+		Assert.AreEqual("Mounted Charge", CombatStrategyMode.MountedCharge.Describe());
+		Assert.AreEqual("Mounted Skirmish", CombatStrategyMode.MountedSkirmish.Describe());
+		Assert.AreEqual("Mounted Hit and Run", CombatStrategyMode.MountedHitAndRun.Describe());
+		Assert.IsTrue(CombatStrategyMode.MountedCharge.IsMeleeStrategy());
+		Assert.IsTrue(CombatStrategyMode.MountedCharge.IsMeleeDesiredStrategy());
+		Assert.IsTrue(CombatStrategyMode.MountedSkirmish.IsRangedStrategy());
+		Assert.IsTrue(CombatStrategyMode.MountedSkirmish.IsRangedStartDesiringStrategy());
+		Assert.IsTrue(CombatStrategyMode.MountedHitAndRun.IsRangedStrategy());
+		Assert.IsInstanceOfType(CombatStrategyFactory.GetStrategy(CombatStrategyMode.MountedCharge),
+			typeof(MountedChargeStrategy));
+		Assert.IsInstanceOfType(CombatStrategyFactory.GetStrategy(CombatStrategyMode.MountedSkirmish),
+			typeof(MountedSkirmishStrategy));
+		Assert.IsInstanceOfType(CombatStrategyFactory.GetStrategy(CombatStrategyMode.MountedHitAndRun),
+			typeof(MountedHitAndRunStrategy));
+	}
+
+	[TestMethod]
+	public void MountedChargeStrategy_PrimaryRiderAtRange_ChargesWithAnimalMount()
+	{
+		var gameworld = CreateGameworld();
+		gameworld.Setup(x => x.GetStaticDouble("ChargeToMeleeStaminaCost")).Returns(10.0);
+
+		var location = new Mock<ICell>();
+		var target = new Mock<ICharacter>();
+		var mount = new Mock<ICharacter>();
+		var settings = new Mock<ICharacterCombatSettings>();
+		var rider = new Mock<ICharacter>();
+
+		settings.SetupGet(x => x.MovementManagement).Returns(AutomaticMovementSettings.FullyAutomatic);
+		rider.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		rider.SetupGet(x => x.RidingMount).Returns(mount.Object);
+		rider.SetupGet(x => x.CombatTarget).Returns(target.Object);
+		rider.SetupGet(x => x.MeleeRange).Returns(false);
+		rider.SetupGet(x => x.Location).Returns(location.Object);
+		rider.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		rider.SetupGet(x => x.CombatSettings).Returns(settings.Object);
+		rider.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns(true);
+		target.SetupGet(x => x.Location).Returns(location.Object);
+		target.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		mount.Setup(x => x.IsPrimaryRider(rider.Object)).Returns(true);
+		mount.SetupGet(x => x.PositionState).Returns(PositionStanding.Instance);
+		mount.Setup(x => x.MoveSpeed(null!)).Returns(0.7);
+		mount.Setup(x => x.CurrentContextualSize(SizeContext.BeingRiddenAsMount)).Returns(SizeCategory.VeryLarge);
+
+		var method = typeof(MountedChargeStrategy).GetMethod("HandleCombatMovement",
+			BindingFlags.Instance | BindingFlags.NonPublic)!;
+		var move = method.Invoke(MountedChargeStrategy.Instance, [rider.Object]);
+
+		Assert.IsInstanceOfType(move, typeof(ChargeToMeleeMove));
+
+		rider.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns(false);
+		move = method.Invoke(MountedChargeStrategy.Instance, [rider.Object]);
+
+		Assert.IsInstanceOfType(move, typeof(TooExhaustedMove));
+	}
+
+	[TestMethod]
 	public void CheckTypeExtensions_ForcedPositioningChecks_AreCombatPhysicalChecks()
 	{
 		foreach (var check in new[]
@@ -417,6 +476,29 @@ public class CombatStrategyRuntimeTests
 		Assert.IsTrue(CheckType.ForcedMovementCheck.IsOffensiveCombatAction());
 		Assert.IsTrue(CheckType.OpposePushbackCheck.IsDefensiveCombatAction());
 		Assert.IsTrue(CheckType.OpposeForcedMovementCheck.IsDefensiveCombatAction());
+	}
+
+	[TestMethod]
+	public void CheckTypeExtensions_MountedChargeChecks_AreHostilePhysicalChecks()
+	{
+		foreach (var check in new[]
+		         {
+			         CheckType.MountedChargeCheck,
+			         CheckType.AerialMountedChargeCheck,
+			         CheckType.AquaticMountedChargeCheck,
+			         CheckType.VehicleChargeCheck,
+			         CheckType.AquaticVehicleChargeCheck,
+			         CheckType.OpposeMountedChargeCheck
+		         })
+		{
+			Assert.IsTrue(check.IsPhysicalActivityCheck(), check.ToString());
+			Assert.IsTrue(check.IsTargettedHostileCheck(), check.ToString());
+			Assert.IsTrue(check.IsVisionInfluencedCheck(), check.ToString());
+		}
+
+		Assert.IsTrue(CheckType.AvoidMountFallCheck.IsPhysicalActivityCheck());
+		Assert.IsFalse(CheckType.AvoidMountFallCheck.IsTargettedHostileCheck());
+		Assert.IsFalse(CheckType.AvoidMountFallCheck.IsVisionInfluencedCheck());
 	}
 
 	[TestMethod]

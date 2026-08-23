@@ -443,6 +443,13 @@ Again, the choices you make here can be fixed later so don't stress it too great
 				case CheckType.PaddleVehicleCheck:
 				case CheckType.RowVehicleCheck:
 				case CheckType.BoatStabilityCheck:
+				case CheckType.MountedChargeCheck:
+				case CheckType.AerialMountedChargeCheck:
+				case CheckType.AquaticMountedChargeCheck:
+				case CheckType.VehicleChargeCheck:
+				case CheckType.AquaticVehicleChargeCheck:
+				case CheckType.OpposeMountedChargeCheck:
+				case CheckType.AvoidMountFallCheck:
                     // Variable skills
                     AddCheck(check,
                         new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 1,

@@ -29,6 +29,8 @@ public static class CombatMoveFactory
 					return new PullToMeleeMove(assailant, weapon, attack, singleTarget);
 				case BuiltInCombatMoveType.CouchedLanceAttack:
 					return new CouchedLanceMove(assailant, weapon, attack, singleTarget);
+				case BuiltInCombatMoveType.MountedWeaponAttack:
+					return new MountedWeaponAttackMove(assailant, weapon, attack, singleTarget);
 			}
 
 			throw new ApplicationException(
@@ -99,6 +101,10 @@ public static class CombatMoveFactory
 					}
 
 					break;
+				case BuiltInCombatMoveType.MountedTrampleAttack:
+				case BuiltInCombatMoveType.AerialSweepAttack:
+				case BuiltInCombatMoveType.AquaticChargeAttack:
+					return new MountedImpactNaturalAttackMove(assailant, attack, singleTarget);
 			}
 
 			throw new ApplicationException(

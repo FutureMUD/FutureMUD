@@ -69,7 +69,7 @@ public partial class CombatSeeder
             CombatMoveIntentions intentions =
                 CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill,
 			string? additionalInfo = null, AttackHandednessOptions handedness = AttackHandednessOptions.Any,
-			int maximumTargets = 1)
+			int maximumTargets = 1, BuiltInCombatMoveType? combatMessageType = null)
         {
             WeaponAttack attack = new()
             {
@@ -104,7 +104,7 @@ public partial class CombatSeeder
             string formattedAttackMessage = CombatSeederMessageStyleHelper.FormatAttackMessage(attackMessage, messageStyle);
             CombatMessage message = new()
             {
-                Type = (int)moveType,
+				Type = (int)(combatMessageType ?? moveType),
                 Message = formattedAttackMessage,
                 Priority = 50,
                 Verb = (int)verb,
@@ -1159,6 +1159,33 @@ public partial class CombatSeeder
         context.WeaponTypes.Add(trainingzweihander);
         context.SaveChanges();
         CreateWeaponComponent(trainingzweihander);
+
+		AddAttack("Longsword Mounted Cut", BuiltInCombatMoveType.MountedWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.High, 6.0, 1.2, longsword, badDamage,
+			"@ lean|leans from the saddle and cut|cuts $2 at $1", DamageType.Slashing, weighting: 75,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			combatMessageType: BuiltInCombatMoveType.UseWeaponAttack);
+		AddAttack("Two Handed Sword Mounted Sweep", BuiltInCombatMoveType.MountedWeaponAttack,
+			MeleeWeaponVerb.Swing, Difficulty.VeryHard, Difficulty.Easy, Difficulty.Normal, Difficulty.Normal,
+			Alignment.FrontRight, Orientation.High, 8.0, 1.5, zweihander, poorDamage,
+			"@ brace|braces in the saddle and sweep|sweeps $2 at $1", DamageType.Slashing, weighting: 50,
+			handedness: AttackHandednessOptions.TwoHandedOnly,
+			combatMessageType: BuiltInCombatMoveType.UseWeaponAttack);
+		AddAttack("Training Longsword Mounted Cut", BuiltInCombatMoveType.MountedWeaponAttack,
+			MeleeWeaponVerb.Swing, Difficulty.Hard, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy,
+			Alignment.FrontRight, Orientation.High, 6.0, 1.2, traininglongsword, trainingDamage,
+			"@ lean|leans from the saddle and cut|cuts $2 at $1", DamageType.Crushing, weighting: 75,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			combatMessageType: BuiltInCombatMoveType.UseWeaponAttack);
+		AddAttack("Training Two Handed Sword Mounted Sweep", BuiltInCombatMoveType.MountedWeaponAttack,
+			MeleeWeaponVerb.Swing, Difficulty.VeryHard, Difficulty.Easy, Difficulty.Normal, Difficulty.Normal,
+			Alignment.FrontRight, Orientation.High, 8.0, 1.5, trainingzweihander, trainingDamage,
+			"@ brace|braces in the saddle and sweep|sweeps $2 at $1", DamageType.Crushing, weighting: 50,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training,
+			handedness: AttackHandednessOptions.TwoHandedOnly,
+			combatMessageType: BuiltInCombatMoveType.UseWeaponAttack);
 
         AddAttack("Longsword 1-Handed Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
             Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
@@ -2304,6 +2331,26 @@ public partial class CombatSeeder
         context.WeaponTypes.Add(trainingspear);
         context.SaveChanges();
         CreateWeaponComponent(trainingspear);
+
+		AddAttack("Short Spear Mounted Thrust", BuiltInCombatMoveType.CouchedLanceAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryHard, Difficulty.Normal, Difficulty.Hard, Difficulty.Normal, Alignment.Front,
+			Orientation.High, 7.0, 1.4, spear, badDamage,
+			"@ lower|lowers $2 from the saddle and drive|drives it at $1", DamageType.Piercing, weighting: 60,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			combatMessageType: BuiltInCombatMoveType.UseWeaponAttack);
+		AddAttack("Long Spear Mounted Thrust", BuiltInCombatMoveType.CouchedLanceAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Hard, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.Front,
+			Orientation.High, 7.0, 1.3, longspear, poorDamage,
+			"@ couch|couches $2 beneath &0's arm and drive|drives it at $1", DamageType.Piercing, weighting: 75,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			combatMessageType: BuiltInCombatMoveType.UseWeaponAttack);
+		AddAttack("Training Short Spear Mounted Thrust", BuiltInCombatMoveType.CouchedLanceAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Hard, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.Front,
+			Orientation.High, 7.0, 1.3, trainingspear, trainingDamage,
+			"@ couch|couches $2 beneath &0's arm and drive|drives it at $1", DamageType.Crushing, weighting: 75,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			combatMessageType: BuiltInCombatMoveType.UseWeaponAttack);
 
         AddAttack("Spear 1-Handed Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab, Difficulty.Normal,
             Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight, Orientation.High, 5.0, 1.0,

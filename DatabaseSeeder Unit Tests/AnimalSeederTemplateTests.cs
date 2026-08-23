@@ -1257,6 +1257,8 @@ public class AnimalSeederTemplateTests
             "taloncarry");
         CollectionAssert.Contains(loadouts["herbivore-charge"].ShapeMatchedAttacks.Select(x => x.AttackKey).ToList(),
             "bargepushback");
+		CollectionAssert.Contains(loadouts["herbivore-charge"].ShapeMatchedAttacks.Select(x => x.AttackKey).ToList(),
+			"mountedtrample");
         CollectionAssert.Contains(loadouts["big-cat"].AliasAttacks!.Select(x => x.AttackKey).ToList(),
             "treehaul");
     }

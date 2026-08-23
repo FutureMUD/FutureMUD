@@ -434,7 +434,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
             new SkillDetails("Literacy", "Literacy", "Professional", "min(99,5*int)", "Professional", "General", true,
                 1.0),
             new SkillDetails("Handwriting", "Handwriting", "Professional", "min(99,5*int)", "Professional", "General",
-                true, 1.0)
+				true, 1.0),
+			new SkillDetails("Driving", "Drive", "Professional", "min(99,3*agi + 1*per + 1*wil)", "Professional",
+				"General", true, 1.0,
+				@"The $0 skill covers controlling carts, chariots, motorbikes and other driven vehicles. It is checked for demanding manoeuvres, including charges and evasive driving in combat.")
         };
 
     private IEnumerable<SkillDetails> ProfessionalSkills =>
@@ -623,6 +626,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 		TraitDefinition rowTrait = GetSkill("Row", "Rowing", "Survival");
 		TraitDefinition paddleTrait = GetSkill("Paddle", "Paddling", "Swim", "Swimming", "Survival");
 		TraitDefinition balancingTrait = GetSkill("Balance", "Balancing", "Athletics", "Survival");
+		TraitDefinition ridingTrait = GetSkill("Riding", "Ride", "Athletics");
+		TraitDefinition drivingTrait = GetSkill("Driving", "Drive", "Riding", "Athletics");
+		TraitDefinition seafaringTrait = GetSkill("Seafaring", "Sailing", "Survival");
+		TraitDefinition veterancyTrait = GetSkill("Veterancy", "Melee", "Athletics");
 		TraitDefinition poisonTrait = GetSkill("Poisoning", "Chemistry", "Herbalism", "Medicine");
         TraitDefinition? lawTrait = skills.GetValueOrDefault("Law");
 
@@ -1240,6 +1247,33 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 					continue;
                 case CheckType.BoatStabilityCheck:
 					AddCheck(check, new TraitExpression { Expression = $"athletics:{balancingTrait.Id}" },
+						templates["Skill Check"].Id, Difficulty.Impossible);
+					continue;
+				case CheckType.MountedChargeCheck:
+				case CheckType.AerialMountedChargeCheck:
+				case CheckType.AquaticMountedChargeCheck:
+					AddCheck(check,
+						new TraitExpression { Expression = $"(0.7*ride:{ridingTrait.Id})+(0.3*veterancy:{veterancyTrait.Id})" },
+						templates["Skill Check"].Id, Difficulty.Impossible);
+					continue;
+				case CheckType.VehicleChargeCheck:
+					AddCheck(check,
+						new TraitExpression { Expression = $"(0.7*drive:{drivingTrait.Id})+(0.3*veterancy:{veterancyTrait.Id})" },
+						templates["Skill Check"].Id, Difficulty.Impossible);
+					continue;
+				case CheckType.AquaticVehicleChargeCheck:
+					AddCheck(check,
+						new TraitExpression { Expression = $"(0.7*seafaring:{seafaringTrait.Id})+(0.3*veterancy:{veterancyTrait.Id})" },
+						templates["Skill Check"].Id, Difficulty.Impossible);
+					continue;
+				case CheckType.OpposeMountedChargeCheck:
+					AddCheck(check,
+						new TraitExpression { Expression = $"(0.6*balance:{balancingTrait.Id})+(0.4*veterancy:{veterancyTrait.Id})" },
+						templates["Skill Check"].Id, Difficulty.Impossible);
+					continue;
+				case CheckType.AvoidMountFallCheck:
+					AddCheck(check,
+						new TraitExpression { Expression = $"(0.7*ride:{ridingTrait.Id})+(0.3*balance:{balancingTrait.Id})" },
 						templates["Skill Check"].Id, Difficulty.Impossible);
 					continue;
 				default:

@@ -522,8 +522,9 @@ public partial class Cell
                 descSubSB.Append("\t");
             }
 
-            descSubSB.AppendLine(
-                $"A shop is here. You can use the command LIST to view items for sale.".Colour(Telnet.Yellow));
+            descSubSB.AppendLine((shop is IRestaurant
+                ? "A restaurant is here. You can use the command MENU to view its dishes and drinks."
+                : "A shop is here. You can use the command LIST to view items for sale.").Colour(Telnet.Yellow));
         }
 
         IBank bank = Gameworld.Banks.FirstOrDefault(x => x.BranchLocations.Contains(this));

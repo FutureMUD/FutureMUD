@@ -1,8 +1,13 @@
 #nullable enable
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using MudSharp.Economy;
 using MudSharp.Economy.Shops;
+using MudSharp.Framework;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
 using System;
+using System.Globalization;
 using System.Linq;
 
 namespace MudSharpCore_Unit_Tests.Economy;
@@ -169,6 +174,33 @@ public class RestaurantServiceRulesTests
 			hasTakeawayContainer: true, hasTakeawayBag: true, takeawayBagIsCompatible: true));
 	}
 
+	[TestMethod]
+	public void TakeawayBagPacking_GroupsTheEntireCollectionIntoTheFewestPossibleBags()
+	{
+		var items = new[]
+		{
+			TakeawayItem(1, 6.0),
+			TakeawayItem(2, 4.0),
+			TakeawayItem(3, 5.0),
+			TakeawayItem(4, 5.0)
+		};
+
+		Assert.IsTrue(RestaurantTakeawayBagPacking.TryPlan(TakeawayBag(10.0), items, out var plan, out var reason),
+			reason);
+		Assert.AreEqual(2, plan.Count, "Four takeaway items should not be assigned one bag each.");
+		Assert.IsTrue(plan.All(x => x.Sum(y => y.Weight) <= 10.0));
+		CollectionAssert.AreEquivalent(items.Select(x => x.Id).ToList(),
+			plan.SelectMany(x => x).Select(x => x.Id).ToList());
+	}
+
+	[TestMethod]
+	public void TakeawayBagPacking_RejectsAnAmbiguousMultiContainerBagWithoutThrowing()
+	{
+		Assert.IsFalse(RestaurantTakeawayBagPacking.TryPlan(TakeawayBag(10.0, 2), [TakeawayItem(1, 1.0)],
+			out _, out var reason));
+		StringAssert.Contains(reason, "exactly one standard Container component");
+	}
+
 	private static bool Validate(RestaurantFulfilmentMode mode, out string reason, bool dineInAvailable = true,
 		bool takeawayAvailable = true, bool hasCraft = true, bool craftIsValidAndProducesOutput = true,
 		bool itemCanBeOpened = true, bool hasServingContainer = true, bool servingContainerIsCompatible = true,
@@ -189,5 +221,37 @@ public class RestaurantServiceRulesTests
 			hasTakeawayBag,
 			takeawayBagIsCompatible,
 			out reason);
+	}
+
+	private static IGameItemProto TakeawayBag(double capacity, int containerCount = 1)
+	{
+		var bag = new Mock<IGameItemProto>();
+		bag.SetupGet(x => x.Components).Returns(Enumerable.Range(0, containerCount)
+			.Select(_ => (IGameItemComponentProto)new TestContainerGameItemComponentProto(capacity))
+			.ToList());
+		return bag.Object;
+	}
+
+	private static IGameItem TakeawayItem(long id, double weight)
+	{
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(id);
+		item.SetupGet(x => x.Weight).Returns(weight);
+		item.SetupGet(x => x.Size).Returns(SizeCategory.Small);
+		return item.Object;
+	}
+
+	private sealed class TestContainerGameItemComponentProto : ContainerGameItemComponentProto
+	{
+		public TestContainerGameItemComponentProto(double capacity) : base(new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 1,
+			Name = "test takeaway container",
+			Description = string.Empty,
+			Definition = $"<Definition Weight=\"{capacity.ToString(CultureInfo.InvariantCulture)}\" MaxSize=\"{(int)SizeCategory.Gigantic}\"><AllowedTags /><BlockedTags /></Definition>",
+			EditableItem = new MudSharp.Models.EditableItem()
+		}, new Mock<IFuturemud>().Object)
+		{
+		}
 	}
 }

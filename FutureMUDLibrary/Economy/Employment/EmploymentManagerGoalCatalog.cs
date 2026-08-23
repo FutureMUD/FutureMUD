@@ -107,6 +107,18 @@ public static class EmploymentManagerGoalCatalog
 				"goals step getid|gettag|commodity ... from <here|cell ids...>",
 				"goals step deliver to <here|cell id>"),
 			Aliases("materials", "supplies", "buymaterials", "retrievematerials")),
+		Definition("restaurantingredients", EmploymentManagerGoalCategory.Stock,
+			ManagerGoalType.MaintainRestaurantIngredientStock,
+			"goals draft new restaurantingredients <description>",
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageDeliveryRoutes,
+			"Maintains kitchen ingredient-container stock required to craft a configured number of every active craft-backed restaurant menu item.",
+			Examples(
+				"goals condition restaurantstock 30 [from <shop|any>] [max <amount>]"),
+			Examples(
+				"Generated automatically from active craft menu inputs and configured ingredient containers"),
+			Aliases("restaurantstock", "kitchenstock", "menustock", "mealstock")),
 		Definition("hospitalconsumables", EmploymentManagerGoalCategory.Stock,
 			ManagerGoalType.MaintainHospitalConsumableStock,
 			"goals draft new hospitalconsumables <description>",

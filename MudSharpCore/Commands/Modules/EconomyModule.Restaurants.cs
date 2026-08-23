@@ -18,17 +18,19 @@ namespace MudSharp.Commands.Modules;
 
 internal partial class EconomyModule
 {
-	private const string MenuHelp = @"The #6menu#0 command shows the menu for a cafe or restaurant in your current location. The #6list#0 command without an argument also shows a restaurant menu.
+	private const string MenuHelp = @"The #6menu#0 command shows the menu for a cafe or restaurant in your current location.
 
 	Use #3menu#0 to see each item, its price, dine-in/takeaway availability and current estimated wait.";
 
-	private const string OrderHelp = @"The #6order#0 command is used to begin table service or place cafe and restaurant orders.
+	private const string OrderHelp = @"The #6order#0 command is used to begin table service or place cafe and restaurant orders. Moving within any cell assigned to the restaurant keeps your accepted table participation; leaving the restaurant ends it.
 
-	#3order table <table>#0 begins a new table session at an unoccupied designated restaurant table, or tries to join its existing session. Party members and people whom an existing participant considers an ally join automatically; everyone else needs a current participant to #3ACCEPT#0 the transient request.
+The syntax is as follows:
 
-	#3order <item> [quantity] [for <participant>]#0 creates an unpaid dine-in order at your accepted table. The person who places the order remains liable even when ordering for someone else. 
+	#3order table <table>#0 - begins a new table session at an unoccupied designated restaurant table, or tries to join its existing session
+	#3order <item> [quantity] [for <participant>]#0 - creates an unpaid dine-in order at your accepted table
+	#3order takeaway <item> [quantity] [cash|credit <account>|with <payment item>]#0 - pays up front and queues an order for collection
 
-	#3order takeaway <item> [quantity] [cash|credit <account>|with <payment item>]#0 pays up front and queues an order for collection.";
+Party members and people whom an existing participant considers an ally join automatically; everyone else needs a current participant to #3ACCEPT#0 the transient request. The person who places a dine-in order remains liable even when ordering for someone else.";
 
 	private const string BillHelp = @"The #6bill#0 command shows and settles the bill for your accepted restaurant table.
 
@@ -39,49 +41,48 @@ The syntax is as follows:
 	#3bill pay all [cash|credit <account>|with <payment item>]#0 - pays the entire outstanding balance
 	#3bill pay <amount> [cash|credit <account>|with <payment item>]#0 - makes a partial payment
 	#3bill split equal#0 - shows a convenient equal payment suggestion
+	#3bill close#0 - closes the table to further orders once its bill is fully paid
 
 #6Note - paying a split bill does not change who is legally liable for the items ordered if someone dines and dashes.#0";
 
-	private const string RestaurantHelp = @"The #6restaurant#0 command is used to configure a restaurant shop and lets its employees operate the shared preparation and serving queue.
+	private const string RestaurantHelp = @"The #6restaurant#0 command configures a restaurant shop and lets its employees operate the shared preparation and serving queue. Restaurants are also shops, so the relevant #3shop#0 and #3merchandise#0 commands remain available.
 
-Note - restaurants are also shops and the relevant #3shop#0 and #3merchandise#0 commands are available as well.
+For employees, the syntax is as follows:
 
-For employees, the following commands are available:
+	#3restaurant service list#0 - reviews the service queue
+	#3restaurant service prepare <order> [with <crafted item>]#0 - prepares a queued order, optionally with a completed craft
+	#3restaurant service serve <order>#0 - advances a ready order through its remaining visible service steps
+	#3restaurant service clear <table>#0 - collects every eligible empty serving item from a table into one bundle for return to the kitchen
+	#3restaurant service cancel <order>#0 - cancels a specific order
+	#3restaurant service refund <order> <amount> [cash|credit <account>|with <payment item>]#0 - issues a refund for a specific order
 
-	#3restaurant service list#0 - review the service queue
-	#3restaurant service prepare <order> [with <crafted item>]#0 - prepare a queued order, optionally using a crafted item
-	#3restaurant service clear <table>#0 - clear a table of all its orders and reset it to unoccupied
-	#3restaurant service cancel <order>#0 - cancel a specific order
-	#3restaurant service refund <order> <amount> [cash|credit <account>|with <payment item>]#0 - issue a refuned for a specific order
-	
+For restaurant managers and proprietors, the syntax is as follows:
 
-The building syntax is as follows:
-
-	#3restaurant#0 - shows the configuration of the restaurant shop in your current location
+	#3restaurant#0 - shows the configuration of the restaurant in your current location
+	#3restaurant cell add|remove <service|internal|kitchen> [here|<cell>]#0 - extends the restaurant to another cell, or removes a cell
 	#3restaurant table add|remove <item>#0 - adds or removes a designated restaurant table
-	#3restaurant menu add <item>#0 - adds a shop merchandise item to the restaurant menu (see #3merchandise#0 command)
-	#3restaurant menu remove <item>#0 - removes a shop merchandise item from the restaurant menu
-	#3restaurant menu set <item> active#0 - activates or deactivates a menu item
-	#3restaurant menu set <item> dinein#0 - sets whether a menu item is available for dine-in service
-	#3restaurant menu set <item> takeaway#0 - sets whether a menu item is available for takeaway service
-	#3restaurant menu set <item> mode#0 - sets the service mode for a menu item
-	#3restaurant menu set <item> prep#0 - sets the preparation method for a menu item
-	#3restaurant menu set <item> craft#0 - sets the crafting method for a menu item
-	#3restaurant menu set <item> plate#0 - sets the plating method for a menu item
-	#3restaurant menu set <item> package#0 - sets the packaging method for a menu item
-	#3restaurant menu set <item> bag#0 - sets the bagging method for a menu item
-	#3restaurant menu set <item> desc <value>#0 - sets the description for a menu item
-	#3restaurant emote list#0 - review visible service moments
-	#3restaurant emote <moment> <emote|default>#0 - set a restaurant-specific chef or server emote.
-	#3restaurant chef <target>#0 - create restaurant-specific employment contract for a chef.
-	#3restaurant server <target>#0 - create restaurant-specific employment contract for a server. 
-	
+	#3restaurant menu add|remove <item>#0 - adds or removes a shop merchandise item from the menu
+	#3restaurant menu show <item>#0 - reviews a menu item's service configuration and validation
+	#3restaurant menu set <item> active|dinein|takeaway#0 - toggles the corresponding availability setting
+	#3restaurant menu set <item> mode <unaltered|open|craft|plate|package>#0 - sets the service mode for a menu item
+	#3restaurant menu set <item> prep <timespan>#0 - sets the expected preparation time
+	#3restaurant menu set <item> craft <craft|none>#0 - sets the crafting method for a menu item
+	#3restaurant menu set <item> plate <prototype|none>#0 - sets the reusable plating method for a menu item
+	#3restaurant menu set <item> package <prototype|none>#0 - sets the inner takeaway packaging method for a menu item
+	#3restaurant menu set <item> desc <text>#0 - sets the description for a menu item
+	#3restaurant storage add|remove <ingredients|tools|servingware|takeawaycontainers|takeawaybags> <container>#0 - assigns a physical kitchen container one or more storage roles
+	#3restaurant set handling|batchwait|cleanup <timespan>#0 - changes service timing
+	#3restaurant set takeawaybag <prototype|none>#0 - sets the restaurant-wide outer takeaway bag; each collection uses the fewest bags that fit the whole ready collection
+	#3restaurant emote list#0 - reviews visible service moments
+	#3restaurant emote <moment> <emote|default>#0 - sets a restaurant-specific chef or server emote
+	#3restaurant chef|server <target>#0 - creates a restaurant-specific employment contract
+
 Administrators have the following additional syntax options:
 
 	#3restaurant create <name> <economic zone>#0 - creates a new restaurant shop in your current location
-	#3restaurant cell add|remove <service|internal|kitchen> [here|<cell>]#0 - extends the restaurant shop to another cell, or removes a cell from the restaurant shop
+	#3restaurant set automation|simulate#0 - toggles automated service or the simulated crafting fallback
 
-#6Tip: Disable a menu item before changing its fulfilment configuration, then reactivate it only when validation succeeds.#0";
+#6Tip: Disable a menu item before changing its fulfilment configuration, then reactivate it only when validation succeeds. Kitchen storage lets NPCs draw reusable plates, containers and bags from stores, and return clean serviceware and craft tools when finished.#0";
 
 	[PlayerCommand("Menu", "menu")]
 	[RequiredCharacterState(CharacterState.Conscious)]
@@ -186,6 +187,15 @@ Administrators have the following additional syntax options:
 
 				actor.OutputHandler.Send("The only supported bill split form is BILL SPLIT EQUAL.");
 				return;
+			case "close":
+				if (!ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Use BILL CLOSE with no additional arguments.");
+					return;
+				}
+
+				actor.OutputHandler.Send(restaurant.TryCloseTableOrdering(actor, session).Message);
+				return;
 			default:
 				actor.OutputHandler.Send(BillHelp.SubstituteANSIColour());
 				return;
@@ -248,6 +258,9 @@ Administrators have the following additional syntax options:
 				return;
 			case "table":
 				RestaurantTable(actor, restaurant, ss);
+				return;
+			case "storage":
+				RestaurantStorage(actor, restaurant, ss);
 				return;
 			case "menu":
 				RestaurantMenu(actor, restaurant, ss);
@@ -454,7 +467,7 @@ Administrators have the following additional syntax options:
 
 		if (!TryParseRestaurantCellRole(ss.PopSpeech(), out var role))
 		{
-			actor.OutputHandler.Send("The restaurant cell role must be SERVICE, INTERNAL, or KITCHEN.");
+			actor.OutputHandler.Send("Which restaurant cell role do you want to use? Valid roles are SERVICE, INTERNAL and KITCHEN.\n\n\tRESTAURANT CELL ADD|REMOVE <service|internal|kitchen> [here|<cell id>]");
 			return;
 		}
 
@@ -510,6 +523,37 @@ Administrators have the following additional syntax options:
 			: restaurant.RemoveRestaurantTable(table).Message);
 	}
 
+	private static void RestaurantStorage(ICharacter actor, Restaurant restaurant, StringStack ss)
+	{
+		var action = ss.PopSpeech().CollapseString().ToLowerInvariant();
+		if (action is not ("add" or "remove" or "rem"))
+		{
+			actor.OutputHandler.Send("Use RESTAURANT STORAGE ADD|REMOVE <ingredients|tools|servingware|takeawaycontainers|takeawaybags> <container>.");
+			return;
+		}
+
+		if (!TryParseRestaurantStorageRole(ss.PopSpeech(), out var role))
+		{
+			actor.OutputHandler.Send("Which restaurant storage role do you want to use? Valid roles are INGREDIENTS, TOOLS, SERVINGWARE, TAKEAWAYCONTAINERS and TAKEAWAYBAGS.\n\n\tRESTAURANT STORAGE ADD|REMOVE <ingredients|tools|servingware|takeawaycontainers|takeawaybags> <container>");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which kitchen container do you want to configure?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.SafeRemainingArgument);
+		if (item is null)
+		{
+			actor.OutputHandler.Send("You do not see any such container.");
+			return;
+		}
+
+		actor.OutputHandler.Send(restaurant.SetStorageRole(item, role, action == "add").Message);
+	}
+
 	private static void RestaurantMenu(ICharacter actor, Restaurant restaurant, StringStack ss)
 	{
 		var action = ss.PopSpeech().CollapseString().ToLowerInvariant();
@@ -541,6 +585,12 @@ Administrators have the following additional syntax options:
 			case "remove":
 			case "rem":
 			case "delete":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which restaurant menu item do you want to remove?");
+					return;
+				}
+
 				var remove = FindRestaurantMenuItem(restaurant, ss.PopSpeech());
 				if (remove is null)
 				{
@@ -556,6 +606,12 @@ Administrators have the following additional syntax options:
 				RestaurantMenuSet(actor, restaurant, ss);
 				return;
 			case "show":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which restaurant menu item do you want to review?");
+					return;
+				}
+
 				var show = FindRestaurantMenuItem(restaurant, ss.PopSpeech());
 				if (show is null)
 				{
@@ -566,7 +622,7 @@ Administrators have the following additional syntax options:
 				actor.OutputHandler.Send(RestaurantMenuShow(actor, restaurant, show));
 				return;
 			default:
-				actor.OutputHandler.Send("Use RESTAURANT MENU ADD|REMOVE|SHOW|SET ...");
+				actor.OutputHandler.Send("The restaurant menu commands are:\n\n\tRESTAURANT MENU ADD <merchandise>\n\tRESTAURANT MENU REMOVE <item>\n\tRESTAURANT MENU SHOW <item>\n\tRESTAURANT MENU SET <item> <setting>");
 				return;
 		}
 	}
@@ -576,7 +632,7 @@ Administrators have the following additional syntax options:
 		var menu = FindRestaurantMenuItem(restaurant, ss.PopSpeech());
 		if (menu is null || ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Use RESTAURANT MENU SET <item> active|dinein|takeaway|mode|prep|craft|plate|package|bag|desc <value>.");
+			actor.OutputHandler.Send("Use RESTAURANT MENU SET <item> ACTIVE|DINEIN|TAKEAWAY, MODE <mode>, PREP <timespan>, CRAFT <craft|none>, PLATE|PACKAGE <prototype|none>, or DESC <text>.");
 			return;
 		}
 
@@ -598,11 +654,13 @@ Administrators have the following additional syntax options:
 		switch (setting)
 		{
 			case "active":
-				if (!bool.TryParse(ss.PopSpeech(), out var active))
+				if (!ss.IsFinished)
 				{
-					actor.OutputHandler.Send("You must specify true or false.");
+					actor.OutputHandler.Send("RESTAURANT MENU SET <item> ACTIVE is a toggle and takes no value.");
 					return;
 				}
+
+				var active = !menu.IsActive;
 
 				if (active && !menu.IsValid(out var reason))
 				{
@@ -615,27 +673,25 @@ Administrators have the following additional syntax options:
 				return;
 			case "dinein":
 			case "dine-in":
-				if (bool.TryParse(ss.PopSpeech(), out var dineIn))
+				if (!ss.IsFinished)
 				{
-					menu.DineInAvailable = dineIn;
-					actor.OutputHandler.Send("The dine-in setting has been updated.");
+					actor.OutputHandler.Send("RESTAURANT MENU SET <item> DINEIN is a toggle and takes no value.");
+					return;
 				}
-				else
-				{
-					actor.OutputHandler.Send("You must specify true or false.");
-				}
+
+				menu.DineInAvailable = !menu.DineInAvailable;
+				actor.OutputHandler.Send($"Dine-in availability is now {menu.DineInAvailable.ToColouredString()}.");
 				return;
 			case "takeaway":
 			case "take-out":
-				if (bool.TryParse(ss.PopSpeech(), out var takeaway))
+				if (!ss.IsFinished)
 				{
-					menu.TakeawayAvailable = takeaway;
-					actor.OutputHandler.Send("The takeaway setting has been updated.");
+					actor.OutputHandler.Send("RESTAURANT MENU SET <item> TAKEAWAY is a toggle and takes no value.");
+					return;
 				}
-				else
-				{
-					actor.OutputHandler.Send("You must specify true or false.");
-				}
+
+				menu.TakeawayAvailable = !menu.TakeawayAvailable;
+				actor.OutputHandler.Send($"Takeaway availability is now {menu.TakeawayAvailable.ToColouredString()}.");
 				return;
 			case "mode":
 				if (!TryParseFulfilmentMode(ss.PopSpeech(), out var mode))
@@ -649,14 +705,14 @@ Administrators have the following additional syntax options:
 				return;
 			case "prep":
 			case "preptime":
-				if (int.TryParse(ss.PopSpeech(), out var seconds) && seconds >= 0)
+				if (MudTimeSpan.TryParse(ss.SafeRemainingArgument, out var preparationTime) && preparationTime >= MudTimeSpan.Zero)
 				{
-					menu.PreparationTime = TimeSpan.FromSeconds(seconds);
+					menu.PreparationTime = preparationTime;
 					actor.OutputHandler.Send("The expected preparation time has been updated.");
 				}
 				else
 				{
-					actor.OutputHandler.Send("You must specify a non-negative number of seconds.");
+					actor.OutputHandler.Send("You must specify a non-negative time span.");
 				}
 				return;
 			case "craft":
@@ -679,7 +735,7 @@ Administrators have the following additional syntax options:
 			case "plate":
 				if (ss.SafeRemainingArgument.EqualTo("none"))
 				{
-					menu.Craft = null;
+					menu.ServingContainerPrototype = null;
 					actor.OutputHandler.Send($"The menu item {menu.Name.ColourName()} no longer has an associated plate prototype.");
 					return;
 				}
@@ -724,10 +780,6 @@ Administrators have the following additional syntax options:
 				menu.TakeawayContainerPrototype = takeawayContainerPrototype;
 				actor.OutputHandler.Send($"The menu item {menu.Name.ColourName()} now has the {takeawayContainerPrototype.EditHeaderColour(actor)} prototype as a takeaway container.");
 				return;
-			case "bag":
-				menu.TakeawayBagPrototype = FindItemPrototype(actor, ss.PopSpeech());
-				actor.OutputHandler.Send(menu.TakeawayBagPrototype is null ? "The takeaway bag has been cleared or was not found." : "The takeaway bag has been updated.");
-				return;
 			case "desc":
 				if (ss.IsFinished)
 				{
@@ -739,7 +791,7 @@ Administrators have the following additional syntax options:
 				actor.OutputHandler.Send($"The menu item {menu.Name.ColourName()} is now described as {menu.Description.ColourValue()}.");
 				return;
 			default:
-				actor.OutputHandler.Send("Unknown menu setting.");
+				actor.OutputHandler.Send("Use RESTAURANT MENU SET <item> ACTIVE|DINEIN|TAKEAWAY, MODE <mode>, PREP <timespan>, CRAFT <craft|none>, PLATE|PACKAGE <prototype|none>, or DESC <text>.");
 				return;
 		}
 	}
@@ -757,16 +809,14 @@ Administrators have the following additional syntax options:
 					return;
 				}
 
-				if (bool.TryParse(ss.SafeRemainingArgument, out var automated))
+				if (!ss.IsFinished)
 				{
-					restaurant.AutomatedService = automated;
-					actor.OutputHandler.Send($"Automated restaurant service is now {automated.ToColouredString()}.");
+					actor.OutputHandler.Send("RESTAURANT SET AUTOMATION is a toggle and takes no value.");
+					return;
 				}
-				else
-				{
-					restaurant.AutomatedService = !restaurant.AutomatedService;
-					actor.OutputHandler.Send($"Automated restaurant service is now {restaurant.AutomatedService.ToColouredString()}.");
-				}
+
+				restaurant.AutomatedService = !restaurant.AutomatedService;
+				actor.OutputHandler.Send($"Automated restaurant service is now {restaurant.AutomatedService.ToColouredString()}.");
 				return;
 			case "simulate":
 			case "simulatecrafting":
@@ -776,16 +826,14 @@ Administrators have the following additional syntax options:
 					return;
 				}
 
-				if (bool.TryParse(ss.SafeRemainingArgument, out var simulate))
+				if (!ss.IsFinished)
 				{
-					restaurant.SimulateCrafting = simulate;
-					actor.OutputHandler.Send($"Simulated crafting fallback is now {simulate.ToColouredString()}.");
+					actor.OutputHandler.Send("RESTAURANT SET SIMULATE is a toggle and takes no value.");
+					return;
 				}
-				else
-				{
-					restaurant.SimulateCrafting = !restaurant.SimulateCrafting;
-					actor.OutputHandler.Send($"Simulated crafting fallback is now {restaurant.SimulateCrafting.ToColouredString()}.");
-				}
+
+				restaurant.SimulateCrafting = !restaurant.SimulateCrafting;
+				actor.OutputHandler.Send($"Simulated crafting fallback is now {restaurant.SimulateCrafting.ToColouredString()}.");
 				return;
 			case "handling":
 				if (!MudTimeSpan.TryParse(ss.SafeRemainingArgument, out var handlingTime))
@@ -801,7 +849,7 @@ Administrators have the following additional syntax options:
 				}
 
 				restaurant.HandlingTime = handlingTime;
-				actor.OutputHandler.Send($"The restaurant will now assumed a handling time of {handlingTime.Describe(actor).ColourValue()}.");
+				actor.OutputHandler.Send($"The restaurant will now assume a handling time of {handlingTime.Describe(actor).ColourValue()}.");
 				return;
 			case "batchwait":
 			case "batch":
@@ -837,8 +885,39 @@ Administrators have the following additional syntax options:
 				restaurant.TableCleanupInterval = cleanupTime;
 				actor.OutputHandler.Send($"The restaurant will now wait {cleanupTime.Describe(actor).ColourValue()} before automatically clearing an unoccupied table.");
 				return;
+			case "takeawaybag":
+			case "bag":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which item prototype should be this restaurant's takeaway bag? Use NONE to disable outer takeaway bags.");
+					return;
+				}
+
+				if (ss.SafeRemainingArgument.EqualTo("none"))
+				{
+					restaurant.TakeawayBagPrototype = null;
+					actor.OutputHandler.Send("This restaurant will now hand takeaway items over without bags.");
+					return;
+				}
+
+				var bagPrototype = FindItemPrototype(actor, ss.SafeRemainingArgument);
+				if (bagPrototype is null)
+				{
+					actor.OutputHandler.Send("There is no such item prototype for a takeaway bag.");
+					return;
+				}
+
+				if (bagPrototype.Components.OfType<ContainerGameItemComponentProto>().Count() != 1)
+				{
+					actor.OutputHandler.Send("A restaurant takeaway bag must have exactly one standard Container component so the restaurant can calculate the minimum number of bags required.");
+					return;
+				}
+
+				restaurant.TakeawayBagPrototype = bagPrototype;
+				actor.OutputHandler.Send($"{bagPrototype.EditHeaderColour(actor)} is now this restaurant's takeaway bag.");
+				return;
 			default:
-				actor.OutputHandler.Send("Use RESTAURANT SET AUTOMATION|SIMULATE|HANDLING|BATCHWAIT|CLEANUP <value>.");
+				actor.OutputHandler.Send("Use RESTAURANT SET AUTOMATION|SIMULATE, HANDLING|BATCHWAIT|CLEANUP <timespan>, or TAKEAWAYBAG <prototype|none>.");
 				return;
 		}
 	}
@@ -917,6 +996,12 @@ Administrators have the following additional syntax options:
 
 		if (action == "clear")
 		{
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which designated restaurant table do you want to clear?");
+				return;
+			}
+
 			var table = actor.TargetItem(ss.SafeRemainingArgument);
 			actor.OutputHandler.Send(table is null
 				? "You do not see any such table."
@@ -1028,6 +1113,12 @@ Administrators have the following additional syntax options:
 		sb.AppendLine($"Internal Cells: {restaurant.InternalCells.Select(x => x.GetFriendlyReference(actor)).ListToString()}");
 		sb.AppendLine($"Kitchen Cells: {restaurant.KitchenCells.Select(x => x.GetFriendlyReference(actor)).ListToString()}");
 		sb.AppendLine($"Tables: {restaurant.RestaurantTables.Select(x => x.HowSeen(actor)).ListToString()}");
+		sb.AppendLine($"Takeaway Bag: {restaurant.TakeawayBagPrototype?.EditHeader().ColourName() ?? "None".ColourError()}");
+		sb.AppendLine($"Storage: {(restaurant.StorageContainers.Any()
+			? restaurant.StorageContainers.Select(x =>
+				$"{actor.Gameworld.TryGetItem(x.GameItemId, true)?.HowSeen(actor) ?? $"Missing item #{x.GameItemId:N0}"} ({x.Roles.DescribeEnum()})")
+				.ListToString()
+			: "None".ColourError())}");
 		sb.AppendLine($"Menu Items: {restaurant.MenuItems.Count().ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Queued / Preparing / Ready: {restaurant.Orders.Count(x => x.Status == RestaurantOrderStatus.Queued).ToString("N0", actor)} / {restaurant.Orders.Count(x => x.Status == RestaurantOrderStatus.Preparing).ToString("N0", actor)} / {restaurant.Orders.Count(x => x.Status == RestaurantOrderStatus.ReadyForService).ToString("N0", actor)}");
 		return sb.ToString();
@@ -1046,7 +1137,7 @@ Administrators have the following additional syntax options:
 		sb.AppendLine($"Craft: {menu.Craft?.EditHeader().ColourName() ?? "None".ColourError()}");
 		sb.AppendLine($"Serving Container: {menu.ServingContainerPrototype?.EditHeader().ColourName() ?? "None".ColourError()}");
 		sb.AppendLine($"Takeaway Container: {menu.TakeawayContainerPrototype?.EditHeader().ColourName() ?? "None".ColourError()}");
-		sb.AppendLine($"Takeaway Bag: {menu.TakeawayBagPrototype?.EditHeader().ColourName() ?? "None".ColourError()}");
+		sb.AppendLine($"Restaurant Takeaway Bag: {restaurant.TakeawayBagPrototype?.EditHeader().ColourName() ?? "None".ColourError()}");
 		sb.AppendLine(menu.IsValid(out var reason) ? "Validation: Valid".ColourValue() : $"Validation: {reason}".ColourError());
 		return sb.ToString();
 	}
@@ -1207,6 +1298,42 @@ Administrators have the following additional syntax options:
 				return true;
 			default:
 				role = default;
+				return false;
+		}
+	}
+
+	private static bool TryParseRestaurantStorageRole(string text, out RestaurantStorageRole role)
+	{
+		switch (text.CollapseString().ToLowerInvariant())
+		{
+			case "ingredient":
+			case "ingredients":
+				role = RestaurantStorageRole.Ingredients;
+				return true;
+			case "tool":
+			case "tools":
+				role = RestaurantStorageRole.Tools;
+				return true;
+			case "plate":
+			case "plates":
+			case "servingware":
+			case "serviceware":
+				role = RestaurantStorageRole.Servingware;
+				return true;
+			case "takeawaycontainer":
+			case "takeawaycontainers":
+			case "package":
+			case "packages":
+				role = RestaurantStorageRole.TakeawayContainers;
+				return true;
+			case "takeawaybag":
+			case "takeawaybags":
+			case "bag":
+			case "bags":
+				role = RestaurantStorageRole.TakeawayBags;
+				return true;
+			default:
+				role = RestaurantStorageRole.None;
 				return false;
 		}
 	}

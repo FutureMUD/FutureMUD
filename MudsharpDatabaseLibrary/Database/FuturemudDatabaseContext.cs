@@ -452,6 +452,7 @@ namespace MudSharp.Database
         public virtual DbSet<RestaurantOrder> RestaurantOrders { get; set; }
         public virtual DbSet<RestaurantPayment> RestaurantPayments { get; set; }
         public virtual DbSet<RestaurantOrderItem> RestaurantOrderItems { get; set; }
+        public virtual DbSet<RestaurantStorageContainer> RestaurantStorageContainers { get; set; }
         public virtual DbSet<Stable> Stables { get; set; }
         public virtual DbSet<StableStay> StableStays { get; set; }
         public virtual DbSet<StableStayLedgerEntry> StableStayLedgerEntries { get; set; }

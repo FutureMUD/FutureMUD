@@ -800,6 +800,12 @@ Administrators have the following additional syntax options:
 					return;
 				}
 
+				if (handlingTime > MudTimeSpan.FromDays(1))
+				{
+					actor.OutputHandler.Send("You cannot specify a handling time longer than one day.");
+					return;
+				}
+
 				restaurant.HandlingTime = handlingTime;
 				actor.OutputHandler.Send($"The restaurant will now assumed a handling time of {handlingTime.Describe(actor).ColourValue()}.");
 				return;
@@ -817,6 +823,12 @@ Administrators have the following additional syntax options:
 					return;
 				}
 
+				if (batchTime > MudTimeSpan.FromDays(1))
+				{
+					actor.OutputHandler.Send("You cannot specify a batch wait time longer than one day.");
+					return;
+				}
+
 				restaurant.MaximumBatchWait = batchTime;
 				actor.OutputHandler.Send($"The restaurant will now wait a maximum of {batchTime.Describe(actor).ColourValue()} before serving multiple orders to the same table.");
 				return;
@@ -831,6 +843,12 @@ Administrators have the following additional syntax options:
 				if (cleanupTime < MudTimeSpan.Zero)
 				{
 					actor.OutputHandler.Send("You must specify a non-negative time span.");
+					return;
+				}
+
+				if (cleanupTime > MudTimeSpan.FromDays(1))
+				{
+					actor.OutputHandler.Send("You cannot specify a cleanup interval longer than one day.");
 					return;
 				}
 

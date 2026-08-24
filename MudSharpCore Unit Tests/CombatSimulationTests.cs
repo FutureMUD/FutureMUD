@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Combat.Simulation;
@@ -222,6 +223,18 @@ public class CombatSimulationTests
 	public void CombatSimulationRunStatus_DescribeEnum_ProducesReadableStatus()
 	{
 		Assert.AreEqual("Event Limit", CombatSimulationRunStatus.EventLimit.DescribeEnum(true));
+	}
+
+	[TestMethod]
+	public void InitialiseCombatSimulationBody_InvokesBodyLogin()
+	{
+		var body = new Mock<IBody>();
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Body).Returns(body.Object);
+
+		CombatSimulationService.InitialiseCombatSimulationBody(character.Object);
+
+		body.Verify(x => x.Login(), Times.Once);
 	}
 
 	[TestMethod]

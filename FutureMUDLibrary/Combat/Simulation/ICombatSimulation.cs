@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MudSharp.Body.Position;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Construction;
@@ -46,7 +47,10 @@ public sealed record CombatSimulationParticipantRequest(
 	CombatSimulationSourceType SourceType,
 	ICharacter? Character,
 	INPCTemplate? NpcTemplate,
-	int Ordinal = 1)
+	int Ordinal = 1,
+	ICell? StartingCell = null,
+	RoomLayer StartingLayer = RoomLayer.GroundLevel,
+	IPositionState? StartingPosition = null)
 {
 	public string SourceDescription => SourceType switch
 	{
@@ -66,7 +70,8 @@ public sealed record CombatSimulationRequest(
 	int MaximumEvents,
 	int MaximumTranscriptEntries,
 	TimeSpan MaximumWallClockTime,
-	bool Force);
+	bool Force,
+	IReadOnlyList<ICell>? Cells = null);
 
 public sealed record CombatSimulationBatchRequest(
 	Guid BatchId,
@@ -80,7 +85,8 @@ public sealed record CombatSimulationBatchRequest(
 	int MaximumEvents,
 	TimeSpan MaximumWallClockTime,
 	TimeSpan MaximumBatchWallClockTime,
-	bool Force);
+	bool Force,
+	IReadOnlyList<ICell>? Cells = null);
 
 public sealed record CombatSimulationValidationMessage(bool IsError, string Message);
 

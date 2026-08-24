@@ -49,6 +49,84 @@ public class TransientExit : PerceivedItem, ITransientExit, IMagicPortalExit
 			outboundDescription, inboundTarget, inboundDescription, outboundTarget);
 	}
 
+	/// <summary>
+	/// Creates an isolated copy of one existing exit between two transient cells. The copied exit deliberately
+	/// has no door reference, so a combat simulation can never open, close or otherwise mutate a live door.
+	/// </summary>
+	internal TransientExit(
+		IFuturemud gameworld,
+		ICell origin,
+		ICell destination,
+		IExit sourceExit,
+		ICell sourceOrigin,
+		string stableKey)
+	{
+		var sourceOriginExit = sourceExit.CellExitFor(sourceOrigin) ??
+		                       throw new ArgumentException("The source exit does not leave the supplied source cell.",
+			                       nameof(sourceOrigin));
+		var sourceDestinationExit = sourceOriginExit.Opposite ??
+		                            throw new ArgumentException("The source exit has no opposite side.", nameof(sourceExit));
+		Gameworld = gameworld;
+		_id = Interlocked.Decrement(ref _nextId);
+		IdInitialised = true;
+		_name = $"transient portal {Math.Abs(_id):N0}";
+		_cells.Add(origin);
+		_cells.Add(destination);
+		TimeMultiplier = sourceExit.TimeMultiplier;
+		MaximumSizeToEnter = sourceExit.MaximumSizeToEnter;
+		MaximumSizeToEnterUpright = sourceExit.MaximumSizeToEnterUpright;
+		AcceptsDoor = sourceExit.AcceptsDoor;
+		DoorSize = sourceExit.DoorSize;
+		IsClimbExit = sourceExit.IsClimbExit;
+		ClimbDifficulty = sourceExit.ClimbDifficulty;
+		foreach (var blockedLayer in sourceExit.BlockedLayers)
+		{
+			_blockedLayers.Add(blockedLayer);
+		}
+
+		FallCell = ReferenceEquals(sourceExit.FallCell, sourceOrigin)
+			? origin
+			: ReferenceEquals(sourceExit.FallCell, sourceOriginExit.Destination)
+				? destination
+				: null;
+		Caster = null;
+		Spell = null;
+		SourceEffect = null;
+		StableKey = stableKey;
+		Source = origin;
+		Destination = destination;
+		Verb = sourceOriginExit is INonCardinalCellExit nonCardinalOrigin
+			? nonCardinalOrigin.Verb
+			: sourceOriginExit.OutboundDirection.Describe().ToLowerInvariant();
+		OutboundKeyword = sourceOriginExit is INonCardinalCellExit nonCardinalOutbound
+			? nonCardinalOutbound.PrimaryKeyword
+			: sourceOriginExit.OutboundDirection.Describe().ToLowerInvariant();
+		InboundKeyword = sourceDestinationExit is INonCardinalCellExit nonCardinalInbound
+			? nonCardinalInbound.PrimaryKeyword
+			: sourceDestinationExit.OutboundDirection.Describe().ToLowerInvariant();
+
+		if (sourceOriginExit is INonCardinalCellExit sourceNonCardinalOrigin &&
+		    sourceDestinationExit is INonCardinalCellExit sourceNonCardinalDestination)
+		{
+			_cellExits[0] = new NonCardinalCellExit(this, origin, destination,
+				sourceNonCardinalOrigin.Verb, sourceNonCardinalOrigin.PrimaryKeyword,
+				sourceNonCardinalOrigin.Keywords, sourceNonCardinalOrigin.OutboundDescription,
+				sourceNonCardinalOrigin.OutboundTarget, sourceNonCardinalOrigin.InboundDescription,
+				sourceNonCardinalOrigin.InboundTarget);
+			_cellExits[1] = new NonCardinalCellExit(this, destination, origin,
+				sourceNonCardinalDestination.Verb, sourceNonCardinalDestination.PrimaryKeyword,
+				sourceNonCardinalDestination.Keywords, sourceNonCardinalDestination.OutboundDescription,
+				sourceNonCardinalDestination.OutboundTarget, sourceNonCardinalDestination.InboundDescription,
+				sourceNonCardinalDestination.InboundTarget);
+			return;
+		}
+
+		_cellExits[0] = new CellExit(this, origin, destination, sourceOriginExit.OutboundDirection,
+			sourceOriginExit.InboundDirection);
+		_cellExits[1] = new CellExit(this, destination, origin, sourceDestinationExit.OutboundDirection,
+			sourceDestinationExit.InboundDirection);
+	}
+
 	private static IEnumerable<string> KeywordsFor(string target, string keyword)
 	{
 		return target

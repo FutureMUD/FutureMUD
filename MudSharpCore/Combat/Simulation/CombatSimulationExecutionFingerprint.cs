@@ -12,7 +12,7 @@ namespace MudSharp.Combat.Simulation;
 /// </summary>
 internal sealed class CombatSimulationExecutionFingerprint
 {
-	public const string Version = "v1";
+	public const string Version = "v2";
 	private const int TraceCheckpointInterval = 50;
 	private const int MaximumTraceCheckpoints = 200;
 	private const int MaximumRecentRandomOperations = 128;
@@ -64,13 +64,22 @@ internal sealed class CombatSimulationExecutionFingerprint
 			? participant.Character?.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty
 			: participant.NpcTemplate?.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
 		var ordinal = participant.Ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture);
+		var startingCell = participant.StartingCell?.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ??
+			string.Empty;
+		var startingLayer = ((int)participant.StartingLayer).ToString(System.Globalization.CultureInfo.InvariantCulture);
+		var startingPosition = participant.StartingPosition?.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ??
+			string.Empty;
 		Record("materialise");
 		Record(slot);
 		Record(participant.Team);
 		Record(sourceType);
 		Record(source);
 		Record(ordinal);
-		RecordTrace(_materialisationHash, "materialise", slot, participant.Team, sourceType, source, ordinal);
+		Record(startingCell);
+		Record(startingLayer);
+		Record(startingPosition);
+		RecordTrace(_materialisationHash, "materialise", slot, participant.Team, sourceType, source, ordinal,
+			startingCell, startingLayer, startingPosition);
 		_materialisationOperations++;
 	}
 
@@ -90,6 +99,14 @@ internal sealed class CombatSimulationExecutionFingerprint
 				$"slot:{slotText} {category}:{ShortDigest(value)}"));
 		}
 
+		_materialisationOperations++;
+	}
+
+	public void RecordTopology(string description)
+	{
+		Record("topology");
+		Record(description);
+		RecordTrace(_materialisationHash, "topology", description);
 		_materialisationOperations++;
 	}
 

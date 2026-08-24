@@ -1,8 +1,11 @@
 using System.Diagnostics;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Storage;
+using MudSharp.Body.Position;
+using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
@@ -43,12 +46,53 @@ public sealed class CombatSimulationService : ICombatSimulationService
 	private static int _simulationRunning;
 	private static long _nextTemporaryCellId = -1_000_000;
 
+	private static IReadOnlyList<ICell> StagedCells(CombatSimulationRequest request)
+	{
+		var cells = new List<ICell>();
+		if (request.Scene is not null)
+		{
+			cells.Add(request.Scene);
+		}
+
+		if (request.Cells is not null)
+		{
+			cells.AddRange(request.Cells.OfType<ICell>());
+		}
+
+		cells.AddRange(request.Participants
+			.Select(x => x.StartingCell)
+			.OfType<ICell>());
+		return cells.Distinct(ReferenceEqualityComparer.Instance).Cast<ICell>().ToList();
+	}
+
+	private static bool IsStagedCell(IReadOnlyList<ICell> cells, ICell cell)
+	{
+		return cells.Any(x => ReferenceEquals(x, cell));
+	}
+
 	public IReadOnlyList<CombatSimulationValidationMessage> Validate(CombatSimulationRequest request)
 	{
 		var messages = new List<CombatSimulationValidationMessage>();
 		if (request.Scene is null)
 		{
 			messages.Add(new CombatSimulationValidationMessage(true, "A combat scene is required."));
+		}
+		else if (request.Cells is not null && !IsStagedCell(request.Cells, request.Scene))
+		{
+			messages.Add(new CombatSimulationValidationMessage(true,
+				"The default combat cell must be included in the staged cells."));
+		}
+
+		if (request.Cells is not null && request.Cells.Count == 0)
+		{
+			messages.Add(new CombatSimulationValidationMessage(true,
+				"At least one staged combat cell is required."));
+		}
+
+		if (request.Cells is not null && request.Cells.Count != request.Cells.Distinct(ReferenceEqualityComparer.Instance).Count())
+		{
+			messages.Add(new CombatSimulationValidationMessage(true,
+				"Each staged combat cell may only be included once."));
 		}
 
 		if (request.Participants.Count < 2)
@@ -95,6 +139,28 @@ public sealed class CombatSimulationService : ICombatSimulationService
 
 		foreach (var participant in request.Participants)
 		{
+			var startingCell = participant.StartingCell ?? request.Scene;
+			if (startingCell is null)
+			{
+				messages.Add(new CombatSimulationValidationMessage(true,
+					$"Combatant slot {participant.Slot:N0} has no starting cell."));
+			}
+			else
+			{
+				if (request.Cells is not null && !IsStagedCell(request.Cells, startingCell))
+				{
+					messages.Add(new CombatSimulationValidationMessage(true,
+						$"Combatant slot {participant.Slot:N0} starts in a cell that is not staged for this simulation."));
+				}
+
+				var terrain = startingCell.Terrain(null);
+				if (terrain is not null && !terrain.TerrainLayers.Contains(participant.StartingLayer))
+				{
+					messages.Add(new CombatSimulationValidationMessage(true,
+						$"Combatant slot {participant.Slot:N0} starts on {participant.StartingLayer.DescribeEnum(true)}, which is not available in its selected cell."));
+				}
+			}
+
 			if (string.IsNullOrWhiteSpace(participant.Team))
 			{
 				messages.Add(new CombatSimulationValidationMessage(true,
@@ -189,7 +255,8 @@ public sealed class CombatSimulationService : ICombatSimulationService
 			request.MaximumEvents,
 			0,
 			request.MaximumWallClockTime,
-			request.Force)).ToList();
+			request.Force,
+			request.Cells)).ToList();
 
 		if (request.RunCount is < 1 or > 100)
 		{
@@ -256,7 +323,8 @@ public sealed class CombatSimulationService : ICombatSimulationService
 				request.MaximumEvents,
 				0,
 				perRunWallClock,
-				request.Force), batchEpoch, request.RunCount > 1 && request.SeedIncrement == 0));
+				request.Force,
+				request.Cells), batchEpoch, request.RunCount > 1 && request.SeedIncrement == 0));
 		}
 
 		return BuildBatchResult(request, results, validation, batchWallClock.Elapsed, errorMessage);
@@ -289,14 +357,15 @@ public sealed class CombatSimulationService : ICombatSimulationService
 
 		var wallClock = Stopwatch.StartNew();
 		var snapshots = new List<SourceSnapshot>();
-		XElement? sceneEffects = null;
+		var sourceCellEffects = new Dictionary<ICell, XElement?>(ReferenceEqualityComparer.Instance);
 		var originalActors = new HashSet<ICharacter>(ReferenceEqualityComparer.Instance);
 		var originalCachedActors = new HashSet<ICharacter>(ReferenceEqualityComparer.Instance);
 		var originalBodies = new HashSet<MudSharp.Body.IBody>(ReferenceEqualityComparer.Instance);
 		var originalItems = new HashSet<MudSharp.GameItems.IGameItem>(ReferenceEqualityComparer.Instance);
 		var cleanupSimulationArtifacts = false;
 		var runtimeParticipants = new List<RuntimeParticipant>();
-		Cell? simulationCell = null;
+		var simulationCells = new Dictionary<ICell, Cell>(ReferenceEqualityComparer.Instance);
+		var simulationExits = new List<IExit>();
 		CombatSimulationTranscript? transcript = null;
 		IDbContextTransaction? transaction = null;
 		IDisposable? databaseScope = null;
@@ -320,7 +389,10 @@ public sealed class CombatSimulationService : ICombatSimulationService
 				executionFingerprint);
 
 			snapshots = CaptureSourceSnapshots(request);
-			sceneEffects = request.Scene is Cell sourceCell ? sourceCell.SaveEffects() : null;
+			foreach (var sourceCell in StagedCells(request).OfType<Cell>())
+			{
+				sourceCellEffects[sourceCell] = sourceCell.SaveEffects();
+			}
 			originalActors.UnionWith(request.RequestedBy.Gameworld.Actors);
 			originalCachedActors.UnionWith(request.RequestedBy.Gameworld.CachedActors);
 			originalBodies.UnionWith(request.RequestedBy.Gameworld.Bodies);
@@ -333,18 +405,25 @@ public sealed class CombatSimulationService : ICombatSimulationService
 
 			transcript = new CombatSimulationTranscript(timeProvider, startedAt, request.MaximumTranscriptEntries,
 				executionFingerprint);
-			simulationCell = new Cell(request.Scene, Interlocked.Decrement(ref _nextTemporaryCellId));
-			request.RequestedBy.Gameworld.Add(simulationCell);
-			if (sceneEffects is not null)
+			foreach (var sourceCell in StagedCells(request))
 			{
-				TryRestoreEffects(() => simulationCell.RestoreCombatSimulationEffects(sceneEffects), validation,
-					"Some scene effects could not be cloned and were omitted.");
+				var simulationCell = new Cell(sourceCell, Interlocked.Decrement(ref _nextTemporaryCellId));
+				request.RequestedBy.Gameworld.Add(simulationCell);
+				simulationCells[sourceCell] = simulationCell;
+				if (sourceCellEffects.TryGetValue(sourceCell, out var sourceEffects) && sourceEffects is not null)
+				{
+					TryRestoreEffects(() => simulationCell.RestoreCombatSimulationEffects(sourceEffects), validation,
+						$"Some effects in {sourceCell.Name} could not be cloned and were omitted.");
+				}
 			}
+
+			CreateSimulationTopology(request, simulationCells, simulationExits, validation, executionFingerprint);
 
 			foreach (var snapshot in snapshots)
 			{
 				executionFingerprint.RecordMaterialisation(snapshot.Request);
-				var participant = MaterialiseParticipant(snapshot, simulationCell, transcript, validation,
+				var sourceCell = snapshot.Request.StartingCell ?? request.Scene;
+				var participant = MaterialiseParticipant(snapshot, simulationCells[sourceCell], transcript, validation,
 					executionFingerprint);
 				runtimeParticipants.Add(participant);
 			}
@@ -474,7 +553,7 @@ public sealed class CombatSimulationService : ICombatSimulationService
 			{
 				TryCleanup(
 					() => Cleanup(request.RequestedBy.Gameworld, originalActors, originalCachedActors, originalBodies,
-						originalItems, simulationCell), cleanupErrors);
+						originalItems, simulationExits, simulationCells.Values), cleanupErrors);
 			}
 
 			TryCleanup(() => transaction?.Rollback(), cleanupErrors);
@@ -552,6 +631,51 @@ public sealed class CombatSimulationService : ICombatSimulationService
 		}).ToList();
 	}
 
+	private static void CreateSimulationTopology(
+		CombatSimulationRequest request,
+		IReadOnlyDictionary<ICell, Cell> simulationCells,
+		ICollection<IExit> simulationExits,
+		ICollection<CombatSimulationValidationMessage> validation,
+		CombatSimulationExecutionFingerprint executionFingerprint)
+	{
+		var seenSourceExits = new HashSet<IExit>(ReferenceEqualityComparer.Instance);
+		foreach (var sourceCell in StagedCells(request))
+		{
+			foreach (var sourceCellExit in request.RequestedBy.Gameworld.ExitManager.GetExitsFor(sourceCell))
+			{
+				var sourceExit = sourceCellExit.Exit;
+				if (!seenSourceExits.Add(sourceExit) || !simulationCells.TryGetValue(sourceCellExit.Destination, out var destination))
+				{
+					continue;
+				}
+
+				if (sourceExit.Door is not null)
+				{
+					validation.Add(new CombatSimulationValidationMessage(false,
+						$"The staged exit from {sourceCell.Name} to {sourceCellExit.Destination.Name} has a door and was omitted so the simulation cannot mutate live door state."));
+					continue;
+				}
+
+				var transientExit = new TransientExit(
+					request.RequestedBy.Gameworld,
+					simulationCells[sourceCell],
+					destination,
+					sourceExit,
+					sourceCell,
+					$"combat-simulation:{request.RunId:D}:{sourceExit.Id:N0}");
+				request.RequestedBy.Gameworld.ExitManager.RegisterTransientExit(transientExit);
+				simulationExits.Add(transientExit);
+				executionFingerprint.RecordTopology(
+					$"exit:{sourceCell.Id}:{sourceCellExit.Destination.Id}:{sourceExit.Id}:{sourceCellExit.OutboundDirection}");
+			}
+		}
+
+		foreach (var sourceCell in StagedCells(request).OrderBy(x => x.Id))
+		{
+			executionFingerprint.RecordTopology($"cell:{sourceCell.Id}");
+		}
+	}
+
 	private static RuntimeParticipant MaterialiseParticipant(
 		SourceSnapshot snapshot,
 		Cell simulationCell,
@@ -572,7 +696,7 @@ public sealed class CombatSimulationService : ICombatSimulationService
 			var clone = new CombatSimulationCharacter(source.Gameworld, template);
 			character = clone;
 			source.Gameworld.Add(clone, true);
-			simulationCell.Enter(clone, noSave: true, roomLayer: source.RoomLayer);
+			simulationCell.Enter(clone, noSave: true, roomLayer: snapshot.Request.StartingLayer);
 			clone.CopyCombatSimulationStateFrom(source);
 			((BodyImplementation)clone.Body).CopyCombatSimulationBiologyFrom(source.Body);
 			CharacterInstanceService.CloneInventory(source, clone, out var inventoryResult);
@@ -602,7 +726,7 @@ public sealed class CombatSimulationService : ICombatSimulationService
 			materialisedNpc = npc;
 			character = npc;
 			npcTemplate.Gameworld.Add(npc, true);
-			simulationCell.Enter(npc, noSave: true, roomLayer: npc.RoomLayer);
+			simulationCell.Enter(npc, noSave: true, roomLayer: snapshot.Request.StartingLayer);
 			foreach (var warning in npcTemplate.ApplyTemplateLoadAdditions(npc, false))
 			{
 				validation.Add(new CombatSimulationValidationMessage(false,
@@ -611,6 +735,10 @@ public sealed class CombatSimulationService : ICombatSimulationService
 
 			npcTemplate.OnLoadProg?.Execute(npc);
 		}
+
+		character.PositionState = snapshot.Request.StartingPosition ?? PositionStanding.Instance;
+		character.PositionModifier = PositionModifier.None;
+		character.PositionTarget = null;
 
 		var name = character.PersonalName.GetName(Character.Name.NameStyle.SimpleFull);
 		character.Register(new CombatSimulationOutputHandler(transcript,
@@ -640,7 +768,10 @@ public sealed class CombatSimulationService : ICombatSimulationService
 			$"gender:{(int)character.Gender.Enum}",
 			$"height:{character.Height.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}",
 			$"weight:{character.Weight.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}",
-			$"stamina:{character.CurrentStamina.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}"
+			$"stamina:{character.CurrentStamina.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}",
+			$"location:{(character.Location as Cell)?.DatabaseLocationId ?? character.Location.Id}",
+			$"layer:{(int)character.RoomLayer}",
+			$"position:{character.PositionState.Id}"
 		]);
 		fingerprint.RecordMaterialisationRuntimeState(slot, "attributes", template.SelectedAttributes
 			.OrderBy(x => x.Definition.Id)
@@ -932,8 +1063,14 @@ public sealed class CombatSimulationService : ICombatSimulationService
 		ISet<ICharacter> originalCachedActors,
 		ISet<MudSharp.Body.IBody> originalBodies,
 		ISet<MudSharp.GameItems.IGameItem> originalItems,
-		Cell? simulationCell)
+		IEnumerable<IExit> simulationExits,
+		IEnumerable<Cell> simulationCells)
 	{
+		foreach (var simulationExit in simulationExits)
+		{
+			gameworld.ExitManager.UnregisterTransientExit(simulationExit);
+		}
+
 		foreach (var actor in gameworld.Actors.Where(x => !originalActors.Contains(x)).ToList())
 		{
 			DetachActor(actor);
@@ -961,7 +1098,7 @@ public sealed class CombatSimulationService : ICombatSimulationService
 			gameworld.Destroy(body);
 		}
 
-		if (simulationCell is not null)
+		foreach (var simulationCell in simulationCells)
 		{
 			gameworld.Destroy(simulationCell);
 		}

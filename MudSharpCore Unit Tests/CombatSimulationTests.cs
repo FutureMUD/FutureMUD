@@ -9,6 +9,7 @@ using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Combat.Simulation;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.NPC.Templates;
@@ -55,6 +56,81 @@ public class CombatSimulationTests
 		var messages = new CombatSimulationService().Validate(request);
 
 		Assert.IsTrue(messages.Any(x => x.IsError && x.Message.Contains("opposing teams")));
+	}
+
+	[TestMethod]
+	public void CombatSimulationCommand_SkyLayerAlias_MapsToInAir()
+	{
+		Assert.IsTrue(CombatSimulationCommand.TryParseRoomLayer("sky", out var layer));
+		Assert.AreEqual(RoomLayer.InAir, layer);
+	}
+
+	[TestMethod]
+	public void Validate_StagedCellsAllowCombatantsToStartInDifferentCells()
+	{
+		var request = CreateRequest("red", "blue");
+		var firstCell = new Mock<ICell>();
+		var secondCell = new Mock<ICell>();
+		var stagedRequest = request with
+		{
+			Scene = firstCell.Object,
+			Cells = [firstCell.Object, secondCell.Object],
+			Participants =
+			[
+				request.Participants[0] with { StartingCell = firstCell.Object },
+				request.Participants[1] with { StartingCell = secondCell.Object, StartingLayer = RoomLayer.InAir }
+			]
+		};
+
+		var messages = new CombatSimulationService().Validate(stagedRequest);
+
+		Assert.IsFalse(messages.Any(x => x.IsError));
+	}
+
+	[TestMethod]
+	public void Validate_CombatantOutsideStagedCells_ReturnsStructuralError()
+	{
+		var request = CreateRequest("red", "blue");
+		var scene = new Mock<ICell>();
+		var unlistedCell = new Mock<ICell>();
+		var stagedRequest = request with
+		{
+			Scene = scene.Object,
+			Cells = [scene.Object],
+			Participants =
+			[
+				request.Participants[0],
+				request.Participants[1] with { StartingCell = unlistedCell.Object }
+			]
+		};
+
+		var messages = new CombatSimulationService().Validate(stagedRequest);
+
+		Assert.IsTrue(messages.Any(x => x.IsError && x.Message.Contains("not staged")));
+	}
+
+	[TestMethod]
+	public void Validate_CombatantStartingLayerUnavailableInCell_ReturnsStructuralError()
+	{
+		var request = CreateRequest("red", "blue");
+		var terrain = new Mock<ITerrain>();
+		terrain.SetupGet(x => x.TerrainLayers).Returns([RoomLayer.GroundLevel]);
+		var scene = new Mock<ICell>();
+		scene.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
+		var stagedRequest = request with
+		{
+			Scene = scene.Object,
+			Cells = [scene.Object],
+			Participants =
+			[
+				request.Participants[0],
+				request.Participants[1] with { StartingLayer = RoomLayer.InAir }
+			]
+		};
+
+		var messages = new CombatSimulationService().Validate(stagedRequest);
+
+		Assert.IsTrue(messages.Any(x => x.IsError && x.Message.Contains("not available")));
 	}
 
 	[TestMethod]
@@ -188,6 +264,25 @@ public class CombatSimulationTests
 	}
 
 	[TestMethod]
+	public void CombatSimulationExecutionFingerprint_DifferentStartingLayer_ProducesDifferentDigest()
+	{
+		var template = new Mock<INPCTemplate>();
+		template.SetupGet(x => x.Id).Returns(1L);
+		var groundParticipant = new CombatSimulationParticipantRequest(1, "red",
+			CombatSimulationSourceType.NpcTemplate, null, template.Object);
+		var airParticipant = groundParticipant with { StartingLayer = RoomLayer.InAir };
+		var ground = new CombatSimulationExecutionFingerprint(1234);
+		var air = new CombatSimulationExecutionFingerprint(1234);
+
+		ground.RecordMaterialisation(groundParticipant);
+		air.RecordMaterialisation(airParticipant);
+
+		Assert.AreNotEqual(
+			ground.Complete(CombatSimulationRunStatus.Completed, "red", TimeSpan.Zero, 0, []),
+			air.Complete(CombatSimulationRunStatus.Completed, "red", TimeSpan.Zero, 0, []));
+	}
+
+	[TestMethod]
 	public void Validate_ManualCombatSettings_ReportsNoInputRisks()
 	{
 		var settings = new Mock<ICharacterCombatSettings>();
@@ -217,6 +312,42 @@ public class CombatSimulationTests
 
 		Assert.AreEqual(-1L, simulationCell.Id);
 		Assert.AreEqual(42L, simulationCell.DatabaseLocationId);
+	}
+
+	[TestMethod]
+	public void TransientExit_CombatSimulationCopyPreservesMovementDirections()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var sourceOrigin = new Mock<ICell>();
+		var sourceDestination = new Mock<ICell>();
+		var simulationOrigin = new Mock<ICell>();
+		var simulationDestination = new Mock<ICell>();
+		simulationOrigin.SetupGet(x => x.Id).Returns(-1L);
+		simulationDestination.SetupGet(x => x.Id).Returns(-2L);
+		var sourceExit = new Mock<IExit>();
+		var sourceOriginExit = new Mock<ICellExit>();
+		var sourceDestinationExit = new Mock<ICellExit>();
+		sourceOriginExit.SetupGet(x => x.Opposite).Returns(sourceDestinationExit.Object);
+		sourceOriginExit.SetupGet(x => x.Destination).Returns(sourceDestination.Object);
+		sourceOriginExit.SetupGet(x => x.OutboundDirection).Returns(CardinalDirection.North);
+		sourceOriginExit.SetupGet(x => x.InboundDirection).Returns(CardinalDirection.South);
+		sourceDestinationExit.SetupGet(x => x.OutboundDirection).Returns(CardinalDirection.South);
+		sourceDestinationExit.SetupGet(x => x.InboundDirection).Returns(CardinalDirection.North);
+		sourceExit.Setup(x => x.CellExitFor(sourceOrigin.Object)).Returns(sourceOriginExit.Object);
+		sourceExit.SetupGet(x => x.BlockedLayers).Returns(Array.Empty<RoomLayer>());
+		sourceExit.SetupGet(x => x.TimeMultiplier).Returns(1.0);
+
+		var transientExit = new TransientExit(gameworld.Object, simulationOrigin.Object, simulationDestination.Object,
+			sourceExit.Object, sourceOrigin.Object, "combat-simulation:test");
+
+		var copiedOriginExit = transientExit.CellExitFor(simulationOrigin.Object);
+		var copiedDestinationExit = transientExit.CellExitFor(simulationDestination.Object);
+		Assert.IsNotNull(copiedOriginExit);
+		Assert.IsNotNull(copiedDestinationExit);
+		Assert.AreSame(simulationDestination.Object, copiedOriginExit!.Destination);
+		Assert.AreEqual(CardinalDirection.North, copiedOriginExit.OutboundDirection);
+		Assert.AreSame(simulationOrigin.Object, copiedDestinationExit!.Destination);
+		Assert.AreEqual(CardinalDirection.South, copiedDestinationExit.OutboundDirection);
 	}
 
 	[TestMethod]

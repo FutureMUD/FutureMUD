@@ -368,9 +368,7 @@ public partial class Cell : Location, IDisposable, ICell
         return lowest;
     }
 
-    public IEnumerable<ICell> Surrounds => _isCombatSimulationCell
-        ? Enumerable.Empty<ICell>()
-        : Gameworld.ExitManager.GetExitsFor(this).Select(x => x.Destination);
+	public IEnumerable<ICell> Surrounds => Gameworld.ExitManager.GetExitsFor(this).Select(x => x.Destination);
 
     public override string Name => CurrentOverlay.CellName;
 

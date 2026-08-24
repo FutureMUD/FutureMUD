@@ -5308,7 +5308,18 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 
 		if (HospitalSupplyStockGoalPlanner.IsHospitalStockGoal(concrete.GoalType))
 		{
-			return EvaluateNativeHospitalStockGoal(concrete, context, now);
+			return EvaluateNativeStockGoal(concrete, context, now,
+				HospitalSupplyStockGoalPlanner.IsConfigurationBlocker,
+				HospitalSupplyStockGoalPlanner.ShouldDeferWithoutTask,
+				HospitalSupplyStockGoalPlanner.TryBuildActionPlan);
+		}
+
+		if (RestaurantIngredientStockGoalPlanner.IsRestaurantStockGoal(concrete.GoalType))
+		{
+			return EvaluateNativeStockGoal(concrete, context, now,
+				RestaurantIngredientStockGoalPlanner.IsConfigurationBlocker,
+				RestaurantIngredientStockGoalPlanner.ShouldDeferWithoutTask,
+				RestaurantIngredientStockGoalPlanner.TryBuildActionPlan);
 		}
 
 		if (!GoalConditionsSatisfied(concrete, context, now, out var conditionReason))
@@ -5384,12 +5395,16 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 		return [task];
 	}
 
-	private IReadOnlyCollection<IEmploymentActiveTask> EvaluateNativeHospitalStockGoal(ManagerGoal concrete,
-		IEmploymentTaskContext context, DateTimeOffset now)
+	private delegate bool NativeStockActionPlanBuilder(IManagerGoal goal, IEmploymentTaskContext context,
+		out EmploymentActionPlan? actionPlan, out string reason);
+
+	private IReadOnlyCollection<IEmploymentActiveTask> EvaluateNativeStockGoal(ManagerGoal concrete,
+		IEmploymentTaskContext context, DateTimeOffset now, Func<string, bool> isConfigurationBlocker,
+		Func<ManagerGoalType, string, bool> shouldDeferWithoutTask, NativeStockActionPlanBuilder tryBuildActionPlan)
 	{
 		if (!GoalConditionsSatisfied(concrete, context, now, out var conditionReason))
 		{
-			if (HospitalSupplyStockGoalPlanner.IsConfigurationBlocker(conditionReason))
+			if (isConfigurationBlocker(conditionReason))
 			{
 				concrete.Block(conditionReason);
 				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
@@ -5410,10 +5425,10 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 			concrete.MarkActive(now, "Conditions now require work.");
 		}
 
-		if (!HospitalSupplyStockGoalPlanner.TryBuildActionPlan(concrete, context, out var actionPlan, out var planReason) ||
+		if (!tryBuildActionPlan(concrete, context, out var actionPlan, out var planReason) ||
 		    actionPlan is null)
 		{
-			if (HospitalSupplyStockGoalPlanner.ShouldDeferWithoutTask(concrete.GoalType, planReason))
+			if (shouldDeferWithoutTask(concrete.GoalType, planReason))
 			{
 				concrete.MarkEvaluated(now, planReason);
 				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,

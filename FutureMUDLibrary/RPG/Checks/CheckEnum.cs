@@ -221,7 +221,14 @@ namespace MudSharp.RPG.Checks
 		AvoidTrapCheck = 212,
 		DisarmTrapCheck = 213,
 		DispelTrapCheck = 214,
-		EscapeTrapCheck = 215
+		EscapeTrapCheck = 215,
+		MountedChargeCheck = 216,
+		AerialMountedChargeCheck = 217,
+		AquaticMountedChargeCheck = 218,
+		VehicleChargeCheck = 219,
+		AquaticVehicleChargeCheck = 220,
+		OpposeMountedChargeCheck = 221,
+		AvoidMountFallCheck = 222
     }
 
     public enum FailIfTraitMissingType
@@ -375,6 +382,13 @@ namespace MudSharp.RPG.Checks
 				case CheckType.PaddleVehicleCheck:
 				case CheckType.RowVehicleCheck:
 				case CheckType.BoatStabilityCheck:
+				case CheckType.MountedChargeCheck:
+				case CheckType.AerialMountedChargeCheck:
+				case CheckType.AquaticMountedChargeCheck:
+				case CheckType.VehicleChargeCheck:
+				case CheckType.AquaticVehicleChargeCheck:
+				case CheckType.OpposeMountedChargeCheck:
+				case CheckType.AvoidMountFallCheck:
                     return true;
             }
             return false;
@@ -583,6 +597,12 @@ namespace MudSharp.RPG.Checks
                 case CheckType.OpposeForcedMovementCheck:
                 case CheckType.HexPower:
                 case CheckType.PsychicBoltPower:
+				case CheckType.MountedChargeCheck:
+				case CheckType.AerialMountedChargeCheck:
+				case CheckType.AquaticMountedChargeCheck:
+				case CheckType.VehicleChargeCheck:
+				case CheckType.AquaticVehicleChargeCheck:
+				case CheckType.OpposeMountedChargeCheck:
                     return true;
                 default:
                     return false;
@@ -691,6 +711,12 @@ namespace MudSharp.RPG.Checks
                 case CheckType.OpposePushbackCheck:
                 case CheckType.ForcedMovementCheck:
                 case CheckType.OpposeForcedMovementCheck:
+				case CheckType.MountedChargeCheck:
+				case CheckType.AerialMountedChargeCheck:
+				case CheckType.AquaticMountedChargeCheck:
+				case CheckType.VehicleChargeCheck:
+				case CheckType.AquaticVehicleChargeCheck:
+				case CheckType.OpposeMountedChargeCheck:
                     return true;
             }
 

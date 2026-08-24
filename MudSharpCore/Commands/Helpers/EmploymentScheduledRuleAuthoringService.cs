@@ -1012,6 +1012,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 			"stock" => TryParseStock(host, input, out condition, out message),
 			"hospitalstock" => TryParseHospitalStock(host, input, out condition, out message),
 			"hospitaltheatre" => TryParseHospitalTheatreStock(host, input, out condition, out message),
+			"restaurantstock" => TryParseRestaurantStock(host, input, out condition, out message),
 			"account" => TryParseAccount(host, input, out condition, out message),
 			"shopaccount" => TryParseShopAccount(actor, input, out condition, out message),
 			"float" => TryParseFloat(actor, host, input, out condition, out message),
@@ -1038,6 +1039,8 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 				HospitalSupplyStockCondition.Describe(hospitalStock, actor).ColourName(),
 			HospitalTheatreStockCondition theatreStock =>
 				HospitalTheatreStockCondition.Describe(theatreStock, actor).ColourName(),
+			RestaurantIngredientStockCondition restaurantStock =>
+				RestaurantIngredientStockCondition.Describe(restaurantStock, actor).ColourName(),
 			AccountBalanceCondition account =>
 				$"account {DescribeAccountKey(account.AccountKey).ColourName()} {(account.BelowThreshold ? "below" : "at least").ColourCommand()} {account.Threshold.ToString("N2", actor).ColourValue()}",
 			ItemThresholdCondition item =>
@@ -1452,6 +1455,67 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		}
 
 		condition = new HospitalSupplyStockCondition(itemType, procedureCount,
+			string.IsNullOrWhiteSpace(supplierSelector) ? "any" : supplierSelector, maximumLineAmount);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseRestaurantStock(IEmploymentHost host, StringStack input,
+		out IEmploymentTaskCondition condition, out string message)
+	{
+		condition = null!;
+		if (host is not IRestaurant)
+		{
+			message = $"{host.EmploymentHostName.ColourName()} is not a restaurant and cannot use restaurant ingredient stock conditions.";
+			return false;
+		}
+
+		if (input.IsFinished ||
+		    !int.TryParse(input.PopSpeech(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var mealCount) ||
+		    mealCount < 1)
+		{
+			message = $"Restaurant stock conditions use the syntax: {"tasks rule condition restaurantstock <meal-count> [from <shop id|name|any>] [max <amount>]".ColourCommand()}";
+			return false;
+		}
+
+		var supplierSelector = "any";
+		decimal? maximumLineAmount = null;
+		while (!input.IsFinished)
+		{
+			var option = input.PopSpeech().CollapseString().ToLowerInvariant();
+			switch (option)
+			{
+				case "from":
+				case "supplier":
+				case "shop":
+					var supplierTokens = PopTokensUntil(input, "max", "maximum", "limit", "cap").ToList();
+					if (!supplierTokens.Any())
+					{
+						message = "Which supplier shop, or any, should this restaurant ingredient stock condition use?";
+						return false;
+					}
+
+					supplierSelector = string.Join(" ", supplierTokens).Trim();
+					break;
+				case "max":
+				case "maximum":
+				case "limit":
+				case "cap":
+					if (!TryParseConditionMoney(host, input.SafeRemainingArgument.Trim(), out var amount, out message))
+					{
+						return false;
+					}
+
+					maximumLineAmount = amount;
+					ConsumeRemaining(input);
+					break;
+				default:
+					message = $"Unknown restaurant stock option {option.ColourCommand()}. Use {"from".ColourCommand()} or {"max".ColourCommand()}.";
+					return false;
+			}
+		}
+
+		condition = new RestaurantIngredientStockCondition(mealCount,
 			string.IsNullOrWhiteSpace(supplierSelector) ? "any" : supplierSelector, maximumLineAmount);
 		message = string.Empty;
 		return true;

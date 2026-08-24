@@ -729,6 +729,42 @@ public partial class CombatSeeder
         #endregion
     }
 
+	private static void EnsureMountedCombatMessages(FuturemudDatabaseContext context)
+	{
+		var definitions = new (BuiltInCombatMoveType Type, string Message, string Failure)[]
+		{
+			(BuiltInCombatMoveType.MountedCharge, "$0 thunder|thunders at $1 astride $2",
+				"$0 thunder|thunders at $1 astride $2, but &1 evade|evades the charge"),
+			(BuiltInCombatMoveType.AerialMountedCharge, "$0 dive|dives from above at $1 on $2",
+				"$0 dive|dives at $1 on $2, but &1 slip|slips clear"),
+			(BuiltInCombatMoveType.AquaticMountedCharge, "$0 surge|surges through the water at $1 on $2",
+				"$0 surge|surges at $1 on $2, but &1 evade|evades"),
+			(BuiltInCombatMoveType.VehicleCharge, "$0 drive|drives $2 straight at $1",
+				"$0 drive|drives $2 at $1, but &1 evade|evades"),
+			(BuiltInCombatMoveType.AquaticVehicleCharge, "$0 drive|drives $2 through the water at $1",
+				"$0 drive|drives $2 at $1, but &1 evade|evades")
+		};
+
+		foreach (var definition in definitions)
+		{
+			if (context.CombatMessages.Any(x => x.Type == (int)definition.Type && x.Outcome == null && x.Verb == null))
+			{
+				continue;
+			}
+
+			context.CombatMessages.Add(new CombatMessage
+			{
+				Message = CombatSeederMessageStyleHelper.FormatStandaloneMessage(definition.Message),
+				FailureMessage = CombatSeederMessageStyleHelper.FormatStandaloneMessage(definition.Failure),
+				Type = (int)definition.Type,
+				Chance = 1.0,
+				Priority = 1
+			});
+		}
+
+		context.SaveChanges();
+	}
+
     private void SeedShields(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> questionAnswers,
         IReadOnlyDictionary<string, TraitDefinition> skills)

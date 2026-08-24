@@ -197,6 +197,41 @@ public class CombatSeederSourceTests
     }
 
 	[TestMethod]
+	public void CombatSeederSource_MountedFallbackWeaponsAndSeatCheckRemainDistinctFromSpecialistWeapons()
+	{
+		string source = GetCombatSeederSource();
+		IReadOnlyList<CombatAttackSeed> attacks = ParseCombatSeederAttacks();
+
+		StringAssert.Contains(source, "CheckType.AvoidMountFallCheck");
+		StringAssert.Contains(source, "(0.7 * riding:");
+		StringAssert.Contains(source, "(0.3 * balance:");
+		StringAssert.Contains(source, "\"Short Spear Mounted Thrust\"");
+		StringAssert.Contains(source, "\"Long Spear Mounted Thrust\"");
+		StringAssert.Contains(source, "\"Longsword Mounted Cut\"");
+		StringAssert.Contains(source, "\"Two Handed Sword Mounted Sweep\"");
+		StringAssert.Contains(source, "excludedMoveTypes: new[] { BuiltInCombatMoveType.CouchedLanceAttack }");
+		StringAssert.Contains(source, "excludedMoveTypes: new[] { BuiltInCombatMoveType.MountedWeaponAttack }");
+		StringAssert.Contains(source, "EnsureEarlyModernSpecialAttack(trainingLance");
+		StringAssert.Contains(source, "EnsureEarlyModernSpecialAttack(trainingSabre");
+		Assert.AreEqual(7, Regex.Matches(source,
+			"combatMessageType: BuiltInCombatMoveType\\.UseWeaponAttack").Count);
+
+		CombatAttackSeed shortSpear = attacks.Single(x => x.Name == "Short Spear Mounted Thrust");
+		Assert.AreEqual("CouchedLanceAttack", shortSpear.MoveType);
+		Assert.AreEqual("VeryHard", shortSpear.AttackerDifficulty);
+		Assert.AreEqual("badDamage", shortSpear.DamageVariable);
+		CombatAttackSeed longSpear = attacks.Single(x => x.Name == "Long Spear Mounted Thrust");
+		Assert.AreEqual("Hard", longSpear.AttackerDifficulty);
+		Assert.AreEqual("poorDamage", longSpear.DamageVariable);
+		CombatAttackSeed longsword = attacks.Single(x => x.Name == "Longsword Mounted Cut");
+		Assert.AreEqual("Hard", longsword.AttackerDifficulty);
+		Assert.AreEqual("badDamage", longsword.DamageVariable);
+		CombatAttackSeed twoHandedSword = attacks.Single(x => x.Name == "Two Handed Sword Mounted Sweep");
+		Assert.AreEqual("VeryHard", twoHandedSword.AttackerDifficulty);
+		Assert.AreEqual("poorDamage", twoHandedSword.DamageVariable);
+	}
+
+	[TestMethod]
 	public void MultiTargetAttackSeeders_ProvideWeaponNaturalRangedAndAuxiliaryExamples()
 	{
 		string combatSource = GetCombatSeederSource();
@@ -345,6 +380,8 @@ public class CombatSeederSourceTests
 			"EnsureWeapon(\"Hooked Polearm\", \"Melee_HookedPolearm\", \"Halberd\"");
 		StringAssert.Contains(source, "EnsureEarlyModernSpecialAttack(lance");
 		StringAssert.Contains(source, "BuiltInCombatMoveType.CouchedLanceAttack");
+		StringAssert.Contains(source, "EnsureEarlyModernSpecialAttack(sabre");
+		StringAssert.Contains(source, "BuiltInCombatMoveType.MountedWeaponAttack");
 		StringAssert.Contains(source, "EnsureEarlyModernSpecialAttack(hookedPolearm");
 		StringAssert.Contains(source,
 			"EnsureRanged(\"Pellet Crossbow\", \"Crossbow_Pellet\", \"Crossbow\", \"Crossbow\"");

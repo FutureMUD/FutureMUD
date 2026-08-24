@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body.Position;
 using MudSharp.Construction.Boundary;
+using MudSharp.Character.Heritage;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
@@ -10,6 +11,7 @@ namespace MudSharp.Combat.Moves;
 public class ChargeToMeleeMove : CombatMoveBase
 {
     public override string Description => "Charging into melee combat";
+	public bool IsMountedCharge => MountedCombatService.Instance.ResolveContext(Assailant) is not null;
 
     private bool _calculatedStamina = false;
     private double _staminaCost = 0.0;
@@ -61,6 +63,17 @@ public class ChargeToMeleeMove : CombatMoveBase
 
         ICombatMove response = defenderMove;
 
+		var mountedContext = MountedCombatService.Instance.ResolveContext(Assailant);
+		if (mountedContext is not null && response is EvadeMountedChargeMove evade)
+		{
+			return ResolveMountedEvasion(target, mountedContext, evade);
+		}
+
+		if (mountedContext is not null && response is CounterMountedChargeMove counter)
+		{
+			return ResolveMountedCounterCharge(target, mountedContext, counter);
+		}
+
         if (response is SkirmishResponseMove skirmish)
         {
             return HandleSkirmish(target, skirmish);
@@ -73,30 +86,41 @@ public class ChargeToMeleeMove : CombatMoveBase
             return outcome;
         }
 
-        var couchedLance = GetCouchedLance(target);
+		var mountedWeaponAttack = GetMountedWeaponAttack(target);
         Assailant.MeleeRange = true;
         if (target.CombatTarget == Assailant)
         {
             target.MeleeRange = true;
         }
-        // TODO - bonus for charging into combat
+		// Ordinary charges retain their established spacing-only behaviour. Mounted charges earn advantage
+		// through the opposed impact resolution below.
 
         if (response is ReceiveChargeMove receiveCharge)
         {
-            HandleReceiveCharge(receiveCharge, target);
-            ResolveCouchedLance(couchedLance, target, new HelplessDefenseMove { Assailant = target });
+			SendChargeMessage(target, mountedContext, Outcome.MinorPass);
+			HandleReceiveCharge(receiveCharge, target);
+			mountedContext = MountedCombatService.Instance.ResolveContext(Assailant);
+			if (mountedContext is not null)
+			{
+				ResolveMountedImpact(target, mountedContext, true);
+			}
+			ResolveMountedWeaponAttack(mountedWeaponAttack, target,
+				new HelplessDefenseMove { Assailant = target });
             _delay = 0;
             return new CombatMoveResult { MoveWasSuccessful = true };
         }
 
         if (response is StandAndFireMove standAndFire)
         {
-            string message = Gameworld.CombatMessageManager.GetMessageFor(Assailant, target, null, null,
-                BuiltInCombatMoveType.ChargeToMelee, Outcome.NotTested, null);
-            Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(message, Assailant, Assailant, target),
-                style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+			SendChargeMessage(target, mountedContext, Outcome.NotTested);
             standAndFire.ResolveMove(new HelplessDefenseMove { Assailant = Assailant });
-            ResolveCouchedLance(couchedLance, target, new HelplessDefenseMove { Assailant = target });
+			mountedContext = MountedCombatService.Instance.ResolveContext(Assailant);
+			if (mountedContext is not null)
+			{
+				ResolveMountedImpact(target, mountedContext, false);
+			}
+			ResolveMountedWeaponAttack(mountedWeaponAttack, target,
+				new HelplessDefenseMove { Assailant = target });
             _delay = 0;
             return new CombatMoveResult { MoveWasSuccessful = true };
         }
@@ -104,11 +128,13 @@ public class ChargeToMeleeMove : CombatMoveBase
         if (response == null || response is HelplessDefenseMove)
         {
             // Unopposed - they may already be engaged in melee or just be ambivalent
-            string message = Gameworld.CombatMessageManager.GetMessageFor(Assailant, target, null, null,
-                BuiltInCombatMoveType.ChargeToMelee, Outcome.NotTested, null);
-            Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(message, Assailant, Assailant, target),
-                style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            ResolveCouchedLance(couchedLance, target, new HelplessDefenseMove { Assailant = target });
+			SendChargeMessage(target, mountedContext, Outcome.NotTested);
+			if (mountedContext is not null)
+			{
+				ResolveMountedImpact(target, mountedContext, false);
+			}
+			ResolveMountedWeaponAttack(mountedWeaponAttack, target,
+				new HelplessDefenseMove { Assailant = target });
             _delay = 0;
             return new CombatMoveResult { MoveWasSuccessful = true };
         }
@@ -116,52 +142,290 @@ public class ChargeToMeleeMove : CombatMoveBase
 		// A defender can legitimately select an ordinary melee defence while a charge closes.
 		// It has no special interception semantics, so resolve the charge as a normal close rather
 		// than leaving a reachable combat path to throw.
-		Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(
-			Gameworld.CombatMessageManager.GetMessageFor(Assailant, target, null, null,
-				BuiltInCombatMoveType.ChargeToMelee, Outcome.NotTested, null), Assailant, Assailant, target),
-			style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-		ResolveCouchedLance(couchedLance, target, response);
+		SendChargeMessage(target, mountedContext, Outcome.NotTested);
+		if (mountedContext is not null)
+		{
+			ResolveMountedImpact(target, mountedContext, false);
+		}
+		ResolveMountedWeaponAttack(mountedWeaponAttack, target, response);
 		_delay = 0;
 		return new CombatMoveResult { MoveWasSuccessful = true };
     }
 
-	private (IMeleeWeapon Weapon, IWeaponAttack Attack)? GetCouchedLance(ICharacter target)
+	private (IMeleeWeapon Weapon, IWeaponAttack Attack, bool Couched)? GetMountedWeaponAttack(ICharacter target)
 	{
-		if (Assailant.RidingMount is null)
+		if (MountedCombatService.Instance.ResolveContext(Assailant) is null)
 		{
 			return null;
 		}
 
-		var couch = Assailant.Body.WieldedItems
+		var attack = Assailant.Body.WieldedItems
 			.SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
 			.SelectMany(weapon => weapon.WeaponType.Attacks
-				.Where(attack => CouchedLanceMove.CanCouch(Assailant, weapon, attack, target))
-				.Select(attack => (Weapon: weapon, Attack: attack)))
-			.OrderByDescending(x => x.Weapon.WeaponType.Reach)
+				.Where(candidate => CouchedLanceMove.CanCouch(Assailant, weapon, candidate, target) ||
+				                    MountedWeaponAttackMove.CanUse(Assailant, weapon, candidate, target))
+				.Select(candidate => (Weapon: weapon, Attack: candidate,
+					Couched: candidate.MoveType == BuiltInCombatMoveType.CouchedLanceAttack)))
+			.OrderByDescending(x => x.Couched)
+			.ThenByDescending(x => x.Weapon.WeaponType.Reach)
 			.FirstOrDefault();
 
-		return couch.Weapon is null || couch.Attack is null ? null : couch;
+		return attack.Weapon is null || attack.Attack is null ? null : attack;
 	}
 
-	private void ResolveCouchedLance((IMeleeWeapon Weapon, IWeaponAttack Attack)? couch, ICharacter target,
+	private void ResolveMountedWeaponAttack((IMeleeWeapon Weapon, IWeaponAttack Attack, bool Couched)? attack,
+		ICharacter target,
 		ICombatMove defense)
 	{
-		if (couch is null)
+		if (attack is null)
 		{
 			return;
 		}
 
-		new CouchedLanceMove(Assailant, couch.Value.Weapon, couch.Value.Attack, target).ResolveMove(defense);
+		if (attack.Value.Couched)
+		{
+			new CouchedLanceMove(Assailant, attack.Value.Weapon, attack.Value.Attack, target).ResolveMove(defense);
+			return;
+		}
+
+		new MountedWeaponAttackMove(Assailant, attack.Value.Weapon, attack.Value.Attack, target, true)
+			.ResolveMove(defense);
+	}
+
+	private CombatMoveResult ResolveMountedEvasion(ICharacter target, MountedCombatContext context,
+		EvadeMountedChargeMove response)
+	{
+		var (attackRoll, defenseRoll, opposed) = ResolveMountedContest(target, context, false,
+			CheckType.OpposeMountedChargeCheck);
+		if (opposed.Outcome == OpposedOutcomeDirection.Proponent)
+		{
+			SendChargeMessage(target, context, attackRoll.Outcome);
+			SetMeleeRange(target);
+			ApplyMountedImpact(target, context, Math.Max(1, (int)opposed.Degree));
+			ResolveMountedWeaponAttack(GetMountedWeaponAttack(target), target,
+				new HelplessDefenseMove { Assailant = target });
+			_delay = 0.0;
+			return new CombatMoveResult
+			{
+				MoveWasSuccessful = true,
+				AttackerOutcome = attackRoll,
+				DefenderOutcome = defenseRoll
+			};
+		}
+
+		SendChargeMessage(target, context, defenseRoll.Outcome, true);
+		target.DefensiveAdvantage += 2.0 + (int)opposed.Degree;
+		_delay = 1.0;
+		return new CombatMoveResult
+		{
+			MoveWasSuccessful = false,
+			AttackerOutcome = attackRoll,
+			DefenderOutcome = defenseRoll,
+			RecoveryDifficulty = Difficulty.Hard
+		};
+	}
+
+	private CombatMoveResult ResolveMountedCounterCharge(ICharacter target, MountedCombatContext context,
+		CounterMountedChargeMove response)
+	{
+		var defenderContext = MountedCombatService.Instance.ResolveContext(target);
+		if (defenderContext is null)
+		{
+			return ResolveMountedEvasion(target, context,
+				new EvadeMountedChargeMove { Assailant = target, PrimaryTarget = Assailant });
+		}
+
+		var attackCheck = GetMountedCheck(MountedCombatService.Instance.ChargeCheckType(context));
+		var defenseCheck = GetMountedCheck(MountedCombatService.Instance.ChargeCheckType(defenderContext));
+		var attackRoll = attackCheck.Check(Assailant, Difficulty.Normal, null, target,
+			context.Momentum + SizeMomentumBonus(context, target));
+		var defenseRoll = defenseCheck.Check(target, Difficulty.Normal, null, Assailant,
+			defenderContext.Momentum + SizeMomentumBonus(defenderContext, Assailant));
+		var opposed = new OpposedOutcome(attackRoll, defenseRoll);
+		SetMeleeRange(target);
+
+		if (opposed.Outcome == OpposedOutcomeDirection.Proponent)
+		{
+			SendChargeMessage(target, context, attackRoll.Outcome);
+			ApplyMountedImpact(target, context, Math.Max(1, (int)opposed.Degree));
+			ResolveMountedWeaponAttack(GetMountedWeaponAttack(target), target,
+				new HelplessDefenseMove { Assailant = target });
+		}
+		else if (opposed.Outcome == OpposedOutcomeDirection.Opponent)
+		{
+			SendChargeMessage(target, context, defenseRoll.Outcome, true);
+			Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(
+				"@ are|is broken out of &0's charge by $1's counter-charge!", Assailant, Assailant, target),
+				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+			Assailant.DoCombatKnockdown(Math.Max(1, (int)opposed.Degree));
+			target.OffensiveAdvantage += 2.0 + (int)opposed.Degree;
+		}
+		else
+		{
+			SendChargeMessage(target, context, Outcome.NotTested);
+		}
+
+		_delay = 0.0;
+		return new CombatMoveResult
+		{
+			MoveWasSuccessful = opposed.Outcome != OpposedOutcomeDirection.Opponent,
+			AttackerOutcome = attackRoll,
+			DefenderOutcome = defenseRoll,
+			RecoveryDifficulty = opposed.Outcome == OpposedOutcomeDirection.Opponent
+				? Difficulty.Hard
+				: Difficulty.Normal
+		};
+	}
+
+	private void ResolveMountedImpact(ICharacter target, MountedCombatContext context, bool braced)
+	{
+		var (_, _, opposed) = ResolveMountedContest(target, context, braced,
+			CheckType.OpposeMountedChargeCheck);
+		if (opposed.Outcome != OpposedOutcomeDirection.Proponent)
+		{
+			target.DefensiveAdvantage += 1.0 + (int)opposed.Degree;
+			return;
+		}
+
+		ApplyMountedImpact(target, context, Math.Max(1, (int)opposed.Degree));
+	}
+
+	private (CheckOutcome Attack, CheckOutcome Defense, OpposedOutcome Opposed) ResolveMountedContest(
+		ICharacter target, MountedCombatContext context, bool braced, CheckType defenseCheckType)
+	{
+		var attackCheck = GetMountedCheck(MountedCombatService.Instance.ChargeCheckType(context));
+		var defenseCheck = GetMountedCheck(defenseCheckType);
+		var attackDifficulty = context.Domain.In(MountedCombatDomain.Aerial, MountedCombatDomain.Aquatic)
+			? Difficulty.Hard
+			: Difficulty.Normal;
+		var defenseDifficulty = braced ? Difficulty.Easy : Difficulty.Normal;
+		var attackRoll = attackCheck.Check(Assailant, attackDifficulty, null, target,
+			context.Momentum + SizeMomentumBonus(context, target));
+		var defenseRoll = defenseCheck.Check(target, defenseDifficulty, null, Assailant,
+			braced ? 3.0 : 0.0);
+		return (attackRoll, defenseRoll, new OpposedOutcome(attackRoll, defenseRoll));
+	}
+
+	private void ApplyMountedImpact(ICharacter target, MountedCombatContext context, int degrees)
+	{
+		Assailant.OffensiveAdvantage += 2.0 + degrees + Math.Min(3.0, context.Momentum * 0.5);
+		target.DefensiveAdvantage -= 1.0 + degrees;
+
+		if (TryResolveMountAttack(target, context))
+		{
+			return;
+		}
+
+		var targetSize = target.CurrentContextualSize(SizeContext.GrappleDefense);
+		var sizeDifference = (int)context.EffectiveSize - (int)targetSize;
+		if (sizeDifference >= 2 || degrees >= 3 || target.RidingMount is not null ||
+		    VehicleCombatService.Instance.VehicleFor(target) is not null)
+		{
+			target.OutputHandler.Handle(new EmoteOutput(new Emote(
+				"@ are|is knocked sprawling by the force of $1's charge!", target, target, Assailant),
+				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+			target.DoCombatKnockdown(Math.Max(1, degrees + Math.Max(0, sizeDifference - 1)));
+		}
+	}
+
+	private bool TryResolveMountAttack(ICharacter target, MountedCombatContext context)
+	{
+		if (context.Mount is not { } mount || mount.SamePhysicalInstance(target))
+		{
+			return false;
+		}
+
+		var moveType = context.Domain switch
+		{
+			MountedCombatDomain.Aerial => BuiltInCombatMoveType.AerialSweepAttack,
+			MountedCombatDomain.Aquatic => BuiltInCombatMoveType.AquaticChargeAttack,
+			_ => BuiltInCombatMoveType.MountedTrampleAttack
+		};
+		var targetSize = target.CurrentContextualSize(SizeContext.GrappleDefense);
+		if (moveType == BuiltInCombatMoveType.MountedTrampleAttack && context.EffectiveSize <= targetSize)
+		{
+			return false;
+		}
+
+		var attack = mount.Race
+			.UsableNaturalWeaponAttacks(mount, target, false, moveType)
+			.Where(x => mount.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(mount, x.Attack)))
+			.GetWeightedRandom(x => x.Attack.Weighting);
+		if (attack is null)
+		{
+			return false;
+		}
+
+		var move = new MountedImpactNaturalAttackMove(mount, attack, target, true);
+		move.ResolveMove(target.ResponseToMove(move, mount));
+		return true;
+	}
+
+	private ICheck GetMountedCheck(CheckType checkType)
+	{
+		var check = Gameworld.GetCheck(checkType);
+		return check.Type == checkType ? check : Gameworld.GetCheck(CheckType.GenericSkillCheck);
+	}
+
+	private static double SizeMomentumBonus(MountedCombatContext context, ICharacter target)
+	{
+		return Math.Clamp((int)context.EffectiveSize -
+		                  (int)target.CurrentContextualSize(SizeContext.GrappleDefense), -3, 5);
+	}
+
+	private void SetMeleeRange(ICharacter target)
+	{
+		Assailant.MeleeRange = true;
+		if (target.CombatTarget == Assailant || target.CombatTarget is null)
+		{
+			target.MeleeRange = true;
+		}
+	}
+
+	private void SendChargeMessage(ICharacter target, MountedCombatContext context, Outcome outcome,
+		bool failure = false)
+	{
+		var moveType = context is null
+			? BuiltInCombatMoveType.ChargeToMelee
+			: MountedCombatService.Instance.ChargeMessageType(context);
+		var message = failure
+			? Gameworld.CombatMessageManager.GetFailMessageFor(Assailant, target, null, null, moveType, outcome, null)
+			: Gameworld.CombatMessageManager.GetMessageFor(Assailant, target, null, null, moveType, outcome, null);
+		if (message.StartsWith("Error -", StringComparison.Ordinal))
+		{
+			message = FallbackChargeMessage(context, failure);
+		}
+
+		Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(message, Assailant, Assailant, target,
+			context?.Conveyance ?? Assailant), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+	}
+
+	private static string FallbackChargeMessage(MountedCombatContext context, bool failure)
+	{
+		if (context is null)
+		{
+			return failure
+				? "$0 attempt|attempts to charge into melee range with $1, but fall|falls short"
+				: "$0 charge|charges into melee range with $1";
+		}
+
+		return (context.Domain, failure) switch
+		{
+			(MountedCombatDomain.Aerial, false) => "$0 dive|dives from above at $1 on $2",
+			(MountedCombatDomain.Aerial, true) => "$0 dive|dives at $1 on $2, but &1 slip|slips clear",
+			(MountedCombatDomain.Aquatic, false) => "$0 surge|surges through the water at $1 on $2",
+			(MountedCombatDomain.Aquatic, true) => "$0 surge|surges at $1 on $2, but &1 evade|evades",
+			(MountedCombatDomain.GroundVehicle, false) => "$0 drive|drives $2 straight at $1",
+			(MountedCombatDomain.GroundVehicle, true) => "$0 drive|drives $2 at $1, but &1 evade|evades",
+			(MountedCombatDomain.AquaticVehicle, false) => "$0 drive|drives $2 through the water at $1",
+			(MountedCombatDomain.AquaticVehicle, true) => "$0 drive|drives $2 at $1, but &1 evade|evades",
+			(_, false) => "$0 thunder|thunders at $1 astride $2",
+			_ => "$0 thunder|thunders at $1 astride $2, but &1 evade|evades"
+		};
 	}
 
     private void HandleReceiveCharge(ReceiveChargeMove receiveCharge, ICharacter target)
     {
-        Assailant.OutputHandler.Handle(
-            new EmoteOutput(
-                new Emote(
-                    Gameworld.CombatMessageManager.GetMessageFor(Assailant, target, null, null,
-                        BuiltInCombatMoveType.ChargeToMelee, Outcome.MinorPass, null), Assailant, Assailant, target),
-                style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
         ICombatMove receiveChargeDefense = Assailant.ResponseToMove(receiveCharge, target);
         receiveCharge.ResolveMove(receiveChargeDefense);
     }

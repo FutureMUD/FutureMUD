@@ -879,6 +879,8 @@ Using `embark` during combat queues the same two-second, 5-stamina boarding acti
 
 The `AquaticVehicleAttack` type attacks the exterior as a single action but does not damage it. One attack roll determines whether the assault rocks the craft, after which each occupant checks stability independently. Boat damage, capsizing, waves, and swell remain outside this slice.
 
+Controlled vehicles also participate in the shared [Mounted Combat](./Combat/Mounted_Combat.md) charge system. A controller who is an occupant of an intact vehicle can use ground-vehicle or aquatic-vehicle charge checks, with momentum derived from route speed or the active propulsion profile and impact size derived from the exterior item. This targets a character and resolves spacing, advantage, and possible knockdown; it does not use `AquaticVehicleAttack`, rock every occupant, or damage the hull. Chariots, motorbikes, carts, and surface craft therefore share charge and hit-and-run strategy logic without being represented as animal mounts.
+
 ## Implementation Phases
 
 ### Phase 1: Core Hybrid Vehicle Framework

@@ -55,6 +55,12 @@ public class CombatStrategyFactory
                 return Strategies.PhysicalAvoiderStrategy.Instance;
             case CombatStrategyMode.Subdue:
                 return Strategies.SubdueStrategy.Instance;
+			case CombatStrategyMode.MountedCharge:
+				return Strategies.MountedChargeStrategy.Instance;
+			case CombatStrategyMode.MountedSkirmish:
+				return Strategies.MountedSkirmishStrategy.Instance;
+			case CombatStrategyMode.MountedHitAndRun:
+				return Strategies.MountedHitAndRunStrategy.Instance;
             default:
                 throw new NotImplementedException("Unknown CombatStrategyMode in CombatStrategyFactory.GetStrategy: " +
                                                   mode.Describe());

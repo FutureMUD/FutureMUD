@@ -16,6 +16,7 @@ public class Restaurant
 		Cells = new HashSet<RestaurantCell>();
 		Tables = new HashSet<RestaurantTable>();
 		MenuItems = new HashSet<RestaurantMenuItem>();
+		StorageContainers = new HashSet<RestaurantStorageContainer>();
 		TableSessions = new HashSet<RestaurantTableSession>();
 		Orders = new HashSet<RestaurantOrder>();
 	}
@@ -33,13 +34,25 @@ public class Restaurant
 	public string ServerServeEmote { get; set; } = string.Empty;
 	public string ServerClearEmote { get; set; } = string.Empty;
 	public string ServerReturnEmote { get; set; } = string.Empty;
+	public long? TakeawayBagPrototypeId { get; set; }
+	public int? TakeawayBagPrototypeRevisionNumber { get; set; }
 
 	public virtual Shop Shop { get; set; } = null!;
 	public virtual ICollection<RestaurantCell> Cells { get; set; }
 	public virtual ICollection<RestaurantTable> Tables { get; set; }
 	public virtual ICollection<RestaurantMenuItem> MenuItems { get; set; }
+	public virtual ICollection<RestaurantStorageContainer> StorageContainers { get; set; }
 	public virtual ICollection<RestaurantTableSession> TableSessions { get; set; }
 	public virtual ICollection<RestaurantOrder> Orders { get; set; }
+}
+
+public class RestaurantStorageContainer
+{
+	public long RestaurantShopId { get; set; }
+	public long GameItemId { get; set; }
+	public int Roles { get; set; }
+
+	public virtual Restaurant Restaurant { get; set; } = null!;
 }
 
 public class RestaurantCell
@@ -76,8 +89,6 @@ public class RestaurantMenuItem
 	public int? ServingContainerPrototypeRevisionNumber { get; set; }
 	public long? TakeawayContainerPrototypeId { get; set; }
 	public int? TakeawayContainerPrototypeRevisionNumber { get; set; }
-	public long? TakeawayBagPrototypeId { get; set; }
-	public int? TakeawayBagPrototypeRevisionNumber { get; set; }
 	public int SortOrder { get; set; }
 
 	public virtual Restaurant Restaurant { get; set; } = null!;

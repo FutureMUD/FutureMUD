@@ -1318,6 +1318,7 @@ public partial class AnimalSeeder
 		EnsureNaturalRangedAttackSeedData(damageExpressions);
 		EnsureMultiTargetAttackSeedData();
 		EnsureAquaticVehicleAttackSeedData();
+		EnsureMountedCombatAttackSeedData();
     }
 
 	private void EnsureMultiTargetAttackSeedData()
@@ -1447,6 +1448,42 @@ public partial class AnimalSeeder
 			"@ slam|slams into $1 from the water, violently rocking the craft", DamageType.Crushing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
 			additionalInfo: ((int)Difficulty.Normal).ToString());
+	}
+
+	private void EnsureMountedCombatAttackSeedData()
+	{
+		var ramDamage = _context.TraitExpressions.First(x => x.Name == "Animal Ram Damage");
+		var hoofShape = _context.BodypartShapes.First(x => x.Name == "Hoof");
+		var shoulderShape = _context.BodypartShapes.First(x => x.Name == "Shoulder");
+		var headShape = _context.BodypartShapes.First(x => x.Name == "Head");
+
+		_attacks["mountedtrample"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Mounted Trample") ??
+			AddAttack("Mounted Trample", BuiltInCombatMoveType.MountedTrampleAttack, MeleeWeaponVerb.Slam,
+				Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+				Alignment.Front, Orientation.Low, 7.0, 1.4, hoofShape, ramDamage,
+				"@ trample|tramples $1 beneath &0's pounding hooves", DamageType.Crushing,
+				intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
+				            CombatMoveIntentions.Trip | CombatMoveIntentions.Aggressive,
+				additionalInfo: ((int)Difficulty.Normal).ToString());
+
+		_attacks["aerialsweepthrough"] =
+			_context.WeaponAttacks.FirstOrDefault(x => x.Name == "Aerial Sweep Through") ??
+			AddAttack("Aerial Sweep Through", BuiltInCombatMoveType.AerialSweepAttack, MeleeWeaponVerb.Sweep,
+				Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+				Alignment.Front, Orientation.Centre, 8.0, 1.2, shoulderShape, ramDamage,
+				"@ sweep|sweeps through $1 on beating wings without surrendering momentum", DamageType.Crushing,
+				intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
+				            CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Fast,
+				additionalInfo: ((int)Difficulty.Hard).ToString());
+
+		_attacks["aquaticcharge"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Aquatic Charge") ??
+			AddAttack("Aquatic Charge", BuiltInCombatMoveType.AquaticChargeAttack, MeleeWeaponVerb.Slam,
+				Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+				Alignment.Front, Orientation.Centre, 7.0, 1.3, headShape, ramDamage,
+				"@ surge|surges through the water and drive|drives bodily into $1", DamageType.Crushing,
+				intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
+				            CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Aggressive,
+				additionalInfo: ((int)Difficulty.Hard).ToString());
 	}
 
 	private void EnsureNaturalRangedAttackSeedData(IReadOnlyDictionary<string, string> damageExpressions)

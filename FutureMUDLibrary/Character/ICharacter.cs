@@ -529,6 +529,7 @@ namespace MudSharp.Character
 
 		void DoCombatKnockdown(int successDegrees = 1,
 			VehicleCombatDisplacementType displacementType = VehicleCombatDisplacementType.Knockdown);
+		void DoFallDamage(double fallDistance);
         void DoFallOffHorse();
     }
 

@@ -24,6 +24,7 @@ public interface IRestaurant : IPermanentShop
 	TimeSpan HandlingTime { get; set; }
 	TimeSpan MaximumBatchWait { get; set; }
 	TimeSpan TableCleanupInterval { get; set; }
+	IGameItemProto? TakeawayBagPrototype { get; set; }
 	string ChefStartEmote { get; set; }
 	string ChefOpenEmote { get; set; }
 	string ChefPlateEmote { get; set; }
@@ -38,12 +39,20 @@ public interface IRestaurant : IPermanentShop
 	IEnumerable<IRestaurantMenuItem> MenuItems { get; }
 	IEnumerable<IRestaurantTableSession> TableSessions { get; }
 	IEnumerable<IRestaurantOrder> Orders { get; }
+	IEnumerable<IRestaurantStorageContainer> StorageContainers { get; }
 
 	bool IsWithinRestaurant(ICell? cell);
 	IRestaurantTableSession? TableSessionFor(IGameItem table);
 	IRestaurantTableSession? TableSessionFor(ICharacter character);
 	TimeSpan EstimateWait(ICharacter customer, IRestaurantMenuItem menuItem, int quantity = 1);
 	string ShowMenu(ICharacter actor);
+}
+
+public interface IRestaurantStorageContainer : IFrameworkItem, ISaveable
+{
+	IRestaurant Restaurant { get; }
+	long GameItemId { get; }
+	RestaurantStorageRole Roles { get; }
 }
 
 public interface IRestaurantMenuItem : IFrameworkItem, ISaveable
@@ -59,7 +68,6 @@ public interface IRestaurantMenuItem : IFrameworkItem, ISaveable
 	ICraft? Craft { get; set; }
 	IGameItemProto? ServingContainerPrototype { get; set; }
 	IGameItemProto? TakeawayContainerPrototype { get; set; }
-	IGameItemProto? TakeawayBagPrototype { get; set; }
 	bool IsValid(out string reason);
 }
 

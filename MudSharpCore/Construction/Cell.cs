@@ -42,6 +42,12 @@ namespace MudSharp.Construction;
 
 public partial class Cell : Location, IDisposable, ICell
 {
+	private readonly bool _isCombatSimulationCell;
+	private readonly long _combatSimulationDatabaseLocationId;
+
+	internal long DatabaseLocationId => _isCombatSimulationCell
+		? _combatSimulationDatabaseLocationId
+		: Id;
     private readonly List<IRangedCover> _localCover = new();
 	private RouteCellDefinition _routeDefinition;
 	private long? _hostedVehicleId;
@@ -129,6 +135,25 @@ public partial class Cell : Location, IDisposable, ICell
         Room = room;
         SetupCell(cell);
     }
+
+	/// <summary>
+	/// Creates a transient cell which borrows environmental data from a real cell but owns its
+	/// contents independently. It is never registered with its room or written to the database.
+	/// </summary>
+	internal Cell(ICell combatSimulationTemplate, long temporaryId) : base(combatSimulationTemplate.Gameworld)
+	{
+		_isCombatSimulationCell = true;
+		_combatSimulationDatabaseLocationId = combatSimulationTemplate.Id;
+		_noSave = true;
+		_id = temporaryId;
+		Room = combatSimulationTemplate.Room;
+		CurrentOverlay = combatSimulationTemplate.CurrentOverlay;
+		_overlays = combatSimulationTemplate.Overlays
+			.OfType<IEditableCellOverlay>()
+			.ToList();
+		Movements = [];
+		Temporary = true;
+	}
 
     public bool ContentsChanged
     {
@@ -306,7 +331,10 @@ public partial class Cell : Location, IDisposable, ICell
 
         thing.ContainedIn = null;
         base.Insert(thing, newStack);
-        Room.Insert(thing, newStack);
+		if (!_isCombatSimulationCell)
+		{
+			Room.Insert(thing, newStack);
+		}
         _gameItems = _gameItems.OrderBy(x => !x.HighPriority).ToList();
         if (IsSwimmingLayer(newLayer))
         {
@@ -340,7 +368,9 @@ public partial class Cell : Location, IDisposable, ICell
         return lowest;
     }
 
-    public IEnumerable<ICell> Surrounds => Gameworld.ExitManager.GetExitsFor(this).Select(x => x.Destination);
+    public IEnumerable<ICell> Surrounds => _isCombatSimulationCell
+        ? Enumerable.Empty<ICell>()
+        : Gameworld.ExitManager.GetExitsFor(this).Select(x => x.Destination);
 
     public override string Name => CurrentOverlay.CellName;
 
@@ -353,7 +383,10 @@ public partial class Cell : Location, IDisposable, ICell
 
         base.Extract(thing);
 		RouteSpatialService.Instance.UntrackPerceivable(thing);
-        Room.Extract(thing);
+		if (!_isCombatSimulationCell)
+		{
+			Room.Extract(thing);
+		}
         ContentsChanged = true;
         CheckFallExitStatus();
         new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, thing);
@@ -410,6 +443,11 @@ public partial class Cell : Location, IDisposable, ICell
 
     public IEnumerable<ICellExit> ExitsFor(IPerceiver voyeur, bool ignoreLayers = false)
     {
+		if (_isCombatSimulationCell)
+		{
+			return Enumerable.Empty<ICellExit>();
+		}
+
 		return Gameworld.ExitManager
 			.GetExitsFor(this, GetOverlayFor(voyeur), ignoreLayers ? default : voyeur?.RoomLayer)
 			.Where(x => IsSpatiallyAccessibleExit(voyeur, x));
@@ -417,24 +455,44 @@ public partial class Cell : Location, IDisposable, ICell
 
     public ICellExit GetExit(CardinalDirection direction, IPerceiver voyeur)
     {
+		if (_isCombatSimulationCell)
+		{
+			return null;
+		}
+
 		var exit = Gameworld.ExitManager.GetExit(this, direction, voyeur);
 		return exit is not null && IsSpatiallyAccessibleExit(voyeur, exit) ? exit : null;
     }
 
     public ICellExit GetExit(string direction, string target, IPerceiver voyeur)
     {
+		if (_isCombatSimulationCell)
+		{
+			return null;
+		}
+
 		var exit = Gameworld.ExitManager.GetExit(this, direction, target, voyeur, GetOverlayFor(voyeur));
 		return exit is not null && IsSpatiallyAccessibleExit(voyeur, exit) ? exit : null;
     }
 
     public ICellExit GetExitKeyword(string direction, IPerceiver voyeur)
     {
+		if (_isCombatSimulationCell)
+		{
+			return null;
+		}
+
 		var exit = Gameworld.ExitManager.GetExitKeyword(this, direction, voyeur, GetOverlayFor(voyeur));
 		return exit is not null && IsSpatiallyAccessibleExit(voyeur, exit) ? exit : null;
     }
 
     public ICellExit GetExitTo(ICell otherCell, IPerceiver voyeur, bool ignoreLayers = false)
     {
+		if (_isCombatSimulationCell)
+		{
+			return null;
+		}
+
         return
             Gameworld.ExitManager.GetExitsFor(this, GetOverlayFor(voyeur), ignoreLayers ? default : voyeur?.RoomLayer)
 					 .Where(x => IsSpatiallyAccessibleExit(voyeur, x))
@@ -776,7 +834,10 @@ public partial class Cell : Location, IDisposable, ICell
 		{
 			movingCharacter.MoveTo(this, roomLayer, exit, noSave);
 		}
-        Room.Enter(movingCharacter, exit);
+		if (!_isCombatSimulationCell)
+		{
+			Room.Enter(movingCharacter, exit);
+		}
         DoEnterEvent(movingCharacter);
 
         if (exit != null && exit.InboundDirection != CardinalDirection.Unknown)
@@ -836,7 +897,10 @@ public partial class Cell : Location, IDisposable, ICell
         ForceDisembarkVehicleOccupantLeavingWithoutVehicle(movingCharacter);
         base.Leave(movingCharacter);
 		RouteSpatialService.Instance.UntrackPerceivable(movingCharacter);
-        Room.Leave(movingCharacter);
+		if (!_isCombatSimulationCell)
+		{
+			Room.Leave(movingCharacter);
+		}
         DoLeaveEvent(movingCharacter);
         movingCharacter.HandleEvent(EventType.CharacterLeaveCell, movingCharacter, this,
             movingCharacter.Movement?.Exit);
@@ -1491,8 +1555,7 @@ public partial class Cell : Location, IDisposable, ICell
     {
         if (!WindLevels.ContainsKey(level))
         {
-            ItemWeightPerWindLevelExpression.Parameters["wind"] = (int)level;
-            WindLevels[level] = Convert.ToDouble(ItemWeightPerWindLevelExpression.Evaluate());
+            WindLevels[level] = ItemWeightPerWindLevelExpression.EvaluateDoubleWith(("wind", (int)level));
         }
 
         return WindLevels[level];

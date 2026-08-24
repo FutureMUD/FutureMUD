@@ -17,9 +17,8 @@ public class SpreadScatterStrategy : IRangedScatterStrategy
     private static double Weight(IPerceiver candidate, IPerceiver target)
     {
         IExpression expr = WeightExpression;
-        expr.Parameters["size"] = (int)candidate.Size;
-        expr.Parameters["proximity"] = (int)candidate.GetProximity(target);
-        return expr.EvaluateDouble();
+        return expr.EvaluateDoubleWith(("size", (int)candidate.Size),
+            ("proximity", (int)candidate.GetProximity(target)));
     }
 
     public RangedScatterResult? GetScatterTarget(ICharacter shooter, IPerceiver originalTarget,

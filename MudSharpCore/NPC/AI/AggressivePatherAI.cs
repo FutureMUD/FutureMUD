@@ -8,6 +8,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Models;
 using System.Collections;
+using MoreLinq;
 
 namespace MudSharp.NPC.AI;
 
@@ -85,7 +86,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
             return false;
         }
 
-        foreach (ICharacter tch in ch.Location.CharactersInSpatialVicinity(ch, false).Except(ch).Shuffle())
+        foreach (ICharacter tch in ch.Location.CharactersInSpatialVicinity(ch, false).Except(ch).Shuffle(Constants.Random))
         {
             if (CheckForAttack(ch, tch))
             {
@@ -103,7 +104,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
         //Worth revisiting at some point.
         {
             foreach (ICharacter tch in ch.Location.CellsInVicinity(range, true, true).Except(ch.Location)
-                                  .SelectMany(x => x.Characters).Shuffle().ToList())
+                                  .SelectMany(x => x.Characters).Shuffle(Constants.Random).ToList())
             {
                 if (CheckForAttack(ch, tch))
                 {

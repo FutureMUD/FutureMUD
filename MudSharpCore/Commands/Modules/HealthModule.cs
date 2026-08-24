@@ -2528,13 +2528,6 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
                 }
             }
 
-            attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)degree;
-            attack.Profile.DamageExpression.Formula.Parameters["quality"] = (int)weapon.Parent.Quality;
-            attack.Profile.StunExpression.Formula.Parameters["degree"] = (int)degree;
-            attack.Profile.StunExpression.Formula.Parameters["quality"] = (int)weapon.Parent.Quality;
-            attack.Profile.PainExpression.Formula.Parameters["degree"] = (int)degree;
-            attack.Profile.PainExpression.Formula.Parameters["quality"] = (int)weapon.Parent.Quality;
-
             double angle = RandomUtilities.DoubleRandom(Math.PI * 0.1, Math.PI);
             List<IWound> wounds = new();
             if (targetBodyparts.Count == 0)
@@ -2546,12 +2539,15 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
                     ToolOrigin = targetItem,
                     AngleOfIncidentRadians = angle,
                     Bodypart = null,
-                    DamageAmount = attack.Profile.DamageExpression.Evaluate(actor) * 2 * angle / Math.PI,
+                    DamageAmount = attack.Profile.DamageExpression.EvaluateWith(actor,
+                        values: [("degree", (int)degree), ("quality", (int)weapon.Parent.Quality)]) * 2 * angle / Math.PI,
                     DamageType = attack.Profile.DamageType,
-                    PainAmount = attack.Profile.PainExpression.Evaluate(actor) * 2 * angle / Math.PI,
+                    PainAmount = attack.Profile.PainExpression.EvaluateWith(actor,
+                        values: [("degree", (int)degree), ("quality", (int)weapon.Parent.Quality)]) * 2 * angle / Math.PI,
                     PenetrationOutcome = outcome,
                     ShockAmount = 0,
-                    StunAmount = attack.Profile.DamageExpression.Evaluate(actor) * 2 * angle / Math.PI
+                    StunAmount = attack.Profile.DamageExpression.EvaluateWith(actor,
+                        values: [("degree", (int)degree), ("quality", (int)weapon.Parent.Quality)]) * 2 * angle / Math.PI
                 };
 
                 wounds.AddRange(woundable.SufferDamage(finalDamage));
@@ -2567,12 +2563,15 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
                         ToolOrigin = targetItem,
                         AngleOfIncidentRadians = angle,
                         Bodypart = bodypart,
-                        DamageAmount = attack.Profile.DamageExpression.Evaluate(actor) * 2 * angle / Math.PI,
+                        DamageAmount = attack.Profile.DamageExpression.EvaluateWith(actor,
+                            values: [("degree", (int)degree), ("quality", (int)weapon.Parent.Quality)]) * 2 * angle / Math.PI,
                         DamageType = attack.Profile.DamageType,
-                        PainAmount = attack.Profile.PainExpression.Evaluate(actor) * 2 * angle / Math.PI,
+                        PainAmount = attack.Profile.PainExpression.EvaluateWith(actor,
+                            values: [("degree", (int)degree), ("quality", (int)weapon.Parent.Quality)]) * 2 * angle / Math.PI,
                         PenetrationOutcome = outcome,
                         ShockAmount = 0,
-                        StunAmount = attack.Profile.DamageExpression.Evaluate(actor) * 2 * angle / Math.PI
+                        StunAmount = attack.Profile.DamageExpression.EvaluateWith(actor,
+                            values: [("degree", (int)degree), ("quality", (int)weapon.Parent.Quality)]) * 2 * angle / Math.PI
                     };
 
                     wounds.AddRange(woundable.SufferDamage(finalDamage));

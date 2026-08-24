@@ -1166,11 +1166,10 @@ The syntax is simply #3attributes#0 or #3attributes <target>#0 to see someone el
 
         public override CheckOutcome TestAgainst(ICharacter actor, Difficulty difficulty)
         {
-            TestChance.Parameters["difficulty"] = (int)Difficulty.Normal;
-            TestChance.Parameters["height"] = actor.Height;
-            double origTN = (double)TestChance.Evaluate();
-            TestChance.Parameters["difficulty"] = (int)difficulty;
-            double targetNumber = (double)TestChance.Evaluate();
+            double origTN = TestChance.EvaluateDoubleWith(("difficulty", (int)Difficulty.Normal),
+                ("height", actor.Height));
+            double targetNumber = TestChance.EvaluateDoubleWith(("difficulty", (int)difficulty),
+                ("height", actor.Height));
             Outcome outcome = GetOutcome(RandomUtilities.ConsecutiveRoll(100, targetNumber, 3, out List<double> rolls));
 
             CheckOutcome result = new()
@@ -1219,11 +1218,10 @@ The syntax is simply #3attributes#0 or #3attributes <target>#0 to see someone el
 
         public override CheckOutcome TestAgainst(ICharacter actor, Difficulty difficulty)
         {
-            TestChance.Parameters["weight"] = actor.Weight;
-            TestChance.Parameters["difficulty"] = (int)Difficulty.Normal;
-            double origTN = (double)TestChance.Evaluate();
-            TestChance.Parameters["difficulty"] = (int)difficulty;
-            double targetNumber = (double)TestChance.Evaluate();
+            double origTN = TestChance.EvaluateDoubleWith(("weight", actor.Weight),
+                ("difficulty", (int)Difficulty.Normal));
+            double targetNumber = TestChance.EvaluateDoubleWith(("weight", actor.Weight),
+                ("difficulty", (int)difficulty));
             Outcome outcome = GetOutcome(RandomUtilities.ConsecutiveRoll(100, targetNumber, 3, out List<double> rolls));
 
             CheckOutcome result = new()

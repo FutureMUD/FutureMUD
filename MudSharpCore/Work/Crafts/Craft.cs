@@ -451,10 +451,10 @@ public class Craft : Framework.Revision.EditableItem, ICraft
         }
 
         Outcome outcome = component.QualityCheckOutcome;
-        QualityFormula?.Formula.Parameters["outcome"] = (int)outcome;
 
         ItemQuality outcomeQuality = (ItemQuality)Math.Min((int)ItemQuality.Legendary,
-            Math.Max(Convert.ToInt32(QualityFormula?.Evaluate(character, CheckTrait) ?? 0), (int)ItemQuality.Terrible));
+            Math.Max(Convert.ToInt32(QualityFormula?.EvaluateWith(character, CheckTrait,
+                values: [("outcome", (int)outcome)]) ?? 0), (int)ItemQuality.Terrible));
         ItemQuality netToolQuality = component.UsedToolQualities.Values.GetNetQuality();
         ItemQuality netInputQuality = component.ConsumedInputs
                                        .Select(x => (x.Value.Data.InputQuality, x.Key.InputQualityWeight))

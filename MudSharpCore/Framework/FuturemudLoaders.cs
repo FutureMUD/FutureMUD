@@ -13,6 +13,7 @@ using MudSharp.Celestial;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Combat;
+using MudSharp.Combat.Simulation;
 using MudSharp.Commands;
 using MudSharp.Commands.Modules;
 using MudSharp.Documentation.Export;
@@ -149,14 +150,19 @@ using Plane = MudSharp.Planes.Plane;
 
 namespace MudSharp.Framework;
 
-public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposable
+public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSimulationRuntimeRegistry, IDisposable
 {
     private List<ICharacterCommandTree> _actorCommandTrees = new();
     private readonly ConnectionSnapshotRegistry _connections = new();
 	private readonly List<IPlayerConnection> _pendingCommandConnections = [];
     public IServer Server { get; private set; }
 	public IRuntimePerformanceMonitor RuntimePerformanceMonitor { get; }
-    public IScheduler Scheduler { get; private set; }
+	private IScheduler _scheduler;
+	public IScheduler Scheduler
+	{
+		get => CombatSimulationRuntimeScope.Current?.Scheduler ?? _scheduler;
+		private set => _scheduler = value;
+	}
     public IArenaLifecycleService ArenaLifecycleService { get; private set; }
     public IArenaScheduler ArenaScheduler { get; private set; }
     public IArenaObservationService ArenaObservationService { get; private set; }
@@ -166,12 +172,27 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
     public IArenaNpcService ArenaNpcService { get; private set; }
     public IArenaParticipationService ArenaParticipationService { get; private set; }
     public IArenaCommandService ArenaCommandService { get; private set; }
-    public IEffectScheduler EffectScheduler { get; private set; }
-    public ISaveManager SaveManager { get; private set; }
+	private IEffectScheduler _effectScheduler;
+	public IEffectScheduler EffectScheduler
+	{
+		get => CombatSimulationRuntimeScope.Current?.EffectScheduler ?? _effectScheduler;
+		private set => _effectScheduler = value;
+	}
+	private ISaveManager _saveManager;
+	public ISaveManager SaveManager
+	{
+		get => CombatSimulationRuntimeScope.Current?.SaveManager ?? _saveManager;
+		private set => _saveManager = value;
+	}
     public IGameItemComponentManager GameItemComponentManager { get; private set; }
     public IClockManager ClockManager { get; private set; }
     public IUnitManager UnitManager { get; private set; }
-    public IHeartbeatManager HeartbeatManager { get; private set; }
+	private IHeartbeatManager _heartbeatManager;
+	public IHeartbeatManager HeartbeatManager
+	{
+		get => CombatSimulationRuntimeScope.Current?.HeartbeatManager ?? _heartbeatManager;
+		private set => _heartbeatManager = value;
+	}
     public IProximityEventService ProximityEventService { get; private set; }
     public IComputerExecutionService ComputerExecutionService { get; private set; }
     public IComputerHelpService ComputerHelpService { get; private set; }

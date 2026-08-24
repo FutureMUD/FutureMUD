@@ -12,6 +12,7 @@ using MudSharp.RPG.Checks;
 using MudSharp.Vehicles;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.RPG.Law;
+using MoreLinq;
 
 namespace MudSharp.GameItems.Components;
 
@@ -445,7 +446,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
     private bool TryResolveObstruction(ICharacter actor, IPerceiver target, IGameItem ammo,
         IRangedWeaponType weaponType, OpposedOutcome defenseOutcome, IBodypart bodypart, IReadOnlyList<ICellExit> path)
     {
-        IRangedObstructionEffect obstructionEffect = target.EffectsOfType<IRangedObstructionEffect>().Where(x => x.Applies(actor)).Shuffle()
+        IRangedObstructionEffect obstructionEffect = target.EffectsOfType<IRangedObstructionEffect>().Where(x => x.Applies(actor)).Shuffle(Constants.Random)
                                          .FirstOrDefault();
         if (obstructionEffect == null)
         {
@@ -523,35 +524,31 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         var payloadEffects = ammo.EffectsOfType<IMagicProjectilePayloadEffect>(x =>
             x.AppliesToProjectileAttack(actor, target, ammo)).ToList();
         var effectiveQuality = (int)ammo.Quality + (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus));
-        AmmoType.DamageProfile.DamageExpression.Formula.Parameters["quality"] = effectiveQuality;
-        AmmoType.DamageProfile.DamageExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
-        AmmoType.DamageProfile.DamageExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
-        AmmoType.DamageProfile.DamageExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
-        AmmoType.DamageProfile.DamageExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
-        AmmoType.DamageProfile.PainExpression.Formula.Parameters["quality"] = effectiveQuality;
-        AmmoType.DamageProfile.PainExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
-        AmmoType.DamageProfile.PainExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
-        AmmoType.DamageProfile.PainExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
-        AmmoType.DamageProfile.PainExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
-        AmmoType.DamageProfile.StunExpression.Formula.Parameters["quality"] = effectiveQuality;
-        AmmoType.DamageProfile.StunExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
-        AmmoType.DamageProfile.StunExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
-        AmmoType.DamageProfile.StunExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
-        AmmoType.DamageProfile.StunExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
-
-        weaponType.DamageBonusExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
-        weaponType.DamageBonusExpression.Formula.Parameters["quality"] = (int)Parent.Quality;
-        weaponType.DamageBonusExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
-        weaponType.DamageBonusExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
-        weaponType.DamageBonusExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
+        var profileValues = new (string Name, object Value)[]
+        {
+            ("quality", effectiveQuality),
+            ("degree", (int)defenseOutcome.Degree),
+            ("pointblank", actor == target ? 1 : 0),
+            ("inmelee", actor.MeleeRange ? 1 : 0),
+            ("range", target.DistanceBetween(actor, 10))
+        };
+        var weaponBonusValues = new (string Name, object Value)[]
+        {
+            ("range", target.DistanceBetween(actor, 10)),
+            ("quality", (int)Parent.Quality),
+            ("degree", (int)defenseOutcome.Degree),
+            ("pointblank", actor == target ? 1 : 0),
+            ("inmelee", actor.MeleeRange ? 1 : 0)
+        };
 
         damageMultiplier *= _currentFireContext?.DamageMultiplier ?? 1.0;
-        double finalDamage = (AmmoType.DamageProfile.DamageExpression.Evaluate(actor) +
-                          weaponType.DamageBonusExpression.Evaluate(actor, weaponType.FireTrait) +
+        double finalDamage = (AmmoType.DamageProfile.DamageExpression.EvaluateWith(actor, values: profileValues) +
+                          weaponType.DamageBonusExpression.EvaluateWith(actor, weaponType.FireTrait,
+                              values: weaponBonusValues) +
                           payloadEffects.Sum(x => x.ProjectileDamageBonus)) * damageMultiplier;
-        double finalPain = (AmmoType.DamageProfile.PainExpression.Evaluate(actor) +
+        double finalPain = (AmmoType.DamageProfile.PainExpression.EvaluateWith(actor, values: profileValues) +
                            payloadEffects.Sum(x => x.ProjectilePainBonus)) * damageMultiplier;
-        double finalStun = (AmmoType.DamageProfile.StunExpression.Evaluate(actor) +
+        double finalStun = (AmmoType.DamageProfile.StunExpression.EvaluateWith(actor, values: profileValues) +
                            payloadEffects.Sum(x => x.ProjectileStunBonus)) * damageMultiplier;
         return new Damage
         {

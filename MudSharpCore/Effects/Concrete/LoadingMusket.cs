@@ -24,11 +24,12 @@ public class UnjammingGun : CharacterActionWithTargetAndTool
 
         CheckOutcome outcome = check.Check(actor, difficulty, Weapon.Parent, Weapon);
         TraitExpression te = new(actor.Gameworld.GetStaticConfiguration("UnjammingGunDurationExpression"), actor.Gameworld);
-        te.Formula.Parameters["degrees"] = outcome.CheckDegrees();
-        te.Formula.Parameters["faildegrees"] = outcome.FailureDegrees();
-        te.Formula.Parameters["successdegrees"] = outcome.SuccessDegrees();
-        te.Formula.Parameters["difficulty"] = (int)difficulty;
-        return TimeSpan.FromSeconds(te.Evaluate(actor, Weapon.WeaponType.OperateTrait, TraitBonusContext.UnjamGunDuration));
+        return TimeSpan.FromSeconds(te.EvaluateWith(actor, Weapon.WeaponType.OperateTrait,
+            TraitBonusContext.UnjamGunDuration,
+            ("degrees", outcome.CheckDegrees()),
+            ("faildegrees", outcome.FailureDegrees()),
+            ("successdegrees", outcome.SuccessDegrees()),
+            ("difficulty", (int)difficulty)));
     }
 
     public IJammableWeapon Weapon { get; private set; }

@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.TimeAndDate;
@@ -19,7 +19,7 @@ public class SheriffPatrolStrategy : PatrolStrategyBase
         if (patrol.PatrolMembers.All(x => x.Location == patrol.LegalAuthority.CourtLocation))
         {
             patrol.PatrolPhase = PatrolPhase.Patrol;
-            patrol.LastArrivedTime = DateTime.UtcNow;
+            patrol.LastArrivedTime = RuntimeClock.UtcNow;
             patrol.LastMajorNode = patrol.LegalAuthority.CourtLocation;
             patrol.NextMajorNode = patrol.LegalAuthority.CourtLocation;
             return;
@@ -88,7 +88,7 @@ public class SheriffPatrolStrategy : PatrolStrategyBase
         trialCandidate.Location.Leave(trialCandidate);
         trialCandidate.RoomLayer = RoomLayer.GroundLevel;
         authority.CourtLocation.Enter(trialCandidate);
-        trialCandidate.AddEffect(new OnTrial(trialCandidate, authority, DateTime.UtcNow, crimes));
+        trialCandidate.AddEffect(new OnTrial(trialCandidate, authority, RuntimeClock.UtcNow, crimes));
         trialCandidate.Body.Look(true);
         trialCandidate.OutputHandler.Handle(new EmoteOutput(
             new Emote(Gameworld.GetStaticString("FetchCriminalForTrialEmoteCourt"), trialCandidate, trialCandidate),
@@ -107,7 +107,7 @@ public class SheriffPatrolStrategy : PatrolStrategyBase
                   .CharactersInImmediateVicinity(patrol.PatrolLeader)
                   .All(x => !x.EffectsOfType<OnTrial>(y => y.LegalAuthority == patrol.LegalAuthority).Any()))
         {
-            if (DateTime.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
+            if (RuntimeClock.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
             {
                 patrol.CompletePatrol();
                 return;
@@ -139,7 +139,7 @@ public class SheriffPatrolStrategy : PatrolStrategyBase
                     PathSearch.IgnorePresenceOfDoors).ToList();
                 if (path.Count == 0)
                 {
-                    if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+                    if (RuntimeClock.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
                     {
                         // Abort patrol
                         patrol.AbortPatrol();

@@ -1,4 +1,4 @@
-﻿#nullable enable annotations
+#nullable enable annotations
 
 using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
@@ -1394,7 +1394,7 @@ public class WildAnimalHerdAI : PathingAIBase
     private bool MinuteTickForHerd(ICharacter alpha, WildAnimalHerdPriority priority, WildAnimalHerdState state,
         List<(INPC Animal, WildAnimalHerdRole Role)> herd, WildAnimalHerdEffect effect)
     {
-        if (DateTime.UtcNow - effect.LastAlphaMinuteTick < TimeSpan.FromSeconds(30))
+        if (RuntimeClock.UtcNow - effect.LastAlphaMinuteTick < TimeSpan.FromSeconds(30))
         {
             return false;
         }
@@ -1407,28 +1407,28 @@ public class WildAnimalHerdAI : PathingAIBase
         switch (effect.State)
         {
             case WildAnimalHerdState.Alert:
-                if (DateTime.UtcNow - effect.LastStateChange > TimeSpan.FromMinutes(5))
+                if (RuntimeClock.UtcNow - effect.LastStateChange > TimeSpan.FromMinutes(5))
                 {
                     effect.State--;
                 }
 
                 break;
             case WildAnimalHerdState.Spooked:
-                if (DateTime.UtcNow - effect.LastStateChange > TimeSpan.FromMinutes(20))
+                if (RuntimeClock.UtcNow - effect.LastStateChange > TimeSpan.FromMinutes(20))
                 {
                     effect.State--;
                 }
 
                 break;
             case WildAnimalHerdState.Desperate:
-                if (DateTime.UtcNow - effect.LastStateChange > TimeSpan.FromMinutes(120))
+                if (RuntimeClock.UtcNow - effect.LastStateChange > TimeSpan.FromMinutes(120))
                 {
                     effect.State--;
                 }
 
                 break;
             case WildAnimalHerdState.None:
-                if (DateTime.UtcNow - effect.LastStateChange > TimeSpan.FromHours(24))
+                if (RuntimeClock.UtcNow - effect.LastStateChange > TimeSpan.FromHours(24))
                 {
                     effect.AvoidedLocations.Clear();
                 }
@@ -1717,7 +1717,7 @@ public class WildAnimalHerdAI : PathingAIBase
             return false;
         }
 
-        if (effect.EntryReactionCooldown > DateTime.UtcNow)
+        if (effect.EntryReactionCooldown > RuntimeClock.UtcNow)
         {
             return false;
         }
@@ -1738,7 +1738,7 @@ public class WildAnimalHerdAI : PathingAIBase
         if (EscalateThreat(character, herd, stressors, effect.State))
         {
             effect.State = (WildAnimalHerdState)((int)effect.State + 1);
-            effect.EntryReactionCooldown = DateTime.UtcNow + TimeSpan.FromSeconds(10);
+            effect.EntryReactionCooldown = RuntimeClock.UtcNow + TimeSpan.FromSeconds(10);
         }
 
         _stateReactionDictionary[effect.State]?.DoReaction(character,

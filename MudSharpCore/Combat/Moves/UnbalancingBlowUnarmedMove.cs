@@ -50,23 +50,22 @@ public class UnbalancingBlowUnarmedMove : NaturalAttackMove
         }
 
         ICheck check = Gameworld.GetCheck(CheckType.StaggeringBlowDefense);
-        UnbalancingBlowExpressionAttacker.Formula.Parameters["damage"] = result.WoundsCaused.Sum(x => x.OriginalDamage);
-        UnbalancingBlowExpressionAttacker.Formula.Parameters["stun"] = result.WoundsCaused.Sum(x => x.CurrentStun);
-        UnbalancingBlowExpressionAttacker.Formula.Parameters["pain"] = result.WoundsCaused.Sum(x => x.CurrentPain);
-        UnbalancingBlowExpressionAttacker.Formula.Parameters["degree"] = result.AttackerOutcome.CheckDegrees();
         double attackerStrength =
-            UnbalancingBlowExpressionAttacker.Evaluate(Assailant, context: TraitBonusContext.UnbalancingBlowCheck);
-
-        UnbalancingBlowExpressionDefender.Formula.Parameters["damage"] = result.WoundsCaused.Sum(x => x.OriginalDamage);
-        UnbalancingBlowExpressionDefender.Formula.Parameters["stun"] = result.WoundsCaused.Sum(x => x.CurrentStun);
-        UnbalancingBlowExpressionDefender.Formula.Parameters["pain"] = result.WoundsCaused.Sum(x => x.CurrentPain);
-        UnbalancingBlowExpressionDefender.Formula.Parameters["degree"] = result.DefenderOutcome.CheckDegrees();
-        UnbalancingBlowExpressionDefender.Formula.Parameters["limbs"] = Target.CombinedEffectsOfType<BeingGrappled>()
-                                                                              .Sum(x => x.Grappling.LimbsUnderControl
-                                                                                  .Count());
+            UnbalancingBlowExpressionAttacker.EvaluateWith(Assailant, null, TraitBonusContext.UnbalancingBlowCheck,
+                ("damage", result.WoundsCaused.Sum(x => x.OriginalDamage)),
+                ("stun", result.WoundsCaused.Sum(x => x.CurrentStun)),
+                ("pain", result.WoundsCaused.Sum(x => x.CurrentPain)),
+                ("degree", result.AttackerOutcome.CheckDegrees()));
 
         double defenderStrength =
-            UnbalancingBlowExpressionDefender.Evaluate(Target, context: TraitBonusContext.UnbalancingBlowDefenseCheck);
+            UnbalancingBlowExpressionDefender.EvaluateWith(Target, null,
+                TraitBonusContext.UnbalancingBlowDefenseCheck,
+                ("damage", result.WoundsCaused.Sum(x => x.OriginalDamage)),
+                ("stun", result.WoundsCaused.Sum(x => x.CurrentStun)),
+                ("pain", result.WoundsCaused.Sum(x => x.CurrentPain)),
+                ("degree", result.DefenderOutcome.CheckDegrees()),
+                ("limbs", Target.CombinedEffectsOfType<BeingGrappled>()
+                    .Sum(x => x.Grappling.LimbsUnderControl.Count())));
         CheckOutcome cr = check.Check(Target, ((ISecondaryDifficultyAttack)Attack).SecondaryDifficulty, Assailant,
             externalBonus: (defenderStrength - attackerStrength) *
                            Gameworld.GetStaticDouble("UnbalancingBlowPenaltyMultiplier"));

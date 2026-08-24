@@ -34,9 +34,8 @@ public class TheoreticalSkill : Trait
     {
         get
         {
-            _definition.ValueExpression.Parameters["theory"] = TheoreticalValue;
-            _definition.ValueExpression.Parameters["practical"] = PracticalValue;
-            return Convert.ToDouble(_definition.ValueExpression.Evaluate());
+            return _definition.ValueExpression.EvaluateDoubleWith(("theory", TheoreticalValue),
+                ("practical", PracticalValue));
         }
         set
         {

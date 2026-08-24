@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using System.Globalization;
 
 namespace MudSharp.RPG.Law.PatrolStrategies;
@@ -60,7 +60,7 @@ public class InvestigationPatrolStrategy : CrimeTargetedPatrolStrategyBase
 	protected override void HandleArrivedAtTargetNode(IPatrol patrol, ICell node)
 	{
 		base.HandleArrivedAtTargetNode(patrol, node);
-		if (DateTime.UtcNow - patrol.LastArrivedTime < SceneSearchTime)
+		if (RuntimeClock.UtcNow - patrol.LastArrivedTime < SceneSearchTime)
 		{
 			return;
 		}

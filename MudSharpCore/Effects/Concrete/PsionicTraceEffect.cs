@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Construction;
 using MudSharp.Magic;
@@ -55,7 +55,7 @@ public sealed class PsionicTraceEffect : Effect, IPsionicTraceEffect
 		ReadDifficulty = (Difficulty)int.Parse(trueRoot?.Element("ReadDifficulty")?.Value ??
 		                                       ((int)Difficulty.Normal).ToString());
 		ConcealmentDifficultyStages = int.Parse(trueRoot?.Element("ConcealmentDifficultyStages")?.Value ?? "0");
-		CreatedUtc = DateTime.Parse(trueRoot?.Element("CreatedUtc")?.Value ?? DateTime.UtcNow.ToString("O"),
+		CreatedUtc = DateTime.Parse(trueRoot?.Element("CreatedUtc")?.Value ?? RuntimeClock.UtcNow.ToString("O"),
 			CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
 		TraceDuration = TimeSpan.FromSeconds(double.Parse(trueRoot?.Element("TraceDurationSeconds")?.Value ?? "0",
 			CultureInfo.InvariantCulture));

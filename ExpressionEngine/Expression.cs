@@ -4,8 +4,10 @@ using NCalc.Extensions;
 using NCalc.Handlers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace ExpressionEngine
 {
@@ -15,66 +17,88 @@ namespace ExpressionEngine
         public const int MaximumDiceSides = 100000;
 
         public static event EventHandler<string> ExpressionError;
-        public static Random RandomInstance { get; } = new();
+        private static readonly Random SystemRandom = new();
+        private static readonly AsyncLocal<Random> AmbientRandom = new();
+        public static Random RandomInstance => AmbientRandom.Value ?? SystemRandom;
 
-        private NCalc.Expression _expression;
+        public static IDisposable PushRandom(Random random)
+        {
+            ArgumentNullException.ThrowIfNull(random);
+            var previous = AmbientRandom.Value;
+            AmbientRandom.Value = random;
+            return new AmbientRandomScope(previous);
+        }
+
+        private sealed class AmbientRandomScope(Random previous) : IDisposable
+        {
+            private bool _disposed;
+
+            public void Dispose()
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+
+                AmbientRandom.Value = previous;
+                _disposed = true;
+            }
+        }
+
+        private readonly NCalc.Expression _parsedExpression;
+        private readonly ExpressionOptions _options;
+        private readonly IReadOnlyList<string> _parameterNames;
+        private readonly bool _hasErrors;
 
         public string OriginalExpression { get; private set; }
-
-        private Dictionary<string, object> _parameters;
-
-        public Dictionary<string, object> Parameters
-        {
-            get => _parameters ??= new Dictionary<string, object>(); set => _parameters = value;
-        }
 
         private static readonly Regex _regex = new(@"(?:(?<numdice>\d+)d(?<sides>\d+))", RegexOptions.IgnoreCase);
 
         public object Evaluate()
         {
-            foreach (KeyValuePair<string, object> parameter in Parameters)
+            return EvaluateWith(Array.Empty<(string Name, object Value)>());
+        }
+
+        public object EvaluateWith(IReadOnlyDictionary<string, object> values)
+        {
+            ArgumentNullException.ThrowIfNull(values);
+            return EvaluateWith(values.Select(x => (x.Key, x.Value)).ToArray());
+        }
+
+        public object EvaluateWith(params (string Name, object Value)[] values)
+        {
+            ArgumentNullException.ThrowIfNull(values);
+
+            if (_hasErrors)
             {
-                if (parameter.Value is Enum)
-                {
-                    _expression.Parameters[parameter.Key] = Convert.ToInt64(parameter.Value);
-                    continue;
-                }
-                _expression.Parameters[parameter.Key] = parameter.Value;
+                return ReportError(new NCalcParserException(_parsedExpression.Error?.Message ?? "The expression has parsing errors."));
             }
+
+            var expression = CreateEvaluationExpression(values);
 
             try
             {
-                return _expression.Evaluate();
+                return expression.Evaluate();
             }
             catch (NCalcFunctionNotFoundException e)
             {
-                Console.WriteLine($"Exception in expression {OriginalExpression}:\n\nFunction Not Found: {e.FunctionName}\n\n{e}");
-                ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\nFunction Not Found: {e.FunctionName}\n\n{e}");
-                return 0.0;
+                return ReportError($"Exception in expression {OriginalExpression}:\n\nFunction Not Found: {e.FunctionName}\n\n{e}");
             }
             catch (NCalcParameterNotDefinedException e)
             {
-                Console.WriteLine($"Exception in expression {OriginalExpression}:\n\nParameter Not Defined: {e.ParameterName}\n\n{e}");
-                ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\nParameter Not Defined: {e.ParameterName}\n\n{e}");
-                return 0.0;
+                return ReportError($"Exception in expression {OriginalExpression}:\n\nParameter Not Defined: {e.ParameterName}\n\n{e}");
             }
             catch (NCalcParserException e)
             {
-                Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e}");
-                ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e}");
-                return 0.0;
+                return ReportError($"Exception in expression {OriginalExpression}:\n\n{e}");
             }
             catch (NCalcEvaluationException e)
             {
-                Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e}");
-                ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e}");
-                return 0.0;
+                return ReportError($"Exception in expression {OriginalExpression}:\n\n{e}");
             }
             catch (Exception e) when (e is ArgumentException or OverflowException or InvalidOperationException)
             {
-                Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e}");
-                ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e}");
-                return 0.0;
+                return ReportError($"Exception in expression {OriginalExpression}:\n\n{e}");
             }
         }
 
@@ -83,57 +107,14 @@ namespace ExpressionEngine
             return Convert.ToDouble(Evaluate());
         }
 
+        public double EvaluateDoubleWith(IReadOnlyDictionary<string, object> values)
+        {
+            return Convert.ToDouble(EvaluateWith(values));
+        }
+
         public decimal EvaluateDecimal()
         {
             return Convert.ToDecimal(Evaluate());
-        }
-
-        public object EvaluateWith(params (string Name, object Value)[] values)
-        {
-            foreach (KeyValuePair<string, object> parameter in Parameters)
-            {
-                _expression.Parameters[parameter.Key] = parameter.Value;
-            }
-
-            foreach ((string Name, object Value) parameter in values)
-            {
-                _expression.Parameters[parameter.Name] = parameter.Value;
-            }
-
-            try
-            {
-                return _expression.Evaluate();
-            }
-            catch (NCalcFunctionNotFoundException e)
-            {
-                Console.WriteLine($"Exception in expression {OriginalExpression}:\n\nFunction Not Found: {e.FunctionName}\n\n{e}");
-                ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\nFunction Not Found: {e.FunctionName}\n\n{e}");
-                return 0.0;
-            }
-            catch (NCalcParameterNotDefinedException e)
-            {
-                Console.WriteLine($"Exception in expression {OriginalExpression}:\n\nParameter Not Defined: {e.ParameterName}\n\n{e}");
-                ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\nParameter Not Defined: {e.ParameterName}\n\n{e}");
-                return 0.0;
-            }
-            catch (NCalcParserException e)
-            {
-                Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e}");
-                ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e}");
-                return 0.0;
-            }
-            catch (NCalcEvaluationException e)
-            {
-                Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e}");
-                ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e}");
-                return 0.0;
-            }
-            catch (Exception e) when (e is ArgumentException or OverflowException or InvalidOperationException)
-            {
-                Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e}");
-                ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e}");
-                return 0.0;
-            }
         }
 
         public double EvaluateDoubleWith(params (string Name, object Value)[] values)
@@ -146,14 +127,19 @@ namespace ExpressionEngine
             return Convert.ToDecimal(EvaluateWith(values));
         }
 
-        public bool HasErrors()
+        public decimal EvaluateDecimalWith(IReadOnlyDictionary<string, object> values)
         {
-            return _expression.HasErrors();
+            return Convert.ToDecimal(EvaluateWith(values));
         }
 
-        public string Error => _expression.Error?.Message ?? string.Empty;
+        public bool HasErrors()
+        {
+            return _hasErrors;
+        }
 
-        public IEnumerable<string> ParameterNames => _expression.GetParameterNames();
+        public string Error => _parsedExpression.Error?.Message ?? string.Empty;
+
+        public IEnumerable<string> ParameterNames => _parameterNames;
 
         #region Constructors
         public Expression(string expression) : this(expression, ExpressionOptions.CaseInsensitiveStringComparer | ExpressionOptions.IgnoreCaseAtBuiltInFunctions | ExpressionOptions.AllowBooleanCalculation)
@@ -163,25 +149,51 @@ namespace ExpressionEngine
         protected Expression(string expression, ExpressionOptions options)
         {
             OriginalExpression = expression;
+            _options = options;
             string parsed = _regex.Replace(expression, m =>
             {
                 return $"dice({m.Groups["numdice"].Value},{m.Groups["sides"].Value})";
             });
-            _expression = new NCalc.Expression(parsed, options);
-            _expression.EvaluateFunction += DRandFunction;
-            _expression.EvaluateFunction += RandFunction;
-            _expression.EvaluateFunction += DiceFunction;
-            _expression.EvaluateFunction += NotFunction;
-
-            if (!_expression.HasErrors())
-            {
-                foreach (string parameter in _expression.GetParameterNames())
-                {
-                    _expression.Parameters[parameter] = 0.0;
-                }
-            }
+            _parsedExpression = new NCalc.Expression(parsed, options);
+            _hasErrors = _parsedExpression.HasErrors();
+            _parameterNames = _hasErrors
+                ? Array.Empty<string>()
+                : _parsedExpression.GetParameterNames();
         }
         #endregion
+
+        private NCalc.Expression CreateEvaluationExpression(IEnumerable<(string Name, object Value)> values)
+        {
+            var expression = new NCalc.Expression(_parsedExpression.LogicalExpression!, _options);
+            expression.EvaluateFunction += DRandFunction;
+            expression.EvaluateFunction += RandFunction;
+            expression.EvaluateFunction += DiceFunction;
+            expression.EvaluateFunction += NotFunction;
+
+            foreach (var parameter in _parameterNames)
+            {
+                expression.Parameters[parameter] = 0.0;
+            }
+
+            foreach (var (name, value) in values)
+            {
+                expression.Parameters[name] = value is Enum ? Convert.ToInt64(value) : value;
+            }
+
+            return expression;
+        }
+
+        private object ReportError(Exception exception)
+        {
+            return ReportError($"Exception in expression {OriginalExpression}:\n\n{exception}");
+        }
+
+        private object ReportError(string message)
+        {
+            Console.WriteLine(message);
+            ExpressionError?.Invoke(this, message);
+            return 0.0;
+        }
 
         #region In-built functions
 

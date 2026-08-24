@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.TimeAndDate;
 using System.Globalization;
 
@@ -48,7 +48,7 @@ public class ReactivePatrolStrategy : CrimeTargetedPatrolStrategyBase
 		       crime.CrimeLocation is not null &&
 		       crime.Law.CrimeType.IsViolentCrime() &&
 		       crime.Law.EnforcementStrategy > EnforcementStrategy.NoActiveEnforcement &&
-		       DateTime.UtcNow - crime.RealTimeOfCrime <= dispatchWindow;
+		       RuntimeClock.UtcNow - crime.RealTimeOfCrime <= dispatchWindow;
 	}
 
 	protected override bool TargetCrimeStillValid(IPatrol patrol)
@@ -61,14 +61,14 @@ public class ReactivePatrolStrategy : CrimeTargetedPatrolStrategyBase
 	{
 		base.HandleArrivedAtTargetNode(patrol, node);
 
-		if (DateTime.UtcNow - patrol.PatrolStartTime >= MaximumDuration ||
+		if (RuntimeClock.UtcNow - patrol.PatrolStartTime >= MaximumDuration ||
 		    !patrol.PatrolRoute.TimeOfDays.Contains(patrol.PatrolLeader.Location.CurrentTimeOfDay))
 		{
 			patrol.CompletePatrol();
 			return;
 		}
 
-		if (DateTime.UtcNow - patrol.LastArrivedTime < patrol.PatrolRoute.LingerTimeMajorNode)
+		if (RuntimeClock.UtcNow - patrol.LastArrivedTime < patrol.PatrolRoute.LingerTimeMajorNode)
 		{
 			return;
 		}

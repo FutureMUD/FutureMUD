@@ -350,21 +350,15 @@ public class ItemDamageEffect : IMagicSpellEffectTemplate
 			return null;
 		}
 
-		foreach (var expression in new[] { DamageFormula, PainFormula, StunFormula })
-		{
-			expression.Parameters["power"] = (int)power;
-			expression.Parameters["outcome"] = (int)outcome;
-		}
-
-		item.SufferDamage(new Damage
+        item.SufferDamage(new Damage
 		{
 			ActorOrigin = caster,
 			ToolOrigin = null,
 			DamageType = DamageType,
-			DamageAmount = DamageFormula.EvaluateDouble(),
-			PainAmount = PainFormula.EvaluateDouble(),
+            DamageAmount = DamageFormula.EvaluateDoubleWith(("power", (int)power), ("outcome", (int)outcome)),
+            PainAmount = PainFormula.EvaluateDoubleWith(("power", (int)power), ("outcome", (int)outcome)),
 			ShockAmount = 0,
-			StunAmount = StunFormula.EvaluateDouble(),
+            StunAmount = StunFormula.EvaluateDoubleWith(("power", (int)power), ("outcome", (int)outcome)),
 			PenetrationOutcome = Outcome.NotTested
 		});
 		return null;

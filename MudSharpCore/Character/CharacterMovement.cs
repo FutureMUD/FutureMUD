@@ -382,12 +382,10 @@ public partial class Character
 
         ICheck check = Gameworld.GetCheck(CheckType.FallingImpactCheck);
         CheckOutcome result = check.Check(this, Difficulty.Normal.StageUp((int)effectiveFallDistance));
-        FallDamageExpression.Formula.Parameters["rooms"] = effectiveFallDistance;
-        FallDamageExpression.Formula.Parameters["weight"] = Weight;
-        FallDamageExpression.Formula.Parameters["check"] = result.CheckDegrees();
-        FallDamageExpression.Formula.Parameters["success"] = result.SuccessDegrees();
-        FallDamageExpression.Formula.Parameters["failure"] = result.FailureDegrees();
-        double damageAmount = FallDamageExpression.Evaluate(this) * damageMultiplier;
+        double damageAmount = FallDamageExpression.EvaluateWith(this,
+                                  values: [("rooms", effectiveFallDistance), ("weight", Weight),
+                                      ("check", result.CheckDegrees()), ("success", result.SuccessDegrees()),
+                                      ("failure", result.FailureDegrees())]) * damageMultiplier;
         if (damageAmount <= 0.0)
         {
             return;
@@ -1288,9 +1286,8 @@ public partial class Character
                 break;
         }
 
-        BaseSpeedExpression.Formula.Parameters["encumbrance"] = (int)Encumbrance;
-        BaseSpeedExpression.Formula.Parameters["encpercent"] = EncumbrancePercentage;
-        double baseSpeed = BaseSpeedExpression.Evaluate(this);
+        double baseSpeed = BaseSpeedExpression.EvaluateWith(this,
+            values: [("encumbrance", (int)Encumbrance), ("encpercent", EncumbrancePercentage)]);
         double woundPenalty = WoundPenaltyToMoveSpeedPenalty * Body.HealthStrategy.WoundPenaltyFor(this);
 
         double aidePenalty = 1.0;

@@ -3,6 +3,7 @@ using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 using NCalc;
+using MoreLinq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -192,7 +193,7 @@ You can also use the traits of the caster as per #3TE HELP#0.";
         }
         else
         {
-            wounds = wounds.Shuffle().ToList();
+            wounds = wounds.Shuffle(Constants.Random).ToList();
         }
 
         while (amount > 0.0)

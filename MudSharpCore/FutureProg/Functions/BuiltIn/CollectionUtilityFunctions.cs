@@ -118,7 +118,7 @@ internal class CollectionUtilityFunction : BuiltInFunction
 				Result = ToCollection(Distinct(collection));
 				return StatementResult.Normal;
 			case CollectionOperation.Shuffle:
-				Result = ToCollection(collection.OrderBy(_ => Random.Shared.Next()));
+				Result = ToCollection(collection.OrderBy(_ => Constants.Random.Next()));
 				return StatementResult.Normal;
 			case CollectionOperation.IsValidIndex:
 				var index = GetInteger(1);

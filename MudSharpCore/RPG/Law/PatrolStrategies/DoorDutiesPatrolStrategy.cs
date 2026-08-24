@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using System.Globalization;
@@ -211,7 +211,7 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 			HasKeysForCells(patrol.PatrolLeader, dutyCells))
 		{
 			patrol.PatrolPhase = PatrolPhase.Patrol;
-			patrol.LastArrivedTime = DateTime.UtcNow;
+			patrol.LastArrivedTime = RuntimeClock.UtcNow;
 			patrol.LastMajorNode = patrol.LegalAuthority.MarshallingLocation;
 			patrol.NextMajorNode = dutyLocation;
 			EnableDoorGuardMode(patrol);
@@ -243,7 +243,7 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 
 		if (patrol.PatrolMembers.Any(x => x.Location != patrol.LegalAuthority.PreparingLocation))
 		{
-			if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+			if (RuntimeClock.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
 			{
 				AbortDoorDuty(patrol);
 			}
@@ -253,7 +253,7 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 
 		if (!HasKeysForCells(patrol.PatrolLeader, dutyCells))
 		{
-			if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+			if (RuntimeClock.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
 			{
 				AbortDoorDuty(patrol);
 			}
@@ -261,14 +261,14 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 			return;
 		}
 
-		if (DateTime.UtcNow - patrol.LastArrivedTime <= TimeSpan.FromMinutes(1))
+		if (RuntimeClock.UtcNow - patrol.LastArrivedTime <= TimeSpan.FromMinutes(1))
 		{
 			return;
 		}
 
 		FormParty(patrol);
 		patrol.PatrolPhase = PatrolPhase.Deployment;
-		patrol.LastArrivedTime = DateTime.UtcNow;
+		patrol.LastArrivedTime = RuntimeClock.UtcNow;
 		patrol.LastMajorNode = patrol.PatrolLeader.Location;
 		patrol.NextMajorNode = dutyLocation;
 	}
@@ -292,7 +292,7 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 			EnableDoorGuardMode(patrol);
 		}
 
-		if (DateTime.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
+		if (RuntimeClock.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
 		{
 			CompleteDoorDuty(patrol);
 			return;
@@ -322,7 +322,7 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 					PathSearch.IgnorePresenceOfDoors).ToList();
 				if (path.Count == 0)
 				{
-					if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+					if (RuntimeClock.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
 					{
 						AbortDoorDuty(patrol);
 						return;

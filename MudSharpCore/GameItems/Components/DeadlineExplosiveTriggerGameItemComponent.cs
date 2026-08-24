@@ -88,7 +88,7 @@ public abstract class DeadlineExplosiveTriggerGameItemComponent : GameItemCompon
 	protected TimeSpan RemainingDuration(DateTime? now = null)
 	{
 		return DetonationDeadlineUtc is { } deadline
-			? deadline - (now ?? DateTime.UtcNow)
+			? deadline - (now ?? RuntimeClock.UtcNow)
 			: TimeSpan.Zero;
 	}
 
@@ -140,7 +140,7 @@ public abstract class DeadlineExplosiveTriggerGameItemComponent : GameItemCompon
 
 	private void CheckDeadline()
 	{
-		if (DetonationDeadlineUtc is not { } deadline || !ExplosiveDeadlineScheduler.IsDue(deadline, DateTime.UtcNow))
+		if (DetonationDeadlineUtc is not { } deadline || !ExplosiveDeadlineScheduler.IsDue(deadline, RuntimeClock.UtcNow))
 		{
 			return;
 		}

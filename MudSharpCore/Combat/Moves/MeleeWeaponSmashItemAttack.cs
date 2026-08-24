@@ -55,11 +55,10 @@ public class MeleeWeaponSmashItemAttack : WeaponAttackMove
         CheckOutcome check = Gameworld.GetCheck(CheckType.MeleeWeaponCheck)
                              .Check(Assailant, Difficulty.Easy, Weapon.WeaponType.AttackTrait, Target);
         OpposedOutcome result = new(check, Outcome.NotTested);
-        Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)result.Degree;
-        Attack.Profile.DamageExpression.Formula.Parameters["quality"] = (int)Weapon.Parent.Quality;
 
-        double damage = Attack.Profile.DamageExpression.Evaluate(Assailant) * 2 * Attack.Profile.BaseAngleOfIncidence /
-                     Math.PI;
+        double damage = Attack.Profile.DamageExpression.EvaluateWith(Assailant,
+                            values: [("degree", (int)result.Degree), ("quality", (int)Weapon.Parent.Quality)]) * 2 *
+                        Attack.Profile.BaseAngleOfIncidence / Math.PI;
 
         Damage finalDamage = new()
         {

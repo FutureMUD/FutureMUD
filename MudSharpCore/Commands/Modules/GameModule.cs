@@ -1170,14 +1170,12 @@ The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
                 TraitExpression expr = IncreasedBranchChance.IncreasedCapExpression;
                 foreach ((ISkillDefinition Skill, int Attempts) skill in skills)
                 {
-                    expr.Formula.Parameters["base"] = 1.0;
-                    expr.Formula.Parameters["attempts"] = skill.Attempts;
                     ILanguage language = actor.Gameworld.Languages.FirstOrDefault(x => x.LinkedTrait == skill.Skill);
                     string skillName = language == null
                         ? skill.Skill.Name
                         : language.UnknownLanguageSpokenDescription;
                     sb.AppendLine(
-                        $"\t{expr.Evaluate(actor).ToString("N2", actor)}x with {skillName.Colour(Telnet.Green)}");
+                        $"\t{expr.EvaluateWith(actor, values: [("base", 1.0), ("attempts", skill.Attempts)]).ToString("N2", actor)}x with {skillName.Colour(Telnet.Green)}");
                 }
             }
             else

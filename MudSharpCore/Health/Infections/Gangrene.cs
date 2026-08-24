@@ -41,8 +41,7 @@ public class Gangrene : Infection
     {
         get
         {
-            PainExpression.Parameters["intensity"] = Intensity;
-            return Convert.ToDouble(PainExpression.Evaluate());
+            return PainExpression.EvaluateDoubleWith(("intensity", Intensity));
         }
     }
 

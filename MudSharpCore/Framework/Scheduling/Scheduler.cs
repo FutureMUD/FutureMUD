@@ -8,6 +8,8 @@ public class Scheduler : IScheduler
 	private readonly StableScheduleHeap<ISchedule> _schedules = new();
 	private readonly TimeProvider _timeProvider;
 	private readonly IRuntimePerformanceMonitor _performanceMonitor;
+	public DateTime? NextTriggerUtc => _schedules.TryPeek(out var next) ? next.TriggerUtc : null;
+	public int LastCheckFiredCount { get; private set; }
 
 	public Scheduler(TimeProvider timeProvider = null, IRuntimePerformanceMonitor performanceMonitor = null)
 	{
@@ -84,6 +86,8 @@ public class Scheduler : IScheduler
 
 			fired++;
 		}
+
+		LastCheckFiredCount = fired;
 
 		_performanceMonitor?.RecordSchedulerCheck(RuntimeSchedulerKind.Main, _schedules.Count, fired, overdue,
 			Stopwatch.GetTimestamp() - started);

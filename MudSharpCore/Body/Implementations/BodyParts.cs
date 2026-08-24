@@ -1,6 +1,7 @@
 ﻿using MudSharp.Body.Disfigurements;
 using MudSharp.Database;
 using MudSharp.Construction;
+using MudSharp.Combat.Simulation;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
@@ -721,9 +722,27 @@ public partial class Body
         return result;
     }
 
-    public IBodypart RandomBodypart => Bodyparts.GetWeightedRandom(x => x.RelativeHitChance);
+    public IBodypart RandomBodypart
+    {
+        get
+        {
+            List<IBodypart> candidates = Bodyparts.OrderBy(x => x.Id).ToList();
+            IBodypart selected = candidates.GetWeightedRandom(x => x.RelativeHitChance);
+            RecordSimulationBodypartSelection("random", candidates, selected, string.Empty);
+            return selected;
+        }
+    }
 
-    public IBodypart RandomBodypartOrOrgan => Bodyparts.Concat(Organs).GetWeightedRandom(x => x.RelativeHitChance);
+    public IBodypart RandomBodypartOrOrgan
+    {
+        get
+        {
+            List<IBodypart> candidates = Bodyparts.Concat(Organs).OrderBy(x => x.Id).ToList();
+            IBodypart selected = candidates.GetWeightedRandom(x => x.RelativeHitChance);
+            RecordSimulationBodypartSelection("random-or-organ", candidates, selected, string.Empty);
+            return selected;
+        }
+    }
 
     public IBodypart RandomBodyPartGeometry(Orientation orientation, Alignment alignment, Facing facing,
         bool appendagesActive = false)
@@ -791,19 +810,28 @@ public partial class Body
             }
         }
 
-        return eligableBodyparts.GetWeightedRandom(x => x.RelativeHitChance) ??
-               RandomBodypart;
+        List<IBodypart> candidates = eligableBodyparts.OrderBy(x => x.Id).ToList();
+        IBodypart selected = candidates.GetWeightedRandom(x => x.RelativeHitChance) ?? RandomBodypart;
+        RecordSimulationBodypartSelection("geometry", candidates, selected,
+            $"orientation:{orientation} alignment:{alignment} facing:{facing} roll:{roll.Item1}/{roll.Item2}");
+        return selected;
     }
 
     public IBodypart RandomVitalBodypart(Facing facing)
     {
-        List<IBodypart> vitals = Bodyparts.Where(x => x.RelativeHitChance > 0 && x.IsVital).ToList();
+        List<IBodypart> vitals = Bodyparts
+            .Where(x => x.RelativeHitChance > 0 && x.IsVital)
+            .OrderBy(x => x.Id)
+            .ToList();
         if (!vitals.Any())
         {
-            vitals = Bodyparts.Where(x => x.Organs.Any()).ToList();
+            vitals = Bodyparts
+                .Where(x => x.Organs.Any())
+                .OrderBy(x => x.Id)
+                .ToList();
             if (!vitals.Any())
             {
-                vitals = Bodyparts.ToList();
+                vitals = Bodyparts.OrderBy(x => x.Id).ToList();
             }
         }
 
@@ -827,6 +855,32 @@ public partial class Body
 
         return vitals.GetRandomElement();
     }
+
+	private void RecordSimulationBodypartSelection(
+		string selector,
+		IEnumerable<IBodypart> candidates,
+		IBodypart selected,
+		string context)
+	{
+		var scope = CombatSimulationRuntimeScope.Current;
+		if (scope?.ExecutionFingerprint.CaptureRandomCallSites != true)
+		{
+			return;
+		}
+
+		var candidateIds = candidates
+			.Select(x => x.Id.ToString(System.Globalization.CultureInfo.InvariantCulture))
+			.ListToString(separator: ",", conjunction: string.Empty, twoItemJoiner: ",");
+		var callSite = string.Join(" <- ", new System.Diagnostics.StackTrace(1, false)
+			.GetFrames()?
+			.Select(x => x.GetMethod())
+			.Where(x => x?.DeclaringType?.Namespace?.StartsWith("MudSharp", StringComparison.Ordinal) == true)
+			.Select(x => x!)
+			.Take(5)
+			.Select(x => $"{x.DeclaringType!.Name}.{x.Name}") ?? []);
+		scope.ExecutionFingerprint.RecordState(
+			$"bodypart-selector:{selector} {context} candidates:{candidateIds} selected:{selected?.Id ?? 0} from:{callSite}");
+	}
 
     public ILimb GetLimbFor(IBodypart bodypart)
     {

@@ -43,7 +43,7 @@ public class RobotWound : PerceivedItem, IWound
         Lodged = lodged;
         _toolOriginId = toolOrigin?.Id ?? 0;
         _actorOriginId = actorOrigin?.Id ?? 0;
-        RealTimeOfWound = DateTime.UtcNow;
+        RealTimeOfWound = RuntimeClock.UtcNow;
         if (actorOrigin?.Combat?.Friendly == true)
         {
             IsFriendlyWound = true;

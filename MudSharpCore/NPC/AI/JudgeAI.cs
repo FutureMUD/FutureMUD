@@ -1,4 +1,4 @@
-﻿using MimeKit.IO.Filters;
+using MimeKit.IO.Filters;
 using MoreLinq;
 using MudSharp.Accounts;
 using MudSharp.Character.Name;
@@ -1239,7 +1239,7 @@ With each of the emotes, you can use the following tokens:
 
 	private bool DoTrialTickAwaitingLawyers(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
 	{
-		if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+		if (RuntimeClock.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
         {
             return false;
         }
@@ -1287,12 +1287,12 @@ With each of the emotes, you can use the following tokens:
 		if (TrialAdvocatesReady(defendant, trialEffect))
 		{
 			trialEffect.Phase = TrialPhase.Introduction;
-			trialEffect.LastTrialAction = DateTime.UtcNow;
+			trialEffect.LastTrialAction = RuntimeClock.UtcNow;
             return true;
         }
 
         // After 10 minutes, fire the lawyers that aren't there
-        if (DateTime.UtcNow - trialEffect.LastTrialAction > TimeSpan.FromMinutes(10))
+        if (RuntimeClock.UtcNow - trialEffect.LastTrialAction > TimeSpan.FromMinutes(10))
         {
 			var defender = trialEffect.Defender;
 			if (defender is not null &&
@@ -1314,7 +1314,7 @@ With each of the emotes, you can use the following tokens:
 
     private bool DoTrialTickSentencing(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
     {
-        if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+        if (RuntimeClock.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
         {
             return false;
         }
@@ -1440,13 +1440,13 @@ With each of the emotes, you can use the following tokens:
             defendant
         )));
 
-        trialEffect.LastTrialAction = DateTime.UtcNow;
+        trialEffect.LastTrialAction = RuntimeClock.UtcNow;
         return true;
     }
 
     private bool DoTrialTickVerdict(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
     {
-        if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+        if (RuntimeClock.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
         {
             return false;
         }
@@ -1456,7 +1456,7 @@ With each of the emotes, you can use the following tokens:
         {
             trialEffect.ResetCrimeQueue();
             trialEffect.Phase = TrialPhase.Sentencing;
-            trialEffect.LastTrialAction = DateTime.UtcNow;
+            trialEffect.LastTrialAction = RuntimeClock.UtcNow;
             return true;
         }
 
@@ -1580,7 +1580,7 @@ With each of the emotes, you can use the following tokens:
                 defendant
             )));
 
-            trialEffect.LastTrialAction = DateTime.UtcNow;
+            trialEffect.LastTrialAction = RuntimeClock.UtcNow;
             return true;
         }
 
@@ -1603,13 +1603,13 @@ With each of the emotes, you can use the following tokens:
             defendant
         )));
         trialEffect.Punishments[verdictCrime] = verdictCrime.Law.PunishmentStrategy.GetResult(defendant, verdictCrime, severity);
-        trialEffect.LastTrialAction = DateTime.UtcNow;
+        trialEffect.LastTrialAction = RuntimeClock.UtcNow;
         return true;
     }
 
     private bool DoTrialTickClosingArguments(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
     {
-        if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+        if (RuntimeClock.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
         {
             return false;
         }
@@ -1630,7 +1630,7 @@ With each of the emotes, you can use the following tokens:
             defendant
         )));
         trialEffect.Phase = TrialPhase.Verdict;
-        trialEffect.LastTrialAction = DateTime.UtcNow;
+        trialEffect.LastTrialAction = RuntimeClock.UtcNow;
         trialEffect.ResetCrimeQueue();
         return true;
     }
@@ -1639,7 +1639,7 @@ With each of the emotes, you can use the following tokens:
 	{
 		if (!trialEffect.CasesFinishedArguing() && !TrialAdvocatesReady(defendant, trialEffect))
 		{
-			if (DateTime.UtcNow - trialEffect.LastTrialAction > TimeSpan.FromMinutes(10))
+			if (RuntimeClock.UtcNow - trialEffect.LastTrialAction > TimeSpan.FromMinutes(10))
 			{
 				RecoverMissingTrialAdvocates(defendant, trialEffect);
 			}
@@ -1647,7 +1647,7 @@ With each of the emotes, you can use the following tokens:
 			return false;
 		}
 
-		if (!trialEffect.CasesFinishedArguing() && DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+		if (!trialEffect.CasesFinishedArguing() && RuntimeClock.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
 		{
 			return false;
         }
@@ -1668,7 +1668,7 @@ With each of the emotes, you can use the following tokens:
             defendant
         )));
         trialEffect.Phase = TrialPhase.ClosingArguments;
-        trialEffect.LastTrialAction = DateTime.UtcNow;
+        trialEffect.LastTrialAction = RuntimeClock.UtcNow;
         return true;
     }
 
@@ -1714,7 +1714,7 @@ With each of the emotes, you can use the following tokens:
 
     private bool DoTrialTickPlea(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
     {
-        if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+        if (RuntimeClock.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
         {
             return false;
         }
@@ -1741,7 +1741,7 @@ With each of the emotes, you can use the following tokens:
                 defendant
             )));
             trialEffect.Pleas[pleaEffect.Crime] = true;
-            trialEffect.LastTrialAction = DateTime.UtcNow;
+            trialEffect.LastTrialAction = RuntimeClock.UtcNow;
             defendant.RemoveEffect(pleaEffect);
             return true;
         }
@@ -1765,7 +1765,7 @@ With each of the emotes, you can use the following tokens:
                 defendant
             )));
             trialEffect.Phase = TrialPhase.Case;
-            trialEffect.LastTrialAction = DateTime.UtcNow;
+            trialEffect.LastTrialAction = RuntimeClock.UtcNow;
             return true;
         }
 
@@ -1790,13 +1790,13 @@ With each of the emotes, you can use the following tokens:
 
         defendant.AddEffect(new ConsideringPlea(defendant, trialEffect.LegalAuthority, pleaCrime));
         defendant.OutputHandler.Send("\nYou can #1plead guilty#0 to plead guilty or #2plead innocent#0 to plead innocent.\nIf you do not enter a plea you will be pleading guilty by default.".SubstituteANSIColour());
-        trialEffect.LastTrialAction = DateTime.UtcNow;
+        trialEffect.LastTrialAction = RuntimeClock.UtcNow;
         return true;
     }
 
     private bool DoTrialTickCharges(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
     {
-        if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+        if (RuntimeClock.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
         {
             return false;
         }
@@ -1819,7 +1819,7 @@ With each of the emotes, you can use the following tokens:
         )));
         trialEffect.Phase = TrialPhase.Plea;
         trialEffect.ResetCrimeQueue();
-        trialEffect.LastTrialAction = DateTime.UtcNow;
+        trialEffect.LastTrialAction = RuntimeClock.UtcNow;
         return true;
     }
 
@@ -1841,7 +1841,7 @@ With each of the emotes, you can use the following tokens:
             defendant
         )));
         trialEffect.Phase = TrialPhase.Charges;
-        trialEffect.LastTrialAction = DateTime.UtcNow;
+        trialEffect.LastTrialAction = RuntimeClock.UtcNow;
         return true;
     }
 

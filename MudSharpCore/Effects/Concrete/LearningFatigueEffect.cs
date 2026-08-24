@@ -1,4 +1,4 @@
-﻿
+
 namespace MudSharp.Effects.Concrete;
 
 public class LearningFatigueEffect : Effect, ILearningFatigueEffect
@@ -6,7 +6,7 @@ public class LearningFatigueEffect : Effect, ILearningFatigueEffect
     public LearningFatigueEffect(IPerceivable owner, bool freshBlock, int fatigueDegrees) : base(owner)
     {
         BlockUntil = freshBlock
-            ? DateTime.UtcNow + TimeSpan.FromSeconds(Dice.Roll(LearningBlockLengthDiceExpression))
+            ? RuntimeClock.UtcNow + TimeSpan.FromSeconds(Dice.Roll(LearningBlockLengthDiceExpression))
             : DateTime.MinValue;
         FatigueDegrees = fatigueDegrees;
     }
@@ -58,7 +58,7 @@ public class LearningFatigueEffect : Effect, ILearningFatigueEffect
         }
         else
         {
-            BlockUntil = DateTime.UtcNow + timespan;
+            BlockUntil = RuntimeClock.UtcNow + timespan;
         }
 
         element = root.Element("FatigueDegrees");
@@ -75,7 +75,7 @@ public class LearningFatigueEffect : Effect, ILearningFatigueEffect
         return
             new XElement("Effect",
                 new XElement("BlockUntil",
-                    (BlockUntil > DateTime.UtcNow ? BlockUntil - DateTime.UtcNow : TimeSpan.FromSeconds(0))
+                    (BlockUntil > RuntimeClock.UtcNow ? BlockUntil - RuntimeClock.UtcNow : TimeSpan.FromSeconds(0))
                     .TotalSeconds), new XElement("FatigueDegrees", FatigueDegrees));
     }
 
@@ -84,7 +84,7 @@ public class LearningFatigueEffect : Effect, ILearningFatigueEffect
     public override string Describe(IPerceiver voyeur)
     {
         return
-            $"{Owner.HowSeen(voyeur, true)} is fatigued of learning, making it {FatigueDegrees:N0} degrees harder{(BlockUntil > DateTime.UtcNow ? $" and completely blocking learning for {(BlockUntil - DateTime.UtcNow).Describe(voyeur).Colour(Telnet.Green)}" : "")}";
+            $"{Owner.HowSeen(voyeur, true)} is fatigued of learning, making it {FatigueDegrees:N0} degrees harder{(BlockUntil > RuntimeClock.UtcNow ? $" and completely blocking learning for {(BlockUntil - RuntimeClock.UtcNow).Describe(voyeur).Colour(Telnet.Green)}" : "")}";
     }
 
     #region Overrides of Object
@@ -98,7 +98,7 @@ public class LearningFatigueEffect : Effect, ILearningFatigueEffect
     public override string ToString()
     {
         return
-            $"Owner is fatigued of learning, making it {FatigueDegrees:N0} degrees harder{(BlockUntil > DateTime.UtcNow ? $" and completely blocking learning for {(BlockUntil - DateTime.UtcNow).Describe().Colour(Telnet.Green)}" : "")}";
+            $"Owner is fatigued of learning, making it {FatigueDegrees:N0} degrees harder{(BlockUntil > RuntimeClock.UtcNow ? $" and completely blocking learning for {(BlockUntil - RuntimeClock.UtcNow).Describe().Colour(Telnet.Green)}" : "")}";
     }
 
     #endregion

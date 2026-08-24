@@ -35,7 +35,9 @@ internal sealed class LoadLootTableFunction : BuiltInFunction
 		if (table is null) return Receipt("ERROR code=TABLE_NOT_FOUND message=The exact LootTable revision does not exist.");
 		if (!table.Status.In(RevisionStatus.Current, RevisionStatus.Revised)) return Receipt("ERROR code=TABLE_NOT_APPROVED message=The exact LootTable revision is not approved.");
 		var variant = ParameterFunctions[3].Result.GetObject?.ToString() ?? string.Empty;
-		var seed = _seeded ? (long)(decimal)ParameterFunctions[4].Result.GetObject : Random.Shared.NextInt64(long.MaxValue);
+		var seed = _seeded
+			? (long)(decimal)ParameterFunctions[4].Result.GetObject
+			: Constants.Random.NextInt64(long.MaxValue);
 		if (seed < 0) return Receipt("ERROR code=INVALID_SEED message=The seed must be non-negative.");
 		var materialiser = new LootTableMaterialiser(_gameworld);
 		var target = ParameterFunctions[2].Result?.GetObject;

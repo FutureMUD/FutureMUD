@@ -49,7 +49,7 @@ public class HealingSimpleWound : PerceivedItem, IWound
         _lodged = lodged;
         _actorOriginId = actorOrigin?.Id ?? 0;
         _toolOriginId = toolOrigin?.Id ?? 0;
-        RealTimeOfWound = DateTime.UtcNow;
+        RealTimeOfWound = RuntimeClock.UtcNow;
         BleedStatus = BleedStatus.NeverBled;
         if (actorOrigin?.Combat?.Friendly == true)
         {

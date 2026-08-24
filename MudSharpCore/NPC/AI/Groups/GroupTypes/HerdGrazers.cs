@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Needs;
+using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Celestial;
@@ -653,7 +653,7 @@ public abstract class HerdGrazers : GroupAIType
     {
         foreach (KeyValuePair<ICell, DateTime> location in data.KnownThreatLocations.ToList())
         {
-            if (DateTime.UtcNow - location.Value > TimeSpan.FromHours(12))
+            if (RuntimeClock.UtcNow - location.Value > TimeSpan.FromHours(12))
             {
                 data.KnownThreatLocations.Remove(location.Key);
                 group.Changed = true;

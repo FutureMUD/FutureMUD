@@ -21,6 +21,12 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 
     public virtual double BloodSprayMultiplier => 0.0;
 
+    protected static double EvaluateAttackFormula(ITraitExpression formula, IHaveTraits owner,
+        TraitBonusContext context, object degree, object quality)
+    {
+        return formula.EvaluateWith(owner, null, context, ("degree", degree), ("quality", quality));
+    }
+
     protected void CheckLodged(IEnumerable<IWound> wounds)
     {
         foreach ((IGameItem Item, IBodypart Bodypart, IHaveWounds Owner) item in wounds.Where(x => x.Lodged != null)
@@ -181,21 +187,17 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
             .ToList();
         var effectiveQuality = (int)weapon.Parent.Quality + (int)Math.Round(magicEnhancements.Sum(x => x.QualityBonus));
 
-        Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.DamageExpression.Formula.Parameters["quality"] = effectiveQuality;
-        Attack.Profile.StunExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.StunExpression.Formula.Parameters["quality"] = effectiveQuality;
-        Attack.Profile.PainExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.PainExpression.Formula.Parameters["quality"] = effectiveQuality;
-
         double damageResult =
-            Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.ArmedDamageCalculation) +
+            EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant, TraitBonusContext.ArmedDamageCalculation,
+                (int)degree, effectiveQuality) +
             magicEnhancements.Sum(x => x.DamageBonus);
         double stunResult =
-            Attack.Profile.StunExpression.Evaluate(Assailant, context: TraitBonusContext.ArmedDamageCalculation) +
+            EvaluateAttackFormula(Attack.Profile.StunExpression, Assailant, TraitBonusContext.ArmedDamageCalculation,
+                (int)degree, effectiveQuality) +
             magicEnhancements.Sum(x => x.StunBonus);
         double painResult =
-            Attack.Profile.PainExpression.Evaluate(Assailant, context: TraitBonusContext.ArmedDamageCalculation) +
+            EvaluateAttackFormula(Attack.Profile.PainExpression, Assailant, TraitBonusContext.ArmedDamageCalculation,
+                (int)degree, effectiveQuality) +
             magicEnhancements.Sum(x => x.PainBonus);
 
         if (!Gameworld.GetStaticBool("WeaponsTakeDamageFromAttacks"))
@@ -261,25 +263,17 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
         double relativeHardness = CalculateRelativeHardness(Assailant, target, attackingBodypart, targetBodypart,
             targetMaterial, attackOutcome, damageType);
 
-        attack.Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)degree;
-        attack.Attack.Profile.DamageExpression.Formula.Parameters["quality"] =
-            (int)Assailant.NaturalWeaponQuality(attack);
-        attack.Attack.Profile.StunExpression.Formula.Parameters["degree"] = (int)degree;
-        attack.Attack.Profile.StunExpression.Formula.Parameters["quality"] =
-            (int)Assailant.NaturalWeaponQuality(attack);
-        attack.Attack.Profile.PainExpression.Formula.Parameters["degree"] = (int)degree;
-        attack.Attack.Profile.PainExpression.Formula.Parameters["quality"] =
-            (int)Assailant.NaturalWeaponQuality(attack);
+        int quality = (int)Assailant.NaturalWeaponQuality(attack);
 
         double damageResult =
-            attack.Attack.Profile.DamageExpression.Evaluate(Assailant,
-                context: TraitBonusContext.UnarmedDamageCalculation);
+            EvaluateAttackFormula(attack.Attack.Profile.DamageExpression, Assailant,
+                TraitBonusContext.UnarmedDamageCalculation, (int)degree, quality);
 		double stunResult =
-			attack.Attack.Profile.StunExpression.Evaluate(Assailant,
-				context: TraitBonusContext.UnarmedDamageCalculation);
+			EvaluateAttackFormula(attack.Attack.Profile.StunExpression, Assailant,
+				TraitBonusContext.UnarmedDamageCalculation, (int)degree, quality);
 		double painResult =
-			attack.Attack.Profile.PainExpression.Evaluate(Assailant,
-				context: TraitBonusContext.UnarmedDamageCalculation);
+			EvaluateAttackFormula(attack.Attack.Profile.PainExpression, Assailant,
+				TraitBonusContext.UnarmedDamageCalculation, (int)degree, quality);
 
         Damage finalDamage = new()
         {
@@ -460,15 +454,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
         }
 
         double finalAngle = weaponAttack.Profile.BaseAngleOfIncidence * angleMultiplier;
-        weaponAttack.Profile.DamageExpression.Formula.Parameters["degree"] = finalDegree;
-        weaponAttack.Profile.DamageExpression.Formula.Parameters["quality"] =
-            (int)wardResult.WardWeapon.Parent.Quality;
-        weaponAttack.Profile.StunExpression.Formula.Parameters["degree"] = finalDegree;
-        weaponAttack.Profile.StunExpression.Formula.Parameters["quality"] =
-            (int)wardResult.WardWeapon.Parent.Quality;
-        weaponAttack.Profile.PainExpression.Formula.Parameters["degree"] = finalDegree;
-        weaponAttack.Profile.PainExpression.Formula.Parameters["quality"] =
-            (int)wardResult.WardWeapon.Parent.Quality;
+        int quality = (int)wardResult.WardWeapon.Parent.Quality;
 
         Damage finalDamage = new()
         {
@@ -478,20 +464,20 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
             AngleOfIncidentRadians = finalAngle,
             Bodypart = targetBodypart,
             DamageAmount =
-                weaponAttack.Profile.DamageExpression.Evaluate(defender,
-                    context: TraitBonusContext.ArmedDamageCalculation) * 2 * finalAngle / Math.PI,
+                EvaluateAttackFormula(weaponAttack.Profile.DamageExpression, defender,
+                    TraitBonusContext.ArmedDamageCalculation, finalDegree, quality) * 2 * finalAngle / Math.PI,
             DamageType = weaponAttack.Profile.DamageType,
             PainAmount =
-                weaponAttack.Profile.PainExpression.Evaluate(defender,
-                    context: TraitBonusContext.ArmedDamageCalculation) * 2 * finalAngle / Math.PI,
+                EvaluateAttackFormula(weaponAttack.Profile.PainExpression, defender,
+                    TraitBonusContext.ArmedDamageCalculation, finalDegree, quality) * 2 * finalAngle / Math.PI,
             PenetrationOutcome =
                 Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
                          .Check(defender, GetPenetrationDifficulty(weaponAttack.Profile.DamageType),
                              wardResult.WardWeapon.WeaponType.AttackTrait, aggressor),
             ShockAmount = 0,
             StunAmount =
-                weaponAttack.Profile.StunExpression.Evaluate(defender,
-                    context: TraitBonusContext.ArmedDamageCalculation) * 2 * finalAngle / Math.PI
+                EvaluateAttackFormula(weaponAttack.Profile.StunExpression, defender,
+                    TraitBonusContext.ArmedDamageCalculation, finalDegree, quality) * 2 * finalAngle / Math.PI
         };
 
         (wardResult.WardWeapon as IConditionDegradingComponent)?.UseCondition(
@@ -585,15 +571,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
             }
 
             double finalAngle = naturalAttack.Attack.Profile.BaseAngleOfIncidence * angleMultiplier;
-            naturalAttack.Attack.Profile.DamageExpression.Formula.Parameters["degree"] = finalDegree;
-            naturalAttack.Attack.Profile.DamageExpression.Formula.Parameters["quality"] =
-                (int)defender.NaturalWeaponQuality(naturalAttack);
-            naturalAttack.Attack.Profile.StunExpression.Formula.Parameters["degree"] = finalDegree;
-            naturalAttack.Attack.Profile.StunExpression.Formula.Parameters["quality"] =
-                (int)defender.NaturalWeaponQuality(naturalAttack);
-            naturalAttack.Attack.Profile.PainExpression.Formula.Parameters["degree"] = finalDegree;
-            naturalAttack.Attack.Profile.PainExpression.Formula.Parameters["quality"] =
-                (int)defender.NaturalWeaponQuality(naturalAttack);
+            int quality = (int)defender.NaturalWeaponQuality(naturalAttack);
 
             double relativeHardness = CalculateRelativeHardness(defender, aggressor, naturalAttack.Bodypart,
                 targetBodypart,
@@ -607,13 +585,13 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
                 AngleOfIncidentRadians = finalAngle,
                 Bodypart = targetBodypart,
                 DamageAmount =
-                    naturalAttack.Attack.Profile.DamageExpression.Evaluate(defender,
-                        context: TraitBonusContext.UnarmedDamageCalculation) * 2 * finalAngle / Math.PI *
+                    EvaluateAttackFormula(naturalAttack.Attack.Profile.DamageExpression, defender,
+                        TraitBonusContext.UnarmedDamageCalculation, finalDegree, quality) * 2 * finalAngle / Math.PI *
                     relativeHardness,
                 DamageType = naturalAttack.Attack.Profile.DamageType,
                 PainAmount =
-                    naturalAttack.Attack.Profile.PainExpression.Evaluate(defender,
-                        context: TraitBonusContext.UnarmedDamageCalculation) * 2 * finalAngle / Math.PI *
+                    EvaluateAttackFormula(naturalAttack.Attack.Profile.PainExpression, defender,
+                        TraitBonusContext.UnarmedDamageCalculation, finalDegree, quality) * 2 * finalAngle / Math.PI *
                     relativeHardness,
                 PenetrationOutcome = Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
                                               .Check(defender,
@@ -621,8 +599,8 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
                                                   aggressor),
                 ShockAmount = 0,
                 StunAmount =
-                    naturalAttack.Attack.Profile.StunExpression.Evaluate(defender,
-                        context: TraitBonusContext.UnarmedDamageCalculation) * 2 * finalAngle / Math.PI *
+                    EvaluateAttackFormula(naturalAttack.Attack.Profile.StunExpression, defender,
+                        TraitBonusContext.UnarmedDamageCalculation, finalDegree, quality) * 2 * finalAngle / Math.PI *
                     relativeHardness
             };
 
@@ -634,19 +612,19 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
                 AngleOfIncidentRadians = finalAngle,
                 Bodypart = naturalAttack.Bodypart,
                 DamageAmount =
-                    naturalAttack.Attack.Profile.DamageExpression.Evaluate(defender,
-                        context: TraitBonusContext.UnarmedDamageCalculation) * 2 * finalAngle / Math.PI *
+                    EvaluateAttackFormula(naturalAttack.Attack.Profile.DamageExpression, defender,
+                        TraitBonusContext.UnarmedDamageCalculation, finalDegree, quality) * 2 * finalAngle / Math.PI *
                     (1.0 - relativeHardness),
                 DamageType = DamageType.Crushing,
                 PainAmount =
-                    naturalAttack.Attack.Profile.PainExpression.Evaluate(defender,
-                        context: TraitBonusContext.UnarmedDamageCalculation) * 2 * finalAngle / Math.PI *
+                    EvaluateAttackFormula(naturalAttack.Attack.Profile.PainExpression, defender,
+                        TraitBonusContext.UnarmedDamageCalculation, finalDegree, quality) * 2 * finalAngle / Math.PI *
                     (1.0 - relativeHardness),
                 PenetrationOutcome = new CheckOutcome { Outcome = Outcome.MajorFail },
                 ShockAmount = 0,
                 StunAmount =
-                    naturalAttack.Attack.Profile.StunExpression.Evaluate(defender,
-                        context: TraitBonusContext.UnarmedDamageCalculation) * 2 * finalAngle / Math.PI *
+                    EvaluateAttackFormula(naturalAttack.Attack.Profile.StunExpression, defender,
+                        TraitBonusContext.UnarmedDamageCalculation, finalDegree, quality) * 2 * finalAngle / Math.PI *
                     (1.0 - relativeHardness)
             };
 

@@ -2,6 +2,7 @@
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
 using MudSharp.RPG.Law;
+using MoreLinq;
 
 namespace MudSharp.Health;
 
@@ -40,7 +41,7 @@ public static class WoundExtensions
             }
         }
 
-        wounds = wounds.Shuffle().ToList();
+        wounds = wounds.Shuffle(Constants.Random).ToList();
         foreach (IWound wound in wounds)
         {
             if (wound == null)

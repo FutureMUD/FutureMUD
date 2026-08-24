@@ -153,10 +153,9 @@ internal class SkillBoostSkipperScreenStoryboard : ChargenScreenStoryboard
 
     private int BoostCostForSkill(ITraitDefinition skill, IChargen chargen, int boosts)
     {
-        BoostCostExpression.Parameters["base"] =
-            (double)((decimal?)BaseBoostCostProg.Execute(skill, chargen) ?? 1.0M);
-        BoostCostExpression.Parameters["boosts"] = boosts;
-        return Convert.ToInt32(BoostCostExpression.Evaluate());
+        return Convert.ToInt32(BoostCostExpression.EvaluateWith(
+            ("base", (double)((decimal?)BaseBoostCostProg.Execute(skill, chargen) ?? 1.0M)),
+            ("boosts", boosts)));
     }
 
     public class SkillBoostSkipperScreen : ChargenScreen
@@ -181,10 +180,9 @@ internal class SkillBoostSkipperScreenStoryboard : ChargenScreenStoryboard
 
         private int BoostCostForSkill(ITraitDefinition skill)
         {
-            Storyboard.BoostCostExpression.Parameters["base"] =
-                (double)((decimal?)Storyboard.BaseBoostCostProg.Execute(skill, Chargen) ?? 1.0M);
-            Storyboard.BoostCostExpression.Parameters["boosts"] = SelectedBoosts[skill];
-            return Convert.ToInt32(Storyboard.BoostCostExpression.Evaluate());
+            return Convert.ToInt32(Storyboard.BoostCostExpression.EvaluateWith(
+                ("base", (double)((decimal?)Storyboard.BaseBoostCostProg.Execute(skill, Chargen) ?? 1.0M)),
+                ("boosts", SelectedBoosts[skill])));
         }
 
         #region Overrides of ChargenScreen

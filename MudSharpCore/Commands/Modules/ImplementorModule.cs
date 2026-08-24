@@ -9,6 +9,7 @@ using MudSharp.Character.Name;
 using MudSharp.Climate;
 using MudSharp.Climate.Analysis;
 using MudSharp.Combat;
+using MudSharp.Combat.Simulation;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
@@ -382,6 +383,7 @@ The syntax is:
 	#3config <which>#0 - shows the value of a static config
 	#3dream <who>#0 - gives a dream to the specified PC
 	#3combatspeed <multiplier>#0 - sets a global multiplier to combat speed
+	#3combatsim ...#0 - stages and runs an accelerated, group-capable combat simulation
 	#3progfunctions#0 - writes out all the prog function help to a file (saved to disk)
 	#3cleanupcorpses#0 - deletes all NPC corpses of skeletal decay level. Loads up all PCs to check their inventories
 	#3descriptions short|full [<person>]#0 - writes all valid descriptors for that person to a file on disk.
@@ -524,6 +526,10 @@ The syntax is:
             case "combatspeed":
                 DebugCombatSpeed(actor, ss);
                 return;
+			case "combatsim":
+			case "combatsimulation":
+				CombatSimulationCommand.Execute(actor, ss);
+				return;
             case "time":
                 MudDateTime datetime = new(actor.Location.Date(actor.Location.Calendars.First()),
                     actor.Location.Time(actor.Location.Clocks.First()),

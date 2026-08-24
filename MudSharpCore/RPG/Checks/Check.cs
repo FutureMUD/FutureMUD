@@ -118,7 +118,7 @@ public class StandardCheck : FrameworkItem, ICheck
             abject = true;
         }
 
-        if (trait != null && !TargetNumberExpression.Formula.Parameters.Any(x => x.Key.EqualTo("variable")))
+        if (trait != null && !TargetNumberExpression.Formula.ParameterNames.Any(x => x.EqualTo("variable")))
         {
             trait = null;
         }

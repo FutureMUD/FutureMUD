@@ -53,7 +53,7 @@ public class SimpleWound : PerceivedItem, IWound
         _toolOriginId = toolOrigin?.Id ?? 0;
         _vehicleId = vehicleId;
         _vehicleDamageZoneId = vehicleDamageZoneId;
-        RealTimeOfWound = DateTime.UtcNow;
+        RealTimeOfWound = RuntimeClock.UtcNow;
         BleedStatus = BleedStatus.NeverBled;
         if (actorOrigin?.Combat?.Friendly == true)
         {

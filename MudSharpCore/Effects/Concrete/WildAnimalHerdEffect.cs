@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
@@ -30,7 +30,7 @@ public class WildAnimalHerdEffect : Effect, IEffectSubtype
         {
             _state = value;
             Changed = true;
-            LastStateChange = DateTime.UtcNow;
+            LastStateChange = RuntimeClock.UtcNow;
         }
     }
 
@@ -125,7 +125,7 @@ public class WildAnimalHerdEffect : Effect, IEffectSubtype
         _role = (WildAnimalHerdRole)int.Parse(root.Element("Role").Value);
         _state = (WildAnimalHerdState)int.Parse(root.Element("State").Value);
         _priority = (WildAnimalHerdPriority)int.Parse(root.Element("Priority").Value);
-        LastStateChange = DateTime.UtcNow;
+        LastStateChange = RuntimeClock.UtcNow;
         if (_role == WildAnimalHerdRole.Alpha)
         {
             HerdLeader = (ICharacter)Owner;

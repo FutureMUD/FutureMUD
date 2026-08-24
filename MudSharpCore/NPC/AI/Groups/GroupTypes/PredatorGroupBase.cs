@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Needs;
+using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
 using MudSharp.Celestial;
 using MudSharp.Character.Heritage;
@@ -551,7 +551,7 @@ public abstract class PredatorGroupBase : GroupAIType
     {
         foreach (KeyValuePair<ICell, DateTime> location in data.KnownThreatLocations.ToList())
         {
-            if (DateTime.UtcNow - location.Value > TimeSpan.FromHours(12))
+            if (RuntimeClock.UtcNow - location.Value > TimeSpan.FromHours(12))
             {
                 data.KnownThreatLocations.Remove(location.Key);
                 group.Changed = true;
@@ -600,7 +600,7 @@ public abstract class PredatorGroupBase : GroupAIType
         {
             foreach (ICell location in threats.Select(x => x.Location).Distinct())
             {
-                data.KnownThreatLocations[location] = DateTime.UtcNow;
+                data.KnownThreatLocations[location] = RuntimeClock.UtcNow;
                 group.Changed = true;
             }
         }

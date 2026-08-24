@@ -5,6 +5,8 @@ namespace MudSharp.Framework.Scheduling
 {
     public interface IScheduler
     {
+		DateTime? NextTriggerUtc { get; }
+		int LastCheckFiredCount { get; }
         void AddSchedule(ISchedule schedule);
         void AddOrDelaySchedule(ISchedule schedule, IFrameworkItem item);
         void CheckSchedules();

@@ -29,6 +29,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Multiple Simultaneous Body Instances Design](./Characters/Multiple_Simultaneous_Body_Instances_Design.md)
 
 ## Combat
+- [Accelerated Combat Simulation](./Combat/Accelerated_Combat_Simulation.md)
 - [Combat Arenas Design](./Combat/Combat_Arenas_Design.md)
 - [Combat Arenas Implementation Plan](./Combat/Combat_Arenas_Implementation_Plan.md)
 - [Combat Settings Defaults Design](./Combat/Combat_Settings_Defaults_Design.md)

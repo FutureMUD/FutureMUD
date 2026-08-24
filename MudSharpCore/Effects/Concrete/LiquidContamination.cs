@@ -103,9 +103,9 @@ public class LiquidContamination : Effect, ILiquidContaminationEffect, IDescript
             if (location != null && ownerItem.ContainedIn == null &&
                 !ownerItem.Location.IsSwimmingLayer(ownerItem.RoomLayer))
             {
-                if (DateTime.UtcNow - _lastDripEcho > TimeSpan.FromSeconds(120) && ShouldDripsEcho)
+                if (RuntimeClock.UtcNow - _lastDripEcho > TimeSpan.FromSeconds(120) && ShouldDripsEcho)
                 {
-                    _lastDripEcho = DateTime.UtcNow;
+                    _lastDripEcho = RuntimeClock.UtcNow;
                     string amount, verb;
                     if (difference <= 0.002 / Gameworld.UnitManager.BaseFluidToLitres)
                     {

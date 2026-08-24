@@ -37,15 +37,8 @@ public class WrenchingAttack : NaturalAttackMove
             style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 
         List<IWound> wounds = new();
-        Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.DamageExpression.Formula.Parameters["quality"] =
-            (int)Assailant.NaturalWeaponQuality(NaturalAttack);
-        Attack.Profile.StunExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.StunExpression.Formula.Parameters["quality"] =
-            (int)Assailant.NaturalWeaponQuality(NaturalAttack);
-        Attack.Profile.PainExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.PainExpression.Formula.Parameters["quality"] =
-            (int)Assailant.NaturalWeaponQuality(NaturalAttack);
+        int formulaDegree = (int)degree;
+        int quality = (int)Assailant.NaturalWeaponQuality(NaturalAttack);
 
         Damage finalDamage = new()
         {
@@ -55,13 +48,16 @@ public class WrenchingAttack : NaturalAttackMove
             AngleOfIncidentRadians = Attack.Profile.BaseAngleOfIncidence,
             Bodypart = TargetBodypart,
             DamageAmount =
-                Attack.Profile.DamageExpression.Evaluate(Assailant),
+                Attack.Profile.DamageExpression.EvaluateWith(Assailant,
+                    values: [("degree", formulaDegree), ("quality", quality)]),
             DamageType = DamageType.Wrenching,
             PainAmount =
-                Attack.Profile.PainExpression.Evaluate(Assailant),
+                Attack.Profile.PainExpression.EvaluateWith(Assailant,
+                    values: [("degree", formulaDegree), ("quality", quality)]),
             PenetrationOutcome = Outcome.NotTested,
             ShockAmount = 0,
-            StunAmount = Attack.Profile.DamageExpression.Evaluate(Assailant)
+            StunAmount = Attack.Profile.DamageExpression.EvaluateWith(Assailant,
+                values: [("degree", formulaDegree), ("quality", quality)])
         };
 
         wounds.AddRange(CharacterTarget.SufferDamage(finalDamage));

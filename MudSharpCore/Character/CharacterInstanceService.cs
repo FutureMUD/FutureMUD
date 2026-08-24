@@ -8,6 +8,7 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.NPC;
@@ -567,7 +568,7 @@ public static class CharacterInstanceService
 				IsPrimary = false,
 				IsEmbodied = true,
 				IsControllable = true,
-				CreatedDateTime = DateTime.UtcNow,
+				CreatedDateTime = RuntimeClock.UtcNow,
 				EffectData = CharacterInstanceMetadata.CreatePossessedCorpseEffectData(
 					anchorCharacterId,
 					anchorInstanceId,
@@ -697,7 +698,7 @@ public static class CharacterInstanceService
 				IsPrimary = false,
 				IsEmbodied = true,
 				IsControllable = true,
-				CreatedDateTime = DateTime.UtcNow,
+				CreatedDateTime = RuntimeClock.UtcNow,
 				EffectData = CharacterInstanceMetadata.CreateAnimatedCorpseEffectData(
 					anchorCharacterId,
 					anchorInstanceId,
@@ -978,7 +979,7 @@ public static class CharacterInstanceService
 				IsPrimary = false,
 				IsEmbodied = true,
 				IsControllable = options.ControlPolicy != CharacterInstanceControlPolicy.NotControllable,
-				CreatedDateTime = DateTime.UtcNow,
+				CreatedDateTime = RuntimeClock.UtcNow,
 				EffectData = options.EffectData.IfNullOrWhiteSpace("<Effects/>")
 			};
 			FMDB.Context.CharacterInstances.Add(dbinstance);

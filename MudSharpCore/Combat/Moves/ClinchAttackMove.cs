@@ -140,12 +140,7 @@ public class ClinchAttackMove : WeaponAttackMove
         }
 
         double finalAngle = Attack.Profile.BaseAngleOfIncidence * angleMultiplier;
-        Attack.Profile.DamageExpression.Formula.Parameters["degree"] = finalDegree;
-        Attack.Profile.DamageExpression.Formula.Parameters["quality"] = (int)Weapon.Parent.Quality;
-        Attack.Profile.StunExpression.Formula.Parameters["degree"] = finalDegree;
-        Attack.Profile.StunExpression.Formula.Parameters["quality"] = (int)Weapon.Parent.Quality;
-        Attack.Profile.PainExpression.Formula.Parameters["degree"] = finalDegree;
-        Attack.Profile.PainExpression.Formula.Parameters["quality"] = (int)Weapon.Parent.Quality;
+        int quality = (int)Weapon.Parent.Quality;
 
         Damage finalDamage = new()
         {
@@ -154,15 +149,18 @@ public class ClinchAttackMove : WeaponAttackMove
             ToolOrigin = Weapon.Parent,
             AngleOfIncidentRadians = finalAngle,
             Bodypart = TargetBodypart,
-            DamageAmount = Attack.Profile.DamageExpression.Evaluate(Assailant) * 2 * finalAngle / Math.PI,
+            DamageAmount = EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
+                MudSharp.Body.Traits.TraitBonusContext.None, finalDegree, quality) * 2 * finalAngle / Math.PI,
             DamageType = Attack.Profile.DamageType,
-            PainAmount = Attack.Profile.PainExpression.Evaluate(Assailant) * 2 * finalAngle / Math.PI,
+            PainAmount = EvaluateAttackFormula(Attack.Profile.PainExpression, Assailant,
+                MudSharp.Body.Traits.TraitBonusContext.None, finalDegree, quality) * 2 * finalAngle / Math.PI,
             PenetrationOutcome =
                 Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
                          .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType),
                              Weapon.WeaponType.AttackTrait, CharacterTarget),
             ShockAmount = 0,
-            StunAmount = Attack.Profile.DamageExpression.Evaluate(Assailant) * 2 * finalAngle / Math.PI
+            StunAmount = EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
+                MudSharp.Body.Traits.TraitBonusContext.None, finalDegree, quality) * 2 * finalAngle / Math.PI
         };
 
         string dodgeEmote = Gameworld.CombatMessageManager.GetMessageFor(CharacterTarget, Assailant, Weapon.Parent,
@@ -199,12 +197,8 @@ public class ClinchAttackMove : WeaponAttackMove
             $"MeleeWeaponAttack HelplessDefenseMove Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");
 #endif
         double finalAngle = Attack.Profile.BaseAngleOfIncidence;
-        Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)result.Degree;
-        Attack.Profile.DamageExpression.Formula.Parameters["quality"] = (int)Weapon.Parent.Quality;
-        Attack.Profile.StunExpression.Formula.Parameters["degree"] = (int)result.Degree;
-        Attack.Profile.StunExpression.Formula.Parameters["quality"] = (int)Weapon.Parent.Quality;
-        Attack.Profile.PainExpression.Formula.Parameters["degree"] = (int)result.Degree;
-        Attack.Profile.PainExpression.Formula.Parameters["quality"] = (int)Weapon.Parent.Quality;
+        int degree = (int)result.Degree;
+        int quality = (int)Weapon.Parent.Quality;
 
         Damage finalDamage = new()
         {
@@ -213,15 +207,18 @@ public class ClinchAttackMove : WeaponAttackMove
             ToolOrigin = Weapon.Parent,
             AngleOfIncidentRadians = finalAngle,
             Bodypart = TargetBodypart,
-            DamageAmount = Attack.Profile.DamageExpression.Evaluate(Assailant) * 2 * finalAngle / Math.PI,
+            DamageAmount = EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
+                MudSharp.Body.Traits.TraitBonusContext.None, degree, quality) * 2 * finalAngle / Math.PI,
             DamageType = Attack.Profile.DamageType,
-            PainAmount = Attack.Profile.PainExpression.Evaluate(Assailant) * 2 * finalAngle / Math.PI,
+            PainAmount = EvaluateAttackFormula(Attack.Profile.PainExpression, Assailant,
+                MudSharp.Body.Traits.TraitBonusContext.None, degree, quality) * 2 * finalAngle / Math.PI,
             PenetrationOutcome =
                 Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
                          .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType),
                              Weapon.WeaponType.AttackTrait, defenderMove.Assailant),
             ShockAmount = 0,
-            StunAmount = Attack.Profile.DamageExpression.Evaluate(Assailant) * 2 * finalAngle / Math.PI
+            StunAmount = EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
+                MudSharp.Body.Traits.TraitBonusContext.None, degree, quality) * 2 * finalAngle / Math.PI
         };
 
         Assailant.OutputHandler.Handle(

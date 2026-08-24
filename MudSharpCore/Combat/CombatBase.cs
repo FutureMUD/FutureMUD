@@ -25,16 +25,16 @@ public abstract class CombatBase : ICombat
 
     public static double PowerMoveStaminaMultiplier(ICharacter assailant)
     {
-        PowerMoveStaminaCost.Formula.Parameters["encumbrance"] = (int)assailant.Encumbrance;
-        PowerMoveStaminaCost.Formula.Parameters["encpercent"] = assailant.EncumbrancePercentage;
-        return PowerMoveStaminaCost.Evaluate(assailant, null, TraitBonusContext.CombatPowerMoveStamina);
+        return PowerMoveStaminaCost.EvaluateWith(assailant, null, TraitBonusContext.CombatPowerMoveStamina,
+            ("encumbrance", (int)assailant.Encumbrance),
+            ("encpercent", assailant.EncumbrancePercentage));
     }
 
     public static double GraceMoveStaminaMultiplier(ICharacter assailant)
     {
-        GraceMoveStaminaCost.Formula.Parameters["encumbrance"] = (int)assailant.Encumbrance;
-        GraceMoveStaminaCost.Formula.Parameters["encpercent"] = assailant.EncumbrancePercentage;
-        return GraceMoveStaminaCost.Evaluate(assailant, null, TraitBonusContext.CombatGraceMoveStamina);
+        return GraceMoveStaminaCost.EvaluateWith(assailant, null, TraitBonusContext.CombatGraceMoveStamina,
+            ("encumbrance", (int)assailant.Encumbrance),
+            ("encpercent", assailant.EncumbrancePercentage));
     }
 
     public static double RelativeStrengthDefenseStaminaMultiplier(IPerceiver attacker, ICharacter defender)
@@ -44,13 +44,11 @@ public abstract class CombatBase : ICombat
             return 1.0;
         }
 
-        RelativeStrengthDefenseStaminaCost.Parameters["attacker"] =
-            StrengthForRelativeStrengthCheck.Evaluate(ach, null,
-                TraitBonusContext.CombatRelativeStrengthDefenseStamina);
-        RelativeStrengthDefenseStaminaCost.Parameters["defender"] =
-            StrengthForRelativeStrengthCheck.Evaluate(defender, null,
-                TraitBonusContext.CombatRelativeStrengthDefenseStamina);
-        return Convert.ToDouble(RelativeStrengthDefenseStaminaCost.Evaluate());
+        return RelativeStrengthDefenseStaminaCost.EvaluateDoubleWith(
+            ("attacker", StrengthForRelativeStrengthCheck.Evaluate(ach, null,
+                TraitBonusContext.CombatRelativeStrengthDefenseStamina)),
+            ("defender", StrengthForRelativeStrengthCheck.Evaluate(defender, null,
+                TraitBonusContext.CombatRelativeStrengthDefenseStamina)));
     }
 
     public static double CombatSpeedMultiplier { get; set; } = 1.0;
@@ -337,14 +335,15 @@ public abstract class CombatBase : ICombat
         }
 
         CheckOutcome result = Gameworld.GetCheck(CheckType.CombatRecoveryCheck).Check(haveTraits, recoverDifficulty);
-        RecoveryTimeExpression.Formula.Parameters["recovery"] = result.CheckDegrees();
 #if DEBUG
-        TimeSpan time = TimeSpan.FromSeconds(baseTime * RecoveryTimeExpression.Evaluate(haveTraits) * CombatSpeedMultiplier);
+        TimeSpan time = TimeSpan.FromSeconds(baseTime * RecoveryTimeExpression.EvaluateWith(haveTraits,
+            values: [("recovery", result.CheckDegrees())]) * CombatSpeedMultiplier);
         Console.WriteLine(
             $"Combat Delay {perceiver.HowSeen(perceiver, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)}: {time}");
         return time;
 #else
-			return TimeSpan.FromSeconds(baseTime*RecoveryTimeExpression.Evaluate(haveTraits)*CombatSpeedMultiplier);
+			return TimeSpan.FromSeconds(baseTime * RecoveryTimeExpression.EvaluateWith(haveTraits,
+				values: [("recovery", result.CheckDegrees())]) * CombatSpeedMultiplier);
 #endif
     }
 

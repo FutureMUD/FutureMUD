@@ -65,7 +65,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
         Bodypart = bodypart;
         _actorOriginId = actorOrigin?.Id ?? 0;
         _toolOriginId = toolOrigin?.Id ?? 0;
-        RealTimeOfWound = DateTime.UtcNow;
+        RealTimeOfWound = RuntimeClock.UtcNow;
         if (actorOrigin?.Combat?.Friendly == true)
         {
             IsFriendlyWound = true;

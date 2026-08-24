@@ -224,7 +224,7 @@ namespace MudSharp.Framework
                 return list;
             }
 
-            return list.Shuffle().Take(picks);
+            return list.OldShuffle().Take(picks);
         }
 
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> input, int picks, Func<T, double> weightSelector)
@@ -282,7 +282,7 @@ namespace MudSharp.Framework
             {
                 bools[i] = true;
             }
-            bools.Shuffle();
+            bools.OldShuffle();
 
             return new Queue<bool>(bools);
         }

@@ -97,12 +97,8 @@ public class StrangleAttack : NaturalAttackMove
             style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 
         List<IWound> wounds = new();
-        Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.DamageExpression.Formula.Parameters["quality"] = Assailant.NaturalWeaponQuality(NaturalAttack);
-        Attack.Profile.StunExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.StunExpression.Formula.Parameters["quality"] = Assailant.NaturalWeaponQuality(NaturalAttack);
-        Attack.Profile.PainExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.PainExpression.Formula.Parameters["quality"] = Assailant.NaturalWeaponQuality(NaturalAttack);
+        int formulaDegree = (int)degree;
+        var quality = Assailant.NaturalWeaponQuality(NaturalAttack);
 
         Damage finalDamage = new()
         {
@@ -112,13 +108,16 @@ public class StrangleAttack : NaturalAttackMove
             AngleOfIncidentRadians = Attack.Profile.BaseAngleOfIncidence,
             Bodypart = targetBodypart,
             DamageAmount =
-                Attack.Profile.DamageExpression.Evaluate(Assailant),
+                Attack.Profile.DamageExpression.EvaluateWith(Assailant,
+                    values: [("degree", formulaDegree), ("quality", quality)]),
             DamageType = Attack.Profile.DamageType,
             PainAmount =
-                Attack.Profile.PainExpression.Evaluate(Assailant),
+                Attack.Profile.PainExpression.EvaluateWith(Assailant,
+                    values: [("degree", formulaDegree), ("quality", quality)]),
             PenetrationOutcome = Outcome.NotTested,
             ShockAmount = 0,
-            StunAmount = Attack.Profile.DamageExpression.Evaluate(Assailant)
+            StunAmount = Attack.Profile.DamageExpression.EvaluateWith(Assailant,
+                values: [("degree", formulaDegree), ("quality", quality)])
         };
 
         IEffect effect = Assailant.EffectsOfType<Strangling>().FirstOrDefault(x => x.Target == CharacterTarget);

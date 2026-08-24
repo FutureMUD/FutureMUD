@@ -1863,8 +1863,8 @@ public partial class Race : SaveableItem, IRace
     public double BreathingRate(IBody character, IFluid fluid)
     {
         (bool _, double rate) = CanBreatheFluid(fluid);
-        BreathingVolumeExpression.Formula.Parameters["exertion"] = (int)character.CurrentExertion;
-        return BreathingVolumeExpression.Evaluate(character, context: TraitBonusContext.BreathingRate) *
+        return BreathingVolumeExpression.EvaluateWith(character, null, TraitBonusContext.BreathingRate,
+                   ("exertion", (int)character.CurrentExertion)) *
                rate;
     }
 

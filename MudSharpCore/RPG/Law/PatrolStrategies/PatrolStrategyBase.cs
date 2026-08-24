@@ -1,4 +1,4 @@
-﻿using MudSharp.Character.Name;
+using MudSharp.Character.Name;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -338,7 +338,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
                     PathSearch.IgnorePresenceOfDoors).ToList();
                 if (path.Count == 0)
                 {
-                    if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+                    if (RuntimeClock.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
                     {
                         // Abort patrol
                         patrol.AbortPatrol();
@@ -426,7 +426,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         if (patrol.PatrolLeader.Location == patrol.LegalAuthority.MarshallingLocation)
         {
             patrol.PatrolPhase = PatrolPhase.Patrol;
-            patrol.LastArrivedTime = DateTime.UtcNow;
+            patrol.LastArrivedTime = RuntimeClock.UtcNow;
             patrol.LastMajorNode = patrol.LegalAuthority.MarshallingLocation;
             return;
         }
@@ -461,7 +461,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 				return;
 			}
 
-			if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+			if (RuntimeClock.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
 			{
 				patrol.AbortPatrol();
 			}
@@ -865,11 +865,11 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
             DoPreparationRoomAction(member);
         }
 
-        if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(1))
+        if (RuntimeClock.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(1))
         {
             FormParty(patrol);
             patrol.PatrolPhase = PatrolPhase.Deployment;
-            patrol.LastArrivedTime = DateTime.UtcNow;
+            patrol.LastArrivedTime = RuntimeClock.UtcNow;
             patrol.LastMajorNode = patrol.PatrolLeader.Location;
             patrol.NextMajorNode = patrol.PatrolRoute.PatrolNodes.First();
         }

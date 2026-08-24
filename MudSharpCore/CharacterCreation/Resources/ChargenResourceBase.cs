@@ -176,7 +176,8 @@ public abstract class ChargenResourceBase : SaveableItem, IChargenResource
     {
         if (MaximumResourceReference != null)
         {
-            MaximumResourceExpression.Parameters["variable"] = account.AccountResources[MaximumResourceReference];
+            return Convert.ToInt32(MaximumResourceExpression.EvaluateDoubleWith(("variable",
+                account.AccountResources[MaximumResourceReference])));
         }
 
         return Convert.ToInt32(MaximumResourceExpression.Evaluate());

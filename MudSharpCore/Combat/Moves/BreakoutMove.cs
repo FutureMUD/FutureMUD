@@ -30,23 +30,18 @@ public class BreakoutMove : CombatMoveBase
 
     private (Difficulty Breakout, Difficulty Oppose) GetBreakoutDifficulty(ICharacter grappler)
     {
-        AttackerStrengthExpression.Formula.Parameters["weight"] = Assailant.Weight;
-        AttackerStrengthExpression.Formula.Parameters["height"] = Assailant.Height;
-        AttackerStrengthExpression.Formula.Parameters["limbs"] = Assailant
-                                                                 .CombinedEffectsOfType<ILimbIneffectiveEffect>()
-                                                                 .Count(
-                                                                     x => x.Reason == LimbIneffectiveReason.Grappling);
-        DefenderStrengthExpression.Formula.Parameters["weight"] = grappler.Weight;
-        DefenderStrengthExpression.Formula.Parameters["height"] = grappler.Height;
-        DefenderStrengthExpression.Formula.Parameters["limbs"] = Assailant
-                                                                 .CombinedEffectsOfType<ILimbIneffectiveEffect>()
-                                                                 .Count(
-                                                                     x => x.Reason == LimbIneffectiveReason.Grappling);
-
         double attackerStrength =
-            AttackerStrengthExpression.Evaluate(Assailant, context: TraitBonusContext.BreakoutFromGrapple);
+            AttackerStrengthExpression.EvaluateWith(Assailant, null, TraitBonusContext.BreakoutFromGrapple,
+                ("weight", Assailant.Weight),
+                ("height", Assailant.Height),
+                ("limbs", Assailant.CombinedEffectsOfType<ILimbIneffectiveEffect>()
+                    .Count(x => x.Reason == LimbIneffectiveReason.Grappling)));
         double defenderStrength =
-            DefenderStrengthExpression.Evaluate(grappler, context: TraitBonusContext.OpposeBreakoutFromGrapple);
+            DefenderStrengthExpression.EvaluateWith(grappler, null, TraitBonusContext.OpposeBreakoutFromGrapple,
+                ("weight", grappler.Weight),
+                ("height", grappler.Height),
+                ("limbs", Assailant.CombinedEffectsOfType<ILimbIneffectiveEffect>()
+                    .Count(x => x.Reason == LimbIneffectiveReason.Grappling)));
 
         SizeCategory attackerSize = Assailant.CurrentContextualSize(SizeContext.GrappleAttack);
         SizeCategory defenderSize = Assailant.CurrentContextualSize(SizeContext.GrappleDefense);

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using MudSharp.Body.Position;
 using MudSharp.Communication;
 using MudSharp.Construction;
@@ -887,7 +887,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
                 {
                     if (enforcer == patrol?.PatrolLeader && patrol.PatrolPhase == PatrolPhase.Patrol &&
                         patrol.ActiveEnforcementTarget is null &&
-                        DateTime.UtcNow - patrol.LastArrivedTime < patrol.PatrolRoute.LingerTimeMinorNode)
+                        RuntimeClock.UtcNow - patrol.LastArrivedTime < patrol.PatrolRoute.LingerTimeMinorNode)
                     {
                         return false;
                     }
@@ -906,7 +906,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
         {
             if (enforcer == patrol?.PatrolLeader && patrol.PatrolPhase == PatrolPhase.Patrol &&
                 patrol.ActiveEnforcementTarget is null &&
-                DateTime.UtcNow - patrol.LastArrivedTime < patrol.PatrolRoute.LingerTimeMinorNode)
+                RuntimeClock.UtcNow - patrol.LastArrivedTime < patrol.PatrolRoute.LingerTimeMinorNode)
             {
                 return false;
             }
@@ -947,8 +947,8 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
             if (fp != null && enforcer.CouldMove(false, null).Success)
             {
                 bool major = patrol.PatrolRoute.PatrolNodes.Contains(enforcer.Location);
-                if ((major && DateTime.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode) ||
-                    (!major && DateTime.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMinorNode))
+                if ((major && RuntimeClock.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode) ||
+                    (!major && RuntimeClock.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMinorNode))
                 {
                     fp.FollowPathAction();
                     return true;

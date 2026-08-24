@@ -17,9 +17,8 @@ public class ArcingScatterStrategy : IRangedScatterStrategy
     private static double Weight(IPerceiver candidate, IPerceiver target)
     {
         IExpression expr = WeightExpression;
-        expr.Parameters["size"] = (int)candidate.Size;
-        expr.Parameters["proximity"] = (int)candidate.GetProximity(target);
-        double weight = expr.EvaluateDouble();
+        double weight = expr.EvaluateDoubleWith(("size", (int)candidate.Size),
+            ("proximity", (int)candidate.GetProximity(target)));
         if (candidate.RoomLayer.IsHigherThan(target.RoomLayer))
         {
             weight *= 1.5;

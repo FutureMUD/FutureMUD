@@ -146,8 +146,7 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
             return Enumerable.Empty<(IChargenResource, int)>();
         }
 
-        BoostCostExpression.Parameters["boosts"] = nonFreeBoosts;
-        double boostExpr = BoostCostExpression.EvaluateDouble();
+        double boostExpr = BoostCostExpression.EvaluateDoubleWith(("boosts", nonFreeBoosts));
         if (boostExpr > int.MaxValue)
         {
             boostExpr = int.MaxValue;

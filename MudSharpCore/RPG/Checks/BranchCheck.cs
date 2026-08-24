@@ -49,11 +49,13 @@ public class BranchCheck : FrameworkItem, ICheck
         }
 
         TraitExpression expr = IncreasedBranchChance.IncreasedCapExpression;
-        expr.Formula.Parameters["attempts"] = effect.GetAttemptsForSkill(sd);
-        expr.Formula.Parameters["base"] = TargetNumberExpression.Evaluate(checkee, trait) * merits;
-
         effect.UseSkill(sd);
-        return expr.EvaluateWith(checkee, values: customParameters);
+        return expr.EvaluateWith(checkee, values:
+        [
+            ("attempts", effect.GetAttemptsForSkill(sd)),
+            ("base", TargetNumberExpression.Evaluate(checkee, trait) * merits),
+            ..customParameters
+        ]);
     }
 
     public CheckOutcome Check(IPerceivableHaveTraits checkee, Difficulty difficulty, IPerceivable target = null,

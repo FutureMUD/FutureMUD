@@ -9,6 +9,7 @@ global using MudSharp.Character;
 global using MudSharp.Effects.Interfaces;
 global using MudSharp.Form.Shape;
 global using MudSharp.Framework;
+global using MudSharp.Framework.Scheduling;
 global using MudSharp.FutureProg;
 global using MudSharp.GameItems.Interfaces;
 global using MudSharp.PerceptionEngine;

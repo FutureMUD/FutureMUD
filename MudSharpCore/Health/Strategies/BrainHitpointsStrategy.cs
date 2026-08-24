@@ -341,11 +341,11 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
             {
                 if (!character.AffectedBy<CriticalInjureKnockout>())
                 {
-                    character.AddEffect(new CriticalInjureKnockout(character, DateTime.UtcNow + KnockoutDuration));
+                    character.AddEffect(new CriticalInjureKnockout(character, RuntimeClock.UtcNow + KnockoutDuration));
                     return HealthTickResult.PassOut;
                 }
 
-                return character.EffectsOfType<CriticalInjureKnockout>().First().WakeupTime > DateTime.UtcNow
+                return character.EffectsOfType<CriticalInjureKnockout>().First().WakeupTime > RuntimeClock.UtcNow
                     ? HealthTickResult.PassOut
                     : HealthTickResult.None;
             }
@@ -397,10 +397,9 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
                 return 0;
         }
 
-        whichExpression.Formula.Parameters["originaldamage"] = wound.OriginalDamage;
-        whichExpression.Formula.Parameters["damage"] = wound.CurrentDamage;
-        whichExpression.Formula.Parameters["outcome"] = outcome.SuccessDegrees();
-        return whichExpression.Evaluate((ICharacter)wound.Parent);
+        return whichExpression.EvaluateWith((ICharacter)wound.Parent,
+            values: [("originaldamage", wound.OriginalDamage), ("damage", wound.CurrentDamage),
+                ("outcome", outcome.SuccessDegrees())]);
     }
 
     public override double WoundPenaltyFor(IHaveWounds owner)

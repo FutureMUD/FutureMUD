@@ -82,6 +82,21 @@ public abstract class LateInitialisingItem : FrameworkItem, ILateInitialisingIte
         };
     }
 
+    /// <summary>
+    /// Assigns an identity to a transient item without creating a database row.
+    /// </summary>
+    /// <remarks>
+    /// This supports short-lived in-memory worlds such as combat simulations. The caller must allocate an
+    /// identity that cannot collide with persistent items in its own lookup scope.
+    /// </remarks>
+    public void InitialiseWithoutPersistence(long id)
+    {
+        _id = id;
+        IdInitialised = true;
+        _changed = false;
+        IdRegistered?.Invoke(this);
+    }
+
     public abstract object DatabaseInsert();
 
     public abstract void SetIDFromDatabase(object dbitem);
@@ -205,6 +220,21 @@ public abstract class LateKeywordedInitialisingItem : KeywordedItem, ILateInitia
                 IdRegistered?.Invoke(this);
             }
         };
+    }
+
+    /// <summary>
+    /// Assigns an identity to a transient item without creating a database row.
+    /// </summary>
+    /// <remarks>
+    /// This supports short-lived in-memory worlds such as combat simulations. The caller must allocate an
+    /// identity that cannot collide with persistent items in its own lookup scope.
+    /// </remarks>
+    public void InitialiseWithoutPersistence(long id)
+    {
+        _id = id;
+        IdInitialised = true;
+        _changed = false;
+        IdRegistered?.Invoke(this);
     }
 
     public abstract object DatabaseInsert();

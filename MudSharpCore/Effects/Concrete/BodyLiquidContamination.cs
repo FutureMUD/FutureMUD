@@ -324,9 +324,9 @@ public class BodyLiquidContamination : Effect, ILiquidContaminationEffect, IDesc
             ICell location = BodyOwner.Location;
             if (location != null && !location.IsSwimmingLayer(BodyOwner.RoomLayer))
             {
-                if (DateTime.UtcNow - _lastDripEcho > TimeSpan.FromSeconds(120) && ShouldDripsEcho)
+                if (RuntimeClock.UtcNow - _lastDripEcho > TimeSpan.FromSeconds(120) && ShouldDripsEcho)
                 {
-                    _lastDripEcho = DateTime.UtcNow;
+                    _lastDripEcho = RuntimeClock.UtcNow;
                     string amount, verb;
                     if (difference <= 0.002 / Gameworld.UnitManager.BaseFluidToLitres)
                     {

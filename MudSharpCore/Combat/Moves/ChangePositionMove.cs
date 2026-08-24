@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body.Position;
 using MudSharp.RPG.Checks;
+using MoreLinq;
 
 namespace MudSharp.Combat.Moves;
 
@@ -26,7 +27,7 @@ public class ChangePositionMove : CombatMoveBase
         ICombatMove opponent =
             Assailant.Combat.Combatants.Where(x => x.CombatTarget == Assailant)
                      .SelectNotNull(x => x.ResponseToMove(this, Assailant))
-                     .Shuffle()
+                     .Shuffle(Constants.Random)
                      .FirstOrDefault();
         if (opponent == null || opponent is HelplessDefenseMove)
         {

@@ -1398,9 +1398,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
         foreach ((IMagicResource resource, ITraitExpression expression) in _castingCosts)
         {
-            expression.Formula.Parameters["power"] = (int)power;
-            expression.Formula.Parameters["self"] = magician == target ? 1 : 0;
-            double cost = expression.Evaluate(magician, CastingTrait, TraitBonusContext.SpellCost);
+            double cost = expression.EvaluateWith(magician, CastingTrait, TraitBonusContext.SpellCost,
+                ("power", (int)power), ("self", magician == target ? 1 : 0));
             if (!magician.CanUseResource(resource, cost))
             {
                 return false;
@@ -1434,9 +1433,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
         List<(IMagicResource Resource, double Cost)> realCosts = new();
         foreach ((IMagicResource resource, ITraitExpression expression) in _castingCosts)
         {
-            expression.Formula.Parameters["power"] = (int)power;
-            expression.Formula.Parameters["self"] = magician == target ? 1 : 0;
-            double cost = expression.Evaluate(magician, CastingTrait, TraitBonusContext.SpellCost);
+            double cost = expression.EvaluateWith(magician, CastingTrait, TraitBonusContext.SpellCost,
+                ("power", (int)power), ("self", magician == target ? 1 : 0));
             if (!magician.CanUseResource(resource, cost))
             {
                 magician.OutputHandler.Send(
@@ -1506,12 +1504,12 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		TimeSpan duration = TimeSpan.Zero;
 		if (EffectDurationExpression is not null)
 		{
-			EffectDurationExpression.Formula.Parameters["degrees"] = result[CastingDifficulty].CheckDegrees();
-			EffectDurationExpression.Formula.Parameters["success"] = result[CastingDifficulty].SuccessDegrees();
-            EffectDurationExpression.Formula.Parameters["power"] = (int)power;
             duration =
                 TimeSpan.FromSeconds(
-					EffectDurationExpression.Evaluate(magician, CastingTrait, TraitBonusContext.SpellDuration));
+					EffectDurationExpression.EvaluateWith(magician, CastingTrait, TraitBonusContext.SpellDuration,
+						("degrees", result[CastingDifficulty].CheckDegrees()),
+						("success", result[CastingDifficulty].SuccessDegrees()),
+						("power", (int)power)));
 		}
 
 		OpposedOutcome baseOutcome = new(result[CastingDifficulty].Outcome, Outcome.NotTested);
@@ -1676,11 +1674,9 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		var duration = TimeSpan.Zero;
 		if (EffectDurationExpression is not null)
 		{
-			EffectDurationExpression.Formula.Parameters["degrees"] = 1;
-			EffectDurationExpression.Formula.Parameters["success"] = 1;
-			EffectDurationExpression.Formula.Parameters["power"] = (int)power;
 			duration = TimeSpan.FromSeconds(
-				EffectDurationExpression.Evaluate(magician, CastingTrait, TraitBonusContext.SpellDuration));
+				EffectDurationExpression.EvaluateWith(magician, CastingTrait, TraitBonusContext.SpellDuration,
+					("degrees", 1), ("success", 1), ("power", (int)power)));
 		}
 
 		var effectOutcome = OpposedOutcomeDegree.None;

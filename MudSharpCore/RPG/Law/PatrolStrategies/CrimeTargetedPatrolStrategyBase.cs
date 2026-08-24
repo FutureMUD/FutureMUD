@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.Movement;
@@ -258,7 +258,7 @@ public abstract class CrimeTargetedPatrolStrategyBase : ArmedPatrolStrategy, ICr
 			return;
 		}
 
-		if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+		if (RuntimeClock.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
 		{
 			patrol.CompletePatrol();
 		}
@@ -269,7 +269,7 @@ public abstract class CrimeTargetedPatrolStrategyBase : ArmedPatrolStrategy, ICr
 		if (patrol.LastMajorNode != node)
 		{
 			patrol.LastMajorNode = node;
-			patrol.LastArrivedTime = DateTime.UtcNow;
+			patrol.LastArrivedTime = RuntimeClock.UtcNow;
 		}
 	}
 

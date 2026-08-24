@@ -157,10 +157,6 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
             $"MeleeWeaponAttack Block Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");
 #endif
 
-        Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)result.Degree;
-        Attack.Profile.StunExpression.Formula.Parameters["degree"] = (int)result.Degree;
-        Attack.Profile.PainExpression.Formula.Parameters["degree"] = (int)result.Degree;
-
         List<IWound> wounds = new();
         List<IWound> wardWounds = new();
 
@@ -174,13 +170,15 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
                 AngleOfIncidentRadians = Attack.Profile.BaseAngleOfIncidence,
                 Bodypart = TargetBodypart,
                 DamageAmount =
-                    Attack.Profile.DamageExpression.Evaluate(Assailant,
-                        context: TraitBonusContext.ArmedDamageCalculation) * 2 * Attack.Profile.BaseAngleOfIncidence /
+                    EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
+                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 *
+                    Attack.Profile.BaseAngleOfIncidence /
                     Math.PI,
                 DamageType = Attack.Profile.DamageType,
                 PainAmount =
-                    Attack.Profile.PainExpression.Evaluate(Assailant,
-                        context: TraitBonusContext.ArmedDamageCalculation) * 2 * Attack.Profile.BaseAngleOfIncidence /
+                    EvaluateAttackFormula(Attack.Profile.PainExpression, Assailant,
+                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 *
+                    Attack.Profile.BaseAngleOfIncidence /
                     Math.PI,
                 PenetrationOutcome =
                     Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
@@ -189,8 +187,9 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
                                  Weapon),
                 ShockAmount = 0,
                 StunAmount =
-                    Attack.Profile.StunExpression.Evaluate(Assailant,
-                        context: TraitBonusContext.ArmedDamageCalculation) * 2 * Attack.Profile.BaseAngleOfIncidence /
+                    EvaluateAttackFormula(Attack.Profile.StunExpression, Assailant,
+                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 *
+                    Attack.Profile.BaseAngleOfIncidence /
                     Math.PI
             };
 
@@ -256,8 +255,8 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
                 AngleOfIncidentRadians = finalAngle,
                 Bodypart = null,
                 DamageAmount =
-                    Attack.Profile.DamageExpression.Evaluate(Assailant,
-                        context: TraitBonusContext.ArmedDamageCalculation) * 2 * finalAngle / Math.PI,
+                    EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
+                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 * finalAngle / Math.PI,
                 DamageType = Attack.Profile.DamageType,
                 PainAmount = 0,
                 PenetrationOutcome = Outcome.MajorFail,
@@ -322,10 +321,6 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
             $"MeleeWeaponAttack Parry Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");
 #endif
 
-        Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)result.Degree;
-        Attack.Profile.StunExpression.Formula.Parameters["degree"] = (int)result.Degree;
-        Attack.Profile.PainExpression.Formula.Parameters["degree"] = (int)result.Degree;
-
         List<IWound> wounds = new();
         List<IWound> wardWounds = new();
 
@@ -364,12 +359,12 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
                 AngleOfIncidentRadians = finalAngle,
                 Bodypart = TargetBodypart,
                 DamageAmount =
-                    Attack.Profile.DamageExpression.Evaluate(Assailant,
-                        context: TraitBonusContext.ArmedDamageCalculation) * 2 * finalAngle / Math.PI,
+                    EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
+                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 * finalAngle / Math.PI,
                 DamageType = Attack.Profile.DamageType,
                 PainAmount =
-                    Attack.Profile.PainExpression.Evaluate(Assailant,
-                        context: TraitBonusContext.ArmedDamageCalculation) * 2 * finalAngle / Math.PI,
+                    EvaluateAttackFormula(Attack.Profile.PainExpression, Assailant,
+                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 * finalAngle / Math.PI,
                 PenetrationOutcome =
                     Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
                              .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType),
@@ -377,8 +372,8 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
                                  Weapon),
                 ShockAmount = 0,
                 StunAmount =
-                    Attack.Profile.StunExpression.Evaluate(Assailant,
-                        context: TraitBonusContext.ArmedDamageCalculation) * 2 * finalAngle / Math.PI
+                    EvaluateAttackFormula(Attack.Profile.StunExpression, Assailant,
+                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 * finalAngle / Math.PI
             };
 
             string parryEmote = Gameworld.CombatMessageManager.GetFailMessageFor(defenderMove.Assailant, Assailant,
@@ -439,7 +434,8 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
                 ToolOrigin = null,
                 AngleOfIncidentRadians = finalAngle,
                 Bodypart = null,
-                DamageAmount = Attack.Profile.DamageExpression.Evaluate(Assailant) * 2 * finalAngle / Math.PI,
+                DamageAmount = EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
+                    TraitBonusContext.None, (int)result.Degree, 0) * 2 * finalAngle / Math.PI,
                 DamageType = Attack.Profile.DamageType,
                 PainAmount = 0,
                 PenetrationOutcome = Outcome.MajorFail,
@@ -562,19 +558,15 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 
             double finalAngle = Attack.Profile.BaseAngleOfIncidence * angleMultiplier;
 
-            Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)result.Degree;
-            Attack.Profile.StunExpression.Formula.Parameters["degree"] = (int)result.Degree;
-            Attack.Profile.PainExpression.Formula.Parameters["degree"] = (int)result.Degree;
-            Attack.Profile.DamageExpression.Formula.Parameters["quality"] = 0;
-            Attack.Profile.StunExpression.Formula.Parameters["quality"] = 0;
-            Attack.Profile.PainExpression.Formula.Parameters["quality"] = 0;
-
             double damageResult =
-                Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.ArmedDamageCalculation);
+                EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
+                    TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0);
             double stunResult =
-                Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.ArmedDamageCalculation);
+                EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
+                    TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0);
             double painResult =
-                Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.ArmedDamageCalculation);
+                EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
+                    TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0);
 
             Damage damage = new()
             {

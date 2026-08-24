@@ -1,7 +1,9 @@
 ﻿using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat.Moves;
+using MudSharp.Combat.Simulation;
 using MudSharp.Effects.Concrete;
+using MudSharp.Framework;
 using MudSharp.GameItems;
 
 namespace MudSharp.Combat.Strategies;
@@ -195,10 +197,23 @@ public class ClinchStrategy : StandardMeleeStrategy
             attacks = preferredAttacks;
         }
 
-        IWeaponAttack attack = attacks.GetWeightedRandom(x => x.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x));
+        List<(IWeaponAttack Attack, double Weight)> weightedAttacks = attacks
+            .Select(x => (Attack: x, Weight: x.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x)))
+            .ToList();
+        IWeaponAttack attack = SelectWeightedAttack(weightedAttacks, out var selectionRoll);
         if (attack == null)
         {
             return null;
+        }
+
+        var simulationScope = CombatSimulationRuntimeScope.Current;
+        if (simulationScope?.ExecutionFingerprint.CaptureRandomCallSites == true)
+        {
+            var lastRandom = simulationScope.ExecutionFingerprint.LastRandomOperation;
+            var candidates = string.Join(",", weightedAttacks.Select(x =>
+                $"{x.Attack.Id}:{x.Attack.Orientation}:{x.Attack.Alignment}:{x.Attack.Weighting.ToString(System.Globalization.CultureInfo.InvariantCulture)}:{x.Weight.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
+            simulationScope.ExecutionFingerprint.RecordState(
+                $"clinch-attack actor:{ch.Id} weapon:{weapon.Parent.Id} roll:{selectionRoll.ToString(System.Globalization.CultureInfo.InvariantCulture)} random:{lastRandom?.OperationIndex ?? 0}:{lastRandom?.Description ?? string.Empty} candidates:{candidates} selected:{attack.Id}:{attack.Orientation}:{attack.Alignment}");
         }
 
         if (ch.CombatTarget is ICharacter charTarget)
@@ -208,6 +223,29 @@ public class ClinchStrategy : StandardMeleeStrategy
 
         throw new NotImplementedException("Unimplemented Combatant type in ClinchStrategy.AttemptClinchAttack - " +
                                           ch.CombatTarget.GetType().FullName);
+    }
+
+    private static IWeaponAttack SelectWeightedAttack(
+        IReadOnlyList<(IWeaponAttack Attack, double Weight)> attacks,
+        out double selectionRoll)
+    {
+        var totalWeight = attacks.Sum(x => x.Weight);
+        selectionRoll = Constants.Random.NextDouble() * totalWeight;
+        var remainingRoll = selectionRoll;
+        foreach (var attack in attacks)
+        {
+            if (attack.Weight <= 0.0)
+            {
+                continue;
+            }
+
+            if ((remainingRoll -= attack.Weight) <= 0.0)
+            {
+                return attack.Attack;
+            }
+        }
+
+        return attacks[^1].Attack;
     }
 
     private ICombatMove AttemptUnarmedClinchAttack(ICharacter ch)

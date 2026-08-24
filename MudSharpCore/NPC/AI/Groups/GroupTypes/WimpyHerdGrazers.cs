@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.Character.Heritage;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -233,7 +233,7 @@ public class WimpyHerdGrazers : HerdGrazers
         {
             foreach (ICell location in threats.Select(x => x.Location).Distinct())
             {
-                data.KnownThreatLocations[location] = DateTime.UtcNow;
+                data.KnownThreatLocations[location] = RuntimeClock.UtcNow;
                 group.Changed = true;
             }
         }

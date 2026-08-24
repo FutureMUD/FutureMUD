@@ -51,13 +51,11 @@ public static class CombatExtensions
 
         string expressionText = character.Gameworld.GetStaticConfiguration(MovementSpeedExpressionConfig);
         Expression expression = new(expressionText);
-        expression.Parameters["baseSpeed"] = baseSpeed;
-        expression.Parameters["degree"] = degrees;
 
         double modifiedSpeed;
         try
         {
-            modifiedSpeed = Convert.ToDouble(expression.Evaluate());
+            modifiedSpeed = expression.EvaluateDoubleWith(("baseSpeed", baseSpeed), ("degree", degrees));
         }
         catch
         {

@@ -34,7 +34,7 @@ public class EffectSchedule : ScheduleBase, IEffectSchedule
     {
         return string.Format(voyeur, "{0} {3}[{1:N1}s] (original {2:N1}s){4}",
             Effect.Describe(voyeur),
-            (TriggerETA - DateTime.UtcNow).TotalSeconds,
+            (TriggerETA - RuntimeClock.UtcNow).TotalSeconds,
             Duration.TotalSeconds,
             Telnet.Green.Colour,
             Telnet.RESETALL

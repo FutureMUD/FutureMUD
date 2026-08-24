@@ -252,6 +252,12 @@ public class NPC : Character.Character, INPC
         _npcID = item.Item2.Id;
     }
 
+    internal void InitialiseCombatSimulationIdentity(long characterId, long bodyId, long instanceId, long npcId)
+    {
+        base.InitialiseCombatSimulationIdentity(characterId, bodyId, instanceId);
+        _npcID = npcId;
+    }
+
     protected override ICharacterCombatSettings ResolveCombatSettingsAfterInitialisation()
     {
         return MudSharp.Combat.CharacterCombatSettingsResolver.ResolveFallback(this, Template);

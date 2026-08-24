@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character.Name;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction;
@@ -33,7 +33,7 @@ public class Crime : LateInitialisingItem, ICrime
         _criminal = criminal;
         VictimId = victim is null ? null : CharacterInstanceIdentityComparer.IdentityId(victim);
         TimeOfCrime = resolvedCrimeLocation.DateTime();
-        RealTimeOfCrime = DateTime.UtcNow;
+        RealTimeOfCrime = RuntimeClock.UtcNow;
         CrimeLocation = resolvedCrimeLocation;
         _witnessIds.AddRange(witnesses.Select(CharacterInstanceIdentityComparer.IdentityId));
         Law = law;

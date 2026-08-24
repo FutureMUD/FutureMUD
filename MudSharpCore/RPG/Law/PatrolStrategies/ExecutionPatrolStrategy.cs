@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
 using MudSharp.Construction;
@@ -48,7 +48,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 	private ICharacter _condemned;
 	private long _condemnedId;
 	private ExecutionPatrolStage _stage = ExecutionPatrolStage.SelectingTarget;
-	private DateTime _stageBegan = DateTime.UtcNow;
+	private DateTime _stageBegan = RuntimeClock.UtcNow;
 	private DateTime _lastAction = DateTime.MinValue;
 	private int _scriptIndex;
 	private int _executionAttempts;
@@ -341,7 +341,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 	private void SetStage(ExecutionPatrolStage stage)
 	{
 		_stage = stage;
-		_stageBegan = DateTime.UtcNow;
+		_stageBegan = RuntimeClock.UtcNow;
 		_lastAction = DateTime.MinValue;
 	}
 
@@ -420,7 +420,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 		if (!MoveCharacterTo(patrol.PatrolLeader, equipment, 25))
 		{
-			if (DateTime.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
+			if (RuntimeClock.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
 			{
 				AbortExecution(patrol);
 			}
@@ -440,7 +440,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 		if (patrol.PatrolMembers.Any(x => !HasReachedPatrolDestination(x, equipment)))
 		{
-			if (DateTime.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
+			if (RuntimeClock.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
 			{
 				AbortExecution(patrol);
 			}
@@ -450,7 +450,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 		if (!EquipmentReady(patrol))
 		{
-			if (DateTime.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
+			if (RuntimeClock.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
 			{
 				AbortExecution(patrol);
 			}
@@ -460,7 +460,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 		FormParty(patrol);
 		patrol.PatrolPhase = PatrolPhase.Deployment;
-		patrol.LastArrivedTime = DateTime.UtcNow;
+		patrol.LastArrivedTime = RuntimeClock.UtcNow;
 		patrol.LastMajorNode = equipment;
 		SetStage(ExecutionPatrolStage.RetrievingPrisoner);
 	}
@@ -576,7 +576,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 	{
 		if (!MoveLeaderToCharacter(patrol, _condemned))
 		{
-			if (DateTime.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
+			if (RuntimeClock.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
 			{
 				AbortExecution(patrol);
 			}
@@ -609,7 +609,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			return;
 		}
 
-		if (DateTime.UtcNow - _stageBegan < TimeSpan.FromSeconds(ComplianceWindowSeconds))
+		if (RuntimeClock.UtcNow - _stageBegan < TimeSpan.FromSeconds(ComplianceWindowSeconds))
 		{
 			return;
 		}
@@ -789,7 +789,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 		if (!MoveCharacterTo(patrol.PatrolLeader, executionLocation))
 		{
-			if (DateTime.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
+			if (RuntimeClock.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
 			{
 				AbortExecution(patrol);
 			}
@@ -969,11 +969,11 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		{
 			DoEmote(patrol.PatrolLeader, LastWordsEmote, _condemned);
 			_lastWordsEmoteSent = true;
-			_lastAction = DateTime.UtcNow;
+			_lastAction = RuntimeClock.UtcNow;
 			return;
 		}
 
-		if (DateTime.UtcNow - _lastAction < TimeSpan.FromSeconds(LastWordsSeconds))
+		if (RuntimeClock.UtcNow - _lastAction < TimeSpan.FromSeconds(LastWordsSeconds))
 		{
 			return;
 		}
@@ -995,13 +995,13 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		}
 
 		if (_lastAction != DateTime.MinValue &&
-		    DateTime.UtcNow - _lastAction < TimeSpan.FromSeconds(ScriptDelaySeconds))
+		    RuntimeClock.UtcNow - _lastAction < TimeSpan.FromSeconds(ScriptDelaySeconds))
 		{
 			return;
 		}
 
 		DoEmote(patrol.PatrolLeader, _executionScript[_scriptIndex++], _condemned);
-		_lastAction = DateTime.UtcNow;
+		_lastAction = RuntimeClock.UtcNow;
 	}
 
 	private void HandleKilling(IPatrol patrol)
@@ -1027,7 +1027,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 		if (!attempted)
 		{
-			if (DateTime.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
+			if (RuntimeClock.UtcNow - _stageBegan > TimeSpan.FromMinutes(3))
 			{
 				AbortExecution(patrol);
 			}
@@ -1053,7 +1053,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			return;
 		}
 
-		if (DateTime.UtcNow - _stageBegan >= TimeSpan.FromSeconds(DeathConfirmationSeconds))
+		if (RuntimeClock.UtcNow - _stageBegan >= TimeSpan.FromSeconds(DeathConfirmationSeconds))
 		{
 			SetStage(ExecutionPatrolStage.Killing);
 		}
@@ -1241,7 +1241,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		_condemned = null;
 		_condemnedId = 0;
 		_stage = ExecutionPatrolStage.SelectingTarget;
-		_stageBegan = DateTime.UtcNow;
+		_stageBegan = RuntimeClock.UtcNow;
 		_lastAction = DateTime.MinValue;
 		_scriptIndex = 0;
 		_executionAttempts = 0;

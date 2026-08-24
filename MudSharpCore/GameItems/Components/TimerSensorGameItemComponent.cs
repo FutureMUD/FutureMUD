@@ -70,7 +70,7 @@ public class TimerSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 		: base(proto, parent, temporary)
 	{
 		_prototype = proto;
-		var now = DateTime.UtcNow;
+		var now = RuntimeClock.UtcNow;
 		_cycleAnchor = now;
 		_startsActive = proto.StartActive;
 		RefreshState(now, false);
@@ -119,8 +119,8 @@ public class TimerSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 	public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type, bool colour,
 		PerceiveIgnoreFlags flags)
 	{
-		var untilTransition = _nextTransition > DateTime.UtcNow
-			? (_nextTransition - DateTime.UtcNow).Describe(voyeur).ColourValue()
+		var untilTransition = _nextTransition > RuntimeClock.UtcNow
+			? (_nextTransition - RuntimeClock.UtcNow).Describe(voyeur).ColourValue()
 			: "less than a second".ColourValue();
 		return
 			$"{description}\n\nIts timer sensor is {(SwitchedOn ? "switched on".ColourValue() : "switched off".ColourError())}, {(_onAndPowered ? "powered".ColourValue() : "not powered".ColourError())}, alternates between {_prototype.ActiveValue.ToString("N2", voyeur).ColourValue()} for {_prototype.ActiveDuration.Describe(voyeur).ColourValue()} and {_prototype.InactiveValue.ToString("N2", voyeur).ColourValue()} for {_prototype.InactiveDuration.Describe(voyeur).ColourValue()}. It is currently {(_isActive ? "active".ColourValue() : "inactive".ColourName())} and will change state in {untilTransition}.";
@@ -132,7 +132,7 @@ public class TimerSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 	{
 		base.UpdateComponentNewPrototype(newProto);
 		_prototype = (TimerSensorGameItemComponentProto)newProto;
-		RefreshState(DateTime.UtcNow, true);
+		RefreshState(RuntimeClock.UtcNow, true);
 	}
 
 	protected override void LoadFromXml(XElement root)
@@ -146,7 +146,7 @@ public class TimerSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 		}
 		else
 		{
-			_cycleAnchor = DateTime.UtcNow;
+			_cycleAnchor = RuntimeClock.UtcNow;
 		}
 
 		var startsActiveElement = root.Element("StartsActive");
@@ -157,7 +157,7 @@ public class TimerSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 
 	public override void FinaliseLoad()
 	{
-		var now = DateTime.UtcNow;
+		var now = RuntimeClock.UtcNow;
 		if (_cycleAnchor == default)
 		{
 			_cycleAnchor = now;
@@ -171,7 +171,7 @@ public class TimerSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 	{
 		base.Login();
 		EnsureHeartbeatSubscription();
-		RefreshState(DateTime.UtcNow, false);
+		RefreshState(RuntimeClock.UtcNow, false);
 	}
 
 	public override void Delete()
@@ -195,7 +195,7 @@ public class TimerSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 
 	protected override void OnPowerCutInAction()
 	{
-		RefreshState(DateTime.UtcNow, true);
+		RefreshState(RuntimeClock.UtcNow, true);
 	}
 
 	protected override void OnPowerCutOutAction()
@@ -206,7 +206,7 @@ public class TimerSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 
 	private void HeartbeatTick()
 	{
-		RefreshState(DateTime.UtcNow, true);
+		RefreshState(RuntimeClock.UtcNow, true);
 	}
 
 	private void EnsureHeartbeatSubscription()

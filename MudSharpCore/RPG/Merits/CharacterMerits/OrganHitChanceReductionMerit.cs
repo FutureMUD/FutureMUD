@@ -207,8 +207,7 @@ public class OrganHitChanceReductionMerit : CharacterMeritBase, IOrganHitReducti
             return false;
         }
 
-        HitChanceExpression.Parameters["chance"] = organInfo.Value.HitChance;
-        if (RandomUtilities.Random(0, 100) <= (double)HitChanceExpression.Evaluate())
+        if (RandomUtilities.Random(0, 100) <= HitChanceExpression.EvaluateDoubleWith(("chance", organInfo.Value.HitChance)))
         {
             return true;
         }

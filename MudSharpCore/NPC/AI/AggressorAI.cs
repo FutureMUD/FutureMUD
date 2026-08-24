@@ -2,6 +2,7 @@
 using MudSharp.Events;
 using MudSharp.Models;
 using MudSharp.Construction;
+using MoreLinq;
 
 namespace MudSharp.NPC.AI;
 
@@ -76,7 +77,7 @@ public class AggressorAI : ArtificialIntelligenceBase
             return false;
         }
 
-        foreach (ICharacter tch in ch.Location.CharactersInSpatialVicinity(ch).Except(ch).Shuffle())
+        foreach (ICharacter tch in ch.Location.CharactersInSpatialVicinity(ch).Except(ch).Shuffle(Constants.Random))
         {
             if (CheckForAttack(ch, tch))
             {

@@ -841,12 +841,12 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 		public void RecordForage(ICell cell)
 		{
 			_lastForageCellId = cell.Id;
-			_lastForageUtc = DateTime.UtcNow;
+			_lastForageUtc = RuntimeClock.UtcNow;
 		}
 
 		public bool WasRecentlyForaged(ICell cell)
 		{
-			return cell.Id == _lastForageCellId && DateTime.UtcNow - _lastForageUtc < TimeSpan.FromMinutes(5);
+			return cell.Id == _lastForageCellId && RuntimeClock.UtcNow - _lastForageUtc < TimeSpan.FromMinutes(5);
 		}
 
 		public override XElement SaveToXml()

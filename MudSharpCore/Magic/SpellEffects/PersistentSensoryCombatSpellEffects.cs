@@ -151,9 +151,7 @@ public class BurningEffect : IMagicSpellEffectTemplate
 
 	private static double Evaluate(Expression formula, OpposedOutcomeDegree outcome, SpellPower power)
 	{
-		formula.Parameters["power"] = (int)power;
-		formula.Parameters["outcome"] = (int)outcome;
-		return Math.Max(0.0, formula.EvaluateDouble());
+		return Math.Max(0.0, formula.EvaluateDoubleWith(("power", (int)power), ("outcome", (int)outcome)));
 	}
 
 	public IMagicSpellEffectTemplate Clone()

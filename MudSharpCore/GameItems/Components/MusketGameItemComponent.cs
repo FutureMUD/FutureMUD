@@ -1272,6 +1272,25 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             "Unknown WhyCannotFire reason in MusketGameItemComponent.WhyCannotFire");
     }
 
+    private double EvaluateFaultChance(ITraitExpression expression, ICharacter actor, IMusketCartridge cartridge,
+        bool wadUsed)
+    {
+        var weather = actor.Location.CurrentWeather(actor);
+        return expression.EvaluateWith(actor, WeaponType.FireTrait, TraitBonusContext.MusketMisfire,
+            ("operate", actor.TraitValue(WeaponType.OperateTrait)),
+            ("skipclean", NeedsCleaning ? 1.0 : 0.0),
+            ("precipitation", weather?.Precipitation.PrecipitationIntensityForGunpowder() ?? 0.0),
+            ("gunquality", (int)Parent.Quality),
+            ("cartridgeused", _magazineContents.Count == 1 && cartridge is not null ? 1.0 : 0.0),
+            ("cartridgequality", _magazineContents.Count == 1 && cartridge is not null
+                ? (int)cartridge.Parent.Quality
+                : (int)ItemQuality.Standard),
+            ("condition", Parent.Condition),
+            ("wadused", wadUsed ? 1.0 : 0.0),
+            ("wetpowder", _magazineContents.Any(x => x.SurfaceLiquidState.IsWet) ? 1.0 : 0.0),
+            ("taploaded", TapLoaded ? 1.0 : 0.0));
+    }
+
     /// <inheritdoc />
     public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
     {
@@ -1382,17 +1401,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         if (!misfire)
         {
             ITraitExpression misExpression = _prototype.MisfireChance;
-            misExpression.Formula.Parameters["operate"] = actor.TraitValue(WeaponType.OperateTrait);
-            misExpression.Formula.Parameters["skipclean"] = NeedsCleaning ? 1.0 : 0.0;
-            misExpression.Formula.Parameters["precipitation"] = actor.Location.CurrentWeather(actor) is not null ? (actor.Location.CurrentWeather(actor)?.Precipitation ?? PrecipitationLevel.Parched).PrecipitationIntensityForGunpowder() : 0.0;
-            misExpression.Formula.Parameters["gunquality"] = (int)Parent.Quality;
-            misExpression.Formula.Parameters["cartridgeused"] = _magazineContents.Count == 1 && cartridge is not null ? 1.0 : 0.0;
-            misExpression.Formula.Parameters["cartridgequality"] = _magazineContents.Count == 1 && cartridge is not null ? (int)cartridge.Parent.Quality : (int)ItemQuality.Standard;
-            misExpression.Formula.Parameters["condition"] = Parent.Condition;
-            misExpression.Formula.Parameters["wadused"] = wadused ? 1.0 : 0.0;
-            misExpression.Formula.Parameters["wetpowder"] = _magazineContents.Any(x => x.SurfaceLiquidState.IsWet) ? 1.0 : 0.0;
-            misExpression.Formula.Parameters["taploaded"] = TapLoaded ? 1.0 : 0.0;
-            double chance = misExpression.Evaluate(actor, WeaponType.FireTrait, TraitBonusContext.MusketMisfire);
+            double chance = EvaluateFaultChance(misExpression, actor, cartridge, wadused);
             double roll = RandomUtilities.DoubleRandom(0.0, 1.0);
             Gameworld.DebugMessage($"Musket misfire chance #2{chance:P3}#0 rolled {roll:P3}");
             if (roll < chance)
@@ -1454,17 +1463,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         if (misfire)
         {
             ITraitExpression jamExpression = _prototype.JamChance;
-            jamExpression.Formula.Parameters["operate"] = actor.TraitValue(WeaponType.OperateTrait);
-            jamExpression.Formula.Parameters["skipclean"] = NeedsCleaning ? 1.0 : 0.0;
-            jamExpression.Formula.Parameters["precipitation"] = actor.Location.CurrentWeather(actor) is not null ? (actor.Location.CurrentWeather(actor)?.Precipitation ?? PrecipitationLevel.Parched).PrecipitationIntensityForGunpowder() : 0.0;
-            jamExpression.Formula.Parameters["gunquality"] = (int)Parent.Quality;
-            jamExpression.Formula.Parameters["cartridgeused"] = _magazineContents.Count == 1 && cartridge is not null ? 1.0 : 0.0;
-            jamExpression.Formula.Parameters["cartridgequality"] = _magazineContents.Count == 1 && cartridge is not null ? (int)cartridge.Parent.Quality : (int)ItemQuality.Standard;
-            jamExpression.Formula.Parameters["condition"] = Parent.Condition;
-            jamExpression.Formula.Parameters["wadused"] = wadused ? 1.0 : 0.0;
-            jamExpression.Formula.Parameters["wetpowder"] = _magazineContents.Any(x => x.SurfaceLiquidState.IsWet) ? 1.0 : 0.0;
-            jamExpression.Formula.Parameters["taploaded"] = TapLoaded ? 1.0 : 0.0;
-            double chance = jamExpression.Evaluate(actor, WeaponType.FireTrait, TraitBonusContext.MusketMisfire);
+            double chance = EvaluateFaultChance(jamExpression, actor, cartridge, wadused);
             double roll = RandomUtilities.DoubleRandom(0.0, 1.0);
             Gameworld.DebugMessage($"Musket jam chance #2{chance:P3}#0 rolled {roll:P3}");
             if (roll < chance)

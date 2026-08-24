@@ -1101,7 +1101,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 }
                 else
                 {
-                    CachedMorphTime = rhs.MorphTime - DateTime.UtcNow;
+                    CachedMorphTime = rhs.MorphTime - RuntimeClock.UtcNow;
                 }
             }
             else
@@ -1402,9 +1402,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         var damageMultiplier = fallMitigationEffects.Aggregate(1.0,
             (current, effect) => current * Math.Max(0.0, effect.FallDamageMultiplier));
 
-        FallDamageExpression.Parameters["weight"] = Weight;
-        FallDamageExpression.Parameters["rooms"] = effectiveFallDistance;
-        var damageAmount = Convert.ToDouble(FallDamageExpression.Evaluate()) * damageMultiplier;
+        var damageAmount = FallDamageExpression.EvaluateDoubleWith(("weight", Weight),
+            ("rooms", effectiveFallDistance)) * damageMultiplier;
         if (damageAmount <= 0.0)
         {
             return;
@@ -2838,7 +2837,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     {
         if (CachedMorphTime is not null)
         {
-            MorphTime = DateTime.UtcNow + CachedMorphTime.Value;
+            MorphTime = RuntimeClock.UtcNow + CachedMorphTime.Value;
             CachedMorphTime = null;
         }
 
@@ -2848,7 +2847,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 item => item.Changed = true, ScheduleType.MorphSaving, TimeSpan.FromSeconds(30),
                 $"Morph Saver for {HowSeen(this)} #{Id}"));
             Gameworld.Scheduler.AddSchedule(new Schedule<IGameItem>(this, Morph, ScheduleType.Morph,
-                MorphTime > DateTime.UtcNow ? MorphTime - DateTime.UtcNow : TimeSpan.FromTicks(1),
+                MorphTime > RuntimeClock.UtcNow ? MorphTime - RuntimeClock.UtcNow : TimeSpan.FromTicks(1),
                 $"Morph checker for {HowSeen(this)} #{Id}"));
         }
     }
@@ -2859,7 +2858,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         {
             Gameworld.Scheduler.Destroy(this, ScheduleType.Morph);
             Gameworld.Scheduler.Destroy(this, ScheduleType.MorphSaving);
-            CachedMorphTime = MorphTime - DateTime.UtcNow;
+            CachedMorphTime = MorphTime - RuntimeClock.UtcNow;
             MorphTime = DateTime.MinValue;
         }
     }

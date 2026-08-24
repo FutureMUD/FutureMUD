@@ -34,6 +34,7 @@ using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using MudSharp.Framework.Scheduling;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
@@ -140,7 +141,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
 
         CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
-        LoginDateTime = DateTime.UtcNow;
+        LoginDateTime = RuntimeClock.UtcNow;
         LastMinutesUpdate = LoginDateTime;
         _dbTotalMinutesPlayed = 0;
         PositionState = PositionStanding.Instance;
@@ -1417,10 +1418,10 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
         Models.Character dbitem = new()
         {
-            Location = base.Location?.Id ?? 1L,
+			Location = DatabaseLocationId ?? 1L,
             Gender = (short)Gender.Enum,
             CultureId = Culture.Id,
-            CreationTime = DateTime.UtcNow,
+            CreationTime = RuntimeClock.UtcNow,
             CurrencyId = Currency?.Id,
             Body = (MudSharp.Models.Body)Body.DatabaseInsert(),
             DominantHandAlignment = (int)Handedness,
@@ -1501,7 +1502,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             {
                 Character = dbitem,
                 KnowledgeId = knowledge.Knowledge.Id,
-                WhenAcquired = DateTime.UtcNow,
+                WhenAcquired = RuntimeClock.UtcNow,
                 TimesTaught = 0,
                 HowAcquired = "Chargen"
             };
@@ -2097,7 +2098,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
     public ICharacterCommandTree CommandTree { get; protected set; }
 
     private int _dbTotalMinutesPlayed;
-    public int TotalMinutesPlayed => _dbTotalMinutesPlayed + (int)(DateTime.UtcNow - LastMinutesUpdate).TotalMinutes;
+    public int TotalMinutesPlayed => _dbTotalMinutesPlayed + (int)(RuntimeClock.UtcNow - LastMinutesUpdate).TotalMinutes;
 
     public ILanguageScrambler LanguageScrambler { get; protected set; }
 
@@ -2428,7 +2429,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             using (new FMDB())
             {
                 Models.Character dbchar = FMDB.Context.Characters.Find(Id);
-                dbchar.LastLogoutTime = DateTime.UtcNow;
+                dbchar.LastLogoutTime = RuntimeClock.UtcNow;
                 var logoutState = State | CharacterState.Stasis;
                 SaveCompatibilityWorldPresence(dbchar, logoutState);
                 SavePrimaryInstance(dbchar, logoutState);
@@ -2436,7 +2437,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                 FMDB.Context.SaveChanges();
             }
 
-            LastLogoutDateTime = DateTime.UtcNow;
+            LastLogoutDateTime = RuntimeClock.UtcNow;
         }
 
         InvalidatePositionTargets();
@@ -2484,7 +2485,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         }
 
         ScheduleCachedEffects();
-        LoginDateTime = DateTime.UtcNow;
+        LoginDateTime = RuntimeClock.UtcNow;
         OutputHandler.Handle(new EmoteOutput(new Emote("@ has entered the area.", this),
             flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
         HandleEvent(EventType.CharacterEntersGame, this);
@@ -2613,7 +2614,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             return;
         }
 
-        DateTime now = DateTime.UtcNow;
+        DateTime now = RuntimeClock.UtcNow;
         if (dbchar == null)
         {
             dbchar = FMDB.Context.Characters.Find(Id);
@@ -3328,7 +3329,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             return false;
         }
 
-        dub.LastUsage = DateTime.UtcNow;
+        dub.LastUsage = RuntimeClock.UtcNow;
         dub.LastDescription = perceivable.HowSeen(this, colour: false, flags: PerceiveIgnoreFlags.IgnoreNamesSetting);
         dub.Changed = true;
         return true;
@@ -3352,7 +3353,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             return false;
         }
 
-        dub.LastUsage = DateTime.UtcNow;
+        dub.LastUsage = RuntimeClock.UtcNow;
         dub.LastDescription = perceivable.HowSeen(this, colour: false, flags: PerceiveIgnoreFlags.IgnoreNamesSetting);
         dub.Changed = true;
         return true;

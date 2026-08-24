@@ -288,7 +288,7 @@ public partial class Body
         record = new DrugExposureRecord
         {
             Drug = drug,
-            LastUpdatedAtUtc = DateTime.UtcNow
+            LastUpdatedAtUtc = RuntimeClock.UtcNow
         };
         _drugExposureRecords.Add(record);
         DrugsChanged = true;
@@ -304,7 +304,7 @@ public partial class Body
             return;
         }
 
-        var now = DateTime.UtcNow;
+        var now = RuntimeClock.UtcNow;
         var activeDependentDrugs = ActiveDrugDosages
                                    .Select(x => x.Drug)
                                    .Where(x => DependenceInfoFor(x) is not null)

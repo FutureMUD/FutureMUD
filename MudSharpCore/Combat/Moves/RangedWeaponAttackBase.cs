@@ -79,14 +79,15 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
             return 0.0;
         }
 
-        TargetExpression.Parameters["range"] = range;
-        TargetExpression.Parameters["average"] = target.Bodyparts.Average(x => x.RelativeHitChance);
-        TargetExpression.Parameters["chance"] = Assailant.TargettedBodypart.RelativeHitChance;
+        double averageChance = target.Bodyparts.Average(x => x.RelativeHitChance);
+        double targetChance = Assailant.TargettedBodypart.RelativeHitChance;
+        double targetPenalty = TargetExpression.EvaluateDoubleWith(("range", range), ("average", averageChance),
+            ("chance", targetChance));
 #if DEBUG
         Console.WriteLine(
-            $"Target Range Penalty r{range} a{target.Bodyparts.Average(x => x.RelativeHitChance)} c{Assailant.TargettedBodypart.RelativeHitChance}: {Convert.ToDouble(TargetExpression.Evaluate())}");
+            $"Target Range Penalty r{range} a{averageChance} c{targetChance}: {targetPenalty}");
 #endif
-        return Convert.ToDouble(TargetExpression.Evaluate());
+        return targetPenalty;
     }
 
     private static Expression _targetExpression;
@@ -152,14 +153,10 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
 					DefenderOutcome = Outcome.NotTested
 				};
 			}
-		}
+        }
 
         IHaveABody targetHb = target as IHaveABody;
-        Weapon.WeaponType.AccuracyBonusExpression.Formula.Parameters["quality"] = (int)Weapon.Parent.Quality;
         int range = Assailant.DistanceBetween(target, 10);
-        Weapon.WeaponType.AccuracyBonusExpression.Formula.Parameters["range"] = range;
-        Weapon.WeaponType.AccuracyBonusExpression.Formula.Parameters["inmelee"] = Assailant.MeleeRange ? 1 : 0;
-        Weapon.WeaponType.AccuracyBonusExpression.Formula.Parameters["aim"] = Assailant.Aim?.AimPercentage ?? 0;
         ICheck check = Gameworld.GetCheck(Weapon.WeaponType.FireCheck);
         Difficulty difficulty = Assailant.GetDifficultyForTool(Weapon.Parent, Weapon.WeaponType.BaseAimDifficulty)
                                   .StageUp(Assailant.TargettedBodypart != null ? 1 : 0);
@@ -249,7 +246,10 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
                 results = check.MultiDifficultyCheck(Assailant, difficulty, coverDifficulty, target,
                     Weapon.WeaponType.FireTrait,
                     // Bonuses
-                    Weapon.WeaponType.AccuracyBonusExpression.Evaluate(Assailant, Weapon.WeaponType.FireTrait) +
+                    Weapon.WeaponType.AccuracyBonusExpression.EvaluateWith(Assailant, Weapon.WeaponType.FireTrait,
+                        values: [("quality", (int)Weapon.Parent.Quality), ("range", range),
+                            ("inmelee", Assailant.MeleeRange ? 1 : 0),
+                            ("aim", Assailant.Aim?.AimPercentage ?? 0)]) +
                     ((Weapon as IFirearm)?.EffectiveAccuracyBonus ?? 0.0) +
                     Weapon.Parent
                           .EffectsOfType<IMagicWeaponEnhancementEffect>(x =>

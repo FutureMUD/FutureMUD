@@ -121,8 +121,7 @@ public abstract class SustainedMagicPower : MagicPowerBase
     {
         if (HasDuration)
         {
-            DurationExpression.Parameters["degrees"] = successDegrees;
-            return TimeSpan.FromMilliseconds(Convert.ToDouble(DurationExpression.Evaluate()));
+            return TimeSpan.FromMilliseconds(DurationExpression.EvaluateDoubleWith(("degrees", successDegrees)));
         }
 
         return TimeSpan.MinValue;

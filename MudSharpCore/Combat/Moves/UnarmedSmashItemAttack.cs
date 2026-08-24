@@ -57,8 +57,6 @@ public class UnarmedSmashItemAttack : WeaponAttackMove
         CrimeExtensions.CheckPossibleCrimeAllAuthorities(Assailant, CrimeTypes.Vandalism, null, Target, "");
         CheckOutcome check = Gameworld.GetCheck(CheckType.NaturalWeaponAttack).Check(Assailant, Difficulty.Easy, Target, null);
         OpposedOutcome result = new(check, Outcome.NotTested);
-        Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)result.Degree;
-        Attack.Profile.DamageExpression.Formula.Parameters["quality"] = (int)NaturalAttack.Quality;
 
         Tuple<IDamage, IDamage> damages = GetDamagePlusSelfDamage(null, Bodypart, null, Target.Material, check.Outcome,
             NaturalAttack.Attack.Profile.DamageType, NaturalAttack.Attack.Profile.BaseAngleOfIncidence, NaturalAttack,

@@ -14,7 +14,7 @@ public class CriticalInjureKnockout : Effect
 
     protected CriticalInjureKnockout(XElement root, IPerceivable owner) : base(root, owner)
     {
-        WakeupTime = DateTime.Parse(root.Element("WakeupTime")?.Value ?? DateTime.UtcNow.ToString("O"), null,
+        WakeupTime = DateTime.Parse(root.Element("WakeupTime")?.Value ?? RuntimeClock.UtcNow.ToString("O"), null,
             System.Globalization.DateTimeStyles.RoundtripKind);
     }
 

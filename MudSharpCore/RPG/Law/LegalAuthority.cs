@@ -1,4 +1,4 @@
-﻿using MoreLinq.Extensions;
+using MoreLinq.Extensions;
 using MudSharp.Character.Name;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -669,6 +669,11 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         IGameItem item, string additionalInformation, IEnumerable<ICharacter> explicitWitnesses, bool notifyVictim,
         ICell crimeLocation)
     {
+		if (RuntimeSideEffectContext.IsCrimeCreationSuppressed)
+		{
+			return Enumerable.Empty<ICrime>();
+		}
+
         if (criminal.IsAdministrator())
         {
             return Enumerable.Empty<ICrime>();
@@ -696,7 +701,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
             var criminalIdentityId = CharacterInstanceIdentityComparer.IdentityId(criminal);
             if (ShouldSuppressAutomaticRepeatCrime(law,
                     _unknownCrimesLookup[criminalIdentityId].Concat(_knownCrimesLookup[criminalIdentityId]), victim,
-                    item, location, DateTime.UtcNow))
+                    item, location, RuntimeClock.UtcNow))
             {
                 continue;
             }

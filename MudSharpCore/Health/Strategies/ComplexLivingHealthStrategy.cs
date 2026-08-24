@@ -1378,13 +1378,10 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
                 return 0;
         }
 
-        whichExpression.Formula.Parameters["originaldamage"] = wound.OriginalDamage;
-        whichExpression.Formula.Parameters["damage"] = wound.CurrentDamage;
-        whichExpression.Formula.Parameters["pain"] = wound.CurrentPain;
-        whichExpression.Formula.Parameters["stun"] = wound.CurrentStun;
-        whichExpression.Formula.Parameters["shock"] = wound.CurrentShock;
-        whichExpression.Formula.Parameters["outcome"] = outcome.SuccessDegrees();
-        return whichExpression.Evaluate((ICharacter)wound.Parent);
+        return whichExpression.EvaluateWith((ICharacter)wound.Parent,
+            values: [("originaldamage", wound.OriginalDamage), ("damage", wound.CurrentDamage),
+                ("pain", wound.CurrentPain), ("stun", wound.CurrentStun), ("shock", wound.CurrentShock),
+                ("outcome", outcome.SuccessDegrees())]);
     }
 
     #region Overrides of BaseHealthStrategy

@@ -29,6 +29,38 @@ public class RuntimeSchedulerTests
 	}
 
 	[TestMethod]
+	public void SchedulerDiagnostics_QueuedAndFiredSchedules_ReportNextTriggerAndCount()
+	{
+		var now = DateTimeOffset.UtcNow;
+		var time = new ManualTimeProvider(now);
+		var scheduler = new Scheduler(time);
+		var fired = new List<string>();
+		var trigger = now.UtcDateTime.AddSeconds(2);
+		scheduler.AddSchedule(CreateSchedule("first", trigger, fired));
+		scheduler.AddSchedule(CreateSchedule("second", trigger, fired));
+
+		Assert.AreEqual(trigger, scheduler.NextTriggerUtc);
+		time.Advance(TimeSpan.FromSeconds(2));
+		scheduler.CheckSchedules();
+
+		Assert.AreEqual(2, scheduler.LastCheckFiredCount);
+		Assert.IsNull(scheduler.NextTriggerUtc);
+	}
+
+	[TestMethod]
+	public void ScheduleBase_AmbientRuntimeClock_UsesVirtualCreationTime()
+	{
+		var virtualNow = new DateTimeOffset(2042, 3, 4, 5, 6, 7, TimeSpan.Zero);
+		var time = new ManualTimeProvider(virtualNow);
+		using var scope = RuntimeClock.Push(time);
+
+		var schedule = new Schedule(() => { }, ScheduleType.System, TimeSpan.FromSeconds(3), "virtual");
+
+		Assert.AreEqual(virtualNow.UtcDateTime, schedule.CreatedAt);
+		Assert.AreEqual(virtualNow.UtcDateTime.AddSeconds(3), schedule.TriggerETA);
+	}
+
+	[TestMethod]
 	public void CheckSchedules_CallbackAddsDueSchedule_FiresAddedScheduleInSameCheck()
 	{
 		var time = new ManualTimeProvider(DateTimeOffset.UtcNow);

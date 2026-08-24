@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
@@ -24,7 +24,7 @@ public class SpellTransformFormEffect : SimpleSpellStatusEffectBase
 		_priorBodyId = priorBodyId;
 		_priorityBand = priorityBand;
 		_priorityOffset = priorityOffset;
-		_appliedAtUtcTicks = DateTime.UtcNow.Ticks;
+		_appliedAtUtcTicks = RuntimeClock.UtcNow.Ticks;
 	}
 
 	private SpellTransformFormEffect(XElement root, IPerceivable owner)

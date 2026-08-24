@@ -45,19 +45,20 @@ public class StaggeringBlowMove : MeleeWeaponAttack
         }
 
         ICheck check = Gameworld.GetCheck(CheckType.StaggeringBlowDefense);
-        StaggeringBlowExpressionAttacker.Formula.Parameters["damage"] = result.WoundsCaused.Sum(x => x.OriginalDamage);
-        StaggeringBlowExpressionAttacker.Formula.Parameters["stun"] = result.WoundsCaused.Sum(x => x.CurrentStun);
-        StaggeringBlowExpressionAttacker.Formula.Parameters["weight"] = Assailant.Weight;
-        StaggeringBlowExpressionAttacker.Formula.Parameters["height"] = Assailant.Height;
         double attackerStrength =
-            StaggeringBlowExpressionAttacker.Evaluate(Assailant, context: TraitBonusContext.StaggeringBlowCheck);
+            StaggeringBlowExpressionAttacker.EvaluateWith(Assailant, null, TraitBonusContext.StaggeringBlowCheck,
+                ("damage", result.WoundsCaused.Sum(x => x.OriginalDamage)),
+                ("stun", result.WoundsCaused.Sum(x => x.CurrentStun)),
+                ("weight", Assailant.Weight),
+                ("height", Assailant.Height));
 
-        StaggeringBlowExpressionDefender.Formula.Parameters["damage"] = result.WoundsCaused.Sum(x => x.OriginalDamage);
-        StaggeringBlowExpressionDefender.Formula.Parameters["stun"] = result.WoundsCaused.Sum(x => x.CurrentStun);
-        StaggeringBlowExpressionDefender.Formula.Parameters["weight"] = Target.Weight;
-        StaggeringBlowExpressionDefender.Formula.Parameters["height"] = Target.Height;
         double defenderStrength =
-            StaggeringBlowExpressionDefender.Evaluate(Target, context: TraitBonusContext.StaggeringBlowDefenseCheck);
+            StaggeringBlowExpressionDefender.EvaluateWith(Target, null,
+                TraitBonusContext.StaggeringBlowDefenseCheck,
+                ("damage", result.WoundsCaused.Sum(x => x.OriginalDamage)),
+                ("stun", result.WoundsCaused.Sum(x => x.CurrentStun)),
+                ("weight", Target.Weight),
+                ("height", Target.Height));
         CheckOutcome cr = check.Check(Target, ((ISecondaryDifficultyAttack)Attack).SecondaryDifficulty, Assailant,
             externalBonus: (defenderStrength - attackerStrength) *
                            Gameworld.GetStaticDouble("StaggeringBlowPenaltyMultiplier"));

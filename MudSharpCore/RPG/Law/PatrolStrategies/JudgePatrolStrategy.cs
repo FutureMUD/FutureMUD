@@ -1,4 +1,4 @@
-﻿using MudSharp.Commands.Trees;
+using MudSharp.Commands.Trees;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
@@ -21,7 +21,7 @@ public class JudgePatrolStrategy : PatrolStrategyBase
         if (patrol.PatrolMembers.All(x => x.Location == patrol.LegalAuthority.CourtLocation))
         {
             patrol.PatrolPhase = PatrolPhase.Patrol;
-            patrol.LastArrivedTime = DateTime.UtcNow;
+            patrol.LastArrivedTime = RuntimeClock.UtcNow;
             patrol.LastMajorNode = patrol.LegalAuthority.CourtLocation;
             patrol.NextMajorNode = patrol.LegalAuthority.CourtLocation;
             return;
@@ -42,7 +42,7 @@ public class JudgePatrolStrategy : PatrolStrategyBase
                   .CharactersInImmediateVicinity(patrol.PatrolLeader)
                   .All(x => !x.EffectsOfType<OnTrial>(y => y.LegalAuthority == patrol.LegalAuthority).Any()))
         {
-            if (DateTime.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
+            if (RuntimeClock.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
             {
                 patrol.CompletePatrol();
                 return;

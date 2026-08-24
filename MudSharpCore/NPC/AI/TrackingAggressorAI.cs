@@ -10,6 +10,7 @@ using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Models;
 using MudSharp.NPC.AI.Strategies;
+using MoreLinq;
 
 namespace MudSharp.NPC.AI;
 
@@ -225,7 +226,7 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
             return false;
         }
 
-        foreach (ICharacter tch in ch.Location.CharactersInSpatialVicinity(ch, false).Except(ch).Shuffle())
+        foreach (ICharacter tch in ch.Location.CharactersInSpatialVicinity(ch, false).Except(ch).Shuffle(Constants.Random))
         {
             if (CheckForAttack(ch, tch))
             {

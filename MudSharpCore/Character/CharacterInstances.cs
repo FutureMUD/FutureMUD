@@ -7,6 +7,7 @@ using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Framework.Scheduling;
 using MudSharp.Models;
 using MudSharp.NPC;
 using MudSharp.PerceptionEngine.Handlers;
@@ -136,7 +137,7 @@ public partial class Character
 		_currentAccent = identity._currentAccent;
 		_dbTotalMinutesPlayed = identity._dbTotalMinutesPlayed;
 		LoginDateTime = identity.LoginDateTime;
-		LastMinutesUpdate = identity.LastMinutesUpdate == default ? DateTime.UtcNow : identity.LastMinutesUpdate;
+		LastMinutesUpdate = identity.LastMinutesUpdate == default ? RuntimeClock.UtcNow : identity.LastMinutesUpdate;
 		SetCombatSettingsProvisional(identity.CombatSettings ?? CharacterCombatSettingsResolver.ResolveFallback(this));
 		Register(new NonPlayerOutputHandler());
 		if (instance.PositionId != 0)
@@ -445,7 +446,7 @@ public partial class Character
 		primary = new MudSharp.Models.CharacterInstance
 		{
 			Character = dbchar,
-			CreatedDateTime = DateTime.UtcNow,
+			CreatedDateTime = RuntimeClock.UtcNow,
 			EffectData = "<Effects/>"
 		};
 		dbchar.CharacterInstances.Add(primary);
@@ -465,7 +466,7 @@ public partial class Character
 		primary.DeathPolicy = (int)_deathPolicy;
 		primary.PerceptionPolicy = (int)_perceptionPolicy;
 		primary.PersistencePolicy = (int)_persistencePolicy;
-		primary.LocationId = Location?.Id;
+		primary.LocationId = DatabaseLocationId;
 		primary.RoomLayer = (int)RoomLayer;
 		primary.RoutePosition = RoutePositionMetres.HasValue ? (decimal)RoutePositionMetres.Value : null;
 		primary.PositionId = (int)(PositionState?.Id ?? PositionStanding.Instance.Id);
@@ -482,7 +483,7 @@ public partial class Character
 		SaveInstanceProject(primary);
 		if (primary.CreatedDateTime == default)
 		{
-			primary.CreatedDateTime = DateTime.UtcNow;
+			primary.CreatedDateTime = RuntimeClock.UtcNow;
 		}
 
 		if (primary.Id != 0)
@@ -507,10 +508,14 @@ public partial class Character
 		}
 	}
 
+	private long? DatabaseLocationId => Location is Construction.Cell cell
+		? cell.DatabaseLocationId
+		: Location?.Id;
+
 	private void SaveCompatibilityWorldPresence(MudSharp.Models.Character dbchar, CharacterState? stateOverride = null)
 	{
 		// Legacy Characters world-presence columns mirror only the primary instance during the transition.
-		dbchar.Location = Location?.Id ?? 1L;
+		dbchar.Location = DatabaseLocationId ?? 1L;
 		dbchar.RoomLayer = (int)RoomLayer;
 		dbchar.RoutePosition = RoutePositionMetres.HasValue ? (decimal)RoutePositionMetres.Value : null;
 		dbchar.State = (int)(stateOverride ?? State);
@@ -538,7 +543,7 @@ public partial class Character
 		instance.DeathPolicy = (int)_deathPolicy;
 		instance.PerceptionPolicy = (int)_perceptionPolicy;
 		instance.PersistencePolicy = (int)_persistencePolicy;
-		instance.LocationId = Location?.Id;
+		instance.LocationId = DatabaseLocationId;
 		instance.RoomLayer = (int)RoomLayer;
 		instance.RoutePosition = RoutePositionMetres.HasValue ? (decimal)RoutePositionMetres.Value : null;
 		instance.PositionId = (int)(PositionState?.Id ?? PositionStanding.Instance.Id);
@@ -555,7 +560,7 @@ public partial class Character
 		SaveInstanceProject(instance);
 		if (instance.CreatedDateTime == default)
 		{
-			instance.CreatedDateTime = DateTime.UtcNow;
+			instance.CreatedDateTime = RuntimeClock.UtcNow;
 		}
 	}
 
@@ -589,7 +594,7 @@ public partial class Character
 			CurrentProjectLabourId = CurrentProject.Labour?.Id,
 			CurrentProjectHours = CurrentProjectHours,
 			CurrentProjectProjectHours = CurrentProjectProjectHours,
-			CreatedDateTime = DateTime.UtcNow,
+			CreatedDateTime = RuntimeClock.UtcNow,
 			EffectData = "<Effects/>"
 		};
 		dbitem.CharacterInstances.Add(primary);

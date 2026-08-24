@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Construction;
 using MudSharp.Magic;
@@ -176,9 +176,9 @@ public sealed class MagicDangerSenseEffect : ConcentrationConsumingEffect, IMagi
 	private void TenSecondHeartbeat()
 	{
 		Power.DoSustainCostsTick(CharacterOwner, Power.SustainTickMultiplier);
-		if (DateTime.UtcNow >= _nextWarning && Power.CheckNearbyThreats(CharacterOwner))
+		if (RuntimeClock.UtcNow >= _nextWarning && Power.CheckNearbyThreats(CharacterOwner))
 		{
-			_nextWarning = DateTime.UtcNow + Power.ThreatWarningInterval;
+			_nextWarning = RuntimeClock.UtcNow + Power.ThreatWarningInterval;
 		}
 
 		Power.RefreshDefensiveEdge(CharacterOwner);

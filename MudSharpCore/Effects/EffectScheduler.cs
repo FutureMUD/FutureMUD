@@ -9,6 +9,8 @@ public class EffectScheduler : IScheduler, IHaveFuturemud, IEffectScheduler
 	protected readonly Dictionary<IEffect, IEffectSchedule> _scheduleMap = new();
 	private readonly StableScheduleHeap<IEffectSchedule> _schedules = new();
 	private readonly TimeProvider _timeProvider;
+	public DateTime? NextTriggerUtc => _schedules.TryPeek(out var next) ? next.TriggerUtc : null;
+	public int LastCheckFiredCount { get; private set; }
 
 	public IFuturemud Gameworld { get; protected set; }
 
@@ -116,6 +118,8 @@ public class EffectScheduler : IScheduler, IHaveFuturemud, IEffectScheduler
 
 			fired++;
 		}
+
+		LastCheckFiredCount = fired;
 
 		(Gameworld as IRuntimePerformanceMonitorProvider)?.RuntimePerformanceMonitor.RecordSchedulerCheck(
 			RuntimeSchedulerKind.Effect,

@@ -86,7 +86,7 @@ public class CountdownDetonatorGameItemComponent : DeadlineExplosiveTriggerGameI
 		}
 
 		TryResolveDelay(actor, argument, out var delay, out _);
-		if (!ExplosiveDeadlineScheduler.TryGetDeadline(DateTime.UtcNow, delay, out var deadline))
+		if (!ExplosiveDeadlineScheduler.TryGetDeadline(RuntimeClock.UtcNow, delay, out var deadline))
 		{
 			actor.Send("That countdown is too long to schedule safely.");
 			return false;
@@ -154,7 +154,7 @@ public class CountdownDetonatorGameItemComponent : DeadlineExplosiveTriggerGameI
 			return false;
 		}
 
-		if (!ExplosiveDeadlineScheduler.TryGetDeadline(DateTime.UtcNow, delay, out _))
+		if (!ExplosiveDeadlineScheduler.TryGetDeadline(RuntimeClock.UtcNow, delay, out _))
 		{
 			error = "That countdown is too long to schedule safely.";
 			return false;

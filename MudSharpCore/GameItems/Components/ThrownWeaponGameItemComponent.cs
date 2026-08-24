@@ -189,20 +189,18 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
         var payloadEffects = Parent.EffectsOfType<IMagicProjectilePayloadEffect>(x =>
             x.AppliesToProjectileAttack(actor, target, Parent)).ToList();
-        _prototype.RangedWeaponType.DamageBonusExpression.Formula.Parameters["quality"] =
-            (int)Parent.Quality + (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus));
-        _prototype.RangedWeaponType.DamageBonusExpression.Formula.Parameters["degrees"] =
-            (int)defenseOutcome.Degree;
-        _prototype.RangedWeaponType.DamageBonusExpression.Formula.Parameters["range"] = actor.DistanceBetween(
-            target, 10);
         Damage damage = new()
         {
             ActorOrigin = actor,
             ToolOrigin = Parent,
             Bodypart = bodypart,
             DamageAmount =
-                _prototype.RangedWeaponType.DamageBonusExpression.Evaluate(actor,
-                    _prototype.RangedWeaponType.FireTrait) + payloadEffects.Sum(x => x.ProjectileDamageBonus),
+                _prototype.RangedWeaponType.DamageBonusExpression.EvaluateWith(actor,
+                    _prototype.RangedWeaponType.FireTrait,
+                    values: [("quality", (int)Parent.Quality +
+                                         (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus))),
+                        ("degrees", (int)defenseOutcome.Degree), ("range", actor.DistanceBetween(target, 10))]) +
+                payloadEffects.Sum(x => x.ProjectileDamageBonus),
             DamageType = _prototype.MeleeWeaponType.Attacks.FirstMax(x => x.Weighting).Profile.DamageType,
             PainAmount = payloadEffects.Sum(x => x.ProjectilePainBonus),
             StunAmount = payloadEffects.Sum(x => x.ProjectileStunBonus),

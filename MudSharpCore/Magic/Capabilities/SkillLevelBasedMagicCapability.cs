@@ -199,10 +199,11 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
     public Difficulty GetConcentrationDifficulty(ICharacter actor, double concentrationPercentageOfCapability,
         double individualPowerConcentrationPercentage)
     {
-        ConcentrationDifficultyExpression.Formula.Parameters["total"] = concentrationPercentageOfCapability;
-        ConcentrationDifficultyExpression.Formula.Parameters["power"] = individualPowerConcentrationPercentage;
         return (Difficulty)(int)Math.Round(Math.Max(0,
-            Math.Min((int)Difficulty.Impossible, (double)ConcentrationDifficultyExpression.Evaluate(actor, ConcentrationTrait))));
+            Math.Min((int)Difficulty.Impossible, ConcentrationDifficultyExpression.EvaluateWith(actor,
+                ConcentrationTrait,
+                values: [("total", concentrationPercentageOfCapability),
+                    ("power", individualPowerConcentrationPercentage)]))));
     }
 
     private readonly List<IMagicResourceRegenerator> _resourceRegenerators = new();

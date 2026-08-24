@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using MudSharp.Construction;
 using System.Globalization;
 
@@ -26,7 +26,7 @@ public sealed class NpcKnownThreatLocationsEffect : Effect
 			DateTime remembered = DateTime.TryParse(cell.Attribute("utc")?.Value, CultureInfo.InvariantCulture,
 				DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out DateTime parsed)
 				? parsed
-				: DateTime.UtcNow;
+				: RuntimeClock.UtcNow;
 			if (_knownThreatCellIds.All(x => x.CellId != id))
 			{
 				_knownThreatCellIds.Add((id, remembered));
@@ -75,7 +75,7 @@ public sealed class NpcKnownThreatLocationsEffect : Effect
 	public void Remember(ICell cell)
 	{
 		_knownThreatCellIds.RemoveAll(x => x.CellId == cell.Id);
-		_knownThreatCellIds.Insert(0, (cell.Id, DateTime.UtcNow));
+		_knownThreatCellIds.Insert(0, (cell.Id, RuntimeClock.UtcNow));
 		if (_knownThreatCellIds.Count > MaximumRememberedThreatLocations)
 		{
 			_knownThreatCellIds.RemoveRange(MaximumRememberedThreatLocations,
@@ -109,7 +109,7 @@ public sealed class NpcKnownThreatLocationsEffect : Effect
 			return;
 		}
 
-		DateTime cutoff = DateTime.UtcNow.Subtract(memory);
+		DateTime cutoff = RuntimeClock.UtcNow.Subtract(memory);
 		int removed = _knownThreatCellIds.RemoveAll(x => x.RememberedAtUtc < cutoff);
 		if (removed > 0)
 		{

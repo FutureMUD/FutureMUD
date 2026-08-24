@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Economy.Property;
 using MudSharp.Effects.Concrete;
@@ -96,7 +96,7 @@ public static class AutomaticCrimeExtensions
 			return;
 		}
 
-		var now = DateTime.UtcNow;
+		var now = RuntimeClock.UtcNow;
 		var minimumSeverity = MinimumMurderWoundSeverity(victim.Gameworld);
 		var attributionWindow = MurderWoundAttributionWindow(victim.Gameworld);
 		var includeFriendlyWounds = IncludeFriendlyMurderWounds(victim.Gameworld);

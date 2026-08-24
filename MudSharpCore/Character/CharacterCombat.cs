@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body;
 using MudSharp.Combat;
+using MudSharp.Combat.Simulation;
 using MudSharp.Combat.Moves;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -170,6 +171,25 @@ public partial class Character
         {
             return;
         }
+
+		if (Combat is ICombatTargetingPolicy targetingPolicy)
+		{
+			var policyTarget = targetingPolicy.AcquireTargetFor(this);
+			if (policyTarget is not null)
+			{
+				CombatTarget = policyTarget;
+				if (policyTarget.CombatTarget == this)
+				{
+					EngageMutually();
+				}
+				else
+				{
+					EngageAlreadyEngaged();
+				}
+
+				return;
+			}
+		}
 
         if (CombatTarget != null)
         {

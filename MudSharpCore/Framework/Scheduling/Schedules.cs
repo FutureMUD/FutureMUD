@@ -7,7 +7,7 @@ public abstract class ScheduleBase : IComparable<ScheduleBase>, ISchedule
         int milliseconds = 0)
     {
         Type = type;
-        CreatedAt = DateTime.UtcNow;
+        CreatedAt = RuntimeClock.UtcNow;
         Duration = new TimeSpan(days, hours, minutes, seconds, milliseconds);
         TriggerETA = CreatedAt + Duration;
     }
@@ -15,7 +15,7 @@ public abstract class ScheduleBase : IComparable<ScheduleBase>, ISchedule
     protected ScheduleBase(ScheduleType type, TimeSpan duration)
     {
         Type = type;
-        CreatedAt = DateTime.UtcNow;
+        CreatedAt = RuntimeClock.UtcNow;
         Duration = duration;
         TriggerETA = CreatedAt + Duration;
     }

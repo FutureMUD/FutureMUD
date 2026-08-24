@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Threading;
 
 namespace MudSharp.Framework
 {
@@ -31,8 +32,34 @@ namespace MudSharp.Framework
         public static readonly char[] CommandSeparators = { ' ' };
         public static readonly char[] WordSeparators = { ' ' };
 
-        public static readonly Random Random = new();
+		private static readonly Random _systemRandom = new();
+		private static readonly AsyncLocal<Random> _ambientRandom = new();
+		public static Random Random => _ambientRandom.Value ?? _systemRandom;
         public static readonly RandomNumberGenerator CryptoRandom = RandomNumberGenerator.Create();
+
+		public static IDisposable PushRandom(Random random)
+		{
+			ArgumentNullException.ThrowIfNull(random);
+			var previous = _ambientRandom.Value;
+			_ambientRandom.Value = random;
+			return new AmbientRandomScope(previous);
+		}
+
+		private sealed class AmbientRandomScope(Random previous) : IDisposable
+		{
+			private bool _disposed;
+
+			public void Dispose()
+			{
+				if (_disposed)
+				{
+					return;
+				}
+
+				_ambientRandom.Value = previous;
+				_disposed = true;
+			}
+		}
 
         public static readonly string[] CardinalDirectionStrings = {
             "n", "e", "s", "w", "u", "d",

@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction.Boundary;
+using MudSharp.Construction.Boundary;
 using MudSharp.Economy.Estates;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
@@ -71,7 +71,7 @@ public class CorpseRecoveryPatrolStrategy : PatrolStrategyBase
         if (HasReachedPatrolDestination(patrol.PatrolLeader, report.Corpse))
         {
             patrol.PatrolPhase = PatrolPhase.Patrol;
-            patrol.LastArrivedTime = DateTime.UtcNow;
+            patrol.LastArrivedTime = RuntimeClock.UtcNow;
             return;
         }
 
@@ -98,7 +98,7 @@ public class CorpseRecoveryPatrolStrategy : PatrolStrategyBase
             return;
         }
 
-        if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+        if (RuntimeClock.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
         {
             report.MarkFailed();
             patrol.ActiveCorpseRecoveryReport = null;

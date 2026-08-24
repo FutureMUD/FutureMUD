@@ -1,9 +1,10 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.Character.Heritage;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Movement;
 using System.Globalization;
+using MoreLinq;
 
 namespace MudSharp.NPC.AI.Groups.GroupTypes;
 
@@ -161,7 +162,7 @@ public class NeutralHerdGrazers : HerdGrazers
         {
             if (fighter.Combat == null || fighter.CombatTarget == null)
             {
-                foreach (ICharacter threat in threats.Shuffle())
+                foreach (ICharacter threat in threats.Shuffle(Constants.Random))
                 {
                     if (!fighter.CanSee(threat))
                     {
@@ -189,7 +190,7 @@ public class NeutralHerdGrazers : HerdGrazers
         {
             if (fighter.Combat == null || fighter.CombatTarget == null)
             {
-                foreach (ICharacter threat in threats.Shuffle())
+                foreach (ICharacter threat in threats.Shuffle(Constants.Random))
                 {
                     if (!fighter.CanSee(threat))
                     {
@@ -236,7 +237,7 @@ public class NeutralHerdGrazers : HerdGrazers
     {
         NeutralHerdGrazerData data = (NeutralHerdGrazerData)group.Data;
         if (data.LastAdultDeath.HasValue &&
-            DateTime.UtcNow - data.LastAdultDeath.Value < TimeSpan.FromMinutes(10))
+            RuntimeClock.UtcNow - data.LastAdultDeath.Value < TimeSpan.FromMinutes(10))
         {
             return true;
         }
@@ -414,7 +415,7 @@ public class NeutralHerdGrazers : HerdGrazers
         {
             foreach (ICell location in threats.Select(x => x.Location).Distinct())
             {
-                data.KnownThreatLocations[location] = DateTime.UtcNow;
+                data.KnownThreatLocations[location] = RuntimeClock.UtcNow;
                 group.Changed = true;
             }
         }

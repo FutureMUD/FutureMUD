@@ -46,13 +46,13 @@ public class DownedMeleeAttack : MeleeWeaponAttack
         }
 
         ICheck check = Gameworld.GetCheck(CheckType.StaggeringBlowDefense);
-        DownedMeleeExpressionAttacker.Formula.Parameters["damage"] = result.WoundsCaused.Sum(x => x.OriginalDamage);
-        DownedMeleeExpressionAttacker.Formula.Parameters["stun"] = result.WoundsCaused.Sum(x => x.CurrentStun);
-        double attackerStrength = DownedMeleeExpressionAttacker.Evaluate(Assailant);
+        double attackerStrength = DownedMeleeExpressionAttacker.EvaluateWith(Assailant,
+            values: [("damage", result.WoundsCaused.Sum(x => x.OriginalDamage)),
+                ("stun", result.WoundsCaused.Sum(x => x.CurrentStun))]);
 
-        DownedMeleeExpressionDefender.Formula.Parameters["damage"] = result.WoundsCaused.Sum(x => x.OriginalDamage);
-        DownedMeleeExpressionDefender.Formula.Parameters["stun"] = result.WoundsCaused.Sum(x => x.CurrentStun);
-        double defenderStrength = DownedMeleeExpressionDefender.Evaluate(Target);
+        double defenderStrength = DownedMeleeExpressionDefender.EvaluateWith(Target,
+            values: [("damage", result.WoundsCaused.Sum(x => x.OriginalDamage)),
+                ("stun", result.WoundsCaused.Sum(x => x.CurrentStun))]);
         CheckOutcome cr = check.Check(Target, ((ISecondaryDifficultyAttack)Attack).SecondaryDifficulty, Assailant,
             externalBonus: (defenderStrength - attackerStrength) *
                            Gameworld.GetStaticDouble("StaggeringBlowPenaltyMultiplier"));

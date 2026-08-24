@@ -305,108 +305,51 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
     public double Evaluate(IHaveTraits owner, ITraitDefinition variable = null,
         TraitBonusContext context = TraitBonusContext.None)
     {
-        ProcessLazyLoading();
-
-        foreach (KeyValuePair<string, TraitExpressionParameter> param in Parameters)
-        {
-            Formula.Parameters[param.Key] = owner.TraitValue(param.Value.Trait, context);
-        }
-
-        if (variable != null)
-        {
-            Formula.Parameters["variable"] = owner.TraitValue(variable, context);
-        }
-        else
-        {
-            Formula.Parameters["variable"] = 0;
-        }
-
-        foreach (KeyValuePair<string, TraitExpressionExtendedOption> option in _options)
-        {
-            Formula.Parameters[option.Key] = option.Value.Evaluate(owner);
-        }
-
-#if DEBUG
-#else
-	try {
-#endif
-        return Convert.ToDouble(Formula.Evaluate());
-#if DEBUG
-#else
-	}
-	catch (Exception e)
-	{
-		Console.WriteLine($"Exception in TraitExpression #{Id.ToString("N0")} ({Formula.OriginalExpression}):\n\n{e.Message}");
-		return 0.0;
-	}
-#endif
+        return EvaluateInternal(owner, variable, context, false, Array.Empty<(string Name, object Value)>());
     }
 
     public double EvaluateWith(IHaveTraits owner, ITraitDefinition variable = null,
         TraitBonusContext context = TraitBonusContext.None, params (string Name, object Value)[] values)
     {
-        ProcessLazyLoading();
-        foreach ((string Name, object Value) value in values)
-        {
-            Formula.Parameters[value.Name] = value.Value;
-        }
-
-        foreach (KeyValuePair<string, TraitExpressionParameter> param in Parameters)
-        {
-            Formula.Parameters[param.Key] = owner.TraitValue(param.Value.Trait, context);
-        }
-
-        if (variable != null)
-        {
-            Formula.Parameters["variable"] = owner.TraitValue(variable, context);
-        }
-        else
-        {
-            Formula.Parameters["variable"] = 0;
-        }
-
-        foreach (KeyValuePair<string, TraitExpressionExtendedOption> option in _options)
-        {
-            Formula.Parameters[option.Key] = option.Value.Evaluate(owner);
-        }
-
-#if DEBUG
-#else
-	try {
-#endif
-        return Formula.EvaluateDouble();
-#if DEBUG
-#else
-	}
-	catch (Exception e)
-	{
-		Console.WriteLine($"Exception in TraitExpression #{Id.ToString("N0")} ({Formula.OriginalExpression}):\n\n{e.Message}");
-		return 0.0;
-	}
-#endif
-
+        return EvaluateInternal(owner, variable, context, false, values);
     }
 
     public double EvaluateMax(IHaveTraits owner)
     {
+        return EvaluateInternal(owner, null, TraitBonusContext.None, true, Array.Empty<(string Name, object Value)>());
+    }
+
+    private double EvaluateInternal(IHaveTraits owner, ITraitDefinition variable, TraitBonusContext context,
+        bool maximum, IEnumerable<(string Name, object Value)> values)
+    {
         ProcessLazyLoading();
+        Dictionary<string, object> evaluationValues = new(StringComparer.OrdinalIgnoreCase);
+        foreach ((string Name, object Value) value in values)
+        {
+            evaluationValues[value.Name] = value.Value;
+        }
 
         foreach (KeyValuePair<string, TraitExpressionParameter> param in Parameters)
         {
-            Formula.Parameters[param.Key] = owner.TraitMaxValue(param.Value.Trait);
+            evaluationValues[param.Key] = maximum
+                ? owner.TraitMaxValue(param.Value.Trait)
+                : owner.TraitValue(param.Value.Trait, context);
         }
+
+        evaluationValues["variable"] = variable is null || maximum
+            ? 0.0
+            : owner.TraitValue(variable, context);
 
         foreach (KeyValuePair<string, TraitExpressionExtendedOption> option in _options)
         {
-            Formula.Parameters[option.Key] = option.Value.Evaluate(owner);
+            evaluationValues[option.Key] = option.Value.Evaluate(owner);
         }
 
 #if DEBUG
 #else
 	try {
 #endif
-
-        return Convert.ToDouble(Formula.Evaluate());
+        return Formula.EvaluateDoubleWith(evaluationValues);
 #if DEBUG
 #else
 	}

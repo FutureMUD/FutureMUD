@@ -229,6 +229,54 @@ public class ArmourType : SaveableItem, IArmourType
         return new ArmourType(this, newName);
     }
 
+    private enum ArmourFormulaChannel
+    {
+        Damage,
+        Stun,
+        Pain
+    }
+
+    private readonly record struct ArmourFormulaInputs(
+        int Quality,
+        double Angle,
+        double Density,
+        double Electrical,
+        double Thermal,
+        double Organic,
+        double Strength);
+
+    private static ArmourFormulaInputs FormulaInputs(ItemQuality quality, IMaterial material, double angle,
+        double strength)
+    {
+        return new ArmourFormulaInputs(
+            (int)quality,
+            angle,
+            material?.Density ?? 1.0,
+            material?.ElectricalConductivity ?? 1.0,
+            material?.ThermalConductivity ?? 1.0,
+            material?.Organic == true ? 1.0 : 0.0,
+            strength);
+    }
+
+    private static double EvaluateArmourFormula(Expression expression, ArmourFormulaInputs inputs,
+        ArmourFormulaChannel channel, double value, double originalValue)
+    {
+        return expression.EvaluateDoubleWith(
+            ("quality", inputs.Quality),
+            ("damage", value),
+            ("stun", channel == ArmourFormulaChannel.Stun ? value : 0.0),
+            ("pain", channel == ArmourFormulaChannel.Pain ? value : 0.0),
+            ("originaldamage", originalValue),
+            ("originalstun", channel == ArmourFormulaChannel.Stun ? originalValue : 0.0),
+            ("originalpain", channel == ArmourFormulaChannel.Pain ? originalValue : 0.0),
+            ("angle", inputs.Angle),
+            ("density", inputs.Density),
+            ("electrical", inputs.Electrical),
+            ("thermal", inputs.Thermal),
+            ("organic", inputs.Organic),
+            ("strength", inputs.Strength));
+    }
+
     /// <inheritdoc />
     public override void Save()
     {
@@ -362,41 +410,15 @@ public class ArmourType : SaveableItem, IArmourType
 
         (double DamageAmount, double PainAmount, double StunAmount) originalValues = (damage.DamageAmount, damage.PainAmount, damage.StunAmount);
 
+        var formulaInputs = FormulaInputs(quality, material, damage.AngleOfIncidentRadians.RadiansToDegrees(), strength);
+
         // Dissipate - dissipation is basically damage that is ignored or written off by the armour
-        Expression dissipateExpression = DissipateExpressions[damage.DamageType];
-        dissipateExpression.Parameters["quality"] = (int)quality;
-        dissipateExpression.Parameters["damage"] = damage.DamageAmount;
-        dissipateExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        dissipateExpression.Parameters["density"] = material?.Density ?? 1.0;
-        dissipateExpression.Parameters["electrical"] = material?.ElectricalConductivity ?? 1.0;
-        dissipateExpression.Parameters["thermal"] = material?.ThermalConductivity ?? 1.0;
-        dissipateExpression.Parameters["organic"] = material?.Organic == true ? 1.0 : 0.0;
-        dissipateExpression.Parameters["strength"] = strength;
-        double newDamage = Convert.ToDouble(dissipateExpression.Evaluate());
-
-        dissipateExpression = DissipateExpressionsStun[damage.DamageType];
-        dissipateExpression.Parameters["quality"] = (int)quality;
-        dissipateExpression.Parameters["stun"] = damage.StunAmount;
-        dissipateExpression.Parameters["damage"] = damage.StunAmount;
-        dissipateExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        dissipateExpression.Parameters["density"] = material?.Density ?? 1.0;
-        dissipateExpression.Parameters["electrical"] = material?.ElectricalConductivity ?? 1.0;
-        dissipateExpression.Parameters["thermal"] = material?.ThermalConductivity ?? 1.0;
-        dissipateExpression.Parameters["organic"] = material?.Organic == true ? 1.0 : 0.0;
-        dissipateExpression.Parameters["strength"] = strength;
-        double newStun = Convert.ToDouble(dissipateExpression.Evaluate());
-
-        dissipateExpression = DissipateExpressionsPain[damage.DamageType];
-        dissipateExpression.Parameters["quality"] = (int)quality;
-        dissipateExpression.Parameters["pain"] = damage.PainAmount;
-        dissipateExpression.Parameters["damage"] = damage.PainAmount;
-        dissipateExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        dissipateExpression.Parameters["density"] = material?.Density ?? 1.0;
-        dissipateExpression.Parameters["electrical"] = material?.ElectricalConductivity ?? 1.0;
-        dissipateExpression.Parameters["thermal"] = material?.ThermalConductivity ?? 1.0;
-        dissipateExpression.Parameters["organic"] = material?.Organic == true ? 1.0 : 0.0;
-        dissipateExpression.Parameters["strength"] = strength;
-        double newPain = Convert.ToDouble(dissipateExpression.Evaluate());
+        double newDamage = EvaluateArmourFormula(DissipateExpressions[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Damage, damage.DamageAmount, originalValues.DamageAmount);
+        double newStun = EvaluateArmourFormula(DissipateExpressionsStun[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Stun, damage.StunAmount, originalValues.StunAmount);
+        double newPain = EvaluateArmourFormula(DissipateExpressionsPain[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Pain, damage.PainAmount, originalValues.PainAmount);
 
         if (newDamage <= 0 && newStun <= 0 && newPain <= 0)
         {
@@ -418,43 +440,12 @@ public class ArmourType : SaveableItem, IArmourType
         };
 
         // Absorb - Absorb is damage less that the armour passes on to layers below it
-        Expression absorbExpression = AbsorbExpressions[damage.DamageType];
-        absorbExpression.Parameters["quality"] = (int)quality;
-        absorbExpression.Parameters["damage"] = partDamage.DamageAmount;
-        absorbExpression.Parameters["angle"] = partDamage.AngleOfIncidentRadians.RadiansToDegrees();
-        absorbExpression.Parameters["density"] = material?.Density ?? 1.0;
-        absorbExpression.Parameters["electrical"] = material?.ElectricalConductivity ?? 1.0;
-        absorbExpression.Parameters["thermal"] = material?.ThermalConductivity ?? 1.0;
-        absorbExpression.Parameters["organic"] = material?.Organic == true ? 1.0 : 0.0;
-        absorbExpression.Parameters["strength"] = strength;
-        absorbExpression.Parameters["originaldamage"] = originalValues.DamageAmount;
-        newDamage = Convert.ToDouble(absorbExpression.Evaluate());
-
-        absorbExpression = AbsorbExpressionsStun[damage.DamageType];
-        absorbExpression.Parameters["quality"] = (int)quality;
-        absorbExpression.Parameters["stun"] = partDamage.StunAmount;
-        absorbExpression.Parameters["angle"] = partDamage.AngleOfIncidentRadians.RadiansToDegrees();
-        absorbExpression.Parameters["density"] = material?.Density ?? 1.0;
-        absorbExpression.Parameters["electrical"] = material?.ElectricalConductivity ?? 1.0;
-        absorbExpression.Parameters["thermal"] = material?.ThermalConductivity ?? 1.0;
-        absorbExpression.Parameters["organic"] = material?.Organic == true ? 1.0 : 0.0;
-        absorbExpression.Parameters["strength"] = strength;
-        absorbExpression.Parameters["originaldamage"] = originalValues.StunAmount;
-        absorbExpression.Parameters["originalstun"] = originalValues.StunAmount;
-        newStun = Convert.ToDouble(absorbExpression.Evaluate());
-
-        absorbExpression = AbsorbExpressionsPain[damage.DamageType];
-        absorbExpression.Parameters["quality"] = (int)quality;
-        absorbExpression.Parameters["pain"] = partDamage.PainAmount;
-        absorbExpression.Parameters["angle"] = partDamage.AngleOfIncidentRadians.RadiansToDegrees();
-        absorbExpression.Parameters["density"] = material?.Density ?? 1.0;
-        absorbExpression.Parameters["electrical"] = material?.ElectricalConductivity ?? 1.0;
-        absorbExpression.Parameters["thermal"] = material?.ThermalConductivity ?? 1.0;
-        absorbExpression.Parameters["organic"] = material?.Organic == true ? 1.0 : 0.0;
-        absorbExpression.Parameters["strength"] = strength;
-        absorbExpression.Parameters["originaldamage"] = originalValues.PainAmount;
-        absorbExpression.Parameters["originalpain"] = originalValues.PainAmount;
-        newPain = Convert.ToDouble(absorbExpression.Evaluate());
+        newDamage = EvaluateArmourFormula(AbsorbExpressions[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Damage, partDamage.DamageAmount, originalValues.DamageAmount);
+        newStun = EvaluateArmourFormula(AbsorbExpressionsStun[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Stun, partDamage.StunAmount, originalValues.StunAmount);
+        newPain = EvaluateArmourFormula(AbsorbExpressionsPain[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Pain, partDamage.PainAmount, originalValues.PainAmount);
 
         if (newDamage <= 0 && newStun <= 0 && newPain <= 0)
         {
@@ -527,41 +518,16 @@ public class ArmourType : SaveableItem, IArmourType
 
         (double DamageAmount, double PainAmount, double StunAmount) originalValues = (damage.DamageAmount, damage.PainAmount, damage.StunAmount);
 
+        var formulaInputs = FormulaInputs(armour.Parent.Quality, armour.Parent.Material,
+            damage.AngleOfIncidentRadians.RadiansToDegrees(), strength);
+
         // Dissipate - dissipation is basically damage that is ignored or written off by the armour
-        Expression dissipateExpression = DissipateExpressions[damage.DamageType];
-        dissipateExpression.Parameters["quality"] = (int)armour.Parent.Quality;
-        dissipateExpression.Parameters["damage"] = damage.DamageAmount;
-        dissipateExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        dissipateExpression.Parameters["density"] = armour.Parent.Material?.Density ?? 1.0;
-        dissipateExpression.Parameters["electrical"] = armour.Parent.Material?.ElectricalConductivity ?? 1.0;
-        dissipateExpression.Parameters["thermal"] = armour.Parent.Material?.ThermalConductivity ?? 1.0;
-        dissipateExpression.Parameters["organic"] = armour.Parent.Material?.Organic == true ? 1.0 : 0.0;
-        dissipateExpression.Parameters["strength"] = strength;
-        double newDamage = Convert.ToDouble(dissipateExpression.Evaluate());
-
-        dissipateExpression = DissipateExpressionsStun[damage.DamageType];
-        dissipateExpression.Parameters["quality"] = (int)armour.Parent.Quality;
-        dissipateExpression.Parameters["stun"] = damage.StunAmount;
-        dissipateExpression.Parameters["damage"] = damage.StunAmount;
-        dissipateExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        dissipateExpression.Parameters["density"] = armour.Parent.Material?.Density ?? 1.0;
-        dissipateExpression.Parameters["electrical"] = armour.Parent.Material?.ElectricalConductivity ?? 1.0;
-        dissipateExpression.Parameters["thermal"] = armour.Parent.Material?.ThermalConductivity ?? 1.0;
-        dissipateExpression.Parameters["organic"] = armour.Parent.Material?.Organic == true ? 1.0 : 0.0;
-        dissipateExpression.Parameters["strength"] = strength;
-        double newStun = Convert.ToDouble(dissipateExpression.Evaluate());
-
-        dissipateExpression = DissipateExpressionsPain[damage.DamageType];
-        dissipateExpression.Parameters["quality"] = (int)armour.Parent.Quality;
-        dissipateExpression.Parameters["pain"] = damage.PainAmount;
-        dissipateExpression.Parameters["damage"] = damage.PainAmount;
-        dissipateExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        dissipateExpression.Parameters["density"] = armour.Parent.Material?.Density ?? 1.0;
-        dissipateExpression.Parameters["electrical"] = armour.Parent.Material?.ElectricalConductivity ?? 1.0;
-        dissipateExpression.Parameters["thermal"] = armour.Parent.Material?.ThermalConductivity ?? 1.0;
-        dissipateExpression.Parameters["organic"] = armour.Parent.Material?.Organic == true ? 1.0 : 0.0;
-        dissipateExpression.Parameters["strength"] = strength;
-        double newPain = Convert.ToDouble(dissipateExpression.Evaluate());
+        double newDamage = EvaluateArmourFormula(DissipateExpressions[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Damage, damage.DamageAmount, originalValues.DamageAmount);
+        double newStun = EvaluateArmourFormula(DissipateExpressionsStun[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Stun, damage.StunAmount, originalValues.StunAmount);
+        double newPain = EvaluateArmourFormula(DissipateExpressionsPain[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Pain, damage.PainAmount, originalValues.PainAmount);
 
         if (newDamage <= 0 && newStun <= 0 && newPain <= 0)
         {
@@ -591,45 +557,12 @@ public class ArmourType : SaveableItem, IArmourType
             wounds.AddRange(armourWounds);
         }
 
-        Expression absorbExpression = AbsorbExpressions[damage.DamageType];
-        absorbExpression.Parameters["quality"] = (int)armour.Parent.Quality;
-        absorbExpression.Parameters["damage"] = damage.DamageAmount;
-        absorbExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        absorbExpression.Parameters["density"] = armour.Parent.Material?.Density ?? 1.0;
-        absorbExpression.Parameters["electrical"] = armour.Parent.Material?.ElectricalConductivity ?? 1.0;
-        absorbExpression.Parameters["thermal"] = armour.Parent.Material?.ThermalConductivity ?? 1.0;
-        absorbExpression.Parameters["organic"] = armour.Parent.Material?.Organic == true ? 1.0 : 0.0;
-        absorbExpression.Parameters["strength"] = strength;
-        absorbExpression.Parameters["originaldamage"] = originalValues.DamageAmount;
-        newDamage = Convert.ToDouble(absorbExpression.Evaluate());
-
-        absorbExpression = AbsorbExpressionsStun[damage.DamageType];
-        absorbExpression.Parameters["quality"] = (int)armour.Parent.Quality;
-        absorbExpression.Parameters["stun"] = damage.StunAmount;
-        absorbExpression.Parameters["damage"] = damage.StunAmount;
-        absorbExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        absorbExpression.Parameters["density"] = armour.Parent.Material?.Density ?? 1.0;
-        absorbExpression.Parameters["electrical"] = armour.Parent.Material?.ElectricalConductivity ?? 1.0;
-        absorbExpression.Parameters["thermal"] = armour.Parent.Material?.ThermalConductivity ?? 1.0;
-        absorbExpression.Parameters["organic"] = armour.Parent.Material?.Organic == true ? 1.0 : 0.0;
-        absorbExpression.Parameters["strength"] = strength;
-        absorbExpression.Parameters["originaldamage"] = originalValues.StunAmount;
-        absorbExpression.Parameters["originalstun"] = originalValues.StunAmount;
-        newStun = Convert.ToDouble(absorbExpression.Evaluate());
-
-        absorbExpression = AbsorbExpressionsPain[damage.DamageType];
-        absorbExpression.Parameters["quality"] = (int)armour.Parent.Quality;
-        absorbExpression.Parameters["pain"] = damage.PainAmount;
-        absorbExpression.Parameters["damage"] = damage.PainAmount;
-        absorbExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        absorbExpression.Parameters["density"] = armour.Parent.Material?.Density ?? 1.0;
-        absorbExpression.Parameters["electrical"] = armour.Parent.Material?.ElectricalConductivity ?? 1.0;
-        absorbExpression.Parameters["thermal"] = armour.Parent.Material?.ThermalConductivity ?? 1.0;
-        absorbExpression.Parameters["organic"] = armour.Parent.Material?.Organic == true ? 1.0 : 0.0;
-        absorbExpression.Parameters["strength"] = strength;
-        absorbExpression.Parameters["originaldamage"] = originalValues.PainAmount;
-        absorbExpression.Parameters["originalpain"] = originalValues.PainAmount;
-        newPain = Convert.ToDouble(absorbExpression.Evaluate());
+        newDamage = EvaluateArmourFormula(AbsorbExpressions[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Damage, damage.DamageAmount, originalValues.DamageAmount);
+        newStun = EvaluateArmourFormula(AbsorbExpressionsStun[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Stun, damage.StunAmount, originalValues.StunAmount);
+        newPain = EvaluateArmourFormula(AbsorbExpressionsPain[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Pain, damage.PainAmount, originalValues.PainAmount);
 
         if (newDamage <= 0 && newStun <= 0 && newPain <= 0)
         {
@@ -701,39 +634,15 @@ public class ArmourType : SaveableItem, IArmourType
                 break;
         }
 
+        var formulaInputs = FormulaInputs(quality, solid, damage.AngleOfIncidentRadians.RadiansToDegrees(), strength);
+
         // Dissipate - dissipation is basically damage that is ignored or written off by the armour
-        Expression dissipateExpression = DissipateExpressions[damage.DamageType];
-        dissipateExpression.Parameters["quality"] = (int)quality;
-        dissipateExpression.Parameters["damage"] = damage.DamageAmount;
-        dissipateExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        dissipateExpression.Parameters["density"] = solid?.Density ?? 1.0;
-        dissipateExpression.Parameters["electrical"] = solid?.ElectricalConductivity ?? 1.0;
-        dissipateExpression.Parameters["thermal"] = solid?.ThermalConductivity ?? 1.0;
-        dissipateExpression.Parameters["organic"] = solid?.Organic == true ? 1.0 : 0.0;
-        dissipateExpression.Parameters["strength"] = strength;
-        double newDamage = Convert.ToDouble(dissipateExpression.Evaluate());
-
-        dissipateExpression = DissipateExpressionsStun[damage.DamageType];
-        dissipateExpression.Parameters["quality"] = (int)quality;
-        dissipateExpression.Parameters["stun"] = damage.StunAmount;
-        dissipateExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        dissipateExpression.Parameters["density"] = solid?.Density ?? 1.0;
-        dissipateExpression.Parameters["electrical"] = solid?.ElectricalConductivity ?? 1.0;
-        dissipateExpression.Parameters["thermal"] = solid?.ThermalConductivity ?? 1.0;
-        dissipateExpression.Parameters["organic"] = solid?.Organic == true ? 1.0 : 0.0;
-        dissipateExpression.Parameters["strength"] = strength;
-        double newStun = Convert.ToDouble(dissipateExpression.Evaluate());
-
-        dissipateExpression = DissipateExpressionsPain[damage.DamageType];
-        dissipateExpression.Parameters["quality"] = (int)quality;
-        dissipateExpression.Parameters["pain"] = damage.PainAmount;
-        dissipateExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        dissipateExpression.Parameters["density"] = solid?.Density ?? 1.0;
-        dissipateExpression.Parameters["electrical"] = solid?.ElectricalConductivity ?? 1.0;
-        dissipateExpression.Parameters["thermal"] = solid?.ThermalConductivity ?? 1.0;
-        dissipateExpression.Parameters["organic"] = solid?.Organic == true ? 1.0 : 0.0;
-        dissipateExpression.Parameters["strength"] = strength;
-        double newPain = Convert.ToDouble(dissipateExpression.Evaluate());
+        double newDamage = EvaluateArmourFormula(DissipateExpressions[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Damage, damage.DamageAmount, damage.DamageAmount);
+        double newStun = EvaluateArmourFormula(DissipateExpressionsStun[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Stun, damage.StunAmount, damage.StunAmount);
+        double newPain = EvaluateArmourFormula(DissipateExpressionsPain[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Pain, damage.PainAmount, damage.PainAmount);
 
         if (newDamage <= 0 && newStun <= 0 && newPain <= 0)
         {
@@ -755,38 +664,12 @@ public class ArmourType : SaveableItem, IArmourType
             StunAmount = newStun
         };
 
-        Expression absorbExpression = AbsorbExpressions[damage.DamageType];
-        absorbExpression.Parameters["quality"] = (int)quality;
-        absorbExpression.Parameters["damage"] = damage.DamageAmount;
-        absorbExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        absorbExpression.Parameters["density"] = solid?.Density ?? 1.0;
-        absorbExpression.Parameters["electrical"] = solid?.ElectricalConductivity ?? 1.0;
-        absorbExpression.Parameters["thermal"] = solid?.ThermalConductivity ?? 1.0;
-        dissipateExpression.Parameters["organic"] = solid?.Organic == true ? 1.0 : 0.0;
-        dissipateExpression.Parameters["strength"] = strength;
-        newDamage = Convert.ToDouble(absorbExpression.Evaluate());
-
-        absorbExpression = AbsorbExpressionsStun[damage.DamageType];
-        absorbExpression.Parameters["quality"] = (int)quality;
-        absorbExpression.Parameters["stun"] = damage.StunAmount;
-        absorbExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        absorbExpression.Parameters["density"] = solid?.Density ?? 1.0;
-        absorbExpression.Parameters["electrical"] = solid?.ElectricalConductivity ?? 1.0;
-        absorbExpression.Parameters["thermal"] = solid?.ThermalConductivity ?? 1.0;
-        dissipateExpression.Parameters["organic"] = solid?.Organic == true ? 1.0 : 0.0;
-        dissipateExpression.Parameters["strength"] = strength;
-        newStun = Convert.ToDouble(absorbExpression.Evaluate());
-
-        absorbExpression = AbsorbExpressionsPain[damage.DamageType];
-        absorbExpression.Parameters["quality"] = (int)quality;
-        absorbExpression.Parameters["pain"] = damage.PainAmount;
-        absorbExpression.Parameters["angle"] = damage.AngleOfIncidentRadians.RadiansToDegrees();
-        absorbExpression.Parameters["density"] = solid?.Density ?? 1.0;
-        absorbExpression.Parameters["electrical"] = solid?.ElectricalConductivity ?? 1.0;
-        absorbExpression.Parameters["thermal"] = solid?.ThermalConductivity ?? 1.0;
-        dissipateExpression.Parameters["organic"] = solid?.Organic == true ? 1.0 : 0.0;
-        dissipateExpression.Parameters["strength"] = strength;
-        newPain = Convert.ToDouble(absorbExpression.Evaluate());
+        newDamage = EvaluateArmourFormula(AbsorbExpressions[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Damage, damage.DamageAmount, damage.DamageAmount);
+        newStun = EvaluateArmourFormula(AbsorbExpressionsStun[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Stun, damage.StunAmount, damage.StunAmount);
+        newPain = EvaluateArmourFormula(AbsorbExpressionsPain[damage.DamageType], formulaInputs,
+            ArmourFormulaChannel.Pain, damage.PainAmount, damage.PainAmount);
 
         if (newDamage <= 0 && newStun <= 0 && newPain <= 0)
         {
@@ -1121,9 +1004,9 @@ You can use the following parameters in this formula:
         sb.Append(Telnet.RESET);
         sb.AppendLine(".");
 
-        foreach (KeyValuePair<string, object> parameter in expression.Parameters)
+        foreach (string parameter in expression.ParameterNames)
         {
-            switch (parameter.Key.ToLowerInvariant())
+            switch (parameter.ToLowerInvariant())
             {
                 case "damage":
                 case "density":
@@ -1168,7 +1051,7 @@ You can use the following parameters in this formula:
 
                     continue;
                 default:
-                    sb.AppendLine($"Warning: The parameter \"{parameter.Key.ToLowerInvariant()}\" is not valid and will always be zero.".ColourError());
+                    sb.AppendLine($"Warning: The parameter \"{parameter.ToLowerInvariant()}\" is not valid and will always be zero.".ColourError());
                     continue;
             }
         }

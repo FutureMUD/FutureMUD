@@ -26,7 +26,7 @@ public sealed class WildlifeShelterClaimEffect : Effect
 		_ownerInstanceId = CharacterInstanceIdentityComparer.InstanceId(claimant);
 		_groupId = (claimant as INPC)?.GroupAI?.Id;
 		_allowGroupSharing = allowGroupSharing;
-		_lastOccupiedUtc = DateTime.UtcNow;
+		_lastOccupiedUtc = RuntimeClock.UtcNow;
 	}
 
 	private WildlifeShelterClaimEffect(XElement root, IPerceivable owner)
@@ -47,7 +47,7 @@ public sealed class WildlifeShelterClaimEffect : Effect
 			CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
 			out DateTime lastOccupied)
 			? lastOccupied
-			: DateTime.UtcNow;
+			: RuntimeClock.UtcNow;
 	}
 
 	public static void InitialiseEffectType()
@@ -116,12 +116,12 @@ public sealed class WildlifeShelterClaimEffect : Effect
 
 	public bool IsReclaimable()
 	{
-		return DateTime.UtcNow - _lastOccupiedUtc >= ReclaimAfter && !HasValidOwner();
+		return RuntimeClock.UtcNow - _lastOccupiedUtc >= ReclaimAfter && !HasValidOwner();
 	}
 
 	public void RefreshOccupancy()
 	{
-		_lastOccupiedUtc = DateTime.UtcNow;
+		_lastOccupiedUtc = RuntimeClock.UtcNow;
 		Changed = true;
 	}
 

@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Save;
@@ -22,8 +22,8 @@ public class Patrol : SaveableItem, IPatrol
             ? new CorpseRecoveryPatrolStrategy(Gameworld)
             : route.PatrolStrategy;
         PatrolPhase = PatrolPhase.Preperation;
-        PatrolStartTime = DateTime.UtcNow;
-        LastArrivedTime = DateTime.UtcNow;
+        PatrolStartTime = RuntimeClock.UtcNow;
+        LastArrivedTime = RuntimeClock.UtcNow;
         PatrolLeader = leader;
         ActiveCorpseRecoveryReport = corpseRecoveryReport;
         TargetCrime = targetCrime;
@@ -70,8 +70,8 @@ public class Patrol : SaveableItem, IPatrol
         PatrolRoute = authority.PatrolRoutes.First(x => x.Id == patrol.PatrolRouteId);
         _id = patrol.Id;
         PatrolPhase = (PatrolPhase)patrol.PatrolPhase;
-        PatrolStartTime = DateTime.UtcNow;
-        LastArrivedTime = DateTime.UtcNow;
+        PatrolStartTime = RuntimeClock.UtcNow;
+        LastArrivedTime = RuntimeClock.UtcNow;
         LastMajorNode = Gameworld.Cells.Get(patrol.LastMajorNodeId ?? 0);
         NextMajorNode = Gameworld.Cells.Get(patrol.NextMajorNodeId ?? 0);
         _members.AddRange(patrol.PatrolMembers

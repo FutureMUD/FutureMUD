@@ -14,6 +14,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.Health.Breathing;
+using MudSharp.Framework.Scheduling;
 using MudSharp.Menus;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine.Handlers;
@@ -163,7 +164,7 @@ public partial class Character
             SaveMinutes(null);
             dbchar.State = (int)CharacterState.Dead;
             dbchar.Status = (int)CharacterStatus.Deceased;
-            dbchar.DeathTime = DateTime.UtcNow;
+            dbchar.DeathTime = RuntimeClock.UtcNow;
             dbchar.NeedsModel = "NoNeeds";
             SaveCompatibilityWorldPresence(dbchar);
             SavePrimaryInstance(dbchar);
@@ -203,7 +204,7 @@ public partial class Character
             FMDB.Context.SaveChanges();
         }
 
-        LoginDateTime = DateTime.UtcNow;
+        LoginDateTime = RuntimeClock.UtcNow;
         LastMinutesUpdate = LoginDateTime;
         StartNeedsHeartbeat();
         ResumeMagicResourceGeneratorHeartbeats();

@@ -577,15 +577,15 @@ You will be paid {PayDescriptionForJobListing()}.{(PersonalProject is not null ?
             return false;
         }
 
-        foreach (KeyValuePair<string, object> parameter in expr.Parameters)
+        foreach (string parameter in expr.ParameterNames)
         {
-            if (parameter.Key.EqualTo("effort"))
+            if (parameter.EqualTo("effort"))
             {
                 continue;
             }
 
             actor.OutputHandler.Send(
-                $"The variable {parameter.Key.ColourName()} from your expression is not valid.");
+                $"The variable {parameter.ColourName()} from your expression is not valid.");
             return false;
         }
 

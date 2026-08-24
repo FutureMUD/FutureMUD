@@ -1,5 +1,6 @@
 ﻿using MudSharp.Database;
 using MudSharp.Framework.Save;
+using MudSharp.Framework.Scheduling;
 using MudSharp.Models;
 
 namespace MudSharp.Character;
@@ -58,7 +59,7 @@ public class Dub : SaveableItem, IDub
 
     public string HowSeen(ICharacter actor)
     {
-        LastUsage = DateTime.UtcNow;
+        LastUsage = RuntimeClock.UtcNow;
         Changed = true;
         if (!string.IsNullOrEmpty(IntroducedName))
         {

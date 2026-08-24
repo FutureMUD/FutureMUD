@@ -97,22 +97,18 @@ public class TakedownMove : WeaponAttackMove
         OpposedOutcome result = new(attackRoll, Outcome.NotTested);
         OpposedOutcomeDegree degree = result.Degree;
 
-        Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.DamageExpression.Formula.Parameters["quality"] =
-            (int)Assailant.NaturalWeaponQuality(NaturalAttack);
-        Attack.Profile.StunExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.StunExpression.Formula.Parameters["quality"] =
-            (int)Assailant.NaturalWeaponQuality(NaturalAttack);
-        Attack.Profile.PainExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.PainExpression.Formula.Parameters["quality"] =
-            (int)Assailant.NaturalWeaponQuality(NaturalAttack);
+        int formulaDegree = (int)degree;
+        int quality = (int)Assailant.NaturalWeaponQuality(NaturalAttack);
 
         double damageResult =
-            Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.UnarmedDamageCalculation);
+            Attack.Profile.DamageExpression.EvaluateWith(Assailant, null, TraitBonusContext.UnarmedDamageCalculation,
+                ("degree", formulaDegree), ("quality", quality));
         double stunResult =
-            Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.UnarmedDamageCalculation);
+            Attack.Profile.DamageExpression.EvaluateWith(Assailant, null, TraitBonusContext.UnarmedDamageCalculation,
+                ("degree", formulaDegree), ("quality", quality));
         double painResult =
-            Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.UnarmedDamageCalculation);
+            Attack.Profile.DamageExpression.EvaluateWith(Assailant, null, TraitBonusContext.UnarmedDamageCalculation,
+                ("degree", formulaDegree), ("quality", quality));
 
 		CharacterTarget.DoCombatKnockdown(attackRoll.Outcome.SuccessDegrees(),
 			VehicleCombatDisplacementType.Throw);

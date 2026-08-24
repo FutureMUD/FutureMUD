@@ -2056,6 +2056,7 @@ Here are some examples of plausible trait expressions applying the above:
 
         StringBuilder sb = new();
         sb.AppendLine($"Evaluating Trait Expression #{te.Id.ToStringN0(actor)} ({te.Name.ColourName()}) for {target.HowSeen(actor)}...");
+        List<(string Name, object Value)> values = new();
 
         if (te.NonTraitParameters.Any())
         {
@@ -2073,12 +2074,12 @@ Here are some examples of plausible trait expressions applying the above:
                     return;
                 }
 
-                te.Formula.Parameters[item] = value;
+                values.Add((item, value));
                 sb.AppendLine($"...{item.ColourName()} = {value.ToString("N", actor).ColourValue()}");
             }
         }
 
-        sb.AppendLine($"Result: {te.Evaluate(target).ToString("N", actor).ColourValue()}");
+        sb.AppendLine($"Result: {te.EvaluateWith(target, values: values.ToArray()).ToString("N", actor).ColourValue()}");
         actor.OutputHandler.Send(sb.ToString());
     }
 

@@ -4,6 +4,7 @@ using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Heritage;
 using MudSharp.Combat;
+using MudSharp.Combat.Simulation;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
@@ -19,6 +20,7 @@ using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Work.Projects.Impacts;
 using ExpressionEngine;
+using MoreLinq;
 
 namespace MudSharp.Body.Implementations;
 
@@ -1043,6 +1045,7 @@ public partial class Body
             x => x.GetSubtype<IEffectRemoveOnDamage>()?.RemovesWith(damage1) ?? false);
         if (isplainbodypart)
         {
+			RecordSimulationDamageState(damage, internalDamage);
             if (!CheckBoneDamage(ref damage, ref wounds, ref internalDamage, true, sb))
             {
                 CheckOrganDamage(ref damage, wounds, ref internalDamage, true, sb);
@@ -1082,6 +1085,33 @@ public partial class Body
         wounds.AddRange(newWounds);
         return wounds;
     }
+
+	private void RecordSimulationDamageState(IDamage damage, IDamage internalDamage)
+	{
+		var scope = CombatSimulationRuntimeScope.Current;
+		if (scope?.ExecutionFingerprint.CaptureRandomCallSites != true)
+		{
+			return;
+		}
+
+		var bodypart = damage.Bodypart;
+		var breakability = CanBreakBones(damage);
+		var bones = bodypart?.BoneInfo
+			.Where(x => Bones.Contains(x.Key))
+			.OrderBy(x => x.Key.Id)
+			.Select(x => x.Key.Id.ToString(System.Globalization.CultureInfo.InvariantCulture))
+			.ListToString(separator: ",", conjunction: string.Empty, twoItemJoiner: ",") ?? string.Empty;
+		var organs = bodypart?.OrganInfo
+			.Where(x => Organs.Contains(x.Key))
+			.OrderBy(x => x.Key.Id)
+			.Select(x => x.Key.Id.ToString(System.Globalization.CultureInfo.InvariantCulture))
+			.ListToString(separator: ",", conjunction: string.Empty, twoItemJoiner: ",") ?? string.Empty;
+		var internalDamageDescription = internalDamage is null
+			? "none"
+			: $"{(int)internalDamage.DamageType}:{internalDamage.DamageAmount.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}:{internalDamage.PainAmount.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}:{internalDamage.StunAmount.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}";
+		scope.ExecutionFingerprint.RecordState(
+			$"damage actor:{Actor.Id} part:{bodypart?.Id ?? 0} type:{(int)damage.DamageType} amount:{damage.DamageAmount.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} pain:{damage.PainAmount.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} stun:{damage.StunAmount.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} break:{breakability.Truth}/{breakability.All}/{breakability.Group} bones:{bones} organs:{organs} internal:{internalDamageDescription}");
+	}
 
     private bool ShouldSever(IDamage damage)
     {
@@ -1143,7 +1173,11 @@ public partial class Body
         (bool damageOrgans, bool damageAllOrgans, bool highChance) = CanDamageOrgans(internalDamage);
         if (damage.Bodypart.Organs.Any() && internalDamage != null && damageOrgans)
         {
-            foreach (KeyValuePair<IOrganProto, BodypartInternalInfo> organInfo in damage.Bodypart.OrganInfo.Where(x => Organs.Contains(x.Key)).Shuffle().ToList())
+			foreach (KeyValuePair<IOrganProto, BodypartInternalInfo> organInfo in damage.Bodypart.OrganInfo
+						 .Where(x => Organs.Contains(x.Key))
+						 .OrderBy(x => x.Key.Id)
+						 .Shuffle(Constants.Random)
+						 .ToList())
             {
                 if (CheckOrganDamageSpecific(organInfo, internalDamage, damageAllOrgans, wounds, passive, highChance, sb))
                 {
@@ -1169,7 +1203,11 @@ public partial class Body
         if (damageBones && damage.Bodypart.Bones.Any())
         {
             bool boneWasHit = false;
-            foreach (KeyValuePair<IBone, BodypartInternalInfo> boneInfo in damage.Bodypart.BoneInfo.Where(x => Bones.Contains(x.Key)).Shuffle().ToList())
+			foreach (KeyValuePair<IBone, BodypartInternalInfo> boneInfo in damage.Bodypart.BoneInfo
+						 .Where(x => Bones.Contains(x.Key))
+						 .OrderBy(x => x.Key.Id)
+						 .Shuffle(Constants.Random)
+						 .ToList())
             {
                 IBone bone = boneInfo.Key;
                 double roll = Constants.Random.NextDouble();
@@ -1236,7 +1274,9 @@ public partial class Body
 
                 if (organDamage != null && organDamage.DamageAmount > 0)
                 {
-                    foreach ((IOrganProto Organ, BodypartInternalInfo Info) organ in bone.CoveredOrgans.Where(x => Organs.Contains(x.Organ)))
+                    foreach ((IOrganProto Organ, BodypartInternalInfo Info) organ in bone.CoveredOrgans
+                                 .Where(x => Organs.Contains(x.Organ))
+                                 .OrderBy(x => x.Organ.Id))
                     {
                         if (CheckOrganDamageSpecific(
                                 new KeyValuePair<IOrganProto, BodypartInternalInfo>(organ.Organ, organ.Info),

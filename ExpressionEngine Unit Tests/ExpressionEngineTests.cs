@@ -50,6 +50,30 @@ public class ExpressionEngineTests
 		}
 	}
 
+	[TestMethod]
+	public void PushRandom_SameSeed_ReplaysExpressionSequence()
+	{
+		var expression = new Expression("rand(1,1000000) + dice(3,1000000)");
+		double[] first;
+		double[] second;
+
+		using (Expression.PushRandom(new Random(8675309)))
+		{
+			first = Enumerable.Range(0, 10)
+				.Select(_ => expression.EvaluateDouble())
+				.ToArray();
+		}
+
+		using (Expression.PushRandom(new Random(8675309)))
+		{
+			second = Enumerable.Range(0, 10)
+				.Select(_ => expression.EvaluateDouble())
+				.ToArray();
+		}
+
+		CollectionAssert.AreEqual(first, second);
+	}
+
 	[DataTestMethod]
 	[DataRow("not(0)", 1.0)]
 	[DataRow("not(1)", 0.0)]
@@ -73,14 +97,21 @@ public class ExpressionEngineTests
 	}
 
 	[TestMethod]
-	public void Evaluate_EnumParameter_UsesUnderlyingNumericValue()
+	public void EvaluateWith_EnumParameter_UsesUnderlyingNumericValue()
 	{
-		var expression = new Expression("enum")
-		{
-			Parameters = { ["enum"] = Difficulty.Insane }
-		};
+		var expression = new Expression("enum");
 
-		Assert.AreEqual(9.0, expression.EvaluateDouble());
+		Assert.AreEqual(9.0, expression.EvaluateDoubleWith(("enum", Difficulty.Insane)));
+	}
+
+	[TestMethod]
+	public void EvaluateWith_MissingValues_ResetToZeroForEachCall()
+	{
+		var expression = new Expression("first + second");
+
+		Assert.AreEqual(7.0, expression.EvaluateDoubleWith(("first", 7)));
+		Assert.AreEqual(11.0, expression.EvaluateDoubleWith(("second", 11)));
+		Assert.AreEqual(0.0, expression.EvaluateDouble());
 	}
 
 	[TestMethod]

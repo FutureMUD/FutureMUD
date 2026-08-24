@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 
@@ -19,7 +19,7 @@ public class StationEnforcerPatrolStrategy : PatrolStrategyBase
         if (patrol.PatrolMembers.All(x => x.Location == patrol.PatrolRoute.PatrolNodes.First()))
         {
             patrol.PatrolPhase = PatrolPhase.Patrol;
-            patrol.LastArrivedTime = DateTime.UtcNow;
+            patrol.LastArrivedTime = RuntimeClock.UtcNow;
             patrol.LastMajorNode = patrol.LegalAuthority.MarshallingLocation;
             patrol.NextMajorNode = patrol.PatrolRoute.PatrolNodes.First();
             return;
@@ -35,7 +35,7 @@ public class StationEnforcerPatrolStrategy : PatrolStrategyBase
             return;
         }
 
-        if (DateTime.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
+        if (RuntimeClock.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
         {
             patrol.CompletePatrol();
             return;
@@ -66,7 +66,7 @@ public class StationEnforcerPatrolStrategy : PatrolStrategyBase
                     PathSearch.IgnorePresenceOfDoors).ToList();
                 if (path.Count == 0)
                 {
-                    if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+                    if (RuntimeClock.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
                     {
                         // Abort patrol
                         patrol.AbortPatrol();

@@ -8,6 +8,7 @@ using MudSharp.Health;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Vehicles;
+using MoreLinq;
 
 namespace MudSharp.GameItems.Components;
 
@@ -107,12 +108,11 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
     {
         var payloadEffects = Parent.EffectsOfType<IMagicProjectilePayloadEffect>(x =>
             x.AppliesToProjectileAttack(actor, target, Parent)).ToList();
-        weaponType.DamageBonusExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
-        weaponType.DamageBonusExpression.Formula.Parameters["quality"] =
-            (int)Parent.Quality + (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus));
-        weaponType.DamageBonusExpression.Formula.Parameters["degrees"] = (int)defenseOutcome.Degree;
-
-        double finalDamage = weaponType.DamageBonusExpression.Evaluate(actor) +
+        double finalDamage = weaponType.DamageBonusExpression.EvaluateWith(actor,
+                                 values: [("range", target.DistanceBetween(actor, 10)),
+                                     ("quality", (int)Parent.Quality +
+                                                 (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus))),
+                                     ("degrees", (int)defenseOutcome.Degree)]) +
                              payloadEffects.Sum(x => x.ProjectileDamageBonus);
         return new Damage
         {
@@ -397,7 +397,7 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
         OpposedOutcome defenseOutcome, IBodypart bodypart, double painMultiplier, double stunMultiplier,
         IReadOnlyList<ICellExit> path)
     {
-        IRangedObstructionEffect obstructionEffect = target.EffectsOfType<IRangedObstructionEffect>().Where(x => x.Applies(actor)).Shuffle()
+        IRangedObstructionEffect obstructionEffect = target.EffectsOfType<IRangedObstructionEffect>().Where(x => x.Applies(actor)).Shuffle(Constants.Random)
                                          .FirstOrDefault();
         if (obstructionEffect == null)
         {

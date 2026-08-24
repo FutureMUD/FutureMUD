@@ -11,6 +11,7 @@ using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.NPC.AI.Groups;
 using MudSharp.Work.Crafts;
+using MoreLinq;
 
 namespace MudSharp.NPC.AI;
 
@@ -3267,7 +3268,7 @@ public class AnimalAI : PathingAIBase
 			return false;
 		}
 
-		foreach (ICharacter threat in VisibleEcologyCharacters(character).Except(protectedTargets).Shuffle())
+		foreach (ICharacter threat in VisibleEcologyCharacters(character).Except(protectedTargets).Shuffle(Constants.Random))
 		{
 			if (IsSociallyTrusted(character, threat) ||
 			    !IsParentingThreat(character, threat))
@@ -3437,7 +3438,7 @@ public class AnimalAI : PathingAIBase
 
 			if (threat >= 1.0)
 			{
-				foreach (ICharacter activeTarget in activeTargets.Shuffle())
+				foreach (ICharacter activeTarget in activeTargets.Shuffle(Constants.Random))
 				{
 					AnimalThreatResponseType response = ResolveThreatResponse(character, activeTarget);
 					if (response == AnimalThreatResponseType.Attack &&
@@ -3650,7 +3651,7 @@ public class AnimalAI : PathingAIBase
 			RememberThreats(character, candidates);
 		}
 
-		foreach (ICharacter target in candidates.Shuffle())
+		foreach (ICharacter target in candidates.Shuffle(Constants.Random))
 		{
 			AnimalThreatResponseType response = ResolveThreatResponse(character, target);
 			if (response == AnimalThreatResponseType.Inherit)
@@ -4423,7 +4424,7 @@ public class AnimalAI : PathingAIBase
 		                                             .Concat(character.Location.LayerGameItems(character.RoomLayer)
 		                                                              .SelectMany(x => x.ShallowAccessibleItems(character)));
 
-		foreach (IGameItem item in candidates.Shuffle())
+		foreach (IGameItem item in candidates.Shuffle(Constants.Random))
 		{
 			if (item.GetItemType<IEdible>() is IEdible edible &&
 			    character.CanEat(edible, edible.Parent.ContainedIn?.GetItemType<IContainer>(), null, 1.0))
@@ -5134,7 +5135,7 @@ public class AnimalAI : PathingAIBase
 			foreach (ICharacter target in character.Location.LayerCharacters(character.RoomLayer)
 			                                    .Except(character)
 			                                    .Where(x => !ai.IsSociallyTrusted(character, x))
-			                                    .Shuffle())
+				                                    .Shuffle(Constants.Random))
 			{
 				if (ai.TryFlee(character, target))
 				{
@@ -5158,7 +5159,7 @@ public class AnimalAI : PathingAIBase
 			foreach (ICharacter target in character.Location.LayerCharacters(character.RoomLayer)
 			                                    .Except(character)
 			                                    .Where(x => !ai.IsSociallyTrusted(character, x))
-			                                    .Shuffle())
+				                                    .Shuffle(Constants.Random))
 			{
 				if (TryAttack(ai, character, target))
 				{
@@ -5352,7 +5353,7 @@ public class AnimalAI : PathingAIBase
 		{
 			List<ICharacter> threats = ai.VisibleAwarenessThreats(character, witnessedTarget).ToList();
 			ai.RememberThreats(character, threats);
-			foreach (ICharacter threat in threats.Shuffle())
+			foreach (ICharacter threat in threats.Shuffle(Constants.Random))
 			{
 				if (PredatorAIHelpers.CheckForAttack(character, threat, ai.AwarenessThreatProg,
 					    ai.EngageDelayDiceExpression, ai.EngageEmote, false))

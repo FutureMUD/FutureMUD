@@ -211,8 +211,8 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
                 int freePicks = (int)Convert.ToDouble(NumberOfFreeSkillPicksProg.Execute(chargen));
                 if (nonFreeSkills.Count > freePicks)
                 {
-                    AdditionalSkillsCostExpression.Parameters["picks"] = nonFreeSkills.Count - freePicks;
-                    sum += Convert.ToInt32(AdditionalSkillsCostExpression.Evaluate());
+                    sum += Convert.ToInt32(AdditionalSkillsCostExpression.EvaluateWith(
+                        ("picks", nonFreeSkills.Count - freePicks)));
                 }
 
                 sum += chargen.SelectedSkillBoosts.Sum(x => BoostCostForSkill(x.Key, chargen, x.Value));
@@ -224,10 +224,9 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 
     private int BoostCostForSkill(ITraitDefinition skill, IChargen chargen, int boosts)
     {
-        BoostCostExpression.Parameters["base"] =
-            (double)((decimal?)BaseBoostCostProg.Execute(skill, chargen) ?? 1.0M);
-        BoostCostExpression.Parameters["boosts"] = boosts;
-        return Convert.ToInt32(BoostCostExpression.Evaluate());
+        return Convert.ToInt32(BoostCostExpression.EvaluateWith(
+            ("base", (double)((decimal?)BaseBoostCostProg.Execute(skill, chargen) ?? 1.0M)),
+            ("boosts", boosts)));
     }
 
     internal class SkillCostPickerScreen : ChargenScreen
@@ -267,10 +266,9 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 
         private int BoostCostForSkill(ITraitDefinition skill)
         {
-            Storyboard.BoostCostExpression.Parameters["base"] =
-                (double)((decimal?)Storyboard.BaseBoostCostProg.Execute(skill, Chargen) ?? 1.0M);
-            Storyboard.BoostCostExpression.Parameters["boosts"] = SelectedBoosts[skill];
-            return Convert.ToInt32(Storyboard.BoostCostExpression.Evaluate());
+            return Convert.ToInt32(Storyboard.BoostCostExpression.EvaluateWith(
+                ("base", (double)((decimal?)Storyboard.BaseBoostCostProg.Execute(skill, Chargen) ?? 1.0M)),
+                ("boosts", SelectedBoosts[skill])));
         }
 
         protected string DisplaySkillBoostStage()

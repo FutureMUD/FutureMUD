@@ -594,9 +594,8 @@ public abstract class BaseHealthStrategy : SaveableItem, IHealthStrategy
             return false;
         }
 
-        LodgeDamageExpression.Parameters["damage"] = damage.DamageAmount;
-        LodgeDamageExpression.Parameters["type"] = (int)damage.DamageType;
-        return Dice.Roll(1, 100) < Convert.ToDouble(LodgeDamageExpression.Evaluate());
+        return Dice.Roll(1, 100) < LodgeDamageExpression.EvaluateDoubleWith(
+            ("damage", damage.DamageAmount), ("type", (int)damage.DamageType));
     }
 
     protected string DescribeLodgeDamageCheck()

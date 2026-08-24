@@ -41,15 +41,15 @@ public class UnarmedDownedMeleeAttack : NaturalAttackMove
         }
 
         ICheck check = Gameworld.GetCheck(CheckType.StaggeringBlowDefense);
-        DownedMeleeExpressionAttacker.Formula.Parameters["damage"] = result.WoundsCaused.Sum(x => x.OriginalDamage);
-        DownedMeleeExpressionAttacker.Formula.Parameters["stun"] = result.WoundsCaused.Sum(x => x.CurrentStun);
         double attackerStrength =
-            DownedMeleeExpressionAttacker.Evaluate(Assailant, context: TraitBonusContext.StaggeringBlowCheck);
+            DownedMeleeExpressionAttacker.EvaluateWith(Assailant, null, TraitBonusContext.StaggeringBlowCheck,
+                ("damage", result.WoundsCaused.Sum(x => x.OriginalDamage)),
+                ("stun", result.WoundsCaused.Sum(x => x.CurrentStun)));
 
-        DownedMeleeExpressionDefender.Formula.Parameters["damage"] = result.WoundsCaused.Sum(x => x.OriginalDamage);
-        DownedMeleeExpressionDefender.Formula.Parameters["stun"] = result.WoundsCaused.Sum(x => x.CurrentStun);
         double defenderStrength =
-            DownedMeleeExpressionDefender.Evaluate(Target, context: TraitBonusContext.StaggeringBlowDefenseCheck);
+            DownedMeleeExpressionDefender.EvaluateWith(Target, null, TraitBonusContext.StaggeringBlowDefenseCheck,
+                ("damage", result.WoundsCaused.Sum(x => x.OriginalDamage)),
+                ("stun", result.WoundsCaused.Sum(x => x.CurrentStun)));
         CheckOutcome cr = check.Check(Target, ((ISecondaryDifficultyAttack)Attack).SecondaryDifficulty, Assailant,
             externalBonus: (defenderStrength - attackerStrength) *
                            Gameworld.GetStaticDouble("StaggeringBlowPenaltyMultiplier"));

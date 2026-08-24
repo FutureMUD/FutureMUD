@@ -56,7 +56,7 @@ public class PinPullDetonatorGameItemComponent : DeadlineExplosiveTriggerGameIte
 	public bool CanPullPin(ICharacter actor)
 	{
 		return !PinPulled && Parent.IsItemType<IDetonatable>() &&
-		       ExplosiveDeadlineScheduler.TryGetDeadline(DateTime.UtcNow, _prototype.Delay, out _);
+		       ExplosiveDeadlineScheduler.TryGetDeadline(RuntimeClock.UtcNow, _prototype.Delay, out _);
 	}
 
 	public string WhyCannotPullPin(ICharacter actor)
@@ -66,7 +66,7 @@ public class PinPullDetonatorGameItemComponent : DeadlineExplosiveTriggerGameIte
 			return $"The pin has already been pulled from {Parent.HowSeen(actor)}.";
 		}
 
-		if (!ExplosiveDeadlineScheduler.TryGetDeadline(DateTime.UtcNow, _prototype.Delay, out _))
+		if (!ExplosiveDeadlineScheduler.TryGetDeadline(RuntimeClock.UtcNow, _prototype.Delay, out _))
 		{
 			return $"The configured delay on {Parent.HowSeen(actor)} is too long to schedule safely.";
 		}
@@ -84,7 +84,7 @@ public class PinPullDetonatorGameItemComponent : DeadlineExplosiveTriggerGameIte
 			return false;
 		}
 
-		if (!ExplosiveDeadlineScheduler.TryGetDeadline(DateTime.UtcNow, _prototype.Delay, out var deadline))
+		if (!ExplosiveDeadlineScheduler.TryGetDeadline(RuntimeClock.UtcNow, _prototype.Delay, out var deadline))
 		{
 			actor.Send($"The configured delay on {Parent.HowSeen(actor)} is too long to schedule safely.");
 			return false;

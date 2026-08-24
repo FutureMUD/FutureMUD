@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Position;
+using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Celestial;
 using MudSharp.Character.Heritage;
@@ -68,7 +68,7 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
         public BaseGroupTypeData(IFuturemud gameworld)
         {
             Gameworld = gameworld;
-            LastEmote = DateTime.UtcNow;
+            LastEmote = RuntimeClock.UtcNow;
         }
 
         public virtual string ShowText(ICharacter voyeur)
@@ -220,7 +220,7 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
     protected virtual void CheckHerdEmotes(IGroupAI herd)
     {
         BaseGroupTypeData data = (BaseGroupTypeData)herd.Data;
-        if (DateTime.UtcNow - data.LastEmote < MinimumEmoteFrequency)
+        if (RuntimeClock.UtcNow - data.LastEmote < MinimumEmoteFrequency)
         {
             return;
         }
@@ -237,7 +237,7 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
         }
 
         emote.DoEmote(herd);
-        data.LastEmote = DateTime.UtcNow;
+        data.LastEmote = RuntimeClock.UtcNow;
         herd.Changed = true;
     }
 

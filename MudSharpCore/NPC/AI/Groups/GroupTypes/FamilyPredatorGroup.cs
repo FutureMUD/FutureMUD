@@ -6,6 +6,7 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
 using MudSharp.Movement;
+using MoreLinq;
 
 namespace MudSharp.NPC.AI.Groups.GroupTypes;
 
@@ -483,7 +484,7 @@ Home Location: {HomeLocation?.GetFriendlyReference(voyeur).ColourName() ?? "None
         {
             if (fighter.Combat == null || fighter.CombatTarget == null)
             {
-                foreach (ICharacter threat in threats.Shuffle())
+                foreach (ICharacter threat in threats.Shuffle(Constants.Random))
                 {
                     if (!fighter.CanSee(threat))
                     {
@@ -526,7 +527,7 @@ Home Location: {HomeLocation?.GetFriendlyReference(voyeur).ColourName() ?? "None
         {
             if (fighter.Combat == null || fighter.CombatTarget == null)
             {
-                foreach (ICharacter threat in threats.Shuffle())
+                foreach (ICharacter threat in threats.Shuffle(Constants.Random))
                 {
                     if (!fighter.CanSee(threat))
                     {

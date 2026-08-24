@@ -71,15 +71,13 @@ public class BombGameItemComponent : GameItemComponent, IDetonatable
 
         List<Damage> damages = _prototype.Damages.Select(x =>
         {
-            x.DamageExpression.Parameters["quality"] = (int)Parent.Quality;
-            x.StunExpression.Parameters["quality"] = (int)Parent.Quality;
-            double finalDamage = Convert.ToDouble(x.DamageExpression.Evaluate());
+            double finalDamage = x.DamageExpression.EvaluateDoubleWith(("quality", (int)Parent.Quality));
             return new Damage
             {
                 DamageType = x.DamageType,
                 DamageAmount = finalDamage,
                 PainAmount = finalDamage,
-                StunAmount = Convert.ToDouble(x.StunExpression.Evaluate())
+                StunAmount = x.StunExpression.EvaluateDoubleWith(("quality", (int)Parent.Quality))
             };
         }).ToList();
 

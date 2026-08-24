@@ -74,9 +74,8 @@ public class DestroyableGameItemComponent : GameItemComponent, IDestroyable, IAf
     {
         get
         {
-            _prototype.HpExpression.Parameters["quality"] = (int)Parent.Prototype.BaseItemQuality;
-            _prototype.HpExpression.Parameters["size"] = (int)Parent.Size;
-            return Convert.ToDouble(_prototype.HpExpression.Evaluate());
+            return _prototype.HpExpression.EvaluateDoubleWith(
+                ("quality", (int)Parent.Prototype.BaseItemQuality), ("size", (int)Parent.Size));
         }
     }
 

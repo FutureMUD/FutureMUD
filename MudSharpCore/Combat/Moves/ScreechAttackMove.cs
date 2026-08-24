@@ -43,17 +43,10 @@ public class ScreechAttackMove : NaturalAttackMove
 		                       .OfType<ICharacter>()
 		                       .Where(x => x.RoomLayer == Assailant.RoomLayer)
                                .Where(x => x.Body.Bodyparts.Any(y => y.Organs.Any(z => z is EarProto)))
-		                       .Distinct()
+			                       .Distinct()
                                .ToList();
-        Attack.Profile.DamageExpression.Formula.Parameters["degree"] = attackRoll.Outcome.CheckDegrees();
-        Attack.Profile.DamageExpression.Formula.Parameters["quality"] =
-            (int)Assailant.NaturalWeaponQuality(NaturalAttack);
-        Attack.Profile.StunExpression.Formula.Parameters["degree"] = attackRoll.Outcome.CheckDegrees();
-        Attack.Profile.StunExpression.Formula.Parameters["quality"] =
-            (int)Assailant.NaturalWeaponQuality(NaturalAttack);
-        Attack.Profile.PainExpression.Formula.Parameters["degree"] = attackRoll.Outcome.CheckDegrees();
-        Attack.Profile.PainExpression.Formula.Parameters["quality"] =
-            (int)Assailant.NaturalWeaponQuality(NaturalAttack);
+        int formulaDegree = attackRoll.Outcome.CheckDegrees();
+        int quality = (int)Assailant.NaturalWeaponQuality(NaturalAttack);
 
         Damage baseDamage = new()
         {
@@ -63,14 +56,17 @@ public class ScreechAttackMove : NaturalAttackMove
             AngleOfIncidentRadians = Attack.Profile.BaseAngleOfIncidence,
             Bodypart = null,
             DamageAmount =
-                Attack.Profile.DamageExpression.Evaluate(Assailant),
+                Attack.Profile.DamageExpression.EvaluateWith(Assailant,
+                    values: [("degree", formulaDegree), ("quality", quality)]),
             DamageType = Attack.Profile.DamageType,
             PainAmount =
-                Attack.Profile.PainExpression.Evaluate(Assailant),
+                Attack.Profile.PainExpression.EvaluateWith(Assailant,
+                    values: [("degree", formulaDegree), ("quality", quality)]),
             PenetrationOutcome = Outcome.NotTested,
             ShockAmount = 0,
             StunAmount =
-                Attack.Profile.DamageExpression.Evaluate(Assailant)
+                Attack.Profile.DamageExpression.EvaluateWith(Assailant,
+                    values: [("degree", formulaDegree), ("quality", quality)])
         };
 
         List<IWound> wounds = new();

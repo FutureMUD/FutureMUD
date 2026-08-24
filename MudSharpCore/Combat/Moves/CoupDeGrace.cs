@@ -34,12 +34,8 @@ public class CoupDeGrace : WeaponAttackMove
                     BuiltInCombatMoveType.CoupDeGrace, attackRoll.Outcome, null), TargetBodypart.FullDescription());
         OpposedOutcome result = new(attackRoll, Outcome.NotTested);
         double finalAngle = Attack.Profile.BaseAngleOfIncidence;
-        Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)result.Degree;
-        Attack.Profile.DamageExpression.Formula.Parameters["quality"] = (int)Weapon.Parent.Quality;
-        Attack.Profile.StunExpression.Formula.Parameters["degree"] = (int)result.Degree;
-        Attack.Profile.StunExpression.Formula.Parameters["quality"] = (int)Weapon.Parent.Quality;
-        Attack.Profile.PainExpression.Formula.Parameters["degree"] = (int)result.Degree;
-        Attack.Profile.PainExpression.Formula.Parameters["quality"] = (int)Weapon.Parent.Quality;
+        int degree = (int)result.Degree;
+        int quality = (int)Weapon.Parent.Quality;
 
         Damage finalDamage = new()
         {
@@ -48,12 +44,15 @@ public class CoupDeGrace : WeaponAttackMove
             ToolOrigin = Weapon.Parent,
             AngleOfIncidentRadians = finalAngle,
             Bodypart = TargetBodypart,
-            DamageAmount = Attack.Profile.DamageExpression.Evaluate(Assailant) * 2 * finalAngle / Math.PI,
+            DamageAmount = Attack.Profile.DamageExpression.EvaluateWith(Assailant,
+                values: [("degree", degree), ("quality", quality)]) * 2 * finalAngle / Math.PI,
             DamageType = Attack.Profile.DamageType,
-            PainAmount = Attack.Profile.PainExpression.Evaluate(Assailant) * 2 * finalAngle / Math.PI,
+            PainAmount = Attack.Profile.PainExpression.EvaluateWith(Assailant,
+                values: [("degree", degree), ("quality", quality)]) * 2 * finalAngle / Math.PI,
             PenetrationOutcome = Outcome.MajorPass,
             ShockAmount = 0,
-            StunAmount = Attack.Profile.DamageExpression.Evaluate(Assailant) * 2 * finalAngle / Math.PI
+            StunAmount = Attack.Profile.DamageExpression.EvaluateWith(Assailant,
+                values: [("degree", degree), ("quality", quality)]) * 2 * finalAngle / Math.PI
         };
 
         Assailant.OutputHandler.Handle(

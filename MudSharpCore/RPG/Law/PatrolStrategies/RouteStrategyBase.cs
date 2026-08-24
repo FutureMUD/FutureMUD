@@ -1,4 +1,4 @@
-﻿using MudSharp.Character.Name;
+using MudSharp.Character.Name;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -28,7 +28,7 @@ public abstract class RouteStrategyBase : PatrolStrategyBase
         if (patrol.PatrolLeader.Location == patrol.NextMajorNode)
         {
             patrol.LastMajorNode = patrol.NextMajorNode;
-            patrol.LastArrivedTime = DateTime.UtcNow;
+            patrol.LastArrivedTime = RuntimeClock.UtcNow;
             if (patrol.NextMajorNode == patrol.PatrolRoute.PatrolNodes.Last())
             {
                 patrol.NextMajorNode = patrol.PatrolRoute.PatrolNodes.First();
@@ -41,13 +41,13 @@ public abstract class RouteStrategyBase : PatrolStrategyBase
         }
 
         if (patrol.NextMajorNode is null &&
-            DateTime.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
+            RuntimeClock.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
         {
             patrol.CompletePatrol();
             return;
         }
 
-        if (DateTime.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
+        if (RuntimeClock.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
         {
             FollowingPath effect = patrol.PatrolLeader.CombinedEffectsOfType<FollowingPath>().FirstOrDefault();
             if (effect != null)
@@ -69,7 +69,7 @@ public abstract class RouteStrategyBase : PatrolStrategyBase
 				return;
 			}
 
-			if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+			if (RuntimeClock.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
 			{
 				patrol.AbortPatrol();
 			}

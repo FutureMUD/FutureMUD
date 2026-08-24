@@ -560,6 +560,7 @@ public sealed class CombatSimulationService : ICombatSimulationService
 		CombatSimulationExecutionFingerprint executionFingerprint)
 	{
 		ICharacter character;
+		CombatSimulationNpc? materialisedNpc = null;
 		if (snapshot.Request.SourceType == CombatSimulationSourceType.Character)
 		{
 			var source = snapshot.Request.Character!;
@@ -598,6 +599,7 @@ public sealed class CombatSimulationService : ICombatSimulationService
 			var npcTemplate = snapshot.Request.NpcTemplate!;
 			var template = npcTemplate.GetCharacterTemplate(simulationCell);
 			var npc = new CombatSimulationNpc(npcTemplate.Gameworld, template, npcTemplate);
+			materialisedNpc = npc;
 			character = npc;
 			npcTemplate.Gameworld.Add(npc, true);
 			simulationCell.Enter(npc, noSave: true, roomLayer: npc.RoomLayer);
@@ -608,15 +610,21 @@ public sealed class CombatSimulationService : ICombatSimulationService
 			}
 
 			npcTemplate.OnLoadProg?.Execute(npc);
-			npc.HandleEvent(EventType.NPCOnGameLoadFinished, npc);
 		}
 
-		RecordMaterialisedRuntimeState(executionFingerprint, snapshot.Request.Slot, character);
 		var name = character.PersonalName.GetName(Character.Name.NameStyle.SimpleFull);
 		character.Register(new CombatSimulationOutputHandler(transcript,
 			$"#{snapshot.Request.Slot:N0} {name}",
 			$"slot:{snapshot.Request.Slot}"));
+		InitialiseCombatSimulationBody(character);
+		materialisedNpc?.HandleEvent(EventType.NPCOnGameLoadFinished, materialisedNpc);
+		RecordMaterialisedRuntimeState(executionFingerprint, snapshot.Request.Slot, character);
 		return new RuntimeParticipant(snapshot.Request, character, name);
+	}
+
+	internal static void InitialiseCombatSimulationBody(ICharacter character)
+	{
+		character.Body.Login();
 	}
 
 	private static void RecordMaterialisedRuntimeState(

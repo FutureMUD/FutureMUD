@@ -487,6 +487,10 @@ public partial class AnimalSeeder
             AddAttackToRace("barge", race, quality);
             AddAttackToRace("bargesmash", race, quality);
             AddAttackToRace("clinchbarge", race, quality);
+			if ((SizeCategory)race.SizeStanding > SizeCategory.Normal)
+			{
+				AddAttackToRace("behemothcharge", race, quality);
+			}
         }
 
         if (hornAttacks)
@@ -1319,7 +1323,90 @@ public partial class AnimalSeeder
 		EnsureMultiTargetAttackSeedData();
 		EnsureAquaticVehicleAttackSeedData();
 		EnsureMountedCombatAttackSeedData();
+		ReconcileAnimalMeleeAttackBalance();
     }
+
+	private void ReconcileAnimalMeleeAttackBalance()
+	{
+		void Apply(string key, Difficulty attacker, Difficulty dodge, Difficulty parry, Difficulty block,
+			double delay, double weighting, string damageExpressionName)
+		{
+			if (!_attacks.TryGetValue(key, out var attack))
+			{
+				return;
+			}
+
+			attack.BaseAttackerDifficulty = (int)attacker;
+			attack.BaseDodgeDifficulty = (int)dodge;
+			attack.BaseParryDifficulty = (int)parry;
+			attack.BaseBlockDifficulty = (int)block;
+			attack.BaseDelay = delay;
+			attack.Weighting = weighting;
+			var damageExpression = _context.TraitExpressions.First(x => x.Name == damageExpressionName);
+			attack.DamageExpression = damageExpression;
+			attack.PainExpression = damageExpression;
+			attack.StunExpression = damageExpression;
+		}
+
+		Apply("smallbite", Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, 0.45, 100,
+			"Small Animal Bite Damage");
+		Apply("carnivorebite", Difficulty.Easy, Difficulty.Insane, Difficulty.Easy, Difficulty.Easy, 0.9, 120,
+			"Carnivorous Animal Bite Damage");
+		Apply("carnivorehighbite", Difficulty.Easy, Difficulty.Insane, Difficulty.Hard, Difficulty.Easy, 1.3, 100,
+			"Carnivorous Animal Bite Damage");
+		Apply("clawswipe", Difficulty.Easy, Difficulty.Insane, Difficulty.Easy, Difficulty.Easy, 1.1, 110,
+			"Animal Claw Damage");
+		Apply("massiveclawsweep", Difficulty.Normal, Difficulty.Insane, Difficulty.Normal, Difficulty.Easy, 1.4, 100,
+			"Animal Claw Damage");
+		Apply("clawhighswipe", Difficulty.Easy, Difficulty.Insane, Difficulty.Easy, Difficulty.Easy, 1.3, 100,
+			"Animal Claw Damage");
+		Apply("herbivorebite", Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, 1.2, 20,
+			"Herbivorous Animal Bite Damage");
+		Apply("barge", Difficulty.Easy, Difficulty.Insane, Difficulty.Insane, Difficulty.VeryHard, 1.6, 130,
+			"Animal Smash Damage");
+		Apply("bargepushback", Difficulty.Easy, Difficulty.Insane, Difficulty.Insane, Difficulty.VeryHard, 1.5, 80,
+			"Animal Smash Damage");
+		Apply("bargesmash", Difficulty.Easy, Difficulty.Insane, Difficulty.Insane, Difficulty.VeryHard, 1.8, 100,
+			"Animal Smash Damage");
+		Apply("gorehorn", Difficulty.Easy, Difficulty.Insane, Difficulty.ExtremelyHard, Difficulty.Hard, 1.4, 140,
+			"Animal Smash Damage");
+		Apply("goretusk", Difficulty.Easy, Difficulty.Insane, Difficulty.ExtremelyHard, Difficulty.Hard, 1.4, 140,
+			"Animal Smash Damage");
+		Apply("tusksweep", Difficulty.Hard, Difficulty.Normal, Difficulty.ExtremelyHard, Difficulty.Hard, 1.7, 80,
+			"Animal Smash Damage");
+		_context.SaveChanges();
+	}
+
+	private void ReconcileExistingAnimalAttacks()
+	{
+		var managedAttacks = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["smallbite"] = "Small Animal Bite",
+			["carnivorebite"] = "Carnivore Bite",
+			["carnivorehighbite"] = "Carnivore High Bite",
+			["clawswipe"] = "Claw Swipe",
+			["massiveclawsweep"] = "Massive Claw Sweep",
+			["clawhighswipe"] = "Claw High Swipe",
+			["herbivorebite"] = "Herbivore Bite",
+			["barge"] = "Animal Barge",
+			["bargepushback"] = "Animal Barge Pushback",
+			["bargesmash"] = "Animal Barge Smash",
+			["gorehorn"] = "Horn Gore",
+			["goretusk"] = "Tusk Gore",
+			["tusksweep"] = "Tusk Sweep"
+		};
+		foreach (var (key, name) in managedAttacks)
+		{
+			var attack = _context.WeaponAttacks.FirstOrDefault(x => x.Name == name);
+			if (attack is not null)
+			{
+				_attacks[key] = attack;
+			}
+		}
+
+		ReconcileAnimalMeleeAttackBalance();
+		EnsureBehemothChargeAttackSeedData();
+	}
 
 	private void EnsureMultiTargetAttackSeedData()
 	{
@@ -1457,6 +1544,8 @@ public partial class AnimalSeeder
 		var shoulderShape = _context.BodypartShapes.First(x => x.Name == "Shoulder");
 		var headShape = _context.BodypartShapes.First(x => x.Name == "Head");
 
+		EnsureBehemothChargeAttackSeedData();
+
 		_attacks["mountedtrample"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Mounted Trample") ??
 			AddAttack("Mounted Trample", BuiltInCombatMoveType.MountedTrampleAttack, MeleeWeaponVerb.Slam,
 				Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
@@ -1484,6 +1573,104 @@ public partial class AnimalSeeder
 				intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
 				            CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Aggressive,
 				additionalInfo: ((int)Difficulty.Hard).ToString());
+	}
+
+	private void EnsureBehemothChargeAttackSeedData()
+	{
+		var ramDamage = _context.TraitExpressions.First(x => x.Name == "Animal Ram Damage");
+		var shoulderShape = _context.BodypartShapes.First(x => x.Name == "Shoulder");
+
+		_attacks["behemothcharge"] =
+			_context.WeaponAttacks.FirstOrDefault(x => x.Name == "Behemoth Charge") ??
+			AddAttack("Behemoth Charge", BuiltInCombatMoveType.BehemothChargeAttack, MeleeWeaponVerb.Slam,
+				Difficulty.Easy, Difficulty.Insane, Difficulty.Insane, Difficulty.VeryHard,
+				Alignment.Front, Orientation.Centre, 9.0, 1.6, shoulderShape, ramDamage,
+				"@ thunder|thunders bodily into $1 with devastating momentum", DamageType.Crushing,
+				weighting: 140,
+				intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
+				            CombatMoveIntentions.Trip | CombatMoveIntentions.Disadvantage |
+				            CombatMoveIntentions.Aggressive,
+				additionalInfo: ((int)Difficulty.Hard).ToString());
+		var behemothCharge = _attacks["behemothcharge"];
+		behemothCharge.MoveType = (int)BuiltInCombatMoveType.BehemothChargeAttack;
+		behemothCharge.BaseAttackerDifficulty = (int)Difficulty.Easy;
+		behemothCharge.BaseDodgeDifficulty = (int)Difficulty.Insane;
+		behemothCharge.BaseParryDifficulty = (int)Difficulty.Insane;
+		behemothCharge.BaseBlockDifficulty = (int)Difficulty.VeryHard;
+		behemothCharge.BaseDelay = 1.6;
+		behemothCharge.StaminaCost = 9.0;
+		behemothCharge.Weighting = 140;
+		behemothCharge.DamageExpression = ramDamage;
+		behemothCharge.PainExpression = ramDamage;
+		behemothCharge.StunExpression = ramDamage;
+		behemothCharge.BodypartShapeId = shoulderShape.Id;
+		behemothCharge.DamageType = (int)DamageType.Crushing;
+		// The charge move itself owns the knockdown and advantage effects. Keeping the natural attack's
+		// intentions to the ordinary damaging pair means automatic combat settings do not veto the
+		// charge merely because they forbid auxiliary trip or disadvantage attacks.
+		behemothCharge.Intentions = (long)(CombatMoveIntentions.Attack | CombatMoveIntentions.Wound);
+
+		EnsureBehemothChargeRaceLinks();
+	}
+
+	private void EnsureBehemothChargeRaceLinks()
+	{
+		if (!_attacks.TryGetValue("behemothcharge", out var attack))
+		{
+			return;
+		}
+
+		var chargeLoadouts = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"bear", "goat", "herbivore-charge", "tusked-herbivore", "antlered-herbivore",
+			"bovid", "hippo", "rhino", "elephant"
+		};
+		foreach (var template in RaceTemplates.Values.Where(x =>
+			         x.Size > SizeCategory.Normal && chargeLoadouts.Contains(x.AttackLoadoutKey)))
+		{
+			var race = _context.Races.FirstOrDefault(x => x.Name == template.Name);
+			if (race is null)
+			{
+				continue;
+			}
+
+			var bodyIds = new List<long> { race.BaseBodyId };
+			var parentBody = race.BaseBody.CountsAs;
+			while (parentBody is not null)
+			{
+				bodyIds.Add(parentBody.Id);
+				parentBody = parentBody.CountsAs;
+			}
+
+			var quality = template.Size switch
+			{
+				>= SizeCategory.VeryLarge => ItemQuality.Great,
+				SizeCategory.Large => ItemQuality.VeryGood,
+				_ => ItemQuality.Good
+			};
+			foreach (var bodypart in _context.BodypartProtos.Where(x =>
+				         bodyIds.Contains(x.BodyId) && x.BodypartShapeId == attack.BodypartShapeId).ToList())
+			{
+				var link = _context.RacesWeaponAttacks.FirstOrDefault(x => x.RaceId == race.Id &&
+				                                                      x.WeaponAttackId == attack.Id &&
+				                                                      x.BodypartId == bodypart.Id);
+				if (link is null)
+				{
+					_context.RacesWeaponAttacks.Add(new RacesWeaponAttacks
+					{
+						Race = race,
+						WeaponAttack = attack,
+						Bodypart = bodypart,
+						Quality = (int)quality
+					});
+					continue;
+				}
+
+				link.Quality = (int)quality;
+			}
+		}
+
+		_context.SaveChanges();
 	}
 
 	private void EnsureNaturalRangedAttackSeedData(IReadOnlyDictionary<string, string> damageExpressions)

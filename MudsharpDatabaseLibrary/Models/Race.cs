@@ -69,6 +69,7 @@ namespace MudSharp.Models
         public double TemperatureRangeCeiling { get; set; }
         public int BodypartSizeModifier { get; set; }
         public double BodypartHealthMultiplier { get; set; }
+        public double PainToleranceMultiplier { get; set; }
         public string BreathingVolumeExpression { get; set; }
         public string HoldBreathLengthExpression { get; set; }
         public bool CanClimb { get; set; }

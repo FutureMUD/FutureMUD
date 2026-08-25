@@ -279,6 +279,13 @@ public abstract class RangeBaseStrategy : StrategyBase
 
     protected virtual ICombatMove HandleGeneralAttacks(ICharacter combatant)
     {
+		if (combatant.CombatTarget is ICharacter target &&
+		    ChargeToMeleeMove.CanBehemothCharge(combatant, target) &&
+		    combatant.CanSpendStamina(ChargeToMeleeMove.MoveStaminaCost(combatant)))
+		{
+			return new ChargeToMeleeMove { Assailant = combatant };
+		}
+
         double roll = Constants.Random.NextDouble();
         if (combatant.CombatSettings.WeaponUsePercentage > 0 &&
             roll <= combatant.CombatSettings.WeaponUsePercentage)

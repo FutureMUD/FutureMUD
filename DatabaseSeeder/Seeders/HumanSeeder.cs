@@ -271,7 +271,9 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => !HasHumanFoundation(co
         TraitExpression hpExpression = new()
         {
             Name = "Human Max HP Formula",
-            Expression = $"100+con:{healthTrait.Id}"
+            Expression = UsesCombatRebalance
+	            ? $"100+(con:{healthTrait.Id}*3)"
+	            : $"100+con:{healthTrait.Id}"
         };
         _context.TraitExpressions.Add(hpExpression);
         TraitExpression hpTick = new()
@@ -315,14 +317,18 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => !HasHumanFoundation(co
         TraitExpression stunExpression = new()
         {
             Name = "Human Max Stun Formula",
-            Expression = $"100+(con:{healthTrait.Id}+wil:{secondaryTrait.Id})/2"
+            Expression = UsesCombatRebalance
+	            ? $"75+(con:{healthTrait.Id}*2)+(wil:{secondaryTrait.Id}*3)"
+	            : $"100+(con:{healthTrait.Id}+wil:{secondaryTrait.Id})/2"
         };
         _context.TraitExpressions.Add(stunExpression);
 
         TraitExpression painExpression = new()
         {
             Name = "Human Max Pain Formula",
-            Expression = $"100+wil:{secondaryTrait.Id}"
+            Expression = UsesCombatRebalance
+	            ? $"50+(wil:{secondaryTrait.Id}*6)"
+	            : $"100+wil:{secondaryTrait.Id}"
         };
         _context.TraitExpressions.Add(painExpression);
 

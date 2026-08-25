@@ -580,7 +580,7 @@ public partial class Body
 
         double maxPain = HealthStrategy.MaxPain(Actor);
         if (maxPain > 0 && wounds.Sum(x => x.CurrentPain) >=
-            maxPain * Race.PainToleranceModifier * limb.LimbPainThresholdMultiplier)
+            maxPain * limb.LimbPainThresholdMultiplier)
         {
             result |= CanUseLimbResult.CantUsePain;
         }

@@ -292,7 +292,6 @@ public partial class AnimalSeeder : IDatabaseSeeder
             bool updatedAnimalWearProfiles = EnsureStockUngulateWearProfiles();
 
             if (hasMissingAnimalAiTemplates)
-            RefreshExistingAnimalDietSettings();
             {
                 SeedAnimalAIStockTemplates();
             }
@@ -358,7 +357,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
         TraitExpression hpExpression = new()
         {
             Name = "Non-Human Max HP Formula",
-            Expression = $"100+con:{_healthTrait.Id}"
+            Expression = $"100+(con:{_healthTrait.Id}*3)"
         };
         context.TraitExpressions.Add(hpExpression);
         TraitExpression hpTick = new()
@@ -1278,14 +1277,14 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
         TraitExpression stunExpression = new()
         {
             Name = "Non-Human Max Stun Formula",
-            Expression = $"100+(con:{_healthTrait.Id}+wil:{secondaryTrait.Id})/2"
+            Expression = $"75+(con:{_healthTrait.Id}*2)+(wil:{secondaryTrait.Id}*3)"
         };
         context.TraitExpressions.Add(stunExpression);
 
         TraitExpression painExpression = new()
         {
             Name = "Non-Human Max Pain Formula",
-            Expression = $"100+wil:{secondaryTrait.Id}"
+            Expression = $"50+(wil:{secondaryTrait.Id}*6)"
         };
         context.TraitExpressions.Add(painExpression);
 

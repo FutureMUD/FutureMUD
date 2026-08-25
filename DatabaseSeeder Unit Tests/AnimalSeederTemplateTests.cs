@@ -1321,56 +1321,51 @@ public class AnimalSeederTemplateTests
     }
 
     [TestMethod]
-    public void RaceTemplatesForTesting_SecondPassAttributeProfiles_AdjustOutliers()
+    public void RaceTemplatesForTesting_CombatBalanceProfiles_ScaleAcrossAnimalMass()
     {
-        static void AssertProfile(string raceName, int strength, int constitution, int agility, int dexterity,
-            int willpower, int perception, string message, string intelligenceDice = "2d3", string auraDice = "1d2")
+        static void AssertAnchor(string raceName, int strength, int willpower)
         {
             NonHumanAttributeProfile profile =
                 AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting[raceName]);
             Assert.AreEqual(strength, profile.StrengthBonus, $"{raceName} strength bonus");
-            Assert.AreEqual(constitution, profile.ConstitutionBonus, $"{raceName} constitution bonus");
-            Assert.AreEqual(agility, profile.AgilityBonus, $"{raceName} agility bonus");
-            Assert.AreEqual(dexterity, profile.DexterityBonus, $"{raceName} dexterity bonus");
             Assert.AreEqual(willpower, profile.WillpowerBonus, $"{raceName} willpower bonus");
-            Assert.AreEqual(perception, profile.PerceptionBonus, $"{raceName} perception bonus");
-            Assert.AreEqual(intelligenceDice, profile.IntelligenceDiceExpression, $"{raceName} intelligence dice");
-            Assert.AreEqual(auraDice, profile.AuraDiceExpression, $"{raceName} aura dice");
-            Assert.IsTrue(profile.AuraBonus <= 0, message);
         }
 
-        AssertProfile("Cheetah", -1, -1, 4, 2, 0, 3,
-            "Cheetahs should read as high-agility pursuit cats rather than generic heavy predators.");
-        AssertProfile("Horse", 7, 8, 2, -1, -1, 2,
-            "Horses should keep large-animal power while adding athletic mobility.");
-        AssertProfile("Donkey", 4, 6, 1, -2, 2, 2,
-            "Donkeys should be hardy and stubborn without matching horse mass.");
-        AssertProfile("Mule", 8, 11, 0, -3, 2, 2,
-            "Mules should read as strong, tireless pack animals with less agility than horses.");
-        AssertProfile("Cow", 7, 8, -1, -2, -4, 0,
-            "Cows should be durable stock animals without inheriting apex-behemoth combat assumptions.");
-        AssertProfile("Giraffe", 9, 8, 1, -3, -1, 2,
-            "Giraffes should be dangerous by reach and size without becoming generic slow tanks.");
-        AssertProfile("Ostrich", 3, 2, 4, -1, 0, 3,
-            "Ostriches should be fast, kicking flightless birds.");
-        AssertProfile("Deer", 2, 1, 2, -1, -5, 3,
-            "Deer should favour flight and agility over brute herbivore scaling.");
-        AssertProfile("Oliphant", 18, 18, -7, -7, 4, 2,
-            "Oliphants should reach the huge-animal strength cap while remaining slow and ponderous.",
-            intelligenceDice: "2d4");
+        AssertAnchor("Mouse", -10, -4);
+        AssertAnchor("Wolf", 12, 10);
+        AssertAnchor("Bear", 43, 15);
+        AssertAnchor("Rhinocerous", 88, 19);
+        AssertAnchor("Hippopotamus", 88, 20);
+        AssertAnchor("Elephant", 108, 20);
+        AssertAnchor("Mammoth", 133, 22);
+        AssertAnchor("Oliphant", 198, 24);
 
-        NonHumanAttributeProfile rabbit =
-            AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Rabbit"]);
-        Assert.AreEqual(-6, rabbit.WillpowerBonus,
-            "Small prey animals should be notably more skittish than the ordinary animal baseline.");
-        NonHumanAttributeProfile eagle =
-            AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Eagle"]);
-        Assert.AreEqual(4, eagle.PerceptionBonus,
-            "Raptors should sit at the high end of ordinary animal perception.");
-        NonHumanAttributeProfile elephant =
+        var elephant =
             AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Elephant"]);
         Assert.AreEqual("2d4", elephant.IntelligenceDiceExpression,
             "Exceptionally intelligent animals should still be low compared to human defaults but above the ordinary animal roll.");
+        Assert.IsTrue(elephant.StrengthBonus >
+                      AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Bear"])
+                          .StrengthBonus);
+        Assert.IsTrue(AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Bear"])
+                          .StrengthBonus >
+                      AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Wolf"])
+                          .StrengthBonus);
+    }
+
+    [TestMethod]
+    public void RaceTemplatesForTesting_PainTolerance_UsesExplicitTemperamentTiers()
+    {
+        Assert.AreEqual(0.8,
+            AnimalSeeder.GetAnimalPainToleranceMultiplierForTesting(AnimalSeeder.RaceTemplatesForTesting["Mouse"]));
+        Assert.AreEqual(1.3,
+            AnimalSeeder.GetAnimalPainToleranceMultiplierForTesting(AnimalSeeder.RaceTemplatesForTesting["Wolf"]));
+		Assert.AreEqual(1.75,
+			AnimalSeeder.GetAnimalPainToleranceMultiplierForTesting(AnimalSeeder.RaceTemplatesForTesting["Bear"]));
+        Assert.AreEqual(2.0,
+            AnimalSeeder.GetAnimalPainToleranceMultiplierForTesting(AnimalSeeder.RaceTemplatesForTesting["Elephant"]));
+        Assert.AreEqual(2.0,
+            AnimalSeeder.GetAnimalPainToleranceMultiplierForTesting(AnimalSeeder.RaceTemplatesForTesting["Oliphant"]));
     }
 
     [TestMethod]

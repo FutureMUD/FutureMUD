@@ -1117,6 +1117,7 @@ public static class CombatExtensions
 			case BuiltInCombatMoveType.MountedTrampleAttack:
 			case BuiltInCombatMoveType.AerialSweepAttack:
 			case BuiltInCombatMoveType.AquaticChargeAttack:
+			case BuiltInCombatMoveType.BehemothChargeAttack:
 			case BuiltInCombatMoveType.AquaticVehicleAttack:
                 return true;
             default:
@@ -1152,6 +1153,8 @@ public static class CombatExtensions
 				return "Couched Lance Attack";
 			case BuiltInCombatMoveType.MountedWeaponAttack:
 				return "Mounted Weapon Attack";
+			case BuiltInCombatMoveType.BehemothChargeAttack:
+				return "Behemoth Charge Attack";
 			case BuiltInCombatMoveType.MountedTrampleAttack:
 				return "Mounted Trample Attack";
 			case BuiltInCombatMoveType.AerialSweepAttack:

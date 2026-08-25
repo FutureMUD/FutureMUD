@@ -129,6 +129,11 @@ namespace MudSharp.Combat
 		/// </summary>
 		MountedWeaponAttack,
 		/// <summary>
+		/// A natural impact delivered by a substantially larger unmounted creature as it charges into melee.
+		/// It is intentionally unavailable as an ordinary melee attack.
+		/// </summary>
+		BehemothChargeAttack,
+		/// <summary>
 		/// A hoof, paw or chassis-like natural impact delivered while a mount carries a rider through a target.
 		/// </summary>
 		MountedTrampleAttack,

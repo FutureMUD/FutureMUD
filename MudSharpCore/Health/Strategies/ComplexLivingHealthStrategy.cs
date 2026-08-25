@@ -2,6 +2,7 @@
 using MudSharp.Body.Needs;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Traits;
+using MudSharp.Character.Heritage;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
@@ -1108,8 +1109,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
         ICharacter charOwner = (ICharacter)owner;
         double stunRatio = owner.Wounds.Sum(x => x.CurrentStun) /
                         MaximumStunExpression.Evaluate(charOwner);
-        double painRatio = owner.Wounds.Sum(x => x.CurrentPain) /
-                        MaximumPainExpression.Evaluate(charOwner);
+        double painRatio = owner.Wounds.Sum(x => x.CurrentPain) / EffectiveMaximumPain(charOwner).IfZero(1.0);
         double bloodlossRatio = charOwner.Body.CurrentBloodVolumeLitres / charOwner.Body.TotalBloodVolumeLitres;
         double totalBreath = charOwner.Body.HeldBreathPercentage;
 
@@ -1411,7 +1411,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
                     x.CurrentDamage / PercentageHealthPerPenalty + x.CurrentPain / PercentagePainPerPenalty +
                     x.CurrentStun / PercentageStunPerPenalty) /
             (MaximumHitPointsExpression.Evaluate(charOwner) + MaximumStunExpression.Evaluate(charOwner) +
-             MaximumPainExpression.Evaluate(charOwner));
+             EffectiveMaximumPain(charOwner));
         return -1 * penalty;
     }
 
@@ -1517,7 +1517,17 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 
     public override double MaxPain(IHaveWounds owner)
     {
-        return owner is not ICharacter charOwner ? 0.0 : MaximumPainExpression.Evaluate(charOwner);
+        return owner is not ICharacter charOwner ? 0.0 : EffectiveMaximumPain(charOwner);
+    }
+
+    private double EffectiveMaximumPain(ICharacter owner)
+    {
+        return ApplyPainTolerance(MaximumPainExpression.Evaluate(owner), owner.Race);
+    }
+
+    internal static double ApplyPainTolerance(double baseMaximumPain, IRace race)
+    {
+        return baseMaximumPain * race.PainToleranceMultiplier;
     }
 
     public override HealthTickResult EvaluateStatus(IHaveWounds thing)
@@ -1560,8 +1570,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
         var anesthesiaUnconsciousThresholdMultiplier = consciousnessModifiers.Aggregate(1.0,
             (current, effect) => current * effect.AnesthesiaUnconsciousThresholdMultiplier);
         double maxStun = MaximumStunExpression.Evaluate(charOwner) * stunUnconsciousThresholdMultiplier;
-        double painRatio = charOwner.Wounds.Sum(x => x.CurrentPain) /
-                        MaximumPainExpression.Evaluate(charOwner);
+        double painRatio = charOwner.Wounds.Sum(x => x.CurrentPain) / EffectiveMaximumPain(charOwner).IfZero(1.0);
         if (painRatio >= PainPassOutThreshold * painPassOutThresholdMultiplier && !charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()))
         {
             return HealthTickResult.PassOut;

@@ -1907,6 +1907,8 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.BodypartHealthMultiplier).HasDefaultValueSql("'1'");
 
+                entity.Property(e => e.PainToleranceMultiplier).HasDefaultValueSql("'1'");
+
                 entity.Property(e => e.BodypartSizeModifier).HasColumnType("int(11)");
 
                 entity.Property(e => e.HungerRate).HasColumnType("double").HasDefaultValue(1.0);

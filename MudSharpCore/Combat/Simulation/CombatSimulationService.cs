@@ -439,6 +439,10 @@ public sealed class CombatSimulationService : ICombatSimulationService
 			foreach (var participant in runtimeParticipants)
 			{
 				participant.Character.AcquireTarget();
+				participant.Character.MeleeRange = participant.Request.StartsInMelee;
+				participant.Character.CombatStrategyMode = participant.Request.StartsInMelee
+					? participant.Character.CombatSettings.PreferredMeleeMode
+					: participant.Character.CombatSettings.PreferredRangedMode;
 			}
 
 			request.RequestedBy.Gameworld.HeartbeatManager.StartHeartbeatTick();

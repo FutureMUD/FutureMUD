@@ -167,6 +167,7 @@ namespace MudSharp.Character.Heritage
 
         double DamageToleranceModifier { get; }
         double PainToleranceModifier { get; }
+        double PainToleranceMultiplier { get; }
         double StunToleranceModifier { get; }
 
         IBloodModel BloodModel { get; }

@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.1.0.0",
-  "LatestMigrationId": "20260823090841_RestaurantServiceWorkflowImprovements",
-  "GeneratedUtc": "2026-08-23T23:11:35.9382050Z"
+  "LatestMigrationId": "20260825022721_AddRacePainToleranceMultiplier",
+  "GeneratedUtc": "2026-08-25T05:22:25.3377148Z"
 }

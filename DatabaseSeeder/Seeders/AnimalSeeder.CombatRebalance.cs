@@ -50,20 +50,20 @@ public partial class AnimalSeeder
 		{
 			return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 			{
-				["Small Animal Bite Damage"] = $"0.28 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
-				["Fish Bite Damage"] = $"0.32 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
-				["Herbivorous Animal Bite Damage"] = $"0.34 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
-				["Carnivorous Animal Bite Damage"] = $"0.50 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1)",
-				["Shark Bite Damage"] = $"0.62 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1)",
-				["Animal Claw Damage"] = $"0.46 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1)",
-				["Animal Peck Damage"] = $"0.22 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
-				["Animal Talon Damage"] = $"0.40 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
-				["Animal Mandible Damage"] = $"0.24 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
-				["Animal Ram Damage"] = $"0.48 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
-				["Animal Smash Damage"] = $"0.44 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
-				["Dragonfire Breath Damage"] = "0.44 * (24 + (3 * quality)) * sqrt(degree+1)",
-				["Animal Coup De Grace Damage"] = $"0.90 * str:{_strengthTrait.Id} * quality * sqrt(degree+1)",
-				["Snake Bite Damage"] = $"0.30 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1)"
+				["Small Animal Bite Damage"] = $"0.5 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
+				["Fish Bite Damage"] = $"0.5 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
+				["Herbivorous Animal Bite Damage"] = $"0.5 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1)",
+				["Carnivorous Animal Bite Damage"] = $"1.0 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1)",
+				["Shark Bite Damage"] = $"1.0 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1)",
+				["Animal Claw Damage"] = $"1.0 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1)",
+				["Animal Peck Damage"] = $"0.45 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
+				["Animal Talon Damage"] = $"0.8 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
+				["Animal Mandible Damage"] = $"0.35 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
+				["Animal Ram Damage"] = $"0.9 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
+				["Animal Smash Damage"] = $"0.8 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
+				["Dragonfire Breath Damage"] = "0.65 * (24 + (3 * quality)) * sqrt(degree+1)",
+				["Animal Coup De Grace Damage"] = $"1.5 * str:{_strengthTrait.Id} * quality * sqrt(degree+1)",
+				["Snake Bite Damage"] = $"0.5 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1)"
 			};
 		}
 
@@ -130,6 +130,23 @@ public partial class AnimalSeeder
 					type => AnimalNaturalDamageAbsorbExpression(type, "damage"),
 					type => AnimalNaturalDamageAbsorbExpression(type, "pain"),
 					type => AnimalNaturalStunAbsorbExpression(type, "stun")));
+	}
+
+	private static ItemQuality ResolveAnimalNaturalArmourQuality(AnimalRaceTemplate? template)
+	{
+		if (template is null)
+		{
+			return ItemQuality.Standard;
+		}
+
+		return template.Name switch
+		{
+			"Elephant" or "Mammoth" or "Oliphant" => ItemQuality.Excellent,
+			"Rhinocerous" or "Hippopotamus" => ItemQuality.Great,
+			"Bear" or "Crocodile" or "Alligator" => ItemQuality.VeryGood,
+			"Mouse" or "Rat" or "Rabbit" or "Hare" => ItemQuality.Poor,
+			_ => ItemQuality.Standard
+		};
 	}
 
 	private ArmourType EnsureAnimalArmourType(string name, string definition)
@@ -262,35 +279,9 @@ public partial class AnimalSeeder
 	private int ResolveAnimalRelativeHitChance(BodyProto body, string alias, BodypartTypeEnum type, SizeCategory size,
 		int fallback)
 	{
-		int baseChance = UsesCombatRebalance
+		return UsesCombatRebalance
 			? GetAnimalCombatRebalanceRelativeHitChance(body, alias, fallback)
 			: GetAnimalRelativeHitChance(body, alias, fallback);
-		if (!UsesCombatRebalance)
-		{
-			return baseChance;
-		}
-
-		double modifier = type switch
-		{
-			BodypartTypeEnum.Eye or BodypartTypeEnum.Ear or BodypartTypeEnum.Tongue => 0.65,
-			BodypartTypeEnum.Wing or BodypartTypeEnum.Fin => 0.9,
-			_ => 1.0
-		};
-
-		modifier *= size switch
-		{
-			SizeCategory.Tiny => 0.85,
-			SizeCategory.VerySmall => 0.9,
-			SizeCategory.Large => 1.1,
-			SizeCategory.VeryLarge => 1.2,
-			SizeCategory.Huge => 1.3,
-			SizeCategory.Enormous => 1.4,
-			SizeCategory.Gigantic => 1.5,
-			SizeCategory.Titanic => 1.6,
-			_ => 1.0
-		};
-
-		return Math.Max(1, (int)Math.Round(baseChance * modifier, MidpointRounding.AwayFromZero));
 	}
 
 	private static int GetAnimalCombatRebalanceRelativeHitChance(BodyProto body, string alias, int fallback)
@@ -373,6 +364,7 @@ public partial class AnimalSeeder
 	private void RefreshExistingAnimalCombatBalance()
 	{
 		ConfigureAnimalNaturalArmours();
+		RefreshExistingNonHumanHealthExpressions();
 		IReadOnlyDictionary<string, string> expressions = BuildAnimalDamageExpressions();
 		foreach (KeyValuePair<string, string> formula in expressions)
 		{
@@ -380,6 +372,7 @@ public partial class AnimalSeeder
 		}
 
 		RefreshDragonfireBreathDamageExpression(expressions);
+		ReconcileExistingAnimalAttacks();
 
 		foreach (string bodyName in AnimalCombatRebalanceBodyNames)
 		{
@@ -389,11 +382,27 @@ public partial class AnimalSeeder
 				continue;
 			}
 
-			foreach (BodypartProto bodypart in _context.BodypartProtos.Where(x => x.BodyId == body.Id && x.IsOrgan != 1).ToList())
+			ArmourType? boneArmour = _context.ArmourTypes.FirstOrDefault(x => x.Name == "Non-Human Natural Bone Armour");
+			foreach (BodypartProto bodypart in _context.BodypartProtos.Where(x => x.BodyId == body.Id).ToList())
 			{
 				BodypartTypeEnum type = (BodypartTypeEnum)bodypart.BodypartType;
+				if (bodypart.IsOrgan == 1)
+				{
+					bodypart.RelativeHitChance = 0;
+					bodypart.ArmourTypeId = null;
+					bodypart.ArmourType = null;
+					continue;
+				}
+
+				if (type is BodypartTypeEnum.Bone or BodypartTypeEnum.NonImmobilisingBone or
+				    BodypartTypeEnum.MinorBone or BodypartTypeEnum.MinorNonImobilisingBone)
+				{
+					bodypart.RelativeHitChance = 0;
+					bodypart.ArmourType = boneArmour;
+					continue;
+				}
+
 				SizeCategory size = (SizeCategory)bodypart.Size;
-				bodypart.MaxLife = ResolveAnimalBodypartLife(bodypart.Name, size, bodypart.MaxLife);
 				bodypart.RelativeHitChance = ResolveAnimalRelativeHitChance(body, bodypart.Name, type, size, bodypart.RelativeHitChance);
 				bodypart.ArmourType = _naturalArmour;
 				bodypart.SeverFormula = ResolveAnimalSeverFormula(bodypart.Name, size);
@@ -406,6 +415,19 @@ public partial class AnimalSeeder
 
 		ApplyDefaultCombatSettingsToSeededRaces();
 		_context.SaveChanges();
+	}
+
+	private void RefreshExistingNonHumanHealthExpressions()
+	{
+		TraitDefinition willpower = _context.TraitDefinitions
+			.Where(x => x.Type == 1)
+			.AsEnumerable()
+			.FirstOrDefault(x => new[] { "Willpower", "Resilience", "Mind" }
+				.Contains(x.Name, StringComparer.OrdinalIgnoreCase)) ?? _healthTrait;
+		EnsureAnimalDamageExpression("Non-Human Max HP Formula", $"100+(con:{_healthTrait.Id}*3)");
+		EnsureAnimalDamageExpression("Non-Human Max Pain Formula", $"50+(wil:{willpower.Id}*6)");
+		EnsureAnimalDamageExpression("Non-Human Max Stun Formula",
+			$"75+(con:{_healthTrait.Id}*2)+(wil:{willpower.Id}*3)");
 	}
 
 	private void RefreshDragonfireBreathDamageExpression(IReadOnlyDictionary<string, string> expressions)

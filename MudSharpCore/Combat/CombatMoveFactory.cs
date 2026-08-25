@@ -104,6 +104,7 @@ public static class CombatMoveFactory
 				case BuiltInCombatMoveType.MountedTrampleAttack:
 				case BuiltInCombatMoveType.AerialSweepAttack:
 				case BuiltInCombatMoveType.AquaticChargeAttack:
+				case BuiltInCombatMoveType.BehemothChargeAttack:
 					return new MountedImpactNaturalAttackMove(assailant, attack, singleTarget);
 			}
 

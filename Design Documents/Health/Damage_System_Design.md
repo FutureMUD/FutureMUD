@@ -52,6 +52,22 @@ Important runtime details:
 ## Health Strategy Severity
 Stock full humans use `Human Full Model` (`ComplexLiving`).
 
+### Stock health pools and racial pain tolerance
+
+The `combat-rebalance` profile reconciles the named full-organic strategies to:
+
+- hit points: `100 + con * 3`
+- pain: `50 + wil * 6`
+- stun: `75 + con * 2 + wil * 3`
+
+`Race.PainToleranceMultiplier` is a separate persisted multiplier, neutral at `1.0`. The effective maximum pain is the strategy pain expression multiplied by this value exactly once. Prompt bands, pain penalties and pass-out checks all consume that effective maximum; bodypart damage thresholds continue to use `BodypartHealthMultiplier`. Existing databases are backfilled from their bodypart-health multiplier to preserve their pre-migration limb-pain relationship. Builders set the value with `race set paintolerance <percentage>`.
+
+Ordinary AnimalSeeder races receive explicit temperament tiers rather than inheriting limb durability as pain resistance. Current anchors span `80%` for mice, `130%` for wolves, `175%` for bears and hippos, and `200%` for rhinos and elephants. Mythical animals are not retuned by this pass.
+
+### Seeded animal armour and hit topology
+
+Ordinary animals no longer receive a duplicate race-level armour layer. External parts own one hide, fur or carapace layer at race-specific quality. Bones retain natural bone armour with zero direct hit weighting; organs remain internal with zero direct hit weighting and no natural armour. AnimalSeeder owns and reconciles the relative hit chances, armour identity and armour quality of its named stock bodyparts on every full rerun.
+
 ### Ordinary wound absolute bands
 These are unchanged in this pass:
 

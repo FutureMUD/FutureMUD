@@ -148,6 +148,10 @@ public partial class Character
 			SelectedAttributes = (from attribute in body.Traits.OfType<IAttribute>()
 				select TraitFactory.LoadAttribute(attribute.AttributeDefinition, body, attribute.RawValue))
 				.ToList<ITrait>(),
+			SelectedProstheses = [],
+			SelectedDisfigurements = [],
+			SelectedScars = [],
+			SelectedTattoos = [],
 			Gameworld = Gameworld
 		};
 	}

@@ -94,6 +94,7 @@ public partial class Body
 			}
 		}
 
+		CalculateOrganFunctions(true);
 		EvaluateWounds();
 	}
 }

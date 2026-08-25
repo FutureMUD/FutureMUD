@@ -605,6 +605,9 @@ public sealed class CombatSimulationService : ICombatSimulationService
 
 	private static string DescribeFailure(Exception exception)
 	{
+#if DEBUG
+		return exception.ToString();
+#else
 		var message = exception.GetBaseException().Message;
 		var lines = message
 			.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -619,6 +622,7 @@ public sealed class CombatSimulationService : ICombatSimulationService
 		}
 
 		return lines.FirstOrDefault() ?? exception.GetType().Name;
+#endif
 	}
 
 	private static List<SourceSnapshot> CaptureSourceSnapshots(CombatSimulationRequest request)

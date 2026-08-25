@@ -35,17 +35,27 @@ public class ScreechAttackMove : NaturalAttackMove
                       Bodypart.FullDescription())
                   .Replace("@hand", Bodypart.Alignment.LeftRightOnly().Describe().ToLowerInvariant());
 
+		if (attackRoll.IsFail())
+		{
+			Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(attackEmote, Assailant, Assailant)));
+			return new CombatMoveResult
+			{
+				AttackerOutcome = attackRoll,
+				DefenderOutcome = Outcome.NotTested,
+				MoveWasSuccessful = false,
+				RecoveryDifficulty = RecoveryDifficultyFailure
+			};
+		}
+
 
         Form.Shape.IBodypartShape shape = ((IFixedBodypartWeaponAttack)Attack).Bodypart;
-		List<ICharacter> targets = Assailant.LocalThingsAndProximities()
-		                       .Where(x => x.Proximity <= Proximity.VeryDistant)
-		                       .Select(x => x.Thing)
-		                       .OfType<ICharacter>()
-		                       .Where(x => x.RoomLayer == Assailant.RoomLayer)
-                               .Where(x => x.Body.Bodyparts.Any(y => y.Organs.Any(z => z is EarProto)))
-			                       .Distinct()
-                               .ToList();
-        int formulaDegree = attackRoll.Outcome.CheckDegrees();
+		ICharacter target = PrimaryCharacterTarget!;
+		if (target.Body.Bodyparts.All(x => x.Shape != shape && x.Organs.All(y => y.Shape != shape)))
+		{
+			return CombatMoveResult.Irrelevant;
+		}
+
+		int formulaDegree = Math.Max(0, attackRoll.Outcome.CheckDegrees());
         int quality = (int)Assailant.NaturalWeaponQuality(NaturalAttack);
 
         Damage baseDamage = new()
@@ -56,28 +66,25 @@ public class ScreechAttackMove : NaturalAttackMove
             AngleOfIncidentRadians = Attack.Profile.BaseAngleOfIncidence,
             Bodypart = null,
             DamageAmount =
-                Attack.Profile.DamageExpression.EvaluateWith(Assailant,
-                    values: [("degree", formulaDegree), ("quality", quality)]),
+                NonNegativeFinite(Attack.Profile.DamageExpression.EvaluateWith(Assailant,
+                    values: [("degree", formulaDegree), ("quality", quality)])),
             DamageType = Attack.Profile.DamageType,
             PainAmount =
-                Attack.Profile.PainExpression.EvaluateWith(Assailant,
-                    values: [("degree", formulaDegree), ("quality", quality)]),
+                NonNegativeFinite(Attack.Profile.PainExpression.EvaluateWith(Assailant,
+                    values: [("degree", formulaDegree), ("quality", quality)])),
             PenetrationOutcome = Outcome.NotTested,
             ShockAmount = 0,
             StunAmount =
-                Attack.Profile.DamageExpression.EvaluateWith(Assailant,
-                    values: [("degree", formulaDegree), ("quality", quality)])
+                NonNegativeFinite(Attack.Profile.StunExpression.EvaluateWith(Assailant,
+                    values: [("degree", formulaDegree), ("quality", quality)]))
         };
 
         List<IWound> wounds = new();
-        foreach (ICharacter target in targets)
+		foreach (IBodypart bodypart in target.Body.Bodyparts
+		                           .Where(x => x.Shape == shape || x.Organs.Any(y => y.Shape == shape)).ToList())
         {
-            foreach (IBodypart bodypart in target.Body.Bodyparts
-                                       .Where(x => x.Shape == shape || x.Organs.Any(y => y.Shape == shape)).ToList())
-            {
-                Damage damage = new(baseDamage) { Bodypart = bodypart };
-                wounds.AddRange(target.PassiveSufferDamage(damage));
-            }
+			Damage damage = new(baseDamage) { Bodypart = bodypart };
+			wounds.AddRange(target.PassiveSufferDamage(damage));
         }
 
         Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(attackEmote, Assailant, Assailant)));
@@ -91,6 +98,11 @@ public class ScreechAttackMove : NaturalAttackMove
             WoundsCaused = wounds
         };
     }
+
+	internal static double NonNegativeFinite(double value)
+	{
+		return double.IsFinite(value) && value > 0.0 ? value : 0.0;
+	}
 
     #endregion
 }

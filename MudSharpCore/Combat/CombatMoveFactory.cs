@@ -76,7 +76,7 @@ public static class CombatMoveFactory
 				case BuiltInCombatMoveType.PullToMeleeUnarmed:
 					return new PullToMeleeUnarmedMove(assailant, attack, singleTarget);
 				case BuiltInCombatMoveType.ScreechAttack:
-					return new ScreechAttackMove(assailant, attack, null);
+					return new ScreechAttackMove(assailant, attack, singleTarget);
 				case BuiltInCombatMoveType.RangedNaturalAttack:
 					return new RangedNaturalAttackMove(assailant, attack, singleTarget);
 				case BuiltInCombatMoveType.BreathWeaponAttack:

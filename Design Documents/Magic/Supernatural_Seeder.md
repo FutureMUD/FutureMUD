@@ -23,6 +23,18 @@ The seeder uses existing FutureMUD systems rather than adding a new supernatural
 - Werewolves use living needs and seeded alternate-form merits for hybrid and wolf-form examples.
 - Physical undead use a non-decaying corpse model; spirit-like beings use a non-decaying dissipating-spirit corpse model.
 
+## Combat balance ownership
+
+All 46 stock races carry complete combat metadata: tier, morphology baseline, pain tolerance, natural-armour quality, attack-profile family, charge eligibility and signature action. The seeder reconciles race health multiplier, tolerance, attributes and dice, strategy, natural armour and natural-attack links on every rerun. Builder-created attack clones and unrelated custom links are not part of that owned set.
+
+Stock supernatural attack records are reconciled rather than only created. The owned fields include move type, all check difficulties, recovery, expressions, damage type, intentions, delay, stamina, weighting, target count, bodypart shape, payload, range data and combat message. Physical claws, bites, impacts and mauls use owned Strength expressions. Radiant and infernal energy use quadratic Aura expressions; sonic, command, spirit and undead force use quadratic Willpower expressions. The owned attacks have explicit accuracy, defence difficulty and high selection weights rather than retaining stale animal-donor balance. Breath and sonic attacks are deliberately slower and can affect up to four total targets through their existing runtime payloads.
+
+If a world's attribute package has no `Aura`, `Luck` or `Spirit` attribute, Aura-family expressions bind to Willpower rather than creating a new core attribute during a catalogue rerun.
+
+The tiers are benchmark roles, not setting power ranks: nuisance (`Imp`, `Familiar`), minor, serious, elite, monster, great beast, party boss, and avatar. `Balrog`, `Chayot HaKodesh`, `Fallen Chayot HaKodesh` and `Lesser God` are party bosses. `Greater God` is an embodied, defeatable avatar. Higher angelic, infernal and divine humanoids gain most of their threat from Aura- or Will-led signature actions rather than behemoth-level physical Strength. Only sufficiently large, corporeal bodies receive `Behemoth Charge` links.
+
+Custom body refreshes preserve unique anatomy but reconcile the combat fields of cloned reference parts. Organs remain internal with no armour or direct hit weighting; bones retain bone armour and cannot become externally weighted flesh on a rerun.
+
 ## Builder Workflow
 
 Builders normally use the seeded races as templates:
@@ -32,6 +44,8 @@ Builders normally use the seeded races as templates:
 3. Clone or edit the stock cultures, ethnicities, description patterns, and name cultures for the world's cosmology.
 4. Attach the seeded `Additional Body Form` merits through chargen roles, curses, staff grants, NPC templates, or custom FutureProgs.
 5. Enable individual supernatural races in chargen only when the world is ready for player-facing supernatural play.
+
+For physical combat testing of `Spirit`, `Ghost`, `Ancestral Spirit`, `Nature Spirit`, `Elemental Spirit`, `Specter` or `Wraith`, retain one incorporeal control and make a separate manifested fixture with `corporeality set <target> corporeal Prime`. Do not count the incorporeal control toward physical win-rate bands.
 
 The seeded form merits deliberately do not force full-moon or cosmology-specific behavior. Builders can add condition progs and auto-transform settings when their setting defines those rules.
 

@@ -76,6 +76,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
     private FutureProg _alwaysZero = null!;
     private TraitDefinition _healthTrait = null!;
     private TraitDefinition _strengthTrait = null!;
+	private TraitDefinition _auraTrait = null!;
     private CorpseModel _humanoidCorpse = null!;
     private CorpseModel _animalCorpse = null!;
     private Liquid _blood = null!;
@@ -86,7 +87,6 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
     private PopulationBloodModel? _defaultPopulationBloodModel;
     private CharacteristicDefinition _personWordDefinition = null!;
     private ArmourType? _humanoidNaturalArmour;
-    private ArmourType? _animalNaturalArmour;
     private long _nextBodyProtoId;
     private static readonly string[] WingAliases =
     [
@@ -306,7 +306,6 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
                                        _context.PopulationBloodModels.FirstOrDefault();
         _personWordDefinition = _context.CharacteristicDefinitions.First(x => x.Name == "Person Word");
 		_humanoidNaturalArmour = _context.ArmourTypes.FirstOrDefault(x => x.Name == "Human Racial Tissue Armour");
-		_animalNaturalArmour = _context.ArmourTypes.FirstOrDefault(x => x.Name == "Non-Human Natural Armour");
         _nextBodyProtoId = _context.BodyProtos.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
 
         _healthTrait = _context.TraitDefinitions
@@ -317,9 +316,18 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             .Where(x => x.Type == (int)TraitType.Attribute)
             .AsEnumerable()
             .First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
+		_auraTrait = _context.TraitDefinitions
+			.Where(x => x.Type == (int)TraitType.Attribute)
+			.AsEnumerable()
+			.FirstOrDefault(x => x.Name.In("Aura", "Luck", "Spirit")) ??
+			_context.TraitDefinitions
+				.Where(x => x.Type == (int)TraitType.Attribute)
+				.AsEnumerable()
+				.First(x => x.Name.In("Willpower", "Will", "Resolve", "Grit"));
 
         _healthStrategy = _context.HealthStrategies.First(x =>
             x.Name == NonHumanSeederHealthStrategyHelper.GetStrategyName(answers["model"]));
+		EnsureMythicalSignatureAttacks();
     }
 
     private Dictionary<string, BodyProto> BuildBodyCatalogue(IEnumerable<MythicalRaceTemplate> templates)
@@ -1215,6 +1223,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             CanSwim = template.CanSwim,
             MinimumSleepingPosition = 4,
             BodypartHealthMultiplier = template.BodypartHealthMultiplier,
+			PainToleranceMultiplier = template.CombatBalance.PainToleranceMultiplier,
             BodypartSizeModifier = 0,
             TemperatureRangeCeiling = 40,
             TemperatureRangeFloor = 0,
@@ -1223,7 +1232,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             BiteWeight = 1000,
             EatCorpseEmoteText = string.Empty,
             RaceUsesStamina = true,
-            NaturalArmourQuality = 2,
+			NaturalArmourQuality = (int)template.CombatBalance.NaturalArmourQuality,
             SweatLiquid = usesHumanoidDefaults ? _sweat : null,
             SweatRateInLitresPerMinute = usesHumanoidDefaults && _sweat is not null ? 0.5 : 0.0,
             BloodLiquid = _blood,
@@ -1286,22 +1295,27 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			CharacterCombatSetting setting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, template.CombatStrategyKey);
 			bool usesHumanoidDefaults = template.HumanoidVariety ||
 			                          (template.CanUseWeapons && template.BodyKey.EqualTo("Organic Humanoid"));
-			ArmourType? expectedArmour = usesHumanoidDefaults ? _humanoidNaturalArmour : _animalNaturalArmour;
+			ArmourType? expectedArmour = usesHumanoidDefaults ? _humanoidNaturalArmour : null;
             double expectedHealthMultiplier = ResolveMythicalHealthMultiplier(template);
 			if (race.DefaultCombatSettingId == setting.Id &&
 			    race.NaturalArmourTypeId == expectedArmour?.Id &&
-                Math.Abs(race.BodypartHealthMultiplier - expectedHealthMultiplier) < 0.0001)
+				race.NaturalArmourQuality == (int)template.CombatBalance.NaturalArmourQuality &&
+				Math.Abs(race.BodypartHealthMultiplier - expectedHealthMultiplier) < 0.0001 &&
+				Math.Abs(race.PainToleranceMultiplier - template.CombatBalance.PainToleranceMultiplier) < 0.0001)
 			{
 				continue;
 			}
 
 			race.DefaultCombatSetting = setting;
 			race.NaturalArmourType = expectedArmour;
+			race.NaturalArmourQuality = (int)template.CombatBalance.NaturalArmourQuality;
             race.BodypartHealthMultiplier = expectedHealthMultiplier;
+			race.PainToleranceMultiplier = template.CombatBalance.PainToleranceMultiplier;
 		}
 
         _context.SaveChanges();
         ApplyDefaultAttributeAlterationsToSeededRaces();
+		ReconcileMythicalNaturalAttackLinks();
     }
 
     private void ApplyDefaultAttributeAlterationsToSeededRaces()
@@ -1556,7 +1570,9 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
     {
         foreach (MythicalAttackTemplate attackTemplate in template.Attacks)
         {
-            WeaponAttack attack = _context.WeaponAttacks.First(x => x.Name == attackTemplate.AttackName);
+			WeaponAttack attack = _context.WeaponAttacks.FirstOrDefault(x => x.Name == attackTemplate.AttackName) ??
+				throw new InvalidOperationException(
+					$"Mythical race {template.Name} requires missing stock attack {attackTemplate.AttackName}. Rerun the Combat and Animal seeders before Mythical Animal Seeder.");
             foreach (string alias in attackTemplate.BodypartAliases)
             {
                 BodypartProto? bodypart = FindBodypartOnBody(race.BaseBody, alias);

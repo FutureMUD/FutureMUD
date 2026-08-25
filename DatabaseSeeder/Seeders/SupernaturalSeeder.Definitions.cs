@@ -90,7 +90,8 @@ public partial class SupernaturalSeeder
 		bool CanClimb = true,
 		bool CanSwim = true,
 		bool UsesHumanoidCharacteristics = true,
-		double BodypartHealthMultiplier = 1.0
+		double BodypartHealthMultiplier = 1.0,
+		NonHumanCombatBalanceProfile CombatBalance = null!
 	);
 
 	internal sealed record SupernaturalFormTemplate(
@@ -987,7 +988,126 @@ public partial class SupernaturalSeeder
 			Their precise court, curse, theology, bloodline or summoning tradition may differ from place to place. What remains constant is the race's visible force: a complete supernatural presence that can stand on its own in play.
 			"""));
 
-		return templates;
+		return templates.Values
+			.Select(ApplySupernaturalCombatBalance)
+			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+	}
+
+	private static SupernaturalRaceTemplate ApplySupernaturalCombatBalance(SupernaturalRaceTemplate template)
+	{
+		var tier = template.Name switch
+		{
+			"Imp" or "Familiar" => NonHumanCombatTier.Nuisance,
+			"Incubus" or "Succubus" or "Spirit" or "Ghost" or "Ancestral Spirit" or "Zombie" or "Skeleton" => NonHumanCombatTier.MinorThreat,
+			"Ishim" or "Fallen Ishim" or "Werewolf" or "Vampire" or "Lich" or "Ghoul" or "Mummy" or "Nature Spirit" or "Elemental Spirit" or "Specter" => NonHumanCombatTier.SeriousThreat,
+			"Cherubim" or "Bene Elohim" or "Fallen Cherubim" or "Fallen Bene Elohim" or "Fury" or "Hellhound" or "Werewolf Hybrid" or "Wraith" or "Demigod" => NonHumanCombatTier.EliteThreat,
+			"Elohim" or "Malakhim" or "Seraphim" or "Fallen Elohim" or "Fallen Malakhim" or "Fallen Seraphim" or "Fiend" => NonHumanCombatTier.Monster,
+			"Erelim" or "Hashmallim" or "Ophanim" or "Fallen Erelim" or "Fallen Hashmallim" or "Fallen Ophanim" => NonHumanCombatTier.GreatBeast,
+			"Chayot HaKodesh" or "Fallen Chayot HaKodesh" or "Balrog" or "Lesser God" => NonHumanCombatTier.PartyBoss,
+			"Greater God" => NonHumanCombatTier.Avatar,
+			_ => throw new InvalidOperationException($"Supernatural race {template.Name} has no combat tier.")
+		};
+		var tierValue = (int)tier;
+		var strength = template.Name switch
+		{
+			"Imp" or "Familiar" => 8,
+			"Hellhound" => 58, "Werewolf Hybrid" => 62, "Werewolf" => 42,
+			"Zombie" => 20, "Skeleton" => 17, "Ghoul" => 30, "Mummy" => 34,
+			"Balrog" => 240,
+			"Chayot HaKodesh" or "Fallen Chayot HaKodesh" => 90,
+			"Lesser God" => 105, "Greater God" => 145,
+			_ => 14 + tierValue * 11
+		};
+		var constitution = template.Name switch
+		{
+			"Imp" or "Familiar" => 9,
+			"Balrog" => 105,
+			"Greater God" => 110,
+			_ => 14 + tierValue * 14
+		};
+		var agility = template.Name == "Balrog" ? 40 : 18 + tierValue * 7;
+		var dexterity = template.Name == "Balrog" ? 36 : 18 + tierValue * 7;
+		var willpower = template.Family switch
+		{
+			SupernaturalFamily.Undead => 24 + tierValue * 12,
+			SupernaturalFamily.Spirit => 28 + tierValue * 12,
+			_ => 18 + tierValue * 12
+		};
+		var perception = 17 + tierValue * 4;
+		var aura = template.Family switch
+		{
+			SupernaturalFamily.Undead => 18 + tierValue * 8,
+			SupernaturalFamily.Therianthrope => 14 + tierValue * 4,
+			_ => 20 + tierValue * 12
+		};
+		var attributes = NonHumanCombatBalanceProfileHelper.WithEffectiveTargets(
+			template.AttributeProfile, strength, constitution, agility, dexterity, willpower, perception, aura);
+		var painTolerance = template.Family switch
+		{
+			SupernaturalFamily.Undead => Math.Min(8.0, 4.0 + tierValue * 0.75),
+			SupernaturalFamily.Spirit when template.PlanarProfile == SupernaturalPlanarProfile.Incorporeal => Math.Min(8.0, 4.5 + tierValue * 0.75),
+			SupernaturalFamily.Spirit => 2.5 + tierValue * 0.5,
+			_ => Math.Clamp(1.0 + tierValue * 0.45, 1.0, 4.0)
+		};
+		var healthMultiplier = tier switch
+		{
+			NonHumanCombatTier.Nuisance => 0.65,
+			NonHumanCombatTier.MinorThreat => 0.9,
+			NonHumanCombatTier.SeriousThreat => 1.25,
+			NonHumanCombatTier.EliteThreat => 2.5,
+			NonHumanCombatTier.Monster => 10.0,
+			NonHumanCombatTier.GreatBeast => 16.0,
+			NonHumanCombatTier.PartyBoss => 30.0,
+			NonHumanCombatTier.Avatar => 50.0,
+			_ => 1.0
+		};
+		var quality = tier switch
+		{
+			NonHumanCombatTier.Nuisance => ItemQuality.Bad,
+			NonHumanCombatTier.MinorThreat => ItemQuality.Poor,
+			NonHumanCombatTier.SeriousThreat => ItemQuality.Substandard,
+			NonHumanCombatTier.EliteThreat => ItemQuality.Good,
+			NonHumanCombatTier.Monster => ItemQuality.Excellent,
+			NonHumanCombatTier.GreatBeast => ItemQuality.Heroic,
+			NonHumanCombatTier.PartyBoss => ItemQuality.Legendary,
+			_ => ItemQuality.Legendary
+		};
+		var baseline = template.Family switch
+		{
+			SupernaturalFamily.Angel => "Angelic Humanoid",
+			SupernaturalFamily.Demon => template.Name == "Hellhound" ? "Wolf" : "Infernal Humanoid",
+			SupernaturalFamily.Divine => "Divine Humanoid",
+			SupernaturalFamily.Spirit => "Manifested Spirit",
+			SupernaturalFamily.Therianthrope => template.Name == "Werewolf" ? "Wolf" : "Humanoid",
+			SupernaturalFamily.Undead => "Undead Humanoid",
+			_ => "Humanoid"
+		};
+		var attackProfile = template.Family switch
+		{
+			SupernaturalFamily.Angel => "radiant-aura",
+			SupernaturalFamily.Demon => "infernal-aura",
+			SupernaturalFamily.Divine => "divine-aura",
+			SupernaturalFamily.Spirit => "spirit-will",
+			SupernaturalFamily.Therianthrope => "physical-strength",
+			SupernaturalFamily.Undead => "undead-will",
+			_ => "physical-strength"
+		};
+		var grantCharge = template.Size >= SizeCategory.VeryLarge &&
+		                  template.PlanarProfile != SupernaturalPlanarProfile.Incorporeal;
+		var signature = template.Name switch
+		{
+			"Balrog" => "Hellfire Breath",
+			"Greater God" => "Starfire Breath",
+			"Chayot HaKodesh" or "Fallen Chayot HaKodesh" => "Many-Eyed Ray",
+			_ => template.Attacks.FirstOrDefault()?.AttackName
+		};
+
+		return template with
+		{
+			AttributeProfile = attributes,
+			BodypartHealthMultiplier = healthMultiplier,
+			CombatBalance = new(tier, baseline, painTolerance, quality, attackProfile, grantCharge, signature)
+		};
 	}
 
 	internal static string BuildRaceDescriptionForTesting(SupernaturalRaceTemplate template)

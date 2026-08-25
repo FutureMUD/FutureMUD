@@ -12,11 +12,15 @@ public class UnarmedDownedMeleeAttack : NaturalAttackMove
     private static ITraitExpression _downedMeleeExpressionDefender;
 
     public ITraitExpression DownedMeleeExpressionAttacker => _downedMeleeExpressionAttacker ??= new TraitExpression(
-        Gameworld.GetStaticConfiguration("DownedMeleeExpressionAttacker"),
+        DownedMeleeAttack.ResolveExpression(
+            Gameworld.GetStaticConfiguration("DownedMeleeExpressionAttacker"),
+            Gameworld.GetStaticConfiguration("StaggeringBlowExpressionAttacker")),
         Gameworld);
 
     public ITraitExpression DownedMeleeExpressionDefender => _downedMeleeExpressionDefender ??= new TraitExpression(
-        Gameworld.GetStaticConfiguration("DownedMeleeExpressionDefender"),
+        DownedMeleeAttack.ResolveExpression(
+            Gameworld.GetStaticConfiguration("DownedMeleeExpressionDefender"),
+            Gameworld.GetStaticConfiguration("StaggeringBlowExpressionDefender")),
         Gameworld);
 
     public override string Description => $"Attacking a downed melee opponent";
@@ -52,7 +56,7 @@ public class UnarmedDownedMeleeAttack : NaturalAttackMove
                 ("stun", result.WoundsCaused.Sum(x => x.CurrentStun)));
         CheckOutcome cr = check.Check(Target, ((ISecondaryDifficultyAttack)Attack).SecondaryDifficulty, Assailant,
             externalBonus: (defenderStrength - attackerStrength) *
-                           Gameworld.GetStaticDouble("StaggeringBlowPenaltyMultiplier"));
+                           Gameworld.GetStaticDouble("DownedMeleePenaltyMultiplier"));
         switch (cr.Outcome)
         {
             case Outcome.MinorFail:

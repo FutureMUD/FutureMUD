@@ -846,7 +846,11 @@ The exception details were as follows:
             context.Database.CurrentTransaction?.Rollback();
             context.ChangeTracker.Clear();
             Console.ForegroundColor = ConsoleColor.Red;
-            ConsoleLayoutHelper.WriteWrapped($"The {seeder.Name} seeder failed: {exception.Message}");
+#if DEBUG
+			ConsoleLayoutHelper.WriteWrapped($"The {seeder.Name} seeder failed: {exception}");
+#else
+			ConsoleLayoutHelper.WriteWrapped($"The {seeder.Name} seeder failed: {exception.Message}");
+#endif
             Console.ForegroundColor = ConsoleColor.White;
         }
     }

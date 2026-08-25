@@ -1,5 +1,7 @@
 # Animal And Mythic Attribute Scaling Report
 
+> Historical note: the mythical bonus tables below describe the earlier attribute-scaling pass. The later [Mythical and Supernatural Combat Balance Pass](../Combat/Mythical_Supernatural_Combat_Balance_Pass.md) supersedes those mythical numbers with tiered effective-stat targets and separate western/eastern Aura-scaled breath attacks. The ordinary-animal values remain current.
+
 ## What changed
 This pass focused specifically on seeded animal and mythical race attribute scaling.
 

@@ -373,6 +373,7 @@ public partial class AnimalSeeder
 
 		RefreshDragonfireBreathDamageExpression(expressions);
 		ReconcileExistingAnimalAttacks();
+		EnsureMountedCombatAttackSeedData();
 
 		foreach (string bodyName in AnimalCombatRebalanceBodyNames)
 		{

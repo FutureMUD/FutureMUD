@@ -1135,12 +1135,8 @@ public class SimpleNPCTemplate : NPCTemplateBase
             return false;
         }
 
-        ITrait trait = long.TryParse(command.PopSpeech(), out long value)
-            ? SelectedAttributes.Find(x => x.Definition.Id == value)
-            : SelectedAttributes.Find(
-                x =>
-                    string.Equals(((IAttributeDefinition)x.Definition).Alias, command.Last,
-                        StringComparison.InvariantCultureIgnoreCase));
+        var attributeText = command.PopSpeech();
+        var trait = FindAttributeForBuilding(SelectedAttributes, attributeText);
         if (trait == null)
         {
             actor.OutputHandler.Send("There is no such attribute.");
@@ -1166,6 +1162,15 @@ public class SimpleNPCTemplate : NPCTemplateBase
         Changed = true;
         return true;
     }
+
+	internal static ITrait FindAttributeForBuilding(IEnumerable<ITrait> attributes, string text)
+	{
+		return long.TryParse(text, out var value)
+			? attributes.FirstOrDefault(x => x.Definition.Id == value)
+			: attributes.FirstOrDefault(x =>
+				x.Definition is IAttributeDefinition definition &&
+				definition.Alias.Equals(text, StringComparison.InvariantCultureIgnoreCase));
+	}
 
     private bool BuildingCommandBirthday(ICharacter actor, StringStack command)
     {

@@ -80,6 +80,49 @@ public class MultiTargetCombatMoveTests
 	}
 
 	[TestMethod]
+	public void WrapWeaponAttack_ScreechUsesBoundedHostileTargets()
+	{
+		Mock<ICombat> combat = new();
+		Mock<ICharacter> assailant = new();
+		Mock<ICharacter> primary = new();
+		Mock<ICharacter> secondary = new();
+		Mock<IWeaponAttack> attack = new();
+
+		assailant.SetupGet(x => x.Combat).Returns(combat.Object);
+		assailant.Setup(x => x.IsAlly(It.IsAny<ICharacter>())).Returns(false);
+		assailant.Setup(x => x.CanSee(It.IsAny<ICharacter>())).Returns(true);
+		assailant.Setup(x => x.ColocatedWith(secondary.Object)).Returns(true);
+		primary.SetupGet(x => x.Combat).Returns(combat.Object);
+		secondary.SetupGet(x => x.Combat).Returns(combat.Object);
+		attack.SetupGet(x => x.MoveType).Returns(BuiltInCombatMoveType.ScreechAttack);
+		attack.SetupGet(x => x.MaximumTargets).Returns(2);
+		attack.Setup(x => x.UsableAttack(assailant.Object, null, secondary.Object,
+			AttackHandednessOptions.Any, true, BuiltInCombatMoveType.ScreechAttack)).Returns(true);
+		combat.SetupGet(x => x.Combatants)
+		      .Returns(new IPerceiver[] { assailant.Object, primary.Object, secondary.Object });
+
+		var move = MultiTargetCombatMove.WrapWeaponAttack(assailant.Object, primary.Object, attack.Object, null,
+			target =>
+			{
+				Mock<IWeaponAttackMove> targetMove = new();
+				targetMove.SetupGet(x => x.Assailant).Returns(assailant.Object);
+				return targetMove.Object;
+			});
+
+		Assert.IsInstanceOfType(move, typeof(MultiTargetCombatMove));
+		Assert.AreEqual(2, move.CharacterTargets.Count());
+	}
+
+	[TestMethod]
+	public void ScreechDamageComponents_RejectNegativeAndNonFiniteValues()
+	{
+		Assert.AreEqual(0.0, ScreechAttackMove.NonNegativeFinite(-1.0));
+		Assert.AreEqual(0.0, ScreechAttackMove.NonNegativeFinite(double.NaN));
+		Assert.AreEqual(0.0, ScreechAttackMove.NonNegativeFinite(double.PositiveInfinity));
+		Assert.AreEqual(12.5, ScreechAttackMove.NonNegativeFinite(12.5));
+	}
+
+	[TestMethod]
 	public void WrapWeaponAttack_TargetFailsTargetSpecificUsability_DoesNotAddSecondaryTarget()
 	{
 		Mock<ICombat> combat = new();

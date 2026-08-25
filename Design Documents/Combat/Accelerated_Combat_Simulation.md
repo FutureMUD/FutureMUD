@@ -76,8 +76,8 @@ impdebug combatsim new [<cell>]
 impdebug combatsim cell add <cell>
 impdebug combatsim cell remove <number>
 impdebug combatsim cell list
-impdebug combatsim add character <loaded character> team <team> [cell <number>] [layer <layer>] [state <position>]
-impdebug combatsim add template <NPC template> team <team> [cell <number>] [layer <layer>] [state <position>] [count <number>]
+impdebug combatsim add character <loaded character> team <team> [cell <number>] [layer <layer>] [state <position>] [range <melee|ranged>]
+impdebug combatsim add template <NPC template> team <team> [cell <number>] [layer <layer>] [state <position>] [range <melee|ranged>] [count <number>]
 impdebug combatsim remove <slot>
 impdebug combatsim set scene <cell>
 impdebug combatsim set seed <number>
@@ -95,6 +95,6 @@ impdebug combatsim transcript [<start>] [<count>]
 impdebug combatsim clear
 ```
 
-`new` creates staged cell 1; `set scene <cell>` replaces that first/default cell. `cell add <cell>` appends another cell and `cell remove <number>` removes an unused non-default staged cell. The `add` command takes its optional arguments in any order. `cell` is the one-based staged-cell number rather than a room lookup, which keeps multi-word cell names unambiguous. `ground`, `trees`, `sky`, `highair`, `water`, and the named `RoomLayer` values are accepted layers; `state` accepts normal position-state names such as `standing`, `sitting`, `prone`, and `flying`.
+`new` creates staged cell 1; `set scene <cell>` replaces that first/default cell. `cell add <cell>` appends another cell and `cell remove <number>` removes an unused non-default staged cell. The `add` command takes its optional arguments in any order. `cell` is the one-based staged-cell number rather than a room lookup, which keeps multi-word cell names unambiguous. `ground`, `trees`, `sky`, `highair`, `water`, and the named `RoomLayer` values are accepted layers; `state` accepts normal position-state names such as `standing`, `sitting`, `prone`, and `flying`. Participants default to `range melee`. `range ranged` begins them outside melee and explicitly selects their preferred ranged strategy after target acquisition, which is useful for deterministic charge, receive-charge, skirmish and ranged-opening tests.
 
 For comparable runs within one batch, keep the source state, active NPC-template revision and staged cells unchanged; use a zero seed step for an exact seeded replay. The seed controls the engine's shared random source, expression evaluation uses call-local parameter values rather than shared mutable dictionaries, and all runs share the batch epoch. Repeated runs should therefore have the same `v2` execution fingerprint unless authored or external code escapes those controlled services. Separate invocations use their own starting epoch. `report` repeats the summary; `transcript` defaults to the first 100 entries and accepts a one-based start plus a maximum count of 1,000.

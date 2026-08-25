@@ -3,6 +3,7 @@
 using MudSharp.Combat;
 using MudSharp.GameItems;
 using MudSharp.Health;
+using MudSharp.Framework;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
@@ -118,6 +119,7 @@ public partial class HumanSeeder
 
 	private void RefreshExistingHumanCombatBalance()
 	{
+		RefreshExistingHumanHealthExpressions();
 		ConfigureHumanNaturalArmours();
 		RefreshExistingHumanBodyparts("Humanoid");
 		RefreshExistingHumanBodyparts("Organic Humanoid");
@@ -134,6 +136,36 @@ public partial class HumanSeeder
 		}
 
 		_context.SaveChanges();
+	}
+
+	private void RefreshExistingHumanHealthExpressions()
+	{
+		if (!UsesCombatRebalance)
+		{
+			return;
+		}
+
+		TraitDefinition constitution = _context.TraitDefinitions
+			.Where(x => x.Type == 1)
+			.AsEnumerable()
+			.First(x => x.Name.In("Constitution", "Body", "Physique", "Endurance", "Hardiness", "Stamina"));
+		TraitDefinition willpower = _context.TraitDefinitions
+			.Where(x => x.Type == 1)
+			.AsEnumerable()
+			.FirstOrDefault(x => x.Name.In("Willpower", "Resilience", "Mind")) ?? constitution;
+
+		var formulas = new Dictionary<string, string>
+		{
+			["Human Max HP Formula"] = $"100+(con:{constitution.Id}*3)",
+			["Human Max Pain Formula"] = $"50+(wil:{willpower.Id}*6)",
+			["Human Max Stun Formula"] = $"75+(con:{constitution.Id}*2)+(wil:{willpower.Id}*3)"
+		};
+		foreach (var expression in _context.TraitExpressions
+			         .Where(x => formulas.Keys.Contains(x.Name))
+			         .ToList())
+		{
+			expression.Expression = formulas[expression.Name];
+		}
 	}
 
 	private void RefreshExistingHumanBodyparts(string bodyName)

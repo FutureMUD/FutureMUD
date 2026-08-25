@@ -95,6 +95,7 @@ public partial class Race
 	#3tracksmell <%>#0 - sets the intensity modifier of olfactory tracks left behind
 	#3trackingvisual <%>#0 - sets the skill modifier for tracking visual tracks
 	#3trackingsmell <%>#0 - sets the skill modifier for tracking olfactory tracks
+	#3paintolerance <%>#0 - sets the race's multiplier to maximum pain before impairment or unconsciousness
 	#3hwmodel <gender> <which>#0 - sets the default height/weight model for this race
 
 	#6Eating Properties#0
@@ -149,6 +150,10 @@ public partial class Race
             case "bodypartdamage":
             case "bodypartdam":
                 return BuildingCommandBodypartHealth(actor, command);
+            case "paintolerance":
+            case "painmultiplier":
+            case "painmod":
+                return BuildingCommandPainTolerance(actor, command);
             case "bodypartsize":
             case "partsize":
                 return BuildingCommandBodypartSize(actor, command);
@@ -618,6 +623,27 @@ public partial class Race
         Changed = true;
         actor.OutputHandler.Send(
             $"This race will now have {value.ToString("P2", actor).ColourValue()} hitpoints for its bodyparts.");
+        return true;
+    }
+
+    private bool BuildingCommandPainTolerance(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What percentage multiplier to maximum pain should this race have?");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value <= 0.0)
+        {
+            actor.OutputHandler.Send("That is not a valid positive percentage.");
+            return false;
+        }
+
+        _painToleranceMultiplier = value;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This race will now withstand {value.ToString("P2", actor).ColourValue()} of its normal maximum pain before impairment or unconsciousness.");
         return true;
     }
 
@@ -2734,7 +2760,7 @@ public partial class Race
         sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
             $"Bodypart Size Mod: {BodypartSizeModifier.ToString("N0", actor).ColourValue()}",
             $"Bodypart Health Multiplier: {BodypartDamageMultiplier.ToString("P2", actor).ColourValue()}",
-            "");
+            $"Pain Tolerance Multiplier: {PainToleranceModifier.ToString("P2", actor).ColourValue()}");
 
         sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
             $"Illumination Multiplier: {IlluminationPerceptionMultiplier.ToString("P2", actor).ColourValue()}",

@@ -40,8 +40,8 @@ The syntax is:
 	#3impdebug combatsim new [<cell>]#0
 	#3impdebug combatsim cell add <cell>#0
 	#3impdebug combatsim cell remove <number>#0
-	#3impdebug combatsim add character <loaded character> team <team> [cell <number>] [layer <layer>] [state <position>]#0
-	#3impdebug combatsim add template <NPC template> team <team> [cell <number>] [layer <layer>] [state <position>] [count <number>]#0
+#3impdebug combatsim add character <loaded character> team <team> [cell <number>] [layer <layer>] [state <position>] [range <melee|ranged>]#0
+#3impdebug combatsim add template <NPC template> team <team> [cell <number>] [layer <layer>] [state <position>] [range <melee|ranged>] [count <number>]#0
 	#3impdebug combatsim remove <slot>#0
 	#3impdebug combatsim set scene <cell>#0
 	#3impdebug combatsim set seed <number>#0
@@ -178,7 +178,7 @@ The syntax is:
 
 		var team = command.PopSpeech();
 		if (!TryParseAddOptions(actor, command, session, out var count, out var startingCell, out var startingLayer,
-			    out var startingPosition))
+			    out var startingPosition, out var startsInMelee))
 		{
 			return;
 		}
@@ -200,7 +200,8 @@ The syntax is:
 
 			session.Participants.Add(new CombatSimulationParticipantRequest(
 				session.NextSlot++, team, CombatSimulationSourceType.Character, character, null,
-				StartingCell: startingCell, StartingLayer: startingLayer, StartingPosition: startingPosition));
+				StartingCell: startingCell, StartingLayer: startingLayer, StartingPosition: startingPosition,
+				StartsInMelee: startsInMelee));
 			actor.OutputHandler.Send(
 				$"You add {character.PersonalName.GetName(NameStyle.SimpleFull).ColourName()} to team {team.ColourName()} {DescribeStartingLocation(session, startingCell, startingLayer, startingPosition)}.");
 			return;
@@ -217,7 +218,7 @@ The syntax is:
 		{
 			session.Participants.Add(new CombatSimulationParticipantRequest(
 				session.NextSlot++, team, CombatSimulationSourceType.NpcTemplate, null, template, i,
-				startingCell, startingLayer, startingPosition));
+				startingCell, startingLayer, startingPosition, startsInMelee));
 		}
 
 		actor.OutputHandler.Send(
@@ -231,12 +232,14 @@ The syntax is:
 		out int count,
 		out ICell? startingCell,
 		out RoomLayer startingLayer,
-		out IPositionState? startingPosition)
+		out IPositionState? startingPosition,
+		out bool startsInMelee)
 	{
 		count = 1;
 		startingCell = null;
 		startingLayer = RoomLayer.GroundLevel;
 		startingPosition = null;
+		startsInMelee = true;
 		var seen = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 		while (!command.IsFinished)
 		{
@@ -285,8 +288,30 @@ The syntax is:
 					}
 
 					break;
+				case "range":
+					if (command.IsFinished)
+					{
+						actor.OutputHandler.Send("Specify melee or ranged as the starting combat range.");
+						return false;
+					}
+
+					var range = command.PopSpeech().CollapseString();
+					if (range.EqualTo("melee"))
+					{
+						startsInMelee = true;
+						break;
+					}
+
+					if (range.EqualToAny("ranged", "range", "outside"))
+					{
+						startsInMelee = false;
+						break;
+					}
+
+					actor.OutputHandler.Send("Specify melee or ranged as the starting combat range.");
+					return false;
 				default:
-					actor.OutputHandler.Send("The add options are cell, layer, state and count.");
+					actor.OutputHandler.Send("The add options are cell, layer, state, range and count.");
 					return false;
 			}
 		}

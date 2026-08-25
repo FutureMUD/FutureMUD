@@ -115,6 +115,36 @@ public partial class AnimalSeeder
 			["Moa"] = new(2, 2, 0, -1, WillpowerBonus: 1, PerceptionBonus: 1)
 		};
 
+	private static readonly IReadOnlyDictionary<string, (int StrengthBonus, int WillpowerBonus)> AnimalCombatAnchors =
+		new Dictionary<string, (int, int)>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Mouse"] = (-10, -4),
+			["Wolf"] = (12, 10),
+			["Bear"] = (43, 15),
+			["Rhinocerous"] = (88, 19),
+			["Hippopotamus"] = (88, 20),
+			["Elephant"] = (108, 20),
+			["Mammoth"] = (133, 22),
+			["Oliphant"] = (198, 24)
+		};
+
+	private static readonly IReadOnlyDictionary<string, double> AnimalPainToleranceOverrides =
+		new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Mouse"] = 0.8,
+			["Rabbit"] = 0.85,
+			["Hare"] = 0.9,
+			["Wolf"] = 1.3,
+			["Lion"] = 1.4,
+			["Tiger"] = 1.4,
+			["Bear"] = 1.75,
+			["Rhinocerous"] = 2.0,
+			["Hippopotamus"] = 1.75,
+			["Elephant"] = 2.0,
+			["Mammoth"] = 1.85,
+			["Oliphant"] = 2.0
+		};
+
 	internal static NonHumanAttributeProfile GetAnimalAttributeProfileForTesting(AnimalRaceTemplate template)
 	{
 		return GetAnimalAttributeProfile(template);
@@ -136,23 +166,63 @@ public partial class AnimalSeeder
 			profile = profile.Add(specificProfile);
 		}
 
-		return profile.Clamp(-10, 18);
+		if (AnimalCombatAnchors.TryGetValue(template.Name, out var anchor))
+		{
+			profile = profile with
+			{
+				StrengthBonus = anchor.StrengthBonus,
+				WillpowerBonus = anchor.WillpowerBonus
+			};
+		}
+
+		return profile with
+		{
+			ConstitutionBonus = Math.Clamp(profile.ConstitutionBonus, -10, 40),
+			AgilityBonus = Math.Clamp(profile.AgilityBonus, -10, 18),
+			DexterityBonus = Math.Clamp(profile.DexterityBonus, -10, 18),
+			WillpowerBonus = Math.Clamp(profile.WillpowerBonus, -8, 30),
+			PerceptionBonus = Math.Clamp(profile.PerceptionBonus, -10, 18),
+			AuraBonus = Math.Clamp(profile.AuraBonus, -10, 18)
+		};
+	}
+
+	internal static double GetAnimalPainToleranceMultiplierForTesting(AnimalRaceTemplate template)
+	{
+		return GetAnimalPainToleranceMultiplier(template);
+	}
+
+	private static double GetAnimalPainToleranceMultiplier(AnimalRaceTemplate template)
+	{
+		if (AnimalPainToleranceOverrides.TryGetValue(template.Name, out var value))
+		{
+			return value;
+		}
+
+		return template.AttackLoadoutKey switch
+		{
+			"nuisance-bite" => 0.8,
+			"small-herbivore" => 0.9,
+			"small-predator" or "cat" or "doglike" or "wolfpack" => 1.2,
+			"big-cat" or "bear" or "crocodilian" or "shark" => 1.4,
+			_ when template.CombatStrategyKey.Equals("Beast Behemoth", StringComparison.OrdinalIgnoreCase) => 1.5,
+			_ => 1.0
+		};
 	}
 
 	private static NonHumanAttributeProfile GetAnimalSizeProfile(SizeCategory size)
 	{
 		return size switch
 		{
-			SizeCategory.Tiny => new(-6, -5, 3, 2),
-			SizeCategory.VerySmall => new(-4, -3, 2, 1),
-			SizeCategory.Small => new(-1, 0, 1, 1),
-			SizeCategory.Normal => new(1, 1, 0, 0),
-			SizeCategory.Large => new(4, 4, -1, -1),
-			SizeCategory.VeryLarge => new(7, 7, -2, -2),
-			SizeCategory.Huge => new(10, 10, -3, -3),
-			SizeCategory.Enormous => new(13, 13, -4, -4),
-			SizeCategory.Gigantic => new(16, 16, -5, -5),
-			SizeCategory.Titanic => new(18, 18, -6, -6),
+			SizeCategory.Tiny => new(-10, -7, 3, 2),
+			SizeCategory.VerySmall => new(-7, -4, 2, 1),
+			SizeCategory.Small => new(0, 0, 1, 1),
+			SizeCategory.Normal => new(10, 2, 0, 0),
+			SizeCategory.Large => new(35, 8, -1, -1),
+			SizeCategory.VeryLarge => new(90, 14, -2, -2),
+			SizeCategory.Huge => new(145, 20, -3, -3),
+			SizeCategory.Enormous => new(210, 26, -4, -4),
+			SizeCategory.Gigantic => new(290, 32, -5, -5),
+			SizeCategory.Titanic => new(390, 40, -6, -6),
 			_ => new(0, 0, 0, 0)
 		};
 	}

@@ -154,6 +154,7 @@ public partial class Race : SaveableItem, IRace
             TemperatureRangeFloor = ParentRace.TemperatureRangeFloor;
             _bodypartSizeModifier = ParentRace.BodypartSizeModifier;
             _bodypartDamageMultiplier = ParentRace.BodypartDamageMultiplier;
+            _painToleranceMultiplier = ParentRace.PainToleranceModifier;
             CanSwim = ParentRace.CanSwim;
             CanClimb = ParentRace.CanClimb;
             MinimumSleepingPosition = ParentRace.MinimumSleepingPosition;
@@ -255,6 +256,7 @@ public partial class Race : SaveableItem, IRace
             TemperatureRangeFloor = 0;
             _bodypartSizeModifier = 0;
             _bodypartDamageMultiplier = 1.0;
+            _painToleranceMultiplier = 1.0;
             CanSwim = true;
             CanClimb = false;
             MinimumSleepingPosition = PositionLounging.Instance;
@@ -325,6 +327,7 @@ public partial class Race : SaveableItem, IRace
                 TemperatureRangeCeiling = TemperatureRangeCeiling,
                 BodypartSizeModifier = BodypartSizeModifier,
                 BodypartHealthMultiplier = BodypartDamageMultiplier,
+                PainToleranceMultiplier = PainToleranceModifier,
                 BreathingVolumeExpression = BreathingVolumeExpression.OriginalFormulaText,
                 HoldBreathLengthExpression = HoldBreathLengthExpression.OriginalFormulaText,
                 CanClimb = CanClimb,
@@ -581,6 +584,7 @@ public partial class Race : SaveableItem, IRace
         TemperatureRangeFloor = race.TemperatureRangeFloor;
         _bodypartSizeModifier = race.BodypartSizeModifier;
         _bodypartDamageMultiplier = race.BodypartHealthMultiplier;
+        _painToleranceMultiplier = race.PainToleranceMultiplier;
         CanSwim = race.CanSwim;
         CanClimb = race.CanClimb;
         MinimumSleepingPosition = PositionState.GetState(race.MinimumSleepingPosition);
@@ -681,6 +685,7 @@ public partial class Race : SaveableItem, IRace
         TemperatureRangeFloor = rhs.TemperatureRangeFloor;
         _bodypartSizeModifier = rhs.BodypartSizeModifier;
         _bodypartDamageMultiplier = rhs.BodypartDamageMultiplier;
+        _painToleranceMultiplier = rhs.PainToleranceModifier;
         CanSwim = rhs.CanSwim;
         CanClimb = rhs.CanClimb;
         MinimumSleepingPosition = rhs.MinimumSleepingPosition;
@@ -798,6 +803,7 @@ public partial class Race : SaveableItem, IRace
                 TemperatureRangeCeiling = TemperatureRangeCeiling,
                 BodypartSizeModifier = BodypartSizeModifier,
                 BodypartHealthMultiplier = BodypartDamageMultiplier,
+                PainToleranceMultiplier = PainToleranceModifier,
                 BreathingVolumeExpression = BreathingVolumeExpression.OriginalFormulaText,
                 HoldBreathLengthExpression = HoldBreathLengthExpression.OriginalFormulaText,
                 CanClimb = CanClimb,
@@ -1231,6 +1237,7 @@ public partial class Race : SaveableItem, IRace
         dbitem.TemperatureRangeCeiling = TemperatureRangeCeiling;
         dbitem.BodypartSizeModifier = BodypartSizeModifier;
         dbitem.BodypartHealthMultiplier = BodypartDamageMultiplier;
+        dbitem.PainToleranceMultiplier = PainToleranceModifier;
         dbitem.BreathingVolumeExpression = BreathingVolumeExpression.OriginalFormulaText;
         dbitem.HoldBreathLengthExpression = HoldBreathLengthExpression.OriginalFormulaText;
         dbitem.CanClimb = CanClimb;
@@ -1533,6 +1540,7 @@ public partial class Race : SaveableItem, IRace
 
     private int _bodypartSizeModifier;
     private double _bodypartDamageMultiplier;
+    private double _painToleranceMultiplier;
 
     public int BodypartSizeModifier => _bodypartSizeModifier;
     public double BodypartDamageMultiplier => _bodypartDamageMultiplier;
@@ -1552,9 +1560,9 @@ public partial class Race : SaveableItem, IRace
         return part.SeveredThreshold * _bodypartDamageMultiplier;
     }
 
-    // TODO - have separate damage/pain/tolerance and global/local modifiers
     public double DamageToleranceModifier => _bodypartDamageMultiplier;
-    public double PainToleranceModifier => _bodypartDamageMultiplier;
+    public double PainToleranceModifier => _painToleranceMultiplier;
+    public double PainToleranceMultiplier => _painToleranceMultiplier;
     public double StunToleranceModifier => _bodypartDamageMultiplier;
 
     public IPositionState MinimumSleepingPosition { get; } = PositionLounging.Instance;

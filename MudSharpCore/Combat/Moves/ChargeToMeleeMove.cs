@@ -1,4 +1,5 @@
 ﻿using MudSharp.Body.Position;
+using MudSharp.Body;
 using MudSharp.Construction.Boundary;
 using MudSharp.Character.Heritage;
 using MudSharp.GameItems.Interfaces;
@@ -12,6 +13,8 @@ public class ChargeToMeleeMove : CombatMoveBase
 {
     public override string Description => "Charging into melee combat";
 	public bool IsMountedCharge => MountedCombatService.Instance.ResolveContext(Assailant) is not null;
+	public bool IsBehemothCharge => Assailant.CombatTarget is ICharacter target && CanBehemothCharge(Assailant, target);
+	public bool IsImpactCharge => IsMountedCharge || IsBehemothCharge;
 
     private bool _calculatedStamina = false;
     private double _staminaCost = 0.0;
@@ -64,6 +67,7 @@ public class ChargeToMeleeMove : CombatMoveBase
         ICombatMove response = defenderMove;
 
 		var mountedContext = MountedCombatService.Instance.ResolveContext(Assailant);
+		var behemothAttack = mountedContext is null ? GetBehemothChargeAttack(target) : null;
 		if (mountedContext is not null && response is EvadeMountedChargeMove evade)
 		{
 			return ResolveMountedEvasion(target, mountedContext, evade);
@@ -76,13 +80,16 @@ public class ChargeToMeleeMove : CombatMoveBase
 
         if (response is SkirmishResponseMove skirmish)
         {
-            return HandleSkirmish(target, skirmish);
+			var outcome = HandleSkirmish(target, skirmish);
+			ResolveCaughtSkirmishImpact(target, mountedContext, behemothAttack, outcome);
+			return outcome;
         }
 
         if (response is SkirmishAndFire skirmishAndFire)
         {
-            CombatMoveResult outcome = HandleSkirmish(target, skirmishAndFire);
+			CombatMoveResult outcome = HandleSkirmish(target, skirmishAndFire);
             skirmishAndFire.ResolveMove(new HelplessDefenseMove { Assailant = Assailant });
+			ResolveCaughtSkirmishImpact(target, mountedContext, behemothAttack, outcome);
             return outcome;
         }
 
@@ -104,6 +111,7 @@ public class ChargeToMeleeMove : CombatMoveBase
 			{
 				ResolveMountedImpact(target, mountedContext, true);
 			}
+			ResolveBehemothImpact(target, behemothAttack);
 			ResolveMountedWeaponAttack(mountedWeaponAttack, target,
 				new HelplessDefenseMove { Assailant = target });
             _delay = 0;
@@ -119,6 +127,7 @@ public class ChargeToMeleeMove : CombatMoveBase
 			{
 				ResolveMountedImpact(target, mountedContext, false);
 			}
+			ResolveBehemothImpact(target, behemothAttack);
 			ResolveMountedWeaponAttack(mountedWeaponAttack, target,
 				new HelplessDefenseMove { Assailant = target });
             _delay = 0;
@@ -133,6 +142,7 @@ public class ChargeToMeleeMove : CombatMoveBase
 			{
 				ResolveMountedImpact(target, mountedContext, false);
 			}
+			ResolveBehemothImpact(target, behemothAttack);
 			ResolveMountedWeaponAttack(mountedWeaponAttack, target,
 				new HelplessDefenseMove { Assailant = target });
             _delay = 0;
@@ -147,6 +157,7 @@ public class ChargeToMeleeMove : CombatMoveBase
 		{
 			ResolveMountedImpact(target, mountedContext, false);
 		}
+		ResolveBehemothImpact(target, behemothAttack);
 		ResolveMountedWeaponAttack(mountedWeaponAttack, target, response);
 		_delay = 0;
 		return new CombatMoveResult { MoveWasSuccessful = true };
@@ -288,6 +299,76 @@ public class ChargeToMeleeMove : CombatMoveBase
 		}
 
 		ApplyMountedImpact(target, context, Math.Max(1, (int)opposed.Degree));
+	}
+
+	public static bool CanBehemothCharge(ICharacter assailant, ICharacter target)
+	{
+		return MountedCombatService.Instance.ResolveContext(assailant) is null &&
+		       !assailant.MeleeRange &&
+		       assailant.ColocatedWith(target) &&
+		       assailant.CurrentContextualSize(SizeContext.GrappleAttack) >
+		       target.CurrentContextualSize(SizeContext.GrappleDefense) &&
+		       UsableBehemothChargeAttacks(assailant, target).Any();
+	}
+
+	private static IEnumerable<INaturalAttack> UsableBehemothChargeAttacks(ICharacter assailant,
+		ICharacter target)
+	{
+		// Behemoth Charge is selected only by ChargeToMeleeMove, so ordinary attack intention filters
+		// must not make the racial capability disappear. Body availability, position and usability
+		// progs still gate the natural attack exactly as they do for other racial attacks.
+		return assailant.Race.NaturalWeaponAttacks
+			.Where(x => x.Attack.MoveType == BuiltInCombatMoveType.BehemothChargeAttack)
+			.Where(x => NaturalAttack.IsValidTarget(x.Attack, target))
+			.Where(x => assailant.Body.Bodyparts.Contains(x.Bodypart))
+			.Where(x => assailant.Body.CanUseBodypart(x.Bodypart) == CanUseBodypartResult.CanUse)
+			.Where(x => !assailant.Body.HeldItemsFor(x.Bodypart).Any())
+			.Where(x => !assailant.Body.WieldedItemsFor(x.Bodypart).Any())
+			.Where(x => x.Attack.RequiredPositionStates.Contains(assailant.PositionState))
+			.Where(x => x.Attack.UsabilityProg?.ExecuteBool(assailant, null, target) ?? true);
+	}
+
+	private void ResolveCaughtSkirmishImpact(ICharacter target, MountedCombatContext mountedContext,
+		INaturalAttack behemothAttack, CombatMoveResult outcome)
+	{
+		if (!outcome.MoveWasSuccessful)
+		{
+			return;
+		}
+
+		if (mountedContext is not null)
+		{
+			ResolveMountedImpact(target, mountedContext, false);
+			ResolveMountedWeaponAttack(GetMountedWeaponAttack(target), target,
+				new HelplessDefenseMove { Assailant = target });
+		}
+
+		ResolveBehemothImpact(target, behemothAttack);
+	}
+
+	private INaturalAttack GetBehemothChargeAttack(ICharacter target)
+	{
+		if (!CanBehemothCharge(Assailant, target))
+		{
+			return null;
+		}
+
+		return UsableBehemothChargeAttacks(Assailant, target)
+			.Where(x => Assailant.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(Assailant, x.Attack)))
+			.GetWeightedRandom(x => x.Attack.Weighting);
+	}
+
+	private void ResolveBehemothImpact(ICharacter target, INaturalAttack attack)
+	{
+		if (attack is null || target.State.HasFlag(CharacterState.Dead) ||
+		    Assailant.State.HasFlag(CharacterState.Dead))
+		{
+			return;
+		}
+
+		var move = new MountedImpactNaturalAttackMove(Assailant, attack, target, true,
+			SizeContext.GrappleAttack, true);
+		move.ResolveMove(target.ResponseToMove(move, Assailant));
 	}
 
 	private (CheckOutcome Attack, CheckOutcome Defense, OpposedOutcome Opposed) ResolveMountedContest(

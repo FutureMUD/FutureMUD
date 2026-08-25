@@ -3,6 +3,7 @@
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.GameItems;
+using MudSharp.Framework.Scheduling;
 using MudSharp.RPG.Checks;
 using MudSharp.Vehicles;
 
@@ -11,13 +12,18 @@ namespace MudSharp.Combat.Moves;
 public sealed class MountedImpactNaturalAttackMove : NaturalAttackMove
 {
 	private readonly bool _isChargeImpact;
+	private readonly SizeContext _sizeContext;
+	private readonly bool _applyImpactAdvantage;
 
 	public MountedImpactNaturalAttackMove(ICharacter owner, INaturalAttack attack, ICharacter target,
-		bool isChargeImpact = false)
+		bool isChargeImpact = false, SizeContext sizeContext = SizeContext.BeingRiddenAsMount,
+		bool applyImpactAdvantage = false)
 		: base(owner, attack, target)
 	{
 		Target = target;
 		_isChargeImpact = isChargeImpact;
+		_sizeContext = sizeContext;
+		_applyImpactAdvantage = applyImpactAdvantage;
 	}
 
 	public ICharacter Target { get; }
@@ -26,6 +32,7 @@ public sealed class MountedImpactNaturalAttackMove : NaturalAttackMove
 	{
 		BuiltInCombatMoveType.AerialSweepAttack => "sweeping through a target during an aerial charge",
 		BuiltInCombatMoveType.AquaticChargeAttack => "driving through a target during an aquatic charge",
+		BuiltInCombatMoveType.BehemothChargeAttack => "crashing bodily into a smaller target during a charge",
 		_ => "trampling a smaller target during a mounted charge"
 	};
 
@@ -42,11 +49,21 @@ public sealed class MountedImpactNaturalAttackMove : NaturalAttackMove
 			return result;
 		}
 
-		var sizeDifference = (int)Assailant.CurrentContextualSize(SizeContext.BeingRiddenAsMount) -
+		var sizeDifference = (int)Assailant.CurrentContextualSize(_sizeContext) -
 		                     (int)Target.CurrentContextualSize(SizeContext.GrappleDefense);
 		var degrees = Math.Max(1, result.AttackerOutcome.SuccessDegrees());
-		if (sizeDifference >= 2 || degrees >= 3 || Target.RidingMount is not null ||
-		    VehicleCombatService.Instance.VehicleFor(Target) is not null)
+		if (_applyImpactAdvantage)
+		{
+			Assailant.OffensiveAdvantage += 2.0 + degrees + Math.Max(0, sizeDifference - 1);
+			Target.DefensiveAdvantage -= 1.0 + degrees;
+		}
+		var reelMilliseconds = Gameworld.GetStaticDouble(degrees >= 3
+			? "StaggeringBlowReelTimeFailure"
+			: "StaggeringBlowReelTimeMinorFailure");
+		Gameworld.Scheduler.DelayScheduleType(Target, ScheduleType.Combat,
+			TimeSpan.FromMilliseconds(reelMilliseconds));
+		if (ShouldKnockDown(sizeDifference, degrees, Target.RidingMount is not null,
+			    VehicleCombatService.Instance.VehicleFor(Target) is not null))
 		{
 			Target.OutputHandler.Handle(new EmoteOutput(new Emote(
 				"@ are|is hurled from &0's footing by the force of the impact!", Target),
@@ -55,5 +72,11 @@ public sealed class MountedImpactNaturalAttackMove : NaturalAttackMove
 		}
 
 		return result;
+	}
+
+	internal static bool ShouldKnockDown(int sizeDifference, int successDegrees, bool targetMounted,
+		bool targetInVehicle)
+	{
+		return sizeDifference >= 2 || successDegrees >= 3 || targetMounted || targetInVehicle;
 	}
 }

@@ -1220,9 +1220,13 @@ public partial class AnimalSeeder
             CharacterCombatSetting setting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, template.CombatStrategyKey);
             double expectedHealthMultiplier =
                 ResolveAnimalRaceHealthMultiplier(template, template.Size, template.BodypartHealthMultiplier);
+            double expectedPainTolerance = GetAnimalPainToleranceMultiplier(template);
+            long expectedArmourQuality = (long)ResolveAnimalNaturalArmourQuality(template);
             bool needsUpdate = race.DefaultCombatSettingId != setting.Id ||
-                               race.NaturalArmourTypeId != _naturalArmour?.Id ||
+                               race.NaturalArmourTypeId is not null ||
+                               race.NaturalArmourQuality != expectedArmourQuality ||
                                Math.Abs(race.BodypartHealthMultiplier - expectedHealthMultiplier) > 0.0001 ||
+	                           Math.Abs(race.PainToleranceMultiplier - expectedPainTolerance) > 0.0001 ||
 							   !SatiationLimitSeederHelper.MatchesLimits(
 								   race,
 								   template.MaximumFoodSatiatedHours,
@@ -1233,8 +1237,10 @@ public partial class AnimalSeeder
             }
 
             race.DefaultCombatSetting = setting;
-            race.NaturalArmourType = _naturalArmour;
+            race.NaturalArmourType = null;
+            race.NaturalArmourQuality = expectedArmourQuality;
             race.BodypartHealthMultiplier = expectedHealthMultiplier;
+			race.PainToleranceMultiplier = expectedPainTolerance;
 			SatiationLimitSeederHelper.ApplyLimits(
 				race,
 				template.MaximumFoodSatiatedHours,

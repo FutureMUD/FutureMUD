@@ -182,7 +182,7 @@ public partial class Body : PerceiverItem, IBody
             _scars.Add(new Scar(scar, Gameworld, Actor.Race));
         }
 
-        Bloodtype = template.SelectedEthnicity.PopulationBloodModel?.GetBloodType(template);
+        Bloodtype = template.SelectedEthnicity?.PopulationBloodModel?.GetBloodType(template);
         RecalculatePartsAndOrgans();
         RecalculateItemHelpers();
 

@@ -67,7 +67,8 @@ public partial class MythicalAnimalSeeder
         IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null,
 		double MaximumFoodSatiatedHours = RacialSatiationDefaults.MaximumFoodSatiatedHours,
 		double MaximumDrinkSatiatedHours = RacialSatiationDefaults.MaximumDrinkSatiatedHours,
-		bool WildlifeEligible = false
+		bool WildlifeEligible = false,
+		NonHumanCombatBalanceProfile CombatBalance = null!
     );
 
     internal static IReadOnlyDictionary<string, MythicalRaceTemplate> TemplatesForTesting => Templates;
@@ -445,7 +446,7 @@ public partial class MythicalAnimalSeeder
                 ],
                 attributeProfile: Stats(6, 5, 4, 1, willpower: 4, perception: 3, aura: 5),
                 bodypartHealthMultiplier: 1.6,
-                combatStrategyKey: "Beast Skirmisher"
+				combatStrategyKey: "Beast Skirmisher"
             ),
             ["Pegasus"] = BeastRace(
                 "Pegasus",
@@ -510,7 +511,7 @@ public partial class MythicalAnimalSeeder
                 ],
                 attributeProfile: BestialStats(6, 5, 2, 0, willpower: 4, perception: 3),
                 bodypartHealthMultiplier: 1.6,
-                combatStrategyKey: "Beast Skirmisher"
+                combatStrategyKey: "Beast Brawler"
             ),
             ["Dire-Wolf"] = BeastRace(
                 "Dire-Wolf",
@@ -886,7 +887,7 @@ public partial class MythicalAnimalSeeder
                 ],
                 attributeProfile: BestialStats(0, 0, 3, 1, willpower: 1, perception: 2, aura: 1),
                 bodypartHealthMultiplier: 0.7,
-                combatStrategyKey: "Beast Swooper"
+                combatStrategyKey: "Beast Brawler"
             ),
             ["Giant Beetle"] = BeastRace(
                 "Giant Beetle",
@@ -1671,8 +1672,114 @@ public partial class MythicalAnimalSeeder
 
 		return templates
 			.Select(x => ApplyMythicalSatiationLimits(x.Value))
+			.Select(ApplyMythicalCombatBalance)
 			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
     }
+
+	private static MythicalRaceTemplate ApplyMythicalCombatBalance(MythicalRaceTemplate template)
+	{
+		var tier = template.Name switch
+		{
+			"Cockatrice" or "Selkie" or "Myconid" or "Dryad" or "Owlkin" or "Avian Person" => NonHumanCombatTier.MinorThreat,
+			"Warg" or "Unicorn" or "Pegasus" or "Minotaur" or "Naga" or "Mermaid" or "Plantfolk" or "Hippocamp" or "Qilin" => NonHumanCombatTier.SeriousThreat,
+			"Dire-Wolf" or "Hippogriff" or "Phoenix" or "Basilisk" or "Giant Beetle" or "Giant Ant" or "Giant Mantis" or "Giant Spider" or "Giant Scorpion" or "Giant Centipede" or "Giant Worm" or "Centaur" or "Garuda" or "Giant Eagle" or "Bunyip" => NonHumanCombatTier.EliteThreat,
+			"Dire-Bear" or "Griffin" or "Manticore" or "Wyvern" or "Fell Beast" or "Ankheg" or "Ent" or "Pegacorn" or "Yacumama" => NonHumanCombatTier.Monster,
+			"Colossal Worm" or "Huorn" => NonHumanCombatTier.GreatBeast,
+			"Dragon" or "Eastern Dragon" => NonHumanCombatTier.PartyBoss,
+			_ => throw new InvalidOperationException($"Mythical race {template.Name} has no combat tier.")
+		};
+
+		var strength = template.Name switch
+		{
+			"Dragon" => 285, "Eastern Dragon" => 250,
+			"Colossal Worm" => 180, "Huorn" => 155,
+			"Dire-Bear" => 120, "Yacumama" => 125, "Ent" => 115, "Ankheg" => 105,
+			"Griffin" or "Manticore" or "Wyvern" or "Fell Beast" => 95, "Pegacorn" => 85,
+			"Giant Worm" => 90, "Bunyip" => 85, "Basilisk" => 80,
+			"Hippogriff" or "Giant Beetle" or "Giant Mantis" or "Giant Scorpion" or "Giant Centipede" => 70,
+			"Dire-Wolf" => 45,
+			"Giant Ant" or "Giant Spider" or "Centaur" or "Garuda" or "Giant Eagle" => 60,
+			"Phoenix" => 55,
+			"Minotaur" => 52, "Unicorn" or "Pegasus" or "Hippocamp" or "Qilin" => 46,
+			"Warg" or "Naga" or "Plantfolk" => 38, "Mermaid" => 28,
+			"Cockatrice" => 24, "Myconid" or "Dryad" or "Owlkin" or "Avian Person" => 20, "Selkie" => 16,
+			_ => throw new InvalidOperationException($"Mythical race {template.Name} has no effective Strength target.")
+		};
+		var tierValue = (int)tier;
+		var constitution = tier switch
+		{
+			NonHumanCombatTier.MinorThreat => 17,
+			NonHumanCombatTier.SeriousThreat => 25,
+			NonHumanCombatTier.EliteThreat => 38,
+			NonHumanCombatTier.Monster => 55,
+			NonHumanCombatTier.GreatBeast => 78,
+			NonHumanCombatTier.PartyBoss => 105,
+			_ => 20
+		};
+		var willpower = 15 + tierValue * 5;
+		var aura = template.Name is "Dragon" or "Eastern Dragon" ? 90 : 14 + tierValue * 5;
+		var agility = Math.Max(10, 24 - tierValue - (template.Size >= SizeCategory.Huge ? 4 : 0));
+		var dexterity = Math.Max(8, agility - (template.Size >= SizeCategory.VeryLarge ? 3 : 0));
+		var perception = 17 + tierValue * 3;
+		var profile = NonHumanCombatBalanceProfileHelper.WithEffectiveTargets(
+			template.AttributeProfile, strength, constitution, agility, dexterity, willpower, perception, aura);
+		var painTolerance = tier switch
+		{
+			NonHumanCombatTier.MinorThreat => 1.15,
+			NonHumanCombatTier.SeriousThreat => 1.45,
+			NonHumanCombatTier.EliteThreat => 1.8,
+			NonHumanCombatTier.Monster => 2.25,
+			NonHumanCombatTier.GreatBeast => 2.75,
+			NonHumanCombatTier.PartyBoss => 3.0,
+			_ => 1.0
+		};
+		var healthMultiplier = tier switch
+		{
+			NonHumanCombatTier.MinorThreat => 0.9,
+			NonHumanCombatTier.SeriousThreat => 1.15,
+			NonHumanCombatTier.EliteThreat => 1.45,
+			NonHumanCombatTier.Monster => 1.85,
+			NonHumanCombatTier.GreatBeast => 2.4,
+			NonHumanCombatTier.PartyBoss => 3.25,
+			_ => 1.0
+		};
+		var quality = tier switch
+		{
+			<= NonHumanCombatTier.MinorThreat => ItemQuality.Poor,
+			NonHumanCombatTier.SeriousThreat => ItemQuality.Substandard,
+			NonHumanCombatTier.EliteThreat => ItemQuality.Standard,
+			NonHumanCombatTier.Monster => ItemQuality.Good,
+			NonHumanCombatTier.GreatBeast => ItemQuality.VeryGood,
+			_ => ItemQuality.Great
+		};
+		var baseline = template.Name switch
+		{
+			"Warg" or "Dire-Wolf" => "Wolf",
+			"Dire-Bear" => "Bear",
+			"Unicorn" or "Pegasus" or "Hippocamp" or "Pegacorn" or "Qilin" or "Centaur" => "Horse",
+			"Giant Eagle" or "Garuda" or "Owlkin" or "Avian Person" or "Phoenix" => "Eagle",
+			"Giant Beetle" or "Giant Ant" or "Giant Mantis" or "Giant Spider" or "Giant Scorpion" or "Giant Centipede" => "Arthropod",
+			"Giant Worm" or "Colossal Worm" => "Worm",
+			"Dragon" or "Eastern Dragon" => "Dragon",
+			_ when template.HumanoidVariety || template.CanUseWeapons => "Humanoid",
+			_ => "Animal"
+		};
+		var grantCharge = template.Name is "Dragon" or "Eastern Dragon" or "Dire-Bear" or "Unicorn" or "Pegasus" or
+			"Hippocamp" or "Pegacorn" or "Qilin" or "Minotaur" or "Centaur" or "Ent" or "Huorn" or "Colossal Worm";
+		var signature = template.Name switch
+		{
+			"Dragon" => "Western Dragonfire Breath",
+			"Eastern Dragon" => "Eastern Dragonfire Breath",
+			_ => null
+		};
+
+		return template with
+		{
+			AttributeProfile = profile,
+			BodypartHealthMultiplier = healthMultiplier,
+			CombatBalance = new(tier, baseline, painTolerance, quality, baseline.ToLowerInvariant(), grantCharge, signature)
+		};
+	}
 
 	private static MythicalRaceTemplate ApplyMythicalSatiationLimits(MythicalRaceTemplate template)
 	{
@@ -1829,6 +1936,13 @@ public partial class MythicalAnimalSeeder
 
         foreach ((string? name, MythicalRaceTemplate? template) in Templates)
         {
+			if (template.CombatBalance is null || string.IsNullOrWhiteSpace(template.CombatBalance.BaselineKey) ||
+			    string.IsNullOrWhiteSpace(template.CombatBalance.AttackProfileKey) ||
+			    template.CombatBalance.PainToleranceMultiplier <= 0.0)
+			{
+				issues.Add($"Mythical race {name} has incomplete combat balance metadata.");
+			}
+
             if (string.IsNullOrWhiteSpace(template.CombatStrategyKey))
             {
                 issues.Add($"Mythical race {name} is missing a combat strategy key.");

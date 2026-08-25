@@ -82,6 +82,60 @@ public class MythicalAnimalSeederTemplateTests
             "The mythical catalogue should include worm-beasts, tree-spirits, giant arthropods, non-European mythic beasts, and Middle-earth-ready non-humanoids.");
     }
 
+	[TestMethod]
+	public void CombatBalanceMetadata_AllMythicalRacesHaveCompleteTierProfiles()
+	{
+		foreach ((string name, MythicalAnimalSeeder.MythicalRaceTemplate template) in MythicalAnimalSeeder.TemplatesForTesting)
+		{
+			Assert.IsNotNull(template.CombatBalance, $"{name} should have combat balance metadata.");
+			Assert.IsFalse(string.IsNullOrWhiteSpace(template.CombatBalance.BaselineKey));
+			Assert.IsFalse(string.IsNullOrWhiteSpace(template.CombatBalance.AttackProfileKey));
+			Assert.IsTrue(template.CombatBalance.PainToleranceMultiplier is >= 0.8 and <= 3.0,
+				$"{name} should use the approved mythical pain-tolerance range.");
+			Assert.IsTrue(template.BodypartHealthMultiplier > 0.0);
+		}
+
+		Assert.AreEqual(NonHumanCombatTier.PartyBoss,
+			MythicalAnimalSeeder.TemplatesForTesting["Dragon"].CombatBalance.Tier);
+		Assert.AreEqual("Western Dragonfire Breath",
+			MythicalAnimalSeeder.TemplatesForTesting["Dragon"].CombatBalance.SignatureActionKey);
+		Assert.AreEqual("Eastern Dragonfire Breath",
+			MythicalAnimalSeeder.TemplatesForTesting["Eastern Dragon"].CombatBalance.SignatureActionKey);
+	}
+
+	[TestMethod]
+	public void CombatBalanceMetadata_OrdinaryAnalogueOrderingIsPreserved()
+	{
+		int wolfStrength = AnimalSeeder.GetAnimalAttributeProfileForTesting(
+			AnimalSeeder.RaceTemplatesForTesting["Wolf"]).StrengthBonus;
+		int bearStrength = AnimalSeeder.GetAnimalAttributeProfileForTesting(
+			AnimalSeeder.RaceTemplatesForTesting["Bear"]).StrengthBonus;
+		int wargStrength = MythicalAnimalSeeder.TemplatesForTesting["Warg"].AttributeProfile.StrengthBonus;
+		int direWolfStrength = MythicalAnimalSeeder.TemplatesForTesting["Dire-Wolf"].AttributeProfile.StrengthBonus;
+		int direBearStrength = MythicalAnimalSeeder.TemplatesForTesting["Dire-Bear"].AttributeProfile.StrengthBonus;
+
+		Assert.IsTrue(wolfStrength < wargStrength && wargStrength < direWolfStrength,
+			"Wolf < Warg < Dire-Wolf must remain ordered by effective Strength.");
+		Assert.IsTrue(bearStrength < direBearStrength,
+			"Bear < Dire-Bear must remain ordered by effective Strength.");
+	}
+
+	[TestMethod]
+	public void CombatBalanceMetadata_ChargeGrantsRespectGroundedHighMassProfiles()
+	{
+		foreach (string name in new[] { "Dragon", "Eastern Dragon", "Dire-Bear", "Ent", "Huorn", "Colossal Worm" })
+		{
+			Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting[name].CombatBalance.GrantBehemothCharge,
+				$"{name} should receive Behemoth Charge.");
+		}
+
+		foreach (string name in new[] { "Griffin", "Hippogriff", "Wyvern", "Fell Beast", "Yacumama" })
+		{
+			Assert.IsFalse(MythicalAnimalSeeder.TemplatesForTesting[name].CombatBalance.GrantBehemothCharge,
+				$"{name} should retain its aerial or aquatic action instead of Behemoth Charge.");
+		}
+	}
+
     [TestMethod]
     public void MythicalAnimalAIRecommendations_CoverEverySeededMythicalRace()
     {
@@ -783,7 +837,7 @@ public class MythicalAnimalSeederTemplateTests
         Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Basilisk"].CombatStrategyKey);
         Assert.AreEqual("Beast Dropper", MythicalAnimalSeeder.TemplatesForTesting["Wyvern"].CombatStrategyKey);
         Assert.AreEqual("Beast Dropper", MythicalAnimalSeeder.TemplatesForTesting["Fell Beast"].CombatStrategyKey);
-        Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Warg"].CombatStrategyKey);
+        Assert.AreEqual("Beast Brawler", MythicalAnimalSeeder.TemplatesForTesting["Warg"].CombatStrategyKey);
         Assert.AreEqual("Beast Brawler", MythicalAnimalSeeder.TemplatesForTesting["Dire-Wolf"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Dire-Bear"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Giant Beetle"].CombatStrategyKey);
@@ -825,49 +879,31 @@ public class MythicalAnimalSeederTemplateTests
     [TestMethod]
     public void TemplatesForTesting_SecondPassAttributeProfiles_ReflectMythicBodyPlans()
     {
-        static void AssertProfile(string raceName, int strength, int constitution, int agility, int dexterity,
-            int willpower, int perception, int aura, string intelligenceDice, string auraDice, string message)
-        {
-            NonHumanAttributeProfile profile = MythicalAnimalSeeder.TemplatesForTesting[raceName].AttributeProfile;
-            Assert.AreEqual(strength, profile.StrengthBonus, $"{raceName} strength bonus");
-            Assert.AreEqual(constitution, profile.ConstitutionBonus, $"{raceName} constitution bonus");
-            Assert.AreEqual(agility, profile.AgilityBonus, $"{raceName} agility bonus");
-            Assert.AreEqual(dexterity, profile.DexterityBonus, $"{raceName} dexterity bonus");
-            Assert.AreEqual(willpower, profile.WillpowerBonus, $"{raceName} willpower bonus");
-            Assert.AreEqual(perception, profile.PerceptionBonus, $"{raceName} perception bonus");
-            Assert.AreEqual(aura, profile.AuraBonus, $"{raceName} aura bonus");
-            Assert.AreEqual(intelligenceDice, profile.IntelligenceDiceExpression, $"{raceName} intelligence dice");
-            Assert.AreEqual(auraDice, profile.AuraDiceExpression, message);
-        }
+		foreach ((string name, MythicalAnimalSeeder.MythicalRaceTemplate template) in MythicalAnimalSeeder.TemplatesForTesting)
+		{
+			int effectiveStrength = template.AttributeProfile.StrengthBonus + 11;
+			(int minimum, int maximum) = template.CombatBalance.Tier switch
+			{
+				NonHumanCombatTier.MinorThreat => (12, 25),
+				NonHumanCombatTier.SeriousThreat => (25, 55),
+				NonHumanCombatTier.EliteThreat => (45, 90),
+				NonHumanCombatTier.Monster => (80, 130),
+				NonHumanCombatTier.GreatBeast => (130, 200),
+				NonHumanCombatTier.PartyBoss => (220, 300),
+				_ => throw new AssertFailedException($"Unexpected tier for {name}.")
+			};
+			Assert.IsTrue(effectiveStrength >= minimum && effectiveStrength <= maximum,
+				$"{name} effective Strength {effectiveStrength} should be in tier range {minimum}-{maximum}.");
+			Assert.IsTrue(template.AttributeProfile.WillpowerBonus + 11 >= 20,
+				$"{name} should have the revised mythic Willpower floor.");
+		}
 
-        AssertProfile("Dragon", 12, 11, 0, -2, 6, 3, 5, null, null,
-            "True dragons should remain the top brute-force mythic baseline.");
-        AssertProfile("Eastern Dragon", 10, 9, 2, 0, 6, 3, 5, null, null,
-            "Eastern dragons should be less blocky and more sinuous than western dragons.");
-        AssertProfile("Unicorn", 6, 5, 4, 1, 4, 3, 5, null, null,
-            "Unicorns should read as powerful but unusually graceful equines.");
-        AssertProfile("Pegasus", 5, 4, 5, 1, 2, 3, 3, "2d3", null,
-            "Pegasi should be driven more by flight athletics than raw mass.");
-        AssertProfile("Phoenix", 2, 2, 5, 3, 4, 4, 6, "2d3", null,
-            "Phoenixes should be high-agility aerial threats rather than heavy bruisers.");
-        AssertProfile("Fell Beast", 7, 6, 4, 0, 3, 3, 2, "2d3", "1d2",
-            "Fell beasts should read as fast aerial war-mount predators.");
-        AssertProfile("Giant Eagle", 5, 4, 5, 2, 4, 6, 2, "2d4", "1d2",
-            "Giant eagles should be perceptive, intelligent aerial powers.");
-        AssertProfile("Ent", 7, 9, -3, -3, 5, 1, 4, null, null,
-            "Ents should be massively strong and durable but ponderous.");
-        AssertProfile("Huorn", 8, 10, -4, -4, 4, 1, 3, null, null,
-            "Huorns should be even more ponderous and physically tree-like than ents.");
-        AssertProfile("Dryad", -1, 1, 2, 2, 2, 2, 5, null, null,
-            "Dryads should favour grace and finesse over raw strength.");
-        AssertProfile("Centaur", 6, 5, 2, 0, 2, 1, 0, null, null,
-            "Centaurs should preserve horse-body strength while gaining open-country mobility.");
-        AssertProfile("Giant Ant", 6, 6, 2, -2, 3, 1, 0, "2d3", "1d2",
-            "Giant insects should remain animal-minded and spiritually minimal.");
-        AssertProfile("Giant Spider", 6, 5, 5, 1, 2, 2, 0, "2d3", "1d2",
-            "Giant spiders should read as fast ambush arthropods rather than generic heavy monsters.");
-        AssertProfile("Basilisk", 5, 6, 2, 0, 4, 2, 2, "2d3", null,
-            "Magical animal-minded monsters should keep low intelligence without suppressing supernatural aura.");
+		Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting["Dragon"].AttributeProfile.StrengthBonus >
+			MythicalAnimalSeeder.TemplatesForTesting["Eastern Dragon"].AttributeProfile.StrengthBonus,
+			"Western dragons should remain the heavier physical boss while eastern dragons rely more on reach and cadence.");
+		Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting["Huorn"].AttributeProfile.AgilityBonus <
+			MythicalAnimalSeeder.TemplatesForTesting["Phoenix"].AttributeProfile.AgilityBonus,
+			"Tree-beasts should remain more ponderous than aerial mythics.");
     }
 
     [TestMethod]

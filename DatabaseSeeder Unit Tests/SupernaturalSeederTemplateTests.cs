@@ -101,6 +101,110 @@ public class SupernaturalSeederTemplateTests
 	}
 
 	[TestMethod]
+	public void CombatBalanceMetadata_AllSupernaturalRacesHaveCompleteTierProfiles()
+	{
+		foreach ((string name, SupernaturalSeeder.SupernaturalRaceTemplate template) in SupernaturalSeeder.TemplatesForTesting)
+		{
+			Assert.IsNotNull(template.CombatBalance, $"{name} should have combat balance metadata.");
+			Assert.IsFalse(string.IsNullOrWhiteSpace(template.CombatBalance.BaselineKey));
+			Assert.IsFalse(string.IsNullOrWhiteSpace(template.CombatBalance.AttackProfileKey));
+			Assert.IsFalse(string.IsNullOrWhiteSpace(template.CombatBalance.SignatureActionKey));
+			Assert.IsTrue(template.CombatBalance.PainToleranceMultiplier is >= 1.0 and <= 8.0,
+				$"{name} should use the approved supernatural pain-tolerance range.");
+			Assert.IsTrue(template.BodypartHealthMultiplier > 0.0);
+		}
+
+		Assert.AreEqual(NonHumanCombatTier.Nuisance,
+			SupernaturalSeeder.TemplatesForTesting["Imp"].CombatBalance.Tier);
+		Assert.AreEqual(NonHumanCombatTier.PartyBoss,
+			SupernaturalSeeder.TemplatesForTesting["Balrog"].CombatBalance.Tier);
+		Assert.AreEqual(NonHumanCombatTier.Avatar,
+			SupernaturalSeeder.TemplatesForTesting["Greater God"].CombatBalance.Tier);
+	}
+
+	[TestMethod]
+	public void CombatBalanceMetadata_HumanoidStrengthAndSignatureScalingRemainDistinct()
+	{
+		SupernaturalSeeder.SupernaturalRaceTemplate seraph = SupernaturalSeeder.TemplatesForTesting["Seraphim"];
+		SupernaturalSeeder.SupernaturalRaceTemplate greaterGod = SupernaturalSeeder.TemplatesForTesting["Greater God"];
+		SupernaturalSeeder.SupernaturalRaceTemplate balrog = SupernaturalSeeder.TemplatesForTesting["Balrog"];
+
+		Assert.IsTrue(seraph.AttributeProfile.StrengthBonus < seraph.AttributeProfile.AuraBonus,
+			"Angelic power should be Aura-led rather than implausible physical inflation.");
+		Assert.IsTrue(greaterGod.AttributeProfile.AuraBonus >= 90,
+			"The avatar tier should have a party-scale Aura target.");
+		Assert.IsTrue(balrog.AttributeProfile.StrengthBonus >= 200,
+			"Balrogs are the explicitly physical supernatural party boss.");
+		Assert.AreEqual("Starfire Breath", greaterGod.CombatBalance.SignatureActionKey);
+	}
+
+	[TestMethod]
+	public void CombatBalanceMetadata_PainInsensitiveFamiliesExceedLivingThreats()
+	{
+		double ghost = SupernaturalSeeder.TemplatesForTesting["Ghost"].CombatBalance.PainToleranceMultiplier;
+		double zombie = SupernaturalSeeder.TemplatesForTesting["Zombie"].CombatBalance.PainToleranceMultiplier;
+		double werewolf = SupernaturalSeeder.TemplatesForTesting["Werewolf"].CombatBalance.PainToleranceMultiplier;
+
+		Assert.IsTrue(ghost >= 5.0);
+		Assert.IsTrue(zombie >= 4.0);
+		Assert.IsTrue(ghost > werewolf && zombie > werewolf,
+			"Manifested spirits and undead should ignore more pain than living therianthropes.");
+	}
+
+	[TestMethod]
+	public void AttackProfiles_PhysicalAndSupernaturalScalingAreExplicitlySeparated()
+	{
+		foreach (string attackName in new[]
+		         {
+			         "Infernal Claw", "Horn Gore", "Fanged Bite", "Wing Buffet", "Wheel Crush",
+			         "Damnation Barge", "Hellish Headbutt", "Bone Rattle", "Raking Maul", "Crushing Pounce"
+		         })
+		{
+			Assert.IsTrue(
+				SupernaturalSeeder.UsesStrengthScalingForTesting(
+					SupernaturalSeeder.SupernaturalAttackDefinitionsForTesting[attackName]),
+				$"{attackName} should use the owned Strength-scaled physical expressions.");
+		}
+
+		foreach (string attackName in new[]
+		         {
+			         "Radiant Touch", "Radiant Gaze", "Soul Chill", "Spectral Touch", "Heavenly Choir",
+			         "Starfire Breath", "Hellfire Breath", "Wailing Dirge", "Deathly Pall"
+		         })
+		{
+			Assert.IsFalse(
+				SupernaturalSeeder.UsesStrengthScalingForTesting(
+					SupernaturalSeeder.SupernaturalAttackDefinitionsForTesting[attackName]),
+				$"{attackName} should use Aura- or Willpower-scaled supernatural expressions.");
+		}
+
+		Assert.AreEqual(20000.0,
+			SupernaturalSeeder.OwnedAttackWeightingForTesting(
+				SupernaturalSeeder.SupernaturalAttackDefinitionsForTesting["Raking Maul"], 100.0));
+		Assert.AreEqual(28000.0,
+			SupernaturalSeeder.OwnedAttackWeightingForTesting(
+				SupernaturalSeeder.SupernaturalAttackDefinitionsForTesting["Starfire Breath"], 100.0));
+		Assert.AreEqual(24000.0,
+			SupernaturalSeeder.OwnedAttackWeightingForTesting(
+				SupernaturalSeeder.SupernaturalAttackDefinitionsForTesting["Heavenly Choir"], 100.0));
+	}
+
+	[TestMethod]
+	public void NaturalArmourMaterials_AreExplicitBySupernaturalFamily()
+	{
+		Assert.AreEqual("celestial substance",
+			SupernaturalSeeder.NaturalArmourMaterialNameForTesting(SupernaturalSeeder.SupernaturalFamily.Angel));
+		Assert.AreEqual("infernal hide",
+			SupernaturalSeeder.NaturalArmourMaterialNameForTesting(SupernaturalSeeder.SupernaturalFamily.Demon));
+		Assert.AreEqual("spirit energy",
+			SupernaturalSeeder.NaturalArmourMaterialNameForTesting(SupernaturalSeeder.SupernaturalFamily.Spirit));
+		Assert.AreEqual("undead tissue",
+			SupernaturalSeeder.NaturalArmourMaterialNameForTesting(SupernaturalSeeder.SupernaturalFamily.Undead));
+		Assert.AreEqual("skin",
+			SupernaturalSeeder.NaturalArmourMaterialNameForTesting(SupernaturalSeeder.SupernaturalFamily.Therianthrope));
+	}
+
+	[TestMethod]
 	public void TemplatesForTesting_AngelsFollowMaimonidesOrder()
 	{
 		CollectionAssert.AreEqual(

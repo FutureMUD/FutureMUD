@@ -88,27 +88,7 @@ public partial class MythicalAnimalSeeder
 
 	private double ResolveMythicalHealthMultiplier(MythicalRaceTemplate template)
 	{
-		if (!UsesCombatRebalance)
-		{
-			return template.BodypartHealthMultiplier;
-		}
-
-		double sizeFactor = template.Size switch
-		{
-			SizeCategory.Tiny => 0.45,
-			SizeCategory.VerySmall => 0.65,
-			SizeCategory.Small => 0.85,
-			SizeCategory.Normal => 1.0,
-			SizeCategory.Large => 1.35,
-			SizeCategory.VeryLarge => 1.75,
-			SizeCategory.Huge => 2.15,
-			SizeCategory.Enormous => 2.65,
-			SizeCategory.Gigantic => 3.1,
-			SizeCategory.Titanic => 3.6,
-			_ => template.BodypartHealthMultiplier
-		};
-		double constitutionFactor = 1.0 + (template.AttributeProfile.ConstitutionBonus * 0.04);
-		return Math.Round(sizeFactor * constitutionFactor, 2);
+		return template.BodypartHealthMultiplier;
 	}
 
 	private void RefreshExistingMythicalCombatBalance()
@@ -137,8 +117,21 @@ public partial class MythicalAnimalSeeder
 
 	private void RefreshMythicalBodyparts(MythicalRaceTemplate template, BodyProto body)
 	{
-		foreach (BodypartProto bodypart in _context.BodypartProtos.Where(x => x.BodyId == body.Id && x.IsOrgan != 1).ToList())
+		foreach (BodypartProto bodypart in _context.BodypartProtos.Where(x => x.BodyId == body.Id).ToList())
 		{
+			if (bodypart.IsOrgan == 1)
+			{
+				bodypart.RelativeHitChance = 0;
+				bodypart.ArmourType = null;
+				continue;
+			}
+
+			if (SeederBodyUtilities.IsBoneBodypart(bodypart))
+			{
+				bodypart.RelativeHitChance = 0;
+				continue;
+			}
+
 			BodypartProto? reference = FindReferenceBodypart(template, body, bodypart.Name);
 			if (reference is null)
 			{

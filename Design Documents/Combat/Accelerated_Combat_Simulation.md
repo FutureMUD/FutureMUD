@@ -98,3 +98,15 @@ impdebug combatsim clear
 `new` creates staged cell 1; `set scene <cell>` replaces that first/default cell. `cell add <cell>` appends another cell and `cell remove <number>` removes an unused non-default staged cell. The `add` command takes its optional arguments in any order. `cell` is the one-based staged-cell number rather than a room lookup, which keeps multi-word cell names unambiguous. `ground`, `trees`, `sky`, `highair`, `water`, and the named `RoomLayer` values are accepted layers; `state` accepts normal position-state names such as `standing`, `sitting`, `prone`, and `flying`. Participants default to `range melee`. `range ranged` begins them outside melee and explicitly selects their preferred ranged strategy after target acquisition, which is useful for deterministic charge, receive-charge, skirmish and ranged-opening tests.
 
 For comparable runs within one batch, keep the source state, active NPC-template revision and staged cells unchanged; use a zero seed step for an exact seeded replay. The seed controls the engine's shared random source, expression evaluation uses call-local parameter values rather than shared mutable dictionaries, and all runs share the batch epoch. Repeated runs should therefore have the same `v2` execution fingerprint unless authored or external code escapes those controlled services. Separate invocations use their own starting epoch. `report` repeats the summary; `transcript` defaults to the first 100 entries and accepts a one-based start plus a maximum count of 1,000.
+
+## Manifested supernatural fixtures
+
+An incorporeal spirit is a useful planar-interaction control, but it is not a valid physical combat benchmark. Keep one untouched control and create a separate manifested fixture with:
+
+```text
+corporeality set <target> corporeal Prime
+```
+
+Only the manifested fixture counts toward pikeman or party win-rate bands. The untouched control should instead prove that ordinary physical attacks cannot interact with it on Prime. Record the source character or NPC-template ID and the corporeality command beside every supernatural batch because the simulator clones the source's current planar state.
+
+For mythical and supernatural balance work, use the same entry pikeman throughout. Create the veteran by cloning that character and inventory, then add four points to Strength, Constitution, Agility, Dexterity, Willpower and Perception (up to the racial cap) and twenty points to the pike and active defensive traits (up to their caps). Party members are exact simulator clones of this veteran. Start breath, charge and party-boss proof from both `range melee` and `range ranged`; use three disjoint 100-seed blocks for acceptance and a `step 0` replay to prove fingerprint equality.

@@ -322,22 +322,17 @@ internal static class SeederBodyUtilities
             .ToDictionary(x => x.Key, x => x.Value[0], StringComparer.OrdinalIgnoreCase);
     }
 
+	internal static bool IsBoneBodypart(BodypartProto part)
+	{
+		return ((BodypartTypeEnum)part.BodypartType) is BodypartTypeEnum.Bone or
+			BodypartTypeEnum.NonImmobilisingBone or BodypartTypeEnum.MinorBone or
+			BodypartTypeEnum.MinorNonImobilisingBone;
+	}
+
     public static IReadOnlyList<BodypartProto> GetExternalBodypartsWithoutLimbCoverage(
         FuturemudDatabaseContext context,
         BodyProto body)
     {
-        static bool IsBoneType(BodypartProto part)
-        {
-            return ((BodypartTypeEnum)part.BodypartType) switch
-            {
-                BodypartTypeEnum.Bone => true,
-                BodypartTypeEnum.NonImmobilisingBone => true,
-                BodypartTypeEnum.MinorBone => true,
-                BodypartTypeEnum.MinorNonImobilisingBone => true,
-                _ => false
-            };
-        }
-
         List<long> bodyIds = GetBodyAndAncestorIds(context, body);
         HashSet<long> bodyIdSet = bodyIds.ToHashSet();
         IReadOnlyList<BodypartProto> parts = GetEffectiveBodyparts(context, body);
@@ -347,7 +342,7 @@ internal static class SeederBodyUtilities
         }
 
         List<BodypartProto> externalParts = parts
-            .Where(x => !IsBoneType(x) && x.IsOrgan == 0)
+			.Where(x => !IsBoneBodypart(x) && x.IsOrgan == 0)
             .OrderBy(x => bodyIds.IndexOf(x.BodyId))
             .ThenBy(x => x.DisplayOrder ?? 0)
             .ThenBy(x => x.Id)

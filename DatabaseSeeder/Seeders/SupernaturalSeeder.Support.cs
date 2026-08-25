@@ -8,6 +8,7 @@ using MudSharp.FutureProg;
 using MudSharp.Framework;
 using MudSharp.Models;
 using MudSharp.Planes;
+using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
 using System;
 using System.Collections.Generic;
@@ -185,6 +186,56 @@ public partial class SupernaturalSeeder
 	internal static IReadOnlyDictionary<string, SupernaturalAttackDefinition> SupernaturalAttackDefinitionsForTesting =>
 		SupernaturalAttackCloneDefinitions;
 
+	internal static bool UsesStrengthScalingForTesting(SupernaturalAttackDefinition definition) =>
+		UsesStrengthScaling(definition);
+
+	internal static double OwnedAttackWeightingForTesting(SupernaturalAttackDefinition definition,
+		double donorWeighting) => OwnedAttackWeighting(definition, donorWeighting);
+
+	private static bool UsesStrengthScaling(SupernaturalAttackDefinition definition)
+	{
+		return definition.Categories.Any(x => x.In(
+			"buffeting",
+			"claw",
+			"bite",
+			"horn",
+			"trip",
+			"pushback",
+			"stagger",
+			"wheel",
+			"therianthrope"));
+	}
+
+	private static double OwnedAttackWeighting(SupernaturalAttackDefinition definition, double donorWeighting)
+	{
+		if (definition.Categories.Contains("breath", StringComparer.OrdinalIgnoreCase))
+		{
+			return 28000.0;
+		}
+
+		if (definition.Categories.Contains("sonic", StringComparer.OrdinalIgnoreCase))
+		{
+			return 24000.0;
+		}
+
+		if (definition.Categories.Contains("ranged", StringComparer.OrdinalIgnoreCase))
+		{
+			return 26000.0;
+		}
+
+		if (UsesStrengthScaling(definition))
+		{
+			return 20000.0;
+		}
+
+		if (definition.Categories.Any(x => x.In("radiant", "infernal", "spirit", "undead")))
+		{
+			return 30000.0;
+		}
+
+		return Math.Max(20000.0, donorWeighting);
+	}
+
 	private static IReadOnlyCollection<string> SupernaturalAttackNames =>
 		Templates.Values
 			.SelectMany(x => x.Attacks)
@@ -273,6 +324,14 @@ public partial class SupernaturalSeeder
 
 		foreach ((string name, SupernaturalRaceTemplate template) in Templates)
 		{
+			if (template.CombatBalance is null || string.IsNullOrWhiteSpace(template.CombatBalance.BaselineKey) ||
+			    string.IsNullOrWhiteSpace(template.CombatBalance.AttackProfileKey) ||
+			    template.CombatBalance.PainToleranceMultiplier <= 0.0 ||
+			    string.IsNullOrWhiteSpace(template.CombatBalance.SignatureActionKey))
+			{
+				issues.Add($"{name} has incomplete combat balance metadata.");
+			}
+
 			if (!knownBodies.Contains(template.BodyKey))
 			{
 				issues.Add($"{name} references unknown body key {template.BodyKey}.");
@@ -335,31 +394,42 @@ public partial class SupernaturalSeeder
 
 	private void EnsureSupernaturalMaterials()
 	{
-		if (_context.Materials.Any(x => x.Name == "spirit energy"))
+		EnsureSupernaturalMaterial("spirit energy", "spirit energy", MaterialBehaviourType.Spirit, 1.0, false,
+			"pale");
+		EnsureSupernaturalMaterial("celestial substance", "celestial substance", MaterialBehaviourType.Spirit,
+			500.0, false, "white-gold");
+		EnsureSupernaturalMaterial("infernal hide", "infernal hide", MaterialBehaviourType.Skin, 1150.0, false,
+			"sooty");
+		EnsureSupernaturalMaterial("undead tissue", "undead tissue", MaterialBehaviourType.Remains, 1050.0, true,
+			"grey");
+		_context.SaveChanges();
+	}
+
+	private void EnsureSupernaturalMaterial(string name, string description, MaterialBehaviourType behaviour,
+		double density, bool organic, string residueColour)
+	{
+		Material? material = _context.Materials.FirstOrDefault(x => x.Name == name);
+		if (material is null)
 		{
-			return;
+			material = new Material { Name = name };
+			_context.Materials.Add(material);
 		}
 
-		_context.Materials.Add(new Material
-		{
-			Name = "spirit energy",
-			MaterialDescription = "spirit energy",
-			BehaviourType = (int)MaterialBehaviourType.Spirit,
-			Type = (int)MaterialType.Solid,
-			Density = 1.0,
-			Organic = false,
-			Absorbency = 0.0,
-			ShearYield = 1000,
-			ImpactYield = 1000,
-			ElectricalConductivity = 0.0001,
-			ThermalConductivity = 0.01,
-			SpecificHeatCapacity = 1000,
-			ResidueColour = "pale",
-			ResidueSdesc = "a trace of spirit energy",
-			ResidueDesc = "It is marked by {0}faint spirit energy",
-			SolventVolumeRatio = 1.0
-		});
-		_context.SaveChanges();
+		material.MaterialDescription = description;
+		material.BehaviourType = (int)behaviour;
+		material.Type = (int)MaterialType.Solid;
+		material.Density = density;
+		material.Organic = organic;
+		material.Absorbency = behaviour is MaterialBehaviourType.Skin or MaterialBehaviourType.Remains ? 0.15 : 0.0;
+		material.ShearYield = behaviour == MaterialBehaviourType.Spirit ? 1000 : 30000;
+		material.ImpactYield = behaviour == MaterialBehaviourType.Spirit ? 1000 : 50000;
+		material.ElectricalConductivity = 0.0001;
+		material.ThermalConductivity = behaviour == MaterialBehaviourType.Spirit ? 0.01 : 0.14;
+		material.SpecificHeatCapacity = 1000;
+		material.ResidueColour = residueColour;
+		material.ResidueSdesc = $"a trace of {description}";
+		material.ResidueDesc = $"It is marked by {{0}}faint {description}";
+		material.SolventVolumeRatio = 1.0;
 	}
 
 	private CorpseModel EnsureNonDecayingCorpseModel(string name, string description, string sdesc, string fdesc,
@@ -393,71 +463,177 @@ public partial class SupernaturalSeeder
 
 	private void EnsureSupernaturalAttacks(SupernaturalSeedSummary summary)
 	{
+		TraitExpression strengthDamage = EnsureSupernaturalExpression(
+			"Supernatural Physical Attack Damage",
+			$"1.5 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1)");
+		TraitExpression strengthPain = EnsureSupernaturalExpression(
+			"Supernatural Physical Attack Pain",
+			$"0.7 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)");
+		TraitExpression strengthStun = EnsureSupernaturalExpression(
+			"Supernatural Physical Attack Stun",
+			$"0.65 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)");
+		TraitExpression auraDamage = EnsureSupernaturalExpression(
+			"Supernatural Aura Attack Damage",
+			$"((aura:{_auraTrait.Id} + (3 * quality)) * (aura:{_auraTrait.Id} + (3 * quality)) / 2.5) * sqrt(degree+1)");
+		TraitExpression auraPain = EnsureSupernaturalExpression(
+			"Supernatural Aura Attack Pain",
+			$"((aura:{_auraTrait.Id} + (2 * quality)) * (aura:{_auraTrait.Id} + (2 * quality)) / 4.0) * sqrt(degree+1)");
+		TraitExpression auraStun = EnsureSupernaturalExpression(
+			"Supernatural Aura Attack Stun",
+			$"((aura:{_auraTrait.Id} + (2 * quality)) * (aura:{_auraTrait.Id} + (2 * quality)) / 4.5) * sqrt(degree+1)");
+		TraitExpression willDamage = EnsureSupernaturalExpression(
+			"Supernatural Will Attack Damage",
+			$"((will:{_willpowerTrait.Id} + (2 * quality)) * (will:{_willpowerTrait.Id} + (2 * quality)) / 3.0) * sqrt(degree+1)");
+		TraitExpression willPain = EnsureSupernaturalExpression(
+			"Supernatural Will Attack Pain",
+			$"((will:{_willpowerTrait.Id} + (2 * quality)) * (will:{_willpowerTrait.Id} + (2 * quality)) / 3.0) * sqrt(degree+1)");
+		TraitExpression willStun = EnsureSupernaturalExpression(
+			"Supernatural Will Attack Stun",
+			$"((will:{_willpowerTrait.Id} + (2 * quality)) * (will:{_willpowerTrait.Id} + (2 * quality)) / 2.75) * sqrt(degree+1)");
+
 		foreach ((string name, SupernaturalAttackDefinition definition) in SupernaturalAttackCloneDefinitions)
 		{
-			if (_context.WeaponAttacks.Any(x => x.Name == name))
+			WeaponAttack donor = _context.WeaponAttacks.First(x => x.Name == definition.DonorName);
+			if (definition.SharedStockAttack)
 			{
 				continue;
 			}
 
-			WeaponAttack donor = _context.WeaponAttacks.First(x => x.Name == definition.DonorName);
 			int moveType = (int)(definition.MoveTypeOverride ?? (BuiltInCombatMoveType)donor.MoveType);
 			string additionalInfo = definition.FixedTargetBodypartShape is null
 				? donor.AdditionalInfo
 				: _context.BodypartShapes.First(x => x.Name == definition.FixedTargetBodypartShape).Id.ToString();
-			WeaponAttack attack = new()
+			WeaponAttack? attack = _context.WeaponAttacks.FirstOrDefault(x => x.Name == name);
+			bool created = attack is null;
+			attack ??= new WeaponAttack();
+			attack.Name = name;
+			attack.WeaponTypeId = donor.WeaponTypeId;
+			attack.Verb = donor.Verb;
+			attack.FutureProgId = donor.FutureProgId;
+			attack.BaseAttackerDifficulty = donor.BaseAttackerDifficulty;
+			attack.BaseBlockDifficulty = donor.BaseBlockDifficulty;
+			attack.BaseDodgeDifficulty = donor.BaseDodgeDifficulty;
+			attack.BaseParryDifficulty = donor.BaseParryDifficulty;
+			attack.BaseAngleOfIncidence = donor.BaseAngleOfIncidence;
+			attack.RecoveryDifficultySuccess = donor.RecoveryDifficultySuccess;
+			attack.RecoveryDifficultyFailure = donor.RecoveryDifficultyFailure;
+			attack.MoveType = moveType;
+			attack.Intentions = donor.Intentions;
+			attack.ExertionLevel = donor.ExertionLevel;
+			attack.DamageType = donor.DamageType;
+			attack.DamageExpressionId = donor.DamageExpressionId;
+			attack.StunExpressionId = donor.StunExpressionId;
+			attack.PainExpressionId = donor.PainExpressionId;
+			attack.Weighting = OwnedAttackWeighting(definition, donor.Weighting);
+			attack.MaximumTargets = donor.MaximumTargets;
+			attack.BodypartShapeId = donor.BodypartShapeId;
+			attack.StaminaCost = donor.StaminaCost;
+			attack.BaseDelay = donor.BaseDelay;
+			attack.Orientation = donor.Orientation;
+			attack.Alignment = donor.Alignment;
+			attack.AdditionalInfo = additionalInfo;
+			attack.HandednessOptions = donor.HandednessOptions;
+			attack.RequiredPositionStateIds = donor.RequiredPositionStateIds;
+			attack.OnUseProgId = donor.OnUseProgId;
+
+			bool sonic = definition.Categories.Contains("sonic", StringComparer.OrdinalIgnoreCase);
+			bool breath = definition.Categories.Contains("breath", StringComparer.OrdinalIgnoreCase);
+			bool ranged = definition.Categories.Contains("ranged", StringComparer.OrdinalIgnoreCase);
+			bool spirit = definition.Categories.Contains("spirit", StringComparer.OrdinalIgnoreCase) ||
+			              definition.Categories.Contains("undead", StringComparer.OrdinalIgnoreCase);
+			bool magical = sonic || breath || ranged || spirit ||
+			               definition.Categories.Contains("radiant", StringComparer.OrdinalIgnoreCase) ||
+			               definition.Categories.Contains("infernal", StringComparer.OrdinalIgnoreCase);
+			bool physical = UsesStrengthScaling(definition);
+			if (magical)
 			{
-				Name = name,
-				WeaponTypeId = donor.WeaponTypeId,
-				Verb = donor.Verb,
-				FutureProgId = donor.FutureProgId,
-				BaseAttackerDifficulty = donor.BaseAttackerDifficulty,
-				BaseBlockDifficulty = donor.BaseBlockDifficulty,
-				BaseDodgeDifficulty = donor.BaseDodgeDifficulty,
-				BaseParryDifficulty = donor.BaseParryDifficulty,
-				BaseAngleOfIncidence = donor.BaseAngleOfIncidence,
-				RecoveryDifficultySuccess = donor.RecoveryDifficultySuccess,
-				RecoveryDifficultyFailure = donor.RecoveryDifficultyFailure,
-				MoveType = moveType,
-				Intentions = donor.Intentions,
-				ExertionLevel = donor.ExertionLevel,
-				DamageType = donor.DamageType,
-				DamageExpressionId = donor.DamageExpressionId,
-				StunExpressionId = donor.StunExpressionId,
-				PainExpressionId = donor.PainExpressionId,
-				Weighting = donor.Weighting,
-				BodypartShapeId = donor.BodypartShapeId,
-				StaminaCost = donor.StaminaCost,
-				BaseDelay = donor.BaseDelay,
-				Orientation = donor.Orientation,
-				Alignment = donor.Alignment,
-				AdditionalInfo = additionalInfo,
-				HandednessOptions = donor.HandednessOptions,
-				RequiredPositionStateIds = donor.RequiredPositionStateIds,
-				OnUseProgId = donor.OnUseProgId
-			};
-			_context.WeaponAttacks.Add(attack);
+				// These are seeder-owned supernatural techniques, not alternate names for the
+				// mundane donor attacks. Their checks must remain reliable for stock NPCs that
+				// do not have a weapon skill matching an implementation-only donor weapon type.
+				attack.BaseAttackerDifficulty = (int)Difficulty.Automatic;
+				attack.BaseBlockDifficulty = (int)Difficulty.Insane;
+				attack.BaseDodgeDifficulty = (int)Difficulty.Hard;
+				attack.BaseParryDifficulty = (int)Difficulty.Insane;
+			}
+			if (physical)
+			{
+				attack.DamageExpressionId = strengthDamage.Id;
+				attack.PainExpressionId = strengthPain.Id;
+				attack.StunExpressionId = strengthStun.Id;
+			}
+			else if (magical)
+			{
+				TraitExpression damage = sonic || spirit ? willDamage : auraDamage;
+				TraitExpression pain = sonic || spirit ? willPain : auraPain;
+				TraitExpression stun = sonic || spirit ? willStun : auraStun;
+				attack.DamageExpressionId = damage.Id;
+				attack.PainExpressionId = pain.Id;
+				attack.StunExpressionId = stun.Id;
+			}
+
+			if (breath)
+			{
+				attack.BaseDelay = 5.0;
+				attack.StaminaCost = Math.Max(attack.StaminaCost, 12.0);
+				attack.MaximumTargets = 4;
+			}
+			else if (sonic)
+			{
+				attack.BaseDelay = 4.5;
+				attack.MaximumTargets = 4;
+			}
+			else if (ranged)
+			{
+				attack.BaseDelay = 4.0;
+				attack.MaximumTargets = Math.Max(1, attack.MaximumTargets);
+			}
+
+			if (created)
+			{
+				_context.WeaponAttacks.Add(attack);
+			}
 			_context.SaveChanges();
 
-			CombatMessage combatMessage = new()
+			CombatMessage? existingMessage = _context.CombatMessages.FirstOrDefault(x =>
+				x.Priority == 50 && x.CombatMessagesWeaponAttacks.Any(y => y.WeaponAttackId == attack.Id));
+			CombatMessage combatMessage = existingMessage ?? new CombatMessage();
+			combatMessage.Type = moveType;
+			combatMessage.Message = definition.Message;
+			combatMessage.Priority = 50;
+			combatMessage.Verb = donor.Verb;
+			combatMessage.Chance = 1.0;
+			combatMessage.FailureMessage = definition.Message;
+			if (existingMessage is null)
 			{
-				Type = moveType,
-				Message = definition.Message,
-				Priority = 50,
-				Verb = donor.Verb,
-				Chance = 1.0,
-				FailureMessage = definition.Message
-			};
-			combatMessage.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
+				combatMessage.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
+				{
+					CombatMessage = combatMessage,
+					WeaponAttack = attack
+				});
+				_context.CombatMessages.Add(combatMessage);
+			}
+			if (created)
 			{
-				CombatMessage = combatMessage,
-				WeaponAttack = attack
-			});
-			_context.CombatMessages.Add(combatMessage);
-			summary.AttacksAdded++;
+				summary.AttacksAdded++;
+			}
 		}
 
 		_context.SaveChanges();
+	}
+
+	private TraitExpression EnsureSupernaturalExpression(string name, string expression)
+	{
+		TraitExpression? existing = _context.TraitExpressions.FirstOrDefault(x => x.Name == name);
+		if (existing is not null)
+		{
+			existing.Expression = expression;
+			return existing;
+		}
+
+		TraitExpression created = new() { Name = name, Expression = expression };
+		_context.TraitExpressions.Add(created);
+		_context.SaveChanges();
+		return created;
 	}
 
 	private void EnsureSupernaturalCulturesAndNames(SupernaturalSeedSummary summary)

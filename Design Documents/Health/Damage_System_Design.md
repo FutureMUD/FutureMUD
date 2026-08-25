@@ -62,7 +62,9 @@ The `combat-rebalance` profile reconciles the named full-organic strategies to:
 
 `Race.PainToleranceMultiplier` is a separate persisted multiplier, neutral at `1.0`. The effective maximum pain is the strategy pain expression multiplied by this value exactly once. Prompt bands, pain penalties and pass-out checks all consume that effective maximum; bodypart damage thresholds continue to use `BodypartHealthMultiplier`. Existing databases are backfilled from their bodypart-health multiplier to preserve their pre-migration limb-pain relationship. Builders set the value with `race set paintolerance <percentage>`.
 
-Ordinary AnimalSeeder races receive explicit temperament tiers rather than inheriting limb durability as pain resistance. Current anchors span `80%` for mice, `130%` for wolves, `175%` for bears and hippos, and `200%` for rhinos and elephants. Mythical animals are not retuned by this pass.
+Ordinary AnimalSeeder races receive explicit temperament tiers rather than inheriting limb durability as pain resistance. Current anchors span `80%` for mice, `130%` for wolves, `175%` for bears and hippos, and `200%` for rhinos and elephants.
+
+Mythical and supernatural stock races now also own explicit pain-tolerance values. Living mythics range from `115%` for minor threats through `300%` for adult dragons. Angels, demons and embodied divine races rise by combat tier to a maximum of `400%`; pain-insensitive undead and manifested spirits range from `475%` to `700%` in the current catalogue. These values multiply effective maximum pain once and do not replace `BodypartHealthMultiplier`.
 
 ### Seeded animal armour and hit topology
 

@@ -38,6 +38,8 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 	private HealthStrategy _healthStrategy = null!;
 	private TraitDefinition _healthTrait = null!;
 	private TraitDefinition _strengthTrait = null!;
+	private TraitDefinition _willpowerTrait = null!;
+	private TraitDefinition _auraTrait = null!;
 	private CorpseModel _humanoidCorpse = null!;
 	private CorpseModel _animalCorpse = null!;
 	private CorpseModel _undeadCorpse = null!;
@@ -234,6 +236,14 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 			.Where(x => x.Type == (int)TraitType.Attribute)
 			.AsEnumerable()
 			.First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
+		_willpowerTrait = _context.TraitDefinitions
+			.Where(x => x.Type == (int)TraitType.Attribute)
+			.AsEnumerable()
+			.First(x => x.Name.In("Willpower", "Will", "Resolve", "Grit"));
+		_auraTrait = _context.TraitDefinitions
+			.Where(x => x.Type == (int)TraitType.Attribute)
+			.AsEnumerable()
+			.FirstOrDefault(x => x.Name.In("Aura", "Luck", "Spirit")) ?? _willpowerTrait;
 		_healthStrategy = _context.HealthStrategies.First(x =>
 			x.Name == NonHumanSeederHealthStrategyHelper.GetStrategyName(answers["model"]));
 
@@ -286,6 +296,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 			};
 			BodyProto supernaturalBody = EnsureCustomBody(bodyName, source, PlanarProfile, summary);
 			EnsureCustomBodyAdditions(bodyName, supernaturalBody);
+			ReconcileSupernaturalBodyparts(supernaturalBody, source);
 			bodies[bodyName] = supernaturalBody;
 		}
 
@@ -298,6 +309,41 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		}
 
 		return bodies;
+	}
+
+	private void ReconcileSupernaturalBodyparts(BodyProto body, BodyProto referenceBody)
+	{
+		foreach (BodypartProto bodypart in _context.BodypartProtos.Where(x => x.BodyId == body.Id).ToList())
+		{
+			if (bodypart.IsOrgan == 1)
+			{
+				bodypart.RelativeHitChance = 0;
+				bodypart.ArmourType = null;
+				continue;
+			}
+
+			if (SeederBodyUtilities.IsBoneBodypart(bodypart))
+			{
+				bodypart.RelativeHitChance = 0;
+				continue;
+			}
+
+			BodypartProto? reference = SeederBodyUtilities.FindBodypartOnBodyOrAncestors(
+				_context, referenceBody, bodypart.Name) ??
+				SeederBodyUtilities.FindBodypartOnBodyOrAncestors(_context, _quadrupedBody, bodypart.Name);
+			if (reference is null)
+			{
+				continue;
+			}
+
+			bodypart.MaxLife = reference.MaxLife;
+			bodypart.RelativeHitChance = reference.RelativeHitChance;
+			bodypart.ArmourType = reference.ArmourType;
+			bodypart.SeveredThreshold = reference.SeveredThreshold;
+			bodypart.SeverFormula = reference.SeverFormula;
+		}
+
+		_context.SaveChanges();
 	}
 
 	private BodyProto EnsureCustomBody(string name, BodyProto source, SupernaturalPlanarProfile planarProfile,
@@ -445,8 +491,9 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		race.CanAttack = true;
 		race.CanDefend = true;
 		race.NaturalArmourType = template.UsesHumanoidCharacteristics ? _humanoidNaturalArmour : null;
-		race.NaturalArmourQuality = template.Family is SupernaturalFamily.Divine or SupernaturalFamily.Demon or SupernaturalFamily.Angel ? 3 : 2;
-		race.NaturalArmourMaterial = null;
+		race.NaturalArmourQuality = (int)template.CombatBalance.NaturalArmourQuality;
+		race.NaturalArmourMaterial = _context.Materials.First(x =>
+			x.Name == NaturalArmourMaterialName(template.Family));
 		race.BloodLiquid = _blood;
 		race.BloodModel = _humanRace.BloodModel;
 		race.SizeStanding = (int)template.Size;
@@ -466,6 +513,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		race.TemperatureRangeCeiling = 80;
 		race.BodypartSizeModifier = 0;
 		race.BodypartHealthMultiplier = template.BodypartHealthMultiplier;
+		race.PainToleranceMultiplier = template.CombatBalance.PainToleranceMultiplier;
 		race.CanClimb = template.CanClimb;
 		race.CanSwim = template.CanSwim;
 		race.MinimumSleepingPosition = _humanRace.MinimumSleepingPosition;
@@ -796,6 +844,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 
 	private void SeedNaturalAttacks(Race race, SupernaturalRaceTemplate template)
 	{
+		List<SeededNaturalAttackLink> expected = [];
 		foreach (SupernaturalAttackTemplate attackTemplate in template.Attacks)
 		{
 			WeaponAttack? attack = _context.WeaponAttacks.FirstOrDefault(x => x.Name == attackTemplate.AttackName);
@@ -804,25 +853,37 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 				continue;
 			}
 
-			foreach (string alias in attackTemplate.BodypartAliases)
-			{
-				BodypartProto? bodypart = FindBodypartOnBody(race.BaseBody, alias);
-				if (bodypart is null ||
-				    _context.RacesWeaponAttacks.Any(x =>
-					    x.RaceId == race.Id && x.BodypartId == bodypart.Id && x.WeaponAttackId == attack.Id))
-				{
-					continue;
-				}
-
-				_context.RacesWeaponAttacks.Add(new RacesWeaponAttacks
-				{
-					Race = race,
-					Bodypart = bodypart,
-					WeaponAttack = attack,
-					Quality = (int)attackTemplate.Quality
-				});
-			}
+			var quality = (ItemQuality)Math.Max((int)attackTemplate.Quality,
+				(int)template.CombatBalance.NaturalArmourQuality);
+			expected.Add(new(attack, quality, attackTemplate.BodypartAliases));
 		}
+
+		if (template.CombatBalance.GrantBehemothCharge &&
+		    _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Behemoth Charge") is { } charge)
+		{
+			expected.Add(new(charge, template.CombatBalance.NaturalArmourQuality));
+		}
+
+		HashSet<string> managedNames = SupernaturalAttackCloneDefinitions.Keys
+			.Append("Behemoth Charge")
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		NonHumanNaturalAttackReconciler.Reconcile(_context, race, expected, managedNames);
+	}
+
+	internal static string NaturalArmourMaterialNameForTesting(SupernaturalFamily family) =>
+		NaturalArmourMaterialName(family);
+
+	private static string NaturalArmourMaterialName(SupernaturalFamily family)
+	{
+		return family switch
+		{
+			SupernaturalFamily.Angel or SupernaturalFamily.Divine => "celestial substance",
+			SupernaturalFamily.Demon => "infernal hide",
+			SupernaturalFamily.Spirit => "spirit energy",
+			SupernaturalFamily.Undead => "undead tissue",
+			SupernaturalFamily.Therianthrope => "skin",
+			_ => throw new ArgumentOutOfRangeException(nameof(family), family, null)
+		};
 	}
 
 	private BodypartProto? FindBodypartOnBody(BodyProto body, string alias)

@@ -95,7 +95,7 @@ public class MultiTargetCombatMove : CombatMoveBase
 	internal static ICombatMove WrapWeaponAttack(ICharacter assailant, ICharacter primaryTarget,
 		IWeaponAttack attack, IGameItem? weapon, Func<ICharacter, ICombatMove> moveFactory)
 	{
-		if (attack.MoveType.In(BuiltInCombatMoveType.ScreechAttack, BuiltInCombatMoveType.BreathWeaponAttack,
+		if (attack.MoveType.In(BuiltInCombatMoveType.BreathWeaponAttack,
 			    BuiltInCombatMoveType.ExplosiveNaturalAttack, BuiltInCombatMoveType.AquaticVehicleAttack))
 		{
 			return moveFactory(primaryTarget);
@@ -167,11 +167,17 @@ public class MultiTargetCombatMove : CombatMoveBase
 	private static bool IsRangedAttack(IWeaponAttack attack)
 	{
 		return attack is IRangedNaturalAttack ||
+		       attack.MoveType == BuiltInCombatMoveType.ScreechAttack ||
 		       attack.MoveType.In(BuiltInCombatMoveType.PullToMelee, BuiltInCombatMoveType.PullToMeleeUnarmed);
 	}
 
 	private static bool IsValidRangedSecondary(ICharacter assailant, ICharacter target, IWeaponAttack? attack)
 	{
+		if (attack?.MoveType == BuiltInCombatMoveType.ScreechAttack)
+		{
+			return assailant.ColocatedWith(target);
+		}
+
 		if (attack?.MoveType.In(BuiltInCombatMoveType.PullToMelee, BuiltInCombatMoveType.PullToMeleeUnarmed) == true)
 		{
 			return assailant.ColocatedWith(target) && target.CombatTarget == assailant;

@@ -12,12 +12,21 @@ public class DownedMeleeAttack : MeleeWeaponAttack
     private static TraitExpression _downedMeleeExpressionDefender;
 
     public TraitExpression DownedMeleeExpressionAttacker => _downedMeleeExpressionAttacker ??= new TraitExpression(
-        Gameworld.GetStaticConfiguration("DownedMeleeExpressionAttacker"),
+        ResolveExpression(
+            Gameworld.GetStaticConfiguration("DownedMeleeExpressionAttacker"),
+            Gameworld.GetStaticConfiguration("StaggeringBlowExpressionAttacker")),
         Gameworld);
 
     public TraitExpression DownedMeleeExpressionDefender => _downedMeleeExpressionDefender ??= new TraitExpression(
-        Gameworld.GetStaticConfiguration("DownedMeleeExpressionDefender"),
+        ResolveExpression(
+            Gameworld.GetStaticConfiguration("DownedMeleeExpressionDefender"),
+            Gameworld.GetStaticConfiguration("StaggeringBlowExpressionDefender")),
         Gameworld);
+
+	internal static string ResolveExpression(string configuredExpression, string fallbackExpression)
+	{
+		return string.IsNullOrWhiteSpace(configuredExpression) ? fallbackExpression : configuredExpression;
+	}
 
     #region Overrides of MeleeWeaponAttack
 
@@ -55,7 +64,7 @@ public class DownedMeleeAttack : MeleeWeaponAttack
                 ("stun", result.WoundsCaused.Sum(x => x.CurrentStun))]);
         CheckOutcome cr = check.Check(Target, ((ISecondaryDifficultyAttack)Attack).SecondaryDifficulty, Assailant,
             externalBonus: (defenderStrength - attackerStrength) *
-                           Gameworld.GetStaticDouble("StaggeringBlowPenaltyMultiplier"));
+                           Gameworld.GetStaticDouble("DownedMeleePenaltyMultiplier"));
         switch (cr.Outcome)
         {
             case Outcome.MinorFail:

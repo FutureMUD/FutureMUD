@@ -37,6 +37,29 @@ internal class GameModule : Module<ICharacter>
     public static GameModule Instance { get; } = new();
     public override int CommandsDisplayOrder => 0;
 
+    internal static readonly BuiltInCombatMoveType[] NaturalAttackTypesForDisplay =
+    [
+        BuiltInCombatMoveType.NaturalWeaponAttack,
+        BuiltInCombatMoveType.StaggeringBlowUnarmed,
+        BuiltInCombatMoveType.DownedAttackUnarmed,
+        BuiltInCombatMoveType.UnbalancingBlowUnarmed,
+        BuiltInCombatMoveType.PushbackUnarmed,
+        BuiltInCombatMoveType.ScreechAttack,
+        BuiltInCombatMoveType.WardFreeUnarmedAttack,
+        BuiltInCombatMoveType.ClinchUnarmedAttack,
+        BuiltInCombatMoveType.UnarmedSmashItem,
+        BuiltInCombatMoveType.EnvenomingAttack,
+        BuiltInCombatMoveType.EnvenomingAttackClinch,
+        BuiltInCombatMoveType.UnbalancingBlowClinch,
+        BuiltInCombatMoveType.StaggeringBlowClinch,
+        BuiltInCombatMoveType.SwoopAttackUnarmed,
+        BuiltInCombatMoveType.RangedNaturalAttack,
+        BuiltInCombatMoveType.BreathWeaponAttack,
+        BuiltInCombatMoveType.SpitNaturalAttack,
+        BuiltInCombatMoveType.ExplosiveNaturalAttack,
+        BuiltInCombatMoveType.BuffetingNaturalAttack
+    ];
+
     [PlayerCommand("SkillLevels", "skilllevels")]
     [HelpInfo("skilllevels", @"The #3skilllevels#0 command lists the named skill or attribute's descriptive level bands in order. Administrators can inspect any defined trait; other characters can inspect only their own traits.
 
@@ -286,25 +309,8 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
         {
             sb.AppendLine($"You are currently able to use the following unarmed attacks:\n");
             sb.AppendLine(StringUtilities.GetTextTable(
-                from attack in actor.Race.UsableNaturalWeaponAttacks(actor, null, true, BuiltInCombatMoveType.NaturalWeaponAttack,
-                    BuiltInCombatMoveType.StaggeringBlowUnarmed,
-                    BuiltInCombatMoveType.DownedAttackUnarmed,
-                    BuiltInCombatMoveType.UnbalancingBlowUnarmed,
-                    BuiltInCombatMoveType.ScreechAttack,
-                    BuiltInCombatMoveType.WardFreeUnarmedAttack,
-                    BuiltInCombatMoveType.ClinchUnarmedAttack,
-                    BuiltInCombatMoveType.UnarmedSmashItem,
-                    BuiltInCombatMoveType.EnvenomingAttack,
-                    BuiltInCombatMoveType.EnvenomingAttackClinch,
-                    BuiltInCombatMoveType.UnbalancingBlowClinch,
-                    BuiltInCombatMoveType.StaggeringBlowClinch,
-                    BuiltInCombatMoveType.SwoopAttackUnarmed,
-                    BuiltInCombatMoveType.RangedNaturalAttack,
-                    BuiltInCombatMoveType.BreathWeaponAttack,
-                    BuiltInCombatMoveType.SpitNaturalAttack,
-                    BuiltInCombatMoveType.ExplosiveNaturalAttack,
-                    BuiltInCombatMoveType.BuffetingNaturalAttack
-                ).Select(x => x.Attack).Distinct()
+                from attack in actor.Race.UsableNaturalWeaponAttacks(actor, null, true,
+                    NaturalAttackTypesForDisplay).Select(x => x.Attack).Distinct()
                 select new List<string>
                 {
                     attack.Name,

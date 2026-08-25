@@ -61,7 +61,7 @@ holder weak without being an absolute substitute for the standard strategy's hel
 
 `RangeBaseStrategy` handles ranged defenses, receive-charge opportunities, and ranged-natural defenses. It delegates magic power attack defense to `StandardMeleeStrategy` so ranged-mode combatants still use ordinary ward/block/parry/dodge coverage against magic. Ranged strategies normally rely on the melee-range setter to switch them to their preferred melee strategy once melee range is established.
 
-`WardStrategy` extends melee defense by trying a ward defense before falling back to standard defense. Wards are available against start-clinch, weapon attacks, and magic attack powers when the defender is not ward-beaten, has stamina, the assailant is upright, and the defender has a usable warding weapon or unarmed ward attack.
+`WardStrategy` extends melee defense by trying a ward defense before falling back to standard defense. Wards are available against start-clinch, weapon attacks, and magic attack powers when the defender is not ward-beaten, has stamina, the assailant is upright, and the defender has a usable warding weapon or unarmed ward attack. The Combat Seeder supplies unfiltered `WardDefense` and `WardCounter` fallback messages; attack-specific messages remain eligible only for their linked attack.
 
 ## Shared Attack Behaviour
 

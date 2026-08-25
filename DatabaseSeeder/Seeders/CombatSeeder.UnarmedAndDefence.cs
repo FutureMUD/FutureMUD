@@ -729,6 +729,51 @@ public partial class CombatSeeder
         #endregion
     }
 
+	internal static int EnsureWardCombatMessages(FuturemudDatabaseContext context, SeedCombatMessageStyle messageStyle)
+	{
+		var changes = 0;
+		var definitions = new (BuiltInCombatMoveType Type, string Message, string Failure)[]
+		{
+			(BuiltInCombatMoveType.WardDefense,
+				CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+					"#1 %1|attempt|attempts to keep $0 at bay"),
+				CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+					"#1 %1|attempt|attempts to keep $0 at bay")),
+			(BuiltInCombatMoveType.WardCounter,
+				$"{CombatSeederMessageStyleHelper.FailurePrefix(messageStyle)}#1 %1|fail|fails to hold $0 at bay",
+				CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+					"#1 %1|hold|holds $0 at bay"))
+		};
+
+		foreach (var definition in definitions)
+		{
+			if (context.CombatMessages.Any(x =>
+				x.Type == (int)definition.Type &&
+				x.Outcome == null &&
+				x.Verb == null &&
+				x.ProgId == null &&
+				x.AuxiliaryProgId == null &&
+				!x.CombatMessagesWeaponAttacks.Any() &&
+				!x.CombatMessagesCombatActions.Any()))
+			{
+				continue;
+			}
+
+			context.CombatMessages.Add(new CombatMessage
+			{
+				Message = definition.Message,
+				FailureMessage = definition.Failure,
+				Type = (int)definition.Type,
+				Chance = 1.0,
+				Priority = 1
+			});
+			changes++;
+		}
+
+		context.SaveChanges();
+		return changes;
+	}
+
 	private static void EnsureMountedCombatMessages(FuturemudDatabaseContext context)
 	{
 		var definitions = new (BuiltInCombatMoveType Type, string Message, string Failure)[]

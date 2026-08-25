@@ -265,6 +265,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			count++;
 		}
 
+		count += EnsureWardCombatMessages(context, CombatSeederMessageStyleHelper.Parse(answers["messagestyle"]));
+
 		return new CombatSeederModuleResult("foundations", count);
 	}
 

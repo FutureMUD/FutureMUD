@@ -28,6 +28,8 @@ public partial class CombatSeeder
         {
             SeedUnarmedCombatMessage(context, questionAnswers);
         }
+
+        EnsureWardCombatMessages(context, CombatSeederMessageStyleHelper.Parse(questionAnswers["messagestyle"]));
 		EnsureMountedCombatMessages(context);
 
         // Seed Combat Strategies

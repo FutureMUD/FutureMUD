@@ -45,7 +45,11 @@ public sealed class PlannerApiClient
 			throw new InvalidOperationException("Too many login attempts. Wait a minute and try again.");
 		}
 
-		response.EnsureSuccessStatusCode();
+		if (!response.IsSuccessStatusCode)
+		{
+			throw new InvalidOperationException("We couldn't sign you in just now. Please try again. If it continues, contact the game administrator.");
+		}
+
 		return await response.Content.ReadFromJsonAsync<AuthSession>(cancellationToken);
 	}
 

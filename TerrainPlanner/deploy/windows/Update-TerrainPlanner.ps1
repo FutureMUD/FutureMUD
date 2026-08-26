@@ -2,7 +2,9 @@
 param(
 	[Parameter(Mandatory = $true)][ValidateSet('win-x64')][string]$RuntimeIdentifier,
 	[Parameter(Mandatory = $true)][string]$Hostname,
-	[string]$InstallRoot = "$env:ProgramFiles\FutureMUD\TerrainPlanner"
+	[string]$InstallRoot = "$env:ProgramFiles\FutureMUD\TerrainPlanner",
+	[string]$CaddyExecutable,
+	[string]$Caddyfile
 )
 
 $ErrorActionPreference = 'Stop'
@@ -20,7 +22,7 @@ try {
 	& $verifier verify --manifest (Join-Path $work 'update-manifest.json') --signature (Join-Path $work 'update-manifest.sig') --archive $archive --runtime $RuntimeIdentifier
 	if ($LASTEXITCODE -ne 0) { throw 'Signed update verification failed.' }
 	Expand-Archive -LiteralPath $archive -DestinationPath (Join-Path $work 'package')
-	& (Join-Path $work "package\terrainplanner-$($manifest.version)-$RuntimeIdentifier\deploy\windows\Install-TerrainPlanner.ps1") -Hostname $Hostname -InstallRoot $InstallRoot
+	& (Join-Path $work "package\terrainplanner-$($manifest.version)-$RuntimeIdentifier\deploy\windows\Install-TerrainPlanner.ps1") -Hostname $Hostname -InstallRoot $InstallRoot -CaddyExecutable $CaddyExecutable -Caddyfile $Caddyfile
 } finally {
 	if (Test-Path -LiteralPath $work) { Remove-Item -LiteralPath $work -Recurse -Force }
 }

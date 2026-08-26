@@ -20,15 +20,17 @@ public sealed class EfTerrainPlannerDataSource : ITerrainPlannerDataSource
 		CancellationToken cancellationToken)
 	{
 		await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
-		return await AccountQuery(context)
-			.SingleOrDefaultAsync(account => account.Name == normalizedName, cancellationToken);
+		return await ProjectAccounts(context.Accounts
+				.Where(account => account.Name == normalizedName))
+			.SingleOrDefaultAsync(cancellationToken);
 	}
 
 	public async Task<PlannerAccountRecord?> FindAccountByIdAsync(long accountId, CancellationToken cancellationToken)
 	{
 		await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
-		return await AccountQuery(context)
-			.SingleOrDefaultAsync(account => account.Id == accountId, cancellationToken);
+		return await ProjectAccounts(context.Accounts
+				.Where(account => account.Id == accountId))
+			.SingleOrDefaultAsync(cancellationToken);
 	}
 
 	public async Task<CatalogueResult<TerrainCatalogueItem>> GetTerrainsAsync(CancellationToken cancellationToken)
@@ -74,8 +76,8 @@ public sealed class EfTerrainPlannerDataSource : ITerrainPlannerDataSource
 		}
 	}
 
-	private static IQueryable<PlannerAccountRecord> AccountQuery(FuturemudDatabaseContext context) =>
-		context.Accounts
+	internal static IQueryable<PlannerAccountRecord> ProjectAccounts(IQueryable<MudSharp.Models.Account> accounts) =>
+		accounts
 			.AsNoTracking()
 			.Select(account => new PlannerAccountRecord(
 				account.Id,

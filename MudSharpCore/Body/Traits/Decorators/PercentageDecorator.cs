@@ -32,7 +32,9 @@ public class PercentageDecorator : FrameworkItem, ITraitValueDecorator
 
     public IEnumerable<string> OrderedDescriptors => new[] { "No Levels - Shows Percentages" };
 
-    public string Show(ICharacter actor)
+	public IEnumerable<(double Value, string Descriptor)> OrderedDescriptorsWithThresholds => [];
+
+	public string Show(ICharacter actor)
     {
         StringBuilder sb = new();
         sb.AppendLine($"Percentage Decorator #{Id.ToString("N0", actor)}".ColourName());

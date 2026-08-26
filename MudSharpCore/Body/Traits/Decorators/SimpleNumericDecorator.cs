@@ -23,7 +23,9 @@ public class SimpleNumericDecorator : FrameworkItem, ITraitValueDecorator
 
     public IEnumerable<string> OrderedDescriptors => new[] { "No Levels - Shows Actual Numbers" };
 
-    public string Show(ICharacter actor)
+	public IEnumerable<(double Value, string Descriptor)> OrderedDescriptorsWithThresholds => [];
+
+	public string Show(ICharacter actor)
     {
         StringBuilder sb = new();
         sb.AppendLine($"Simple Numeric Decorator #{Id.ToString("N0", actor)}".ColourName());

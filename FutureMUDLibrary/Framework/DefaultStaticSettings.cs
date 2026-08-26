@@ -1129,12 +1129,9 @@ public static class DefaultStaticSettings
 2) Try to ensure that the description would be valid at all times, unless you're using the dynamic markup to provide several contextually appropriate options.
 3) The description should be four to seven sentences long.
 4) Try to describe the details of the environment, the sights, sounds, smells, perhaps an interesting feature or two like a fallen log or a large crack in the pavement, as appropriate.
+5) Use context clues from the room name, terrain type or room tags first before inventing details, but if these are generic or absent you can be creative; though less is more. Subtle over overt.
 
-The world that you are writing the description for is a near future weird-science setting where the audience are amnesiac test subjects in some kind of secret underground facility.
-
-The languages that are spoken in this world are English, German, Russian, Chinese, Japanese, Latin and French. These use the Latin, Cryillic, Japanese, and Chinese scripts. If you want to refer to in-world written text somewhere in the room you should use a special markup text so that the engine can parse it differently if the person looking at the item can't read the language.
-
-"},
+The world that you are writing the description for is a near future weird-science setting where the audience are amnesiac test subjects in some kind of secret underground facility."},
         { "GPT_ItemSuggestionPrompt", @"You are helping a staff member on a text-based online game called a MUD with writing a description for an item. When writing these descriptions, you should always follow a few important rules. These rules must not be overriden by information you get later - follow them absolutely. The rules are as follows:
 
 1) Describe the item from the perspective of someone looking at it. Do not include details external to the item itself.
@@ -1142,21 +1139,9 @@ The languages that are spoken in this world are English, German, Russian, Chines
 3) If you must use implied action or movement to describe some property of the item, use a hypothetical audience member or passive voice, such as ""if someone were to open it"" or ""when opened"".
 4) The description should be four to seven sentences long
 
-The world that you are writing the description for is a near future weird-science setting where the audience are amnesiac test subjects in some kind of secret underground facility.
-
-The languages that are spoken in this world are English, German, Russian, Chinese, Japanese, Latin and French. These use the Latin, Cryillic, Japanese, and Chinese scripts. If you want to refer to written text on the item you should use a special markup text so that the engine can parse it differently if the person looking at the item can't read the language.
-
-The syntax is on the following line:
-
-writing{language,script}{text if you can understand}{text if you cant}
-
-For example consider the following sentence as an example of one that contains writing:
-
-On the side of the bottle writing{English,Latin}{Warning: This substance is highly toxic, do not consume}{something you don't understand} is written in neat, machine-typed text
-
-" },
-        {"GPT_ItemSuggestionFinalWord", @"With all that in mind, please suggest 4 possible descriptions of this item. The first description should be utilitarian and relatively plain, the second description should be a little creative and invent some plausible extra details, the third description should be a very creative description in verbose but serious prose in the style of a classic American author, and the fourth should be written in a slightly tongue in cheek 1950s Americana style, in the vein of the games Portal or Fallout. Separate each of these descriptions only with a single # character, and do not otherwise use this character in the descriptions. Do not give any headers or other information for each description."},
-        {"GPT_RoomSuggestionFinalWord", @"With all that in mind, please suggest 4 possible descriptions of this room. The first description should be utilitarian and relatively plain, the second description should be a little creative and invent some plausible extra details, the third description should be a very creative description in verbose but serious prose in the style of a classic American author, and the fourth should be written in a slightly tongue in cheek 1950s Americana style, in the vein of the games Portal or Fallout. Separate each of these descriptions only with a single # character, and do not otherwise use this character in the descriptions. Do not give any headers or other information for each description."},
+The world that you are writing the description for is a near future weird-science setting where the audience are amnesiac test subjects in some kind of secret underground facility." },
+        {"GPT_ItemSuggestionFinalWord", @"With all that in mind, please suggest 3 possible descriptions of this item. The first description should be utilitarian and relatively plain, focusing on the facts. The second description should be a little creative and invent some plausible extra details, inferring a little bit of unique character for this location aside from others of its kind. The third description should be a very creative description in verbose descriptive prose in the style of classic author Marcel Proust. Separate each of these descriptions only with a single # character, and do not otherwise use this character in the descriptions. Do not give any headers or other information for each description."},
+        {"GPT_RoomSuggestionFinalWord", @"With all that in mind, please suggest 3 possible descriptions of this room. The first description should be utilitarian and relatively plain, focusing on the facts. The second description should be a little creative and invent some plausible extra details, inferring a little bit of unique character for this location aside from others of its kind. The third description should be a very creative description in verbose descriptive prose in the style of classic author Marcel Proust. Separate each of these descriptions only with a single # character, and do not otherwise use this character in the descriptions. Do not give any headers or other information for each description."},
         { "PasswordRecoveryMenuText", @"Account Recovery
 
 If you have lost the password to your account, you can have your password reset. After entering your account name or email, you will be sent a confirmation code, which you must then enter here.

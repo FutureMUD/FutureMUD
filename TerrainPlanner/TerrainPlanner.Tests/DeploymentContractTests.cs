@@ -56,6 +56,17 @@ public class DeploymentContractTests
 		Assert.IsTrue(windows.Contains("Caddy already contains a site block", StringComparison.Ordinal));
 	}
 
+	[TestMethod]
+	public void WindowsUpdaterDownloadsTheVersionedArchiveEndpoint()
+	{
+		var updater = File.ReadAllText(Path.Combine(RepositoryRoot, "TerrainPlanner", "deploy", "windows",
+			"Update-TerrainPlanner.ps1"));
+
+		Assert.IsTrue(updater.Contains("$latestBase/update-manifest.json", StringComparison.Ordinal));
+		Assert.IsTrue(updater.Contains("downloads/terrainplanner/$($manifest.version)/$archiveName", StringComparison.Ordinal));
+		Assert.IsFalse(updater.Contains("$latestBase/$archiveName", StringComparison.Ordinal));
+	}
+
 	private static string FindRepositoryRoot()
 	{
 		var directory = new DirectoryInfo(AppContext.BaseDirectory);

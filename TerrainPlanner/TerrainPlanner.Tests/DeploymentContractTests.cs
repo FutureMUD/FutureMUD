@@ -68,17 +68,22 @@ public class DeploymentContractTests
 	}
 
 	[TestMethod]
-	public void WindowsInstallerReplacesOnlyJunctionsAndUsesArgumentSafeServiceConfiguration()
+	public void WindowsInstallerUsesPowerShellFiveCompatibleJunctionRollbackAndStableServiceCommand()
 	{
 		var installer = File.ReadAllText(Path.Combine(RepositoryRoot, "TerrainPlanner", "deploy", "windows",
 			"Install-TerrainPlanner.ps1"));
 
 		Assert.IsTrue(installer.Contains("[IO.Directory]::Delete($Path)", StringComparison.Ordinal));
 		Assert.IsTrue(installer.Contains("Refusing to remove '$Path' because it is not a release junction.", StringComparison.Ordinal));
-		Assert.IsTrue(installer.Contains("$startInfo.ArgumentList.Add($argument)", StringComparison.Ordinal));
-		Assert.IsTrue(installer.Contains("'binPath=', $serviceCommand, 'start=', 'auto'", StringComparison.Ordinal));
+		Assert.IsTrue(installer.Contains("$targets = @($item.Target)", StringComparison.Ordinal));
+		Assert.IsTrue(installer.Contains("return [string]$targets[0]", StringComparison.Ordinal));
 		Assert.IsTrue(installer.Contains("New-Item -ItemType Junction -Path $currentPath -Target $previousTarget", StringComparison.Ordinal));
+		Assert.IsTrue(installer.Contains("if ($existingService.Status -ne 'Stopped')", StringComparison.Ordinal));
+		Assert.IsTrue(installer.Contains("New-Service -Name FutureMUDTerrainPlanner -BinaryPathName $serviceCommand", StringComparison.Ordinal));
 		Assert.IsTrue(installer.Contains("Terrain Planner activation failed; the previous release was restored.", StringComparison.Ordinal));
+		Assert.IsFalse(installer.Contains("ArgumentList", StringComparison.Ordinal));
+		Assert.IsFalse(installer.Contains("Invoke-ServiceControl", StringComparison.Ordinal));
+		Assert.IsFalse(installer.Contains("$previousTarget = $currentItem.Target", StringComparison.Ordinal));
 		Assert.IsFalse(installer.Contains("sc.exe config FutureMUDTerrainPlanner binPath=", StringComparison.Ordinal));
 	}
 

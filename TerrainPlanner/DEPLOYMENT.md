@@ -25,8 +25,8 @@ FLUSH PRIVILEGES;
 Extract the archive. It creates one directory named for the runtime package; change into that directory, then run:
 
 ```bash
-unzip terrainplanner-2.0.1-linux-x64.zip
-cd terrainplanner-2.0.1-linux-x64
+unzip terrainplanner-2.0.4-linux-x64.zip
+cd terrainplanner-2.0.4-linux-x64
 sudo bash deploy/linux/install-terrainplanner.sh planner.example.com
 ```
 
@@ -44,10 +44,10 @@ The installer creates the unprivileged `terrainplanner` account, installs a hard
 Open an elevated PowerShell prompt. The archive extracts to an outer download directory which contains the actual runtime package directory; change into the inner directory before running the installer:
 
 ```powershell
-$archive = 'C:\Install\terrainplanner-2.0.1-win-x64.zip'
-$extractRoot = 'C:\Install\terrainplanner-2.0.1'
+$archive = 'C:\Install\terrainplanner-2.0.4-win-x64.zip'
+$extractRoot = 'C:\Install\terrainplanner-2.0.4'
 Expand-Archive -LiteralPath $archive -DestinationPath $extractRoot -Force
-Set-Location "$extractRoot\terrainplanner-2.0.1-win-x64"
+Set-Location "$extractRoot\terrainplanner-2.0.4-win-x64"
 .\deploy\windows\Install-TerrainPlanner.ps1 -Hostname planner.example.com
 ```
 
@@ -80,9 +80,9 @@ The updater downloads `update-manifest.json`, its Ed25519 signature, and the nam
 
 ### Bootstrap an early 2.0 installation
 
-If your existing installation is 2.0.0 or 2.0.1, install 2.0.3 once using the normal archive-install method above instead of its bundled updater. Those releases used a retired archive route. If a 2.0.2 Windows installation stopped while configuring the service, also use the archive-install method once. This retains the existing shared configuration, MySQL password, service, and Caddy configuration. From 2.0.3 onwards, use the updater command in the preceding section.
+If your existing installation is 2.0.0 through 2.0.3, install 2.0.4 once using the normal archive-install method above instead of its bundled updater. Versions 2.0.0 and 2.0.1 used a retired archive route. Version 2.0.2 could stop while configuring the service, and the 2.0.3 Windows installer used an API that is unavailable in Windows PowerShell 5.1. This retains the existing shared configuration, MySQL password, service, and Caddy configuration. From 2.0.4 onwards, use the updater command in the preceding section.
 
-During an upgrade, the installer replaces only the `current` release junction. It never recursively deletes the release that junction points to. If Windows reports that the planner service cannot be configured, the installer now includes the exact `sc.exe` output in the error so the failure can be diagnosed safely.
+During an upgrade, the installer replaces only the `current` release junction. It never recursively deletes the release that junction points to. The service executable always points at that stable junction, so upgrades restart the existing service without rewriting its command line.
 
 ## Verification
 

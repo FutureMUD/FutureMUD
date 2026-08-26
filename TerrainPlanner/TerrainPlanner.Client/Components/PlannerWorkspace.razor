@@ -1,0 +1,938 @@
+@implements IAsyncDisposable
+@inject PlannerApiClient Api
+@inject BrowserStorage Storage
+@inject IJSRuntime JS
+
+<div class="planner-shell">
+	<header class="planner-header">
+		<div class="planner-brand">
+			<div class="brand-mark compact">FM</div>
+			<div>
+				<strong>Terrain Planner</strong>
+				<span>Engine API 2.0.0</span>
+			</div>
+		</div>
+		<div class="project-title">
+			<label for="project-name">Project</label>
+			<input id="project-name" value="@_projectName" @oninput="ProjectNameChanged" />
+		</div>
+		<button class="quiet-button inspector-toggle" @onclick="ToggleInspector">Map details</button>
+		<div class="session-chip">
+			<span class="status-dot @(_offline ? "offline" : "")"></span>
+			<div><strong>@Session.AccountName</strong><span>@Session.AuthorityName · @(_offline ? "cached catalogue" : "live catalogue")</span></div>
+			<button class="quiet-button" @onclick="async () => await OnLogout.InvokeAsync()">Sign out</button>
+		</div>
+	</header>
+
+	@if (_loading)
+	{
+		<main class="message-page workspace-loading">
+			<h1>Loading builder catalogue…</h1>
+			<p>@_statusMessage</p>
+		</main>
+	}
+	else if (_fatalError is not null)
+	{
+		<main class="message-page workspace-loading">
+			<h1>The planner could not start.</h1>
+			<p class="form-error">@_fatalError</p>
+			<button class="primary-button" @onclick="LoadAsync">Retry</button>
+		</main>
+	}
+	else
+	{
+		@if (!string.IsNullOrWhiteSpace(_statusMessage))
+		{
+			<div class="status-banner @(_offline ? "warning" : "")" role="status">
+				@_statusMessage
+				<button @onclick="DismissStatus" aria-label="Dismiss message">×</button>
+			</div>
+		}
+		<div class="planner-body">
+			<aside class="palette-panel">
+				<div class="panel-heading">
+					<p class="eyebrow">Paint layer</p>
+					<div class="segmented-control">
+						<button class="@(_layer == PlannerLayer.Terrain ? "active" : "")" @onclick="() => SetLayerAsync(PlannerLayer.Terrain)">Terrain</button>
+						<button class="@(_layer == PlannerLayer.Tags ? "active" : "")" @onclick="() => SetLayerAsync(PlannerLayer.Tags)">Tags</button>
+					</div>
+				</div>
+				<label class="search-box">
+					<span>⌕</span>
+					<input placeholder="Search @(_layer == PlannerLayer.Terrain ? "terrains" : "tags")" @bind="_paletteSearch" @bind:event="oninput" />
+				</label>
+
+				<div class="palette-list">
+					@if (_layer == PlannerLayer.Terrain)
+					{
+						<button class="palette-item blank @(_terrainBrushId == 0 ? "selected" : "")" @onclick="() => SelectTerrainAsync(0)">
+							<span class="terrain-swatch blank-swatch"></span><span><strong>Blank</strong><small>No room (ID 0)</small></span>
+						</button>
+						@foreach (var terrain in FilteredTerrains)
+						{
+							<button class="palette-item @(_terrainBrushId == terrain.Id ? "selected" : "")" @onclick="() => SelectTerrainAsync(terrain.Id)">
+								<span class="terrain-swatch" style="background:@WebColour(terrain.EditorColour)">@terrain.EditorText</span>
+								<span><strong>@terrain.Name</strong><small>ID @terrain.Id</small></span>
+							</button>
+						}
+					}
+					else
+					{
+						@foreach (var tag in FilteredTags)
+						{
+							var invalid = !CanExportTag(tag);
+							<button class="palette-item @(_tagBrushId == tag.Id ? "selected" : "")" disabled="@invalid" title="@(invalid ? "This tag contains a feature-mask delimiter." : tag.FullName)" @onclick="() => SelectTagAsync(tag.Id)">
+								<span class="tag-swatch" style="background:@GetTagColour(tag.Id)"></span>
+								<span><strong>@tag.ShortName</strong><small>@tag.FullName</small></span>
+							</button>
+						}
+					}
+				</div>
+			</aside>
+
+			<main class="map-workspace">
+				<div class="tool-row">
+					<div class="tool-group" aria-label="Drawing tools">
+						@foreach (var tool in Enum.GetValues<PlannerTool>())
+						{
+							<button class="tool-button @(_tool == tool ? "active" : "")" title="@ToolHelp(tool)" @onclick="() => SetToolAsync(tool)">
+								<span>@ToolIcon(tool)</span>@tool
+							</button>
+						}
+					</div>
+					<div class="tool-group history-controls">
+						<button class="tool-button" disabled="@(!_history.CanUndo)" @onclick="UndoAsync" title="Undo (Ctrl+Z)">↶ Undo</button>
+						<button class="tool-button" disabled="@(!_history.CanRedo)" @onclick="RedoAsync" title="Redo (Ctrl+Y)">↷ Redo</button>
+					</div>
+					<div class="zoom-help">Wheel to zoom · Space-drag to pan</div>
+				</div>
+
+				<div class="canvas-frame">
+					<canvas @ref="_canvas" class="terrain-canvas" tabindex="0" aria-label="Terrain and feature tag grid"></canvas>
+					<div class="canvas-overlay">
+						<span>@_map.Width × @_map.Height</span>
+						@if (_selectedCell is not null)
+						{
+							<span>Cell (@_selectedCell.X, @_selectedCell.Y)</span>
+						}
+					</div>
+				</div>
+			</main>
+
+			<aside class="inspector-panel @(_inspectorOpen ? "open" : "")">
+				<section>
+					<p class="eyebrow">Grid</p>
+					<div class="dimension-row">
+						<label>Width<input type="number" min="1" max="200" @bind="_requestedWidth" /></label>
+						<label>Height<input type="number" min="1" max="200" @bind="_requestedHeight" /></label>
+						<button class="secondary-button" @onclick="ResizeAsync">Resize</button>
+					</div>
+					<div class="button-grid">
+						<button class="quiet-button" @onclick="() => ClearLayerAsync(PlannerLayer.Terrain)">Clear terrain</button>
+						<button class="quiet-button" @onclick="() => ClearLayerAsync(PlannerLayer.Tags)">Clear tags</button>
+						<button class="quiet-button" disabled="@(_selectedCell is null)" @onclick="ClearSelectionAsync">Clear selection</button>
+						<button class="danger-button" @onclick="ClearMapAsync">Clear map</button>
+					</div>
+				</section>
+
+				<section>
+					<p class="eyebrow">Selected cell</p>
+					@if (_selectedCell is null)
+					{
+						<p class="muted">Select a cell to inspect its terrain and tags.</p>
+					}
+					else
+					{
+						<h3>(@_selectedCell.X, @_selectedCell.Y)</h3>
+						<p>@TerrainName(_selectedCell.TerrainId)</p>
+						<div class="cell-tags">
+							@foreach (var tagId in _selectedCell.TagIds)
+							{
+								<span style="--tag-colour:@GetTagColour(tagId)">@TagName(tagId)</span>
+							}
+							@foreach (var feature in _selectedCell.UnresolvedFeatures)
+							{
+								<span class="unresolved">@feature</span>
+							}
+						</div>
+					}
+				</section>
+
+				<section>
+					<p class="eyebrow">Used tag legend</p>
+					@if (!UsedTagIds.Any())
+					{
+						<p class="muted">Paint tags to build a colour legend.</p>
+					}
+					@foreach (var tagId in UsedTagIds)
+					{
+						<div class="legend-row">
+							<input type="color" value="@GetTagColour(tagId)" @onchange="eventArgs => ChangeTagColourAsync(tagId, eventArgs)" aria-label="Colour for @TagName(tagId)" />
+						<span title="@TagFullName(tagId)">@TagFullName(tagId)</span>
+						<strong>@TagUseCount(tagId)</strong>
+						</div>
+					}
+				</section>
+
+				<section class="import-export-section">
+					<p class="eyebrow">Import and export</p>
+					<div class="export-actions">
+						<button class="primary-button" @onclick="CopyTerrainMaskAsync">Copy terrain mask</button>
+						<button class="secondary-button" @onclick="CopyFeatureMaskAsync">Copy tag mask</button>
+					</div>
+					<details>
+						<summary>Mask text and import</summary>
+						<label>Terrain mask<textarea @bind="_terrainMaskText"></textarea></label>
+						<button class="quiet-button" @onclick="ImportTerrainMaskAsync">Import terrain mask</button>
+						<label>Feature/tag mask<textarea @bind="_featureMaskText"></textarea></label>
+						<button class="quiet-button" @onclick="ImportFeatureMaskAsync">Import tag mask</button>
+					</details>
+					<details>
+						<summary>Portable project JSON</summary>
+						<textarea class="project-json" @bind="_projectJson"></textarea>
+						<div class="export-actions">
+							<button class="quiet-button" @onclick="RefreshProjectJson">Refresh JSON</button>
+							<button class="quiet-button" @onclick="CopyProjectJsonAsync">Copy JSON</button>
+							<button class="quiet-button" @onclick="ImportProjectJsonAsync">Import JSON</button>
+						</div>
+					</details>
+					@if (!string.IsNullOrWhiteSpace(_operationError))
+					{
+						<p class="form-error" role="alert">@_operationError</p>
+					}
+				</section>
+			</aside>
+		</div>
+	}
+</div>
+
+@code {
+	[Parameter, EditorRequired] public AuthSession Session { get; set; } = null!;
+	[Parameter, EditorRequired] public EventCallback OnLogout { get; set; }
+
+	private readonly MapHistory _history = new(100);
+	private readonly CancellationTokenSource _lifetime = new();
+	private PlannerMap _map = new(5, 5);
+	private IReadOnlyList<TerrainCatalogueItem> _terrains = [];
+	private IReadOnlyList<TagCatalogueItem> _tags = [];
+	private Dictionary<long, TerrainCatalogueItem> _terrainById = [];
+	private Dictionary<long, TagCatalogueItem> _tagById = [];
+	private Dictionary<string, TagCatalogueItem> _tagByName = new(StringComparer.OrdinalIgnoreCase);
+	private Dictionary<long, string> _tagColours = [];
+	private Dictionary<long, string> _projectTagNames = [];
+	private PlannerLayer _layer = PlannerLayer.Terrain;
+	private PlannerTool _tool = PlannerTool.Paint;
+	private long _terrainBrushId;
+	private long _tagBrushId;
+	private string _paletteSearch = string.Empty;
+	private string _projectName = "Untitled terrain plan";
+	private string? _terrainRevision;
+	private string? _tagRevision;
+	private string? _statusMessage;
+	private string? _fatalError;
+	private string? _operationError;
+	private string _terrainMaskText = string.Empty;
+	private string _featureMaskText = string.Empty;
+	private string _projectJson = string.Empty;
+	private bool _loading = true;
+	private bool _offline;
+	private bool _inspectorOpen;
+	private int _requestedWidth = 5;
+	private int _requestedHeight = 5;
+	private PlannerCell? _selectedCell;
+	private ElementReference _canvas;
+	private IJSObjectReference? _canvasModule;
+	private DotNetObjectReference<PlannerWorkspace>? _selfReference;
+	private CancellationTokenSource? _autosaveDelay;
+	private CancellationTokenSource? _exportDelay;
+	private PeriodicTimer? _refreshTimer;
+	private readonly List<MapChangeSet> _activeStrokeChanges = [];
+	private bool _strokeActive;
+
+	private IEnumerable<TerrainCatalogueItem> FilteredTerrains => _terrains.Where(terrain =>
+		string.IsNullOrWhiteSpace(_paletteSearch) || terrain.Name.Contains(_paletteSearch, StringComparison.OrdinalIgnoreCase));
+	private IEnumerable<TagCatalogueItem> FilteredTags => _tags.Where(tag =>
+		string.IsNullOrWhiteSpace(_paletteSearch) || tag.FullName.Contains(_paletteSearch, StringComparison.OrdinalIgnoreCase));
+	private IReadOnlyList<long> UsedTagIds => _map.Cells.SelectMany(cell => cell.TagIds).Distinct()
+		.OrderBy(TagFullName, StringComparer.OrdinalIgnoreCase).ToList();
+
+	protected override Task OnInitializedAsync() => LoadAsync();
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (_loading || _fatalError is not null || _canvasModule is not null)
+		{
+			return;
+		}
+
+		_canvasModule = await JS.InvokeAsync<IJSObjectReference>("import", "./plannerCanvas.js");
+		_selfReference = DotNetObjectReference.Create(this);
+		await _canvasModule.InvokeVoidAsync("initialise", _canvas, _selfReference);
+		await RenderFullMapAsync();
+		await UpdateInteractionAsync();
+	}
+
+	private async Task LoadAsync()
+	{
+		_loading = true;
+		_fatalError = null;
+		_statusMessage = "Loading terrain and tag data from the Engine API…";
+		try
+		{
+			var terrainTask = Api.GetTerrainsAsync(cancellationToken: _lifetime.Token);
+			var tagTask = Api.GetTagsAsync(cancellationToken: _lifetime.Token);
+			var terrainFetch = await terrainTask;
+			var tagFetch = await tagTask;
+			_terrains = terrainFetch.Items ?? [];
+			_tags = tagFetch.Items ?? [];
+			_terrainRevision = terrainFetch.Revision;
+			_tagRevision = tagFetch.Revision;
+			await Storage.SetAsync(CatalogueStorageKey, new CachedCatalogue(_terrains, _tags, _terrainRevision, _tagRevision));
+			_offline = false;
+			_statusMessage = null;
+		}
+		catch (Exception apiError)
+		{
+			var cached = await Storage.GetAsync<CachedCatalogue>(CatalogueStorageKey);
+			if (cached is null || cached.Terrains.Count == 0)
+			{
+				_fatalError = $"The live catalogue is unavailable and this browser has no cached copy. {apiError.Message}";
+				return;
+			}
+
+			_terrains = cached.Terrains;
+			_tags = cached.Tags;
+			_terrainRevision = cached.TerrainRevision;
+			_tagRevision = cached.TagRevision;
+			_offline = true;
+			_statusMessage = "The Engine API is unavailable. You can continue editing with the last catalogue cached in this browser.";
+		}
+		if (_fatalError is not null)
+		{
+			_loading = false;
+			StateHasChanged();
+			return;
+		}
+
+		BuildLookups();
+		var saved = await Storage.GetAsync<PlannerProject>(ProjectStorageKey);
+		if (saved is not null)
+		{
+			try
+			{
+				_map = PlannerMap.FromProject(saved);
+				_projectName = saved.Name;
+				_tagColours = saved.TagColours;
+				_projectTagNames = saved.Cells
+					.SelectMany(cell => cell.Tags)
+					.GroupBy(tag => tag.Id)
+					.ToDictionary(group => group.Key, group => group.First().Name);
+			}
+			catch (Exception exception)
+			{
+				_statusMessage = $"The saved plan could not be restored: {exception.Message}";
+			}
+		}
+
+		_requestedWidth = _map.Width;
+		_requestedHeight = _map.Height;
+		EnsureBrushesAndColours();
+		RefreshExports();
+		_loading = false;
+		_refreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(5));
+		_ = RefreshLoopAsync();
+		StateHasChanged();
+	}
+
+	[JSInvokable]
+	public async Task HandleCanvasStroke(GridCoordinate[] coordinates)
+	{
+		if (coordinates.Length == 0)
+		{
+			return;
+		}
+
+		MapChangeSet change;
+		switch (_tool)
+		{
+			case PlannerTool.Fill:
+				change = _layer == PlannerLayer.Terrain
+					? _map.FillTerrain(coordinates[0], _terrainBrushId)
+					: _map.FillTag(coordinates[0], _tagBrushId, true);
+				break;
+			case PlannerTool.Erase:
+				change = _layer == PlannerLayer.Terrain
+					? _map.PaintTerrain(coordinates, 0)
+					: _map.PaintTag(coordinates, _tagBrushId, false);
+				break;
+			case PlannerTool.Eyedropper:
+				var sampled = _map.CellAt(coordinates[0].X, coordinates[0].Y);
+				if (_layer == PlannerLayer.Terrain)
+				{
+					_terrainBrushId = sampled.TerrainId;
+				}
+				else if (sampled.TagIds.Count > 0)
+				{
+					_tagBrushId = sampled.TagIds.First();
+				}
+				await UpdateInteractionAsync();
+				StateHasChanged();
+				return;
+			default:
+				change = _layer == PlannerLayer.Terrain
+					? _map.PaintTerrain(coordinates, _terrainBrushId)
+					: _map.PaintTag(coordinates, _tagBrushId, true);
+				break;
+		}
+
+		if (_strokeActive && change.HasChanges)
+		{
+			_activeStrokeChanges.Add(change);
+		}
+		await ApplyChangeAsync(change, !_strokeActive);
+	}
+
+	[JSInvokable]
+	public Task BeginCanvasStroke()
+	{
+		_strokeActive = true;
+		_activeStrokeChanges.Clear();
+		return Task.CompletedTask;
+	}
+
+	[JSInvokable]
+	public Task EndCanvasStroke()
+	{
+		if (_strokeActive)
+		{
+			_history.Record(MapChangeSet.Merge(_activeStrokeChanges));
+			_strokeActive = false;
+			_activeStrokeChanges.Clear();
+			StateHasChanged();
+		}
+		return Task.CompletedTask;
+	}
+
+	[JSInvokable]
+	public Task HandleCanvasRectangle(GridCoordinate first, GridCoordinate second) =>
+		ApplyChangeAsync(_map.PaintRectangle(first, second, _layer,
+			_layer == PlannerLayer.Terrain ? _terrainBrushId : _tagBrushId,
+			_tool != PlannerTool.Erase));
+
+	[JSInvokable]
+	public Task SelectCell(GridCoordinate coordinate)
+	{
+		_selectedCell = _map.Contains(coordinate.X, coordinate.Y) ? _map.CellAt(coordinate.X, coordinate.Y) : null;
+		StateHasChanged();
+		return Task.CompletedTask;
+	}
+
+	[JSInvokable]
+	public async Task HandleShortcut(string shortcut)
+	{
+		if (shortcut == "undo") await UndoAsync();
+		if (shortcut == "redo") await RedoAsync();
+	}
+
+	private async Task ApplyChangeAsync(MapChangeSet change, bool recordHistory = true)
+	{
+		if (!change.HasChanges)
+		{
+			return;
+		}
+
+		if (recordHistory)
+		{
+			_history.Record(change);
+		}
+		await UpdateCanvasCellsAsync(change.Changes.Select(item => _map.CellAt(item.X, item.Y)));
+		Changed();
+	}
+
+	private async Task UndoAsync()
+	{
+		if (_history.Undo(_map))
+		{
+			await RenderFullMapAsync();
+			Changed();
+		}
+	}
+
+	private async Task RedoAsync()
+	{
+		if (_history.Redo(_map))
+		{
+			await RenderFullMapAsync();
+			Changed();
+		}
+	}
+
+	private async Task ResizeAsync()
+	{
+		_operationError = null;
+		try
+		{
+			if ((_requestedWidth < _map.Width || _requestedHeight < _map.Height) &&
+				!await JS.InvokeAsync<bool>("confirm", "Shrinking the grid permanently crops cells from the north or east. Continue?"))
+			{
+				return;
+			}
+
+			_map = _map.Resize(_requestedWidth, _requestedHeight);
+			_history.Clear();
+			_selectedCell = null;
+			await RenderFullMapAsync();
+			Changed();
+		}
+		catch (Exception exception)
+		{
+			_operationError = exception.Message;
+		}
+	}
+
+	private async Task ClearLayerAsync(PlannerLayer layer)
+	{
+		if (await JS.InvokeAsync<bool>("confirm", $"Clear all {layer.ToString().ToLowerInvariant()} data from this map?"))
+		{
+			await ApplyChangeAsync(_map.Clear(layer));
+		}
+	}
+
+	private async Task ClearMapAsync()
+	{
+		if (await JS.InvokeAsync<bool>("confirm", "Clear every terrain and tag from this map?"))
+		{
+			await ApplyChangeAsync(_map.Clear());
+		}
+	}
+
+	private async Task ClearSelectionAsync()
+	{
+		_selectedCell = null;
+		if (_canvasModule is not null)
+		{
+			await _canvasModule.InvokeVoidAsync("clearSelection", _canvas);
+		}
+		StateHasChanged();
+	}
+
+	private async Task SetLayerAsync(PlannerLayer layer)
+	{
+		_layer = layer;
+		await UpdateInteractionAsync();
+	}
+
+	private async Task SetToolAsync(PlannerTool tool)
+	{
+		_tool = tool;
+		await UpdateInteractionAsync();
+	}
+
+	private async Task SelectTerrainAsync(long id)
+	{
+		_terrainBrushId = id;
+		await UpdateInteractionAsync();
+	}
+
+	private async Task SelectTagAsync(long id)
+	{
+		_tagBrushId = id;
+		if (_tagById.TryGetValue(id, out var tag))
+		{
+			_projectTagNames.TryAdd(id, tag.ShortName);
+		}
+		await UpdateInteractionAsync();
+	}
+
+	private async Task ChangeTagColourAsync(long tagId, ChangeEventArgs eventArgs)
+	{
+		var colour = eventArgs.Value?.ToString();
+		if (!string.IsNullOrWhiteSpace(colour))
+		{
+			_tagColours[tagId] = colour;
+			await RenderFullMapAsync();
+			Changed();
+		}
+	}
+
+	private async Task ImportTerrainMaskAsync()
+	{
+		await RunImportAsync(() => MaskSerializer.ImportTerrainMask(_map, _terrainMaskText,
+			_terrainById.Keys.ToHashSet()));
+	}
+
+	private async Task ImportFeatureMaskAsync()
+	{
+		await RunImportAsync(() =>
+		{
+			MaskSerializer.ImportFeatureMask(_map, _featureMaskText, _tagByName);
+			foreach (var tagId in _map.Cells.SelectMany(cell => cell.TagIds).Distinct())
+			{
+				if (_tagById.TryGetValue(tagId, out var tag))
+				{
+					_projectTagNames.TryAdd(tagId, tag.ShortName);
+				}
+			}
+		});
+	}
+
+	private async Task RunImportAsync(Action action)
+	{
+		_operationError = null;
+		try
+		{
+			action();
+			_history.Clear();
+			await RenderFullMapAsync();
+			Changed();
+		}
+		catch (Exception exception)
+		{
+			_operationError = exception.Message;
+		}
+	}
+
+	private Task CopyTerrainMaskAsync()
+	{
+		_terrainMaskText = MaskSerializer.ExportTerrainMask(_map);
+		return CopyAsync(_terrainMaskText, "Terrain mask copied.");
+	}
+
+	private Task CopyFeatureMaskAsync()
+	{
+		try
+		{
+			_featureMaskText = MaskSerializer.ExportFeatureMask(_map, ProjectTags());
+			return CopyAsync(_featureMaskText, "Tag mask copied.");
+		}
+		catch (Exception exception)
+		{
+			_operationError = exception.Message;
+			return Task.CompletedTask;
+		}
+	}
+
+	private async Task CopyProjectJsonAsync()
+	{
+		RefreshProjectJson();
+		await CopyAsync(_projectJson, "Project JSON copied.");
+	}
+
+	private async Task CopyAsync(string text, string successMessage)
+	{
+		try
+		{
+			await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
+			_statusMessage = successMessage;
+		}
+		catch
+		{
+			_statusMessage = "Clipboard access was denied. Select and copy the visible text instead.";
+		}
+	}
+
+	private void RefreshProjectJson() => _projectJson = BrowserStorage.Serialize(CurrentProject());
+
+	private async Task ImportProjectJsonAsync()
+	{
+		_operationError = null;
+		try
+		{
+			var project = BrowserStorage.Deserialize<PlannerProject>(_projectJson);
+			_map = PlannerMap.FromProject(project);
+			_projectName = project.Name;
+			_tagColours = project.TagColours;
+			_projectTagNames = project.Cells
+				.SelectMany(cell => cell.Tags)
+				.GroupBy(tag => tag.Id)
+				.ToDictionary(group => group.Key, group => group.First().Name);
+			_requestedWidth = _map.Width;
+			_requestedHeight = _map.Height;
+			_history.Clear();
+			_selectedCell = null;
+			EnsureBrushesAndColours();
+			await RenderFullMapAsync();
+			Changed();
+		}
+		catch (Exception exception)
+		{
+			_operationError = exception.Message;
+		}
+	}
+
+	private void ProjectNameChanged(ChangeEventArgs args)
+	{
+		_projectName = args.Value?.ToString() ?? string.Empty;
+		Changed();
+	}
+
+	private void Changed()
+	{
+		ScheduleExportRefresh();
+		ScheduleAutosave();
+		StateHasChanged();
+	}
+
+	private void ScheduleExportRefresh()
+	{
+		var replacement = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+		var previous = Interlocked.Exchange(ref _exportDelay, replacement);
+		previous?.Cancel();
+		previous?.Dispose();
+		_ = RefreshExportsAfterDelayAsync(replacement.Token);
+	}
+
+	private async Task RefreshExportsAfterDelayAsync(CancellationToken cancellationToken)
+	{
+		try
+		{
+			await Task.Delay(150, cancellationToken);
+			RefreshExports();
+			await InvokeAsync(StateHasChanged);
+		}
+		catch (OperationCanceledException)
+		{
+		}
+	}
+
+	private void RefreshExports()
+	{
+		_terrainMaskText = MaskSerializer.ExportTerrainMask(_map);
+		try
+		{
+			_featureMaskText = MaskSerializer.ExportFeatureMask(_map, ProjectTags());
+		}
+		catch
+		{
+			_featureMaskText = string.Empty;
+		}
+		RefreshProjectJson();
+	}
+
+	private void ScheduleAutosave()
+	{
+		var replacement = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+		var previous = Interlocked.Exchange(ref _autosaveDelay, replacement);
+		previous?.Cancel();
+		previous?.Dispose();
+		_ = AutosaveAfterDelayAsync(replacement.Token);
+	}
+
+	private async Task AutosaveAfterDelayAsync(CancellationToken cancellationToken)
+	{
+		try
+		{
+			await Task.Delay(500, cancellationToken);
+			await Storage.SetAsync(ProjectStorageKey, CurrentProject());
+		}
+		catch (OperationCanceledException)
+		{
+		}
+	}
+
+	private PlannerProject CurrentProject() => _map.ToProject(
+		_projectName,
+		$"{_terrainRevision}:{_tagRevision}",
+		ProjectTags(),
+		_tagColours);
+
+	private async Task RefreshLoopAsync()
+	{
+		try
+		{
+			while (_refreshTimer is not null && await _refreshTimer.WaitForNextTickAsync(_lifetime.Token))
+			{
+				await RefreshCatalogueAsync();
+			}
+		}
+		catch (OperationCanceledException)
+		{
+		}
+	}
+
+	private async Task RefreshCatalogueAsync()
+	{
+		try
+		{
+			var terrains = await Api.GetTerrainsAsync(_terrainRevision, _lifetime.Token);
+			var tags = await Api.GetTagsAsync(_tagRevision, _lifetime.Token);
+			if (!terrains.NotModified || !tags.NotModified)
+			{
+				if (terrains.Items is not null) _terrains = terrains.Items;
+				if (tags.Items is not null) _tags = tags.Items;
+				_terrainRevision = terrains.Revision ?? _terrainRevision;
+				_tagRevision = tags.Revision ?? _tagRevision;
+				BuildLookups();
+				EnsureBrushesAndColours();
+				await Storage.SetAsync(CatalogueStorageKey, new CachedCatalogue(_terrains, _tags, _terrainRevision, _tagRevision));
+				var renamed = _projectTagNames
+					.Where(item => _tagById.TryGetValue(item.Key, out var live) && !string.Equals(item.Value, live.ShortName, StringComparison.Ordinal))
+					.Select(item => $"{item.Value} → {_tagById[item.Key].ShortName}")
+					.ToList();
+				var deleted = _projectTagNames
+					.Where(item => !_tagById.ContainsKey(item.Key))
+					.Select(item => item.Value)
+					.ToList();
+				_statusMessage = renamed.Count > 0 || deleted.Count > 0
+					? $"The live tag catalogue changed. This plan keeps its original export names. Renamed: {string.Join(", ", renamed)}. Missing: {string.Join(", ", deleted)}."
+					: "The live terrain or tag catalogue changed. Existing painted IDs and export names were preserved.";
+				await RenderFullMapAsync();
+			}
+			_offline = false;
+			await InvokeAsync(StateHasChanged);
+		}
+		catch
+		{
+			_offline = true;
+			_statusMessage = "The Engine API is temporarily unavailable. Editing continues from the cached catalogue.";
+			await InvokeAsync(StateHasChanged);
+		}
+	}
+
+	private void BuildLookups()
+	{
+		_terrainById = _terrains.ToDictionary(item => item.Id);
+		_tagById = _tags.ToDictionary(item => item.Id);
+		_tagByName = _tags.ToDictionary(item => item.ShortName, StringComparer.OrdinalIgnoreCase);
+	}
+
+	private void EnsureBrushesAndColours()
+	{
+		if (_terrainBrushId != 0 && !_terrainById.ContainsKey(_terrainBrushId)) _terrainBrushId = 0;
+		if (!_tagById.ContainsKey(_tagBrushId)) _tagBrushId = _tags.FirstOrDefault(CanExportTag)?.Id ?? 0;
+		foreach (var tag in _tags)
+		{
+			_tagColours.TryAdd(tag.Id, DeterministicTagColour(tag.Id));
+		}
+	}
+
+	private async Task RenderFullMapAsync()
+	{
+		if (_canvasModule is null)
+		{
+			return;
+		}
+
+		var view = new CanvasMapView(
+			_map.Width,
+			_map.Height,
+			_map.Cells
+				.Where(cell => cell.TerrainId != 0 || cell.TagIds.Count != 0 || cell.UnresolvedFeatures.Count != 0)
+				.Select(ToCanvasCell)
+				.ToArray(),
+			_terrains.Select(item => new CanvasTerrain(item.Id, WebColour(item.EditorColour), item.EditorText)).ToArray(),
+			_tagColours.Select(item => new CanvasTag(item.Key, item.Value)).ToArray());
+		await _canvasModule.InvokeVoidAsync("setMap", _canvas, view);
+	}
+
+	private async Task UpdateCanvasCellsAsync(IEnumerable<PlannerCell> cells)
+	{
+		if (_canvasModule is not null)
+		{
+			await _canvasModule.InvokeVoidAsync("updateCells", _canvas, cells.Select(ToCanvasCell).ToArray());
+		}
+	}
+
+	private async Task UpdateInteractionAsync()
+	{
+		if (_canvasModule is not null)
+		{
+			await _canvasModule.InvokeVoidAsync("setInteraction", _canvas,
+				_layer.ToString().ToLowerInvariant(), _tool.ToString().ToLowerInvariant());
+		}
+		StateHasChanged();
+	}
+
+	private static CanvasCell ToCanvasCell(PlannerCell cell) =>
+		new(cell.X, cell.Y, cell.TerrainId, cell.TagIds.ToArray());
+
+	private string TerrainName(long id) => id == 0 ? "Blank — no room" :
+		_terrainById.GetValueOrDefault(id)?.Name ?? $"Missing terrain #{id}";
+	private string TagName(long id) => _tagById.GetValueOrDefault(id)?.ShortName ?? $"Missing tag #{id}";
+	private string TagFullName(long id) => _tagById.GetValueOrDefault(id)?.FullName ?? $"Missing tag #{id}";
+	private string GetTagColour(long id) => _tagColours.GetValueOrDefault(id, DeterministicTagColour(id));
+	private int TagUseCount(long id) => _map.Cells.Count(cell => cell.TagIds.Contains(id));
+	private static bool CanExportTag(TagCatalogueItem tag) =>
+		!string.IsNullOrWhiteSpace(tag.ShortName) && !tag.ShortName.Contains(',') && !tag.ShortName.Contains('|') &&
+		!tag.ShortName.Contains('\r') && !tag.ShortName.Contains('\n');
+	private static string WebColour(string colour) => colour.Length == 9 && colour.StartsWith('#') ? $"#{colour[3..]}" : colour;
+	private static string DeterministicTagColour(long id)
+	{
+		string[] palette =
+		[
+			"#D65F5F", "#4C78A8", "#59A14F", "#F28E2B", "#B279A2", "#2F9E9B",
+			"#E15759", "#76B7B2", "#EDC948", "#9C755F", "#7B6FD0", "#AF7AA1"
+		];
+		return palette[(int)(Math.Abs(id) % palette.Length)];
+	}
+
+	private IReadOnlyDictionary<long, TagCatalogueItem> ProjectTags()
+	{
+		var result = new Dictionary<long, TagCatalogueItem>();
+		foreach (var id in _map.Cells.SelectMany(cell => cell.TagIds).Distinct())
+		{
+			var live = _tagById.GetValueOrDefault(id);
+			var name = _projectTagNames.GetValueOrDefault(id, live?.ShortName ?? $"Missing tag #{id}");
+			result[id] = live is null
+				? new TagCatalogueItem(id, name, name, null)
+				: live with { ShortName = name };
+		}
+		return result;
+	}
+	private static string ToolIcon(PlannerTool tool) => tool switch
+	{
+		PlannerTool.Paint => "✎",
+		PlannerTool.Fill => "◒",
+		PlannerTool.Rectangle => "▭",
+		PlannerTool.Eyedropper => "⌁",
+		PlannerTool.Erase => "⌫",
+		_ => "•"
+	};
+	private static string ToolHelp(PlannerTool tool) => tool switch
+	{
+		PlannerTool.Paint => "Paint by dragging across cells",
+		PlannerTool.Fill => "Flood-fill a contiguous region",
+		PlannerTool.Rectangle => "Drag between two corners",
+		PlannerTool.Eyedropper => "Sample the active layer from a cell",
+		PlannerTool.Erase => "Erase the active layer",
+		_ => tool.ToString()
+	};
+
+	private string ProjectStorageKey => $"futuremud:terrainplanner:{Session.AccountId}:project";
+	private string CatalogueStorageKey => $"futuremud:terrainplanner:{Session.AccountId}:catalogue";
+	private void DismissStatus() => _statusMessage = null;
+	private void ToggleInspector() => _inspectorOpen = !_inspectorOpen;
+
+	public async ValueTask DisposeAsync()
+	{
+		_lifetime.Cancel();
+		_refreshTimer?.Dispose();
+		_autosaveDelay?.Cancel();
+		_autosaveDelay?.Dispose();
+		_exportDelay?.Cancel();
+		_exportDelay?.Dispose();
+		if (_canvasModule is not null)
+		{
+			try
+			{
+				await _canvasModule.InvokeVoidAsync("dispose", _canvas);
+				await _canvasModule.DisposeAsync();
+			}
+			catch (JSDisconnectedException)
+			{
+			}
+		}
+		_selfReference?.Dispose();
+		_lifetime.Dispose();
+	}
+
+	private sealed record CachedCatalogue(
+		IReadOnlyList<TerrainCatalogueItem> Terrains,
+		IReadOnlyList<TagCatalogueItem> Tags,
+		string? TerrainRevision,
+		string? TagRevision);
+	private sealed record CanvasMapView(int Width, int Height, CanvasCell[] Cells, CanvasTerrain[] Terrains, CanvasTag[] Tags);
+	private sealed record CanvasCell(int X, int Y, long TerrainId, long[] TagIds);
+	private sealed record CanvasTerrain(long Id, string Colour, string Text);
+	private sealed record CanvasTag(long Id, string Colour);
+}

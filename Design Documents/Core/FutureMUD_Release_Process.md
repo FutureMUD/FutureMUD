@@ -11,8 +11,7 @@ Use this procedure for stable releases of the products in `FutureMUD.Web/Configu
 | Engine | `MudSharpCore/MudSharpCore.csproj` | `engine-vX.Y.Z` |
 | Database Seeder | `DatabaseSeeder/DatabaseSeeder.csproj` | `seeder-vX.Y.Z` |
 | Discord Bot | `DiscordBotCore/DiscordBotCore.csproj` | `discordbot-vX.Y.Z` |
-| Terrain Planner | `Terrain Planner Core/Terrain Planner Core.csproj` | `terrainplanner-vX.Y.Z` |
-| Engine API / Terrain API | `Terrain API/Terrain API.csproj` | `terrainapi-vX.Y.Z` |
+| Terrain Planner & Engine API | `TerrainPlanner/TerrainPlanner.Server/TerrainPlanner.Server.csproj` | `terrainplanner-vX.Y.Z` |
 | Web MUD Client | `MudClient/MudWebSocketProxy/MudWebSocketProxy.csproj` | `mudclient-vX.Y.Z` |
 
 The tag version must contain exactly three numeric parts and must exactly equal the project's MSBuild `Version` property. Keep `AssemblyVersion` and `FileVersion` aligned when the project declares them.
@@ -27,7 +26,7 @@ The tag version must contain exactly three numeric parts and must exactly equal 
 6. Publish at least one representative runtime locally with the manifest settings when packaging changed. Normal packages are framework-dependent, single-file, untrimmed, include native libraries in the bundle, and embed symbols.
 7. Merge the release preparation. The commit on `master` that contains the final version is the release commit. Prefer the title `Version update to X.Y.Z` for that exact commit.
 
-For Web MUD Client releases, verify every published runtime package includes the self-contained deployment verifier and both platform deployment wrappers. The protected production environment signs the current update manifest; the live verification must include the latest manifest and signature endpoints as well as the archive and checksum links.
+For Web MUD Client and Terrain Planner releases, verify every published runtime package includes the self-contained deployment verifier and platform deployment wrappers. The protected production environment signs the current update manifest; live verification must include the latest manifest and signature endpoints as well as every archive and checksum link. Terrain API is retired and `terrainapi-v*` is no longer a publishing trigger.
 
 For Database Seeder releases, refresh the bundled blank database snapshot whenever its manifest does not name the latest migration. Run the seeder with `--refresh-blank-snapshot`; maintainers who cannot use the default local snapshot database can set `FUTUREMUD_SNAPSHOT_CONNECTION_STRING` to a disposable database connection string. The refresh command drops and recreates the database named by that connection string, so never point it at a database that must be retained.
 

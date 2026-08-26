@@ -1291,7 +1291,7 @@ When assisting a builder:
 - Prefer compact paste chains with `@n` when creating connected rooms.
 - Use quoted names for multi-word package, zone, area, terrain, and room names.
 - Do not submit, review, swap, delete, or obsolete a package unless the user explicitly wants that workflow step.
-- Use terrain masks from `terrain planner` for grids. Remember that `0` means no room.
+- Use the hosted Terrain Planner's terrain mask for `Terrain Rectangle` grids and its tag mask for `Feature Rectangle`. Remember that `0` means no room and therefore no tags.
 - Set terrain before adjusting outdoors type and light special cases.
 - For non-cardinal exits, inspect `show exittemplates` first and choose the template whose verbs match the player's command.
 - Verify important builds with `cell show`, `cell exit list all`, `rooms <zone>`, and `landmarks`.

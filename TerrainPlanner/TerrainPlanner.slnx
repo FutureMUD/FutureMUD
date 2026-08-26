@@ -1,0 +1,7 @@
+<Solution>
+	<Project Path="TerrainPlanner.Client/TerrainPlanner.Client.csproj" />
+	<Project Path="TerrainPlanner.Contracts/TerrainPlanner.Contracts.csproj" />
+	<Project Path="TerrainPlanner.Deployment/TerrainPlanner.Deployment.csproj" />
+	<Project Path="TerrainPlanner.Server/TerrainPlanner.Server.csproj" />
+	<Project Path="TerrainPlanner.Tests/TerrainPlanner.Tests.csproj" />
+</Solution>

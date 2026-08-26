@@ -188,24 +188,7 @@ That split matches the intended product model:
 
 ## Terrain Planner Role
 
-`Terrain Planner Core` is a WPF tool that produces the terrain mask expected by terrain-aware area templates.
-
-- It targets `net10.0-windows7.0`.
-- It paints a grid using terrain colour/text metadata.
-- It exports a row-major comma-separated mask.
-- `0` means no cell at that position.
-
-Terrain data can be imported from:
-
-- clipboard JSON
-- a simple HTTP endpoint, typically the `Terrain API` project's `/Terrain` route
-
-The planner only needs these terrain fields:
-
-- `Id`
-- `Name`
-- `TerrainEditorColour`
-- `TerrainEditorText`
+Terrain Planner 2.x is a hosted Interactive WebAssembly application bundled with its authenticated, read-only Engine API. It loads terrain editor metadata and hierarchical tags from live database projections, then produces both the terrain mask and feature/tag mask expected by terrain-aware area templates. Existing registered, unsuspended Admin-or-higher game accounts authenticate; the planner never creates accounts or writes game data.
 
 The mask format matches Cartesian coordinates: the first entry is the south-west `(0,0)` cell, each row proceeds
 west-to-east, and subsequent rows proceed northward. Terrain Planner displays north at the top while exporting the
@@ -226,6 +209,6 @@ When adding a new autobuilder type:
 ## Current Constraints
 
 - XML definitions are versionless and must stay backwards-compatible.
-- Terrain Planner creates terrain masks only; feature masks are still textual/manual unless a custom tool is added.
+- Terrain Planner creates both terrain and multi-tag feature masks and preserves project JSON locally in the browser.
 - Tag-driven description variation only matters when the chosen area template actually supplies tags.
 - The stock wilderness package assumes the seeded terrain catalogue and its `Terrain` tag root already exist before the Useful autobuilder package is installed.

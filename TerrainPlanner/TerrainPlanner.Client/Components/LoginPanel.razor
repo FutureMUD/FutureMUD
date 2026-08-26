@@ -1,0 +1,80 @@
+@inject PlannerApiClient Api
+
+<main class="login-page">
+	<section class="login-hero">
+		<div class="brand-mark">FM</div>
+		<p class="eyebrow">FutureMUD builder tools</p>
+		<h1>Shape a world,<br />one cell at a time.</h1>
+		<p>Paint terrain and room-feature tags on a fast visual grid, then copy exact masks into the in-game autobuilder.</p>
+		<div class="hero-grid" aria-hidden="true">
+			@for (var index = 0; index < 48; index++)
+			{
+				<span class="tile-@((index * 7 + index / 8) % 5)"></span>
+			}
+		</div>
+	</section>
+	<section class="login-card" aria-labelledby="login-heading">
+		<p class="eyebrow">Authorised builders</p>
+		<h2 id="login-heading">Sign in with your game account</h2>
+		<p class="muted">Admin permission or higher is required. Terrain Planner never creates or changes accounts.</p>
+		<EditForm Model="_model" OnValidSubmit="SubmitAsync" FormName="terrain-planner-login">
+			<DataAnnotationsValidator />
+			<label for="account">Account name</label>
+			<InputText id="account" @bind-Value="_model.AccountName" autocomplete="username" autofocus />
+			<label for="password">Password</label>
+			<InputText id="password" type="password" @bind-Value="_model.Password" autocomplete="current-password" />
+			@if (!string.IsNullOrWhiteSpace(_error))
+			{
+				<p class="form-error" role="alert">@_error</p>
+			}
+			<button class="primary-button" type="submit" disabled="@_submitting">
+				@(_submitting ? "Signing in…" : "Open Terrain Planner")
+			</button>
+		</EditForm>
+		<p class="security-note">Credentials are sent only to this game server over HTTPS. Sessions expire automatically.</p>
+	</section>
+</main>
+
+@code {
+	[Parameter, EditorRequired]
+	public EventCallback<AuthSession> OnAuthenticated { get; set; }
+
+	private readonly LoginModel _model = new();
+	private string? _error;
+	private bool _submitting;
+
+	private async Task SubmitAsync()
+	{
+		_submitting = true;
+		_error = null;
+		try
+		{
+			var session = await Api.LoginAsync(_model.AccountName, _model.Password);
+			if (session is null)
+			{
+				_error = "The account details were incorrect or the account does not have Admin permission.";
+				return;
+			}
+
+			_model.Password = string.Empty;
+			await OnAuthenticated.InvokeAsync(session);
+		}
+		catch (Exception exception)
+		{
+			_error = exception.Message;
+		}
+		finally
+		{
+			_submitting = false;
+		}
+	}
+
+	private sealed class LoginModel
+	{
+		[System.ComponentModel.DataAnnotations.Required]
+		public string AccountName { get; set; } = string.Empty;
+
+		[System.ComponentModel.DataAnnotations.Required]
+		public string Password { get; set; } = string.Empty;
+	}
+}

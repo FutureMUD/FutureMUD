@@ -43,23 +43,7 @@ public sealed class ReleaseStoreTests
 	{
 		var bytes = new byte[] { 1, 2, 3, 4, 5 };
 		var sha = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
-		var request = new CreateReleaseRequest
-		{
-			Product = "terrainplanner",
-			Version = "1.2.3",
-			SourceCommit = new string('a', 40),
-			Artifacts =
-			[
-				new ReleaseArtifactRequest
-				{
-					ArtifactId = "win-x64",
-					Runtime = "win-x64",
-					FileName = "terrainplanner-1.2.3-win-x64.zip",
-					Size = bytes.Length,
-					Sha256 = sha
-				}
-			]
-		};
+		var request = CreateTerrainPlannerRequest("1.2.3", bytes, 'a');
 
 		var first = await _store.CreateOrResumeAsync(request, CancellationToken.None);
 		var resumed = await _store.CreateOrResumeAsync(request, CancellationToken.None);
@@ -69,14 +53,14 @@ public sealed class ReleaseStoreTests
 			Product = request.Product,
 			Version = request.Version,
 			SourceCommit = request.SourceCommit,
-			Artifacts = [new ReleaseArtifactRequest
+			Artifacts = request.Artifacts.Select((artifact, index) => new ReleaseArtifactRequest
 			{
-				ArtifactId = "win-x64",
-				Runtime = "win-x64",
-				FileName = request.Artifacts[0].FileName,
-				Size = request.Artifacts[0].Size,
-				Sha256 = new string('0', 64)
-			}]
+				ArtifactId = artifact.ArtifactId,
+				Runtime = artifact.Runtime,
+				FileName = artifact.FileName,
+				Size = artifact.Size,
+				Sha256 = index == 0 ? new string('0', 64) : artifact.Sha256
+			}).ToList()
 		};
 		var conflict = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() => _store.CreateOrResumeAsync(conflictingRequest, CancellationToken.None));
 		Assert.AreEqual(StatusCodes.Status409Conflict, conflict.StatusCode);
@@ -86,8 +70,13 @@ public sealed class ReleaseStoreTests
 		await using var duplicateBody = new MemoryStream(bytes);
 		var afterDuplicate = await _store.PutChunkAsync(first.UploadId, "win-x64", 0, 0, 4, 5, sha, duplicateBody, CancellationToken.None);
 		CollectionAssert.AreEqual(new[] { 0 }, afterDuplicate.ReceivedChunks["win-x64"]);
-
+		foreach (var artifact in request.Artifacts.Where(artifact => artifact.Runtime != "win-x64"))
+		{
+			await _store.PutChunkAsync(first.UploadId, artifact.ArtifactId, 0, 0, 4, 5, artifact.Sha256,
+				new MemoryStream(bytes), CancellationToken.None);
+		}
 		await _store.CompleteAsync(first.UploadId, CancellationToken.None);
+
 		var promoted = await _store.PromoteAsync(first.UploadId, CancellationToken.None);
 		Assert.AreEqual("1.2.3", promoted.Version);
 		Assert.IsTrue(File.Exists(_store.GetLiveArtifactPath("terrainplanner", request.Artifacts[0].FileName)));
@@ -98,13 +87,7 @@ public sealed class ReleaseStoreTests
 	{
 		var bytes = new byte[] { 1, 2, 3 };
 		var sha = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
-		var request = new CreateReleaseRequest
-		{
-			Product = "terrainplanner",
-			Version = "1.2.3",
-			SourceCommit = new string('b', 40),
-			Artifacts = [new ReleaseArtifactRequest { ArtifactId = "win-x64", Runtime = "win-x64", FileName = "terrainplanner-1.2.3-win-x64.zip", Size = 3, Sha256 = sha }]
-		};
+		var request = CreateTerrainPlannerRequest("1.2.3", bytes, 'b');
 		var release = await _store.CreateOrResumeAsync(request, CancellationToken.None);
 
 		await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() => _store.PutChunkAsync(
@@ -239,23 +222,20 @@ public sealed class ReleaseStoreTests
 				_store.CreateOrResumeAsync(invalidVersion, CancellationToken.None));
 			Assert.AreEqual(StatusCodes.Status400BadRequest, versionException.StatusCode, Escape(lineTerminator));
 
-			var artifact = valid.Artifacts.Single();
+			var artifact = valid.Artifacts[0];
 			var invalidSha = new CreateReleaseRequest
 			{
 				Product = valid.Product,
 				Version = valid.Version,
 				SourceCommit = valid.SourceCommit,
-				Artifacts =
-				[
-					new ReleaseArtifactRequest
-					{
-						ArtifactId = artifact.ArtifactId,
-						Runtime = artifact.Runtime,
-						FileName = artifact.FileName,
-						Size = artifact.Size,
-						Sha256 = $"{artifact.Sha256}{lineTerminator}"
-					}
-				]
+				Artifacts = valid.Artifacts.Select((item, index) => new ReleaseArtifactRequest
+				{
+					ArtifactId = item.ArtifactId,
+					Runtime = item.Runtime,
+					FileName = item.FileName,
+					Size = item.Size,
+					Sha256 = index == 0 ? $"{item.Sha256}{lineTerminator}" : item.Sha256
+				}).ToList()
 			};
 			var shaException = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
 				_store.CreateOrResumeAsync(invalidSha, CancellationToken.None));
@@ -420,16 +400,19 @@ public sealed class ReleaseStoreTests
 		RandomNumberGenerator.Fill(bytes);
 		var request = CreateTerrainPlannerRequest("3.0.0", bytes, 'a');
 		var staged = await _store.CreateOrResumeAsync(request, CancellationToken.None);
-		await _store.PutChunkAsync(
-			staged.UploadId,
-			request.Artifacts[0].ArtifactId,
-			0,
-			0,
-			bytes.Length - 1,
-			bytes.Length,
-			request.Artifacts[0].Sha256,
-			new MemoryStream(bytes),
-			CancellationToken.None);
+		foreach (var artifact in request.Artifacts)
+		{
+			await _store.PutChunkAsync(
+				staged.UploadId,
+				artifact.ArtifactId,
+				0,
+				0,
+				bytes.Length - 1,
+				bytes.Length,
+				artifact.Sha256,
+				new MemoryStream(bytes),
+				CancellationToken.None);
+		}
 		var candidate = Path.Combine(_root, "staging", staged.UploadId, "release");
 		Directory.CreateDirectory(candidate);
 		await File.WriteAllBytesAsync(Path.Combine(candidate, "stale.bin"), new byte[8 * 1024 * 1024]);
@@ -590,6 +573,29 @@ public sealed class ReleaseStoreTests
 		Assert.AreEqual(StatusCodes.Status400BadRequest, exception.StatusCode);
 	}
 
+	[TestMethod]
+	public async Task RetiredTerrainApiCannotReceiveANewRelease()
+	{
+		var bytes = new byte[] { 1, 2, 3 };
+		var sha = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
+		var request = new CreateReleaseRequest
+		{
+			Product = "terrainapi",
+			Version = "1.0.2",
+			SourceCommit = new string('a', 40),
+			Artifacts =
+			[
+				new ReleaseArtifactRequest { ArtifactId = "win-x64", Runtime = "win-x64", FileName = "terrainapi-1.0.2-win-x64.zip", Size = 3, Sha256 = sha },
+				new ReleaseArtifactRequest { ArtifactId = "linux-x64", Runtime = "linux-x64", FileName = "terrainapi-1.0.2-linux-x64.zip", Size = 3, Sha256 = sha }
+			]
+		};
+
+		var exception = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+			_store.CreateOrResumeAsync(request, CancellationToken.None));
+
+		Assert.AreEqual(StatusCodes.Status410Gone, exception.StatusCode);
+	}
+
 	private async Task<StagedRelease> PrepareValidatedReleaseWithDocumentationAsync()
 	{
 		var bytes = new byte[] { 21, 22, 23 };
@@ -677,17 +683,19 @@ public sealed class ReleaseStoreTests
 		CreateReleaseRequest request,
 		byte[] bytes)
 	{
-		var artifact = request.Artifacts[0];
-		await _store.PutChunkAsync(
-			release.UploadId,
-			artifact.ArtifactId,
-			0,
-			0,
-			bytes.Length - 1,
-			bytes.Length,
-			artifact.Sha256,
-			new MemoryStream(bytes),
-			CancellationToken.None);
+		foreach (var artifact in request.Artifacts)
+		{
+			await _store.PutChunkAsync(
+				release.UploadId,
+				artifact.ArtifactId,
+				0,
+				0,
+				bytes.Length - 1,
+				bytes.Length,
+				artifact.Sha256,
+				new MemoryStream(bytes),
+				CancellationToken.None);
+		}
 		await _store.CompleteAsync(release.UploadId, CancellationToken.None);
 	}
 
@@ -709,17 +717,16 @@ public sealed class ReleaseStoreTests
 			Product = "terrainplanner",
 			Version = version,
 			SourceCommit = new string(commitCharacter, 40),
-			Artifacts =
-			[
-				new ReleaseArtifactRequest
+			Artifacts = new[] { "win-x64", "linux-x64", "linux-arm64" }
+				.Select(runtime => new ReleaseArtifactRequest
 				{
-					ArtifactId = "win-x64",
-					Runtime = "win-x64",
-					FileName = $"terrainplanner-{version}-win-x64.zip",
+					ArtifactId = runtime,
+					Runtime = runtime,
+					FileName = $"terrainplanner-{version}-{runtime}.zip",
 					Size = bytes.Length,
 					Sha256 = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant()
-				}
-			]
+				})
+				.ToList()
 		};
 	}
 

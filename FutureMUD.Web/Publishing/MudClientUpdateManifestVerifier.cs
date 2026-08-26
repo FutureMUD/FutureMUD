@@ -19,7 +19,7 @@ public static class MudClientUpdateManifestVerifier
 		string sourceCommit,
 		IReadOnlyList<ReleaseArtifactRequest> artifacts)
 	{
-		if (!string.Equals(product, "mudclient", StringComparison.Ordinal) ||
+		if (product is not ("mudclient" or "terrainplanner") ||
 			!string.Equals(request.KeyId, options.MudClientUpdateSigningKeyId, StringComparison.Ordinal))
 		{
 			throw new ReleaseStoreException("The update manifest signing key is not recognised.", StatusCodes.Status400BadRequest);

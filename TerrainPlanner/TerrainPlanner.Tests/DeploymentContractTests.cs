@@ -33,7 +33,10 @@ public class DeploymentContractTests
 		Assert.IsTrue(linux.Contains("$DATA_ROOT/keys", StringComparison.Ordinal));
 		Assert.IsTrue(windows.Contains("$sharedRoot", StringComparison.Ordinal));
 		Assert.IsTrue(windows.Contains("appsettings.Production.json", StringComparison.Ordinal));
-		Assert.IsTrue(windows.Contains("NT SERVICE\\FutureMUDTerrainPlanner", StringComparison.Ordinal));
+		Assert.IsTrue(windows.Contains("NT AUTHORITY\\LocalService", StringComparison.Ordinal));
+		Assert.IsTrue(windows.Contains("sidtype FutureMUDTerrainPlanner unrestricted", StringComparison.Ordinal));
+		Assert.IsTrue(windows.IndexOf("if (-not (Test-Path -LiteralPath $configPath))", StringComparison.Ordinal) <
+			windows.IndexOf("New-Item -ItemType Directory -Path $releaseRoot", StringComparison.Ordinal));
 	}
 
 	[TestMethod]
@@ -48,6 +51,9 @@ public class DeploymentContractTests
 		Assert.IsTrue(linux.Contains("caddy validate", StringComparison.Ordinal));
 		Assert.IsTrue(windows.Contains("$siteBackup", StringComparison.Ordinal));
 		Assert.IsTrue(windows.Contains("validate --config", StringComparison.Ordinal));
+		Assert.IsTrue(windows.Contains("Get-ScheduledTask -TaskName 'FutureMUD Web Client HTTPS'", StringComparison.Ordinal));
+		Assert.IsTrue(windows.Contains("--adapter caddyfile", StringComparison.Ordinal));
+		Assert.IsTrue(windows.Contains("Caddy already contains a site block", StringComparison.Ordinal));
 	}
 
 	private static string FindRepositoryRoot()

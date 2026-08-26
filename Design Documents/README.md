@@ -19,6 +19,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Autobuilder Seeder Implementation Guide](./Building/Autobuilder_Seeder_Implementation_Guide.md)
 - [Autobuilder System Implementation](./Building/Autobuilder_System_Implementation.md)
 - [Room Building Builder Guide](./Building/Room_Building_Builder_Guide.md)
+- [Terrain Planner and Engine API](./Building/Terrain_Planner_and_Engine_API.md)
 
 ## Characters
 - [Character Creation Documentation Index](./Characters/Character_Creation_Documentation_Index.md)

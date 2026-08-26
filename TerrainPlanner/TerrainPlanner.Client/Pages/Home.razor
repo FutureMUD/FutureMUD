@@ -1,0 +1,54 @@
+@page "/"
+@inject PlannerApiClient Api
+
+<PageTitle>FutureMUD Terrain Planner</PageTitle>
+
+@if (_loading)
+{
+	<main class="message-page" aria-live="polite">
+		<div class="brand-mark">FM</div>
+		<h1>Terrain Planner</h1>
+		<p>Connecting to your game catalogue…</p>
+	</main>
+}
+else if (_session is null)
+{
+	<LoginPanel OnAuthenticated="AuthenticatedAsync" />
+}
+else
+{
+	<PlannerWorkspace Session="_session" OnLogout="LogoutAsync" />
+}
+
+@code {
+	private bool _loading = true;
+	private AuthSession? _session;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			_session = await Api.GetSessionAsync();
+		}
+		catch
+		{
+			_session = null;
+		}
+		finally
+		{
+			_loading = false;
+		}
+	}
+
+	private Task AuthenticatedAsync(AuthSession session)
+	{
+		_session = session;
+		return Task.CompletedTask;
+	}
+
+	private async Task LogoutAsync()
+	{
+		await Api.LogoutAsync();
+		_session = null;
+	}
+}

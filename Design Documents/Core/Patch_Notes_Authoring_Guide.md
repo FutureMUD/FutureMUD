@@ -339,8 +339,8 @@ Terrain Planner notes usually focus on:
 - usability improvements
 - browser or client-side limitations when relevant
 
-### Terrain API
-Terrain API notes usually focus on:
+### Terrain API (historical)
+Terrain API was retired into Terrain Planner 2.0. New endpoint, authentication, hosting, and deployment changes belong in the Terrain Planner release notes. Historical Terrain API notes focused on:
 
 - new endpoints or capabilities
 - response or compatibility changes

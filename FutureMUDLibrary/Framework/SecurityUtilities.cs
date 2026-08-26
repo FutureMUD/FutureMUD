@@ -8,8 +8,6 @@ namespace MudSharp.Framework
 {
     public static class SecurityUtilities
     {
-        public static readonly HashAlgorithm HashAlgorithm = SHA384.Create();
-
         public static long GetSalt64()
         {
             byte[] saltBytes = new byte[8];
@@ -20,12 +18,21 @@ namespace MudSharp.Framework
 
         public static string GetPasswordHash(string password, long salt)
         {
-            return Encoding.UTF8.GetString(HashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(password + salt)));
+			ArgumentNullException.ThrowIfNull(password);
+			return Encoding.UTF8.GetString(SHA384.HashData(Encoding.UTF8.GetBytes(password + salt)));
         }
 
         public static bool VerifyPassword(string password, string hash, long salt)
         {
-            return GetPasswordHash(password, salt).Equals(hash);
+			if (password is null || hash is null)
+			{
+				return false;
+			}
+
+			var actualBytes = Encoding.UTF8.GetBytes(GetPasswordHash(password, salt));
+			var expectedBytes = Encoding.UTF8.GetBytes(hash);
+			return actualBytes.Length == expectedBytes.Length &&
+			       CryptographicOperations.FixedTimeEquals(actualBytes, expectedBytes);
         }
 
         private static IEnumerable<char> YieldRandomCharacters(int length, char[] characterSet)

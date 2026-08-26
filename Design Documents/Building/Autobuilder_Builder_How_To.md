@@ -46,30 +46,27 @@ Use the edit commands only when you are authoring or customising templates:
 
 ## Quick Start With Terrain Planner
 
-### 1. Load terrains into the planner
+### 1. Sign in and load the live catalogue
 
-You have two normal options:
-
-- Clipboard import: copy JSON terrain data and use the clipboard import button.
-- API import: put the endpoint URL into `apiaddress.config` and use the API import button.
-
-The planner reads terrain editor metadata, so the imported terrain list matches the terrain catalogue seeded into the game.
+Open the hosted Terrain Planner URL supplied by the game operator and sign in with your existing FutureMUD account. The account must be registered, unsuspended, and have Admin authority or higher. The planner does not create or modify accounts. Terrain and hierarchical tag palettes load from the bundled read-only Engine API.
 
 ### 2. Paint the map
 
 - Set grid width and height.
-- Use paint or fill mode.
+- Use paint, flood fill, rectangle, eyedropper, or erase tools on either the Terrain or Tag layer.
+- A cell may have multiple tags. Terrain `0` removes the room and its tags.
 - Leave any unused positions as `None` if you want holes in the shape.
 
 ### 3. Export the mask
 
-The export button copies a comma-separated terrain mask to the clipboard.
+Use the separate copy buttons for the comma-separated terrain mask and feature/tag mask. If clipboard permission is denied, select the visible text manually. Versioned project JSON can be saved separately for later editing.
 
 Important rules:
 
 - The mask is row-major from the bottom-left `(0,0)` cell: proceed right across the southern row, then move one row north.
 - `0` means no room should be created at that coordinate.
 - The number of entries must exactly match `height x width`.
+- Feature-mask entries use short tag names separated by `|`; an untagged cell is an empty entry.
 
 ## Building An Area
 

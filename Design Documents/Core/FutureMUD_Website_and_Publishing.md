@@ -34,15 +34,15 @@ Detail pages preserve catalogue structure rather than flattening every family in
 
 ## Product and release contract
 
-`FutureMUD.Web/Configuration/release-products.json` is the central product manifest. It owns tag prefixes, project/version sources, runtime matrices, framework-dependent and single-file packaging, archive names, test projects, and the Engine documentation requirement. `singleFile` and `includeNativeLibrariesForSelfExtract` are explicit per product: normal stable releases bundle managed and native dependencies into the app host, embed symbols, and deliberately disable trimming because FutureMUD uses reflection-heavy registries. Product content such as Markdown, SQL snapshots, and application settings remains alongside the executable when required. Stable tags must carry an exact three-part project version and point to the exact merged commit containing that version:
+`FutureMUD.Web/Configuration/release-products.json` is the central product manifest. It owns tag prefixes, project/version sources, runtime matrices, packaging scripts, retirement state, archive names, test projects, and the Engine documentation requirement. `singleFile` and `includeNativeLibrariesForSelfExtract` are explicit per product: normal stable releases bundle managed and native dependencies into the app host, embed symbols, and deliberately disable trimming because FutureMUD uses reflection-heavy registries. Product content such as Markdown, SQL snapshots, and application settings remains alongside the executable when required. Stable tags must carry an exact three-part project version and point to the exact merged commit containing that version:
 
 - `engine-vX.Y.Z`
 - `seeder-vX.Y.Z`
 - `discordbot-vX.Y.Z`
 - `terrainplanner-vX.Y.Z`
-- `terrainapi-vX.Y.Z`
+- `mudclient-vX.Y.Z`
 
-The release workflow publishes Windows x64 and the declared Linux x64/ARM64 variants. macOS is not advertised. Matrix jobs test and package independently. Secretless jobs exercise the complete upload/promote flow against a temporary website store; a fresh production-environment job then downloads the verified workflow artifacts and runs only the publisher script captured from protected `master`. Release-tag input, manifest values, project paths, runtime matrices, and commit ancestry are independently allowlisted before outputs are produced. Releases are tag-driven only; the historical backfill workflow is a fixed tag-to-commit allowlist and is not a nightly or general-purpose publishing path.
+The release workflow publishes Windows x64 and the declared Linux x64/ARM64 variants. macOS is not advertised. Matrix jobs test and package independently. Secretless jobs exercise the complete upload/promote flow against a temporary website store; a fresh production-environment job then downloads the verified workflow artifacts and runs only the publisher script captured from protected `master`. Release-tag input, manifest values, project paths, runtime matrices, and commit ancestry are independently allowlisted before outputs are produced. Releases are tag-driven only; the historical backfill workflow is a fixed tag-to-commit allowlist and is not a nightly or general-purpose publishing path. Retired products remain in the public catalogue so their final download stays reachable, but the publishing store rejects new releases and the tag workflow omits their prefixes. `terrainapi` is the first retired product; its API now ships inside `terrainplanner`.
 
 The complete human and Codex procedure is documented in [FutureMUD Release Process](./FutureMUD_Release_Process.md).
 

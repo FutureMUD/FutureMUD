@@ -1011,6 +1011,10 @@ public sealed partial class ReleaseStore
 		{
 			throw new ReleaseStoreException("Unknown product.", StatusCodes.Status400BadRequest);
 		}
+		if (product.Retired)
+		{
+			throw new ReleaseStoreException("This product is retired and cannot receive new releases.", StatusCodes.Status410Gone);
+		}
 		if (string.IsNullOrWhiteSpace(request.Version) || string.IsNullOrWhiteSpace(request.SourceCommit) ||
 			request.Version.Length > 32 || !VersionRegex().IsMatch(request.Version) ||
 			!Version.TryParse(request.Version, out _) || !CommitRegex().IsMatch(request.SourceCommit))

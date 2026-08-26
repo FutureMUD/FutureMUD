@@ -14,14 +14,16 @@ namespace FutureMUD.Web.Tests;
 public sealed class MudClientUpdateManifestVerifierTests
 {
 	[TestMethod]
-	public void SignedManifestMustMatchTheReleaseAndItsSignature()
+	[DataRow("mudclient")]
+	[DataRow("terrainplanner")]
+	public void SignedManifestMustMatchTheReleaseAndItsSignature(string product)
 	{
 		var key = new Ed25519PrivateKeyParameters(new SecureRandom());
 		var artifact = new ReleaseArtifactRequest
 		{
 			ArtifactId = "win-x64",
 			Runtime = "win-x64",
-			FileName = "mudclient-1.2.0-win-x64.zip",
+			FileName = $"{product}-1.2.0-win-x64.zip",
 			Size = 1,
 			Sha256 = new string('a', 64)
 		};
@@ -33,7 +35,7 @@ public sealed class MudClientUpdateManifestVerifierTests
 		var bytes = JsonSerializer.SerializeToUtf8Bytes(new MudClientUpdateManifest
 		{
 			SchemaVersion = 1,
-			Product = "mudclient",
+			Product = product,
 			Version = "1.2.0",
 			SourceCommit = new string('b', 40),
 			KeyId = "test-key",
@@ -46,7 +48,7 @@ public sealed class MudClientUpdateManifestVerifierTests
 			SignatureBase64 = Convert.ToBase64String(Sign(bytes, key))
 		};
 
-		MudClientUpdateManifestVerifier.Verify(request, options, "mudclient", "1.2.0", new string('b', 40), [artifact]);
+		MudClientUpdateManifestVerifier.Verify(request, options, product, "1.2.0", new string('b', 40), [artifact]);
 
 		request = new SignedUpdateManifestRequest
 		{
@@ -55,7 +57,7 @@ public sealed class MudClientUpdateManifestVerifierTests
 			SignatureBase64 = Convert.ToBase64String(new byte[64])
 		};
 		Assert.ThrowsException<ReleaseStoreException>(() =>
-			MudClientUpdateManifestVerifier.Verify(request, options, "mudclient", "1.2.0", new string('b', 40), [artifact]));
+			MudClientUpdateManifestVerifier.Verify(request, options, product, "1.2.0", new string('b', 40), [artifact]));
 	}
 
 	private static byte[] Sign(byte[] bytes, Ed25519PrivateKeyParameters privateKey)

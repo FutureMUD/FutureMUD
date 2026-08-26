@@ -24,6 +24,7 @@ public sealed class ReleaseProductDefinition
 	public IReadOnlyList<string> TestProjects { get; init; } = [];
 	public IReadOnlyList<string> Runtimes { get; init; } = [];
 	public bool DocumentationCatalogue { get; init; }
+	public bool Retired { get; init; }
 }
 
 public sealed class CreateReleaseRequest

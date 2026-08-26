@@ -25,3 +25,6 @@ MudSharp/bin/*
 /rpi-rooms-dry-run-audit.json
 /rpi-rooms-apply-audit.json
 /BenchmarkDotNet.Artifacts/
+/TerrainPlanner/artifacts/
+/.playwright-cli/
+/output/playwright/

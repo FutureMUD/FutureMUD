@@ -7,7 +7,6 @@ on:
       - 'seeder-v*'
       - 'discordbot-v*'
       - 'terrainplanner-v*'
-      - 'terrainapi-v*'
       - 'mudclient-v*'
   workflow_dispatch:
     inputs:
@@ -106,29 +105,15 @@ jobs:
             }
             terrainplanner = [pscustomobject]@{
               TagPrefix = 'terrainplanner-v'
-              ProjectPath = 'Terrain Planner Core/Terrain Planner Core.csproj'
-              TestProjects = [string[]]@()
-              Runtimes = [string[]]@('win-x64')
+              ProjectPath = 'TerrainPlanner/TerrainPlanner.Server/TerrainPlanner.Server.csproj'
+              TestProjects = [string[]]@('TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj')
+              Runtimes = [string[]]@('win-x64', 'linux-x64', 'linux-arm64')
               ArchiveName = 'terrainplanner-{version}-{runtime}.zip'
               DocumentationCatalogue = $false
-              PackageKind = 'single-file'
+              PackageKind = 'terrainplanner'
               WebProjectPath = ''
-              PackageScriptPath = ''
-              FrameworkDependent = $true
-              SingleFile = $true
-              IncludeNativeLibrariesForSelfExtract = $true
-            }
-            terrainapi = [pscustomobject]@{
-              TagPrefix = 'terrainapi-v'
-              ProjectPath = 'Terrain API/Terrain API.csproj'
-              TestProjects = [string[]]@()
-              Runtimes = [string[]]@('win-x64', 'linux-x64')
-              ArchiveName = 'terrainapi-{version}-{runtime}.zip'
-              DocumentationCatalogue = $false
-              PackageKind = 'single-file'
-              WebProjectPath = ''
-              PackageScriptPath = ''
-              FrameworkDependent = $true
+              PackageScriptPath = 'TerrainPlanner/scripts/Publish-ProductPackage.ps1'
+              FrameworkDependent = $false
               SingleFile = $true
               IncludeNativeLibrariesForSelfExtract = $true
             }
@@ -147,11 +132,11 @@ jobs:
               IncludeNativeLibrariesForSelfExtract = $true
             }
           }
-          $allowedIds = [string[]]@('engine', 'seeder', 'discordbot', 'terrainplanner', 'terrainapi', 'mudclient')
+          $allowedIds = [string[]]@('engine', 'seeder', 'discordbot', 'terrainplanner', 'mudclient')
 
           $tagMatch = [regex]::Match(
             $env:RELEASE_TAG,
-            '\A(?<product>engine|seeder|discordbot|terrainplanner|terrainapi|mudclient)-v(?<version>[0-9]+\.[0-9]+\.[0-9]+)\z',
+            '\A(?<product>engine|seeder|discordbot|terrainplanner|mudclient)-v(?<version>[0-9]+\.[0-9]+\.[0-9]+)\z',
             [Text.RegularExpressions.RegexOptions]::CultureInvariant)
           if (-not $tagMatch.Success) {
             throw "Release tag '$($env:RELEASE_TAG)' does not match the strict release-tag allowlist."
@@ -285,7 +270,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
       - name: Install WebAssembly build tools
-        if: needs.prepare.outputs.package_kind == 'mudclient'
+        if: needs.prepare.outputs.package_kind == 'mudclient' || needs.prepare.outputs.package_kind == 'terrainplanner'
         shell: pwsh
         run: dotnet workload install wasm-tools
       - name: Audit Web MUD Client dependencies
@@ -322,8 +307,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $archive = "$($env:PRODUCT)-$($env:VERSION)-$($env:RUNTIME).zip"
           Compress-Archive -Path "$output/*" -DestinationPath (Join-Path $env:RUNNER_TEMP $archive) -CompressionLevel Optimal
-      - name: Assemble self-contained Web MUD Client archive
-        if: needs.prepare.outputs.package_kind == 'mudclient'
+      - name: Assemble self-contained hosted web archive
+        if: needs.prepare.outputs.package_kind == 'mudclient' || needs.prepare.outputs.package_kind == 'terrainplanner'
         shell: pwsh
         env:
           PACKAGE_SCRIPT: ${{ needs.prepare.outputs.package_script }}
@@ -419,7 +404,9 @@ jobs:
           sparse-checkout: |
             scripts/Publish-WebsiteRelease.ps1
             scripts/New-MudClientUpdateManifest.ps1
+            scripts/New-TerrainPlannerUpdateManifest.ps1
             MudClient/MudClientDeployment
+            TerrainPlanner/TerrainPlanner.Deployment
           sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
@@ -427,7 +414,7 @@ jobs:
           path: artifacts
           merge-multiple: true
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        if: needs.prepare.outputs.package_kind == 'mudclient'
+        if: needs.prepare.outputs.package_kind == 'mudclient' || needs.prepare.outputs.package_kind == 'terrainplanner'
         with:
           dotnet-version: '10.0.x'
       - name: Sign MudClient update manifest
@@ -441,6 +428,17 @@ jobs:
           ./scripts/New-MudClientUpdateManifest.ps1 -ArtifactDirectory artifacts -Version $env:VERSION -SourceCommit $env:SOURCE_REVISION -OutputPath artifacts/update-manifest.json
           dotnet run --project MudClient/MudClientDeployment/MudClientDeployment.csproj -p:NuGetAudit=false -- sign --manifest artifacts/update-manifest.json --signature artifacts/update-manifest.sig
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Sign Terrain Planner update manifest
+        if: needs.prepare.outputs.package_kind == 'terrainplanner'
+        shell: pwsh
+        env:
+          FUTUREMUD_MUDCLIENT_UPDATE_SIGNING_PRIVATE_KEY: ${{ secrets.FUTUREMUD_MUDCLIENT_UPDATE_SIGNING_PRIVATE_KEY }}
+          SOURCE_REVISION: ${{ needs.prepare.outputs.source_revision }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          ./scripts/New-TerrainPlannerUpdateManifest.ps1 -ArtifactDirectory artifacts -Version $env:VERSION -SourceCommit $env:SOURCE_REVISION -OutputPath artifacts/update-manifest.json
+          dotnet run --project TerrainPlanner/TerrainPlanner.Deployment/TerrainPlanner.Deployment.csproj -p:NuGetAudit=false -- sign --manifest artifacts/update-manifest.json --signature artifacts/update-manifest.sig
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Publish to futuremud.com
         shell: pwsh
         env:
@@ -449,13 +447,13 @@ jobs:
           SOURCE_REVISION: ${{ needs.prepare.outputs.source_revision }}
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
-          if ($env:PRODUCT -cnotmatch '^(engine|seeder|discordbot|terrainplanner|terrainapi|mudclient)$' -or
+          if ($env:PRODUCT -cnotmatch '^(engine|seeder|discordbot|terrainplanner|mudclient)$' -or
               $env:VERSION -cnotmatch '^\d+\.\d+\.\d+$' -or
               $env:SOURCE_REVISION -cnotmatch '^[0-9a-f]{40}$') {
             throw 'Prepared publishing metadata failed production validation.'
           }
           $documentation = if (Test-Path 'artifacts/catalogue.json') { 'artifacts/catalogue.json' } else { '' }
-          $updateManifest = if ($env:PRODUCT -eq 'mudclient') { 'artifacts/update-manifest.json' } else { '' }
-          $updateSignature = if ($env:PRODUCT -eq 'mudclient') { 'artifacts/update-manifest.sig' } else { '' }
-          $updateKeyId = if ($env:PRODUCT -eq 'mudclient') { 'futuremud-mudclient-2026-08' } else { '' }
+          $updateManifest = if ($env:PRODUCT -in @('mudclient', 'terrainplanner')) { 'artifacts/update-manifest.json' } else { '' }
+          $updateSignature = if ($env:PRODUCT -in @('mudclient', 'terrainplanner')) { 'artifacts/update-manifest.sig' } else { '' }
+          $updateKeyId = if ($env:PRODUCT -in @('mudclient', 'terrainplanner')) { 'futuremud-mudclient-2026-08' } else { '' }
           ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product $env:PRODUCT -Version $env:VERSION -SourceCommit $env:SOURCE_REVISION -ArtifactDirectory artifacts -DocumentationCatalogue $documentation -UpdateManifest $updateManifest -UpdateManifestSignature $updateSignature -UpdateManifestKeyId $updateKeyId

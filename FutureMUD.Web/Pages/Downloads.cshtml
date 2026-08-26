@@ -15,12 +15,16 @@
 	var headingId = $"release-{item.Product.Id}";
 	<section class="release-panel" aria-labelledby="@headingId">
 		<header class="release-header">
-			<div><p class="tag">@item.Product.Id</p><h2 id="@headingId">@item.Product.PublicName</h2></div>
+			<div><p class="tag">@item.Product.Id@(item.Product.Retired ? " · retired" : "")</p><h2 id="@headingId">@item.Product.PublicName</h2></div>
 			@if (item.Release is not null)
 			{
 				<p class="release-version">Version <strong>@item.Release.Version</strong><span aria-hidden="true"> &middot; </span><time datetime="@item.Release.PublishedAtUtc.ToString("yyyy-MM-dd")">published @item.Release.PublishedAtUtc.ToString("d MMMM yyyy")</time></p>
 			}
 		</header>
+		@if (item.Product.Retired)
+		{
+			<p class="release-empty">This historical product is retired. Its final download remains available, but all new Terrain Planner and Engine API releases are published together under <strong>terrainplanner</strong>.</p>
+		}
 		@if (item.Release is null)
 		{
 			<p class="release-empty">No release has been promoted to futuremud.com yet.</p>

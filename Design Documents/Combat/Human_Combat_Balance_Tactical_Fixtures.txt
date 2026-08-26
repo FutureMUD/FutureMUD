@@ -1,0 +1,16 @@
+# Additional permanent tactic controls derived from the established equal-stat fixtures.
+npc clone 108
+npc set unique combat-human-mid-dual-daggers-clincher
+npc set comment "Permanent human combat-balance fixture: mid-tier, dual daggers, no armour, Clincher Auto."
+npc set combatsetting "Clincher (Auto)"
+npc edit submit
+npc clone 116
+npc set unique combat-human-mid-swarmer
+npc set comment "Permanent human combat-balance fixture: mid-tier, unarmed, no armour, Swarmer Auto."
+npc set combatsetting "Swarmer (Auto)"
+npc edit submit
+npc clone 116
+npc set unique combat-human-mid-outboxer
+npc set comment "Permanent human combat-balance fixture: mid-tier, unarmed, no armour, Outboxer Auto."
+npc set combatsetting "Outboxer (Auto)"
+npc edit submit

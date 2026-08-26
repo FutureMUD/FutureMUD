@@ -1,0 +1,69 @@
+# Cloning a Simple NPC does not copy its default combat setting or load-time outfits.
+# Explicitly attach both to every derived balance fixture and approve the revisions.
+
+npc edit 117
+npc set outfit add 5845
+npc set combatsetting "Zweihander (Auto)"
+npc edit submit
+npc review 117
+accept edit
+npc edit 118
+npc set outfit add 5844
+npc set combatsetting "Shielder (Auto)"
+npc edit submit
+npc review 118
+accept edit
+npc edit 119
+npc set outfit add 5847
+npc set combatsetting "Shielder (Auto)"
+npc edit submit
+npc review 119
+accept edit
+npc edit 120
+npc set outfit add 5843
+npc set combatsetting "Dual Wielder (Auto)"
+npc edit submit
+npc review 120
+accept edit
+npc edit 121
+npc set outfit add 5846
+npc set combatsetting "Zweihander (Auto)"
+npc edit submit
+npc review 121
+accept edit
+npc edit 122
+npc set outfit add 5844
+npc set combatsetting "Shielder (Auto)"
+npc edit submit
+npc review 122
+accept edit
+npc edit 123
+npc set outfit add 5844
+npc set combatsetting "Shielder (Auto)"
+npc edit submit
+npc review 123
+accept edit
+npc edit 124
+npc set outfit add 5844
+npc set combatsetting "Shielder (Auto)"
+npc edit submit
+npc review 124
+accept edit
+npc edit 125
+npc set outfit add 5843
+npc set combatsetting "Dual Wielder (Auto)"
+npc edit submit
+npc review 125
+accept edit
+npc edit 126
+npc set outfit add 5843
+npc set combatsetting "Dual Wielder (Auto)"
+npc edit submit
+npc review 126
+accept edit
+npc edit 127
+npc set outfit add 5843
+npc set combatsetting "Dual Wielder (Auto)"
+npc edit submit
+npc review 127
+accept edit

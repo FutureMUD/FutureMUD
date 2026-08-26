@@ -1,0 +1,7 @@
+# Convert oversized human combat-balance weapons from held inventory to explicit wielded placement.
+outfittemplate edit 5845
+outfittemplate set item placement pike wielded
+outfittemplate close
+outfittemplate edit 5846
+outfittemplate set item placement sword wielded
+outfittemplate close

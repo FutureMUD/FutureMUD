@@ -1,0 +1,5 @@
+# Engine-first correction after the deterministic replay exposed reversed actor/defender roles.
+cm edit 1064
+cm set message , and #1 %1|keep|keeps $0 trapped in the clinch
+cm set fail , but #1 %1|fail|fails to keep $0 trapped in the clinch
+cm close

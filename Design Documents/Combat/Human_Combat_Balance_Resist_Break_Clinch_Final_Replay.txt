@@ -1,0 +1,13 @@
+# Final deterministic demo_dbo replay after correcting the ResistBreakClinch actor roles and verb agreement.
+# Simulation: 55da5c59-e42d-4ceb-8db6-01d5fa4ea8ba
+# Seed: 7480
+# Team 1: NPC template #131, long spear warder
+# Team 2: NPC template #128, dual-dagger clincher
+# Result: completed in 55 virtual seconds; team 1 won.
+
+54: [00:00:44.100] #1 Agathe Herbert: You try to break free of the clinch with a brown-haired woman. But she fails to
+55: [00:00:44.100] #1 Agathe Herbert: keep you trapped in the clinch.
+56: [00:00:44.100] #2 Agathe Herbert: A brown-haired woman tries to break free of the clinch with you. But you fail
+57: [00:00:44.100] #2 Agathe Herbert: to keep a brown-haired woman trapped in the clinch.
+60: [00:00:55.600] #1 Agathe Herbert: You brace a plain war spear across a brown-haired woman and shove hard to force
+61: [00:00:55.600] #1 Agathe Herbert: her back beyond the point.

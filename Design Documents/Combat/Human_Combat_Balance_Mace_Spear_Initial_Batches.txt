@@ -1,0 +1,64 @@
+# Initial post-tuning matrix. Thirty deterministic runs per matchup.
+
+# Mace and shield vs sword and shield.
+impdebug combatsim new
+impdebug combatsim add template 112 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim batch 30 seed 7000 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Mace and shield vs axe and shield.
+impdebug combatsim new
+impdebug combatsim add template 112 team 1
+impdebug combatsim add template 114 team 2
+impdebug combatsim batch 30 seed 7030 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Mace and shield vs dual daggers.
+impdebug combatsim new
+impdebug combatsim add template 112 team 1
+impdebug combatsim add template 108 team 2
+impdebug combatsim batch 30 seed 7060 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Heavy mace and shield vs heavy sword and shield.
+impdebug combatsim new
+impdebug combatsim add template 119 team 1
+impdebug combatsim add template 118 team 2
+impdebug combatsim batch 30 seed 7090 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Spear warder and shield vs axe and shield.
+impdebug combatsim new
+impdebug combatsim add template 113 team 1
+impdebug combatsim add template 114 team 2
+impdebug combatsim batch 30 seed 7120 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Spear warder and shield vs sword and shield.
+impdebug combatsim new
+impdebug combatsim add template 113 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim batch 30 seed 7150 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Spear warder and shield vs dual daggers.
+impdebug combatsim new
+impdebug combatsim add template 113 team 1
+impdebug combatsim add template 108 team 2
+impdebug combatsim batch 30 seed 7180 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Spear warder and shield vs clinching dual daggers.
+impdebug combatsim new
+impdebug combatsim add template 113 team 1
+impdebug combatsim add template 128 team 2
+impdebug combatsim batch 30 seed 7210 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Spear warder and axe begin outside melee.
+impdebug combatsim new
+impdebug combatsim add template 113 team 1 range ranged
+impdebug combatsim add template 114 team 2 range ranged
+impdebug combatsim batch 30 seed 7240 step 1 force confirm-production
+impdebug combatsim batchreport

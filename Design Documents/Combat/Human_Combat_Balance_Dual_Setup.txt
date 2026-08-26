@@ -1,0 +1,12 @@
+# Engine-first demo_dbo setup for the dual-wield test archetype.
+combat clone 2 "Dual Wielder (Auto)"
+combat config setup dwield
+combat config prefer_shield false
+combat config global
+combat show "Dual Wielder (Auto)"
+npc edit 108
+npc set combatsetting "Dual Wielder (Auto)"
+npc edit submit
+npc review 108
+accept edit
+npc show 108

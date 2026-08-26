@@ -12,6 +12,14 @@ internal static class CombatStrategySeederHelper
     internal static readonly IReadOnlyCollection<string> CanonicalStrategyNames =
     [
         "Melee (Auto)",
+		"Dual Wielder",
+		"Dual Wielder (Auto)",
+		"Dual Wield Clincher",
+		"Dual Wield Clincher (Auto)",
+		"Polearm Warder",
+		"Polearm Warder (Auto)",
+		"Spear Warder",
+		"Spear Warder (Auto)",
         "Beast Brawler",
         "Beast Clincher",
         "Beast Behemoth",
@@ -45,6 +53,44 @@ internal static class CombatStrategySeederHelper
         CharacterCombatSetting? existing = context.CharacterCombatSettings.FirstOrDefault(x => x.Name == strategyName);
         if (existing is not null)
         {
+			if (strategyName.EqualToAny("Dual Wielder", "Dual Wielder (Auto)",
+				    "Dual Wield Clincher", "Dual Wield Clincher (Auto)",
+				    "Polearm Warder", "Polearm Warder (Auto)",
+				    "Spear Warder", "Spear Warder (Auto)"))
+			{
+				var automatic = strategyName.EndsWith("(Auto)", StringComparison.OrdinalIgnoreCase);
+				var dualWield = strategyName.StartsWith("Dual Wield", StringComparison.OrdinalIgnoreCase);
+				var spearWarder = strategyName.StartsWith("Spear Warder", StringComparison.OrdinalIgnoreCase);
+				existing.GlobalTemplate = true;
+				existing.AvailabilityProg = context.FutureProgs.First(x => x.FunctionName == "IsHumanoid");
+				existing.WeaponUsePercentage = dualWield ? 0.9 : 0.85;
+				existing.NaturalWeaponPercentage = 0.0;
+				existing.AuxiliaryPercentage = dualWield ? 0.1 : 0.15;
+				existing.PreferToFightArmed = true;
+				existing.PreferNonContactClinchBreaking = !spearWarder;
+				existing.PreferShieldUse = spearWarder;
+				existing.PreferredWeaponSetup = (int)(dualWield
+					? AttackHandednessOptions.DualWieldOnly
+					: spearWarder
+						? AttackHandednessOptions.SwordAndBoardOnly
+						: AttackHandednessOptions.TwoHandedOnly);
+				existing.PreferredMeleeMode = (int)(strategyName.Contains("Clincher", StringComparison.OrdinalIgnoreCase)
+					? CombatStrategyMode.Clinch
+					: strategyName.Contains("Warder", StringComparison.OrdinalIgnoreCase)
+						? CombatStrategyMode.Ward
+						: CombatStrategyMode.StandardMelee);
+				existing.PreferredRangedMode = (int)CombatStrategyMode.FullAdvance;
+				existing.InventoryManagement = (int)(automatic
+					? AutomaticInventorySettings.FullyAutomatic
+					: AutomaticInventorySettings.AutomaticButDontDiscard);
+				existing.MovementManagement = (int)(automatic
+					? AutomaticMovementSettings.FullyAutomatic
+					: AutomaticMovementSettings.SeekCoverOnly);
+				existing.RangedManagement = (int)(automatic
+					? AutomaticRangedSettings.FullyAutomatic
+					: AutomaticRangedSettings.ContinueFiringOnly);
+				context.SaveChanges();
+			}
 			var desiredTerrestrialPreference = !strategyName.EqualTo("Beast Drowner") &&
 			                                   !strategyName.StartsWith("Beast Aquatic ", StringComparison.OrdinalIgnoreCase);
 			var changed = existing.PreferTerrestrialCombat != desiredTerrestrialPreference;
@@ -135,6 +181,78 @@ internal static class CombatStrategySeederHelper
                 AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
                 AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.Any, GrappleResponse.Avoidance,
                 0.5, 5.0, DefenseType.None, defaultOrder, humanoidProg),
+			"Dual Wielder" => CreateStrategy(
+				"Dual Wielder",
+				"Fight with a weapon in each hand, move to melee, and fall back to unarmed if disarmed.",
+				0.9, 0.0, 0.1, false, true, true, false, true, true, false, true, false, false, true,
+				PursuitMode.OnlyAttemptToStop, CombatStrategyMode.StandardMelee, CombatStrategyMode.FullAdvance,
+				AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
+				AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.DualWieldOnly,
+				GrappleResponse.Avoidance, 0.5, 5.0, DefenseType.None, defaultOrder, humanoidProg,
+				forbiddenIntentions: CombatMoveIntentions.Savage | CombatMoveIntentions.Cruel),
+			"Dual Wielder (Auto)" => CreateStrategy(
+				"Dual Wielder (Auto)",
+				"Fight with a weapon in each hand and move to melee. Fully automated, designed for NPCs.",
+				0.9, 0.0, 0.1, false, true, true, false, true, true, false, true, true, false, true,
+				PursuitMode.AlwaysPursue, CombatStrategyMode.StandardMelee, CombatStrategyMode.FullAdvance,
+				AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
+				AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.DualWieldOnly,
+				GrappleResponse.Avoidance, 0.5, 5.0, DefenseType.None, defaultOrder, humanoidProg,
+				forbiddenIntentions: CombatMoveIntentions.Savage | CombatMoveIntentions.Cruel),
+			"Dual Wield Clincher" => CreateStrategy(
+				"Dual Wield Clincher",
+				"Fight with a weapon in each hand and seek extremely close clinch range.",
+				0.9, 0.0, 0.1, false, true, true, false, true, true, false, true, false, false, true,
+				PursuitMode.OnlyAttemptToStop, CombatStrategyMode.Clinch, CombatStrategyMode.FullAdvance,
+				AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
+				AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.DualWieldOnly,
+				GrappleResponse.Avoidance, 0.5, 5.0, DefenseType.None, defaultOrder, humanoidProg,
+				forbiddenIntentions: CombatMoveIntentions.Savage | CombatMoveIntentions.Cruel),
+			"Dual Wield Clincher (Auto)" => CreateStrategy(
+				"Dual Wield Clincher (Auto)",
+				"Fight with a weapon in each hand and seek extremely close clinch range. Fully automated, designed for NPCs.",
+				0.9, 0.0, 0.1, false, true, true, false, true, true, false, true, true, false, true,
+				PursuitMode.AlwaysPursue, CombatStrategyMode.Clinch, CombatStrategyMode.FullAdvance,
+				AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
+				AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.DualWieldOnly,
+				GrappleResponse.Avoidance, 0.5, 5.0, DefenseType.None, defaultOrder, humanoidProg,
+				forbiddenIntentions: CombatMoveIntentions.Savage | CombatMoveIntentions.Cruel),
+			"Polearm Warder" => CreateStrategy(
+				"Polearm Warder",
+				"Fight with a two-handed weapon and use its reach to ward opponents away.",
+				0.85, 0.0, 0.15, false, true, true, false, true, true, false, true, false, false, true,
+				PursuitMode.OnlyAttemptToStop, CombatStrategyMode.Ward, CombatStrategyMode.FullAdvance,
+				AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
+				AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.TwoHandedOnly,
+				GrappleResponse.Avoidance, 0.5, 5.0, DefenseType.None, defaultOrder, humanoidProg,
+				forbiddenIntentions: CombatMoveIntentions.Savage | CombatMoveIntentions.Cruel),
+			"Polearm Warder (Auto)" => CreateStrategy(
+				"Polearm Warder (Auto)",
+				"Fight with a two-handed weapon and use its reach to ward opponents away. Fully automated, designed for NPCs.",
+				0.85, 0.0, 0.15, false, true, true, false, true, true, false, true, true, false, true,
+				PursuitMode.AlwaysPursue, CombatStrategyMode.Ward, CombatStrategyMode.FullAdvance,
+				AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
+				AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.TwoHandedOnly,
+				GrappleResponse.Avoidance, 0.5, 5.0, DefenseType.None, defaultOrder, humanoidProg,
+				forbiddenIntentions: CombatMoveIntentions.Savage | CombatMoveIntentions.Cruel),
+			"Spear Warder" => CreateStrategy(
+				"Spear Warder",
+				"Fight behind a shield and use a spear's reach to ward opponents away.",
+				0.85, 0.0, 0.15, false, true, false, true, true, true, false, true, false, false, true,
+				PursuitMode.OnlyAttemptToStop, CombatStrategyMode.Ward, CombatStrategyMode.FullAdvance,
+				AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
+				AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.SwordAndBoardOnly,
+				GrappleResponse.Avoidance, 0.5, 5.0, DefenseType.None, defaultOrder, humanoidProg,
+				forbiddenIntentions: CombatMoveIntentions.Savage | CombatMoveIntentions.Cruel),
+			"Spear Warder (Auto)" => CreateStrategy(
+				"Spear Warder (Auto)",
+				"Fight behind a shield and use a spear's reach to ward opponents away. Fully automated, designed for NPCs.",
+				0.85, 0.0, 0.15, false, true, false, true, true, true, false, true, true, false, true,
+				PursuitMode.AlwaysPursue, CombatStrategyMode.Ward, CombatStrategyMode.FullAdvance,
+				AutomaticInventorySettings.FullyAutomatic, AutomaticMovementSettings.FullyAutomatic,
+				AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.SwordAndBoardOnly,
+				GrappleResponse.Avoidance, 0.5, 5.0, DefenseType.None, defaultOrder, humanoidProg,
+				forbiddenIntentions: CombatMoveIntentions.Savage | CombatMoveIntentions.Cruel),
             "Beast Brawler" => CreateStrategy(
                 "Beast Brawler",
                 "Fully automatic natural-weapon brawler for animals and beasts.",

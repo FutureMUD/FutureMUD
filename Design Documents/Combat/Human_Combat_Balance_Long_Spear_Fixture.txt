@@ -1,0 +1,18 @@
+# Retained two-handed long-spear control for the dedicated follow-up.
+
+item show 6019
+outfittemplate new "Combat Balance: Long Spear"
+outfittemplate set description Controlled human combat-balance loadout with a standard war spear and no armour.
+outfittemplate set item add spear 6019 wielded
+outfittemplate close
+
+npc clone 111
+npc set unique combat-human-mid-long-spear-warder
+npc set comment Permanent human combat-balance fixture: mid-tier, two-handed long spear, no armour, Polearm Warder Auto.
+npc set outfit remove 1
+npc set outfit add "Combat Balance: Long Spear"
+npc set combatsetting "Polearm Warder (Auto)"
+npc edit submit Human combat-balance follow-up: retained two-handed long-spear warding control.
+npc review 129
+accept edit
+npc show 129

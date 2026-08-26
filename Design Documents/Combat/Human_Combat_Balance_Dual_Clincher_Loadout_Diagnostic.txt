@@ -1,0 +1,5 @@
+npc show 128
+combat show "Dual Wield Clincher (Auto)"
+outfittemplate show 5844
+outfittemplate show 5843
+outfittemplate show 5842

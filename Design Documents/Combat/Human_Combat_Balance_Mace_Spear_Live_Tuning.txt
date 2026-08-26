@@ -1,0 +1,148 @@
+# Engine-first demo_dbo tuning. Historical execution ledger; final source of truth is the Combat Seeder.
+
+# Mace identity: lethal, club-length reach, normal basic trauma, slower commitment.
+weapontype edit 7
+weapontype set classification lethal
+weapontype set reach 2
+weapontype close
+weaponattack edit 137
+weaponattack set stamina 5
+weaponattack set delay 1.0
+weaponattack set damage 410
+weaponattack set pain 410
+weaponattack set stun 410
+weaponattack close
+weaponattack edit 138
+weaponattack set stamina 5
+weaponattack set delay 1.1
+weaponattack set damage 410
+weaponattack set pain 410
+weaponattack set stun 410
+weaponattack close
+weaponattack edit 139
+weaponattack set stamina 5
+weaponattack set delay 1.0
+weaponattack set damage 410
+weaponattack set pain 410
+weaponattack set stun 410
+weaponattack close
+weaponattack edit 140
+weaponattack set stamina 5
+weaponattack set delay 1.1
+weaponattack set damage 410
+weaponattack set pain 410
+weaponattack set stun 410
+weaponattack close
+weaponattack edit 141
+weaponattack set stamina 5
+weaponattack set delay 1.1
+weaponattack set damage 410
+weaponattack set pain 410
+weaponattack set stun 410
+weaponattack close
+weaponattack edit 142
+weaponattack set stamina 6
+weaponattack set delay 1.3
+weaponattack set damage 411
+weaponattack set pain 411
+weaponattack set stun 411
+weaponattack close
+
+# Clone a one-handed warhammer stagger as a lower-powered mace concussion.
+weaponattack clone 480
+weaponattack set name Mace Concussive Blow
+weaponattack set weapon Mace
+weaponattack set handedness 1h
+weaponattack set stamina 6
+weaponattack set delay 1.2
+weaponattack set weight 60
+weaponattack set difficulty normal
+weaponattack set dodge easy
+weaponattack set parry hard
+weaponattack set block normal
+weaponattack set damage 411
+weaponattack set pain 411
+weaponattack set stun 411
+weaponattack close
+
+# Short-spear sword-and-board close-control moves.
+weaponattack clone 143
+weaponattack set name Spear Butt Strike
+weaponattack set weapon Short Spear
+weaponattack set handedness shield
+weaponattack set stamina 3.5
+weaponattack set delay 0.75
+weaponattack set weight 100
+weaponattack set difficulty normal
+weaponattack set dodge veryhard
+weaponattack set parry hard
+weaponattack set block normal
+weaponattack set damage 409
+weaponattack set pain 409
+weaponattack set stun 409
+weaponattack close
+weaponattack clone 518
+weaponattack set name Spear Shaft Shove
+weaponattack set weapon Short Spear
+weaponattack set handedness shield
+weaponattack set stamina 4
+weaponattack set delay 0.9
+weaponattack set weight 80
+weaponattack set difficulty normal
+weaponattack set dodge easy
+weaponattack set parry hard
+weaponattack set block normal
+weaponattack set damage 409
+weaponattack set pain 409
+weaponattack set stun 409
+weaponattack set intention shield
+weaponattack close
+
+# Long-spear two-handed equivalents.
+weaponattack clone 143
+weaponattack set name Long Spear Butt Strike
+weaponattack set weapon Long Spear
+weaponattack set handedness 2h
+weaponattack set stamina 4
+weaponattack set delay 0.85
+weaponattack set weight 100
+weaponattack set difficulty normal
+weaponattack set dodge veryhard
+weaponattack set parry hard
+weaponattack set block normal
+weaponattack set damage 409
+weaponattack set pain 409
+weaponattack set stun 409
+weaponattack close
+weaponattack clone 518
+weaponattack set name Long Spear Shaft Shove
+weaponattack set weapon Long Spear
+weaponattack set handedness 2h
+weaponattack set stamina 4.5
+weaponattack set delay 1.0
+weaponattack set weight 80
+weaponattack set difficulty normal
+weaponattack set dodge easy
+weaponattack set parry hard
+weaponattack set block normal
+weaponattack set damage 409
+weaponattack set pain 409
+weaponattack set stun 409
+weaponattack set intention shield
+weaponattack close
+
+# Shield-compatible automatic warding setting and permanent fixture update.
+combat clone 9 "Spear Warder (Auto)"
+combat config desc Fight behind a shield and use a spear's reach to ward opponents away. Fully automated, designed for NPCs.
+combat config global
+combat config availprog IsHumanoid
+combat config melee ward
+combat config setup shield
+combat config prefer_shield true
+combat config prefer_stagger true
+combat config weapon 85%
+combat config auxiliary 15%
+npc edit 113
+npc set combatsetting "Spear Warder (Auto)"
+npc review 113
+accept edit

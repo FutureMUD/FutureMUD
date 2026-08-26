@@ -1,0 +1,24 @@
+# Historical engine-first tuning transcript. Do not replay as an idempotent setup script; the Combat Seeder is the final source of truth.
+# This first created the attack; Human_Combat_Balance_Dual_Feint_Final_Tuning.txt records its accepted values.
+weaponattack clone 87
+weaponattack set name Dagger Dual Feint
+weaponattack set handedness dual
+weaponattack set difficulty normal
+weaponattack set dodge normal
+weaponattack set parry hard
+weaponattack set block hard
+weaponattack set stamina 4
+weaponattack set delay 0.55
+weaponattack set weight 75
+weaponattack set damage 408
+weaponattack set pain 408
+weaponattack set stun 408
+weaponattack close
+cm new
+cm set priority 100
+cm set verb jab
+cm set type UseWeaponAttack
+cm set attack 962
+cm set message @ feint|feints with one blade before driving $2 at $1 from the opposite line.
+cm set fail @ feint|feints with one blade before driving $2 at $1 from the opposite line.
+cm close

@@ -234,15 +234,15 @@ Important setters:
 - `outfittemplate set name <name>`
 - `outfittemplate set description <description>`
 - `outfittemplate set exclusivity none|below|all`
-- `outfittemplate set item add <key> <prototype> [worn [profile]|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]] [args <load args>]`
+- `outfittemplate set item add <key> <prototype> [worn [profile]|wielded|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]] [args <load args>]`
 - `outfittemplate set item remove <key>`
 - `outfittemplate set item key <old> <new>`
 - `outfittemplate set item proto <key> <prototype>`
-- `outfittemplate set item placement <key> worn [profile]|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]`
+- `outfittemplate set item placement <key> worn [profile]|wielded|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]`
 - `outfittemplate set item args <key> <load args|clear>`
 - `outfittemplate set item swap <key1> <key2>`
 
-Template item keys are stable within the template and are used for container, belt, and sheath references. Prototypes must be current and manually loadable. Worn entries must use wearable prototypes; if no wear profile is specified, the created item uses its default wear profile at load time. Container entries must point at another template item whose prototype has container capability, and container references must not be cyclic. Attached and sheathed entries may name a template-local belt or sheath key, or omit the key to use the first suitable belt or sheath already available on the target after earlier template placements.
+Template item keys are stable within the template and are used for container, belt, and sheath references. Prototypes must be current and manually loadable. Worn entries must use wearable prototypes; if no wear profile is specified, the created item uses its default wear profile at load time. Wielded entries must have a wieldable component and are readied directly rather than first passing through the held-item size checks, which is important for pikes and other oversized two-handed weapons. Container entries must point at another template item whose prototype has container capability, and container references must not be cyclic. Attached and sheathed entries may name a template-local belt or sheath key, or omit the key to use the first suitable belt or sheath already available on the target after earlier template placements.
 
 The manual `outfittemplate load` command materialises a template directly onto a character without requiring a FutureProg. The optional `args <load args>` tail is appended to every template item's own load arguments, which lets admins apply common variable values such as colour across a whole outfit load.
 

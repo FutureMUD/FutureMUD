@@ -223,11 +223,11 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 	#3name <name>#0 - renames this outfit template
 	#3description <description>#0 - sets the builder description
 	#3exclusivity none|below|all#0 - sets the created outfit exclusivity
-	#3item add <key> <prototype> [worn [profile]|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]] [args <load args>]#0 - adds an item
+	#3item add <key> <prototype> [worn [profile]|wielded|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]] [args <load args>]#0 - adds an item
 	#3item remove <key>#0 - removes an item
 	#3item key <old> <new>#0 - renames an item key
 	#3item proto <key> <prototype>#0 - changes an item prototype
-	#3item placement <key> worn [profile]|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]#0 - changes placement
+	#3item placement <key> worn [profile]|wielded|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]#0 - changes placement
 	#3item args <key> <load args|clear>#0 - changes load arguments
 	#3item swap <key1> <key2>#0 - swaps item order".SubstituteANSIColour());
 		return false;
@@ -591,6 +591,12 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 					item.DesiredProfile = null;
 					item.ContainerKey = null;
 					break;
+				case "wielded":
+				case "wield":
+					item.Placement = OutfitTemplateItemPlacement.Wielded;
+					item.DesiredProfile = null;
+					item.ContainerKey = null;
+					break;
 				case "room":
 				case "cell":
 					item.Placement = OutfitTemplateItemPlacement.Room;
@@ -641,7 +647,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 					item.LoadArguments = command.SafeRemainingArgument;
 					return ValidateItemPlacement(actor, item) ? true : Fail();
 				default:
-					actor.OutputHandler.Send("Valid placements are worn [profile], inventory, room, container <key>, attached [belt key] or sheathed [sheath key].");
+					actor.OutputHandler.Send("Valid placements are worn [profile], wielded, inventory, room, container <key>, attached [belt key] or sheathed [sheath key].");
 					return Fail();
 			}
 		}
@@ -657,6 +663,8 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			"inventory",
 			"inv",
 			"held",
+			"wielded",
+			"wield",
 			"room",
 			"cell",
 			"container",
@@ -769,6 +777,12 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 				if (!item.GameItemProto.IsItemType<IWearablePrototype>())
 				{
 					yield return $"Template item {item.TemplateKey} is marked worn but its prototype is not wearable.";
+				}
+				break;
+			case OutfitTemplateItemPlacement.Wielded:
+				if (!item.GameItemProto.IsItemType<IWieldablePrototype>())
+				{
+					yield return $"Template item {item.TemplateKey} is marked wielded but its prototype is not wieldable.";
 				}
 				break;
 			case OutfitTemplateItemPlacement.Container:
@@ -886,6 +900,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			OutfitTemplateItemPlacement.Container => $"in {item.ContainerKey}",
 			OutfitTemplateItemPlacement.AttachedToBelt => string.IsNullOrWhiteSpace(item.ContainerKey) ? "attached to belt" : $"attached to {item.ContainerKey}",
 			OutfitTemplateItemPlacement.Sheathed => string.IsNullOrWhiteSpace(item.ContainerKey) ? "sheathed" : $"sheathed in {item.ContainerKey}",
+			OutfitTemplateItemPlacement.Wielded => "wielded",
 			_ => "unknown"
 		};
 	}
@@ -960,6 +975,17 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 					break;
 				case OutfitTemplateItemPlacement.Inventory:
 					if (target.Body.CanGet(item, 0))
+					{
+						target.Body.Get(item, silent: true);
+					}
+					break;
+				case OutfitTemplateItemPlacement.Wielded:
+					if (target.Body.CanWield(item))
+					{
+						item.Get(null);
+						target.Body.Wield(item, silent: true);
+					}
+					else if (target.Body.CanGet(item, 0))
 					{
 						target.Body.Get(item, silent: true);
 					}

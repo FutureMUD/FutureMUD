@@ -1,0 +1,7 @@
+# Engine-first repair for the missing defender half of BreakClinchMove output.
+cm new
+cm set priority 100
+cm set type ResistBreakClinch
+cm set message , and $0 keep|keeps $1 trapped in the clinch
+cm set fail , but $0 fail|fails to keep $1 trapped in the clinch
+cm close

@@ -1,0 +1,106 @@
+# Additional permanent demo_dbo fixtures used after the equal-skill, no-armour baseline.
+
+# A warding profile that can actually wield a two-handed reach weapon.
+combat clone 15 "Polearm Warder (Auto)"
+combat config setup twohand
+combat config prefer_shield false
+combat config global
+
+# Repair the original pike fixture to use the compatible warding profile.
+npc edit 110
+npc set combatsetting "Polearm Warder (Auto)"
+npc edit submit
+npc review 110
+accept edit
+
+# Standard pike control, differing from #110 only by tactics.
+npc clone 110
+npc set unique "combat-human-mid-pike-standard"
+npc set comment "Permanent human combat-balance fixture: mid-tier, infantry pike, no armour, Zweihander Auto."
+npc set combatsetting "Zweihander (Auto)"
+
+# Heavy-armour controls at the same mid-tier skills and attributes.
+npc clone 109
+npc set unique "combat-human-mid-sword-shield-heavy"
+npc set comment "Permanent human combat-balance fixture: mid-tier, arming sword, shield, and heavy condottiere armour."
+npc set outfit add 4674
+npc clone 112
+npc set unique "combat-human-mid-mace-shield-heavy"
+npc set comment "Permanent human combat-balance fixture: mid-tier, mace, shield, and heavy condottiere armour."
+npc set outfit add 4674
+npc clone 108
+npc set unique "combat-human-mid-dual-daggers-heavy"
+npc set comment "Permanent human combat-balance fixture: mid-tier, dual daggers and heavy condottiere armour."
+npc set outfit add 4674
+npc clone 111
+npc set unique "combat-human-mid-twohand-sword-heavy"
+npc set comment "Permanent human combat-balance fixture: mid-tier, two-handed sword and heavy condottiere armour."
+npc set outfit add 4674
+
+# Skill-tier controls. Attributes remain identical except for the explicitly hyper-optimised god tier.
+npc clone 109
+npc set unique "combat-human-newbie-sword-shield"
+npc set comment "Permanent human combat-balance fixture: newbie skills (20), sword and shield, no armour."
+npc set skill "Two Handed Weapons" 20
+npc set skill "Blocking" 20
+npc set skill "Dodging" 20
+npc set skill "Wrestling" 20
+npc set skill "Edged Weapons" 20
+npc set skill "Bludgeoning Weapons" 20
+npc clone 109
+npc set unique "combat-human-capped-sword-shield"
+npc set comment "Permanent human combat-balance fixture: capped skills (80), sword and shield, no armour."
+npc set skill "Two Handed Weapons" 80
+npc set skill "Blocking" 80
+npc set skill "Dodging" 80
+npc set skill "Wrestling" 80
+npc set skill "Edged Weapons" 80
+npc set skill "Bludgeoning Weapons" 80
+npc clone 109
+npc set unique "combat-human-god-sword-shield"
+npc set comment "Permanent human combat-balance fixture: hyper-optimised skills (120), attributes, sword and shield, no armour."
+npc set skill "Two Handed Weapons" 120
+npc set skill "Blocking" 120
+npc set skill "Dodging" 120
+npc set skill "Wrestling" 120
+npc set skill "Edged Weapons" 120
+npc set skill "Bludgeoning Weapons" 120
+npc set attribute Strength 25
+npc set attribute Constitution 25
+npc set attribute Dexterity 25
+npc set attribute Willpower 20
+npc set attribute Perception 20
+npc clone 108
+npc set unique "combat-human-newbie-dual-daggers"
+npc set comment "Permanent human combat-balance fixture: newbie skills (20), dual daggers, no armour."
+npc set skill "Two Handed Weapons" 20
+npc set skill "Blocking" 20
+npc set skill "Dodging" 20
+npc set skill "Wrestling" 20
+npc set skill "Edged Weapons" 20
+npc set skill "Bludgeoning Weapons" 20
+npc clone 108
+npc set unique "combat-human-capped-dual-daggers"
+npc set comment "Permanent human combat-balance fixture: capped skills (80), dual daggers, no armour."
+npc set skill "Two Handed Weapons" 80
+npc set skill "Blocking" 80
+npc set skill "Dodging" 80
+npc set skill "Wrestling" 80
+npc set skill "Edged Weapons" 80
+npc set skill "Bludgeoning Weapons" 80
+npc clone 108
+npc set unique "combat-human-god-dual-daggers"
+npc set comment "Permanent human combat-balance fixture: hyper-optimised skills (120), attributes, dual daggers, no armour."
+npc set skill "Two Handed Weapons" 120
+npc set skill "Blocking" 120
+npc set skill "Dodging" 120
+npc set skill "Wrestling" 120
+npc set skill "Edged Weapons" 120
+npc set skill "Bludgeoning Weapons" 120
+npc set attribute Strength 25
+npc set attribute Constitution 25
+npc set attribute Dexterity 25
+npc set attribute Willpower 20
+npc set attribute Perception 20
+
+npc list combat-human

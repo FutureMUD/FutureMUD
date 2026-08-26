@@ -1,0 +1,31 @@
+# Complete the live tuning transaction and attach attack-specific messages.
+npc edit submit
+npc review 113
+accept edit
+
+cm new
+cm set priority 100
+cm set verb swing
+cm set type StaggeringBlow
+cm set attack 963
+cm set message @ step|steps through and drive|drives the head of $2 into $1 with a concussive blow.
+cm set fail @ step|steps through and drive|drives the head of $2 at $1 with a concussive blow.
+cm close
+cm new
+cm set priority 100
+cm set verb bash
+cm set type ClinchAttack
+cm set attack 964
+cm set attack 966
+cm set message @ choke|chokes up on $2 and crack|cracks its butt into $1 at close quarters.
+cm set fail @ choke|chokes up on $2 and jab|jabs its butt at $1 at close quarters.
+cm close
+cm new
+cm set priority 100
+cm set verb bash
+cm set type Pushback
+cm set attack 965
+cm set attack 967
+cm set message @ brace|braces $2 across $1 and shove|shoves hard to force &1 back beyond the point.
+cm set fail @ brace|braces $2 across $1 and try|tries to force &1 back beyond the point.
+cm close

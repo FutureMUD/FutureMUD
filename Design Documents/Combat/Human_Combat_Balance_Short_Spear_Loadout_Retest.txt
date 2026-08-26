@@ -1,0 +1,11 @@
+# Prove that the corrected stock short spear and shield are equipped before using batch outcomes.
+
+impdebug combatsim new
+impdebug combatsim set transcript 1000
+impdebug combatsim add template 113 team 1
+impdebug combatsim add template 114 team 2
+impdebug combatsim set seed 7120
+impdebug combatsim validate
+impdebug combatsim run force confirm-production
+impdebug combatsim report
+impdebug combatsim transcript 1 1000

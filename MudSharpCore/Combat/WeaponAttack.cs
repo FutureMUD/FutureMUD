@@ -108,6 +108,12 @@ public class WeaponAttack : CombatAction, IWeaponAttack
             return true;
         }
 
+		if (handedness == AttackHandednessOptions.DualWieldOnly &&
+		    HandednessOptions == AttackHandednessOptions.OneHandedOnly)
+		{
+			return true;
+		}
+
         return HandednessOptions == AttackHandednessOptions.SwordAndBoardOnly &&
                handedness == AttackHandednessOptions.OneHandedOnly &&
                attacker is ICharacter character &&

@@ -34,6 +34,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Accelerated Combat Simulation](./Combat/Accelerated_Combat_Simulation.md)
 - [Animal Combat Balance Second Pass](./Combat/Animal_Combat_Balance_Second_Pass.md)
 - [Mythical and Supernatural Combat Balance Pass](./Combat/Mythical_Supernatural_Combat_Balance_Pass.md)
+- [Human Combat Balance Pass](./Combat/Human_Combat_Balance_Pass.md)
 - [Combat Arenas Design](./Combat/Combat_Arenas_Design.md)
 - [Combat Arenas Implementation Plan](./Combat/Combat_Arenas_Implementation_Plan.md)
 - [Combat Settings Defaults Design](./Combat/Combat_Settings_Defaults_Design.md)

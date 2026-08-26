@@ -568,6 +568,10 @@ public partial class CombatSeeder
             BuiltInCombatMoveType.StartClinch, 1.0, 1, null, null);
         AddCombatMessage(Standalone("$0 try|tries to break free of the clinch with $1"), null, BuiltInCombatMoveType.BreakClinch,
             1.0, 1, null, null);
+		AddCombatMessage(
+			$"{CombatSeederMessageStyleHelper.FailurePrefix(messageStyle)}#1 %1|keep|keeps $0 trapped in the clinch",
+			$"{CombatSeederMessageStyleHelper.SuccessPrefix(messageStyle)}#1 %1|fail|fails to keep $0 trapped in the clinch",
+			BuiltInCombatMoveType.ResistBreakClinch, 1.0, 1, null, null);
         AddCombatMessage(Standalone("$0 drive|drives $1 back with $2"), null,
             BuiltInCombatMoveType.Pushback, 1.0, 1, null, null);
         AddCombatMessage(Standalone("@ drive|drives $1 back with &0's {0}"), null,
@@ -772,6 +776,33 @@ public partial class CombatSeeder
 
 		context.SaveChanges();
 		return changes;
+	}
+
+	internal static int EnsureClinchCombatMessages(FuturemudDatabaseContext context,
+		SeedCombatMessageStyle messageStyle)
+	{
+		if (context.CombatMessages.Any(x =>
+		    x.Type == (int)BuiltInCombatMoveType.ResistBreakClinch &&
+		    x.Outcome == null &&
+		    x.Verb == null &&
+		    x.ProgId == null &&
+		    x.AuxiliaryProgId == null &&
+		    !x.CombatMessagesWeaponAttacks.Any() &&
+		    !x.CombatMessagesCombatActions.Any()))
+		{
+			return 0;
+		}
+
+		context.CombatMessages.Add(new CombatMessage
+		{
+			Message = $"{CombatSeederMessageStyleHelper.FailurePrefix(messageStyle)}#1 %1|keep|keeps $0 trapped in the clinch",
+			FailureMessage = $"{CombatSeederMessageStyleHelper.SuccessPrefix(messageStyle)}#1 %1|fail|fails to keep $0 trapped in the clinch",
+			Type = (int)BuiltInCombatMoveType.ResistBreakClinch,
+			Chance = 1.0,
+			Priority = 1
+		});
+		context.SaveChanges();
+		return 1;
 	}
 
 	private static void EnsureMountedCombatMessages(FuturemudDatabaseContext context)

@@ -1,0 +1,21 @@
+# Final dual-feint validation.
+impdebug combatsim new
+impdebug combatsim add template 108 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim batch 30 seed 6000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim new
+impdebug combatsim add template 108 team 1
+impdebug combatsim add template 111 team 2
+impdebug combatsim batch 30 seed 6030 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim new
+impdebug combatsim add template 108 team 1
+impdebug combatsim add template 110 team 2
+impdebug combatsim batch 30 seed 6060 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim new
+impdebug combatsim add template 120 team 1
+impdebug combatsim add template 118 team 2
+impdebug combatsim batch 30 seed 6090 step 1 force confirm-production
+impdebug combatsim batchreport

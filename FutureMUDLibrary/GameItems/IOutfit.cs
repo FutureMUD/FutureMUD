@@ -28,7 +28,8 @@ namespace MudSharp.GameItems
         Room,
         Container,
         AttachedToBelt,
-        Sheathed
+        Sheathed,
+		Wielded
     }
 
     public interface IOutfit : IProgVariable

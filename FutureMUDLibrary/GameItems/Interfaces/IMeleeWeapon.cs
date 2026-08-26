@@ -2,6 +2,7 @@
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Health;
+using System.Linq;
 
 namespace MudSharp.GameItems.Interfaces
 {
@@ -12,6 +13,13 @@ namespace MudSharp.GameItems.Interfaces
             switch (ch.Body.WieldedHandCount(weapon.Parent))
             {
                 case 1:
+					if (ch.Body.WieldedItems.Any(x => x != weapon.Parent &&
+					                                      !x.IsItemType<IShield>() &&
+					                                      x.IsItemType<IMeleeWeapon>()))
+					{
+						return AttackHandednessOptions.DualWieldOnly;
+					}
+
                     return AttackHandednessOptions.OneHandedOnly;
                 case 2:
                     return AttackHandednessOptions.TwoHandedOnly;

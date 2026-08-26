@@ -1,0 +1,51 @@
+# Corrected batches after explicit wielded outfit placement made oversized weapons simulation-safe.
+# Each matchup uses 20 deterministic seeds and the default five-minute virtual limit.
+
+# Mid dual daggers vs mid two-handed sword.
+impdebug combatsim new
+impdebug combatsim add template 108 team 1
+impdebug combatsim add template 111 team 2
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Mid sword and shield vs mid two-handed sword.
+impdebug combatsim new
+impdebug combatsim add template 109 team 1
+impdebug combatsim add template 111 team 2
+impdebug combatsim batch 20 seed 3020 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Pike warder vs dual daggers.
+impdebug combatsim new
+impdebug combatsim add template 110 team 1
+impdebug combatsim add template 108 team 2
+impdebug combatsim batch 20 seed 3040 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Pike standard vs dual daggers.
+impdebug combatsim new
+impdebug combatsim add template 117 team 1
+impdebug combatsim add template 108 team 2
+impdebug combatsim batch 20 seed 3060 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Pike warder vs sword and shield.
+impdebug combatsim new
+impdebug combatsim add template 110 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim batch 20 seed 3080 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Pike standard vs sword and shield.
+impdebug combatsim new
+impdebug combatsim add template 117 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim batch 20 seed 3100 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Heavy two-handed sword vs heavy sword and shield.
+impdebug combatsim new
+impdebug combatsim add template 121 team 1
+impdebug combatsim add template 118 team 2
+impdebug combatsim batch 20 seed 3120 step 1 force confirm-production
+impdebug combatsim batchreport

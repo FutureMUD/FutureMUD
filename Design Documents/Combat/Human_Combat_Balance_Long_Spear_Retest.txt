@@ -1,0 +1,22 @@
+# Transcript proof against the close-range counter.
+impdebug combatsim new
+impdebug combatsim set transcript 1000
+impdebug combatsim add template 131 team 1
+impdebug combatsim add template 128 team 2
+impdebug combatsim set seed 7480
+impdebug combatsim validate
+impdebug combatsim run force confirm-production
+impdebug combatsim report
+impdebug combatsim transcript 1 1000
+
+# Accepted long-spear warder comparisons.
+impdebug combatsim new
+impdebug combatsim add template 131 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim batch 30 seed 7480 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim new
+impdebug combatsim add template 131 team 1
+impdebug combatsim add template 128 team 2
+impdebug combatsim batch 30 seed 7510 step 1 force confirm-production
+impdebug combatsim batchreport

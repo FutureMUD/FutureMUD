@@ -1,0 +1,8 @@
+cm new
+cm set priority 100
+cm set verb jab
+cm set type UseWeaponAttack
+cm set attack 962
+cm set message @ feint|feints with one blade before driving $2 at $1 from the opposite line.
+cm set fail @ feint|feints with one blade before driving $2 at $1 from the opposite line.
+cm close

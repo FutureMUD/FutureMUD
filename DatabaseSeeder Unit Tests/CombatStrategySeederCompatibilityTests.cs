@@ -47,6 +47,14 @@ public class CombatStrategySeederCompatibilityTests
             new[]
             {
                 "Melee (Auto)",
+				"Dual Wielder",
+				"Dual Wielder (Auto)",
+				"Dual Wield Clincher",
+				"Dual Wield Clincher (Auto)",
+				"Polearm Warder",
+				"Polearm Warder (Auto)",
+				"Spear Warder",
+				"Spear Warder (Auto)",
                 "Beast Brawler",
                 "Beast Clincher",
                 "Beast Behemoth",
@@ -118,6 +126,71 @@ public class CombatStrategySeederCompatibilityTests
     }
 
 	[TestMethod]
+	public void EnsureCombatStrategy_DualWieldVariants_CreateAndRepairCanonicalSettings()
+	{
+		using var context = BuildContext();
+		context.FutureProgs.AddRange(
+			CreateFutureProg(1, "AlwaysTrue"),
+			CreateFutureProg(2, "IsHumanoid"));
+		context.CharacterCombatSettings.Add(new CharacterCombatSetting
+		{
+			Name = "Dual Wielder (Auto)",
+			Description = "Drifted setting",
+			ClassificationsAllowed = "1 2 3",
+			MeleeAttackOrderPreference = "1 2 3",
+			PreferredWeaponSetup = (int)AttackHandednessOptions.Any,
+			PreferShieldUse = true,
+			WeaponUsePercentage = 1.0
+		});
+		context.SaveChanges();
+
+		var manual = CombatStrategySeederHelper.EnsureCombatStrategy(context, "Dual Wielder");
+		var automatic = CombatStrategySeederHelper.EnsureCombatStrategy(context, "Dual Wielder (Auto)");
+
+		foreach (var setting in new[] { manual, automatic })
+		{
+			Assert.AreEqual((int)AttackHandednessOptions.DualWieldOnly, setting.PreferredWeaponSetup);
+			Assert.AreEqual(0.9, setting.WeaponUsePercentage, 0.0001);
+			Assert.AreEqual(0.1, setting.AuxiliaryPercentage, 0.0001);
+			Assert.IsFalse(setting.PreferShieldUse);
+			Assert.AreEqual("IsHumanoid", setting.AvailabilityProg.FunctionName);
+		}
+
+		Assert.AreEqual((int)AutomaticInventorySettings.AutomaticButDontDiscard, manual.InventoryManagement);
+		Assert.AreEqual((int)AutomaticInventorySettings.FullyAutomatic, automatic.InventoryManagement);
+		Assert.AreEqual(2, context.CharacterCombatSettings.Count(x => x.Name.StartsWith("Dual Wielder")));
+	}
+
+	[TestMethod]
+	public void EnsureCombatStrategy_HumanTacticalVariants_PreserveCompatibleWeaponSetups()
+	{
+		using var context = BuildContext();
+		context.FutureProgs.AddRange(
+			CreateFutureProg(1, "AlwaysTrue"),
+			CreateFutureProg(2, "IsHumanoid"));
+		context.SaveChanges();
+
+		var clincher = CombatStrategySeederHelper.EnsureCombatStrategy(context, "Dual Wield Clincher (Auto)");
+		var warder = CombatStrategySeederHelper.EnsureCombatStrategy(context, "Polearm Warder (Auto)");
+		var spearWarder = CombatStrategySeederHelper.EnsureCombatStrategy(context, "Spear Warder (Auto)");
+
+		Assert.AreEqual((int)AttackHandednessOptions.DualWieldOnly, clincher.PreferredWeaponSetup);
+		Assert.AreEqual((int)CombatStrategyMode.Clinch, clincher.PreferredMeleeMode);
+		Assert.AreEqual((int)AttackHandednessOptions.TwoHandedOnly, warder.PreferredWeaponSetup);
+		Assert.AreEqual((int)CombatStrategyMode.Ward, warder.PreferredMeleeMode);
+		Assert.AreEqual((int)AttackHandednessOptions.SwordAndBoardOnly, spearWarder.PreferredWeaponSetup);
+		Assert.AreEqual((int)CombatStrategyMode.Ward, spearWarder.PreferredMeleeMode);
+		Assert.AreEqual(0.9, clincher.WeaponUsePercentage, 0.0001);
+		Assert.AreEqual(0.1, clincher.AuxiliaryPercentage, 0.0001);
+		Assert.AreEqual(0.85, warder.WeaponUsePercentage, 0.0001);
+		Assert.AreEqual(0.15, warder.AuxiliaryPercentage, 0.0001);
+		Assert.IsFalse(clincher.PreferShieldUse);
+		Assert.IsFalse(warder.PreferShieldUse);
+		Assert.IsTrue(spearWarder.PreferShieldUse);
+		Assert.IsFalse(spearWarder.PreferNonContactClinchBreaking);
+	}
+
+	[TestMethod]
 	public void EnsureCombatStrategy_AquaticVariants_DoNotPreferTerrestrialCombat()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -177,6 +250,11 @@ public class CombatStrategySeederCompatibilityTests
 		string source = SeederSourceTestHelper.ReadPartialFamily("CombatSeeder");
 
         StringAssert.Contains(source, "SeedCombatStrategies(context, questionAnswers);");
+		StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Dual Wielder\");");
+		StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Dual Wielder (Auto)\");");
+		StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Dual Wield Clincher (Auto)\");");
+		StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Polearm Warder (Auto)\");");
+		StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Spear Warder (Auto)\");");
         StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Brawler\");");
         StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Drowner\");");
 		StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Aquatic Brawler\");");

@@ -974,7 +974,7 @@ public partial class ItemSeeder
 			"a plain short spear",
 			null,
 			"This short spear has a leaf-shaped carbon-steel head fitted to a straight ash shaft. The haft is smooth enough for quick hand changes, and the butt is left plain rather than capped. It is useful in close ranks, hunting parties, and shield-side fighting where a longer spear would crowd the wielder.",
-			SizeCategory.Large,
+			SizeCategory.Normal,
 			ItemQuality.Standard,
 			1450.0,
 			44.0m,

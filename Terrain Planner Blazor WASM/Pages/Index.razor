@@ -90,7 +90,7 @@
 
         <div name="terrain_grid" class="terrain-board flex-wrap">
             @{
-                for (var y = 0; y < _mapGrid.Height; y++)
+                for (var y = _mapGrid.Height - 1; y >= 0; y--)
 
                 {
                     <div class="flex-row">

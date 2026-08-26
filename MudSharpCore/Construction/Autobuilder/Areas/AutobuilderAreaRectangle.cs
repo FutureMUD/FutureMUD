@@ -79,39 +79,10 @@ public class AutobuilderAreaRectangle : AutobuilderAreaBase
                 ICell cell = roomTemplate.CreateRoom(builder, terrain, false);
                 cells[i, j] = cell;
 
-                // Setup the cell exits in the rectangle
-                if (i > 0)
-                {
-                    Exit exit = new(builder.Gameworld, cell, cells[i - 1, j], CardinalDirection.West,
-                        CardinalDirection.East, 1.0);
-                    cell.GetOrCreateOverlay(package).AddExit(exit);
-                    cells[i - 1, j].GetOrCreateOverlay(package).AddExit(exit);
-
-                    if (j > 0 && ConnectCellsWithDiagonalExits)
-                    {
-                        exit = new Exit(builder.Gameworld, cell, cells[i - 1, j - 1], CardinalDirection.SouthWest,
-                            CardinalDirection.NorthEast, 1.0);
-                        cells[i - 1, j - 1].GetOrCreateOverlay(package).AddExit(exit);
-                        cell.GetOrCreateOverlay(package).AddExit(exit);
-                        if (i < width - 1)
-                        {
-                            exit = new Exit(builder.Gameworld, cell, cells[i + 1, j - 1], CardinalDirection.SouthEast,
-                                CardinalDirection.NorthWest, 1.0);
-                            cell.GetOrCreateOverlay(package).AddExit(exit);
-                            cells[i + 1, j - 1].GetOrCreateOverlay(package).AddExit(exit);
-                        }
-                    }
-                }
-
-                if (j > 0)
-                {
-                    Exit exit = new(builder.Gameworld, cell, cells[i, j - 1], CardinalDirection.South,
-                        CardinalDirection.North, 1.0);
-                    cell.GetOrCreateOverlay(package).AddExit(exit);
-                    cells[i, j - 1].GetOrCreateOverlay(package).AddExit(exit);
-                }
             }
         }
+
+		AutobuilderRectangleTopology.ConnectCells(builder, package, cells, ConnectCellsWithDiagonalExits);
 
         foreach (ICell cell in cells)
         {

@@ -67,7 +67,7 @@ The export button copies a comma-separated terrain mask to the clipboard.
 
 Important rules:
 
-- The mask is row-major: top-left across the row, then next row down.
+- The mask is row-major from the bottom-left `(0,0)` cell: proceed right across the southern row, then move one row north.
 - `0` means no room should be created at that coordinate.
 - The number of entries must exactly match `height x width`.
 

@@ -136,55 +136,10 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
                 cells[i, j] = cell;
                 lookup[cell] = (i, j);
 
-                // Setup the cell exits in the rectangle
-                if (i > 0)
-                {
-                    Exit exit;
-                    if (cells[i - 1, j] != null)
-                    {
-                        exit = new Exit(builder.Gameworld, cell, cells[i - 1, j], CardinalDirection.West,
-                            CardinalDirection.East, 1.0);
-                        cell.GetOrCreateOverlay(package).AddExit(exit);
-                        cells[i - 1, j].GetOrCreateOverlay(package).AddExit(exit);
-                    }
-
-                    if (j > 0 && ConnectCellsWithDiagonalExits)
-                    {
-                        if (cells[i - 1, j - 1] != null)
-                        {
-                            exit = new Exit(builder.Gameworld, cell, cells[i - 1, j - 1],
-                                CardinalDirection.NorthWest,
-                                CardinalDirection.SouthEast, 1.0);
-                            cells[i - 1, j - 1].GetOrCreateOverlay(package).AddExit(exit);
-                            cell.GetOrCreateOverlay(package).AddExit(exit);
-                        }
-
-                        if (i < width - 1)
-                        {
-                            if (cells[i + 1, j - 1] != null)
-                            {
-                                exit = new Exit(builder.Gameworld, cell, cells[i + 1, j - 1],
-                                    CardinalDirection.NorthEast,
-                                    CardinalDirection.SouthWest, 1.0);
-                                cell.GetOrCreateOverlay(package).AddExit(exit);
-                                cells[i + 1, j - 1].GetOrCreateOverlay(package).AddExit(exit);
-                            }
-                        }
-                    }
-                }
-
-                if (j > 0)
-                {
-                    if (cells[i, j - 1] != null)
-                    {
-                        Exit exit = new(builder.Gameworld, cell, cells[i, j - 1], CardinalDirection.North,
-                        CardinalDirection.South, 1.0);
-                        cell.GetOrCreateOverlay(package).AddExit(exit);
-                        cells[i, j - 1].GetOrCreateOverlay(package).AddExit(exit);
-                    }
-                }
             }
         }
+
+		AutobuilderRectangleTopology.ConnectCells(builder, package, cells, ConnectCellsWithDiagonalExits);
 
         foreach (ICell cell in cells)
         {

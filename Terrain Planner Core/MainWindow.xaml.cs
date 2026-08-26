@@ -79,7 +79,7 @@ namespace Terrain_Planner_Tool
                 {
                     Terrain = _terrains.First(),
                     X = (uint)(i % width),
-                    Y = (uint)(i / width)
+                    Y = height - 1 - (uint)(i / width)
                 };
                 _cells.Add(cell);
                 Label button = new()
@@ -216,7 +216,11 @@ namespace Terrain_Planner_Tool
 
         private void Button_Click_Export(object sender, RoutedEventArgs e)
         {
-            Clipboard.SetText(_cells.Select(x => x.Terrain.Id.ToString()).Aggregate((x, y) => $"{x},{y}"));
+            Clipboard.SetText(_cells
+                .OrderBy(x => x.Y)
+                .ThenBy(x => x.X)
+                .Select(x => x.Terrain.Id.ToString())
+                .Aggregate((x, y) => $"{x},{y}"));
             MessageBox.Show("Copied the arguments to the clipboard. Paste these as your \"mask\" in the MUD.");
         }
 
@@ -230,6 +234,10 @@ namespace Terrain_Planner_Tool
                 return;
             }
 
+            List<MapCell> orderedCells = _cells
+                .OrderBy(x => x.Y)
+                .ThenBy(x => x.X)
+                .ToList();
             for (int i = 0; i < split.Length; i++)
             {
                 if (!long.TryParse(split[i], out long value))
@@ -245,7 +253,7 @@ namespace Terrain_Planner_Tool
                     return;
                 }
 
-                _cells[i].Terrain = terrain;
+                orderedCells[i].Terrain = terrain;
             }
 
             MessageBox.Show("Your mask has been reloaded.");

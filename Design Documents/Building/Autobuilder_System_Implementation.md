@@ -100,12 +100,16 @@ The normal execution path is:
 1. Builder opens a cell overlay package.
 2. Builder runs `cell new <autoarea> ...`.
 3. The chosen `IAutobuilderArea` parses its ordered parameters.
-4. The area template creates cells, linking exits as it goes.
-5. The area template calls the selected `IAutobuilderRoom` for each created cell.
+4. The area template calls the selected `IAutobuilderRoom` to create each cell.
+5. Once the cell grid is initialised, the area template links its exits.
 6. Some area templates gather feature tags first and call `RedescribeRoom(...)` afterwards so descriptions can react to those tags.
 7. Optional `prog=<prog>` arguments can run post-processing against the generated result set.
 
 This is why area templates should stay focused on structure and room templates on presentation.
+
+Rectangle-family area templates initialise the complete cell grid before creating exits. A shared topology pass then
+adds each cardinal connection once and, for diagonal templates, both diagonal families. Terrain-mask holes are skipped
+when either end of a potential connection has no cell.
 
 ## Random Description Pipeline
 
@@ -203,7 +207,9 @@ The planner only needs these terrain fields:
 - `TerrainEditorColour`
 - `TerrainEditorText`
 
-The mask format must match the order expected by `AutobuilderAreaTerrainRectangle`: top-left to right, then row by row downward.
+The mask format matches Cartesian coordinates: the first entry is the south-west `(0,0)` cell, each row proceeds
+west-to-east, and subsequent rows proceed northward. Terrain Planner displays north at the top while exporting the
+southern row first.
 
 ## Extension Guidance
 

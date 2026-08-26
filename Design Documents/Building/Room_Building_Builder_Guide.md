@@ -628,6 +628,9 @@ Feature Rectangle Diagonals
 Seeded Terrain Wilderness Grouped Features
 ```
 
+The diagonal rectangle variants connect every pair of corner-adjacent generated cells. In terrain-mask templates,
+`0` holes simply prevent any cardinal or diagonal exit that would otherwise lead into that position.
+
 Common seeded room templates include:
 
 ```text
@@ -647,7 +650,8 @@ Terrain mask rectangle:
 cell new "Terrain Rectangle" 3 4 Blank 12,12,13,13,12,0,13,14,12,12,14,14
 ```
 
-The terrain mask is row-major. It must contain exactly `height * width` entries. Use terrain IDs for rooms and `0` for no room.
+The terrain mask is row-major from the bottom-left `(0,0)` cell. It proceeds east across each row and then north to
+the next row. It must contain exactly `height * width` entries. Use terrain IDs for rooms and `0` for no room.
 
 Seeded wilderness example:
 
@@ -665,7 +669,8 @@ Feature mask example:
 cell new "Feature Rectangle" 2 3 "Seeded Terrain Wilderness Grouped Description" 12,12,12,15,15,15 "Trail Straight|Roadside Marker,Trail Bend,Wildflowers,,Dense Underbrush,Trail Straight"
 ```
 
-Feature masks are also row-major. Separate cells with commas and multiple features in one cell with `|`. Feature names must match the room template's expected feature tags.
+Feature masks use the same bottom-left row-major order. Separate cells with commas and multiple features in one cell
+with `|`. Feature names must match the room template's expected feature tags.
 
 Area template editing:
 

@@ -8,7 +8,7 @@ It is an engine capability for RPI world management, not a player-facing chat fe
 ## Current Scope (Implemented)
 
 - Admin-only creation, configuration, and operation controls.
-- OpenAI Responses API integration (`OpenAI.Responses.ResponsesClient`).
+- OpenAI Responses API integration (`OpenAI.Responses.ResponsesClient`) through the official `OpenAI` .NET SDK.
 - Event-driven triggers from:
 	- room echo events (`OnRoomEmoteEcho`) based on surveillance scope
 	- character speech events in surveilled rooms (covers SAY/TELL and speech tokens in emotes)
@@ -235,7 +235,7 @@ Situation policy:
 	- max prompt length: 24,000 characters (hard truncation marker appended)
 - Unresolved situation list guardrail:
 	- max 25 titles injected into prompt context
-- Errors are logged to debug/console and best-effort relayed to Discord admin notifications.
+- Errors are logged to debug/console and best-effort relayed to Discord admin notifications. Shared GPT requests also record client and OpenAI request IDs and return correlated failures to interactive callers.
 
 ## Seeder Support
 

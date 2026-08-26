@@ -235,7 +235,7 @@ The syntax is:
             OpenAI.OpenAIHandler.MakeGPTRequest(thread, prompt, actor, text =>
             {
                 actor.OutputHandler.Send($"#B[GPT Response for {threadName}]#0\n\n{text.Wrap(actor.InnerLineFormatLength)}".SubstituteANSIColour());
-            });
+            }, errorCallback: error => actor.OutputHandler.Send(error.ColourError()));
         }
     }
 
@@ -2823,7 +2823,7 @@ The syntax is as follows:
             MudSharp.OpenAI.OpenAIHandler.MakeGPTRequest(thread, ss.SafeRemainingArgument, actor, text =>
             {
                 actor.OutputHandler.Send($"GPT Response:\n\n{text}");
-            }, -1, true);
+            }, -1, true, error => actor.OutputHandler.Send(error.ColourError()));
         }
     }
 

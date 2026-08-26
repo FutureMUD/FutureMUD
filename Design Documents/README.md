@@ -10,6 +10,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 ## AI
 - [AI Storyteller Design](./AI/AI_Storyteller_Design.md)
 - [AI Storyteller Implementation Plan](./AI/AI_Storyteller_Implementation_Plan.md)
+- [OpenAI Integration](./AI/OpenAI_Integration.md)
 - [Event System for AI and Hooks](./AI/Event_System_for_AI_and_Hooks.md)
 - [NPC AI and Group AI Runtime](./AI/NPC_AI_and_Group_AI_Runtime.md)
 

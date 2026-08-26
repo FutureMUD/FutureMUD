@@ -179,7 +179,7 @@ public class AIStorytellerToolExecutionTests
     public void ConfigureToolLoopResponseOptions_RequiredChoice_SetsToolChoiceAndTokenBudget()
     {
         AIStoryteller storyteller = CreateStoryteller();
-        CreateResponseOptions options = new(new List<ResponseItem>())
+        CreateResponseOptions options = new(storyteller.Model, new List<ResponseItem>())
         {
             Instructions = "Sentinel instructions"
         };
@@ -200,7 +200,7 @@ public class AIStorytellerToolExecutionTests
     public void ConfigureToolLoopResponseOptions_AutoChoiceWhenNotRequired_SetsAutoChoice()
     {
         AIStoryteller storyteller = CreateStoryteller();
-        CreateResponseOptions options = new(new List<ResponseItem>());
+        CreateResponseOptions options = new(storyteller.Model, new List<ResponseItem>());
 
         storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: false,
             toolProfile: AIStoryteller.StorytellerToolProfile.Full);
@@ -213,7 +213,7 @@ public class AIStorytellerToolExecutionTests
     public void ConfigureToolLoopResponseOptions_WithSystemPrompt_SetsToolBoundaryInstructions()
     {
         AIStoryteller storyteller = CreateStoryteller();
-        CreateResponseOptions options = new(new List<ResponseItem>());
+        CreateResponseOptions options = new(storyteller.Model, new List<ResponseItem>());
 
         storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: true, requireToolCall: true,
             toolProfile: AIStoryteller.StorytellerToolProfile.EventFocused,
@@ -229,7 +229,7 @@ public class AIStorytellerToolExecutionTests
     public void ConfigureToolLoopResponseOptions_EventFocusedProfile_ExcludesHeavyWorldTools()
     {
         AIStoryteller storyteller = CreateStoryteller();
-        CreateResponseOptions options = new(new List<ResponseItem>());
+        CreateResponseOptions options = new(storyteller.Model, new List<ResponseItem>());
 
         storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: true,
             toolProfile: AIStoryteller.StorytellerToolProfile.EventFocused);

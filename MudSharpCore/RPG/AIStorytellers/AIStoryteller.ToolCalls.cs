@@ -642,7 +642,7 @@ public partial class AIStoryteller
     }
 
 	private void ExecuteToolCall(ResponsesClient client, List<ResponseItem> messages, bool includeEchoTools,
-		StorytellerToolProfile toolProfile, string systemPrompt)
+		StorytellerToolProfile toolProfile, string systemPrompt, string model)
     {
         DateTime started = DateTime.UtcNow;
         int malformedRetries = 0;
@@ -659,7 +659,7 @@ public partial class AIStoryteller
 
             try
             {
-                CreateResponseOptions options = new(messages);
+                CreateResponseOptions options = new(model, messages);
                 bool requireToolCall = !hasObservedToolCall;
 				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall, toolProfile, systemPrompt);
                 DebugAIMessaging("Engine -> Storyteller Continuation Request",

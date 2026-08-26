@@ -913,7 +913,7 @@ public static class DefaultStaticSettings
             { "BonyPartBoneBreakLeewayEldritch", "20" },
             { "BonyPartBoneBreakLeewayArcane", "20" },
             { "BonyPartEffectiveHitpointForBonebreakModifier", "2.0"},
-            { "GPT_DescSuggestion_Model", "gpt-3.5-turbo"},
+            { "GPT_DescSuggestion_Model", "gpt-5.6-terra"},
             { "AppraiseCommandRequiresSkill", "false"},
             { "AppraiseCommandSkill", "0"},
             { "DefaultAuxiliaryMoveTraitId", "0"},

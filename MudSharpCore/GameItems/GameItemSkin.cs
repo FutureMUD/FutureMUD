@@ -530,7 +530,8 @@ public class GameItemSkin : EditableItem, IGameItemSkin
         {
             case "openai":
                 var descModel = Futuremud.Games.First().GetStaticConfiguration("GPT_DescSuggestion_Model");
-                if (!OpenAIHandler.MakeGPTRequest(sb.ToString(), actor.Gameworld.GetStaticString("GPT_ItemSuggestionFinalWord"), GPTCallback, descModel))
+                if (!OpenAIHandler.MakeGPTRequest(sb.ToString(), actor.Gameworld.GetStaticString("GPT_ItemSuggestionFinalWord"), GPTCallback, descModel,
+						error => actor.OutputHandler.Send(error.ColourError())))
                 {
                     actor.OutputHandler.Send("Your GPT Model is not set up correctly, so you cannot get any suggestions.");
                     return false;

@@ -1030,7 +1030,7 @@ cell set register delete <variable>
 cell delete
 ```
 
-`cell set suggestdesc` uses configured AI description generation if the game has an OpenAI or Anthropic API key configured.
+`cell set suggestdesc [<optional extra context>]` uses configured AI description generation if the game has an OpenAI or Anthropic API key configured. The request runs in the background and does not change the room until you choose a returned option with `accept desc <n>`. OpenAI failures and timeouts are returned to the builder with a request reference; administrators can use that reference to find full details in the server console.
 
 `cell delete` is restricted to high administrators, asks for confirmation, and permanently deletes the current room if the engine can find a fallback destination. Treat it as a repair tool, not a normal building command.
 

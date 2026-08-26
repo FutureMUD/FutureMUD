@@ -338,8 +338,8 @@ Echo:
 {trimmedPrompt}
 """);
 
-        ResponsesClient client = new(AttentionClassifierModel, apiKey);
-        CreateResponseOptions options = new([
+        ResponsesClient client = new(apiKey);
+        CreateResponseOptions options = new(AttentionClassifierModel, [
             ResponseItem.CreateUserMessageItem(trimmedPrompt)
         ]);
 		options.Instructions = classifierPrompt;
@@ -458,11 +458,11 @@ User Prompt:
 {prompt}
 """);
 
-        ResponsesClient client = new(model, apiKey);
+        ResponsesClient client = new(apiKey);
         List<ResponseItem> messages =
         [
             ResponseItem.CreateUserMessageItem(prompt)
         ];
-		ExecuteToolCall(client, messages, includeEchoTools, toolProfile, systemPrompt);
+		ExecuteToolCall(client, messages, includeEchoTools, toolProfile, systemPrompt, model);
 	}
 }

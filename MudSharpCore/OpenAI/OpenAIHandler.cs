@@ -1,4 +1,6 @@
 ﻿using Anthropic.SDK;
+#nullable enable
+#pragma warning disable OPENAI001
 using Anthropic.SDK.Messaging;
 using Google.Protobuf;
 using Microsoft.EntityFrameworkCore;
@@ -11,9 +13,12 @@ using MudSharp.Models;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using OpenAI;
-using OpenAI.Chat;
 using OpenAI.Models;
+using OpenAI.Responses;
 using System.ClientModel;
+using System.ClientModel.Primitives;
+using System.Net.Http;
+using System.Security.Authentication;
 using System.Threading;
 
 
@@ -21,6 +26,8 @@ namespace MudSharp.OpenAI;
 
 internal static class OpenAIHandler
 {
+	private static readonly TimeSpan GptRequestTimeout = TimeSpan.FromSeconds(120);
+
     public static async Task<IEnumerable<string>> GPTModels()
     {
         string apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
@@ -75,7 +82,7 @@ internal static class OpenAIHandler
                 //var result = await chat.SendMessage(requestText);
                 GenerateTextResponse result = await api.GenerateText(requestText);
                 $"#CGemini Response#0\n\n{result.Text}".WriteLineConsole();
-                callback(result.Text);
+                callback(result.Text ?? string.Empty);
             }
             catch (BlockedPromptException e)
             {
@@ -132,7 +139,8 @@ internal static class OpenAIHandler
         return true;
     }
 
-    public static bool MakeGPTRequest(string context, string requestText, Action<string> callback, string model, double temperature = 0.7)
+    public static bool MakeGPTRequest(string context, string requestText, Action<string> callback, string model,
+		Action<string>? errorCallback = null)
     {
         string apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
         if (string.IsNullOrEmpty(apiKey))
@@ -140,51 +148,49 @@ internal static class OpenAIHandler
             return false;
         }
 
-        try
-        {
-            ChatClient client = new(model, apiKey);
-            Task task = Task.Run(async () =>
-            {
+        string clientRequestId = Guid.NewGuid().ToString("N");
+		_ = Task.Run(() => RunGptRequestAsync(async cancellationToken =>
+		{
 #if DEBUG
-                Futuremud.Games.First().SystemMessage($"GPT Request:\n\n{context}\n\n{requestText}", true);
+            Futuremud.Games.First().SystemMessage($"GPT Request:\n\n{context}\n\n{requestText}", true);
 #endif
-                $"#CGPT Request#0:\n\n#3{context}#0\n\n#2{requestText}#0".WriteLineConsole();
-                ClientResult<ChatCompletion> result = await client.CompleteChatAsync(
-                    [
-                        ChatMessage.CreateSystemMessage(context),
-                        ChatMessage.CreateUserMessage(requestText)
-                    ], new ChatCompletionOptions
-                    {
-                        Temperature = (float)temperature
-                    });
-                $"#CGPT Response#0\n\n{result}".WriteLineConsole();
+            $"#CGPT Request [{clientRequestId}]#0:\n\n#3{context}#0\n\n#2{requestText}#0".WriteLineConsole();
 
-                callback(result.Value.Content[0].Text);
-            });
-
-
-        }
-			catch (Exception e)
+			ResponsesClient client = CreateResponsesClient(apiKey, clientRequestId);
+			CreateResponseOptions options = new(model,
+			[
+				ResponseItem.CreateUserMessageItem(requestText)
+			])
 			{
-				e.ToString().Prepend("#2GPT Error#0\n").WriteLineConsole();
-				Futuremud.Games.First().DiscordConnection.NotifyAdmins(
-					ExternalIntegrationAlertHelper.BuildSafeGptErrorAlert(e, "GPT request"));
-			}
+				Instructions = context,
+				StoredOutputEnabled = false,
+				Temperature = SupportsTemperature(model) ? 0.7f : null,
+				ReasoningOptions = model.StartsWith("gpt-5", StringComparison.OrdinalIgnoreCase)
+					? new ResponseReasoningOptions
+					{
+						ReasoningEffortLevel = ResponseReasoningEffortLevel.Low
+					}
+					: null
+			};
+			ClientResult<ResponseResult> result = await client.CreateResponseAsync(options, cancellationToken);
+			string serverRequestId = GetServerRequestId(result);
+			string responseText = GetRequiredOutputText(result.Value);
+			$"#CGPT Response [{clientRequestId}; server {serverRequestId}]#0\n\n{responseText}".WriteLineConsole();
+			return responseText;
+		}, callback, e => HandleGptFailure(e, "GPT request", clientRequestId, errorCallback), GptRequestTimeout));
 
-        $"#CGPT Request#0:\n\n#3{context}#0\n\n#2{requestText}#0".WriteLineConsole();
         return true;
     }
 
-    public static bool MakeGPTRequest(Models.GPTThread thread, string messageText, ICharacter character,
-        Action<string> callback, int maximumHistory = -1, bool includeExtraContext = true)
+    public static bool MakeGPTRequest(Models.GPTThread thread, string messageText, ICharacter? character,
+        Action<string> callback, int maximumHistory = -1, bool includeExtraContext = true,
+		Action<string>? errorCallback = null)
     {
         string apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
         if (string.IsNullOrEmpty(apiKey))
         {
             return false;
         }
-
-        ChatClient client = new(thread.Model, apiKey);
 
         string prompt = thread.Prompt;
         if (includeExtraContext && character is not null)
@@ -192,10 +198,7 @@ internal static class OpenAIHandler
             prompt = $"{thread.Prompt}. The time is {character.Location.DateTime().ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Immortal)}. The person you are talking to is called {character.PersonalName.GetName(NameStyle.FullName)} and they are described as {character.HowSeen(character, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)}. They are at a location called {character.Location.HowSeen(character, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)}.";
         }
 
-        List<ChatMessage> chatHistory = new()
-        {
-            ChatMessage.CreateSystemMessage(prompt)
-        };
+        List<ResponseItem> chatHistory = [];
 
         GPTMessage[] messages = maximumHistory == -1
             ? thread.Messages.ToArray()
@@ -208,20 +211,27 @@ internal static class OpenAIHandler
                 continue;
             }
 
-            chatHistory.Add(ChatMessage.CreateUserMessage(message.Message));
-            chatHistory.Add(ChatMessage.CreateAssistantMessage(message.Response));
+            chatHistory.Add(ResponseItem.CreateUserMessageItem(message.Message));
+            chatHistory.Add(ResponseItem.CreateAssistantMessageItem(message.Response, []));
         }
 
-        chatHistory.Add(ChatMessage.CreateUserMessage(messageText));
+        chatHistory.Add(ResponseItem.CreateUserMessageItem(messageText));
+		string clientRequestId = Guid.NewGuid().ToString("N");
 
-        Task task = Task.Run(async () =>
-        {
-            try
-            {
-                ClientResult<ChatCompletion> result = await client.CompleteChatAsync(chatHistory, new ChatCompletionOptions
-                {
-                    Temperature = (float)thread.Temperature
-                });
+		_ = Task.Run(() => RunGptRequestAsync(async cancellationToken =>
+		{
+			$"#CGPT Thread Request [{clientRequestId}]#0: thread #{thread.Id:N0}, model {thread.Model}".WriteLineConsole();
+			ResponsesClient client = CreateResponsesClient(apiKey, clientRequestId);
+			CreateResponseOptions options = new(thread.Model, chatHistory)
+			{
+				Instructions = prompt,
+				StoredOutputEnabled = false,
+				Temperature = SupportsTemperature(thread.Model) ? (float)thread.Temperature : null
+			};
+			ClientResult<ResponseResult> result = await client.CreateResponseAsync(options, cancellationToken);
+			string responseText = GetRequiredOutputText(result.Value);
+			string serverRequestId = GetServerRequestId(result);
+			$"#CGPT Thread Response [{clientRequestId}; server {serverRequestId}]#0".WriteLineConsole();
 
                 using (new FMDB())
                 {
@@ -229,22 +239,155 @@ internal static class OpenAIHandler
                     {
                         GPTThreadId = thread.Id,
                         Message = messageText,
-                        Response = result.Value.Content[0].Text,
+                        Response = responseText,
                         CharacterId = characterIdentityId
                     });
                     FMDB.Context.SaveChanges();
                 }
 
-                callback(result.Value.Content[0].Text);
-            }
-			catch (Exception e)
-			{
-				e.ToString().Prepend("#2GPT Error#0\n").WriteLineConsole();
-				Futuremud.Games.First().DiscordConnection.NotifyAdmins(
-					ExternalIntegrationAlertHelper.BuildSafeGptErrorAlert(e, $"GPT thread #{thread.Id:N0}"));
-			}
-
-        });
+            return responseText;
+		}, callback,
+			e => HandleGptFailure(e, $"GPT thread #{thread.Id:N0}", clientRequestId, errorCallback),
+			GptRequestTimeout));
         return true;
     }
+
+	internal static async Task RunGptRequestAsync(Func<CancellationToken, Task<string>> request,
+		Action<string> callback, Action<Exception> errorCallback, TimeSpan timeout)
+	{
+		using CancellationTokenSource cancellationTokenSource = new(timeout);
+		try
+		{
+			string response = await request(cancellationTokenSource.Token).ConfigureAwait(false);
+			callback(response);
+		}
+		catch (Exception e)
+		{
+			errorCallback(e);
+		}
+	}
+
+	internal static string DescribeGptFailure(Exception exception, string clientRequestId)
+	{
+		if (FindException<OperationCanceledException>(exception) is not null)
+		{
+			return $"The GPT request timed out. Request reference: {clientRequestId}.";
+		}
+
+		if (FindException<HttpRequestException>(exception) is not null ||
+		    FindException<AuthenticationException>(exception) is not null)
+		{
+			return $"The GPT request could not establish a secure network connection. Request reference: {clientRequestId}.";
+		}
+
+		if (FindException<ClientResultException>(exception) is { Status: > 0 } clientException)
+		{
+			string serverRequestId = GetServerRequestId(clientException);
+			string serverReference = serverRequestId == "unavailable"
+				? string.Empty
+				: $" OpenAI request ID: {serverRequestId}.";
+			return $"The GPT request failed with HTTP status {clientException.Status:N0}. Request reference: {clientRequestId}.{serverReference}";
+		}
+
+		return $"The GPT request failed before a response was received. Request reference: {clientRequestId}.";
+	}
+
+	private static ResponsesClient CreateResponsesClient(string apiKey, string clientRequestId)
+	{
+		ResponsesClientOptions options = new();
+		options.AddPolicy(new ClientRequestIdPolicy(clientRequestId), PipelinePosition.PerCall);
+		return new ResponsesClient(new ApiKeyCredential(apiKey), options);
+	}
+
+	private static bool SupportsTemperature(string model)
+	{
+		return !model.StartsWith("gpt-5", StringComparison.OrdinalIgnoreCase) &&
+		       !model.StartsWith("o1", StringComparison.OrdinalIgnoreCase) &&
+		       !model.StartsWith("o3", StringComparison.OrdinalIgnoreCase) &&
+		       !model.StartsWith("o4", StringComparison.OrdinalIgnoreCase);
+	}
+
+	private static string GetRequiredOutputText(ResponseResult response)
+	{
+		string? responseText = response.GetOutputText();
+		if (string.IsNullOrWhiteSpace(responseText))
+		{
+			throw new InvalidOperationException("OpenAI returned a response without any output text.");
+		}
+
+		return responseText;
+	}
+
+	private static void HandleGptFailure(Exception exception, string context, string clientRequestId,
+		Action<string>? errorCallback = null)
+	{
+		string serverRequestId = GetServerRequestId(exception);
+		$"{exception}\nClient request ID: {clientRequestId}\nOpenAI request ID: {serverRequestId}"
+			.Prepend("#2GPT Error#0\n")
+			.WriteLineConsole();
+		try
+		{
+			Futuremud.Games.FirstOrDefault()?.DiscordConnection?.NotifyAdmins(
+				ExternalIntegrationAlertHelper.BuildSafeGptErrorAlert(exception,
+					$"{context}; client request {clientRequestId}; OpenAI request {serverRequestId}"));
+		}
+		catch
+		{
+			// Best-effort notification only. The full exception is already in the console log.
+		}
+
+		errorCallback?.Invoke(DescribeGptFailure(exception, clientRequestId));
+	}
+
+	private static string GetServerRequestId(ClientResult result)
+	{
+		return result.GetRawResponse()?.Headers.TryGetValue("x-request-id", out string? requestId) == true
+			? requestId ?? "unavailable"
+			: "unavailable";
+	}
+
+	private static string GetServerRequestId(Exception exception)
+	{
+		ClientResultException? clientException = FindException<ClientResultException>(exception);
+		return clientException is not null &&
+		       clientException.GetRawResponse()?.Headers.TryGetValue("x-request-id", out string? requestId) == true
+			? requestId ?? "unavailable"
+			: "unavailable";
+	}
+
+	private static TException? FindException<TException>(Exception exception) where TException : Exception
+	{
+		if (exception is TException matchingException)
+		{
+			return matchingException;
+		}
+
+		if (exception is AggregateException aggregateException)
+		{
+			return aggregateException.Flatten().InnerExceptions
+				.Select(FindException<TException>)
+				.FirstOrDefault(x => x is not null);
+		}
+
+		return exception.InnerException is null
+			? null
+			: FindException<TException>(exception.InnerException);
+	}
+
+	private sealed class ClientRequestIdPolicy(string clientRequestId) : PipelinePolicy
+	{
+		public override void Process(PipelineMessage message, IReadOnlyList<PipelinePolicy> pipeline,
+			int currentIndex)
+		{
+			message.Request.Headers.Set("X-Client-Request-Id", clientRequestId);
+			ProcessNext(message, pipeline, currentIndex);
+		}
+
+		public override ValueTask ProcessAsync(PipelineMessage message, IReadOnlyList<PipelinePolicy> pipeline,
+			int currentIndex)
+		{
+			message.Request.Headers.Set("X-Client-Request-Id", clientRequestId);
+			return ProcessNextAsync(message, pipeline, currentIndex);
+		}
+	}
 }

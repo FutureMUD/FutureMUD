@@ -1,0 +1,57 @@
+# Post-tuning dagger and tactics validation, 20 deterministic seeds per matchup.
+
+# Dual dagger standard versus sword and shield.
+impdebug combatsim new
+impdebug combatsim add template 108 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim batch 20 seed 4000 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Dual dagger standard versus two-handed sword.
+impdebug combatsim new
+impdebug combatsim add template 108 team 1
+impdebug combatsim add template 111 team 2
+impdebug combatsim batch 20 seed 4020 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Dual dagger standard versus warding pike.
+impdebug combatsim new
+impdebug combatsim add template 108 team 1
+impdebug combatsim add template 110 team 2
+impdebug combatsim batch 20 seed 4040 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Capped dual daggers versus capped sword and shield.
+impdebug combatsim new
+impdebug combatsim add template 126 team 1
+impdebug combatsim add template 123 team 2
+impdebug combatsim batch 20 seed 4060 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Clinching dual daggers versus sword and shield.
+impdebug combatsim new
+impdebug combatsim add template 128 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim batch 20 seed 4080 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Clinching dual daggers versus warding pike.
+impdebug combatsim new
+impdebug combatsim add template 128 team 1
+impdebug combatsim add template 110 team 2
+impdebug combatsim batch 20 seed 4100 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Clinching dual daggers versus two-handed sword.
+impdebug combatsim new
+impdebug combatsim add template 128 team 1
+impdebug combatsim add template 111 team 2
+impdebug combatsim batch 20 seed 4120 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Clinch-seeking unarmed swarmer versus range-preserving outboxer.
+impdebug combatsim new
+impdebug combatsim add template 129 team 1
+impdebug combatsim add template 130 team 2
+impdebug combatsim batch 20 seed 4140 step 1 force confirm-production
+impdebug combatsim batchreport

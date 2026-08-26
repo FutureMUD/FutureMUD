@@ -287,7 +287,12 @@ public abstract class StrategyBase : ICombatStrategy
                 return true;
             }
         }
-        // TODO - dual wield
+
+		if (options.Any(x => x == AttackHandednessOptions.DualWieldOnly))
+		{
+			return ch.Body.CanWield(weapon.Parent,
+				ItemCanWieldFlags.IgnoreFreeHands | ItemCanWieldFlags.RequireOneHand);
+		}
 
         return false;
     }
@@ -619,25 +624,29 @@ public abstract class StrategyBase : ICombatStrategy
 
     protected ICombatMove AttemptGetWeapon(ICharacter ch)
     {
-        IInventoryPlan plan = new InventoryPlanTemplate(ch.Gameworld, new[]
-        {
-            new InventoryPlanPhaseTemplate(1, new[]
-            {
-                new InventoryPlanActionWield(ch.Gameworld, 0, 0,
-                    item => IsUseableWeapon(ch, item.GetItemType<IMeleeWeapon>()), null, EvaluatePreferredHandedness)
-                {
-                    PrimaryItemFitnessScorer = MeleeWeaponFitnessFunction(ch),
-                    OriginalReference = "weapon",
-                    ItemsAlreadyInPlaceOverrideFitnessScore = false,
-                    ItemsAlreadyInPlaceMultiplier = 1.5
-                }
-            })
-        })
-        {
-            Options = ch.CombatSettings.InventoryManagement == AutomaticInventorySettings.FullyAutomatic
-                ? InventoryPlanOptions.None
-                : InventoryPlanOptions.DoNotClearHands
-        }.CreatePlan(ch);
+		var plan = new InventoryPlanTemplate(ch.Gameworld,
+			[
+				new InventoryPlanPhaseTemplate(1,
+				[
+					new InventoryPlanActionWield(ch.Gameworld, 0, 0,
+						item => (!ch.Body.WieldedItems.Contains(item) ||
+						         ch.CombatSettings.PreferredWeaponSetup == AttackHandednessOptions.TwoHandedOnly &&
+						         ch.Body.WieldedHandCount(item) != 2) &&
+						        IsUseableWeapon(ch, item.GetItemType<IMeleeWeapon>()), null,
+						EvaluatePreferredHandedness)
+					{
+						PrimaryItemFitnessScorer = MeleeWeaponFitnessFunction(ch),
+						OriginalReference = "weapon",
+						ItemsAlreadyInPlaceOverrideFitnessScore = false,
+						ItemsAlreadyInPlaceMultiplier = 1.5
+					}
+				])
+			])
+		{
+			Options = ch.CombatSettings.InventoryManagement == AutomaticInventorySettings.FullyAutomatic
+				? InventoryPlanOptions.None
+				: InventoryPlanOptions.DoNotClearHands
+		}.CreatePlan(ch);
         if (plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
         {
             return new InventoryPlanMove
@@ -646,7 +655,7 @@ public abstract class StrategyBase : ICombatStrategy
                 Plan = plan,
                 AfterPlanActions = result =>
                 {
-                    if (result.OriginalReference?.ToString().EqualTo("weapon") != true)
+					if (result.OriginalReference?.ToString().EqualTo("weapon") != true)
                     {
                         return;
                     }
@@ -954,12 +963,21 @@ public abstract class StrategyBase : ICombatStrategy
     {
         // The default strategy checks that they have a weapon if they use a weapon, and a shield if they use a shield.
         // It will also switch to more desirable weapons that are within easy reach
-        if (ch.CombatSettings.WeaponUsePercentage > 0.0 &&
+		var desiredMeleeWeapons = DesiredMeleeWeaponCount(ch.CombatSettings);
+		var wieldedMeleeWeapons = ch.Body.WieldedItems.Where(x =>
+			x.GetItemType<IMeleeWeapon>() is IMeleeWeapon mw &&
+			ch.CombatSettings.ClassificationsAllowed.Contains(mw.Classification) &&
+			!x.IsItemType<IShield>()).ToList();
+		var wieldedSetupIsSatisfied = ch.CombatSettings.PreferredWeaponSetup switch
+		{
+			AttackHandednessOptions.TwoHandedOnly => wieldedMeleeWeapons.Any(x =>
+				ch.Body.WieldedHandCount(x) == 2),
+			AttackHandednessOptions.DualWieldOnly => wieldedMeleeWeapons.Count >= 2,
+			_ => wieldedMeleeWeapons.Count >= desiredMeleeWeapons
+		};
+		if (ch.CombatSettings.WeaponUsePercentage > 0.0 &&
             ch.Race.CombatSettings.CanUseWeapons &&
-            !ch.Body.WieldedItems.Any(x =>
-                x.GetItemType<IMeleeWeapon>() is IMeleeWeapon mw &&
-                ch.CombatSettings.ClassificationsAllowed.Contains(mw.Classification) &&
-                !x.IsItemType<IShield>()) &&
+			!wieldedSetupIsSatisfied &&
             !ch.Body.Implants.Any(x =>
                 x is IImplantMeleeWeapon imw &&
                 imw.WeaponIsActive &&
@@ -982,6 +1000,11 @@ public abstract class StrategyBase : ICombatStrategy
 
         return null;
     }
+
+	internal static int DesiredMeleeWeaponCount(ICharacterCombatSettings settings)
+	{
+		return settings.PreferredWeaponSetup == AttackHandednessOptions.DualWieldOnly ? 2 : 1;
+	}
 
     protected virtual ICombatMove HandleInventoryMoves(IPerceiver combatant)
     {

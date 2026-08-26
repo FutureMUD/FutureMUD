@@ -1,0 +1,11 @@
+cm edit 1063
+cm set message @ brace|braces $2 across $1 and shove|shoves hard to force &1 back beyond the point.
+cm set fail @ brace|braces $2 across $1 and try|tries to force &1 back beyond the point.
+cm close
+cm show 1063
+weapontype show 7
+weaponattack show 963
+weaponattack show 964
+weaponattack show 965
+combat show "Spear Warder (Auto)"
+npc show 113

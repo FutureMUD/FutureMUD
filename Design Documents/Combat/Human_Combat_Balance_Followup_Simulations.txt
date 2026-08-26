@@ -1,0 +1,113 @@
+# Follow-up deterministic batches against demo_dbo.
+# Seeds 3000-3019; five-minute virtual cap; 20,000-event cap.
+
+# Warding versus standard pike tactics, each against dual daggers and sword-and-shield.
+impdebug combatsim new
+impdebug combatsim add template 110 team 1
+impdebug combatsim add template 108 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim clear
+impdebug combatsim new
+impdebug combatsim add template 117 team 1
+impdebug combatsim add template 108 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim clear
+impdebug combatsim new
+impdebug combatsim add template 110 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim clear
+impdebug combatsim new
+impdebug combatsim add template 117 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim clear
+
+# Heavy armour matchups.
+impdebug combatsim new
+impdebug combatsim add template 119 team 1
+impdebug combatsim add template 118 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim clear
+impdebug combatsim new
+impdebug combatsim add template 120 team 1
+impdebug combatsim add template 118 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim clear
+impdebug combatsim new
+impdebug combatsim add template 121 team 1
+impdebug combatsim add template 118 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim clear
+
+# Same-style comparison across skill tiers.
+impdebug combatsim new
+impdebug combatsim add template 125 team 1
+impdebug combatsim add template 122 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim clear
+impdebug combatsim new
+impdebug combatsim add template 126 team 1
+impdebug combatsim add template 123 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim clear
+impdebug combatsim new
+impdebug combatsim add template 127 team 1
+impdebug combatsim add template 124 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim clear
+
+# Skill progression controls with identical sword-and-shield equipment.
+impdebug combatsim new
+impdebug combatsim add template 122 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim clear
+impdebug combatsim new
+impdebug combatsim add template 109 team 1
+impdebug combatsim add template 123 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim clear
+impdebug combatsim new
+impdebug combatsim add template 123 team 1
+impdebug combatsim add template 124 team 2
+impdebug combatsim set maxtime 00:05:00
+impdebug combatsim set maxevents 20000
+impdebug combatsim batch 20 seed 3000 step 1 force confirm-production
+impdebug combatsim batchreport

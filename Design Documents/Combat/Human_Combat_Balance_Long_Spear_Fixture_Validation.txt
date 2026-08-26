@@ -1,0 +1,3 @@
+# Validate the automatically-current clone created as NPC #131.
+npc show 131
+outfittemplate show 5850

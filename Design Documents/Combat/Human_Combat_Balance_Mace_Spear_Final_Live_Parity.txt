@@ -1,0 +1,12 @@
+# Final demo_dbo parity repairs after the accepted simulations.
+
+weapontype edit 8
+weapontype set classification training
+weapontype set reach 2
+weapontype close
+
+npc edit 113
+npc set comment Permanent human combat-balance fixture: mid-tier, short spear and shield, no armour, Spear Warder Auto.
+npc edit submit Human combat-balance follow-up: correct the retained fixture comment.
+npc review 113
+accept edit

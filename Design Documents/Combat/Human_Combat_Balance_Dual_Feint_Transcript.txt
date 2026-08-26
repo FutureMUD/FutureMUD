@@ -1,0 +1,7 @@
+impdebug combatsim new
+impdebug combatsim add template 108 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim set seed 4000
+impdebug combatsim set transcript 300
+impdebug combatsim run force confirm-production
+impdebug combatsim transcript 1 300

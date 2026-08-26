@@ -386,7 +386,7 @@ These rows retain the existing Medieval stable reference and source fields. Admi
 | `medieval_military_plain_war_hammer` | a plain war hammer | `hammer` | `carbon steel` | `Normal` / `Standard` | 980g / 160.0m | `Holdable`<br>`Melee_Warhammer`<br>`Destroyable_Weapon` | `SOURCE` |
 | `medieval_military_plain_military_pick` | a plain military pick | `pick` | `carbon steel` | `Normal` / `Standard` | 940g / 150.0m | `Holdable`<br>`Melee_Military Pick`<br>`Destroyable_Weapon` | `SOURCE` |
 | `medieval_military_worn_levy_spear` | a worn levy spear | `spear` | `wrought iron` | `Large` / `Substandard` | 1,650g / 20.0m | `Holdable`<br>`Melee_Long Spear`<br>`Destroyable_Weapon` | `SOURCE` |
-| `medieval_military_plain_short_spear` | a plain short spear | `spear` | `carbon steel` | `Large` / `Standard` | 1,450g / 44.0m | `Holdable`<br>`Melee_Short Spear`<br>`Destroyable_Weapon` | `SOURCE` |
+| `medieval_military_plain_short_spear` | a plain short spear | `spear` | `carbon steel` | `Normal` / `Standard` | 1,450g / 44.0m | `Holdable`<br>`Melee_Short Spear`<br>`Destroyable_Weapon` | `SOURCE` |
 | `medieval_military_plain_war_spear` | a plain war spear | `spear` | `carbon steel` | `Large` / `Standard` | 1,750g / 52.0m | `Holdable`<br>`Melee_Long Spear`<br>`Destroyable_Weapon` | `SOURCE` |
 | `medieval_military_plain_infantry_pike` | a plain infantry pike | `pike` | `carbon steel` | `Large` / `Standard` | 2,950g / 84.0m | `Holdable`<br>`Melee_Pike`<br>`Destroyable_Weapon` | `SOURCE` |
 | `medieval_military_plain_axe_headed_polearm` | an axe-headed polearm | `polearm` | `carbon steel` | `Large` / `Standard` | 2,300g / 160.0m | `Holdable`<br>`Melee_Halberd`<br>`Destroyable_Weapon` | `SOURCE` |

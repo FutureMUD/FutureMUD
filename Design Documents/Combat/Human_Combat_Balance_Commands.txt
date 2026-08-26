@@ -1,0 +1,157 @@
+# Human-on-human combat balance fixture construction
+# Executed permanently against demo_dbo. Comments and blank lines are ignored by mud_session.py.
+# All combatants derive from NPC template #19, then remove its stock pikeman outfit.
+
+# Weapon-only loadouts. Automatic NPC combat settings wield inventory weapons at combat start.
+outfittemplate new "Combat Balance: Dual Daggers"
+outfittemplate set description "Controlled human combat-balance loadout with two standard steel daggers and no armour."
+outfittemplate set item add dagger-main 5973 inventory
+outfittemplate set item add dagger-off 5973 inventory
+outfittemplate close
+outfittemplate new "Combat Balance: Sword and Shield"
+outfittemplate set description "Controlled human combat-balance loadout with a standard arming sword and round shield and no armour."
+outfittemplate set item add sword 5980 inventory
+outfittemplate set item add shield 4461 inventory
+outfittemplate close
+outfittemplate new "Combat Balance: Pike"
+outfittemplate set description "Controlled human combat-balance loadout with a standard infantry pike and no armour."
+outfittemplate set item add pike 6023 inventory
+outfittemplate close
+outfittemplate new "Combat Balance: Two-Handed Sword"
+outfittemplate set description "Controlled human combat-balance loadout with a standard long-gripped war sword and no armour."
+outfittemplate set item add sword 5985 inventory
+outfittemplate close
+outfittemplate new "Combat Balance: Mace and Shield"
+outfittemplate set description "Controlled human combat-balance loadout with a standard iron mace and round shield and no armour."
+outfittemplate set item add mace 6001 inventory
+outfittemplate set item add shield 4461 inventory
+outfittemplate close
+outfittemplate new "Combat Balance: Spear and Shield"
+outfittemplate set description "Controlled human combat-balance loadout with a standard short spear and round shield and no armour."
+outfittemplate set item add spear 6017 inventory
+outfittemplate set item add shield 4461 inventory
+outfittemplate close
+outfittemplate new "Combat Balance: Axe and Shield"
+outfittemplate set description "Controlled human combat-balance loadout with a standard battle axe and round shield and no armour."
+outfittemplate set item add axe 5988 inventory
+outfittemplate set item add shield 4461 inventory
+outfittemplate close
+
+# Mid-tier controlled human templates. Each receives all relevant skills at 52.
+npc clone 19
+npc set unique "combat-human-mid-dual-daggers"
+npc set comment "Permanent human combat-balance fixture: mid-tier, dual standard daggers, no armour, Melee Auto."
+npc set outfit remove 1
+npc set outfit add "Combat Balance: Dual Daggers"
+npc set skill "Edged Weapons" 52
+npc set skill "Two Handed Weapons" 52
+npc set skill "Bludgeoning Weapons" 52
+npc set skill "Blocking" 52
+npc set skill "Dodging" 52
+npc set skill "Wrestling" 52
+npc set combatsetting "Melee (Auto)"
+npc edit submit
+npc clone 19
+npc set unique "combat-human-mid-sword-shield"
+npc set comment "Permanent human combat-balance fixture: mid-tier, arming sword and round shield, no armour, Shielder Auto."
+npc set outfit remove 1
+npc set outfit add "Combat Balance: Sword and Shield"
+npc set skill "Edged Weapons" 52
+npc set skill "Two Handed Weapons" 52
+npc set skill "Bludgeoning Weapons" 52
+npc set skill "Blocking" 52
+npc set skill "Dodging" 52
+npc set skill "Wrestling" 52
+npc set combatsetting "Shielder (Auto)"
+npc edit submit
+npc clone 19
+npc set unique "combat-human-mid-pike-warder"
+npc set comment "Permanent human combat-balance fixture: mid-tier, infantry pike, no armour, Warder Auto."
+npc set outfit remove 1
+npc set outfit add "Combat Balance: Pike"
+npc set skill "Edged Weapons" 52
+npc set skill "Two Handed Weapons" 52
+npc set skill "Bludgeoning Weapons" 52
+npc set skill "Blocking" 52
+npc set skill "Dodging" 52
+npc set skill "Wrestling" 52
+npc set combatsetting "Warder (Auto)"
+npc edit submit
+npc clone 19
+npc set unique "combat-human-mid-twohand-sword"
+npc set comment "Permanent human combat-balance fixture: mid-tier, two-handed sword, no armour, Zweihander Auto."
+npc set outfit remove 1
+npc set outfit add "Combat Balance: Two-Handed Sword"
+npc set skill "Edged Weapons" 52
+npc set skill "Two Handed Weapons" 52
+npc set skill "Bludgeoning Weapons" 52
+npc set skill "Blocking" 52
+npc set skill "Dodging" 52
+npc set skill "Wrestling" 52
+npc set combatsetting "Zweihander (Auto)"
+npc edit submit
+npc clone 19
+npc set unique "combat-human-mid-mace-shield"
+npc set comment "Permanent human combat-balance fixture: mid-tier, mace and round shield, no armour, Shielder Auto."
+npc set outfit remove 1
+npc set outfit add "Combat Balance: Mace and Shield"
+npc set skill "Edged Weapons" 52
+npc set skill "Two Handed Weapons" 52
+npc set skill "Bludgeoning Weapons" 52
+npc set skill "Blocking" 52
+npc set skill "Dodging" 52
+npc set skill "Wrestling" 52
+npc set combatsetting "Shielder (Auto)"
+npc edit submit
+npc clone 19
+npc set unique "combat-human-mid-spear-shield"
+npc set comment "Permanent human combat-balance fixture: mid-tier, short spear and round shield, no armour, Shielder Auto."
+npc set outfit remove 1
+npc set outfit add "Combat Balance: Spear and Shield"
+npc set skill "Edged Weapons" 52
+npc set skill "Two Handed Weapons" 52
+npc set skill "Bludgeoning Weapons" 52
+npc set skill "Blocking" 52
+npc set skill "Dodging" 52
+npc set skill "Wrestling" 52
+npc set combatsetting "Shielder (Auto)"
+npc edit submit
+npc clone 19
+npc set unique "combat-human-mid-axe-shield"
+npc set comment "Permanent human combat-balance fixture: mid-tier, battle axe and round shield, no armour, Shielder Auto."
+npc set outfit remove 1
+npc set outfit add "Combat Balance: Axe and Shield"
+npc set skill "Edged Weapons" 52
+npc set skill "Two Handed Weapons" 52
+npc set skill "Bludgeoning Weapons" 52
+npc set skill "Blocking" 52
+npc set skill "Dodging" 52
+npc set skill "Wrestling" 52
+npc set combatsetting "Shielder (Auto)"
+npc edit submit
+npc clone 19
+npc set unique "combat-human-mid-grappler"
+npc set comment "Permanent human combat-balance fixture: mid-tier, unarmed and unarmoured, Grappler Auto."
+npc set outfit remove 1
+npc set skill "Edged Weapons" 52
+npc set skill "Two Handed Weapons" 52
+npc set skill "Bludgeoning Weapons" 52
+npc set skill "Blocking" 52
+npc set skill "Dodging" 52
+npc set skill "Wrestling" 52
+npc set combatsetting "Grappler (Auto)"
+npc edit submit
+npc clone 19
+npc set unique "combat-human-mid-pitfighter"
+npc set comment "Permanent human combat-balance fixture: mid-tier, unarmed and unarmoured, Pitfighter Auto."
+npc set outfit remove 1
+npc set skill "Edged Weapons" 52
+npc set skill "Two Handed Weapons" 52
+npc set skill "Bludgeoning Weapons" 52
+npc set skill "Blocking" 52
+npc set skill "Dodging" 52
+npc set skill "Wrestling" 52
+npc set combatsetting "Pitfighter (Auto)"
+npc edit submit
+
+# Review and acceptance are executed after listing the new pending revisions and confirming their IDs.

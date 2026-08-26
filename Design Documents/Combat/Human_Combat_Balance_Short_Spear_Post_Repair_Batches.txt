@@ -1,0 +1,36 @@
+# Replacement short-spear matrix after proving the corrected loadout.
+
+# Spear warder and shield vs axe and shield.
+impdebug combatsim new
+impdebug combatsim add template 113 team 1
+impdebug combatsim add template 114 team 2
+impdebug combatsim batch 30 seed 7300 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Spear warder and shield vs sword and shield.
+impdebug combatsim new
+impdebug combatsim add template 113 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim batch 30 seed 7330 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Spear warder and shield vs standard dual daggers.
+impdebug combatsim new
+impdebug combatsim add template 113 team 1
+impdebug combatsim add template 108 team 2
+impdebug combatsim batch 30 seed 7360 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Spear warder and shield vs clinching dual daggers.
+impdebug combatsim new
+impdebug combatsim add template 113 team 1
+impdebug combatsim add template 128 team 2
+impdebug combatsim batch 30 seed 7390 step 1 force confirm-production
+impdebug combatsim batchreport
+
+# Spear warder and axe begin outside melee.
+impdebug combatsim new
+impdebug combatsim add template 113 team 1 range ranged
+impdebug combatsim add template 114 team 2 range ranged
+impdebug combatsim batch 30 seed 7420 step 1 force confirm-production
+impdebug combatsim batchreport

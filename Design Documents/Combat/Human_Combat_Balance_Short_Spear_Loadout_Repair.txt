@@ -1,0 +1,10 @@
+# Engine-first demo_dbo repair for the stock shield-side short spear fixture.
+# Historical execution ledger; final source of truth is the Item Seeder.
+
+item show 6017
+item edit 6017
+item set size normal
+item edit submit Human combat-balance repair: make the plain short spear one-hand wieldable for its documented shield-side role.
+item review 6017
+accept edit
+item show 6017

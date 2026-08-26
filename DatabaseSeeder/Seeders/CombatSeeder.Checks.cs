@@ -30,10 +30,19 @@ public partial class CombatSeeder
         }
 
         EnsureWardCombatMessages(context, CombatSeederMessageStyleHelper.Parse(questionAnswers["messagestyle"]));
+		EnsureClinchCombatMessages(context, CombatSeederMessageStyleHelper.Parse(questionAnswers["messagestyle"]));
 		EnsureMountedCombatMessages(context);
 
         // Seed Combat Strategies
         SeedCombatStrategies(context, questionAnswers);
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Dual Wielder");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Dual Wielder (Auto)");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Dual Wield Clincher");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Dual Wield Clincher (Auto)");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Polearm Warder");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Polearm Warder (Auto)");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Spear Warder");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Spear Warder (Auto)");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Brawler");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Clincher");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Behemoth");

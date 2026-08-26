@@ -110,3 +110,9 @@ corporeality set <target> corporeal Prime
 Only the manifested fixture counts toward pikeman or party win-rate bands. The untouched control should instead prove that ordinary physical attacks cannot interact with it on Prime. Record the source character or NPC-template ID and the corporeality command beside every supernatural batch because the simulator clones the source's current planar state.
 
 For mythical and supernatural balance work, use the same entry pikeman throughout. Create the veteran by cloning that character and inventory, then add four points to Strength, Constitution, Agility, Dexterity, Willpower and Perception (up to the racial cap) and twenty points to the pike and active defensive traits (up to their caps). Party members are exact simulator clones of this veteran. Start breath, charge and party-boss proof from both `range melee` and `range ranged`; use three disjoint 100-seed blocks for acceptance and a `step 0` replay to prove fingerprint equality.
+
+## Human equipment comparisons
+
+Human-on-human balance batches must prove the intended loadout before their win rates are accepted. Use a permanent current NPC-template revision for each skill, armour, weapon and tactic combination, run one seed with a full transcript, and confirm that every expected weapon is wielded and at least one intended attack becomes eligible. Outfit-template `inventory` placement is an ordinary held-item request; use `wielded` for weapons such as pikes and two-handed swords that may be too large to hold without wielding.
+
+Compare one variable at a time where practical: warding pike against standard pike, armour against the same unarmoured loadout, and identical weapon styles at distinct skill bands. Report time limits and stalemates separately from wins. The maintained human balance fixture and accepted comparison ledger is [Human Combat Balance Pass](./Human_Combat_Balance_Pass.md).

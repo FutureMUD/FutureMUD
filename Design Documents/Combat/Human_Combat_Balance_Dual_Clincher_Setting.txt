@@ -1,0 +1,7 @@
+combat clone 65 "Dual Wield Clincher (Auto)"
+combat config melee clinch
+combat config global
+npc edit 128
+npc set combatsetting "Dual Wield Clincher (Auto)"
+npc review 128
+accept edit

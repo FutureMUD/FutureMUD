@@ -690,6 +690,10 @@ public class ItemSeederMedievalCraftingTests
 		Assert.AreEqual(4, Regex.Matches(armour, "\"Armour_Splinted\"").Count);
 
 		AssertItemUses(weapons, "medieval_military_light_riding_spear", "Melee_Lance");
+		StringAssert.Matches(weapons, new Regex(
+			"\\\"medieval_military_plain_short_spear\\\"(?s:.*?)SizeCategory\\.Normal",
+			RegexOptions.CultureInvariant),
+			"The shield-side short spear must remain one-hand wieldable by a normal human hand.");
 		AssertItemUses(weapons, "medieval_military_broad_poleblade", "Melee_Poleblade");
 		AssertItemUses(weapons, "medieval_military_hooked_polearm", "Melee_HookedPolearm");
 		AssertItemUses(weapons, "medieval_military_recurved_riders_shortbow", "CompositeBow_Light");

@@ -266,6 +266,22 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		}
 
 		count += EnsureWardCombatMessages(context, CombatSeederMessageStyleHelper.Parse(answers["messagestyle"]));
+		count += EnsureClinchCombatMessages(context, CombatSeederMessageStyleHelper.Parse(answers["messagestyle"]));
+		foreach (var strategyName in new[]
+		         {
+			         "Dual Wielder", "Dual Wielder (Auto)",
+			         "Dual Wield Clincher", "Dual Wield Clincher (Auto)",
+			         "Polearm Warder", "Polearm Warder (Auto)",
+			         "Spear Warder", "Spear Warder (Auto)"
+		         })
+		{
+			var existed = context.CharacterCombatSettings.Any(x => x.Name == strategyName);
+			CombatStrategySeederHelper.EnsureCombatStrategy(context, strategyName);
+			if (!existed)
+			{
+				count++;
+			}
+		}
 
 		return new CombatSeederModuleResult("foundations", count);
 	}
@@ -610,6 +626,14 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         WeaponType spear = GetExistingWeaponType("Short Spear");
         WeaponType longspear = GetExistingWeaponType("Long Spear");
         WeaponType trainingspear = GetExistingWeaponType("Training Spear");
+		WeaponType mace = GetExistingWeaponType("Mace");
+		WeaponType trainingMace = GetExistingWeaponType("Training Mace");
+		WeaponType dagger = GetExistingWeaponType("Dagger");
+		mace.Classification = (int)WeaponClassification.Lethal;
+		mace.Reach = 2;
+		trainingMace.Classification = (int)WeaponClassification.Training;
+		trainingMace.Reach = 2;
+		context.SaveChanges();
 
         TraitDefinition strength = GetStrengthAttribute(context);
         SeedCombatMessageStyle messageStyle = CombatSeederMessageStyleHelper.Parse(questionAnswers["messagestyle"]);
@@ -640,8 +664,12 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             CombatMoveIntentions intentions =
                 CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill,
 			string? additionalInfo = null, AttackHandednessOptions handedness = AttackHandednessOptions.Any,
-			int maximumTargets = 1)
+			int maximumTargets = 1, bool reconcileExisting = false, int messagePriority = 50,
+			string? failureAttackMessage = null)
         {
+			var formattedAttackMessage = CombatSeederMessageStyleHelper.FormatAttackMessage(attackMessage, messageStyle);
+			var formattedFailureMessage = CombatSeederMessageStyleHelper.FormatAttackMessage(
+				failureAttackMessage ?? attackMessage, messageStyle);
             WeaponAttack? existingAttack = context.WeaponAttacks.FirstOrDefault(x =>
                 x.WeaponTypeId == type.Id &&
                 x.Name == name &&
@@ -649,7 +677,56 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                 x.HandednessOptions == (int)handedness);
             if (existingAttack is not null)
             {
-				if (ApplySeededMaximumTargets(existingAttack, maximumTargets))
+				if (reconcileExisting)
+				{
+					existingAttack.Verb = (int)verb;
+					existingAttack.BaseAttackerDifficulty = (int)attacker;
+					existingAttack.BaseBlockDifficulty = (int)block;
+					existingAttack.BaseDodgeDifficulty = (int)dodge;
+					existingAttack.BaseParryDifficulty = (int)parry;
+					existingAttack.RecoveryDifficultySuccess = (int)Difficulty.Easy;
+					existingAttack.RecoveryDifficultyFailure = (int)Difficulty.Hard;
+					existingAttack.Intentions = (long)intentions;
+					existingAttack.Weighting = weighting;
+					existingAttack.ExertionLevel = (int)ExertionLevel.Heavy;
+					existingAttack.DamageType = (int)damageType;
+					existingAttack.DamageExpression = damage;
+					existingAttack.StunExpression = damage;
+					existingAttack.PainExpression = damage;
+					existingAttack.StaminaCost = stamina;
+					existingAttack.BaseDelay = relativeSpeed;
+					existingAttack.Orientation = (int)orientation;
+					existingAttack.Alignment = (int)alignment;
+					existingAttack.AdditionalInfo = additionalInfo;
+					existingAttack.RequiredPositionStateIds = "1 16 17 18";
+
+					var existingMessage = context.CombatMessages.FirstOrDefault(x =>
+						x.CombatMessagesWeaponAttacks.Any(y => y.WeaponAttackId == existingAttack.Id));
+					if (existingMessage is null)
+					{
+						existingMessage = new CombatMessage
+						{
+							Type = (int)moveType,
+							Chance = 1.0
+						};
+						existingMessage.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
+						{
+							CombatMessage = existingMessage,
+							WeaponAttack = existingAttack
+						});
+						context.CombatMessages.Add(existingMessage);
+					}
+
+					existingMessage.Type = (int)moveType;
+					existingMessage.Verb = (int)verb;
+					existingMessage.Priority = messagePriority;
+					existingMessage.Chance = 1.0;
+					existingMessage.Message = formattedAttackMessage;
+					existingMessage.FailureMessage = formattedFailureMessage;
+				}
+
+				var maximumTargetsChanged = ApplySeededMaximumTargets(existingAttack, maximumTargets);
+				if (reconcileExisting || maximumTargetsChanged)
 				{
 					context.SaveChanges();
 				}
@@ -689,21 +766,97 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             context.SaveChanges();
             weaponAttacksAdded++;
 
-            string formattedAttackMessage = CombatSeederMessageStyleHelper.FormatAttackMessage(attackMessage, messageStyle);
             CombatMessage message = new()
             {
                 Type = (int)moveType,
                 Message = formattedAttackMessage,
-                Priority = 50,
+				Priority = messagePriority,
                 Verb = (int)verb,
                 Chance = 1.0,
-                FailureMessage = formattedAttackMessage
+				FailureMessage = formattedFailureMessage
             };
             message.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
             { CombatMessage = message, WeaponAttack = attack });
             context.CombatMessages.Add(message);
             context.SaveChanges();
         }
+
+		AddAttack("Dagger Dual Feint", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Jab,
+			Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.VeryHard, Alignment.Front,
+			Orientation.High, 4.0, 0.55, dagger, normalDamage,
+			"@ feint|feints with one blade before driving $2 at $1 from the opposite line", DamageType.Piercing,
+			weighting: 300,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
+			            CombatMoveIntentions.Fast,
+			handedness: AttackHandednessOptions.DualWieldOnly,
+			reconcileExisting: true,
+			messagePriority: 100);
+
+		AddAttack("Mace Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.High, 5.0, 1.0, mace, normalDamage, "@ swing|swings $2 at $1", DamageType.Crushing,
+			reconcileExisting: true);
+		AddAttack("Mace High Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Highest, 5.0, 1.1, mace, normalDamage, "@ swing|swings $2 in a high blow at $1",
+			DamageType.Crushing, reconcileExisting: true);
+		AddAttack("Mace Low Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.Centre, 5.0, 1.0, mace, normalDamage, "@ swing|swings $2 in a low blow at $1",
+			DamageType.Crushing, reconcileExisting: true);
+		AddAttack("Mace Leg Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.Low, 5.0, 1.1, mace, normalDamage, "@ swing|swings $2 at $1's legs",
+			DamageType.Crushing, reconcileExisting: true);
+		AddAttack("Mace Arm Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.VeryEasy, Alignment.FrontRight,
+			Orientation.Appendage, 5.0, 1.1, mace, normalDamage, "@ swing|swings $2 at $1's arms",
+			DamageType.Crushing, reconcileExisting: true);
+		AddAttack("Mace Overhead Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front,
+			Orientation.Highest, 6.0, 1.3, mace, goodDamage,
+			"@ swing|swings $2 in an overhead blow at $1", DamageType.Crushing, reconcileExisting: true);
+		AddAttack("Mace Concussive Blow", BuiltInCombatMoveType.StaggeringBlow, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Alignment.FrontRight,
+			Orientation.High, 6.0, 1.2, mace, goodDamage,
+			"@ step|steps through and drive|drives the head of $2 into $1 with a concussive blow",
+			DamageType.Crushing, weighting: 60, additionalInfo: ((int)Difficulty.Hard).ToString(),
+			handedness: AttackHandednessOptions.OneHandedOnly, reconcileExisting: true, messagePriority: 100,
+			failureAttackMessage:
+			"@ step|steps through and drive|drives the head of $2 at $1 with a concussive blow");
+
+		AddAttack("Spear Butt Strike", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Bash,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.VeryHard, Difficulty.Hard, Alignment.Front,
+			Orientation.Highest, 3.5, 0.75, spear, poorDamage,
+			"@ choke|chokes up on $2 and crack|cracks its butt into $1 at close quarters", DamageType.Crushing,
+			handedness: AttackHandednessOptions.SwordAndBoardOnly, reconcileExisting: true, messagePriority: 100,
+			failureAttackMessage: "@ choke|chokes up on $2 and jab|jabs its butt at $1 at close quarters");
+		AddAttack("Spear Shaft Shove", BuiltInCombatMoveType.Pushback, MeleeWeaponVerb.Bash,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Alignment.Front,
+			Orientation.High, 4.0, 0.9, spear, poorDamage,
+			"@ brace|braces $2 across $1 and shove|shoves hard to force &1 back beyond the point",
+			DamageType.Crushing, weighting: 80,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+			additionalInfo: ((int)Difficulty.Normal).ToString(),
+			handedness: AttackHandednessOptions.SwordAndBoardOnly, reconcileExisting: true, messagePriority: 100,
+			failureAttackMessage:
+			"@ brace|braces $2 across $1 and try|tries to shove &1 back beyond the point");
+		AddAttack("Long Spear Butt Strike", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Bash,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.VeryHard, Difficulty.Hard, Alignment.Front,
+			Orientation.Highest, 4.0, 0.85, longspear, poorDamage,
+			"@ choke|chokes up on $2 and crack|cracks its butt into $1 at close quarters", DamageType.Crushing,
+			handedness: AttackHandednessOptions.TwoHandedOnly, reconcileExisting: true, messagePriority: 100,
+			failureAttackMessage: "@ choke|chokes up on $2 and jab|jabs its butt at $1 at close quarters");
+		AddAttack("Long Spear Shaft Shove", BuiltInCombatMoveType.Pushback, MeleeWeaponVerb.Bash,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Alignment.Front,
+			Orientation.High, 4.5, 1.0, longspear, poorDamage,
+			"@ brace|braces $2 across $1 and shove|shoves hard to force &1 back beyond the point",
+			DamageType.Crushing, weighting: 80,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+			additionalInfo: ((int)Difficulty.Normal).ToString(),
+			handedness: AttackHandednessOptions.TwoHandedOnly, reconcileExisting: true, messagePriority: 100,
+			failureAttackMessage:
+			"@ brace|braces $2 across $1 and try|tries to shove &1 back beyond the point");
 
         AddAttack("Quarterstaff Jab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Jab,
             Difficulty.Easy, Difficulty.Easy, Difficulty.Easy, Difficulty.Normal, Alignment.Front,

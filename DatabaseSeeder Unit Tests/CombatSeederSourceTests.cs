@@ -689,6 +689,24 @@ public class CombatSeederSourceTests
 		StringAssert.Contains(source, "ReconcileExpandedCombatContent");
 		StringAssert.Contains(source, "CombatStockExpansionResult");
 		StringAssert.Contains(source, "EnsureMeleeWeaponComponent(created);");
+		Assert.IsTrue(Regex.Matches(source, "AddAttack\\(\\\"Dagger Dual Feint\\\"").Count >= 2,
+			"The dual-wield dagger counter must be present in both fresh seeding and rerun reconciliation.");
+		StringAssert.Contains(source, "AttackHandednessOptions.DualWieldOnly");
+		StringAssert.Contains(source, "before driving $2 at $1 from the opposite line");
+		StringAssert.Contains(source, "reconcileExisting: true");
+		StringAssert.Contains(source, "messagePriority: 100");
+		foreach (var attackName in new[]
+		         {
+			         "Mace Concussive Blow", "Spear Butt Strike", "Spear Shaft Shove",
+			         "Long Spear Butt Strike", "Long Spear Shaft Shove"
+		         })
+		{
+			Assert.IsTrue(Regex.Matches(source, $"AddAttack\\(\\\"{Regex.Escape(attackName)}\\\"").Count >= 2,
+				$"{attackName} must be present in both fresh seeding and rerun reconciliation.");
+		}
+		StringAssert.Contains(source, "BuiltInCombatMoveType.Pushback");
+		StringAssert.Contains(source, "with a concussive blow");
+		StringAssert.Contains(source, "back beyond the point");
 	}
 
 	[TestMethod]

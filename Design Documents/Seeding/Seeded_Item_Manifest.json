@@ -1,7 +1,7 @@
 {
   "manifestVersion": "1",
-  "sourceFingerprint": "59d76ab5ea2cc6fb938ca511003ad45d1561f2d54e5038bed401bc6cfe295225",
-  "generatedAtUtc": "2026-08-07T11:52:30.7681698Z",
+  "sourceFingerprint": "4c03daac6db09ea2f819f7b976bc135c7a656a037037e997fc51eaae25a26b33",
+  "generatedAtUtc": "2026-08-26T21:27:10.396413Z",
   "entries": [
     {
       "entityType": "commodity-spoilage",
@@ -264682,7 +264682,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "7fbb1d393833e4d870b8106ab244fc6ddc42fc970041f8fe0ad3eca2c3b0867d"
+      "fingerprint": "1ca46cdac8dcd7e81b148cf6c016178b59c945a32a15b3b71d47b5a5ba9c42d6"
     },
     {
       "entityType": "item",

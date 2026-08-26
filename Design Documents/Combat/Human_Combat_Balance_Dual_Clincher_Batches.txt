@@ -1,0 +1,16 @@
+# Corrected dual-wield clincher batches.
+impdebug combatsim new
+impdebug combatsim add template 128 team 1
+impdebug combatsim add template 109 team 2
+impdebug combatsim batch 20 seed 5000 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim new
+impdebug combatsim add template 128 team 1
+impdebug combatsim add template 110 team 2
+impdebug combatsim batch 20 seed 5020 step 1 force confirm-production
+impdebug combatsim batchreport
+impdebug combatsim new
+impdebug combatsim add template 128 team 1
+impdebug combatsim add template 111 team 2
+impdebug combatsim batch 20 seed 5040 step 1 force confirm-production
+impdebug combatsim batchreport

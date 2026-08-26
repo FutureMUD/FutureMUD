@@ -42,6 +42,20 @@ public class CombatSeederWardMessageTests
 		Assert.AreEqual(3, context.CombatMessages.Count());
 	}
 
+	[TestMethod]
+	public void EnsureClinchCombatMessages_AddsAndRetainsResistBreakClinchFallback()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+
+		Assert.AreEqual(1, CombatSeeder.EnsureClinchCombatMessages(context, SeedCombatMessageStyle.Compact));
+		Assert.AreEqual(0, CombatSeeder.EnsureClinchCombatMessages(context, SeedCombatMessageStyle.Compact));
+
+		DatabaseCombatMessage message = context.CombatMessages.Single(x =>
+			x.Type == (int)BuiltInCombatMoveType.ResistBreakClinch);
+		Assert.AreEqual(", and #1 %1|keep|keeps $0 trapped in the clinch", message.Message);
+		Assert.AreEqual(", but #1 %1|fail|fails to keep $0 trapped in the clinch", message.FailureMessage);
+	}
+
 	private static FuturemudDatabaseContext BuildContext()
 	{
 		DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()

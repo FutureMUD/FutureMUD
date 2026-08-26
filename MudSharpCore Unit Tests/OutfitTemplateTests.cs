@@ -203,6 +203,25 @@ public class OutfitTemplateTests
 	}
 
 	[TestMethod]
+	public void MaterialiseWieldedPlacementRemovesTemporaryRoomAnchorAndWieldsItem()
+	{
+		var wieldable = new Mock<IWieldable>();
+		var created = Item(100, Prototype(1), "a war spear", wieldable: wieldable.Object);
+		var proto = Prototype(1, created.Object, wieldable: true);
+		var template = new TemplateOutfit(new Mock<IFuturemud>().Object, "Spear Kit", "A ready spear.",
+			OutfitExclusivity.NonExclusive,
+			new[] { TemplateItem("spear", proto, OutfitTemplateItemPlacement.Wielded) });
+		var target = Target(System.Array.Empty<IOutfit>(), out var location, out var body, out _);
+		body.Setup(x => x.CanWield(created.Object, ItemCanWieldFlags.None)).Returns(true);
+
+		template.Materialise(target.Object);
+
+		location.Verify(x => x.Insert(created.Object, false), Times.Once);
+		created.Verify(x => x.Get(null), Times.Once);
+		body.Verify(x => x.Wield(created.Object, null, true, ItemCanWieldFlags.None), Times.Once);
+	}
+
+	[TestMethod]
 	public void MaterialiseFailedWornPlacementLeavesTemporaryRoomAnchorWhenNotHeld()
 	{
 		var profile = WearProfile(10);

@@ -468,7 +468,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
         return true;
     }
 
-    private string GetHelpText(BuiltInCombatMoveType type)
+    internal static string GetHelpText(BuiltInCombatMoveType type)
     {
         switch (type)
         {
@@ -479,6 +479,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
             case BuiltInCombatMoveType.MeleeWeaponSmashItem:
             case BuiltInCombatMoveType.StaggeringBlow:
             case BuiltInCombatMoveType.UnbalancingBlow:
+            case BuiltInCombatMoveType.Pushback:
             case BuiltInCombatMoveType.DownedAttack:
             case BuiltInCombatMoveType.SwoopAttack:
                 return
@@ -499,6 +500,8 @@ public class CombatMessage : SaveableItem, ICombatMessage
             case BuiltInCombatMoveType.UnbalancingBlowUnarmed:
             case BuiltInCombatMoveType.StaggeringBlowClinch:
             case BuiltInCombatMoveType.UnbalancingBlowClinch:
+            case BuiltInCombatMoveType.PushbackUnarmed:
+            case BuiltInCombatMoveType.PushbackClinch:
             case BuiltInCombatMoveType.DownedAttackUnarmed:
             case BuiltInCombatMoveType.MagicPowerAttack:
                 return
@@ -648,7 +651,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 
     private static Regex FormatStringRegex = new("{(?<number>\\d+)}");
 
-    private (string HelpText, bool isValid) VetEmote(BuiltInCombatMoveType type, string text)
+    internal static (string HelpText, bool IsValid) VetEmote(BuiltInCombatMoveType type, string text)
     {
         string help = GetHelpText(type);
         Emote emote;
@@ -677,6 +680,8 @@ public class CombatMessage : SaveableItem, ICombatMessage
             case BuiltInCombatMoveType.ClinchUnarmedAttack:
             case BuiltInCombatMoveType.StaggeringBlowUnarmed:
             case BuiltInCombatMoveType.UnbalancingBlowUnarmed:
+            case BuiltInCombatMoveType.PushbackUnarmed:
+            case BuiltInCombatMoveType.PushbackClinch:
             case BuiltInCombatMoveType.StaggeringBlowClinch:
             case BuiltInCombatMoveType.UnbalancingBlowClinch:
             case BuiltInCombatMoveType.DownedAttackUnarmed:
@@ -722,6 +727,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
             case BuiltInCombatMoveType.MeleeWeaponSmashItem:
             case BuiltInCombatMoveType.StaggeringBlow:
             case BuiltInCombatMoveType.UnbalancingBlow:
+            case BuiltInCombatMoveType.Pushback:
             case BuiltInCombatMoveType.DownedAttack:
             case BuiltInCombatMoveType.Rescue:
             case BuiltInCombatMoveType.Disarm:

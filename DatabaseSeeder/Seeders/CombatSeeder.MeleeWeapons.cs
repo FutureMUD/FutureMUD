@@ -69,7 +69,8 @@ public partial class CombatSeeder
             CombatMoveIntentions intentions =
                 CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill,
 			string? additionalInfo = null, AttackHandednessOptions handedness = AttackHandednessOptions.Any,
-			int maximumTargets = 1, BuiltInCombatMoveType? combatMessageType = null)
+			int maximumTargets = 1, BuiltInCombatMoveType? combatMessageType = null, int messagePriority = 50,
+			string? failureAttackMessage = null)
         {
             WeaponAttack attack = new()
             {
@@ -106,10 +107,11 @@ public partial class CombatSeeder
             {
 				Type = (int)(combatMessageType ?? moveType),
                 Message = formattedAttackMessage,
-                Priority = 50,
+				Priority = messagePriority,
                 Verb = (int)verb,
                 Chance = 1.0,
-                FailureMessage = formattedAttackMessage
+				FailureMessage = CombatSeederMessageStyleHelper.FormatAttackMessage(
+					failureAttackMessage ?? attackMessage, messageStyle)
             };
             message.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
             { CombatMessage = message, WeaponAttack = attack });
@@ -553,6 +555,15 @@ public partial class CombatSeeder
             dagger, terribleDamage, "@ lash|lashes out with a quick jab of $2 at $1", DamageType.Piercing,
             intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
                         CombatMoveIntentions.Fast);
+		AddAttack("Dagger Dual Feint", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Jab, Difficulty.Easy,
+			Difficulty.Normal, Difficulty.Hard, Difficulty.VeryHard, Alignment.Front, Orientation.High, 4.0, 0.55,
+			dagger, normalDamage,
+			"@ feint|feints with one blade before driving $2 at $1 from the opposite line", DamageType.Piercing,
+			weighting: 300,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
+			            CombatMoveIntentions.Fast,
+			handedness: AttackHandednessOptions.DualWieldOnly,
+			messagePriority: 100);
         AddAttack("Dagger Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.VeryEasy,
             Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 3.0, 0.4,
             dagger, badDamage, "@ stab|stabs $1 with $2", DamageType.Piercing,
@@ -671,11 +682,11 @@ public partial class CombatSeeder
         WeaponType mace = new()
         {
             Name = "Mace",
-            Classification = (int)WeaponClassification.NonLethal,
+            Classification = (int)WeaponClassification.Lethal,
             AttackTrait = skills["Mace"],
             ParryTrait = parrySkills["Mace"],
             ParryBonus = -1,
-            Reach = 1,
+            Reach = 2,
             StaminaPerParry = 2.0
         };
         context.WeaponTypes.Add(mace);
@@ -684,11 +695,11 @@ public partial class CombatSeeder
         WeaponType trainingmace = new()
         {
             Name = "Training Mace",
-            Classification = (int)WeaponClassification.NonLethal,
+            Classification = (int)WeaponClassification.Training,
             AttackTrait = skills["Mace"],
             ParryTrait = parrySkills["Mace"],
             ParryBonus = -1,
-            Reach = 1,
+            Reach = 2,
             StaminaPerParry = 2.0
         };
         context.WeaponTypes.Add(trainingmace);
@@ -870,23 +881,31 @@ public partial class CombatSeeder
             intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
 
         AddAttack("Mace Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing, Difficulty.Normal,
-            Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 4.0, 0.85,
-            mace, poorDamage, "@ swing|swings $2 at $1");
+            Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 5.0, 1.0,
+            mace, normalDamage, "@ swing|swings $2 at $1", DamageType.Crushing);
         AddAttack("Mace High Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing, Difficulty.Normal,
-            Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight, Orientation.Highest, 4.0, 0.95,
-            mace, poorDamage, "@ swing|swings $2 in a high blow at $1");
+            Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight, Orientation.Highest, 5.0, 1.1,
+            mace, normalDamage, "@ swing|swings $2 in a high blow at $1", DamageType.Crushing);
         AddAttack("Mace Low Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing, Difficulty.Normal,
-            Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight, Orientation.Centre, 4.0, 0.85,
-            mace, poorDamage, "@ swing|swings $2 in a low blow at $1");
+            Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight, Orientation.Centre, 5.0, 1.0,
+            mace, normalDamage, "@ swing|swings $2 in a low blow at $1", DamageType.Crushing);
         AddAttack("Mace Leg Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing, Difficulty.Normal,
-            Difficulty.Easy, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight, Orientation.Low, 4.0, 0.95, mace,
-            poorDamage, "@ swing|swings $2 at $1's legs");
+            Difficulty.Easy, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight, Orientation.Low, 5.0, 1.1, mace,
+            normalDamage, "@ swing|swings $2 at $1's legs", DamageType.Crushing);
         AddAttack("Mace Arm Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing, Difficulty.Normal,
-            Difficulty.Easy, Difficulty.Hard, Difficulty.VeryEasy, Alignment.FrontRight, Orientation.Appendage, 4.0,
-            0.95, mace, poorDamage, "@ swing|swings $2 at $1's arms");
+            Difficulty.Easy, Difficulty.Hard, Difficulty.VeryEasy, Alignment.FrontRight, Orientation.Appendage, 5.0,
+            1.1, mace, normalDamage, "@ swing|swings $2 at $1's arms", DamageType.Crushing);
         AddAttack("Mace Overhead Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing, Difficulty.Hard,
-            Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front, Orientation.Highest, 5.0, 1.15,
-            mace, normalDamage, "@ swing|swings $2 in an overhead blow at $1");
+            Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front, Orientation.Highest, 6.0, 1.3,
+            mace, goodDamage, "@ swing|swings $2 in an overhead blow at $1", DamageType.Crushing);
+		AddAttack("Mace Concussive Blow", BuiltInCombatMoveType.StaggeringBlow, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Alignment.FrontRight,
+			Orientation.High, 6.0, 1.2, mace, goodDamage,
+			"@ step|steps through and drive|drives the head of $2 into $1 with a concussive blow",
+			DamageType.Crushing, weighting: 60, additionalInfo: ((int)Difficulty.Hard).ToString(),
+			handedness: AttackHandednessOptions.OneHandedOnly, messagePriority: 100,
+			failureAttackMessage:
+			"@ step|steps through and drive|drives the head of $2 at $1 with a concussive blow");
         AddAttack("Mace Haft Bash", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Bash, Difficulty.VeryHard,
             Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front, Orientation.Highest, 3.0, 1.15,
             mace, badDamage, "@ heave|heaves the haft of $2 down towards $1's head");
@@ -2442,6 +2461,22 @@ public partial class CombatSeeder
             Orientation.Highest, 5.0, 1.0, spear, goodDamage,
             "@ duck|ducks inside the blow and lunge|lunges forward with a devastating high stab of $2 at $1",
             DamageType.Piercing, handedness: AttackHandednessOptions.TwoHandedOnly);
+		AddAttack("Spear Butt Strike", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Bash,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.VeryHard, Difficulty.Hard, Alignment.Front,
+			Orientation.Highest, 3.5, 0.75, spear, poorDamage,
+			"@ choke|chokes up on $2 and crack|cracks its butt into $1 at close quarters", DamageType.Crushing,
+			handedness: AttackHandednessOptions.SwordAndBoardOnly, messagePriority: 100,
+			failureAttackMessage: "@ choke|chokes up on $2 and jab|jabs its butt at $1 at close quarters");
+		AddAttack("Spear Shaft Shove", BuiltInCombatMoveType.Pushback, MeleeWeaponVerb.Bash,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Alignment.Front,
+			Orientation.High, 4.0, 0.9, spear, poorDamage,
+			"@ brace|braces $2 across $1 and shove|shoves hard to force &1 back beyond the point",
+			DamageType.Crushing, weighting: 80,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+			additionalInfo: ((int)Difficulty.Normal).ToString(),
+			handedness: AttackHandednessOptions.SwordAndBoardOnly, messagePriority: 100,
+			failureAttackMessage:
+			"@ brace|braces $2 across $1 and try|tries to shove &1 back beyond the point");
 
         AddAttack("Spear Smash", BuiltInCombatMoveType.MeleeWeaponSmashItem, MeleeWeaponVerb.Stab, Difficulty.Normal,
             Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight, Orientation.High, 5.0, 1.0,
@@ -2550,6 +2585,22 @@ public partial class CombatSeeder
             Orientation.Highest, 5.0, 1.0, longspear, goodDamage,
             "@ duck|ducks inside the blow and lunge|lunges forward with a devastating high stab of $2 at $1",
             DamageType.Piercing, handedness: AttackHandednessOptions.TwoHandedOnly);
+		AddAttack("Long Spear Butt Strike", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Bash,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.VeryHard, Difficulty.Hard, Alignment.Front,
+			Orientation.Highest, 4.0, 0.85, longspear, poorDamage,
+			"@ choke|chokes up on $2 and crack|cracks its butt into $1 at close quarters", DamageType.Crushing,
+			handedness: AttackHandednessOptions.TwoHandedOnly, messagePriority: 100,
+			failureAttackMessage: "@ choke|chokes up on $2 and jab|jabs its butt at $1 at close quarters");
+		AddAttack("Long Spear Shaft Shove", BuiltInCombatMoveType.Pushback, MeleeWeaponVerb.Bash,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Alignment.Front,
+			Orientation.High, 4.5, 1.0, longspear, poorDamage,
+			"@ brace|braces $2 across $1 and shove|shoves hard to force &1 back beyond the point",
+			DamageType.Crushing, weighting: 80,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+			additionalInfo: ((int)Difficulty.Normal).ToString(),
+			handedness: AttackHandednessOptions.TwoHandedOnly, messagePriority: 100,
+			failureAttackMessage:
+			"@ brace|braces $2 across $1 and try|tries to shove &1 back beyond the point");
 
         AddAttack("Spear Smash", BuiltInCombatMoveType.MeleeWeaponSmashItem, MeleeWeaponVerb.Stab, Difficulty.Normal,
             Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight, Orientation.High, 5.0, 1.0,

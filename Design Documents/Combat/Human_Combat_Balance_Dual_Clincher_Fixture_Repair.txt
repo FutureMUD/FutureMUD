@@ -1,0 +1,11 @@
+# Repair the retained clinching counter fixture. The original clone did not retain its outfit,
+# and the setting edit was never submitted as a new current revision.
+
+npc edit 128
+npc set comment Permanent human combat-balance fixture: mid-tier, dual daggers, no armour, Dual Wield Clincher Auto.
+npc set outfit add 5843
+npc set combatsetting "Dual Wield Clincher (Auto)"
+npc edit submit Human combat-balance repair: install the intended dual-dagger clinching loadout and setting.
+npc review 128
+accept edit
+npc show 128

@@ -1,0 +1,8 @@
+# Final counter batch after transcript proof that the spear/shield and both daggers equip,
+# the clincher enters clinch, Dagger Dual Feint fires, and Spear Shaft Shove fires.
+
+impdebug combatsim new
+impdebug combatsim add template 113 team 1
+impdebug combatsim add template 128 team 2
+impdebug combatsim batch 30 seed 7450 step 1 force confirm-production
+impdebug combatsim batchreport

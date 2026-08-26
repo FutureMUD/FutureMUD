@@ -1,0 +1,10 @@
+weaponattack edit 962
+weaponattack set difficulty easy
+weaponattack set block veryhard
+weaponattack set parry hard
+weaponattack set dodge normal
+weaponattack set weight 300
+weaponattack set damage 410
+weaponattack set pain 410
+weaponattack set stun 410
+weaponattack close

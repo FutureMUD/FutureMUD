@@ -1561,6 +1561,8 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 
                     break;
             }
+
+			actor.Body.Unwield(item, silent: true);
         }
 
         InventoryPlanActionResult getResult = GetItem(actor, item, originalReference, 0, silent, true);

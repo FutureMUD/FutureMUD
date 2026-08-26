@@ -78,6 +78,12 @@ Use `linux-arm64` on ARM64 hosts. Windows:
 
 The updater downloads `update-manifest.json`, its Ed25519 signature, and the named archive from futuremud.com. The bundled verifier checks the signature, product/version/runtime identity, size, and SHA-256 before the normal health-checked installer activates it. It automatically reuses the Caddy paths from the Web MUD Client scheduled task; if that task cannot be discovered, pass the same `-CaddyExecutable` and `-Caddyfile` arguments shown above.
 
+### Bootstrap an early 2.0 installation
+
+If your existing installation is 2.0.0 or 2.0.1, install 2.0.3 once using the normal archive-install method above instead of its bundled updater. Those releases used a retired archive route. If a 2.0.2 Windows installation stopped while configuring the service, also use the archive-install method once. This retains the existing shared configuration, MySQL password, service, and Caddy configuration. From 2.0.3 onwards, use the updater command in the preceding section.
+
+During an upgrade, the installer replaces only the `current` release junction. It never recursively deletes the release that junction points to. If Windows reports that the planner service cannot be configured, the installer now includes the exact `sc.exe` output in the error so the failure can be diagnosed safely.
+
 ## Verification
 
 ```bash

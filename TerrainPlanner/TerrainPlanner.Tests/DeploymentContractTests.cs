@@ -67,6 +67,21 @@ public class DeploymentContractTests
 		Assert.IsFalse(updater.Contains("$latestBase/$archiveName", StringComparison.Ordinal));
 	}
 
+	[TestMethod]
+	public void WindowsInstallerReplacesOnlyJunctionsAndUsesArgumentSafeServiceConfiguration()
+	{
+		var installer = File.ReadAllText(Path.Combine(RepositoryRoot, "TerrainPlanner", "deploy", "windows",
+			"Install-TerrainPlanner.ps1"));
+
+		Assert.IsTrue(installer.Contains("[IO.Directory]::Delete($Path)", StringComparison.Ordinal));
+		Assert.IsTrue(installer.Contains("Refusing to remove '$Path' because it is not a release junction.", StringComparison.Ordinal));
+		Assert.IsTrue(installer.Contains("$startInfo.ArgumentList.Add($argument)", StringComparison.Ordinal));
+		Assert.IsTrue(installer.Contains("'binPath=', $serviceCommand, 'start=', 'auto'", StringComparison.Ordinal));
+		Assert.IsTrue(installer.Contains("New-Item -ItemType Junction -Path $currentPath -Target $previousTarget", StringComparison.Ordinal));
+		Assert.IsTrue(installer.Contains("Terrain Planner activation failed; the previous release was restored.", StringComparison.Ordinal));
+		Assert.IsFalse(installer.Contains("sc.exe config FutureMUDTerrainPlanner binPath=", StringComparison.Ordinal));
+	}
+
 	private static string FindRepositoryRoot()
 	{
 		var directory = new DirectoryInfo(AppContext.BaseDirectory);

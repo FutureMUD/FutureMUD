@@ -117,6 +117,21 @@ jobs:
               SingleFile = $true
               IncludeNativeLibrariesForSelfExtract = $true
             }
+            terrainapi = [pscustomobject]@{
+              TagPrefix = 'terrainapi-v'
+              ProjectPath = ''
+              TestProjects = [string[]]@()
+              Runtimes = [string[]]@('win-x64', 'linux-x64')
+              ArchiveName = 'terrainapi-{version}-{runtime}.zip'
+              DocumentationCatalogue = $false
+              PackageKind = 'single-file'
+              WebProjectPath = ''
+              PackageScriptPath = ''
+              FrameworkDependent = $true
+              SingleFile = $true
+              IncludeNativeLibrariesForSelfExtract = $true
+              Retired = $true
+            }
             mudclient = [pscustomobject]@{
               TagPrefix = 'mudclient-v'
               ProjectPath = 'MudClient/MudWebSocketProxy/MudWebSocketProxy.csproj'
@@ -132,7 +147,7 @@ jobs:
               IncludeNativeLibrariesForSelfExtract = $true
             }
           }
-          $allowedIds = [string[]]@('engine', 'seeder', 'discordbot', 'terrainplanner', 'mudclient')
+          $allowedIds = [string[]]@('engine', 'seeder', 'discordbot', 'terrainplanner', 'terrainapi', 'mudclient')
 
           $tagMatch = [regex]::Match(
             $env:RELEASE_TAG,
@@ -188,6 +203,7 @@ jobs:
                  [bool]$candidate.frameworkDependent -ne $allowed.FrameworkDependent -or
                  [bool]$candidate.singleFile -ne $allowed.SingleFile -or
                  [bool]$candidate.includeNativeLibrariesForSelfExtract -ne $allowed.IncludeNativeLibrariesForSelfExtract -or
+                 [bool]$candidate.retired -ne [bool]$allowed.Retired -or
                 [bool]$candidate.documentationCatalogue -ne $allowed.DocumentationCatalogue) {
               throw "Product '$id' does not match the workflow allowlist."
             }

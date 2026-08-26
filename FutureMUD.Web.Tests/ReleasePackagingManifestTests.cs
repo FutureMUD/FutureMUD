@@ -43,4 +43,32 @@ public class ReleasePackagingManifestTests
 		Assert.AreEqual("TerrainPlanner/scripts/Publish-ProductPackage.ps1", terrainPlanner.PackageScriptPath);
 		Assert.IsTrue(manifest.Products.Single(product => product.Id == "terrainapi").Retired);
 	}
+
+	[TestMethod]
+	public void PublishWorkflow_AllowsRetiredTerrainApiManifestEntryWithoutPublishingIt()
+	{
+		var repositoryRoot = LocateRepositoryRoot();
+		var workflow = File.ReadAllText(Path.Combine(repositoryRoot.FullName, ".github", "workflows", "publish-products.yml"));
+
+		StringAssert.Contains(
+			workflow,
+			"$allowedIds = [string[]]@('engine', 'seeder', 'discordbot', 'terrainplanner', 'terrainapi', 'mudclient')");
+		StringAssert.Contains(workflow, "terrainapi = [pscustomobject]@{");
+		StringAssert.Contains(workflow, "Retired = $true");
+		var publishingTagRegex = workflow
+			.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
+			.Single(line => line.Contains(@"\A(?<product>", StringComparison.Ordinal));
+		Assert.IsFalse(publishingTagRegex.Contains("terrainapi", StringComparison.Ordinal));
+	}
+
+	private static DirectoryInfo LocateRepositoryRoot()
+	{
+		var directory = new DirectoryInfo(AppContext.BaseDirectory);
+		while (directory is not null && !Directory.Exists(Path.Combine(directory.FullName, ".github")))
+		{
+			directory = directory.Parent;
+		}
+
+		return directory ?? throw new DirectoryNotFoundException("Could not locate the FutureMUD repository root.");
+	}
 }

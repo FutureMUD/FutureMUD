@@ -9,6 +9,7 @@ namespace MudSharp.Body.Traits.Decorators
         string Decorate(ITrait trait);
         string Decorate(double value);
         IEnumerable<string> OrderedDescriptors { get; }
+        IEnumerable<(double Value, string Descriptor)> OrderedDescriptorsWithThresholds { get; }
         string Show(ICharacter actor);
     }
 

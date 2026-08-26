@@ -166,6 +166,12 @@ public partial class Cell
                     return Zone.WeatherController.CurrentSeason == season;
                 }
 
+                var seasonGroup = Zone.WeatherController?.RegionalClimate.Seasons.FirstOrDefault(x => x.SeasonGroup.EqualTo(text))?.SeasonGroup;
+                if (!string.IsNullOrEmpty(seasonGroup))
+                {
+                    return Zone.WeatherController.CurrentSeason.SeasonGroup.EqualTo(seasonGroup);
+				}
+
                 PrecipitationLevel? precip = PrecipitationFromString(text);
                 if (precip != null)
                 {

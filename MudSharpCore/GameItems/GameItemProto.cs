@@ -1,5 +1,6 @@
 ﻿using C5;
 using MudSharp.Accounts;
+using MudSharp.Communication.Language;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
@@ -1369,14 +1370,6 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
             }
         }
 
-        //sb.AppendLine();
-        //sb.AppendLine(
-        //	"It also has the following functional components. These components add functionality to the item in the game engine. You shouldn't describe these functional components in the description as the user will get information about this from other sources, but do use these to inform yourself about any functionality of the item:");
-        //foreach (var component in _components)
-        //{
-        //	sb.AppendLine($"\tComponent Type: {component.TypeDescription} | Name: {component.Name} | Description: {Gameworld.GameItemComponentManager.TypeHelpInfo.FirstOrDefault(x => x.Name.EqualTo(component.TypeDescription)).Blurb}");
-        //}
-
         VariableGameItemComponentProto vp = _components.OfType<VariableGameItemComponentProto>().FirstOrDefault();
         if (vp is not null)
         {
@@ -1405,7 +1398,31 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 
             sb.AppendLine("You should use each variable at least once in the description.");
             sb.AppendLine("Your response should only use characters from the ISO-8859-1 page (i.e. Latin1).");
-        }
+            sb.AppendLine(@"The engine uses a special markup language for displaying written text while respecting the languages and scripts a character knows. You do not need to include written text on the item description unless it makes sense, but if you do, it must use this markup text.
+Written Text: writing{language,script,style=...,colour=...,skill|minskill}{text if you understand}{text if you cant}");
+            sb.AppendLine();
+			sb.AppendLine("The valid languages are as follows: ");
+			sb.AppendLine(actor.Gameworld.Languages.Where(x => x.Name != "Admin Speech").Select(x => x.Name).ListToString());
+			sb.AppendLine();
+			sb.AppendLine("The valid scripts are as follows:");
+			sb.AppendLine(actor.Gameworld.Scripts.Select(x => x.Name).ListToString());
+			sb.AppendLine();
+			sb.AppendLine("The valid writing styles are as follows:");
+			sb.AppendLine(Enum.GetValues<WritingStyleDescriptors>().Select(x => x.DescribeEnum()).ListToString());
+			sb.AppendLine();
+			var exampleLanguage = actor.Gameworld.Languages.FirstOrDefault(x => x.Name != "Admin Speech");
+			var exampleScript = actor.Gameworld.Scripts.FirstOrDefault(x => x.DesignedLanguages.Contains(exampleLanguage));
+			if (exampleLanguage is not null && exampleScript is not null && exampleLanguage.LinkedTrait.Decorator.OrderedDescriptorsWithThresholds.Any())
+			{
+				sb.AppendLine("Language skill levels are as follows:");
+				sb.AppendLine(exampleLanguage.LinkedTrait.Decorator.OrderedDescriptorsWithThresholds.Select(x => $">{x.Value}={x.Descriptor}").ListToString());
+				sb.AppendLine();
+				sb.AppendLine($@"Examples of how to use writing labels:
+writing{{{exampleLanguage.Name},{exampleScript.Name},style=machine print}}{{neat little words written across its back label: ""Do not use this medicine if you are pregnant or plan to become pregnant. Do not drink alcoholic beverages while taking this medicine. Immediately report bleeding or bruising to your doctor. DOSAGE INSTRUCTIONS: Do not exceed one tablet per four hour period. Do not exceed 3 tablets per twelve hour period.""}}{{There is writing printed on this bottle, but you can' read it.}}
+writing{{{exampleLanguage.Name},{exampleScript.Name},style=childish,minskill=30}}{{The sign reads ""Keep Out.""}}{{There is writing on the sign, but you can't understand it.}}");
+				sb.AppendLine();
+			}
+		}
 
         if (!command.IsFinished)
         {

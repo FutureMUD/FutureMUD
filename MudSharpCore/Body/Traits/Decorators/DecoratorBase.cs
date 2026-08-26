@@ -10,7 +10,9 @@ public abstract class DecoratorBase : FrameworkItem, ITraitValueDecorator
 
     public abstract IEnumerable<string> OrderedDescriptors { get; }
 
-    public abstract string Show(ICharacter actor);
+    public virtual IEnumerable<(double Value, string Descriptor)> OrderedDescriptorsWithThresholds => [];
+
+	public abstract string Show(ICharacter actor);
 
     public static ITraitValueDecorator GetDecorator(TraitDecorator decorator)
     {

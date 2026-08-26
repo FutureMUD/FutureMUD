@@ -27,6 +27,7 @@ using System.Drawing;
 using System.Text.RegularExpressions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using ProgSchedule = MudSharp.FutureProg.ProgSchedule;
+using MudSharp.Communication.Language;
 
 namespace MudSharp.Commands.Modules;
 
@@ -1970,10 +1971,20 @@ The syntax is:
                     sb.AppendLine($"To {item.OutboundDirectionDescription} is {item.Destination.GetOverlayFor(actor).CellName}");
                 }
             }
-        }
 
-        sb.AppendLine();
-        sb.AppendLine("You may refer to these other locations if it adds interesting detail, but do not spend more than a sentence or two on it, and none unless it's to add an interesting detail.");
+			sb.AppendLine();
+			sb.AppendLine("You may refer to these other locations if it adds interesting detail, but do not spend more than a sentence or two on it, and none unless it's to add an interesting detail.");
+		}
+
+        if (actor.Location.Tags.Any()) {
+            sb.AppendLine();
+			sb.AppendLine($"It has been tagged with the following prompts:");
+			foreach (ITag tag in actor.Location.Tags)
+			{
+				sb.AppendLine($"\t{tag.FullName}");
+			}
+		}
+        
         sb.AppendLine();
         sb.AppendLine($"Your response should only use characters from the ISO-8859-1 page (i.e. Latin1). The engine uses a few special markup formats that you can employ if you choose, which help it dynamically parse for the situation at the time like current weather, literacy of the viewer etc. They are listed below.");
         sb.AppendLine();
@@ -1985,15 +1996,47 @@ Conditions for 'environment' include:
 Times: day, night, morning, afternoon, dusk, dawn, notnight
 Light: pitch black, almost completely dark, extremely dark, very dark, dark, dim, soft, normal, bright, very bright, extremely bright
 Light: Add a > or < to light levels to check higher than (inclusive) or lower than (exclusive)
-Seasons: the dry season, the cold season, the rainy season, the windy season
-Precipitation: parched, dry, humid, lightrain, rain, heavyrain, torrentialrain, lightsnow, snow, heavysnow, blizzard, sleet
+{(actor.Location.WeatherController?.RegionalClimate.Seasons.Any() == true ? $"Seasons: {actor.Location.WeatherController.RegionalClimate.Seasons.Select(x => x.Name).ListToCommaSeparatedValues(", ")}\nSeason Groups:{actor.Location.WeatherController.RegionalClimate.Seasons.Select(x => x.SeasonGroup).Distinct().ListToCommaSeparatedValues(", ")}\n" : "")}Precipitation: parched, dry, humid, lightrain, rain, heavyrain, torrentialrain, lightsnow, snow, heavysnow, blizzard, sleet
 Precipitation: Add a * to the front of the above to check highest recent precipitation (e.g. *rain to see if it's rained recently)
 Precipitation: Add a > or < to precipitation to check higher than (inclusive) or lower than (exclusive) e.g. >lightrain, <heavyrain
 
 Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
         sb.AppendLine();
 
-        if (!command.IsFinished)
+        sb.AppendLine("The valid languages are as follows: ");
+        sb.AppendLine(actor.Gameworld.Languages.Where(x => x.Name != "Admin Speech").Select(x => x.Name).ListToString());
+        sb.AppendLine();
+        sb.AppendLine("The valid scripts are as follows:");
+        sb.AppendLine(actor.Gameworld.Scripts.Select(x => x.Name).ListToString());
+		sb.AppendLine();
+		sb.AppendLine("The valid writing styles are as follows:");
+        sb.AppendLine(Enum.GetValues<WritingStyleDescriptors>().Select(x => x.DescribeEnum()).ListToString());
+        sb.AppendLine();
+        var exampleLanguage = actor.Gameworld.Languages.FirstOrDefault(x => x.Name != "Admin Speech");
+        var exampleScript = actor.Gameworld.Scripts.FirstOrDefault(x => x.DesignedLanguages.Contains(exampleLanguage));
+		if (exampleLanguage is not null && exampleScript is not null && exampleLanguage.LinkedTrait.Decorator.OrderedDescriptorsWithThresholds.Any())
+        {
+			sb.AppendLine("Language skill levels are as follows:");
+            sb.AppendLine(exampleLanguage.LinkedTrait.Decorator.OrderedDescriptorsWithThresholds.Select(x =>$">{x.Value}={x.Descriptor}").ListToString());
+            sb.AppendLine();
+			sb.AppendLine($@"Examples of how to use writing labels:
+
+writing{{{exampleLanguage.Name},{exampleScript.Name},minskill=30}}{{The sign reads ""Staff Only.""}}{{A painted sign hangs beside the door.}}
+writing{{{exampleLanguage.Name},{exampleScript.Name},skill=60,colour=green}}{{Writing on the lintel names the old gate, ""Tanner's Gate"".}}{{Green writing marks the lintel, but you don't understand the words.}}");
+			sb.AppendLine();
+		}
+        
+		sb.AppendLine();
+        sb.AppendLine(@"Examples of how to use environment conditions:
+
+environment{night=The square lies in darkness.}{dawn=Grey light gathers across the stones.}{The square is open to the sky.}
+environment{rain=Rainwater runs along the gutter.}{snow=Snow softens the street.}{Dust gathers along the gutter.}
+environment{night,>rain=Black rain shines on the cobbles.}{day,!rain=Sunlight warms the cobbles.}{The cobbles stretch east and west.}
+environment{!rain,*rain=Though the rain has subsided, beads of water still drip from the tree branches.}{rain=Although the tree provides some shelter from the rain, sheets of water still reach the ground.}{notnight=The tree provides pleasant shade from the sun.}{The leaves of the tree are an indiscernible sea of blackness in the darkness of the night}}");
+        sb.AppendLine();
+        
+
+		if (!command.IsFinished)
         {
             sb.AppendLine();
             sb.AppendLine(command.SafeRemainingArgument);

@@ -89,7 +89,9 @@ public class RangeDecorator : FrameworkItem, IRangeTraitValueDecorator
 
     public IEnumerable<string> OrderedDescriptors => Ranges.Ranges.OrderBy(x => x.LowerBound).Select(x => x.Value);
 
-    public double MinimumValueForDescriptor(string descriptor)
+	public IEnumerable<(double Value, string Descriptor)> OrderedDescriptorsWithThresholds => Ranges.Ranges.OrderBy(x => x.LowerBound).Select(x => (x.LowerBound, x.Value));
+
+	public double MinimumValueForDescriptor(string descriptor)
     {
         return Ranges.Ranges.FirstOrDefault(x => x.Value.EqualTo(descriptor))?.LowerBound ?? 0.0;
     }

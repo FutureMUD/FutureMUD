@@ -21,31 +21,22 @@ function Remove-CurrentReleaseJunction {
 	[IO.Directory]::Delete($Path)
 }
 
-function Invoke-ServiceControl {
-	param(
-		[Parameter(Mandatory = $true)][string[]]$Arguments,
-		[Parameter(Mandatory = $true)][string]$FailureMessage
-	)
+function Get-ReleaseJunctionTarget {
+	param([Parameter(Mandatory = $true)][string]$Path)
 
-	$startInfo = [Diagnostics.ProcessStartInfo]::new()
-	$startInfo.FileName = Join-Path $env:SystemRoot 'System32\sc.exe'
-	$startInfo.UseShellExecute = $false
-	$startInfo.RedirectStandardOutput = $true
-	$startInfo.RedirectStandardError = $true
-	foreach ($argument in $Arguments) {
-		[void]$startInfo.ArgumentList.Add($argument)
+	if (-not (Test-Path -LiteralPath $Path)) { return $null }
+	$item = Get-Item -LiteralPath $Path -Force
+	if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne [IO.FileAttributes]::ReparsePoint) {
+		throw "Refusing to replace '$Path' because it is not a release junction."
 	}
 
-	$process = [Diagnostics.Process]::new()
-	$process.StartInfo = $startInfo
-	[void]$process.Start()
-	$standardOutput = $process.StandardOutput.ReadToEnd()
-	$standardError = $process.StandardError.ReadToEnd()
-	$process.WaitForExit()
-	if ($process.ExitCode -ne 0) {
-		$detail = ($standardOutput, $standardError | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join [Environment]::NewLine
-		throw "$FailureMessage sc.exe exited with code $($process.ExitCode). $detail"
+	# Windows PowerShell returns DirectoryInfo.Target as a one-element string array for a junction.
+	$targets = @($item.Target)
+	if ($targets.Count -ne 1 -or [string]::IsNullOrWhiteSpace([string]$targets[0])) {
+		throw "Could not determine the target for release junction '$Path'."
 	}
+
+	return [string]$targets[0]
 }
 
 $packageRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -54,14 +45,7 @@ $releaseRoot = Join-Path $InstallRoot "releases\$version"
 $sharedRoot = Join-Path $InstallRoot 'shared'
 $configPath = Join-Path $sharedRoot 'appsettings.Production.json'
 $currentPath = Join-Path $InstallRoot 'current'
-$previousTarget = $null
-if (Test-Path -LiteralPath $currentPath) {
-	$currentItem = Get-Item -LiteralPath $currentPath -Force
-	if (($currentItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne [IO.FileAttributes]::ReparsePoint) {
-		throw "Refusing to replace '$currentPath' because it is not a release junction."
-	}
-	$previousTarget = $currentItem.Target
-}
+$previousTarget = Get-ReleaseJunctionTarget -Path $currentPath
 
 New-Item -ItemType Directory -Force -Path (Join-Path $InstallRoot 'releases'), $sharedRoot, (Join-Path $sharedRoot 'keys') | Out-Null
 if (-not (Test-Path -LiteralPath $configPath)) {
@@ -74,21 +58,22 @@ if (Test-Path -LiteralPath $releaseRoot) { throw "Release $version is already in
 New-Item -ItemType Directory -Path $releaseRoot | Out-Null
 Copy-Item -LiteralPath (Join-Path $packageRoot 'app'), (Join-Path $packageRoot 'tools'), (Join-Path $packageRoot 'deploy'), (Join-Path $packageRoot 'DEPLOYMENT.md') -Destination $releaseRoot -Recurse -Force
 Copy-Item -LiteralPath $configPath -Destination (Join-Path $releaseRoot 'app\appsettings.Production.json') -Force
-Remove-CurrentReleaseJunction -Path $currentPath
-New-Item -ItemType Junction -Path $currentPath -Target $releaseRoot | Out-Null
-
-$exe = Join-Path $currentPath 'app\TerrainPlanner.exe'
-$serviceCommand = "`"$exe`" --windows-service"
 $existingService = Get-Service FutureMUDTerrainPlanner -ErrorAction SilentlyContinue
 $serviceWasCreated = $false
 try {
+	Remove-CurrentReleaseJunction -Path $currentPath
+	New-Item -ItemType Junction -Path $currentPath -Target $releaseRoot | Out-Null
+
+	$exe = Join-Path $currentPath 'app\TerrainPlanner.exe'
+	$serviceCommand = "`"$exe`" --windows-service"
 	if (-not [Diagnostics.EventLog]::SourceExists('FutureMUD Terrain Planner')) {
 		New-EventLog -LogName Application -Source 'FutureMUD Terrain Planner'
 	}
 
 	if ($existingService) {
-		Stop-Service FutureMUDTerrainPlanner -ErrorAction SilentlyContinue
-		Invoke-ServiceControl -Arguments @('config', 'FutureMUDTerrainPlanner', 'binPath=', $serviceCommand, 'start=', 'auto') -FailureMessage 'Could not update the Terrain Planner service command.'
+		if ($existingService.Status -ne 'Stopped') {
+			Stop-Service FutureMUDTerrainPlanner -ErrorAction Stop
+		}
 	} else {
 		New-Service -Name FutureMUDTerrainPlanner -BinaryPathName $serviceCommand -StartupType Automatic -DisplayName 'FutureMUD Terrain Planner and Engine API'
 		$serviceWasCreated = $true

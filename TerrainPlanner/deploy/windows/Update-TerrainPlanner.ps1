@@ -11,13 +11,14 @@ $ErrorActionPreference = 'Stop'
 $work = Join-Path ([IO.Path]::GetTempPath()) ("terrainplanner-update-" + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $work | Out-Null
 try {
-	$base = 'https://futuremud.com/downloads/terrainplanner/latest'
-	Invoke-WebRequest "$base/update-manifest.json" -OutFile (Join-Path $work 'update-manifest.json')
-	Invoke-WebRequest "$base/update-manifest.sig" -OutFile (Join-Path $work 'update-manifest.sig')
+	$latestBase = 'https://futuremud.com/downloads/terrainplanner/latest'
+	Invoke-WebRequest "$latestBase/update-manifest.json" -OutFile (Join-Path $work 'update-manifest.json')
+	Invoke-WebRequest "$latestBase/update-manifest.sig" -OutFile (Join-Path $work 'update-manifest.sig')
 	$manifest = Get-Content (Join-Path $work 'update-manifest.json') -Raw | ConvertFrom-Json
 	$archiveName = "terrainplanner-$($manifest.version)-$RuntimeIdentifier.zip"
 	$archive = Join-Path $work $archiveName
-	Invoke-WebRequest "$base/$archiveName" -OutFile $archive
+	$archiveUri = "https://futuremud.com/downloads/terrainplanner/$($manifest.version)/$archiveName"
+	Invoke-WebRequest $archiveUri -OutFile $archive
 	$verifier = Join-Path $InstallRoot 'current\tools\TerrainPlanner.Deployment.exe'
 	& $verifier verify --manifest (Join-Path $work 'update-manifest.json') --signature (Join-Path $work 'update-manifest.sig') --archive $archive --runtime $RuntimeIdentifier
 	if ($LASTEXITCODE -ne 0) { throw 'Signed update verification failed.' }

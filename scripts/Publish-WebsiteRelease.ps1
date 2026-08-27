@@ -12,7 +12,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$chunkSize = 32MB
+$chunkSize = 4MB
 $headers = @{ Authorization = "Bearer $Token" }
 
 function Get-Sha256Bytes([byte[]]$Bytes) {

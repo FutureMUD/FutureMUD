@@ -13,36 +13,36 @@ public class MaskSerializerTests
 	{
 		var map = new PlannerMap(2, 2);
 		MaskSerializer.ImportTerrainMask(map, "5,5,0,5", new HashSet<long> { 5 });
-		var byName = new Dictionary<string, TagCatalogueItem>(StringComparer.OrdinalIgnoreCase)
+		var byId = new Dictionary<long, TagCatalogueItem>
 		{
-			[Forest.ShortName] = Forest,
-			[Road.ShortName] = Road
+			[Forest.Id] = Forest,
+			[Road.Id] = Road
 		};
 
-		MaskSerializer.ImportFeatureMask(map, "forest|road,,,road", byName);
+		MaskSerializer.ImportFeatureMask(map, "1|2,,,2", byId);
 
-		var byId = byName.Values.ToDictionary(tag => tag.Id);
-		Assert.AreEqual("forest|road,,,road", MaskSerializer.ExportFeatureMask(map, byId));
+		Assert.AreEqual("1|2,,,2", MaskSerializer.ExportFeatureMask(map));
 	}
 
 	[TestMethod]
-	public void UnknownFeaturesArePreservedAndVisibleOnExport()
+	public void UnknownTagIdsArePreservedAndVisibleOnExport()
 	{
 		var map = new PlannerMap(1, 1);
 		map.PaintTerrain([new(0, 0)], 5);
 
-		MaskSerializer.ImportFeatureMask(map, "removed-tag", new Dictionary<string, TagCatalogueItem>());
+		MaskSerializer.ImportFeatureMask(map, "999", new Dictionary<long, TagCatalogueItem>());
 
-		Assert.AreEqual("removed-tag", MaskSerializer.ExportFeatureMask(map, new Dictionary<long, TagCatalogueItem>()));
+		Assert.AreEqual("999", MaskSerializer.ExportFeatureMask(map));
 	}
 
-	[TestMethod]
-	[DataRow("bad,name")]
-	[DataRow("bad|name")]
-	[DataRow("bad\nname")]
-	public void DelimiterNamesAreRejected(string name)
+	[DataTestMethod]
+	[DataRow("forest")]
+	[DataRow("0")]
+	[DataRow("-1")]
+	[DataRow("1.5")]
+	public void NonPositiveOrNonNumericTagIdsAreRejected(string value)
 	{
-		Assert.ThrowsException<InvalidDataException>(() => MaskSerializer.ValidateFeatureName(name));
+		Assert.ThrowsException<InvalidDataException>(() => MaskSerializer.ParseFeatureTagId(value));
 	}
 
 	[TestMethod]
@@ -52,21 +52,20 @@ public class MaskSerializerTests
 		Assert.ThrowsException<InvalidDataException>(() =>
 			MaskSerializer.ImportTerrainMask(map, "1,999", new HashSet<long> { 1 }));
 		Assert.ThrowsException<InvalidDataException>(() =>
-			MaskSerializer.ImportFeatureMask(map, "", new Dictionary<string, TagCatalogueItem>()));
+			MaskSerializer.ImportFeatureMask(map, "", new Dictionary<long, TagCatalogueItem>()));
 	}
 
 	[TestMethod]
-	public void DuplicateTagShortNamesAreVisibleButUnavailableForFeatureMasks()
+	public void DuplicateTagShortNamesRemainIndependentlyRepresentableById()
 	{
 		var firstRoad = new TagCatalogueItem(10, "road", "world / trade / road", null);
 		var secondRoad = new TagCatalogueItem(11, "ROAD", "world / travel / road", null);
 		var index = TagCatalogueIndex.Create([Forest, firstRoad, secondRoad]);
+		var map = new PlannerMap(1, 1);
+		map.PaintTerrain([new(0, 0)], 5);
 
 		Assert.AreEqual(3, index.ById.Count);
-		Assert.IsTrue(index.ByShortName.ContainsKey(Forest.ShortName));
-		Assert.IsFalse(index.ByShortName.ContainsKey(firstRoad.ShortName));
-		Assert.IsFalse(index.IsAvailableForFeatureMask(firstRoad));
-		Assert.AreEqual("The short name 'road' is shared by multiple tags.",
-			index.FeatureMaskUnavailableReason(firstRoad));
+		MaskSerializer.ImportFeatureMask(map, "10|11", index.ById);
+		Assert.AreEqual("10|11", MaskSerializer.ExportFeatureMask(map));
 	}
 }

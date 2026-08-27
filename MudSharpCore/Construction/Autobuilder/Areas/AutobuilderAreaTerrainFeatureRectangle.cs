@@ -1,6 +1,7 @@
 ﻿using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
+using System.IO;
 
 namespace MudSharp.Construction.Autobuilder.Areas;
 
@@ -33,33 +34,22 @@ public class AutobuilderAreaTerrainFeatureRectangle : AutobuilderAreaTerrainRect
             IsOptional = false,
             ParameterName = "featuresmask",
             MissingErrorMessage =
-                "You must enter a mask of features for each location, separated by vertical lines (|) within the location and commas between the locations, starting from the bottom left corner of the rectangle and proceeding right and up.",
+                "You must enter a mask of tag IDs for each location, separated by vertical lines (|) within the location and commas between the locations, starting from the bottom left corner of the rectangle and proceeding right and up.",
             TypeName = "feature mask",
             IsValidArgumentFunction = (arg, game, args) =>
             {
                 int height = (int)args[0];
                 int width = (int)args[1];
-                string[] split = arg.Split(',');
-                if (split.Length != height * width)
-                {
-                    return false;
-                }
-
-                return true;
+                return AutobuilderFeatureMask.TryParse(arg, height * width, game.Tags, out _, out _);
             },
             WhyIsNotValidArgumentFunction = (arg, game, args) =>
             {
                 int height = (int)args[0];
                 int width = (int)args[1];
-                string[] split = arg.Split(',');
-                if (split.Length != height * width)
-                {
-                    return "The feature mask must exactly match the size of the grid.";
-                }
-
-                return "";
+                AutobuilderFeatureMask.TryParse(arg, height * width, game.Tags, out _, out string error);
+                return error;
             },
-            GetArgumentFunction = (arg, game) => { return arg.Split(',').Select(x => x.Split('|')).ToArray(); }
+            GetArgumentFunction = (arg, game) => AutobuilderFeatureMask.Parse(arg, game.Tags)
         });
     }
 
@@ -71,10 +61,10 @@ public class AutobuilderAreaTerrainFeatureRectangle : AutobuilderAreaTerrainRect
         int width = (int)argList.ElementAt(1);
         IAutobuilderRoom roomTemplate = (IAutobuilderRoom)argList.ElementAt(2);
         ITerrain[] terrainArg = (ITerrain[])argList.ElementAt(3);
-        string[][] featureArg = (string[][])argList.ElementAt(4);
+        ITag[][] featureArg = (ITag[][])argList.ElementAt(4);
 
         ITerrain[,] terrains = new ITerrain[width, height];
-        string[,][] features = new string[width, height][];
+        ITag[,][] features = new ITag[width, height][];
         int x = 0, y = 0;
         for (int i = 0; i < terrainArg.Length; i++)
         {
@@ -97,7 +87,9 @@ public class AutobuilderAreaTerrainFeatureRectangle : AutobuilderAreaTerrainRect
                     continue;
                 }
 
-                ICell cell = roomTemplate.CreateRoom(builder, terrains[i, j], false, features[i, j]);
+                ITag[] tags = features[i, j];
+                ICell cell = roomTemplate.CreateRoom(builder, terrains[i, j], false, tags,
+                    tags.Select(x => x.Name).ToArray());
                 cells[i, j] = cell;
 
             }
@@ -121,7 +113,7 @@ public class AutobuilderAreaTerrainFeatureRectangle : AutobuilderAreaTerrainRect
     public override string Show(ICharacter builder)
     {
         return
-            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\n{$"This autobuilder template will return a rectangular area of cells with height, width, terrain, room features and room template supplied by the builder. It also requires the builder to specify a matching mask of tags to be applied to the generated rooms. This template {(ConnectCellsWithDiagonalExits ? "does" : "does not")} connect rooms diagonally.".Wrap(builder.InnerLineFormatLength)}";
+            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\n{$"This autobuilder template will return a rectangular area of cells with height, width, terrain, room features and room template supplied by the builder. It also requires the builder to specify a matching mask of tag IDs to be applied to the generated rooms. This template {(ConnectCellsWithDiagonalExits ? "does" : "does not")} connect rooms diagonally.".Wrap(builder.InnerLineFormatLength)}";
     }
 
     public override IAutobuilderArea Clone(string newName)
@@ -139,4 +131,92 @@ public class AutobuilderAreaTerrainFeatureRectangle : AutobuilderAreaTerrainRect
             return new AutobuilderAreaTerrainFeatureRectangle(dbitem, Gameworld);
         }
     }
+}
+
+public static class AutobuilderFeatureMask
+{
+	public static bool TryParse(string mask, int expectedCellCount, IEnumerable<ITag> tags,
+		out ITag[][] result, out string error)
+	{
+		try
+		{
+			result = Parse(mask, expectedCellCount, tags);
+			error = string.Empty;
+			return true;
+		}
+		catch (InvalidDataException exception)
+		{
+			result = [];
+			error = exception.Message;
+			return false;
+		}
+	}
+
+	public static ITag[][] Parse(string mask, IEnumerable<ITag> tags)
+	{
+		var entries = SplitEntries(mask);
+		return Parse(entries, entries.Length, tags);
+	}
+
+	public static ITag[][] Parse(string mask, int expectedCellCount, IEnumerable<ITag> tags)
+	{
+		return Parse(SplitEntries(mask), expectedCellCount, tags);
+	}
+
+	private static ITag[][] Parse(IReadOnlyList<string> entries, int expectedCellCount, IEnumerable<ITag> tags)
+	{
+		ArgumentNullException.ThrowIfNull(tags);
+		if (entries.Count != expectedCellCount)
+		{
+			throw new InvalidDataException("The feature mask must exactly match the size of the grid.");
+		}
+
+		var tagsById = tags
+			.GroupBy(tag => tag.Id)
+			.ToDictionary(group => group.Key, group => group.First());
+		var result = new ITag[entries.Count][];
+		for (var index = 0; index < entries.Count; index++)
+		{
+			if (string.IsNullOrWhiteSpace(entries[index]))
+			{
+				result[index] = [];
+				continue;
+			}
+
+			var tagIds = entries[index]
+				.Split('|', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+				.Select(value => ParseTagId(value, index))
+				.Distinct()
+				.ToArray();
+			var cellTags = new List<ITag>(tagIds.Length);
+			foreach (var tagId in tagIds)
+			{
+				if (!tagsById.TryGetValue(tagId, out var tag))
+				{
+					throw new InvalidDataException($"Feature mask entry {index + 1} refers to unknown tag ID {tagId}.");
+				}
+
+				cellTags.Add(tag);
+			}
+
+			result[index] = cellTags.ToArray();
+		}
+
+		return result;
+	}
+
+	private static string[] SplitEntries(string mask) =>
+		mask.Trim().Split(',', StringSplitOptions.None);
+
+	private static long ParseTagId(string value, int entryIndex)
+	{
+		if (!long.TryParse(value, System.Globalization.NumberStyles.None,
+			System.Globalization.CultureInfo.InvariantCulture, out long tagId) || tagId <= 0)
+		{
+			throw new InvalidDataException(
+				$"Feature mask entry {entryIndex + 1} contains '{value}', which is not a positive tag ID.");
+		}
+
+		return tagId;
+	}
 }

@@ -28,17 +28,34 @@ function mapPoint(state, point) {
 	return x >= 0 && x < state.width && y >= 0 && y < state.height ? { x, y } : null;
 }
 
+function hasVisibleContent(cell) {
+	return cell.terrainId !== 0 || (cell.tagIds?.length || 0) > 0;
+}
+
+function resetInputState(state) {
+	state.strokeGeneration++;
+	state.stroke.clear();
+	state.framePending = false;
+	state.painting = false;
+	state.panning = false;
+	state.lastPaintCoordinate = null;
+	state.rectangleStart = null;
+}
+
 function queueStroke(state, coordinate) {
-	if (!coordinate) return;
+	if (!coordinate || state.strokeRevision !== state.mapVersion) return;
 	state.stroke.set(key(coordinate.x, coordinate.y), coordinate);
 	if (state.framePending) return;
 	state.framePending = true;
+	const generation = state.strokeGeneration;
+	const mapVersion = state.strokeRevision;
 	requestAnimationFrame(async () => {
+		if (generation !== state.strokeGeneration || mapVersion !== state.mapVersion) return;
 		state.framePending = false;
 		const coordinates = [...state.stroke.values()];
 		state.stroke.clear();
 		if (coordinates.length) {
-			state.strokePromise = queueDotNet(state, 'HandleCanvasStroke', coordinates);
+			state.strokePromise = queueDotNet(state, 'HandleCanvasStroke', mapVersion, coordinates);
 			await state.strokePromise;
 		}
 	});
@@ -187,6 +204,9 @@ export function initialise(canvas, dotnet) {
 		selected: null,
 		stroke: new Map(),
 		strokePromise: Promise.resolve(),
+		mapVersion: 0,
+		strokeRevision: 0,
+		strokeGeneration: 0,
 		framePending: false,
 		handlers: {}
 	};
@@ -203,13 +223,14 @@ export function initialise(canvas, dotnet) {
 		const coordinate = mapPoint(state, point);
 		if (!coordinate) return;
 		state.selected = coordinate;
-		state.dotnet.invokeMethodAsync('SelectCell', coordinate);
+		queueDotNet(state, 'SelectCell', state.mapVersion, coordinate);
 		if (state.tool === 'rectangle') {
-			state.rectangleStart = coordinate;
+			state.rectangleStart = { coordinate, mapVersion: state.mapVersion };
 		} else {
 			state.painting = true;
 			state.lastPaintCoordinate = coordinate;
-			queueDotNet(state, 'BeginCanvasStroke');
+			state.strokeRevision = state.mapVersion;
+			queueDotNet(state, 'BeginCanvasStroke', state.strokeRevision);
 			queueStroke(state, coordinate);
 		}
 		render(state);
@@ -233,14 +254,18 @@ export function initialise(canvas, dotnet) {
 		const completedPaintStroke = state.painting;
 		if (state.rectangleStart) {
 			const end = mapPoint(state, point);
-			if (end) state.dotnet.invokeMethodAsync('HandleCanvasRectangle', state.rectangleStart, end);
+			if (end && state.rectangleStart.mapVersion === state.mapVersion) {
+				queueDotNet(state, 'HandleCanvasRectangle', state.rectangleStart.mapVersion,
+					state.rectangleStart.coordinate, end);
+			}
 		}
 		state.rectangleStart = null;
 		state.painting = false;
 		state.lastPaintCoordinate = null;
 		if (completedPaintStroke) {
+			const mapVersion = state.strokeRevision;
 			requestAnimationFrame(() => {
-				queueDotNet(state, 'EndCanvasStroke');
+				if (mapVersion === state.mapVersion) queueDotNet(state, 'EndCanvasStroke', mapVersion);
 			});
 		}
 		state.panning = false;
@@ -276,7 +301,7 @@ export function initialise(canvas, dotnet) {
 			if (event.key === 'ArrowDown') next.y--;
 			if (next.x >= 0 && next.x < state.width && next.y >= 0 && next.y < state.height) {
 				state.selected = next;
-				state.dotnet.invokeMethodAsync('SelectCell', next);
+				queueDotNet(state, 'SelectCell', state.mapVersion, next);
 				render(state);
 			}
 		}
@@ -294,6 +319,9 @@ export function initialise(canvas, dotnet) {
 export function setMap(canvas, model) {
 	const state = instances.get(canvas);
 	if (!state) return;
+	if (model.version < state.mapVersion) return;
+	if (model.version !== state.mapVersion) resetInputState(state);
+	state.mapVersion = model.version;
 	state.width = model.width;
 	state.height = model.height;
 	state.cells = new Map(model.cells.map(cell => [key(cell.x, cell.y), cell]));
@@ -302,10 +330,13 @@ export function setMap(canvas, model) {
 	render(state);
 }
 
-export function updateCells(canvas, cells) {
+export function updateCells(canvas, mapVersion, cells) {
 	const state = instances.get(canvas);
-	if (!state) return;
-	for (const cell of cells) state.cells.set(key(cell.x, cell.y), cell);
+	if (!state || mapVersion !== state.mapVersion) return;
+	for (const cell of cells) {
+		if (hasVisibleContent(cell)) state.cells.set(key(cell.x, cell.y), cell);
+		else state.cells.delete(key(cell.x, cell.y));
+	}
 	render(state);
 }
 

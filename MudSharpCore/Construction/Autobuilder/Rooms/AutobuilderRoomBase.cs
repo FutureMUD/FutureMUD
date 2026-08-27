@@ -32,8 +32,23 @@ public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
 
     protected void ApplyTagsToCell(ICell cell, string[] tags)
     {
+        ApplyTagsToCell(cell, [], tags);
+    }
+
+    protected void ApplyTagsToCell(ICell cell, IReadOnlyCollection<ITag> frameworkTags, string[] tags)
+    {
         if (!ApplyAutobuilderTagsAsFrameworkTags)
         {
+            return;
+        }
+
+        if (frameworkTags.Count > 0)
+        {
+            foreach (ITag frameworkTag in frameworkTags.DistinctBy(x => x.Id))
+            {
+                cell.AddTag(frameworkTag);
+            }
+
             return;
         }
 
@@ -59,6 +74,9 @@ public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
 
     public abstract ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         params string[] tags);
+    public virtual ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+        IReadOnlyCollection<ITag> frameworkTags, params string[] tags) =>
+        CreateRoom(builder, specifiedTerrain, deferDescription, tags);
 
     public virtual void RedescribeRoom(ICell cell, params string[] tags)
     {
@@ -110,7 +128,7 @@ public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
         ApplyAutobuilderTagsAsFrameworkTags = !ApplyAutobuilderTagsAsFrameworkTags;
         Changed = true;
         actor.OutputHandler.Send(
-            $"This room builder template will {(ApplyAutobuilderTagsAsFrameworkTags ? "now" : "no longer")} attempt to match room builder tags with identically-named framework tags and apply them to the created room.");
+            $"This room builder template will {(ApplyAutobuilderTagsAsFrameworkTags ? "now" : "no longer")} apply framework tags to created rooms. Feature Rectangle masks use their tag IDs directly; legacy and generated named features are matched by name.");
         return true;
     }
 

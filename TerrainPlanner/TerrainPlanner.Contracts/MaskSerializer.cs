@@ -20,7 +20,7 @@ public static class MaskSerializer
 		}
 	}
 
-	public static string ExportFeatureMask(PlannerMap map, IReadOnlyDictionary<long, TagCatalogueItem> tags)
+	public static string ExportFeatureMask(PlannerMap map)
 	{
 		return string.Join(',', map.Cells.Select(cell =>
 		{
@@ -29,18 +29,16 @@ public static class MaskSerializer
 				return string.Empty;
 			}
 
-			var names = cell.TagIds.Select(id => tags.TryGetValue(id, out var tag)
-					? ValidateFeatureName(tag.ShortName)
-					: throw new InvalidDataException($"Tag #{id} no longer exists in the live catalogue."))
-				.Concat(cell.UnresolvedFeatures.Select(ValidateFeatureName))
-				.Distinct(StringComparer.OrdinalIgnoreCase)
-				.Order(StringComparer.OrdinalIgnoreCase);
-			return string.Join('|', names);
+			var tagIds = cell.TagIds
+				.Concat(cell.UnresolvedFeatures.Select(ParseFeatureTagId))
+				.Distinct()
+				.Order();
+			return string.Join('|', tagIds);
 		}));
 	}
 
 	public static void ImportFeatureMask(PlannerMap map, string mask,
-		IReadOnlyDictionary<string, TagCatalogueItem> tagsByName)
+		IReadOnlyDictionary<long, TagCatalogueItem> tagsById)
 	{
 		var values = SplitCells(mask);
 		EnsureCellCount(map, values.Length, "feature");
@@ -53,30 +51,30 @@ public static class MaskSerializer
 				continue;
 			}
 
-			foreach (var feature in values[index].Split('|', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+			foreach (var value in values[index].Split('|', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
 			{
-				ValidateFeatureName(feature);
-				if (tagsByName.TryGetValue(feature, out var tag))
+				var tagId = ParseFeatureTagId(value);
+				if (tagsById.ContainsKey(tagId))
 				{
-					cell.AddTag(tag.Id);
+					cell.AddTag(tagId);
 				}
 				else
 				{
-					cell.AddUnresolvedFeature(feature);
+					cell.AddUnresolvedFeature(tagId.ToString(System.Globalization.CultureInfo.InvariantCulture));
 				}
 			}
 		}
 	}
 
-	public static string ValidateFeatureName(string name)
+	public static long ParseFeatureTagId(string value)
 	{
-		if (string.IsNullOrWhiteSpace(name) || name.Contains(',') || name.Contains('|') ||
-			name.Contains('\r') || name.Contains('\n'))
+		if (!long.TryParse(value?.Trim(), System.Globalization.NumberStyles.None,
+			System.Globalization.CultureInfo.InvariantCulture, out var tagId) || tagId <= 0)
 		{
-			throw new InvalidDataException($"Feature name '{name}' cannot be represented in an autobuilder feature mask.");
+			throw new InvalidDataException($"Feature tag ID '{value}' must be a positive integer.");
 		}
 
-		return name;
+		return tagId;
 	}
 
 	private static string[] SplitCells(string mask) =>

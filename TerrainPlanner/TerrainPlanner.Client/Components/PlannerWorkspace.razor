@@ -6,10 +6,10 @@
 <div class="planner-shell">
 	<header class="planner-header">
 		<div class="planner-brand">
-			<div class="brand-mark compact">FM</div>
+			<img class="brand-logo compact" src="images/fm-logo.png" alt="" />
 			<div>
 				<strong>Terrain Planner</strong>
-				<span>Engine API 2.0.0</span>
+				<span>Engine API v1</span>
 			</div>
 		</div>
 		<div class="project-title">
@@ -80,11 +80,9 @@
 					{
 						@foreach (var tag in FilteredTags)
 						{
-							var unavailableReason = _tagIndex.FeatureMaskUnavailableReason(tag);
-							var unavailable = unavailableReason is not null;
-							<button class="palette-item @(_tagBrushId == tag.Id ? "selected" : "")" disabled="@unavailable" title="@(unavailableReason ?? tag.FullName)" @onclick="() => SelectTagAsync(tag.Id)">
+							<button class="palette-item @(_tagBrushId == tag.Id ? "selected" : "")" title="@tag.FullName" @onclick="() => SelectTagAsync(tag.Id)">
 								<span class="tag-swatch" style="background:@GetTagColour(tag.Id)"></span>
-								<span><strong>@tag.ShortName</strong><small>@(unavailableReason ?? tag.FullName)</small></span>
+								<span><strong>@tag.ShortName</strong><small>@tag.FullName · ID @tag.Id</small></span>
 							</button>
 						}
 					}
@@ -153,7 +151,7 @@
 							}
 							@foreach (var feature in _selectedCell.UnresolvedFeatures)
 							{
-								<span class="unresolved">@feature</span>
+								<span class="unresolved">Unknown tag ID @feature</span>
 							}
 						</div>
 					}
@@ -179,13 +177,13 @@
 					<p class="eyebrow">Import and export</p>
 					<div class="export-actions">
 						<button class="primary-button" @onclick="CopyTerrainMaskAsync">Copy terrain mask</button>
-						<button class="secondary-button" @onclick="CopyFeatureMaskAsync">Copy tag mask</button>
+						<button class="secondary-button" @onclick="CopyFeatureMaskAsync">Copy tag-ID mask</button>
 					</div>
 					<details>
 						<summary>Mask text and import</summary>
 						<label>Terrain mask<textarea @bind="_terrainMaskText"></textarea></label>
 						<button class="quiet-button" @onclick="ImportTerrainMaskAsync">Import terrain mask</button>
-						<label>Feature/tag mask<textarea @bind="_featureMaskText"></textarea></label>
+						<label>Feature/tag ID mask<textarea @bind="_featureMaskText"></textarea></label>
 						<button class="quiet-button" @onclick="ImportFeatureMaskAsync">Import tag mask</button>
 					</details>
 					<details>
@@ -218,8 +216,6 @@
 	private IReadOnlyList<TagCatalogueItem> _tags = [];
 	private IReadOnlyDictionary<long, TerrainCatalogueItem> _terrainById = new Dictionary<long, TerrainCatalogueItem>();
 	private IReadOnlyDictionary<long, TagCatalogueItem> _tagById = TagCatalogueIndex.Empty.ById;
-	private IReadOnlyDictionary<string, TagCatalogueItem> _tagByName = TagCatalogueIndex.Empty.ByShortName;
-	private TagCatalogueIndex _tagIndex = TagCatalogueIndex.Empty;
 	private Dictionary<long, string> _tagColours = [];
 	private Dictionary<long, string> _projectTagNames = [];
 	private PlannerLayer _layer = PlannerLayer.Terrain;
@@ -250,6 +246,7 @@
 	private PeriodicTimer? _refreshTimer;
 	private readonly List<MapChangeSet> _activeStrokeChanges = [];
 	private bool _strokeActive;
+	private long _canvasMapVersion;
 
 	private IEnumerable<TerrainCatalogueItem> FilteredTerrains => _terrains.Where(terrain =>
 		string.IsNullOrWhiteSpace(_paletteSearch) || terrain.Name.Contains(_paletteSearch, StringComparison.OrdinalIgnoreCase));
@@ -347,9 +344,9 @@
 	}
 
 	[JSInvokable]
-	public async Task HandleCanvasStroke(GridCoordinate[] coordinates)
+	public async Task HandleCanvasStroke(long mapVersion, GridCoordinate[] coordinates)
 	{
-		if (coordinates.Length == 0)
+		if (mapVersion != _canvasMapVersion || coordinates.Length == 0)
 		{
 			return;
 		}
@@ -395,17 +392,22 @@
 	}
 
 	[JSInvokable]
-	public Task BeginCanvasStroke()
+	public Task BeginCanvasStroke(long mapVersion)
 	{
+		if (mapVersion != _canvasMapVersion)
+		{
+			return Task.CompletedTask;
+		}
+
 		_strokeActive = true;
 		_activeStrokeChanges.Clear();
 		return Task.CompletedTask;
 	}
 
 	[JSInvokable]
-	public Task EndCanvasStroke()
+	public Task EndCanvasStroke(long mapVersion)
 	{
-		if (_strokeActive)
+		if (_strokeActive && mapVersion == _canvasMapVersion)
 		{
 			_history.Record(MapChangeSet.Merge(_activeStrokeChanges));
 			_strokeActive = false;
@@ -416,14 +418,21 @@
 	}
 
 	[JSInvokable]
-	public Task HandleCanvasRectangle(GridCoordinate first, GridCoordinate second) =>
-		ApplyChangeAsync(_map.PaintRectangle(first, second, _layer,
-			_layer == PlannerLayer.Terrain ? _terrainBrushId : _tagBrushId,
-			_tool != PlannerTool.Erase));
+	public Task HandleCanvasRectangle(long mapVersion, GridCoordinate first, GridCoordinate second) =>
+		mapVersion == _canvasMapVersion
+			? ApplyChangeAsync(_map.PaintRectangle(first, second, _layer,
+				_layer == PlannerLayer.Terrain ? _terrainBrushId : _tagBrushId,
+				_tool != PlannerTool.Erase))
+			: Task.CompletedTask;
 
 	[JSInvokable]
-	public Task SelectCell(GridCoordinate coordinate)
+	public Task SelectCell(long mapVersion, GridCoordinate coordinate)
 	{
+		if (mapVersion != _canvasMapVersion)
+		{
+			return Task.CompletedTask;
+		}
+
 		_selectedCell = _map.Contains(coordinate.X, coordinate.Y) ? _map.CellAt(coordinate.X, coordinate.Y) : null;
 		StateHasChanged();
 		return Task.CompletedTask;
@@ -567,7 +576,7 @@
 	{
 		await RunImportAsync(() =>
 		{
-			MaskSerializer.ImportFeatureMask(_map, _featureMaskText, _tagByName);
+			MaskSerializer.ImportFeatureMask(_map, _featureMaskText, _tagById);
 			foreach (var tagId in _map.Cells.SelectMany(cell => cell.TagIds).Distinct())
 			{
 				if (_tagById.TryGetValue(tagId, out var tag))
@@ -604,8 +613,8 @@
 	{
 		try
 		{
-			_featureMaskText = MaskSerializer.ExportFeatureMask(_map, ProjectTags());
-			return CopyAsync(_featureMaskText, "Tag mask copied.");
+			_featureMaskText = MaskSerializer.ExportFeatureMask(_map);
+			return CopyAsync(_featureMaskText, "Tag-ID mask copied.");
 		}
 		catch (Exception exception)
 		{
@@ -702,7 +711,7 @@
 		_terrainMaskText = MaskSerializer.ExportTerrainMask(_map);
 		try
 		{
-			_featureMaskText = MaskSerializer.ExportFeatureMask(_map, ProjectTags());
+			_featureMaskText = MaskSerializer.ExportFeatureMask(_map);
 		}
 		catch
 		{
@@ -776,8 +785,8 @@
 					.Select(item => item.Value)
 					.ToList();
 				_statusMessage = renamed.Count > 0 || deleted.Count > 0
-					? $"The live tag catalogue changed. This plan keeps its original export names. Renamed: {string.Join(", ", renamed)}. Missing: {string.Join(", ", deleted)}."
-					: "The live terrain or tag catalogue changed. Existing painted IDs and export names were preserved.";
+					? $"The live tag catalogue changed. This plan keeps its tag IDs. Renamed: {string.Join(", ", renamed)}. Missing: {string.Join(", ", deleted)}."
+					: "The live terrain or tag catalogue changed. Existing painted IDs were preserved.";
 				await RenderFullMapAsync();
 			}
 			_offline = false;
@@ -796,9 +805,7 @@
 		_terrainById = _terrains
 			.GroupBy(item => item.Id)
 			.ToDictionary(group => group.Key, group => group.First());
-		_tagIndex = TagCatalogueIndex.Create(_tags);
-		_tagById = _tagIndex.ById;
-		_tagByName = _tagIndex.ByShortName;
+		_tagById = TagCatalogueIndex.Create(_tags).ById;
 	}
 
 	private void EnsureBrushesAndColours()
@@ -806,7 +813,7 @@
 		if (_terrainBrushId != 0 && !_terrainById.ContainsKey(_terrainBrushId)) _terrainBrushId = 0;
 		if (!_tagById.ContainsKey(_tagBrushId))
 		{
-			_tagBrushId = _tags.FirstOrDefault(_tagIndex.IsAvailableForFeatureMask)?.Id ?? 0;
+			_tagBrushId = _tags.FirstOrDefault()?.Id ?? 0;
 		}
 		foreach (var tag in _tags)
 		{
@@ -821,7 +828,10 @@
 			return;
 		}
 
+		_strokeActive = false;
+		_activeStrokeChanges.Clear();
 		var view = new CanvasMapView(
+			++_canvasMapVersion,
 			_map.Width,
 			_map.Height,
 			_map.Cells
@@ -837,7 +847,8 @@
 	{
 		if (_canvasModule is not null)
 		{
-			await _canvasModule.InvokeVoidAsync("updateCells", _canvas, cells.Select(ToCanvasCell).ToArray());
+			await _canvasModule.InvokeVoidAsync("updateCells", _canvas, _canvasMapVersion,
+				cells.Select(ToCanvasCell).ToArray());
 		}
 	}
 
@@ -936,7 +947,7 @@
 		IReadOnlyList<TagCatalogueItem> Tags,
 		string? TerrainRevision,
 		string? TagRevision);
-	private sealed record CanvasMapView(int Width, int Height, CanvasCell[] Cells, CanvasTerrain[] Terrains, CanvasTag[] Tags);
+	private sealed record CanvasMapView(long Version, int Width, int Height, CanvasCell[] Cells, CanvasTerrain[] Terrains, CanvasTag[] Tags);
 	private sealed record CanvasCell(int X, int Y, long TerrainId, long[] TagIds);
 	private sealed record CanvasTerrain(long Id, string Colour, string Text);
 	private sealed record CanvasTag(long Id, string Colour);

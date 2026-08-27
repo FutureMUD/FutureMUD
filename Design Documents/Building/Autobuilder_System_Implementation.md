@@ -145,7 +145,7 @@ Road elements are special because they interpret one tag as `tag=directions` and
 
 There are two different feature/tag paths:
 
-- `terrain feature rectangle` takes an explicit feature mask from the builder.
+- `terrain feature rectangle` takes an explicit tag-ID mask from the builder.
 - `room by terrain random features` generates features internally through feature groups.
 
 Feature groups currently include:
@@ -154,7 +154,7 @@ Feature groups currently include:
 - uniform per-room feature groups
 - road feature groups
 
-Those features become string tags passed into the room template. If `ApplyAutobuilderTagsAsFrameworkTags` is on, matching framework tags are also written to the cells themselves.
+Generated feature groups become string tags passed into the room template. If `ApplyAutobuilderTagsAsFrameworkTags` is on, matching framework tags are also written to the cells themselves. In contrast, `terrain feature rectangle` parses each explicit feature-mask entry as a positive framework tag ID, resolves it to the exact tag, passes its name to descriptive feature rules, and applies that resolved tag directly to the created cell. This prevents duplicate tag names from selecting the wrong framework tag.
 
 The stock wilderness package also uses internal marker tags such as `Physical Primary` and `Physical Secondary` so its mandatory first and second prose layers remain stable even when the same descriptive feature name is reused in different terrain domains.
 
@@ -193,6 +193,8 @@ Terrain Planner 2.x is a hosted Interactive WebAssembly application bundled with
 The mask format matches Cartesian coordinates: the first entry is the south-west `(0,0)` cell, each row proceeds
 west-to-east, and subsequent rows proceed northward. Terrain Planner displays north at the top while exporting the
 southern row first.
+
+Terrain entries are numeric terrain IDs. `Feature Rectangle` entries are numeric framework tag IDs, with multiple IDs in a cell separated by `|`; names are not accepted for that explicit-mask template.
 
 ## Extension Guidance
 

@@ -13,7 +13,8 @@ namespace FutureMUD.Web.Publishing;
 
 public sealed partial class ReleaseStore
 {
-	public const int ChunkSize = 32 * 1024 * 1024;
+	// Keep individual upload requests comfortably below Cloudflare's origin timeout on small production hosts.
+	public const int ChunkSize = 4 * 1024 * 1024;
 	private const long MaximumArtifactSize = 4L * 1024 * 1024 * 1024;
 	private const long MaximumDocumentationCatalogueSize = 32L * 1024 * 1024;
 	private const int MaximumDocumentationEntries = 50_000;

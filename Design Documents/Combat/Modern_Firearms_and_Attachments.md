@@ -76,6 +76,8 @@ switch <firearm> unsafe
 
 The selected mode and safety state are live-item state. Recoil penalties accumulate by round within a volley. Extra stamina and recovery delay apply once to the trigger action according to the configured volley size.
 
+Deep-copy operations used by the combat simulator preserve the selected mode, safety, wield and chamber state, magazine or internal ammunition, and installed attachments. This keeps simulated firearm loadouts mechanically equivalent to their live sources. The stock setting-neutral arsenal, tuned posture/aim rules, armour fixtures, explosives, and artillery are catalogued in [Ranged Weapon Balance Pass](./Ranged_Weapon_Balance_Pass.md).
+
 ## Shotgun and Multi-Projectile Ammunition
 
 `AmmunitionType` adds three builder fields:

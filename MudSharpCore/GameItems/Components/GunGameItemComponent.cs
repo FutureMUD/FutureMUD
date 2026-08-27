@@ -43,6 +43,12 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
         newParent, temporary)
     {
         _prototype = rhs._prototype;
+		if (rhs.Magazine is not null)
+		{
+			var magazine = rhs.Magazine.Parent.DeepCopy(!temporary, true);
+			magazine.ContainedIn = newParent;
+			Magazine = magazine.GetItemType<IContainer>();
+		}
     }
 
     protected override void LoadFromXml(XElement root)

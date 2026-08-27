@@ -1,0 +1,115 @@
+DemoMUD
+Powered by the FutureMUD Engine v2.8.0.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your [REDACTED]
+
+X) Disconnect from the game
+> c
+You have the following characters: 
+  1: admin (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Rolling Prarie In The Merryweather Valley
+ID[10] | Terrain[Shortgrass Prairie] | [SafeQuit] | Overlay[New Showcase (#3r0)] | Coordinates[0,0,0]
+Exits: 
+
+  The prairie rises and falls in gentle swells, its close-cropped grass bending
+around patches of thyme and stubborn yellow flowers. A narrow animal track
+follows the crest of one rise before vanishing into the grass. Flat grey
+stones, perhaps turned up by frost and rain, lie half-buried along the slope.
+From the valley below comes the faint, wandering murmur of water, nearly lost
+beneath the wind.
+
+  Currently, it is pitch black here.
+
+A matchlock arquebus are here.
+A 9x19mm ball cartridge lies here.
+A plain steel dagger is here.
+A plain steel dagger is here.
+A soft ballistic vest lies here.
+A hard-plate carrier lies here.
+A 105mm howitzer is emplaced here.
+A 105mm high-explosive artillery round lies here.
+A 105mm howitzer is emplaced here.
+A 105mm howitzer is emplaced here.
+A 105mm howitzer is emplaced here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm howitzer is emplaced here.
+A 105mm howitzer is emplaced here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A cow elephant is standing here.
+A cow elephant is standing here.
+A colossal iron-scaled dragon is standing here.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> skill level admin Gunnery 99
+You set the value of Gunnery on you to 99.00.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> artillery 6.howitzer join commander
+commander is not a configured crew role for that artillery piece.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> artillery 6.howitzer emplace
+You must join that artillery crew first.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> artillery 6.howitzer load
+You must join that artillery crew first.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> artillery 6.howitzer status
+A 105mm howitzer is limbered, at the Empty loading stage with 0 physical load item(s), ignition not ready, with crew: a brown-haired woman, a brown-haired woman, and a
+brown-haired woman.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>

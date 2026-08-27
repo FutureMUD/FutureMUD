@@ -1,5 +1,7 @@
 # FutureMUD Item System Content Workflows
 
+The modern ranged seeder is rerunnable and setting-neutral; its catalogue and live verification workflow are documented in [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
+
 For modular modern firearms, author the host's slots and fire modes before creating attachment item prototypes. Match slot and attachment form-factor strings exactly apart from case, and compose active accessories from the `FirearmAttachment` profile plus the existing functional component. Use the attachment component's `require add <capability> [reason]` command to declare required sibling capabilities. Builders may assemble components in either order, but `item show`, attach, and detach report incomplete composition, and submission or approval is blocked until all requirements are satisfied. The combat seeder's pump shotgun, select-fire rifle, composed bayonet, underbarrel grenade launcher, weapon light, and impact grenade round are intentionally examples rather than a comprehensive catalogue. See [Modern Firearms, Attachments, and Alternate Fire Modes](../Combat/Modern_Firearms_and_Attachments.md).
 
 ## Scope

@@ -69,6 +69,9 @@ internal sealed class CombatSimulationExecutionFingerprint
 		var startingLayer = ((int)participant.StartingLayer).ToString(System.Globalization.CultureInfo.InvariantCulture);
 		var startingPosition = participant.StartingPosition?.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ??
 			string.Empty;
+		var startingMetres = participant.StartingRoutePositionMetres?.ToString("R", System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+		var initialAim = participant.InitialAimPercentage.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+		var startingCover = participant.StartingCover?.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
 		Record("materialise");
 		Record(slot);
 		Record(participant.Team);
@@ -78,8 +81,11 @@ internal sealed class CombatSimulationExecutionFingerprint
 		Record(startingCell);
 		Record(startingLayer);
 		Record(startingPosition);
+		Record(startingMetres);
+		Record(initialAim);
+		Record(startingCover);
 		RecordTrace(_materialisationHash, "materialise", slot, participant.Team, sourceType, source, ordinal,
-			startingCell, startingLayer, startingPosition);
+			startingCell, startingLayer, startingPosition, startingMetres, initialAim, startingCover);
 		_materialisationOperations++;
 	}
 

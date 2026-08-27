@@ -1313,22 +1313,30 @@ public partial class Body
         }
 
         CalculateOrganFunctions();
-        if (wound.SeveredBodypart != null)
-        {
-            IGameItem item = SeverBodypart(wound.SeveredBodypart);
-            item.RoomLayer = RoomLayer;
-            item.InsertAtSource(Actor);
-            item.Login();
-            item.HandleEvent(EventType.ItemFinishedLoading, item);
-        }
+		if (wound.SeveredBodypart != null)
+		{
+			IGameItem item = SeverBodypart(wound.SeveredBodypart);
+			if (item is not null)
+			{
+				item.RoomLayer = RoomLayer;
+				item.InsertAtSource(Actor);
+				item.Login();
+				item.HandleEvent(EventType.ItemFinishedLoading, item);
+			}
+		}
 
         OnWounded?.Invoke(this, wound);
         wound.OnWoundSuffered();
         HandleEvent(EventType.CharacterDamaged, Actor, wound.ToolOrigin, wound.ActorOrigin);
-        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor))
-        {
-            witness.HandleEvent(EventType.CharacterDamagedWitness, Actor, wound.ToolOrigin, wound.ActorOrigin, witness);
-        }
+		if (Location is null)
+		{
+			return;
+		}
+
+		foreach (IHandleEvents witness in Location.EventHandlersFor(Actor))
+		{
+			witness.HandleEvent(EventType.CharacterDamagedWitness, Actor, wound.ToolOrigin, wound.ActorOrigin, witness);
+		}
     }
 
     public IEnumerable<IWound> SufferDamage(IDamage damage)

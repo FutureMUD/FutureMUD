@@ -1,5 +1,7 @@
 # FutureMUD Item System Runtime Model
 
+Firearm simulation copies preserve live ammunition, chamber, fire-mode, safety, and attachment state; explosive impact and trap integration are documented in [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
+
 ## Scope
 This document explains how the item system is structured in code and at runtime:
 

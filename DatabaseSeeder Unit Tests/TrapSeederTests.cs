@@ -123,7 +123,7 @@ public class TrapSeederTests
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
 		Assert.AreEqual(1, context.TraitDefinitions.Count(x => x.Name == "Traps"));
 		Assert.AreEqual(7, context.Checks.Count(x => trapCheckTypes.Contains(x.Type)));
-		Assert.AreEqual(10, context.TrapTemplates.Count(x => x.Name.StartsWith("Stock Trap - ")));
+		Assert.AreEqual(11, context.TrapTemplates.Count(x => x.Name.StartsWith("Stock Trap - ")));
 		Assert.AreEqual(11, context.Tags.Count(x => x.Name == "Trap Components" || x.Parent != null && x.Parent.Name == "Trap Components"));
 		Assert.AreEqual("Functions", context.Tags.Single(x => x.Name == "Trap Components").Parent?.Name);
 
@@ -180,6 +180,8 @@ public class TrapSeederTests
 			foreach (var payload in definition.Element("Payloads")!.Elements("Payload")
 			         .Select(TrapPayloadDefinition.LoadFromXml))
 			{
+				Assert.IsTrue(payload.Delay >= TimeSpan.Zero,
+					$"{stockTemplate.Name} has a negative payload delay.");
 				Assert.IsTrue(TrapPayloadDefinition.TryValidateParameters(payload.PayloadType, payload.Parameters, out _),
 					stockTemplate.Name);
 			}

@@ -134,6 +134,47 @@ public class CombatSimulationTests
 	}
 
 	[TestMethod]
+	public void Validate_MetricStartOutsideRouteCell_ReturnsStructuralError()
+	{
+		var request = CreateRequest("red", "blue");
+		var scene = new Mock<ICell>();
+		var route = new Mock<IRouteCellDefinition>();
+		route.SetupGet(x => x.LengthMetres).Returns(100.0);
+		scene.SetupGet(x => x.RouteDefinition).Returns(route.Object);
+		var stagedRequest = request with
+		{
+			Scene = scene.Object,
+			Participants =
+			[
+				request.Participants[0] with { StartingRoutePositionMetres = 101.0 },
+				request.Participants[1]
+			]
+		};
+
+		var messages = new CombatSimulationService().Validate(stagedRequest);
+
+		Assert.IsTrue(messages.Any(x => x.IsError && x.Message.Contains("invalid RouteCell coordinate")));
+	}
+
+	[TestMethod]
+	public void Validate_InitialAimOutsidePercentageRange_ReturnsStructuralError()
+	{
+		var request = CreateRequest("red", "blue");
+		var stagedRequest = request with
+		{
+			Participants =
+			[
+				request.Participants[0] with { InitialAimPercentage = 1.01 },
+				request.Participants[1]
+			]
+		};
+
+		var messages = new CombatSimulationService().Validate(stagedRequest);
+
+		Assert.IsTrue(messages.Any(x => x.IsError && x.Message.Contains("0% to 100%")));
+	}
+
+	[TestMethod]
 	public void ConstantsPushRandom_SameSeed_ReplaysSequenceAndRestoresAmbientValue()
 	{
 		int[] first;
@@ -280,6 +321,25 @@ public class CombatSimulationTests
 		Assert.AreNotEqual(
 			ground.Complete(CombatSimulationRunStatus.Completed, "red", TimeSpan.Zero, 0, []),
 			air.Complete(CombatSimulationRunStatus.Completed, "red", TimeSpan.Zero, 0, []));
+	}
+
+	[TestMethod]
+	public void CombatSimulationExecutionFingerprint_DifferentMetricStartOrAim_ProducesDifferentDigest()
+	{
+		var template = new Mock<INPCTemplate>();
+		template.SetupGet(x => x.Id).Returns(1L);
+		var baseline = new CombatSimulationParticipantRequest(1, "red",
+			CombatSimulationSourceType.NpcTemplate, null, template.Object);
+		var staged = baseline with { StartingRoutePositionMetres = 42.5, InitialAimPercentage = 0.75 };
+		var first = new CombatSimulationExecutionFingerprint(1234);
+		var second = new CombatSimulationExecutionFingerprint(1234);
+
+		first.RecordMaterialisation(baseline);
+		second.RecordMaterialisation(staged);
+
+		Assert.AreNotEqual(
+			first.Complete(CombatSimulationRunStatus.Completed, "red", TimeSpan.Zero, 0, []),
+			second.Complete(CombatSimulationRunStatus.Completed, "red", TimeSpan.Zero, 0, []));
 	}
 
 	[TestMethod]

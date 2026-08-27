@@ -15,6 +15,11 @@ public class ModernFirearmSeederTests
 		StringAssert.Contains(source, "EnsureModernFirearmSamples(context)");
 		StringAssert.Contains(source, "\"Shotgun_12_Gauge_Pump\"");
 		StringAssert.Contains(source, "\"Rifle_556_Select_Fire\"");
+		StringAssert.Contains(source, "\"Pistol_9mm_Service\"");
+		StringAssert.Contains(source, "\"SMG_9mm_Select_Fire\"");
+		StringAssert.Contains(source, "\"Rifle_762_Precision\"");
+		StringAssert.Contains(source, "\"GPMG_762_Belt_Fed\"");
+		StringAssert.Contains(source, "\"Launcher_Anti_Armour_Shoulder\"");
 		StringAssert.Contains(source, "\"12 Gauge Slug\"");
 		StringAssert.Contains(source, "\"12 Gauge 00 Buckshot\"");
 		StringAssert.Contains(source, "\"5.56x45mm Ball\"");
@@ -22,8 +27,14 @@ public class ModernFirearmSeederTests
 		StringAssert.Contains(source, "AmmunitionLoadType.Magazine");
 		StringAssert.Contains(source, "RangedScatterType.Spread");
 		StringAssert.Contains(source, "RangedScatterType.Arcing");
+		StringAssert.Contains(source, "DamageType.BallisticArmourPiercing");
 		StringAssert.Contains(source, "new XAttribute(\"rounds\", 6)");
 		StringAssert.Contains(source, "\"Sound Suppressor 556\"");
+		StringAssert.Contains(source, "\"Reflex Optic\"");
+		StringAssert.Contains(source, "\"Low Power Variable Optic\"");
+		StringAssert.Contains(source, "\"Precision Scope\"");
+		StringAssert.Contains(source, "\"Rifle Bipod\"");
+		StringAssert.Contains(source, "\"Machine Gun Tripod\"");
 		StringAssert.Contains(source, "\"Underbarrel Launcher Mount\"");
 		StringAssert.Contains(source,
 			"EnsureAttachment(\"Weapon Light Mount\", FirearmAttachmentSlotType.Underbarrel");
@@ -42,6 +53,22 @@ public class ModernFirearmSeederTests
 		StringAssert.Contains(source, "\"ModernFirearms_Underbarrel_Launcher_Example\"");
 		StringAssert.Contains(source, "\"ModernFirearms_Weapon_Light_Example\"");
 		StringAssert.Contains(source, "\"ModernFirearms_40mm_Grenade_Round_Example\"");
+		StringAssert.Contains(source, "\"ModernFirearms_Fragmentation_Grenade\"");
+		StringAssert.Contains(source, "\"ModernFirearms_Plastic_Explosive_Charge\"");
+		StringAssert.Contains(source, "\"ModernFirearms_Directional_Mine\"");
+		StringAssert.Contains(source, "EnsureItemTag(directionalMine, tripwireTriggerTag)");
+		StringAssert.Contains(source, "EnsureItemTag(antiPersonnelMine, tripwireTriggerTag)");
+		StringAssert.Contains(source, "\"ModernArtillery_{key}_Piece\"");
+		StringAssert.Contains(source, "EnsureModernArtillery(\"Howitzer_105mm\"");
+		StringAssert.Contains(source, "ArtilleryLoadingMechanism.BreechLoading");
+		StringAssert.Contains(source, "ArtilleryLoadingMechanism.DropFireMortar");
+		StringAssert.Contains(source, "type.BreakChanceOnHit = 0.0");
+		StringAssert.Contains(source, "type.BreakChanceOnMiss = 0.0");
+		StringAssert.Contains(source, "case CheckType.AimArtillery:");
+		StringAssert.Contains(source, "case CheckType.LoadArtillery:");
+		StringAssert.Contains(source, "case CheckType.FireArtillery:");
+		StringAssert.Contains(source, "\"ModernFirearms_Soft_Ballistic_Vest\"");
+		StringAssert.Contains(source, "\"ModernFirearms_Hard_Plate_Carrier\"");
 		StringAssert.Contains(source, "GameItemProtosGameItemComponentProtos.Any");
 		StringAssert.Contains(source, "FirstOrDefault(x => x.Type == type && x.Name == name)");
 	}

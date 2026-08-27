@@ -41,7 +41,7 @@ public class StandardRangeStrategy : CoverSeekingRangedStrategy
               .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
               .Any(rw =>
                   (rw.ReadyToFire || (!rw.IsLoaded && rw.CanLoad(ch, true)) || (!rw.IsReadied && rw.CanReady(ch))) &&
-                  rw.WeaponType.RangedWeaponType.MinimumFiringPosition().CompareTo(ch.PositionState)
+                  rw.WeaponType.MinimumFiringPosition.CompareTo(ch.PositionState)
                     .In(PositionHeightComparison.Lower, PositionHeightComparison.Equivalent, PositionHeightComparison.Undefined)))
         {
             return false;

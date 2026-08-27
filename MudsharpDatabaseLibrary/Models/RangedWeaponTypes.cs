@@ -28,6 +28,7 @@ namespace MudSharp.Models
         public double AimBonusLostPerShot { get; set; }
         public bool RequiresFreeHandToReady { get; set; }
         public bool AlwaysRequiresTwoHandsToWield { get; set; }
+        public int? MinimumFiringPositionStateId { get; set; }
 
         public virtual TraitDefinition FireTrait { get; set; }
         public virtual TraitDefinition OperateTrait { get; set; }

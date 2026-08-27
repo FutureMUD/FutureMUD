@@ -193,7 +193,27 @@ public partial class GameItem : IHaveWounds
 
     public IEnumerable<IWound> PassiveSufferDamageViaContainedItem(IExplosiveDamage damage, Proximity proximity,
         Facing facing, IGameItem source)
+	{
+		return PassiveSufferDamageViaContainedItemInternal(damage, proximity, facing, source,
+			new HashSet<IGameItem>(ReferenceEqualityComparer.Instance));
+	}
+
+	private static IEnumerable<IWound> RecurseExplosion(IGameItem item, IExplosiveDamage damage,
+		Proximity proximity, Facing facing, IGameItem source, HashSet<IGameItem> visited)
+	{
+		return item is GameItem gameItem
+			? gameItem.PassiveSufferDamageViaContainedItemInternal(damage, proximity, facing, source, visited)
+			: item.PassiveSufferDamageViaContainedItem(damage, proximity, facing, source);
+	}
+
+	private IEnumerable<IWound> PassiveSufferDamageViaContainedItemInternal(IExplosiveDamage damage,
+		Proximity proximity, Facing facing, IGameItem source, HashSet<IGameItem> visited)
     {
+		if (!visited.Add(this))
+		{
+			return Enumerable.Empty<IWound>();
+		}
+
         // Hard Cover has a chance of avoiding explosions entirely unless it's right up against the character
         if (source == null && proximity != Proximity.Intimate &&
             Cover?.Cover.CoverType == MudSharp.Combat.CoverType.Hard)
@@ -277,7 +297,7 @@ public partial class GameItem : IHaveWounds
                     }
 
                     wounds.AddRange(
-                        item.PassiveSufferDamageViaContainedItem(damage, Proximity.Intimate, Facing.Front, null));
+						RecurseExplosion(item, damage, Proximity.Intimate, Facing.Front, null, visited));
                 }
             }
 
@@ -305,14 +325,14 @@ public partial class GameItem : IHaveWounds
                              Enumerable.Empty<IBeltable>())
         {
             wounds.AddRange(
-                item.Parent.PassiveSufferDamageViaContainedItem(damage, Proximity.Intimate, Facing.Front, source));
+				RecurseExplosion(item.Parent, damage, Proximity.Intimate, Facing.Front, source, visited));
         }
 
         if (GetItemType<IBeltable>() is IBeltable beltable && beltable.ConnectedTo != null &&
             beltable.ConnectedTo?.Parent != source)
         {
-            wounds.AddRange(beltable.ConnectedTo.Parent.PassiveSufferDamageViaContainedItem(damageToPassOn,
-                Proximity.Intimate, Facing.Front, this));
+			wounds.AddRange(RecurseExplosion(beltable.ConnectedTo.Parent, damageToPassOn,
+				Proximity.Intimate, Facing.Front, this, visited));
         }
 
         foreach (Tuple<ConnectorType, IConnectable> item in GetItemType<IConnectable>()?.ConnectedItems
@@ -321,20 +341,19 @@ public partial class GameItem : IHaveWounds
                              Enumerable.Empty<Tuple<ConnectorType, IConnectable>>())
         {
             wounds.AddRange(
-                item.Item2.Parent.PassiveSufferDamageViaContainedItem(damage, Proximity.Intimate, Facing.Front,
-                    source));
+				RecurseExplosion(item.Item2.Parent, damage, Proximity.Intimate, Facing.Front, source, visited));
         }
 
         foreach (IGameItem item in Wounds.SelectNotNull(x => x.Lodged).Where(x => x != source).ToList())
         {
-            wounds.AddRange(item.PassiveSufferDamageViaContainedItem(damage, Proximity.Intimate, Facing.Front, source));
+			wounds.AddRange(RecurseExplosion(item, damage, Proximity.Intimate, Facing.Front, source, visited));
         }
 
         foreach (ILock theLock in GetItemType<ILockable>()?.Locks.Where(x => x.Parent != source) ??
                                 Enumerable.Empty<ILock>())
         {
             wounds.AddRange(
-                theLock.Parent.PassiveSufferDamageViaContainedItem(damage, Proximity.Intimate, Facing.Front, source));
+				RecurseExplosion(theLock.Parent, damage, Proximity.Intimate, Facing.Front, source, visited));
         }
 
         if (!damageToPassOn.ExplodingFromInside)
@@ -364,8 +383,8 @@ public partial class GameItem : IHaveWounds
             // Exploding Outwards
             if (ContainedIn != null)
             {
-                wounds.AddRange(ContainedIn.PassiveSufferDamageViaContainedItem(damageToPassOn, Proximity.Intimate,
-                    Facing.Front, this));
+				wounds.AddRange(RecurseExplosion(ContainedIn, damageToPassOn,
+					Proximity.Intimate, Facing.Front, this, visited));
             }
             else if (InInventoryOf != null)
             {
@@ -384,7 +403,7 @@ public partial class GameItem : IHaveWounds
                 foreach (IGameItem item in container.Contents)
                 {
                     wounds.AddRange(
-                        item.PassiveSufferDamageViaContainedItem(damage, Proximity.Intimate, Facing.Front, null));
+						RecurseExplosion(item, damage, Proximity.Intimate, Facing.Front, null, visited));
                 }
             }
         }

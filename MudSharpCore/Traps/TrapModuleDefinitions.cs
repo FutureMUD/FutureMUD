@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Globalization;
+using System.Xml;
 using ExpressionEngine;
 using MudSharp.Traps;
 using MudSharp.Movement;
@@ -472,7 +473,7 @@ public sealed class TrapPayloadDefinition : ITrapPayload
 		var delayText = root.Attribute("delay")?.Value;
 		var delay = string.IsNullOrWhiteSpace(delayText)
 			? TimeSpan.Zero
-			: TimeSpan.TryParse(delayText, out var parsedDelay)
+			: TryParseTimeSpan(delayText, out var parsedDelay)
 				? parsedDelay
 				: TimeSpan.MinValue;
 		var targetText = root.Attribute("target")?.Value;
@@ -495,6 +496,25 @@ public sealed class TrapPayloadDefinition : ITrapPayload
 		}
 
 		return result;
+	}
+
+	private static bool TryParseTimeSpan(string text, out TimeSpan value)
+	{
+		if (TimeSpan.TryParse(text, CultureInfo.InvariantCulture, out value))
+		{
+			return true;
+		}
+
+		try
+		{
+			value = XmlConvert.ToTimeSpan(text);
+			return true;
+		}
+		catch (FormatException)
+		{
+			value = default;
+			return false;
+		}
 	}
 
 	public string SaveToXml()

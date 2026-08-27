@@ -1,0 +1,514 @@
+DemoMUD
+Powered by the FutureMUD Engine v2.8.0.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your [REDACTED]
+
+X) Disconnect from the game
+> c
+> 1
+You have the following characters: 
+  1: admin (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu: 
+The following boards have new posts since your last login:
+  Deaths - 5 new posts.
+
+
+
+Wildlife Test River
+ID[4] | Terrain[Shallow River] | [SafeQuit] | Overlay[Wildlife AI Live Test (#2r4)] | Coordinates[0,0,0]
+Exits: East and West
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  The air is extremely dry. There is a strong cold wind blowing
+  Currently, it is pitch black here.
+
+A brown-haired woman is swimming here.
+A brown-haired woman is swimming here.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> cure me all
+You remove all of your wounds.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> skill level me Gunnery 99
+You set the value of Gunnery on you to 99.00.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> goto 5
+You open a swirling vortex of magical energies, stepping through and emerging somewhere new.
+
+Wildlife Test Cave
+ID[5] | Terrain[Cave] | [SafeQuit] | Overlay[Wildlife AI Live Test (#2r4)] | Coordinates[0,0,0]
+Exits: West
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  Currently, it is pitch black here.
+
+The fresh corpse of a live-test spider is here.
+The fresh corpse of a live-test bear is here.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> npc load 108
+A brown-haired woman has entered the area.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> npc load 108
+A brown-haired woman has entered the area.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> npc load 108
+A brown-haired woman has entered the area.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> npc load 60
+A colossal iron-scaled dragon has entered the area.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> item load 16793
+You load a 105mm howitzer.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> item load 16792
+You load a 105mm high-explosive artillery round.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> force 1.woman artillery howitzer join crew
+You force a brown-haired woman to do the command 'artillery howitzer join crew'
+
+A brown-haired woman joins the crew of a 105mm howitzer.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> force 2.woman artillery howitzer join crew
+You force a brown-haired woman to do the command 'artillery howitzer join crew'
+
+A brown-haired woman joins the crew of a 105mm howitzer.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> force 3.woman artillery howitzer join crew
+You force a brown-haired woman to do the command 'artillery howitzer join crew'
+
+A brown-haired woman joins the crew of a 105mm howitzer.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> artillery howitzer join crew
+You join the crew of a 105mm howitzer.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> artillery howitzer emplace
+You emplace a 105mm howitzer.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> artillery howitzer load
+You open the breech and load ammunition into a 105mm howitzer using a 105mm high-explosive artillery round.
+
+You work on a 105mm howitzer with a 105mm high-explosive artillery round as
+part of its loading drill.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> artillery howitzer ready
+You close and lock the breech of a 105mm howitzer.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> artillery howitzer fire dragon
+> look
+> look
+You pull a 105mm howitzer's firing control; it fires with a thunderous
+discharge.
+
+A 105mm high-explosive projectile lodges in a colossal iron-scaled dragon's
+left rear knee!
+
+A colossal iron-scaled dragon's left patella has broken!
+A 105mm high-explosive projectile explodes in a colossal 105mm high-explosive
+blast!
+
+You got caught up in the explosion!
+A brown-haired woman got caught up in the explosion!
+A brown-haired woman got caught up in the explosion!
+A brown-haired woman got caught up in the explosion!
+The fresh corpse of a live-test spider got caught up in the explosion!
+The fresh corpse of a live-test bear got caught up in the explosion!
+A colossal iron-scaled dragon got caught up in the explosion!
+A brown-haired woman can no longer continue to stand and tumbles to the ground.
+
+Your head feels like someone has it in a vice; you're having trouble focusing and your vision is thoroughly blurred.
+
+You feel a crushing pain in your chest, shooting pain in your torso and your heart is beating so fast you are worried it might explode.
+
+Your throat has closed up and you cannot breathe!
+
+A brown-haired woman can no longer continue to stand and tumbles to the ground.
+
+A colossal iron-scaled dragon can no longer continue to stand and tumbles to
+the ground.
+
+Your tongue has been critically damaged, you won't be able to speak!
+
+Your tongue has been critically damaged, you won't be able to speak!
+
+A brown-haired woman loses her grip on a plain steel dagger because she can no
+longer move her right arm.
+A brown-haired woman tumbles to the ground!
+
+A brown-haired woman loses her grip on a plain steel dagger because she can no
+longer move her left arm.
+Your head feels a little bit better, though you still have a whopping headache. Your vision is blurry but less so; you also feel a little less disoriented.
+
+Your whopping headache has cleared up a little, and your vision is mostly better. You still feel mildly disoriented.
+
+Your headache seems to be clearing up.
+
+A brown-haired woman has died!
+
+A brown-haired woman has died!
+
+A brown-haired woman has died!
+
+A colossal iron-scaled dragon passes out from the pain.
+
+
+<*** YOU ARE IN CARDIAC ARREST! ***>
+<You are currently in overwhelming pain, knocked out>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+
+A colossal iron-scaled dragon bleeds from many wounds on her left rear knee,
+abdomen, left breast, lower left flank, belly, left shoulder, upper back,
+withers, left rump, left loin, neck, throat, head, left jaw, muzzle, mouth,
+tongue, nose, left upper foreleg, left upper hindleg, left front knee, left
+lower foreleg, left lower hindleg, left front hock, left rear hock, left front
+paw, and left rear paw.
+
+A small amount of blood runs out of a colossal iron-scaled dragon's mouth.
+
+You bleed from many wounds on your abdomen, right breast, belly, right buttock,
+right shoulder, right shoulder blade, upper back, right hip, and groin.
+
+You feel an all-encompassing sensation of crushing in your left breast, left nipple, and left shoulder blade!
+
+Wildlife Test Cave
+ID[5] | Terrain[Cave] | [SafeQuit] | Overlay[Wildlife AI Live Test (#2r4)] | Coordinates[0,0,0]
+Exits: West
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  A large puddle of blood is here.
+  Currently, it is pitch black here.
+
+The fresh corpse of a live-test spider is here.
+The fresh corpse of a live-test bear is here.
+A 105mm howitzer is emplaced here.
+A freshly severed human nose is here.
+A freshly severed human left middle toe is here.
+A freshly severed human right big toe is here.
+A freshly severed dragon left rear claws is here.
+A freshly severed human head is here.
+A freshly severed dragon left wing is here.
+A freshly severed human right ring toe is here.
+A freshly severed dragon left eye and left eye socket is here.
+A freshly severed human right leg is here.
+A freshly severed human right leg is here.
+A freshly severed human left pinky toe is here.
+A freshly severed spider left fang is here.
+A plain steel dagger is here.
+A plain steel dagger is here.
+A freshly severed human right knee back is here.
+A freshly severed human right heel is here.
+A freshly severed spider right pedipalp is here.
+A freshly severed human left middle toe is here.
+A freshly severed spider left antenna is here.
+A freshly severed human right leg is here.
+A freshly severed spider right fang is here.
+A freshly severed dragon left front claws is here.
+A freshly severed human back of neck is here.
+A freshly severed human right calf and right knee is here.
+A freshly severed human right thigh is here.
+A freshly severed spider right antenna is here.
+A freshly severed human left ring toe is here.
+A freshly severed human penis is here.
+A freshly severed human left leg is here.
+A freshly severed human left big toe is here.
+A freshly severed human head is here.
+A freshly severed dragon left wing base is here.
+A freshly severed human nose is here.
+A freshly severed human left pinky toe is here.
+A freshly severed human testicles is here.
+A freshly severed human right calf and right knee is here.
+A freshly severed spider right eye is here.
+A freshly severed spider mandibles is here.
+A freshly severed human left thigh back is here.
+A freshly severed human right heel is here.
+A freshly severed human right eye is here.
+A freshly severed human left calf is here.
+A freshly severed dragon left horn is here.
+A freshly severed human left heel is here.
+A freshly severed human right calf is here.
+A freshly severed human left knee, left knee back, left calf, and left thigh is
+here.
+A freshly severed human left leg is here.
+A freshly severed human right knee back and right thigh is here.
+A freshly severed bear left front claws is here.
+A freshly severed human right thigh back is here.
+A freshly severed human throat is here.
+A freshly severed dragon left dewclaw is here.
+A freshly severed human left knee back is here.
+A freshly severed human head is here.
+A freshly severed spider left eye is here.
+A freshly severed human left knee back and left thigh is here.
+A freshly severed human right knee back and right thigh is here.
+A freshly severed spider left pedipalp is here.
+A freshly severed human right thigh back is here.
+The fresh corpse of a brown-haired woman is here.
+The fresh corpse of a brown-haired woman is here.
+The fresh corpse of a brown-haired woman is here.
+A colossal iron-scaled dragon is unconscious, sprawled here.
+
+
+<*** YOU ARE IN CARDIAC ARREST! ***>
+<You are currently in overwhelming pain, knocked out and have moderate blood loss>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> look
+Wildlife Test Cave
+ID[5] | Terrain[Cave] | [SafeQuit] | Overlay[Wildlife AI Live Test (#2r4)] | Coordinates[0,0,0]
+Exits: West
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  A large puddle of blood is here.
+  Currently, it is pitch black here.
+
+The fresh corpse of a live-test spider is here.
+The fresh corpse of a live-test bear is here.
+A 105mm howitzer is emplaced here.
+A freshly severed human nose is here.
+A freshly severed human left middle toe is here.
+A freshly severed human right big toe is here.
+A freshly severed dragon left rear claws is here.
+A freshly severed human head is here.
+A freshly severed dragon left wing is here.
+A freshly severed human right ring toe is here.
+A freshly severed dragon left eye and left eye socket is here.
+A freshly severed human right leg is here.
+A freshly severed human right leg is here.
+A freshly severed human left pinky toe is here.
+A freshly severed spider left fang is here.
+A plain steel dagger is here.
+A plain steel dagger is here.
+A freshly severed human right knee back is here.
+A freshly severed human right heel is here.
+A freshly severed spider right pedipalp is here.
+A freshly severed human left middle toe is here.
+A freshly severed spider left antenna is here.
+A freshly severed human right leg is here.
+A freshly severed spider right fang is here.
+A freshly severed dragon left front claws is here.
+A freshly severed human back of neck is here.
+A freshly severed human right calf and right knee is here.
+A freshly severed human right thigh is here.
+A freshly severed spider right antenna is here.
+A freshly severed human left ring toe is here.
+A freshly severed human penis is here.
+A freshly severed human left leg is here.
+A freshly severed human left big toe is here.
+A freshly severed human head is here.
+A freshly severed dragon left wing base is here.
+A freshly severed human nose is here.
+A freshly severed human left pinky toe is here.
+A freshly severed human testicles is here.
+A freshly severed human right calf and right knee is here.
+A freshly severed spider right eye is here.
+A freshly severed spider mandibles is here.
+A freshly severed human left thigh back is here.
+A freshly severed human right heel is here.
+A freshly severed human right eye is here.
+A freshly severed human left calf is here.
+A freshly severed dragon left horn is here.
+A freshly severed human left heel is here.
+A freshly severed human right calf is here.
+A freshly severed human left knee, left knee back, left calf, and left thigh is
+here.
+A freshly severed human left leg is here.
+A freshly severed human right knee back and right thigh is here.
+A freshly severed bear left front claws is here.
+A freshly severed human right thigh back is here.
+A freshly severed human throat is here.
+A freshly severed dragon left dewclaw is here.
+A freshly severed human left knee back is here.
+A freshly severed human head is here.
+A freshly severed spider left eye is here.
+A freshly severed human left knee back and left thigh is here.
+A freshly severed human right knee back and right thigh is here.
+A freshly severed spider left pedipalp is here.
+A freshly severed human right thigh back is here.
+The fresh corpse of a brown-haired woman is here.
+The fresh corpse of a brown-haired woman is here.
+The fresh corpse of a brown-haired woman is here.
+A colossal iron-scaled dragon is unconscious, sprawled here.
+
+
+<*** YOU ARE IN CARDIAC ARREST! ***>
+<You are currently in overwhelming pain, knocked out and have moderate blood loss>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+
+Wildlife Test Cave
+ID[5] | Terrain[Cave] | [SafeQuit] | Overlay[Wildlife AI Live Test (#2r4)] | Coordinates[0,0,0]
+Exits: West
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  A large puddle of blood is here.
+  Currently, it is pitch black here.
+
+The fresh corpse of a live-test spider is here.
+The fresh corpse of a live-test bear is here.
+A 105mm howitzer is emplaced here.
+A freshly severed human nose is here.
+A freshly severed human left middle toe is here.
+A freshly severed human right big toe is here.
+A freshly severed dragon left rear claws is here.
+A freshly severed human head is here.
+A freshly severed dragon left wing is here.
+A freshly severed human right ring toe is here.
+A freshly severed dragon left eye and left eye socket is here.
+A freshly severed human right leg is here.
+A freshly severed human right leg is here.
+A freshly severed human left pinky toe is here.
+A freshly severed spider left fang is here.
+A plain steel dagger is here.
+A plain steel dagger is here.
+A freshly severed human right knee back is here.
+A freshly severed human right heel is here.
+A freshly severed spider right pedipalp is here.
+A freshly severed human left middle toe is here.
+A freshly severed spider left antenna is here.
+A freshly severed human right leg is here.
+A freshly severed spider right fang is here.
+A freshly severed dragon left front claws is here.
+A freshly severed human back of neck is here.
+A freshly severed human right calf and right knee is here.
+A freshly severed human right thigh is here.
+A freshly severed spider right antenna is here.
+A freshly severed human left ring toe is here.
+A freshly severed human penis is here.
+A freshly severed human left leg is here.
+A freshly severed human left big toe is here.
+A freshly severed human head is here.
+A freshly severed dragon left wing base is here.
+A freshly severed human nose is here.
+A freshly severed human left pinky toe is here.
+A freshly severed human testicles is here.
+A freshly severed human right calf and right knee is here.
+A freshly severed spider right eye is here.
+A freshly severed spider mandibles is here.
+A freshly severed human left thigh back is here.
+A freshly severed human right heel is here.
+A freshly severed human right eye is here.
+A freshly severed human left calf is here.
+A freshly severed dragon left horn is here.
+A freshly severed human left heel is here.
+A freshly severed human right calf is here.
+A freshly severed human left knee, left knee back, left calf, and left thigh is
+here.
+A freshly severed human left leg is here.
+A freshly severed human right knee back and right thigh is here.
+A freshly severed bear left front claws is here.
+A freshly severed human right thigh back is here.
+A freshly severed human throat is here.
+A freshly severed dragon left dewclaw is here.
+A freshly severed human left knee back is here.
+A freshly severed human head is here.
+A freshly severed spider left eye is here.
+A freshly severed human left knee back and left thigh is here.
+A freshly severed human right knee back and right thigh is here.
+A freshly severed spider left pedipalp is here.
+A freshly severed human right thigh back is here.
+The fresh corpse of a brown-haired woman is here.
+The fresh corpse of a brown-haired woman is here.
+The fresh corpse of a brown-haired woman is here.
+A colossal iron-scaled dragon is unconscious, sprawled here.
+
+
+<*** YOU ARE IN CARDIAC ARREST! ***>
+<You are currently in overwhelming pain, knocked out and have moderate blood loss>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>

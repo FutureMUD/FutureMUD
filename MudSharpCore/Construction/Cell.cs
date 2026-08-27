@@ -153,6 +153,10 @@ public partial class Cell : Location, IDisposable, ICell
 			.ToList();
 		Movements = [];
 		Temporary = true;
+		_routeDefinition = combatSimulationTemplate.RouteDefinition is null
+			? null
+			: new RouteCellDefinition(this, combatSimulationTemplate.RouteDefinition);
+		_localCover.AddRange(combatSimulationTemplate.LocalCover);
 	}
 
     public bool ContentsChanged

@@ -12,7 +12,9 @@ namespace MudSharp.GameItems.Interfaces;
 public enum ArtilleryLoadingMechanism
 {
 	MuzzleLoading,
-	RemovableChamber
+	RemovableChamber,
+	BreechLoading,
+	DropFireMortar
 }
 
 /// <summary>

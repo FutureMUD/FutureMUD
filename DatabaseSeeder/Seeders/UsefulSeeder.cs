@@ -667,6 +667,13 @@ These options are not required by the engine. Install the packages that suit you
         RangedCover? cover = context.RangedCovers.FirstOrDefault(x => x.Name == name);
         if (cover is not null)
         {
+            cover.CoverType = coverType;
+            cover.CoverExtent = coverExtent;
+            cover.HighestPositionState = highestPositionState;
+            cover.DescriptionString = descriptionString;
+            cover.ActionDescriptionString = actionDescriptionString;
+            cover.MaximumSimultaneousCovers = maximumSimultaneousCovers;
+            cover.CoverStaysWhileMoving = coverStaysWhileMoving;
             return cover;
         }
 
@@ -775,6 +782,9 @@ These options are not required by the engine. Install the packages that suit you
                         ("Desk", 1, 0, 1, "using $?0|$0|a desk|$ as cover", "$0 duck|ducks behind $?1|$1|a desk|$", 1, false),
                         ("Staircase", 1, 1, 3, "hiding behind $?0|$0|a staircase|$", "$0 duck|ducks behind $?1|$1|a staircase|$", 1, false),
                         ("Corner", 1, 2, 1, "using $?0|$0|a corner|$ as cover", "$0 press|presses into $?1|$1|a corner|$", 0, false)
+                        ,("Trench Firing Step", 1, 2, 1, "firing from behind $?0|$0|a trench parapet|$", "$0 settle|settles behind $?1|$1|a trench parapet|$", 4, false)
+                        ,("Reinforced Bunker", 1, 3, 1, "sheltering completely within $?0|$0|a reinforced bunker|$", "$0 shelter|shelters completely within $?1|$1|a reinforced bunker|$", 8, false)
+                        ,("Opaque Smoke Screen", 0, 3, 1, "entirely obscured by $?0|$0|an opaque smoke screen|$", "$0 disappear|disappears into $?1|$1|an opaque smoke screen|$", 0, true)
                 };
 
         foreach ((string Name, int Type, int Extent, int Position, string Desc, string Action, int Max, bool Moving) item in covers)

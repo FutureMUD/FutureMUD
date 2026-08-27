@@ -15,6 +15,11 @@ public partial class Body
 
 	internal void CopyCombatSimulationBiologyFrom(IBody source)
 	{
+		ExecuteWithSuppressedHealthFeedback(() => CopyCombatSimulationBiologyFromCore(source));
+	}
+
+	private void CopyCombatSimulationBiologyFromCore(IBody source)
+	{
 		_currentBloodVolumeLitres = Math.Clamp(source.CurrentBloodVolumeLitres, 0.0, TotalBloodVolumeLitres);
 		Changed = true;
 		CurrentStamina = source.CurrentStamina;

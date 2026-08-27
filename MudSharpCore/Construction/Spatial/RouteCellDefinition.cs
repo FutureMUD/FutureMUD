@@ -46,6 +46,22 @@ public sealed class RouteCellDefinition : IRouteCellDefinition
 			.ToArray();
 	}
 
+	internal RouteCellDefinition(ICell cell, IRouteCellDefinition template)
+	{
+		ArgumentNullException.ThrowIfNull(cell);
+		ArgumentNullException.ThrowIfNull(template);
+		Cell = cell;
+		LengthMetres = template.LengthMetres;
+		DefaultPositionMetres = template.DefaultPositionMetres;
+		PositiveDirectionName = template.PositiveDirectionName;
+		NegativeDirectionName = template.NegativeDirectionName;
+		MetresPerRoomEquivalent = template.MetresPerRoomEquivalent;
+		TopologyVersion = template.TopologyVersion;
+		ValidateDefinition();
+		_landmarks = [];
+		_exitAnchors = [];
+	}
+
 	public ICell Cell { get; }
 	public double LengthMetres { get; }
 	public double DefaultPositionMetres { get; }

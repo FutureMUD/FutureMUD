@@ -131,21 +131,6 @@ public class OutOfCombatAim : Effect, IRemoveOnCombatStart, ILDescSuffixEffect
         Aim.ReleaseEvents();
     }
 
-    protected static double GetShooterPositionBonus(IPositionState position)
-    {
-        if (position.CompareTo(PositionKneeling.Instance) == PositionHeightComparison.Equivalent)
-        {
-            return 1.10;
-        }
-
-        if (position.CompareTo(PositionKneeling.Instance) == PositionHeightComparison.Lower)
-        {
-            return 1.25;
-        }
-
-        return 1.0;
-    }
-
     public override void ExpireEffect()
     {
         ICheck check = Gameworld.GetCheck(CheckType.AimRangedWeapon);
@@ -154,7 +139,7 @@ public class OutOfCombatAim : Effect, IRemoveOnCombatStart, ILDescSuffixEffect
         if (Target?.Location != Owner.Location)
         {
             IPositionState position = CharacterOwner.Body.PositionState;
-            postureBonus = GetShooterPositionBonus(position);
+            postureBonus = RangedAimSettings.PostureMultiplier(Gameworld, position);
 
             //TODO - Bows shouldn't be usable from Prone, going prone with a bow should prevent/abort aiming
         }
@@ -166,28 +151,8 @@ public class OutOfCombatAim : Effect, IRemoveOnCombatStart, ILDescSuffixEffect
         {
             //If already capped on aiming, don't do more aim checks for free skillup chances.
             CheckOutcome result = check.Check(CharacterOwner, Weapon.AimDifficulty, Weapon.WeaponType.FireTrait, Target);
-            double aimAmount = 0.0;
-            switch (result.Outcome)
-            {
-                case Outcome.MajorFail:
-                    aimAmount = 0.05 * CombatAimMajorSuccessPercentage;
-                    break;
-                case Outcome.Fail:
-                    aimAmount = 0.1 * CombatAimMajorSuccessPercentage;
-                    break;
-                case Outcome.MinorFail:
-                    aimAmount = 0.2 * CombatAimMajorSuccessPercentage;
-                    break;
-                case Outcome.MinorPass:
-                    aimAmount = 0.3 * CombatAimMajorSuccessPercentage;
-                    break;
-                case Outcome.Pass:
-                    aimAmount = 0.5 * CombatAimMajorSuccessPercentage;
-                    break;
-                case Outcome.MajorPass:
-                    aimAmount = 1.0 * CombatAimMajorSuccessPercentage;
-                    break;
-            }
+            var aimAmount = RangedAimSettings.OutOfCombatOutcomeMultiplier(Gameworld, result.Outcome) *
+                            CombatAimMajorSuccessPercentage;
 
             aimAmount = aimAmount * postureBonus;
             AimCompletion = Math.Min(1.0, AimCompletion + aimAmount);

@@ -227,6 +227,11 @@ public sealed class TrapSeeder : IDatabaseSeeder
 				Trigger(TrapTriggerType.CellEntry),
 				[Component(tags["Pressure Trap Mechanism"], TrapComponentRole.TriggerAndPayload, 70.0)],
 				Payload(TrapPayloadType.DirectDamage, ("damage", "8 * quality / 5"), ("pain", "6 * quality / 5"), ("stun", "4 * quality / 5"), ("damagetype", "Crushing"))));
+		EnsureTemplate(context, ref nextId, accountId, now, "Pressure Explosive Mine",
+			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Risky,
+				Trigger(TrapTriggerType.CellEntry),
+				[Component(tags["Pressure Trap Mechanism"], TrapComponentRole.Trigger, 75.0), Component(tags["Explosive Trap Payload"], TrapComponentRole.Payload, 0.0)],
+				Payload(TrapPayloadType.DetonateItem)));
 		EnsureTemplate(context, ref nextId, accountId, now, "Trapped Chest Liquid Splash",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Safe,
 				Trigger(TrapTriggerType.Openable),
@@ -328,7 +333,7 @@ public sealed class TrapSeeder : IDatabaseSeeder
 	private static XElement Payload(TrapPayloadType type, params (string Name, string Value)[] parameters) =>
 		new("Payload",
 			new XAttribute("type", type),
-			new XAttribute("delay", TimeSpan.Zero),
+			new XAttribute("delay", TimeSpan.Zero.ToString("c", System.Globalization.CultureInfo.InvariantCulture)),
 			new XAttribute("target", TrapTargetSelector.Triggerer),
 			parameters.Select(x => new XElement("Parameter", new XAttribute("name", x.Name), new XCData(x.Value))));
 

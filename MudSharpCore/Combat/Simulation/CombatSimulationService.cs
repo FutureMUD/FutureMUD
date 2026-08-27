@@ -10,6 +10,7 @@ using MudSharp.Database;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Framework;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.NPC;
 using MudSharp.NPC.Templates;
 using BodyImplementation = MudSharp.Body.Implementations.Body;
@@ -159,6 +160,23 @@ public sealed class CombatSimulationService : ICombatSimulationService
 					messages.Add(new CombatSimulationValidationMessage(true,
 						$"Combatant slot {participant.Slot:N0} starts on {participant.StartingLayer.DescribeEnum(true)}, which is not available in its selected cell."));
 				}
+
+				if (participant.StartingRoutePositionMetres.HasValue &&
+				    (startingCell.RouteDefinition is null ||
+				     !double.IsFinite(participant.StartingRoutePositionMetres.Value) ||
+				     participant.StartingRoutePositionMetres.Value < 0.0 ||
+				     participant.StartingRoutePositionMetres.Value > startingCell.RouteDefinition.LengthMetres))
+				{
+					messages.Add(new CombatSimulationValidationMessage(true,
+						$"Combatant slot {participant.Slot:N0} has an invalid RouteCell coordinate."));
+				}
+			}
+
+			if (!double.IsFinite(participant.InitialAimPercentage) ||
+			    participant.InitialAimPercentage is < 0.0 or > 1.0)
+			{
+				messages.Add(new CombatSimulationValidationMessage(true,
+					$"Combatant slot {participant.Slot:N0} must start with aim from 0% to 100%."));
 			}
 
 			if (string.IsNullOrWhiteSpace(participant.Team))
@@ -443,6 +461,7 @@ public sealed class CombatSimulationService : ICombatSimulationService
 				participant.Character.CombatStrategyMode = participant.Request.StartsInMelee
 					? participant.Character.CombatSettings.PreferredMeleeMode
 					: participant.Character.CombatSettings.PreferredRangedMode;
+				ApplyStagedRangedState(participant, validation);
 			}
 
 			request.RequestedBy.Gameworld.HeartbeatManager.StartHeartbeatTick();
@@ -745,6 +764,10 @@ public sealed class CombatSimulationService : ICombatSimulationService
 		}
 
 		character.PositionState = snapshot.Request.StartingPosition ?? PositionStanding.Instance;
+		if (snapshot.Request.StartingRoutePositionMetres.HasValue)
+		{
+			character.SetRoutePosition(snapshot.Request.StartingRoutePositionMetres.Value);
+		}
 		character.PositionModifier = PositionModifier.None;
 		character.PositionTarget = null;
 
@@ -756,6 +779,50 @@ public sealed class CombatSimulationService : ICombatSimulationService
 		materialisedNpc?.HandleEvent(EventType.NPCOnGameLoadFinished, materialisedNpc);
 		RecordMaterialisedRuntimeState(executionFingerprint, snapshot.Request.Slot, character);
 		return new RuntimeParticipant(snapshot.Request, character, name);
+	}
+
+	private static void ApplyStagedRangedState(RuntimeParticipant participant,
+		ICollection<CombatSimulationValidationMessage> validation)
+	{
+		var character = participant.Character;
+		if (participant.Request.StartingCover is not null)
+		{
+			character.Cover = new CombatantCover(character, participant.Request.StartingCover, null);
+		}
+
+		if (participant.Request.InitialAimPercentage <= 0.0)
+		{
+			return;
+		}
+
+		var target = character.CombatTarget;
+		if (target is null)
+		{
+			validation.Add(new CombatSimulationValidationMessage(false,
+				$"{participant.Request.SourceDescription} could not receive staged aim because it has no combat target."));
+			return;
+		}
+
+		var weapon = character.Body.WieldedItems
+			.Select(x => x.GetItemType<IRangedWeapon>())
+			.OfType<IRangedWeapon>()
+			.Where(x => x.ReadyToFire)
+			.Where(x => character.RoomEquivalentDistanceBetween(target) <= x.WeaponType.DefaultRangeInRooms)
+			.FirstMax(x => x.Parent.Quality);
+		if (weapon is null)
+		{
+			validation.Add(new CombatSimulationValidationMessage(false,
+				$"{participant.Request.SourceDescription} could not receive staged aim because it has no ready, in-range wielded weapon."));
+			return;
+		}
+
+		var path = ReferenceEquals(character.Location, target.Location)
+			? Enumerable.Empty<ICellExit>()
+			: character.PathBetween(target, weapon.WeaponType.DefaultRangeInRooms, false, false, true);
+		character.Aim = new AimInformation(target, character, path, weapon)
+		{
+			AimPercentage = participant.Request.InitialAimPercentage
+		};
 	}
 
 	internal static void InitialiseCombatSimulationBody(ICharacter character)

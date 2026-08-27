@@ -18951,6 +18951,9 @@ namespace MudSharp.Migrations
                         .HasColumnType("double")
                         .HasDefaultValueSql("'0.5'");
 
+                    b.Property<int?>("MinimumFiringPositionStateId")
+                        .HasColumnType("int(11)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(200)")

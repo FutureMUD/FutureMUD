@@ -6,6 +6,8 @@ The accelerated combat simulator is a founder diagnostic for testing ordinary co
 
 The workflow is staged under `impdebug combatsim`. A founder selects one or more cells, adds combatants to teams and starting positions, reviews preflight warnings, and then runs the staged scenario. The completed session retains a summary and a bounded transcript until it is replaced or cleared. The same staged scenario can also be run as a bounded batch across a deterministic sequence of seeds to compare aggregate outcomes.
 
+Ranged participants may additionally stage exact initial separation in metres, initial aim from `0.0` to `1.0`, and an installed source-cell cover item. Transient cells copy source cover definitions, and these ranged starting conditions are included in the execution fingerprint. See [Ranged Weapon Balance Pass](./Ranged_Weapon_Balance_Pass.md) for the tuned workflow and evidence matrix.
+
 ## Runtime model
 
 The command executes synchronously on the command/game-loop thread. While it runs, ordinary connection input, game-loop scheduling, clock advancement and save-loop work do not run. A flow-local runtime scope replaces the game world's scheduler, effect scheduler, heartbeat manager and save manager for simulation code. A virtual `TimeProvider` advances directly to the next due main or effect schedule, and an ambient seeded `Random` removes variation from both the engine's shared random source and ExpressionEngine `rand`/`drand`/`dice` functions. The scope is active before source effects are serialised and before characters or NPC templates are materialised, so load hooks see the simulation clock and seeded random source.

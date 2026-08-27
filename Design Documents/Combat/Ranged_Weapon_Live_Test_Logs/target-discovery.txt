@@ -1,0 +1,605 @@
+DemoMUD
+Powered by the FutureMUD Engine v2.8.0.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your [REDACTED]
+
+X) Disconnect from the game
+> c
+> 1
+You have the following characters: 
+  1: admin (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu: 
+Rolling Prarie In The Merryweather Valley
+ID[10] | Terrain[Shortgrass Prairie] | [SafeQuit] | Overlay[New Showcase (#3r0)] | Coordinates[0,0,0]
+Exits: 
+
+  The prairie rises and falls in gentle swells, its close-cropped grass bending
+around patches of thyme and stubborn yellow flowers. A narrow animal track
+follows the crest of one rise before vanishing into the grass. Flat grey
+stones, perhaps turned up by frost and rain, lie half-buried along the slope.
+From the valley below comes the faint, wandering murmur of water, nearly lost
+beneath the wind.
+
+  Currently, it is pitch black here.
+
+A matchlock arquebus are here.
+A 9x19mm ball cartridge lies here.
+A plain steel dagger is here.
+A plain steel dagger is here.
+A soft ballistic vest lies here.
+A hard-plate carrier lies here.
+A 105mm howitzer is emplaced here.
+A 105mm high-explosive artillery round lies here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A cow elephant is standing here.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc list dragon
++-----+------+-----------------------------------------------+----------------------+----------+--------------+-----------+
+| ID# | Rev# | Unique Name                                   | Name                 | Type     | Status       | Instances |
++-----+------+-----------------------------------------------+----------------------+----------+--------------+-----------+
+| 1   | 0    |                                               | Unnamed NPC Template | Variable | Current      | 1         |
+| 2   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 3   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 4   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 5   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 6   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 7   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 8   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 9   | 0    |                                               | Admin                | Simple   | Current      | 3         |
+| 10  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 11  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 12  | 0    |                                               | Admin                | Simple   | Current      | 3         |
+| 13  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 14  | 0    |                                               | Admin                | Simple   | Current      | 2         |
+| 15  | 0    | Elephant                                      | Unnamed NPC Template | Variable | Current      | 1         |
+| 16  | 0    |                                               | Unnamed NPC Template | Variable | Current      | 1         |
+| 17  | 1    | combat-fixture-warg                           | Agathe Herbert       | Simple   | Current      | 0         |
+| 18  | 1    | combat-fixture-warg-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 19  | 1    | combat-veteran-hunter                         | Agathe Herbert       | Simple   | Current      | 0         |
+| 20  | 1    | combat-fixture-cockatrice-natural             | Arjuna               | Simple   | Current      | 0         |
+| 21  | 0    | combat-fixture-selkie-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 22  | 0    | combat-fixture-myconid-natural                | Arjuna               | Simple   | Current      | 0         |
+| 23  | 0    | combat-fixture-dryad-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 24  | 0    | combat-fixture-owlkin-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 25  | 0    | combat-fixture-avian-person-natural           | Arjuna               | Simple   | Current      | 0         |
+| 26  | 0    | combat-fixture-unicorn-natural                | Arjuna               | Simple   | Current      | 0         |
+| 27  | 0    | combat-fixture-pegasus-natural                | Arjuna               | Simple   | Current      | 0         |
+| 28  | 0    | combat-fixture-minotaur-natural               | Arjuna               | Simple   | Current      | 0         |
+| 29  | 0    | combat-fixture-naga-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 30  | 0    | combat-fixture-mermaid-natural                | Arjuna               | Simple   | Current      | 0         |
+| 31  | 0    | combat-fixture-plantfolk-natural              | Arjuna               | Simple   | Current      | 0         |
+| 32  | 0    | combat-fixture-hippocamp-natural              | Arjuna               | Simple   | Current      | 0         |
+| 33  | 0    | combat-fixture-qilin-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 34  | 0    | combat-fixture-dire-wolf-natural              | Arjuna               | Simple   | Current      | 0         |
+| 35  | 0    | combat-fixture-hippogriff-natural             | Arjuna               | Simple   | Current      | 0         |
+| 36  | 0    | combat-fixture-phoenix-natural                | Arjuna               | Simple   | Current      | 0         |
+| 37  | 0    | combat-fixture-basilisk-natural               | Arjuna               | Simple   | Current      | 0         |
+| 38  | 0    | combat-fixture-giant-beetle-natural           | Arjuna               | Simple   | Current      | 0         |
+| 39  | 0    | combat-fixture-giant-ant-natural              | Arjuna               | Simple   | Current      | 0         |
+| 40  | 0    | combat-fixture-giant-mantis-natural           | Arjuna               | Simple   | Current      | 0         |
+| 41  | 0    | combat-fixture-giant-spider-natural           | Arjuna               | Simple   | Current      | 0         |
+| 42  | 0    | combat-fixture-giant-scorpion-natural         | Arjuna               | Simple   | Current      | 0         |
+| 43  | 0    | combat-fixture-giant-centipede-natural        | Arjuna               | Simple   | Current      | 0         |
+| 44  | 0    | combat-fixture-giant-worm-natural             | Arjuna               | Simple   | Current      | 0         |
+| 45  | 0    | combat-fixture-centaur-natural                | Arjuna               | Simple   | Current      | 0         |
+| 46  | 0    | combat-fixture-garuda-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 47  | 0    | combat-fixture-giant-eagle-natural            | Arjuna               | Simple   | Current      | 0         |
+| 48  | 0    | combat-fixture-bunyip-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 49  | 0    | combat-fixture-dire-bear-natural              | Arjuna               | Simple   | Current      | 0         |
+| 50  | 0    | combat-fixture-griffin-natural                | Arjuna               | Simple   | Current      | 0         |
+| 51  | 0    | combat-fixture-manticore-natural              | Arjuna               | Simple   | Current      | 0         |
+| 52  | 0    | combat-fixture-wyvern-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 53  | 0    | combat-fixture-fell-beast-natural             | Arjuna               | Simple   | Current      | 0         |
+| 54  | 0    | combat-fixture-ankheg-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 55  | 0    | combat-fixture-ent-natural                    | Arjuna               | Simple   | Current      | 0         |
+| 56  | 0    | combat-fixture-pegacorn-natural               | Arjuna               | Simple   | Current      | 0         |
+| 57  | 0    | combat-fixture-yacumama-natural               | Arjuna               | Simple   | Current      | 0         |
+| 58  | 0    | combat-fixture-colossal-worm-natural          | Arjuna               | Simple   | Current      | 0         |
+| 59  | 0    | combat-fixture-huorn-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 60  | 1    | combat-fixture-dragon-natural                 | Arjuna               | Simple   | Current      | 1         |
+| 61  | 1    | combat-fixture-eastern-dragon-natural         | Arjuna               | Simple   | Current      | 0         |
+| 62  | 0    | combat-fixture-imp-natural                    | Arjuna               | Simple   | Current      | 0         |
+| 63  | 0    | combat-fixture-familiar-natural               | Arjuna               | Simple   | Current      | 0         |
+| 64  | 0    | combat-fixture-incubus-natural                | Arjuna               | Simple   | Current      | 0         |
+| 65  | 0    | combat-fixture-succubus-natural               | Arjuna               | Simple   | Current      | 0         |
+| 66  | 0    | combat-fixture-spirit-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 67  | 0    | combat-fixture-ghost-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 68  | 0    | combat-fixture-ancestral-spirit-natural       | Arjuna               | Simple   | Current      | 0         |
+| 69  | 0    | combat-fixture-zombie-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 70  | 0    | combat-fixture-skeleton-natural               | Arjuna               | Simple   | Current      | 0         |
+| 71  | 0    | combat-fixture-ishim-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 72  | 0    | combat-fixture-fallen-ishim-natural           | Arjuna               | Simple   | Current      | 0         |
+| 73  | 1    | combat-fixture-werewolf-natural               | Arjuna               | Simple   | Current      | 0         |
+| 74  | 0    | combat-fixture-vampire-natural                | Arjuna               | Simple   | Current      | 0         |
+| 75  | 0    | combat-fixture-lich-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 76  | 0    | combat-fixture-ghoul-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 77  | 0    | combat-fixture-mummy-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 78  | 0    | combat-fixture-nature-spirit-natural          | Arjuna               | Simple   | Current      | 0         |
+| 79  | 0    | combat-fixture-elemental-spirit-natural       | Arjuna               | Simple   | Current      | 0         |
+| 80  | 0    | combat-fixture-specter-natural                | Arjuna               | Simple   | Current      | 0         |
+| 81  | 0    | combat-fixture-cherubim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 82  | 0    | combat-fixture-bene-elohim-natural            | Arjuna               | Simple   | Current      | 0         |
+| 83  | 0    | combat-fixture-fallen-cherubim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 84  | 0    | combat-fixture-fallen-bene-elohim-natural     | Arjuna               | Simple   | Current      | 0         |
+| 85  | 0    | combat-fixture-fury-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 86  | 0    | combat-fixture-hellhound-natural              | Arjuna               | Simple   | Current      | 0         |
+| 87  | 0    | combat-fixture-werewolf-hybrid-natural        | Arjuna               | Simple   | Current      | 0         |
+| 88  | 0    | combat-fixture-wraith-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 89  | 0    | combat-fixture-demigod-natural                | Arjuna               | Simple   | Current      | 0         |
+| 90  | 6    | combat-fixture-elohim-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 91  | 0    | combat-fixture-malakhim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 92  | 0    | combat-fixture-seraphim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 93  | 0    | combat-fixture-fallen-elohim-natural          | Arjuna               | Simple   | Current      | 0         |
+| 94  | 0    | combat-fixture-fallen-malakhim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 95  | 0    | combat-fixture-fallen-seraphim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 96  | 0    | combat-fixture-fiend-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 97  | 0    | combat-fixture-erelim-natural                 | Arjuna               | Simple   | Current      | 0         |
+*** Type more to read further ***
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc list elephant
++-----+------+-----------------------------------------------+----------------------+----------+--------------+-----------+
+| ID# | Rev# | Unique Name                                   | Name                 | Type     | Status       | Instances |
++-----+------+-----------------------------------------------+----------------------+----------+--------------+-----------+
+| 1   | 0    |                                               | Unnamed NPC Template | Variable | Current      | 1         |
+| 2   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 3   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 4   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 5   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 6   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 7   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 8   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 9   | 0    |                                               | Admin                | Simple   | Current      | 3         |
+| 10  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 11  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 12  | 0    |                                               | Admin                | Simple   | Current      | 3         |
+| 13  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 14  | 0    |                                               | Admin                | Simple   | Current      | 2         |
+| 15  | 0    | Elephant                                      | Unnamed NPC Template | Variable | Current      | 1         |
+| 16  | 0    |                                               | Unnamed NPC Template | Variable | Current      | 1         |
+| 17  | 1    | combat-fixture-warg                           | Agathe Herbert       | Simple   | Current      | 0         |
+| 18  | 1    | combat-fixture-warg-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 19  | 1    | combat-veteran-hunter                         | Agathe Herbert       | Simple   | Current      | 0         |
+| 20  | 1    | combat-fixture-cockatrice-natural             | Arjuna               | Simple   | Current      | 0         |
+| 21  | 0    | combat-fixture-selkie-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 22  | 0    | combat-fixture-myconid-natural                | Arjuna               | Simple   | Current      | 0         |
+| 23  | 0    | combat-fixture-dryad-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 24  | 0    | combat-fixture-owlkin-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 25  | 0    | combat-fixture-avian-person-natural           | Arjuna               | Simple   | Current      | 0         |
+| 26  | 0    | combat-fixture-unicorn-natural                | Arjuna               | Simple   | Current      | 0         |
+| 27  | 0    | combat-fixture-pegasus-natural                | Arjuna               | Simple   | Current      | 0         |
+| 28  | 0    | combat-fixture-minotaur-natural               | Arjuna               | Simple   | Current      | 0         |
+| 29  | 0    | combat-fixture-naga-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 30  | 0    | combat-fixture-mermaid-natural                | Arjuna               | Simple   | Current      | 0         |
+| 31  | 0    | combat-fixture-plantfolk-natural              | Arjuna               | Simple   | Current      | 0         |
+| 32  | 0    | combat-fixture-hippocamp-natural              | Arjuna               | Simple   | Current      | 0         |
+| 33  | 0    | combat-fixture-qilin-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 34  | 0    | combat-fixture-dire-wolf-natural              | Arjuna               | Simple   | Current      | 0         |
+| 35  | 0    | combat-fixture-hippogriff-natural             | Arjuna               | Simple   | Current      | 0         |
+| 36  | 0    | combat-fixture-phoenix-natural                | Arjuna               | Simple   | Current      | 0         |
+| 37  | 0    | combat-fixture-basilisk-natural               | Arjuna               | Simple   | Current      | 0         |
+| 38  | 0    | combat-fixture-giant-beetle-natural           | Arjuna               | Simple   | Current      | 0         |
+| 39  | 0    | combat-fixture-giant-ant-natural              | Arjuna               | Simple   | Current      | 0         |
+| 40  | 0    | combat-fixture-giant-mantis-natural           | Arjuna               | Simple   | Current      | 0         |
+| 41  | 0    | combat-fixture-giant-spider-natural           | Arjuna               | Simple   | Current      | 0         |
+| 42  | 0    | combat-fixture-giant-scorpion-natural         | Arjuna               | Simple   | Current      | 0         |
+| 43  | 0    | combat-fixture-giant-centipede-natural        | Arjuna               | Simple   | Current      | 0         |
+| 44  | 0    | combat-fixture-giant-worm-natural             | Arjuna               | Simple   | Current      | 0         |
+| 45  | 0    | combat-fixture-centaur-natural                | Arjuna               | Simple   | Current      | 0         |
+| 46  | 0    | combat-fixture-garuda-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 47  | 0    | combat-fixture-giant-eagle-natural            | Arjuna               | Simple   | Current      | 0         |
+| 48  | 0    | combat-fixture-bunyip-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 49  | 0    | combat-fixture-dire-bear-natural              | Arjuna               | Simple   | Current      | 0         |
+| 50  | 0    | combat-fixture-griffin-natural                | Arjuna               | Simple   | Current      | 0         |
+| 51  | 0    | combat-fixture-manticore-natural              | Arjuna               | Simple   | Current      | 0         |
+| 52  | 0    | combat-fixture-wyvern-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 53  | 0    | combat-fixture-fell-beast-natural             | Arjuna               | Simple   | Current      | 0         |
+| 54  | 0    | combat-fixture-ankheg-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 55  | 0    | combat-fixture-ent-natural                    | Arjuna               | Simple   | Current      | 0         |
+| 56  | 0    | combat-fixture-pegacorn-natural               | Arjuna               | Simple   | Current      | 0         |
+| 57  | 0    | combat-fixture-yacumama-natural               | Arjuna               | Simple   | Current      | 0         |
+| 58  | 0    | combat-fixture-colossal-worm-natural          | Arjuna               | Simple   | Current      | 0         |
+| 59  | 0    | combat-fixture-huorn-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 60  | 1    | combat-fixture-dragon-natural                 | Arjuna               | Simple   | Current      | 1         |
+| 61  | 1    | combat-fixture-eastern-dragon-natural         | Arjuna               | Simple   | Current      | 0         |
+| 62  | 0    | combat-fixture-imp-natural                    | Arjuna               | Simple   | Current      | 0         |
+| 63  | 0    | combat-fixture-familiar-natural               | Arjuna               | Simple   | Current      | 0         |
+| 64  | 0    | combat-fixture-incubus-natural                | Arjuna               | Simple   | Current      | 0         |
+| 65  | 0    | combat-fixture-succubus-natural               | Arjuna               | Simple   | Current      | 0         |
+| 66  | 0    | combat-fixture-spirit-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 67  | 0    | combat-fixture-ghost-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 68  | 0    | combat-fixture-ancestral-spirit-natural       | Arjuna               | Simple   | Current      | 0         |
+| 69  | 0    | combat-fixture-zombie-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 70  | 0    | combat-fixture-skeleton-natural               | Arjuna               | Simple   | Current      | 0         |
+| 71  | 0    | combat-fixture-ishim-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 72  | 0    | combat-fixture-fallen-ishim-natural           | Arjuna               | Simple   | Current      | 0         |
+| 73  | 1    | combat-fixture-werewolf-natural               | Arjuna               | Simple   | Current      | 0         |
+| 74  | 0    | combat-fixture-vampire-natural                | Arjuna               | Simple   | Current      | 0         |
+| 75  | 0    | combat-fixture-lich-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 76  | 0    | combat-fixture-ghoul-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 77  | 0    | combat-fixture-mummy-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 78  | 0    | combat-fixture-nature-spirit-natural          | Arjuna               | Simple   | Current      | 0         |
+| 79  | 0    | combat-fixture-elemental-spirit-natural       | Arjuna               | Simple   | Current      | 0         |
+| 80  | 0    | combat-fixture-specter-natural                | Arjuna               | Simple   | Current      | 0         |
+| 81  | 0    | combat-fixture-cherubim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 82  | 0    | combat-fixture-bene-elohim-natural            | Arjuna               | Simple   | Current      | 0         |
+| 83  | 0    | combat-fixture-fallen-cherubim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 84  | 0    | combat-fixture-fallen-bene-elohim-natural     | Arjuna               | Simple   | Current      | 0         |
+| 85  | 0    | combat-fixture-fury-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 86  | 0    | combat-fixture-hellhound-natural              | Arjuna               | Simple   | Current      | 0         |
+| 87  | 0    | combat-fixture-werewolf-hybrid-natural        | Arjuna               | Simple   | Current      | 0         |
+| 88  | 0    | combat-fixture-wraith-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 89  | 0    | combat-fixture-demigod-natural                | Arjuna               | Simple   | Current      | 0         |
+| 90  | 6    | combat-fixture-elohim-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 91  | 0    | combat-fixture-malakhim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 92  | 0    | combat-fixture-seraphim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 93  | 0    | combat-fixture-fallen-elohim-natural          | Arjuna               | Simple   | Current      | 0         |
+| 94  | 0    | combat-fixture-fallen-malakhim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 95  | 0    | combat-fixture-fallen-seraphim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 96  | 0    | combat-fixture-fiend-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 97  | 0    | combat-fixture-erelim-natural                 | Arjuna               | Simple   | Current      | 0         |
+*** Type more to read further ***
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc list elohim
++-----+------+-----------------------------------------------+----------------------+----------+--------------+-----------+
+| ID# | Rev# | Unique Name                                   | Name                 | Type     | Status       | Instances |
++-----+------+-----------------------------------------------+----------------------+----------+--------------+-----------+
+| 1   | 0    |                                               | Unnamed NPC Template | Variable | Current      | 1         |
+| 2   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 3   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 4   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 5   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 6   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 7   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 8   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 9   | 0    |                                               | Admin                | Simple   | Current      | 3         |
+| 10  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 11  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 12  | 0    |                                               | Admin                | Simple   | Current      | 3         |
+| 13  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 14  | 0    |                                               | Admin                | Simple   | Current      | 2         |
+| 15  | 0    | Elephant                                      | Unnamed NPC Template | Variable | Current      | 1         |
+| 16  | 0    |                                               | Unnamed NPC Template | Variable | Current      | 1         |
+| 17  | 1    | combat-fixture-warg                           | Agathe Herbert       | Simple   | Current      | 0         |
+| 18  | 1    | combat-fixture-warg-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 19  | 1    | combat-veteran-hunter                         | Agathe Herbert       | Simple   | Current      | 0         |
+| 20  | 1    | combat-fixture-cockatrice-natural             | Arjuna               | Simple   | Current      | 0         |
+| 21  | 0    | combat-fixture-selkie-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 22  | 0    | combat-fixture-myconid-natural                | Arjuna               | Simple   | Current      | 0         |
+| 23  | 0    | combat-fixture-dryad-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 24  | 0    | combat-fixture-owlkin-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 25  | 0    | combat-fixture-avian-person-natural           | Arjuna               | Simple   | Current      | 0         |
+| 26  | 0    | combat-fixture-unicorn-natural                | Arjuna               | Simple   | Current      | 0         |
+| 27  | 0    | combat-fixture-pegasus-natural                | Arjuna               | Simple   | Current      | 0         |
+| 28  | 0    | combat-fixture-minotaur-natural               | Arjuna               | Simple   | Current      | 0         |
+| 29  | 0    | combat-fixture-naga-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 30  | 0    | combat-fixture-mermaid-natural                | Arjuna               | Simple   | Current      | 0         |
+| 31  | 0    | combat-fixture-plantfolk-natural              | Arjuna               | Simple   | Current      | 0         |
+| 32  | 0    | combat-fixture-hippocamp-natural              | Arjuna               | Simple   | Current      | 0         |
+| 33  | 0    | combat-fixture-qilin-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 34  | 0    | combat-fixture-dire-wolf-natural              | Arjuna               | Simple   | Current      | 0         |
+| 35  | 0    | combat-fixture-hippogriff-natural             | Arjuna               | Simple   | Current      | 0         |
+| 36  | 0    | combat-fixture-phoenix-natural                | Arjuna               | Simple   | Current      | 0         |
+| 37  | 0    | combat-fixture-basilisk-natural               | Arjuna               | Simple   | Current      | 0         |
+| 38  | 0    | combat-fixture-giant-beetle-natural           | Arjuna               | Simple   | Current      | 0         |
+| 39  | 0    | combat-fixture-giant-ant-natural              | Arjuna               | Simple   | Current      | 0         |
+| 40  | 0    | combat-fixture-giant-mantis-natural           | Arjuna               | Simple   | Current      | 0         |
+| 41  | 0    | combat-fixture-giant-spider-natural           | Arjuna               | Simple   | Current      | 0         |
+| 42  | 0    | combat-fixture-giant-scorpion-natural         | Arjuna               | Simple   | Current      | 0         |
+| 43  | 0    | combat-fixture-giant-centipede-natural        | Arjuna               | Simple   | Current      | 0         |
+| 44  | 0    | combat-fixture-giant-worm-natural             | Arjuna               | Simple   | Current      | 0         |
+| 45  | 0    | combat-fixture-centaur-natural                | Arjuna               | Simple   | Current      | 0         |
+| 46  | 0    | combat-fixture-garuda-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 47  | 0    | combat-fixture-giant-eagle-natural            | Arjuna               | Simple   | Current      | 0         |
+| 48  | 0    | combat-fixture-bunyip-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 49  | 0    | combat-fixture-dire-bear-natural              | Arjuna               | Simple   | Current      | 0         |
+| 50  | 0    | combat-fixture-griffin-natural                | Arjuna               | Simple   | Current      | 0         |
+| 51  | 0    | combat-fixture-manticore-natural              | Arjuna               | Simple   | Current      | 0         |
+| 52  | 0    | combat-fixture-wyvern-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 53  | 0    | combat-fixture-fell-beast-natural             | Arjuna               | Simple   | Current      | 0         |
+| 54  | 0    | combat-fixture-ankheg-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 55  | 0    | combat-fixture-ent-natural                    | Arjuna               | Simple   | Current      | 0         |
+| 56  | 0    | combat-fixture-pegacorn-natural               | Arjuna               | Simple   | Current      | 0         |
+| 57  | 0    | combat-fixture-yacumama-natural               | Arjuna               | Simple   | Current      | 0         |
+| 58  | 0    | combat-fixture-colossal-worm-natural          | Arjuna               | Simple   | Current      | 0         |
+| 59  | 0    | combat-fixture-huorn-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 60  | 1    | combat-fixture-dragon-natural                 | Arjuna               | Simple   | Current      | 1         |
+| 61  | 1    | combat-fixture-eastern-dragon-natural         | Arjuna               | Simple   | Current      | 0         |
+| 62  | 0    | combat-fixture-imp-natural                    | Arjuna               | Simple   | Current      | 0         |
+| 63  | 0    | combat-fixture-familiar-natural               | Arjuna               | Simple   | Current      | 0         |
+| 64  | 0    | combat-fixture-incubus-natural                | Arjuna               | Simple   | Current      | 0         |
+| 65  | 0    | combat-fixture-succubus-natural               | Arjuna               | Simple   | Current      | 0         |
+| 66  | 0    | combat-fixture-spirit-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 67  | 0    | combat-fixture-ghost-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 68  | 0    | combat-fixture-ancestral-spirit-natural       | Arjuna               | Simple   | Current      | 0         |
+| 69  | 0    | combat-fixture-zombie-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 70  | 0    | combat-fixture-skeleton-natural               | Arjuna               | Simple   | Current      | 0         |
+| 71  | 0    | combat-fixture-ishim-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 72  | 0    | combat-fixture-fallen-ishim-natural           | Arjuna               | Simple   | Current      | 0         |
+| 73  | 1    | combat-fixture-werewolf-natural               | Arjuna               | Simple   | Current      | 0         |
+| 74  | 0    | combat-fixture-vampire-natural                | Arjuna               | Simple   | Current      | 0         |
+| 75  | 0    | combat-fixture-lich-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 76  | 0    | combat-fixture-ghoul-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 77  | 0    | combat-fixture-mummy-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 78  | 0    | combat-fixture-nature-spirit-natural          | Arjuna               | Simple   | Current      | 0         |
+| 79  | 0    | combat-fixture-elemental-spirit-natural       | Arjuna               | Simple   | Current      | 0         |
+| 80  | 0    | combat-fixture-specter-natural                | Arjuna               | Simple   | Current      | 0         |
+| 81  | 0    | combat-fixture-cherubim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 82  | 0    | combat-fixture-bene-elohim-natural            | Arjuna               | Simple   | Current      | 0         |
+| 83  | 0    | combat-fixture-fallen-cherubim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 84  | 0    | combat-fixture-fallen-bene-elohim-natural     | Arjuna               | Simple   | Current      | 0         |
+| 85  | 0    | combat-fixture-fury-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 86  | 0    | combat-fixture-hellhound-natural              | Arjuna               | Simple   | Current      | 0         |
+| 87  | 0    | combat-fixture-werewolf-hybrid-natural        | Arjuna               | Simple   | Current      | 0         |
+| 88  | 0    | combat-fixture-wraith-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 89  | 0    | combat-fixture-demigod-natural                | Arjuna               | Simple   | Current      | 0         |
+| 90  | 6    | combat-fixture-elohim-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 91  | 0    | combat-fixture-malakhim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 92  | 0    | combat-fixture-seraphim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 93  | 0    | combat-fixture-fallen-elohim-natural          | Arjuna               | Simple   | Current      | 0         |
+| 94  | 0    | combat-fixture-fallen-malakhim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 95  | 0    | combat-fixture-fallen-seraphim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 96  | 0    | combat-fixture-fiend-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 97  | 0    | combat-fixture-erelim-natural                 | Arjuna               | Simple   | Current      | 0         |
+*** Type more to read further ***
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc list balrog
++-----+------+-----------------------------------------------+----------------------+----------+--------------+-----------+
+| ID# | Rev# | Unique Name                                   | Name                 | Type     | Status       | Instances |
++-----+------+-----------------------------------------------+----------------------+----------+--------------+-----------+
+| 1   | 0    |                                               | Unnamed NPC Template | Variable | Current      | 1         |
+| 2   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 3   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 4   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 5   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 6   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 7   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 8   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 9   | 0    |                                               | Admin                | Simple   | Current      | 3         |
+| 10  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 11  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 12  | 0    |                                               | Admin                | Simple   | Current      | 3         |
+| 13  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 14  | 0    |                                               | Admin                | Simple   | Current      | 2         |
+| 15  | 0    | Elephant                                      | Unnamed NPC Template | Variable | Current      | 1         |
+| 16  | 0    |                                               | Unnamed NPC Template | Variable | Current      | 1         |
+| 17  | 1    | combat-fixture-warg                           | Agathe Herbert       | Simple   | Current      | 0         |
+| 18  | 1    | combat-fixture-warg-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 19  | 1    | combat-veteran-hunter                         | Agathe Herbert       | Simple   | Current      | 0         |
+| 20  | 1    | combat-fixture-cockatrice-natural             | Arjuna               | Simple   | Current      | 0         |
+| 21  | 0    | combat-fixture-selkie-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 22  | 0    | combat-fixture-myconid-natural                | Arjuna               | Simple   | Current      | 0         |
+| 23  | 0    | combat-fixture-dryad-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 24  | 0    | combat-fixture-owlkin-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 25  | 0    | combat-fixture-avian-person-natural           | Arjuna               | Simple   | Current      | 0         |
+| 26  | 0    | combat-fixture-unicorn-natural                | Arjuna               | Simple   | Current      | 0         |
+| 27  | 0    | combat-fixture-pegasus-natural                | Arjuna               | Simple   | Current      | 0         |
+| 28  | 0    | combat-fixture-minotaur-natural               | Arjuna               | Simple   | Current      | 0         |
+| 29  | 0    | combat-fixture-naga-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 30  | 0    | combat-fixture-mermaid-natural                | Arjuna               | Simple   | Current      | 0         |
+| 31  | 0    | combat-fixture-plantfolk-natural              | Arjuna               | Simple   | Current      | 0         |
+| 32  | 0    | combat-fixture-hippocamp-natural              | Arjuna               | Simple   | Current      | 0         |
+| 33  | 0    | combat-fixture-qilin-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 34  | 0    | combat-fixture-dire-wolf-natural              | Arjuna               | Simple   | Current      | 0         |
+| 35  | 0    | combat-fixture-hippogriff-natural             | Arjuna               | Simple   | Current      | 0         |
+| 36  | 0    | combat-fixture-phoenix-natural                | Arjuna               | Simple   | Current      | 0         |
+| 37  | 0    | combat-fixture-basilisk-natural               | Arjuna               | Simple   | Current      | 0         |
+| 38  | 0    | combat-fixture-giant-beetle-natural           | Arjuna               | Simple   | Current      | 0         |
+| 39  | 0    | combat-fixture-giant-ant-natural              | Arjuna               | Simple   | Current      | 0         |
+| 40  | 0    | combat-fixture-giant-mantis-natural           | Arjuna               | Simple   | Current      | 0         |
+| 41  | 0    | combat-fixture-giant-spider-natural           | Arjuna               | Simple   | Current      | 0         |
+| 42  | 0    | combat-fixture-giant-scorpion-natural         | Arjuna               | Simple   | Current      | 0         |
+| 43  | 0    | combat-fixture-giant-centipede-natural        | Arjuna               | Simple   | Current      | 0         |
+| 44  | 0    | combat-fixture-giant-worm-natural             | Arjuna               | Simple   | Current      | 0         |
+| 45  | 0    | combat-fixture-centaur-natural                | Arjuna               | Simple   | Current      | 0         |
+| 46  | 0    | combat-fixture-garuda-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 47  | 0    | combat-fixture-giant-eagle-natural            | Arjuna               | Simple   | Current      | 0         |
+| 48  | 0    | combat-fixture-bunyip-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 49  | 0    | combat-fixture-dire-bear-natural              | Arjuna               | Simple   | Current      | 0         |
+| 50  | 0    | combat-fixture-griffin-natural                | Arjuna               | Simple   | Current      | 0         |
+| 51  | 0    | combat-fixture-manticore-natural              | Arjuna               | Simple   | Current      | 0         |
+| 52  | 0    | combat-fixture-wyvern-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 53  | 0    | combat-fixture-fell-beast-natural             | Arjuna               | Simple   | Current      | 0         |
+| 54  | 0    | combat-fixture-ankheg-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 55  | 0    | combat-fixture-ent-natural                    | Arjuna               | Simple   | Current      | 0         |
+| 56  | 0    | combat-fixture-pegacorn-natural               | Arjuna               | Simple   | Current      | 0         |
+| 57  | 0    | combat-fixture-yacumama-natural               | Arjuna               | Simple   | Current      | 0         |
+| 58  | 0    | combat-fixture-colossal-worm-natural          | Arjuna               | Simple   | Current      | 0         |
+| 59  | 0    | combat-fixture-huorn-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 60  | 1    | combat-fixture-dragon-natural                 | Arjuna               | Simple   | Current      | 1         |
+| 61  | 1    | combat-fixture-eastern-dragon-natural         | Arjuna               | Simple   | Current      | 0         |
+| 62  | 0    | combat-fixture-imp-natural                    | Arjuna               | Simple   | Current      | 0         |
+| 63  | 0    | combat-fixture-familiar-natural               | Arjuna               | Simple   | Current      | 0         |
+| 64  | 0    | combat-fixture-incubus-natural                | Arjuna               | Simple   | Current      | 0         |
+| 65  | 0    | combat-fixture-succubus-natural               | Arjuna               | Simple   | Current      | 0         |
+| 66  | 0    | combat-fixture-spirit-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 67  | 0    | combat-fixture-ghost-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 68  | 0    | combat-fixture-ancestral-spirit-natural       | Arjuna               | Simple   | Current      | 0         |
+| 69  | 0    | combat-fixture-zombie-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 70  | 0    | combat-fixture-skeleton-natural               | Arjuna               | Simple   | Current      | 0         |
+| 71  | 0    | combat-fixture-ishim-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 72  | 0    | combat-fixture-fallen-ishim-natural           | Arjuna               | Simple   | Current      | 0         |
+| 73  | 1    | combat-fixture-werewolf-natural               | Arjuna               | Simple   | Current      | 0         |
+| 74  | 0    | combat-fixture-vampire-natural                | Arjuna               | Simple   | Current      | 0         |
+| 75  | 0    | combat-fixture-lich-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 76  | 0    | combat-fixture-ghoul-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 77  | 0    | combat-fixture-mummy-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 78  | 0    | combat-fixture-nature-spirit-natural          | Arjuna               | Simple   | Current      | 0         |
+| 79  | 0    | combat-fixture-elemental-spirit-natural       | Arjuna               | Simple   | Current      | 0         |
+| 80  | 0    | combat-fixture-specter-natural                | Arjuna               | Simple   | Current      | 0         |
+| 81  | 0    | combat-fixture-cherubim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 82  | 0    | combat-fixture-bene-elohim-natural            | Arjuna               | Simple   | Current      | 0         |
+| 83  | 0    | combat-fixture-fallen-cherubim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 84  | 0    | combat-fixture-fallen-bene-elohim-natural     | Arjuna               | Simple   | Current      | 0         |
+| 85  | 0    | combat-fixture-fury-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 86  | 0    | combat-fixture-hellhound-natural              | Arjuna               | Simple   | Current      | 0         |
+| 87  | 0    | combat-fixture-werewolf-hybrid-natural        | Arjuna               | Simple   | Current      | 0         |
+| 88  | 0    | combat-fixture-wraith-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 89  | 0    | combat-fixture-demigod-natural                | Arjuna               | Simple   | Current      | 0         |
+| 90  | 6    | combat-fixture-elohim-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 91  | 0    | combat-fixture-malakhim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 92  | 0    | combat-fixture-seraphim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 93  | 0    | combat-fixture-fallen-elohim-natural          | Arjuna               | Simple   | Current      | 0         |
+| 94  | 0    | combat-fixture-fallen-malakhim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 95  | 0    | combat-fixture-fallen-seraphim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 96  | 0    | combat-fixture-fiend-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 97  | 0    | combat-fixture-erelim-natural                 | Arjuna               | Simple   | Current      | 0         |
+*** Type more to read further ***
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc list deer
++-----+------+-----------------------------------------------+----------------------+----------+--------------+-----------+
+| ID# | Rev# | Unique Name                                   | Name                 | Type     | Status       | Instances |
++-----+------+-----------------------------------------------+----------------------+----------+--------------+-----------+
+| 1   | 0    |                                               | Unnamed NPC Template | Variable | Current      | 1         |
+| 2   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 3   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 4   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 5   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 6   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 7   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 8   | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 9   | 0    |                                               | Admin                | Simple   | Current      | 3         |
+| 10  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 11  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 12  | 0    |                                               | Admin                | Simple   | Current      | 3         |
+| 13  | 0    |                                               | Admin                | Simple   | Current      | 0         |
+| 14  | 0    |                                               | Admin                | Simple   | Current      | 2         |
+| 15  | 0    | Elephant                                      | Unnamed NPC Template | Variable | Current      | 1         |
+| 16  | 0    |                                               | Unnamed NPC Template | Variable | Current      | 1         |
+| 17  | 1    | combat-fixture-warg                           | Agathe Herbert       | Simple   | Current      | 0         |
+| 18  | 1    | combat-fixture-warg-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 19  | 1    | combat-veteran-hunter                         | Agathe Herbert       | Simple   | Current      | 0         |
+| 20  | 1    | combat-fixture-cockatrice-natural             | Arjuna               | Simple   | Current      | 0         |
+| 21  | 0    | combat-fixture-selkie-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 22  | 0    | combat-fixture-myconid-natural                | Arjuna               | Simple   | Current      | 0         |
+| 23  | 0    | combat-fixture-dryad-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 24  | 0    | combat-fixture-owlkin-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 25  | 0    | combat-fixture-avian-person-natural           | Arjuna               | Simple   | Current      | 0         |
+| 26  | 0    | combat-fixture-unicorn-natural                | Arjuna               | Simple   | Current      | 0         |
+| 27  | 0    | combat-fixture-pegasus-natural                | Arjuna               | Simple   | Current      | 0         |
+| 28  | 0    | combat-fixture-minotaur-natural               | Arjuna               | Simple   | Current      | 0         |
+| 29  | 0    | combat-fixture-naga-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 30  | 0    | combat-fixture-mermaid-natural                | Arjuna               | Simple   | Current      | 0         |
+| 31  | 0    | combat-fixture-plantfolk-natural              | Arjuna               | Simple   | Current      | 0         |
+| 32  | 0    | combat-fixture-hippocamp-natural              | Arjuna               | Simple   | Current      | 0         |
+| 33  | 0    | combat-fixture-qilin-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 34  | 0    | combat-fixture-dire-wolf-natural              | Arjuna               | Simple   | Current      | 0         |
+| 35  | 0    | combat-fixture-hippogriff-natural             | Arjuna               | Simple   | Current      | 0         |
+| 36  | 0    | combat-fixture-phoenix-natural                | Arjuna               | Simple   | Current      | 0         |
+| 37  | 0    | combat-fixture-basilisk-natural               | Arjuna               | Simple   | Current      | 0         |
+| 38  | 0    | combat-fixture-giant-beetle-natural           | Arjuna               | Simple   | Current      | 0         |
+| 39  | 0    | combat-fixture-giant-ant-natural              | Arjuna               | Simple   | Current      | 0         |
+| 40  | 0    | combat-fixture-giant-mantis-natural           | Arjuna               | Simple   | Current      | 0         |
+| 41  | 0    | combat-fixture-giant-spider-natural           | Arjuna               | Simple   | Current      | 0         |
+| 42  | 0    | combat-fixture-giant-scorpion-natural         | Arjuna               | Simple   | Current      | 0         |
+| 43  | 0    | combat-fixture-giant-centipede-natural        | Arjuna               | Simple   | Current      | 0         |
+| 44  | 0    | combat-fixture-giant-worm-natural             | Arjuna               | Simple   | Current      | 0         |
+| 45  | 0    | combat-fixture-centaur-natural                | Arjuna               | Simple   | Current      | 0         |
+| 46  | 0    | combat-fixture-garuda-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 47  | 0    | combat-fixture-giant-eagle-natural            | Arjuna               | Simple   | Current      | 0         |
+| 48  | 0    | combat-fixture-bunyip-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 49  | 0    | combat-fixture-dire-bear-natural              | Arjuna               | Simple   | Current      | 0         |
+| 50  | 0    | combat-fixture-griffin-natural                | Arjuna               | Simple   | Current      | 0         |
+| 51  | 0    | combat-fixture-manticore-natural              | Arjuna               | Simple   | Current      | 0         |
+| 52  | 0    | combat-fixture-wyvern-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 53  | 0    | combat-fixture-fell-beast-natural             | Arjuna               | Simple   | Current      | 0         |
+| 54  | 0    | combat-fixture-ankheg-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 55  | 0    | combat-fixture-ent-natural                    | Arjuna               | Simple   | Current      | 0         |
+| 56  | 0    | combat-fixture-pegacorn-natural               | Arjuna               | Simple   | Current      | 0         |
+| 57  | 0    | combat-fixture-yacumama-natural               | Arjuna               | Simple   | Current      | 0         |
+| 58  | 0    | combat-fixture-colossal-worm-natural          | Arjuna               | Simple   | Current      | 0         |
+| 59  | 0    | combat-fixture-huorn-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 60  | 1    | combat-fixture-dragon-natural                 | Arjuna               | Simple   | Current      | 1         |
+| 61  | 1    | combat-fixture-eastern-dragon-natural         | Arjuna               | Simple   | Current      | 0         |
+| 62  | 0    | combat-fixture-imp-natural                    | Arjuna               | Simple   | Current      | 0         |
+| 63  | 0    | combat-fixture-familiar-natural               | Arjuna               | Simple   | Current      | 0         |
+| 64  | 0    | combat-fixture-incubus-natural                | Arjuna               | Simple   | Current      | 0         |
+| 65  | 0    | combat-fixture-succubus-natural               | Arjuna               | Simple   | Current      | 0         |
+| 66  | 0    | combat-fixture-spirit-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 67  | 0    | combat-fixture-ghost-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 68  | 0    | combat-fixture-ancestral-spirit-natural       | Arjuna               | Simple   | Current      | 0         |
+| 69  | 0    | combat-fixture-zombie-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 70  | 0    | combat-fixture-skeleton-natural               | Arjuna               | Simple   | Current      | 0         |
+| 71  | 0    | combat-fixture-ishim-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 72  | 0    | combat-fixture-fallen-ishim-natural           | Arjuna               | Simple   | Current      | 0         |
+| 73  | 1    | combat-fixture-werewolf-natural               | Arjuna               | Simple   | Current      | 0         |
+| 74  | 0    | combat-fixture-vampire-natural                | Arjuna               | Simple   | Current      | 0         |
+| 75  | 0    | combat-fixture-lich-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 76  | 0    | combat-fixture-ghoul-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 77  | 0    | combat-fixture-mummy-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 78  | 0    | combat-fixture-nature-spirit-natural          | Arjuna               | Simple   | Current      | 0         |
+| 79  | 0    | combat-fixture-elemental-spirit-natural       | Arjuna               | Simple   | Current      | 0         |
+| 80  | 0    | combat-fixture-specter-natural                | Arjuna               | Simple   | Current      | 0         |
+| 81  | 0    | combat-fixture-cherubim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 82  | 0    | combat-fixture-bene-elohim-natural            | Arjuna               | Simple   | Current      | 0         |
+| 83  | 0    | combat-fixture-fallen-cherubim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 84  | 0    | combat-fixture-fallen-bene-elohim-natural     | Arjuna               | Simple   | Current      | 0         |
+| 85  | 0    | combat-fixture-fury-natural                   | Arjuna               | Simple   | Current      | 0         |
+| 86  | 0    | combat-fixture-hellhound-natural              | Arjuna               | Simple   | Current      | 0         |
+| 87  | 0    | combat-fixture-werewolf-hybrid-natural        | Arjuna               | Simple   | Current      | 0         |
+| 88  | 0    | combat-fixture-wraith-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 89  | 0    | combat-fixture-demigod-natural                | Arjuna               | Simple   | Current      | 0         |
+| 90  | 6    | combat-fixture-elohim-natural                 | Arjuna               | Simple   | Current      | 0         |
+| 91  | 0    | combat-fixture-malakhim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 92  | 0    | combat-fixture-seraphim-natural               | Arjuna               | Simple   | Current      | 0         |
+| 93  | 0    | combat-fixture-fallen-elohim-natural          | Arjuna               | Simple   | Current      | 0         |
+| 94  | 0    | combat-fixture-fallen-malakhim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 95  | 0    | combat-fixture-fallen-seraphim-natural        | Arjuna               | Simple   | Current      | 0         |
+| 96  | 0    | combat-fixture-fiend-natural                  | Arjuna               | Simple   | Current      | 0         |
+| 97  | 0    | combat-fixture-erelim-natural                 | Arjuna               | Simple   | Current      | 0         |
+*** Type more to read further ***
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>

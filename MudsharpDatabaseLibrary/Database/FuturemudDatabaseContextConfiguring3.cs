@@ -2666,6 +2666,8 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.LoadDelay).HasDefaultValueSql("'0.5'");
 
+                entity.Property(e => e.MinimumFiringPositionStateId).HasColumnType("int(11)");
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnType("varchar(200)")

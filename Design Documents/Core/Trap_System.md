@@ -1,5 +1,7 @@
 # Trap System
 
+Trap trigger and payload delays accept both XML Schema durations (for example `PT0S`) and invariant .NET time spans (for example `00:00:00`). Seeded templates use the invariant representation. This compatibility is significant for explosive exit traps: an invalid negative sentinel prevents payload resolution, while a valid zero delay detonates synchronously during exit traversal.
+
 ## Purpose and scope
 
 FutureMUD traps are persistent combinations of one or more triggers and ordered payloads. They are not a new item type. A trap is a saving effect anchored to an existing perceivable, which permits physical traps, prepared spells, and natural hazards to share runtime, persistence, visibility, law, and FutureProg surfaces.

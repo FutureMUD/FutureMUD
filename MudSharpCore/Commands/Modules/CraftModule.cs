@@ -253,6 +253,8 @@ The syntax for building crafts is as follows:
 	#3craft review <id>|all|mine#0 - reviews specified crafts
 	#3craft edit new#0 - creates a new craft
 	#3craft clone <craft> <newName>#0 - clones a craft
+	#3craft rename <match regex> <replacement text>#0 - safely bulk renames active crafts after validating the complete final name set
+		Quote arguments containing spaces; use #6(?i)#0 for case-insensitive matching. The complete draft is shown and nothing changes on a clash.
 	#3craft categories#0 - lists all the existing categories of crafts
 	#3craft set <...>#0 - sets properties of the craft. See CRAFT SET HELP for more detailed help.
 
@@ -326,6 +328,13 @@ The full list of filters for craft list is below:
                     goto default;
                 }
                 BaseBuilderModule.GenericReview(actor, ss, EditableRevisableItemHelper.CraftHelper);
+                return;
+            case "rename":
+                if (!actor.IsAdministrator())
+                {
+                    goto default;
+                }
+                BaseBuilderModule.GenericRevisableRename(actor, ss, EditableRevisableItemHelper.CraftHelper);
                 return;
             case "categories":
                 CraftCategories(actor);
@@ -806,6 +815,8 @@ You can use the following admin options with this command:
 	#3edit submit#0 - submits a project for review
 	#3review all#0 - reviews all submitted projects
 	#3review mine#0 - reviews all your own projects
+	#3project rename <match regex> <replacement text>#0 - safely bulk renames active project templates after validating the complete final name set
+		Quote arguments containing spaces; use #6(?i)#0 for case-insensitive matching. The complete draft is shown and nothing changes on a clash.
 	#3set ...#0 - sets some property about the project. See that command for more help.
 
 Note: See the closely related #3projects#0 command for information about your current projects.";
@@ -862,6 +873,9 @@ Note: See the closely related #3projects#0 command for information about your cu
                     return;
                 case "review":
                     BaseBuilderModule.GenericReview(actor, ss, EditableRevisableItemHelper.ProjectHelper);
+                    return;
+                case "rename":
+                    BaseBuilderModule.GenericRevisableRename(actor, ss, EditableRevisableItemHelper.ProjectHelper);
                     return;
                 case "help":
                 case "?":

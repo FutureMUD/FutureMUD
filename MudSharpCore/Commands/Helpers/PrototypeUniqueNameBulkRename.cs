@@ -260,7 +260,7 @@ internal static class PrototypeUniqueNameBulkRenameCommand
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"What regular expression do you want to match? The syntax is {($"{commandName} rename <match regex> <replacement text>").ColourCommand()}.");
+				$"What regular expression do you want to match? The syntax is {($"{commandName} <match regex> <replacement text>").ColourCommand()}.");
 			return;
 		}
 

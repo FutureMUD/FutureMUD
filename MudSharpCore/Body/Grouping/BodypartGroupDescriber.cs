@@ -133,5 +133,31 @@ public abstract class BodypartGroupDescriber : SaveableItem, IBodypartGroupDescr
         actor.OutputHandler.Send($"Instead of individual bodyparts, this group will now be described as {DescribedAs.ColourCommand()}.");
         return true;
     }
+
+    internal override bool TryNormaliseNameForBulkRename(string proposedName, out string normalisedName,
+        out string error)
+    {
+        normalisedName = proposedName.Trim();
+        if (string.IsNullOrWhiteSpace(normalisedName))
+        {
+            error = "Bodypart group descriptions cannot be blank.";
+            return false;
+        }
+
+        if (normalisedName.All(char.IsDigit))
+        {
+            error = "Bodypart group descriptions cannot be entirely numeric, because numeric input is reserved for IDs.";
+            return false;
+        }
+
+        error = string.Empty;
+        return true;
+    }
+
+    internal override void SetNameFromValidatedBulkRename(string name)
+    {
+        DescribedAs = name;
+        Changed = true;
+    }
     #endregion
 }

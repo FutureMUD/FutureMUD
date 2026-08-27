@@ -96,6 +96,13 @@ public class SimpleNPCTemplate : NPCTemplateBase
         return new SimpleNPCTemplate(Gameworld, builder.Account, GetCharacterTemplate(null), Name, BuilderNotes);
     }
 
+    internal INPCTemplate CloneWithName(ICharacter builder, string name)
+    {
+        var clone = new SimpleNPCTemplate(Gameworld, builder.Account, GetCharacterTemplate(null), name, BuilderNotes);
+        clone.SetNameFromValidatedBulkRename(name);
+        return clone;
+    }
+
     public override string FrameworkItemType => "SimpleNPCTemplate";
 
     public override string NPCTemplateType => "Simple";
@@ -1637,6 +1644,45 @@ public class SimpleNPCTemplate : NPCTemplateBase
             name.GetName(NameStyle.FullName).TitleCase().Colour(Telnet.Cyan));
         Changed = true;
         return true;
+    }
+
+    internal override bool TryNormaliseNameForBulkRename(string proposedName, out string normalisedName,
+        out string error)
+    {
+        normalisedName = proposedName.Trim();
+        if (SelectedCulture is null)
+        {
+            error = "This NPC template does not have a culture from which to validate its name.";
+            return false;
+        }
+
+        var nameCulture = SelectedEthnicity?.NameCultureForGender(SelectedGender) ??
+                          SelectedCulture.NameCultureForGender(SelectedGender);
+        var personalName = nameCulture.GetPersonalName(normalisedName);
+        if (personalName is null)
+        {
+            error = $"The name {normalisedName} is not valid for the {nameCulture.Name} naming culture.";
+            return false;
+        }
+
+        normalisedName = personalName.GetName(NameStyle.FullWithNickname);
+        if (normalisedName.All(char.IsDigit))
+        {
+            error = "NPC template names cannot be entirely numeric, because numeric input is reserved for IDs.";
+            return false;
+        }
+
+        error = string.Empty;
+        return true;
+    }
+
+    internal override void SetNameFromValidatedBulkRename(string name)
+    {
+        var nameCulture = SelectedEthnicity?.NameCultureForGender(SelectedGender) ??
+                          SelectedCulture.NameCultureForGender(SelectedGender);
+        SelectedName = nameCulture.GetPersonalName(name)!;
+        _name = SelectedName.GetName(NameStyle.FullWithNickname);
+        Changed = true;
     }
 
     private bool BuildingCommandRace(ICharacter actor, StringStack command)

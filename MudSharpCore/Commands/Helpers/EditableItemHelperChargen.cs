@@ -31,6 +31,7 @@ public partial class EditableItemHelper
         GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.EntityDescriptionPatterns.GetByIdOrName(input),
         AddItemToGameWorldAction = item => item.Gameworld.Add((IEntityDescriptionPattern)item),
         CastToType = typeof(IEntityDescriptionPattern),
+        NameSetCommandAliases = new[] { "pattern" },
         EditableNewAction = (actor, input) =>
         {
             EntityDescriptionType type;

@@ -126,18 +126,23 @@ Because component prototypes are revisioned content, do not think of them as raw
 Use:
 - `item edit new`
 - `item edit <id|unique name>`
-- `item clone <id|unique name>`
+- `item clone <id|unique name> [<new name>]`
 
 Item prototype lookup prefers numeric ids, then exact `UniqueName`, then the legacy noun/name matching that older builder commands expect. Unique names are optional, case-insensitively unique among active revisions, and cannot be entirely numeric.
 
-### Bulk rename item unique names
+Cloning without a final argument creates a valid numbered `copy` noun; supplying `<new name>` validates the same trimmed, non-numeric, active-name namespace used by `item rename` before a clone is persisted.
+
+### Bulk rename item prototype names
 Use:
 - `item rename <match regex> <replacement text>`
-- `item rename "^antiquity_(?<name>.+)$" "historic_${name}"`
+- `item rename "^old_(?<name>.+)$" "new_${name}"`
 
-The match expression is case-sensitive by default and operates only on nonblank `UniqueName` values belonging to `Current`, `PendingRevision`, or `UnderDesign` revisions. Standard .NET numbered and named replacement groups are supported; inline regex options such as `(?i)` can opt into case-insensitive matching. Quote either argument when it contains spaces, and use `""` as the replacement to clear every matched unique name.
+The match expression is case-sensitive by default and operates on the prototype `Name` (its noun), for `Current`, `PendingRevision`, and `UnderDesign` revisions. Standard .NET numbered and named replacement groups are supported; inline regex options such as `(?i)` can opt into case-insensitive matching. Quote either argument when it contains spaces. Names are trimmed and cannot be blank or entirely numeric.
 
-The command first displays the complete proposed old-to-new map. It checks the virtual final state against untouched active prototypes as well as other entries in the batch, so swaps and rename chains are safe. If the expression is invalid or times out, a result is entirely numeric, or distinct prototype IDs would share a case-insensitive name, no prototype is changed. A successful preflight applies all actual changes immediately and marks those revisions for normal persistence.
+The command first displays the complete proposed old-to-new map. It checks the virtual final state against untouched active prototypes as well as other entries in the batch, so swaps and rename chains are safe. If the expression is invalid or times out, a result is blank or entirely numeric, or distinct prototype IDs would share a case-insensitive name, no prototype is changed. A successful preflight applies all actual changes immediately and marks those revisions for normal persistence.
+
+### Bulk rename item unique names
+Use `item renameunique <match regex> <replacement text>` for the optional stable `UniqueName` lookup key. Its case-sensitive matching, active-revision scope, empty-replacement clearing, and final-state collision validation remain unchanged.
 
 Stock rework items seeded by `ItemSeeder` use their stable seeder reference as `UniqueName`. Stock-only metadata such as the stable reference, culture context, source profile, and package notes remains in the seeder definitions and maintained manifest rather than being copied into builder comments. Reruns remove previously seeded note lines while preserving unrelated builder-authored comments. Stable references identify the era, domain, optional culture, and product; they do not include implementation provenance such as `expansion`, `rework`, `pass`, or `content_pass`, and must not repeat an adjacent package/category segment (for example, use `medieval_door_east_asian_bamboo_lattice_gate`, not `medieval_door_east_asian_east_asian_bamboo_lattice_gate`). Keep numeric suffixes only where they distinguish genuine product variants.
 

@@ -100,6 +100,31 @@ public class MudTimeZone : SaveableItem, IMudTimeZone
         }
     }
 
+    internal override bool TryNormaliseNameForBulkRename(string proposedName, out string normalisedName,
+        out string error)
+    {
+        normalisedName = proposedName.Trim();
+        if (string.IsNullOrWhiteSpace(normalisedName))
+        {
+            error = "Timezone aliases cannot be blank.";
+            return false;
+        }
+
+        if (normalisedName.All(char.IsDigit))
+        {
+            error = "Timezone aliases cannot be entirely numeric, because numeric input is reserved for IDs.";
+            return false;
+        }
+
+        error = string.Empty;
+        return true;
+    }
+
+    internal override void SetNameFromValidatedBulkRename(string name)
+    {
+        Alias = name;
+    }
+
     IEnumerable<string> IHaveMultipleNames.Names => [Name, Alias];
 
     private void LoadFromDB(Timezone zone)

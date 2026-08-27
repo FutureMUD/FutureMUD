@@ -457,6 +457,12 @@ public class Calendar : SaveableItem, ICalendar
 
     public override string Name => ShortName;
 
+    internal override void SetNameFromValidatedBulkRename(string name)
+    {
+        ShortName = name;
+        Changed = true;
+    }
+
     #endregion
 
     #region ISaveable Members

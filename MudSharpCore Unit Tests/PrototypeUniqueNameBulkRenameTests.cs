@@ -221,10 +221,12 @@ public class PrototypeUniqueNameBulkRenameTests
 	}
 
 	[TestMethod]
-	public void BuilderHelp_ListsItemAndNpcBulkRenameCommands()
+	public void BuilderHelp_ListsNameAndUniqueNameBulkRenameCommands()
 	{
 		StringAssert.Contains(ItemBuilderModule.ItemHelp, "item rename <match regex> <replacement text>");
+		StringAssert.Contains(ItemBuilderModule.ItemHelp, "item renameunique <match regex> <replacement text>");
 		StringAssert.Contains(NPCBuilderModule.NPCHelp, "npc rename <match regex> <replacement text>");
+		StringAssert.Contains(NPCBuilderModule.NPCHelp, "npc renameunique <match regex> <replacement text>");
 	}
 
 	private static PrototypeUniqueNameRenamePlan<TestPrototype> CreatePlan(

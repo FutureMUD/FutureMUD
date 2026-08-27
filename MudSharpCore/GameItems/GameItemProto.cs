@@ -31,14 +31,16 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
         LoadFromDatabase(proto, gameworld);
     }
 
-    public GameItemProto(IFuturemud gameworld, IAccount originator, string name = "object", bool isReadOnly = false, bool doNotAddHoldable = false)
+    public GameItemProto(IFuturemud gameworld, IAccount originator, string name = null, bool isReadOnly = false, bool doNotAddHoldable = false)
         : base(originator)
     {
         using (new FMDB())
         {
+            var id = gameworld.ItemProtos.NextID();
+            name = string.IsNullOrWhiteSpace(name) ? $"object {id}" : name;
             Models.GameItemProto dbproto = new()
             {
-                Id = gameworld.ItemProtos.NextID(),
+                Id = id,
                 RevisionNumber = RevisionNumber,
                 MaterialId = 0, // TODO
                 Keywords = "new object",
@@ -557,6 +559,11 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 
     public IGameItemProto Clone(ICharacter builder)
     {
+        return CloneWithName(builder, Name.Proper());
+    }
+
+    internal IGameItemProto CloneWithName(ICharacter builder, string name)
+    {
         using (new FMDB())
         {
             Models.GameItemProto dbnew = new()
@@ -566,7 +573,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
                 Keywords = Keywords.ListToString(separator: " ",
                     conjunction: ""),
                 MaterialId = Material?.Id ?? 0,
-                Name = Name.Proper(),
+                Name = name,
                 UniqueName = null,
                 BuilderNotes = BuilderNotes,
                 Size = (int)Size,
@@ -2218,6 +2225,26 @@ writing{{{exampleLanguage.Name},{exampleScript.Name},style=childish,minskill=30}
         _name = cmd;
         Changed = true;
         actor.OutputHandler.Send("You set the noun for " + EditHeader() + " to " + cmd);
+        return true;
+    }
+
+    internal override bool TryNormaliseNameForBulkRename(string proposedName, out string normalisedName,
+        out string error)
+    {
+        normalisedName = proposedName.Trim();
+        if (string.IsNullOrWhiteSpace(normalisedName))
+        {
+            error = "Item prototype nouns cannot be blank.";
+            return false;
+        }
+
+        if (normalisedName.All(char.IsDigit))
+        {
+            error = "Item prototype nouns cannot be entirely numeric, because numeric input is reserved for IDs.";
+            return false;
+        }
+
+        error = string.Empty;
         return true;
     }
 

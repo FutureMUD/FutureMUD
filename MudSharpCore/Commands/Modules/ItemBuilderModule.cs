@@ -57,11 +57,14 @@ The valid sub-commands and their syntaxes are as follows:
 	#3item edit obsolete#0 - marks the item as obsolete, and no longer loadable
 	#3item show <ID>#0 - shows info about prototype with ID
 	#3item review all|mine|<admin name>|<id>#0 - opens the specified item prototypes for review and approval
-	#3item clone <id|unique name>#0 - clones an existing prototype to a new one (also opens for editing)
-	#3item rename <match regex> <replacement text>#0 - bulk renames active item prototype unique names using case-sensitive .NET regex replacement syntax
+	#3item clone <id|unique name> [<new name>]#0 - clones an existing prototype to a new one (also opens for editing)
+	#3item rename <match regex> <replacement text>#0 - bulk renames active item prototype names using case-sensitive .NET regex replacement syntax
 		Quote regexes containing spaces. Replacement text may use numbered groups such as #6$1#0 or named groups such as #6${name}#0.
 		The command previews every matched Current, Pending Revision and Under Design revision, validates the final name set, and changes nothing if any name conflicts or is invalid.
-		Example: #3item rename ""^antiquity_(?<name>.+)$"" ""historic_${name}""#0
+		Example: #3item rename ""^old_(?<name>.+)$"" ""new_${name}""#0
+	#3item renameunique <match regex> <replacement text>#0 - bulk renames active item prototype unique lookup names
+		Use this command for stable builder and script references. It preserves the existing unique-name validation rules.
+		Example: #3item renameunique ""^antiquity_(?<name>.+)$"" ""historic_${name}""#0
 	#3item set add <id|name>#0 - adds the specified component to this item
 	#3item set remove <id|name>#0 - removes the specified component from this item
 	#3item set unique <name>#0 - sets an optional unique lookup name for this item template
@@ -138,6 +141,9 @@ The valid sub-commands and their syntaxes are as follows:
                     Item_Clone(actor, ss);
                     break;
                 case "rename":
+                    GenericRevisableRename(actor, ss, EditableRevisableItemHelper.GameItemHelper);
+                    break;
+                case "renameunique":
                     ItemRename(actor, ss);
                     break;
                 default:
@@ -152,7 +158,7 @@ The valid sub-commands and their syntaxes are as follows:
                 actor,
                 command,
                 actor.Gameworld.ItemProtos.Cast<IEditableUniqueName>(),
-                "item",
+                "item renameunique",
                 "item prototype",
                 "item prototype revisions",
                 GameItemProtoLookupExtensions.NormaliseUniqueName,
@@ -167,19 +173,85 @@ The valid sub-commands and their syntaxes are as follows:
                 return;
             }
 
-            IGameItemProto proto = actor.Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(ss.SafeRemainingArgument);
+            var sourceText = ss.SafeRemainingArgument;
+            IGameItemProto proto = actor.Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(sourceText);
+            var requestedName = string.Empty;
+            if (proto is null)
+            {
+                proto = actor.Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(ss.PopSpeech());
+                requestedName = ss.SafeRemainingArgument;
+            }
+
             if (proto == null)
             {
                 actor.Send("There is no such item prototype for you to clone.");
                 return;
             }
 
-            IGameItemProto newProto = proto.Clone(actor);
+            if (proto is not MudSharp.GameItems.GameItemProto concreteProto)
+            {
+                actor.Send("That item prototype does not support a validated clone name.");
+                return;
+            }
+
+            if (!TryGetItemCloneName(actor, proto, requestedName, out var name))
+            {
+                return;
+            }
+
+            IGameItemProto newProto = concreteProto.CloneWithName(actor, name);
             actor.Gameworld.Add(newProto);
             actor.Send(
-                $"You create a clone of item {proto.Id}r{proto.RevisionNumber} ({proto.FullDescription}).\nThe new item has an ID of {newProto.Id}, and you are now editing it.");
+                $"You create a clone of item {proto.Id}r{proto.RevisionNumber} ({proto.FullDescription}).\nThe new item has an ID of {newProto.Id} and the name {newProto.Name.ColourName()}, and you are now editing it.");
             actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IGameItemProto>>());
             actor.AddEffect(new BuilderEditingEffect<IGameItemProto>(actor) { EditingItem = newProto });
+        }
+
+        private static bool TryGetItemCloneName(ICharacter actor, IGameItemProto prototype, string requestedName,
+            out string name)
+        {
+            name = string.Empty;
+            var helper = EditableRevisableItemHelper.GameItemHelper;
+            if (!string.IsNullOrWhiteSpace(requestedName))
+            {
+                var validation = helper.TryNormaliseNameForBulkRename(prototype, requestedName);
+                if (!validation.IsValid || validation.Name is null)
+                {
+                    actor.Send((validation.Error ?? "That is not a valid item prototype name.").ColourError());
+                    return false;
+                }
+
+                if (HasItemCloneNameConflict(actor, validation.Name))
+                {
+                    actor.Send($"The name {validation.Name.ColourCommand()} is already used by an active item prototype.");
+                    return false;
+                }
+
+                name = validation.Name;
+                return true;
+            }
+
+            var rootName = $"{prototype.Name} copy";
+            for (var suffix = 1; suffix <= 1000; suffix++)
+            {
+                var candidate = suffix == 1 ? rootName : $"{rootName} {suffix}";
+                var validation = helper.TryNormaliseNameForBulkRename(prototype, candidate);
+                if (validation.IsValid && validation.Name is not null && !HasItemCloneNameConflict(actor, validation.Name))
+                {
+                    name = validation.Name;
+                    return true;
+                }
+            }
+
+            actor.Send("Unable to generate a unique name for the cloned item prototype. Specify a new name explicitly.");
+            return false;
+        }
+
+        private static bool HasItemCloneNameConflict(ICharacter actor, string name)
+        {
+            return EditableRevisableItemHelper.GameItemHelper.GetAllEditableItems(actor)
+                .Where(x => x.Status is RevisionStatus.Current or RevisionStatus.PendingRevision or RevisionStatus.UnderDesign)
+                .Any(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
         }
         #endregion
 

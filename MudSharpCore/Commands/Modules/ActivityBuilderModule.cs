@@ -944,6 +944,8 @@ You can use the following options with this command:
 	#3foragable review all|mine|<which>#0 - opens a foragable for review
 	#3foragable review list#0 - shows all the foragables due to review
 	#3foragable review history <which>#0 - shows the history of a foragable
+	#3foragable rename <match regex> <replacement text>#0 - safely bulk renames active foragables after validating the complete final name set
+		Quote arguments containing spaces; use #6(?i)#0 for case-insensitive matching. The complete draft is shown and nothing changes on a clash.
 	#3foragable set name <name>#0 - renames this foragable
 	#3foragable set proto <which>#0 - sets the proto for this foragable to load and clears commodity output
 	#3foragable set commodity material <material> [tag <tag>|notag] weight <weight>#0 - switches this foragable to commodity output
@@ -988,6 +990,9 @@ You can use the following options with this command:
             case "show":
                 GenericRevisableShow(actor, ss, EditableRevisableItemHelper.ForagableHelper);
                 break;
+            case "rename":
+                GenericRevisableRename(actor, ss, EditableRevisableItemHelper.ForagableHelper);
+                break;
             default:
                 actor.OutputHandler.Send(ForagableHelpText.SubstituteANSIColour());
                 break;
@@ -1023,6 +1028,8 @@ You can use the following options with this command:
 	#3fp review all|mine|<which>#0 - opens a foragable profile for review
 	#3fp review list#0 - shows all the foragable profiles due to review
 	#3fp review history <which>#0 - shows the history of a foragable profile
+	#3fp rename <match regex> <replacement text>#0 - safely bulk renames active profiles after validating the complete final name set
+		Quote arguments containing spaces; use #6(?i)#0 for case-insensitive matching. The complete draft is shown and nothing changes on a clash.
 	#3fp set name <name>#0 - renames this foragable profile
 	#3fp set yield <which> <max> <hourly regain>#0 - sets or updates a yield for this profile
 	#3fp set yield <which> 0#0 - removes a yield from this profile
@@ -1054,6 +1061,9 @@ You can use the following options with this command:
             case "show":
                 GenericRevisableShow(actor, ss, EditableRevisableItemHelper.ForagableProfileHelper);
                 break;
+            case "rename":
+                GenericRevisableRename(actor, ss, EditableRevisableItemHelper.ForagableProfileHelper);
+                break;
             case "load":
                 Item_Load(actor, ss);
                 break;
@@ -1072,6 +1082,8 @@ Use the following options:
 	#3traptemplate edit <which>|new#0 - edits a revision or creates a template
 	#3traptemplate edit submit|close|delete|obsolete#0 - manages the edited revision
 	#3traptemplate review all|mine|<which>#0 - reviews a template
+	#3traptemplate rename <match regex> <replacement text>#0 - safely bulk renames active templates after validating the complete final name set
+		Quote arguments containing spaces; use #6(?i)#0 for case-insensitive matching. The complete draft is shown and nothing changes on a clash.
 	#3traptemplate set name <name>#0 - renames this template
 	#3traptemplate set domain mechanical|magical|natural#0 - selects its source domain
 	#3traptemplate set trigger add <type>#0 - adds an OR trigger; use #3trigger remove <number>#0 or #3trigger <number> parameter <name> <value>#0 to configure it
@@ -1112,6 +1124,9 @@ Use #3traptemplate set trigger <number>#0 or #3traptemplate set payload <number>
                 break;
             case "show":
                 GenericRevisableShow(actor, ss, EditableRevisableItemHelper.TrapTemplateHelper);
+                break;
+            case "rename":
+                GenericRevisableRename(actor, ss, EditableRevisableItemHelper.TrapTemplateHelper);
                 break;
             default:
                 actor.OutputHandler.Send(TrapTemplateHelpText.SubstituteANSIColour());

@@ -134,6 +134,7 @@ public partial class EditableItemHelper
             .FirstOrDefault(x => x.Id.ToString("N0").EqualTo(input) || x.Name.EqualTo(input)),
         AddItemToGameWorldAction = _ => { },
         CastToType = typeof(ICombatantClass),
+		NameScopeKeyFunc = item => ((ICombatantClass)item).Arena?.Id ?? 0L,
         EditableNewAction = (actor, input) =>
         {
             if (input.IsFinished)
@@ -251,6 +252,7 @@ public partial class EditableItemHelper
             .FirstOrDefault(x => x.Id.ToString("N0").EqualTo(input) || x.Name.EqualTo(input)),
         AddItemToGameWorldAction = _ => { },
         CastToType = typeof(IArenaEventType),
+		NameScopeKeyFunc = item => ((IArenaEventType)item).Arena?.Id ?? 0L,
         EditableNewAction = (actor, input) =>
         {
             if (input.IsFinished)
@@ -462,6 +464,7 @@ public partial class EditableItemHelper
             .FirstOrDefault(x => x.Id.ToString("N0").EqualTo(input) || x.Name.EqualTo(input)),
         AddItemToGameWorldAction = _ => { },
         CastToType = typeof(IArenaEvent),
+		NameScopeKeyFunc = item => ((IArenaEvent)item).Arena?.Id ?? 0L,
         EditableNewAction = (actor, input) =>
         {
             if (input.IsFinished)

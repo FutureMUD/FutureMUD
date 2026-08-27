@@ -38,6 +38,7 @@ public partial class EditableItemHelper
         GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.Properties.GetByIdOrName(input),
         AddItemToGameWorldAction = item => item.Gameworld.Add((IProperty)item),
         CastToType = typeof(IProperty),
+		NameScopeKeyFunc = item => ((IProperty)item).EconomicZone?.Id ?? 0L,
         EditableNewAction = (actor, input) =>
         {
             if (input.IsFinished)
@@ -414,6 +415,7 @@ public partial class EditableItemHelper
         GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.Coins.GetByIdOrName(input),
         AddItemToGameWorldAction = item => item.Gameworld.Add((ICoin)item),
         CastToType = typeof(ICoin),
+		NameScopeKeyFunc = item => ((ICoin)item).Currency?.Id ?? 0L,
         EditableNewAction = (actor, input) =>
         {
             if (input.IsFinished)

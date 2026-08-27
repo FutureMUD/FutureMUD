@@ -59,7 +59,7 @@ if (-not $CaddyExecutable -or -not $Caddyfile) {
 
 $main = Get-Content -LiteralPath $Caddyfile -Raw
 $escapedHostname = [regex]::Escape($Hostname)
-if ($main -match "(?m)^\\s*$escapedHostname\\s*\\{") {
+if ($main -match "(?m)^\s*$escapedHostname\s*\{") {
 	Write-Host "Caddy already contains a site block for $Hostname; preserving the existing configuration."
 	return
 }

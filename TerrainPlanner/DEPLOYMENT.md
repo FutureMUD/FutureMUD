@@ -25,7 +25,7 @@ FLUSH PRIVILEGES;
 Extract the archive. It creates one directory named for the runtime package; change into that directory, then run:
 
 ```bash
-version=2.0.7
+version=2.1.0
 unzip "terrainplanner-$version-linux-x64.zip"
 cd "terrainplanner-$version-linux-x64"
 sudo bash deploy/linux/install-terrainplanner.sh planner.example.com
@@ -45,7 +45,7 @@ The installer creates the unprivileged `terrainplanner` account, installs a hard
 Open an elevated PowerShell prompt. The archive extracts to an outer download directory which contains the actual runtime package directory; change into the inner directory before running the installer:
 
 ```powershell
-$version = '2.0.7'
+$version = '2.1.0'
 $archive = "C:\Install\terrainplanner-$version-win-x64.zip"
 $extractRoot = "C:\Install\terrainplanner-$version"
 Expand-Archive -LiteralPath $archive -DestinationPath $extractRoot -Force

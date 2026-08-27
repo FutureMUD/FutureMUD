@@ -532,6 +532,12 @@ public partial class CombatSeeder
                         { Expression = $"throw:{(skills.GetValueOrDefault("Throwing") ?? skills["throw"]).Id}+30" },
                         template.Id, Difficulty.Impossible);
                     continue;
+				case CheckType.AimArtillery:
+				case CheckType.LoadArtillery:
+				case CheckType.FireArtillery:
+					AddCheck(check, new TraitExpression { Expression = "variable" }, template.Id,
+						Difficulty.Impossible);
+					continue;
             }
         }
     }

@@ -958,10 +958,30 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 		SendEcho(payload.Parameters, "echo", target);
 
-		switch (payload.PayloadType)
-		{
-			case TrapPayloadType.DetonateItem:
-				FindPayloadItem(x => x.GetItemType<IDetonatable>() is not null)?.GetItemType<IDetonatable>()?.Detonate();
+			switch (payload.PayloadType)
+			{
+				case TrapPayloadType.DetonateItem:
+					var detonationItem = _components
+						.Select(x => x.Item)
+						.Where(x => x is not null && !x.Deleted)
+						.Cast<IGameItem>()
+						.FirstOrDefault(x => x.Components.OfType<IDetonatable>().Any()) ??
+						(Owner as IGameItem is { } ownerItem && ownerItem.Components.OfType<IDetonatable>().Any()
+							? ownerItem
+							: null);
+				var detonator = detonationItem?.Components.OfType<IDetonatable>().FirstOrDefault();
+				if (detonationItem is not null && detonationItem.Location is null &&
+					(Owner as ICell ?? Owner.Location) is { } detonationCell)
+				{
+					var reservation = detonationItem.EffectsOfType<TrapComponentReservationEffect>()
+						.FirstOrDefault(x => x.TrapInstanceId == InstanceId);
+					RestoreInstalledComponent(detonationItem, new SpatialLocation(
+						detonationCell,
+						reservation?.SpatialLayer ?? Owner.RoomLayer,
+						reservation?.SpatialRoutePositionMetres));
+				}
+
+				detonator?.Detonate();
 				break;
 
 			case TrapPayloadType.CastSpell:

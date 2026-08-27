@@ -1,5 +1,7 @@
 # FutureMUD Item System Component Authoring
 
+For stock modern firearm, attachment, ammunition, explosive, and artillery compositions, see [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
+
 ## Scope
 This document explains how to add a new item capability through the component system.
 

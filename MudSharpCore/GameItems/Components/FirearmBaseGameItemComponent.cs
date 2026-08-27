@@ -56,6 +56,29 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
             rhs, newParent, temporary)
     {
         _prototype = rhs._prototype;
+		Safety = rhs.Safety;
+		_currentFireMode = rhs._currentFireMode;
+		PrimaryWieldedLocation = rhs.PrimaryWieldedLocation;
+		if (rhs.ChamberedRound is not null)
+		{
+			var round = rhs.ChamberedRound.Parent.DeepCopy(!temporary, true);
+			round.ContainedIn = newParent;
+			ChamberedRound = round.GetItemType<IAmmo>();
+		}
+
+		foreach (var attachment in rhs._installedAttachments)
+		{
+			var item = attachment.Value.Parent.DeepCopy(!temporary, true);
+			var clonedAttachment = item.GetItemType<IFirearmAttachment>();
+			if (clonedAttachment is null)
+			{
+				continue;
+			}
+
+			_installedAttachments[attachment.Key] = clonedAttachment;
+			clonedAttachment.InstalledIn = this;
+			item.ContainedIn = newParent;
+		}
     }
 
     protected virtual void LoadFromXml(XElement root)
@@ -406,16 +429,23 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
                     ? bodypart
                     : (target as IHaveABody)?.Body?.RandomBodyPartGeometry(
                         Orientation.Centre, Alignment.Front, Facing.Front) ?? bodypart;
-                ammo.Fire(actor, target, projectileOutcome, coverOutcome, defenseOutcome, projectileBodypart, bullet,
-                    WeaponType, projectileIndex == 0 ? defenseEmote : null,
-                    new RangedFireContext(projectileIndex, projectileCount, ammo.AmmoType.ScatterType,
-                        CombinedAttachmentModifiers.DamageMultiplier));
-                if (!bullet.Deleted &&
-                    bullet.IsItemType<IImpactDetonator>() &&
-                    bullet.LocationLevelPerceivable?.Location is not null)
-                {
-                    bullet.GetItemType<IDetonatable>()?.Detonate();
-                }
+				ammo.Fire(actor, target, projectileOutcome, coverOutcome, defenseOutcome, projectileBodypart, bullet,
+					WeaponType, projectileIndex == 0 ? defenseEmote : null,
+					new RangedFireContext(projectileIndex, projectileCount, ammo.AmmoType.ScatterType,
+						CombinedAttachmentModifiers.DamageMultiplier));
+				if (!bullet.Deleted && bullet.IsItemType<IImpactDetonator>())
+				{
+					if (bullet.Location is null && target?.Location is not null)
+					{
+						bullet.InsertAtSource(target, true);
+						bullet.PositionTarget = target;
+					}
+
+					if (bullet.Location is not null)
+					{
+						bullet.GetItemType<IDetonatable>()?.Detonate();
+					}
+				}
             }
 
             if (usesSeparateProjectile)

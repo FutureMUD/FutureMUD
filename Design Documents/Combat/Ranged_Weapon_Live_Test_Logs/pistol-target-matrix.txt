@@ -1,0 +1,1012 @@
+DemoMUD
+Powered by the FutureMUD Engine v2.8.0.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your [REDACTED]
+
+X) Disconnect from the game
+> c
+You have the following characters: 
+  1: admin (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Rolling Prarie In The Merryweather Valley
+ID[10] | Terrain[Shortgrass Prairie] | [SafeQuit] | Overlay[New Showcase (#3r0)] | Coordinates[0,0,0]
+Exits: 
+
+  The prairie rises and falls in gentle swells, its close-cropped grass bending
+around patches of thyme and stubborn yellow flowers. A narrow animal track
+follows the crest of one rise before vanishing into the grass. Flat grey
+stones, perhaps turned up by frost and rain, lie half-buried along the slope.
+From the valley below comes the faint, wandering murmur of water, nearly lost
+beneath the wind.
+
+  Currently, it is pitch black here.
+
+A matchlock arquebus are here.
+A 9x19mm ball cartridge lies here.
+A plain steel dagger is here.
+A plain steel dagger is here.
+A soft ballistic vest lies here.
+A hard-plate carrier lies here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> think === UNARMOURED HUMAN ===
+You think
+  "=== UNARMOURED HUMAN ===."
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim new
+You begin staging an accelerated combat simulation in Rolling Prarie In The Merryweather Valley [#10]. Add at least two opposing teams, then validate it.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim add character 56 team red range ranged aim 100%
+You add Agathe Herbert to team red in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim add template 108 team blue range ranged
+You add 1 instance of Agathe Herbert to team blue in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim batch 20 seed 92001 step 41 force
+> impdebug combatsim batchreport
+> think === MEDIEVAL ARMOURED HUMAN ===
+> impdebug combatsim new
+Starting 20 combat simulations from seed 92,001 with an increment of 41. Player input and ordinary loop work will resume when the batch finishes.
+
+Combat Simulation Batch 0fa3ab3f-fa22-4788-b3bf-efb68f329271
+
+Runs: 20 of 20
+Seeds: 92,001 to 92,780 (increment 41)
+Virtual duration: 32 minutes and 48 seconds total, 1 minute and 38 seconds average, 17 seconds to 3 minutes and 54 seconds range
+Simulation wall-clock: 1 second total, less than a second average
+Batch wall-clock: 1 second
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 1    | 5.0%     |
+| red  | 19   | 95.0%    |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Incapacitated     | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+Combat Simulation Batch 0fa3ab3f-fa22-4788-b3bf-efb68f329271
+
+Runs: 20 of 20
+Seeds: 92,001 to 92,780 (increment 41)
+Virtual duration: 32 minutes and 48 seconds total, 1 minute and 38 seconds average, 17 seconds to 3 minutes and 54 seconds range
+Simulation wall-clock: 1 second total, less than a second average
+Batch wall-clock: 1 second
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 1    | 5.0%     |
+| red  | 19   | 95.0%    |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Incapacitated     | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You think
+  "=== MEDIEVAL ARMOURED HUMAN ===."
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You begin staging an accelerated combat simulation in Rolling Prarie In The Merryweather Valley [#10]. Add at least two opposing teams, then validate it.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim add character 56 team red range ranged aim 100%
+You add Agathe Herbert to team red in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim add template 118 team blue range ranged
+You add 1 instance of Agathe Herbert to team blue in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim batch 20 seed 93001 step 41 force
+> impdebug combatsim batchreport
+> think === SOFT MODERN ARMOUR ===
+> impdebug combatsim new
+> impdebug combatsim add character 56 team red range ranged aim 100%
+> impdebug combatsim add character 57 team blue range ranged
+> impdebug combatsim batch 20 seed 94001 step 41 force
+> impdebug combatsim batchreport
+> think === HARD MODERN ARMOUR ===
+> impdebug combatsim new
+> impdebug combatsim add character 56 team red range ranged aim 100%
+> impdebug combatsim add character 58 team blue range ranged
+Starting 20 combat simulations from seed 93,001 with an increment of 41. Player input and ordinary loop work will resume when the batch finishes.
+
+Combat Simulation Batch 8ab5dbbc-2af4-41bf-8a89-3ddd80aea12d
+
+Runs: 20 of 20
+Seeds: 93,001 to 93,780 (increment 41)
+Virtual duration: 1 hour, 55 minutes, and 59 seconds total, 5 minutes and 47 seconds average, 1 minute and 46 seconds to 10 minutes and 53 seconds range
+Simulation wall-clock: 7 seconds total, less than a second average
+Batch wall-clock: 7 seconds
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 0    | 0.0%     |
+| red  | 20   | 100.0%   |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Incapacitated     | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+[System Message] Clock UTC replayed 15 overdue in-game seconds.
+
+
+Combat Simulation Batch 8ab5dbbc-2af4-41bf-8a89-3ddd80aea12d
+
+Runs: 20 of 20
+Seeds: 93,001 to 93,780 (increment 41)
+Virtual duration: 1 hour, 55 minutes, and 59 seconds total, 5 minutes and 47 seconds average, 1 minute and 46 seconds to 10 minutes and 53 seconds range
+Simulation wall-clock: 7 seconds total, less than a second average
+Batch wall-clock: 7 seconds
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 0    | 0.0%     |
+| red  | 20   | 100.0%   |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Incapacitated     | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You think
+  "=== SOFT MODERN ARMOUR ===."
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim batch 20 seed 95001 step 41 force
+You begin staging an accelerated combat simulation in Rolling Prarie In The Merryweather Valley [#10]. Add at least two opposing teams, then validate it.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You add Agathe Herbert to team red in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You add Agathe Herbert to team blue in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim batchreport
+> think === ELEPHANT ===
+Starting 20 combat simulations from seed 94,001 with an increment of 41. Player input and ordinary loop work will resume when the batch finishes.
+
+Combat Simulation Batch 2b025e2e-3537-4375-b90b-f5ba06ca758e
+
+Runs: 20 of 20
+Seeds: 94,001 to 94,780 (increment 41)
+Virtual duration: 28 minutes and 29 seconds total, 1 minute and 25 seconds average, 18 seconds to 3 minutes and 49 seconds range
+Simulation wall-clock: 1 second total, less than a second average
+Batch wall-clock: 1 second
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 2    | 10.0%    |
+| red  | 18   | 90.0%    |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Incapacitated     | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim new
+Combat Simulation Batch 2b025e2e-3537-4375-b90b-f5ba06ca758e
+
+Runs: 20 of 20
+Seeds: 94,001 to 94,780 (increment 41)
+Virtual duration: 28 minutes and 29 seconds total, 1 minute and 25 seconds average, 18 seconds to 3 minutes and 49 seconds range
+Simulation wall-clock: 1 second total, less than a second average
+Batch wall-clock: 1 second
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 2    | 10.0%    |
+| red  | 18   | 90.0%    |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Incapacitated     | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You think
+  "=== HARD MODERN ARMOUR ===."
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You begin staging an accelerated combat simulation in Rolling Prarie In The Merryweather Valley [#10]. Add at least two opposing teams, then validate it.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim add character 56 team red range ranged aim 100%
+You add Agathe Herbert to team red in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You add Agathe Herbert to team blue in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim add template 15 team blue range ranged
+> impdebug combatsim batch 20 seed 96001 step 41 force
+Starting 20 combat simulations from seed 95,001 with an increment of 41. Player input and ordinary loop work will resume when the batch finishes.
+
+Combat Simulation Batch 1168beb3-bbb0-4d46-abce-6b49cf293076
+
+Runs: 20 of 20
+Seeds: 95,001 to 95,780 (increment 41)
+Virtual duration: 25 minutes and 8 seconds total, 1 minute and 15 seconds average, 16 seconds to 2 minutes and 46 seconds range
+Simulation wall-clock: less than a second total, less than a second average
+Batch wall-clock: less than a second
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 1    | 5.0%     |
+| red  | 19   | 95.0%    |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Incapacitated     | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+Combat Simulation Batch 1168beb3-bbb0-4d46-abce-6b49cf293076
+
+Runs: 20 of 20
+Seeds: 95,001 to 95,780 (increment 41)
+Virtual duration: 25 minutes and 8 seconds total, 1 minute and 15 seconds average, 16 seconds to 2 minutes and 46 seconds range
+Simulation wall-clock: less than a second total, less than a second average
+Batch wall-clock: less than a second
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 1    | 5.0%     |
+| red  | 19   | 95.0%    |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Incapacitated     | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You think
+  "=== ELEPHANT ===."
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim batchreport
+You begin staging an accelerated combat simulation in Rolling Prarie In The Merryweather Valley [#10]. Add at least two opposing teams, then validate it.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You add Agathe Herbert to team red in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You add 1 instance of Unnamed NPC Template to team blue in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> think === DRAGON ===
+> impdebug combatsim new
+> impdebug combatsim add character 56 team red range ranged aim 100%
+> impdebug combatsim add template 60 team blue range ranged
+> impdebug combatsim batch 20 seed 97001 step 41 force
+> impdebug combatsim batchreport
+> think === ELOHIM ===
+Starting 20 combat simulations from seed 96,001 with an increment of 41. Player input and ordinary loop work will resume when the batch finishes.
+
+Combat Simulation Batch 29f23189-de49-4820-9e19-3105f74667b6
+
+Runs: 20 of 20
+Seeds: 96,001 to 96,780 (increment 41)
+Virtual duration: 2 seconds total, less than a second average, less than a second to less than a second range
+Simulation wall-clock: 4 seconds total, less than a second average
+Batch wall-clock: 4 seconds
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 20   | 100.0%   |
+| red  | 0    | 0.0%     |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Dead              | 2     |
+| Incapacitated     | 18    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+Combat Simulation Batch 29f23189-de49-4820-9e19-3105f74667b6
+
+Runs: 20 of 20
+Seeds: 96,001 to 96,780 (increment 41)
+Virtual duration: 2 seconds total, less than a second average, less than a second to less than a second range
+Simulation wall-clock: 4 seconds total, less than a second average
+Batch wall-clock: 4 seconds
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 20   | 100.0%   |
+| red  | 0    | 0.0%     |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Dead              | 2     |
+| Incapacitated     | 18    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim new
+You think
+  "=== DRAGON ===."
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You begin staging an accelerated combat simulation in Rolling Prarie In The Merryweather Valley [#10]. Add at least two opposing teams, then validate it.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You add Agathe Herbert to team red in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim add character 56 team red range ranged aim 100%
+You add 1 instance of Arjuna to team blue in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim add template 90 team blue range ranged
+Starting 20 combat simulations from seed 97,001 with an increment of 41. Player input and ordinary loop work will resume when the batch finishes.
+
+Combat Simulation Batch 860e871b-90ea-482c-96e6-c7deebf5ecf4
+
+Runs: 20 of 20
+Seeds: 97,001 to 97,780 (increment 41)
+Virtual duration: 3 minutes and 42 seconds total, 11 seconds average, 11 seconds to 11 seconds range
+Simulation wall-clock: less than a second total, less than a second average
+Batch wall-clock: less than a second
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 20   | 100.0%   |
+| red  | 0    | 0.0%     |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Incapacitated     | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+Combat Simulation Batch 860e871b-90ea-482c-96e6-c7deebf5ecf4
+
+Runs: 20 of 20
+Seeds: 97,001 to 97,780 (increment 41)
+Virtual duration: 3 minutes and 42 seconds total, 11 seconds average, 11 seconds to 11 seconds range
+Simulation wall-clock: less than a second total, less than a second average
+Batch wall-clock: less than a second
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 20   | 100.0%   |
+| red  | 0    | 0.0%     |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Incapacitated     | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You think
+  "=== ELOHIM ===."
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim batch 20 seed 98001 step 41 force
+You begin staging an accelerated combat simulation in Rolling Prarie In The Merryweather Valley [#10]. Add at least two opposing teams, then validate it.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You add Agathe Herbert to team red in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You add 1 instance of Arjuna to team blue in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim batchreport
+> think === BALROG ===
+Starting 20 combat simulations from seed 98,001 with an increment of 41. Player input and ordinary loop work will resume when the batch finishes.
+
+Combat Simulation Batch c9dbda54-5bf7-4df6-b147-5834b3962d9b
+
+Runs: 20 of 20
+Seeds: 98,001 to 98,780 (increment 41)
+Virtual duration: 15 minutes and 12 seconds total, 45 seconds average, 11 seconds to 3 minutes and 51 seconds range
+Simulation wall-clock: less than a second total, less than a second average
+Batch wall-clock: less than a second
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 20   | 100.0%   |
+| red  | 0    | 0.0%     |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Incapacitated     | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+Combat Simulation Batch c9dbda54-5bf7-4df6-b147-5834b3962d9b
+
+Runs: 20 of 20
+Seeds: 98,001 to 98,780 (increment 41)
+Virtual duration: 15 minutes and 12 seconds total, 45 seconds average, 11 seconds to 3 minutes and 51 seconds range
+Simulation wall-clock: less than a second total, less than a second average
+Batch wall-clock: less than a second
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 20   | 100.0%   |
+| red  | 0    | 0.0%     |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Incapacitated     | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+
+You think
+  "=== BALROG ===."
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim new
+You begin staging an accelerated combat simulation in Rolling Prarie In The Merryweather Valley [#10]. Add at least two opposing teams, then validate it.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim add character 56 team red range ranged aim 100%
+You add Agathe Herbert to team red in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim add template 105 team blue range ranged
+You add 1 instance of Arjuna to team blue in cell #1, at ground level and standing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim batch 20 seed 99001 step 41 force
+Starting 20 combat simulations from seed 99,001 with an increment of 41. Player input and ordinary loop work will resume when the batch finishes.
+
+Combat Simulation Batch 82c3d533-983f-45a2-ab79-0d2a48da7fd4
+
+Runs: 20 of 20
+Seeds: 99,001 to 99,780 (increment 41)
+Virtual duration: 2 seconds total, less than a second average, less than a second to less than a second range
+Simulation wall-clock: less than a second total, less than a second average
+Batch wall-clock: less than a second
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 20   | 100.0%   |
+| red  | 0    | 0.0%     |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Withdrew          | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: NPC template #105 (Arjuna) has no explicit combat settings; the engine fallback will be used.
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> impdebug combatsim batchreport
+Combat Simulation Batch 82c3d533-983f-45a2-ab79-0d2a48da7fd4
+
+Runs: 20 of 20
+Seeds: 99,001 to 99,780 (increment 41)
+Virtual duration: 2 seconds total, less than a second average, less than a second to less than a second range
+Simulation wall-clock: less than a second total, less than a second average
+Batch wall-clock: less than a second
+Transcripts: omitted for batch runs to keep tournament memory bounded.
+
++------+------+----------+
+| Team | Wins | Win Rate |
++------+------+----------+
+| blue | 20   | 100.0%   |
+| red  | 0    | 0.0%     |
++------+------+----------+
+
+
++------------+-------+
+| Run Status | Count |
++------------+-------+
+| Completed  | 20    |
++------------+-------+
+
+
++-------------------+-------+
+| Combatant Outcome | Count |
++-------------------+-------+
+| Surviving Winner  | 20    |
+| Withdrew          | 20    |
++-------------------+-------+
+
+
+Batch preflight warnings:
+  WARNING: NPC template #105 (Arjuna) has no explicit combat settings; the engine fallback will be used.
+  WARNING: EF SaveChanges calls and ordinary save-queue work are suppressed in the simulation; direct Dapper commands and external services invoked by hooks or progs cannot be
+unwound.
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>

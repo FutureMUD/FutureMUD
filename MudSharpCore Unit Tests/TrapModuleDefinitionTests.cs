@@ -260,6 +260,16 @@ public class TrapModuleDefinitionTests
 	}
 
 	[TestMethod]
+	public void PayloadDefinition_LoadFromXml_XmlSchemaZeroDelayLoadsAsZero()
+	{
+		var loaded = TrapPayloadDefinition.LoadFromXml(
+			XElement.Parse("<Payload type=\"DetonateItem\" delay=\"PT0S\" target=\"Triggerer\" />"));
+
+		Assert.AreEqual(TimeSpan.Zero, loaded.Delay);
+		Assert.AreEqual(TrapPayloadType.DetonateItem, loaded.PayloadType);
+	}
+
+	[TestMethod]
 	public void MalformedTrapDefinitions_PreserveValuesAndFailClosed()
 	{
 		var malformedTrigger = TrapTriggerDefinition.LoadFromXml(

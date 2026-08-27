@@ -1,0 +1,245 @@
+DemoMUD
+Powered by the FutureMUD Engine v2.8.0.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your [REDACTED]
+
+X) Disconnect from the game
+> c
+You have the following characters: 
+  1: admin (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+The following boards have new posts since your last login:
+  Deaths - 7 new posts.
+
+
+
+Rolling Prarie In The Merryweather Valley
+ID[10] | Terrain[Shortgrass Prairie] | [SafeQuit] | Overlay[New Showcase (#3r0)] | Coordinates[0,0,0]
+Exits: 
+
+  The prairie rises and falls in gentle swells, its close-cropped grass bending
+around patches of thyme and stubborn yellow flowers. A narrow animal track
+follows the crest of one rise before vanishing into the grass. Flat grey
+stones, perhaps turned up by frost and rain, lie half-buried along the slope.
+From the valley below comes the faint, wandering murmur of water, nearly lost
+beneath the wind.
+
+  A pool of blood is here.
+  Currently, it is pitch black here.
+
+A matchlock arquebus are here.
+A 9x19mm ball cartridge lies here.
+A plain steel dagger is here.
+A plain steel dagger is here.
+A soft ballistic vest lies here.
+A hard-plate carrier lies here.
+A 105mm howitzer is emplaced here.
+A 105mm high-explosive artillery round lies here.
+A 105mm howitzer is emplaced here.
+A 105mm howitzer is emplaced here.
+A 105mm howitzer is emplaced here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm howitzer is emplaced here.
+A 105mm howitzer is emplaced here.
+A 105mm howitzer is emplaced here.
+A 105mm high-explosive artillery round lies here.
+A 105mm howitzer is emplaced here.
+A 105mm high-explosive projectile lies here.
+A freshly severed dragon left wing and left wing base is here.
+A freshly severed human left foot is here.
+A freshly severed human left leg is here.
+A freshly severed human left foot is here.
+A freshly severed human right middle toe is here.
+A freshly severed human right big toe is here.
+The fresh corpse of a brown-haired woman is here.
+The fresh corpse of a brown-haired woman is here.
+A long-gripped war sword is here.
+The fresh corpse of a brown-haired woman is here.
+The fresh corpse of a brown-haired woman is here.
+The fresh corpse of a brown-haired woman is here.
+The fresh corpse of a brown-haired woman is here.
+The fresh corpse of a colossal iron-scaled dragon is here.
+A brown-haired woman is unconscious, sprawled here.
+A cow elephant is unconscious, sprawled here.
+A cow elephant is standing here.
+A colossal iron-scaled dragon is standing here.
+A colossal iron-scaled dragon is unconscious, sprawled here.
+A colossal iron-scaled dragon is standing here.
+
+
+<*** YOU ARE IN CARDIAC ARREST! ***>
+<You are currently in overwhelming pain, severely stunned>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> goto 1
+A brown-haired woman bleeds from many wounds on her abdomen, left breast,
+belly, left buttock, left shoulder, left shoulder blade, upper back, neck,
+face, chin, left cheek, mouth, forehead, left hip, left knee, left thigh, left
+heel, left ankle, left foot, and groin.
+
+A small amount of human blood runs out of a brown-haired woman's mouth.
+
+A cow elephant bleeds from several wounds on her belly, right loin, left loin,
+groin, and abdomen.
+
+A cow elephant bleeds from a couple of wounds on her left upper hindleg and
+left rear knee.
+
+A colossal iron-scaled dragon bleeds from a few wounds on her right upper
+foreleg, lower right flank, and abdomen.
+
+A colossal iron-scaled dragon bleeds from several wounds on her right shoulder,
+lower back, right rump, and abdomen.
+
+A colossal iron-scaled dragon bleeds from a few wounds on her right rear paw
+and right rear hock.
+
+You bleed from many wounds on your abdomen, right breast, left breast, belly,
+right shoulder, left shoulder, upper back, neck, face, chin, right cheek, left
+cheek, mouth, forehead, right thigh, left hip, left thigh, right knee, left
+knee, right ankle, left ankle, right foot, and groin.
+
+Some human blood runs out of your mouth.
+
+You feel an all-encompassing sensation of crushing in your left breast, left nipple, and left shoulder blade!
+
+You open a swirling vortex of magical energies, stepping through and emerging somewhere new.
+
+The Guest Lounge
+ID[1] | Terrain[Void] | [NoQuit] | Overlay[CoreData Autogenerated (#1r0)] | Coordinates[0,0,0]
+Exits: 
+
+  This is the guest lounge, where guests to the MUD can log in and chat with
+guides, administrators or each other as well as test out features of the engine
+before their first character is approved.
+
+  Currently, it is pitch black here.
+
+An ornate winged war spear is here.
+A salted fish-roe cake is here.
+A matchlock arquebus are here.
+A bundle of match cord (x6) is here.
+A straight wooden ramrod is here.
+A plain matchlock musket is here.
+A plain matchlock musket is here.
+A straight wooden ramrod is here.
+631.69 grams of gunpowder commodities is here.
+A bundle of match cord is here.
+A plain matchlock musket is here.
+A bundle of match cord is here.
+A plain matchlock musket is here.
+A bundle of a ball and a pile is here.
+A plain matchlock caliver is here.
+A bundle of a ball and a pile is here.
+A plain matchlock carbine is here.
+A bundle of a ball and a pile is here.
+A serviceable swivel gun is here.
+A long-handled artillery sponge is here.
+A long artillery rammer is here.
+A fork-headed artillery linstock is here.
+A packet of artillery wadding (x4) is here.
+A one-pound iron round shot is here.
+A fine brass touchhole pick is here.
+A brass-tipped cleaning rod is here.
+A bundle of a ball and a pile is here.
+A bundle of a ball, a packet, and a pile is here.
+A plain matchlock musket is here.
+A plain matchlock musket is here.
+A plain matchlock musket is here.
+A bundle of paper cartridges (x4) are here.
+An elderly man with teardrop eyes is standing here.
+
+
+<*** YOU ARE IN CARDIAC ARREST! ***>
+<You are currently in overwhelming pain, severely stunned and have critical blood loss>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> look
+The Guest Lounge
+ID[1] | Terrain[Void] | [NoQuit] | Overlay[CoreData Autogenerated (#1r0)] | Coordinates[0,0,0]
+Exits: 
+
+  This is the guest lounge, where guests to the MUD can log in and chat with
+guides, administrators or each other as well as test out features of the engine
+before their first character is approved.
+
+  Currently, it is pitch black here.
+
+An ornate winged war spear is here.
+A salted fish-roe cake is here.
+A matchlock arquebus are here.
+A bundle of match cord (x6) is here.
+A straight wooden ramrod is here.
+A plain matchlock musket is here.
+A plain matchlock musket is here.
+A straight wooden ramrod is here.
+631.69 grams of gunpowder commodities is here.
+A bundle of match cord is here.
+A plain matchlock musket is here.
+A bundle of match cord is here.
+A plain matchlock musket is here.
+A bundle of a ball and a pile is here.
+A plain matchlock caliver is here.
+A bundle of a ball and a pile is here.
+A plain matchlock carbine is here.
+A bundle of a ball and a pile is here.
+A serviceable swivel gun is here.
+A long-handled artillery sponge is here.
+A long artillery rammer is here.
+A fork-headed artillery linstock is here.
+A packet of artillery wadding (x4) is here.
+A one-pound iron round shot is here.
+A fine brass touchhole pick is here.
+A brass-tipped cleaning rod is here.
+A bundle of a ball and a pile is here.
+A bundle of a ball, a packet, and a pile is here.
+A plain matchlock musket is here.
+A plain matchlock musket is here.
+A plain matchlock musket is here.
+A bundle of paper cartridges (x4) are here.
+An elderly man with teardrop eyes is standing here.
+
+
+<*** YOU ARE IN CARDIAC ARREST! ***>
+<You are currently in overwhelming pain, severely stunned and have critical blood loss>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> quit
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your [REDACTED]
+
+X) Disconnect from the game

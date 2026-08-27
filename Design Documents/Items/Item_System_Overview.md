@@ -1,5 +1,7 @@
 # FutureMUD Item System Overview
 
+The representative modern ranged catalogue and its item-component coverage are documented in [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
+
 Modern `Gun`, `InternalMagazineGun`, and `BoltAction` components can opt into named, form-factor-compatible attachment slots and finite single, burst, or automatic fire modes. Attachments remain ordinary composable items rather than embedded firearm data. See [Modern Firearms, Attachments, and Alternate Fire Modes](../Combat/Modern_Firearms_and_Attachments.md) for the runtime, builder, and persistence contract.
 
 Crew-served artillery follows the same composition model without treating a cannon as a wieldable gun: `ArtilleryPiece` implements the shared ranged-platform contract, with sibling `ArtilleryAmmunition`, `ArtilleryChamber`, and `ArtilleryMount` components for payload, removable chamber, and host state. `WeaponCarrierAttachment` is likewise a physical retention relationship, not cosmetic clothing.

@@ -1,0 +1,260 @@
+DemoMUD
+Powered by the FutureMUD Engine v2.8.0.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your [REDACTED]
+
+X) Disconnect from the game
+> c
+You have the following characters: 
+  1: admin (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Rolling Prarie In The Merryweather Valley
+ID[10] | Terrain[Shortgrass Prairie] | [SafeQuit] | Overlay[New Showcase (#3r0)] | Coordinates[0,0,0]
+Exits: 
+
+  The prairie rises and falls in gentle swells, its close-cropped grass bending
+around patches of thyme and stubborn yellow flowers. A narrow animal track
+follows the crest of one rise before vanishing into the grass. Flat grey
+stones, perhaps turned up by frost and rain, lie half-buried along the slope.
+From the valley below comes the faint, wandering murmur of water, nearly lost
+beneath the wind.
+
+  Currently, it is pitch black here.
+
+A matchlock arquebus are here.
+A 9x19mm ball cartridge lies here.
+A plain steel dagger is here.
+A plain steel dagger is here.
+A soft ballistic vest lies here.
+A hard-plate carrier lies here.
+A 105mm howitzer is emplaced here.
+A 105mm high-explosive artillery round lies here.
+A 105mm howitzer is emplaced here.
+A 105mm howitzer is emplaced here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A cow elephant is standing here.
+A cow elephant is standing here.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc edit 60
+You open Simple NPC Template #60r2 "Arjuna" for editing.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc set race Dragon
+This NPC is now of the Dragon race.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc set sdesc a colossal iron-scaled dragon
+You change this NPC's short description to a colossal iron-scaled dragon.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc set height 6m
+You set this NPC's height to 6 metres.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc set weight 5000kg
+You set this NPC's weight to 5 tonnes.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc edit submit
+You submit Simple NPC Template #60r2 "Arjuna" for review.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc review 60
+You are reviewing Simple NPC Template #60r2 "Arjuna".
+
+=======[ Simple NPC #60r2 - Arjuna ]================================================================================================================================================
+
+Created By: Admin                                           Reviewed By: N/A                                            Status: Pending Review
+Unique Name: combat-fixture-dragon-natural
+Name: Arjuna                                                                                                            Gender: Female
+Short Description: a colossal iron-scaled dragon
+Full Description:
+
+  This mature a cow elephant is fully grown and alert. Its trunk, fanlike ears
+  and sweeping ivory tusks make it one of the most imposing animals imaginable.
+  It is colossal, grey-skinned and vast, with pillar legs and an immense domed
+  head. It is plainly an animal built for savannah, forest edge and watering
+  place.
+
+Race: Dragon                                                Ethnicity: Dragon Stock                                     Culture: Animal
+Height: 6m                                                  Weight: 5t                                                  Hand: Left-handed
+Birthday: Saturday the 10th of September, 1667 A.D (35 years old)
+
+Builder Comment:
+
+  Permanent mythical balance natural-mode fixture; Arjuna baseline combat
+  skills with Dragon racial profile.
+
+Attributes:
+  Strength: 10.00 (Average)
+  Constitution: 10.00 (Average)
+  Dexterity: 10.00 (Average)
+  Intelligence: 10.00 (Average)
+  Willpower: 10.00 (Average)
+  Perception: 10.00 (Average)
+
+Skills:
+  Swimming: 42.66 ((Skilled))
+  Run: 46.00 ((Expert))
+  Endurance: 39.78 ((Skilled))
+  Balance: 24.99 ((Competent))
+  Listen: 40.78 ((Skilled))
+  Search: 46.22 ((Expert))
+  Forage: 66.73 ((Master))
+  Survival: 36.19 ((Journeyman))
+  Dodging: 30.00 ((Competent))
+  Brawling: 59.92 ((Expert))
+  Wrestling: 13.48 ((Familiar))
+  Veterancy: 80.00 ((Grizzled))
+
+Languages and Accents: 
+
+Characteristics:
+  Scale Colour: red
+
+
+OnLoadProg: None
+Default Combat Setting: Beast Artillery
+AI Routines:
+
+  None
+
+Load-Time Additions:
+  Clan Memberships:
+    None
+  Outfit Templates:
+    None
+  Hooks:
+    None
+  Bank Accounts:
+    None
+  Body Loadout:
+    None
+
+
+To approve this NPC Template, type accept edit or decline edit to reject.
+If you do not wish to approve or decline, you may type abort edit.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> accept edit
+You approve Simple NPC Template #60r2 "Arjuna".
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc load combat-fixture-dragon-natural
+A colossal iron-scaled dragon has entered the area.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> look
+Rolling Prarie In The Merryweather Valley
+ID[10] | Terrain[Shortgrass Prairie] | [SafeQuit] | Overlay[New Showcase (#3r0)] | Coordinates[0,0,0]
+Exits: 
+
+  The prairie rises and falls in gentle swells, its close-cropped grass bending
+around patches of thyme and stubborn yellow flowers. A narrow animal track
+follows the crest of one rise before vanishing into the grass. Flat grey
+stones, perhaps turned up by frost and rain, lie half-buried along the slope.
+From the valley below comes the faint, wandering murmur of water, nearly lost
+beneath the wind.
+
+  Currently, it is pitch black here.
+
+A matchlock arquebus are here.
+A 9x19mm ball cartridge lies here.
+A plain steel dagger is here.
+A plain steel dagger is here.
+A soft ballistic vest lies here.
+A hard-plate carrier lies here.
+A 105mm howitzer is emplaced here.
+A 105mm high-explosive artillery round lies here.
+A 105mm howitzer is emplaced here.
+A 105mm howitzer is emplaced here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A cow elephant is standing here.
+A cow elephant is standing here.
+A colossal iron-scaled dragon is standing here.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> npc instances combat-fixture-dragon-natural
+List of NPCs from NPC Template #60:
+
++----+--------+-------------------------------+-------------------------------------------------+---------------+
+| Id | Name   | SDesc                         | Location                                        | Template      |
++----+--------+-------------------------------+-------------------------------------------------+---------------+
+| 59 | Arjuna | a cow elephant                | Rolling Prarie In The Merryweather Valley [#10] | 60r1 (Arjuna) |
+| 60 | Arjuna | a cow elephant                | Rolling Prarie In The Merryweather Valley [#10] | 60r1 (Arjuna) |
+| 61 | Arjuna | a colossal iron-scaled dragon | Rolling Prarie In The Merryweather Valley [#10] | 60r2 (Arjuna) |
++----+--------+-------------------------------+-------------------------------------------------+---------------+
+
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>

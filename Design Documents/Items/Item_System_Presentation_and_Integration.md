@@ -1,5 +1,7 @@
 # FutureMUD Item System Presentation and Integration
 
+Ranged weapon, artillery, impact-detonator, cover, and trap presentation seams are exercised together in [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
+
 Firearm attachments appear through the host item's attached-item aggregation and inherit the host's effective location. They may be targeted as `attachment@firearm`; attached ranged weapons are also considered by manual ranged commands and combat strategies while the host is wielded. Installation and removal use the existing `attach` and `detach` verbs with firearm-specific compatibility validation. See [Modern Firearms, Attachments, and Alternate Fire Modes](../Combat/Modern_Firearms_and_Attachments.md).
 
 Artillery is deliberately visible and targetable as a local-cell object, not as an invisible extension of a crew member. Its status reports emplacement, load/readiness, and active crew; an installed piece is addressed through its mount. Weapon-carrier attachments retain their relationship across normal description and connected-item traversal. A hanging retained weapon remains visibly on its carrier until recovered or released.

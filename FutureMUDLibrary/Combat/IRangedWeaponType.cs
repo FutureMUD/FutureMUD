@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body.Traits;
 using MudSharp.Character;
+using MudSharp.Body.Position;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
@@ -65,6 +66,8 @@ namespace MudSharp.Combat
         double FireCombatDelay { get; }
 
         double AimBonusLostPerShot { get; }
+
+        IPositionState MinimumFiringPosition { get; }
 
         bool RequiresFreeHandToReady { get; }
         bool AlwaysRequiresTwoHandsToWield { get; }

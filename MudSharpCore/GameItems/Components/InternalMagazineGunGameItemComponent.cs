@@ -44,6 +44,18 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
         bool temporary = false) : base(rhs, newParent, temporary)
     {
         _prototype = rhs._prototype;
+		foreach (var round in rhs._roundsInMagazine)
+		{
+			var clonedRound = round.DeepCopy(!temporary, true);
+			clonedRound.ContainedIn = newParent;
+			_roundsInMagazine.Add(clonedRound);
+		}
+
+		if (rhs.ChamberedCasing is not null)
+		{
+			ChamberedCasing = rhs.ChamberedCasing.DeepCopy(!temporary, true);
+			ChamberedCasing.ContainedIn = newParent;
+		}
     }
 
     protected override void LoadFromXml(XElement root)

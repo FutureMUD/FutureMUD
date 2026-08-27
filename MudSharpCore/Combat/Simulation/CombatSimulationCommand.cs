@@ -40,8 +40,8 @@ The syntax is:
 	#3impdebug combatsim new [<cell>]#0
 	#3impdebug combatsim cell add <cell>#0
 	#3impdebug combatsim cell remove <number>#0
-#3impdebug combatsim add character <loaded character> team <team> [cell <number>] [layer <layer>] [state <position>] [range <melee|ranged>]#0
-#3impdebug combatsim add template <NPC template> team <team> [cell <number>] [layer <layer>] [state <position>] [range <melee|ranged>] [count <number>]#0
+	#3impdebug combatsim add character <loaded character> team <team> [cell <number>] [layer <layer>] [state <position>] [range <melee|ranged>] [metres <distance>] [aim <percent>] [cover <cover>]#0
+	#3impdebug combatsim add template <NPC template> team <team> [cell <number>] [layer <layer>] [state <position>] [range <melee|ranged>] [metres <distance>] [aim <percent>] [cover <cover>] [count <number>]#0
 	#3impdebug combatsim remove <slot>#0
 	#3impdebug combatsim set scene <cell>#0
 	#3impdebug combatsim set seed <number>#0
@@ -178,7 +178,8 @@ The syntax is:
 
 		var team = command.PopSpeech();
 		if (!TryParseAddOptions(actor, command, session, out var count, out var startingCell, out var startingLayer,
-			    out var startingPosition, out var startsInMelee))
+			    out var startingPosition, out var startsInMelee, out var startingMetres, out var initialAim,
+			    out var startingCover))
 		{
 			return;
 		}
@@ -201,7 +202,8 @@ The syntax is:
 			session.Participants.Add(new CombatSimulationParticipantRequest(
 				session.NextSlot++, team, CombatSimulationSourceType.Character, character, null,
 				StartingCell: startingCell, StartingLayer: startingLayer, StartingPosition: startingPosition,
-				StartsInMelee: startsInMelee));
+				StartsInMelee: startsInMelee, StartingRoutePositionMetres: startingMetres,
+				InitialAimPercentage: initialAim, StartingCover: startingCover));
 			actor.OutputHandler.Send(
 				$"You add {character.PersonalName.GetName(NameStyle.SimpleFull).ColourName()} to team {team.ColourName()} {DescribeStartingLocation(session, startingCell, startingLayer, startingPosition)}.");
 			return;
@@ -218,7 +220,7 @@ The syntax is:
 		{
 			session.Participants.Add(new CombatSimulationParticipantRequest(
 				session.NextSlot++, team, CombatSimulationSourceType.NpcTemplate, null, template, i,
-				startingCell, startingLayer, startingPosition, startsInMelee));
+				startingCell, startingLayer, startingPosition, startsInMelee, startingMetres, initialAim, startingCover));
 		}
 
 		actor.OutputHandler.Send(
@@ -233,13 +235,19 @@ The syntax is:
 		out ICell? startingCell,
 		out RoomLayer startingLayer,
 		out IPositionState? startingPosition,
-		out bool startsInMelee)
+		out bool startsInMelee,
+		out double? startingMetres,
+		out double initialAim,
+		out IRangedCover? startingCover)
 	{
 		count = 1;
 		startingCell = null;
 		startingLayer = RoomLayer.GroundLevel;
 		startingPosition = null;
 		startsInMelee = true;
+		startingMetres = null;
+		initialAim = 0.0;
+		startingCover = null;
 		var seen = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 		while (!command.IsFinished)
 		{
@@ -310,10 +318,53 @@ The syntax is:
 
 					actor.OutputHandler.Send("Specify melee or ranged as the starting combat range.");
 					return false;
+				case "metres":
+				case "meters":
+					if (command.IsFinished || !double.TryParse(command.PopSpeech(), out var metres) ||
+					    !double.IsFinite(metres) || metres < 0.0)
+					{
+						actor.OutputHandler.Send("Specify a non-negative RouteCell coordinate in metres.");
+						return false;
+					}
+
+					startingMetres = metres;
+					break;
+				case "aim":
+					if (command.IsFinished || !command.PopSpeech().TryParsePercentage(actor.Account.Culture, out initialAim) ||
+					    initialAim is < 0.0 or > 1.0)
+					{
+						actor.OutputHandler.Send("Specify an initial aim percentage from 0% to 100%.");
+						return false;
+					}
+
+					break;
+				case "cover":
+					if (command.IsFinished)
+					{
+						actor.OutputHandler.Send("Which ranged cover should this combatant begin behind?");
+						return false;
+					}
+
+					startingCover = actor.Gameworld.RangedCovers.GetByIdOrName(command.PopSpeech());
+					if (startingCover is null)
+					{
+						actor.OutputHandler.Send("There is no such ranged cover.");
+						return false;
+					}
+
+					break;
 				default:
-					actor.OutputHandler.Send("The add options are cell, layer, state, range and count.");
+					actor.OutputHandler.Send("The add options are cell, layer, state, range, metres, aim, cover and count.");
 					return false;
 			}
+		}
+
+		var selectedCell = startingCell ?? session.Scene;
+		if (startingMetres.HasValue && (selectedCell.RouteDefinition is null ||
+		    startingMetres.Value > selectedCell.RouteDefinition.LengthMetres))
+		{
+			actor.OutputHandler.Send("A metre coordinate requires a RouteCell and must fall within its authored length.");
+			return false;
 		}
 
 		return true;
@@ -565,11 +616,14 @@ The syntax is:
 				x.SourceDescription,
 				CellNumberFor(session, x).ToString("N0", actor),
 				x.StartingLayer.DescribeEnum(true),
-				(x.StartingPosition ?? PositionStanding.Instance).DefaultDescription()
+				(x.StartingPosition ?? PositionStanding.Instance).DefaultDescription(),
+				x.StartingRoutePositionMetres?.ToString("N1", actor) ?? "default",
+				x.InitialAimPercentage.ToString("P0", actor),
+				x.StartingCover?.Name ?? "none"
 			});
 		sb.AppendLine(session.Participants.Count == 0
 			? "No combatants have been added."
-			: StringUtilities.GetTextTable(rows, ["Slot", "Team", "Type", "Source", "Cell", "Layer", "State"], actor, Telnet.Green));
+			: StringUtilities.GetTextTable(rows, ["Slot", "Team", "Type", "Source", "Cell", "Layer", "State", "Metres", "Aim", "Cover"], actor, Telnet.Green));
 		actor.OutputHandler.Send(sb.ToString());
 	}
 

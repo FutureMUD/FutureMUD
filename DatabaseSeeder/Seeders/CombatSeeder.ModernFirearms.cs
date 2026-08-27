@@ -23,6 +23,9 @@ public partial class CombatSeeder
 	private int EnsureModernFirearmSamples(FuturemudDatabaseContext context)
 	{
 		var changes = 0;
+		const int standingPositionStateId = 1;
+		const int kneelingPositionStateId = 3;
+		const int pronePositionStateId = 6;
 		var account = context.Accounts.First();
 		var now = DateTime.UtcNow;
 
@@ -84,25 +87,42 @@ public partial class CombatSeeder
 
 		RangedWeaponTypes EnsureRangedType(string name, string grade, AmmunitionLoadType loadType,
 			int ammunitionCapacity, bool fireableInMelee, int range, double stamina, double fireDelay,
-			double aimLoss)
+			double aimLoss, bool twoHanded = true, Difficulty aimDifficulty = Difficulty.Normal,
+			double loadStamina = 7.0, double loadDelay = 1.2, double readyDelay = 0.4,
+			double coverBonus = -3.0, int? minimumPositionId = null, TraitDefinition? skill = null,
+			double rangePenalty = 1.5, double unaimedPenalty = 4.0)
 		{
+			skill ??= EnsureLongarmsSkill();
+			var accuracyExpression = FormattableString.Invariant(
+				$"(-{rangePenalty:R}*range)-(pow(1-aim,2)*{unaimedPenalty:R})");
 			var existing = context.RangedWeaponTypes.FirstOrDefault(x => x.Name == name);
 			if (existing is not null)
 			{
-				var repaired = false;
-				if (existing.AmmunitionLoadType != (int)loadType)
-				{
-					existing.AmmunitionLoadType = (int)loadType;
-					repaired = true;
-				}
-
-				if (existing.AmmunitionCapacity != ammunitionCapacity)
-				{
-					existing.AmmunitionCapacity = ammunitionCapacity;
-					repaired = true;
-				}
-
-				if (repaired)
+				var before = $"{existing.Classification}|{existing.FireTraitId}|{existing.OperateTraitId}|{existing.FireableInMelee}|{existing.DefaultRangeInRooms}|{existing.AccuracyBonusExpression}|{existing.DamageBonusExpression}|{existing.AmmunitionLoadType}|{existing.SpecificAmmunitionGrade}|{existing.AmmunitionCapacity}|{existing.RangedWeaponType}|{existing.StaminaToFire:R}|{existing.StaminaPerLoadStage:R}|{existing.CoverBonus:R}|{existing.BaseAimDifficulty}|{existing.LoadDelay:R}|{existing.ReadyDelay:R}|{existing.FireDelay:R}|{existing.AimBonusLostPerShot:R}|{existing.RequiresFreeHandToReady}|{existing.AlwaysRequiresTwoHandsToWield}|{existing.MinimumFiringPositionStateId}";
+				existing.Classification = (int)WeaponClassification.Lethal;
+				existing.FireTrait = skill;
+				existing.OperateTrait = skill;
+				existing.FireableInMelee = fireableInMelee;
+				existing.DefaultRangeInRooms = range;
+				existing.AccuracyBonusExpression = accuracyExpression;
+				existing.DamageBonusExpression = "-6*range";
+				existing.AmmunitionLoadType = (int)loadType;
+				existing.SpecificAmmunitionGrade = grade;
+				existing.AmmunitionCapacity = ammunitionCapacity;
+				existing.RangedWeaponType = (int)RangedWeaponType.ModernFirearm;
+				existing.StaminaToFire = stamina;
+				existing.StaminaPerLoadStage = loadStamina;
+				existing.CoverBonus = coverBonus;
+				existing.BaseAimDifficulty = (int)aimDifficulty;
+				existing.LoadDelay = loadDelay;
+				existing.ReadyDelay = readyDelay;
+				existing.FireDelay = fireDelay;
+				existing.AimBonusLostPerShot = aimLoss;
+				existing.RequiresFreeHandToReady = true;
+				existing.AlwaysRequiresTwoHandsToWield = twoHanded;
+				existing.MinimumFiringPositionStateId = minimumPositionId ?? (twoHanded ? pronePositionStateId : standingPositionStateId);
+				var after = $"{existing.Classification}|{existing.FireTraitId}|{existing.OperateTraitId}|{existing.FireableInMelee}|{existing.DefaultRangeInRooms}|{existing.AccuracyBonusExpression}|{existing.DamageBonusExpression}|{existing.AmmunitionLoadType}|{existing.SpecificAmmunitionGrade}|{existing.AmmunitionCapacity}|{existing.RangedWeaponType}|{existing.StaminaToFire:R}|{existing.StaminaPerLoadStage:R}|{existing.CoverBonus:R}|{existing.BaseAimDifficulty}|{existing.LoadDelay:R}|{existing.ReadyDelay:R}|{existing.FireDelay:R}|{existing.AimBonusLostPerShot:R}|{existing.RequiresFreeHandToReady}|{existing.AlwaysRequiresTwoHandsToWield}|{existing.MinimumFiringPositionStateId}";
+				if (before != after)
 				{
 					changes++;
 				}
@@ -110,7 +130,6 @@ public partial class CombatSeeder
 				return existing;
 			}
 
-			var skill = EnsureLongarmsSkill();
 			var ranged = new RangedWeaponTypes
 			{
 				Name = name,
@@ -119,22 +138,23 @@ public partial class CombatSeeder
 				OperateTrait = skill,
 				FireableInMelee = fireableInMelee,
 				DefaultRangeInRooms = range,
-				AccuracyBonusExpression = "(-1.5*range)-(pow(1-aim,2)*4.0)",
+				AccuracyBonusExpression = accuracyExpression,
 				DamageBonusExpression = "-6*range",
 				AmmunitionLoadType = (int)loadType,
 				SpecificAmmunitionGrade = grade,
 				AmmunitionCapacity = ammunitionCapacity,
 				RangedWeaponType = (int)RangedWeaponType.ModernFirearm,
 				StaminaToFire = stamina,
-				StaminaPerLoadStage = 7.0,
-				CoverBonus = -3.0,
-				BaseAimDifficulty = (int)Difficulty.Normal,
-				LoadDelay = 1.2,
-				ReadyDelay = 0.4,
+				StaminaPerLoadStage = loadStamina,
+				CoverBonus = coverBonus,
+				BaseAimDifficulty = (int)aimDifficulty,
+				LoadDelay = loadDelay,
+				ReadyDelay = readyDelay,
 				FireDelay = fireDelay,
 				AimBonusLostPerShot = aimLoss,
 				RequiresFreeHandToReady = true,
-				AlwaysRequiresTwoHandsToWield = true
+				AlwaysRequiresTwoHandsToWield = twoHanded,
+				MinimumFiringPositionStateId = minimumPositionId ?? (twoHanded ? pronePositionStateId : standingPositionStateId)
 			};
 			context.RangedWeaponTypes.Add(ranged);
 			context.SaveChanges();
@@ -143,32 +163,41 @@ public partial class CombatSeeder
 		}
 
 		AmmunitionTypes EnsureAmmunition(string name, string grade, int projectiles, RangedScatterType? scatterType,
-			double spreadPenalty, string damage)
+			double spreadPenalty, string damage, DamageType damageType = DamageType.Ballistic)
 		{
 			var existing = context.AmmunitionTypes.FirstOrDefault(x => x.Name == name);
 			if (existing is not null)
 			{
-				var repaired = false;
+				var before = $"{existing.SpecificType}|{existing.RangedWeaponTypes}|{existing.BaseAccuracy:R}|{existing.Loudness}|{existing.BreakChanceOnHit:R}|{existing.BreakChanceOnMiss:R}|{existing.BaseBlockDifficulty}|{existing.BaseDodgeDifficulty}|{existing.DamageExpression}|{existing.StunExpression}|{existing.PainExpression}|{existing.DamageType}|{existing.ProjectileCount}|{existing.ScatterType}|{existing.SpreadPenalty:R}";
+				existing.SpecificType = grade;
+				existing.RangedWeaponTypes = ((int)RangedWeaponType.ModernFirearm).ToString();
+				existing.BaseAccuracy = 0.0;
+				existing.Loudness = (int)AudioVolume.ExtremelyLoud;
+				existing.BreakChanceOnHit = 0.2;
+				existing.BreakChanceOnMiss = 0.5;
+				existing.BaseBlockDifficulty = (int)Difficulty.Insane;
+				existing.BaseDodgeDifficulty = (int)Difficulty.Insane;
+				existing.DamageExpression = damage;
+				existing.StunExpression = damage;
+				existing.PainExpression = damage;
+				existing.DamageType = (int)damageType;
 				if (existing.ProjectileCount != projectiles)
 				{
 					existing.ProjectileCount = projectiles;
-					repaired = true;
 				}
 
 				int? scatterValue = scatterType is null ? null : (int)scatterType.Value;
 				if (existing.ScatterType != scatterValue)
 				{
 					existing.ScatterType = scatterValue;
-					repaired = true;
 				}
 
 				if (Math.Abs(existing.SpreadPenalty - spreadPenalty) > 0.0001)
 				{
 					existing.SpreadPenalty = spreadPenalty;
-					repaired = true;
 				}
-
-				if (repaired)
+				var after = $"{existing.SpecificType}|{existing.RangedWeaponTypes}|{existing.BaseAccuracy:R}|{existing.Loudness}|{existing.BreakChanceOnHit:R}|{existing.BreakChanceOnMiss:R}|{existing.BaseBlockDifficulty}|{existing.BaseDodgeDifficulty}|{existing.DamageExpression}|{existing.StunExpression}|{existing.PainExpression}|{existing.DamageType}|{existing.ProjectileCount}|{existing.ScatterType}|{existing.SpreadPenalty:R}";
+				if (before != after)
 				{
 					changes++;
 				}
@@ -190,7 +219,7 @@ public partial class CombatSeeder
 				DamageExpression = damage,
 				StunExpression = damage,
 				PainExpression = damage,
-				DamageType = (int)DamageType.Ballistic,
+				DamageType = (int)damageType,
 				ProjectileCount = projectiles,
 				ScatterType = scatterType is null ? null : (int)scatterType.Value,
 				SpreadPenalty = spreadPenalty
@@ -207,6 +236,13 @@ public partial class CombatSeeder
 				.FirstOrDefault(x => x.Type == type && x.Name == name);
 			if (existing is not null)
 			{
+				var serialised = definition.ToString();
+				if (existing.Description != description || existing.Definition != serialised)
+				{
+					existing.Description = description;
+					existing.Definition = serialised;
+					changes++;
+				}
 				return existing;
 			}
 
@@ -285,7 +321,8 @@ public partial class CombatSeeder
 			return item;
 		}
 
-		XElement FirearmDefinition(RangedWeaponTypes type, bool internalMagazine)
+		XElement FirearmDefinition(RangedWeaponTypes type, bool internalMagazine, string clipType = "STANAG 5.56",
+			string? muzzleFormFactor = null, FirearmCycleType? cycleType = null, bool selectFire = true)
 		{
 			return new XElement("Definition",
 				new XElement("LoadEmote", new XCData("@ insert|inserts $2 into $1.")),
@@ -298,14 +335,14 @@ public partial class CombatSeeder
 				new XElement("FireEmoteNoChamberedRound",
 					new XCData("@ squeeze|squeezes the trigger on $2, producing only a click.")),
 				new XElement("RangedWeaponType", type.Id),
-				internalMagazine ? new XElement("InternalMagazineCapacity", 6) : null,
-				internalMagazine ? new XElement("EjectOnFire", true) : new XElement("ClipType", "STANAG 5.56"),
-				new XElement("CycleType", internalMagazine ? FirearmCycleType.Manual : FirearmCycleType.SelfLoading),
+				internalMagazine ? new XElement("InternalMagazineCapacity", type.AmmunitionCapacity) : null,
+				internalMagazine ? new XElement("EjectOnFire", true) : new XElement("ClipType", clipType),
+				new XElement("CycleType", cycleType ?? (internalMagazine ? FirearmCycleType.Manual : FirearmCycleType.SelfLoading)),
 				new XElement("AttachmentSlots",
 					new XElement("Slot", new XAttribute("name", "optic"), new XAttribute("type", "Optic"),
 						new XAttribute("formFactor", "picatinny")),
 					new XElement("Slot", new XAttribute("name", "muzzle"), new XAttribute("type", "Muzzle"),
-						new XAttribute("formFactor", internalMagazine ? "12ga-threaded" : "5.56-threaded")),
+						new XAttribute("formFactor", muzzleFormFactor ?? (internalMagazine ? "12ga-threaded" : "5.56-threaded"))),
 					new XElement("Slot", new XAttribute("name", "stock"), new XAttribute("type", "Stock"),
 						new XAttribute("formFactor", "buffer-tube")),
 					new XElement("Slot", new XAttribute("name", "grip"), new XAttribute("type", "Grip"),
@@ -320,12 +357,12 @@ public partial class CombatSeeder
 					new XElement("Mode", new XAttribute("type", "Single"), new XAttribute("rounds", 1),
 						new XAttribute("recoil", 0.0), new XAttribute("stamina", 0.0),
 						new XAttribute("delay", 0.0)),
-					internalMagazine
+					internalMagazine || !selectFire
 						? null
 						: new XElement("Mode", new XAttribute("type", "Burst"), new XAttribute("rounds", 3),
 							new XAttribute("recoil", 1.0), new XAttribute("stamina", 2.0),
 							new XAttribute("delay", 0.08)),
-					internalMagazine
+					internalMagazine || !selectFire
 						? null
 						: new XElement("Mode", new XAttribute("type", "Automatic"), new XAttribute("rounds", 6),
 							new XAttribute("recoil", 1.25), new XAttribute("stamina", 2.5),
@@ -358,15 +395,95 @@ public partial class CombatSeeder
 		}
 
 		var shotgun = EnsureRangedType("12 Gauge Pump Shotgun", "12 Gauge", AmmunitionLoadType.Direct, 6,
-			false, 3, 9.0, 0.35, 0.8);
+			false, 3, 9.0, 0.35, 0.8, rangePenalty: 2.1, unaimedPenalty: 3.0);
 		var rifle = EnsureRangedType("5.56 Select-Fire Rifle", "5.56x45mm NATO", AmmunitionLoadType.Magazine, 30,
-			false, 6, 7.0, 0.15, 0.5);
+			false, 6, 7.0, 0.15, 0.5, rangePenalty: 1.25, unaimedPenalty: 4.5);
 		var grenadeLauncher = EnsureRangedType("40mm Underbarrel Grenade Launcher", "40x46mm Grenade",
-			AmmunitionLoadType.Direct, 1, false, 5, 10.0, 0.5, 1.0);
-		EnsureComponent("InternalMagazineGun", "Shotgun_12_Gauge_Pump",
+			AmmunitionLoadType.Direct, 1, false, 5, 10.0, 0.5, 1.0,
+			rangePenalty: 2.2, unaimedPenalty: 7.0);
+		var compactPistol = EnsureRangedType("Compact 9mm Pistol", "9x19mm NATO", AmmunitionLoadType.Magazine,
+			12, true, 2, 2.5, 0.18, 0.38, false, Difficulty.Easy, 2.0, 0.8, 0.2,
+			minimumPositionId: pronePositionStateId,
+			skill: context.TraitDefinitions.FirstOrDefault(x => x.Name == "Pistols"),
+			rangePenalty: 2.5, unaimedPenalty: 3.0);
+		var servicePistol = EnsureRangedType("9mm Service Pistol", "9x19mm NATO", AmmunitionLoadType.Magazine,
+			17, true, 3, 3.0, 0.16, 0.32, false, Difficulty.Easy, 2.0, 0.8, 0.2,
+			minimumPositionId: pronePositionStateId,
+			skill: context.TraitDefinitions.FirstOrDefault(x => x.Name == "Pistols"),
+			rangePenalty: 2.1, unaimedPenalty: 2.5);
+		var magnumRevolver = EnsureRangedType("Magnum Revolver", ".44 Magnum", AmmunitionLoadType.Direct,
+			6, true, 3, 5.0, 0.28, 0.55, false, Difficulty.Normal, 2.5, 1.4, 0.25,
+			minimumPositionId: pronePositionStateId,
+			skill: context.TraitDefinitions.FirstOrDefault(x => x.Name == "Pistols"),
+			rangePenalty: 2.3, unaimedPenalty: 3.5);
+		var submachineGun = EnsureRangedType("9mm Submachine Gun", "9x19mm NATO", AmmunitionLoadType.Magazine,
+			30, false, 4, 5.0, 0.10, 0.48, true, Difficulty.Easy, 4.0, 1.0, 0.3,
+			rangePenalty: 2.0, unaimedPenalty: 3.5);
+		var carbine = EnsureRangedType("5.56 Compact Carbine", "5.56x45mm NATO", AmmunitionLoadType.Magazine,
+			30, false, 5, 6.0, 0.13, 0.46, true, Difficulty.Easy, 5.0, 1.1, 0.3,
+			rangePenalty: 1.35, unaimedPenalty: 4.0);
+		var battleRifle = EnsureRangedType("7.62 Battle Rifle", "7.62x51mm NATO", AmmunitionLoadType.Magazine,
+			20, false, 7, 10.0, 0.20, 0.62, true, Difficulty.Normal, 6.0, 1.3, 0.35,
+			rangePenalty: 1.15, unaimedPenalty: 5.0);
+		var precisionRifle = EnsureRangedType("7.62 Precision Rifle", "7.62x51mm NATO", AmmunitionLoadType.Direct,
+			10, false, 10, 8.0, 0.35, 0.24, true, Difficulty.Easy, 6.0, 1.5, 0.45,
+			rangePenalty: 0.75, unaimedPenalty: 7.0);
+		var antiMaterielRifle = EnsureRangedType("Anti-Materiel Rifle", ".50 BMG", AmmunitionLoadType.Direct,
+			5, false, 12, 18.0, 0.65, 0.78, true, Difficulty.Hard, 10.0, 2.2, 0.6,
+			rangePenalty: 0.9, unaimedPenalty: 9.0);
+		var semiShotgun = EnsureRangedType("12 Gauge Semi-Automatic Shotgun", "12 Gauge", AmmunitionLoadType.Direct,
+			8, false, 3, 10.0, 0.22, 0.72, true, Difficulty.Normal, 7.0, 1.2, 0.35,
+			rangePenalty: 2.0, unaimedPenalty: 3.0);
+		var lightMachineGun = EnsureRangedType("5.56 Light Machine Gun", "5.56x45mm NATO", AmmunitionLoadType.Magazine,
+			100, false, 7, 12.0, 0.09, 0.62, true, Difficulty.Hard, 8.0, 2.0, 0.5,
+			rangePenalty: 1.5, unaimedPenalty: 6.0);
+		var generalPurposeMachineGun = EnsureRangedType("7.62 General-Purpose Machine Gun", "7.62x51mm NATO",
+			AmmunitionLoadType.Magazine, 100, false, 8, 18.0, 0.11, 0.72, true, Difficulty.Hard, 10.0, 2.2, 0.6,
+			rangePenalty: 1.35, unaimedPenalty: 7.0);
+		var antiArmourLauncher = EnsureRangedType("Shoulder-Fired Anti-Armour Launcher", "Anti-Armour Rocket",
+			AmmunitionLoadType.Direct, 1, false, 6, 15.0, 0.8, 1.0, true, Difficulty.Hard, 8.0, 2.5, 0.8,
+			minimumPositionId: kneelingPositionStateId, rangePenalty: 2.0, unaimedPenalty: 10.0);
+		var shotgunComponent = EnsureComponent("InternalMagazineGun", "Shotgun_12_Gauge_Pump",
 			"Turns an item into a modular 12-gauge pump-action shotgun", FirearmDefinition(shotgun, true));
-		EnsureComponent("Gun", "Rifle_556_Select_Fire",
+		var rifleComponent = EnsureComponent("Gun", "Rifle_556_Select_Fire",
 			"Turns an item into a modular 5.56mm select-fire rifle", FirearmDefinition(rifle, false));
+		var compactPistolComponent = EnsureComponent("Gun", "Pistol_9mm_Compact",
+			"Turns an item into a compact 9mm self-loading pistol",
+			FirearmDefinition(compactPistol, false, "Compact 9mm Magazine", "9mm-threaded", selectFire: false));
+		var servicePistolComponent = EnsureComponent("Gun", "Pistol_9mm_Service",
+			"Turns an item into a service-size 9mm self-loading pistol",
+			FirearmDefinition(servicePistol, false, "Service 9mm Magazine", "9mm-threaded", selectFire: false));
+		var revolverComponent = EnsureComponent("InternalMagazineGun", "Revolver_44_Magnum",
+			"Turns an item into a six-shot magnum revolver",
+			FirearmDefinition(magnumRevolver, true, muzzleFormFactor: "44-threaded", cycleType: FirearmCycleType.SelfLoading,
+				selectFire: false));
+		var smgComponent = EnsureComponent("Gun", "SMG_9mm_Select_Fire",
+			"Turns an item into a 9mm select-fire submachine gun",
+			FirearmDefinition(submachineGun, false, "9mm SMG Magazine", "9mm-threaded"));
+		var carbineComponent = EnsureComponent("Gun", "Carbine_556_Compact",
+			"Turns an item into a compact 5.56mm select-fire carbine", FirearmDefinition(carbine, false));
+		var battleRifleComponent = EnsureComponent("Gun", "Rifle_762_Battle",
+			"Turns an item into a 7.62mm select-fire battle rifle",
+			FirearmDefinition(battleRifle, false, "STANAG 7.62", "7.62-threaded"));
+		var precisionRifleComponent = EnsureComponent("InternalMagazineGun", "Rifle_762_Precision",
+			"Turns an item into a manually cycled 7.62mm precision rifle",
+			FirearmDefinition(precisionRifle, true, muzzleFormFactor: "7.62-threaded", selectFire: false));
+		var antiMaterielComponent = EnsureComponent("InternalMagazineGun", "Rifle_50_Anti_Materiel",
+			"Turns an item into a manually cycled anti-materiel rifle",
+			FirearmDefinition(antiMaterielRifle, true, muzzleFormFactor: "50-threaded", selectFire: false));
+		var semiShotgunComponent = EnsureComponent("InternalMagazineGun", "Shotgun_12_Gauge_Semiautomatic",
+			"Turns an item into a semi-automatic 12-gauge shotgun",
+			FirearmDefinition(semiShotgun, true, muzzleFormFactor: "12ga-threaded",
+				cycleType: FirearmCycleType.SelfLoading, selectFire: false));
+		var lightMachineGunComponent = EnsureComponent("Gun", "LMG_556_Belt_Fed",
+			"Turns an item into a 5.56mm belt-fed light machine gun",
+			FirearmDefinition(lightMachineGun, false, "5.56 Disintegrating Belt", "5.56-threaded"));
+		var generalPurposeMachineGunComponent = EnsureComponent("Gun", "GPMG_762_Belt_Fed",
+			"Turns an item into a 7.62mm belt-fed general-purpose machine gun",
+			FirearmDefinition(generalPurposeMachineGun, false, "7.62 Disintegrating Belt", "7.62-threaded"));
+		var antiArmourLauncherComponent = EnsureComponent("InternalMagazineGun", "Launcher_Anti_Armour_Shoulder",
+			"Turns an item into a single-shot shoulder-fired anti-armour launcher",
+			FirearmDefinition(antiArmourLauncher, true, muzzleFormFactor: "rocket-launcher", selectFire: false));
 		EnsureAmmunition("12 Gauge Slug", "12 Gauge", 1, RangedScatterType.Ballistic, 0.0,
 			"(11+(pointblank*8))*quality*sqrt(degree+1)");
 		EnsureAmmunition("12 Gauge 00 Buckshot", "12 Gauge", 9, RangedScatterType.Spread, 0.6,
@@ -375,6 +492,25 @@ public partial class CombatSeeder
 			"(8+(pointblank*5))*quality*sqrt(degree+1)");
 		var grenadeAmmunition = EnsureAmmunition("40mm Low-Velocity Grenade", "40x46mm Grenade", 1,
 			RangedScatterType.Arcing, 0.0, "(3+pointblank)*quality*sqrt(degree+1)");
+		var pistolBall = EnsureAmmunition("9x19mm Ball", "9x19mm NATO", 1, RangedScatterType.Ballistic, 0.0,
+			"(6+(pointblank*3))*quality*sqrt(degree+1)");
+		var pistolExpanding = EnsureAmmunition("9x19mm Expanding", "9x19mm NATO", 1, RangedScatterType.Ballistic, 0.0,
+			"(7+(pointblank*4))*quality*sqrt(degree+1)");
+		var magnumBall = EnsureAmmunition(".44 Magnum Ball", ".44 Magnum", 1, RangedScatterType.Ballistic, 0.0,
+			"(9+(pointblank*5))*quality*sqrt(degree+1)");
+		var rifleAp = EnsureAmmunition("5.56x45mm Armour-Piercing", "5.56x45mm NATO", 1,
+			RangedScatterType.Ballistic, 0.0, "(9+(pointblank*5))*quality*sqrt(degree+1)",
+			DamageType.BallisticArmourPiercing);
+		var battleBall = EnsureAmmunition("7.62x51mm Ball", "7.62x51mm NATO", 1,
+			RangedScatterType.Ballistic, 0.0, "(11+(pointblank*6))*quality*sqrt(degree+1)");
+		var battleAp = EnsureAmmunition("7.62x51mm Armour-Piercing", "7.62x51mm NATO", 1,
+			RangedScatterType.Ballistic, 0.0, "(13+(pointblank*7))*quality*sqrt(degree+1)",
+			DamageType.BallisticArmourPiercing);
+		var fiftyBall = EnsureAmmunition(".50 BMG Ball", ".50 BMG", 1, RangedScatterType.Ballistic, 0.0,
+			"(22+(pointblank*10))*quality*sqrt(degree+1)");
+		var antiArmourRocket = EnsureAmmunition("Anti-Armour Rocket", "Anti-Armour Rocket", 1,
+			RangedScatterType.Arcing, 0.0, "(18+(pointblank*8))*quality*sqrt(degree+1)",
+			DamageType.BallisticArmourPiercing);
 
 		GameItemComponentProto EnsureAttachment(string name, FirearmAttachmentSlotType slotType, string[] formFactors,
 			double accuracy = 0.0, double aim = 0.0, double damage = 1.0, double range = 1.0,
@@ -403,13 +539,31 @@ public partial class CombatSeeder
 							new XAttribute("capability", x.FullName ?? x.Name))))));
 		}
 
-		EnsureAttachment("Reflex Optic", FirearmAttachmentSlotType.Optic, ["picatinny"], accuracy: 1.0, aim: 1.0);
-		EnsureAttachment("Adjustable Stock", FirearmAttachmentSlotType.Stock, ["buffer-tube"], recoil: 0.8,
+		var reflexOptic = EnsureAttachment("Reflex Optic", FirearmAttachmentSlotType.Optic, ["picatinny"], accuracy: 1.0, aim: 1.0);
+		var lowPowerOptic = EnsureAttachment("Low Power Variable Optic", FirearmAttachmentSlotType.Optic,
+			["picatinny"], accuracy: 2.0, aim: 0.5, range: 1.15, delay: 1.05);
+		var precisionScope = EnsureAttachment("Precision Scope", FirearmAttachmentSlotType.Optic, ["picatinny"],
+			accuracy: 3.0, aim: 0.25, range: 1.3, delay: 1.12);
+		var adjustableStock = EnsureAttachment("Adjustable Stock", FirearmAttachmentSlotType.Stock, ["buffer-tube"], recoil: 0.8,
 			aimLoss: 0.85);
-		EnsureAttachment("Vertical Grip", FirearmAttachmentSlotType.Grip, ["picatinny"], recoil: 0.85);
-		EnsureAttachment("Sound Suppressor 556", FirearmAttachmentSlotType.Muzzle, ["5.56-threaded"],
+		var verticalGrip = EnsureAttachment("Vertical Grip", FirearmAttachmentSlotType.Grip, ["picatinny"], recoil: 0.85);
+		var bipod = EnsureAttachment("Rifle Bipod", FirearmAttachmentSlotType.Underbarrel, ["picatinny"],
+			accuracy: 1.0, aim: 0.5, recoil: 0.65, stamina: 0.75, aimLoss: 0.7);
+		var tripod = EnsureAttachment("Machine Gun Tripod", FirearmAttachmentSlotType.Underbarrel, ["picatinny"],
+			accuracy: 2.0, aim: 0.75, recoil: 0.45, stamina: 0.6, aimLoss: 0.5);
+		var suppressor556 = EnsureAttachment("Sound Suppressor 556", FirearmAttachmentSlotType.Muzzle, ["5.56-threaded"],
 			range: 0.95, loudness: -3,
 			fireEmote: "@ squeeze|squeezes the trigger on $2, which fires with a muted report.");
+		var suppressor9mm = EnsureAttachment("Sound Suppressor 9mm", FirearmAttachmentSlotType.Muzzle, ["9mm-threaded"],
+			range: 0.95, loudness: -3,
+			fireEmote: "@ squeeze|squeezes the trigger on $2, which fires with a muted report.");
+		var suppressor762 = EnsureAttachment("Sound Suppressor 762", FirearmAttachmentSlotType.Muzzle, ["7.62-threaded"],
+			range: 0.95, recoil: 0.9, loudness: -3,
+			fireEmote: "@ squeeze|squeezes the trigger on $2, which fires with a muted report.");
+		var muzzleBrake = EnsureAttachment("Muzzle Brake", FirearmAttachmentSlotType.Muzzle,
+			["5.56-threaded", "7.62-threaded", "50-threaded"], recoil: 0.7, loudness: 1, aimLoss: 0.8);
+		var laserAimingModule = EnsureAttachment("Laser Aiming Module", FirearmAttachmentSlotType.Side,
+			["picatinny"], accuracy: 1.0, aim: 1.0);
 		var weaponLightAttachment =
 			EnsureAttachment("Weapon Light Mount", FirearmAttachmentSlotType.Underbarrel, ["picatinny"],
 				requiredCapabilities: [typeof(IProduceLight), typeof(IProducePower)]);
@@ -471,6 +625,38 @@ public partial class CombatSeeder
 			new XElement("Definition"));
 		var holdable = context.GameItemComponentProtos.First(x => x.Type == "Holdable");
 		var stackable = context.GameItemComponentProtos.First(x => x.Name == "Stack_Number");
+		var wearVest = context.GameItemComponentProtos.First(x => x.Name == "Wear_Vest");
+		var softArmour = context.GameItemComponentProtos.First(x => x.Name == "Armour_LevelIIIaBallisticArmour");
+		var hardArmour = context.GameItemComponentProtos.First(x => x.Name == "Armour_LevelIVBallisticArmour");
+		EnsureItemPrototype("ModernFirearms_Soft_Ballistic_Vest", "soft ballistic vest",
+			"soft ballistic vest armour armor", "a soft ballistic vest", "A soft ballistic vest lies here.",
+			"This flexible torso vest is a stock handgun-threat armour fixture; it leaves the head, limbs, and coverage gaps exposed.",
+			SizeCategory.Normal, 2800.0, holdable, wearVest, softArmour);
+		EnsureItemPrototype("ModernFirearms_Hard_Plate_Carrier", "hard-plate carrier",
+			"hard plate carrier ballistic armour armor", "a hard-plate carrier", "A hard-plate carrier lies here.",
+			"This torso carrier holds rifle-threat hard armour plates while leaving the head, limbs, and coverage gaps exposed.",
+			SizeCategory.Normal, 8500.0, holdable, wearVest, hardArmour);
+
+		void EnsureAttachmentItem(string key, string name, GameItemComponentProto component, double weight)
+		{
+			EnsureItemPrototype($"ModernFirearms_Attachment_{key}", name, $"{key.ToLowerInvariant()} attachment firearm",
+				$"a {name}", $"A {name} lies here.",
+				$"This is a functional {name} for compatible stock modern firearm slots.", SizeCategory.Small, weight,
+				holdable, component);
+		}
+
+		EnsureAttachmentItem("Reflex_Optic", "reflex optic", reflexOptic, 180.0);
+		EnsureAttachmentItem("Low_Power_Optic", "low-power variable optic", lowPowerOptic, 520.0);
+		EnsureAttachmentItem("Precision_Scope", "precision rifle scope", precisionScope, 780.0);
+		EnsureAttachmentItem("Adjustable_Stock", "adjustable rifle stock", adjustableStock, 450.0);
+		EnsureAttachmentItem("Vertical_Grip", "vertical foregrip", verticalGrip, 140.0);
+		EnsureAttachmentItem("Rifle_Bipod", "rifle bipod", bipod, 420.0);
+		EnsureAttachmentItem("Machine_Gun_Tripod", "machine-gun tripod", tripod, 6200.0);
+		EnsureAttachmentItem("Suppressor_9mm", "9mm sound suppressor", suppressor9mm, 320.0);
+		EnsureAttachmentItem("Suppressor_556", "5.56mm sound suppressor", suppressor556, 480.0);
+		EnsureAttachmentItem("Suppressor_762", "7.62mm sound suppressor", suppressor762, 620.0);
+		EnsureAttachmentItem("Muzzle_Brake", "multi-calibre muzzle brake", muzzleBrake, 160.0);
+		EnsureAttachmentItem("Laser_Aiming_Module", "laser aiming module", laserAimingModule, 190.0);
 
 		var grenadeProjectile = EnsureItemPrototype(
 			"ModernFirearms_40mm_Grenade_Projectile",
@@ -527,6 +713,353 @@ public partial class CombatSeeder
 			"A 40mm low-velocity grenade round lies here.",
 			"This complete 40mm round contains a low-velocity impact-fused fragmentation grenade.",
 			SizeCategory.VerySmall, 240.0, holdable, stackable, grenadeRoundComponent);
+
+		void EnsureWeaponItem(string key, string name, string keywords, string shortDescription, SizeCategory size,
+			double weight, GameItemComponentProto component)
+		{
+			EnsureItemPrototype($"ModernFirearms_{key}", name, keywords, shortDescription,
+				$"{shortDescription.ProperSentences()} is here.",
+				$"This is a stock, setting-neutral {name} configured as a functional modern ranged weapon.",
+				size, weight, holdable, component);
+		}
+
+		EnsureWeaponItem("Compact_9mm_Pistol", "compact 9mm pistol", "compact 9mm pistol handgun",
+			"a compact 9mm pistol", SizeCategory.Small, 650.0, compactPistolComponent);
+		EnsureWeaponItem("Service_9mm_Pistol", "9mm service pistol", "9mm service pistol handgun",
+			"a 9mm service pistol", SizeCategory.Small, 950.0, servicePistolComponent);
+		EnsureWeaponItem("Magnum_Revolver", "magnum revolver", "magnum revolver handgun",
+			"a heavy magnum revolver", SizeCategory.Small, 1350.0, revolverComponent);
+		EnsureWeaponItem("Submachine_Gun", "9mm submachine gun", "9mm submachine gun smg",
+			"a compact 9mm submachine gun", SizeCategory.Normal, 2900.0, smgComponent);
+		EnsureWeaponItem("Compact_556_Carbine", "5.56 compact carbine", "556 compact carbine rifle",
+			"a compact 5.56 carbine", SizeCategory.Normal, 3000.0, carbineComponent);
+		EnsureWeaponItem("Service_556_Rifle", "5.56 service rifle", "556 service rifle",
+			"a 5.56 service rifle", SizeCategory.Large, 3500.0, rifleComponent);
+		EnsureWeaponItem("Battle_762_Rifle", "7.62 battle rifle", "762 battle rifle",
+			"a 7.62 battle rifle", SizeCategory.Large, 4300.0, battleRifleComponent);
+		EnsureWeaponItem("Precision_762_Rifle", "7.62 precision rifle", "762 precision rifle",
+			"a long 7.62 precision rifle", SizeCategory.Large, 6200.0, precisionRifleComponent);
+		EnsureWeaponItem("Anti_Materiel_Rifle", "anti-materiel rifle", "anti materiel rifle 50",
+			"a massive anti-materiel rifle", SizeCategory.Huge, 13000.0, antiMaterielComponent);
+		EnsureWeaponItem("Pump_Shotgun", "12-gauge pump shotgun", "12 gauge pump shotgun",
+			"a 12-gauge pump shotgun", SizeCategory.Large, 3600.0, shotgunComponent);
+		EnsureWeaponItem("Semiautomatic_Shotgun", "12-gauge semi-automatic shotgun",
+			"12 gauge semi automatic shotgun", "a 12-gauge semi-automatic shotgun", SizeCategory.Large, 3900.0,
+			semiShotgunComponent);
+		EnsureWeaponItem("Light_Machine_Gun", "5.56 light machine gun", "556 light machine gun lmg",
+			"a belt-fed 5.56 light machine gun", SizeCategory.Large, 7800.0, lightMachineGunComponent);
+		EnsureWeaponItem("General_Purpose_Machine_Gun", "7.62 general-purpose machine gun",
+			"762 general purpose machine gun gpmg", "a belt-fed 7.62 general-purpose machine gun",
+			SizeCategory.Huge, 11500.0, generalPurposeMachineGunComponent);
+		EnsureWeaponItem("Shoulder_Anti_Armour_Launcher", "shoulder-fired anti-armour launcher",
+			"shoulder fired anti armour launcher rocket", "a shoulder-fired anti-armour launcher",
+			SizeCategory.Large, 7200.0, antiArmourLauncherComponent);
+
+		void EnsureRound(AmmunitionTypes ammunition, string key, string name, double weight)
+		{
+			var projectile = EnsureItemPrototype($"ModernFirearms_{key}_Projectile", $"{name} projectile",
+				$"{key.ToLowerInvariant()} projectile bullet", $"a {name} projectile",
+				$"A {name} projectile lies here.", $"This is the projectile from a {name} cartridge.",
+				SizeCategory.Tiny, Math.Max(2.0, weight * 0.45), holdable, stackable);
+			var casing = EnsureItemPrototype($"ModernFirearms_{key}_Casing", $"spent {name} casing",
+				$"spent {key.ToLowerInvariant()} casing shell", $"a spent {name} casing",
+				$"A spent {name} casing lies here.", $"This is an empty casing from a fired {name} cartridge.",
+				SizeCategory.Tiny, Math.Max(1.0, weight * 0.25), holdable, stackable);
+			var component = EnsureComponent("Ammunition", $"Ammunition_{key}",
+				$"Turns an item into {name} ammunition",
+				new XElement("Definition", new XElement("AmmoType", ammunition.Id),
+					new XElement("CasingProto", casing.Id), new XElement("BulletProto", projectile.Id)));
+			EnsureItemPrototype($"ModernFirearms_{key}_Round", $"{name} cartridge",
+				$"{key.ToLowerInvariant()} cartridge round ammunition", $"a {name} cartridge",
+				$"A {name} cartridge lies here.", $"This is a complete {name} cartridge.",
+				SizeCategory.Tiny, weight, holdable, stackable, component);
+		}
+
+		EnsureRound(pistolBall, "9mm_Ball", "9x19mm ball", 12.0);
+		EnsureRound(pistolExpanding, "9mm_Expanding", "9x19mm expanding", 12.0);
+		EnsureRound(magnumBall, "44_Magnum_Ball", ".44 Magnum ball", 25.0);
+		EnsureRound(context.AmmunitionTypes.First(x => x.Name == "5.56x45mm Ball"), "556_Ball", "5.56x45mm ball", 12.0);
+		EnsureRound(rifleAp, "556_AP", "5.56x45mm armour-piercing", 12.0);
+		EnsureRound(battleBall, "762_Ball", "7.62x51mm ball", 25.0);
+		EnsureRound(battleAp, "762_AP", "7.62x51mm armour-piercing", 25.0);
+		EnsureRound(fiftyBall, "50_BMG_Ball", ".50 BMG ball", 115.0);
+		EnsureRound(context.AmmunitionTypes.First(x => x.Name == "12 Gauge Slug"), "12_Gauge_Slug", "12-gauge slug", 45.0);
+		EnsureRound(context.AmmunitionTypes.First(x => x.Name == "12 Gauge 00 Buckshot"), "12_Gauge_Buckshot", "12-gauge 00 buckshot", 50.0);
+		EnsureRound(antiArmourRocket, "Anti_Armour_Rocket", "anti-armour rocket", 2800.0);
+
+		void EnsureMagazine(string key, string name, string clipType, string grade, int capacity, double weight)
+		{
+			var component = EnsureComponent("AmmoClip", $"Magazine_{key}", $"Turns an item into a {name}",
+				new XElement("Definition", new XElement("ClipType", new XCData(clipType)),
+					new XElement("SpecificAmmoGrade", new XCData(grade)), new XElement("Capacity", capacity)));
+			EnsureItemPrototype($"ModernFirearms_Magazine_{key}", name, $"{key.ToLowerInvariant()} magazine clip",
+				$"a {name}", $"A {name} lies here.", $"This reusable {name} holds up to {capacity:N0} rounds.",
+				SizeCategory.Small, weight, holdable, component);
+		}
+
+		EnsureMagazine("Compact_9mm", "compact 9mm magazine", "Compact 9mm Magazine", "9x19mm NATO", 12, 90.0);
+		EnsureMagazine("Service_9mm", "service 9mm magazine", "Service 9mm Magazine", "9x19mm NATO", 17, 110.0);
+		EnsureMagazine("SMG_9mm", "9mm submachine-gun magazine", "9mm SMG Magazine", "9x19mm NATO", 30, 180.0);
+		EnsureMagazine("STANAG_556", "5.56 STANAG magazine", "STANAG 5.56", "5.56x45mm NATO", 30, 120.0);
+		EnsureMagazine("STANAG_762", "7.62 battle-rifle magazine", "STANAG 7.62", "7.62x51mm NATO", 20, 180.0);
+		EnsureMagazine("Belt_556", "5.56 disintegrating ammunition belt", "5.56 Disintegrating Belt", "5.56x45mm NATO", 100, 450.0);
+		EnsureMagazine("Belt_762", "7.62 disintegrating ammunition belt", "7.62 Disintegrating Belt", "7.62x51mm NATO", 100, 900.0);
+
+		GameItemComponentProto EnsureBomb(string key, string description, SizeCategory explosionSize,
+			Proximity maximumProximity, string shockwave, string shrapnel, string emote)
+		{
+			return EnsureComponent("Bomb", $"Bomb_{key}", description,
+				new XElement("Definition",
+					new XElement("MaximumProximity", (int)maximumProximity),
+					new XElement("ExplosionVolume", (int)AudioVolume.DangerouslyLoud),
+					new XElement("ExplosionSize", (int)explosionSize),
+					new XElement("FeltInZone", true),
+					new XElement("ExplosionEmoteText", new XCData(emote)),
+					new XElement("Damages",
+						new XElement("Damage", new XElement("DamageType", (int)DamageType.Shockwave),
+							new XElement("Damage", new XCData(shockwave)), new XElement("Stun", new XCData(shockwave))),
+						new XElement("Damage", new XElement("DamageType", (int)DamageType.Shrapnel),
+							new XElement("Damage", new XCData(shrapnel)), new XElement("Stun", new XCData("4+quality"))))));
+		}
+
+		var grenadeThrownType = context.RangedWeaponTypes
+			.Where(x => x.RangedWeaponType == (int)RangedWeaponType.Thrown)
+			.OrderByDescending(x => x.DefaultRangeInRooms)
+			.First();
+		var improvisedWeapon = context.WeaponTypes.First(x => x.Name == "Improvised Bludgeon");
+		var thrownGrenade = EnsureComponent("ThrownWeapon", "Thrown_Modern_Grenade",
+			"Turns an item into a hand-thrown grenade",
+			new XElement("Definition", new XElement("RangedWeaponType", grenadeThrownType.Id),
+				new XElement("MeleeWeaponType", improvisedWeapon.Id), new XElement("CanWieldProg", 0),
+				new XElement("WhyCannotWieldProg", 0)));
+		var pinPull = EnsureComponent("PinPullDetonator", "PinPull_Hand_Grenade",
+			"Adds a four-second irreversible pin-pull fuse",
+			new XElement("Definition", new XElement("DelaySeconds", 4.0),
+				new XElement("PullPinEmote", new XCData("@ pull|pulls the safety pin from $1, starting its fuse."))));
+		var countdown = EnsureComponent("CountdownDetonator", "Countdown_Plastic_Explosive",
+			"Adds a configurable countdown detonator to an explosive charge",
+			new XElement("Definition", new XElement("DefaultDelaySeconds", 10),
+				new XElement("MinimumDelaySeconds", 1), new XElement("MaximumDelaySeconds", 86400),
+				new XElement("PlayersCanSetDelay", true), new XElement("CanBeDisarmed", true),
+				new XElement("ArmEmote", new XCData("@ arm|arms the timer on $1.")),
+				new XElement("DisarmEmote", new XCData("@ disarm|disarms the timer on $1."))));
+		var fragmentationBomb = EnsureBomb("Fragmentation_Grenade", "A compact anti-personnel fragmentation payload",
+			SizeCategory.Normal, Proximity.Proximate, "12+quality*3", "16+quality*4",
+			"@ explode|explodes with a sharp blast and a storm of fragments!");
+		var concussionBomb = EnsureBomb("Concussion_Grenade", "A compact blast-dominant concussion payload",
+			SizeCategory.Normal, Proximity.Proximate, "18+quality*4", "4+quality",
+			"@ explode|explodes with a hammering concussive blast!");
+		var plasticExplosiveBomb = EnsureBomb("Plastic_Explosive", "A powerful mouldable demolition charge",
+			SizeCategory.Large, Proximity.Distant, "34+quality*7", "12+quality*2",
+			"@ detonate|detonates in a crushing demolition blast!");
+		var directionalMineBomb = EnsureBomb("Directional_Mine", "A directional anti-personnel fragmentation charge",
+			SizeCategory.Large, Proximity.Distant, "16+quality*3", "28+quality*6",
+			"@ detonate|detonates, driving a fan of fragments through the area!");
+		var antiPersonnelMineBomb = EnsureBomb("Anti_Personnel_Mine", "A compact pressure-triggered anti-personnel mine",
+			SizeCategory.Normal, Proximity.Proximate, "14+quality*3", "18+quality*4",
+			"@ detonate|detonates beneathfoot in a burst of fragments!");
+		var antiVehicleMineBomb = EnsureBomb("Anti_Vehicle_Mine", "A heavy pressure-triggered anti-vehicle mine",
+			SizeCategory.Huge, Proximity.Distant, "42+quality*8", "10+quality*2",
+			"@ detonate|detonates in a ground-shaking anti-vehicle blast!");
+
+		var fragmentationGrenade = EnsureItemPrototype("ModernFirearms_Fragmentation_Grenade", "fragmentation grenade",
+			"fragmentation grenade frag explosive", "a fragmentation grenade", "A fragmentation grenade lies here.",
+			"This compact hand grenade has a safety lever, pull pin, delayed fuse, and fragmentation body.",
+			SizeCategory.Small, 400.0, holdable, thrownGrenade, fragmentationBomb, pinPull);
+		EnsureItemPrototype("ModernFirearms_Concussion_Grenade", "concussion grenade",
+			"concussion grenade explosive", "a concussion grenade", "A concussion grenade lies here.",
+			"This compact hand grenade is designed around blast and pressure rather than a heavy fragmentation casing.",
+			SizeCategory.Small, 350.0, holdable, thrownGrenade, concussionBomb, pinPull);
+		var plasticCharge = EnsureItemPrototype("ModernFirearms_Plastic_Explosive_Charge", "plastic explosive charge",
+			"plastic explosive charge c4 demolition", "a block of plastic explosive",
+			"A block of plastic explosive lies here.",
+			"This mouldable demolition charge has a configurable electronic countdown detonator.",
+			SizeCategory.Small, 1000.0, holdable, plasticExplosiveBomb, countdown);
+		var directionalMine = EnsureItemPrototype("ModernFirearms_Directional_Mine", "directional fragmentation mine",
+			"directional fragmentation mine tripwire explosive", "a directional fragmentation mine",
+			"A directional fragmentation mine lies here.",
+			"This emplaceable anti-personnel charge projects fragments across its facing when a trap detonates it.",
+			SizeCategory.Normal, 1600.0, holdable, directionalMineBomb);
+		var antiPersonnelMine = EnsureItemPrototype("ModernFirearms_Anti_Personnel_Mine", "anti-personnel mine",
+			"anti personnel pressure mine explosive", "an anti-personnel mine", "An anti-personnel mine lies here.",
+			"This compact mine is intended for a pressure or tripwire trap mechanism.",
+			SizeCategory.Small, 900.0, holdable, antiPersonnelMineBomb);
+		var antiVehicleMine = EnsureItemPrototype("ModernFirearms_Anti_Vehicle_Mine", "anti-vehicle mine",
+			"anti vehicle pressure mine explosive", "a heavy anti-vehicle mine", "A heavy anti-vehicle mine lies here.",
+			"This heavy mine contains a large blast charge intended for vehicles and other massive targets.",
+			SizeCategory.Normal, 8500.0, holdable, antiVehicleMineBomb);
+
+		Tag EnsureTag(string name, Tag? parent = null)
+		{
+			var tag = context.Tags.FirstOrDefault(x => x.Name == name);
+			if (tag is null)
+			{
+				tag = new Tag { Name = name, Parent = parent };
+				context.Tags.Add(tag);
+				context.SaveChanges();
+				changes++;
+			}
+			else if (parent is not null && tag.ParentId != parent.Id)
+			{
+				tag.Parent = parent;
+				changes++;
+			}
+			return tag;
+		}
+
+		void EnsureItemTag(GameItemProto item, Tag tag)
+		{
+			if (context.GameItemProtosTags.Any(x => x.GameItemProtoId == item.Id &&
+			    x.GameItemProtoRevisionNumber == item.RevisionNumber && x.TagId == tag.Id))
+			{
+				return;
+			}
+			item.GameItemProtosTags.Add(new GameItemProtosTags
+			{
+				GameItemProtoId = item.Id,
+				GameItemProtoRevisionNumber = item.RevisionNumber,
+				TagId = tag.Id
+			});
+			changes++;
+		}
+
+		var functionsTag = EnsureTag("Functions");
+		var trapRootTag = EnsureTag("Trap Components", functionsTag);
+		var explosivePayloadTag = EnsureTag("Explosive Trap Payload", trapRootTag);
+		var tripwireTriggerTag = EnsureTag("Tripwire Trigger", trapRootTag);
+		EnsureItemTag(fragmentationGrenade, explosivePayloadTag);
+		EnsureItemTag(plasticCharge, explosivePayloadTag);
+		EnsureItemTag(directionalMine, explosivePayloadTag);
+		EnsureItemTag(directionalMine, tripwireTriggerTag);
+		EnsureItemTag(antiPersonnelMine, explosivePayloadTag);
+		EnsureItemTag(antiPersonnelMine, tripwireTriggerTag);
+		EnsureItemTag(antiVehicleMine, explosivePayloadTag);
+
+		RangedWeaponTypes EnsureModernArtilleryType(string name, string grade, int range, double stamina,
+			double aimLoss, Difficulty aimDifficulty)
+		{
+			var gunnery = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Gunnery") ?? EnsureLongarmsSkill();
+			var type = context.RangedWeaponTypes.FirstOrDefault(x => x.Name == name);
+			if (type is null)
+			{
+				type = new RangedWeaponTypes { Name = name };
+				context.RangedWeaponTypes.Add(type);
+				changes++;
+			}
+			type.Classification = (int)WeaponClassification.Military;
+			type.FireTrait = gunnery;
+			type.OperateTrait = gunnery;
+			type.FireableInMelee = false;
+			type.DefaultRangeInRooms = range;
+			type.AccuracyBonusExpression = "8-(0.6*range)-(pow(1-aim,2)*12)";
+			type.DamageBonusExpression = "-0.5*range";
+			type.AmmunitionLoadType = (int)AmmunitionLoadType.Direct;
+			type.SpecificAmmunitionGrade = grade;
+			type.AmmunitionCapacity = 1;
+			type.RangedWeaponType = (int)RangedWeaponType.Artillery;
+			type.StaminaToFire = stamina;
+			type.StaminaPerLoadStage = stamina;
+			type.CoverBonus = 2.0;
+			type.BaseAimDifficulty = (int)aimDifficulty;
+			type.LoadDelay = 3.0;
+			type.ReadyDelay = 1.0;
+			type.FireDelay = 1.0;
+			type.AimBonusLostPerShot = aimLoss;
+			type.RequiresFreeHandToReady = true;
+			type.AlwaysRequiresTwoHandsToWield = true;
+			type.MinimumFiringPositionStateId = standingPositionStateId;
+			context.SaveChanges();
+			return type;
+		}
+
+		AmmunitionTypes EnsureArtilleryAmmoType(string name, string grade, string damage)
+		{
+			var type = context.AmmunitionTypes.FirstOrDefault(x => x.Name == name);
+			if (type is null)
+			{
+				type = new AmmunitionTypes { Name = name };
+				context.AmmunitionTypes.Add(type);
+				changes++;
+			}
+			type.SpecificType = grade;
+			type.RangedWeaponTypes = ((int)RangedWeaponType.Artillery).ToString();
+			type.BaseAccuracy = 0.0;
+			type.Loudness = (int)AudioVolume.ExtremelyLoud;
+			type.BreakChanceOnHit = 0.0;
+			type.BreakChanceOnMiss = 0.0;
+			type.BaseBlockDifficulty = (int)Difficulty.Impossible;
+			type.BaseDodgeDifficulty = (int)Difficulty.Insane;
+			type.DamageExpression = damage;
+			type.StunExpression = damage;
+			type.PainExpression = damage;
+			type.DamageType = (int)DamageType.Ballistic;
+			type.ProjectileCount = 1;
+			type.ScatterType = (int)RangedScatterType.Arcing;
+			type.SpreadPenalty = 0.0;
+			context.SaveChanges();
+			return type;
+		}
+
+		var spongeTag = EnsureTag("Artillery Sponge", functionsTag);
+		var waddingTag = EnsureTag("Artillery Wadding", functionsTag);
+		var rammerTag = EnsureTag("Artillery Rammer", functionsTag);
+		var ventTag = EnsureTag("Artillery Vent Tool", functionsTag);
+		var linstockTag = EnsureTag("Artillery Linstock", functionsTag);
+		var fuseTag = EnsureTag("Artillery Fuse", functionsTag);
+
+		void EnsureModernArtillery(string key, string name, string profile, int calibre, int range,
+			int minimumCrew, double weight, string damage, string blast, string fragments,
+			ArtilleryLoadingMechanism loadingMechanism = ArtilleryLoadingMechanism.BreechLoading)
+		{
+			var rangedType = EnsureModernArtilleryType(name, $"{calibre}mm Fixed Artillery", range,
+				minimumCrew * 2.0, 1.0, Difficulty.Hard);
+			var ammoType = EnsureArtilleryAmmoType($"{calibre}mm High-Explosive Shell", $"{calibre}mm Fixed Artillery", damage);
+			var shellBomb = EnsureBomb($"{calibre}mm_High_Explosive", $"A {calibre}mm high-explosive artillery payload",
+				SizeCategory.Huge, Proximity.Distant, blast, fragments,
+				$"@ explode|explodes in a colossal {calibre}mm high-explosive blast!");
+			var shellProjectile = EnsureItemPrototype($"ModernArtillery_{key}_HE_Projectile", $"{calibre}mm HE projectile",
+				$"{calibre}mm he projectile artillery shell", $"a {calibre}mm high-explosive projectile",
+				$"A {calibre}mm high-explosive projectile lies here.",
+				$"This is the impact-fused projectile from a {calibre}mm high-explosive artillery shell.",
+				SizeCategory.Normal, calibre * 160.0, holdable, shellBomb, impactDetonator);
+			var ammoComponent = EnsureComponent("ArtilleryAmmunition", $"ArtilleryAmmunition_{key}_HE",
+				$"Turns an item into a {calibre}mm fixed high-explosive artillery round",
+				new XElement("Definition", new XElement("AmmoType", ammoType.Id), new XElement("CasingProto", 0),
+					new XElement("BulletProto", shellProjectile.Id), new XElement("PayloadType", ArtilleryPayloadType.Shell),
+					new XElement("ArtilleryProfile", profile)));
+			EnsureItemPrototype($"ModernArtillery_{key}_HE_Round", $"{calibre}mm HE artillery round",
+				$"{calibre}mm he artillery round ammunition", $"a {calibre}mm high-explosive artillery round",
+				$"A {calibre}mm high-explosive artillery round lies here.",
+				$"This fixed round contains projectile, propellant, and primer for the stock {name}.",
+				SizeCategory.Normal, calibre * 250.0, holdable, ammoComponent);
+			var pieceComponent = EnsureComponent("ArtilleryPiece", $"Artillery_{key}", $"A modern crew-served {name}",
+				new XElement("Definition", new XElement("RangedWeaponType", rangedType.Id),
+					new XElement("ArtilleryProfile", profile),
+					new XElement("LoadingMechanism", loadingMechanism),
+					new XElement("MinimumCrew", minimumCrew), new XElement("MaximumCrew", minimumCrew + 3),
+					new XElement("RequiresEmplacement", true), new XElement("MaximumTraverse", 90),
+					new XElement("MaximumElevation", 75), new XElement("MaximumDepression", 5),
+					new XElement("PowderMass", 0.001), new XElement("PrimingPowderMass", 0.001),
+					new XElement("SpongeTag", spongeTag.Id), new XElement("WaddingTag", waddingTag.Id),
+					new XElement("RammerTag", rammerTag.Id), new XElement("VentToolTag", ventTag.Id),
+					new XElement("LinstockTag", linstockTag.Id), new XElement("FuseTag", fuseTag.Id)));
+			EnsureItemPrototype($"ModernArtillery_{key}_Piece", name, $"{key.ToLowerInvariant()} {name} artillery",
+				$"a {name}", $"A {name} is emplaced here.",
+				$"This is a setting-neutral modern {name} with a sealed breech and crew-operated firing controls.",
+				SizeCategory.Enormous, weight, pieceComponent);
+		}
+
+		EnsureModernArtillery("Howitzer_105mm", "105mm howitzer", "modern-105mm", 105, 30, 4, 2_200_000.0,
+			"35*quality*sqrt(degree+1)", "52+quality*10", "28+quality*7");
+		EnsureModernArtillery("Howitzer_155mm", "155mm howitzer", "modern-155mm", 155, 45, 6, 4_200_000.0,
+			"52*quality*sqrt(degree+1)", "78+quality*14", "42+quality*9");
+		EnsureModernArtillery("Mortar_60mm", "60mm mortar", "modern-60mm-mortar", 60, 14, 2, 19_000.0,
+			"22*quality*sqrt(degree+1)", "34+quality*7", "18+quality*5",
+			ArtilleryLoadingMechanism.DropFireMortar);
+		EnsureModernArtillery("Mortar_120mm", "120mm mortar", "modern-120mm-mortar", 120, 25, 4, 145_000.0,
+			"40*quality*sqrt(degree+1)", "60+quality*11", "34+quality*8",
+			ArtilleryLoadingMechanism.DropFireMortar);
+		context.SaveChanges();
 
 		return changes;
 	}

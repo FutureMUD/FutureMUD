@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.2.0.0",
-  "LatestMigrationId": "20260825022721_AddRacePainToleranceMultiplier",
-  "GeneratedUtc": "2026-08-25T05:22:25.3377148Z"
+  "LatestMigrationId": "20260827113842_AddRangedWeaponMinimumFiringPosition",
+  "GeneratedUtc": "2026-08-27T14:37:26.5326787Z"
 }

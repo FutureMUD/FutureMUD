@@ -128,11 +128,19 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 	public Difficulty BaseBlockDifficulty => CurrentAmmo?.AmmoType.DamageProfile.BaseBlockDifficulty ?? Difficulty.Impossible;
 	public Difficulty BaseDodgeDifficulty => CurrentAmmo?.AmmoType.DamageProfile.BaseDodgeDifficulty ?? Difficulty.Impossible;
 	public ArtilleryLoadingMechanism LoadingMechanism => _prototype.LoadingMechanism;
+	private bool UsesLinstock => LoadingMechanism is ArtilleryLoadingMechanism.MuzzleLoading or ArtilleryLoadingMechanism.RemovableChamber;
+	private bool UsesFixedAmmunition => LoadingMechanism is ArtilleryLoadingMechanism.BreechLoading or ArtilleryLoadingMechanism.DropFireMortar;
 	public bool IsEmplaced { get; private set; }
 	public bool IsMounted => Parent.ContainedIn?.GetItemType<IArtilleryMount>()?.InstalledPiece == Parent;
 	public IEnumerable<ICharacter> Crew => ActiveCrew();
 	public IEnumerable<string> CrewRoles => _prototype.CrewRoles;
-	public ArtilleryCrewAction? NextRequiredAction => LoadingStage switch
+	public ArtilleryCrewAction? NextRequiredAction => UsesFixedAmmunition
+		? LoadingStage switch
+		{
+			ArtilleryLoadingStage.Empty => ArtilleryCrewAction.LoadProjectile,
+			_ => null
+		}
+		: LoadingStage switch
 	{
 		ArtilleryLoadingStage.Empty => ArtilleryCrewAction.Sponge,
 		ArtilleryLoadingStage.Cleared => ArtilleryCrewAction.LoadCharge,
@@ -324,8 +332,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (!IsOperationalFor(loader) || IsReadied || LoadingStage == ArtilleryLoadingStage.Primed ||
-			!BlackPowderWeaponEnvironment.CanHandlePowder(loader)) return false;
-		var action = LoadingStage switch
+			(UsesLinstock && !BlackPowderWeaponEnvironment.CanHandlePowder(loader))) return false;
+		var action = UsesFixedAmmunition
+			? ArtilleryCrewAction.LoadProjectile
+			: LoadingStage switch
 		{
 			ArtilleryLoadingStage.Empty => ArtilleryCrewAction.Sponge,
 			ArtilleryLoadingStage.Cleared => ArtilleryCrewAction.LoadCharge,
@@ -337,7 +347,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 			_ => ArtilleryCrewAction.Command
 		};
 		if (!CanPerform(loader, action, out _)) return false;
-		if (LoadingStage is ArtilleryLoadingStage.Cleared or ArtilleryLoadingStage.Vented &&
+		if (UsesLinstock && LoadingStage is (ArtilleryLoadingStage.Cleared or ArtilleryLoadingStage.Vented) &&
 			!BlackPowderWeaponEnvironment.CanHandleExposedPowder(loader)) return false;
 		return CreateStagePlan(loader).PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
 	}
@@ -347,8 +357,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		if (!IsOperationalFor(loader)) return OperationalReason(loader);
 		if (IsReadied) return "The artillery piece is already ignition ready.";
 		if (LoadingStage == ArtilleryLoadingStage.Primed) return "The artillery loading drill is complete; ready the piece or unload it.";
-		if (!BlackPowderWeaponEnvironment.CanHandlePowder(loader)) return "You cannot work an artillery loading drill while the piece is submerged.";
-		var action = LoadingStage switch
+		if (UsesLinstock && !BlackPowderWeaponEnvironment.CanHandlePowder(loader)) return "You cannot work an artillery loading drill while the piece is submerged.";
+		var action = UsesFixedAmmunition
+			? ArtilleryCrewAction.LoadProjectile
+			: LoadingStage switch
 		{
 			ArtilleryLoadingStage.Empty => ArtilleryCrewAction.Sponge,
 			ArtilleryLoadingStage.Cleared => ArtilleryCrewAction.LoadCharge,
@@ -360,9 +372,13 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 			_ => ArtilleryCrewAction.Command
 		};
 		if (!CanPerform(loader, action, out var reason)) return reason;
-		if (LoadingStage is ArtilleryLoadingStage.Cleared or ArtilleryLoadingStage.Vented &&
+		if (UsesLinstock && LoadingStage is (ArtilleryLoadingStage.Cleared or ArtilleryLoadingStage.Vented) &&
 			!BlackPowderWeaponEnvironment.CanHandleExposedPowder(loader))
 			return "The precipitation is too heavy to handle an exposed powder charge safely.";
+		if (UsesFixedAmmunition)
+		{
+			return "You need compatible fixed artillery ammunition to load through the breech.";
+		}
 		return LoadingStage switch
 		{
 			ArtilleryLoadingStage.Empty => "You need a tool tagged as an artillery sponge.",
@@ -385,11 +401,20 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 			loader.Send(WhyCannotLoad(loader, ignoreEmpty, mode));
 			return;
 		}
-		if (Gameworld.GetCheck(CheckType.LoadArtillery)
-			.Check(loader, WeaponType.BaseAimDifficulty, WeaponType.OperateTrait, Parent).IsFail())
+		var configuredLoadDifficulty = Gameworld.GetStaticInt("ArtilleryLoadCheckDifficulty");
+		var loadDifficulty = Enum.IsDefined(typeof(Difficulty), configuredLoadDifficulty)
+			? (Difficulty)configuredLoadDifficulty
+			: Difficulty.Easy;
+		var loadOutcome = Gameworld.GetCheck(CheckType.LoadArtillery)
+			.Check(loader, loadDifficulty, WeaponType.OperateTrait, Parent);
+		if (loadOutcome.Outcome == Outcome.MajorFail)
 		{
 			loader.Send($"You fail to complete the {LoadingStage.DescribeEnum().ToLowerInvariant()} stage of the artillery drill.");
 			return;
+		}
+		if (loadOutcome.IsFail())
+		{
+			loader.Send("Your artillery drill is clumsy, but you recover without having to restart the stage.");
 		}
 
 		var stage = LoadingStage;
@@ -410,6 +435,17 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		var exemptions = new List<IGameItem>();
 		switch (stage)
 		{
+			case ArtilleryLoadingStage.Empty when UsesFixedAmmunition:
+				var breechAmmoSource = results.First(x => x.OriginalReference?.ToString() == "ammunition").PrimaryTarget;
+				var breechAmmoItem = TakeOnePhysicalItem(loader, breechAmmoSource);
+				breechAmmoItem.ContainedIn = Parent;
+				_loadedAmmo = breechAmmoItem.GetItemType<IAmmo>();
+				exemptions.Add(breechAmmoItem);
+				primary = breechAmmoItem;
+				description = LoadingMechanism == ArtilleryLoadingMechanism.DropFireMortar
+					? "prepare a fixed round at the muzzle of"
+					: "open the breech and load ammunition into";
+				break;
 			case ArtilleryLoadingStage.Cleared:
 				var powderSource = results.First(x => x.OriginalReference?.ToString() == "powder").PrimaryTarget;
 				var powder = powderSource.GetByWeight(loader.Body, _prototype.PowderMass);
@@ -451,7 +487,9 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		}
 		plan.FinalisePlanWithExemptions(exemptions);
 
-		LoadingStage = stage switch
+		LoadingStage = UsesFixedAmmunition
+			? ArtilleryLoadingStage.Primed
+			: stage switch
 		{
 			ArtilleryLoadingStage.Empty => ArtilleryLoadingStage.Cleared,
 			ArtilleryLoadingStage.Cleared => ArtilleryLoadingStage.Charged,
@@ -471,15 +509,16 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 	public bool CanReady(ICharacter readier) => IsOperationalFor(readier) &&
 		LoadingStage == ArtilleryLoadingStage.Primed && !IsReadied &&
 		(!LoadedAmmunitionRequiresFuse() || _fuse is not null) &&
-		BlackPowderWeaponEnvironment.CanSustainOpenFlame(readier) &&
+		(!UsesLinstock || BlackPowderWeaponEnvironment.CanSustainOpenFlame(readier)) &&
 		CanPerform(readier, ArtilleryCrewAction.Prime, out _) &&
-		CreateTaggedPlan(readier, _prototype.LinstockTag, "linstock").PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
+		(!UsesLinstock || CreateTaggedPlan(readier, _prototype.LinstockTag, "linstock").PlanIsFeasible() == InventoryPlanFeasibility.Feasible);
 	public string WhyCannotReady(ICharacter readier) =>
 		!IsOperationalFor(readier) ? OperationalReason(readier) :
 		LoadingStage != ArtilleryLoadingStage.Primed ? "The artillery drill must be completed before it can be readied." :
 		IsReadied ? "It is already primed and ready." :
 		LoadedAmmunitionRequiresFuse() && _fuse is null ? "The loaded shell or carcass needs a physical artillery fuse." :
-		!BlackPowderWeaponEnvironment.CanSustainOpenFlame(readier) ? "A linstock cannot remain lit here; it needs a gaseous atmosphere and reasonably dry weather." :
+		UsesLinstock && !BlackPowderWeaponEnvironment.CanSustainOpenFlame(readier) ? "A linstock cannot remain lit here; it needs a gaseous atmosphere and reasonably dry weather." :
+		!UsesLinstock ? "The breech cannot be closed and locked." :
 		"You need a physical tool tagged as an artillery linstock.";
 	public bool Ready(ICharacter readier)
 	{
@@ -487,6 +526,16 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		{
 			readier.Send(WhyCannotReady(readier));
 			return false;
+		}
+		if (!UsesLinstock)
+		{
+			var readyEmote = LoadingMechanism == ArtilleryLoadingMechanism.DropFireMortar
+				? "@ hold|holds the fixed round ready above the muzzle of $0."
+				: "@ close|closes and lock|locks the breech of $0.";
+			readier.OutputHandler.Handle(new EmoteOutput(new Emote(readyEmote, readier, Parent)));
+			IsReadied = true;
+			Changed = true;
+			return true;
 		}
 		var plan = CreateTaggedPlan(readier, _prototype.LinstockTag, "linstock");
 		var linstock = plan.ExecuteWholePlan().First(x => x.OriginalReference?.ToString() == "linstock").PrimaryTarget;
@@ -544,15 +593,16 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public bool CanFire(ICharacter actor, IPerceivable target) =>
 		IsOperationalFor(actor) && HasMinimumCrew && ReadyToFire &&
-		BlackPowderWeaponEnvironment.CanSustainOpenFlame(actor) &&
+		(!UsesLinstock || BlackPowderWeaponEnvironment.CanSustainOpenFlame(actor)) &&
 		CanPerform(actor, ArtilleryCrewAction.Fire, out _) &&
-		CreateTaggedPlan(actor, _prototype.LinstockTag, "linstock").PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
+		(!UsesLinstock || CreateTaggedPlan(actor, _prototype.LinstockTag, "linstock").PlanIsFeasible() == InventoryPlanFeasibility.Feasible);
 	public string WhyCannotFire(ICharacter actor, IPerceivable target) =>
 		!IsOperationalFor(actor) ? OperationalReason(actor) :
 		!HasMinimumCrew ? $"That artillery piece requires at least {_prototype.MinimumCrew.ToString(actor)} active crew members." :
 		!ReadyToFire ? "The artillery piece is not ready to fire." :
-		!BlackPowderWeaponEnvironment.CanSustainOpenFlame(actor) ? "The ignition flame cannot burn in this atmosphere or precipitation." :
+		UsesLinstock && !BlackPowderWeaponEnvironment.CanSustainOpenFlame(actor) ? "The ignition flame cannot burn in this atmosphere or precipitation." :
 		!CanPerform(actor, ArtilleryCrewAction.Fire, out var reason) ? reason :
+		!UsesLinstock ? "The artillery piece cannot fire its primer." :
 		"You need a physical tool tagged as an artillery linstock to fire the piece.";
 	public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome, OpposedOutcome defenseOutcome,
 		IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
@@ -564,9 +614,14 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		}
 
 		var firingTarget = target ?? ResolveIndirectTarget();
-		var linstockPlan = CreateTaggedPlan(actor, _prototype.LinstockTag, "linstock");
-		var linstock = linstockPlan.ExecuteWholePlan()
-			.First(x => x.OriginalReference?.ToString() == "linstock").PrimaryTarget;
+		IInventoryPlan? linstockPlan = null;
+		IGameItem? linstock = null;
+		if (UsesLinstock)
+		{
+			linstockPlan = CreateTaggedPlan(actor, _prototype.LinstockTag, "linstock");
+			linstock = linstockPlan.ExecuteWholePlan()
+				.First(x => x.OriginalReference?.ToString() == "linstock").PrimaryTarget;
+		}
 
 		if (shotOutcome == Outcome.NotTested)
 		{
@@ -579,14 +634,36 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 			: _loadedAmmo!;
 		var projectile = ammo.GetFiredItem ?? ammo.Parent;
 		var firedSeparateProjectile = projectile != ammo.Parent;
-		var dischargeEmote = BlackPowderWeaponEnvironment.CanPropagateSound(actor)
+		var dischargeEmote = LoadingMechanism == ArtilleryLoadingMechanism.DropFireMortar
+			? "@ drop|drops the fixed round into $0's tube; it fires with a thunderous discharge."
+			: !UsesLinstock
+			? "@ pull|pulls $0's firing control; it fires with a thunderous discharge."
+			: BlackPowderWeaponEnvironment.CanPropagateSound(actor)
 			? "@ apply|applies $1's burning match to $0, firing it with a thunderous discharge."
 			: "@ apply|applies $1's burning match to $0; its charge flashes and drives the projectile without a report.";
-		actor.OutputHandler.Handle(new EmoteOutput(new Emote(dischargeEmote, actor, Parent, linstock),
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote(dischargeEmote, actor, Parent,
+			linstock ?? (IPerceivable)new DummyPerceivable("the firing control")),
 			style: OutputStyle.CombatMessage));
-		linstockPlan.FinalisePlan();
+		linstockPlan?.FinalisePlan();
+		if (bodypart is null && firingTarget is IHaveABody { Body: not null } targetWithBody)
+		{
+			bodypart = targetWithBody.Body.RandomBodyPartGeometry(Orientation.Centre, Alignment.Front, Facing.Front);
+		}
 		ammo.Fire(actor, firingTarget, shotOutcome, coverOutcome, defenseOutcome, bodypart, projectile, WeaponType, defenseEmote,
 			new RangedFireContext(0, Math.Max(1, ammo.AmmoType.ProjectileCount), ammo.AmmoType.ScatterType));
+		if (!projectile.Deleted && projectile.IsItemType<IImpactDetonator>())
+		{
+			if (projectile.Location is null && firingTarget?.Location is not null)
+			{
+				projectile.InsertAtSource(firingTarget, true);
+				projectile.PositionTarget = firingTarget;
+			}
+
+			if (projectile.Location is not null)
+			{
+				projectile.GetItemType<IDetonatable>()?.Detonate();
+			}
+		}
 		if (BlackPowderWeaponEnvironment.CanPropagateSound(actor))
 		{
 			actor.Location.HandleAudioEcho("An artillery discharge can be heard {0}.", AudioVolume.ExtremelyLoud,
@@ -682,6 +759,11 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	private bool LoadedAmmunitionRequiresFuse()
 	{
+		if (!UsesLinstock)
+		{
+			return false;
+		}
+
 		var ammunition = LoadingMechanism == ArtilleryLoadingMechanism.RemovableChamber
 			? _installedChamber?.LoadedAmmunition
 			: _loadedAmmo as IArtilleryAmmunition;
@@ -694,6 +776,12 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	private IInventoryPlan CreateStagePlan(ICharacter actor)
 	{
+		if (UsesFixedAmmunition)
+		{
+			return CreateHoldPlan(actor, item =>
+				item.GetItemType<IArtilleryAmmunition>() is { } ammo &&
+				ProfilesAreCompatible(_prototype.ArtilleryProfile, ammo.ArtilleryProfile), "ammunition");
+		}
 		return LoadingStage switch
 		{
 			ArtilleryLoadingStage.Empty => CreateTaggedPlan(actor, _prototype.SpongeTag, "sponge"),

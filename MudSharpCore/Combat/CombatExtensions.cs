@@ -191,6 +191,8 @@ public static class CombatExtensions
                 return PositionKneeling.Instance;
             case RangedWeaponType.Blowgun:
                 return PositionKneeling.Instance;
+            case RangedWeaponType.Artillery:
+                return PositionStanding.Instance;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }

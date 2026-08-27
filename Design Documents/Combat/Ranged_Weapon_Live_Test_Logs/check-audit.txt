@@ -1,0 +1,181 @@
+DemoMUD
+Powered by the FutureMUD Engine v2.8.0.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your [REDACTED]
+
+X) Disconnect from the game
+> c
+> 1
+You have the following characters: 
+  1: admin (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu: 
+Rolling Prarie In The Merryweather Valley
+ID[10] | Terrain[Shortgrass Prairie] | [SafeQuit] | Overlay[New Showcase (#3r0)] | Coordinates[0,0,0]
+Exits: 
+
+  The prairie rises and falls in gentle swells, its close-cropped grass bending
+around patches of thyme and stubborn yellow flowers. A narrow animal track
+follows the crest of one rise before vanishing into the grass. Flat grey
+stones, perhaps turned up by frost and rain, lie half-buried along the slope.
+From the valley below comes the faint, wandering murmur of water, nearly lost
+beneath the wind.
+
+  Currently, it is pitch black here.
+
+A matchlock arquebus are here.
+A 9x19mm ball cartridge lies here.
+A plain steel dagger is here.
+A plain steel dagger is here.
+A soft ballistic vest lies here.
+A hard-plate carrier lies here.
+A 105mm howitzer is emplaced here.
+A 105mm high-explosive artillery round lies here.
+A 105mm howitzer is emplaced here.
+A 105mm howitzer is emplaced here.
+A 105mm howitzer is emplaced here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A 105mm high-explosive artillery round lies here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A brown-haired woman is standing here.
+A cow elephant is standing here.
+A cow elephant is standing here.
+A colossal iron-scaled dragon is standing here.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>
+> show checks
++------------------------------------+---------+---------------------------------------------+-------------+---------+------------------+----------------------------+
+| Check                              | Expr ID | Expr                                        | Max Improve | Branch? | Missing?         | Template                   |
++------------------------------------+---------+---------------------------------------------+-------------+---------+------------------+----------------------------+
+| None                               | 118     | variable                                    | Impossible  | False   | DoNotFail        | Skill Check No Improvement |
+| ExactTimeCheck                     | 119     | 0                                           | Impossible  | False   | DoNotFail        | Capability Check           |
+| VagueTimeCheck                     | 120     | 0                                           | Impossible  | False   | DoNotFail        | Capability Check           |
+| GenericAttributeCheck              | 121     | variable*5                                  | Impossible  | False   | DoNotFail        | Skill Check No Improvement |
+| GenericSkillCheck                  | 122     | variable                                    | Impossible  | False   | DoNotFail        | Skill Check No Improvement |
+| GenericListenCheck                 | 123     | listen:19+10                                | Impossible  | True    | DoNotFail        | Perception Check           |
+| LanguageListenCheck                | 124     | listen:19+50                                | Impossible  | True    | DoNotFail        | Perception Check           |
+| SpokenLanguageSpeakCheck           | 125     | variable                                    | Impossible  | True    | FailIfAllMissing | Language Check             |
+| SpokenLanguageHearCheck            | 126     | variable                                    | Impossible  | True    | FailIfAllMissing | Language Check             |
+| AccentAcquireCheck                 | 127     | 2.0                                         | Impossible  | False   | FailIfAnyMissing | Static Check               |
+| AccentImproveCheck                 | 128     | 2.0                                         | Impossible  | False   | FailIfAnyMissing | Static Check               |
+| GenericSpotCheck                   | 129     | spot:18+10                                  | Impossible  | True    | DoNotFail        | Perception Check           |
+| TraitBranchCheck                   | 130     | 0.1                                         | Impossible  | False   | DoNotFail        | Branch Check               |
+| NoticeCheck                        | 131     | spot:18+30                                  | Impossible  | True    | DoNotFail        | Perception Check           |
+| HideCheck                          | 132     | hide:22                                     | Impossible  | True    | DoNotFail        | Skill Check                |
+| SneakCheck                         | 133     | sneak:23                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| PalmCheck                          | 134     | palm:24                                     | Impossible  | True    | DoNotFail        | Skill Check                |
+| SpotStealthCheck                   | 135     | (spot:18*0.8)+(listen:19*0.4)+10            | Impossible  | True    | FailIfAllMissing | Passive Perception Check   |
+| HideItemCheck                      | 136     | hide:22                                     | Impossible  | True    | DoNotFail        | Skill Check                |
+| UninstallDoorCheck                 | 137     | variable                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| SpotSneakCheck                     | 138     | (spot:18*0.8)+(listen:19*0.4)+10            | Impossible  | True    | DoNotFail        | Perception Check           |
+| SkillTeachCheck                    | 139     | int:4*5                                     | Impossible  | True    | DoNotFail        | Skill Check                |
+| SkillLearnCheck                    | 140     | int:4*5                                     | Impossible  | True    | DoNotFail        | Skill Check                |
+| KnowledgeTeachCheck                | 141     | int:4*5                                     | Impossible  | True    | DoNotFail        | Skill Check                |
+| KnowledgeLearnCheck                | 142     | int:4*5                                     | Impossible  | True    | DoNotFail        | Skill Check                |
+| ForageCheck                        | 143     | forage:32                                   | Impossible  | True    | DoNotFail        | Skill Check                |
+| ForageSpecificCheck                | 144     | forage:32-20                                | Impossible  | True    | DoNotFail        | Skill Check                |
+| ForageTimeCheck                    | 145     | forage:32+20                                | Impossible  | True    | DoNotFail        | Skill Check                |
+| HealingCheck                       | 146     | max(5.0, con:2/2)                           | Impossible  | False   | DoNotFail        | Health Check               |
+| StunRecoveryCheck                  | 147     | max(10.0, con:2 + wil:5)                    | Impossible  | False   | DoNotFail        | Health Check               |
+| ShockRecoveryCheck                 | 148     | max(10.0, con:2 + wil:5)                    | Impossible  | False   | DoNotFail        | Health Check               |
+| PainRecoveryCheck                  | 149     | max(10.0, wil:5*2)                          | Impossible  | False   | DoNotFail        | Health Check               |
+| WoundCloseCheck                    | 150     | con:2/10                                    | Impossible  | False   | DoNotFail        | Health Check               |
+| BindWoundCheck                     | 151     | firstaid:29+30                              | Impossible  | True    | DoNotFail        | Skill Check                |
+| SutureWoundCheck                   | 152     | firstaid:29                                 | Impossible  | True    | DoNotFail        | Skill Check                |
+| CleanWoundCheck                    | 153     | firstaid:29+50                              | Impossible  | True    | DoNotFail        | Skill Check                |
+| RemoveLodgedObjectCheck            | 154     | firstaid:29+10                              | Impossible  | True    | DoNotFail        | Skill Check                |
+| MendCheck                          | 155     | con:2*2                                     | Impossible  | True    | DoNotFail        | Skill Check                |
+| TreatmentItemRecognitionCheck      | 156     | (care:30+firstaid:29)*10                    | Impossible  | False   | DoNotFail        | Capability Check           |
+| MeleeWeaponPenetrateCheck          | 157     | variable*0.2                                | Impossible  | True    | DoNotFail        | Skill Check                |
+| RangedWeaponPenetrateCheck         | 158     | variable*0.2                                | Impossible  | True    | DoNotFail        | Skill Check                |
+| PenetrationDefenseCheck            | 159     | armour:14                                   | Impossible  | True    | DoNotFail        | Skill Check                |
+| CombatMoveCheck                    | 160     | variable                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| DreamCheck                         | 161     | 10                                          | Impossible  | False   | DoNotFail        | Capability Check           |
+| GoToSleepCheck                     | 162     | 10                                          | Impossible  | False   | DoNotFail        | Capability Check           |
+| CombatRecoveryCheck                | 163     | agi:3*4+str:1                               | Impossible  | True    | DoNotFail        | Skill Check                |
+| MedicalExaminationCheck            | 164     | diag:28                                     | Impossible  | True    | DoNotFail        | Skill Check                |
+| LocksmithingCheck                  | 165     | pick:25                                     | Impossible  | True    | DoNotFail        | Skill Check                |
+| NaturalWeaponAttack                | 166     | brawl:179                                   | Impossible  | True    | DoNotFail        | Skill Check                |
+| DodgeCheck                         | 167     | dodge:178                                   | Impossible  | True    | DoNotFail        | Skill Check                |
+| ParryCheck                         | 168     | variable                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| BlockCheck                         | 169     | block:177                                   | Impossible  | True    | DoNotFail        | Skill Check                |
+| FleeMeleeCheck                     | 170     | running:8 + (0.5 * 184)                     | Impossible  | True    | DoNotFail        | Skill Check                |
+| OpposeFleeMeleeCheck               | 171     | running:8 + (0.5 * 184)                     | Impossible  | True    | DoNotFail        | Skill Check                |
+| Ward                               | 172     | ward:181                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| WardDefense                        | 173     | veterancy:184                               | Impossible  | True    | DoNotFail        | Skill Check                |
+| WardIgnore                         | 174     | (0.5 * veterancy:184) + (wil:5 * 2.5)       | Impossible  | True    | DoNotFail        | Skill Check                |
+| StartClinch                        | 175     | (0.5 * dodge:178) + (0.5 * brawl:179)       | Impossible  | True    | DoNotFail        | Skill Check                |
+| ResistClinch                       | 176     | (0.5 * dodge:178) + (0.5 * brawl:179)       | Impossible  | True    | DoNotFail        | Skill Check                |
+| BreakClinch                        | 177     | (0.5 * dodge:178) + (0.5 * brawl:179)       | Impossible  | True    | DoNotFail        | Skill Check                |
+| ResistBreakClinch                  | 178     | (0.5 * dodge:178) + (0.5 * brawl:179)       | Impossible  | True    | DoNotFail        | Skill Check                |
+| MeleeWeaponCheck                   | 179     | variable                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| ExploratorySurgeryCheck            | 180     | surgery:27                                  | Impossible  | True    | DoNotFail        | Skill Check                |
+| TriageCheck                        | 181     | diagnose:28                                 | Impossible  | True    | DoNotFail        | Skill Check                |
+| AmputationCheck                    | 182     | surgery:27                                  | Impossible  | True    | DoNotFail        | Skill Check                |
+| ReplantationCheck                  | 183     | surgery:27                                  | Impossible  | True    | DoNotFail        | Skill Check                |
+| InfectionHeartbeat                 | 184     | con:2*5                                     | Impossible  | False   | DoNotFail        | Skill Check No Improvement |
+| InfectionSpread                    | 185     | con:2*5                                     | Impossible  | False   | DoNotFail        | Skill Check No Improvement |
+| InvasiveProcedureFinalisation      | 186     | surgery:27                                  | Impossible  | True    | DoNotFail        | Skill Check                |
+| ReplantedBodypartRejectionCheck    | 187     | con:2*5                                     | Impossible  | False   | DoNotFail        | Skill Check No Improvement |
+| TraumaControlSurgery               | 188     | surgery:27                                  | Impossible  | True    | DoNotFail        | Skill Check                |
+| ThrownWeaponCheck                  | 189     | variable                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| AimRangedWeapon                    | 190     | variable                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| ScanPerceptionCheck                | 191     | spot:18+10                                  | Impossible  | True    | DoNotFail        | Perception Check           |
+| RescueCheck                        | 192     | (0.5 * veterancy:184) + (0.5 * brawl:179)   | Impossible  | True    | DoNotFail        | Skill Check                |
+| OpposeRescueCheck                  | 193     | (0.5 * veterancy:184) + (0.5 * brawl:179)   | Impossible  | True    | DoNotFail        | Skill Check                |
+| Defibrillate                       | 194     | firstaid:29                                 | Impossible  | True    | DoNotFail        | Skill Check                |
+| PerformCPR                         | 195     | firstaid:29                                 | Impossible  | True    | DoNotFail        | Skill Check                |
+| ArmourUseCheck                     | 196     | armouruse:14+5                              | Impossible  | True    | DoNotFail        | Skill Check                |
+| ReadTextImprovementCheck           | 197     | literacy:101                                | Impossible  | True    | DoNotFail        | Skill Check                |
+| HandwritingImprovementCheck        | 198     | literacy:102                                | Impossible  | True    | DoNotFail        | Skill Check                |
+| StaggeringBlowDefense              | 199     | (0.25 * veterancy:184) + (0.75 * endure:13) | Impossible  | True    | DoNotFail        | Skill Check                |
+| FireBow                            | 200     | variable                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| FireCrossbow                       | 201     | variable                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| FireFirearm                        | 202     | variable                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| FireSling                          | 203     | variable                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| StruggleFreeFromDrag               | 204     | (0.5 * dodge:178) + (0.5 * wrestle:180)     | Impossible  | True    | DoNotFail        | Skill Check                |
+| OpposeStruggleFreeFromDrag         | 205     | (0.5 * dodge:178) + (0.5 * wrestle:180)     | Impossible  | True    | DoNotFail        | Skill Check                |
+| CounterGrappleCheck                | 206     | wrestle:180                                 | Impossible  | True    | DoNotFail        | Skill Check                |
+| StruggleFreeFromGrapple            | 207     | wrestle:180                                 | Impossible  | True    | DoNotFail        | Skill Check                |
+| OpposeStruggleFreeFromGrapple      | 208     | wrestle:180                                 | Impossible  | True    | DoNotFail        | Skill Check                |
+| ExtendGrappleCheck                 | 209     | wrestle:180                                 | Impossible  | True    | DoNotFail        | Skill Check                |
+| InitiateGrapple                    | 210     | wrestle:180                                 | Impossible  | True    | DoNotFail        | Skill Check                |
+| StyleCharacteristicCapabilityCheck | 211     | groom:93+50                                 | Impossible  | False   | DoNotFail        | Capability Check           |
+| StyleCharacteristicCheck           | 212     | groom:93                                    | Impossible  | True    | DoNotFail        | Skill Check                |
+| ScreechAttack                      | 213     | brawl:179                                   | Impossible  | True    | DoNotFail        | Skill Check                |
+| CrutchWalking                      | 214     | literacy:12+10                              | Impossible  | True    | DoNotFail        | Skill Check                |
+*** Type more to read further ***
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Low | Status: Awake>
+<You are standing here>

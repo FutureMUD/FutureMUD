@@ -1,0 +1,190 @@
+DemoMUD
+Powered by the FutureMUD Engine v2.8.0.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your [REDACTED]
+
+X) Disconnect from the game
+> c
+You have the following characters: 
+  1: admin (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Wildlife Test Woodland
+ID[3] | Terrain[Woodland] | [SafeQuit] | Overlay[Wildlife AI Live Test (#2r4)] | Coordinates[0,0,0]
+Exits: East and West
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  The air is extremely dry. There is a strong cold wind blowing
+  A small puddle of blood is here.
+  Currently, it is pitch black here.
+
+A freshly severed dog tail is here.
+The fresh corpse of a live-test managed dog is here.
+The fresh corpse of a live-test managed dog is here.
+The fresh corpse of a live-test wolf is here.
+The fresh corpse of a live-test wolf is here.
+A painted wooden pavise is here.
+A 105mm howitzer is emplaced here.
+A directional fragmentation mine lies here.
+A blue-eyed elderly person is standing here.
+An ample elderly man with folded-lobed ears is standing here.
+An adult with a wolfish look is standing here.
+
+
+<You are currently in overwhelming pain and have severe blood loss>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+
+You bleed from a few wounds on your right breast, right shoulder, and abdomen.
+
+
+<You are currently in overwhelming pain and have severe blood loss>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> force 1.person west
+You force a blue-eyed elderly person to do the command 'west'
+
+A directional fragmentation mine detonates, driving a fan of fragments through
+the area!
+
+You got caught up in the explosion!
+A blue-eyed elderly person got caught up in the explosion!
+An ample elderly man with folded-lobed ears got caught up in the explosion!
+An adult with a wolfish look got caught up in the explosion!
+The fresh corpse of a live-test managed dog got caught up in the explosion!
+The fresh corpse of a live-test managed dog got caught up in the explosion!
+The fresh corpse of a live-test wolf got caught up in the explosion!
+The fresh corpse of a live-test wolf got caught up in the explosion!
+A painted wooden pavise got caught up in the explosion!
+An adult with a wolfish look can no longer continue to stand and tumbles to the
+ground.
+
+An ample elderly man with folded-lobed ears can no longer continue to stand and
+tumbles to the ground.
+
+A blue-eyed elderly person falls unconscious.
+
+A blue-eyed elderly person stops moving.
+
+An ample elderly man with folded-lobed ears passes out from the pain.
+
+An adult with a wolfish look passes out from the pain.
+
+
+<You are currently in overwhelming pain and have severe blood loss>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> look
+Wildlife Test Woodland
+ID[3] | Terrain[Woodland] | [SafeQuit] | Overlay[Wildlife AI Live Test (#2r4)] | Coordinates[0,0,0]
+Exits: East and West
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  The air is extremely dry. There is a strong cold wind blowing
+  A small puddle of blood is here.
+  Currently, it is pitch black here.
+
+A freshly severed dog tail is here.
+The fresh corpse of a live-test managed dog is here.
+The fresh corpse of a live-test managed dog is here.
+The fresh corpse of a live-test wolf is here.
+The fresh corpse of a live-test wolf is here.
+A painted wooden pavise is here.
+A 105mm howitzer is emplaced here.
+A directional fragmentation mine lies here.
+A freshly severed human left foot is here.
+A freshly severed human right leg is here.
+A freshly severed dog right rear claws is here.
+A freshly severed human left ankle is here.
+A freshly severed human left leg is here.
+A freshly severed human left shin is here.
+A freshly severed dog right rear claws is here.
+A freshly severed dog right dewclaw is here.
+A freshly severed dog right dewclaw is here.
+A freshly severed human right knee back is here.
+A freshly severed human right thigh is here.
+A blue-eyed elderly person is unconscious, sprawled here.
+An ample elderly man with folded-lobed ears is unconscious, sprawled here.
+An adult with a wolfish look is unconscious, sprawled here.
+
+
+<You are currently in overwhelming pain and have severe blood loss>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> look
+Wildlife Test Woodland
+ID[3] | Terrain[Woodland] | [SafeQuit] | Overlay[Wildlife AI Live Test (#2r4)] | Coordinates[0,0,0]
+Exits: East and West
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  The air is extremely dry. There is a strong cold wind blowing
+  A small puddle of blood is here.
+  Currently, it is pitch black here.
+
+A freshly severed dog tail is here.
+The fresh corpse of a live-test managed dog is here.
+The fresh corpse of a live-test managed dog is here.
+The fresh corpse of a live-test wolf is here.
+The fresh corpse of a live-test wolf is here.
+A painted wooden pavise is here.
+A 105mm howitzer is emplaced here.
+A directional fragmentation mine lies here.
+A freshly severed human left foot is here.
+A freshly severed human right leg is here.
+A freshly severed dog right rear claws is here.
+A freshly severed human left ankle is here.
+A freshly severed human left leg is here.
+A freshly severed human left shin is here.
+A freshly severed dog right rear claws is here.
+A freshly severed dog right dewclaw is here.
+A freshly severed dog right dewclaw is here.
+A freshly severed human right knee back is here.
+A freshly severed human right thigh is here.
+A blue-eyed elderly person is unconscious, sprawled here.
+An ample elderly man with folded-lobed ears is unconscious, sprawled here.
+An adult with a wolfish look is unconscious, sprawled here.
+
+
+<You are currently in overwhelming pain and have severe blood loss>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+
+A small amount of human blood runs out of your mouth.
+
+A blue-eyed elderly person bleeds from a couple of wounds on her mouth and face.
+
+An ample elderly man with folded-lobed ears bleeds from a couple of wounds on
+his right hip.
+
+An adult with a wolfish look bleeds from a wound on her left knee.
+
+
+<You are currently in overwhelming pain and have very severe blood loss>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>

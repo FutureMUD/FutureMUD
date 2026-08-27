@@ -51,7 +51,10 @@ public sealed record CombatSimulationParticipantRequest(
 	ICell? StartingCell = null,
 	RoomLayer StartingLayer = RoomLayer.GroundLevel,
 	IPositionState? StartingPosition = null,
-	bool StartsInMelee = true)
+	bool StartsInMelee = true,
+	double? StartingRoutePositionMetres = null,
+	double InitialAimPercentage = 0.0,
+	IRangedCover? StartingCover = null)
 {
 	public string SourceDescription => SourceType switch
 	{

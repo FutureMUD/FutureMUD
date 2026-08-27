@@ -43,6 +43,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Mounted Combat](./Combat/Mounted_Combat.md)
 - [Multi-Target Combat Attacks](./Combat/Multi_Target_Combat_Attacks.md)
 - [Modern Firearms, Attachments, and Alternate Fire Modes](./Combat/Modern_Firearms_and_Attachments.md)
+- [Ranged Weapon Balance Pass](./Combat/Ranged_Weapon_Balance_Pass.md)
 - [Natural Ranged Attacks Design](./Combat/Natural_Ranged_Attacks_Design.md)
 - [Natural Ranged Attacks Implementation Plan](./Combat/Natural_Ranged_Attacks_Implementation_Plan.md)
 

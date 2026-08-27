@@ -206,7 +206,7 @@ SET database={database}
 			writer.Write(e.ToString());
 			writer.Close();
 
-			Console.Clear();
+			SafeClear();
 			Console.WriteLine(@$"Unfortunately, the database seeder has crashed. It will have written out a crash log to the directory from which you ran the program. It would be much appreciated if you could pass this crash log, along with some contextual information about what you were doing to Japheth on the Discord server.
 				
 The exception details were as follows:

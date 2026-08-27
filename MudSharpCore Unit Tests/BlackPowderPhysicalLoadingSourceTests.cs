@@ -79,7 +79,7 @@ public class BlackPowderPhysicalLoadingSourceTests
 		StringAssert.Contains(source, "CharacterState.Able.HasFlag(actor.State)");
 		StringAssert.Contains(source, "ArtilleryLoadingStage.Empty => \"sponge and clear\"");
 		StringAssert.Contains(source, "CreateTaggedPlan(actor, _prototype.LinstockTag, \"linstock\")");
-		StringAssert.Contains(source, "linstockPlan.FinalisePlan()");
+		StringAssert.Contains(source, "linstockPlan?.FinalisePlan()");
 		StringAssert.Contains(source, "int quantity = 1");
 		StringAssert.Contains(source, "reference, 0)");
 		StringAssert.Contains(source, "UseRetrievedItemAsResult = quantity == 1");

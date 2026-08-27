@@ -44,13 +44,13 @@ public abstract class CoverSeekingRangedStrategy : RangeBaseStrategy
                                                           .ToList();
             if (weapons.Any())
             {
-                PositionState minPosition = PositionProne.Instance;
+                IPositionState minPosition = PositionProne.Instance;
                 foreach (IRangedWeapon weapon in weapons)
                 {
-                    if (weapon.WeaponType.RangedWeaponType.MinimumFiringPosition().CompareTo(minPosition) ==
+                    if (weapon.WeaponType.MinimumFiringPosition.CompareTo(minPosition) ==
                         PositionHeightComparison.Higher)
                     {
-                        minPosition = weapon.WeaponType.RangedWeaponType.MinimumFiringPosition();
+                        minPosition = weapon.WeaponType.MinimumFiringPosition;
                     }
                 }
 

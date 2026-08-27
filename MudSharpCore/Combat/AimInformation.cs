@@ -133,7 +133,7 @@ public class AimInformation : IAimInformation
             if (worstOutcome.IsFail())
             {
                 Shooter.OutputHandler.Send("You lose some of your aim as you move.");
-                AimPercentage -= 0.33 * worstOutcome.FailureDegrees();
+                AimPercentage -= Shooter.Gameworld.GetStaticDouble("RangedAimShooterMovementLoss") * worstOutcome.FailureDegrees();
             }
         }
     }
@@ -195,7 +195,7 @@ public class AimInformation : IAimInformation
 		SpatialLocation previousLocation,
 		SpatialLocation currentLocation)
 	{
-		HandleSpatialPositionChange("as your target moves", 0.33);
+		HandleSpatialPositionChange("as your target moves", Shooter.Gameworld.GetStaticDouble("RangedAimTargetMovementLoss"));
 	}
 
 	private void Shooter_OnSpatialPositionChanged(
@@ -203,7 +203,7 @@ public class AimInformation : IAimInformation
 		SpatialLocation previousLocation,
 		SpatialLocation currentLocation)
 	{
-		HandleSpatialPositionChange("as you move", 0.33);
+		HandleSpatialPositionChange("as you move", Shooter.Gameworld.GetStaticDouble("RangedAimShooterMovementLoss"));
 	}
 
 	private void HandleSpatialPositionChange(string reason, double aimLoss)
@@ -304,7 +304,9 @@ public class AimInformation : IAimInformation
             if (worstOutcome.IsFail())
             {
                 Shooter.OutputHandler.Send("You lose some of your aim as your target moves.");
-                AimPercentage -= (movingTowards ? 0.15 : 0.33) * worstOutcome.FailureDegrees();
+                AimPercentage -= (movingTowards
+                    ? Shooter.Gameworld.GetStaticDouble("RangedAimTargetMovingTowardLoss")
+                    : Shooter.Gameworld.GetStaticDouble("RangedAimTargetMovementLoss")) * worstOutcome.FailureDegrees();
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body.Traits;
 using MudSharp.Commands.Trees;
+using MudSharp.Body.Position;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.RPG.Checks;
@@ -35,6 +36,9 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
         BaseAimDifficulty = (Difficulty)type.BaseAimDifficulty;
         RequiresFreeHandToReady = type.RequiresFreeHandToReady;
         AlwaysRequiresTwoHandsToWield = type.AlwaysRequiresTwoHandsToWield;
+        MinimumFiringPosition = type.MinimumFiringPositionStateId.HasValue
+            ? PositionState.GetState(type.MinimumFiringPositionStateId.Value)
+            : RangedWeaponType.MinimumFiringPosition();
     }
 
     private RangedWeaponTypeDefinition(RangedWeaponTypeDefinition rhs, string name)
@@ -61,6 +65,7 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
         AimBonusLostPerShot = rhs.AimBonusLostPerShot;
         RequiresFreeHandToReady = rhs.RequiresFreeHandToReady;
         AlwaysRequiresTwoHandsToWield = rhs.AlwaysRequiresTwoHandsToWield;
+        MinimumFiringPosition = rhs.MinimumFiringPosition;
         DoDatabaseInsert();
     }
 
@@ -82,6 +87,7 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
         AimBonusLostPerShot = 1.0;
         RequiresFreeHandToReady = true;
         AlwaysRequiresTwoHandsToWield = false;
+        MinimumFiringPosition = type.MinimumFiringPosition();
         switch (type)
         {
             case RangedWeaponType.Thrown:
@@ -223,6 +229,7 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
         dbitem.AimBonusLostPerShot = AimBonusLostPerShot;
         dbitem.RequiresFreeHandToReady = RequiresFreeHandToReady;
         dbitem.AlwaysRequiresTwoHandsToWield = AlwaysRequiresTwoHandsToWield;
+        dbitem.MinimumFiringPositionStateId = (int)MinimumFiringPosition.Id;
     }
 
     /// <inheritdoc />
@@ -276,6 +283,8 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
     public bool RequiresFreeHandToReady { get; set; }
 
     public bool AlwaysRequiresTwoHandsToWield { get; set; }
+
+    public IPositionState MinimumFiringPosition { get; set; }
 
     public CheckType FireCheck
     {
@@ -343,7 +352,7 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
 
         sb.AppendLineColumns(Math.Min((uint)character.LineFormatLength, 120U), 3,
             $"Always 2-Handed: {AlwaysRequiresTwoHandsToWield.ToColouredString()}",
-            $"",
+            $"Minimum Position: {MinimumFiringPosition.DefaultDescription().ColourName()}",
             $"");
         sb.AppendLine();
         sb.AppendLine($"Accuracy Bonus: {AccuracyBonusExpression.OriginalFormulaText.Colour(Telnet.Cyan)}");
@@ -363,6 +372,7 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
 	#3cover <##>#0 - the bonus (-ve for penalty) against targets in cover
 	#3aimdifficulty <difficulty>#0 - the difficulty of the aim check
 	#3aimloss <%>#0 - how much percentage of the aim to lose after firing
+	#3position <state|default>#0 - sets the lowest position from which this weapon can fire
 	#3freehand#0 - toggles needing a free hand to ready the weapon
 	#3fireskill <skill>#0 - sets the skill used when firing the weapon
 	#3operateskill <skill>#0 - sets the skill used when loading/readying the weapon
@@ -418,6 +428,10 @@ For the damage formula you can use the following parameters:
             case "aimlosspershot":
             case "aimpershot":
                 return BuildingCommandAimLossPerShot(actor, ss);
+            case "position":
+            case "minimumposition":
+            case "firingposition":
+                return BuildingCommandMinimumPosition(actor, ss);
             case "freehand":
                 return BuildingCommandFreeHand(actor);
             case "firetrait":
@@ -706,6 +720,30 @@ For the damage formula you can use the following parameters:
         BaseAimDifficulty = value;
         Changed = true;
         actor.OutputHandler.Send($"The base difficulty to aim this ranged weapon is now {value.DescribeColoured()}.");
+        return true;
+    }
+
+    private bool BuildingCommandMinimumPosition(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which position should be the lowest firing position for this weapon, or should it use the family default?");
+            return false;
+        }
+
+        var text = ss.SafeRemainingArgument;
+        var position = text.EqualTo("default")
+            ? RangedWeaponType.MinimumFiringPosition()
+            : PositionState.GetState(text);
+        if (position is null)
+        {
+            actor.OutputHandler.Send($"The text {text.ColourCommand()} is not a valid position. Valid positions include {PositionState.States.Select(x => x.DefaultDescription()).ListToColouredString()}.");
+            return false;
+        }
+
+        MinimumFiringPosition = position;
+        Changed = true;
+        actor.OutputHandler.Send($"This ranged weapon can now fire from {position.DefaultDescription().ColourName()} or a higher position.");
         return true;
     }
 

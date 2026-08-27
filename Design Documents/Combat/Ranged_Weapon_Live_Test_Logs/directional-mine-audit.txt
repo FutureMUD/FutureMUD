@@ -1,0 +1,105 @@
+DemoMUD
+Powered by the FutureMUD Engine v2.8.0.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your [REDACTED]
+
+X) Disconnect from the game
+> c
+You have the following characters: 
+  1: admin (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Wildlife Test Woodland
+ID[3] | Terrain[Woodland] | [SafeQuit] | Overlay[Wildlife AI Live Test (#2r4)] | Coordinates[0,0,0]
+Exits: East and West
+
+  This is a newly built location that has not yet been described. It should not
+be approved for use in game.
+
+  The air is extremely dry. There is a strong cold wind blowing
+  Currently, it is pitch black here.
+
+A freshly severed dog tail is here.
+The fresh corpse of a live-test managed dog is here.
+The fresh corpse of a live-test managed dog is here.
+The fresh corpse of a live-test wolf is here.
+The fresh corpse of a live-test wolf is here.
+A painted wooden pavise is here.
+A 105mm howitzer is emplaced here.
+A directional fragmentation mine lies here.
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> goto 3
+You are already there!
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> item show 16788
+=======[ Item Prototype #16,788 - Revision 0 / 0 ]==================================================================================================================================
+Status: Current
+Unique Name: ModernFirearms_Directional_Mine
+Noun: Directional fragmentation mine
+Short Description: a directional fragmentation mine
+Long Description: A directional fragmentation mine lies here.
+Preserve Register Variables: False
+Prevent Manual Load: False
+Permit Player Skins: True
+Hidden From Players: False
+Planar Presence: present on Prime Material, visible to Prime Material, perceives Prime Material
+Item Group: Default
+Health Strategy: Item Default (#1)
+Size: Normal
+Weight: 1.6 kilograms
+Material: an unknown material
+Base Quality: Standard
+Base Cost: nothing
+
+Full Description:
+
+  This emplaceable anti-personnel charge projects fragments across its facing
+  when a trap detonates it.
+
+Builder Comment:
+
+  None
+
+Tags:
+
+  Functions / Trap Components / Explosive Trap Payload
+  Functions / Trap Components / Tripwire Trigger
+
+Components:
+
+  Holdable: [Holdable] (#1r0)
+  Bomb: [Bomb_Directional_Mine] (#4255r0)
+
+
+
+<You are currently in no pain>
+<Stamina: 350/350 | Exertion: Rest | Status: Awake>
+<You are sprawled here>

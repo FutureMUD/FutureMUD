@@ -83,7 +83,9 @@ if (-not $patchNotesAvailable) {
 }
 
 try {
-	Invoke-RestMethod -Method Post -Uri $webhookUri -ContentType 'application/json' -Body $payload | Out-Null
+	$confirmedWebhookUri = [UriBuilder]::new($webhookUri)
+	$confirmedWebhookUri.Query = 'wait=true'
+	Invoke-RestMethod -Method Post -Uri $confirmedWebhookUri.Uri -ContentType 'application/json' -Body $payload | Out-Null
 }
 catch {
 	# Do not include the exception because PowerShell may render the secret webhook URL.

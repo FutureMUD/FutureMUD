@@ -388,8 +388,8 @@ When assembling patch notes for a release, use this process:
 3. Open a pull request that includes the note and any related website changes. Review the filename, front matter, summary, rendered structure, links, product version, and operational claims.
 4. Coordinate with the product release workflow. Product tags publish binaries and generated documentation; merging a patch note publishes website content. These are separate workflows. Do not say a download is available until the product release has been promoted and verified on `/downloads`.
 5. Merge the patch-note pull request to `master`. Changes below `FutureMUD.Web/**` trigger `.github/workflows/deploy-website.yml`, which restores, tests, publishes the Linux website, atomically activates it on the server, and checks `/health/ready`.
-6. Confirm the workflow succeeded, then verify both `/patch-notes` and `/patch-notes/{slug}` on the public website. Check the displayed title, summary, date, tags, body structure, links, and any referenced download.
-7. Publish the short Discord announcement with a link to the verified website note.
+6. Confirm the workflow succeeded, then verify both `/patch-notes` and `/patch-notes/{slug}` on the public website. Check the displayed title, summary, date, tags, body structure, links, and any referenced download. Product tag releases announce the canonical patch-note URL in Discord after production promotion, so the filename slug must follow the product/version convention used by the release workflow.
+7. Verify the release workflow posted the short Discord announcement with a link to the website note. If the non-blocking notification step warned, correct the webhook configuration before the next release and post the missed announcement manually.
 
 Do not edit patch-note files directly on the production server. Repository Markdown is the source of truth, and the deployment workflow is the supported publishing channel.
 

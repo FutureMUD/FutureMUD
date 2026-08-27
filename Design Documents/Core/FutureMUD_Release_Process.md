@@ -49,7 +49,9 @@ git push origin "refs/tags/$tag"
 
 `git ls-remote` should report no existing tag before creation; its non-zero result is expected in that case. Never move, replace, or force-push a release tag. Verify that `git rev-list -n 1` is the exact version commit before pushing.
 
-The tag starts `.github/workflows/publish-products.yml`. It validates the project version, runs the declared tests, builds each runtime, exports Engine documentation when applicable, tests the resumable publishing API against a temporary store, and atomically promotes the release to futuremud.com.
+The tag starts `.github/workflows/publish-products.yml`. It validates the project version, runs the declared tests, builds each runtime, exports Engine documentation when applicable, tests the resumable publishing API against a temporary store, and atomically promotes the release to futuremud.com. After a successful production promotion from a tag push, it posts one announcement to the FutureMUD Discord patch-notes channel with a link to the canonical website patch note. Manual retry runs do not post another announcement.
+
+The Discord webhook is stored as the `FUTUREMUD_RELEASE_DISCORD_WEBHOOK_URL` secret in the protected `production` environment. Never put the webhook URL in the workflow, repository, command output, or Actions logs. If the Discord notification fails, the step reports a warning without changing the result of a release that has already been published.
 
 The manual action in `backfill-products.yml` is restricted to specifically allowlisted historical releases. Do not add new routine releases to that workflow.
 

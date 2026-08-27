@@ -419,6 +419,7 @@ jobs:
           persist-credentials: false
           sparse-checkout: |
             scripts/Publish-WebsiteRelease.ps1
+            scripts/Send-DiscordReleaseNotification.ps1
             scripts/New-MudClientUpdateManifest.ps1
             scripts/New-TerrainPlannerUpdateManifest.ps1
             MudClient/MudClientDeployment
@@ -473,3 +474,13 @@ jobs:
           $updateSignature = if ($env:PRODUCT -in @('mudclient', 'terrainplanner')) { 'artifacts/update-manifest.sig' } else { '' }
           $updateKeyId = if ($env:PRODUCT -in @('mudclient', 'terrainplanner')) { 'futuremud-mudclient-2026-08' } else { '' }
           ./scripts/Publish-WebsiteRelease.ps1 -BaseUrl https://futuremud.com -Token $env:PUBLISHING_TOKEN -Product $env:PRODUCT -Version $env:VERSION -SourceCommit $env:SOURCE_REVISION -ArtifactDirectory artifacts -DocumentationCatalogue $documentation -UpdateManifest $updateManifest -UpdateManifestSignature $updateSignature -UpdateManifestKeyId $updateKeyId
+      - name: Announce release in Discord
+        if: github.event_name == 'push'
+        continue-on-error: true
+        shell: pwsh
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.FUTUREMUD_RELEASE_DISCORD_WEBHOOK_URL }}
+          PRODUCT: ${{ needs.prepare.outputs.product }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          ./scripts/Send-DiscordReleaseNotification.ps1 -Product $env:PRODUCT -Version $env:VERSION -WebhookUrl $env:DISCORD_WEBHOOK_URL

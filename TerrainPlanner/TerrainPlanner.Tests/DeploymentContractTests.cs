@@ -54,6 +54,8 @@ public class DeploymentContractTests
 		Assert.IsTrue(windows.Contains("Get-ScheduledTask -TaskName 'FutureMUD Web Client HTTPS'", StringComparison.Ordinal));
 		Assert.IsTrue(windows.Contains("--adapter caddyfile", StringComparison.Ordinal));
 		Assert.IsTrue(windows.Contains("Caddy already contains a site block", StringComparison.Ordinal));
+		Assert.IsTrue(windows.Contains("$main -match \"(?m)^\\s*$escapedHostname\\s*\\{\"", StringComparison.Ordinal));
+		Assert.IsFalse(windows.Contains("$main -match \"(?m)^\\\\s*$escapedHostname\\\\s*\\\\{\"", StringComparison.Ordinal));
 	}
 
 	[TestMethod]

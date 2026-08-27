@@ -25,8 +25,9 @@ FLUSH PRIVILEGES;
 Extract the archive. It creates one directory named for the runtime package; change into that directory, then run:
 
 ```bash
-unzip terrainplanner-2.0.6-linux-x64.zip
-cd terrainplanner-2.0.6-linux-x64
+version=2.0.7
+unzip "terrainplanner-$version-linux-x64.zip"
+cd "terrainplanner-$version-linux-x64"
 sudo bash deploy/linux/install-terrainplanner.sh planner.example.com
 ```
 
@@ -44,12 +45,15 @@ The installer creates the unprivileged `terrainplanner` account, installs a hard
 Open an elevated PowerShell prompt. The archive extracts to an outer download directory which contains the actual runtime package directory; change into the inner directory before running the installer:
 
 ```powershell
-$archive = 'C:\Install\terrainplanner-2.0.6-win-x64.zip'
-$extractRoot = 'C:\Install\terrainplanner-2.0.6'
+$version = '2.0.7'
+$archive = "C:\Install\terrainplanner-$version-win-x64.zip"
+$extractRoot = "C:\Install\terrainplanner-$version"
 Expand-Archive -LiteralPath $archive -DestinationPath $extractRoot -Force
-Set-Location "$extractRoot\terrainplanner-2.0.6-win-x64"
+Set-Location "$extractRoot\terrainplanner-$version-win-x64"
 .\deploy\windows\Install-TerrainPlanner.ps1 -Hostname planner.example.com
 ```
+
+`Expand-Archive` creates an outer download directory containing the actual runtime-package directory. Run the installer only after changing into that inner `terrainplanner-<version>-win-x64` directory. If the Web MUD Client's scheduled task cannot identify Caddy because it was installed in a non-standard location, use the explicit Caddy fallback shown below on the first install and on future updates.
 
 On the first run it creates `%ProgramFiles%\FutureMUD\TerrainPlanner\shared\appsettings.Production.json` and stops before creating a release. Replace `REPLACE_WITH_SECRET`, restrict that file to Administrators and SYSTEM, then rerun the same command.
 

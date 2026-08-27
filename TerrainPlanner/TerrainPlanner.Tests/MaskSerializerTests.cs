@@ -54,4 +54,19 @@ public class MaskSerializerTests
 		Assert.ThrowsException<InvalidDataException>(() =>
 			MaskSerializer.ImportFeatureMask(map, "", new Dictionary<string, TagCatalogueItem>()));
 	}
+
+	[TestMethod]
+	public void DuplicateTagShortNamesAreVisibleButUnavailableForFeatureMasks()
+	{
+		var firstRoad = new TagCatalogueItem(10, "road", "world / trade / road", null);
+		var secondRoad = new TagCatalogueItem(11, "ROAD", "world / travel / road", null);
+		var index = TagCatalogueIndex.Create([Forest, firstRoad, secondRoad]);
+
+		Assert.AreEqual(3, index.ById.Count);
+		Assert.IsTrue(index.ByShortName.ContainsKey(Forest.ShortName));
+		Assert.IsFalse(index.ByShortName.ContainsKey(firstRoad.ShortName));
+		Assert.IsFalse(index.IsAvailableForFeatureMask(firstRoad));
+		Assert.AreEqual("The short name 'road' is shared by multiple tags.",
+			index.FeatureMaskUnavailableReason(firstRoad));
+	}
 }

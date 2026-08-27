@@ -80,10 +80,11 @@
 					{
 						@foreach (var tag in FilteredTags)
 						{
-							var invalid = !CanExportTag(tag);
-							<button class="palette-item @(_tagBrushId == tag.Id ? "selected" : "")" disabled="@invalid" title="@(invalid ? "This tag contains a feature-mask delimiter." : tag.FullName)" @onclick="() => SelectTagAsync(tag.Id)">
+							var unavailableReason = _tagIndex.FeatureMaskUnavailableReason(tag);
+							var unavailable = unavailableReason is not null;
+							<button class="palette-item @(_tagBrushId == tag.Id ? "selected" : "")" disabled="@unavailable" title="@(unavailableReason ?? tag.FullName)" @onclick="() => SelectTagAsync(tag.Id)">
 								<span class="tag-swatch" style="background:@GetTagColour(tag.Id)"></span>
-								<span><strong>@tag.ShortName</strong><small>@tag.FullName</small></span>
+								<span><strong>@tag.ShortName</strong><small>@(unavailableReason ?? tag.FullName)</small></span>
 							</button>
 						}
 					}
@@ -215,9 +216,10 @@
 	private PlannerMap _map = new(5, 5);
 	private IReadOnlyList<TerrainCatalogueItem> _terrains = [];
 	private IReadOnlyList<TagCatalogueItem> _tags = [];
-	private Dictionary<long, TerrainCatalogueItem> _terrainById = [];
-	private Dictionary<long, TagCatalogueItem> _tagById = [];
-	private Dictionary<string, TagCatalogueItem> _tagByName = new(StringComparer.OrdinalIgnoreCase);
+	private IReadOnlyDictionary<long, TerrainCatalogueItem> _terrainById = new Dictionary<long, TerrainCatalogueItem>();
+	private IReadOnlyDictionary<long, TagCatalogueItem> _tagById = TagCatalogueIndex.Empty.ById;
+	private IReadOnlyDictionary<string, TagCatalogueItem> _tagByName = TagCatalogueIndex.Empty.ByShortName;
+	private TagCatalogueIndex _tagIndex = TagCatalogueIndex.Empty;
 	private Dictionary<long, string> _tagColours = [];
 	private Dictionary<long, string> _projectTagNames = [];
 	private PlannerLayer _layer = PlannerLayer.Terrain;
@@ -791,15 +793,21 @@
 
 	private void BuildLookups()
 	{
-		_terrainById = _terrains.ToDictionary(item => item.Id);
-		_tagById = _tags.ToDictionary(item => item.Id);
-		_tagByName = _tags.ToDictionary(item => item.ShortName, StringComparer.OrdinalIgnoreCase);
+		_terrainById = _terrains
+			.GroupBy(item => item.Id)
+			.ToDictionary(group => group.Key, group => group.First());
+		_tagIndex = TagCatalogueIndex.Create(_tags);
+		_tagById = _tagIndex.ById;
+		_tagByName = _tagIndex.ByShortName;
 	}
 
 	private void EnsureBrushesAndColours()
 	{
 		if (_terrainBrushId != 0 && !_terrainById.ContainsKey(_terrainBrushId)) _terrainBrushId = 0;
-		if (!_tagById.ContainsKey(_tagBrushId)) _tagBrushId = _tags.FirstOrDefault(CanExportTag)?.Id ?? 0;
+		if (!_tagById.ContainsKey(_tagBrushId))
+		{
+			_tagBrushId = _tags.FirstOrDefault(_tagIndex.IsAvailableForFeatureMask)?.Id ?? 0;
+		}
 		foreach (var tag in _tags)
 		{
 			_tagColours.TryAdd(tag.Id, DeterministicTagColour(tag.Id));
@@ -852,9 +860,6 @@
 	private string TagFullName(long id) => _tagById.GetValueOrDefault(id)?.FullName ?? $"Missing tag #{id}";
 	private string GetTagColour(long id) => _tagColours.GetValueOrDefault(id, DeterministicTagColour(id));
 	private int TagUseCount(long id) => _map.Cells.Count(cell => cell.TagIds.Contains(id));
-	private static bool CanExportTag(TagCatalogueItem tag) =>
-		!string.IsNullOrWhiteSpace(tag.ShortName) && !tag.ShortName.Contains(',') && !tag.ShortName.Contains('|') &&
-		!tag.ShortName.Contains('\r') && !tag.ShortName.Contains('\n');
 	private static string WebColour(string colour) => colour.Length == 9 && colour.StartsWith('#') ? $"#{colour[3..]}" : colour;
 	private static string DeterministicTagColour(long id)
 	{

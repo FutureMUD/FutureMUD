@@ -666,11 +666,13 @@ The IDs above are examples. Use `terrain planner` or `show terrain` to get the c
 Feature mask example:
 
 ```text
-cell new "Feature Rectangle" 2 3 "Seeded Terrain Wilderness Grouped Description" 12,12,12,15,15,15 "Trail Straight|Roadside Marker,Trail Bend,Wildflowers,,Dense Underbrush,Trail Straight"
+cell new "Feature Rectangle" 2 3 "Seeded Terrain Wilderness Grouped Description" 12,12,12,15,15,15 "101|102,103,104,,105,101"
 ```
 
 Feature masks use the same bottom-left row-major order. Separate cells with commas and multiple features in one cell
-with `|`. Feature names must match the room template's expected feature tags.
+with `|`. Use the numeric IDs from `tag list` or the hosted Terrain Planner; the IDs are resolved to the exact
+framework tags, and their names are supplied to the room template's descriptive feature rules. The IDs above are
+examples only.
 
 Area template editing:
 
@@ -1291,7 +1293,7 @@ When assisting a builder:
 - Prefer compact paste chains with `@n` when creating connected rooms.
 - Use quoted names for multi-word package, zone, area, terrain, and room names.
 - Do not submit, review, swap, delete, or obsolete a package unless the user explicitly wants that workflow step.
-- Use the hosted Terrain Planner's terrain mask for `Terrain Rectangle` grids and its tag mask for `Feature Rectangle`. Remember that `0` means no room and therefore no tags.
+- Use the hosted Terrain Planner's terrain mask for `Terrain Rectangle` grids and its numeric tag-ID mask for `Feature Rectangle`. Remember that `0` means no room and therefore no tags.
 - Set terrain before adjusting outdoors type and light special cases.
 - For non-cardinal exits, inspect `show exittemplates` first and choose the template whose verbs match the player's command.
 - Verify important builds with `cell show`, `cell exit list all`, `rooms <zone>`, and `landmarks`.

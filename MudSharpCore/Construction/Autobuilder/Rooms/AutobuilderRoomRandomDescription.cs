@@ -158,6 +158,18 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
     public override ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         params string[] tags)
     {
+        return CreateRoomCore(builder, specifiedTerrain, deferDescription, [], tags);
+    }
+
+    public override ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+        IReadOnlyCollection<ITag> frameworkTags, params string[] tags)
+    {
+        return CreateRoomCore(builder, specifiedTerrain, deferDescription, frameworkTags, tags);
+    }
+
+    private ICell CreateRoomCore(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+        IReadOnlyCollection<ITag> frameworkTags, string[] tags)
+    {
         Room room = new(builder, builder.CurrentOverlayPackage);
         ICell cell = room.Cells.First();
         IEditableCellOverlay overlay = cell.GetOrCreateOverlay(builder.CurrentOverlayPackage);
@@ -170,7 +182,7 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 		overlay.AmbientLightFactor = info.AmbientLightFactor;
 
 		cell.ForagableProfile = info.ForagableProfile;
-		ApplyTagsToCell(cell, tags);
+		ApplyTagsToCell(cell, frameworkTags, tags);
 
         if (!deferDescription)
         {

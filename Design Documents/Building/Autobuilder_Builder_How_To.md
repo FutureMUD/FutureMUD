@@ -66,7 +66,7 @@ Important rules:
 - The mask is row-major from the bottom-left `(0,0)` cell: proceed right across the southern row, then move one row north.
 - `0` means no room should be created at that coordinate.
 - The number of entries must exactly match `height x width`.
-- Feature-mask entries use short tag names separated by `|`; an untagged cell is an empty entry.
+- Feature-mask entries use positive tag IDs separated by `|`; an untagged cell is an empty entry. The Terrain Planner displays the names for you but exports the IDs, so duplicate or renamed tag names cannot change the target tag.
 
 ## Building An Area
 
@@ -131,7 +131,7 @@ Use:
 - area template: `Feature Rectangle`
 - room template: `Seeded Terrain Wilderness Grouped Description` or a custom random room template
 
-`Feature Rectangle` takes an extra feature mask argument after the terrain mask. Each cell's features are separated with `|`, and cells are still separated with commas.
+`Feature Rectangle` takes an extra feature mask argument after the terrain mask. Each cell's tag IDs are separated with `|`, and cells are still separated with commas. It resolves those IDs directly to framework tags while supplying their names to the selected room template's descriptive feature rules.
 
 That lets you drive extra descriptive tags into the room template deliberately.
 

@@ -88,7 +88,7 @@ public class PlannerMapTests
 	}
 
 	[TestMethod]
-	public void ProjectRoundTripPreservesTagsColoursAndUnknownNames()
+	public void ProjectRoundTripPreservesTagIdsColoursAndDisplayNames()
 	{
 		var map = new PlannerMap(1, 1);
 		map.PaintTerrain([new(0, 0)], 5);

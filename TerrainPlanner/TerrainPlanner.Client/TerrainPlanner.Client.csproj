@@ -18,4 +18,12 @@
 		<ProjectReference Include="..\TerrainPlanner.Contracts\TerrainPlanner.Contracts.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<!-- Keep the planner's identity mark byte-for-byte aligned with the public FutureMUD website. -->
+		<Content Include="..\..\Futuremud Configuration Tool\Images\FM Logo.png"
+			 Link="wwwroot\images\fm-logo.png"
+			 CopyToOutputDirectory="PreserveNewest"
+			 CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+
 </Project>

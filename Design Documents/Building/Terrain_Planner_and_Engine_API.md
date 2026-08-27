@@ -39,7 +39,7 @@ Both masks contain exactly `width * height` comma-separated cells. Entry zero is
 - Terrain mask: one terrain ID per entry; `0` means no cell is created.
 - Feature/tag mask: short tag names separated by `|` inside a cell; an untagged cell is an empty entry.
 
-The UI displays hierarchical tag names but exports globally unique short names, matching `ApplyTagsToCell`. Separate copy/import controls and the combined export panel preserve empty entries. Clipboard denial leaves selectable mask text available.
+The UI displays hierarchical tag names but exports only globally unique short names, matching `ApplyTagsToCell`'s name-based resolution. If two tags share a short name, both remain visible in the palette but are disabled for feature-mask painting with an explanation; importing that ambiguous name keeps it unresolved rather than choosing a tag arbitrarily. Separate copy/import controls and the combined export panel preserve empty entries. Clipboard denial leaves selectable mask text available.
 
 ## Deployment and release
 

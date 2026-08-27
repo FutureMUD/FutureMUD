@@ -15,6 +15,11 @@ namespace MudSharp.Commands.Modules;
 
 internal abstract class BaseBuilderModule : Module<ICharacter>
 {
+	protected const string GenericEditableItemNameRenameHelp =
+		"#3rename <match regex> <replacement text>#0 - safely bulk renames names using case-sensitive .NET regex replacement syntax\n" +
+		"\tUse numbered groups such as #6$1#0 or named groups such as #6${name}#0; quote either argument when it contains spaces, and use an inline option such as #6(?i)#0 for case-insensitive matching.\n" +
+		"\tThe command previews the complete final name set and applies nothing if a name is blank, numeric, or clashes in its natural scope.";
+
     protected BaseBuilderModule(string name)
         : base(name)
     {
@@ -457,7 +462,19 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
             return;
         }
 
-        helper.GetEditableItemFunc(character).BuildingCommand(character, input);
+        var item = helper.GetEditableItemFunc(character);
+        if (TrySetEditableRevisableItemName(character, input, helper, item))
+        {
+            return;
+        }
+
+        item.BuildingCommand(character, input);
+    }
+
+    public static void GenericRevisableRename(ICharacter character, StringStack input,
+        EditableRevisableItemHelper helper)
+    {
+        EditableItemNameBulkRenameCommand.Execute(character, input, helper);
     }
 
     protected const string GenericReviewableSearchList = @"The full list of search filters is as follows:
@@ -467,7 +484,10 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 	#6by <account>#0 - only shows things the nominated account created
 	#6reviewed <account>#0 - only shows things the nominated account has approved
 	#6+<keyword>#0 - only shows things with the nominated keyword
-	#6-<keyword>#0 - excludes things with the nominated keyword";
+	#6-<keyword>#0 - excludes things with the nominated keyword
+
+	#3rename <match regex> <replacement text>#0 - safely bulk renames active names after validating the complete final name set
+		Quote arguments containing spaces. Matching is case-sensitive unless the regex uses an inline option such as #6(?i)#0; numbered and named replacement groups are supported.";
 
     public static void GenericRevisableList(ICharacter character, StringStack input, EditableRevisableItemHelper helper)
     {
@@ -693,10 +713,56 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
             case "new":
                 GenericRevisableEditNew(actor, input, helper);
                 return;
+            case "rename":
+                GenericRevisableRename(actor, input, helper);
+                return;
             default:
-                actor.OutputHandler.Send(helper.DefaultCommandHelp.SubstituteANSIColour());
+                actor.OutputHandler.Send(
+                    $"{helper.DefaultCommandHelp.SubstituteANSIColour()}\n\n{GenericEditableItemNameRenameHelp.SubstituteANSIColour()}");
                 return;
         }
+    }
+
+    private static bool TrySetEditableRevisableItemName(ICharacter character, StringStack input,
+        EditableRevisableItemHelper helper, IEditableRevisableItem item)
+    {
+        if (input.IsFinished || !helper.IsNameSetCommand(input.PeekSpeech()))
+        {
+            return false;
+        }
+
+        input.PopSpeech();
+        if (input.IsFinished)
+        {
+            character.OutputHandler.Send($"What new name do you want to give to this {helper.ItemName}?");
+            return true;
+        }
+
+        var result = helper.TryNormaliseNameForBulkRename(item, input.SafeRemainingArgument);
+        if (!result.IsValid || result.Name is null)
+        {
+            character.OutputHandler.Send((result.Error ?? "That is not a valid name.").ColourError());
+            return true;
+        }
+
+        var scope = helper.NameScopeKeyFunc(item);
+        var conflict = helper.GetAllEditableItems(character)
+            .Where(x => x.Status is RevisionStatus.Current or RevisionStatus.PendingRevision or RevisionStatus.UnderDesign)
+            .FirstOrDefault(x => x.Id != item.Id &&
+                                 Equals(helper.NameScopeKeyFunc(x), scope) &&
+                                 string.Equals(x.Name, result.Name, StringComparison.InvariantCultureIgnoreCase));
+        if (conflict is not null)
+        {
+            character.OutputHandler.Send(
+                $"The name {result.Name.ColourCommand()} is already used by {conflict.EditHeader().ColourName()} in the same name scope.");
+            return true;
+        }
+
+        var oldName = item.Name;
+        helper.SetNameFromValidatedBulkRenameAction(item, result.Name);
+        character.OutputHandler.Send(
+            $"You rename {helper.ItemName.ToLowerInvariant()} {oldName.ColourName()} to {result.Name.ColourName()}.");
+        return true;
     }
 
     #endregion
@@ -778,7 +844,18 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
             return;
         }
 
-        helper.GetEditableItemFunc(character).BuildingCommand(character, input);
+        var item = helper.GetEditableItemFunc(character);
+        if (TrySetEditableItemName(character, input, helper, item))
+        {
+            return;
+        }
+
+        item.BuildingCommand(character, input);
+    }
+
+    public static void GenericRename(ICharacter character, StringStack input, EditableItemHelper helper)
+    {
+        EditableItemNameBulkRenameCommand.Execute(character, input, helper);
     }
 
     public static void GenericList(ICharacter character, StringStack input, EditableItemHelper helper)
@@ -913,10 +990,55 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
             case "new":
                 GenericEditNew(actor, input, helper);
                 return;
+            case "rename":
+                GenericRename(actor, input, helper);
+                return;
             default:
-                actor.OutputHandler.Send(helper.DefaultCommandHelp.SubstituteANSIColour());
+                actor.OutputHandler.Send(
+                    $"{helper.DefaultCommandHelp.SubstituteANSIColour()}\n\n{GenericEditableItemNameRenameHelp.SubstituteANSIColour()}");
                 return;
         }
+    }
+
+    private static bool TrySetEditableItemName(ICharacter character, StringStack input, EditableItemHelper helper,
+        IEditableItem item)
+    {
+        if (input.IsFinished || !helper.IsNameSetCommand(input.PeekSpeech()))
+        {
+            return false;
+        }
+
+        input.PopSpeech();
+        if (input.IsFinished)
+        {
+            character.OutputHandler.Send($"What new name do you want to give to this {helper.ItemName}?");
+            return true;
+        }
+
+        var result = helper.TryNormaliseNameForBulkRename(item, input.SafeRemainingArgument);
+        if (!result.IsValid || result.Name is null)
+        {
+            character.OutputHandler.Send((result.Error ?? "That is not a valid name.").ColourError());
+            return true;
+        }
+
+        var scope = helper.NameScopeKeyFunc(item);
+        var conflict = helper.GetAllEditableItems(character)
+            .FirstOrDefault(x => !ReferenceEquals(x, item) &&
+                                 Equals(helper.NameScopeKeyFunc(x), scope) &&
+                                 string.Equals(x.Name, result.Name, StringComparison.InvariantCultureIgnoreCase));
+        if (conflict is not null)
+        {
+            character.OutputHandler.Send(
+                $"The name {result.Name.ColourCommand()} is already used by {helper.GetEditHeader(conflict).ColourName()} in the same name scope.");
+            return true;
+        }
+
+        var oldName = item.Name;
+        helper.SetNameFromValidatedBulkRenameAction(item, result.Name);
+        character.OutputHandler.Send(
+            $"You rename {helper.ItemName.ToLowerInvariant()} {oldName.ColourName()} to {result.Name.ColourName()}.");
+        return true;
     }
 
     #endregion

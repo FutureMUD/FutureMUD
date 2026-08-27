@@ -161,6 +161,8 @@ public partial class EditableItemHelper
         GetEditableItemByIdOrNameFunc = (actor, input) => GetTimezoneByIdOrName(actor, input),
         AddItemToGameWorldAction = item => { },
         CastToType = typeof(IMudTimeZone),
+        NameSetCommand = "alias",
+		NameScopeKeyFunc = item => ((IMudTimeZone)item).Clock?.Id ?? 0L,
         EditableNewAction = (actor, input) =>
         {
             if (input.IsFinished)
@@ -301,6 +303,7 @@ public partial class EditableItemHelper
         GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.Calendars.GetByIdOrNames(input),
         AddItemToGameWorldAction = item => item.Gameworld.Add((ICalendar)item),
         CastToType = typeof(ICalendar),
+        NameSetCommandAliases = new[] { "shortname" },
         EditableNewAction = (actor, input) =>
         {
             var alias = input.PopSpeech();

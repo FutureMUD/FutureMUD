@@ -318,6 +318,7 @@ public partial class EditableItemHelper
         GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.BodypartGroupDescriptionRules.GetByIdOrName(input),
         AddItemToGameWorldAction = item => item.Gameworld.Add((IBodypartGroupDescriber)item),
         CastToType = typeof(IBodypartGroupDescriber),
+        NameSetCommandAliases = new[] { "describedas", "desc", "description" },
         EditableNewAction = (actor, input) =>
         {
             bool direct = false;
@@ -2483,6 +2484,11 @@ public partial class EditableItemHelper
         GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.UnitManager.Units.GetByIdOrName(input),
         AddItemToGameWorldAction = item => item.Gameworld.UnitManager.AddUnit((IUnit)item),
         CastToType = typeof(IUnit),
+        NameScopeKeyFunc = item =>
+        {
+            var unit = (IUnit)item;
+			return (unit.System ?? string.Empty, unit.Type);
+        },
         EditableNewAction = (actor, input) =>
         {
             if (input.IsFinished)
@@ -2949,4 +2955,74 @@ public partial class EditableItemHelper
     public Func<List<IEditableItem>, string, IFuturemud, List<IEditableItem>> CustomSearch { get; private set; }
     public Type CastToType { get; private set; }
     public string DefaultCommandHelp { get; private set; }
+
+    /// <summary>
+    /// The root command keyword used when generic builder output needs to describe this helper.
+    /// Helpers without a more precise configured keyword use their item name.
+    /// </summary>
+    public string CommandName { get; private set; }
+
+    /// <summary>
+    /// The <c>set</c> subcommand that changes this helper's <see cref="IFrameworkItem.Name"/> value.
+    /// </summary>
+    public string NameSetCommand { get; private set; } = "name";
+
+    /// <summary>
+    /// Additional <c>set</c> subcommands that write the same <see cref="IFrameworkItem.Name"/> value.
+    /// </summary>
+    public IReadOnlyCollection<string> NameSetCommandAliases { get; private set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Selects the natural namespace in which names must remain unique. A null key means the whole helper catalogue.
+    /// </summary>
+    public Func<IEditableItem, object> NameScopeKeyFunc { get; private set; } = _ => null;
+
+    /// <summary>
+    /// Normalises and validates a proposed name before collision validation. The default delegates to a
+    /// FrameworkItem implementation, while helpers can supply a specialised rule where required.
+    /// </summary>
+    internal Func<IEditableItem, string, EditableItemNameValidationResult> NameNormalisationFunc { get; private set; } =
+        DefaultNormaliseNameForBulkRename;
+
+    /// <summary>
+    /// Applies a pre-validated generic name change. The default supports normal FrameworkItem-backed editable items.
+    /// </summary>
+    public Action<IEditableItem, string> SetNameFromValidatedBulkRenameAction { get; private set; } =
+        DefaultSetNameFromValidatedBulkRename;
+
+    internal bool IsNameSetCommand(string command)
+    {
+        return command.EqualTo(NameSetCommand) || NameSetCommandAliases.Any(x => x.EqualTo(command));
+    }
+
+    internal EditableItemNameValidationResult TryNormaliseNameForBulkRename(IEditableItem item,
+        string proposedName)
+    {
+        return NameNormalisationFunc(item, proposedName);
+    }
+
+    private static EditableItemNameValidationResult DefaultNormaliseNameForBulkRename(IEditableItem item,
+        string proposedName)
+    {
+        if (item is not MudSharp.Framework.FrameworkItem frameworkItem)
+        {
+            return EditableItemNameValidationResult.Failure(
+                $"{item.FrameworkItemType} #{item.Id} does not support generic name renaming.");
+        }
+
+        return frameworkItem.TryNormaliseNameForBulkRename(proposedName, out var normalisedName, out var error)
+            ? EditableItemNameValidationResult.Success(normalisedName)
+            : EditableItemNameValidationResult.Failure(error);
+    }
+
+    private static void DefaultSetNameFromValidatedBulkRename(IEditableItem item, string name)
+    {
+        if (item is not MudSharp.Framework.FrameworkItem frameworkItem)
+        {
+            throw new InvalidOperationException(
+                $"{item.FrameworkItemType} #{item.Id} does not support generic name renaming.");
+        }
+
+        frameworkItem.SetNameFromValidatedBulkRename(name);
+    }
 }

@@ -18,6 +18,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Autobuilder Builder How-To](./Building/Autobuilder_Builder_How_To.md)
 - [Autobuilder Seeder Implementation Guide](./Building/Autobuilder_Seeder_Implementation_Guide.md)
 - [Autobuilder System Implementation](./Building/Autobuilder_System_Implementation.md)
+- [Generic Editable Item Builder Workflows](./Building/Generic_Editable_Item_Builder_Workflows.md)
 - [Room Building Builder Guide](./Building/Room_Building_Builder_Guide.md)
 - [Terrain Planner and Engine API](./Building/Terrain_Planner_and_Engine_API.md)
 

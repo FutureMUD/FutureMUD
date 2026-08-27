@@ -94,18 +94,129 @@ namespace MudSharp.Commands.Modules
                 return;
             }
 
-            INPCTemplate template = actor.Gameworld.NpcTemplates.GetByIdOrName(command.SafeRemainingArgument);
+            var sourceText = command.SafeRemainingArgument;
+            INPCTemplate template = actor.Gameworld.NpcTemplates.GetByIdOrName(sourceText);
+            var requestedName = string.Empty;
+            if (template is null)
+            {
+                template = actor.Gameworld.NpcTemplates.GetByIdOrName(command.PopSpeech());
+                requestedName = command.SafeRemainingArgument;
+            }
+
             if (template is null)
             {
                 actor.OutputHandler.Send("There is no such NPC Template.");
                 return;
             }
 
-            INPCTemplate newTemplate = template.Clone(actor);
+            if (!TryGetNpcCloneName(actor, template, requestedName, out var name))
+            {
+                return;
+            }
+
+            INPCTemplate newTemplate = template switch
+            {
+                SimpleNPCTemplate simple => simple.CloneWithName(actor, name),
+                VariableNPCTemplate variable => variable.CloneWithName(actor, name),
+                _ => null
+            };
+            if (newTemplate is null)
+            {
+                actor.OutputHandler.Send("That NPC template does not support a validated clone name.");
+                return;
+            }
+
             actor.Gameworld.Add(newTemplate);
             actor.RemoveAllEffects<BuilderEditingEffect<INPCTemplate>>();
             actor.AddEffect(new BuilderEditingEffect<INPCTemplate>(actor) { EditingItem = newTemplate });
             actor.OutputHandler.Send($"You clone {template.EditHeader().ColourName()} into {newTemplate.EditHeader().ColourName()}, which you are now editing.");
+        }
+
+        private static bool TryGetNpcCloneName(ICharacter actor, INPCTemplate template, string requestedName,
+            out string name)
+        {
+            name = string.Empty;
+            var helper = EditableRevisableItemHelper.NpcTemplateHelper;
+            if (!string.IsNullOrWhiteSpace(requestedName))
+            {
+                var validation = helper.TryNormaliseNameForBulkRename(template, requestedName);
+                if (!validation.IsValid || validation.Name is null)
+                {
+                    actor.Send((validation.Error ?? "That is not a valid NPC template name.").ColourError());
+                    return false;
+                }
+
+                if (HasNpcCloneNameConflict(actor, validation.Name))
+                {
+                    actor.Send($"The name {validation.Name.ColourCommand()} is already used by an active NPC template.");
+                    return false;
+                }
+
+                name = validation.Name;
+                return true;
+            }
+
+            if (template is VariableNPCTemplate)
+            {
+                var rootName = $"{template.Name} copy";
+                for (var suffix = 1; suffix <= 1000; suffix++)
+                {
+                    var candidate = suffix == 1 ? rootName : $"{rootName} {suffix}";
+                    var validation = helper.TryNormaliseNameForBulkRename(template, candidate);
+                    if (validation.IsValid && validation.Name is not null && !HasNpcCloneNameConflict(actor, validation.Name))
+                    {
+                        name = validation.Name;
+                        return true;
+                    }
+                }
+
+                actor.Send("Unable to generate a unique name for the cloned NPC template. Specify a new name explicitly.");
+                return false;
+            }
+
+            if (template is not SimpleNPCTemplate simple)
+            {
+                actor.Send("That NPC template does not support a validated clone name.");
+                return false;
+            }
+
+            var nameCulture = simple.SelectedEthnicity?.NameCultureForGender(simple.SelectedGender) ??
+                              simple.SelectedCulture?.NameCultureForGender(simple.SelectedGender);
+            var profiles = nameCulture?.RandomNameProfiles
+                .Where(x => x.IsCompatibleGender(simple.SelectedGender))
+                .ToList();
+            if (profiles is null || profiles.Count == 0)
+            {
+                actor.Send("This NPC template has no compatible random name profile. Specify a new name explicitly.");
+                return false;
+            }
+
+            for (var attempt = 0; attempt < 100; attempt++)
+            {
+                var candidate = profiles.GetRandomElement()?.GetRandomPersonalName(true)
+                    ?.GetName(NameStyle.FullWithNickname);
+                if (string.IsNullOrWhiteSpace(candidate))
+                {
+                    continue;
+                }
+
+                var validation = helper.TryNormaliseNameForBulkRename(template, candidate);
+                if (validation.IsValid && validation.Name is not null && !HasNpcCloneNameConflict(actor, validation.Name))
+                {
+                    name = validation.Name;
+                    return true;
+                }
+            }
+
+            actor.Send("Unable to generate a unique valid name for the cloned NPC template. Specify a new name explicitly.");
+            return false;
+        }
+
+        private static bool HasNpcCloneNameConflict(ICharacter actor, string name)
+        {
+            return EditableRevisableItemHelper.NpcTemplateHelper.GetAllEditableItems(actor)
+                .Where(x => x.Status is RevisionStatus.Current or RevisionStatus.PendingRevision or RevisionStatus.UnderDesign)
+                .Any(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
         }
 
         private static void NPCMake(ICharacter character, StringStack command)
@@ -178,11 +289,14 @@ The core syntax to use this command is as follows:
 	#3npc edit obsolete#0 - marks the NPC as obsolete, and no longer loadable
 	#3npc show <id|unique name>#0 - shows info about prototype
 	#3npc review all|mine|<admin name>|<id>#0 - opens the specified NPC prototypes for review and approval
-	#3npc clone <id|unique name>#0 - clones an existing prototype to a new one (also opens for editing)
-	#3npc rename <match regex> <replacement text>#0 - bulk renames active NPC prototype unique names using case-sensitive .NET regex replacement syntax
+	#3npc clone <id|unique name> [<new name>]#0 - clones an existing prototype to a new one (also opens for editing)
+	#3npc rename <match regex> <replacement text>#0 - bulk renames active NPC prototype names using case-sensitive .NET regex replacement syntax
 		Quote regexes containing spaces. Replacement text may use numbered groups such as #6$1#0 or named groups such as #6${name}#0.
 		The command previews every matched Current, Pending Revision and Under Design revision, validates the final name set, and changes nothing if any name conflicts or is invalid.
-		Example: #3npc rename ""^antiquity_(?<name>.+)$"" ""historic_${name}""#0
+		Example: #3npc rename ""^old_(?<name>.+)$"" ""new_${name}""#0
+	#3npc renameunique <match regex> <replacement text>#0 - bulk renames active NPC prototype unique lookup names
+		Use this command for stable builder and script references. It preserves the existing unique-name validation rules.
+		Example: #3npc renameunique ""^antiquity_(?<name>.+)$"" ""historic_${name}""#0
 	#3npc set <parameters>#0 - makes a specific edit to an NPC. See NPC SET HELP for more info
 	#3npc make <id>|<target>#0 - clones a PC into a simple NPC Template (also opens for editing)
 	#3npc load <id|unique name>#0 - creates a new NPC character from the specified template at your exact current location
@@ -235,6 +349,9 @@ The core syntax to use this command is as follows:
                     NPCInstances(character, ss);
                     break;
                 case "rename":
+                    GenericRevisableRename(character, ss, EditableRevisableItemHelper.NpcTemplateHelper);
+                    break;
+                case "renameunique":
                     NPCRename(character, ss);
                     break;
                 default:
@@ -249,7 +366,7 @@ The core syntax to use this command is as follows:
                 actor,
                 command,
                 actor.Gameworld.NpcTemplates.Cast<IEditableUniqueName>(),
-                "npc",
+                "npc renameunique",
                 "NPC prototype",
                 "NPC prototype revisions",
                 NPCTemplateLookupExtensions.NormaliseUniqueName,

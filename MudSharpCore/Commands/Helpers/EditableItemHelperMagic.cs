@@ -30,6 +30,7 @@ public partial class EditableItemHelper
         GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.MagicSpells.GetByIdOrName(input),
         AddItemToGameWorldAction = item => item.Gameworld.Add((IMagicSpell)item),
         CastToType = typeof(IMagicSpell),
+		NameScopeKeyFunc = item => ((IMagicSpell)item).School?.Id ?? 0L,
         EditableNewAction = (actor, input) =>
         {
             if (input.IsFinished)
@@ -797,6 +798,7 @@ The core syntax is as follows:
         GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.MagicPowers.GetByIdOrName(input),
         AddItemToGameWorldAction = item => item.Gameworld.Add((IMagicPower)item),
         CastToType = typeof(IMagicPower),
+		NameScopeKeyFunc = item => ((IMagicPower)item).School?.Id ?? 0L,
         EditableNewAction = (actor, input) =>
         {
             if (input.IsFinished)

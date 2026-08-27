@@ -70,13 +70,18 @@ public class VariableNPCTemplate : NPCTemplateBase
 
     public override INPCTemplate Clone(ICharacter builder)
     {
+        return CloneWithName(builder, Name);
+    }
+
+    internal INPCTemplate CloneWithName(ICharacter builder, string name)
+    {
         using (new FMDB())
         {
             NpcTemplate dbnew = new()
             {
                 Id = Gameworld.NpcTemplates.NextID(),
                 RevisionNumber = 0,
-                Name = Name,
+                Name = name,
                 UniqueName = null,
                 BuilderNotes = BuilderNotes,
                 Type = "Variable",
@@ -1005,6 +1010,26 @@ public class VariableNPCTemplate : NPCTemplateBase
         actor.OutputHandler.Send(
             $"You change the name of this Variable NPC Template to {_name.Colour(Telnet.Cyan)}.");
         Changed = true;
+        return true;
+    }
+
+    internal override bool TryNormaliseNameForBulkRename(string proposedName, out string normalisedName,
+        out string error)
+    {
+        normalisedName = proposedName.Trim();
+        if (string.IsNullOrWhiteSpace(normalisedName))
+        {
+            error = "NPC template names cannot be blank.";
+            return false;
+        }
+
+        if (normalisedName.All(char.IsDigit))
+        {
+            error = "NPC template names cannot be entirely numeric, because numeric input is reserved for IDs.";
+            return false;
+        }
+
+        error = string.Empty;
         return true;
     }
 

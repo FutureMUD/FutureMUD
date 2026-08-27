@@ -58,12 +58,13 @@ public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate, IEdi
     protected NPCTemplateBase(IFuturemud gameworld, IAccount originator, string type) : base(originator)
     {
         Gameworld = gameworld;
-        _name = "Unnamed NPC Template";
+        var id = Gameworld.NpcTemplates.NextID();
+        _name = $"NPC Template {id}";
         using (new FMDB())
         {
             NpcTemplate dbnew = new()
             {
-                Id = Gameworld.NpcTemplates.NextID(),
+                Id = id,
                 Name = _name,
                 Type = type,
                 Definition = "<Definition/>",

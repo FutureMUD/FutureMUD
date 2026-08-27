@@ -3129,6 +3129,8 @@ The following options are used to view, edit and create tattoo designs:
 	#3tattoo clone <id|name> <new name>#0 - creates a carbon copy of a tattoo for editing
 	#3tattoo show <id|name>#0 - shows a particular tattoo.
 	#3tattoo set <subcommand>#0 - changes something about the tattoo. See its help for more info.
+	#3tattoo rename <match regex> <replacement text>#0 - safely bulk renames active tattoos after validating the complete final name set
+		Quote arguments containing spaces; use #6(?i)#0 for case-insensitive matching. The complete draft is shown and nothing changes on a clash.
 	#3tattoo edit submit#0 - submits a tattoo for review
 
 {GenericReviewableSearchList}
@@ -3150,6 +3152,8 @@ The following options are used to view, edit and create tattoo designs:
 	#3tattoo clone <id|name> <new name>#0 - creates a carbon copy of a tattoo for editing
 	#3tattoo show <id|name>#0 - shows a particular tattoo.
 	#3tattoo set <subcommand>#0 - changes something about the tattoo. See its help for more info.
+	#3tattoo rename <match regex> <replacement text>#0 - safely bulk renames active tattoos after validating the complete final name set
+		Quote arguments containing spaces; use #6(?i)#0 for case-insensitive matching. The complete draft is shown and nothing changes on a clash.
 	#3tattoo edit submit#0 - submits a tattoo for review
 	#3tattoo review all|mine|<id|name>#0 - reviews a submitted tattoo
 	#3tattoo review list#0 - shows all tattoos submitted for review
@@ -3199,6 +3203,9 @@ Also, as an admin you should see the two related commands #3GIVETATTOO#0 and #3F
                 break;
             case "review":
                 TattooReview(actor, ss);
+                break;
+            case "rename":
+                GenericRevisableRename(actor, ss, EditableRevisableItemHelper.TattooHelper);
                 break;
             case "inscribe":
                 TattooInscribe(actor, ss);

@@ -25,6 +25,7 @@ internal class EditableRevisableItemHelper
         {
             ItemName = "NPC Template",
             ItemNamePlural = "NPC Templates",
+            CommandName = "npc",
             DeleteEditableItemAction = item =>
             {
                 using (new FMDB())
@@ -169,6 +170,8 @@ internal class EditableRevisableItemHelper
         {
             ItemName = "Item Prototype",
             ItemNamePlural = "Item Prototypes",
+            CommandName = "item",
+            NameSetCommandAliases = new[] { "noun" },
             DeleteEditableItemAction = item =>
             {
                 using (new FMDB())
@@ -1181,4 +1184,74 @@ internal class EditableRevisableItemHelper
 
     public Type CastToType { get; private set; }
     public string DefaultCommandHelp { get; private set; }
+
+    /// <summary>
+    /// The root command keyword used when generic builder output needs to describe this helper.
+    /// Helpers without a more precise configured keyword use their item name.
+    /// </summary>
+    public string CommandName { get; private set; }
+
+    /// <summary>
+    /// The <c>set</c> subcommand that changes this helper's <see cref="IFrameworkItem.Name"/> value.
+    /// </summary>
+    public string NameSetCommand { get; private set; } = "name";
+
+    /// <summary>
+    /// Additional <c>set</c> subcommands that write the same <see cref="IFrameworkItem.Name"/> value.
+    /// </summary>
+    public IReadOnlyCollection<string> NameSetCommandAliases { get; private set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Selects the natural namespace in which names must remain unique. A null key means the whole helper catalogue.
+    /// </summary>
+    public Func<IEditableRevisableItem, object> NameScopeKeyFunc { get; private set; } = _ => null;
+
+    /// <summary>
+    /// Normalises and validates a proposed name before collision validation. The default delegates to a
+    /// FrameworkItem implementation, while helpers can supply a specialised rule where required.
+    /// </summary>
+    internal Func<IEditableRevisableItem, string, EditableItemNameValidationResult> NameNormalisationFunc { get; private set; } =
+        DefaultNormaliseNameForBulkRename;
+
+    /// <summary>
+    /// Applies a pre-validated generic name change. The default supports normal FrameworkItem-backed editable items.
+    /// </summary>
+    public Action<IEditableRevisableItem, string> SetNameFromValidatedBulkRenameAction { get; private set; } =
+        DefaultSetNameFromValidatedBulkRename;
+
+    internal bool IsNameSetCommand(string command)
+    {
+        return command.EqualTo(NameSetCommand) || NameSetCommandAliases.Any(x => x.EqualTo(command));
+    }
+
+    internal EditableItemNameValidationResult TryNormaliseNameForBulkRename(IEditableRevisableItem item,
+        string proposedName)
+    {
+        return NameNormalisationFunc(item, proposedName);
+    }
+
+    private static EditableItemNameValidationResult DefaultNormaliseNameForBulkRename(IEditableRevisableItem item,
+        string proposedName)
+    {
+        if (item is not MudSharp.Framework.FrameworkItem frameworkItem)
+        {
+            return EditableItemNameValidationResult.Failure(
+                $"{item.FrameworkItemType} #{item.Id} does not support generic name renaming.");
+        }
+
+        return frameworkItem.TryNormaliseNameForBulkRename(proposedName, out var normalisedName, out var error)
+            ? EditableItemNameValidationResult.Success(normalisedName)
+            : EditableItemNameValidationResult.Failure(error);
+    }
+
+    private static void DefaultSetNameFromValidatedBulkRename(IEditableRevisableItem item, string name)
+    {
+        if (item is not MudSharp.Framework.FrameworkItem frameworkItem)
+        {
+            throw new InvalidOperationException(
+                $"{item.FrameworkItemType} #{item.Id} does not support generic name renaming.");
+        }
+
+        frameworkItem.SetNameFromValidatedBulkRename(name);
+    }
 }

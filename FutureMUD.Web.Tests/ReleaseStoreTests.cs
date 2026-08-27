@@ -433,7 +433,7 @@ public sealed class ReleaseStoreTests
 	[TestMethod]
 	public async Task ConcurrentUploadsCannotBothSpendTheSameFreeSpaceMargin()
 	{
-		var bytes = new byte[8 * 1024 * 1024];
+		var bytes = new byte[ReleaseStore.ChunkSize];
 		RandomNumberGenerator.Fill(bytes);
 		var firstRequest = CreateTerrainPlannerRequest("4.0.0", bytes, 'b');
 		var secondRequest = CreateTerrainPlannerRequest("4.0.1", bytes, 'c');

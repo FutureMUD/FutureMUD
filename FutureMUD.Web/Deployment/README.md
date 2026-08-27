@@ -159,7 +159,7 @@ Cloudflare publishes the AOP CA at <https://developers.cloudflare.com/ssl/static
 
 The Nginx template deliberately:
 
-- allows a 1 MiB request body by default and 34 MiB only beneath `/api/publishing/`;
+- allows a 1 MiB request body by default and 34 MiB only beneath `/api/publishing/`; the publisher sends resumable 4 MiB chunks so each proxied upload returns well within Cloudflare's origin timeout on the production micro instance;
 - gives slow publishing uploads longer body/upstream timeouts while keeping public and health timeouts short;
 - emits one one-year HSTS header with `includeSubDomains` and no `preload` on every FutureMUD HTTPS response;
 - hides the application's HSTS header and replaces API/health cache headers so duplicates cannot weaken policy;

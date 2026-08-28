@@ -178,6 +178,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 	#3variable <which> <value>#0 - sets a characteristic to a particular value
 	#3attribute <which> <#>#0 - sets an attribute to a particular amount
 	#3skill <which> <#>#0 - gives this NPC a skill at a particular value. Use 0 to remove
+	#3skillpackage <which>#0 - applies an NPC skill package without lowering existing skills
 	#3accent <accent>#0 - toggles an NPC having a particular accent. Must have matching language skill.
 	#3class <class>#0 - sets the class of this NPC (if using classes)
 	#3subclass <subclass>#0 - sets the subclass of  this NPC (if using subclasses)
@@ -229,6 +230,9 @@ public class SimpleNPCTemplate : NPCTemplateBase
                 return BuildingCommandRace(actor, command);
             case "skill":
                 return BuildingCommandSkill(actor, command);
+			case "skillpackage":
+			case "skillpack":
+				return BuildingCommandSkillPackage(actor, command);
             case "weight":
                 return BuildingCommandWeight(actor, command);
             case "class":
@@ -1714,6 +1718,12 @@ public class SimpleNPCTemplate : NPCTemplateBase
         }
 
         actor.OutputHandler.Send($"This NPC is now of the {race.Name.Proper().Colour(Telnet.Cyan)} race.");
+		var packageChanges = 0;
+		foreach (var package in race.DefaultSkillPackages)
+		{
+			packageChanges += ApplySkillPackage(package).Changed;
+		}
+		actor.OutputHandler.Send($"Race defaults added or upgraded {packageChanges.ToString("N0", actor).ColourValue()} skill{(packageChanges == 1 ? "" : "s")}.");
         Changed = true;
         return true;
     }
@@ -1757,6 +1767,85 @@ public class SimpleNPCTemplate : NPCTemplateBase
             $"You set the {skill.Name.Proper().Colour(Telnet.Cyan)} skill for this NPC to be {value.ToString("N2").Colour(Telnet.Green)}.");
         return true;
     }
+
+	private bool BuildingCommandSkillPackage(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which NPC skill package do you want to apply?");
+			return false;
+		}
+
+		var package = Gameworld.NpcSkillPackages.GetByIdOrName(command.SafeRemainingArgument);
+		if (package is null)
+		{
+			actor.OutputHandler.Send("There is no such NPC skill package.");
+			return false;
+		}
+
+		var result = ApplySkillPackage(package);
+		actor.OutputHandler.Send($"Applying {package.Name.ColourName()} added {result.Added.ToString("N0", actor).ColourValue()}, raised {result.Raised.ToString("N0", actor).ColourValue()}, skipped {result.Skipped.ToString("N0", actor).ColourValue()} and failed {result.FailedChance.ToString("N0", actor).ColourValue()} chance rolls.");
+		return result.Changed > 0;
+	}
+
+	public override NPCSkillPackageApplicationResult ApplySkillPackage(INPCSkillPackage package)
+	{
+		var result = ApplySkillPackageToValues(SkillValues, package,
+			() => Constants.Random.NextDouble(),
+			entry => RandomUtilities.RandomSkewNormal(entry.Mean, entry.StandardDeviation, entry.Skewness));
+		if (result.Changed > 0)
+		{
+			Changed = true;
+		}
+
+		return result;
+	}
+
+	internal static NPCSkillPackageApplicationResult ApplySkillPackageToValues(
+		List<(ITraitDefinition Skill, double Value)> skillValues,
+		INPCSkillPackage package,
+		Func<double> chanceRoll,
+		Func<NPCSkillPackageEntry, double> valueRoll)
+	{
+		var added = 0;
+		var raised = 0;
+		var skipped = 0;
+		var failedChance = 0;
+		foreach (var entry in package.Skills)
+		{
+			if (chanceRoll() > entry.Chance)
+			{
+				failedChance++;
+				continue;
+			}
+
+			var value = Math.Max(0.0, valueRoll(entry));
+			var index = skillValues.FindIndex(x => x.Skill == entry.Skill);
+			if (index < 0)
+			{
+				if (value <= 0.0)
+				{
+					skipped++;
+					continue;
+				}
+
+				skillValues.Add((entry.Skill, value));
+				added++;
+				continue;
+			}
+
+			if (skillValues[index].Value >= value)
+			{
+				skipped++;
+				continue;
+			}
+
+			skillValues[index] = (entry.Skill, value);
+			raised++;
+		}
+
+		return new NPCSkillPackageApplicationResult(added, raised, 0, skipped, failedChance);
+	}
 
     private bool BuildingCommandWeight(ICharacter actor, StringStack command)
     {

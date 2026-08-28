@@ -533,7 +533,11 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
         IReadOnlyDictionary<string, TraitDefinition> skills = SeedSkills(context, questionAnswers, decorators, generalImprover);
         SeedAdminLanguage(context, questionAnswers, decorators, languageImprover);
         SeedChecks(context, questionAnswers, templates, skills);
-        return string.Empty;
+		NPCSkillPackageSeedResult packageResult =
+			NPCSkillPackageSeederHelper.EnsureUniversalPackage(context, skills);
+        return packageResult.HasChanges
+			? "Installed or refreshed the Universal Common NPC skill package."
+			: string.Empty;
     }
 
     private void SeedChecks(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
@@ -1607,7 +1611,9 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                  context.TraitDecorators.Any(x => x.Name == marker) ||
                  context.Improvers.Any(x => x.Name == marker))))
         {
-            return ShouldSeedResult.MayAlreadyBeInstalled;
+			return NPCSkillPackageSeederHelper.HasMissingUniversalPackage(context)
+				? ShouldSeedResult.ExtraPackagesAvailable
+				: ShouldSeedResult.MayAlreadyBeInstalled;
         }
 
         return SeederRepeatabilityHelper.ClassifyByPresence(

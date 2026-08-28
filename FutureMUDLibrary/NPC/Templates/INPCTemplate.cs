@@ -26,6 +26,7 @@ namespace MudSharp.NPC.Templates
         ICharacter CreateNewCharacter(SpatialLocation location);
         IEnumerable<string> ApplyTemplateLoadAdditions(ICharacter character, bool logWarnings = true);
         INPCTemplate Clone(ICharacter builder);
+		NPCSkillPackageApplicationResult ApplySkillPackage(INPCSkillPackage package);
         string ReferenceDescription(IPerceiver voyeur);
     }
 }

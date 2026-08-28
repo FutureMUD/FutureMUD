@@ -182,6 +182,7 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<ICommoditySpoilageRule> _commoditySpoilageRules = new();
     private readonly All<IArtificialIntelligence> _AIs = new();
     private readonly RevisableAll<INPCTemplate> _npcTemplates = new();
+	private readonly All<INPCSkillPackage> _npcSkillPackages = new();
     private readonly All<IImprovementModel> _improvementModels = new();
 
     private readonly RevisableAll<IGameItemComponentProto> _itemComponentProtos =
@@ -457,6 +458,7 @@ public sealed partial class Futuremud : IDisposable
     public IUneditableAll<IArtificialIntelligence> AIs => _AIs;
 
     public IUneditableRevisableAll<INPCTemplate> NpcTemplates => _npcTemplates;
+	public IUneditableAll<INPCSkillPackage> NpcSkillPackages => _npcSkillPackages;
     public IUneditableAll<INPCSpawner> NPCSpawners => _npcSpawners;
 
     public IUneditableAll<IImprovementModel> ImprovementModels => _improvementModels;

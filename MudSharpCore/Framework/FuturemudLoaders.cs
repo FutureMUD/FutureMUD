@@ -347,6 +347,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
             game.LoadImprovementModels();
             game.LoadTraitDecorators();
             game.LoadTraits(); // Depends on LoadImprovementModels and LoadTraitDecorators
+			game.LoadNPCSkillPackages(); // Depends on LoadTraits and must precede LoadRaces
             game.LoadChecks(); // Depends on LoadTraits
 
             game.LoadSurgery(); // Needs to come after LoadFutureProgs, LoadKnowledges and LoadTags, and LoadBodies
@@ -2819,6 +2820,22 @@ For information on the syntax to use in emotes (such as those included in bracke
         ConsoleUtilities.WriteLine("Loaded #2{0}#0 NPC Template{1}.", count, count == 1 ? "" : "s");
     }
 
+	void IFuturemudLoader.LoadNPCSkillPackages()
+	{
+		ConsoleUtilities.WriteLine("\nLoading #5NPC Skill Packages#0...");
+		var packages = FMDB.Context.NpcSkillPackages
+			.Include(x => x.Skills)
+			.AsNoTracking()
+			.ToList();
+		foreach (var package in packages)
+		{
+			_npcSkillPackages.Add(new NPCSkillPackage(package, this));
+		}
+
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 NPC Skill Package{1}.", packages.Count,
+			packages.Count == 1 ? "" : "s");
+	}
+
     internal static bool ShouldLoadNpcAtBoot(long npcCharacterId, CharacterState state, ISet<long> activeStableMountIds)
     {
         return !state.HasFlag(CharacterState.Dead) &&
@@ -4536,6 +4553,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                                       .Include(x => x.RacesEdibleMaterials)
                                       .Include(x => x.RaceEdibleForagableYields)
                                       .Include(x => x.RacesCombatActions)
+									  .Include(x => x.NpcSkillPackages)
                                       .AsSplitQuery()
                                       .AsNoTracking()
                                    select race).ToList();

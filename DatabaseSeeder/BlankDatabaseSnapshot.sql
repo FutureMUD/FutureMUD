@@ -15194,3 +15194,49 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 
 -- Dump completed on 2026-08-28 00:37:26
 -- Total time: 0:0:0:1:475 (d:h:m:s:ms)
+
+-- EF-generated idempotent delta for 20260828014622_AddNPCSkillPackages
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260828014622_AddNPCSkillPackages') THEN
+        CREATE TABLE `npcskillpackages` (
+            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`)
+        ) CHARACTER SET=utf8mb4;
+
+        CREATE TABLE `npcskillpackageskills` (
+            `NpcSkillPackageId` bigint(20) NOT NULL,
+            `TraitDefinitionId` bigint(20) NOT NULL,
+            `Chance` double NOT NULL,
+            `Mean` double NOT NULL,
+            `StandardDeviation` double NOT NULL,
+            `Skewness` double NOT NULL,
+            CONSTRAINT `PRIMARY` PRIMARY KEY (`NpcSkillPackageId`, `TraitDefinitionId`),
+            CONSTRAINT `FK_NPCSkillPackageSkills_Packages` FOREIGN KEY (`NpcSkillPackageId`) REFERENCES `npcskillpackages` (`Id`) ON DELETE CASCADE,
+            CONSTRAINT `FK_NPCSkillPackageSkills_Traits` FOREIGN KEY (`TraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
+        ) CHARACTER SET=utf8mb4;
+
+        CREATE TABLE `races_npcskillpackages` (
+            `RaceId` bigint(20) NOT NULL,
+            `NpcSkillPackageId` bigint(20) NOT NULL,
+            CONSTRAINT `PRIMARY` PRIMARY KEY (`RaceId`, `NpcSkillPackageId`),
+            CONSTRAINT `FK_RacesNPCSkillPackages_Packages` FOREIGN KEY (`NpcSkillPackageId`) REFERENCES `npcskillpackages` (`Id`) ON DELETE CASCADE,
+            CONSTRAINT `FK_RacesNPCSkillPackages_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE
+        ) CHARACTER SET=utf8mb4;
+
+        CREATE UNIQUE INDEX `UX_NPCSkillPackages_Name` ON `npcskillpackages` (`Name`);
+        CREATE INDEX `FK_NPCSkillPackageSkills_Traits_idx` ON `npcskillpackageskills` (`TraitDefinitionId`);
+        CREATE INDEX `IX_Races_NPCSkillPackages_NpcSkillPackageId` ON `races_npcskillpackages` (`NpcSkillPackageId`);
+
+        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+        VALUES ('20260828014622_AddNPCSkillPackages', '9.0.11');
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+COMMIT;

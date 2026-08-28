@@ -22,6 +22,7 @@ namespace MudSharp.Models
             WeaponTypesAttackTrait = new HashSet<WeaponType>();
             WeaponTypesParryTrait = new HashSet<WeaponType>();
             WearableSizeParameterRule = new HashSet<WearableSizeParameterRule>();
+			NpcSkillPackageSkills = new HashSet<NpcSkillPackageSkill>();
         }
 
         public long Id { get; set; }
@@ -67,5 +68,6 @@ namespace MudSharp.Models
         public virtual ICollection<WeaponType> WeaponTypesAttackTrait { get; set; }
         public virtual ICollection<WeaponType> WeaponTypesParryTrait { get; set; }
         public virtual ICollection<WearableSizeParameterRule> WearableSizeParameterRule { get; set; }
+		public virtual ICollection<NpcSkillPackageSkill> NpcSkillPackageSkills { get; set; }
     }
 }

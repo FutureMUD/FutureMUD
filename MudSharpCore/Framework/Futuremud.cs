@@ -1568,6 +1568,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         _heightWeightModels.Add(model);
     }
 
+	public void Add(INPCSkillPackage package)
+	{
+		_npcSkillPackages.Add(package);
+	}
+
     public void Add(IHearingProfile profile)
     {
         _hearingProfiles.Add(profile);
@@ -1970,6 +1975,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     {
         _heightWeightModels.Remove(model);
     }
+
+	public void Destroy(INPCSkillPackage package)
+	{
+		_npcSkillPackages.Remove(package);
+	}
 
     public void Destroy(IHearingProfile profile)
     {

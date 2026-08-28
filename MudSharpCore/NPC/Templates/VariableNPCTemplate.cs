@@ -218,13 +218,7 @@ public class VariableNPCTemplate : NPCTemplateBase
         element = root.Element("Skills");
         foreach (XElement sub in element.Elements("Skill"))
         {
-            _skillTemplates.Add(new VariableSkillTemplate
-            {
-                Chance = double.Parse(sub.Attribute("Chance").Value),
-                SkillMean = double.Parse(sub.Attribute("Mean").Value),
-                SkillStddev = double.Parse(sub.Attribute("Stddev").Value),
-                Trait = Gameworld.Traits.Get(long.Parse(sub.Attribute("Trait").Value))
-            });
+			_skillTemplates.Add(VariableSkillTemplate.LoadFromXml(sub, id => Gameworld.Traits.Get(id)));
         }
 
         element = root.Element("Roles");
@@ -318,10 +312,7 @@ public class VariableNPCTemplate : NPCTemplateBase
                 new XElement("Skills", new object[]
                 {
                     from item in _skillTemplates
-                    select
-                        new XElement("Skill", new XAttribute("Chance", item.Chance),
-                            new XAttribute("Mean", item.SkillMean), new XAttribute("Stddev", item.SkillStddev),
-                            new XAttribute("Trait", item.Trait.Id))
+					select item.SaveToXml()
                 }),
                 new XElement("Roles", new object[]
                 {
@@ -431,7 +422,8 @@ public class VariableNPCTemplate : NPCTemplateBase
                                           .ToList<ITrait>();
         List<(ITraitDefinition Trait, double)> rolledSkills = _skillTemplates.Where(x => Constants.Random.NextDouble() <= x.Chance)
                                           .Select(y => (y.Trait,
-                                              RandomUtilities.RandomNormal(y.SkillMean, y.SkillStddev))).ToList();
+											  RandomUtilities.RandomSkewNormal(y.SkillMean, y.SkillStddev,
+												  y.SkillSkewness))).ToList();
         IPersonalName randomName = _nameProfiles[rolledGender].GetRandomPersonalName();
         MudDate birthday = _culture.PrimaryCalendar.GetRandomBirthday(rolledAge);
         List<ILanguage> languages = Gameworld.Languages.Where(x => rolledSkills.Any(y => y.Item1 == x.LinkedTrait)).ToList();
@@ -642,6 +634,8 @@ public class VariableNPCTemplate : NPCTemplateBase
                 skill.Chance.ToString("P1", actor).Colour(Telnet.Green),
                 $"{skill.SkillMean.ToString("N1", actor).Colour(Telnet.Green)} {skill.Trait.Decorator.Decorate(skill.SkillMean).ColourValue()}",
                 skill.SkillStddev.ToString("N1", actor).Colour(Telnet.Green),
+				skill.SkillSkewness.ToString("N2", actor).Colour(Telnet.Green),
+				(skill.Chance * skill.SkillMean).ToString("N1", actor).Colour(Telnet.Green),
                 $"{(skill.SkillMean - 3 * skill.SkillStddev).ToString("N1", actor).Colour(Telnet.Green)} {skill.Trait.Decorator.Decorate((skill.SkillMean - 3 * skill.SkillStddev)).ColourValue()}",
                 $"{(skill.SkillMean + 3 * skill.SkillStddev).ToString("N1", actor).Colour(Telnet.Green)} {skill.Trait.Decorator.Decorate((skill.SkillMean + 3 * skill.SkillStddev)).ColourValue()}"
             },
@@ -651,6 +645,8 @@ public class VariableNPCTemplate : NPCTemplateBase
                 "Chance",
                 "Mean",
                 "StdDev",
+				"Skewness",
+				"Weighted EV",
                 "99.7% Min",
                 "99.7% Max",
             },
@@ -819,8 +815,9 @@ public class VariableNPCTemplate : NPCTemplateBase
 	#3sdesc clear#0 - sets the NPC to use a random valid sdesc pattern
 	#3fdesc <#>#0 - sets the NPC to use a particular fdesc pattern
 	#3fdesc clear#0 - sets the NPC ot use a random valid fdesc pattern
-	#3skill <which> <%> <avg> <stddev>#0 - sets the chance/mean/stddev for a particular skill
+	#3skill <which> <%> <avg> <stddev> [<skewness>]#0 - sets the distribution for a particular skill
 	#3skill <which> 0%#0 - removes a skill from the list
+	#3skillpackage <which>#0 - applies an NPC skill package when its weighted expected value is higher
 	#3class <class>#0 - sets the class of this NPC (if using classes)
 	#3subclass <subclass>#0 - sets the subclass of  this NPC (if using subclasses)
 	#3role <which>#0 - toggles this NPC having a particular role
@@ -899,6 +896,9 @@ public class VariableNPCTemplate : NPCTemplateBase
             case "skill":
             case "skills":
                 return BuildingCommandSkill(actor, command);
+			case "skillpackage":
+			case "skillpack":
+				return BuildingCommandSkillPackage(actor, command);
             case "class":
                 return BuildingCommandClass(actor, command);
             case "subclass":
@@ -1144,8 +1144,15 @@ public class VariableNPCTemplate : NPCTemplateBase
         RefreshAutomaticNameProfiles();
 
         _priorityAttributeDefinitions.RemoveAll(x => !_race.Attributes.Contains(x));
+		var packageChanges = 0;
+		foreach (var package in _race.DefaultSkillPackages)
+		{
+			packageChanges += ApplySkillPackage(package).Changed;
+		}
         Changed = true;
-        actor.Send("You set the race of this NPC to {0}.", _race.Name.Proper().Colour(Telnet.Cyan));
+		actor.Send("You set the race of this NPC to {0}; its race defaults added or upgraded {1} skill definition{2}.",
+			_race.Name.Proper().Colour(Telnet.Cyan), packageChanges.ToString("N0", actor).ColourValue(),
+			packageChanges == 1 ? "" : "s");
         return true;
     }
 
@@ -1485,9 +1492,10 @@ public class VariableNPCTemplate : NPCTemplateBase
             return false;
         }
 
-        if (!command.PopSpeech().TryParsePercentage(out double chance))
+        if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out double chance) ||
+	        !double.IsFinite(chance) || chance < 0.0 || chance > 1.0)
         {
-            actor.OutputHandler.Send("You must specify a valid percentage.");
+            actor.OutputHandler.Send("You must specify a percentage between 0% and 100%.");
             return false;
         }
 
@@ -1499,18 +1507,30 @@ public class VariableNPCTemplate : NPCTemplateBase
             return true;
         }
 
-        if (!double.TryParse(command.PopSpeech(), out double mean))
+        if (!double.TryParse(command.PopSpeech(), actor, out double mean) ||
+	        !double.IsFinite(mean) || mean < 0.0)
         {
-            actor.OutputHandler.Send("You must enter a mean (average) value for this skill to be given to this NPC.");
+            actor.OutputHandler.Send("You must enter a non-negative mean (average) value for this skill.");
             return false;
         }
 
-        if (!double.TryParse(command.PopSpeech(), out double stddev))
+		if (!double.TryParse(command.PopSpeech(), actor, out double stddev) ||
+		    !double.IsFinite(stddev) || stddev < 0.0)
         {
             actor.OutputHandler.Send(
                 $"You must enter a standard deviation value for this skill. Based on your average, a suggested value for standard deviation is {(mean * 0.05).ToString("N2", actor).ColourValue()}.");
             return false;
         }
+
+		double skewness = 0.0;
+		if (!command.IsFinished &&
+			(!double.TryParse(command.PopSpeech(), actor, out skewness) ||
+			 !double.IsFinite(skewness) ||
+			 Math.Abs(skewness) > NPCSkillPackage.MaximumAbsoluteSkewness))
+		{
+			actor.OutputHandler.Send("Skewness must be between -0.99 and 0.99.");
+			return false;
+		}
 
         _skillTemplates.RemoveAll(x => x.Trait == skill);
         _skillTemplates.Add(new VariableSkillTemplate
@@ -1518,17 +1538,87 @@ public class VariableNPCTemplate : NPCTemplateBase
             Trait = skill,
             Chance = chance,
             SkillMean = mean,
-            SkillStddev = stddev
+            SkillStddev = stddev,
+			SkillSkewness = skewness
         });
 
         actor.OutputHandler.Send(
             string.Format(actor,
-                "You set the {0} skill to have a {1:P2} chance to be given to this NPC, with a mean (average) value of {2:N2} and a standard deviation of {3:N2}.\n99.5% of the time, this will be between {4:N2} and {5:N2}.",
-                skill.Name.Proper().Colour(Telnet.Cyan), chance, mean, stddev, mean - 3 * stddev, mean + 3 * stddev
+				"You set the {0} skill to have a {1:P2} chance, mean {2:N2}, standard deviation {3:N2} and skewness {4:N2}.",
+				skill.Name.Proper().Colour(Telnet.Cyan), chance, mean, stddev, skewness
             ));
         Changed = true;
         return true;
     }
+
+	private bool BuildingCommandSkillPackage(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which NPC skill package do you want to apply?");
+			return false;
+		}
+
+		var package = Gameworld.NpcSkillPackages.GetByIdOrName(command.SafeRemainingArgument);
+		if (package is null)
+		{
+			actor.OutputHandler.Send("There is no such NPC skill package.");
+			return false;
+		}
+
+		var result = ApplySkillPackage(package);
+		actor.OutputHandler.Send($"Applying {package.Name.ColourName()} applied {result.Added.ToString("N0", actor).ColourValue()}, upgraded {result.Raised.ToString("N0", actor).ColourValue()}, skipped {result.Skipped.ToString("N0", actor).ColourValue()} and failed {result.FailedChance.ToString("N0", actor).ColourValue()} chance rolls.");
+		return result.Changed > 0;
+	}
+
+	public override NPCSkillPackageApplicationResult ApplySkillPackage(INPCSkillPackage package)
+	{
+		var result = ApplySkillPackageToTemplates(_skillTemplates, package);
+		if (result.Changed > 0)
+		{
+			Changed = true;
+		}
+
+		return result;
+	}
+
+	internal static NPCSkillPackageApplicationResult ApplySkillPackageToTemplates(
+		List<VariableSkillTemplate> skillTemplates,
+		INPCSkillPackage package)
+	{
+		var added = 0;
+		var upgraded = 0;
+		var skipped = 0;
+		foreach (var entry in package.Skills)
+		{
+			var existing = skillTemplates.FirstOrDefault(x => x.Trait == entry.Skill);
+			if (existing is not null && existing.Chance * existing.SkillMean >= entry.WeightedExpectedValue)
+			{
+				skipped++;
+				continue;
+			}
+
+			skillTemplates.RemoveAll(x => x.Trait == entry.Skill);
+			skillTemplates.Add(new VariableSkillTemplate
+			{
+				Trait = entry.Skill,
+				Chance = entry.Chance,
+				SkillMean = entry.Mean,
+				SkillStddev = entry.StandardDeviation,
+				SkillSkewness = entry.Skewness
+			});
+			if (existing is null)
+			{
+				added++;
+			}
+			else
+			{
+				upgraded++;
+			}
+		}
+
+		return new NPCSkillPackageApplicationResult(added, upgraded, 0, skipped, 0);
+	}
 
     private bool BuildingCommandClass(ICharacter actor, StringStack command)
     {

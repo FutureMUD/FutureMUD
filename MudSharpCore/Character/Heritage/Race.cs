@@ -39,6 +39,7 @@ public partial class Race : SaveableItem, IRace
     private readonly List<Gender> _allowedGenders = new();
 
     private readonly List<ICharacteristicDefinition> _baseCharacteristics = new();
+	private readonly List<INPCSkillPackage> _defaultSkillPackages = new();
 
     private readonly List<IBodypart> _bodypartAdditions = new();
     private readonly List<IBodypart> _bodypartRemovals = new();
@@ -393,6 +394,15 @@ public partial class Race : SaveableItem, IRace
             _chargenAdvices.Add(Gameworld.ChargenAdvices.Get(item.ChargenAdviceId));
         }
 
+		foreach (var package in race.NpcSkillPackages)
+		{
+			var runtimePackage = gameworld.NpcSkillPackages.Get(package.Id);
+			if (runtimePackage is not null)
+			{
+				_defaultSkillPackages.Add(runtimePackage);
+			}
+		}
+
         foreach (RacesChargenResources item in race.RacesChargenResources)
         {
             _costs.Add(new ChargenResourceCost
@@ -620,6 +630,7 @@ public partial class Race : SaveableItem, IRace
     public Race(Race rhs, string newName)
     {
         Gameworld = rhs.Gameworld;
+		_defaultSkillPackages.AddRange(rhs._defaultSkillPackages);
         _name = newName;
         BaseBody = rhs.BaseBody;
         ParentRace = rhs.ParentRace;
@@ -826,6 +837,10 @@ public partial class Race : SaveableItem, IRace
                     _defaultHeightWeightModels.ValueOrDefault(Gender.NonBinary, null)?.Id
             };
             FMDB.Context.Races.Add(dbitem);
+			foreach (var package in _defaultSkillPackages)
+			{
+				dbitem.NpcSkillPackages.Add(FMDB.Context.NpcSkillPackages.Find(package.Id)!);
+			}
             foreach (IBodypart part in _bodypartAdditions)
             {
                 dbitem.RacesAdditionalBodyparts.Add(new RacesAdditionalBodyparts
@@ -1183,6 +1198,12 @@ public partial class Race : SaveableItem, IRace
     public override void Save()
     {
         Models.Race dbitem = FMDB.Context.Races.Find(Id);
+		FMDB.Context.Entry(dbitem).Collection(x => x.NpcSkillPackages).Load();
+		dbitem.NpcSkillPackages.Clear();
+		foreach (var package in _defaultSkillPackages)
+		{
+			dbitem.NpcSkillPackages.Add(FMDB.Context.NpcSkillPackages.Find(package.Id)!);
+		}
         dbitem.Name = _name;
         dbitem.Description = Description;
         dbitem.BaseBodyId = BaseBody.Id;
@@ -1832,6 +1853,39 @@ public partial class Race : SaveableItem, IRace
 
     public IEnumerable<ITraitDefinition> HealthTraits =>
         ParentRace?.HealthTraits.Concat(_healthTraits).Distinct() ?? _healthTraits;
+
+	public IEnumerable<INPCSkillPackage> DirectDefaultSkillPackages => _defaultSkillPackages;
+
+	public IEnumerable<INPCSkillPackage> DefaultSkillPackages =>
+		ResolveDefaultSkillPackages(ParentRace?.DefaultSkillPackages, _defaultSkillPackages);
+
+	internal static IEnumerable<INPCSkillPackage> ResolveDefaultSkillPackages(
+		IEnumerable<INPCSkillPackage> inherited,
+		IEnumerable<INPCSkillPackage> direct)
+	{
+		return (inherited ?? Enumerable.Empty<INPCSkillPackage>())
+			.Concat(direct)
+			.Distinct();
+	}
+
+	public void AddDefaultSkillPackage(INPCSkillPackage package)
+	{
+		if (_defaultSkillPackages.Contains(package))
+		{
+			return;
+		}
+
+		_defaultSkillPackages.Add(package);
+		Changed = true;
+	}
+
+	public void RemoveDefaultSkillPackage(INPCSkillPackage package)
+	{
+		if (_defaultSkillPackages.Remove(package))
+		{
+			Changed = true;
+		}
+	}
 
     private readonly List<IFluid> _breathableFluids = new();
 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Models;
+using System.Collections.Generic;
 
 namespace MudSharp.Database
 {
@@ -7,6 +8,49 @@ namespace MudSharp.Database
     {
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
         {
+			modelBuilder.Entity<NpcSkillPackage>(entity =>
+			{
+				entity.ToTable("NPCSkillPackages");
+				entity.HasKey(e => e.Id).HasName("PRIMARY");
+				entity.HasIndex(e => e.Name).IsUnique().HasDatabaseName("UX_NPCSkillPackages_Name");
+				entity.Property(e => e.Id).HasColumnType("bigint(20)");
+				entity.Property(e => e.Name).IsRequired().HasColumnType("varchar(200)")
+					.HasCharSet("utf8mb4").UseCollation("utf8mb4_unicode_ci");
+				entity.HasMany(e => e.Races)
+					.WithMany(e => e.NpcSkillPackages)
+					.UsingEntity<Dictionary<string, object>>(
+						"RacesNpcSkillPackages",
+						r => r.HasOne<Race>().WithMany().HasForeignKey("RaceId")
+							.OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_RacesNPCSkillPackages_Races"),
+						l => l.HasOne<NpcSkillPackage>().WithMany().HasForeignKey("NpcSkillPackageId")
+							.OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_RacesNPCSkillPackages_Packages"),
+						j =>
+						{
+							j.ToTable("Races_NPCSkillPackages");
+							j.HasKey("RaceId", "NpcSkillPackageId").HasName("PRIMARY");
+							j.IndexerProperty<long>("RaceId").HasColumnType("bigint(20)");
+							j.IndexerProperty<long>("NpcSkillPackageId").HasColumnType("bigint(20)");
+						});
+			});
+
+			modelBuilder.Entity<NpcSkillPackageSkill>(entity =>
+			{
+				entity.ToTable("NPCSkillPackageSkills");
+				entity.HasKey(e => new { e.NpcSkillPackageId, e.TraitDefinitionId }).HasName("PRIMARY");
+				entity.HasIndex(e => e.TraitDefinitionId).HasDatabaseName("FK_NPCSkillPackageSkills_Traits_idx");
+				entity.Property(e => e.NpcSkillPackageId).HasColumnType("bigint(20)");
+				entity.Property(e => e.TraitDefinitionId).HasColumnType("bigint(20)");
+				entity.Property(e => e.Chance).HasColumnType("double");
+				entity.Property(e => e.Mean).HasColumnType("double");
+				entity.Property(e => e.StandardDeviation).HasColumnType("double");
+				entity.Property(e => e.Skewness).HasColumnType("double");
+				entity.HasOne(e => e.NpcSkillPackage).WithMany(e => e.Skills)
+					.HasForeignKey(e => e.NpcSkillPackageId).OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_NPCSkillPackageSkills_Packages");
+				entity.HasOne(e => e.TraitDefinition).WithMany(e => e.NpcSkillPackageSkills)
+					.HasForeignKey(e => e.TraitDefinitionId).OnDelete(DeleteBehavior.Restrict)
+					.HasConstraintName("FK_NPCSkillPackageSkills_Traits");
+			});
             ConfigureCharacterComputerWorkspace(modelBuilder);
             ConfigureComputerMail(modelBuilder);
             ConfigureStables(modelBuilder);

@@ -3,6 +3,7 @@ using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Form.Characteristics;
 using MudSharp.Framework.Revision;
@@ -993,12 +994,64 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
             case "rename":
                 GenericRename(actor, input, helper);
                 return;
+			case "delete":
+			case "remove":
+				GenericDelete(actor, input, helper);
+				return;
             default:
                 actor.OutputHandler.Send(
                     $"{helper.DefaultCommandHelp.SubstituteANSIColour()}\n\n{GenericEditableItemNameRenameHelp.SubstituteANSIColour()}");
                 return;
         }
     }
+
+	public static void GenericDelete(ICharacter actor, StringStack input, EditableItemHelper helper)
+	{
+		if (helper.EditableDeleteAction is null)
+		{
+			actor.OutputHandler.Send($"{helper.ItemNamePlural} cannot be deleted with this command.");
+			return;
+		}
+
+		var item = input.IsFinished
+			? helper.GetEditableItemFunc(actor)
+			: helper.GetEditableItemByIdOrNameFunc(actor, input.SafeRemainingArgument);
+		if (item is null)
+		{
+			actor.OutputHandler.Send($"There is no such {helper.ItemName.ToLowerInvariant()} to delete.");
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"You are proposing to permanently delete {helper.GetEditHeader(item).ColourName()}. This cannot be undone.\n{Accept.StandardAcceptPhrasing}");
+		actor.AddEffect(new Accept(actor, CreateGenericDeleteProposal(actor, helper, item.Id, item.Name)),
+			TimeSpan.FromSeconds(120));
+	}
+
+	internal static GenericProposal CreateGenericDeleteProposal(ICharacter actor, EditableItemHelper helper,
+		long itemId, string itemName)
+	{
+		return new GenericProposal
+		{
+			DescriptionString = $"Deleting {helper.ItemName.ToLowerInvariant()} {itemName}",
+			AcceptAction = _ =>
+			{
+				var currentItem = helper.GetEditableItemByIdFunc(actor, itemId);
+				if (currentItem is null)
+				{
+					actor.OutputHandler.Send(
+						$"That {helper.ItemName.ToLowerInvariant()} no longer exists, so nothing was deleted.");
+					return;
+				}
+
+				helper.EditableDeleteAction(actor, currentItem);
+			},
+			RejectAction = _ => actor.OutputHandler.Send(
+				$"You decide not to delete {helper.ItemName.ToLowerInvariant()} {itemName.ColourName()}."),
+			ExpireAction = () => actor.OutputHandler.Send(
+				$"You decide not to delete {helper.ItemName.ToLowerInvariant()} {itemName.ColourName()}.")
+		};
+	}
 
     private static bool TrySetEditableItemName(ICharacter character, StringStack input, EditableItemHelper helper,
         IEditableItem item)

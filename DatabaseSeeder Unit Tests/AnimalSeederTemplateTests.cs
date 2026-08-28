@@ -1642,8 +1642,8 @@ public class AnimalSeederTemplateTests
 		AnimalSeeder.EnsureAnimalNeedsModelConfiguration(context);
 		context.SaveChanges();
 
-        Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, new AnimalSeeder().ShouldSeedData(context),
-            "Once the expanded animal catalogue is present, the seeder should stop advertising extra stock content.");
+		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, new AnimalSeeder().ShouldSeedData(context),
+			"An otherwise current animal catalogue should advertise the newly available stock NPC skill packages.");
     }
 
     [TestMethod]

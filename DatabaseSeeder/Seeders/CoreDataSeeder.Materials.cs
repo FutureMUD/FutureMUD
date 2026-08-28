@@ -15,22 +15,12 @@ public partial class CoreDataSeeder
 {
 	private void SeedMaterials(FuturemudDatabaseContext context)
 	{
-		SeedMaterialsBase(context);
-
-		var tags = context.Tags
-			.AsEnumerable()
-			.ToDictionary(x => x.Name, x => x, StringComparer.InvariantCultureIgnoreCase);
+		var tags = SeedMaterialsBase(context);
 		var materials = context.Materials
 			.Include(x => x.MaterialAliases)
 			.Include(x => x.MaterialsTags)
 			.AsEnumerable()
 			.ToDictionary(x => x.Name, x => x, StringComparer.InvariantCultureIgnoreCase);
-
-		if (tags.Remove("Water Soluable", out var waterSolubleTag))
-		{
-			waterSolubleTag.Name = "Water Soluble";
-			tags[waterSolubleTag.Name] = waterSolubleTag;
-		}
 
 		void EnsureTag(Material material, string tagName)
 		{
@@ -1100,34 +1090,61 @@ public partial class CoreDataSeeder
 		context.SaveChanges();
 	}
 
-    private void SeedMaterialsBase(FuturemudDatabaseContext context)
+    private Dictionary<string, Tag> SeedMaterialsBase(FuturemudDatabaseContext context)
     {
         #region Tags
 
-        Dictionary<string, Tag> tags = context.Tags
-            .ToDictionary(x => x.Name, x => x, StringComparer.InvariantCultureIgnoreCase);
+        List<Tag> allTags = context.Tags.ToList();
+        Dictionary<string, Tag> tags = new(StringComparer.InvariantCultureIgnoreCase);
 
         void AddTag(string name, string? parent)
         {
-            if (tags.TryGetValue(name, out var existing))
+            Tag? parentTag = parent is null ? null : tags[parent];
+            Tag? existing = allTags
+                .Where(x =>
+                    x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase) &&
+                    x.ParentId == parentTag?.Id)
+                .OrderBy(x => x.Id)
+                .FirstOrDefault();
+            if (existing is not null)
             {
-                if (parent is not null && existing.ParentId is null && tags.TryGetValue(parent, out var existingParent))
-                {
-                    existing.Parent = existingParent;
-                }
-
+                tags[name] = existing;
                 return;
             }
 
-            Tag tag = new() { Name = name };
-            if (parent != null)
+            Tag tag = new()
             {
-                tag.Parent = tags[parent];
-            }
+                Name = name,
+                Parent = parentTag,
+                ParentId = parentTag?.Id
+            };
 
             context.Tags.Add(tag);
+            allTags.Add(tag);
             tags[name] = tag;
             context.SaveChanges();
+        }
+
+        void RepairLegacyTagName(string legacyName, string canonicalName, string parentName)
+        {
+            Tag parent = tags[parentName];
+            if (allTags.Any(x =>
+                    x.Name.Equals(canonicalName, StringComparison.InvariantCultureIgnoreCase) &&
+                    x.ParentId == parent.Id))
+            {
+                return;
+            }
+
+            Tag? legacyTag = allTags
+                .Where(x =>
+                    x.Name.Equals(legacyName, StringComparison.InvariantCultureIgnoreCase) &&
+                    x.ParentId == parent.Id)
+                .OrderBy(x => x.Id)
+                .FirstOrDefault();
+            if (legacyTag is not null)
+            {
+                legacyTag.Name = canonicalName;
+            }
         }
 
         AddTag("Materials", null);
@@ -1289,7 +1306,8 @@ public partial class CoreDataSeeder
         AddTag("Liquids", "Materials");
         AddTag("Water", "Liquids");
         AddTag("Detergent", "Liquids");
-        AddTag("Water Soluable", "Liquids");
+        RepairLegacyTagName("Water Soluable", "Water Soluble", "Liquids");
+        AddTag("Water Soluble", "Liquids");
         AddTag("Beverage", "Liquids");
         AddTag("Alcoholic", "Beverage");
         AddTag("Fuel", "Liquids");
@@ -3310,5 +3328,6 @@ public partial class CoreDataSeeder
         }
 
         context.SaveChanges();
+        return tags;
     }
 }

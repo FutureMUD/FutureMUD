@@ -107,6 +107,52 @@ public class CoreDataSeederMaterialTests
         Assert.IsTrue(context.MaterialAliases.Any(x => x.Material.Name == "high-density polyethylene" && x.Alias == "hdpe"));
     }
 
+	[TestMethod]
+	public void SeedMaterials_RerunUsesTheMaterialTagHierarchyWhenLeafNamesOverlap()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedMaterials(context);
+
+		Tag legacyWaterSoluble = context.Tags.Single(x =>
+			x.Name == "Water Soluble" &&
+			x.Parent!.Name == "Liquids");
+		legacyWaterSoluble.Name = "Water Soluable";
+		context.SaveChanges();
+
+		new UsefulSeeder().SeedTagsForTesting(context);
+		SeedMaterials(context);
+		SeedMaterials(context);
+
+		Tag materials = context.Tags.Single(x => x.Name == "Materials" && x.ParentId is null);
+		Tag animalProduct = context.Tags.Single(x => x.Name == "Animal Product" && x.ParentId == materials.Id);
+		Tag materialApiaryProduct = context.Tags.Single(x =>
+			x.Name == "Apiary Product" &&
+			x.ParentId == animalProduct.Id);
+		Tag functions = context.Tags.Single(x => x.Name == "Functions" && x.ParentId is null);
+		Tag materialFunctions = context.Tags.Single(x => x.Name == "Material Functions" && x.ParentId == functions.Id);
+		Tag agriculture = context.Tags.Single(x => x.Name == "Agriculture" && x.ParentId == materialFunctions.Id);
+		Tag agricultureApiaryProduct = context.Tags.Single(x =>
+			x.Name == "Apiary Product" &&
+			x.ParentId == agriculture.Id);
+		Tag liquids = context.Tags.Single(x => x.Name == "Liquids" && x.ParentId == materials.Id);
+		Material honey = context.Materials.Single(x => x.Name == "honey");
+
+		Assert.AreNotEqual(materialApiaryProduct.Id, agricultureApiaryProduct.Id);
+		Assert.AreEqual(2, context.Tags.Count(x => x.Name == "Apiary Product"));
+		Assert.IsTrue(context.MaterialsTags.Any(x =>
+			x.MaterialId == honey.Id &&
+			x.TagId == materialApiaryProduct.Id));
+		Assert.AreEqual(1, context.Tags.Count(x =>
+			x.Name == "Water Soluble" &&
+			x.ParentId == liquids.Id));
+		Assert.IsFalse(context.Tags.Any(x =>
+			x.Name == "Water Soluable" &&
+			x.ParentId == liquids.Id));
+		Assert.IsFalse(context.MaterialsTags
+			.GroupBy(x => new { x.MaterialId, x.TagId })
+			.Any(x => x.Count() > 1));
+	}
+
     [TestMethod]
     public void SeededMaterials_AliasLookupFindsExpectedDefaults()
     {

@@ -268,6 +268,20 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 @"The $0 skill covers the use of blowguns and other breath-fired dart weapons. It is primarily a precision skill for very close ranged shots.")
         };
 
+    private IEnumerable<SkillDetails> UniversalCombatSkills =>
+        new[]
+        {
+            new SkillDetails("Blocking", "Block", "Combat", "min(99,2*str + 3*agi)", "General", "General", true, 1.0),
+            new SkillDetails("Dodging", "Dodge", "Combat", "min(99,2*str + 3*agi)", "General", "General", true, 1.0),
+            new SkillDetails("Brawling", "Brawling", "Combat", "min(99,2*str + 3*agi)", "General", "General", true, 1.0),
+            new SkillDetails("Wrestling", "Subdue", "Combat", "min(99,2*str + 3*agi)", "General", "General", true, 1.0),
+            new SkillDetails("Warding", "Ward", "Combat", "min(99,2*str + 3*agi)", "General", "General", true, 1.0),
+            new SkillDetails("Throwing", "Throwing", "Combat", "min(99,2*str + 3*agi)", "General", "General", true, 1.0),
+            new SkillDetails("Gunnery", "Gunnery", "Combat", "min(99,2*str + 3*agi)", "General", "General", true, 1.0),
+            new SkillDetails("Seafaring", "Seafaring", "Combat", "min(99,2*str + 3*agi)", "General", "General", true, 1.0),
+            new SkillDetails("Veterancy", "Veterancy", "Combat", "min(99,2*str + 3*agi)", "Veterancy", "General", true, 1.0)
+        };
+
     private IEnumerable<SkillDetails> UniversalCraftSkills =>
         new[]
         {
@@ -511,6 +525,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
             .Concat(FunctionalCraftSkills)
             .Concat(UniversalProfessionalSkills)
             .Concat(RangedCombatSkills)
+            .Concat(UniversalCombatSkills)
             .Concat(RpiLegacySkills)
             .Select(x => x.ImperativeName)
             .ToArray();
@@ -601,6 +616,15 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 {
                     return skill;
                 }
+
+                TraitDefinition? existingSkill = context.TraitDefinitions
+                    .Where(x => x.Type == 0)
+                    .AsEnumerable()
+                    .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                if (existingSkill is not null)
+                {
+                    return existingSkill;
+                }
             }
 
             throw new InvalidOperationException($"None of the expected seeded skill traits exist: {string.Join(", ", names)}.");
@@ -633,7 +657,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 		TraitDefinition ridingTrait = GetSkill("Riding", "Ride", "Athletics");
 		TraitDefinition drivingTrait = GetSkill("Driving", "Drive", "Riding", "Athletics");
 		TraitDefinition seafaringTrait = GetSkill("Seafaring", "Sailing", "Survival");
-		TraitDefinition veterancyTrait = GetSkill("Veterancy", "Melee", "Athletics");
+		TraitDefinition veterancyTrait = GetSkill("Veterancy", "Melee", "Athletics", "Balance", "Balancing", "Run", "Running");
 		TraitDefinition poisonTrait = GetSkill("Poisoning", "Chemistry", "Herbalism", "Medicine");
         TraitDefinition? lawTrait = skills.GetValueOrDefault("Law");
 
@@ -1517,6 +1541,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                          .Concat(FunctionalCraftSkills)
                          .Concat(UniversalProfessionalSkills)
                          .Concat(RangedCombatSkills)
+                         .Concat(UniversalCombatSkills)
                     )
             {
                 AddSkill(skill);
@@ -1533,6 +1558,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                          .Concat(FunctionalCraftSkills)
                          .Concat(UniversalProfessionalSkills)
                          .Concat(RangedCombatSkills)
+                         .Concat(UniversalCombatSkills)
                     )
             {
                 AddSkill(skill);

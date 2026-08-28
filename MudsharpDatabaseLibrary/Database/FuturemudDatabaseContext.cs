@@ -357,6 +357,8 @@ namespace MudSharp.Database
         public virtual DbSet<NPCSpawnerCell> NpcSpawnerCells { get; set; }
         public virtual DbSet<NPCSpawnerZone> NpcSpawnerZones { get; set; }
         public virtual DbSet<NpcTemplate> NpcTemplates { get; set; }
+		public virtual DbSet<NpcSkillPackage> NpcSkillPackages { get; set; }
+		public virtual DbSet<NpcSkillPackageSkill> NpcSkillPackageSkills { get; set; }
         public virtual DbSet<NpcTemplatesArtificalIntelligences> NpctemplatesArtificalIntelligences { get; set; }
         public virtual DbSet<OutfitTemplate> OutfitTemplates { get; set; }
         public virtual DbSet<OutfitTemplateItem> OutfitTemplateItems { get; set; }

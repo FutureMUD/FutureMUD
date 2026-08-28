@@ -105,6 +105,7 @@ public static class ProgVariableTypeRegistry
 		RegisterExact(ProgTypeKind.VehicleService, ProgVariableTypes.VehicleService, "VehicleService", "vehicleservice", "service");
 		RegisterExact(ProgTypeKind.VehicleJourney, ProgVariableTypes.VehicleJourney, "VehicleJourney", "vehiclejourney", "journey");
 		RegisterExact(ProgTypeKind.Trap, ProgVariableTypes.Trap, "Trap", "trap");
+		RegisterExact(ProgTypeKind.NPCSkillPackage, ProgVariableTypes.NPCSkillPackage, "NPCSkillPackage", "npcskillpackage", "skillpackage");
 
         RegisterNamed(ProgVariableTypes.CollectionItem, "CollectionItem", false, "collectionitem");
         RegisterNamed(ProgVariableTypes.Perceivable, "Perceivable", false, "perceivable");

@@ -87,10 +87,12 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 
 		SeedFormMerits(summary);
 		CombatAuxiliarySeedResult auxiliaryResult = CombatAuxiliarySeederHelper.EnsureSupernaturalAuxiliaryLinks(_context);
+		NPCSkillPackageSeedResult packageResult = NPCSkillPackageSeederHelper.EnsureRacePackages(_context,
+			StockSkillPackageRaces());
 
 		_context.SaveChanges();
 		_context.Database.CommitTransaction();
-		return $"{summary.ToMessage(Templates.Count)} Refreshed {auxiliaryResult.RaceLinks} supernatural auxiliary combat links.";
+		return $"{summary.ToMessage(Templates.Count)} Refreshed {auxiliaryResult.RaceLinks} supernatural auxiliary combat links and {packageResult.RaceLinksAdded} NPC skill package links.";
 	}
 
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
@@ -105,9 +107,20 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 			return ShouldSeedResult.ReadyToInstall;
 		}
 
-		return HasMissingSupernaturalSupport(context)
+		return HasMissingSupernaturalSupport(context) ||
+		       NPCSkillPackageSeederHelper.HasMissingStockRacePackages(context, StockSkillPackageRaces())
 			? ShouldSeedResult.ExtraPackagesAvailable
 			: ShouldSeedResult.MayAlreadyBeInstalled;
+	}
+
+	private static IEnumerable<StockNPCSkillPackageRace> StockSkillPackageRaces()
+	{
+		return Templates.Values.Select(template => new StockNPCSkillPackageRace(
+			template.Name,
+			NPCSkillPackageSeederHelper.IsFlyingRace(template.Name, template.BodyKey),
+			template.CanSwim,
+			template.CanClimb,
+			template.CombatBalance.Tier));
 	}
 
 	internal static bool HasPrerequisites(FuturemudDatabaseContext context)

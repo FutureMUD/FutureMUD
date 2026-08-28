@@ -70,5 +70,6 @@ public enum ProgTypeKind
 	VehicleRoute,
 	VehicleService,
 	VehicleJourney,
-	Trap
+	Trap,
+	NPCSkillPackage
 }

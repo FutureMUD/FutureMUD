@@ -26,6 +26,7 @@ namespace MudSharp.Framework
         void LoadAIs();
         void LoadGroupAIs();
         void LoadNPCTemplates();
+		void LoadNPCSkillPackages();
         void LoadChargenResources();
         void LoadHeightWeightModels();
         void LoadHearingProfiles();

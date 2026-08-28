@@ -578,6 +578,7 @@ public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate, IEdi
     public ICharacterCombatSettings? DefaultCombatSetting { get; set; }
 
     public abstract INPCTemplate Clone(ICharacter builder);
+	public abstract NPCSkillPackageApplicationResult ApplySkillPackage(INPCSkillPackage package);
 
     #endregion
 

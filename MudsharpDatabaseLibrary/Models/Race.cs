@@ -21,6 +21,7 @@ namespace MudSharp.Models
             RacesEdibleMaterials = new HashSet<RacesEdibleMaterials>();
             RacesWeaponAttacks = new HashSet<RacesWeaponAttacks>();
             RacesCombatActions = new HashSet<RacesCombatActions>();
+			NpcSkillPackages = new HashSet<NpcSkillPackage>();
         }
 
         public long Id { get; set; }
@@ -127,5 +128,6 @@ namespace MudSharp.Models
         public virtual ICollection<RacesEdibleMaterials> RacesEdibleMaterials { get; set; }
         public virtual ICollection<RacesWeaponAttacks> RacesWeaponAttacks { get; set; }
         public virtual ICollection<RacesCombatActions> RacesCombatActions { get; set; }
+		public virtual ICollection<NpcSkillPackage> NpcSkillPackages { get; set; }
     }
 }

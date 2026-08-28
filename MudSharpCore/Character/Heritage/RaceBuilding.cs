@@ -29,6 +29,7 @@ public partial class Race
 	#3desc#0 - drops you into an editor to describe the race
 	#3parent <race>#0 - sets a parent race for this race
 	#3parent none#0 - clears a parent race from this race
+	#3skillpackage <package>#0 - toggles a default NPC skill package for this race
 	#3body <template>#0 - changes the body template of the race
 	#3parthealth <%>#0 - sets a multiplier for bodypart HPs
 	#3partsize <##>#0 - sets a number of steps bigger/smaller for bodyparts
@@ -128,6 +129,10 @@ public partial class Race
                 return BuildingCommandName(actor, command);
             case "parent":
                 return BuildingCommandParent(actor, command);
+			case "skillpackage":
+			case "skillpack":
+			case "npcskillpackage":
+				return BuildingCommandSkillPackage(actor, command);
             case "hwmodel":
                 return BuildingCommandHeightWeightModel(actor, command);
             case "chargen":
@@ -325,6 +330,34 @@ public partial class Race
                 return false;
         }
     }
+
+	private bool BuildingCommandSkillPackage(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which NPC skill package do you want to toggle for this race?");
+			return false;
+		}
+
+		var package = Gameworld.NpcSkillPackages.GetByIdOrName(command.SafeRemainingArgument);
+		if (package is null)
+		{
+			actor.OutputHandler.Send("There is no such NPC skill package.");
+			return false;
+		}
+
+		if (_defaultSkillPackages.Remove(package))
+		{
+			Changed = true;
+			actor.OutputHandler.Send($"This race will no longer apply {package.Name.ColourName()} to new NPC templates.");
+			return true;
+		}
+
+		_defaultSkillPackages.Add(package);
+		Changed = true;
+		actor.OutputHandler.Send($"This race will now apply {package.Name.ColourName()} to new NPC templates.");
+		return true;
+	}
 
     private bool BuildingCommandHeightWeightModel(ICharacter actor, StringStack command)
     {
@@ -2756,6 +2789,8 @@ public partial class Race
             $"Corpse: {CorpseModel.Name.ColourValue()}",
             $"Health Model: {DefaultHealthStrategy.Name.ColourValue()}"
         );
+		sb.AppendLine($"Direct NPC Skill Packages: {_defaultSkillPackages.Select(x => x.Name.ColourName()).ListToString()}");
+		sb.AppendLine($"All NPC Skill Packages: {DefaultSkillPackages.Select(x => x.Name.ColourName()).ListToString()}");
 
         sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
             $"Bodypart Size Mod: {BodypartSizeModifier.ToString("N0", actor).ColourValue()}",

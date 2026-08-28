@@ -2944,6 +2944,7 @@ public partial class EditableItemHelper
     public Func<ICharacter, string, IEditableItem> GetEditableItemByIdOrNameFunc { get; private set; }
     public Func<ICharacter, IEnumerable<IEditableItem>> GetAllEditableItems { get; private set; }
     public Action<IEditableItem> AddItemToGameWorldAction { get; private set; }
+	public Action<ICharacter, IEditableItem> EditableDeleteAction { get; private set; }
 
     public Func<ICharacter, IEnumerable<IEditableItem>, IEnumerable<IEnumerable<string>>> GetListTableContentsFunc
     {

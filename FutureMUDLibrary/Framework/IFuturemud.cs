@@ -198,6 +198,7 @@ namespace MudSharp.Framework
         IUneditableAll<IHealthStrategy> HealthStrategies { get; }
         IUneditableAll<IHearingProfile> HearingProfiles { get; }
         IUneditableAll<IHeightWeightModel> HeightWeightModels { get; }
+		IUneditableAll<INPCSkillPackage> NpcSkillPackages { get; }
         IUneditableAll<IHelpfile> Helpfiles { get; }
         IUneditableAll<IHook> Hooks { get; }
         IUneditableAll<IArtificialIntelligence> AIs { get; }
@@ -429,6 +430,7 @@ namespace MudSharp.Framework
         void Add(IChargenResource resource);
         void Add(IShieldType shield);
         void Add(IHeightWeightModel model);
+		void Add(INPCSkillPackage package);
         void Add(IHearingProfile profile);
         void Add(ITrack track);
         void Add(IMoveSpeed speed);
@@ -615,6 +617,7 @@ namespace MudSharp.Framework
         void Destroy(IAIStorytellerReferenceDocument item);
         void Destroy(IShopper shopper);
         void Destroy(IHeightWeightModel model);
+		void Destroy(INPCSkillPackage package);
         void Destroy(IHearingProfile profile);
         void Destroy(ITrack track);
         void Destroy(ICurrency currency);

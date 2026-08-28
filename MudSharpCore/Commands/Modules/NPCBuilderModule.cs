@@ -24,6 +24,28 @@ namespace MudSharp.Commands.Modules
 
         public static NPCBuilderModule Instance { get; } = new();
 
+		public const string NPCSkillPackageHelp = @"NPC skill packages are reusable groups of skill distributions that can be copied into NPC templates or characters.
+
+	#3npcskillpackage list [<keyword>]#0
+	#3npcskillpackage new <name>#0
+	#3npcskillpackage edit <id|name>#0
+	#3npcskillpackage clone <id|name> <new name>#0
+	#3npcskillpackage show [<id|name>]#0
+	#3npcskillpackage set name <name>#0
+	#3npcskillpackage set skill <skill> <chance%> <mean> <standard deviation> [<skewness>]#0
+	#3npcskillpackage set skill <skill> 0%#0
+	#3npcskillpackage close#0
+	#3npcskillpackage delete <id|name>#0";
+
+		[PlayerCommand("NPCSkillPackage", "npcskillpackage", "npcskillpack")]
+		[HelpInfo("NPCSkillPackage", NPCSkillPackageHelp, AutoHelp.HelpArgOrNoArg)]
+		[CommandPermission(PermissionLevel.Admin)]
+		protected static void NPCSkillPackageBuilding(ICharacter actor, string input)
+		{
+			GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()),
+				EditableItemHelper.NPCSkillPackageHelper);
+		}
+
         #region NPCs
 
         internal static bool TryResolveNpcLoadSpatialLocation(

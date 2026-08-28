@@ -195,6 +195,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		EnsureEraDependencyCombatContent(context, effectiveAnswers);
         CombatAuxiliarySeederHelper.EnsureStockAuxiliaryContent(context);
         ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context);
+		NPCSkillPackageSeederHelper.EnsureCombatPackages(context);
 
         context.Database.CommitTransaction();
 
@@ -208,6 +209,11 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			.Where(x => x.HasChanges)
 			.Select(x => $"{x.DisplayName} ({x.Changes})")
 			.ToList();
+		NPCSkillPackageSeedResult packageResult = NPCSkillPackageSeederHelper.EnsureCombatPackages(context);
+		if (packageResult.HasChanges)
+		{
+			updates.Add($"NPC beast skill packages ({packageResult.PackagesChanged})");
+		}
 		context.SaveChanges();
 		return updates.Count > 0
 			? $"Reconciled combat modules: {updates.ListToString()}."
@@ -1906,7 +1912,9 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
     {
         if (context.WeaponAttacks.Any())
         {
-            return ShouldSeedResult.MayAlreadyBeInstalled;
+			return NPCSkillPackageSeederHelper.HasMissingCombatPackages(context)
+				? ShouldSeedResult.ExtraPackagesAvailable
+				: ShouldSeedResult.MayAlreadyBeInstalled;
         }
 
         if (!context.Races.Any(x => x.Name == "Human"))

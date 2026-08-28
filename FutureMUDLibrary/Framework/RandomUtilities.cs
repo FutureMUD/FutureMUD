@@ -156,6 +156,24 @@ namespace MudSharp.Framework
             return mean + stdev * x0;
         }
 
+		/// <summary>
+		/// Generates a skew-normal value while preserving the supplied arithmetic mean and standard deviation.
+		/// </summary>
+		public static double RandomSkewNormal(double mean, double stdev, double skewness)
+		{
+			if (Math.Abs(skewness) < 1e-9)
+			{
+				return RandomNormal(mean, stdev);
+			}
+
+			double alpha = SolveForAlpha(skewness);
+			double delta = alpha / Math.Sqrt(1.0 + alpha * alpha);
+			double rawMean = delta * Math.Sqrt(2.0 / Math.PI);
+			double rawStandardDeviation = Math.Sqrt(1.0 - 2.0 * delta * delta / Math.PI);
+			double standardised = (NextSkewNormalAlpha(alpha) - rawMean) / rawStandardDeviation;
+			return mean + stdev * standardised;
+		}
+
         /// <summary>
         /// A wrapper for RandomNormal that assumes the mean is the mid-point of the supplied range and the the standard deviation is 1/8 of the difference
         /// </summary>

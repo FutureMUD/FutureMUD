@@ -131,9 +131,11 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         {
             RefreshExistingMythicalCombatBalance();
             CombatAuxiliarySeedResult auxiliaryResult = CombatAuxiliarySeederHelper.EnsureMythicalAuxiliaryLinks(_context);
+			NPCSkillPackageSeedResult packageResult = NPCSkillPackageSeederHelper.EnsureRacePackages(_context,
+				StockSkillPackageRaces());
             _context.Database.CommitTransaction();
-            return auxiliaryResult.HasChanges
-                ? $"Mythical races are already installed and their breathing, mobility, diet, combat balance profiles, and {auxiliaryResult.RaceLinks} auxiliary combat links have been refreshed."
+            return auxiliaryResult.HasChanges || packageResult.HasChanges
+				? $"Mythical races are already installed and their breathing, mobility, diet, combat balance profiles, {auxiliaryResult.RaceLinks} auxiliary combat links, and {packageResult.RaceLinksAdded} NPC skill package links have been refreshed."
                 : "Mythical races are already installed and their breathing, mobility, diet, and combat balance profiles have been refreshed.";
         }
 
@@ -155,6 +157,8 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         }
 
         CombatAuxiliarySeedResult freshAuxiliaryResult = CombatAuxiliarySeederHelper.EnsureMythicalAuxiliaryLinks(_context);
+		NPCSkillPackageSeedResult freshPackageResult = NPCSkillPackageSeederHelper.EnsureRacePackages(_context,
+			StockSkillPackageRaces());
         _context.SaveChanges();
         _context.Database.CommitTransaction();
         int skippedCount = Templates.Count - templatesToSeed.Count;
@@ -183,6 +187,11 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             updates.Add($"refreshed mythical auxiliary combat links ({freshAuxiliaryResult.RaceLinks} links)");
         }
 
+		if (freshPackageResult.HasChanges)
+		{
+			updates.Add($"refreshed NPC skill packages ({freshPackageResult.PackagesChanged} packages, {freshPackageResult.RaceLinksAdded} race links)");
+		}
+
         if (templatesToSeed.Count > 0 && skippedCount > 0)
         {
             updates.Add($"skipped {skippedCount} that already existed");
@@ -203,13 +212,24 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             return HasMissingMythicalDisfigurementTemplates(context) ||
                    HasMythicalSatiationLimitUpdates(context) ||
                    HasMissingMythicalAnimalAIStockTemplates(context) ||
-                   HasMissingMythicalDietSettings(context)
+                   HasMissingMythicalDietSettings(context) ||
+			       NPCSkillPackageSeederHelper.HasMissingStockRacePackages(context, StockSkillPackageRaces())
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;
         }
 
         return ShouldSeedResult.ReadyToInstall;
     }
+
+	private static IEnumerable<StockNPCSkillPackageRace> StockSkillPackageRaces()
+	{
+		return Templates.Values.Select(template => new StockNPCSkillPackageRace(
+			template.Name,
+			NPCSkillPackageSeederHelper.IsFlyingRace(template.Name, template.BodyKey),
+			template.CanSwim,
+			template.CanClimb,
+			template.CombatBalance.Tier));
+	}
 
 	private static bool HasMythicalSatiationLimitUpdates(FuturemudDatabaseContext context)
 	{

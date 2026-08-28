@@ -298,6 +298,8 @@ public partial class AnimalSeeder : IDatabaseSeeder
 
             RefreshExistingAnimalDietSettings();
             CombatAuxiliarySeedResult auxiliaryResult = CombatAuxiliarySeederHelper.EnsureAnimalAuxiliaryLinks(context);
+			NPCSkillPackageSeedResult packageResult = NPCSkillPackageSeederHelper.EnsureRacePackages(context,
+				StockSkillPackageRaces());
             context.Database.CommitTransaction();
             List<string> updates = ["Updated the animal combat balance profile"];
             if (hasMissingCatalogue)
@@ -334,6 +336,11 @@ public partial class AnimalSeeder : IDatabaseSeeder
             {
                 updates.Add($"refreshed animal auxiliary combat links ({auxiliaryResult.RaceLinks} links)");
             }
+
+			if (packageResult.HasChanges)
+			{
+				updates.Add($"refreshed NPC skill packages ({packageResult.PackagesChanged} packages, {packageResult.RaceLinksAdded} race links)");
+			}
 
             return $"{string.Join(", ", updates)}.";
         }
@@ -877,11 +884,13 @@ public partial class AnimalSeeder : IDatabaseSeeder
 		context.SaveChanges();
         SeedAnimalAIStockTemplates();
         CombatAuxiliarySeedResult freshAuxiliaryResult = CombatAuxiliarySeederHelper.EnsureAnimalAuxiliaryLinks(context);
+		NPCSkillPackageSeedResult freshPackageResult = NPCSkillPackageSeederHelper.EnsureRacePackages(context,
+			StockSkillPackageRaces());
 
         context.Database.CommitTransaction();
 
-        return freshAuxiliaryResult.HasChanges
-            ? $"Successfully installed animal prototypes, stock animal AI templates, and {freshAuxiliaryResult.RaceLinks} animal auxiliary combat links."
+        return freshAuxiliaryResult.HasChanges || freshPackageResult.HasChanges
+			? $"Successfully installed animal prototypes, stock animal AI templates, {freshAuxiliaryResult.RaceLinks} animal auxiliary combat links, and {freshPackageResult.RaceLinksAdded} NPC skill package links."
             : "Successfully installed animal prototypes and stock animal AI templates.";
     }
 
@@ -899,13 +908,24 @@ public partial class AnimalSeeder : IDatabaseSeeder
                    HasMissingAnimalCatalogue(context) ||
                    HasMissingAnimalWearProfiles(context) ||
                    HasMissingAnimalAIStockTemplates(context) ||
-                   HasMissingAnimalDietSettings(context)
+                   HasMissingAnimalDietSettings(context) ||
+				   NPCSkillPackageSeederHelper.HasMissingStockRacePackages(context, StockSkillPackageRaces())
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;
         }
 
         return ShouldSeedResult.ReadyToInstall;
     }
+
+	private static IEnumerable<StockNPCSkillPackageRace> StockSkillPackageRaces()
+	{
+		return RaceTemplates.Values.Select(template => new StockNPCSkillPackageRace(
+			template.Name,
+			NPCSkillPackageSeederHelper.IsFlyingRace(template.Name, template.BodyKey),
+			true,
+			template.CanClimb,
+			NPCSkillPackageSeederHelper.TierForAnimal(template.Size)));
+	}
     private void ResetSeeder()
     {
         _attacks.Clear();

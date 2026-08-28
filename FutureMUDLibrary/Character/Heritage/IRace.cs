@@ -2,6 +2,7 @@
 using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
 using MudSharp.Body.Traits;
+using MudSharp.NPC.Templates;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
@@ -16,7 +17,6 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Health.Breathing;
-using MudSharp.NPC.Templates;
 using MudSharp.Strategies.BodyStratagies;
 using MudSharp.Work.Butchering;
 using System;
@@ -117,6 +117,11 @@ namespace MudSharp.Character.Heritage
         double SweatRateInLitresPerMinute { get; }
 
         IEnumerable<ITraitDefinition> HealthTraits { get; }
+
+		IEnumerable<INPCSkillPackage> DirectDefaultSkillPackages { get; }
+		IEnumerable<INPCSkillPackage> DefaultSkillPackages { get; }
+		void AddDefaultSkillPackage(INPCSkillPackage package);
+		void RemoveDefaultSkillPackage(INPCSkillPackage package);
 
         IEnumerable<IFluid> BreathableFluids { get; }
 

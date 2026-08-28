@@ -260,6 +260,31 @@ public class CoreDataSeederTerrainTests
         }
     }
 
+	[TestMethod]
+	public void SeedTerrainFoundationsForTesting_RerunRepairsStockGasAndLiquidAtmospheres()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+
+		SeedTerrainFoundations(context);
+
+		Terrain grasslands = context.Terrains.Single(x => x.Name == "Grasslands");
+		Terrain deepOcean = context.Terrains.Single(x => x.Name == "Deep Ocean");
+		grasslands.AtmosphereId = null;
+		deepOcean.AtmosphereId = null;
+		context.SaveChanges();
+
+		CoreDataSeeder.SeedTerrainFoundationsForTesting(context);
+
+		Assert.AreEqual(
+			context.Gases.Single(x => x.Name == "Breathable Atmosphere").Id,
+			grasslands.AtmosphereId,
+			"Expected rerun to repair a stock gas atmosphere.");
+		Assert.AreEqual(
+			context.Liquids.Single(x => x.Name == "salt water").Id,
+			deepOcean.AtmosphereId,
+			"Expected rerun to repair a stock liquid atmosphere.");
+	}
+
     [TestMethod]
     public void UsefulSeeder_NoLongerOwnsTerrainQuestionOrTerrainInstalledState()
     {

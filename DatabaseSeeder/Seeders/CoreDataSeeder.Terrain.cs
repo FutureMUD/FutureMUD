@@ -1145,7 +1145,9 @@ public partial class CoreDataSeeder
 			.Select(x => x.Id)
 			.ToHashSet();
 
-		foreach (var terrain in context.Terrains.AsEnumerable())
+		// ResolveStockTerrainAtmosphereId performs another query. Materialise the terrain
+		// rows first so MySQL never has to service overlapping readers on one connection.
+		foreach (var terrain in context.Terrains.ToList())
 		{
 			if (!stockTerrainAtmospheres.TryGetValue(terrain.Name, out var atmosphere))
 			{

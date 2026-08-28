@@ -113,7 +113,7 @@ public class CoreDataSeederMaterialTests
 		using FuturemudDatabaseContext context = BuildContext();
 		SeedMaterials(context);
 
-		Tag legacyWaterSoluble = context.Tags.Single(x =>
+		MudSharp.Models.Tag legacyWaterSoluble = context.Tags.Single(x =>
 			x.Name == "Water Soluble" &&
 			x.Parent!.Name == "Liquids");
 		legacyWaterSoluble.Name = "Water Soluable";
@@ -123,19 +123,19 @@ public class CoreDataSeederMaterialTests
 		SeedMaterials(context);
 		SeedMaterials(context);
 
-		Tag materials = context.Tags.Single(x => x.Name == "Materials" && x.ParentId is null);
-		Tag animalProduct = context.Tags.Single(x => x.Name == "Animal Product" && x.ParentId == materials.Id);
-		Tag materialApiaryProduct = context.Tags.Single(x =>
+		MudSharp.Models.Tag materials = context.Tags.Single(x => x.Name == "Materials" && x.ParentId == null);
+		MudSharp.Models.Tag animalProduct = context.Tags.Single(x => x.Name == "Animal Product" && x.ParentId == materials.Id);
+		MudSharp.Models.Tag materialApiaryProduct = context.Tags.Single(x =>
 			x.Name == "Apiary Product" &&
 			x.ParentId == animalProduct.Id);
-		Tag functions = context.Tags.Single(x => x.Name == "Functions" && x.ParentId is null);
-		Tag materialFunctions = context.Tags.Single(x => x.Name == "Material Functions" && x.ParentId == functions.Id);
-		Tag agriculture = context.Tags.Single(x => x.Name == "Agriculture" && x.ParentId == materialFunctions.Id);
-		Tag agricultureApiaryProduct = context.Tags.Single(x =>
+		MudSharp.Models.Tag functions = context.Tags.Single(x => x.Name == "Functions" && x.ParentId == null);
+		MudSharp.Models.Tag materialFunctions = context.Tags.Single(x => x.Name == "Material Functions" && x.ParentId == functions.Id);
+		MudSharp.Models.Tag agriculture = context.Tags.Single(x => x.Name == "Agriculture" && x.ParentId == materialFunctions.Id);
+		MudSharp.Models.Tag agricultureApiaryProduct = context.Tags.Single(x =>
 			x.Name == "Apiary Product" &&
 			x.ParentId == agriculture.Id);
-		Tag liquids = context.Tags.Single(x => x.Name == "Liquids" && x.ParentId == materials.Id);
-		Material honey = context.Materials.Single(x => x.Name == "honey");
+		MudSharp.Models.Tag liquids = context.Tags.Single(x => x.Name == "Liquids" && x.ParentId == materials.Id);
+		MudSharp.Models.Material honey = context.Materials.Single(x => x.Name == "honey");
 
 		Assert.AreNotEqual(materialApiaryProduct.Id, agricultureApiaryProduct.Id);
 		Assert.AreEqual(2, context.Tags.Count(x => x.Name == "Apiary Product"));

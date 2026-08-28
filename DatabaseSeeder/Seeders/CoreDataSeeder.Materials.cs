@@ -90,7 +90,23 @@ public partial class CoreDataSeeder
 
 		void RenameMaterial(string currentName, string newName, params string[] aliases)
 		{
-			var material = materials[currentName];
+			if (!materials.TryGetValue(currentName, out var material))
+			{
+				if (materials.TryGetValue(newName, out var existing))
+				{
+					EnsureAlias(existing, aliases);
+				}
+
+				return;
+			}
+
+			if (materials.TryGetValue(newName, out var existingCanonical) &&
+				!ReferenceEquals(material, existingCanonical))
+			{
+				EnsureAlias(existingCanonical, aliases);
+				return;
+			}
+
 			materials.Remove(currentName);
 			material.Name = newName;
 			material.MaterialDescription = newName;
@@ -1323,6 +1339,11 @@ public partial class CoreDataSeeder
             .Include(x => x.MaterialAliases)
             .Include(x => x.MaterialsTags)
             .ToDictionary(x => x.Name, x => x, StringComparer.InvariantCultureIgnoreCase);
+        Dictionary<string, string> renamedMaterials = new(StringComparer.InvariantCultureIgnoreCase)
+        {
+            ["coach"] = "coachwood",
+            ["aubergene"] = "aubergine"
+        };
         Dictionary<Material, string> solvents = new();
 
         void AddMaterial(string name, MaterialBehaviourType type, double relativeDensity, bool organic,
@@ -1340,6 +1361,12 @@ public partial class CoreDataSeeder
                     }
                 }
 
+                return;
+            }
+
+            if (renamedMaterials.TryGetValue(name, out var canonicalName) &&
+                materials.ContainsKey(canonicalName))
+            {
                 return;
             }
 

@@ -48,6 +48,27 @@ public class TerrainLayerModelTests
 	}
 
 	[TestMethod]
+	public void TerrainLoader_RestoresBothTrackIntensityMultipliers()
+	{
+		var model = new DB.Terrain
+		{
+			Id = 1,
+			Name = "Tracked Terrain",
+			TerrainBehaviourMode = "outdoors",
+			TagInformation = string.Empty,
+			CanHaveTracks = true,
+			TrackIntensityMultiplierVisual = 1.5,
+			TrackIntensityMultiplierOlfactory = 1.25
+		};
+
+		var terrain = new Terrain(model, new Mock<IFuturemud>().Object);
+
+		Assert.IsTrue(terrain.CanHaveTracks);
+		Assert.AreEqual(1.5, terrain.TrackIntensityMultiplierVisual);
+		Assert.AreEqual(1.25, terrain.TrackIntensityMultiplierOlfactory);
+	}
+
+	[TestMethod]
 	public void RooftopsOnlyToRooftopsExit_AppearsOnRooftopAndAirLayersButNotGround()
 	{
 		var origin = CreateCell(CreateTerrain("rooftopsonly"));

@@ -49,6 +49,7 @@ public class Terrain : SaveableItem, ITerrain
         TerrainANSIColour = terrain.TerrainANSIColour;
         CanHaveTracks = terrain.CanHaveTracks;
         TrackIntensityMultiplierVisual = terrain.TrackIntensityMultiplierVisual;
+		TrackIntensityMultiplierOlfactory = terrain.TrackIntensityMultiplierOlfactory;
         GravityModel = (GravityModel)terrain.GravityModel;
         if (!string.IsNullOrEmpty(terrain.TagInformation))
         {
@@ -620,8 +621,8 @@ public class Terrain : SaveableItem, ITerrain
     private readonly List<RoomLayer> _terrainLayers = new();
     public IEnumerable<RoomLayer> TerrainLayers => _terrainLayers;
 
-    public bool CanHaveTracks { get; private set; } // TODO Load/save
-    public double TrackIntensityMultiplierVisual { get; private set; } // TODO Load/save
+	public bool CanHaveTracks { get; private set; }
+	public double TrackIntensityMultiplierVisual { get; private set; }
 
     public double TrackIntensityMultiplierOlfactory { get; private set; }
     public GravityModel GravityModel { get; private set; }

@@ -22,7 +22,7 @@ Underwater and swimming layers suppress zero-gravity mechanics. Existing swimmin
 - `Normal`
 - `ZeroGravity`
 
-True space terrains such as orbital, interplanetary, interstellar, and intergalactic space are zero gravity by default. Lunar terrain remains normal gravity in this model; low gravity is future work, not zero gravity.
+True space terrains such as orbital, interplanetary, interstellar, and intergalactic space are zero gravity by default. `Zero-G Spaceship Compartment` and the supernatural `Astral Void` also opt into zero gravity explicitly. Ordinary spaceship interiors, lunar terrain, asteroid surfaces, and planetary surfaces remain normal gravity in this model; low gravity is future work, not zero gravity.
 
 ### Admin Commands
 `zerog show|on|off|reset [cell]` controls the admin override:

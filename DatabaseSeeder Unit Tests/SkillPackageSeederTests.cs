@@ -60,6 +60,17 @@ public class SkillPackageSeederTests
 	}
 
 	[TestMethod]
+	public void ComplexSkillPackage_IncludesUniversalCombatSkills()
+	{
+		var names = new SkillPackageSeeder().ComplexNonGerundSkillNamesForTesting;
+
+		foreach (var name in new[] { "Block", "Dodge", "Brawling", "Subdue", "Ward", "Throwing", "Gunnery", "Seafaring", "Veterancy" })
+		{
+			CollectionAssert.Contains(names.ToList(), name);
+		}
+	}
+
+	[TestMethod]
 	public void SkillPackageChecks_MountSprawlUsesRidingAndBalance()
 	{
 		string source = SeederSourceTestHelper.ReadSeederSource("SkillPackageSeeder.cs");

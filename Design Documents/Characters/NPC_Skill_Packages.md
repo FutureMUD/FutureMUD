@@ -70,7 +70,7 @@ Use `applyskillpackage(character, package)` to roll a package for a live charact
 
 ## Seeder Ownership
 
-The existing `Skill Package` seeder owns `Universal Common` and resolves the installed simple, complex, or RPI utility-skill equivalents. The Combat seeder owns the five beast-attacker definitions. Animal, Mythical Animal, and Supernatural seeders own capability definitions and additive links from their stock races.
+The existing `Skill Package` seeder owns `Universal Common` and resolves the installed simple, complex, or RPI utility-skill equivalents. It also seeds the universally-required combat traits (block, dodge, brawling, subdue/wrestling, ward, throwing, gunnery, seafaring, and veterancy) so its check definitions do not depend on a later seeder. The Combat seeder still ensures those traits are present when combat content is installed and owns the five beast-attacker definitions. Animal, Mythical Animal, and Supernatural seeders own capability definitions and additive links from their stock races.
 
 Stock definitions are upserted by their reserved names. Seeder reruns repair their entries and add missing required race links. They do not delete custom packages or unrelated race links.
 

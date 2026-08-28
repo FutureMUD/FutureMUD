@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using GravityModel = MudSharp.Construction.GravityModel;
 using RevisionStatus = MudSharp.Framework.Revision.RevisionStatus;
 
@@ -334,6 +335,153 @@ public class CoreDataSeederTerrainTests
                 $"Expected terrain {terrainName} to be zero gravity.");
         }
     }
+
+	[TestMethod]
+	public void SeedTerrainFoundationsForTesting_SeedsReviewedPresentationMetadataForEveryTerrain()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+
+		SeedTerrainFoundations(context);
+
+		List<Terrain> stockTerrains = context.Terrains
+			.Where(x => x.Name != "Void")
+			.ToList();
+		Assert.IsTrue(stockTerrains.Count >= 200, "Expected the expanded stock terrain catalogue to remain comprehensive.");
+		Assert.AreEqual(stockTerrains.Count,
+			stockTerrains.Select(x => x.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+			"Expected every stock terrain name to be unique.");
+		Assert.IsTrue(stockTerrains.All(x => int.TryParse(x.TerrainANSIColour, out int colour) && colour is >= 0 and <= 15),
+			"Expected every stock terrain ANSI colour to use the reviewed standard 16-colour palette.");
+		Assert.IsTrue(stockTerrains.All(x => Regex.IsMatch(x.TerrainEditorColour, "^#[0-9A-F]{6}$")),
+			"Expected every stock terrain to have a six-digit RGB editor colour.");
+		Assert.IsTrue(stockTerrains.All(x => x.TerrainEditorText is { Length: >= 1 and <= 2 }),
+			"Expected every stock terrain to have a one- or two-character editor code.");
+		Assert.AreEqual(stockTerrains.Count,
+			stockTerrains.Select(x => x.TerrainEditorText).Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+			"Expected terrain editor codes to distinguish every stock terrain.");
+
+		void AssertAnsi(string terrainName, string ansiColour)
+		{
+			Assert.AreEqual(ansiColour, context.Terrains.Single(x => x.Name == terrainName).TerrainANSIColour,
+				$"Unexpected ANSI map colour for {terrainName}.");
+		}
+
+		AssertAnsi("Residence", "15");
+		AssertAnsi("Grasslands", "10");
+		AssertAnsi("Boreal Forest", "2");
+		AssertAnsi("Sandy Desert", "11");
+		AssertAnsi("Ocean", "4");
+		AssertAnsi("Lava Field", "9");
+		AssertAnsi("Spaceship Corridor", "14");
+		AssertAnsi("Astral Expanse", "13");
+	}
+
+	[TestMethod]
+	public void SeedTerrainFoundationsForTesting_SeedsCoherentMovementConcealmentAndTrackGradients()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+
+		SeedTerrainFoundations(context);
+
+		Terrain residence = context.Terrains.Single(x => x.Name == "Residence");
+		Terrain urbanStreet = context.Terrains.Single(x => x.Name == "Urban Street");
+		Terrain grasslands = context.Terrains.Single(x => x.Name == "Grasslands");
+		Terrain forest = context.Terrains.Single(x => x.Name == "Boreal Forest");
+		Terrain bog = context.Terrains.Single(x => x.Name == "Bog");
+		Terrain cliff = context.Terrains.Single(x => x.Name == "Cliff Face");
+		Terrain oceanShallows = context.Terrains.Single(x => x.Name == "Ocean Shallows");
+		Terrain ocean = context.Terrains.Single(x => x.Name == "Ocean");
+		Terrain deepOcean = context.Terrains.Single(x => x.Name == "Deep Ocean");
+
+		Assert.IsTrue(residence.MovementRate < urbanStreet.MovementRate);
+		Assert.IsTrue(urbanStreet.MovementRate < grasslands.MovementRate);
+		Assert.IsTrue(grasslands.MovementRate < forest.MovementRate);
+		Assert.IsTrue(forest.MovementRate < bog.MovementRate);
+		Assert.IsTrue(bog.MovementRate < cliff.MovementRate);
+		Assert.IsTrue(residence.StaminaCost < grasslands.StaminaCost);
+		Assert.IsTrue(grasslands.StaminaCost < bog.StaminaCost);
+
+		Assert.IsFalse(residence.CanHaveTracks);
+		Assert.IsTrue(grasslands.CanHaveTracks);
+		Assert.IsTrue(forest.CanHaveTracks);
+		Assert.IsTrue(bog.CanHaveTracks);
+		Assert.IsTrue(bog.TrackIntensityMultiplierVisual > grasslands.TrackIntensityMultiplierVisual);
+		Assert.IsTrue(forest.TrackIntensityMultiplierOlfactory > grasslands.TrackIntensityMultiplierOlfactory);
+		Assert.IsTrue(forest.HideDifficulty < grasslands.HideDifficulty,
+			"Dense forest should make hiding easier than open grassland.");
+		Assert.IsTrue(forest.SpotDifficulty > grasslands.SpotDifficulty,
+			"Dense forest should impose a higher spot floor than open grassland.");
+		Assert.IsTrue(oceanShallows.MovementRate < ocean.MovementRate);
+		Assert.IsTrue(ocean.MovementRate < deepOcean.MovementRate);
+		Assert.IsTrue(oceanShallows.StaminaCost < ocean.StaminaCost);
+		Assert.IsTrue(ocean.StaminaCost < deepOcean.StaminaCost);
+		Assert.IsTrue(deepOcean.SpotDifficulty > oceanShallows.SpotDifficulty,
+			"Very deep water should be harder to spot through than shallows.");
+	}
+
+	[TestMethod]
+	public void SeedTerrainFoundationsForTesting_SeedsVehicleGlobalBiomeExtraterrestrialAndSupernaturalCoverage()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+
+		SeedTerrainFoundations(context);
+
+		foreach (string terrainName in new[]
+		         {
+			         "Vehicle Interior", "Ship Corridor", "Ship Cargo Hold", "Spaceship Corridor", "Spaceship Bridge",
+			         "Spaceship Airlock", "Sahel", "Wadi", "Rice Paddy", "Terraced Field", "Bamboo Forest",
+			         "Tropical Dry Forest", "Cloud Forest", "Cenote", "Habitable Exoplanet Plains", "Alien Forest",
+			         "Gas Giant Atmosphere", "Artificial Habitat", "Astral Expanse", "Fae Wilds", "Shadow Realm",
+			         "Heavenly Realm", "Hellscape", "Dreamscape"
+		         })
+		{
+			Assert.IsTrue(context.Terrains.Any(x => x.Name == terrainName),
+				$"Expected the stock terrain catalogue to include {terrainName}.");
+		}
+
+		Assert.AreEqual("rooftopsonly", context.Terrains.Single(x => x.Name == "Rooftop").TerrainBehaviourMode);
+		Assert.AreEqual("indoors", context.Terrains.Single(x => x.Name == "Spaceship Corridor").TerrainBehaviourMode);
+		Assert.AreEqual("cliff", context.Terrains.Single(x => x.Name == "Gas Giant Atmosphere").TerrainBehaviourMode);
+		Assert.AreEqual((int)GravityModel.ZeroGravity,
+			context.Terrains.Single(x => x.Name == "Astral Void").GravityModel);
+
+		CollectionAssert.Contains(GetTerrainTagNames(context, context.Terrains.Single(x => x.Name == "Ship Corridor")).ToArray(), "Ship");
+		CollectionAssert.Contains(GetTerrainTagNames(context, context.Terrains.Single(x => x.Name == "Spaceship Corridor")).ToArray(), "Spaceship");
+		CollectionAssert.Contains(GetTerrainTagNames(context, context.Terrains.Single(x => x.Name == "Sahel")).ToArray(), "Arid");
+		CollectionAssert.Contains(GetTerrainTagNames(context, context.Terrains.Single(x => x.Name == "Astral Expanse")).ToArray(), "Astral");
+		CollectionAssert.Contains(GetTerrainTagNames(context, context.Terrains.Single(x => x.Name == "Hellscape")).ToArray(), "Infernal");
+	}
+
+	[TestMethod]
+	public void SeedTerrainFoundationsForTesting_DoesNotPersistRedundantAncestorTags()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+
+		SeedTerrainFoundations(context);
+
+		Dictionary<long, Tag> tags = context.Tags.ToDictionary(x => x.Id);
+		foreach (Terrain terrain in context.Terrains.Where(x => !string.IsNullOrWhiteSpace(x.TagInformation)))
+		{
+			List<Tag> directTags = terrain.TagInformation
+				.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+				.Select(long.Parse)
+				.Select(x => tags[x])
+				.ToList();
+			foreach (Tag candidate in directTags)
+			{
+				foreach (Tag other in directTags.Where(x => x.Id != candidate.Id))
+				{
+					Tag? parent = other.Parent;
+					while (parent is not null)
+					{
+						Assert.AreNotEqual(candidate.Id, parent.Id,
+							$"Terrain {terrain.Name} persisted redundant ancestor tag {candidate.Name} alongside {other.Name}.");
+						parent = parent.Parent;
+					}
+				}
+			}
+		}
+	}
 
     [TestMethod]
     public void SeedTerrainFoundationsForTesting_SeedsStockForageProfilesForAppropriateTerrains()

@@ -6,6 +6,7 @@ using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
+using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,7 @@ namespace MudSharp.Framework
         private static readonly Regex _stripANSIRegex = new(@"\e\[(.*?)m");
         // Form is: writing{language,script,style=???,colour=???,skill>???|minskill>???}{text if can understand}{optional text if can't understand}
         private static readonly Regex LanguageReplacementRegex = new(@"writing\{(?<details>[a-z0-9 ,><=\.\-]+)\}\{(?<text>[^}]+)\}(?:\{(?<alt>[^}]+)\}){0,1}", RegexOptions.IgnoreCase);
+		private static readonly Regex SignedLanguageReplacementRegex = new(@"sign\{(?<details>[a-z0-9 ,><=\.\-]+)\}\{(?<text>[^}]+)\}(?:\{(?<alt>[^}]+)\}){0,1}", RegexOptions.IgnoreCase);
         private static readonly Regex LanguageReplacementAttributeRegex = new(@"(?<attr>[a-z0-9 \-]+)(?<operator>[=><]+)(?<value>[a-z0-9 -]+)", RegexOptions.IgnoreCase);
         private static readonly Regex CheckReplacementRegex = new(@"check\{(?<trait>[^,]+),(?<difficulty>[0-9\.\,]+)\}\{(?<text>[^}]+)\}(?:\{(?<alt>[^}]+)\}){0,1}", RegexOptions.IgnoreCase);
         /// <summary>
@@ -330,6 +332,66 @@ namespace MudSharp.Framework
             return text;
         }
 
+		/// <summary>
+		/// Parses visual depictions of signing, for example sign{ASL}{an open hand moves forward}{an unfamiliar hand sign}.
+		/// An optional known variety and minskill attribute may follow the language name.
+		/// </summary>
+		public static string SubstituteSignedLanguage(this string text, IPerceiver voyeur, IFuturemud gameworld)
+		{
+			var languagePerceiver = voyeur as IHaveLanguage;
+			return SignedLanguageReplacementRegex.Replace(text, match =>
+			{
+				var split = match.Groups["details"].Value
+					.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+				if (split.Length == 0 || languagePerceiver is null)
+				{
+					return match.Groups["alt"].Value.IfNullOrWhiteSpace(match.Groups["text"].Value);
+				}
+
+				var language = long.TryParse(split[0], out var id)
+					? gameworld.SignedLanguages.Get(id)
+					: gameworld.SignedLanguages.GetByName(split[0]);
+				if (language is null)
+				{
+					return match.Groups["text"].Value;
+				}
+
+				ISignedLanguageVariety variety = null;
+				var requiredSkill = 0.0;
+				foreach (var detail in split.Skip(1))
+				{
+					var attribute = LanguageReplacementAttributeRegex.Match(detail);
+					if (attribute.Success && attribute.Groups["attr"].Value.EqualToAny("skill", "minskill"))
+					{
+						double.TryParse(attribute.Groups["value"].Value, out requiredSkill);
+						continue;
+					}
+					variety ??= language.Varieties.FirstOrDefault(x => x.Name.EqualTo(detail));
+				}
+
+				var knownLanguage = languagePerceiver.SignedLanguages.Contains(language)
+					? language
+					: languagePerceiver.SignedLanguages
+						.Where(x => x.MutualIntelligability(language) != Difficulty.Impossible)
+						.OrderBy(x => x.MutualIntelligability(language))
+						.FirstOrDefault();
+				var alternateText = match.Groups["alt"].Value.IfNullOrWhiteSpace("an unfamiliar hand sign");
+				if (knownLanguage is null ||
+				    (languagePerceiver.GetTrait(knownLanguage.LinkedTrait)?.Value ?? -1.0) < requiredSkill)
+				{
+					return alternateText.FluentTagMXP("send", "href='look' hint='Signed Language: Unknown'");
+				}
+
+				var varietyHint = variety is null
+					? string.Empty
+					: languagePerceiver.SignedLanguageVarieties.Contains(variety)
+						? $", Variety: {variety.Name}"
+						: ", Variety: Unfamiliar";
+				return match.Groups["text"].Value.FluentTagMXP("send",
+					$"href='look' hint='Signed Language: {language.Name}{varietyHint}'");
+			});
+		}
+
         /// <summary>
         /// Parses text looking for patterns like writing{english,latin}{you only live once}{something you don't understand}, and interprets them contextually as written language for the perceiver.
         /// </summary>
@@ -419,7 +481,7 @@ namespace MudSharp.Framework
                 return altText.FluentTagMXP("send", $"href='look' hint='Language: Unknown, Script: {script.UnknownScriptDescription}, Style: {style.Describe()}, Colour: {colour.Name}'");
             });
 
-            return text;
+            return text.SubstituteSignedLanguage(voyeur, gameworld);
         }
 
         public static string DrawMap(IPerceiver actor, int maxX, int maxY, ICell[,] cells, bool[,] hasNonCompass, bool[,] hasCartesianClashes, bool[,] hasBank, bool[,] hasShop, bool[,] hasAuctionHouse, bool[,] hasPlayers, bool[,] hasHostiles)

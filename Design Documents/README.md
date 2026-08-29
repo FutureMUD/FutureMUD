@@ -164,6 +164,10 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Human Seeder Description Patterns](./Markup/Human_Seeder_Description_Patterns.md)
 - [Room Description Markup](./Markup/Room_Description_Markup.md)
 
+## Communication
+
+- [Signed Language Communication System](./Communication/Sign_Language_System.md)
+
 ## Seeding
 - [DatabaseSeeder Repeatability Strategy](./Seeding/DatabaseSeeder_Repeatability_Strategy.md)
 - [DatabaseSeeder System Gap Audit](./Seeding/DatabaseSeeder_System_Gap_Audit.md)

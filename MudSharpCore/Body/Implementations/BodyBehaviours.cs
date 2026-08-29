@@ -54,6 +54,18 @@ public partial class Body
         Communications.Say(this, target, message, emote);
     }
 
+	public void Sign(IPerceivable target, string message, IEmote? emote = null)
+	{
+		if (CurrentSignedLanguage == null)
+		{
+			Actor.OutputHandler.Send(
+				"You are not currently using any signed language. Use the signlanguage command to select one.");
+			return;
+		}
+
+		Communications.Sign(this, target, message, emote);
+	}
+
     public void Talk(IPerceivable target, string message, IEmote? emote = null)
     {
         if (CurrentLanguage == null)

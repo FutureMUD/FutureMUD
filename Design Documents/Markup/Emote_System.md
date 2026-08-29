@@ -30,7 +30,12 @@ Related variants exist for language handling:
 - `forceSourceInclusion` prepends the source token if the emote text never explicitly included a plain `@`.
 - The parser auto-closes an odd number of quote characters by appending a trailing `"`.
 - Quoted speech is tokenised before the normal emote tokens.
+- Matching backticks in player emotes delimit signed-language content. Unlike speech quotes, unmatched backticks are an error, and the signer must have a selected signed language and valid functional anatomy.
 - Player emotes are sanitised before parsing.
+
+### Signed Language in Player Emotes
+
+Backtick text is parsed into a perceiver-specific `EmoteSignedLanguageInfo` token. For example, ``emote @ waves and signs, `Come here.` `` uses the character's current signed language and variety. This channel is visual and remains available when vocal speech is muffled or unavailable; observers who cannot see the signer do not receive comprehensible content.
 
 ## Parsing Model
 

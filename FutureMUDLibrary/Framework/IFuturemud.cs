@@ -215,6 +215,7 @@ namespace MudSharp.Framework
         IUneditableAll<IKnowledge> Knowledges { get; }
         IUneditableAll<ILanguageDifficultyModel> LanguageDifficultyModels { get; }
         IUneditableAll<ILanguage> Languages { get; }
+		IUneditableAll<ISignedLanguage> SignedLanguages { get; }
         IUneditableAll<ILimb> Limbs { get; }
         IUneditableAll<ILiquid> Liquids { get; }
         IUneditableAll<ITemporalListener> Listeners { get; }
@@ -463,6 +464,7 @@ namespace MudSharp.Framework
         void Add(ILineOfCreditAccount account);
         void Add(IElection election);
         void Add(ILanguage language);
+		void Add(ISignedLanguage language);
         void Add(IAccent accent);
         void Add(IDrawing drawing);
         void Add(ILegalAuthority item);

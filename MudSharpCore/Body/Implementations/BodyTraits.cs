@@ -73,6 +73,10 @@ public partial class Body
             Actor.LearnLanguage(language);
             Actor.LearnAccent(language.DefaultLearnerAccent);
         }
+		foreach (var language in Gameworld.SignedLanguages.Where(x => x.LinkedTrait == trait))
+		{
+			Actor.LearnSignedLanguage(language);
+		}
 
         return true;
     }
@@ -95,6 +99,10 @@ public partial class Body
         {
             ForgetLanguage(language);
         }
+		foreach (var language in SignedLanguages.Where(x => x.LinkedTrait == trait).ToList())
+		{
+			ForgetSignedLanguage(language);
+		}
 
         using (new FMDB())
         {
@@ -210,6 +218,20 @@ public partial class Body
     }
 
     public IEnumerable<ILanguage> Languages => Actor.Languages;
+	public IEnumerable<ISignedLanguage> SignedLanguages => Actor.SignedLanguages;
+	public IEnumerable<ISignedLanguageVariety> SignedLanguageVarieties => Actor.SignedLanguageVarieties;
+
+	public ISignedLanguage CurrentSignedLanguage
+	{
+		get => Actor.CurrentSignedLanguage;
+		set => Actor.CurrentSignedLanguage = value;
+	}
+
+	public ISignedLanguageVariety CurrentSignedLanguageVariety
+	{
+		get => Actor.CurrentSignedLanguageVariety;
+		set => Actor.CurrentSignedLanguageVariety = value;
+	}
 
     public ILanguage CurrentLanguage
     {
@@ -274,6 +296,14 @@ public partial class Body
     {
         Actor.ForgetScript(script);
     }
+
+	public void LearnSignedLanguage(ISignedLanguage language) => Actor.LearnSignedLanguage(language);
+	public void ForgetSignedLanguage(ISignedLanguage language) => Actor.ForgetSignedLanguage(language);
+	public void LearnSignedLanguageVariety(ISignedLanguageVariety variety) => Actor.LearnSignedLanguageVariety(variety);
+	public void ForgetSignedLanguageVariety(ISignedLanguageVariety variety) => Actor.ForgetSignedLanguageVariety(variety);
+	public Difficulty SignedLanguageVarietyDifficulty(ISignedLanguageVariety variety) =>
+		Actor.SignedLanguageVarietyDifficulty(variety);
+	public bool CanIdentifySignedLanguage(ISignedLanguage language) => Actor.CanIdentifySignedLanguage(language);
 
     #endregion
 }

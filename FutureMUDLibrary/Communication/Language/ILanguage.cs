@@ -13,12 +13,9 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Communication.Language
 {
-    public interface ILanguage : IEditableItem, IProgVariable
+    public interface ILanguage : ICommunicationLanguage
     {
         IEnumerable<IAccent> Accents { get; }
-        ILanguageDifficultyModel Model { get; }
-        ITraitDefinition LinkedTrait { get; }
-
         IAccent DefaultLearnerAccent { get; set; }
 
         /// <summary>
@@ -27,10 +24,7 @@ namespace MudSharp.Communication.Language
         /// </summary>
         string UnknownLanguageSpokenDescription { get; }
 
-        /// <summary>
-        ///     Provides a base multiplier in the Language Obfuscation code for failures to understand this language
-        /// </summary>
-        double LanguageObfuscationFactor { get; }
+		string ICommunicationLanguage.UnknownLanguageDescription => UnknownLanguageSpokenDescription;
 
         Difficulty MutualIntelligability(ILanguage otherLanguage);
     }

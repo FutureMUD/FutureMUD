@@ -33,10 +33,21 @@ namespace MudSharp.Communication.Language
         string GetWritingHeader(IWriting writing);
         bool Read(IWriting writing);
         bool CanWrite();
+
+		IEnumerable<ISignedLanguage> SignedLanguages { get; }
+		ISignedLanguage CurrentSignedLanguage { get; set; }
+		IEnumerable<ISignedLanguageVariety> SignedLanguageVarieties { get; }
+		ISignedLanguageVariety CurrentSignedLanguageVariety { get; set; }
+		void LearnSignedLanguage(ISignedLanguage language);
+		void ForgetSignedLanguage(ISignedLanguage language);
+		void LearnSignedLanguageVariety(ISignedLanguageVariety variety);
+		void ForgetSignedLanguageVariety(ISignedLanguageVariety variety);
+		Difficulty SignedLanguageVarietyDifficulty(ISignedLanguageVariety variety);
     }
 
     public interface ILanguagePerceiver : IPerceiver, IPerceivableHaveTraits, IHaveLanguage
     {
         bool CanIdentifyLanguage(ILanguage language);
+		bool CanIdentifySignedLanguage(ISignedLanguage language);
     }
 }

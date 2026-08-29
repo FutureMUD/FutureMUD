@@ -172,7 +172,7 @@ namespace MudSharp.Framework
             });
         }
 
-        private static Regex FullstopRegex = new($@".*[\n\.\,\?\!\""\'\)]({MXP.BeginMXP}[^{MXP.EndMXP}]+{MXP.EndMXP})*(\x1b\[[^m]+m)*$", RegexOptions.ExplicitCapture);
+		private static Regex FullstopRegex = new($@".*[\n\.\,\?\!\""\'\)`]({MXP.BeginMXP}[^{MXP.EndMXP}]+{MXP.EndMXP})*(\x1b\[[^m]+m)*$", RegexOptions.ExplicitCapture);
 
         /// <summary>
         ///     Adds a fullstop to the end of the input if there is not already a sentence ending character at the end

@@ -36,6 +36,7 @@ namespace MudSharp.Framework
         void LoadNameCultures();
         void LoadRaces();
         void LoadLanguages();
+		void LoadSignedLanguages();
         void LoadScripts();
         void LoadWritings();
         void LoadDrawings();

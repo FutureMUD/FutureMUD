@@ -71,5 +71,7 @@ public enum ProgTypeKind
 	VehicleService,
 	VehicleJourney,
 	Trap,
-	NPCSkillPackage
+	NPCSkillPackage,
+	SignedLanguage,
+	SignedLanguageVariety
 }

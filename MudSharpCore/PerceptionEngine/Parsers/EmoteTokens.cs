@@ -116,11 +116,18 @@ public partial class Emote
     /// </summary>
     private static readonly Regex SpeechTokenRegex = new("\"(?<speech>[^\"]+)\"");
 
+	/// <summary>
+	///     Backticks delimit signing embedded in a player emote, independently of double-quoted speech.
+	/// </summary>
+	private static readonly Regex SignTokenRegex = new("`(?<sign>[^`]+)`");
+
     private readonly List<EmoteToken> _tokens = new();
 
     private readonly List<LanguageToken> _languageTokens = new();
+	private readonly List<SignedLanguageToken> _signedLanguageTokens = new();
 
     public IEnumerable<LanguageToken> LanguageTokens => _languageTokens;
+	public IEnumerable<SignedLanguageToken> SignedLanguageTokens => _signedLanguageTokens;
 
     protected bool ScoutTargets(bool forceSourceInclusion, PermitLanguageOptions permitSpeech, bool playerMode,
         ILanguage language, IAccent accent,
@@ -139,6 +146,42 @@ public partial class Emote
             ErrorMessage = "You are not permitted to include speech in that emote.";
             return false;
         }
+
+		if (playerMode && text.Contains('`'))
+		{
+			var backtickCount = text.Count(x => x == '`');
+			if (backtickCount % 2 != 0)
+			{
+				ErrorMessage = "Signing in emotes must have matching backticks around it.";
+				return false;
+			}
+
+			if (SignTokenRegex.IsMatch(text))
+			{
+				if (Source is not ICharacter character || character.CurrentSignedLanguage is null)
+				{
+					ErrorMessage = "You must select a signed language before including signing in an emote.";
+					return false;
+				}
+
+				var articulation = character.CurrentSignedLanguage.EvaluateArticulation(character.Body);
+				if (!articulation.CanSign)
+				{
+					ErrorMessage = articulation.Error;
+					return false;
+				}
+
+				text = SignTokenRegex.Replace(text, match =>
+				{
+					var token = new SignedLanguageToken(character, match.Groups["sign"].Value,
+						character.CurrentSignedLanguage, character.CurrentSignedLanguageVariety,
+						articulation.MissingPreferredParts);
+					_tokens.Add(token);
+					_signedLanguageTokens.Add(token);
+					return $"{{{targetCounter[0]++}}}";
+				});
+			}
+		}
 
         //See if we have an odd number of quote marks. If so, append another one on the end. If this ends up having unintended
         //side effects, may need to relocate this logic higher up the emote call stack.
@@ -1228,6 +1271,37 @@ public partial class Emote
             }
         }
     }
+
+	public class SignedLanguageToken : EmoteToken
+	{
+		private readonly EmoteSignedLanguageInfo _languageInfo;
+
+		public SignedLanguageToken(ICharacter source, string signText, ISignedLanguage language,
+			ISignedLanguageVariety variety, int missingPreferredParts) : base(source)
+		{
+			SignText = signText;
+			Language = language;
+			Variety = variety;
+			Outcome = source.Gameworld.GetCheck(CheckType.SignedLanguageExpressCheck)
+				.Check(source, Difficulty.Normal.StageUp(missingPreferredParts), language.LinkedTrait).Outcome;
+			_languageInfo = new EmoteSignedLanguageInfo(language, variety, signText, Outcome, source);
+		}
+
+		public string SignText { get; }
+		public ISignedLanguage Language { get; }
+		public ISignedLanguageVariety Variety { get; }
+		public Outcome Outcome { get; }
+		public override bool NullSafe => true;
+
+		protected override bool Process(string lookup, IPerceiver source) => true;
+
+		public override string DisplayFirstPerson() => _languageInfo.ParseFor(_target as ILanguagePerceiver);
+
+		public override string DisplayThirdPerson(IPerceiver perceiver, PerceiveIgnoreFlags flags) =>
+			perceiver is ILanguagePerceiver languagePerceiver
+				? _languageInfo.ParseFor(languagePerceiver)
+				: "*** signing ***".ColourBold(Telnet.Cyan);
+	}
 
     private class OptionalItselfToken : EmoteToken
     {

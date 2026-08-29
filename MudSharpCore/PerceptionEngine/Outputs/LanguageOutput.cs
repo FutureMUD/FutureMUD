@@ -57,8 +57,10 @@ public class LanguageOutput : Output
 
     public override bool ShouldSee(IPerceiver perceiver)
     {
-        return
-            base.ShouldSee(perceiver) &&
+		return base.ShouldSee(perceiver) &&
+		       (!Flags.HasFlag(OutputFlags.PurelyVisual) || perceiver.CanSee(DefaultSource)) &&
+		       (!Flags.HasFlag(OutputFlags.PurelyAudible) || perceiver.CanHear(DefaultSource)) &&
+		       (_languageText.Form != LanguageForm.Signed || perceiver.CanSee(DefaultSource)) &&
             (!Flags.HasFlag(OutputFlags.SuppressObscured) || (_languageText.Form == LanguageForm.Spoken
                 ? perceiver.CanHear(DefaultSource) || perceiver.CanSee(DefaultSource)
                 : perceiver.CanSee(DefaultSource))) &&
@@ -137,8 +139,10 @@ public class PriorLanguageOutput : Output
 
     public override bool ShouldSee(IPerceiver perceiver)
     {
-        return
-            base.ShouldSee(perceiver) &&
+		return base.ShouldSee(perceiver) &&
+		       (!Flags.HasFlag(OutputFlags.PurelyVisual) || perceiver.CanSee(DefaultSource)) &&
+		       (!Flags.HasFlag(OutputFlags.PurelyAudible) || perceiver.CanHear(DefaultSource)) &&
+		       (_languageText.Form != LanguageForm.Signed || perceiver.CanSee(DefaultSource)) &&
             (!Flags.HasFlag(OutputFlags.SuppressObscured) || (_languageText.Form == LanguageForm.Spoken
                 ? perceiver.CanHear(DefaultSource) || perceiver.CanSee(DefaultSource)
                 : perceiver.CanSee(DefaultSource))) &&

@@ -10,6 +10,17 @@ namespace MudSharp_Unit_Tests.PerceptionEngine;
 public class EmoteTokenTests
 {
 	[TestMethod]
+	public void PlayerEmote_UnmatchedSigningDelimiter_IsInvalid()
+	{
+		var source = new Mock<IPerceiver>();
+
+		var emote = new PlayerEmote("@ leaves a dangling `sign", source.Object);
+
+		Assert.IsFalse(emote.Valid);
+		Assert.AreEqual("Signing in emotes must have matching backticks around it.", emote.ErrorMessage);
+	}
+
+	[TestMethod]
 	public void ParseFor_NonSelfTokenTargetIsViewer_RendersShortDescription()
 	{
 		var viewer = new Mock<IPerceiver>();

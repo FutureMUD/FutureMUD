@@ -60,6 +60,17 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackSupportsLan
                     if (!text.EqualToAny("yes", "y", "no", "n")) { return (false, "Please choose yes or no."); } return (true, string.Empty);
                 }),
 
+			("seedsignedlanguages",
+				@"Would you like to install the signed languages and regional varieties from the Earth-Modern culture pack?
+
+Signed languages are independent from spoken languages and may be installed even if you do not install spoken languages, accents, or scripts.
+
+Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackSupportsModernSignedLanguages(answers),
+				(text, context) =>
+				{
+					if (!text.EqualToAny("yes", "y", "no", "n")) { return (false, "Please choose yes or no."); } return (true, string.Empty);
+				}),
+
             ("seedheritage",
                 @"Would you like to install the races, ethnicities and cultures from your chosen culture pack?
 
@@ -97,6 +108,12 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOpt
             "earthrenaissanceworldexpansion" or "renaissanceworldexpansion" or
             "middleearth";
     }
+
+	private static bool CulturePackSupportsModernSignedLanguages(IReadOnlyDictionary<string, string> answers)
+	{
+		return !answers.TryGetValue("culturepacks", out var answer) ||
+		       NormalizeCulturePackAnswer(answer) is "earthmodern" or "modern";
+	}
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{

@@ -19,6 +19,8 @@ The language question is offered for:
 
 `Earth-DarkAgesAndMedieval` and `Earth-RenaissanceWorldExpansion` are complete standalone language packs. They do not require the Renaissance-Europe or Modern pack to have been run first.
 
+Earth-Modern also offers a separate `seedsignedlanguages` choice. It is independent from `seedlanguages` because natural signed languages are not visual encodings of the surrounding spoken language. The stock catalogue contains 24 signed languages, eight BSL regional varieties based on the BSL Corpus cities, humanoid hand articulation profiles, and conservative bidirectional BANZSL links among BSL, Auslan and NZSL.
+
 The two historical catalogues are data-driven:
 
 - Dark Ages and Medieval: 25 naming-culture mappings, 36 language definitions, 15 scripts and 23 conservative mutual-intelligibility pairs.
@@ -198,5 +200,8 @@ The catalogue is a game abstraction grounded in the following starting points:
 - [Unicode: Tibetan and historical script context](https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-13/)
 - [Kikongo language-cluster study](https://pmc.ncbi.nlm.nih.gov/articles/PMC3695462/)
 - [Cambridge: creation of unified Shona](https://www.cambridge.org/core/journals/journal-of-african-history/article/abs/early-missionaries-and-the-ethnolinguistic-factor-during-the-invention-of-tribalism-in-zimbabwe/432B1DC1B78AD3CBAD4F9EA331A6BB88)
+- [World Federation of the Deaf: signed languages are structurally independent natural languages](https://wfdeaf.org/wfd-statement-on-standardized-sign-language/)
+- [BSL Corpus Project: eight regional collection sites](https://bslcorpusproject.org/project-information/)
+- [NZSL reference: documented BSL, Auslan and NZSL similarity and intelligibility](https://hmk.am/wp-content/uploads/2022/12/453832.pdf)
 
 These links support the broad classification and periodisation choices. Accent labels and intelligibility difficulties remain gameplay judgments and should be tuned conservatively when new evidence or play experience warrants it.

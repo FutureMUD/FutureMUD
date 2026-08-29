@@ -146,6 +146,7 @@ namespace MudSharp.Character
     {
         void Emote(string emote, bool permitSpeech = true, OutputFlags additionalConditions = OutputFlags.Normal);
         void Say(IPerceivable target, string message, IEmote? emote = null);
+		void Sign(IPerceivable target, string message, IEmote? emote = null);
         void Talk(IPerceivable target, string message, IEmote? emote = null);
         void Whisper(IPerceivable target, string message, IEmote? emote = null);
         void Shout(IPerceivable target, string message, IEmote? emote = null);

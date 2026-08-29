@@ -386,6 +386,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
 
             game.LoadLanguageDifficultyModels(); // Languages need to come after traits
             game.LoadLanguages();
+			game.LoadSignedLanguages();
             game.LoadScripts(); // Must come after LoadLanguages
 
             game.LoadUnits();
@@ -2888,6 +2889,8 @@ For information on the syntax to use in emotes (such as those included in bracke
                           /*            .Include(x => x.Character.Body.BodiesGameItems)
                                       .Include(x => x.Character.CharactersAccents)
                                       .Include(x => x.Character.CharactersLanguages)
+									  .Include(x => x.Character.CharactersSignedLanguages)
+									  .Include(x => x.Character.CharactersSignedLanguageVarieties)
                                       .Include(x => x.Character.Body.BodiesSeveredParts)
                                       .Include(x => x.Character.Body.Characteristics)
                                       .Include(x => x.Character.AlliesCharacter)
@@ -3542,6 +3545,24 @@ For information on the syntax to use in emotes (such as those included in bracke
         ConsoleUtilities.WriteLine("Loaded #2{0}#0 Language{1} and #2{2}#0 Accent{3}.", count, count == 1 ? "" : "s", accents,
             accents == 1 ? "" : "s");
     }
+
+	void IFuturemudLoader.LoadSignedLanguages()
+	{
+		ConsoleUtilities.WriteLine("\nLoading #5Signed Languages#0...");
+		var languages = FMDB.Context.SignedLanguages
+			.Include(x => x.Varieties)
+			.Include(x => x.MutualIntelligibilitiesListenerLanguage)
+			.Include(x => x.ArticulationProfiles)
+				.ThenInclude(x => x.Requirements)
+			.AsNoTracking()
+			.ToList();
+		foreach (var language in languages)
+		{
+			_signedLanguages.Add(new MudSharp.Communication.Language.SignedLanguage(language, this));
+		}
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Signed Language{1}.", languages.Count,
+			languages.Count == 1 ? "" : "s");
+	}
 
     void IFuturemudLoader.LoadAuthorityGroups()
     {

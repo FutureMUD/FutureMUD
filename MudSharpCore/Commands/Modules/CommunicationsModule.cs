@@ -174,6 +174,83 @@ The syntax is:
         actor.OutputHandler.Send(sb.ToString());
     }
 
+	[PlayerCommand("SignedLanguages", "signedlanguages")]
+	[HelpInfo("signedlanguages", @"The #3signedlanguages#0 command lists the signed languages your character understands. Signed languages are learned independently from spoken and written languages, so knowing one does not imply knowing another.
+
+	#3signedlanguages#0", AutoHelp.HelpArg)]
+	protected static void SignedLanguages(ICharacter actor, string input)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("You know the following signed languages:");
+		sb.AppendLine();
+		foreach (var language in actor.SignedLanguages.OrderBy(x => x.Name))
+		{
+			var varieties = actor.SignedLanguageVarieties
+				.Where(x => x.Language == language)
+				.Select(x => x.Name.ColourName())
+				.ListToString();
+			sb.AppendLine($"{language.Name.TitleCase().ColourName()} @ {actor.Body.GetTraitDecorated(language.LinkedTrait)}" +
+			              (varieties.Length > 0 ? $" ({varieties})" : string.Empty));
+		}
+
+		if (!actor.SignedLanguages.Any())
+		{
+			sb.AppendLine("You do not know any signed languages.");
+		}
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	[PlayerCommand("SignLanguage", "signlanguage")]
+	[HelpInfo("signlanguage", @"The #3signlanguage#0 command shows or changes the signed language and regional variety used by #3sign#0, #3signto#0, and backtick-delimited signing in emotes. You can understand a signed language without having the anatomy needed to produce it.
+
+	#3signlanguage#0
+	#3signlanguage <language> [<variety>]#0", AutoHelp.HelpArg)]
+	protected static void SignLanguage(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			if (actor.CurrentSignedLanguage is null)
+			{
+				actor.OutputHandler.Send("You are not currently using a signed language.");
+				return;
+			}
+			actor.OutputHandler.Send($"You are currently signing in {actor.CurrentSignedLanguage.Name.TitleCase().ColourName()}" +
+			                         (actor.CurrentSignedLanguageVariety is null
+				                         ? "."
+				                         : $" using the {actor.CurrentSignedLanguageVariety.Name.TitleCase().ColourName()} variety."));
+			return;
+		}
+
+		var languageText = ss.PopSpeech();
+		var language = actor.SignedLanguages.FirstOrDefault(x =>
+			x.Name.StartsWith(languageText, StringComparison.InvariantCultureIgnoreCase));
+		if (language is null)
+		{
+			actor.OutputHandler.Send("You do not know any signed language by that name.");
+			return;
+		}
+
+		ISignedLanguageVariety variety = null;
+		if (!ss.IsFinished)
+		{
+			var varietyText = ss.SafeRemainingArgument;
+			variety = actor.SignedLanguageVarieties
+				.Where(x => x.Language == language)
+				.FirstOrDefault(x => x.Name.StartsWith(varietyText, StringComparison.InvariantCultureIgnoreCase));
+			if (variety is null)
+			{
+				actor.OutputHandler.Send($"You do not know that variety of {language.Name.TitleCase().ColourName()}.");
+				return;
+			}
+		}
+
+		actor.CurrentSignedLanguage = language;
+		actor.CurrentSignedLanguageVariety = variety;
+		actor.OutputHandler.Send($"You will now sign in {language.Name.TitleCase().ColourName()}" +
+		                         (variety is null ? "." : $" using the {variety.Name.TitleCase().ColourName()} variety."));
+	}
+
     [PlayerCommand("PreferAccent", "preferaccent")]
     [HelpInfo("preferaccent", @"The #3preferaccent#0 command selects the accent you prefer to use for a language. When you have several accents for the same language, this is the accent automatically selected by #3speak#0 unless you explicitly choose another one.
 
@@ -472,6 +549,37 @@ The syntax is:
 
         actor.Body.Say(null, message, emote);
     }
+
+	[PlayerCommand("Sign", "sign")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("sign", @"The #3sign#0 command communicates visually in your selected signed language. Observers must be able to see you; hearing is irrelevant. The command checks that your body has enough currently functional parts for that language.
+
+You can put a parenthetical emote before the signed message to add accompanying action or expression.
+
+	#3sign <message>#0
+	#3sign (<emote>) <message>#0", AutoHelp.HelpArgOrNoArg)]
+	protected static void Sign(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		var emote = new PlayerEmote(ss.PopParentheses(), actor);
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return;
+		}
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to sign?");
+			return;
+		}
+		var message = ss.SafeRemainingArgument;
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
+		{
+			actor.OutputHandler.Send($"That is far too much to sign at one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
+			return;
+		}
+		actor.Body.Sign(null, message, emote);
+	}
 
     [PlayerCommand("Sing", "sing")]
     [RequiredCharacterState(CharacterState.Conscious)]
@@ -1032,6 +1140,43 @@ The syntax is:
 
         actor.Body.Say(ptarget, message, emote);
     }
+
+	[PlayerCommand("SignTo", "signto")]
+	[DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("signto", @"The #3signto#0 command visually directs a signed message to a visible person or object. It is not private: anyone nearby who can see you may recognise it.
+
+	#3signto <target> <message>#0
+	#3signto <target> (<emote>) <message>#0", AutoHelp.HelpArgOrNoArg)]
+	protected static void SignTo(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		var targetText = ss.PopSpeech();
+		var emote = new PlayerEmote(ss.PopParentheses(), actor);
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return;
+		}
+		if (targetText.Length == 0 || ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Whom do you want to sign to, and what do you want to sign?");
+			return;
+		}
+		var target = actor.Target(targetText);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You cannot see anyone or anything like that to sign to.");
+			return;
+		}
+		var message = ss.SafeRemainingArgument;
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
+		{
+			actor.OutputHandler.Send($"That is far too much to sign at one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
+			return;
+		}
+		actor.Body.Sign(target, message, emote);
+	}
 
     [PlayerCommand("Shout", "shout", "shoutat")]
     [DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]

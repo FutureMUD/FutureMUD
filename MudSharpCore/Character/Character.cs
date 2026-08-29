@@ -1526,6 +1526,25 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             dbitem.CharactersLanguages.Add(new CharactersLanguages { Character = dbitem, LanguageId = language.Id });
         }
 
+		foreach (var language in SignedLanguages)
+		{
+			dbitem.CharactersSignedLanguages.Add(new CharactersSignedLanguage
+			{
+				Character = dbitem,
+				SignedLanguageId = language.Id
+			});
+		}
+
+		foreach (var variety in _signedLanguageVarieties)
+		{
+			dbitem.CharactersSignedLanguageVarieties.Add(new CharacterSignedLanguageVariety
+			{
+				Character = dbitem,
+				SignedLanguageVarietyId = variety.Key.Id,
+				Familiarity = (int)variety.Value
+			});
+		}
+
         foreach (IScript script in Scripts)
         {
             dbitem.CharactersScripts.Add(new CharactersScripts { Character = dbitem, ScriptId = script.Id });
@@ -1535,6 +1554,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         dbitem.CurrentWritingLanguageId = CurrentWritingLanguage?.Id;
         dbitem.CurrentLanguageId = CurrentLanguage?.Id;
         dbitem.CurrentAccentId = CurrentAccent?.Id;
+		dbitem.CurrentSignedLanguageId = CurrentSignedLanguage?.Id;
+		dbitem.CurrentSignedLanguageVarietyId = CurrentSignedLanguageVariety?.Id;
 
         dbitem.CurrentProjectId = CurrentProject.Project?.Id;
         dbitem.CurrentProjectLabourId = CurrentProject.Labour?.Id;
@@ -1674,6 +1695,40 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         {
             _languages.Add(Gameworld.Languages.Get(language.LanguageId));
         }
+
+		foreach (var language in character.CharactersSignedLanguages)
+		{
+			var signedLanguage = Gameworld.SignedLanguages.Get(language.SignedLanguageId);
+			if (signedLanguage is not null)
+			{
+				_signedLanguages.Add(signedLanguage);
+			}
+		}
+
+		foreach (var variety in character.CharactersSignedLanguageVarieties)
+		{
+			var signedVariety = Gameworld.SignedLanguages.SelectMany(x => x.Varieties)
+				.FirstOrDefault(x => x.Id == variety.SignedLanguageVarietyId);
+			if (signedVariety is not null)
+			{
+				_signedLanguageVarieties[signedVariety] = (Difficulty)variety.Familiarity;
+			}
+		}
+
+		foreach (var language in Gameworld.SignedLanguages.Where(
+			         x => Traits.Any(y => y.Definition == x.LinkedTrait) && !_signedLanguages.Contains(x)))
+		{
+			_signedLanguages.Add(language);
+			LanguagesChanged = true;
+		}
+
+		CurrentSignedLanguage = character.CurrentSignedLanguageId.HasValue
+			? Gameworld.SignedLanguages.Get(character.CurrentSignedLanguageId.Value)
+			: _signedLanguages.FirstOrDefault();
+		CurrentSignedLanguageVariety = character.CurrentSignedLanguageVarietyId.HasValue
+			? Gameworld.SignedLanguages.SelectMany(x => x.Varieties)
+				.FirstOrDefault(x => x.Id == character.CurrentSignedLanguageVarietyId.Value)
+			: null;
 
         foreach (CharacterAccent accent in character.CharactersAccents)
         {

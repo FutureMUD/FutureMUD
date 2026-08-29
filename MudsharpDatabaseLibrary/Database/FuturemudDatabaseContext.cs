@@ -309,6 +309,13 @@ namespace MudSharp.Database
         public virtual DbSet<KnowledgesCosts> KnowledgesCosts { get; set; }
         public virtual DbSet<LanguageDifficultyModels> LanguageDifficultyModels { get; set; }
         public virtual DbSet<Language> Languages { get; set; }
+		public virtual DbSet<SignedLanguage> SignedLanguages { get; set; }
+		public virtual DbSet<SignedLanguageVariety> SignedLanguageVarieties { get; set; }
+		public virtual DbSet<SignedLanguageMutualIntelligibility> SignedLanguageMutualIntelligibilities { get; set; }
+		public virtual DbSet<SignedLanguageArticulationProfile> SignedLanguageArticulationProfiles { get; set; }
+		public virtual DbSet<SignedLanguageArticulationRequirement> SignedLanguageArticulationRequirements { get; set; }
+		public virtual DbSet<CharactersSignedLanguage> CharactersSignedLanguages { get; set; }
+		public virtual DbSet<CharacterSignedLanguageVariety> CharactersSignedLanguageVarieties { get; set; }
         public virtual DbSet<Law> Laws { get; set; }
         public virtual DbSet<LawsOffenderClasses> LawsOffenderClasses { get; set; }
         public virtual DbSet<LawsVictimClasses> LawsVictimClasses { get; set; }

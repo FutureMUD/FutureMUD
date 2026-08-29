@@ -17,6 +17,8 @@ namespace MudSharp.Body.CommunicationStrategies;
 
 public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 {
+	public virtual void Sign(IBody body, IPerceivable target, string message, IEmote? emote = null) =>
+		SignedCommunicationService.Sign(body, target, message, emote);
     protected static bool IsSilenced(IBody body)
     {
         return body.CombinedEffectsOfType<ISilencedEffect>().Any(x => x.Applies());
@@ -241,6 +243,13 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             {
                 HandleSpeechEvents(body, null, emoteData.LanguageTokens.Select(x => x.LanguageInfo.RawText.Fullstop()).ListToCommaSeparatedValues(" ").ProperSentences(), AudioVolume.Decent, body.CurrentLanguage, body.CurrentAccent);
             }
+			foreach (var token in emoteData.SignedLanguageTokens)
+			{
+				SignedCommunicationService.HandleEvents(body, null, token.SignText, token.Language, token.Variety,
+					token.Outcome);
+				AIStoryteller.HandleCharacterSignInRoomEvent(body.Actor, null, token.SignText, token.Language,
+					token.Variety);
+			}
         }
         else
         {

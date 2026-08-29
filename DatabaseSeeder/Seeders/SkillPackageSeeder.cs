@@ -794,6 +794,8 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                     continue;
                 case CheckType.SpokenLanguageSpeakCheck:
                 case CheckType.SpokenLanguageHearCheck:
+				case CheckType.SignedLanguageExpressCheck:
+				case CheckType.SignedLanguageUnderstandCheck:
                     // Language Checks
                     AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Language Check"].Id,
                         Difficulty.Impossible);

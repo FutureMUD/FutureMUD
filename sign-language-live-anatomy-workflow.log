@@ -1,0 +1,137 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.9.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Within A Vast, Neon Arena
+ID[400] | Terrain[Wasteland] | [SafeQuit] | Overlay[Second Side Of Dread Zone  (#21r0)] | Coordinates[26,-8,1]
+Exits: North, East, South, and West
+
+  The surrounding area is bizarre, to say the least. The floors and walls are
+jet black, composed of a strange warm metal coated by a soft, velvety fur that
+gives slightly underfoot, as if padded. Here and there, neon lights streak the
+floor, the ceiling, or the walls - green, violet, pink and orange, giving off a
+dim glow even in total darkness. 
+
+  Currently, the lighting here is dim.
+
+The decaying corpse of a green-eyed old man with saw teeth (Lucas) is here.
+The decaying corpse of a delicate, ivory-haired woman (Mila) is here.
+The decaying corpse of a big, wedge-styled man with amber eyes (Henry) is here.
+The decaying corpse of a tiny, light brown-eyed brute (Levi) is here.
+The decaying corpse of a tiny, pallid-skinned codger (Lucas) is here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage edit 1
+You are now editing Live Test Sign Language.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage set profile requirement Humanoid Hand 3 3
+The Humanoid profile now requires at least 3 and prefers 3 functional hands.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage close
+You are no longer editing Live Test Sign Language.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> sign this attempt must be denied by anatomy.
+You do not currently have enough functional body parts to sign in Live Test Sign Language.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> emote @ tries to sign, `but cannot.`
+You do not currently have enough functional body parts to sign in Live Test Sign Language.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage edit 1
+You are now editing Live Test Sign Language.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage set profile requirement Humanoid Hand 2 2
+The Humanoid profile now requires at least 2 and prefers 2 functional hands.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage close
+You are no longer editing Live Test Sign Language.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> sign the restored profile allows signing again.
+You sign, in Live Test Sign Language with arena signs, 
+`   The restored profile allows signing again.`
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> emote @ signs again, `with functional hands.`
+A black-afro-haired adolescent (Japheth) signs again, `With functional hands.`
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

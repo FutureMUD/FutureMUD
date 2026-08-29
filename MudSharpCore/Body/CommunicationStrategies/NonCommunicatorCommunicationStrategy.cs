@@ -1,4 +1,5 @@
 ﻿using MudSharp.Body;
+using MudSharp.Communication.Language;
 using MudSharp.Form.Audio;
 using MudSharp.GameItems;
 using MudSharp.Strategies.BodyStratagies;
@@ -24,6 +25,11 @@ public class NonCommunicatorCommunicationStrategy : IBodyCommunicationStrategy
         if (emoteData.Valid)
         {
             body.OutputHandler.Handle(new EmoteOutput(emoteData, flags: additionalConditions));
+			foreach (var token in emoteData.SignedLanguageTokens)
+			{
+				SignedCommunicationService.HandleEvents(body, null, token.SignText, token.Language, token.Variety,
+					token.Outcome);
+			}
         }
         else
         {
@@ -60,6 +66,9 @@ public class NonCommunicatorCommunicationStrategy : IBodyCommunicationStrategy
     {
         body.OutputHandler.Send("You are unable to speak.");
     }
+
+	public void Sign(IBody body, IPerceivable target, string message, IEmote? emote = null) =>
+		SignedCommunicationService.Sign(body, target, message, emote);
 
     public void LoudSay(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {

@@ -4,9 +4,9 @@
 
 This document is the design authority for the Renaissance clothing branch, approximately 1400-1600 CE. It replaces the former catalogue scaffold with an implementation-oriented shared-culture catalogue. The branch owns clothing, underlayers, footwear, headwear, textile accessories, profession overlays, skins, outfits, and clothing crafts that are not supplied by the shared pre-industrial baseline.
 
-The shared dependency foundation is implemented. HumanSeeder now supplies the nine clothing-specific profiles `Leg Wraps`, `Overshoes`, `Head Veil`, `Hood`, `Detachable Sleeves`, `Skirt Support`, `Partlet`, `Long Open Robe`, and the optional `Breechcloth`, with matching `Wear_*` components. UsefulSeeder supplies the complete Renaissance Shared culture hierarchy, clothing market/function tags, and institution tags. CoreDataSeeder and AgricultureSeeder supply the four exact textile materials and their production sources. The Renaissance clothing entry point validates these profiles, materials, full tag paths, and seeded components before any catalogue item can be authored. The ItemSeeder now derives all 471 documented stock item prototypes and 59 concrete `OutfitTemplate` manifests from the canonical catalogue and inferred manifest table below. The 202 items referenced by a stock outfit retain explicit wearable-slot validation; the remaining 269 catalogue forms are seeded as standalone stock, including the one documented handheld fan that intentionally has no wearable component. Early Modern outfit seeding still ensures each specifically admitted Renaissance prototype needed by those later manifests without invoking the complete Renaissance branch. Skins and crafts remain later implementation work.
+The shared dependency foundation is implemented. HumanSeeder now supplies the nine clothing-specific profiles `Leg Wraps`, `Overshoes`, `Head Veil`, `Hood`, `Detachable Sleeves`, `Skirt Support`, `Partlet`, `Long Open Robe`, and the optional `Breechcloth`, with matching `Wear_*` components. UsefulSeeder supplies the complete Renaissance Shared culture hierarchy, clothing market/function tags, and institution tags. CoreDataSeeder and AgricultureSeeder supply the four exact textile materials and their production sources. The Renaissance clothing entry point validates these profiles, materials, full tag paths, and seeded components before any catalogue item can be authored. The ItemSeeder now derives all 472 documented stock item prototypes and 65 concrete `OutfitTemplate` manifests from the canonical catalogue and inferred manifest table below. The 215 Renaissance-catalogue items referenced by a stock outfit retain explicit wearable-slot validation; the remaining 257 catalogue forms are seeded as standalone stock, including the one documented handheld fan that intentionally has no wearable component. Early Modern outfit seeding still ensures each specifically admitted Renaissance prototype needed by those later manifests without invoking the complete Renaissance branch. Presentation skins are seeded as stock-owned records and can be selected deterministically by a template item.
 
-The expanded catalogue contains **471 unique proposed prototypes** and retains the **436 explicitly enumerated first-pass culture placements**. The 76 headwear/footwear expansion rows carry admission notes but are not counted as placements until a culture or outfit manifest explicitly adopts them. Forty-one placements deliberately admit an existing shared prototype into another culture grouping rather than cloning the same silhouette. The catalogue is split into this authority document and three regional volumes:
+The expanded catalogue contains **472 unique proposed prototypes** and retains the **436 explicitly enumerated first-pass culture placements**. The 76 headwear/footwear expansion rows carry admission notes but are not counted as placements until a culture or outfit manifest explicitly adopts them. Forty-one placements deliberately admit an existing shared prototype into another culture grouping rather than cloning the same silhouette. The catalogue is split into this authority document and three regional volumes:
 
 | Volume | Unique prototypes | Primary coverage |
 | --- | ---: | --- |
@@ -14,7 +14,7 @@ The expanded catalogue contains **471 unique proposed prototypes** and retains t
 | [Western, Mediterranean, and European Frontier Catalogue](./FutureMUD_Renaissance_Clothing_Catalogue_Western_Mediterranean.md) | 154 | Western European, Iberian Atlantic, Northern/Central/Eastern European, Ottoman-Islamicate |
 | [Asian and Steppe Catalogue](./FutureMUD_Renaissance_Clothing_Catalogue_Asia_Steppe.md) | 130 | Persianate, Indo-Persian, South Asian, Ming/Joseon, Japanese/Ryukyuan, South-east Asian, steppe/caravan |
 | [African, American, Contact, and Maritime Catalogue](./FutureMUD_Renaissance_Clothing_Catalogue_Africa_Americas_Maritime.md) | 116 | African court/Atlantic, Sahel/Red Sea/Swahili, Mesoamerican, Andean, Caribbean, North American contact, colonial and maritime overlays |
-| **Total** | **471** | all Shared Renaissance material-culture groupings in the master culture manifest |
+| **Total** | **472** | all Shared Renaissance material-culture groupings in the master culture manifest |
 
 This is a design catalogue, not a claim that every listed form is common in every place between 1400 and 1600. Culture manifests, date gates, institutions, professions, crafts, shops, and outfit definitions control actual admission.
 
@@ -325,7 +325,7 @@ These forms are shared only in the catalogue sense: several culture families can
 
 The regional volumes contain 41 placements that point back to common or another regional prototype. They are admissions, not aliases and not additional item rows. Examples include low leather shoes admitted into colonial Atlantic outfits, shoulder shawls admitted into Andean elite/contact outfits, quilted jackets admitted into Japanese and steppe military underlayers, and cloth headwraps admitted across Ottoman, Persianate, South Asian, African, and maritime cultures. Each regional volume records its reuse count; all stable references remain unique.
 
-## Inferred outfit manifests — 59 stock templates
+## Inferred outfit manifests — 65 stock templates
 
 These manifests turn the regional outfit minimums into concrete builder-facing stock. They are intentionally representative rather than universal: colour, trim, exact local terminology, gender admission, office, faith, rank, and narrower culture remain skins or downstream culture/date gates. Item order is inner-to-outer wear order. Every reference is explicit so seeding fails closed if a required prototype cannot be created.
 
@@ -412,6 +412,19 @@ The regional volumes provide only a broad North American contact placeholder and
 | `renaissance_outfit_overlay_guard_servant` | Renaissance: Ottoman Court Guard-Servant | Ottoman Islamicate, 1450-1600; court/service-household gate | guard or court-servant minimum family | `renaissance_ottoman_collarless_inner_shirt`<br>`renaissance_ottoman_full_salwar_trousers`<br>`renaissance_ottoman_short_fitted_vest`<br>`renaissance_ottoman_short_cavalry_jacket`<br>`renaissance_ottoman_small_court_turban`<br>`renaissance_shared_clothing_ankle_boots` |
 | `renaissance_outfit_overlay_religious_functionary` | Renaissance: Western Monastic Functionary | Western European Renaissance, 1450-1600; named monastic institution gate | culture-specific religious-functionary minimum family | `renaissance_shared_clothing_long_undershirt`<br>`renaissance_institution_plain_cassock`<br>`renaissance_institution_monastic_scapular`<br>`renaissance_institution_full_cowl`<br>`renaissance_shared_clothing_close_cloth_cap`<br>`renaissance_institution_closed_monastic_sandals` |
 
+### Gap-audit institutional and ceremonial manifests — 6
+
+| Stable key | Template name | Admission | Purpose | Ordered item references |
+| --- | --- | --- | --- | --- |
+| `renaissance_outfit_western_court_lady` | Renaissance: Western court lady in structured formal dress | western European court or highest urban ceremony, approximately 1500-1600, with farthingale form date-gated locally | complete female court silhouette rather than another isolated gown | `renaissance_shared_clothing_breast_wrap`<br>`renaissance_western_square_neck_chemise`<br>`renaissance_western_stiffened_pair_of_bodies`<br>`renaissance_western_full_petticoat`<br>`renaissance_western_spanish_farthingale`<br>`renaissance_western_fitted_court_gown`<br>`renaissance_western_partlet`<br>`renaissance_western_french_hood`<br>`renaissance_western_fitted_dress_gloves`<br>`renaissance_western_fine_latchet_shoes` |
+| `renaissance_outfit_landsknecht_campaign` | Renaissance: Central European Landsknecht campaign dress | German/HRE and associated mercenary contexts, approximately 1500-1570 | distinctive slashed and voluminous military clothing; armour and weapons remain separate | `renaissance_shared_clothing_drawstring_drawers`<br>`renaissance_western_pleated_linen_shirt`<br>`renaissance_western_slashed_doublet`<br>`renaissance_western_pluderhosen`<br>`renaissance_shared_clothing_footed_stockings`<br>`renaissance_western_short_cloak`<br>`renaissance_western_feathered_velvet_bonnet`<br>`renaissance_shared_clothing_ankle_boots` |
+| `renaissance_outfit_venetian_senator` | Renaissance: Venetian senatorial civic dress | Venetian-style high civic office, approximately 1450-1600 | formal magistrate ensemble using a scarlet senatorial skin on the existing furred gown; the round bonnet remains a restrained black presentation | `renaissance_shared_clothing_drawstring_drawers`<br>`renaissance_western_high_collar_shirt`<br>`renaissance_western_joined_hose`<br>`renaissance_western_long_skirted_doublet`<br>`renaissance_western_furred_gown` [skin: `renaissance_skin_venetian_senatorial_red_gown`]<br>`renaissance_western_round_bonnet`<br>`renaissance_western_fine_latchet_shoes` |
+| `renaissance_outfit_ottoman_janissary_service` | Renaissance: Ottoman Janissary service dress | named Ottoman Janissary corps context, approximately 1500-1600 | complete institutional service silhouette; weapon, armour, unit insignia, and rank marks remain separate | `renaissance_ottoman_collarless_inner_shirt`<br>`renaissance_ottoman_full_salwar_trousers`<br>`renaissance_ottoman_short_fitted_vest`<br>`renaissance_ottoman_short_cavalry_jacket`<br>`preindustrial_clothing_simple_woven_sash`<br>`renaissance_ottoman_janissary_bork`<br>`renaissance_shared_clothing_ankle_boots` |
+| `renaissance_outfit_latin_priest_mass` | Renaissance: Latin priest vested for Mass | Latin-rite institution continuing the established vestment forms | reuse the complete medieval liturgical system rather than cloning chasuble, alb, stole, and related items under Renaissance prefixes | `medieval_latin_amice`<br>`medieval_latin_white_alb`<br>`medieval_latin_linen_cincture`<br>`medieval_latin_stole`<br>`medieval_latin_maniple`<br>`medieval_latin_chasuble`<br>`medieval_soft_leather_shoes` |
+| `renaissance_outfit_buddhist_formal_officiant` | Renaissance: East Asian Buddhist formal officiant | named East Asian Buddhist temple or monastery where the kesa form is locally appropriate | reuse stable medieval monastic prototypes that remain credible in 1400-1600 | `medieval_buddhist_plain_underrobe`<br>`medieval_buddhist_formal_kesa`<br>`medieval_buddhist_travelling_mantle`<br>`medieval_hemp_sandals` |
+
+The Latin Mass template deliberately retains the established amice-and-stole layering even though both use the historical scarf wear component. It is the sole documented shared wearable-component exception; materialisation keeps the authored inner-to-outer order and falls back to ordinary inventory behaviour if a game’s active wear rules do not admit that particular historical overlap.
+
 ## Profession and institution overlays
 
 Profession overlays are outfits and skins unless a garment has a distinct construction or function. Minimum authored outfit families:
@@ -431,6 +444,16 @@ Profession overlays are outfits and skins unless a garment has a distinct constr
 | religious functionary | culture-specific long garment, mantle/vestment, headwear and footwear | cross-confessional institutional sections; never a generic universal priest outfit |
 
 Outfits must fail closed when a required authored slot is missing. Shared slots must be explicit. A skin may not change the wearable component or convert a one-piece garment into a multi-piece outfit.
+
+## Seeded presentation skins
+
+### renaissance_skin_venetian_senatorial_red_gown
+
+- Base prototype: `renaissance_western_furred_gown`
+- Override noun: `gown`
+- Override short description: `a scarlet fur-edged senatorial gown`
+- Override quality: `ItemQuality.VeryGood`
+- Override full description: This long scarlet gown is cut with a full body and broad sleeves, allowing it to fall in weighty vertical folds from shoulder to ankle. A restrained line of pale fur borders the opening and cuffs, setting off the saturated cloth without overwhelming its severe formal shape. The front is intended to lie open over fitted underclothing, and the shoulders are tailored to hold a dignified square line. Its rich colour, sober proportions, and controlled edging make it suitable for a high civic officer rather than ordinary court display.
 
 ## Craft and production implications
 
@@ -455,15 +478,15 @@ Crafts must consume exact material stock and exact tools. Decorative skins shoul
 1. Seed or resolve culture and functional tags.
 2. Audit live wearable components and add the blocking profiles from the dependency ledger.
 3. Seed high-priority materials where prototypes cannot be represented honestly by live stock.
-4. Complete: implement the full 471-prototype standalone catalogue, including the 269 items beyond the 202-item outfit dependency union.
+4. Complete: implement the full 472-prototype standalone catalogue, including the 257 items beyond the 215-item outfit dependency union.
 5. Complete: extend regional item coverage in dependency order: common admissions first, then distinct silhouettes not already required by an outfit.
 6. Add skins, beginning with plain/work, standard urban, luxury/court, religious/institutional, and imported/contact variants.
-7. The 59 stock outfits are implemented; add shop and downstream culture/date manifests where games need automatic admission.
+7. The 65 stock outfits are implemented; add shop and downstream culture/date manifests where games need automatic admission.
 8. Add crafts only after exact skills, tools, materials, tags, and output references resolve.
 
 ## Acceptance criteria
 
-- All 471 stable references are unique and every one has an explicit culture/date admission.
+- All 472 stable references are unique and every one has an explicit culture/date admission.
 - The 41 first-pass shared placements reuse an existing stable reference rather than cloning it. The 76 expansion rows remain uncounted as placements until explicit admission.
 - Every portable item has `Holdable`; every garment has a valid exact wearable and destroyable component.
 - No item uses a material, tag, component, skill, or stable reference that is absent at implementation time.
@@ -472,6 +495,6 @@ Crafts must consume exact material stock and exact tools. Decorative skins shoul
 - Contact and colonial rows identify imported, imposed, hybrid, or local-continuity status rather than presenting colonial systems as culturally neutral.
 - Religious and ceremonial clothing is admitted through an institution and date context, not a generic universal category.
 - Complete outfits fail closed on missing authored pieces and identify intentionally shared slots.
-- The generated stock set contains exactly 471 unique clothing prototypes, 59 unique outfit manifests, and 202 unique outfit item dependencies.
+- The generated stock set contains exactly 472 unique clothing prototypes, 65 unique outfit manifests, and 215 unique Renaissance-catalogue outfit item dependencies.
 - All eleven profession/institution overlay families have a concrete culture- or institution-gated outfit.
 - No North American contact stock outfit is created until a narrower regional design replaces the broad placeholder.

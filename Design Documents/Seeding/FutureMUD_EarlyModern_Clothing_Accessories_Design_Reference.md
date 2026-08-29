@@ -5,10 +5,10 @@
 ## Executive summary
 
 - Master-table culture families covered: **36**. The global-maritime and chartered-company overlay is now included through officer and command dress.
-- Complete outfit manifests: **883** — **350 civilian**, **220 military/naval**, **216 noble/court**, and **97 religious/institutional** outfits.
+- Complete outfit manifests: **885** — **350 civilian**, **220 military/naval**, **216 noble/court**, **97 religious**, and **2 institutional/ceremonial** outfits.
 - The civilian pass retains its balanced **175 male / 175 female** manifest labels. The noble pass adds **108 male / 108 female** highest-echelon outfits. Military role labels remain deliberately ungendered.
-- Unique item references in this authority: **1033** across **7150 outfit placements**. The fifth-pass rows are optional substitution/admission stock and therefore add no placement until an outfit is deliberately revised.
-- Item-reference disposition: **774 new Early Modern prototypes**, **187 explicit Renaissance survivals/admissions**, **68 explicit medieval religious survivals**, and **4 implemented shared pre-industrial aliases**.
+- Unique item references in this authority: **1034** across **7166 outfit placements**. The fifth-pass rows are optional substitution/admission stock and therefore add no placement until an outfit is deliberately revised.
+- Item-reference disposition: **774 new Early Modern prototypes**, **188 explicit Renaissance survivals/admissions**, **68 explicit medieval religious survivals**, and **4 implemented shared pre-industrial aliases**.
 - Second-pass military coverage uses **305** unique stable references across **1872** placements and adds **133** new uniform or appointment-accessory prototypes.
 - Third-pass highest-echelon coverage uses **351** new stable references across **2056** placements and adds **216** complete outfits.
 - Fourth-pass religious coverage uses **73** new stable references and **74** earlier-era admissions across **671** placements and adds **97** complete outfits.
@@ -12978,7 +12978,7 @@ Only admissions actually used by a fourth-pass manifest are listed. They must be
 
 ### Scope and modelling policy
 
-This pass adds **84** new Early Modern rows: **48 headwear** and **36 footwear**. It deliberately leaves all **883** outfit manifests unchanged. The new rows are optional admissions and substitutions for builders who need a more specific silhouette, social register, profession, route, climate response, or institutional use than the earlier catalogue supplied.
+This pass adds **84** new Early Modern rows: **48 headwear** and **36 footwear**. The later clothing and outfit gap audit adds two stock institutional/ceremonial manifests without changing the fifth-pass standalone catalogue. The new rows remain optional admissions and substitutions for builders who need a more specific silhouette, social register, profession, route, climate response, or institutional use than the earlier catalogue supplied.
 
 The pass especially expands later-period headwear: civilian hats distinct from regulated uniform hats, maritime caps and brimmed hats, domestic night and dressing caps, female day and formal caps, wigs, Central/Eastern and Russian forms, Islamicate and South Asian turbans/caps, Qing seasonal court hats, Joseon and Edo forms, and locally gated African and American headwear.
 
@@ -13089,6 +13089,58 @@ Footwear is separated by use rather than merely by culture: hard work shoes, wal
 | `earlymodern_footwear_andean_camelid_overshoes` | a pair of $colour camelid-wool overshoes | `overshoes` | `camelid wool` | `Small` / `Good` | 440g / 46.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Overshoes`<br>`Armour_LightClothing`<br>`Insulation_Strong`<br>`Variable_FineColour` | `Era / Early Modern Era`<br>`Functions / Worn Items / Footwear`<br>`Market / Clothing / Standard Clothing` | Warm woven overshoes worn above sandals or shoes for Andean highland travel, herding, market, courier, and cold-season work; local community required. |
 | `earlymodern_footwear_russian_woven_bast_shoes` | a pair of woven bark-fibre shoes | `shoes` | `barkcloth` | `Small` / `Standard` | 280g / 14.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Shoes`<br>`Armour_LightClothing`<br>`Insulation_Minor` | `Era / Early Modern Era`<br>`Functions / Worn Items / Footwear`<br>`Market / Clothing / Work Clothing` | Light woven shoes for Russian and northern/eastern rural, market, poorer town, agricultural, and ordinary road use; exact bast weave is a skin. |
 
+## Clothing and outfit gap-audit additions
+
+### Institutional and ceremonial
+
+#### Outfit 884 — Western senior judge in ceremonial court dress
+
+> Admission: British- or western-European-facing senior judicial office, approximately 1685-1750 when the full-bottomed wig is locally admitted.
+>
+> Purpose: compose existing civilian, learned, and headwear pieces with a judicial skin on the academic robe.
+
+- `earlymodern_western_clothing_plain_linen_shirt` - a plain $colour linen shirt
+- `earlymodern_western_clothing_plain_wool_waistcoat` - a plain $colour wool waistcoat
+- `earlymodern_western_clothing_knee_breeches` - a pair of $colour knee breeches
+- `renaissance_shared_clothing_footed_stockings` - a pair of $colour footed cloth stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` - a pair of buckled leather shoes
+- `renaissance_institution_academic_robe` [skin: `earlymodern_skin_judicial_full_sleeved_robe`] - a long dark full-sleeved judicial robe
+- `earlymodern_religious_reformed_preaching_bands` - a pair of white preaching bands
+- `earlymodern_headwear_fullbottom_court_wig` - a full-bottomed court wig
+
+#### Outfit 885 — Western woman in formal mourning dress
+
+> Admission: western European court, prosperous urban, or high-status household mourning, approximately 1660-1750; exact entitlement and duration remain local social rules.
+>
+> Purpose: assemble existing clothing around a restrained black mantua skin and the existing mourning hood.
+
+- `earlymodern_western_clothing_long_linen_shift` - a long $colour linen shift
+- `earlymodern_western_clothing_canvas_stays` - a pair of canvas stays
+- `earlymodern_western_clothing_full_wool_petticoat` - a full $colour wool petticoat
+- `earlymodern_western_clothing_plain_mantua_gown` [skin: `earlymodern_skin_formal_mourning_mantua`] - a full black formal mourning mantua
+- `renaissance_shared_clothing_footed_stockings` - a pair of $colour footed cloth stockings
+- `earlymodern_western_clothing_buckled_leather_shoes` - a pair of buckled leather shoes
+- `earlymodern_headwear_furtrim_mourning_hood` - a fur-trimmed mourning hood
+- `renaissance_western_fitted_dress_gloves` - a pair of $colour fitted dress gloves
+
+## Seeded presentation skins
+
+### earlymodern_skin_judicial_full_sleeved_robe
+
+- Base prototype: `renaissance_institution_academic_robe`
+- Override noun: `robe`
+- Override short description: `a long dark full-sleeved judicial robe`
+- Override quality: `ItemQuality.VeryGood`
+- Override full description: This long dark robe is cut to hang open over formal civilian clothing and reaches nearly to the ankles. Its sleeves are exceptionally full through the upper arm before narrowing toward the wrist, creating a heavy ceremonial silhouette when the wearer raises a hand. Dense broadcloth gives the garment a smooth fall, while restrained facings and carefully reinforced shoulders preserve its severe line. Nothing on the robe names a particular court, but its sombre finish and imposing construction plainly suit formal judicial office.
+
+### earlymodern_skin_formal_mourning_mantua
+
+- Base prototype: `earlymodern_western_clothing_plain_mantua_gown`
+- Override noun: `mantua`
+- Override short description: `a full black formal mourning mantua`
+- Override quality: `ItemQuality.VeryGood`
+- Override full description: This full mantua is made from matte black cloth whose restrained surface absorbs light rather than displaying a glossy finish. The bodice is closely arranged over the torso before opening into a long trained skirt, with the outer folds drawn back just enough to reveal a matching dark petticoat beneath. Sleeves, cuffs, and edges are finished with plain self-coloured bands instead of bright lace or jewellery. Its fashionable construction remains evident, but every decorative choice has been deliberately subdued for formal mourning.
+
 ## Implementation order
 
 1. Seed or verify `Wear_Stays` and `Wear_Breeches` from the dependency ledger.
@@ -13163,8 +13215,8 @@ Footwear is separated by use rather than merely by culture: hard work shoes, wal
 
 - The ItemSeeder now seeds the exact prototype dependency union used by these manifests, including individually admitted medieval, Renaissance, and shared pre-industrial rows, before outfit creation.
 - Persisted template names use `Early Modern <outfit label>` without repeating the surrounding catalogue grouping. A grouping qualifier is included only when otherwise-generic labels would collide. Template comments keep their grouping and collection context but omit source-document filenames.
-- The ItemSeeder also seeds all **84** fifth-pass standalone headwear and footwear prototypes under the Early Modern era gate. They remain deliberately absent from the outfit manifests, so this adds no placements or changes to the **883** documented outfits.
-- All **883** concrete manifests in the first four passes are upserted as global stock `OutfitTemplate` rows: 350 civilian, 220 military/naval, 216 noble/court, and 97 religious.
+- The ItemSeeder also seeds all **84** fifth-pass standalone headwear and footwear prototypes under the Early Modern era gate. They remain deliberately absent from the original first-four-pass manifests; the clothing gap audit adds two separate institutional/ceremonial templates.
+- All **885** concrete manifests, including the two gap-audit templates, are upserted as global stock `OutfitTemplate` rows: 350 civilian, 220 military/naval, 216 noble/court, 97 religious, and 2 institutional/ceremonial.
 - Every template item is initially `Worn`, keeps the document order as wear order, uses the stable prototype reference as its template key, and leaves the wear profile blank so runtime selects the prototype's default wearable profile.
 - Stock ownership is recorded by a stable marker in the description. Reruns reconcile stock-owned rows but fail closed on an unmarked builder-authored name collision.
 - The fifth-pass headwear and footwear rows remain standalone seeded catalogue additions because that pass explicitly adds no outfit placements.

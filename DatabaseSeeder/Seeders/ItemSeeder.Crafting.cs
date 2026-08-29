@@ -197,7 +197,8 @@ public partial class ItemSeeder
 			["adjacent_antiquity_beaded_linen_girdle"] = "a beaded $colour linen girdle",
 			["adjacent_antiquity_linen_bead_apron"] = "a beaded $colour linen apron",
 			["adjacent_antiquity_linen_scribe_kilt"] = "a $colour linen scribe's kilt",
-			["adjacent_antiquity_temple_linen_shift"] = "a fine $colour temple linen shift"
+			["adjacent_antiquity_temple_linen_shift"] = "a fine $colour temple linen shift",
+			["antiquity_egyptian_spotted_hide_priest_mantle"] = "a spotted hide shoulder mantle"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> RomanAntiquityClothingStableReferences =
@@ -215,7 +216,10 @@ public partial class ItemSeeder
 			["antiquity_hooded_wool_paenula"] = "a hooded $colour wool paenula",
 			["antiquity_fine_toga_praetexta"] = "a fine $colour toga praetexta",
 			["antiquity_wool_udones"] = "a pair of $colour wool udones",
-			["antiquity_wool_hand_wraps"] = "a pair of $colour wool hand wraps"
+			["antiquity_wool_hand_wraps"] = "a pair of $colour wool hand wraps",
+			["antiquity_roman_wool_focale"] = "a $colour wool focale",
+			["antiquity_roman_wool_sagum"] = "a short $colour wool sagum",
+			["antiquity_italic_white_wool_infula"] = "a white wool infula headband"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> CelticAntiquityClothingStableReferences =

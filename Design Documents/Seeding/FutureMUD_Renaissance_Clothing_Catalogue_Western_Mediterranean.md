@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This volume defines **154 unique clothing prototypes** for the following Renaissance Shared material-culture groupings:
+This volume defines **155 unique clothing prototypes** for the following Renaissance Shared material-culture groupings:
 
 - Shared Western European Renaissance, including Italian, Franco-Flemish, British Isles, and German/HRE/Swiss admissions;
 - Shared Iberian / Atlantic;
@@ -168,7 +168,7 @@ These rows add Atlantic-facing work, pilgrimage, confraternity, and weather silh
 | `renaissance_frontier_felted_winter_boots` | pair of felted winter boots | felt | `WP-FOOT-BOOT` | soft felt shaft, leather-soled skin; northern/steppe winter admission |
 | `renaissance_frontier_split_skirt_riding_boots` | pair of stiff high riding boots | leather | `WP-FOOT-BOOT` | knee/thigh and turned-cuff skins; cavalry/frontier gate |
 
-## D. Shared Ottoman-Islamicate catalogue — 30
+## D. Shared Ottoman-Islamicate catalogue — 31
 
 Public names remain form-based. Builder notes may record Ottoman terms such as gömlek, şalvar, entari, kaftan, dolama, yelek, ferace, and kavuk only as inspirations.
 
@@ -206,7 +206,7 @@ Public names remain form-based. Builder notes may record Ottoman terms such as g
 | `renaissance_ottoman_dervish_wool_cloak` | broad rough wool cloak | wool | `WP-CLOAK` | Sufi institution and order gate; colour/patch skins require local manifest |
 | `renaissance_ottoman_tall_dervish_cap` | tall felt devotional cap | felt | `WP-HEAD-HAT` | Sufi institution/order gate; exact shape and colour as skins where silhouette remains stable |
 
-### Structured turbans and distinctive footwear — 6
+### Structured turbans, service headwear, and distinctive footwear — 7
 
 | Stable reference | Public form | Material | Wear profile | Variation and admission notes |
 | --- | --- | --- | --- | --- |
@@ -214,6 +214,7 @@ Public names remain form-based. Builder notes may record Ottoman terms such as g
 | `renaissance_ottoman_small_court_turban` | small structured court turban | silk | `WP-TURBAN-CAP` | official, court-servant, scholar, and diplomatic skins |
 | `renaissance_ottoman_high_court_turban` | high structured court turban | silk | `WP-TURBAN-CAP` | office/rank/date-gated; exact winding and aigrette presentation are skins |
 | `renaissance_ottoman_quilted_turban` | padded quilted turban | cotton | `WP-TURBAN-CAP` | military/cavalry/court skins; no armour mechanics beyond clothing |
+| `renaissance_ottoman_janissary_bork` | tall white felt service börk | felt | `WP-HEAD-HAT` | named Janissary corps or equivalent local institution gate; the structural tall crown and rear fold are integral, while insignia remains a skin |
 | `renaissance_ottoman_pointed_slippers` | pair of pointed soft slippers | leather | `WP-FOOT-SHOE` | backless/heeled-back, plain/embroidered/velvet-covered skins |
 | `renaissance_ottoman_high_bath_sandals` | pair of high wooden bath sandals | wood | `WP-OVERSHOE` | bathhouse and elite household gate; strap decoration as skins |
 
@@ -277,9 +278,15 @@ Every implemented prototype should receive, where historically credible:
 
 No prototype needs every tier. Fur, brocade, damask, lace, metallic-thread, and jewelled-presentation skins must fail closed when their exact material inputs or intended status market are unavailable.
 
+## Implemented stock override records
+
+| Stable reference | SDesc | Noun | Material | Size / quality | Weight / cost | Components | Tags | Status, usage, and notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `renaissance_ottoman_janissary_bork` | a tall white felt service börk | `börk` | `felt` | `Small` / `Good` | 430g / 120.0m | `Holdable`<br>`Destroyable_Clothing`<br>`Wear_Hat`<br>`Armour_LightClothing`<br>`Insulation_Moderate` | `Era / Renaissance Era`<br>`Functions / Worn Items / Headwear`<br>`Functions / Military Equipment`<br>`Market / Clothing / Military Uniforms` | Full description: This tall service cap is shaped from thick white felt into a high rounded crown that rises conspicuously above the brow. A broad reinforced band encircles the head, while a long folded sleeve of felt descends from the crown to hang flat down the back. The front is strengthened by a plain upright panel suitable for locally applied insignia, though the base cap carries no fixed badge or plume. Its rigid height, pale felt, and trailing rear fold give it a distinctive institutional silhouette even without decorative additions. [skinnable] |
+
 ## Volume acceptance
 
-- Exactly 154 unique stable references are defined here.
+- Exactly 155 unique stable references are defined here.
 - The 12 shared admissions create no item prototype.
 - Ottoman, Eastern European, and Iberian forms are not reduced to cosmetic Western skins where silhouette differs.
 - Religious rows require a concrete institution and do not create a universal priest costume.

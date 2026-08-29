@@ -225,6 +225,8 @@ Commodity piles can also be governed by builder-owned `commodityspoilage` rules.
 ### Outfit template workflow
 Outfit templates are admin-only global editable data for creating full equipment sets from item prototypes. They are not revisable: changing a template only affects future loads, not any character outfits it has already created.
 
+An outfit item can bind one current skin to its prototype entry, allowing civic, institutional, ceremonial, and mourning presentation without duplicate behaviour prototypes. Institutional admission text remains builder policy for shops, NPCs, chargen, and FutureProg callers; it does not imply a universal eligibility subsystem.
+
 The ItemSeeder also installs documented stock clothing manifests for selected eras after their item phases finish. Stock templates use concise deterministic names, stable prototype references as template-local keys, document order as wear order, and default-profile `Worn` placement. Their builder-facing descriptions retain useful grouping and purpose context but omit source filenames. A stock ownership marker is kept in the description so reruns can reconcile seeder-owned templates without silently overwriting an unrelated builder-authored template with the same name; an unmarked name collision stops the seed operation for builder review. Renaissance military armour manifests use the same ownership and update path, but are generated from their canonical military table and contain only wearable armour or barding. They validate every reference and wearable profile before generation, so shields and handheld weapons remain separately equipped rather than being incorrectly loaded as worn items.
 
 Use:
@@ -249,7 +251,11 @@ Important setters:
 - `outfittemplate set item args <key> <load args|clear>`
 - `outfittemplate set item swap <key1> <key2>`
 
+- outfittemplate set item skin <key> <skin|clear>
+
 Template item keys are stable within the template and are used for container, belt, and sheath references. Prototypes must be current and manually loadable. Worn entries must use wearable prototypes; if no wear profile is specified, the created item uses its default wear profile at load time. Wielded entries must have a wieldable component and are readied directly rather than first passing through the held-item size checks, which is important for pikes and other oversized two-handed weapons. Container entries must point at another template item whose prototype has container capability, and container references must not be cyclic. Attached and sheathed entries may name a template-local belt or sheath key, or omit the key to use the first suitable belt or sheath already available on the target after earlier template placements.
+
+The item skin setter accepts only a current skin that targets the entry's selected prototype; clear removes it. Template display shows the chosen skin, and load preflight rejects a missing, stale, incompatible, or unavailable one before creating any item.
 
 The manual `outfittemplate load` command materialises a template directly onto a character without requiring a FutureProg. The optional `args <load args>` tail is appended to every template item's own load arguments, which lets admins apply common variable values such as colour across a whole outfit load.
 

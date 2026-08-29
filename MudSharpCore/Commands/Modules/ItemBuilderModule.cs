@@ -279,6 +279,7 @@ The editable fields are:
 	#3set item remove <key>#0 - removes an entry
 	#3set item key <old> <new>#0 - renames an entry key
 	#3set item proto <key> <prototype>#0 - changes an entry prototype
+	#3set item skin <key> <skin|clear>#0 - sets or clears an entry skin
 	#3set item placement <key> worn [profile]|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]#0 - changes entry placement
 	#3set item args <key> <load args|clear>#0 - changes entry load arguments
 	#3set item swap <key1> <key2>#0 - swaps entry order";

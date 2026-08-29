@@ -15240,3 +15240,22 @@ DELIMITER ;
 CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
 COMMIT;
+
+-- EF-generated idempotent delta for 20260829082253_AddOutfitTemplateItemSkin
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829082253_AddOutfitTemplateItemSkin') THEN
+        ALTER TABLE `outfittemplateitems` ADD `SkinId` bigint(20) NULL;
+        CREATE INDEX `IX_OutfitTemplateItems_SkinId` ON `outfittemplateitems` (`SkinId`);
+
+        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+        VALUES ('20260829082253_AddOutfitTemplateItemSkin', '9.0.11');
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+COMMIT;

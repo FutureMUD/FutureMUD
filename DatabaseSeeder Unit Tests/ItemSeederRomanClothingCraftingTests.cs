@@ -23,7 +23,10 @@ public class ItemSeederRomanClothingCraftingTests
 		"antiquity_hooded_wool_paenula",
 		"antiquity_fine_toga_praetexta",
 		"antiquity_wool_udones",
-		"antiquity_wool_hand_wraps"
+		"antiquity_wool_hand_wraps",
+		"antiquity_roman_wool_focale",
+		"antiquity_roman_wool_sagum",
+		"antiquity_italic_white_wool_infula"
 	];
 
 	[TestMethod]
@@ -81,6 +84,9 @@ public class ItemSeederRomanClothingCraftingTests
 		AssertContains(designSource, "## Roman Garment Matrix");
 		AssertContains(designSource, "antiquity_wool_toga");
 		AssertContains(designSource, "antiquity_wool_stola");
+		AssertContains(designSource, "antiquity_roman_wool_focale");
+		AssertContains(designSource, "antiquity_roman_wool_sagum");
+		AssertContains(designSource, "antiquity_italic_white_wool_infula");
 	}
 
 	private static void AssertContains(string source, string expected)

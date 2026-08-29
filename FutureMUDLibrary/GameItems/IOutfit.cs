@@ -76,6 +76,7 @@ namespace MudSharp.GameItems
     {
         string TemplateKey { get; set; }
         IGameItemProto GameItemProto { get; set; }
+        [CanBeNull] IGameItemSkin Skin { get; set; }
         IWearProfile DesiredProfile { get; set; }
         OutfitTemplateItemPlacement Placement { get; set; }
         [CanBeNull] string ContainerKey { get; set; }

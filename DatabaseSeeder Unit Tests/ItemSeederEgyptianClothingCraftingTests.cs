@@ -85,6 +85,19 @@ public class ItemSeederEgyptianClothingCraftingTests
 	}
 
 	[TestMethod]
+	public void EgyptianSpottedHideMantle_UsesExistingTempleTextilecraftInputs()
+	{
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
+
+		AssertContains(itemSource, "\"antiquity_egyptian_spotted_hide_priest_mantle\"");
+		AssertContains(craftSource, "assemble a spotted hide priest mantle");
+		AssertContains(craftSource, "Commodity - 1 kilogram 200 grams of animal skin; piletag Prepared Hide");
+		AssertContains(craftSource, "Commodity - 30 grams of linen; piletag Spun Yarn");
+		AssertContains(craftSource, "StableSimpleProduct(\"antiquity_egyptian_spotted_hide_priest_mantle\")");
+	}
+
+	[TestMethod]
 	public void AntiquityClothingDesignDocument_DocumentsEgyptianCraftingSlice()
 	{
 		var designSource = ReadSource("Design Documents", "Seeding", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
@@ -93,6 +106,7 @@ public class ItemSeederEgyptianClothingCraftingTests
 		AssertContains(designSource, "## Egyptian Garment Matrix");
 		AssertContains(designSource, "adjacent_antiquity_narrow_linen_kilt");
 		AssertContains(designSource, "Bead Stock");
+		AssertContains(designSource, "antiquity_egyptian_spotted_hide_priest_mantle");
 	}
 
 	private static void AssertContains(string source, string expected)

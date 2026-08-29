@@ -5,7 +5,7 @@ This document consolidates the accepted antiquity clothing guidance and outcomes
 ## Executive summary
 
 - Total accepted unique wearable items: **98**.
-- Total outfit manifests: **29**.
+- Total outfit manifests: **34**.
 - All accepted items are finished goods, skinnable, player-visible, and ordinary portable inventory items.
 - Public item fields use culture-neutral, in-world descriptions. Builder-facing notes and outfit labels may still use historical inspiration labels for organization and source grounding.
 - The item set is intended as a historically grounded base layer: skins may create local, fantasy, status, textile, and colour variants without duplicating the underlying behaviour-heavy item prototypes.
@@ -366,6 +366,66 @@ The following outfit manifests are builder-facing. Their labels use historical i
 - `antiquity_fine_linen_headcloth` - a fine $colour headcloth
 - `antiquity_glass_usekh_collar` - a $colour glass usekh collar
 
+### Hellenic workshop labourer
+
+> Admission: Hellenic urban, dock, mine, kiln, building, and workshop contexts.
+>
+> Purpose: labour dress built around the existing exomis rather than another generic chiton.
+
+- `antiquity_linen_loincloth` - a $colour linen loincloth
+- `antiquity_wool_exomis` - a $colour wool exomis
+- `antiquity_simple_woven_sash` - a $colour woven sash
+- `antiquity_plain_leather_sandals` - a pair of plain leather sandals
+
+### Italic legionary service dress
+
+> Admission: Roman Republican or Imperial military service context; clothing only, with armour and weapons supplied separately.
+>
+> Purpose: complete off-duty, camp, march, or under-armour clothing.
+
+- `antiquity_linen_loincloth` - a $colour linen loincloth
+- `antiquity_knee_length_wool_tunica` - a knee-length $colour tunica
+- `antiquity_roman_wool_focale` - a $colour wool focale
+- `antiquity_roman_plated_military_belt` - a plated leather military belt
+- `antiquity_roman_reinforced_caligae` - a pair of reinforced leather caligae
+- `antiquity_roman_wool_sagum` - a short $colour wool sagum
+
+### Italic senatorial magistrate civic dress
+
+> Admission: Roman civic office or senatorial ceremony.
+>
+> Purpose: formal public dress using an existing toga praetexta and a seeded broad-striped tunica skin rather than duplicate behaviour prototypes.
+
+- `antiquity_linen_loincloth` - a $colour linen loincloth
+- `antiquity_fine_linen_tunica` [skin: `antiquity_skin_senatorial_broad_striped_tunica`] - a broad-striped white linen tunica
+- `antiquity_fine_toga_praetexta` - a fine $colour toga praetexta
+- `antiquity_fine_leather_sandals` - a pair of fine $colour sandals
+
+### Egyptian sem-priest temple dress
+
+> Admission: named Egyptian temple and funerary-ritual context.
+>
+> Purpose: specialised priestly ensemble distinguished by its spotted hide mantle.
+
+- `antiquity_linen_loincloth` - a $colour linen loincloth
+- `antiquity_pleated_linen_shendyt` - a pleated $colour linen shendyt
+- `antiquity_fine_front_knotted_girdle` - a fine $colour knotted girdle
+- `antiquity_egyptian_spotted_hide_priest_mantle` - a spotted hide shoulder mantle
+- `antiquity_fine_papyrus_sandals` - a pair of fine papyrus sandals
+
+### Italic Vestal-style priestess ceremonial dress
+
+> Admission: named Italic female priestly institution.
+>
+> Purpose: formal white layered dress using a ritual headband and a white skin on the existing priestly veil.
+
+- `antiquity_linen_breastband` - a $colour linen breastband
+- `antiquity_fine_long_linen_tunica` - a fine long $colour tunica
+- `antiquity_wool_stola` - a $colour wool stola
+- `antiquity_italic_white_wool_infula` - a white wool infula headband
+- `adjacent_antiquity_priestly_linen_veil` [skin: `antiquity_skin_vestal_white_priestly_veil`] - a long white linen priestly veil
+- `antiquity_fine_leather_sandals` - a pair of fine $colour sandals
+
 ## Item catalogue
 
 Catalogue line format: `uniqueReference` - public short description; noun; primary material; size/quality; weight/cost; wear component; variable component. Full descriptions remain in the seeder calls and are not duplicated here.
@@ -425,6 +485,9 @@ Catalogue line format: `uniqueReference` - public short description; noun; prima
 - `antiquity_fine_long_linen_tunica` - a fine long $colour tunica; noun: `tunica`; material: `linen`; size/quality: `Normal`/`Good`; weight/cost: 420g/64.0m; wear: `Wear_Long-Sleeved_Tunic`; variables: Variable_FineColour.
 - `antiquity_wool_stola` - a $colour wool stola; noun: `stola`; material: `wool`; size/quality: `Normal`/`Good`; weight/cost: 900g/100.0m; wear: `Wear_Sleeveless_Dress`; variables: Variable_FineColour.
 - `antiquity_fine_wool_palla` - a fine $colour palla; noun: `palla`; material: `wool`; size/quality: `Normal`/`Good`; weight/cost: 850g/90.0m; wear: `Wear_Mantle`; variables: Variable_FineColour.
+- `antiquity_roman_wool_focale` - a $colour wool focale; noun: `focale`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 140g/10.0m; wear: `Wear_Scarf`; variables: Variable_BasicColour.
+- `antiquity_roman_wool_sagum` - a short $colour wool sagum; noun: `sagum`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 1250g/34.0m; wear: `Wear_Cloak_(Open)`; variables: Variable_BasicColour.
+- `antiquity_italic_white_wool_infula` - a white wool infula headband; noun: `infula`; material: `wool`; size/quality: `Small`/`Good`; weight/cost: 75g/24.0m; wear: `Wear_Headband`; variables: none.
 
 ### Hellenic-inspired draped family
 
@@ -494,15 +557,39 @@ Catalogue line format: `uniqueReference` - public short description; noun; prima
 - `antiquity_fine_pleated_kalasiris` - a fine pleated $colour kalasiris; noun: `kalasiris`; material: `linen`; size/quality: `Normal`/`Good`; weight/cost: 480g/64.0m; wear: `Wear_Dress`; variables: Variable_FineColour.
 - `antiquity_wrapped_linen_kilt_sash` - a $colour kilt-sash; noun: `sash`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 260g/16.0m; wear: `Wear_Sash`; variables: Variable_BasicColour.
 - `antiquity_fine_sheer_linen_cape` - a fine sheer $colour cape; noun: `cape`; material: `linen`; size/quality: `Small`/`Good`; weight/cost: 180g/46.0m; wear: `Wear_Cape`; variables: Variable_FineColour.
+- `antiquity_egyptian_spotted_hide_priest_mantle` - a spotted hide shoulder mantle; noun: `mantle`; material: `animal skin`; size/quality: `Normal`/`Good`; weight/cost: 1180g/96.0m; wear: `Wear_Mantle`; variables: none.
 
 ## Validation outcome
+- Roman Textilecraft now includes the wool focale, wool sagum, and white wool infula at the documented garment-cloth and yarn calibrations.
+- Egyptian Textilecraft includes the spotted-hide priest mantle as a temple-gated tailoring recipe using prepared animal skin and linen tie stock. Its specialist admission remains craft and outfit metadata rather than a new eligibility framework.
 
-- The ItemSeeder now upserts all **29** documented outfit manifests as stock `OutfitTemplate` rows after the selected-era item phases complete.
+
+- The ItemSeeder now upserts all **34** documented outfit manifests as stock `OutfitTemplate` rows after the selected-era item phases complete.
 - Six Egyptian manifest dependencies that were previously documented but absent from the direct item catalogue are now seeded from their exact catalogue specifications before outfit upsert.
 - The accepted output contains no hidden or non-skinnable items.
 - All accepted items use `null` for long description, morph target, morph emote, morph timer, and destroyed-item reference.
 - The accepted item catalogues were checked against seeded component, material, and tag names during generation.
 - Public text avoids explicit skin/customization language and avoids culture labels in item names, short descriptions, and full descriptions.
+
+## Seeded presentation skins
+
+These stock-owned skins keep civic and institutional presentation on shared base forms. Admission remains builder policy carried by the manifest, not an eligibility subsystem.
+
+### antiquity_skin_senatorial_broad_striped_tunica
+
+- Base prototype: `antiquity_fine_linen_tunica`
+- Override noun: `tunica`
+- Override short description: `a broad-striped white linen tunica`
+- Override quality: `ItemQuality.Good`
+- Override full description: This finely woven white linen tunica falls in measured folds from the shoulders to the knees. Two broad coloured stripes run vertically from the shoulder line toward the hem, standing out clearly against the pale body without changing the garment’s simple cut. The neck and sleeve edges are narrowly turned and stitched, and the cloth gathers cleanly beneath a formal waist tie. Its conspicuous bands and careful finish give an otherwise familiar tunica the unmistakable gravity of civic office.
+
+### antiquity_skin_vestal_white_priestly_veil
+
+- Base prototype: `adjacent_antiquity_priestly_linen_veil`
+- Override noun: `veil`
+- Override short description: `a long white linen priestly veil`
+- Override quality: `ItemQuality.Good`
+- Override full description: This long veil is cut from clean white linen with enough breadth to cover the hair and fall over both shoulders. Its upper edge is shaped to sit securely above a narrow ritual headband, while the side folds frame the face without obscuring it. Fine rolled hems keep the light cloth from fraying and give the hanging edges a controlled, formal line. The complete absence of coloured trim makes the carefully maintained whiteness the veil’s most striking feature.
 
 ## Source notes
 

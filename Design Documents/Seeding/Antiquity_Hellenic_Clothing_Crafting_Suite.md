@@ -39,9 +39,9 @@ The May 2026 supplemental clothing scripts in `GPT Antiquity Clothing Stuff` wer
 
 `Hellenic Textilecraft` covers culturally specific finished garments. It is used for Hellenic rectangular garment assembly: chitons, himatia, chlamydes, peploi, exomides, heavy zeirai, hand and leg wraps, and linen head veils. This lets builders include or exclude Hellenic clothing independently from the shared textile economy.
 
-`Egyptian Textilecraft` covers culturally specific finished garments for the linen-dominant Egyptian/Nilotic clothing slice: narrow kilts, scribe kilts, shoulder cloths, sleeveless tunics, temple shifts, fringed robes, tasseled shawls, linen headdresses, and beaded linen dress pieces. The upstream linen production remains shared; only finished garment assembly is culture-gated.
+`Egyptian Textilecraft` covers culturally specific finished garments for the linen-dominant Egyptian/Nilotic clothing slice: narrow kilts, scribe kilts, shoulder cloths, sleeveless tunics, temple shifts, fringed robes, tasseled shawls, linen headdresses, beaded linen dress pieces, and the specialist spotted-hide priest mantle. The upstream linen production remains shared; only finished garment assembly is culture-gated.
 
-`Roman Textilecraft` covers culturally specific finished garments for the Italic/Roman clothing slice: tunicae, togae, pallae, stolae, paenulae, udones, hand wraps, and practical woollen mantles. The shared upstream chain supplies wool and linen cloth; the Roman gate controls the civic, matronal, travel, and cold-weather garment forms.
+`Roman Textilecraft` covers culturally specific finished garments for the Italic/Roman clothing slice: tunicae, togae, pallae, stolae, paenulae, udones, hand wraps, focale neckcloths, sagum cloaks, ritual infulae, and practical woollen mantles. The shared upstream chain supplies wool and linen cloth; the Roman gate controls the civic, matronal, travel, cold-weather, and ceremonial garment forms.
 
 `Celtic Textilecraft` covers culturally specific finished garments for the Celtic antiquity slice: sleeved wool tunics, braccae, rectangular and hooded cloaks, work smocks, mantles, gowns, skirts, mittens, leg wraps, and linen veils. The source anchor here is the broad archaeological and iconographic pattern of tunic-trouser-cloak dress, with checked and bordered cloth represented as textile finish rather than as full intermediate item panels.
 
@@ -231,7 +231,7 @@ All final garments use `Tailoring` plus `Hellenic Textilecraft`. Basic garments 
 
 ## Egyptian Garment Matrix
 
-All final garments use `Tailoring` plus `Egyptian Textilecraft`. Basic garments copy `Colour` from the cloth input. Fine garments copy both `Colour` and `Fine Colour`. Beaded garments also require glass commodity tagged `Bead Stock`.
+All final garments use `Tailoring` plus `Egyptian Textilecraft`. Basic garments copy `Colour` from the cloth input. Fine garments copy both `Colour` and `Fine Colour`. Beaded garments also require glass commodity tagged `Bead Stock`. The specialist spotted-hide priest mantle instead uses prepared animal skin with a linen-yarn tie stock and remains an institutional/temple admission rather than a new mechanical eligibility gate.
 
 | Stable Reference | Garment | Material | Cloth Input | Yarn Input | Bead Stock | Product Variable Copy |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -243,6 +243,7 @@ All final garments use `Tailoring` plus `Egyptian Textilecraft`. Basic garments 
 | `adjacent_antiquity_tall_linen_headdress` | Tall linen headdress | Linen | 235g `Garment Cloth` | 25g `Spun Yarn` | None | `Colour`, `Fine Colour` |
 | `adjacent_antiquity_beaded_linen_girdle` | Beaded linen girdle | Linen | 210g `Garment Cloth` | 25g `Spun Yarn` | 40g glass `Bead Stock` | `Colour`, `Fine Colour` |
 | `adjacent_antiquity_linen_bead_apron` | Linen bead apron | Linen | 150g `Garment Cloth` | 20g `Spun Yarn` | 50g glass `Bead Stock` | `Colour`, `Fine Colour` |
+| `antiquity_egyptian_spotted_hide_priest_mantle` | Spotted-hide priest mantle | Animal skin | 1200g `Prepared Hide` | 30g linen `Spun Yarn` | None | None |
 
 ## Roman Garment Matrix
 
@@ -259,6 +260,9 @@ All final garments use `Tailoring` plus `Roman Textilecraft`. Basic garments cop
 | `antiquity_fine_long_linen_tunica` | Fine long linen tunica | Linen | 400g `Garment Cloth` | 30g `Spun Yarn` | `Colour`, `Fine Colour` |
 | `antiquity_wool_stola` | Wool stola | Wool | 860g `Garment Cloth` | 40g `Spun Yarn` | `Colour`, `Fine Colour` |
 | `antiquity_fine_wool_palla` | Fine wool palla | Wool | 820g `Garment Cloth` | 35g `Spun Yarn` | `Colour`, `Fine Colour` |
+| `antiquity_roman_wool_focale` | Wool focale | Wool | 150g `Garment Cloth` | 10g `Spun Yarn` | `Colour` |
+| `antiquity_roman_wool_sagum` | Wool sagum | Wool | 1250g `Garment Cloth` | 40g `Spun Yarn` | `Colour` |
+| `antiquity_italic_white_wool_infula` | White wool infula | Wool | 80g `Garment Cloth` | 8g `Spun Yarn` | None |
 
 ## Celtic Garment Matrix
 

@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.3.0.0",
-  "LatestMigrationId": "20260828014622_AddNPCSkillPackages",
-  "GeneratedUtc": "2026-08-28T02:04:52.8813995Z"
+  "LatestMigrationId": "20260829082253_AddOutfitTemplateItemSkin",
+  "GeneratedUtc": "2026-08-29T08:48:31.1038302Z"
 }

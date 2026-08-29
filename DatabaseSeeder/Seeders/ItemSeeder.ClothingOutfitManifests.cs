@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
+using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.Models;
+using DbGameItemSkin = MudSharp.Models.GameItemSkin;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -29,21 +31,61 @@ public partial class ItemSeeder
 		string[] Components,
 		string BuilderNotes);
 
+	private sealed record DocumentedClothingSkinSpec(
+		string StableReference,
+		string BaseItemStableReference,
+		string ItemName,
+		string ShortDescription,
+		string FullDescription,
+		ItemQuality Quality);
+
+	private sealed record OutfitManifestItemSpec(
+		string ItemStableReference,
+		string? SkinStableReference)
+	{
+		public static implicit operator OutfitManifestItemSpec(string itemStableReference)
+		{
+			return new OutfitManifestItemSpec(itemStableReference, null);
+		}
+	}
+
 	private sealed record OutfitManifestSpec(
 		string StableKey,
 		string Name,
 		string Description,
-		string[] ItemStableReferences);
+		OutfitManifestItemSpec[] Items)
+	{
+		public IReadOnlyList<string> ItemStableReferences => Items
+			.Select(x => x.ItemStableReference)
+			.ToArray();
+	}
+
+	internal sealed record ClothingOutfitManifestItemTestData(
+		string ItemStableReference,
+		string? SkinStableReference);
 
 	internal sealed record ClothingOutfitManifestTestData(
 		string StableKey,
 		string Name,
 		string Description,
-		IReadOnlyList<string> ItemStableReferences);
+		IReadOnlyList<ClothingOutfitManifestItemTestData> Items)
+	{
+		public IReadOnlyList<string> ItemStableReferences => Items
+			.Select(x => x.ItemStableReference)
+			.ToArray();
+	}
 
 	internal sealed record ClothingItemDescriptionTestData(
 		string StableReference,
 		string FullDescription);
+
+	internal sealed record DocumentedClothingSkinTestData(
+		string StableReference,
+		string BaseItemStableReference,
+		string ItemName,
+		string ShortDescription,
+		string FullDescription,
+		ItemQuality Quality);
 
 	internal static IReadOnlyList<ClothingOutfitManifestTestData> AntiquityOutfitManifestSpecsForTesting =>
 		ToTestData(AntiquityOutfitManifestSpecs);
@@ -69,6 +111,17 @@ public partial class ItemSeeder
 			.Concat(RenaissanceClothingItemSpecs)
 			.Concat(EarlyModernOutfitReferencedItemSpecs)
 			.Select(x => new ClothingItemDescriptionTestData(x.StableReference, x.FullDescription))
+			.ToArray();
+
+	internal static IReadOnlyList<DocumentedClothingSkinTestData> DocumentedClothingSkinsForTesting =>
+		DocumentedClothingSkinSpecs
+			.Select(x => new DocumentedClothingSkinTestData(
+				x.StableReference,
+				x.BaseItemStableReference,
+				x.ItemName,
+				x.ShortDescription,
+				x.FullDescription,
+				x.Quality))
 			.ToArray();
 
 	internal static IReadOnlySet<string> RenaissanceOutfitItemStableReferencesForTesting =>
@@ -102,7 +155,15 @@ public partial class ItemSeeder
 	private static IReadOnlyList<ClothingOutfitManifestTestData> ToTestData(IEnumerable<OutfitManifestSpec> specs)
 	{
 		return specs
-			.Select(x => new ClothingOutfitManifestTestData(x.StableKey, x.Name, x.Description, x.ItemStableReferences))
+			.Select(x => new ClothingOutfitManifestTestData(
+				x.StableKey,
+				x.Name,
+				x.Description,
+				x.Items
+					.Select(item => new ClothingOutfitManifestItemTestData(
+						item.ItemStableReference,
+						item.SkinStableReference))
+					.ToArray()))
 			.ToArray();
 	}
 
@@ -166,28 +227,35 @@ public partial class ItemSeeder
 
 	private void SeedDocumentedClothingOutfitManifests(string eras)
 	{
+		var manifests = new List<OutfitManifestSpec>();
 		if (HasAnyEra(eras, "antiquity"))
 		{
 			SeedDocumentedClothingItems(AntiquityOutfitSupplementalItemSpecs);
-			UpsertOutfitManifests(AntiquityOutfitManifestSpecs);
+			manifests.AddRange(AntiquityOutfitManifestSpecs);
 		}
 
 		if (HasAnyEra(eras, "medieval"))
 		{
-			UpsertOutfitManifests(MedievalOutfitManifestSpecs);
+			manifests.AddRange(MedievalOutfitManifestSpecs);
 		}
 
 		if (HasAnyEra(eras, "renaissance"))
 		{
 			SeedDocumentedClothingItems(RenaissanceClothingItemSpecs);
-			UpsertOutfitManifests(RenaissanceOutfitManifestSpecs);
+			manifests.AddRange(RenaissanceOutfitManifestSpecs);
 		}
 
 		if (HasAnyEra(eras, "earlymodern"))
 		{
 			SeedDocumentedClothingItems(EarlyModernOutfitReferencedItemSpecs);
-			UpsertOutfitManifests(EarlyModernOutfitManifestSpecs);
+			manifests.AddRange(EarlyModernOutfitManifestSpecs);
 		}
+
+		var skins = SeedDocumentedClothingSkins(manifests
+			.SelectMany(x => x.Items)
+			.Where(x => x.SkinStableReference is not null)
+			.Select(x => x.SkinStableReference!));
+		UpsertOutfitManifests(manifests, skins);
 	}
 
 	private void SeedDocumentedClothingItems(IEnumerable<DocumentedClothingItemSpec> specs)
@@ -263,7 +331,178 @@ public partial class ItemSeeder
 			.ToArray();
 	}
 
+	private IReadOnlyDictionary<string, DbGameItemSkin> SeedDocumentedClothingSkins(
+		IEnumerable<string> requestedStableReferences)
+	{
+		if (_context is null)
+		{
+			throw new InvalidOperationException("The item seeder context must be initialised before documented clothing skins are seeded.");
+		}
+
+		var requested = requestedStableReferences
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		if (requested.Count == 0)
+		{
+			return new Dictionary<string, DbGameItemSkin>(StringComparer.OrdinalIgnoreCase);
+		}
+
+		var specs = DocumentedClothingSkinSpecs
+			.Where(x => requested.Contains(x.StableReference))
+			.ToArray();
+		var unknown = requested
+			.Except(specs.Select(x => x.StableReference), StringComparer.OrdinalIgnoreCase)
+			.ToArray();
+		if (unknown.Length > 0)
+		{
+			throw new InvalidOperationException(
+				$"Documented clothing outfits reference unknown skin keys: {string.Join(", ", unknown)}.");
+		}
+
+		var alwaysTrue = _context.FutureProgs.SingleOrDefault(x => x.FunctionName == "AlwaysTrue");
+		if (alwaysTrue is null && !_manifestCaptureOnly)
+		{
+			throw new InvalidOperationException("Documented clothing skins require the existing AlwaysTrue FutureProg.");
+		}
+		var alwaysTrueName = alwaysTrue?.FunctionName ?? "AlwaysTrue";
+		var currentSkins = _context.GameItemSkins
+			.Include(x => x.EditableItem)
+			.AsEnumerable()
+			.Where(x => x.EditableItem?.RevisionStatus == (int)RevisionStatus.Current)
+			.GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+			.ToDictionary(
+				x => x.Key,
+				x => x.Single(),
+				StringComparer.OrdinalIgnoreCase);
+		var nextSkinId = _context.GameItemSkins.Any()
+			? _context.GameItemSkins.Max(x => x.Id) + 1
+			: 1;
+		var resolved = new Dictionary<string, DbGameItemSkin>(StringComparer.OrdinalIgnoreCase);
+
+		foreach (var spec in specs)
+		{
+			if (!_itemsByStableReference.TryGetValue(spec.BaseItemStableReference, out var baseItem))
+			{
+				throw new InvalidOperationException(
+					$"Documented clothing skin {spec.StableReference} references missing item prototype {spec.BaseItemStableReference}.");
+			}
+
+			var expectedDefinition = new ItemSkinManifestDefinition(
+				spec.StableReference,
+				spec.BaseItemStableReference,
+				spec.ItemName,
+				spec.ShortDescription,
+				spec.FullDescription,
+				null,
+				(int)spec.Quality,
+				false,
+				alwaysTrueName);
+			var manifestEntry = RegisterManifestAggregate(
+				"item-skin",
+				spec.StableReference,
+				expectedDefinition,
+				[$"item:{spec.BaseItemStableReference}"]);
+			if (_manifestCaptureOnly)
+			{
+				continue;
+			}
+
+			if (currentSkins.TryGetValue(spec.StableReference, out var existing))
+			{
+				var liveDefinition = BuildLiveDocumentedClothingSkinDefinition(existing);
+				var disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
+				if (disposition is ManifestAggregateDisposition.Customized or ManifestAggregateDisposition.Unchanged)
+				{
+					resolved.Add(spec.StableReference, existing);
+					continue;
+				}
+
+				ApplyDocumentedClothingSkinSpec(existing, spec, baseItem, alwaysTrue!);
+				CompleteManifestAggregate(manifestEntry, existing.Id, expectedDefinition, disposition);
+				resolved.Add(spec.StableReference, existing);
+				continue;
+			}
+
+			var skin = new DbGameItemSkin
+			{
+				Id = nextSkinId++,
+				RevisionNumber = 0,
+				Name = spec.StableReference,
+				ItemProtoId = baseItem.Id,
+				ItemName = spec.ItemName,
+				ShortDescription = spec.ShortDescription,
+				FullDescription = spec.FullDescription,
+				LongDescription = null,
+				Quality = (int)spec.Quality,
+				IsPublic = false,
+				CanUseSkinProgId = alwaysTrue!.Id,
+				EditableItem = new EditableItem
+				{
+					RevisionNumber = 0,
+					RevisionStatus = (int)RevisionStatus.Current,
+					BuilderAccountId = _dbAccount.Id,
+					BuilderDate = _now,
+					BuilderComment = "Auto-generated by the system",
+					ReviewerAccountId = _dbAccount.Id,
+					ReviewerComment = "Auto-generated by the system",
+					ReviewerDate = _now
+				}
+			};
+			_context.GameItemSkins.Add(skin);
+			CompleteManifestAggregate(manifestEntry, skin.Id, expectedDefinition, ManifestAggregateDisposition.Insert);
+			resolved.Add(spec.StableReference, skin);
+		}
+
+		return resolved;
+	}
+
+	private ItemSkinManifestDefinition BuildLiveDocumentedClothingSkinDefinition(DbGameItemSkin skin)
+	{
+		var canUseSkinProg = skin.CanUseSkinProgId is null
+			? null
+			: _context!.FutureProgs
+				.Where(x => x.Id == skin.CanUseSkinProgId.Value)
+				.Select(x => x.FunctionName)
+				.SingleOrDefault();
+		return new ItemSkinManifestDefinition(
+			skin.Name,
+			ResolveItemStableReference(skin.ItemProtoId) ?? $"<missing:{skin.ItemProtoId}>",
+			skin.ItemName,
+			skin.ShortDescription,
+			skin.FullDescription,
+			skin.LongDescription,
+			skin.Quality,
+			skin.IsPublic,
+			canUseSkinProg ?? $"<missing:{skin.CanUseSkinProgId}>");
+	}
+
+	private static void ApplyDocumentedClothingSkinSpec(
+		DbGameItemSkin skin,
+		DocumentedClothingSkinSpec spec,
+		GameItemProto baseItem,
+		FutureProg alwaysTrue)
+	{
+		skin.Name = spec.StableReference;
+		skin.ItemProtoId = baseItem.Id;
+		skin.ItemName = spec.ItemName;
+		skin.ShortDescription = spec.ShortDescription;
+		skin.FullDescription = spec.FullDescription;
+		skin.LongDescription = null;
+		skin.Quality = (int)spec.Quality;
+		skin.IsPublic = false;
+		skin.CanUseSkinProgId = alwaysTrue.Id;
+	}
+
 	private void UpsertOutfitManifests(IEnumerable<OutfitManifestSpec> manifests)
+	{
+		UpsertOutfitManifests(
+			manifests,
+			new Dictionary<string, DbGameItemSkin>(StringComparer.OrdinalIgnoreCase));
+	}
+
+	private void UpsertOutfitManifests(
+		IEnumerable<OutfitManifestSpec> manifests,
+		IReadOnlyDictionary<string, DbGameItemSkin> skins)
 	{
 		if (_context is null)
 		{
@@ -282,12 +521,20 @@ public partial class ItemSeeder
 				manifest.Name,
 				$"{manifest.Description}{Environment.NewLine}{marker}",
 				(int)OutfitExclusivity.NonExclusive,
-				manifest.ItemStableReferences.ToArray());
+				manifest.Items
+					.Select(x => new OutfitManifestItemDefinition(
+						x.ItemStableReference,
+						x.SkinStableReference))
+					.ToArray());
 			var manifestEntry = RegisterManifestAggregate(
 				"outfit",
 				manifest.StableKey,
 				manifestDefinition,
-				manifest.ItemStableReferences.Select(x => $"item:{x}"));
+				manifest.Items
+					.Select(x => $"item:{x.ItemStableReference}")
+					.Concat(manifest.Items
+						.Where(x => x.SkinStableReference is not null)
+						.Select(x => $"item-skin:{x.SkinStableReference}")));
 			if (_manifestCaptureOnly)
 			{
 				continue;
@@ -303,7 +550,12 @@ public partial class ItemSeeder
 					existing.Exclusivity,
 					existing.OutfitTemplateItems
 						.OrderBy(x => x.WearOrder)
-						.Select(x => x.TemplateKey)
+						.Select(x => new OutfitManifestItemDefinition(
+							x.TemplateKey,
+							x.SkinId is null
+								? null
+								: skins.Values.SingleOrDefault(y => y.Id == x.SkinId.Value)?.Name ??
+								  $"<missing:{x.SkinId}>"))
 						.ToArray());
 				var disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
 				if (disposition is ManifestAggregateDisposition.Customized or ManifestAggregateDisposition.Unchanged)
@@ -311,12 +563,12 @@ public partial class ItemSeeder
 					continue;
 				}
 
-				var reconciled = UpsertOutfitManifest(_context, manifest, _items, templates);
+				var reconciled = UpsertOutfitManifest(_context, manifest, _items, skins, templates);
 				CompleteManifestAggregate(manifestEntry, reconciled.Id, manifestDefinition, disposition);
 				continue;
 			}
 
-			UpsertOutfitManifest(_context, manifest, _items, templates);
+			UpsertOutfitManifest(_context, manifest, _items, skins, templates);
 			CompleteManifestAggregate(manifestEntry, null, manifestDefinition, ManifestAggregateDisposition.Insert);
 		}
 	}
@@ -325,6 +577,7 @@ public partial class ItemSeeder
 		FuturemudDatabaseContext context,
 		OutfitManifestSpec manifest,
 		IReadOnlyDictionary<string, GameItemProto> itemPrototypes,
+		IReadOnlyDictionary<string, DbGameItemSkin> skins,
 		ICollection<OutfitTemplate> templates)
 	{
 		if (manifest.Name.Length > 200)
@@ -333,7 +586,8 @@ public partial class ItemSeeder
 				$"Outfit manifest {manifest.StableKey} has a name longer than the database limit of 200 characters.");
 		}
 
-		var duplicateReferences = manifest.ItemStableReferences
+		var duplicateReferences = manifest.Items
+			.Select(x => x.ItemStableReference)
 			.GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
 			.Where(x => x.Count() > 1)
 			.Select(x => x.Key)
@@ -344,13 +598,35 @@ public partial class ItemSeeder
 				$"Outfit manifest {manifest.StableKey} repeats item references: {string.Join(", ", duplicateReferences)}.");
 		}
 
-		var missingReferences = manifest.ItemStableReferences
+		var missingReferences = manifest.Items
+			.Select(x => x.ItemStableReference)
 			.Where(x => !itemPrototypes.ContainsKey(x))
 			.ToArray();
 		if (missingReferences.Length > 0)
 		{
 			throw new InvalidOperationException(
 				$"Outfit manifest {manifest.StableKey} references missing item prototypes: {string.Join(", ", missingReferences)}.");
+		}
+
+		var missingSkins = manifest.Items
+			.Where(x => x.SkinStableReference is not null && !skins.ContainsKey(x.SkinStableReference))
+			.Select(x => x.SkinStableReference!)
+			.ToArray();
+		if (missingSkins.Length > 0)
+		{
+			throw new InvalidOperationException(
+				$"Outfit manifest {manifest.StableKey} references missing item skins: {string.Join(", ", missingSkins)}.");
+		}
+
+		var mismatchedSkins = manifest.Items
+			.Where(x => x.SkinStableReference is not null &&
+			            skins[x.SkinStableReference!].ItemProtoId != itemPrototypes[x.ItemStableReference].Id)
+			.Select(x => x.SkinStableReference!)
+			.ToArray();
+		if (mismatchedSkins.Length > 0)
+		{
+			throw new InvalidOperationException(
+				$"Outfit manifest {manifest.StableKey} binds skins to incompatible item prototypes: {string.Join(", ", mismatchedSkins)}.");
 		}
 
 		var marker = GetOutfitManifestMarker(manifest.StableKey);
@@ -393,12 +669,13 @@ public partial class ItemSeeder
 		outfitTemplate.Description = $"{manifest.Description}{Environment.NewLine}{marker}";
 		outfitTemplate.Exclusivity = (int)OutfitExclusivity.NonExclusive;
 
-		foreach (var (stableReference, wearOrder) in manifest.ItemStableReferences.Select((x, index) => (x, index)))
+		foreach (var (item, wearOrder) in manifest.Items.Select((x, index) => (x, index)))
 		{
 			outfitTemplate.OutfitTemplateItems.Add(new OutfitTemplateItem
 			{
-				TemplateKey = stableReference,
-				GameItemProtoId = itemPrototypes[stableReference].Id,
+				TemplateKey = item.ItemStableReference,
+				GameItemProtoId = itemPrototypes[item.ItemStableReference].Id,
+				SkinId = item.SkinStableReference is null ? null : skins[item.SkinStableReference].Id,
 				WearProfileId = null,
 				Placement = (int)OutfitTemplateItemPlacement.Worn,
 				ContainerKey = null,
@@ -436,8 +713,44 @@ public partial class ItemSeeder
 			.ToList();
 		return UpsertOutfitManifest(
 			context,
-			new OutfitManifestSpec(stableKey, name, description, itemList.Select(x => x.StableReference).ToArray()),
+			new OutfitManifestSpec(
+				stableKey,
+				name,
+				description,
+				itemList
+					.Select(x => new OutfitManifestItemSpec(x.StableReference, null))
+					.ToArray()),
 			itemList.ToDictionary(x => x.StableReference, x => x.Prototype, StringComparer.OrdinalIgnoreCase),
+			new Dictionary<string, DbGameItemSkin>(StringComparer.OrdinalIgnoreCase),
+			templates);
+	}
+
+	internal static OutfitTemplate UpsertOutfitManifestWithSkinsForTesting(
+		FuturemudDatabaseContext context,
+		string stableKey,
+		string name,
+		string description,
+		IEnumerable<(string StableReference, GameItemProto Prototype, string? SkinStableReference, DbGameItemSkin? Skin)> items)
+	{
+		var itemList = items.ToArray();
+		var templates = context.OutfitTemplates
+			.Include(x => x.OutfitTemplateItems)
+			.AsEnumerable()
+			.ToList();
+		var skins = itemList
+			.Where(x => x.SkinStableReference is not null && x.Skin is not null)
+			.ToDictionary(x => x.SkinStableReference!, x => x.Skin!, StringComparer.OrdinalIgnoreCase);
+		return UpsertOutfitManifest(
+			context,
+			new OutfitManifestSpec(
+				stableKey,
+				name,
+				description,
+				itemList
+					.Select(x => new OutfitManifestItemSpec(x.StableReference, x.SkinStableReference))
+					.ToArray()),
+			itemList.ToDictionary(x => x.StableReference, x => x.Prototype, StringComparer.OrdinalIgnoreCase),
+			skins,
 			templates);
 	}
 }

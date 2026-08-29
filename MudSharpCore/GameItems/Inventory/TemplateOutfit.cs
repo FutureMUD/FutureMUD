@@ -158,6 +158,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 		{
 			TemplateKey = item.TemplateKey,
 			GameItemProtoId = item.GameItemProto.Id,
+			SkinId = item.Skin?.Id ?? (item as TemplateOutfitItem)?.SkinId,
 			WearProfileId = item.DesiredProfile?.Id,
 			Placement = (int)item.Placement,
 			ContainerKey = item.ContainerKey,
@@ -183,10 +184,13 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 				item.WearOrder.ToString("N0", actor),
 				item.TemplateKey,
 				item.GameItemProto is null ? "Missing".ColourError() : $"#{item.GameItemProto.Id.ToString("N0", actor)} {item.GameItemProto.ShortDescription}",
+				item.Skin?.Name ?? (item is TemplateOutfitItem templateItem && templateItem.SkinId is not null
+					? $"Missing #{templateItem.SkinId.Value.ToString("N0", actor)}".ColourError()
+					: string.Empty),
 				PlacementDescription(item),
 				string.IsNullOrWhiteSpace(item.LoadArguments) ? "" : item.LoadArguments
 			},
-			new List<string> { "Order", "Key", "Prototype", "Placement", "Load Args" },
+			new List<string> { "Order", "Key", "Prototype", "Skin", "Placement", "Load Args" },
 			actor,
 			Telnet.Cyan));
 		var warnings = ValidationWarnings.ToList();
@@ -227,6 +231,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 	#3item remove <key>#0 - removes an item
 	#3item key <old> <new>#0 - renames an item key
 	#3item proto <key> <prototype>#0 - changes an item prototype
+	#3item skin <key> <skin|clear>#0 - sets or clears an item skin
 	#3item placement <key> worn [profile]|wielded|inventory|room|container <key>|attached [belt key]|sheathed [sheath key]#0 - changes placement
 	#3item args <key> <load args|clear>#0 - changes load arguments
 	#3item swap <key1> <key2>#0 - swaps item order".SubstituteANSIColour());
@@ -307,6 +312,8 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			case "proto":
 			case "prototype":
 				return BuildingCommandItemProto(actor, command);
+			case "skin":
+				return BuildingCommandItemSkin(actor, command);
 			case "placement":
 			case "place":
 				return BuildingCommandItemPlacement(actor, command);
@@ -316,7 +323,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			case "swap":
 				return BuildingCommandItemSwap(actor, command);
 			default:
-				actor.OutputHandler.Send("You must specify add, remove, key, proto, placement, args or swap.");
+				actor.OutputHandler.Send("You must specify add, remove, key, proto, skin, placement, args or swap.");
 				return false;
 		}
 	}
@@ -479,6 +486,55 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 
 		Changed = true;
 		actor.OutputHandler.Send($"Template item {item.TemplateKey.ColourName()} placement is now {PlacementDescription(item)}.");
+		return true;
+	}
+
+	private bool BuildingCommandItemSkin(ICharacter actor, StringStack command)
+	{
+		var item = GetTemplateItem(actor, command);
+		if (item is null)
+		{
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which item skin should this template item use, or should it be clear?");
+			return false;
+		}
+
+		if (command.PeekSpeech().EqualTo("clear"))
+		{
+			command.PopSpeech();
+			item.Skin = null;
+			Changed = true;
+			actor.OutputHandler.Send($"Template item {item.TemplateKey.ColourName()} will no longer use a skin.");
+			return true;
+		}
+
+		var skin = Gameworld.ItemSkins.GetByIdOrName(command.SafeRemainingArgument);
+		if (skin is null)
+		{
+			actor.OutputHandler.Send("There is no such item skin.");
+			return false;
+		}
+
+		if (skin.Status != RevisionStatus.Current)
+		{
+			actor.OutputHandler.Send($"{skin.EditHeader().ColourName()} is not approved for use.");
+			return false;
+		}
+
+		if (skin.ItemProto.Id != item.GameItemProto.Id)
+		{
+			actor.OutputHandler.Send(
+				$"This skin can only be used with the {skin.ItemProto.EditHeader().ColourName()} item prototype.");
+			return false;
+		}
+
+		item.Skin = skin;
+		Changed = true;
+		actor.OutputHandler.Send($"Template item {item.TemplateKey.ColourName()} will use {skin.Name.ColourName()}.");
 		return true;
 	}
 
@@ -771,6 +827,22 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			yield return $"Template item {item.TemplateKey} uses a prototype that prevents manual loading.";
 		}
 
+		if (item.Skin is not null)
+		{
+			if (item.Skin.Status != RevisionStatus.Current)
+			{
+				yield return $"Template item {item.TemplateKey} uses a non-current item skin.";
+			}
+			else if (item.Skin.ItemProto?.Id != item.GameItemProto.Id)
+			{
+				yield return $"Template item {item.TemplateKey} uses a skin for a different item prototype.";
+			}
+		}
+		else if (item is TemplateOutfitItem templateItem && templateItem.SkinId is not null)
+		{
+			yield return $"Template item {item.TemplateKey} uses a missing item skin #{templateItem.SkinId:N0}.";
+		}
+
 		switch (item.Placement)
 		{
 			case OutfitTemplateItemPlacement.Worn:
@@ -923,10 +995,19 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			throw new InvalidOperationException(warning);
 		}
 
+		foreach (var templateItem in _items.OrderBy(x => x.WearOrder).Where(x => x.Skin is not null))
+		{
+			var (canUse, error) = templateItem.Skin.CanUseSkin(target, templateItem.GameItemProto);
+			if (!canUse)
+			{
+				throw new InvalidOperationException($"Template item {templateItem.TemplateKey} cannot use its skin: {error}");
+			}
+		}
+
 		var createdItems = new Dictionary<string, IGameItem>(StringComparer.InvariantCultureIgnoreCase);
 		foreach (var templateItem in _items.OrderBy(x => x.WearOrder))
 		{
-			var item = templateItem.GameItemProto.CreateNew(target, null, 1, CombinedLoadArguments(templateItem.LoadArguments, loadArguments)).First();
+			var item = templateItem.GameItemProto.CreateNew(target, templateItem.Skin, 1, CombinedLoadArguments(templateItem.LoadArguments, loadArguments)).First();
 			item.SetOwner(target);
 			Gameworld.Add(item);
 			item.RoomLayer = target.RoomLayer;

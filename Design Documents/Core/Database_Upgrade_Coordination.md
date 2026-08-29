@@ -25,7 +25,7 @@ Disabled backups remain supported. Pending migration state is still written, but
 
 ## Snapshot and retention behavior
 
-Blank database snapshot import and export use unique temporary directories. The directories are removed in `finally` blocks after both success and exceptions. Export replaces the concrete database name with the maintained placeholder; import performs the reverse substitution before restore. Maintained snapshots may contain EF-generated idempotent migration deltas appended after the backup dump. Import restores the base dump first, then executes the appended delta section against the target database with support for MySQL `DELIMITER` directives before verifying the latest migration-history row.
+Blank database snapshot import and export use unique temporary directories. The directories are removed in `finally` blocks after both success and exceptions. Export replaces the concrete database name with the maintained placeholder; import performs the reverse substitution before restore. Restore explicitly creates and selects the target database before invoking the backup importer. Maintained snapshots may contain EF-generated idempotent migration deltas appended after the backup dump. Import restores the base dump first, then executes the appended delta section against the target database with support for MySQL `DELIMITER` directives before verifying the latest migration-history row.
 
 Backup pruning considers SQL files only, orders them newest first, and deletes entries beyond `RetainedBackupCount`.
 

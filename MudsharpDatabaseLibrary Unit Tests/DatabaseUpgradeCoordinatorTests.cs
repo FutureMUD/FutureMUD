@@ -320,6 +320,31 @@ public class DatabaseUpgradeCoordinatorTests
 	}
 
 	[TestMethod]
+	public void ImportBlankDatabaseSnapshot_AppendedMigrationDeltasExecuteAfterBaseRestore()
+	{
+		using var harness = new TemporaryDirectoryHarness();
+		var backupService = new FakeBackupService(harness.DirectoryPath);
+		var coordinator = new DatabaseUpgradeCoordinator(new FakeMigrationService(), backupService);
+		var snapshotPath = Path.Combine(harness.DirectoryPath, "BlankDatabaseSnapshot.sql");
+		File.WriteAllText(snapshotPath,
+			"CREATE DATABASE `__FUTUREMUD_DATABASE__`;\r\n" +
+			"-- EF-generated idempotent delta for LatestMigration\r\n" +
+			"INSERT INTO `__efmigrationshistory` VALUES ('LatestMigration');\r\n");
+
+		coordinator.ImportBlankDatabaseSnapshot(CreateRequest(harness.DirectoryPath).ConnectionString,
+			snapshotPath, "__FUTUREMUD_DATABASE__");
+
+		Assert.AreEqual(1, backupService.RestoreBackupCalls);
+		Assert.AreEqual(1, backupService.ExecuteSqlScriptCalls);
+		Assert.IsNotNull(backupService.LastRestoreContents);
+		Assert.IsFalse(backupService.LastRestoreContents.Contains("EF-generated idempotent delta",
+			StringComparison.Ordinal));
+		Assert.IsNotNull(backupService.LastExecutedScript);
+		StringAssert.StartsWith(backupService.LastExecutedScript, "-- EF-generated idempotent delta");
+		StringAssert.Contains(backupService.LastExecutedScript, "LatestMigration");
+	}
+
+	[TestMethod]
 	public void ImportBlankDatabaseSnapshot_RestoreFailure_RemovesScratchDirectory()
 	{
 		using var harness = new TemporaryDirectoryHarness();
@@ -407,7 +432,9 @@ public class DatabaseUpgradeCoordinatorTests
 		public int CreateBackupCalls { get; private set; }
 		public int RestoreBackupCalls { get; private set; }
 		public int RecreateEmptyDatabaseCalls { get; private set; }
+		public int ExecuteSqlScriptCalls { get; private set; }
 		public string? LastRestoreContents { get; private set; }
+		public string? LastExecutedScript { get; private set; }
 		public string? LastRestorePath { get; private set; }
 		public string? LastBackupDirectory { get; private set; }
 		public bool ThrowOnRestore { get; init; }
@@ -453,6 +480,8 @@ public class DatabaseUpgradeCoordinatorTests
 
 		public void ExecuteSqlScript(string connectionString, string scriptContents)
 		{
+			ExecuteSqlScriptCalls++;
+			LastExecutedScript = scriptContents;
 		}
 	}
 

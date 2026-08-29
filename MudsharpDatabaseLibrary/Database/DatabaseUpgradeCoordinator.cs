@@ -11,7 +11,8 @@ namespace MudSharp.Database;
 
 public sealed class DatabaseUpgradeCoordinator : IDatabaseUpgradeCoordinator
 {
-    private readonly IDatabaseMigrationService _migrationService;
+	private const string SnapshotDeltaMarker = "-- EF-generated idempotent delta";
+	private readonly IDatabaseMigrationService _migrationService;
     private readonly IDatabaseBackupService _backupService;
 
     public DatabaseUpgradeCoordinator()
@@ -165,14 +166,21 @@ public sealed class DatabaseUpgradeCoordinator : IDatabaseUpgradeCoordinator
         MySqlConnectionStringBuilder builder = new(connectionString);
         string tempDirectory = Path.Combine(Path.GetTempPath(), "FutureMUD-SnapshotImport", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDirectory);
-        try
-        {
-            string tempPath = Path.Combine(tempDirectory, Path.GetFileName(scriptPath));
-            string script = File.ReadAllText(scriptPath);
-            script = script.Replace(databaseNamePlaceholder, builder.Database, StringComparison.Ordinal);
-            File.WriteAllText(tempPath, script);
-            _backupService.RestoreBackup(connectionString, tempPath);
-        }
+		try
+		{
+			string tempPath = Path.Combine(tempDirectory, Path.GetFileName(scriptPath));
+			string script = File.ReadAllText(scriptPath);
+			script = script.Replace(databaseNamePlaceholder, builder.Database, StringComparison.Ordinal);
+			int deltaMarkerIndex = script.IndexOf(SnapshotDeltaMarker, StringComparison.Ordinal);
+			string backupScript = deltaMarkerIndex >= 0 ? script[..deltaMarkerIndex] : script;
+			string? deltaScript = deltaMarkerIndex >= 0 ? script[deltaMarkerIndex..] : null;
+			File.WriteAllText(tempPath, backupScript);
+			_backupService.RestoreBackup(connectionString, tempPath);
+			if (!string.IsNullOrWhiteSpace(deltaScript))
+			{
+				_backupService.ExecuteSqlScript(connectionString, deltaScript);
+			}
+		}
         finally
         {
             if (Directory.Exists(tempDirectory))

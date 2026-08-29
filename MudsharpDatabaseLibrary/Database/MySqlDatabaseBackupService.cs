@@ -114,13 +114,19 @@ public sealed class MySqlDatabaseBackupService : IDatabaseBackupService
         command.ExecuteNonQuery();
     }
 
-    public void ExecuteSqlScript(string connectionString, string scriptContents)
-    {
-        using MySqlConnection connection = new(GetServerConnectionString(connectionString));
-        connection.Open();
-        MySqlScript script = new(connection, scriptContents);
-        script.Execute();
-    }
+	public void ExecuteSqlScript(string connectionString, string scriptContents)
+	{
+		using MySqlConnection connection = new(connectionString);
+		connection.Open();
+		foreach (var batch in MySqlScriptBatchParser.Parse(scriptContents))
+		{
+			MySqlScript script = new(connection, batch.Script)
+			{
+				Delimiter = batch.Delimiter
+			};
+			script.Execute();
+		}
+	}
 
     private static string GetServerConnectionString(string connectionString)
     {

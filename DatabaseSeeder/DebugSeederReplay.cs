@@ -447,6 +447,7 @@ internal static class DebugSeederReplayProfiles
 				("culturepacks", culturePack),
 				("seednames", "yes"),
 				("seedlanguages", "yes"),
+				("seedsignedlanguages", "no"),
 				("seedheritage", "yes")),
 			Step<StockMeritsSeeder>(),
 			Step<AgricultureSeeder>(),

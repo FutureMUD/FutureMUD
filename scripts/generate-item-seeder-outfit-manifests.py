@@ -32,7 +32,13 @@ class Outfit:
 	key: str
 	name: str
 	description: str
-	items: tuple[str, ...]
+	items: tuple["OutfitManifestItem", ...]
+
+
+@dataclass(frozen=True)
+class OutfitManifestItem:
+	item_stable_reference: str
+	skin_stable_reference: str | None = None
 
 
 @dataclass(frozen=True)
@@ -50,6 +56,17 @@ class Item:
 	tags: tuple[str, ...]
 	components: tuple[str, ...]
 	builder_notes: str
+	use_authored_full_description: bool = False
+
+
+@dataclass(frozen=True)
+class Skin:
+	stable_reference: str
+	base_item_stable_reference: str
+	item_name: str
+	short_description: str
+	full_description: str
+	quality: str
 
 
 BELT_CAPACITY_WEAR_COMPONENTS = {"Wear_Waist", "Wear_Sash", "Wear_Bandolier"}
@@ -61,6 +78,13 @@ SIX_SLOT_BELT_ITEM_TERMS = {
 	"harness",
 	"obi",
 	"sash",
+}
+
+# The existing Latin liturgical set deliberately combines an amice and stole.
+# Both use the established scarf component, which is an intentional layered
+# exception rather than an accidental duplicate catalogue slot.
+RENAISSANCE_ALLOWED_SHARED_WEAR_COMPONENTS = {
+	"renaissance_outfit_latin_priest_mass": {"Wear_Scarf"},
 }
 BELT_LIKE_ITEM_TERMS = {
 	"baldric",
@@ -111,11 +135,39 @@ def read(path: Path) -> list[str]:
 	return path.read_text(encoding="utf-8-sig").splitlines()
 
 
+def manifest_item_from_markdown(line: str) -> OutfitManifestItem | None:
+	match = re.match(
+		r"^[-*] `(?P<item>[^`]+)`(?:\s+\[skin:\s*`(?P<skin>[^`]+)`\])?",
+		line,
+	)
+	if match is None:
+		return None
+	return OutfitManifestItem(match.group("item"), match.group("skin"))
+
+
+def manifest_items_from_markdown(value: str) -> tuple[OutfitManifestItem, ...]:
+	return tuple(
+		OutfitManifestItem(match.group("item"), match.group("skin"))
+		for match in re.finditer(
+			r"`(?P<item>[^`]+)`(?:\s*\[skin:\s*`(?P<skin>[^`]+)`\])?",
+			value,
+		)
+	)
+
+
+def admission_description(admission: str | None, purpose: str | None, fallback: str) -> str:
+	if admission is None and purpose is None:
+		return fallback
+	if admission is None or purpose is None:
+		raise ValueError("Documented outfit metadata must include both Admission and Purpose.")
+	return f"Admission: {admission.rstrip('.')}. Purpose: {purpose.rstrip('.')}."
+
+
 def parse_simple_outfits(path: Path, era: str) -> list[Outfit]:
 	lines = read(path)
 	active = False
-	parsed: list[tuple[str, list[str]]] = []
-	current: tuple[str, list[str]] | None = None
+	parsed: list[dict[str, object]] = []
+	current: dict[str, object] | None = None
 	for line in lines:
 		if line.startswith("## "):
 			if active:
@@ -125,20 +177,39 @@ def parse_simple_outfits(path: Path, era: str) -> list[Outfit]:
 		if not active:
 			continue
 		if line.startswith("### "):
-			current = (line[4:].strip(), [])
+			current = {
+				"title": line[4:].strip(),
+				"items": [],
+				"admission": None,
+				"purpose": None,
+			}
 			parsed.append(current)
 			continue
-		if current is not None and (match := re.match(r"^[-*] `([^`]+)`", line)):
-			current[1].append(match.group(1))
+		if current is None:
+			continue
+		if line.startswith("> Admission:"):
+			current["admission"] = line.removeprefix("> Admission:").strip()
+			continue
+		if line.startswith("> Purpose:"):
+			current["purpose"] = line.removeprefix("> Purpose:").strip()
+			continue
+		if item := manifest_item_from_markdown(line):
+			items = current["items"]
+			assert isinstance(items, list)
+			items.append(item)
 
 	return [
 		Outfit(
 			f"{era.casefold()}_outfit_{index:04d}",
-			f"{era} {title}",
-			f"Builder-facing {era.lower()} clothing outfit for {title}.",
-			tuple(items),
+			f"{era} {entry['title']}",
+			admission_description(
+				entry["admission"] if isinstance(entry["admission"], str) else None,
+				entry["purpose"] if isinstance(entry["purpose"], str) else None,
+				f"Builder-facing {era.lower()} clothing outfit for {entry['title']}.",
+			),
+			tuple(entry["items"]),
 		)
-		for index, (title, items) in enumerate(parsed, 1)
+		for index, entry in enumerate(parsed, 1)
 	]
 
 
@@ -146,13 +217,20 @@ def parse_early_modern_outfits() -> list[Outfit]:
 	lines = read(EARLY_MODERN_DOC)
 	h2 = ""
 	h3 = ""
-	parsed: list[tuple[str, str, str, list[str]]] = []
-	current: tuple[str, str, str, list[str]] | None = None
+	parsed: list[dict[str, object]] = []
+	current: dict[str, object] | None = None
 	for line in lines:
 		if line.startswith("#### "):
 			title = line[5:].strip()
 			if re.search(r"\boutfit\b", title, re.IGNORECASE):
-				current = (h2, h3, title, [])
+				current = {
+					"section": h2,
+					"grouping": h3,
+					"title": title,
+					"items": [],
+					"admission": None,
+					"purpose": None,
+				}
 				parsed.append(current)
 			else:
 				current = None
@@ -166,13 +244,24 @@ def parse_early_modern_outfits() -> list[Outfit]:
 			h3 = ""
 			current = None
 			continue
-		if current is not None and (match := re.match(r"^[-*] `([^`]+)`", line)):
-			current[3].append(match.group(1))
+		if current is None:
+			continue
+		if line.startswith("> Admission:"):
+			current["admission"] = line.removeprefix("> Admission:").strip()
+			continue
+		if line.startswith("> Purpose:"):
+			current["purpose"] = line.removeprefix("> Purpose:").strip()
+			continue
+		if item := manifest_item_from_markdown(line):
+			items = current["items"]
+			assert isinstance(items, list)
+			items.append(item)
 
-	labels = [title.split("—", 1)[-1].strip() for _, _, title, _ in parsed]
+	labels = [str(entry["title"]).split("—", 1)[-1].strip() for entry in parsed]
 	label_counts = {label.casefold(): sum(x.casefold() == label.casefold() for x in labels) for label in labels}
 	draft_names: list[str] = []
-	for (_, grouping, _, _), label in zip(parsed, labels, strict=True):
+	for entry, label in zip(parsed, labels, strict=True):
+		grouping = str(entry["grouping"])
 		if label_counts[label.casefold()] == 1 or not grouping:
 			draft_names.append(f"Early Modern {label}")
 			continue
@@ -184,16 +273,22 @@ def parse_early_modern_outfits() -> list[Outfit]:
 	}
 
 	outfits: list[Outfit] = []
-	for index, ((section, grouping, _, items), label, draft_name) in enumerate(
+	for index, (entry, label, draft_name) in enumerate(
 		zip(parsed, labels, draft_names, strict=True), 1
 	):
+		section = str(entry["section"])
+		grouping = str(entry["grouping"])
 		name = (
 			f"Early Modern {grouping} {label}"
 			if draft_name_counts[draft_name.casefold()] > 1
 			else draft_name
 		)
-		description = f"Grouping: {grouping}. Collection: {section}."
-		outfits.append(Outfit(f"earlymodern_outfit_{index:04d}", name, description, tuple(items)))
+		description = admission_description(
+			entry["admission"] if isinstance(entry["admission"], str) else None,
+			entry["purpose"] if isinstance(entry["purpose"], str) else None,
+			f"Grouping: {grouping}. Collection: {section}.",
+		)
+		outfits.append(Outfit(f"earlymodern_outfit_{index:04d}", name, description, tuple(entry["items"])))
 	return outfits
 
 
@@ -211,7 +306,7 @@ def parse_renaissance_outfits() -> list[Outfit]:
 		if len(cells) != 5:
 			raise ValueError(f"Malformed Renaissance outfit manifest row: {line}")
 		stable_key = strip_ticks(cells[0])
-		item_references = tuple(re.findall(r"`(renaissance_[^`]+)`", cells[4]))
+		item_references = manifest_items_from_markdown(cells[4])
 		outfits.append(
 			Outfit(
 				stable_key,
@@ -221,6 +316,59 @@ def parse_renaissance_outfits() -> list[Outfit]:
 			)
 		)
 	return outfits
+
+
+def parse_documented_skins(path: Path) -> list[Skin]:
+	lines = read(path)
+	active = False
+	current: dict[str, str] | None = None
+	skins: list[Skin] = []
+	for line in lines:
+		if line.startswith("## "):
+			if active:
+				break
+			active = line.casefold() == "## seeded presentation skins"
+			continue
+		if not active:
+			continue
+		if line.startswith("### "):
+			if current is not None:
+				skins.append(
+					Skin(
+						current["stable_reference"],
+						current["base_item_stable_reference"],
+						current["item_name"],
+						current["short_description"],
+						current["full_description"],
+						current["quality"],
+					)
+				)
+			current = {"stable_reference": line[4:].strip()}
+			continue
+		if current is None or not line.startswith("- "):
+			continue
+		if line.startswith("- Base prototype: "):
+			current["base_item_stable_reference"] = strip_ticks(line.removeprefix("- Base prototype: "))
+		elif line.startswith("- Override noun: "):
+			current["item_name"] = strip_ticks(line.removeprefix("- Override noun: "))
+		elif line.startswith("- Override short description: "):
+			current["short_description"] = strip_ticks(line.removeprefix("- Override short description: "))
+		elif line.startswith("- Override quality: "):
+			current["quality"] = strip_ticks(line.removeprefix("- Override quality: ")).removeprefix("ItemQuality.")
+		elif line.startswith("- Override full description: "):
+			current["full_description"] = line.removeprefix("- Override full description: ").strip()
+	if active and current is not None:
+		skins.append(
+			Skin(
+				current["stable_reference"],
+				current["base_item_stable_reference"],
+				current["item_name"],
+				current["short_description"],
+				current["full_description"],
+				current["quality"],
+			)
+		)
+	return skins
 
 
 def markdown_9_cell_rows() -> dict[str, list[str]]:
@@ -334,20 +482,34 @@ def item_from_9_cell_row(row: list[str]) -> Item:
 	weight, cost = (value.strip() for value in row[5].split("/", 1))
 	components = split_tick_list(row[6])
 	tags = split_tick_list(row[7])
+	notes = row[8]
+	is_stock_skinnable = notes.endswith(" [skinnable]")
+	if is_stock_skinnable:
+		notes = notes.removesuffix(" [skinnable]")
+	has_authored_full_description = notes.startswith("Full description: ")
+	full_description = (
+		notes.removeprefix("Full description: ").strip()
+		if has_authored_full_description
+		else authored_full_description(short_description, noun, material, components, quality.replace(" ", ""))
+	)
 	return Item(
 		stable_reference,
 		noun,
 		short_description,
-		authored_full_description(short_description, noun, material, components, quality.replace(" ", "")),
+		full_description,
 		size.replace(" ", ""),
 		quality.replace(" ", ""),
 		weight.removesuffix("g").strip(),
 		cost.removesuffix("m").strip(),
-		"$" in short_description or any(component.startswith("Variable_") for component in components),
+		"$" in short_description or
+		any(component.startswith("Variable_") for component in components) or
+		"skinnable" in notes.casefold() or is_stock_skinnable,
 		material,
 		tags,
 		components,
-		row[8],
+		notes if not has_authored_full_description else
+		"Canonical Renaissance stock item with an authored full description.",
+		has_authored_full_description,
 	)
 
 
@@ -701,6 +863,20 @@ def renaissance_catalogue_rows() -> dict[str, list[str]]:
 	return rows
 
 
+def renaissance_item_overrides() -> dict[str, list[str]]:
+	rows: dict[str, list[str]] = {}
+	for path in RENAISSANCE_DOCS:
+		for line in read(path):
+			match = re.match(r"^\|\s*`(renaissance_[^`]+)`\s*\|", line)
+			if match is None:
+				continue
+			cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+			if len(cells) != 9:
+				continue
+			rows[match.group(1)] = cells
+	return rows
+
+
 def renaissance_short_description(public_form: str) -> str:
 	if public_form.startswith("pair of "):
 		return f"a pair of $colour {public_form.removeprefix('pair of ')}"
@@ -762,10 +938,21 @@ def array(values: tuple[str, ...]) -> str:
 	return "[" + ", ".join(cs(value) for value in values) + "]"
 
 
+def manifest_item_array(values: tuple[OutfitManifestItem, ...]) -> str:
+	return "[" + ", ".join(
+		f"new({cs(value.item_stable_reference)}, "
+		f"{cs(value.skin_stable_reference) if value.skin_stable_reference else 'null'})"
+		for value in values
+	) + "]"
+
+
 def render_manifest_array(name: str, outfits: list[Outfit]) -> list[str]:
 	lines = [f"\tprivate static readonly OutfitManifestSpec[] {name} =", "\t["]
 	for outfit in outfits:
-		lines.append(f"\t\tnew({cs(outfit.key)}, {cs(outfit.name)}, {cs(outfit.description)}, {array(outfit.items)}),")
+		lines.append(
+			f"\t\tnew({cs(outfit.key)}, {cs(outfit.name)}, {cs(outfit.description)}, "
+			f"{manifest_item_array(outfit.items)}),"
+		)
 	lines.extend(["\t];", ""])
 	return lines
 
@@ -773,11 +960,28 @@ def render_manifest_array(name: str, outfits: list[Outfit]) -> list[str]:
 def render_item_array(name: str, items: list[Item]) -> list[str]:
 	lines = [f"\tprivate static readonly DocumentedClothingItemSpec[] {name} =", "\t["]
 	for item in items:
+		full_description = (
+			cs(item.full_description)
+			if item.use_authored_full_description
+			else f"BuildDocumentedClothingFullDescription({cs(item.short_description)}, {cs(item.noun)}, {cs(item.material)}, "
+			f"{array(item.components)}, ItemQuality.{item.quality})"
+		)
 		lines.append(
 			f"\t\tnew({cs(item.stable_reference)}, {cs(item.noun)}, {cs(item.short_description)}, "
-			f"BuildDocumentedClothingFullDescription({cs(item.short_description)}, {cs(item.noun)}, {cs(item.material)}, "
-			f"{array(item.components)}, ItemQuality.{item.quality}), SizeCategory.{item.size}, ItemQuality.{item.quality}, {item.weight}, {item.cost}m, "
+			f"{full_description}, SizeCategory.{item.size}, ItemQuality.{item.quality}, {item.weight}, {item.cost}m, "
 			f"{str(item.skinnable).lower()}, {cs(item.material)}, {array(item.tags)}, {array(item.components)}, {cs(item.builder_notes)}),"
+		)
+	lines.extend(["\t];", ""])
+	return lines
+
+
+def render_skin_array(name: str, skins: list[Skin]) -> list[str]:
+	lines = [f"\tprivate static readonly DocumentedClothingSkinSpec[] {name} =", "\t["]
+	for skin in skins:
+		lines.append(
+			f"\t\tnew({cs(skin.stable_reference)}, {cs(skin.base_item_stable_reference)}, "
+			f"{cs(skin.item_name)}, {cs(skin.short_description)}, {cs(skin.full_description)}, "
+			f"ItemQuality.{skin.quality}),"
 		)
 	lines.extend(["\t];", ""])
 	return lines
@@ -788,9 +992,14 @@ def generate() -> str:
 	medieval = parse_simple_outfits(MEDIEVAL_DOC, "Medieval")
 	renaissance = parse_renaissance_outfits()
 	early_modern = parse_early_modern_outfits()
+	skins = (
+		parse_documented_skins(ANTIQUITY_DOC) +
+		parse_documented_skins(RENAISSANCE_MASTER_DOC) +
+		parse_documented_skins(EARLY_MODERN_DOC)
+	)
 	all_outfits = antiquity + medieval + renaissance + early_modern
 
-	if (len(antiquity), len(medieval), len(renaissance), len(early_modern)) != (29, 164, 59, 883):
+	if (len(antiquity), len(medieval), len(renaissance), len(early_modern)) != (34, 167, 65, 885):
 		raise ValueError(
 			f"Unexpected outfit counts: Antiquity={len(antiquity)}, Medieval={len(medieval)}, "
 			f"Renaissance={len(renaissance)}, EarlyModern={len(early_modern)}"
@@ -799,18 +1008,40 @@ def generate() -> str:
 		raise ValueError("Generated outfit manifest keys are not unique")
 	if len({outfit.name.casefold() for outfit in all_outfits}) != len(all_outfits):
 		raise ValueError("Generated outfit manifest names are not unique")
+	if len(skins) != 5:
+		raise ValueError(f"Unexpected documented clothing skin count: {len(skins)}")
+	if len({skin.stable_reference.casefold() for skin in skins}) != len(skins):
+		raise ValueError("Generated clothing skin stable references are not unique")
 	for outfit in all_outfits:
 		if not outfit.items:
 			raise ValueError(f"Outfit {outfit.key} has no item references")
-		if len({item.casefold() for item in outfit.items}) != len(outfit.items):
+		if len({item.item_stable_reference.casefold() for item in outfit.items}) != len(outfit.items):
 			raise ValueError(f"Outfit {outfit.key} repeats an item reference")
-		if len(outfit.key) > 100 or len(outfit.name) > 200 or any(len(item) > 100 for item in outfit.items):
+		if len(outfit.key) > 100 or len(outfit.name) > 200 or any(
+			len(item.item_stable_reference) > 100 or
+			(item.skin_stable_reference is not None and len(item.skin_stable_reference) > 100)
+			for item in outfit.items
+		):
 			raise ValueError(f"Outfit {outfit.key} exceeds an outfit-template database text limit")
 
 	rows = markdown_9_cell_rows()
 	medieval_source_items = extract_create_item_calls(MEDIEVAL_SOURCE)
 	renaissance_admissions = renaissance_admission_items()
-	early_modern_outfit_refs = {item for outfit in early_modern for item in outfit.items}
+	renaissance_rows = renaissance_catalogue_rows()
+	renaissance_overrides = renaissance_item_overrides()
+	renaissance_catalogue_items = {
+		stable_reference: renaissance_item_from_catalogue_row(row)
+		for stable_reference, row in renaissance_rows.items()
+	}
+	renaissance_catalogue_items.update({
+		stable_reference: item_from_9_cell_row(row)
+		for stable_reference, row in renaissance_overrides.items()
+	})
+	early_modern_outfit_refs = {
+		item.item_stable_reference
+		for outfit in early_modern
+		for item in outfit.items
+	}
 	fifth_pass_refs = {
 		stable_reference
 		for stable_reference in rows
@@ -829,13 +1060,15 @@ def generate() -> str:
 			early_modern_items[stable_reference] = medieval_source_items[stable_reference]
 		elif stable_reference in renaissance_admissions:
 			early_modern_items[stable_reference] = renaissance_admissions[stable_reference]
+		elif stable_reference in renaissance_catalogue_items:
+			early_modern_items[stable_reference] = renaissance_catalogue_items[stable_reference]
 		else:
 			raise ValueError(f"No documented or live-source item definition for {stable_reference}")
 	early_modern_items = {
 		stable_reference: with_belt_capacity(item)
 		for stable_reference, item in early_modern_items.items()
 	}
-	if len(early_modern_items) != 1033:
+	if len(early_modern_items) != 1034:
 		raise ValueError(f"Unexpected Early Modern clothing catalogue count: {len(early_modern_items)}")
 	for item in early_modern_items.values():
 		wear_components = [component for component in item.components if component.startswith("Wear_")]
@@ -844,19 +1077,15 @@ def generate() -> str:
 				f"Outfit item {item.stable_reference} must define exactly one wearable component; found {wear_components}"
 			)
 
-	renaissance_rows = renaissance_catalogue_rows()
-	if len(renaissance_rows) != 471:
+	if len(renaissance_rows) != 472:
 		raise ValueError(f"Unexpected Renaissance clothing catalogue count: {len(renaissance_rows)}")
 	renaissance_items = {
 		stable_reference: with_belt_capacity(
-			early_modern_items.get(
-				stable_reference,
-				renaissance_item_from_catalogue_row(row)
-			)
+			early_modern_items.get(stable_reference, renaissance_catalogue_items[stable_reference])
 		)
 		for stable_reference, row in sorted(renaissance_rows.items())
 	}
-	if len(renaissance_items) != 471:
+	if len(renaissance_items) != 472:
 		raise ValueError(f"Unexpected Renaissance clothing item count: {len(renaissance_items)}")
 	for item in renaissance_items.values():
 		wear_components = [component for component in item.components if component.startswith("Wear_")]
@@ -865,20 +1094,74 @@ def generate() -> str:
 				f"Renaissance clothing item {item.stable_reference} must define at most one wearable component; "
 				f"found {wear_components}"
 			)
+	renaissance_cross_era_items = {
+		**medieval_source_items,
+		**{
+			stable_reference: item_from_9_cell_row(row)
+			for stable_reference, row in rows.items()
+			if stable_reference.startswith("preindustrial_")
+		},
+	}
 	for outfit in renaissance:
-		wear_components = [
-			next(
-				component
-				for component in renaissance_items[stable_reference].components
+		wear_components: list[str] = []
+		for item in outfit.items:
+			referenced_item = (
+				renaissance_items.get(item.item_stable_reference) or
+				renaissance_cross_era_items.get(item.item_stable_reference)
+			)
+			if referenced_item is None:
+				raise ValueError(
+					f"Renaissance outfit {outfit.key} references an unresolved item "
+					f"{item.item_stable_reference}"
+				)
+			item_wear_components = [
+				component for component in referenced_item.components
 				if component.startswith("Wear_")
-			)
-			for stable_reference in outfit.items
-		]
+			]
+			if len(item_wear_components) != 1:
+				raise ValueError(
+					f"Renaissance outfit {outfit.key} item {item.item_stable_reference} must define "
+					f"exactly one wearable component; found {item_wear_components}"
+				)
+			wear_components.append(item_wear_components[0])
 		duplicates = sorted({component for component in wear_components if wear_components.count(component) > 1})
-		if duplicates:
+		unexpected_duplicates = sorted(
+			set(duplicates) - RENAISSANCE_ALLOWED_SHARED_WEAR_COMPONENTS.get(outfit.key, set())
+		)
+		if unexpected_duplicates:
 			raise ValueError(
-				f"Renaissance outfit {outfit.key} repeats default wearable components: {duplicates}"
+				f"Renaissance outfit {outfit.key} repeats default wearable components: {unexpected_duplicates}"
 			)
+
+	antiquity_live_items = extract_create_item_calls(ROOT / "DatabaseSeeder/Seeders/ItemSeeder.Antiquity.cs")
+	skin_by_stable_reference = {skin.stable_reference: skin for skin in skins}
+	known_skin_base_items = {
+		*antiquity_live_items,
+		*medieval_source_items,
+		*renaissance_items,
+		*renaissance_admissions,
+		*early_modern_items,
+	}
+	for skin in skins:
+		if skin.base_item_stable_reference not in known_skin_base_items:
+			raise ValueError(
+				f"Skin {skin.stable_reference} references an unresolved base item "
+				f"{skin.base_item_stable_reference}"
+			)
+	for outfit in all_outfits:
+		for item in outfit.items:
+			if item.skin_stable_reference is None:
+				continue
+			skin = skin_by_stable_reference.get(item.skin_stable_reference)
+			if skin is None:
+				raise ValueError(
+					f"Outfit {outfit.key} references an unresolved skin {item.skin_stable_reference}"
+				)
+			if skin.base_item_stable_reference != item.item_stable_reference:
+				raise ValueError(
+					f"Outfit {outfit.key} binds skin {skin.stable_reference} to "
+					f"{item.item_stable_reference}, but it targets {skin.base_item_stable_reference}"
+				)
 
 	antiquity_source_items = parse_full_bullet_specs(ANTIQUITY_DOC)
 	antiquity_missing_refs = {
@@ -916,6 +1199,7 @@ def generate() -> str:
 	lines.extend(render_item_array("AntiquityOutfitSupplementalItemSpecs", antiquity_items))
 	lines.extend(render_item_array("RenaissanceClothingItemSpecs", list(renaissance_items.values())))
 	lines.extend(render_item_array("EarlyModernOutfitReferencedItemSpecs", list(early_modern_items.values())))
+	lines.extend(render_skin_array("DocumentedClothingSkinSpecs", skins))
 	lines.extend(render_manifest_array("AntiquityOutfitManifestSpecs", antiquity))
 	lines.extend(render_manifest_array("MedievalOutfitManifestSpecs", medieval))
 	lines.extend(render_manifest_array("RenaissanceOutfitManifestSpecs", renaissance))

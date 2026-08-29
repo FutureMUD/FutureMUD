@@ -11,7 +11,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BlankDatabaseSnapshotTests
 {
-	private const string LatestMigrationId = "20260822233623_AddRestaurantServicePresentation";
+	private const string LatestMigrationId = "20260829082253_AddOutfitTemplateItemSkin";
 
     [TestMethod]
     public void CommittedBlankSnapshotManifest_TracksLatestMigration()
@@ -35,7 +35,8 @@ public class BlankDatabaseSnapshotTests
 
 		// The maintained MySQL dump writes migration history in a batched INSERT, so the
 		// newest migration is usually not the first tuple after VALUES.
-		StringAssert.Contains(snapshot, $"('{latestMigrationId}',");
+		Assert.IsTrue(snapshot.Contains($"('{latestMigrationId}',", StringComparison.Ordinal),
+			$"The blank database snapshot does not record migration {latestMigrationId}.");
 	}
 
 	[TestMethod]
@@ -53,7 +54,7 @@ public class BlankDatabaseSnapshotTests
 			         "__EFMigrationsHistory", "Vehicles", "VehicleOccupantSlotProtos",
 			         "VehicleMovementProfileProtos", "VehiclePropulsionProfileProtos",
 			         "CharacterCombatSettings", "TraitDefinitions", "RangedCovers", "LootTables",
-			         "EditableItems"
+			         "EditableItems", "OutfitTemplateItems"
 		         })
 		{
 			Assert.IsFalse(deltas.Contains($"`{table}`", StringComparison.Ordinal),

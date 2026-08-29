@@ -285,7 +285,7 @@ public partial class ItemSeeder
 
         const string romanKnowledge = "Roman Textilecraft";
         const string romanKnowledgeDescription =
-            "Roman garment knowledge for assembling tunicae, togae, pallae, stolae, paenulae, udones, practical hand wraps, and woollen mantles.";
+            "Roman garment knowledge for assembling tunicae, togae, pallae, stolae, paenulae, udones, focale neckcloths, sagum cloaks, ritual infulae, practical hand wraps, and woollen mantles.";
 
         var missingGarments = RomanAntiquityClothingStableReferences.Keys
             .Where(x => !TryLookupReworkItem(x, out _))
@@ -346,7 +346,10 @@ public partial class ItemSeeder
             (StableReference: "antiquity_hooded_wool_paenula", Name: "assemble a hooded wool paenula", DisplayName: "a hooded wool paenula", Material: "wool", Cloth: 1450, Yarn: 50, Fine: false, Minimum: 30, Difficulty: Difficulty.Hard),
             (StableReference: "antiquity_fine_toga_praetexta", Name: "assemble a fine toga praetexta", DisplayName: "a fine toga praetexta", Material: "wool", Cloth: 2900, Yarn: 90, Fine: true, Minimum: 50, Difficulty: Difficulty.Hard),
             (StableReference: "antiquity_wool_udones", Name: "assemble wool udones", DisplayName: "wool udones", Material: "wool", Cloth: 95, Yarn: 12, Fine: false, Minimum: 15, Difficulty: Difficulty.Easy),
-            (StableReference: "antiquity_wool_hand_wraps", Name: "assemble wool hand wraps", DisplayName: "wool hand wraps", Material: "wool", Cloth: 120, Yarn: 10, Fine: false, Minimum: 15, Difficulty: Difficulty.Easy)
+            (StableReference: "antiquity_wool_hand_wraps", Name: "assemble wool hand wraps", DisplayName: "wool hand wraps", Material: "wool", Cloth: 120, Yarn: 10, Fine: false, Minimum: 15, Difficulty: Difficulty.Easy),
+            (StableReference: "antiquity_roman_wool_focale", Name: "assemble a wool focale", DisplayName: "a wool focale", Material: "wool", Cloth: 150, Yarn: 10, Fine: false, Minimum: 15, Difficulty: Difficulty.Easy),
+            (StableReference: "antiquity_roman_wool_sagum", Name: "assemble a wool sagum", DisplayName: "a wool sagum", Material: "wool", Cloth: 1250, Yarn: 40, Fine: false, Minimum: 20, Difficulty: Difficulty.Normal),
+            (StableReference: "antiquity_italic_white_wool_infula", Name: "assemble a white wool infula", DisplayName: "a white wool infula", Material: "wool", Cloth: 80, Yarn: 8, Fine: false, Minimum: 15, Difficulty: Difficulty.Easy)
         })
         {
             var characteristicRequirements = garment.Fine
@@ -2377,7 +2380,7 @@ public partial class ItemSeeder
         const string ancientKnowledgeDescription =
             "Shared ancient techniques for preparing textile fibres, spinning yarn, weaving cloth, dyeing, fulling, and textile ornament stock.";
         const string egyptianKnowledgeDescription =
-            "Egyptian garment knowledge for assembling linen kilts, scribe kilts, shoulder cloths, sleeveless tunics, temple shifts, robes, shawls, headdresses, and beaded linen dress pieces.";
+            "Egyptian garment knowledge for assembling linen kilts, scribe kilts, shoulder cloths, sleeveless tunics, temple shifts, robes, shawls, headdresses, beaded linen dress pieces, and temple hide mantles.";
 
         AddCraft(
             "sort glass beads for textile edging",
@@ -2503,5 +2506,25 @@ public partial class ItemSeeder
                 garment.BeadStock > 0 ? beadingTools : sewingTools,
                 [StableVariableProduct(garment.StableReference, garment.Fine)]);
         }
+
+        AddEgyptianGarmentCraft(
+            "assemble a spotted hide priest mantle",
+            "assemble a spotted hide priest mantle for temple ritual",
+            "assemble a spotted hide priest mantle",
+            "a spotted hide shoulder mantle being prepared for temple ritual",
+            30,
+            Difficulty.Hard,
+            [
+                (35, "$0 inspect|inspects $i1, selecting the most striking portions of the hide for a ceremonial mantle.", "$0 inspect|inspects $i1, but overlook|overlooks flaws in the ceremonial hide."),
+                (40, "$0 cut|cuts the hide with $t2 and shape|shapes the diagonal shoulder fall.", "$0 cut|cuts with $t2, but leave|leaves the shoulder fall uneven."),
+                (45, "$0 stitch|stitches softened ties and reinforced edges with $t1.", "$0 stitch|stitches with $t1, but the ties and edges pull out of line."),
+                (30, "$0 arrange|arranges $p1, checking the ritual drape across the shoulder.", "$0 arrange|arranges only $f1 after the hide is spoiled.")
+            ],
+            [
+                "Commodity - 1 kilogram 200 grams of animal skin; piletag Prepared Hide; characteristic Colour any; characteristic Fine Colour any",
+                "Commodity - 30 grams of linen; piletag Spun Yarn; characteristic Colour any"
+            ],
+            sewingTools,
+            [StableSimpleProduct("antiquity_egyptian_spotted_hide_priest_mantle")]);
     }
 }

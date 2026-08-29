@@ -76,6 +76,8 @@ Bulk unique-name renames use `item renameunique <match regex> <replacement text>
 If `PlanarData` is null or invalid, the item prototype resolves as ordinary Prime Material corporeal matter. Builders can use the item prototype `planar` command to make special items present on another plane, visible-only to another plane, or fully noncorporeal.
 
 ### Outfit templates
+Outfit-template items may bind an optional logical item-skin id as well as their prototype. The database deliberately stores the skin's logical id without a foreign key because item skins are revisioned by id and revision number; runtime lookup resolves the current skin revision.
+
 `IOutfitTemplate` is a non-revisable admin-authored batch definition that stores item prototype references instead of live item ids. It is global data, not character-owned data. Each `IOutfitTemplateItem` has a stable template key, current item prototype id, optional wear profile, placement rule, optional container key, load arguments, and wear/order position.
 
 ### Wildlife shelter anchors
@@ -83,7 +85,11 @@ The wildlife catalogue's burrow, den, nest, roost, lair, lodge, and web-nest pro
 
 Stock ItemSeeder clothing manifests use the same persistence model and runtime path as admin-authored templates. Their seeder-only ownership marker permits idempotent reconciliation of the name, description, exclusivity, prototype ids, and ordered item list. It does not change materialization behaviour or propagate changes into outfits that were already created.
 
+Stock manifest reconciliation includes item-plus-skin bindings. Stock skins are reconciled before templates; untouched stock can be repaired, while builder-customised skins or templates remain untouched.
+
 At runtime, outfit template materialization preflights the whole template before creating anything. It rejects missing, stale, or manual-load-blocked prototypes; worn entries whose prototypes are not wearable; container entries whose target key is missing, self-referential, non-container, or cyclic. Worn entries without an explicit wear profile use the created item's default profile at load time.
+
+It also rejects missing, non-current, or prototype-mismatched skins. Before any item is created, each selected skin runs its target-dependent CanUseSkin check; successful materialisation passes the selected skin to the normal item factory.
 
 When a template is loaded for a character, every item is created through the normal item prototype factory, added to the gameworld, receives `ItemFinishedLoading`, and logs in. Each created item is immediately inserted into the target cell before any further placement so failed later movement cannot leave an orphan. Container placements are attempted first, then worn, inventory, and room placements, followed by belt attachment and sheath placement. Successful worn, contained, attached, and sheathed placements remove the temporary room anchor before applying the target inventory state; inventory placements use the normal body get flow. Any failed container, wear, attachment, sheath, or inventory movement leaves the item in the target cell. The materializer then creates an ordinary character-owned `Outfit`, copies the template exclusivity and description, adds every created item in template order, attaches it to the target character, and returns it.
 

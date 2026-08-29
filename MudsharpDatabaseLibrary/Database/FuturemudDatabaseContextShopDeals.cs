@@ -205,6 +205,8 @@ namespace MudSharp.Database
 				      .HasDatabaseName("IX_OutfitTemplateItems_Template_Key");
 				entity.HasIndex(e => e.GameItemProtoId)
 				      .HasDatabaseName("IX_OutfitTemplateItems_GameItemProtoId");
+				entity.HasIndex(e => e.SkinId)
+				      .HasDatabaseName("IX_OutfitTemplateItems_SkinId");
 				entity.HasIndex(e => e.WearProfileId)
 				      .HasDatabaseName("FK_OutfitTemplateItems_WearProfiles_idx");
 
@@ -216,6 +218,7 @@ namespace MudSharp.Database
 				      .HasCharSet("utf8")
 				      .UseCollation("utf8_general_ci");
 				entity.Property(e => e.GameItemProtoId).HasColumnType("bigint(20)");
+				entity.Property(e => e.SkinId).HasColumnType("bigint(20)");
 				entity.Property(e => e.WearProfileId).HasColumnType("bigint(20)");
 				entity.Property(e => e.Placement).HasColumnType("int(11)");
 				entity.Property(e => e.ContainerKey)

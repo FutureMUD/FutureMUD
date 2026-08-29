@@ -6,8 +6,8 @@ This document consolidates the medieval clothing guidance and target catalogue f
 
 - Total target unique wearable item prototypes in this reference: **408**.
 - Post-implementation headwear and footwear expansion candidates in this revision: **44** — **22 headwear** and **22 footwear** rows. These are design candidates only and are not included in the implemented 408-row catalogue until matching seeder calls and full-description rows are added.
-- Total outfit manifests: **164**.
-- The ItemSeeder now upserts all **164** manifests as stock `OutfitTemplate` rows after the Medieval item phase, preserving document order as wear order and using each stable item reference as the template-local key.
+- Total outfit manifests: **167**.
+- The ItemSeeder now upserts all **167** manifests as stock `OutfitTemplate` rows after the Medieval item phase, preserving document order as wear order and using each stable item reference as the template-local key.
 - Each inspiration family has four builder-facing outfit manifests: common male, elite male, common female, and elite female.
 - All target items are finished goods, skinnable, player-visible, and ordinary portable inventory items unless a later seeder implementation explicitly marks a narrow exception.
 - Public item fields should use culture-neutral, in-world descriptions. Builder-facing notes and outfit labels may still use historical inspiration labels for organization and source grounding.
@@ -1568,6 +1568,48 @@ These social-context manifests are builder-facing overlays and complete outfit e
 - `medieval_apprentice_linen_cap` - a $colour apprentice's linen cap
 - `medieval_soft_leather_shoes` - a pair of soft leather shoes
 - `medieval_household_work_sash` - a $colour household work sash
+
+### Master smith in workshop dress
+
+> Admission: prosperous urban or estate smithy across cultures where the component forms are locally credible.
+>
+> Purpose: assemble the existing skilled-artisan items into a complete heavy-work outfit.
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_clean_town_wool_tunic` - a clean $colour town wool tunic
+- `medieval_leather_trader_belt` - a leather trader belt
+- `medieval_leather_smith_apron` - a leather smith apron
+- `medieval_leather_work_gloves` - a pair of leather work gloves
+- `medieval_ankle_leather_boots` - a pair of ankle leather boots
+- `medieval_linen_work_cap` - a $colour linen work cap
+
+### High-medieval retinue archer service clothing
+
+> Admission: western or central European household, town, castle, or campaign retinue, roughly 1150-1300.
+>
+> Purpose: clothing and livery layer only; bow, quiver, armour, and weapons remain separate loadout items.
+
+- `medieval_linen_braies` - a pair of $colour linen braies
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_wool_hose` - a pair of $colour wool hose
+- `medieval_short_wool_work_tunic` - a short $colour wool work tunic
+- `medieval_simple_surcoat` - a simple $colour surcoat
+- `medieval_plain_leather_belt` - a plain leather belt
+- `medieval_ankle_leather_boots` - a pair of ankle leather boots
+- `medieval_wool_hood` - a $colour wool hood
+
+### Cathedral canon in solemn choir dress
+
+> Admission: Latin cathedral or collegiate-church chapter with local use of rochet and cope.
+>
+> Purpose: assemble existing clerical and liturgical pieces into a complete senior choir-office ensemble.
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_latin_canon_black_habit` - a black wool canon's habit
+- `medieval_latin_white_rochet` - a white linen rochet
+- `medieval_latin_processional_cope` - a processional cope
+- `medieval_plain_black_skullcap` - a plain black skullcap
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
 
 ## Item catalogue
 

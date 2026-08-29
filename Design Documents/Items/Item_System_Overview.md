@@ -39,6 +39,8 @@ Component-prototype markers protect this composition in both directions: exclusi
 4. Use [Item System Presentation and Integration](./Item_System_Presentation_and_Integration.md) when working on descriptions, grouping, skins, or cross-subsystem behaviour.
 
 ## Important Notes
+- Outfit templates can bind a current item skin to an individual prototype entry. This supports presentation-only stock distinctions such as civic dress, institutional livery, and mourning while preserving one shared behavioural prototype.
+
 - The fastest way to add a new item capability is usually to add a new component prototype and component pair, not a new `GameItem` subclass.
 - Telecommunications items follow the same composition model: a wired telephone handset, a telecommunications outlet, a telecommunications feeder, a cell tower, a cellular handset, and an implant telephone are all ordinary item capabilities expressed through components and public interfaces.
 - Computer and signal automation work should follow the same pattern. Shared interfaces such as `IComputerHost`, `IComputerFileSystem`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary`, while concrete behaviour should be delivered through distinct item component families rather than one generic "automation item" component.

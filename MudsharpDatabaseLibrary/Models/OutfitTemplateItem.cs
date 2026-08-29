@@ -6,6 +6,7 @@ namespace MudSharp.Models
 		public long OutfitTemplateId { get; set; }
 		public string TemplateKey { get; set; }
 		public long GameItemProtoId { get; set; }
+		public long? SkinId { get; set; }
 		public long? WearProfileId { get; set; }
 		public int Placement { get; set; }
 		public string ContainerKey { get; set; }

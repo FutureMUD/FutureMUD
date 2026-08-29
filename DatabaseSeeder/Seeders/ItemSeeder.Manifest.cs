@@ -186,12 +186,27 @@ public partial class ItemSeeder
 		string CanAcquireProg,
 		string CanLearnProg);
 
+	private sealed record OutfitManifestItemDefinition(
+		string ItemStableReference,
+		string? SkinStableReference);
+
 	private sealed record OutfitManifestDefinition(
 		string StableKey,
 		string Name,
 		string Description,
 		int Exclusivity,
-		IReadOnlyCollection<string> ItemStableReferences);
+		IReadOnlyCollection<OutfitManifestItemDefinition> Items);
+
+	private sealed record ItemSkinManifestDefinition(
+		string StableReference,
+		string BaseItemStableReference,
+		string? ItemName,
+		string? ShortDescription,
+		string? FullDescription,
+		string? LongDescription,
+		int? Quality,
+		bool IsPublic,
+		string CanUseSkinProg);
 
 	private sealed record LiquidManifestDefinition(
 		string Name,

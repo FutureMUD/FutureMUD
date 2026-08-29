@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,7 +27,10 @@ public class OutfitTemplateTests
 	public void CloneCopiesItemsAndMetadata()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var item = TemplateItem("coat", Prototype(1, wearable: true), OutfitTemplateItemPlacement.Worn, WearProfile(10), wearOrder: 3);
+		var prototype = Prototype(1, wearable: true);
+		var skin = Skin(25, prototype);
+		var item = TemplateItem("coat", prototype, OutfitTemplateItemPlacement.Worn, WearProfile(10), wearOrder: 3);
+		item.Skin = skin.Object;
 		var source = new TemplateOutfit(gameworld.Object, "Guard", "Gate guard issue.", OutfitExclusivity.ExcludeItemsBelow, new[] { item });
 
 		var clone = new TemplateOutfit(source, "Guard Copy", persist: false);
@@ -38,6 +42,42 @@ public class OutfitTemplateTests
 		Assert.AreNotSame(source.Items.Single(), clone.Items.Single());
 		Assert.AreEqual("coat", clone.Items.Single().TemplateKey);
 		Assert.AreEqual(3, clone.Items.Single().WearOrder);
+		Assert.AreSame(skin.Object, clone.Items.Single().Skin);
+		Assert.AreEqual(25, ((TemplateOutfitItem)clone.Items.Single()).SkinId);
+	}
+
+	[TestMethod]
+	public void ValidationRejectsMissingPersistedSkinReference()
+	{
+		var item = TemplateItem("coat", Prototype(1, wearable: true), OutfitTemplateItemPlacement.Worn);
+		item.SkinId = 99;
+		var template = new TemplateOutfit(new Mock<IFuturemud>().Object, "Invalid", "Invalid.", OutfitExclusivity.NonExclusive, new[] { item });
+
+		Assert.IsTrue(template.ValidationWarnings.Any(x => x.Contains("missing item skin #99")));
+	}
+
+	[TestMethod]
+	public void DatabaseItemLoadResolvesNullableSkinReference()
+	{
+		var prototype = Prototype(1, wearable: true);
+		var skin = Skin(25, prototype);
+		var gameworld = new Mock<IFuturemud>();
+		var prototypes = ItemProtoCollection(prototype);
+		Mock.Get(prototypes).Setup(x => x.Get(1)).Returns(prototype);
+		gameworld.Setup(x => x.ItemProtos).Returns(prototypes);
+		gameworld.Setup(x => x.ItemSkins).Returns(ItemSkinCollection(skin.Object));
+		gameworld.Setup(x => x.WearProfiles).Returns(WearProfileCollection());
+
+		var item = new TemplateOutfitItem(new MudSharp.Models.OutfitTemplateItem
+		{
+			TemplateKey = "coat",
+			GameItemProtoId = 1,
+			SkinId = 25,
+			Placement = (int)OutfitTemplateItemPlacement.Worn
+		}, gameworld.Object);
+
+		Assert.AreSame(skin.Object, item.Skin);
+		Assert.AreEqual(25, item.SkinId);
 	}
 
 	[TestMethod]
@@ -165,6 +205,51 @@ public class OutfitTemplateTests
 	}
 
 	[TestMethod]
+	public void BuilderItemSkinSelectsAndClearsCompatibleSkin()
+	{
+		var prototype = Prototype(1, wearable: true);
+		var skin = Skin(25, prototype);
+		var gameworld = GameworldForBuilder(new[] { prototype }, itemSkins: new[] { skin.Object });
+		var item = TemplateItem("cloak", prototype, OutfitTemplateItemPlacement.Worn);
+		var template = new TemplateOutfit(gameworld.Object, "Template", "Desc.", OutfitExclusivity.NonExclusive, new[] { item });
+		var actor = BuilderActor();
+
+		Assert.IsTrue(template.BuildingCommand(actor.Object, new StringStack("item skin cloak testskin25")));
+		Assert.AreSame(skin.Object, item.Skin);
+		Assert.AreEqual(25, item.SkinId);
+		Assert.IsTrue(template.BuildingCommand(actor.Object, new StringStack("item skin cloak clear")));
+		Assert.IsNull(item.Skin);
+		Assert.IsNull(item.SkinId);
+	}
+
+	[TestMethod]
+	public void BuilderItemSkinRejectsIncompatibleSkin()
+	{
+		var prototype = Prototype(1, wearable: true);
+		var skin = Skin(25, Prototype(2, wearable: true), canUse: false);
+		var gameworld = GameworldForBuilder(new[] { prototype }, itemSkins: new[] { skin.Object });
+		var item = TemplateItem("cloak", prototype, OutfitTemplateItemPlacement.Worn);
+		var template = new TemplateOutfit(gameworld.Object, "Template", "Desc.", OutfitExclusivity.NonExclusive, new[] { item });
+
+		Assert.IsFalse(template.BuildingCommand(BuilderActor().Object, new StringStack("item skin cloak testskin25")));
+		Assert.IsNull(item.Skin);
+		Assert.IsNull(item.SkinId);
+	}
+
+	[TestMethod]
+	public void BuilderItemSkinDefersTargetDependentEligibilityToMaterialisation()
+	{
+		var prototype = Prototype(1, wearable: true);
+		var skin = Skin(25, prototype, canUse: false);
+		var gameworld = GameworldForBuilder(new[] { prototype }, itemSkins: new[] { skin.Object });
+		var item = TemplateItem("cloak", prototype, OutfitTemplateItemPlacement.Worn);
+		var template = new TemplateOutfit(gameworld.Object, "Template", "Desc.", OutfitExclusivity.NonExclusive, new[] { item });
+
+		Assert.IsTrue(template.BuildingCommand(BuilderActor().Object, new StringStack("item skin cloak testskin25")));
+		Assert.AreSame(skin.Object, item.Skin);
+	}
+
+	[TestMethod]
 	public void MaterialiseWornPlacementWithoutProfileUsesCreatedItemDefaultProfile()
 	{
 		var defaultProfile = WearProfile(10);
@@ -262,6 +347,41 @@ public class OutfitTemplateTests
 	}
 
 	[TestMethod]
+	public void MaterialiseChecksSkinBeforeCreatingItems()
+	{
+		var prototype = Prototype(1, wearable: true);
+		var skin = Skin(25, prototype, canUse: false);
+		var item = TemplateItem("cloak", prototype, OutfitTemplateItemPlacement.Room);
+		item.Skin = skin.Object;
+		var template = new TemplateOutfit(new Mock<IFuturemud>().Object, "Travel Kit", "Road gear.", OutfitExclusivity.NonExclusive, new[] { item });
+		var target = Target(System.Array.Empty<IOutfit>(), out _, out _, out _);
+
+		var exception = Assert.ThrowsException<InvalidOperationException>(() => template.Materialise(target.Object));
+
+		StringAssert.Contains(exception.Message, "cannot use its skin");
+		Mock.Get(prototype).Verify(x => x.CreateNew(It.IsAny<ICharacter>(), It.IsAny<IGameItemSkin>(), 1, It.IsAny<string>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void MaterialisePassesSelectedSkinToPrototypeCreation()
+	{
+		var prototype = Prototype(1, wearable: true);
+		var skin = Skin(25, prototype);
+		var created = Item(100, prototype, "a skinned cloak");
+		Mock.Get(prototype)
+			.Setup(x => x.CreateNew(It.IsAny<ICharacter>(), skin.Object, 1, It.IsAny<string>()))
+			.Returns(new[] { created.Object });
+		var item = TemplateItem("cloak", prototype, OutfitTemplateItemPlacement.Room);
+		item.Skin = skin.Object;
+		var template = new TemplateOutfit(new Mock<IFuturemud>().Object, "Travel Kit", "Road gear.", OutfitExclusivity.NonExclusive, new[] { item });
+		var target = Target(System.Array.Empty<IOutfit>(), out _, out _, out _);
+
+		template.Materialise(target.Object);
+
+		Mock.Get(prototype).Verify(x => x.CreateNew(target.Object, skin.Object, 1, It.IsAny<string>()), Times.Once);
+	}
+
+	[TestMethod]
 	public void MaterialiseAttachedPlacementConnectsItemToAvailableBelt()
 	{
 		var beltable = new Mock<IBeltable>();
@@ -353,7 +473,7 @@ public class OutfitTemplateTests
 		Assert.IsTrue(overloads.Any(x => x.Parameters.SequenceEqual(new[] { ProgVariableTypes.Text, ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Text })));
 	}
 
-	private static IOutfitTemplateItem TemplateItem(
+	private static TemplateOutfitItem TemplateItem(
 		string key,
 		IGameItemProto proto,
 		OutfitTemplateItemPlacement placement,
@@ -414,6 +534,22 @@ public class OutfitTemplateTests
 		profile.Setup(x => x.Id).Returns(id);
 		profile.Setup(x => x.Name).Returns($"profile{id}");
 		return profile.Object;
+	}
+
+	private static Mock<IGameItemSkin> Skin(
+		long id,
+		IGameItemProto prototype,
+		bool canUse = true,
+		RevisionStatus status = RevisionStatus.Current)
+	{
+		var skin = new Mock<IGameItemSkin>();
+		skin.Setup(x => x.Id).Returns(id);
+		skin.Setup(x => x.Name).Returns($"testskin{id}");
+		skin.Setup(x => x.Status).Returns(status);
+		skin.Setup(x => x.ItemProto).Returns(prototype);
+		skin.Setup(x => x.CanUseSkin(It.IsAny<ICharacter>(), It.IsAny<IGameItemProto>()))
+			.Returns((canUse, canUse ? string.Empty : "The skin does not match this prototype."));
+		return skin;
 	}
 
 	private static Mock<IGameItem> Item(
@@ -483,11 +619,15 @@ public class OutfitTemplateTests
 		return target;
 	}
 
-	private static Mock<IFuturemud> GameworldForBuilder(IEnumerable<IGameItemProto> protos, IEnumerable<IWearProfile> wearProfiles = null)
+	private static Mock<IFuturemud> GameworldForBuilder(
+		IEnumerable<IGameItemProto> protos,
+		IEnumerable<IWearProfile> wearProfiles = null,
+		IEnumerable<IGameItemSkin> itemSkins = null)
 	{
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.Setup(x => x.ItemProtos).Returns(ItemProtoCollection(protos.ToArray()));
 		gameworld.Setup(x => x.WearProfiles).Returns(WearProfileCollection((wearProfiles ?? System.Array.Empty<IWearProfile>()).ToArray()));
+		gameworld.Setup(x => x.ItemSkins).Returns(ItemSkinCollection((itemSkins ?? System.Array.Empty<IGameItemSkin>()).ToArray()));
 		return gameworld;
 	}
 
@@ -506,6 +646,20 @@ public class OutfitTemplateTests
 		all.As<IEnumerable<IWearProfile>>()
 		   .Setup(x => x.GetEnumerator())
 		   .Returns(() => ((IEnumerable<IWearProfile>)profiles).GetEnumerator());
+		return all.Object;
+	}
+
+	private static IUneditableRevisableAll<IGameItemSkin> ItemSkinCollection(params IGameItemSkin[] skins)
+	{
+		var all = new Mock<IUneditableRevisableAll<IGameItemSkin>>();
+		all.As<IEnumerable<IGameItemSkin>>()
+			.Setup(x => x.GetEnumerator())
+			.Returns(() => ((IEnumerable<IGameItemSkin>)skins).GetEnumerator());
+		all.Setup(x => x.Get(It.IsAny<long>()))
+			.Returns((long id) => skins.SingleOrDefault(x => x.Id == id));
+		all.Setup(x => x.GetByIdOrName(It.IsAny<string>(), true))
+			.Returns((string value, bool _) => skins.SingleOrDefault(x =>
+				x.Id.ToString() == value || x.Name.EqualTo(value)));
 		return all.Object;
 	}
 

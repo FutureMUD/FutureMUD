@@ -167,7 +167,7 @@ Skins are important whenever:
 - players or builders need cosmetic variants
 - content should be customised without cloning behaviour-heavy item prototypes
 
-When changing item presentation flows, remember that skins may override prototype text.
+When changing item presentation flows, remember that skins may override prototype text. Outfit-template displays show a selected skin beside the base prototype, and materialisation passes that skin through the normal item factory after compatibility and availability checks. This keeps institution, rank, livery, ceremonial, and mourning presentation visible without duplicating the base item's components, material, or wear behaviour.
 
 Admins can request AI-assisted full-description override suggestions with `itemskin set suggestdesc [<optional extra context>]` while editing a skin. The generated prompt treats the skin as a variant rather than a new prototype: it passes the base item properties, effective short and long descriptions, skin-specific overrides, tags, existing full descriptions, and supported item-description markup to the configured description AI. The command is intentionally admin-only because it can incur external API cost.
 

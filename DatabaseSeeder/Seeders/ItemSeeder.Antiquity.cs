@@ -2249,6 +2249,90 @@ namespace DatabaseSeeder.Seeders
                 null,
                 null
             );
+
+            CreateItem(
+                "antiquity_roman_wool_focale",
+                "focale",
+                "a $colour wool focale",
+                null,
+                "This narrow length of soft wool is cut to circle the throat without adding much bulk. Its long ends can be knotted loosely at the front or tucked beneath an outer layer, while neatly turned edges keep the weave from fraying. The cloth is supple enough to sit beneath broad straps or protective equipment without forming hard folds against the skin. Repeated handling has left the surface smooth, but the close weave remains warm and serviceable.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                140.0,
+                10.0m,
+                true,
+                false,
+                "wool",
+                ["Era / Antiquity Era", "Functions / Worn Items / Scarves", "Functions / Military Equipment", "Market / Clothing / Standard Clothing"],
+                ["Holdable", "Destroyable_Clothing", "Wear_Scarf", "Armour_LightClothing", "Insulation_Minor", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_roman_wool_sagum",
+                "sagum",
+                "a short $colour wool sagum",
+                null,
+                "This stout rectangular cloak is cut from a dense length of wool and falls to about the knees when fastened at one shoulder. A reinforced upper corner bears the strain of the fastening, while the remaining edge hangs in deep practical folds that leave the arms comparatively free. The lower edge is finished with a short plain fringe, and the broad unshaped body can be wrapped closely when the weather turns cold. Its construction is simple, durable, and visibly suited to hard travel rather than delicate display.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                1250.0,
+                34.0m,
+                true,
+                false,
+                "wool",
+                ["Era / Antiquity Era", "Functions / Worn Items / Bodywear", "Functions / Military Equipment", "Market / Clothing / Standard Clothing"],
+                ["Holdable", "Destroyable_Clothing", "Wear_Cloak_(Open)", "Armour_HeavyClothing", "Insulation_Moderate", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_italic_white_wool_infula",
+                "infula",
+                "a white wool infula headband",
+                null,
+                "This narrow ceremonial band is woven from clean white wool and sized to pass firmly around the brow. Its face is flat and undecorated, with carefully finished edges and two slender ends that descend behind the ears when it is tied. Small twists of woollen thread stiffen the terminal knots without making the band bulky or rigid. The restrained colour and deliberate construction give it the formal appearance of ritual headwear rather than an everyday hair tie.",
+                SizeCategory.Small,
+                ItemQuality.Good,
+                75.0,
+                24.0m,
+                true,
+                false,
+                "wool",
+                ["Era / Antiquity Era", "Functions / Worn Items / Headwear", "Market / Clothing / Standard Clothing", "Market / Religious Goods / Ritual Supplies"],
+                ["Holdable", "Destroyable_Clothing", "Wear_Headband", "Armour_LightClothing", "Insulation_Minor"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_egyptian_spotted_hide_priest_mantle",
+                "mantle",
+                "a spotted hide shoulder mantle",
+                null,
+                "This ceremonial mantle is made from a carefully dressed animal hide whose natural field is broken by dark rounded spots. The pelt is cut to lie diagonally across the upper body, with one foreleg forming a narrow hanging end and the broader back spreading over a shoulder. The inner surface has been scraped smooth and softened, while discreet ties at the breast and side keep the unusual drape in place. Its striking natural pattern and painstaking preparation mark it as an object for formal ritual rather than ordinary warmth.",
+                SizeCategory.Normal,
+                ItemQuality.Good,
+                1180.0,
+                96.0m,
+                true,
+                false,
+                "animal skin",
+                ["Era / Antiquity Era", "Functions / Worn Items / Bodywear", "Market / Clothing / Luxury Clothing", "Market / Religious Goods / Ritual Supplies"],
+                ["Holdable", "Destroyable_Clothing", "Wear_Mantle", "Armour_HeavyClothing", "Insulation_Moderate"],
+                null,
+                null,
+                null,
+                null
+            );
             #endregion
 
             #region Hellenic Antiquity

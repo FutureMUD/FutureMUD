@@ -14,10 +14,15 @@ public partial class CultureSeeder
 {
     private readonly Dictionary<string, NameCulture> _nameCultures = new();
     private CollectionDictionary<(string, NameUsage), string> _addedNames = new();
+    private int _duplicateNameElementEntryCount;
+
+    internal int DuplicateNameElementEntryCountForTesting => _duplicateNameElementEntryCount;
+
     private void AddRandomNameElement(RandomNameProfile profile, NameUsage usage, string name, int weight)
     {
         if (_addedNames[(profile.Name, usage)].Contains(name, StringComparer.OrdinalIgnoreCase))
         {
+            _duplicateNameElementEntryCount++;
 #if DEBUG
             ConsoleUtilities.WriteLineConsole($"Duplicate name element entry: #3{profile.Name}#0 - #2{usage.DescribeEnum()}#0 - #6{name}#0");
 #else

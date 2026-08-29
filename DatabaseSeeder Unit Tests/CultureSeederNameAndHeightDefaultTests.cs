@@ -274,6 +274,8 @@ public class CultureSeederNameAndHeightDefaultTests
 		SetSeederContext(seeder, context);
 
 		InvokePrivate(seeder, "SeedMedievalEuropeNames");
+		Assert.AreEqual(0, seeder.DuplicateNameElementEntryCountForTesting,
+			"The medieval name catalogue must not attempt duplicate profile elements.");
 
 		AssertProfileHasWeightedElement(context, "Dutch Male", NameUsage.BirthName, "Jan", 10);
 		AssertProfileHasWeightedElement(context, "Dutch Female", NameUsage.Surname, "de Vries", 10);

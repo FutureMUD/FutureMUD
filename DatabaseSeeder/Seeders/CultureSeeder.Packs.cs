@@ -145,6 +145,12 @@ public partial class CultureSeeder
             SeedModernLanguages();
         }
 
+		if (questionAnswers.TryGetValue("seedsignedlanguages", out var seedSignedLanguages) &&
+		    seedSignedLanguages.EqualToAny("y", "yes"))
+		{
+			SeedModernSignedLanguages();
+		}
+
         if (questionAnswers["seedheritage"].EqualToAny("y", "yes"))
         {
             SeedModernHeritage();

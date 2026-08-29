@@ -244,6 +244,8 @@ Again, the choices you make here can be fixed later so don't stress it too great
                     break;
                 case CheckType.SpokenLanguageSpeakCheck:
                 case CheckType.SpokenLanguageHearCheck:
+				case CheckType.SignedLanguageExpressCheck:
+				case CheckType.SignedLanguageUnderstandCheck:
                     // Language Checks
                     AddCheck(check,
                         new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 4,

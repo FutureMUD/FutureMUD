@@ -23,6 +23,8 @@ public partial class Character
         CharactersAccents = new HashSet<CharacterAccent>();
         CharactersChargenRoles = new HashSet<CharactersChargenRoles>();
         CharactersLanguages = new HashSet<CharactersLanguages>();
+		CharactersSignedLanguages = new HashSet<CharactersSignedLanguage>();
+		CharactersSignedLanguageVarieties = new HashSet<CharacterSignedLanguageVariety>();
         CharactersMagicResources = new HashSet<CharactersMagicResources>();
         CharactersScripts = new HashSet<CharactersScripts>();
         ClanMembershipsCharacter = new HashSet<ClanMembership>();
@@ -89,6 +91,8 @@ public partial class Character
     public long? CurrentWritingLanguageId { get; set; }
     public int WritingStyle { get; set; }
     public long? CurrentScriptId { get; set; }
+	public long? CurrentSignedLanguageId { get; set; }
+	public long? CurrentSignedLanguageVarietyId { get; set; }
     public int DominantHandAlignment { get; set; }
     public DateTime? LastLoginTime { get; set; }
     public bool CombatBrief { get; set; }
@@ -119,6 +123,8 @@ public partial class Character
     public virtual ActiveProject CurrentProject { get; set; }
     public virtual ProjectLabourRequirement CurrentProjectLabour { get; set; }
     public virtual Script CurrentScript { get; set; }
+	public virtual SignedLanguage CurrentSignedLanguage { get; set; }
+	public virtual SignedLanguageVariety CurrentSignedLanguageVariety { get; set; }
     public virtual Language CurrentWritingLanguage { get; set; }
     public virtual Cell LocationNavigation { get; set; }
     public virtual Guest Guest { get; set; }
@@ -139,6 +145,8 @@ public partial class Character
     public virtual ICollection<CharacterAccent> CharactersAccents { get; set; }
     public virtual ICollection<CharactersChargenRoles> CharactersChargenRoles { get; set; }
     public virtual ICollection<CharactersLanguages> CharactersLanguages { get; set; }
+	public virtual ICollection<CharactersSignedLanguage> CharactersSignedLanguages { get; set; }
+	public virtual ICollection<CharacterSignedLanguageVariety> CharactersSignedLanguageVarieties { get; set; }
     public virtual ICollection<CharactersMagicResources> CharactersMagicResources { get; set; }
     public virtual ICollection<CharactersScripts> CharactersScripts { get; set; }
     public virtual ICollection<ClanMembership> ClanMembershipsCharacter { get; set; }

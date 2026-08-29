@@ -245,6 +245,10 @@ public partial class Character
 			LearnLanguage(language);
 			LearnAccent(language.DefaultLearnerAccent, Difficulty.Automatic);
 		}
+		foreach (var language in Gameworld.SignedLanguages.Where(x => x.LinkedTrait == trait))
+		{
+			LearnSignedLanguage(language);
+		}
 
         return true;
     }
@@ -263,10 +267,14 @@ public partial class Character
 
         _characterTraits.RemoveAll(x => x.Definition == trait);
         Changed = true;
-        foreach (ILanguage language in Languages.Where(x => x.LinkedTrait == trait).ToList())
-        {
-            ForgetLanguage(language);
-        }
+		foreach (ILanguage language in Languages.Where(x => x.LinkedTrait == trait).ToList())
+		{
+			ForgetLanguage(language);
+		}
+		foreach (var language in SignedLanguages.Where(x => x.LinkedTrait == trait).ToList())
+		{
+			ForgetSignedLanguage(language);
+		}
 
         using (new FMDB())
         {

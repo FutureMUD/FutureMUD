@@ -1,0 +1,262 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.9.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Within A Vast, Neon Arena
+ID[400] | Terrain[Wasteland] | [SafeQuit] | Overlay[Second Side Of Dread Zone  (#21r0)] | Coordinates[26,-8,1]
+Exits: North, East, South, and West
+
+  The surrounding area is bizarre, to say the least. The floors and walls are
+jet black, composed of a strange warm metal coated by a soft, velvety fur that
+gives slightly underfoot, as if padded. Here and there, neon lights streak the
+floor, the ceiling, or the walls - green, violet, pink and orange, giving off a
+dim glow even in total darkness. 
+
+  Currently, the lighting here is dim.
+
+The decaying corpse of a green-eyed old man with saw teeth (Lucas) is here.
+The decaying corpse of a delicate, ivory-haired woman (Mila) is here.
+The decaying corpse of a big, wedge-styled man with amber eyes (Henry) is here.
+The decaying corpse of a tiny, light brown-eyed brute (Levi) is here.
+The decaying corpse of a tiny, pallid-skinned codger (Lucas) is here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguages
+You know the following signed languages:
+
+Live Test Sign Language @ (Articulate)
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> redesc Mila
+Editing the description for The decaying corpse of a delicate, ivory-haired woman (Mila).
+
+Replacing:
+
+  This $personbasic is $?height[$height relative to you][about the same height
+  as you], at around &height. &he is $framefancy, and $eyecolour[&he has
+  $eyeshape eyes $eyecolourfancy][&his eyes are obscured by $].
+  $hairstyle[$?hairstyle[&he has &?a_an[$hairstyle which is
+  $haircolourfancy]][&he has a completely bald head]][&his hair is obscured by
+  $]. $nosefancy[&he has @][You cannot see &his nose] and &he has
+  $feature2fancy. $skintonefancy[&his skin is @][&his skin tone is hidden by $]
+  and &he also has $feature1fancy.
+
+You can use the following variables in the markup:
+
+  &a_an[your content] - puts 'a' or 'an' and a space in front of your content as appropriate
+  &?a_an[your content] - puts 'a' or 'an' and a space or nothing in front of your content based on pluralisation
+  &pronoun|plural text|singular text& - alternates text based on the grammatical number of the pronoun (e.g. he/she/it vs you/they/them)
+  &he - he/she/it/they/you as appropriate
+  &him - him/her/it/them/you as appropriate
+  &his - his/her/its/theirs/your as appropriate
+  &himself - himself/herself/itself/themself/yourself as appropriate
+  &male - male/female/neuter/non-binary as appropriate
+  &race - the name of the character's race (human)
+  &culture - the name of the character's culture (scientist)
+  &ethnicity - the name of the character's ethnicity (germanic)
+  &ethnicgroup - the character's ethnic group (western european)
+  &personword - the character's culture's person word (scientist)
+  &age - the character's age category (adult)
+  &height - the character's height (1 metre 56 centimetres)
+  &tattoos - a description of the character's tattoos, or blank if none ()
+  &withtattoos - an alternate description of the character's tattoos, or blank if none ()
+  &scars - a description of the character's scars, or blank if none ()
+  &withscars - an alternate description of the character's scars, or blank if none ()
+
+You can also use the following forms with each characteristic:
+
+  $varname - Displays the ordinary form of the variable. See below for specifics.
+  $varnamefancy - Displays the fancy form of the variable. See below for specifics.
+  $varnamebasic - Displays the basic form of the variable. See below for specifics.
+  $varname[display if not obscured][display if obscured] - See below for specifics.
+  $?varname[display if not null/default][display if null/default] - See below for specifics.
+
+Note: Inside the above, @ substitutes the variable description, $ substitutes for the name of the obscuring item (e.g. sunglasses), and * substitutes for the sdesc of the
+obscuring item (e.g. a pair of gold-rimmed sunglasses).
+
+The following variables can be used with the above syntax: frame, person, eyecolour, eyeshape, haircolour, hairstyle, skincolour, nose, feature1, feature2
+
+The characteristics eyecolour and eyeshape can be used with an additional form. Inside this form, you can use @ for the variable description, % for the number of parts possessed,
+* for the same but in wordy form:
+
+  %varname[text if normal count][n-n2:text if between n and n2 count][x:text if x count][y:text if y count]
+  Example: %$eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]
+
+Enter the description in the editor below.
+
+
+
+You are now entering an editor, use @ on a blank line to exit and *help to see help.
+
+|------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> A live-test placard bears sign{Live Test Sign Language,minskill=1}{a bright open-palmed greeting}{an unfamiliar hand sign}.
+]
+> @
+You change the description of The decaying corpse of a delicate, ivory-haired woman (Mila) to:
+
+A live-test placard bears sign{Live Test Sign Language,minskill=1}{a bright open-palmed greeting}{an unfamiliar hand sign}.
+
+Within A Vast, Neon Arena
+ID[400] | Terrain[Wasteland] | [SafeQuit] | Overlay[Second Side Of Dread Zone  (#21r0)] | Coordinates[26,-8,1]
+Exits: North, East, South, and West
+
+  The surrounding area is bizarre, to say the least. The floors and walls are
+jet black, composed of a strange warm metal coated by a soft, velvety fur that
+gives slightly underfoot, as if padded. Here and there, neon lights streak the
+floor, the ceiling, or the walls - green, violet, pink and orange, giving off a
+dim glow even in total darkness. 
+
+  Currently, the lighting here is dim.
+
+The decaying corpse of a green-eyed old man with saw teeth (Lucas) is here.
+The decaying corpse of a delicate, ivory-haired woman (Mila) is here.
+The decaying corpse of a big, wedge-styled man with amber eyes (Henry) is here.
+The decaying corpse of a tiny, light brown-eyed brute (Levi) is here.
+The decaying corpse of a tiny, pallid-skinned codger (Lucas) is here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> look Mila
+A live-test placard bears a bright open-palmed greeting.
+This corpse has begun to bloat and putrefy as decay sets in. Maggots and other
+carrion insects have firmly taken hold of the corpse.
+
+The decaying corpse of a delicate, ivory-haired woman (Mila) has a moderate cut
+(bleeding) on her chest, a severe shear (bleeding) on her belly, a severe tear
+(bleeding) on her right shoulder, a superficial bruise on her right hand, a
+minor bruise on her left hand, a severe gash (bleeding) on her belly, a
+superficial bruise on her right hand, a very severe tear (bleeding) on her
+right shoulder, a superficial bruise on her left hand, a superficial bruise on
+her belly, a superficial bruise on her left hand, a severe cut (bleeding) on
+her right shoulder, a severe shear (bleeding) on her right shoulder, and a
+moderate shear (bleeding) on her right shoulder.
+
+She is completely naked, and is not holding or wielding anything.
+
+The decaying corpse of a delicate, ivory-haired woman (Mila) has quite a few
+signs of damage, some Very Severe.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> skill remove japheth German
+You remove the German skill from you
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> look Mila
+A live-test placard bears an unfamiliar hand sign.
+This corpse has begun to bloat and putrefy as decay sets in. Maggots and other
+carrion insects have firmly taken hold of the corpse.
+
+The decaying corpse of a delicate, ivory-haired woman (Mila) has a moderate cut
+(bleeding) on her chest, a severe shear (bleeding) on her belly, a severe tear
+(bleeding) on her right shoulder, a superficial bruise on her right hand, a
+minor bruise on her left hand, a severe gash (bleeding) on her belly, a
+superficial bruise on her right hand, a very severe tear (bleeding) on her
+right shoulder, a superficial bruise on her left hand, a superficial bruise on
+her belly, a superficial bruise on her left hand, a severe cut (bleeding) on
+her right shoulder, a severe shear (bleeding) on her right shoulder, and a
+moderate shear (bleeding) on her right shoulder.
+
+She is completely naked, and is not holding or wielding anything.
+
+The decaying corpse of a delicate, ivory-haired woman (Mila) has quite a few
+signs of damage, some Very Severe.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> skill add japheth German 100
+You add the German skill to you at a value of 100.00.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> look Mila
+A live-test placard bears a bright open-palmed greeting.
+This corpse has begun to bloat and putrefy as decay sets in. Maggots and other
+carrion insects have firmly taken hold of the corpse.
+
+The decaying corpse of a delicate, ivory-haired woman (Mila) has a moderate cut
+(bleeding) on her chest, a severe shear (bleeding) on her belly, a severe tear
+(bleeding) on her right shoulder, a superficial bruise on her right hand, a
+minor bruise on her left hand, a severe gash (bleeding) on her belly, a
+superficial bruise on her right hand, a very severe tear (bleeding) on her
+right shoulder, a superficial bruise on her left hand, a superficial bruise on
+her belly, a superficial bruise on her left hand, a severe cut (bleeding) on
+her right shoulder, a severe shear (bleeding) on her right shoulder, and a
+moderate shear (bleeding) on her right shoulder.
+
+She is completely naked, and is not holding or wielding anything.
+
+The decaying corpse of a delicate, ivory-haired woman (Mila) has quite a few
+signs of damage, some Very Severe.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

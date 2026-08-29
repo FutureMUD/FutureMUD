@@ -204,6 +204,7 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<IGas> _gases = new();
     private readonly All<ILanguageDifficultyModel> _languageDifficultyModels = new();
     private readonly All<ILanguage> _languages = new();
+	private readonly All<ISignedLanguage> _signedLanguages = new();
     private readonly All<ILimb> _limbs = new();
     private readonly All<ILiquid> _liquids = new();
     private readonly All<ITemporalListener> _listeners = new();
@@ -488,6 +489,7 @@ public sealed partial class Futuremud : IDisposable
     public IUneditableAll<ILanguageDifficultyModel> LanguageDifficultyModels => _languageDifficultyModels;
 
     public IUneditableAll<ILanguage> Languages => _languages;
+	public IUneditableAll<ISignedLanguage> SignedLanguages => _signedLanguages;
 
     public IUneditableAll<ILimb> Limbs => _limbs;
 

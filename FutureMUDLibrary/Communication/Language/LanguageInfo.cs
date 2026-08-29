@@ -31,7 +31,8 @@ namespace MudSharp.Communication.Language
     {
         Spoken,
         Written,
-        Psychic
+		Psychic,
+		Signed
     }
 
     public enum LanguagePerceptionResult
@@ -42,7 +43,8 @@ namespace MudSharp.Communication.Language
         HearFailure,
         PartialSuccess,
         UnknownLanguage,
-        MutuallyIntelligableLanguage
+        MutuallyIntelligableLanguage,
+		CannotSee
     }
 
     /// <summary>
@@ -57,7 +59,7 @@ namespace MudSharp.Communication.Language
         /// </summary>
         protected string _rawText;
 
-        protected LanguageInfo(ILanguage language, string text, Outcome originoutcome, IPerceivable origin,
+		protected LanguageInfo(ICommunicationLanguage language, string text, Outcome originoutcome, IPerceivable origin,
             IPerceivable proxy = null)
         {
             Language = language;
@@ -83,7 +85,7 @@ namespace MudSharp.Communication.Language
         /// <summary>
         ///     The language in which this fragment is encoded
         /// </summary>
-        public ILanguage Language { get; protected set; }
+		public ICommunicationLanguage Language { get; protected set; }
 
         public Outcome OriginOutcome { get; protected set; }
         public string RawText => _rawText;
@@ -93,6 +95,7 @@ namespace MudSharp.Communication.Language
 
     public class SpokenLanguageInfo : LanguageInfo
     {
+		public new ILanguage Language => (ILanguage)base.Language;
         public SpokenLanguageInfo(ILanguage language, IAccent accent, AudioVolume volume, string text,
             Outcome originoutcome, IPerceivable origin, IPerceivable target, IPerceivable proxy = null)
             : base(language, text, originoutcome, origin, proxy)
@@ -286,6 +289,7 @@ namespace MudSharp.Communication.Language
 
     public class PsychicLanguageInfo : LanguageInfo
     {
+		public new ILanguage Language => (ILanguage)base.Language;
         public PsychicLanguageInfo(ILanguage language, IAccent accent, string text, Outcome originoutcome, IPerceivable origin, IPerceivable proxy = null, double senderScramble = 0.0) : base(language, text, originoutcome, origin, proxy)
         {
             SenderScramble = senderScramble;
@@ -395,4 +399,158 @@ namespace MudSharp.Communication.Language
                 : (LanguagePerceptionResult.Success, 0.0);
         }
     }
+
+	public class SignedLanguageInfo : LanguageInfo
+	{
+		public SignedLanguageInfo(ISignedLanguage language, ISignedLanguageVariety variety, string text,
+			Outcome originOutcome, IPerceivable origin, IPerceivable target = null, IPerceivable proxy = null)
+			: base(language, text, originOutcome, origin, proxy)
+		{
+			Variety = variety;
+			Target = target;
+		}
+
+		public new ISignedLanguage Language => (ISignedLanguage)base.Language;
+		public ISignedLanguageVariety Variety { get; }
+		public IPerceivable Target { get; }
+		public override LanguageForm Form => LanguageForm.Signed;
+
+		protected (LanguagePerceptionResult Result, double Obfuscation) GetPerceptionResult(
+			ILanguagePerceiver perceiver)
+		{
+			if (perceiver is null)
+			{
+				return (LanguagePerceptionResult.Success, 0.0);
+			}
+
+			if (perceiver.IsSelf(Origin) || perceiver.IsSelf(Proxy) ||
+			    (perceiver as ICharacter)?.IsAdministrator() == true)
+			{
+				return (LanguagePerceptionResult.Success, 0.0);
+			}
+
+			var visibleSource = Proxy ?? Origin;
+			if (!perceiver.CanSee(visibleSource))
+			{
+				return (LanguagePerceptionResult.CannotSee, 1.0);
+			}
+
+			if ((perceiver as IHaveEffects)?.EffectsOfType<IComprehendLanguageEffect>().Any(x => x.Applies()) == true)
+			{
+				return (LanguagePerceptionResult.Success, 0.0);
+			}
+
+			var varietyDifficulty = Variety is null
+				? Difficulty.Automatic
+				: perceiver.SignedLanguageVarietyDifficulty(Variety);
+			if (varietyDifficulty == Difficulty.Impossible)
+			{
+				varietyDifficulty = Variety?.RecognitionDifficulty ?? Difficulty.Automatic;
+			}
+			if (OriginOutcome.IsFail())
+			{
+				varietyDifficulty = varietyDifficulty.StageUp(1);
+			}
+
+			var exactKnown = perceiver.SignedLanguages.Contains(Language);
+			var check = perceiver.Gameworld.GetCheck(CheckType.SignedLanguageUnderstandCheck)
+				.Check(perceiver, (Difficulty)Math.Max((int)_ratedDifficulty, (int)varietyDifficulty),
+					Language.LinkedTrait, Origin);
+			var bestOutcome = check.Outcome;
+			var usedMutual = false;
+			if (check.IsFail() && !exactKnown)
+			{
+				foreach (var known in perceiver.SignedLanguages
+				         .Where(x => x.MutualIntelligability(Language) != Difficulty.Impossible)
+				         .OrderBy(x => x.MutualIntelligability(Language)))
+				{
+					var mutualDifficulty = known.MutualIntelligability(Language);
+					var mutualCheck = perceiver.Gameworld.GetCheck(CheckType.SignedLanguageUnderstandCheck)
+						.Check(perceiver,
+							(Difficulty)Math.Max((int)mutualDifficulty,
+								Math.Max((int)_ratedDifficulty, (int)varietyDifficulty)), known.LinkedTrait, Origin);
+					usedMutual = true;
+					if (mutualCheck.Outcome.CheckDegrees() > bestOutcome.CheckDegrees())
+					{
+						bestOutcome = mutualCheck.Outcome;
+					}
+					if (mutualCheck.IsPass())
+					{
+						break;
+					}
+				}
+			}
+
+			if (bestOutcome == Outcome.MajorFail && !exactKnown)
+			{
+				return (LanguagePerceptionResult.UnknownLanguage, 1.0);
+			}
+
+			var ratio = Math.Min(1.0, Language.LanguageObfuscationFactor *
+				(usedMutual ? Math.Max(0, 3 - bestOutcome.CheckDegrees()) : bestOutcome.FailureDegrees()));
+			if (ratio >= 1.0)
+			{
+				return (exactKnown ? LanguagePerceptionResult.HearFailure : LanguagePerceptionResult.UnknownLanguage,
+					1.0);
+			}
+
+			if (usedMutual)
+			{
+				return (LanguagePerceptionResult.MutuallyIntelligableLanguage, ratio);
+			}
+
+			return ratio > 0.0
+				? (LanguagePerceptionResult.PartialSuccess, ratio)
+				: (LanguagePerceptionResult.Success, 0.0);
+		}
+
+		public override string ParseFor(ILanguagePerceiver perceiver)
+		{
+			var result = GetPerceptionResult(perceiver);
+			var variety = Variety is null
+				? string.Empty
+				: $" {(perceiver.SignedLanguageVarieties.Contains(Variety) ? Variety.Suffix : Variety.VagueSuffix)}";
+			return result.Result switch
+			{
+				LanguagePerceptionResult.CannotSee => " something that you cannot see clearly.",
+				LanguagePerceptionResult.UnknownLanguage => $" something in {Language.UnknownLanguageDescription}.",
+				LanguagePerceptionResult.HearFailure =>
+					$" something in {Language.Name.TitleCase()}{variety}, but you cannot understand {Origin.ApparentGender(perceiver).Objective()}.",
+				LanguagePerceptionResult.MutuallyIntelligableLanguage or LanguagePerceptionResult.PartialSuccess =>
+					$", in {Language.Name.TitleCase()}{variety}, \n`{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText), result.Obfuscation).Fullstop().Wrap(perceiver.InnerLineFormatLength, "   ")}`",
+				LanguagePerceptionResult.Success =>
+					$", in {Language.Name.TitleCase()}{variety}, \n`{_rawText.Fullstop().Wrap(perceiver.InnerLineFormatLength, "   ")}`",
+				_ => throw new ApplicationException("Unknown LanguagePerceptionResult in SignedLanguageInfo.ParseFor")
+			};
+		}
+	}
+
+	public class EmoteSignedLanguageInfo : SignedLanguageInfo
+	{
+		public EmoteSignedLanguageInfo(ISignedLanguage language, ISignedLanguageVariety variety, string text,
+			Outcome originOutcome, IPerceivable origin, IPerceivable target = null, IPerceivable proxy = null)
+			: base(language, variety, text, originOutcome, origin, target, proxy)
+		{
+		}
+
+		public override string ParseFor(ILanguagePerceiver perceiver)
+		{
+			var result = GetPerceptionResult(perceiver);
+			var hint = Variety is null
+				? $"Language: {Language.Name.TitleCase()}"
+				: $"Language: {Language.Name.TitleCase()}, Variety: {Variety.Name.TitleCase()}";
+			return result.Result switch
+			{
+				LanguagePerceptionResult.CannotSee => "*** signing that you cannot see clearly ***".ColourBold(Telnet.Cyan),
+				LanguagePerceptionResult.UnknownLanguage => $"*** something in {Language.UnknownLanguageDescription} ***".ColourBold(Telnet.Cyan),
+				LanguagePerceptionResult.HearFailure => "*** signing that you do not quite understand ***".ColourBold(Telnet.Cyan),
+				LanguagePerceptionResult.MutuallyIntelligableLanguage or LanguagePerceptionResult.PartialSuccess =>
+					$"`{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText.ProperSentences()), result.Obfuscation).Fullstop()}`"
+						.FluentTagMXP("send", $"href='look' hint='{hint}'"),
+				LanguagePerceptionResult.Success => $"`{_rawText.ProperSentences()}`"
+					.FluentTagMXP("send", $"href='look' hint='{hint}'"),
+				_ => throw new ApplicationException("Unknown LanguagePerceptionResult in EmoteSignedLanguageInfo.ParseFor")
+			};
+		}
+	}
 }

@@ -141,6 +141,15 @@ public partial class Character
             case "languages":
                 returnVar = new CollectionVariable(Languages.ToList(), ProgVariableTypes.Language);
                 break;
+			case "signedlanguages":
+				returnVar = new CollectionVariable(SignedLanguages.ToList(), ProgVariableTypes.SignedLanguage);
+				break;
+			case "signedlanguage":
+				returnVar = CurrentSignedLanguage;
+				break;
+			case "signedlanguagevariety":
+				returnVar = CurrentSignedLanguageVariety as IProgVariable;
+				break;
             case "class":
                 returnVar =
                     new TextVariable(
@@ -325,6 +334,9 @@ public partial class Character
             { "pc", ProgVariableTypes.Boolean },
             { "accents", ProgVariableTypes.Accent | ProgVariableTypes.Collection },
             { "languages", ProgVariableTypes.Language | ProgVariableTypes.Collection },
+			{ "signedlanguages", ProgVariableTypes.SignedLanguage | ProgVariableTypes.Collection },
+			{ "signedlanguage", ProgVariableTypes.SignedLanguage },
+			{ "signedlanguagevariety", ProgVariableTypes.SignedLanguageVariety },
             { "guest", ProgVariableTypes.Boolean },
             { "linewidth", ProgVariableTypes.Number },
             { "innerlinewidth", ProgVariableTypes.Number },
@@ -410,6 +422,9 @@ public partial class Character
             { "pc", "True if they are a PC" },
             { "accents", "A collection of all of the assets that they have familiarity with" },
             { "languages", "A collection of all the languages that they know" },
+			{ "signedlanguages", "A collection of all the signed languages that they know" },
+			{ "signedlanguage", "The signed language they are currently using (can be null)" },
+			{ "signedlanguagevariety", "The signed language variety they are currently using (can be null)" },
             { "guest", "True if they are a guest" },
             { "linewidth", "Their account's line width setting, in characters" },
             { "innerlinewidth", "Their account's inner line width setting, in characters" },

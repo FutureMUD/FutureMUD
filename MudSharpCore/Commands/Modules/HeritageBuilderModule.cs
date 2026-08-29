@@ -247,6 +247,176 @@ internal class HeritageBuilderModule : BaseBuilderModule
         actor.OutputHandler.Send($"You are now editing the {language.Name.ColourName()} language.");
     }
 
+	private const string SignedLanguageCommandHelp = @"The #3signedlanguage#0 builder command manages signed languages independently from spoken and written languages. A signed language needs a linked skill and at least one articulation profile before characters can produce it.
+
+	#3signedlanguage show <which>#0
+	#3signedlanguage edit new <name> <trait>#0
+	#3signedlanguage edit <which>#0
+	#3signedlanguage close#0
+	#3signedlanguage set <setting> ...#0
+	#3signedlanguage grantvariety <who> <language> <variety>#0
+	#3signedlanguage revokevariety <who> <language> <variety>#0";
+
+	[PlayerCommand("SignedLanguageBuilder", "signedlanguage")]
+	[HelpInfo("signedlanguage", SignedLanguageCommandHelp, AutoHelp.HelpArgOrNoArg)]
+	[CommandPermission(PermissionLevel.Admin)]
+	protected static void SignedLanguageBuilder(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "edit":
+				if (ss.PeekSpeech().EqualTo("new"))
+				{
+					ss.PopSpeech();
+					var name = ss.PopSpeech();
+					var trait = long.TryParse(ss.SafeRemainingArgument, out var traitId)
+						? actor.Gameworld.Traits.Get(traitId)
+						: actor.Gameworld.Traits.GetByName(ss.SafeRemainingArgument);
+					if (name.Length == 0 || trait is null)
+					{
+						actor.OutputHandler.Send("You must supply a unique name and a valid linked trait.");
+						return;
+					}
+					if (actor.Gameworld.SignedLanguages.Any(x => x.Name.EqualTo(name)))
+					{
+						actor.OutputHandler.Send("There is already a signed language with that name.");
+						return;
+					}
+					var created = new SignedLanguage(actor.Gameworld, trait, name);
+					actor.Gameworld.Add(created);
+					actor.RemoveAllEffects<BuilderEditingEffect<ISignedLanguage>>();
+					actor.AddEffect(new BuilderEditingEffect<ISignedLanguage>(actor) { EditingItem = created });
+					actor.OutputHandler.Send($"You create {created.Name.ColourName()} (#{created.Id.ToString("N0", actor)}) and begin editing it.");
+					return;
+				}
+				var editLanguage = actor.Gameworld.SignedLanguages.GetByIdOrName(ss.SafeRemainingArgument);
+				if (editLanguage is null)
+				{
+					actor.OutputHandler.Send("There is no such signed language.");
+					return;
+				}
+				actor.RemoveAllEffects<BuilderEditingEffect<ISignedLanguage>>();
+				actor.AddEffect(new BuilderEditingEffect<ISignedLanguage>(actor) { EditingItem = editLanguage });
+				actor.OutputHandler.Send($"You are now editing {editLanguage.Name.ColourName()}.");
+				return;
+			case "set":
+				var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<ISignedLanguage>>().FirstOrDefault();
+				if (editing is null)
+				{
+					actor.OutputHandler.Send("You are not editing a signed language.");
+					return;
+				}
+				editing.EditingItem.BuildingCommand(actor, ss);
+				return;
+			case "show":
+			case "view":
+				var showLanguage = ss.IsFinished
+					? actor.CombinedEffectsOfType<BuilderEditingEffect<ISignedLanguage>>().FirstOrDefault()?.EditingItem
+					: actor.Gameworld.SignedLanguages.GetByIdOrName(ss.SafeRemainingArgument);
+				actor.OutputHandler.Send(showLanguage?.Show(actor) ?? "There is no such signed language.");
+				return;
+			case "close":
+				var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<ISignedLanguage>>().FirstOrDefault();
+				if (effect is null)
+				{
+					actor.OutputHandler.Send("You are not editing a signed language.");
+					return;
+				}
+				actor.RemoveEffect(effect);
+				actor.OutputHandler.Send($"You are no longer editing {effect.EditingItem.Name.ColourName()}.");
+				return;
+			case "grantvariety":
+				SignedLanguageVarietyFamiliarity(actor, ss, true);
+				return;
+			case "revokevariety":
+			case "removevariety":
+				SignedLanguageVarietyFamiliarity(actor, ss, false);
+				return;
+			default:
+				actor.OutputHandler.Send(SignedLanguageCommandHelp.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void SignedLanguageVarietyFamiliarity(ICharacter actor, StringStack command, bool grant)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Who do you want to {(grant ? "grant" : "revoke")} a signed-language variety {(grant ? "to" : "from")}?");
+			return;
+		}
+
+		var targetText = command.PopSpeech();
+		var target = long.TryParse(targetText, out var targetId)
+			? actor.Gameworld.TryGetCharacter(targetId, true)
+			: actor.TargetActor(targetText) ?? actor.Gameworld.Characters.GetByPersonalName(targetText);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("There is no such character.");
+			return;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which signed language does that variety belong to?");
+			return;
+		}
+
+		var language = actor.Gameworld.SignedLanguages.GetByIdOrName(command.PopSpeech());
+		if (language is null)
+		{
+			actor.OutputHandler.Send("There is no such signed language.");
+			return;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which variety do you want to change?");
+			return;
+		}
+
+		var variety = language.Varieties.GetByIdOrName(command.SafeRemainingArgument);
+		if (variety is null)
+		{
+			actor.OutputHandler.Send($"There is no such variety of {language.Name.ColourName()}.");
+			return;
+		}
+
+		var targetSubject = target == actor ? "You" : target.HowSeen(actor, true);
+		var targetObject = target == actor ? "yourself" : target.HowSeen(actor);
+		var targetPossessive = target == actor ? "your" : $"{target.HowSeen(actor)}'s";
+		var targetAlreadyKnows = target == actor ? "You already know" : $"{targetSubject} already knows";
+		var targetDoesNotKnow = target == actor ? "You do not know" : $"{targetSubject} does not know";
+
+		if (grant)
+		{
+			if (target.SignedLanguageVarieties.Contains(variety))
+			{
+				actor.OutputHandler.Send($"{targetAlreadyKnows} the {variety.Name.ColourName()} variety of {language.Name.ColourName()}.");
+				return;
+			}
+
+			if (!target.SignedLanguages.Contains(language))
+			{
+				target.LearnSignedLanguage(language);
+			}
+
+			target.LearnSignedLanguageVariety(variety);
+			actor.OutputHandler.Send($"You grant {targetObject} familiarity with the {variety.Name.ColourName()} variety of {language.Name.ColourName()}.");
+			return;
+		}
+
+		if (!target.SignedLanguageVarieties.Contains(variety))
+		{
+			actor.OutputHandler.Send($"{targetDoesNotKnow} the {variety.Name.ColourName()} variety of {language.Name.ColourName()}.");
+			return;
+		}
+
+		target.ForgetSignedLanguageVariety(variety);
+		actor.OutputHandler.Send($"You revoke {targetPossessive} familiarity with the {variety.Name.ColourName()} variety of {language.Name.ColourName()}.");
+	}
+
     #endregion
 
     #region Accents

@@ -1,0 +1,305 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.9.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Within A Vast, Neon Arena
+ID[400] | Terrain[Wasteland] | [SafeQuit] | Overlay[Second Side Of Dread Zone  (#21r0)] | Coordinates[26,-8,1]
+Exits: North, East, South, and West
+
+  The surrounding area is bizarre, to say the least. The floors and walls are
+jet black, composed of a strange warm metal coated by a soft, velvety fur that
+gives slightly underfoot, as if padded. Here and there, neon lights streak the
+floor, the ceiling, or the walls - green, violet, pink and orange, giving off a
+dim glow even in total darkness. 
+
+  Currently, the lighting here is dim.
+
+The decaying corpse of a green-eyed old man with saw teeth (Lucas) is here.
+The decaying corpse of a delicate, ivory-haired woman (Mila) is here.
+The decaying corpse of a big, wedge-styled man with amber eyes (Henry) is here.
+The decaying corpse of a tiny, light brown-eyed brute (Levi) is here.
+The decaying corpse of a tiny, pallid-skinned codger (Lucas) is here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage
+ââââââââ£ Help on Signedlanguage â âââââââââââââââââââââââââââââââââââââââââââââââ
+
+The signedlanguage builder command manages signed languages independently from spoken and written languages. A signed language needs a linked skill and at least one articulation
+profile before characters can produce it.
+
+  signedlanguage show <which>
+  signedlanguage edit new <name> <trait>
+  signedlanguage edit <which>
+  signedlanguage close
+  signedlanguage set <setting> ...
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> skill list
+âââââââ¦ââââââââââââââââââ¦âââââââââââââââ¦ââââââââââââââââââââââââ¦âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ¦ââââââââââ
+â ID# â Name            â Group        â Decorator             â Max Value                                                        â Hidden? â
+â ââââââ¬ââââââââââââââââââ¬âââââââââââââââ¬ââââââââââââââââââââââââ¬âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ¬ââââââââââ£
+â 7   â Swords          â Combat       â General Skill Range   â min(99, (2 * dex) + (2 * int) + (1 * wil) + (5 * prog))          â False   â
+â 8   â Clubs           â Combat       â General Skill Range   â min(99, (1 * dex) + (2 * con) + (2 * wil) + (5 * prog))          â False   â
+â 9   â Axes            â Combat       â General Skill Range   â min(99, (2 * dex) + (2 * con) + (1 * wil) + (5 * prog))          â False   â
+â 10  â Polearms        â Combat       â General Skill Range   â min(99, (1 * per) + (2 * dex) + (2 * int) + (5 * prog))          â False   â
+â 11  â Daggers         â Combat       â General Skill Range   â min(99, (2 * dex) + (1 * int) + (2 * wil) + (5 * prog))          â False   â
+â 12  â Brawling        â Combat       â General Skill Range   â min(99, (2 * dex) + (1 * str) + (2 * wil) + (5 * prog))          â False   â
+â 13  â Bows            â Combat       â General Skill Range   â min(99, (2 * dex) + (2 * str) + (2 * per) + (5 * prog))          â False   â
+â 14  â Hiding          â Stealth      â General Skill Range   â (2 * dex) + (1 * wil) + (2 * int) + (5 * prog)                   â False   â
+â 15  â Sneaking        â Stealth      â General Skill Range   â (2 * dex) + (2 * int) + (1 * per) + (5 * prog)                   â False   â
+â 16  â Spotting        â Perception   â General Skill Range   â (4 * per) + (1.5 * int) + (5 * sens)                             â False   â
+â 17  â Listening       â Perception   â General Skill Range   â (4.5 * per) + (1 * int) + (5 * sens)                             â False   â
+â 18  â Climbing        â Athletic     â General Skill Range   â (3 * dex) + (1 * str) + (1 * con) + (5 * prog:61)                â False   â
+â 19  â Swimming        â Athletic     â General Skill Range   â (2 * str) + (3 * con) + (5 * pow:59)                             â False   â
+â 20  â Foraging        â Professional â General Skill Range   â (2 * per) + (3 * int) + (5 * sens:62)                            â False   â
+â 21  â Pickpocket      â Criminal     â General Skill Range   â (2 * dex) + (3 * int) + (5 * prog:61)                            â False   â
+â 22  â Admin Speak     â Language     â Language Skill Range  â 200                                                              â False   â
+â 23  â Searching       â Perception   â General Skill Range   â (3 * per) + (1.5 * int)                                          â False   â
+â 24  â Running         â Athletic     â General Skill Range   â (3 * con) + (1 * dex) + (1 * wil) + (5 * prog:61)                â False   â
+â 25  â Diving          â Athletic     â General Skill Range   â (4 * con) + (1 * wil)                                            â False   â
+â 26  â Locksmithing    â Criminal     â General Skill Range   â (2 * int) + (2 * dex) + per + (5 * prog)                         â False   â
+â 27  â Legerdemain     â Criminal     â General Skill Range   â (3 * int) + (2 * dex) + (5 * prog:61)                            â False   â
+â 28  â Forgery         â Criminal     â General Skill Range   â (2 * int) + (3 * dex) + (5 * prog:61)                            â False   â
+â 29  â Disguise        â Criminal     â General Skill Range   â (2 * int) + (3 * dex) + (5 * prog:61)                            â False   â
+â 30  â Ventrilloquism  â Stealth      â General Skill Range   â (2 * int) + (3 * wil) + (5 * prog:61)                            â False   â
+â 31  â Tracking        â Perception   â General Skill Range   â (3 * per) + (2 * int)                                            â False   â
+â 33  â Blacksmithing   â Professional â Craft Skill Range     â (2 * con) + (2 * int) + str                                      â False   â
+â 34  â Masonry         â Professional â Craft Skill Range     â (3 * con) + int + str                                            â False   â
+â 35  â Construction    â Professional â Craft Skill Range     â (3 * con) + int + str                                            â False   â
+â 36  â Mechanics       â Professional â Craft Skill Range     â (2 * con) + (2 * dex) + str                                      â False   â
+â 37  â Tailoring       â Professional â Craft Skill Range     â (3 * dex) + per + con                                            â False   â
+â 38  â Carpentry       â Professional â Craft Skill Range     â (3 * dex) + per + con                                            â False   â
+â 39  â Butchery        â Professional â Craft Skill Range     â (3 * dex) + (1 * wil) + per                                      â False   â
+â 40  â Silversmithing  â Professional â Craft Skill Range     â (3 * dex) + (1 * wil) + per                                      â False   â
+â 41  â Grooming        â Professional â Craft Skill Range     â (3 * dex) + (1 * wil) + per                                      â False   â
+â 42  â Machining       â Professional â Craft Skill Range     â (2 * dex) + (2 * con) + str                                      â False   â
+â 43  â Electronics     â Professional â Craft Skill Range     â (3 * int) + dex + per                                            â False   â
+â 44  â Chemistry       â Professional â Craft Skill Range     â (3 * int) + dex + per                                            â False   â
+â 45  â Programming     â Professional â Craft Skill Range     â (3 * int) + wil + per                                            â False   â
+â 46  â Cooking         â Professional â Craft Skill Range     â (3 * int) + dex + per + (5 * prog)                               â False   â
+â 47  â Brewing         â Professional â Craft Skill Range     â (3 * int) + con + per + (5 * prog)                               â False   â
+â 48  â Computers       â Professional â Craft Skill Range     â (3 * int) + dex + wil + (5 * prog)                               â False   â
+â 49  â Agriculture     â Professional â Craft Skill Range     â (3 * int) + con + wil + (5 * prog)                               â False   â
+â 50  â Horticulture    â Professional â Craft Skill Range     â (3 * int) + con + wil + (5 * prog)                               â False   â
+â 51  â Husbandry       â Professional â Craft Skill Range     â (3 * int) + con + wil + (5 * prog)                               â False   â
+â 52  â First Aid       â Medical      â General Skill Range   â (3 * int) + dex + wil + (5 * prog)                               â False   â
+â 53  â Surgery         â Medical      â General Skill Range   â (3 * int) + (2 * dex) + (5 * prog:61)                            â False   â
+â 54  â Pharmacology    â Medical      â General Skill Range   â (4 * int) + per + (5 * prog)                                     â False   â
+â 55  â English         â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 56  â Esperanto       â Language     â Language Skill Range  â (5 * int) + (5 * prog:61)                                        â False   â
+â 63  â Pistols         â Combat       â General Skill Range   â min(99, (1.5 * dex) + (2.5 * per) + (1 * int) + (cal * 5))       â False   â
+â 64  â Rifles          â Combat       â General Skill Range   â min(99, (2 * dex) + (2.5 * per) + (1.5 * int) + (cal * 5))       â False   â
+â 65  â Dodging         â Combat       â General Skill Range   â min(99, (2 * per) + (3 * dex) + 5*cal)                           â False   â
+â 66  â Armour Use      â Combat       â General Skill Range   â min(99, (2 * str) + (2 * con) + dex + 5*cal)                     â False   â
+â 67  â Shield Use      â Combat       â General Skill Range   â min(99, (2 * con) + (2 * str) + wil + 5*cal)                     â False   â
+â 68  â Warding         â Combat       â General Skill Range   â min(99, (2 * dex) + (2 * per) + (1 * int) + 5 * cal)             â False   â
+â 69  â German          â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 70  â French          â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 71  â Italian         â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 72  â Spanish         â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 73  â Dutch           â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 74  â Russian         â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 75  â Polish          â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 76  â Mandarin        â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 77  â Yue             â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 78  â Japanese        â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 79  â Korean          â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 80  â Throwing        â Combat       â General Skill Range   â min(99, (2 * dex:4) + (2 * str:1) + (2 * per:6) + (5 * prog:61)) â False   â
+â 81  â Arabic          â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 82  â Hebrew          â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 83  â Greek           â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 84  â Portugese       â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 85  â Ukranian        â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 86  â Belarusian      â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 87  â Literacy        â Language     â Language Skill Range  â (5 * int:3) + (5 * prog:61)                                      â False   â
+â 88  â Handwriting     â Language     â General Skill Range   â (3 * int:3 + 3 * dex:4 + 5 * prog:61)                            â False   â
+â 89  â Farsi           â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 90  â Irish Gaelic    â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 91  â Scottish Gaelic â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 92  â Afrikaans       â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 93  â Navajo          â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 94  â Yupik           â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 95  â Apache          â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 96  â Sioux           â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 97  â Cherokee        â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 98  â Crutch Walking  â Athletic     â General Skill Range   â min(99, (2 * str) + (2 * con) + dex + 5*cal)                     â False   â
+â 99  â Hindi           â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 100 â Malay           â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 101 â Bengali         â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 102 â Hausa           â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 103 â Swahili         â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 104 â Turkish         â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 105 â Swedish         â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 106 â Norwegian       â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 107 â Danish          â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 108 â Finnish         â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 109 â Romani          â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog:61)                               â False   â
+â 110 â Labouring       â Professional â General Skill Range   â min(99, (2 * str) + (2 * con) + dex + 5*cal)                     â False   â
+â 111 â Survival        â Professional â General Skill Range   â (int:3 + wil:5 + con:3) * 1.66                                   â False   â
+â 112 â Primal Link     â Psychic      â General Skill Range   â wil:5 * 5                                                        â False   â
+â 113 â Mindcracking    â Psychic      â General Skill Range   â wil:5 * 5                                                        â False   â
+â 114 â Pottery         â Professional â Craft Skill Range     â (3 * dex) + (2 * wil)                                            â False   â
+â 115 â Leatherworking  â Professional â Craft Skill Range     â (3 * dex) + (2 * wil)                                            â False   â
+â 116 â Veterancy       â Combat       â Veterancy Skill Range â min(99, int + per + (3 * wil) + 5*cal)                           â False   â
+â 117 â Primacy         â Psychic      â General Skill Range   â wil:5 * 5                                                        â False   â
+â 118 â Forestry        â Professional â General Skill Range   â str:1 + (per:6 *2) + (int:3 * 2)                                 â False   â
+â 119 â Tattooing       â Professional â General Skill Range   â (per:6 * 3) + (dex:4 * 2)                                        â False   â
+â 120 â Falling         â Athletic     â General Skill Range   â (3 * dex:4) + wil:5 + (5 * prog:61)                              â False   â
+â 121 â Flying          â Athletic     â General Skill Range   â (con:2 + dex:4) * 2.5                                            â False   â
+â 122 â Armour Crafting â Professional â Craft Skill Range     â min(99, (2 * con:2) + (2 * int:3) + str:1 + (5 * prog:61))       â False   â
+â 123 â Art             â Professional â General Skill Range   â min(99, (2 * con:2) + (2 * int:3) + str:1 + (5 * prog:61))       â False   â
+â 124 â Astral          â Psychic      â General Skill Range   â wil:5 * 5                                                        â False   â
+â 125 â Technomancy     â Magical      â General Skill Range   â (int:3 + log:57) * 5                                             â False   â
+â 126 â Wrestling       â Combat       â General Skill Range   â min(99, (2 * dex:4) + (1 * str:1) + (2 * wil:5) + (5 * prog:61)) â False   â
+â 127 â Mongolian       â Language     â Language Skill Range  â 10 + (9.5 * int) + (9.5 * prog)                                  â False   â
+â 128 â Law             â Medical      â General Skill Range   â (4 * int) + per + (5 * prog)                                     â False   â
+â 129 â Traps           â Survival     â Current / Max         â 70                                                               â False   â
+âââââââ©ââââââââââââââââââ©âââââââââââââââ©ââââââââââââââââââââââââ©âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ©ââââââââââ
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> skills
+> help description
+Skills:
+
+Admin Speak    102 / 200                      Esperanto      50 / 405                       Listening      100 / 428                      Rifles         60 / 99
+
+Armour Use     14 / 99                        Falling        5 / 332                        Locksmithing   5 / 409                        Sneaking       100 / 409
+
+Brawling       1 / 99                         First Aid      100 / 405                      Mindcracking   100 / 385                      Spotting       70 / 430
+
+Chemistry      50 / 405                       Foraging       100 / 397                      Pharmacology   20 / 401                       Surgery        100 / 413
+
+Climbing       52 / 435                       French         1 / 780                        Pistols        72 / 99                        Survival       100 / 397
+
+Clubs          36 / 99                        Grooming       100 / 409                      Pottery        50 / 409                       Swords         99 / 99
+
+Daggers        99 / 99                        Handwriting    100 / 498                      Primacy        100 / 385                      Traps          70 / 70
+
+Dodging        1 / 99                         Hiding         100 / 409                      Primal Link    100 / 385                      Veterancy      5 / 99
+
+English        50 / 780                       Labouring      20 / 99                          
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+
+ââââââââ£ Help on Description â ââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+Category: Commands
+Subcategory: Built-In
+Keywords: description
+Tagline: Automatically generated help for the description command
+
+This command is used to create and edit Entity Description Patterns, which are
+template descriptions for characters, usually written in a special markup
+language that respects their characteristic values, covering items, missing
+bodyparts etc.
+
+You can use the following options with this command:
+
+  description list [<filters>] - lists all of the descriptions
+  description edit <which> - begins editing a description
+  description edit new sdesc|fdesc <prog> [<pattern>] - creates a new
+description
+  description clone <old> <new name> <new abbrev> - clones a description to a
+new description
+  description close - stops editing a description
+  description show <which> - views information about a description
+  description show - views information about your currently editing description
+  description set type - toggles this being a short description or full
+description pattern
+  description set prog <prog> - sets the prog which controls if this pattern is
+valid for a character
+  description set pattern <text> - sets the pattern text
+  description set pattern - drops you into an editor with extended markup help
+info to enter the new pattern
+  description set weight <#> - sets the relative weight for randomly selected
+descriptions
+
+You can also use the following filters on the list subcommand:
+
+  +<keyword> - only include descs with this keyword in the pattern somewhere
+  -<keyword> - only include descs without this keyword in the pattern somewhere
+  sdesc - only show short descriptions
+  fdesc - only show full descriptions
+  <keyword> - only include descs whose prog includes the keyword in the
+function name
+
+Lasted edited by System on 29/8/2026 5:08:00 pm.
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> help desc
+Your query matched multiple help files:
+
+Markup - Descriptions - Description Markup Commands - Built-In - description
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

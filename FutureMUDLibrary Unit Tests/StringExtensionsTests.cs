@@ -118,6 +118,7 @@ public class StringExtensionsTests
     {
         Assert.AreEqual("hello.", "hello".Fullstop());
         Assert.AreEqual("hi!", "hi!".Fullstop());
+		Assert.AreEqual("`hello!`", "`hello!`".Fullstop());
     }
 
     [TestMethod]

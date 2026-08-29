@@ -68,6 +68,25 @@ public partial class AIStoryteller
         }
     }
 
+	internal static void HandleCharacterSignInRoomEvent(ICharacter signer, IPerceivable? target, string message,
+		ISignedLanguage language, ISignedLanguageVariety? variety)
+	{
+		if (signer.Location is not ICell location)
+		{
+			return;
+		}
+
+		foreach (var storyteller in signer.Gameworld.AIStorytellers.OfType<AIStoryteller>())
+		{
+			if (!storyteller.SubscribeToSpeechEvents || storyteller.IsPaused || !storyteller.IsCellSurveilled(location))
+			{
+				continue;
+			}
+
+			storyteller.PassSignEventToAIStoryteller(location, signer, target, message, language, variety);
+		}
+	}
+
     internal static void HandleCrimeCommittedInRoomEvent(ICrime crime)
     {
         ICell location = crime.CrimeLocation ?? crime.Criminal.Location;
@@ -156,6 +175,40 @@ public partial class AIStoryteller
             bypassAttention: bypassAttention,
             bypassReason: bypassReason);
     }
+
+	private void PassSignEventToAIStoryteller(ICell location, ICharacter signer, IPerceivable? target, string message,
+		ISignedLanguage language, ISignedLanguageVariety? variety)
+	{
+		var apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
+		if (string.IsNullOrEmpty(apiKey))
+		{
+			return;
+		}
+
+		var sb = new StringBuilder();
+		AppendOpenSituationTitles(sb, location, [signer, target as ICharacter]);
+		sb.AppendLine("A character has signed in a surveilled room.");
+		sb.AppendLine($"Location: {location.GetFriendlyReference(null).StripANSIColour()}");
+		sb.AppendLine($"Signer: {signer.PersonalName.GetName(NameStyle.FullName)}");
+		sb.AppendLine($"Signed Language: {language.Name}");
+		if (variety is not null)
+		{
+			sb.AppendLine($"Variety: {variety.Name}");
+		}
+		if (target is not null)
+		{
+			sb.AppendLine($"Target: {target.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription)}");
+		}
+		sb.AppendLine("Signed Text:");
+		sb.AppendLine(message.StripANSIColour().StripMXP());
+		AppendAttentionBypassToolGuidance(sb);
+		var bypassAttention = TryGetAttentionBypassReason(location, [signer, target as ICharacter],
+			out var bypassReason);
+		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Signs", sb.ToString(), includeEchoTools: true,
+			systemPrompt: SystemPrompt, model: Model, reasoningEffort: ReasoningEffort,
+			toolProfile: StorytellerToolProfile.EventFocused,
+			bypassAttention: bypassAttention, bypassReason: bypassReason);
+	}
 
     private void PassCrimeToAIStoryteller(ICell location, ICrime crime)
     {

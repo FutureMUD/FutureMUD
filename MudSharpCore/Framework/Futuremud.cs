@@ -947,6 +947,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         _languages.Add(language);
     }
 
+	public void Add(ISignedLanguage language)
+	{
+		_signedLanguages.Add(language);
+	}
+
     public void Add(IAccent accent)
     {
         _accents.Add(accent);
@@ -1754,6 +1759,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
                                                  .ThenInclude(x => x.GameItem.WoundsGameItem)
                                                  .Include(x => x.CharactersAccents)
                                                  .Include(x => x.CharactersLanguages)
+												 .Include(x => x.CharactersSignedLanguages)
+												 .Include(x => x.CharactersSignedLanguageVarieties)
                                                  .Include(x => x.Body.BodiesSeveredParts)
                                                  .Include(x => x.Body.Characteristics)
                                                  .Include(x => x.AlliesCharacter)

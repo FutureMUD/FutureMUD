@@ -18,6 +18,7 @@ namespace MudSharp.Strategies.BodyStratagies
         string WhyCannotVocalise(IBody body, AudioVolume volume);
         PermitLanguageOptions VocalisationOption(IBody body, AudioVolume volume);
         void Say(IBody body, IPerceivable target, string message, IEmote? emote = null);
+		void Sign(IBody body, IPerceivable target, string message, IEmote? emote = null);
         void LoudSay(IBody body, IPerceivable target, string message, IEmote? emote = null);
         void Talk(IBody body, IPerceivable target, string message, IEmote? emote = null);
         void Whisper(IBody body, IPerceivable target, string message, IEmote? emote = null);

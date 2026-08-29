@@ -1,0 +1,136 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.9.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Within A Vast, Neon Arena
+ID[400] | Terrain[Wasteland] | [SafeQuit] | Overlay[Second Side Of Dread Zone  (#21r0)] | Coordinates[26,-8,1]
+Exits: North, East, South, and West
+
+  The surrounding area is bizarre, to say the least. The floors and walls are
+jet black, composed of a strange warm metal coated by a soft, velvety fur that
+gives slightly underfoot, as if padded. Here and there, neon lights streak the
+floor, the ceiling, or the walls - green, violet, pink and orange, giving off a
+dim glow even in total darkness. 
+
+  Currently, the lighting here is dim.
+
+The decaying corpse of a green-eyed old man with saw teeth (Lucas) is here.
+The decaying corpse of a delicate, ivory-haired woman (Mila) is here.
+The decaying corpse of a big, wedge-styled man with amber eyes (Henry) is here.
+The decaying corpse of a tiny, light brown-eyed brute (Levi) is here.
+The decaying corpse of a tiny, pallid-skinned codger (Lucas) is here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage show 1
+Signed Language #1 - Live Test Sign Language
+Linked Trait: German
+Difficulty Model: Simple Wordlist
+Unknown Description: an intentionally obvious live-test signed language
+Obfuscation Factor: 25.00%
+Varieties: Arena
+Articulation Profiles:
+  Humanoid (Human): hand 2/2
+Mutually Intelligible Signed Languages:
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguages
+You know the following signed languages:
+
+Live Test Sign Language @ (Articulate) (Arena)
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signlanguage "Live Test Sign Language" Arena
+You will now sign in Live Test Sign Language using the Arena variety.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> sign (smiling warmly) hello from the final verified command test!
+You sign emphatically, smiling warmly, in Live Test Sign Language with arena signs, 
+`   Hello from the final verified command test!`
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signto Mila (turning toward her) can you see this final verified sign?
+You sign questioningly to The decaying corpse of a delicate, ivory-haired woman (Mila), turning toward her, in Live Test Sign Language with arena signs, 
+`   Can you see this final verified sign?`
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> emote @ raises both hands and signs, `welcome to the arena.`
+A black-afro-haired adolescent (Japheth) raises both hands and signs, `Welcome
+to the arena.`
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> emote @ leaves a dangling `sign
+Signing in emotes must have matching backticks around it.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

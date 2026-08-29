@@ -228,7 +228,9 @@ namespace MudSharp.RPG.Checks
 		VehicleChargeCheck = 219,
 		AquaticVehicleChargeCheck = 220,
 		OpposeMountedChargeCheck = 221,
-		AvoidMountFallCheck = 222
+		AvoidMountFallCheck = 222,
+		SignedLanguageExpressCheck = 223,
+		SignedLanguageUnderstandCheck = 224
     }
 
     public enum FailIfTraitMissingType
@@ -731,6 +733,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.GenericSpotCheck:
                 case CheckType.LanguageListenCheck:
                 case CheckType.SpokenLanguageHearCheck:
+				case CheckType.SignedLanguageUnderstandCheck:
                 case CheckType.SpotSneakCheck:
                 case CheckType.SpotStealthCheck:
                 case CheckType.NoticeCheck:
@@ -758,6 +761,8 @@ namespace MudSharp.RPG.Checks
                 case CheckType.LanguageListenCheck:
                 case CheckType.SpokenLanguageHearCheck:
                 case CheckType.SpokenLanguageSpeakCheck:
+				case CheckType.SignedLanguageExpressCheck:
+				case CheckType.SignedLanguageUnderstandCheck:
                 case CheckType.WritingComprehendCheck:
                 case CheckType.PsychicLanguageHearCheck:
                 case CheckType.AccentAcquireCheck:

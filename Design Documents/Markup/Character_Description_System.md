@@ -43,7 +43,7 @@ When a character is rendered, the engine applies these layers in order:
 3. selected entity description pattern text, if one is chosen
 4. raw custom text stored on the body/template
 5. characteristic parsing
-6. written-language substitution where that mode uses it
+6. written-language and signed-depiction substitution where that mode uses it
 7. spacing, sentence, wrapping, and runtime addenda
 
 ### Override Effects
@@ -62,7 +62,7 @@ For `DescriptionType.Short`, the runtime flow is:
    - selected short-description pattern
    - stored short-description text
 3. the text is parsed through `ParseCharacteristics`
-4. the result is passed through `SubstituteWrittenLanguage`
+4. the result is passed through `SubstituteWrittenLanguage`, which also resolves `sign{language[,variety][,minskill=value]}{depiction}{fallback}` markup
 5. spacing is normalised
 6. proper-casing is applied when requested
 7. `ProcessDescriptionAdditions` overlays dubs/admin name display and `ISDescAdditionEffect` text

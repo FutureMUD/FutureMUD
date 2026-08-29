@@ -4769,6 +4769,12 @@ namespace MudSharp.Migrations
                     b.Property<long?>("CurrentScriptId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<long?>("CurrentSignedLanguageId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("CurrentSignedLanguageVarietyId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<long?>("CurrentWritingLanguageId")
                         .HasColumnType("bigint(20)");
 
@@ -4978,6 +4984,12 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("CurrentScriptId")
                         .HasDatabaseName("FK_Characters_Scripts_idx");
+
+                    b.HasIndex("CurrentSignedLanguageId")
+                        .HasDatabaseName("FK_Characters_CurrentSignedLanguage_idx");
+
+                    b.HasIndex("CurrentSignedLanguageVarietyId")
+                        .HasDatabaseName("FK_Characters_CurrentSignedLanguageVariety_idx");
 
                     b.HasIndex("CurrentWritingLanguageId")
                         .HasDatabaseName("FK_Characters_Languages_Written_idx");
@@ -5813,6 +5825,26 @@ namespace MudSharp.Migrations
                     b.ToTable("CharacterLog", (string)null);
                 });
 
+            modelBuilder.Entity("MudSharp.Models.CharacterSignedLanguageVariety", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("SignedLanguageVarietyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Familiarity")
+                        .HasColumnType("int");
+
+                    b.HasKey("CharacterId", "SignedLanguageVarietyId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("SignedLanguageVarietyId")
+                        .HasDatabaseName("FK_Characters_SignedLanguageVarieties_Varieties_idx");
+
+                    b.ToTable("Characters_SignedLanguageVarieties", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.CharacterTrait", b =>
                 {
                     b.Property<long>("CharacterId")
@@ -6090,6 +6122,23 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_Characters_Scripts_Scripts_idx");
 
                     b.ToTable("Characters_Scripts", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharactersSignedLanguage", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("SignedLanguageId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("CharacterId", "SignedLanguageId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("SignedLanguageId")
+                        .HasDatabaseName("FK_Characters_SignedLanguages_Languages_idx");
+
+                    b.ToTable("Characters_SignedLanguages", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Chargen", b =>
@@ -20796,6 +20845,191 @@ namespace MudSharp.Migrations
                     b.ToTable("ShopsTills");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.SignedLanguage", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("DifficultyModelId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<double>("LanguageObfuscationFactor")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(0.20000000000000001);
+
+                    b.Property<long>("LinkedTraitId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<string>("UnknownLanguageDescription")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("UnknownLanguageDescription"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("DifficultyModelId")
+                        .HasDatabaseName("FK_SignedLanguages_DifficultyModels_idx");
+
+                    b.HasIndex("LinkedTraitId")
+                        .HasDatabaseName("FK_SignedLanguages_TraitDefinitions_idx");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_SignedLanguages_Name");
+
+                    b.ToTable("SignedLanguages", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.SignedLanguageArticulationProfile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("BodyPrototypeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long>("SignedLanguageId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("BodyPrototypeId")
+                        .HasDatabaseName("FK_SignedLanguageArticulationProfiles_BodyProtos_idx");
+
+                    b.HasIndex("SignedLanguageId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_SignedLanguageArticulationProfiles_Language_Name");
+
+                    b.ToTable("SignedLanguageArticulationProfiles", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.SignedLanguageArticulationRequirement", b =>
+                {
+                    b.Property<long>("ArticulationProfileId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("BodypartShapeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("MinimumCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PreferredCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("ArticulationProfileId", "BodypartShapeId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("BodypartShapeId")
+                        .HasDatabaseName("FK_SignedLanguageArticulationRequirements_BodypartShapes_idx");
+
+                    b.ToTable("SignedLanguageArticulationRequirements", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.SignedLanguageMutualIntelligibility", b =>
+                {
+                    b.Property<long>("ListenerLanguageId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("TargetLanguageId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("IntelligibilityDifficulty")
+                        .HasColumnType("int");
+
+                    b.HasKey("ListenerLanguageId", "TargetLanguageId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("TargetLanguageId")
+                        .HasDatabaseName("FK_SignedLanguageMutual_Target_idx");
+
+                    b.ToTable("SignedLanguageMutualIntelligibilities", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.SignedLanguageVariety", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<int>("RecognitionDifficulty")
+                        .HasColumnType("int");
+
+                    b.Property<long>("SignedLanguageId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Suffix")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Suffix"), "utf8");
+
+                    b.Property<string>("VagueSuffix")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("VagueSuffix"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("SignedLanguageId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_SignedLanguageVarieties_Language_Name");
+
+                    b.ToTable("SignedLanguageVarieties", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.SkyDescriptionTemplate", b =>
                 {
                     b.Property<long>("Id")
@@ -27541,6 +27775,18 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Characters_Scripts");
 
+                    b.HasOne("MudSharp.Models.SignedLanguage", "CurrentSignedLanguage")
+                        .WithMany("CharactersCurrentSignedLanguage")
+                        .HasForeignKey("CurrentSignedLanguageId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Characters_CurrentSignedLanguage");
+
+                    b.HasOne("MudSharp.Models.SignedLanguageVariety", "CurrentSignedLanguageVariety")
+                        .WithMany("CharactersCurrentSignedLanguageVariety")
+                        .HasForeignKey("CurrentSignedLanguageVarietyId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Characters_CurrentSignedLanguageVariety");
+
                     b.HasOne("MudSharp.Models.Language", "CurrentWritingLanguage")
                         .WithMany("CharactersCurrentWritingLanguage")
                         .HasForeignKey("CurrentWritingLanguageId")
@@ -27572,6 +27818,10 @@ namespace MudSharp.Migrations
                     b.Navigation("CurrentProjectLabour");
 
                     b.Navigation("CurrentScript");
+
+                    b.Navigation("CurrentSignedLanguage");
+
+                    b.Navigation("CurrentSignedLanguageVariety");
 
                     b.Navigation("CurrentWritingLanguage");
 
@@ -27855,6 +28105,27 @@ namespace MudSharp.Migrations
                     b.Navigation("Character");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.CharacterSignedLanguageVariety", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany("CharactersSignedLanguageVarieties")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Characters_SignedLanguageVarieties_Characters");
+
+                    b.HasOne("MudSharp.Models.SignedLanguageVariety", "SignedLanguageVariety")
+                        .WithMany("CharactersSignedLanguageVarieties")
+                        .HasForeignKey("SignedLanguageVarietyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Characters_SignedLanguageVarieties_Varieties");
+
+                    b.Navigation("Character");
+
+                    b.Navigation("SignedLanguageVariety");
+                });
+
             modelBuilder.Entity("MudSharp.Models.CharacterTrait", b =>
                 {
                     b.HasOne("MudSharp.Models.Character", "Character")
@@ -28029,6 +28300,27 @@ namespace MudSharp.Migrations
                     b.Navigation("Character");
 
                     b.Navigation("Script");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharactersSignedLanguage", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany("CharactersSignedLanguages")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Characters_SignedLanguages_Characters");
+
+                    b.HasOne("MudSharp.Models.SignedLanguage", "SignedLanguage")
+                        .WithMany("CharactersSignedLanguages")
+                        .HasForeignKey("SignedLanguageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Characters_SignedLanguages_Languages");
+
+                    b.Navigation("Character");
+
+                    b.Navigation("SignedLanguage");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Chargen", b =>
@@ -34067,6 +34359,102 @@ namespace MudSharp.Migrations
                     b.Navigation("Shop");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.SignedLanguage", b =>
+                {
+                    b.HasOne("MudSharp.Models.LanguageDifficultyModels", "DifficultyModel")
+                        .WithMany()
+                        .HasForeignKey("DifficultyModelId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_SignedLanguages_DifficultyModels");
+
+                    b.HasOne("MudSharp.Models.TraitDefinition", "LinkedTrait")
+                        .WithMany()
+                        .HasForeignKey("LinkedTraitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_SignedLanguages_TraitDefinitions");
+
+                    b.Navigation("DifficultyModel");
+
+                    b.Navigation("LinkedTrait");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.SignedLanguageArticulationProfile", b =>
+                {
+                    b.HasOne("MudSharp.Models.BodyProto", "BodyPrototype")
+                        .WithMany()
+                        .HasForeignKey("BodyPrototypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_SignedLanguageArticulationProfiles_BodyProtos");
+
+                    b.HasOne("MudSharp.Models.SignedLanguage", "SignedLanguage")
+                        .WithMany("ArticulationProfiles")
+                        .HasForeignKey("SignedLanguageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_SignedLanguageArticulationProfiles_Languages");
+
+                    b.Navigation("BodyPrototype");
+
+                    b.Navigation("SignedLanguage");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.SignedLanguageArticulationRequirement", b =>
+                {
+                    b.HasOne("MudSharp.Models.SignedLanguageArticulationProfile", "ArticulationProfile")
+                        .WithMany("Requirements")
+                        .HasForeignKey("ArticulationProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_SignedLanguageArticulationRequirements_Profiles");
+
+                    b.HasOne("MudSharp.Models.BodypartShape", "BodypartShape")
+                        .WithMany()
+                        .HasForeignKey("BodypartShapeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_SignedLanguageArticulationRequirements_BodypartShapes");
+
+                    b.Navigation("ArticulationProfile");
+
+                    b.Navigation("BodypartShape");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.SignedLanguageMutualIntelligibility", b =>
+                {
+                    b.HasOne("MudSharp.Models.SignedLanguage", "ListenerLanguage")
+                        .WithMany("MutualIntelligibilitiesListenerLanguage")
+                        .HasForeignKey("ListenerLanguageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_SignedLanguageMutual_Listener");
+
+                    b.HasOne("MudSharp.Models.SignedLanguage", "TargetLanguage")
+                        .WithMany("MutualIntelligibilitiesTargetLanguage")
+                        .HasForeignKey("TargetLanguageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_SignedLanguageMutual_Target");
+
+                    b.Navigation("ListenerLanguage");
+
+                    b.Navigation("TargetLanguage");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.SignedLanguageVariety", b =>
+                {
+                    b.HasOne("MudSharp.Models.SignedLanguage", "SignedLanguage")
+                        .WithMany("Varieties")
+                        .HasForeignKey("SignedLanguageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_SignedLanguageVarieties_SignedLanguages");
+
+                    b.Navigation("SignedLanguage");
+                });
+
             modelBuilder.Entity("MudSharp.Models.SkyDescriptionTemplatesValue", b =>
                 {
                     b.HasOne("MudSharp.Models.SkyDescriptionTemplate", "SkyDescriptionTemplate")
@@ -36478,6 +36866,10 @@ namespace MudSharp.Migrations
 
                     b.Navigation("CharactersScripts");
 
+                    b.Navigation("CharactersSignedLanguageVarieties");
+
+                    b.Navigation("CharactersSignedLanguages");
+
                     b.Navigation("ClanMembershipsCharacter");
 
                     b.Navigation("ClanMembershipsManager");
@@ -37815,6 +38207,33 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.Shopper", b =>
                 {
                     b.Navigation("ShopperLogs");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.SignedLanguage", b =>
+                {
+                    b.Navigation("ArticulationProfiles");
+
+                    b.Navigation("CharactersCurrentSignedLanguage");
+
+                    b.Navigation("CharactersSignedLanguages");
+
+                    b.Navigation("MutualIntelligibilitiesListenerLanguage");
+
+                    b.Navigation("MutualIntelligibilitiesTargetLanguage");
+
+                    b.Navigation("Varieties");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.SignedLanguageArticulationProfile", b =>
+                {
+                    b.Navigation("Requirements");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.SignedLanguageVariety", b =>
+                {
+                    b.Navigation("CharactersCurrentSignedLanguageVariety");
+
+                    b.Navigation("CharactersSignedLanguageVarieties");
                 });
 
             modelBuilder.Entity("MudSharp.Models.SkyDescriptionTemplate", b =>

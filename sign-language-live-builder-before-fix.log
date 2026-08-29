@@ -1,0 +1,159 @@
+                  ____.----.           LabMUD - Phase 1
+        ____.----'          \          Powered by the FutureMUD Engine v2.9.0.0000
+        \                    \         Copyright 2008-2026
+         \                    \
+          \                    \       
+           \          ____.----'`--.__             
+            \___.----'          |     `--.____   Join us on discord!
+           /`-._                |       __.-' \  https://discord.gg/MZpPcZF
+          /     `-._            ___.---'       \ 
+         /          `-.____.---'                \
+        /            / | \                       \
+       /            /  |  \                   _.--'
+       `-.         /   |   \            __.--'
+          `-._    /    |    \     __.--'     |    Select an Option:
+            | `-./     |     \_.-'           |    C) Create a new account
+            |          |                     |    L) Login to your account
+            |          |                     |    R) Recover a lost account
+            |          |                     |
+            |          |                     |
+            |          |                     |   
+            |          |                     |
+     _______|          |                     |_______________
+            `-.        |                  _.-'
+               `-.     |           __..--'
+                  `-.  |      __.-'
+                     `-|__.--'
+> l
+
+Please enter your account name:
+> japheth
+
+Please enter your [REDACTED]:
+> [REDACTED]
+Hi Japheth! Welcome to the Lab...
+
+                                        ========== Options ===========
+              . -  ' '   '  ' -.          1) Connect to a character
+           . '       _,._       ' .       2) Login as a guest
+         ,'        ;'    ";        ',     3) Create a new character
+         |'         ',_ ,-'        .|     4) Change your email address
+         | '.          '         .  |     5) Change your [REDACTED]
+         |   ' ,             . '    |     
+         |   |   ' - . _ . -|       |     X) Disconnect from LabMUD
+         |               '. |       |
+         |   |             '.       |
+         |                   '.     |
+         |   |                .,    |
+         |                    . ,   |
+         |   |               .  '   |
+         |                  .   '   |
+         |   |            .    '    |
+         !.              '    '    .'
+           '.|           '   ,   .
+             ' ,        '   ,. '
+                 ' - . ,  .-
+                      ,  .
+                     , .      
+                    , .
+                    ,'
+> c
+You have the following characters: 
+  1: Japheth (Active)
+  2: Raven (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 1
+Within A Vast, Neon Arena
+ID[400] | Terrain[Wasteland] | [SafeQuit] | Overlay[Second Side Of Dread Zone  (#21r0)] | Coordinates[26,-8,1]
+Exits: North, East, South, and West
+
+  The surrounding area is bizarre, to say the least. The floors and walls are
+jet black, composed of a strange warm metal coated by a soft, velvety fur that
+gives slightly underfoot, as if padded. Here and there, neon lights streak the
+floor, the ceiling, or the walls - green, violet, pink and orange, giving off a
+dim glow even in total darkness. 
+
+  Currently, the lighting here is dim.
+
+The decaying corpse of a green-eyed old man with saw teeth (Lucas) is here.
+The decaying corpse of a delicate, ivory-haired woman (Mila) is here.
+The decaying corpse of a big, wedge-styled man with amber eyes (Henry) is here.
+The decaying corpse of a tiny, light brown-eyed brute (Levi) is here.
+The decaying corpse of a tiny, pallid-skinned codger (Lucas) is here.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage edit new "Live Test Sign Language" German
+You create Live Test Sign Language (#1) and begin editing it.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage set unknown an intentionally obvious live-test signed language
+The unknown description is now an intentionally obvious live-test signed language.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage set obfuscation 25%
+> signedlanguage set profile add Humanoid Human Hand 1 2
+The obfuscation factor is now 25.00%.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+
+You add the Humanoid articulation profile.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage set profile requirement Humanoid Hand 2 2
+The Humanoid profile now requires at least 2 and prefers 2 functional hands.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage set variety add Arena "the arena variety" "with arena signs" "with unfamiliar arena signs" Easy
+You add the Arena variety.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage show
+Signed Language #1 - Live Test Sign Language
+Linked Trait: German
+Difficulty Model: Simple Wordlist
+Unknown Description: an intentionally obvious live-test signed language
+Obfuscation Factor: 25.00%
+Varieties: Arena
+Articulation Profiles:
+  Humanoid (Human): hand 2/2
+Mutually Intelligible Signed Languages:
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguage close
+You are no longer editing Live Test Sign Language.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> skill add japheth German 100
+You add the German skill to you at a value of 100.00.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signedlanguages
+You know the following signed languages:
+
+You do not know any signed languages.
+
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> signlanguage "Live Test Sign Language" Arena
+You do not know any signed language by that name.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>
+> sign a normal sign should only work once the language is known
+You are not currently using any signed language. Use the signlanguage command to select one.
+
+
+<Pain: ****** / Stun: ****** / Stam: |||||| / Blood: ****** / Primal Energy: |||||| / Speaking: English / Wi>

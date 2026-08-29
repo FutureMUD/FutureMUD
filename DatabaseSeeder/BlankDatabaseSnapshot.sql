@@ -15241,6 +15241,403 @@ CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
 COMMIT;
 
+-- EF-generated idempotent delta: 20260829031447_AddSignedLanguageCommunication
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    ALTER TABLE `characters` ADD `CurrentSignedLanguageId` bigint(20) NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    ALTER TABLE `characters` ADD `CurrentSignedLanguageVarietyId` bigint(20) NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE TABLE `signedlanguages` (
+        `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+        `Name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `DifficultyModelId` bigint(20) NOT NULL,
+        `LinkedTraitId` bigint(20) NOT NULL,
+        `UnknownLanguageDescription` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `LanguageObfuscationFactor` double NOT NULL DEFAULT 0.20000000000000001,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+        CONSTRAINT `FK_SignedLanguages_DifficultyModels` FOREIGN KEY (`DifficultyModelId`) REFERENCES `languagedifficultymodels` (`Id`) ON DELETE RESTRICT,
+        CONSTRAINT `FK_SignedLanguages_TraitDefinitions` FOREIGN KEY (`LinkedTraitId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE TABLE `characters_signedlanguages` (
+        `CharacterId` bigint(20) NOT NULL,
+        `SignedLanguageId` bigint(20) NOT NULL,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`CharacterId`, `SignedLanguageId`),
+        CONSTRAINT `FK_Characters_SignedLanguages_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+        CONSTRAINT `FK_Characters_SignedLanguages_Languages` FOREIGN KEY (`SignedLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE TABLE `signedlanguagearticulationprofiles` (
+        `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+        `SignedLanguageId` bigint(20) NOT NULL,
+        `BodyPrototypeId` bigint(20) NOT NULL,
+        `Name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+        CONSTRAINT `FK_SignedLanguageArticulationProfiles_BodyProtos` FOREIGN KEY (`BodyPrototypeId`) REFERENCES `bodyprotos` (`Id`) ON DELETE RESTRICT,
+        CONSTRAINT `FK_SignedLanguageArticulationProfiles_Languages` FOREIGN KEY (`SignedLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE TABLE `signedlanguagemutualintelligibilities` (
+        `ListenerLanguageId` bigint(20) NOT NULL,
+        `TargetLanguageId` bigint(20) NOT NULL,
+        `IntelligibilityDifficulty` int NOT NULL,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`ListenerLanguageId`, `TargetLanguageId`),
+        CONSTRAINT `FK_SignedLanguageMutual_Listener` FOREIGN KEY (`ListenerLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE,
+        CONSTRAINT `FK_SignedLanguageMutual_Target` FOREIGN KEY (`TargetLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE TABLE `signedlanguagevarieties` (
+        `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+        `SignedLanguageId` bigint(20) NOT NULL,
+        `Name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `Description` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `Suffix` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `VagueSuffix` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `RecognitionDifficulty` int NOT NULL,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+        CONSTRAINT `FK_SignedLanguageVarieties_SignedLanguages` FOREIGN KEY (`SignedLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE TABLE `signedlanguagearticulationrequirements` (
+        `ArticulationProfileId` bigint(20) NOT NULL,
+        `BodypartShapeId` bigint(20) NOT NULL,
+        `MinimumCount` int NOT NULL,
+        `PreferredCount` int NOT NULL,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`ArticulationProfileId`, `BodypartShapeId`),
+        CONSTRAINT `FK_SignedLanguageArticulationRequirements_BodypartShapes` FOREIGN KEY (`BodypartShapeId`) REFERENCES `bodypartshape` (`Id`) ON DELETE RESTRICT,
+        CONSTRAINT `FK_SignedLanguageArticulationRequirements_Profiles` FOREIGN KEY (`ArticulationProfileId`) REFERENCES `signedlanguagearticulationprofiles` (`Id`) ON DELETE CASCADE
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE TABLE `characters_signedlanguagevarieties` (
+        `CharacterId` bigint(20) NOT NULL,
+        `SignedLanguageVarietyId` bigint(20) NOT NULL,
+        `Familiarity` int NOT NULL,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`CharacterId`, `SignedLanguageVarietyId`),
+        CONSTRAINT `FK_Characters_SignedLanguageVarieties_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+        CONSTRAINT `FK_Characters_SignedLanguageVarieties_Varieties` FOREIGN KEY (`SignedLanguageVarietyId`) REFERENCES `signedlanguagevarieties` (`Id`) ON DELETE CASCADE
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE INDEX `FK_Characters_CurrentSignedLanguage_idx` ON `characters` (`CurrentSignedLanguageId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE INDEX `FK_Characters_CurrentSignedLanguageVariety_idx` ON `characters` (`CurrentSignedLanguageVarietyId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE INDEX `FK_Characters_SignedLanguages_Languages_idx` ON `characters_signedlanguages` (`SignedLanguageId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE INDEX `FK_Characters_SignedLanguageVarieties_Varieties_idx` ON `characters_signedlanguagevarieties` (`SignedLanguageVarietyId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE INDEX `FK_SignedLanguageArticulationProfiles_BodyProtos_idx` ON `signedlanguagearticulationprofiles` (`BodyPrototypeId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE UNIQUE INDEX `UX_SignedLanguageArticulationProfiles_Language_Name` ON `signedlanguagearticulationprofiles` (`SignedLanguageId`, `Name`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE INDEX `FK_SignedLanguageArticulationRequirements_BodypartShapes_idx` ON `signedlanguagearticulationrequirements` (`BodypartShapeId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE INDEX `FK_SignedLanguageMutual_Target_idx` ON `signedlanguagemutualintelligibilities` (`TargetLanguageId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE INDEX `FK_SignedLanguages_DifficultyModels_idx` ON `signedlanguages` (`DifficultyModelId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE INDEX `FK_SignedLanguages_TraitDefinitions_idx` ON `signedlanguages` (`LinkedTraitId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE UNIQUE INDEX `UX_SignedLanguages_Name` ON `signedlanguages` (`Name`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    CREATE UNIQUE INDEX `UX_SignedLanguageVarieties_Language_Name` ON `signedlanguagevarieties` (`SignedLanguageId`, `Name`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    ALTER TABLE `characters` ADD CONSTRAINT `FK_Characters_CurrentSignedLanguage` FOREIGN KEY (`CurrentSignedLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE SET NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    ALTER TABLE `characters` ADD CONSTRAINT `FK_Characters_CurrentSignedLanguageVariety` FOREIGN KEY (`CurrentSignedLanguageVarietyId`) REFERENCES `signedlanguagevarieties` (`Id`) ON DELETE SET NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20260829031447_AddSignedLanguageCommunication', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;
+
 -- EF-generated idempotent delta for 20260829082253_AddOutfitTemplateItemSkin
 START TRANSACTION;
 DROP PROCEDURE IF EXISTS MigrationsScript;

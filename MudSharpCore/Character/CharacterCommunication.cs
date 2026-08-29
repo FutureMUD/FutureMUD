@@ -55,6 +55,37 @@ public partial class Character
     protected Dictionary<IAccent, Difficulty> _accents = new();
     public IEnumerable<IAccent> Accents => _accents.Keys;
 
+	protected readonly List<ISignedLanguage> _signedLanguages = [];
+	public IEnumerable<ISignedLanguage> SignedLanguages => _signedLanguages;
+	protected readonly Dictionary<ISignedLanguageVariety, Difficulty> _signedLanguageVarieties = [];
+	public IEnumerable<ISignedLanguageVariety> SignedLanguageVarieties => _signedLanguageVarieties.Keys;
+
+	private ISignedLanguage _currentSignedLanguage;
+	public ISignedLanguage CurrentSignedLanguage
+	{
+		get => _currentSignedLanguage;
+		set
+		{
+			_currentSignedLanguage = value;
+			if (_currentSignedLanguageVariety?.Language != value)
+			{
+				_currentSignedLanguageVariety = null;
+			}
+			LanguagesChanged = true;
+		}
+	}
+
+	private ISignedLanguageVariety _currentSignedLanguageVariety;
+	public ISignedLanguageVariety CurrentSignedLanguageVariety
+	{
+		get => _currentSignedLanguageVariety;
+		set
+		{
+			_currentSignedLanguageVariety = value?.Language == CurrentSignedLanguage ? value : null;
+			LanguagesChanged = true;
+		}
+	}
+
     protected Dictionary<ILanguage, IAccent> _preferredAccents = new();
 
     private IAccent _currentAccent;
@@ -113,6 +144,50 @@ public partial class Character
         LanguagesChanged = true;
     }
 
+	public void LearnSignedLanguage(ISignedLanguage language)
+	{
+		if (_signedLanguages.Contains(language))
+		{
+			return;
+		}
+		_signedLanguages.Add(language);
+		CurrentSignedLanguage ??= language;
+		LanguagesChanged = true;
+	}
+
+	public void ForgetSignedLanguage(ISignedLanguage language)
+	{
+		_signedLanguages.Remove(language);
+		foreach (var variety in _signedLanguageVarieties.Keys.Where(x => x.Language == language).ToList())
+		{
+			_signedLanguageVarieties.Remove(variety);
+		}
+		if (CurrentSignedLanguage == language)
+		{
+			CurrentSignedLanguage = _signedLanguages.FirstOrDefault();
+		}
+		LanguagesChanged = true;
+	}
+
+	public void LearnSignedLanguageVariety(ISignedLanguageVariety variety)
+	{
+		_signedLanguageVarieties.TryAdd(variety, variety.RecognitionDifficulty);
+		LanguagesChanged = true;
+	}
+
+	public void ForgetSignedLanguageVariety(ISignedLanguageVariety variety)
+	{
+		_signedLanguageVarieties.Remove(variety);
+		if (CurrentSignedLanguageVariety == variety)
+		{
+			CurrentSignedLanguageVariety = null;
+		}
+		LanguagesChanged = true;
+	}
+
+	public Difficulty SignedLanguageVarietyDifficulty(ISignedLanguageVariety variety) =>
+		_signedLanguageVarieties.GetValueOrDefault(variety, Difficulty.Impossible);
+
     public void LearnAccent(IAccent accent, Difficulty difficulty)
     {
         _accents[accent] = difficulty;
@@ -164,6 +239,8 @@ public partial class Character
         dbchar.CurrentWritingLanguageId = CurrentWritingLanguage?.Id;
         dbchar.CurrentScriptId = CurrentScript?.Id;
         dbchar.WritingStyle = (int)WritingStyle;
+		dbchar.CurrentSignedLanguageId = CurrentSignedLanguage?.Id;
+		dbchar.CurrentSignedLanguageVarietyId = CurrentSignedLanguageVariety?.Id;
 
         FMDB.Context.CharactersAccents.RemoveRange(dbchar.CharactersAccents);
         foreach (KeyValuePair<IAccent, Difficulty> accent in _accents)
@@ -183,6 +260,27 @@ public partial class Character
         {
             dbchar.CharactersLanguages.Add(new CharactersLanguages { Character = dbchar, LanguageId = language.Id });
         }
+
+		FMDB.Context.CharactersSignedLanguages.RemoveRange(dbchar.CharactersSignedLanguages);
+		foreach (var language in _signedLanguages)
+		{
+			dbchar.CharactersSignedLanguages.Add(new CharactersSignedLanguage
+			{
+				Character = dbchar,
+				SignedLanguageId = language.Id
+			});
+		}
+
+		FMDB.Context.CharactersSignedLanguageVarieties.RemoveRange(dbchar.CharactersSignedLanguageVarieties);
+		foreach (var variety in _signedLanguageVarieties)
+		{
+			dbchar.CharactersSignedLanguageVarieties.Add(new CharacterSignedLanguageVariety
+			{
+				Character = dbchar,
+				SignedLanguageVarietyId = variety.Key.Id,
+				Familiarity = (int)variety.Value
+			});
+		}
 
         FMDB.Context.CharactersScripts.RemoveRange(dbchar.CharactersScripts);
         foreach (IScript script in _scripts)
@@ -383,4 +481,15 @@ public partial class Character
             Languages.Contains(language) ||
             Languages.Any(x => x.MutualIntelligability(language) != Difficulty.Impossible);
     }
+
+	public bool CanIdentifySignedLanguage(ISignedLanguage language)
+	{
+		if (EffectsOfType<IComprehendLanguageEffect>().Any(x => x.Applies()))
+		{
+			return true;
+		}
+
+		return SignedLanguages.Contains(language) ||
+		       SignedLanguages.Any(x => x.MutualIntelligability(language) != Difficulty.Impossible);
+	}
 }

@@ -29,18 +29,27 @@ public sealed class MySqlDatabaseBackupService : IDatabaseBackupService
         return destination;
     }
 
-    public void RestoreBackup(string connectionString, string backupFilePath)
-    {
-        string serverConnectionString = GetServerConnectionString(connectionString);
-        using MySqlConnection connection = new(serverConnectionString);
-        using MySqlCommand command = new()
+	public void RestoreBackup(string connectionString, string backupFilePath)
+	{
+		MySqlConnectionStringBuilder builder = new(connectionString);
+		if (string.IsNullOrWhiteSpace(builder.Database))
+		{
+			throw new InvalidOperationException("Cannot restore a database backup when the connection string has no database name.");
+		}
+
+		string escapedDatabaseName = builder.Database.Replace("`", "``", StringComparison.Ordinal);
+		string serverConnectionString = GetServerConnectionString(connectionString);
+		using MySqlConnection connection = new(serverConnectionString);
+		using MySqlCommand command = new()
         {
-            Connection = connection
-        };
-        using MySqlBackup backup = new(command);
-        connection.Open();
-        backup.ImportFromFile(backupFilePath);
-    }
+			Connection = connection
+		};
+		connection.Open();
+		command.CommandText = $"CREATE DATABASE IF NOT EXISTS `{escapedDatabaseName}`; USE `{escapedDatabaseName}`;";
+		command.ExecuteNonQuery();
+		using MySqlBackup backup = new(command);
+		backup.ImportFromFile(backupFilePath);
+	}
 
     public bool DatabaseLooksBlank(string connectionString)
     {

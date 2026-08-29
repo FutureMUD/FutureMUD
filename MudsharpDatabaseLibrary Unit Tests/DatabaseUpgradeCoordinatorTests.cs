@@ -345,6 +345,27 @@ public class DatabaseUpgradeCoordinatorTests
 	}
 
 	[TestMethod]
+	public void ImportBlankDatabaseSnapshot_AppendedDeltaFailureStillCleansTemporaryDirectory()
+	{
+		using var harness = new TemporaryDirectoryHarness();
+		var backupService = new FakeBackupService(harness.DirectoryPath) { ThrowOnExecuteSqlScript = true };
+		var coordinator = new DatabaseUpgradeCoordinator(new FakeMigrationService(), backupService);
+		var snapshotPath = Path.Combine(harness.DirectoryPath, "BlankDatabaseSnapshot.sql");
+		File.WriteAllText(snapshotPath,
+			"CREATE DATABASE `__FUTUREMUD_DATABASE__`;\r\n" +
+			"-- EF-generated idempotent delta for LatestMigration\r\n" +
+			"INSERT INTO `__efmigrationshistory` VALUES ('LatestMigration');\r\n");
+
+		Assert.ThrowsException<InvalidOperationException>(() => coordinator.ImportBlankDatabaseSnapshot(
+			CreateRequest(harness.DirectoryPath).ConnectionString,
+			snapshotPath,
+			"__FUTUREMUD_DATABASE__"));
+
+		Assert.IsNotNull(backupService.LastRestorePath);
+		Assert.IsFalse(Directory.Exists(Path.GetDirectoryName(backupService.LastRestorePath)));
+	}
+
+	[TestMethod]
 	public void ImportBlankDatabaseSnapshot_RestoreFailure_RemovesScratchDirectory()
 	{
 		using var harness = new TemporaryDirectoryHarness();
@@ -438,6 +459,7 @@ public class DatabaseUpgradeCoordinatorTests
 		public string? LastRestorePath { get; private set; }
 		public string? LastBackupDirectory { get; private set; }
 		public bool ThrowOnRestore { get; init; }
+		public bool ThrowOnExecuteSqlScript { get; init; }
 		public bool ThrowOnCreateBackup { get; init; }
 		public string BackupContents { get; init; } = "CREATE DATABASE `futuremud_tests`;";
 
@@ -482,6 +504,10 @@ public class DatabaseUpgradeCoordinatorTests
 		{
 			ExecuteSqlScriptCalls++;
 			LastExecutedScript = scriptContents;
+			if (ThrowOnExecuteSqlScript)
+			{
+				throw new InvalidOperationException("Delta execution failed.");
+			}
 		}
 	}
 

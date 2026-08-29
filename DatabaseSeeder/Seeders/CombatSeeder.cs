@@ -179,6 +179,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         SeedDataWeapons(context, effectiveAnswers, skills);
         EnsureExpandedStockCombatContent(context, effectiveAnswers, skills);
         SeedDataRanged(context, effectiveAnswers, skills);
+        SeedArmourTypes(context, effectiveAnswers);
 
         if (effectiveAnswers["installmuskets"].EqualToAny("yes", "y"))
         {
@@ -191,7 +192,6 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             EnsureModernFirearmSamples(context);
         }
 
-        SeedArmourTypes(context, effectiveAnswers);
 		EnsureEraDependencyCombatContent(context, effectiveAnswers);
         CombatAuxiliarySeederHelper.EnsureStockAuxiliaryContent(context);
         ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context);

@@ -924,6 +924,9 @@ public partial class CombatSeeder
 		}
 
 		var functionsTag = EnsureTag("Functions");
+		var toolsTag = EnsureTag("Tools", functionsTag);
+		var artilleryToolsTag = EnsureTag("Artillery Tools", toolsTag);
+		var materialFunctionsTag = EnsureTag("Material Functions", functionsTag);
 		var trapRootTag = EnsureTag("Trap Components", functionsTag);
 		var explosivePayloadTag = EnsureTag("Explosive Trap Payload", trapRootTag);
 		var tripwireTriggerTag = EnsureTag("Tripwire Trigger", trapRootTag);
@@ -1000,12 +1003,12 @@ public partial class CombatSeeder
 			return type;
 		}
 
-		var spongeTag = EnsureTag("Artillery Sponge", functionsTag);
-		var waddingTag = EnsureTag("Artillery Wadding", functionsTag);
-		var rammerTag = EnsureTag("Artillery Rammer", functionsTag);
-		var ventTag = EnsureTag("Artillery Vent Tool", functionsTag);
-		var linstockTag = EnsureTag("Artillery Linstock", functionsTag);
-		var fuseTag = EnsureTag("Artillery Fuse", functionsTag);
+		var spongeTag = EnsureTag("Artillery Sponge", artilleryToolsTag);
+		var waddingTag = EnsureTag("Artillery Wadding", materialFunctionsTag);
+		var rammerTag = EnsureTag("Artillery Rammer", artilleryToolsTag);
+		var ventTag = EnsureTag("Artillery Vent Tool", artilleryToolsTag);
+		var linstockTag = EnsureTag("Artillery Linstock", artilleryToolsTag);
+		var fuseTag = EnsureTag("Artillery Fuse", materialFunctionsTag);
 
 		void EnsureModernArtillery(string key, string name, string profile, int calibre, int range,
 			int minimumCrew, double weight, string damage, string blast, string fragments,

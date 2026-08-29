@@ -101,8 +101,26 @@ Please press enter to begin.".WriteLineConsole();
         Console.ReadLine();
         SafeClear();
 #if DEBUG
-        ConnectionString =
-            "server=localhost;port=3307;database=demo_dbo;uid=futuremud;password=rpiengine2020;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
+		while (true)
+		{
+			Console.Write("Please enter the name of the local Debug database to seed: ");
+			string? databaseName = Console.ReadLine();
+			if (databaseName is null)
+			{
+				return;
+			}
+
+			if (DebugSeederConnection.TryCreateConnectionString(databaseName, out string connectionString,
+					out string error))
+			{
+				ConnectionString = connectionString;
+				break;
+			}
+
+			Console.ForegroundColor = ConsoleColor.Red;
+			ConsoleLayoutHelper.WriteWrapped(error);
+			Console.ForegroundColor = ConsoleColor.White;
+		}
 #else
 		Console.WriteLine("Please enter the connection string for your database: ");
 		Console.Write("This is very likely to be in the following format: ");
@@ -236,7 +254,7 @@ The exception details were as follows:
 				: Environment.GetEnvironmentVariable("FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING");
 #if DEBUG
 			ConnectionString ??=
-				"server=localhost;port=3307;database=demo_dbo;uid=futuremud;password=rpiengine2020;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
+				DebugSeederConnection.DefaultConnectionString;
 #endif
 			if (string.IsNullOrWhiteSpace(ConnectionString))
 			{
@@ -490,18 +508,8 @@ The exception details were as follows:
         {
             SafeClear();
             Console.WriteLine("Loading seeders...");
-            Type iType = typeof(IDatabaseSeeder);
-            List<IDatabaseSeeder> seeders = Assembly
-                    .GetExecutingAssembly()
-                    .GetTypes()
-                    .Where(x => x.GetInterfaces().Contains(iType))
-                    .Where(x => !x.IsAbstract)
-                    .Select(x => Activator.CreateInstance(x))
-                    .OfType<IDatabaseSeeder>()
-                    .Where(x => x.Enabled)
-                    .ToList()
-                ;
-            SeederDependencyPlan dependencyPlan = SeederMetadataRegistry.GetDependencyPlan(seeders);
+            List<IDatabaseSeeder> seeders = SeederCatalogue.GetEnabledSeeders().ToList();
+            SeederDependencyPlan dependencyPlan = SeederCatalogue.GetDependencyPlan(seeders);
             if (dependencyPlan.Errors.Any())
             {
                 throw new InvalidOperationException(
@@ -558,6 +566,12 @@ The exception details were as follows:
                     }
                     Console.ForegroundColor = ConsoleColor.White;
                 }
+#if DEBUG
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine();
+                Console.WriteLine("REPLAY - run a complete standard Debug replay profile");
+                Console.ForegroundColor = ConsoleColor.White;
+#endif
             }
 
             string blockedSeederSummary = GetBlockedSeederSummary(blockedSeederCount, showBlockedSeeders);
@@ -581,6 +595,15 @@ The exception details were as follows:
             {
                 return;
             }
+
+#if DEBUG
+			if (choice.EqualToAny("replay", "profile", "replayprofile"))
+			{
+				ShowReplayProfiles(seeders);
+				errorMessage = string.Empty;
+				continue;
+			}
+#endif
 
             if (choice.EqualToAny("invalid", "blocked"))
             {
@@ -627,6 +650,112 @@ The exception details were as follows:
             errorMessage = string.Empty;
         }
     }
+
+#if DEBUG
+	private static void ShowReplayProfiles(IReadOnlyList<IDatabaseSeeder> seeders)
+	{
+		SafeClear();
+		Console.ForegroundColor = ConsoleColor.DarkYellow;
+		ConsoleLayoutHelper.WriteWrapped(
+			"Debug replay profiles run a complete known seeder sequence against a freshly migrated, unseeded local database. They use the fixed Debug implementor password DebugReplayOnly!2026. Never use this workflow or credential for a reachable or production database.");
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.WriteLine();
+		Console.WriteLine($"Target database: {DebugSeederConnection.GetDatabaseName(ConnectionString!)}");
+		Console.WriteLine();
+
+		for (var i = 0; i < DebugSeederReplayProfiles.All.Count; i++)
+		{
+			SeederReplayProfile profile = DebugSeederReplayProfiles.All[i];
+			Console.ForegroundColor = ConsoleColor.Cyan;
+			Console.WriteLine($"{i + 1}. {profile.Name} ({profile.Id})");
+			Console.ForegroundColor = ConsoleColor.White;
+			ConsoleLayoutHelper.WriteWrapped(profile.Description, indent: "   ");
+		}
+
+		Console.WriteLine();
+		Console.Write("Choose a profile by number or ID, or type BACK: ");
+		string? choice = Console.ReadLine();
+		if (choice is null || choice.EqualToAny("back", "b", "quit", "q", "exit"))
+		{
+			return;
+		}
+
+		SeederReplayProfile? selectedProfile = uint.TryParse(choice, out uint profileNumber)
+			? DebugSeederReplayProfiles.All.ElementAtOrDefault((int)profileNumber - 1)
+			: DebugSeederReplayProfiles.All.FirstOrDefault(x => x.Id.EqualTo(choice));
+		if (selectedProfile is null)
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			ConsoleLayoutHelper.WriteWrapped("That is not a valid replay profile.");
+			Console.ForegroundColor = ConsoleColor.White;
+			WaitForReturnToMenu();
+			return;
+		}
+
+		Console.WriteLine();
+		Console.ForegroundColor = ConsoleColor.DarkYellow;
+		ConsoleLayoutHelper.WriteWrapped(
+			$"Type REPLAY to run {selectedProfile.Name} against {DebugSeederConnection.GetDatabaseName(ConnectionString!)}. The run stops on the first failure and does not reset the database.");
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.Write("> ");
+		string? confirmation = Console.ReadLine();
+		if (!string.Equals(confirmation, "replay", StringComparison.OrdinalIgnoreCase))
+		{
+			return;
+		}
+
+		SafeClear();
+		Console.WriteLine($"Starting {selectedProfile.Name} replay...");
+		SeederReplayRunResult result = SeederReplayRunner.Run(
+			selectedProfile,
+			seeders,
+			() => CreateContext(useLazyLoading: true),
+			Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0),
+			message => ConsoleLayoutHelper.WriteWrapped(message));
+		Console.WriteLine();
+		if (!result.Validation.IsValid)
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			ConsoleLayoutHelper.WriteWrapped("The replay profile needs maintenance:");
+			foreach (string error in result.Validation.Errors)
+			{
+				ConsoleLayoutHelper.WriteWrapped($" - {error}", indent: "   ");
+			}
+		}
+		else if (result.Success)
+		{
+			Console.ForegroundColor = ConsoleColor.Green;
+			ConsoleLayoutHelper.WriteWrapped(
+				$"Replay completed successfully. Ran {result.CompletedSeeders.Count:N0} seeders: {string.Join(", ", result.CompletedSeeders)}.");
+		}
+		else
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			ConsoleLayoutHelper.WriteWrapped(result.Failure ?? "Replay failed.");
+			if (result.Exception is not null)
+			{
+				ConsoleLayoutHelper.WriteWrapped(result.Exception.ToString());
+			}
+		}
+
+		Console.ForegroundColor = ConsoleColor.White;
+		ConsoleLayoutHelper.WriteWrapped(
+			$"Completed steps: {(result.CompletedSeeders.Any() ? string.Join(", ", result.CompletedSeeders) : "none")}.");
+		if (!string.IsNullOrWhiteSpace(result.FailedSeeder))
+		{
+			ConsoleLayoutHelper.WriteWrapped($"Failed step: {result.FailedSeeder}.");
+		}
+
+		if (result.UnstartedSeeders.Any())
+		{
+			ConsoleLayoutHelper.WriteWrapped($"Unstarted steps: {string.Join(", ", result.UnstartedSeeders)}.");
+		}
+
+		Console.WriteLine();
+		Console.WriteLine("Press any key to return to the main menu.");
+		WaitForReturnToMenu();
+	}
+#endif
 
     private static void ShowSeeder(IDatabaseSeeder seeder)
     {
@@ -728,7 +857,7 @@ The exception details were as follows:
             $"╔{new string('═', banner.Length + 2)}╗\n║ {banner} ║\n╚{new string('═', banner.Length + 2)}╝\n";
         foreach (SeederQuestion? question in questions)
         {
-            if (!question.Filter(context, answers))
+            if (!SeederQuestionWorkflow.IsActive(question, context, answers))
             {
                 continue;
             }
@@ -738,8 +867,9 @@ The exception details were as follows:
             string? resolvedDefaultAnswer = null;
             if (!string.IsNullOrWhiteSpace(rememberedAnswer))
             {
-                (bool success, string? error) = question.Validator(rememberedAnswer, context);
-                if (success)
+                SeederQuestionValidationResult rememberedValidation =
+                    SeederQuestionWorkflow.Validate(question, rememberedAnswer, context);
+                if (rememberedValidation.Success)
                 {
                     if (question.AutoReuseLastAnswer)
                     {
@@ -758,7 +888,7 @@ The exception details were as follows:
                 else
                 {
                     errorText =
-                        $"The previously remembered answer for {question.Id} is no longer valid and will be ignored.{(string.IsNullOrWhiteSpace(error) ? "" : $"\n{error}")}";
+                        $"The previously remembered answer for {question.Id} is no longer valid and will be ignored.{(string.IsNullOrWhiteSpace(rememberedValidation.Error) ? "" : $"\n{rememberedValidation.Error}")}";
                 }
             }
 
@@ -782,15 +912,16 @@ The exception details were as follows:
                 if (!string.IsNullOrWhiteSpace(display.DefaultAnswer) &&
                     string.IsNullOrWhiteSpace(resolvedDefaultAnswer))
                 {
-                    (bool defaultSuccess, string? defaultError) = question.Validator(display.DefaultAnswer, context);
-                    if (defaultSuccess)
+                    SeederQuestionValidationResult defaultValidation =
+                        SeederQuestionWorkflow.Validate(question, display.DefaultAnswer, context);
+                    if (defaultValidation.Success)
                     {
                         resolvedDefaultAnswer = display.DefaultAnswer;
                     }
                     else
                     {
                         errorText =
-                            $"The suggested default answer for {question.Id} is no longer valid and will be ignored.{(string.IsNullOrWhiteSpace(defaultError) ? "" : $"\n{defaultError}")}";
+                            $"The suggested default answer for {question.Id} is no longer valid and will be ignored.{(string.IsNullOrWhiteSpace(defaultValidation.Error) ? "" : $"\n{defaultValidation.Error}")}";
                     }
                 }
 
@@ -818,10 +949,11 @@ The exception details were as follows:
 
                 answer = ResolveQuestionAnswer(answer, resolvedDefaultAnswer);
 
-                (bool success, string? error) = question.Validator(answer, context);
-                if (!success)
+                SeederQuestionValidationResult answerValidation =
+                    SeederQuestionWorkflow.Validate(question, answer, context);
+                if (!answerValidation.Success)
                 {
-                    errorText = error;
+                    errorText = answerValidation.Error;
                     continue;
                 }
 
@@ -832,27 +964,25 @@ The exception details were as follows:
 
         SafeClear();
         $"Applying the data from the #2{seeder.Name}#F seeder...".WriteLineConsole();
-        try
+        SeederExecutionResult execution = SeederExecutionService.Execute(
+            context,
+            seeder,
+            questions,
+            answers,
+            Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0));
+        if (execution.Success)
         {
-            string result = seeder.SeedData(context, answers);
-            Console.WriteLine(result);
-            string version = (Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0)).ToString();
-            DateTime now = DateTime.UtcNow;
-            SeederAnswerMemory.PersistAnswers(context, seeder, questions, answers, version, now);
-            context.SaveChanges();
+            Console.WriteLine(execution.Message);
+            return;
         }
-        catch (Exception exception)
-        {
-            context.Database.CurrentTransaction?.Rollback();
-            context.ChangeTracker.Clear();
-            Console.ForegroundColor = ConsoleColor.Red;
+
+        Console.ForegroundColor = ConsoleColor.Red;
 #if DEBUG
-			ConsoleLayoutHelper.WriteWrapped($"The {seeder.Name} seeder failed: {exception}");
+		ConsoleLayoutHelper.WriteWrapped($"The {seeder.Name} seeder failed: {execution.Exception}");
 #else
-			ConsoleLayoutHelper.WriteWrapped($"The {seeder.Name} seeder failed: {exception.Message}");
+		ConsoleLayoutHelper.WriteWrapped($"The {seeder.Name} seeder failed: {execution.Exception?.Message}");
 #endif
-            Console.ForegroundColor = ConsoleColor.White;
-        }
+        Console.ForegroundColor = ConsoleColor.White;
     }
 
     internal static string ResolveQuestionAnswer(string answer, string? defaultAnswer)

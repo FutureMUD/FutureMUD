@@ -196,12 +196,17 @@ public static class SeederMetadataRegistry
                 SeederRepeatabilityMode.Idempotent,
                 SeederUpdateCapability.InstallMissing,
                 [
-                    Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any())
+                    Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
+                    Requirement("The Human seeder must have installed the characteristic profiles required by stock item components.", context =>
+                        context.CharacteristicProfiles.Any(x => x.Name == "All Hair Colours") &&
+                        context.CharacteristicProfiles.Any(x => x.Name == "All Hair Styles") &&
+                        context.CharacteristicProfiles.Any(x => x.Name == "All Facial Hair Colours") &&
+                        context.CharacteristicProfiles.Any(x => x.Name == "All Facial Hair Styles"))
                 ],
                 RerunSummary: "This package can be rerun to install missing stock kickstart content without duplicating its tracked packages.",
                 UpdateSummary: "Reruns also refresh the stock wilderness autobuilder room template, area template, and supporting terrain-feature tags by stable names.",
                 OwnershipSummary: "Kickstart now owns stock items, AI, helper tags, the wilderness autobuilder room+area starter package, ranged covers, hints, and dream content; core terrain foundations are seeded separately.",
-                DependencySeederTypes: [typeof(CoreDataSeeder)]
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder)]
             ),
             nameof(AgricultureSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -297,7 +302,7 @@ public static class SeederMetadataRegistry
                     Requirement("The Core seeder must have installed the Simple name culture.", context => context.NameCultures.Any(x => x.Name == "Simple"))
                 ],
                 RerunSummary: "Reruns retain the installed animal package choices and reconcile stock bodies, races, attacks and supporting content.",
-                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder)]
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder), typeof(CultureSeeder)]
             ),
             nameof(WildlifeCatalogueSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -484,7 +489,7 @@ public static class SeederMetadataRegistry
                 RerunSummary: "Reruns reconcile the dedicated Traps skill, seven trap checks, and Stock Trap templates without overwriting builder-owned templates.",
                 UpdateSummary: "Stock trap definitions use the Stock Trap prefix; other templates are never modified.",
                 OwnershipSummary: "The package owns only the Traps skill/check mappings and Stock Trap prefixed templates.",
-                DependencySeederTypes: [typeof(CoreDataSeeder)]
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(SkillPackageSeeder)]
             ),
             _ => SeederMetadata.Default
         };

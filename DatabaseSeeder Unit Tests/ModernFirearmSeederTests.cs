@@ -1,6 +1,7 @@
 #nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace MudSharp_Unit_Tests;
 
@@ -13,6 +14,14 @@ public class ModernFirearmSeederTests
 		var source = SeederSourceTestHelper.ReadPartialFamily("CombatSeeder");
 
 		StringAssert.Contains(source, "EnsureModernFirearmSamples(context)");
+		StringAssert.Contains(source, "EnsureTag(\"Artillery Tools\", toolsTag)");
+		StringAssert.Contains(source, "EnsureTag(\"Artillery Linstock\", artilleryToolsTag)");
+		StringAssert.Contains(source, "EnsureTag(\"Artillery Rammer\", artilleryToolsTag)");
+		StringAssert.Contains(source, "EnsureTag(\"Artillery Wadding\", materialFunctionsTag)");
+		var combatSeeder = SeederSourceTestHelper.ReadSeederSource("CombatSeeder.cs");
+		Assert.IsTrue(combatSeeder.IndexOf("SeedArmourTypes(context, effectiveAnswers);", StringComparison.Ordinal) <
+		              combatSeeder.IndexOf("EnsureModernFirearmSamples(context);", StringComparison.Ordinal),
+			"Modern firearm samples require the ballistic armour components created by SeedArmourTypes.");
 		StringAssert.Contains(source, "\"Shotgun_12_Gauge_Pump\"");
 		StringAssert.Contains(source, "\"Rifle_556_Select_Fire\"");
 		StringAssert.Contains(source, "\"Pistol_9mm_Service\"");

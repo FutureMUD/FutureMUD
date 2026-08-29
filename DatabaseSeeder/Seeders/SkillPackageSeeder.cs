@@ -1304,6 +1304,15 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 						new TraitExpression { Expression = $"(0.7*ride:{ridingTrait.Id})+(0.3*balance:{balancingTrait.Id})" },
 						templates["Skill Check"].Id, Difficulty.Impossible);
 					continue;
+				// TrapSeeder owns the optional trap skill and its check formulas.
+				case CheckType.SetTrapCheck:
+				case CheckType.SpotTrapCheck:
+				case CheckType.SearchForTrapCheck:
+				case CheckType.AvoidTrapCheck:
+				case CheckType.DisarmTrapCheck:
+				case CheckType.DispelTrapCheck:
+				case CheckType.EscapeTrapCheck:
+					continue;
 				default:
                     throw new ArgumentOutOfRangeException();
             }

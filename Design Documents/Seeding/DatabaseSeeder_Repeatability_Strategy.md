@@ -143,7 +143,30 @@ For source-only catalogue fixes, prefer invariant tests that scan the seed defin
 - Revolution, Modern, Atomic, and Computer are not selectable until executable modules contain real stock definitions.
 - `--check-item-manifest` validates the checked-in registry without a database. `--export-item-manifest [path]` exports the same canonical document without connecting to a database.
 
+## Debug Replay Profiles
+
+Debug builds expose a `REPLAY` option at the package menu for unattended developer setup. It is deliberately not part of a Release build or a consumer-facing installer path. Debug startup asks for a nonblank database name, inserts it into the fixed local development connection template with a MySQL connection-string builder, and then shows the ordinary interactive menu or the replay-profile menu. Manifest and blank-snapshot command modes remain noninteractive and retain their existing argument/environment-variable behavior.
+
+The maintained profiles are:
+
+- `medieval-standard` for a Medieval baseline.
+- `renaissance-standard` for cumulative Medieval and Renaissance content.
+- `early-modern-standard` for cumulative Medieval, Renaissance, and Early Modern content using the Europe/1703 DemoMUD-style baseline.
+
+Each profile is a typed inventory of concrete seeder types and question IDs; it is not a recording of menu positions, display names, or console keystrokes. The inventory includes every enabled seeder in the current dependency plan except the intentionally alternative `SkillSeeder`; it uses `SkillPackageSeeder` instead. It includes the Mythical, Supernatural, Robot, and AI Storyteller packages. Answers are stored for every declared question, including questions that may be inactive for one particular profile run. The runner re-evaluates filters and validators against the live database, ignores supplied answers for inactive questions, and rejects an active missing or invalid answer before the relevant seeder starts.
+
+Replay runs require a freshly migrated, unseeded database. The runner refuses a target with bootstrap accounts or remembered seeder choices and never resets, overwrites, or cross-seeder-rolls back a database. Each completed seeder commits through the same executor used by the interactive path. A blocked prerequisite or exception stops the run immediately; completed work is preserved, later steps are not run, and the result reports completed, failed, and unstarted steps.
+
+The profiles use the Debug-only bootstrap credential `DebugReplayOnly!2026`. The UI warns that this credential and workflow must never be used for a reachable or production database.
+
+### Replay-profile maintenance
+
+Treat a replay-profile failure as deliberate configuration drift, not a reason to silently fall back to defaults. Review and update all three profiles whenever any enabled seeder, dependency/order metadata, question ID, filter, validator, default, or recommended answer changes. In particular, a new enabled seeder must be placed in dependency order, a removed or disabled one must be removed from the inventory, and a changed conditional question must still have a complete inventoried answer even if it is inactive in a profile today.
+
+`SeederReplayTests` is the required fast gate for this contract. It verifies the full profile inventories, exact order, question coverage, the deliberate Skill Examples exclusion, connection construction, conditional answers, blocked prerequisites, persistence, and stop-on-failure behavior. Run the full `DatabaseSeeder Unit Tests` suite after any DatabaseSeeder workflow or profile change.
+
 ## System-Level Findings
+
 ### Menu and status flow
 - The old menu ordered only by `SortOrder`, so duplicate values produced unstable ordering.
 - The old package-detail view only warned for `PrerequisitesNotMet` and `MayAlreadyBeInstalled`. `ExtraPackagesAvailable` had no explanatory detail.

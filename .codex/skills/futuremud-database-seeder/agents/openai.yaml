@@ -1,0 +1,4 @@
+interface:
+  display_name: "FutureMUD Database Seeder"
+  short_description: "Maintain FutureMUD seeder replay workflows"
+  default_prompt: "Use $futuremud-database-seeder to maintain a FutureMUD DatabaseSeeder workflow or Debug replay profile."

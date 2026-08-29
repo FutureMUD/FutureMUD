@@ -3,7 +3,9 @@
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Models;
+using MudSharp.RPG.Checks;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MudSharp_Unit_Tests;
 
@@ -77,5 +79,36 @@ public class SkillPackageSeederTests
 
 		StringAssert.Contains(source, "case CheckType.AvoidMountFallCheck:");
 		StringAssert.Contains(source, "(0.7*ride:{ridingTrait.Id})+(0.3*balance:{balancingTrait.Id})");
+	}
+
+	[TestMethod]
+	public void SkillPackageChecks_DefersOnlyTrapCheckTypesToTrapSeeder()
+	{
+		string source = SeederSourceTestHelper.ReadSeederSource("SkillPackageSeeder.cs");
+		var handledCheckTypes = Regex.Matches(source, @"case\s+CheckType\.(?<name>\w+)")
+			.Select(x => x.Groups["name"].Value)
+			.ToHashSet(System.StringComparer.Ordinal);
+		var deferredTrapCheckTypes = new[]
+		{
+			CheckType.SetTrapCheck,
+			CheckType.SpotTrapCheck,
+			CheckType.SearchForTrapCheck,
+			CheckType.AvoidTrapCheck,
+			CheckType.DisarmTrapCheck,
+			CheckType.DispelTrapCheck,
+			CheckType.EscapeTrapCheck
+		};
+
+		foreach (CheckType checkType in System.Enum.GetValues<CheckType>())
+		{
+			Assert.IsTrue(handledCheckTypes.Contains(checkType.ToString()),
+				$"SkillPackageSeeder must explicitly account for {checkType}.");
+		}
+
+		foreach (CheckType checkType in deferredTrapCheckTypes)
+		{
+			StringAssert.Contains(source, "TrapSeeder owns the optional trap skill and its check formulas.");
+			Assert.IsTrue(handledCheckTypes.Contains(checkType.ToString()));
+		}
 	}
 }

@@ -119,7 +119,8 @@ namespace MudSharp.Framework
         /// <summary>
         ///     Fluent method to surround the input with double quotes "input"
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="input">The text to surround</param>
+        /// <param name="truth">If true, perform the action. If not, return the input</param>
         /// <returns></returns>
         public static string DoubleQuotes(this string input, bool truth = true)
         {
@@ -128,6 +129,22 @@ namespace MudSharp.Framework
                 return input;
             }
             return "\"" + input + "\"";
+        }
+
+
+		/// <summary>
+		/// Fluent method to surround the input with guillements («/»)
+		/// </summary>
+		/// <param name="input">The text to surround</param>
+		/// <param name="truth">If true, perform the action. If not, return the input</param>
+		/// <returns></returns>
+		public static string DoubleGuillemets(this string input, bool truth = true) { 
+            if (!truth)
+            {
+                return input;
+            }
+
+            return $"«{input}»";
         }
 
         public static string RemoveFirstCharacter(this string input)

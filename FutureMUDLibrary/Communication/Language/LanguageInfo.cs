@@ -269,17 +269,17 @@ namespace MudSharp.Communication.Language
                     return
                         $"\"{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText.ProperSentences()), Math.Min(result.Item2, 1.0)).Fullstop()}\""
                             .FluentTagMXP("send",
-                                          $"href='look' hint='Language: {Language.Name.TitleCase()}'");
+                                          $"href='look' hint='Spoken, Language: {Language.Name.TitleCase()}'");
                 case LanguagePerceptionResult.PartialSuccess:
                     return
                         $"\"{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText.ProperSentences()), Math.Min(result.Item2, 1.0)).Fullstop()}\""
                             .FluentTagMXP("send",
-                                $"href='look' hint='Language: {Language.Name.TitleCase()}, Accent: {(perceiver.Accents.Contains(Accent) ? Accent.AccentSuffix : Accent.VagueSuffix)}'");
+                                $"href='look' hint='Spoken, Language: {Language.Name.TitleCase()}, Accent: {(perceiver.Accents.Contains(Accent) ? Accent.AccentSuffix : Accent.VagueSuffix)}'");
 
                 case LanguagePerceptionResult.Success:
                     return $"\"{_rawText.ProperSentences()}\""
                         .FluentTagMXP("send",
-                            $"href='look' hint='Language: {Language.Name.TitleCase()}, Accent: {(perceiver.Accents.Contains(Accent) ? Accent.AccentSuffix : Accent.VagueSuffix)}'");
+                            $"href='look' hint='Spoken, Language: {Language.Name.TitleCase()}, Accent: {(perceiver.Accents.Contains(Accent) ? Accent.AccentSuffix : Accent.VagueSuffix)}'");
                 default:
                     throw new ApplicationException(
                         "Unknown LanguagePerceptionResult in EmoteSpokenLanguageInfo.ParseFor");
@@ -517,9 +517,9 @@ namespace MudSharp.Communication.Language
 				LanguagePerceptionResult.HearFailure =>
 					$" something in {Language.Name.TitleCase()}{variety}, but you cannot understand {Origin.ApparentGender(perceiver).Objective()}.",
 				LanguagePerceptionResult.MutuallyIntelligableLanguage or LanguagePerceptionResult.PartialSuccess =>
-					$", in {Language.Name.TitleCase()}{variety}, \n`{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText), result.Obfuscation).Fullstop().Wrap(perceiver.InnerLineFormatLength, "   ")}`",
+					$", in {Language.Name.TitleCase()}{variety}, \n{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText), result.Obfuscation).Fullstop().DoubleGuillemets().Wrap(perceiver.InnerLineFormatLength, "   ")}",
 				LanguagePerceptionResult.Success =>
-					$", in {Language.Name.TitleCase()}{variety}, \n`{_rawText.Fullstop().Wrap(perceiver.InnerLineFormatLength, "   ")}`",
+					$", in {Language.Name.TitleCase()}{variety}, \n{_rawText.Fullstop().DoubleGuillemets().Wrap(perceiver.InnerLineFormatLength, "   ")}",
 				_ => throw new ApplicationException("Unknown LanguagePerceptionResult in SignedLanguageInfo.ParseFor")
 			};
 		}
@@ -537,17 +537,17 @@ namespace MudSharp.Communication.Language
 		{
 			var result = GetPerceptionResult(perceiver);
 			var hint = Variety is null
-				? $"Language: {Language.Name.TitleCase()}"
-				: $"Language: {Language.Name.TitleCase()}, Variety: {Variety.Name.TitleCase()}";
+				? $"Signed, Language: {Language.Name.TitleCase()}"
+				: $"Signed, Language: {Language.Name.TitleCase()}, Variety: {Variety.Name.TitleCase()}";
 			return result.Result switch
 			{
 				LanguagePerceptionResult.CannotSee => "*** signing that you cannot see clearly ***".ColourBold(Telnet.Cyan),
 				LanguagePerceptionResult.UnknownLanguage => $"*** something in {Language.UnknownLanguageDescription} ***".ColourBold(Telnet.Cyan),
 				LanguagePerceptionResult.HearFailure => "*** signing that you do not quite understand ***".ColourBold(Telnet.Cyan),
 				LanguagePerceptionResult.MutuallyIntelligableLanguage or LanguagePerceptionResult.PartialSuccess =>
-					$"`{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText.ProperSentences()), result.Obfuscation).Fullstop()}`"
+					$"«{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText.ProperSentences()), result.Obfuscation).Fullstop()}»"
 						.FluentTagMXP("send", $"href='look' hint='{hint}'"),
-				LanguagePerceptionResult.Success => $"`{_rawText.ProperSentences()}`"
+				LanguagePerceptionResult.Success => $"«{_rawText.ProperSentences()}»"
 					.FluentTagMXP("send", $"href='look' hint='{hint}'"),
 				_ => throw new ApplicationException("Unknown LanguagePerceptionResult in EmoteSignedLanguageInfo.ParseFor")
 			};

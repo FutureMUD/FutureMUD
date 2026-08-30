@@ -487,11 +487,13 @@ public class AnimalButcherySeederTests
 			{
 				Assert.AreEqual(rottenMeat.Id, item.MorphGameItemProtoId, spec.ShortDescription);
 				Assert.AreEqual(AnimalButcherySeeder.SpoilSecondsForTesting, item.MorphTimeSeconds, spec.ShortDescription);
+				Assert.IsTrue(item.RefrigerationSensitive, spec.ShortDescription);
 				continue;
 			}
 
 			Assert.IsNull(item.MorphGameItemProtoId, spec.ShortDescription);
 			Assert.AreEqual(0, item.MorphTimeSeconds, spec.ShortDescription);
+			Assert.IsFalse(item.RefrigerationSensitive, spec.ShortDescription);
 		}
 
 		foreach (var product in context.ButcheryProducts

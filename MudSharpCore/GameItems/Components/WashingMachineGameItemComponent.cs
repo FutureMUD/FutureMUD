@@ -41,6 +41,7 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
 
     public override void Delete()
     {
+		CancelWashing(false, false);
         Parent.GetItemType<IProducePower>()?.EndDrawdown(this);
         base.Delete();
         foreach (IGameItem item in Contents.ToList())
@@ -59,6 +60,7 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
 
     public override void Quit()
     {
+		CancelWashing(false, false);
         Parent.GetItemType<IProducePower>()?.EndDrawdown(this);
         foreach (IGameItem item in Contents)
         {
@@ -354,6 +356,11 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
         bool temporary = false) : base(rhs, newParent, temporary)
     {
         _prototype = rhs._prototype;
+		_isOpen = rhs._isOpen;
+		_switchedOn = false;
+		CurrentCycle = WashingMachineCycles.None;
+		CycleLengthMultiplier = rhs.CycleLengthMultiplier;
+		CurrentCycleElapsed = TimeSpan.Zero;
         if (rhs._liquidMixture != null)
         {
             _liquidMixture = new LiquidMixture(rhs._liquidMixture);
@@ -493,9 +500,20 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
         private set
         {
             _cycleLengthMultiplier = value;
-            MultipliedCycleLength = TimeSpan.FromSeconds(_prototype.NormalCycleTime.Seconds * value);
+			MultipliedCycleLength = CalculateCycleLength(_prototype.NormalCycleTime, value);
         }
     }
+
+	public static TimeSpan CalculateCycleLength(TimeSpan normalCycleLength, double multiplier) =>
+		TimeSpan.FromSeconds(normalCycleLength.TotalSeconds * multiplier);
+
+	public static double DetergentPerItem(double totalVolume, int itemCount, TimeSpan cycleLength,
+		TimeSpan workInterval)
+	{
+		return itemCount > 0 && cycleLength.TotalSeconds > 0.0
+			? totalVolume * workInterval.TotalSeconds / (itemCount * cycleLength.TotalSeconds)
+			: 0.0;
+	}
 
     public TimeSpan CurrentCycleElapsed { get; private set; }
     public TimeSpan MultipliedCycleLength { get; private set; }
@@ -505,7 +523,7 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
         switch (CurrentCycle)
         {
             case WashingMachineCycles.None:
-                Parent.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins ", Parent)));
+				Parent.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins washing its load of laundry.", Parent)));
                 CurrentCycle = WashingMachineCycles.Prewash;
                 CurrentCycleElapsed = TimeSpan.Zero;
                 break;
@@ -533,8 +551,6 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
         Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManager_SecondHeartbeat;
     }
 
-    private LiquidMixture _wetWithWaterInstance = new(WaterLiquid, 0.05, Futuremud.Games.First());
-
     private void HandleHeartbeatWet(IGameItem item)
     {
         item.ExposeToLiquid(new LiquidMixture(WaterLiquid, 0.05, Gameworld), null, LiquidExposureDirection.Irrelevant);
@@ -554,10 +570,10 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
         CurrentCycleElapsed += TimeSpan.FromSeconds(1);
         Changed = true;
         // For performance reasons, only do the effect schedules every 5 seconds
-        if (CurrentCycleElapsed.Seconds % 5 == 0)
+		if ((int)CurrentCycleElapsed.TotalSeconds % 5 == 0)
         {
-            double detergentPerItem = (LiquidMixture?.TotalVolume ?? 0.0) * 5 /
-                                   (_laundryContents.Count * MultipliedCycleLength.TotalSeconds);
+			var detergentPerItem = DetergentPerItem(LiquidMixture?.TotalVolume ?? 0.0,
+				_laundryContents.Count, MultipliedCycleLength, TimeSpan.FromSeconds(5.0));
             switch (CurrentCycle)
             {
                 case WashingMachineCycles.Prewash:
@@ -632,7 +648,7 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
         }
     }
 
-    public void CancelWashing(bool echo)
+	public void CancelWashing(bool echo, bool resetCycle = true)
     {
         Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatManager_SecondHeartbeat;
         if (echo)
@@ -640,6 +656,12 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
             Parent.OutputHandler.Handle(new EmoteOutput(new Emote("@ stop|stops washing in the middle of a cycle.",
                 Parent)));
         }
+		if (resetCycle)
+		{
+			CurrentCycle = WashingMachineCycles.None;
+			CurrentCycleElapsed = TimeSpan.Zero;
+			Changed = true;
+		}
     }
 
     #region IConsumePower Members
@@ -671,7 +693,7 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
             Parent.OutputHandler.Handle(new EmoteOutput(new Emote("@ power|powers off.", Parent)));
             if (CurrentCycle != WashingMachineCycles.None)
             {
-                CancelWashing(true);
+				CancelWashing(false, false);
             }
         }
     }
@@ -752,6 +774,18 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
                     return false;
                 }
 
+				if (IsOpen)
+				{
+					character.Send($"You must close {Parent.HowSeen(character)} before beginning a wash cycle.");
+					return false;
+				}
+
+				if (!_laundryContents.Any())
+				{
+					character.Send($"There is no laundry in {Parent.HowSeen(character)} to wash.");
+					return false;
+				}
+
                 if (!silent)
                 {
                     character.OutputHandler.Handle(
@@ -795,16 +829,26 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
         get => _switchedOn;
         set
         {
+			if (_switchedOn == value)
+			{
+				return;
+			}
+
+			if (!value && CurrentCycle != WashingMachineCycles.None)
+			{
+				CancelWashing(true);
+			}
+
             _switchedOn = value;
             Changed = true;
-            IProducePower power = Parent.GetItemType<IProducePower>();
+			var power = Parent.GetItemType<IProducePower>();
             if (value)
             {
-                power.BeginDrawdown(this);
+				power?.BeginDrawdown(this);
             }
             else
             {
-                power.EndDrawdown(this);
+				power?.EndDrawdown(this);
             }
         }
     }

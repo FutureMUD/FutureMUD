@@ -13,10 +13,13 @@ using System.Globalization;
 
 namespace MudSharp.GameItems.Components;
 
-public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuringIdleTime
+public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuringIdleTime,
+    IItemTimeRateSensitive
 {
     protected CorpseGameItemComponentProto _prototype;
     private BodyRemainsContext _remainsContext = BodyRemainsContext.FinalCharacterDeath;
+    private bool _decayListenerOn;
+    private DateTime _lastDecayResolvedUtc;
 
     public override bool PreventsMerging(IGameItemComponent component)
     {
@@ -167,11 +170,36 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     private void SetupDecayListener()
     {
+        if (_decayListenerOn)
+        {
+            return;
+        }
+
+        _lastDecayResolvedUtc = RuntimeClock.UtcNow;
         Gameworld.HeartbeatManager.MinuteHeartbeat += HeartbeatManagerOnMinuteHeartbeat;
+        _decayListenerOn = true;
     }
 
     private void HeartbeatManagerOnMinuteHeartbeat()
     {
+        ResolveTimeRate(RuntimeClock.UtcNow);
+    }
+
+    public void ResolveTimeRate(DateTime utcNow)
+    {
+        if (_lastDecayResolvedUtc == default)
+        {
+            _lastDecayResolvedUtc = utcNow;
+            return;
+        }
+
+        var elapsed = utcNow - _lastDecayResolvedUtc;
+        _lastDecayResolvedUtc = utcNow;
+        if (elapsed <= TimeSpan.Zero)
+        {
+            return;
+        }
+
         if (Parent.AffectedBy<ICorpsePreservationEffect>())
         {
             return;
@@ -187,7 +215,18 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             Parent.Location != null
                 ? Parent.Location.CurrentOverlay.Terrain
                 : Parent.TrueLocations.First().CurrentOverlay.Terrain
-        );
+        ) * elapsed.TotalMinutes * Parent.TimeRateMultiplier(ItemTimeRateType.BiologicalDecay);
+    }
+
+    private void ReleaseDecayListener()
+    {
+        if (!_decayListenerOn)
+        {
+            return;
+        }
+
+        Gameworld.HeartbeatManager.MinuteHeartbeat -= HeartbeatManagerOnMinuteHeartbeat;
+        _decayListenerOn = false;
     }
 
     public override void Delete()
@@ -201,7 +240,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         }
 
         base.Delete();
-        Gameworld.HeartbeatManager.MinuteHeartbeat -= HeartbeatManagerOnMinuteHeartbeat;
+        ReleaseDecayListener();
         // If a final-death corpse is deleted and its owner is still dead (i.e. hasn't been resurrected), delete the inventory.
         // Non-final remains own their physical contents independently of the surviving character, so deleting the remains
         // deletes the old body's inventory too.
@@ -222,7 +261,13 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
     public override void Quit()
     {
         base.Quit();
-        Gameworld.HeartbeatManager.MinuteHeartbeat -= HeartbeatManagerOnMinuteHeartbeat;
+        ReleaseDecayListener();
+    }
+
+    public override void Login()
+    {
+        base.Login();
+        SetupDecayListener();
     }
 
     public override bool Take(IGameItem item)

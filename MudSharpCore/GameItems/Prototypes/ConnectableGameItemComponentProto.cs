@@ -9,9 +9,14 @@ namespace MudSharp.GameItems.Prototypes;
 public class ConnectableGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, IConnectablePrototype
 {
     protected ConnectableGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-        : base(gameworld, originator, "Connectable")
+		: this(gameworld, originator, "Connectable")
     {
     }
+
+	protected ConnectableGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
+		: base(gameworld, originator, type)
+	{
+	}
 
     protected ConnectableGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
         : base(proto, gameworld)

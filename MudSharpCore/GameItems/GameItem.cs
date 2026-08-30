@@ -1101,7 +1101,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 }
                 else
                 {
-                    CachedMorphTime = rhs.MorphTime - RuntimeClock.UtcNow;
+					CachedMorphTime = ItemTimeRateMath.PreservedMorphRemaining(
+						rhs.MorphTime - RuntimeClock.UtcNow,
+						Prototype.RefrigerationSensitive,
+						rhs._morphRateAtSchedule);
                 }
             }
             else
@@ -1477,10 +1480,21 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 				return;
 			}
 
+			var timeSensitiveItems = DeepItems.ToList();
+			foreach (var item in timeSensitiveItems)
+			{
+				item.RebaseItemTimeRates();
+			}
+
 			using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Containment, this);
             _containedIn = value;
             Changed = true;
 			proximityChange?.Complete();
+
+			foreach (var item in timeSensitiveItems)
+			{
+				item.RebaseItemTimeRates();
+			}
         }
     }
 
@@ -2798,6 +2812,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     #region Morphing
 
+	private double _morphRateAtSchedule = 1.0;
+
     private void SaveMorphProgress(MudSharp.Models.GameItem dbitem)
     {
         if (CachedMorphTime is not null)
@@ -2812,7 +2828,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             return;
         }
 
-        dbitem.MorphTimeRemaining = (int)Gameworld.Scheduler.RemainingDuration(this, ScheduleType.Morph).TotalSeconds;
+		var remaining = Gameworld.Scheduler.RemainingDuration(this, ScheduleType.Morph);
+		dbitem.MorphTimeRemaining = (int)(remaining.TotalSeconds *
+			(Prototype.RefrigerationSensitive ? _morphRateAtSchedule : 1.0));
     }
 
     public TimeSpan? CachedMorphTime { get; set; }
@@ -2837,7 +2855,17 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     {
         if (CachedMorphTime is not null)
         {
-            MorphTime = RuntimeClock.UtcNow + CachedMorphTime.Value;
+			_morphRateAtSchedule = Prototype.RefrigerationSensitive
+				? this.TimeRateMultiplier(ItemTimeRateType.Morph)
+				: 1.0;
+			if (_morphRateAtSchedule <= 0.0)
+			{
+				MorphTime = DateTime.MinValue;
+				return;
+			}
+
+			MorphTime = RuntimeClock.UtcNow + ItemTimeRateMath.WallDuration(
+				CachedMorphTime.Value, _morphRateAtSchedule)!.Value;
             CachedMorphTime = null;
         }
 
@@ -2858,10 +2886,44 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         {
             Gameworld.Scheduler.Destroy(this, ScheduleType.Morph);
             Gameworld.Scheduler.Destroy(this, ScheduleType.MorphSaving);
-            CachedMorphTime = MorphTime - RuntimeClock.UtcNow;
+			var wallTimeRemaining = MorphTime - RuntimeClock.UtcNow;
+			CachedMorphTime = Prototype.RefrigerationSensitive
+				? ItemTimeRateMath.EffectiveElapsed(wallTimeRemaining, _morphRateAtSchedule)
+				: wallTimeRemaining;
+			if (CachedMorphTime < TimeSpan.Zero)
+			{
+				CachedMorphTime = TimeSpan.Zero;
+			}
             MorphTime = DateTime.MinValue;
         }
     }
+
+	public void RebaseItemTimeRates()
+	{
+		var now = RuntimeClock.UtcNow;
+		foreach (var component in Components.OfType<IItemTimeRateSensitive>())
+		{
+			component.ResolveTimeRate(now);
+		}
+
+		ResolveSurfaceLiquidDrying();
+		if (!Prototype.RefrigerationSensitive ||
+			(MorphTime == DateTime.MinValue && CachedMorphTime is null))
+		{
+			return;
+		}
+
+		var wasScheduled = MorphTime != DateTime.MinValue;
+		if (wasScheduled)
+		{
+			EndMorphTimer();
+		}
+
+		if (wasScheduled || CachedMorphTime is not null)
+		{
+			StartMorphTimer();
+		}
+	}
 
     private void Morph(IGameItem item)
     {

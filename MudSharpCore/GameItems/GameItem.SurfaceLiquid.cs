@@ -52,6 +52,15 @@ public partial class GameItem
 		var duration = TimeSpan.FromSeconds(Math.Max(1.0,
 			Gameworld.GetStaticDouble("LiquidContaminationEffectDuration") *
 			Math.Max(_surfaceLiquidState.ContaminatingLiquid.RelativeEnthalpy, double.Epsilon)));
+		var rate = this.TimeRateMultiplier(ItemTimeRateType.SurfaceLiquidDrying);
+		if (rate <= 0.0)
+		{
+			_surfaceLiquidState.LastResolvedUtc = RuntimeClock.UtcNow;
+			SurfaceLiquidChanged();
+			return;
+		}
+
+		duration = TimeSpan.FromTicks(Math.Max(1L, (long)(duration.Ticks / rate)));
 		if (_surfaceLiquidState.ResolveDrying(duration, 0.02 / Gameworld.UnitManager.BaseFluidToLitres, 0.1))
 		{
 			EnsureSurfaceContaminationEffect();

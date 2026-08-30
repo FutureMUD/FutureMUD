@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.3.0.0",
-  "LatestMigrationId": "20260829082253_AddOutfitTemplateItemSkin",
-  "GeneratedUtc": "2026-08-29T08:48:31.1038302Z"
+  "LatestMigrationId": "20260830080041_AddGameItemProtoRefrigerationSensitivity",
+  "GeneratedUtc": "2026-08-30T08:07:20.1447576Z"
 }

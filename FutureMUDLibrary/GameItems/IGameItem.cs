@@ -300,6 +300,7 @@ namespace MudSharp.GameItems
         void StartMorphTimer();
         void EndMorphTimer();
         void ResetMorphTimer();
+		void RebaseItemTimeRates();
 
         IGameItemSkin Skin { get; set; }
     }

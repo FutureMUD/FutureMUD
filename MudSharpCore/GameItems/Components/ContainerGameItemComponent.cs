@@ -543,7 +543,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
             : WhyCannotOpenReason.Unknown;
     }
 
-    public void Open()
+    public virtual void Open()
     {
         IsOpen = true;
         OnOpen?.Invoke(this);
@@ -569,7 +569,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
         return !_prototype.OnceOnly ? WhyCannotCloseReason.SingleUse : WhyCannotCloseReason.Unknown;
     }
 
-    public void Close()
+    public virtual void Close()
     {
         IsOpen = false;
         OnClose?.Invoke(this);

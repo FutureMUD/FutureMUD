@@ -30,6 +30,8 @@ public class GameItemComponentPrototypeExclusivityTests
 		typeof(IChangeTraitsInInventory),
 		typeof(IConnectable),
 		typeof(IConsumePower),
+		typeof(IItemTimeRateModifier),
+		typeof(IItemTimeRateSensitive),
 		typeof(IOnOff),
 		typeof(IProduceHeat),
 		typeof(IProducePower),

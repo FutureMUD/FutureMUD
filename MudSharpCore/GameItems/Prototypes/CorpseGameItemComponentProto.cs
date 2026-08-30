@@ -8,7 +8,8 @@ using MudSharp.GameItems.Components;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CorpseGameItemComponentProto : GameItemComponentProto, ICorpsePrototype
+public class CorpseGameItemComponentProto : GameItemComponentProto, ICorpsePrototype,
+    IItemTimeRateSensitivePrototype
 {
     protected CorpseGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Corpse")

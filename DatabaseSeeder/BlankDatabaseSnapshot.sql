@@ -15656,3 +15656,21 @@ DELIMITER ;
 CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
 COMMIT;
+
+-- EF-generated idempotent delta for 20260830080041_AddGameItemProtoRefrigerationSensitivity
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260830080041_AddGameItemProtoRefrigerationSensitivity') THEN
+        ALTER TABLE `gameitemprotos` ADD `RefrigerationSensitive` bit(1) NOT NULL DEFAULT b'0';
+
+        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+        VALUES ('20260830080041_AddGameItemProtoRefrigerationSensitivity', '9.0.11');
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+COMMIT;

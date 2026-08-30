@@ -49,6 +49,14 @@ public interface IArtilleryMountPrototype : IExclusiveGameItemComponentPrototype
 {
 }
 
+public interface IItemTimeRateModifierPrototype : IAggregateGameItemComponentPrototype<IItemTimeRateModifier>
+{
+}
+
+public interface IItemTimeRateSensitivePrototype : IAggregateGameItemComponentPrototype<IItemTimeRateSensitive>
+{
+}
+
 public interface IWeaponCarrierAttachmentPrototype : IExclusiveGameItemComponentPrototype<IWeaponCarrierAttachment>
 {
 }

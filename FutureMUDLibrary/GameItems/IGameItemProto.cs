@@ -49,6 +49,7 @@ namespace MudSharp.GameItems
         IGameItemGroup ItemGroup { get; }
         bool Morphs { get; }
         TimeSpan MorphTimeSpan { get; }
+		bool RefrigerationSensitive { get; }
         string MorphEmote { get; }
         decimal CostInBaseCurrency { get; }
         IGameItem LoadDestroyedItem(IGameItem originalItem);

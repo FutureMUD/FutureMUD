@@ -542,6 +542,15 @@ When adding similar capabilities in future:
 3. Keep activation-specific state and persistence on the runtime component.
 4. Explicitly decide how morph, destruction, load-time finalisation, and deep-copy flows should treat inserted media or fuel.
 
+## Refrigeration, Drying, and Portable Power Components
+
+- `refrigerator` inherits standard container settings. Use `capacity`, `maxsize`, `transparent`, and `closable`, then configure `wattage`, `poweredclosed`, `poweredopen`, `unpoweredclosed`, and `unpoweredopen`. Rates are percentages of normal elapsed time. An unclosable refrigerator is always open and therefore uses an open rate.
+- `implantrefrigerator` inherits implant-container capacity, size, transparency, closability, and implant power settings. It exposes the same four rate commands; impaired function interpolates refrigeration toward the matching unpowered rate.
+- `dryer` is always closable. Configure its standard container settings, `wattage`, and `drying <multiplier>`. It cannot be switched on while open, and opening it switches it off.
+- `powerbank` configures `capacity <watt-hours>`, `inputwatts`, `outputwatts`, `efficiency <percentage>`, and directional connector sets through `input add|remove` and `output add|remove`. A submitted prototype requires at least one connector in each direction.
+
+Use `item set refrigeration` on a game-item prototype whose morph countdown represents spoilage or another environment-sensitive transformation. Do not enable it on ordinary delayed transformations. Component rates are authored as non-negative values without forced ordering; refrigerator defaults are 10%, 50%, 75%, and 100% for powered/closed, powered/open, unpowered/closed, and unpowered/open respectively.
+
 ## Historical Firearm and Storage Authoring
 
 - `lockingcashregister` authors till capacity, maximum item size, lock type, picking difficulty, and forcing difficulty. Use it instead of combining two container components.

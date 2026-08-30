@@ -341,7 +341,8 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
         bool temporary = false) : base(rhs, newParent, temporary)
     {
         _prototype = rhs._prototype;
-        _connectedItems = rhs._connectedItems;
+		// Connections belong to the concrete item instance and must never be shared by a clone.
+		_connectedItems = new List<Tuple<ConnectorType, IConnectable>>();
     }
 
     public override void FinaliseLoad()

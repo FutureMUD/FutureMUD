@@ -332,7 +332,7 @@ public class ImplantContainerGameItemComponent : ImplantBaseGameItemComponent, I
             : WhyCannotOpenReason.Unknown;
     }
 
-    public void Open()
+    public virtual void Open()
     {
         IsOpen = true;
         OnOpen?.Invoke(this);
@@ -358,7 +358,7 @@ public class ImplantContainerGameItemComponent : ImplantBaseGameItemComponent, I
         return WhyCannotCloseReason.Unknown;
     }
 
-    public void Close()
+    public virtual void Close()
     {
         IsOpen = false;
         OnClose?.Invoke(this);

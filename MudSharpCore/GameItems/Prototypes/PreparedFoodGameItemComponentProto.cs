@@ -10,7 +10,8 @@ using System.Globalization;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PreparedFoodGameItemComponentProto : GameItemComponentProto, IPreparedFoodPrototype
+public class PreparedFoodGameItemComponentProto : GameItemComponentProto, IPreparedFoodPrototype,
+	IItemTimeRateSensitivePrototype
 {
 	public PreparedFoodProfile Profile { get; private set; } = new();
 

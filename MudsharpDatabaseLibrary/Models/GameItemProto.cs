@@ -36,6 +36,7 @@ namespace MudSharp.Models
         public bool HighPriority { get; set; }
         public long? MorphGameItemProtoId { get; set; }
         public int MorphTimeSeconds { get; set; }
+		public bool RefrigerationSensitive { get; set; }
         public string MorphEmote { get; set; }
         public string ShortDescription { get; set; }
         public string FullDescription { get; set; }

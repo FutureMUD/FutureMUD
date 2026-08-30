@@ -1086,6 +1086,7 @@ It creates reusable butchery outputs, raw carcass cuts, hides, glands, trophies 
 			item.IsHiddenFromPlayers = false;
 			item.MorphGameItemProtoId = spec.Spoils ? rottenMeat.Id : null;
 			item.MorphTimeSeconds = spec.Spoils ? SpoilSeconds : 0;
+			item.RefrigerationSensitive = spec.Spoils;
 			item.MorphEmote = spec.Spoils
 				? $"$0 decay|decays into {RottenMeatShortDescription}."
 				: "$0 $?1|morphs into $1|decays into nothing$.";

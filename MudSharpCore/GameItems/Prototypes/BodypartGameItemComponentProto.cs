@@ -9,7 +9,8 @@ using MudSharp.Health;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BodypartGameItemComponentProto : GameItemComponentProto, ISeveredBodypartPrototype
+public class BodypartGameItemComponentProto : GameItemComponentProto, ISeveredBodypartPrototype,
+    IItemTimeRateSensitivePrototype
 {
     protected BodypartGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Bodypart")

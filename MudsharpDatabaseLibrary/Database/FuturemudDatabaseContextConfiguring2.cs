@@ -3172,6 +3172,10 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.MorphTimeSeconds).HasColumnType("int(11)");
 
+				entity.Property(e => e.RefrigerationSensitive)
+					.HasColumnType("bit(1)")
+					.HasDefaultValueSql("b'0'");
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnType("varchar(255)")

@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace MudSharp.GameItems.Components;
 
-public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood
+public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, IItemTimeRateSensitive
 {
 	private PreparedFoodGameItemComponentProto _prototype;
 	private FoodServingScope _servingScope;
@@ -40,19 +40,33 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood
 
 	public FoodServingScope ServingScope => _servingScope;
 
-	public DateTime CreatedAt { get; set; }
+	private DateTime _createdAt;
+	private TimeSpan _effectiveAge;
+	private DateTime _lastAgeResolvedUtc;
+
+	public DateTime CreatedAt
+	{
+		get => _createdAt;
+		set
+		{
+			_createdAt = value;
+			_lastAgeResolvedUtc = DateTime.UtcNow;
+			_effectiveAge = _lastAgeResolvedUtc > value ? _lastAgeResolvedUtc - value : TimeSpan.Zero;
+		}
+	}
 
 	public FoodFreshness Freshness
 	{
 		get
 		{
 			var now = DateTime.UtcNow;
-			if (_spoilAfter is not null && CreatedAt + _spoilAfter.Value <= now)
+			ResolveTimeRate(now);
+			if (_spoilAfter is not null && _effectiveAge >= _spoilAfter.Value)
 			{
 				return FoodFreshness.Spoiled;
 			}
 
-			if (_staleAfter is not null && CreatedAt + _staleAfter.Value <= now)
+			if (_staleAfter is not null && _effectiveAge >= _staleAfter.Value)
 			{
 				return FoodFreshness.Stale;
 			}
@@ -301,12 +315,24 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood
 
 	public override bool PreventsMerging(IGameItemComponent component)
 	{
-		return component is PreparedFoodGameItemComponent other &&
-		       (BitesRemaining != other.BitesRemaining ||
-		        CreatedAt != other.CreatedAt ||
-		        Freshness != other.Freshness ||
-		        !_ingredients.Select(x => x.Description).SequenceEqual(other._ingredients.Select(x => x.Description)) ||
-		        !_drugDoses.Select(x => (x.Drug?.Id ?? 0, x.Grams)).SequenceEqual(other._drugDoses.Select(x => (x.Drug?.Id ?? 0, x.Grams))));
+		if (component is not PreparedFoodGameItemComponent other)
+		{
+			return false;
+		}
+
+		var now = DateTime.UtcNow;
+		ResolveTimeRate(now);
+		other.ResolveTimeRate(now);
+		return BitesRemaining != other.BitesRemaining ||
+		       !EffectiveAgesAreMergeCompatible(_effectiveAge, other._effectiveAge) ||
+		       Freshness != other.Freshness ||
+		       !_ingredients.Select(x => x.Description).SequenceEqual(other._ingredients.Select(x => x.Description)) ||
+		       !_drugDoses.Select(x => (x.Drug?.Id ?? 0, x.Grams)).SequenceEqual(other._drugDoses.Select(x => (x.Drug?.Id ?? 0, x.Grams)));
+	}
+
+	public static bool EffectiveAgesAreMergeCompatible(TimeSpan first, TimeSpan second)
+	{
+		return (first - second).Duration() <= TimeSpan.FromSeconds(1.0);
 	}
 
 	public override bool DescriptionDecorator(DescriptionType type)
@@ -398,7 +424,10 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood
 		: base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
-		CreatedAt = rhs.CreatedAt;
+		rhs.ResolveTimeRate(DateTime.UtcNow);
+		_createdAt = rhs._createdAt;
+		_effectiveAge = rhs._effectiveAge;
+		_lastAgeResolvedUtc = DateTime.UtcNow;
 		_servingScope = rhs._servingScope;
 		_satiationPoints = rhs._satiationPoints;
 		_waterLitres = rhs._waterLitres;
@@ -446,6 +475,11 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood
 	{
 		CreatedAt = DateTime.Parse(root.Attribute("created")?.Value ?? DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
 			CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+		_effectiveAge = TimeSpan.FromSeconds(Math.Max(0.0,
+			LoadDouble(root, "effectiveAgeSeconds", _effectiveAge.TotalSeconds)));
+		_lastAgeResolvedUtc = DateTime.Parse(
+			root.Attribute("lastAgeResolvedUtc")?.Value ?? DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
+			CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
 		_servingScope = PreparedFoodGameItemComponentProto.LoadServingScope(root.Attribute("scope")?.Value ?? _servingScope.ToString());
 		_satiationPoints = LoadDouble(root, "satiation", _satiationPoints);
 		_waterLitres = LoadDouble(root, "water", _waterLitres);
@@ -487,8 +521,11 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood
 
 	protected override string SaveToXml()
 	{
+		ResolveTimeRate(DateTime.UtcNow);
 		return new XElement("Definition",
 			new XAttribute("created", CreatedAt.ToString("o", CultureInfo.InvariantCulture)),
+			new XAttribute("effectiveAgeSeconds", DoubleString(_effectiveAge.TotalSeconds)),
+			new XAttribute("lastAgeResolvedUtc", _lastAgeResolvedUtc.ToString("o", CultureInfo.InvariantCulture)),
 			new XAttribute("scope", _servingScope),
 			new XAttribute("satiation", DoubleString(_satiationPoints)),
 			new XAttribute("water", DoubleString(_waterLitres)),
@@ -512,5 +549,28 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood
 			new XElement("DrugDoses", _drugDoses.Select(x => x.SaveToXml())),
 			new XElement("StaleDrugDoses", _staleDrugDoses.Select(x => x.SaveToXml()))
 		).ToString();
+	}
+
+	public void ResolveTimeRate(DateTime utcNow)
+	{
+		if (_lastAgeResolvedUtc == default)
+		{
+			_lastAgeResolvedUtc = utcNow;
+			return;
+		}
+
+		var elapsed = utcNow - _lastAgeResolvedUtc;
+		if (elapsed <= TimeSpan.Zero)
+		{
+			return;
+		}
+
+		var rate = Parent.TimeRateMultiplier(ItemTimeRateType.PreparedFoodFreshness);
+		_effectiveAge += ItemTimeRateMath.EffectiveElapsed(elapsed, rate);
+		_lastAgeResolvedUtc = utcNow;
+		if (!_noSave)
+		{
+			Changed = true;
+		}
 	}
 }

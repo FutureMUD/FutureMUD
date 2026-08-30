@@ -17,7 +17,7 @@ public class ImplantContainerGameItemComponentProto : ImplantBaseGameItemCompone
     #region Constructors
 
     protected ImplantContainerGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld,
-        originator, "ImplantContainer")
+		originator, "ImplantContainer")
     {
         ContentsPreposition = "in";
         MaximumContentsSize = SizeCategory.Small;
@@ -25,6 +25,16 @@ public class ImplantContainerGameItemComponentProto : ImplantBaseGameItemCompone
         PowerConsumptionInWatts = 0.0;
         PowerConsumptionDiscountPerQuality = 0.0;
     }
+
+	protected ImplantContainerGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type) : base(
+		gameworld, originator, type)
+	{
+		ContentsPreposition = "in";
+		MaximumContentsSize = SizeCategory.Small;
+		WeightLimit = 1.0 / gameworld.UnitManager.BaseWeightToKilograms;
+		PowerConsumptionInWatts = 20.0;
+		PowerConsumptionDiscountPerQuality = 0.0;
+	}
 
     protected ImplantContainerGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
         : base(proto, gameworld)

@@ -374,9 +374,14 @@ Blocked Tags: {(BlockedTags.Any() ? BlockedTags.Select(x => x.Name.ColourName())
     }
 
     protected ContainerGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-        : base(gameworld, originator, "Container")
+		: this(gameworld, originator, "Container")
     {
     }
+
+	protected ContainerGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
+		: base(gameworld, originator, type)
+	{
+	}
 
     #endregion
 }

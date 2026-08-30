@@ -190,6 +190,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
             sb.AppendLine(
                 $"It morphs into {(_onMorphGameItemProto == 0 ? "nothing".Colour(Telnet.Red) : $"Item Proto {_onMorphGameItemProto} ({Gameworld.ItemProtos.Get(_onMorphGameItemProto)?.ShortDescription.Colour(Telnet.BoldWhite) ?? "nothing".Colour(Telnet.Red)})")} after {MorphTimeSpan.Describe(actor)} with the emote: {MorphEmote.Colour(Telnet.Cyan)}.");
         }
+		sb.AppendLine($"Refrigeration-Sensitive Morph: {RefrigerationSensitive.ToColouredString()}");
 
         sb.AppendLine($"Size: {Size.Describe().ColourValue()}");
         sb.AppendLine(
@@ -467,6 +468,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
                 LongDescription = LongDescription,
                 BaseItemQuality = (int)BaseItemQuality,
                 MorphTimeSeconds = (int)MorphTimeSpan.TotalSeconds,
+				RefrigerationSensitive = RefrigerationSensitive,
                 ItemGroupId = ItemGroup?.Id,
                 OnDestroyedGameItemProtoId = _onDestroyedGameItemProto == 0
                     ? null
@@ -582,6 +584,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
                 LongDescription = LongDescription,
                 BaseItemQuality = (int)BaseItemQuality,
                 MorphTimeSeconds = (int)MorphTimeSpan.TotalSeconds,
+				RefrigerationSensitive = RefrigerationSensitive,
                 MorphEmote = MorphEmote,
                 ShortDescription = ShortDescription,
                 FullDescription = FullDescription,
@@ -788,6 +791,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 
         Morphs = proto.MorphTimeSeconds > 0;
         MorphTimeSpan = TimeSpan.FromSeconds(proto.MorphTimeSeconds);
+		RefrigerationSensitive = proto.RefrigerationSensitive;
         MorphEmote = proto.MorphEmote;
         _onMorphGameItemProto = proto.MorphGameItemProtoId ?? 0;
     }
@@ -893,6 +897,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
             }
 
             dbproto.MorphTimeSeconds = (int)MorphTimeSpan.TotalSeconds;
+			dbproto.RefrigerationSensitive = RefrigerationSensitive;
             dbproto.MorphGameItemProtoId = _onMorphGameItemProto;
             dbproto.MorphEmote = MorphEmote;
             FMDB.Context.SaveChanges();
@@ -955,6 +960,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
     public string MorphEmote { get; set; }
     public bool Morphs { get; set; }
     public TimeSpan MorphTimeSpan { get; set; }
+	public bool RefrigerationSensitive { get; set; }
 
     public IGameItem LoadMorphedItem(IGameItem originalItem)
     {
@@ -1176,6 +1182,10 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
                 return BuildingCommandQuality(actor, command);
             case "morph":
                 return BuildingCommandMorph(actor, command);
+			case "refrigeration":
+			case "refrigerated":
+			case "refrigerationsensitive":
+				return BuildingCommandRefrigeration(actor);
             case "extra":
                 return BuildingCommandExtra(actor, command);
             case "preserve":
@@ -1222,6 +1232,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 	#3register delete <variable name>#0 - deletes a default value for a register variable
 	#3morph <item##|unique name|none> <seconds> [<emote>]#0 - sets item morph information. The 'none' value makes the item disappear.
 	#3morph clear#0 - clears any morph info for this item
+	#3refrigeration#0 - toggles whether refrigeration changes this item's morph timer
 	#3hidden#0 - toggles this item being hidden from players in information/searching commands
 	#3group <id|name>#0 - sets this item's item group (for in-room grouping)
 	#3group none#0 - clears this item's item group
@@ -2743,6 +2754,14 @@ writing{{{exampleLanguage.Name},{exampleScript.Name},style=childish,minskill=30}
             $"This item will now morph after {MorphTimeSpan.Describe()} into {(_onMorphGameItemProto == 0 ? "nothing" : $"item prototype #{_onMorphGameItemProto} ({Gameworld.ItemProtos.Get(_onMorphGameItemProto).ShortDescription.ColourObject()})")} with the emote: {MorphEmote.Colour(Telnet.Yellow)}.");
         return true;
     }
+
+	private bool BuildingCommandRefrigeration(ICharacter actor)
+	{
+		RefrigerationSensitive = !RefrigerationSensitive;
+		Changed = true;
+		actor.Send($"This item's morph timer is {RefrigerationSensitive.ToColouredString()} for refrigeration sensitivity.");
+		return true;
+	}
 
     #endregion
 

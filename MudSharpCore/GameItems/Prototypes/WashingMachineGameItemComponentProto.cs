@@ -144,6 +144,11 @@ public class WashingMachineGameItemComponentProto : GameItemComponentProto, ILiq
             actor.Send("That is not a valid amount of time for the cycle time.");
             return false;
         }
+		if ((TimeSpan)result <= TimeSpan.Zero)
+		{
+			actor.Send("The cycle time must be greater than zero.");
+			return false;
+		}
 
         NormalCycleTime = result;
         Changed = true;
@@ -206,6 +211,11 @@ public class WashingMachineGameItemComponentProto : GameItemComponentProto, ILiq
             actor.Send("That is not a valid weight.");
             return false;
         }
+		if (capacity <= 0.0)
+		{
+			actor.Send("The laundry capacity must be greater than zero.");
+			return false;
+		}
 
         WeightCapacity = capacity;
         Changed = true;
@@ -229,6 +239,11 @@ public class WashingMachineGameItemComponentProto : GameItemComponentProto, ILiq
             actor.Send("That is not a valid liquid quantity.");
             return false;
         }
+		if (capacity <= 0.0)
+		{
+			actor.Send("The washing liquid capacity must be greater than zero.");
+			return false;
+		}
 
         WashingLiquidCapacity = capacity;
         Changed = true;
@@ -245,9 +260,9 @@ public class WashingMachineGameItemComponentProto : GameItemComponentProto, ILiq
             return false;
         }
 
-        if (!double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!double.TryParse(command.SafeRemainingArgument, out double value) || value <= 0.0)
         {
-            actor.Send("You must specify a valid number of watts for this appliance to use.");
+            actor.Send("You must specify a positive number of watts for this appliance to use.");
             return false;
         }
 

@@ -15,9 +15,12 @@ using MudSharp.Work.Butchering;
 
 namespace MudSharp.GameItems.Components;
 
-public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, ILazyLoadDuringIdleTime
+public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, ILazyLoadDuringIdleTime,
+    IItemTimeRateSensitive
 {
     protected BodypartGameItemComponentProto _prototype;
+    private bool _decayListenerOn;
+    private DateTime _lastDecayResolvedUtc;
 
     public override bool PreventsMerging(IGameItemComponent component)
     {
@@ -242,17 +245,58 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     private void SetupDecayListener()
     {
+        if (_decayListenerOn)
+        {
+            return;
+        }
+
+        _lastDecayResolvedUtc = RuntimeClock.UtcNow;
         Gameworld.HeartbeatManager.MinuteHeartbeat += HeartbeatManagerOnMinuteHeartbeat;
+        _decayListenerOn = true;
     }
 
     private void HeartbeatManagerOnMinuteHeartbeat()
     {
+        ResolveTimeRate(RuntimeClock.UtcNow);
+    }
+
+    public void ResolveTimeRate(DateTime utcNow)
+    {
+        if (_lastDecayResolvedUtc == default)
+        {
+            _lastDecayResolvedUtc = utcNow;
+            return;
+        }
+
+        var elapsed = utcNow - _lastDecayResolvedUtc;
+        _lastDecayResolvedUtc = utcNow;
+        if (elapsed <= TimeSpan.Zero)
+        {
+            return;
+        }
+
         // TODO - check for effects that halt or arrest decay
-        DecayPoints += Model.DecayRate(
-            Parent.Location != null
-                ? Parent.Location.CurrentOverlay.Terrain
-                : Parent.TrueLocations.FirstOrDefault()?.CurrentOverlay.Terrain
-        );
+        var terrain = Parent.Location != null
+            ? Parent.Location.CurrentOverlay.Terrain
+            : Parent.TrueLocations.FirstOrDefault()?.CurrentOverlay.Terrain;
+        if (terrain is null)
+        {
+            return;
+        }
+
+        DecayPoints += Model.DecayRate(terrain) * elapsed.TotalMinutes *
+            Parent.TimeRateMultiplier(ItemTimeRateType.BiologicalDecay);
+    }
+
+    private void ReleaseDecayListener()
+    {
+        if (!_decayListenerOn)
+        {
+            return;
+        }
+
+        Gameworld.HeartbeatManager.MinuteHeartbeat -= HeartbeatManagerOnMinuteHeartbeat;
+        _decayListenerOn = false;
     }
 
     public override void Delete()
@@ -280,7 +324,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         }
 
         _tattoos.Clear();
-        Gameworld.HeartbeatManager.MinuteHeartbeat -= HeartbeatManagerOnMinuteHeartbeat;
+        ReleaseDecayListener();
         originalCharacter.TryCleanupRetiredBody(originalBody, Parent);
     }
 
@@ -302,12 +346,13 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             wound.Lodged?.Quit();
         }
 
-        Gameworld.HeartbeatManager.MinuteHeartbeat -= HeartbeatManagerOnMinuteHeartbeat;
+        ReleaseDecayListener();
     }
 
     public override void Login()
     {
         base.Login();
+        SetupDecayListener();
         foreach (IGameItem item in Contents.ToList())
         {
             item.Login();

@@ -46,8 +46,6 @@ public static class SignedCommunicationService
 	public static void HandleEvents(IBody body, IPerceivable? target, string message, ISignedLanguage language,
 		ISignedLanguageVariety? variety, Outcome outcome)
 	{
-		var languageName = language.Name;
-		var varietyName = variety?.Name ?? string.Empty;
 		var witnesses = body.Location.EventHandlers
 			.OfType<IPerceiver>()
 			.Where(x => !x.IsSelf(body.Actor) && !x.IsSelf(target) && x.CanSee(body.Actor))
@@ -56,24 +54,24 @@ public static class SignedCommunicationService
 			.ToList();
 		if (target is null)
 		{
-			body.Actor.HandleEvent(EventType.CharacterSigns, body.Actor, languageName, varietyName, message,
+			body.Actor.HandleEvent(EventType.CharacterSigns, body.Actor, language, variety, message,
 				(int)outcome);
 			foreach (var witness in witnesses)
 			{
-				witness.HandleEvent(EventType.CharacterSignsWitness, body.Actor, witness, languageName, varietyName,
+				witness.HandleEvent(EventType.CharacterSignsWitness, body.Actor, witness, language, variety,
 					message, (int)outcome);
 			}
 			return;
 		}
 
-		body.Actor.HandleEvent(EventType.CharacterSignsDirect, body.Actor, target, languageName, varietyName, message,
+		body.Actor.HandleEvent(EventType.CharacterSignsDirect, body.Actor, target, language, variety, message,
 			(int)outcome);
-		target.HandleEvent(EventType.CharacterSignsDirectTarget, body.Actor, target, languageName, varietyName, message,
+		target.HandleEvent(EventType.CharacterSignsDirectTarget, body.Actor, target, language, variety, message,
 			(int)outcome);
 		foreach (var witness in witnesses)
 		{
-			witness.HandleEvent(EventType.CharacterSignsDirectWitness, body.Actor, target, witness, languageName,
-				varietyName, message, (int)outcome);
+			witness.HandleEvent(EventType.CharacterSignsDirectWitness, body.Actor, target, witness, language,
+				variety, message, (int)outcome);
 		}
 	}
 }

@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using MudSharp.Body;
 using MudSharp.Form.Shape;
+using MudSharp.FutureProg;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Communication.Language;
@@ -15,7 +16,7 @@ public interface ISignedLanguage : ICommunicationLanguage
 	SignedLanguageArticulationResult EvaluateArticulation(IBody body);
 }
 
-public interface ISignedLanguageVariety : MudSharp.Framework.IFrameworkItem
+public interface ISignedLanguageVariety : MudSharp.Framework.IFrameworkItem, IProgVariable
 {
 	ISignedLanguage Language { get; }
 	string Description { get; }

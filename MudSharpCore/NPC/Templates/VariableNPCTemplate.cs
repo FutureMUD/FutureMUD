@@ -675,6 +675,22 @@ public class VariableNPCTemplate : NPCTemplateBase
             sb.AppendLine($"\t{language.Name.TitleCase().ColourName()} ({skill.Chance.ToStringP2Colour(actor)}) - {accents.Select(x => x.Name.TitleCase()).ListToColouredString()}");
         }
         sb.AppendLine();
+		sb.AppendLine("Signed Languages:");
+		sb.AppendLine();
+		var signedLanguages = _skillTemplates
+			.SelectMany(skill => Gameworld.SignedLanguages
+				.Where(x => x.LinkedTrait == skill.Trait)
+				.Select(language => (Language: language, skill.Chance)))
+			.ToList();
+		foreach (var (language, chance) in signedLanguages)
+		{
+			sb.AppendLine($"\t{language.Name.TitleCase().ColourName()} ({chance.ToStringP2Colour(actor)})");
+		}
+		if (signedLanguages.Count == 0)
+		{
+			sb.AppendLine($"\t{"None".Colour(Telnet.Red)}");
+		}
+		sb.AppendLine();
 
         sb.AppendLine();
         if (_roles.Any(x => x.RoleType != ChargenRoleType.Class && x.RoleType != ChargenRoleType.Subclass))

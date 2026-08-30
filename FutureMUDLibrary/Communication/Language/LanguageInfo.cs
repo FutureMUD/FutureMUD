@@ -545,9 +545,9 @@ namespace MudSharp.Communication.Language
 				LanguagePerceptionResult.UnknownLanguage => $"*** something in {Language.UnknownLanguageDescription} ***".ColourBold(Telnet.Cyan),
 				LanguagePerceptionResult.HearFailure => "*** signing that you do not quite understand ***".ColourBold(Telnet.Cyan),
 				LanguagePerceptionResult.MutuallyIntelligableLanguage or LanguagePerceptionResult.PartialSuccess =>
-					$"«{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText.ProperSentences()), result.Obfuscation).Fullstop()}»"
+					perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText.ProperSentences()), result.Obfuscation).Fullstop().DoubleGuillemets()
 						.FluentTagMXP("send", $"href='look' hint='{hint}'"),
-				LanguagePerceptionResult.Success => $"«{_rawText.ProperSentences()}»"
+				LanguagePerceptionResult.Success => _rawText.ProperSentences().DoubleGuillemets()
 					.FluentTagMXP("send", $"href='look' hint='{hint}'"),
 				_ => throw new ApplicationException("Unknown LanguagePerceptionResult in EmoteSignedLanguageInfo.ParseFor")
 			};

@@ -147,8 +147,9 @@ public partial class Character
 			case "signedlanguage":
 				returnVar = CurrentSignedLanguage;
 				break;
+			case "signedvariety":
 			case "signedlanguagevariety":
-				returnVar = CurrentSignedLanguageVariety as IProgVariable;
+				returnVar = CurrentSignedLanguageVariety;
 				break;
             case "class":
                 returnVar =
@@ -336,7 +337,8 @@ public partial class Character
             { "languages", ProgVariableTypes.Language | ProgVariableTypes.Collection },
 			{ "signedlanguages", ProgVariableTypes.SignedLanguage | ProgVariableTypes.Collection },
 			{ "signedlanguage", ProgVariableTypes.SignedLanguage },
-			{ "signedlanguagevariety", ProgVariableTypes.SignedLanguageVariety },
+			{ "signedvariety", ProgVariableTypes.SignedVariety },
+			{ "signedlanguagevariety", ProgVariableTypes.SignedVariety },
             { "guest", ProgVariableTypes.Boolean },
             { "linewidth", ProgVariableTypes.Number },
             { "innerlinewidth", ProgVariableTypes.Number },

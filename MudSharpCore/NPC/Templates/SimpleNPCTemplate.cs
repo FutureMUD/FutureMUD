@@ -365,6 +365,10 @@ public class SimpleNPCTemplate : NPCTemplateBase
                                             x =>
                                                 $"{x.Name.Proper().ColourName()} ({SelectedAccents.Where(y => y.Language == x).Select(y => y.Name.Proper().ColourValue()).ListToString()})")
                                         .ListToString());
+			sb.AppendLine("Signed Languages: " +
+			              (SelectedSignedLanguages.Any()
+				              ? SelectedSignedLanguages.Select(x => x.Name.Proper().ColourName()).ListToString()
+				              : "None".Colour(Telnet.Red)));
 
             sb.AppendLine();
             sb.AppendLine("Characteristics:");
@@ -1903,6 +1907,10 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
     public IEnumerable<ILanguage> SelectedLanguages => SelectedSkills
         .SelectNotNull(x => Gameworld.Languages.FirstOrDefault(y => y.LinkedTrait == x));
+
+	public IEnumerable<ISignedLanguage> SelectedSignedLanguages => SelectedSkills
+		.SelectMany(x => Gameworld.SignedLanguages.Where(y => y.LinkedTrait == x))
+		.Distinct();
 
     public double SelectedWeight { get; set; }
 

@@ -250,6 +250,7 @@ internal class HeritageBuilderModule : BaseBuilderModule
 	private const string SignedLanguageCommandHelp = @"The #3signedlanguage#0 builder command manages signed languages independently from spoken and written languages. A signed language needs a linked skill and at least one articulation profile before characters can produce it.
 
 	#3signedlanguage show <which>#0
+	#3signedlanguage list [<name filter>]#0
 	#3signedlanguage edit new <name> <trait>#0
 	#3signedlanguage edit <which>#0
 	#3signedlanguage close#0
@@ -265,6 +266,9 @@ internal class HeritageBuilderModule : BaseBuilderModule
 		var ss = new StringStack(command.RemoveFirstWord());
 		switch (ss.PopSpeech().ToLowerInvariant())
 		{
+			case "list":
+				ShowModule.Show_SignedLanguages(actor, ss);
+				return;
 			case "edit":
 				if (ss.PeekSpeech().EqualTo("new"))
 				{

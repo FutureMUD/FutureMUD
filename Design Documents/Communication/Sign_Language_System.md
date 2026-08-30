@@ -8,11 +8,11 @@ The runtime is implemented by `ISignedLanguage`, `SignedLanguage`, `SignedLangua
 
 ## Player Workflow
 
-- `signedlanguages` lists understood signed languages and known varieties.
+- `signedlanguages` lists understood signed languages and known varieties; `signedlanguages list [<name filter>]` browses the complete game catalogue.
 - `signlanguage [<language> [<variety>]]` views or selects the current signed language.
 - `sign [(<emote>)] <message>` signs to the current location.
 - `signto <target> [(<emote>)] <message>` directs signing toward a visible target without making it private.
-- In a player emote, matching backticks delimit signed content: ``emote @ smiles and signs, `Welcome home.` ``
+- In a player emote, matching backticks delimit signed input: ``emote @ smiles and signs, `Welcome home.` ``. Backticks are an input convention chosen for ordinary keyboards; rendered signed content uses guillemets, for example `«Welcome home.»`, so it remains visually distinct from speech.
 
 Signing is purely visual. A recipient must be able to see the signer; hearing and vocal anatomy are irrelevant. The normal comprehend-language effect is considered only after that visual gate.
 
@@ -30,9 +30,17 @@ The stock humanoid profiles require at least one functional hand and prefer two.
 
 ## Builder Workflow
 
-Administrators use `signedlanguage edit`, `show`, `set`, and `close`. Settings cover the linked trait and difficulty model, unknown-language text, obfuscation, directional mutual intelligibility, regional varieties, and articulation profiles. Profiles are alternatives. `profile add` creates one with its first bodypart-shape requirement, and `profile requirement` adds or updates further minimum and preferred functional-part requirements.
+Administrators use `signedlanguage list`, `edit`, `show`, `set`, and `close`. `show signedlanguages [<name filter>]` provides the same full catalogue through the general builder browser. Settings cover the linked trait and difficulty model, unknown-language text, obfuscation, directional mutual intelligibility, regional varieties, and articulation profiles. Profiles are alternatives. `profile add` creates one with its first bodypart-shape requirement, and `profile requirement` adds or updates further minimum and preferred functional-part requirements.
 
 Regional familiarity is deliberately separate from language knowledge. Staff use `signedlanguage grantvariety <who> <language> <variety>` and `signedlanguage revokevariety <who> <language> <variety>` to assign it. Granting a variety also grants the parent signed language for comprehension when necessary; it does not bypass that language's anatomy requirements for production.
+
+NPC templates grant signed-language knowledge from the same linked skill relationship used at runtime: when a generated NPC receives a skill linked to a signed language, that language is added automatically and becomes its current signed language if it has no earlier selection. Simple and variable NPC-template displays show these inferred signed languages so builders can verify the result before spawning.
+
+## FutureProg and Events
+
+`SignedLanguage` and `SignedVariety` are first-class FutureProg types. `SignedLanguageVariety` remains accepted as a compatibility alias for existing progs. Signed languages expose identity, trait, unknown-description and variety properties; signed varieties expose identity, parent language, description, presentation suffixes and recognition difficulty.
+
+The five signing events pass the signed-language and optional signed-variety objects directly rather than their names. Their metadata uses the same first-class types, so event progs can inspect properties such as `language.name`, `language.trait`, `variety.language`, and `variety.difficulty`. The variety argument is null when no variety is selected.
 
 ## Description Markup
 

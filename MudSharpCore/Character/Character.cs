@@ -271,12 +271,18 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         //Body.BaseLiverAlcoholRemovalKilogramsPerHour = LiverFunction(this);
         InitialiseStamina();
         foreach (ILanguage language in template.SkillValues.SelectMany(skill =>
-                     Gameworld.Languages.Where(x => x.LinkedTrait == skill.Item1)))
+                     Gameworld.Languages.Where(x => x.LinkedTrait == skill.Item1)).Distinct())
         {
             _languages.Add(language);
         }
 
         _currentLanguage = _languages.FirstOrDefault();
+		foreach (var language in ResolveSignedLanguagesForTemplate(Gameworld, template))
+		{
+			_signedLanguages.Add(language);
+		}
+
+		_currentSignedLanguage = _signedLanguages.FirstOrDefault();
         foreach (IAccent accent in template.SelectedAccents)
         {
             _accents[accent] = Difficulty.Trivial;
@@ -313,6 +319,15 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         CurrentStamina = MaximumStamina;
         Gameworld.SaveManager.AddInitialisation(this);
     }
+
+	internal static IReadOnlyCollection<ISignedLanguage> ResolveSignedLanguagesForTemplate(IFuturemud gameworld,
+		ICharacterTemplate template)
+	{
+		return template.SkillValues
+			.SelectMany(skill => gameworld.SignedLanguages.Where(x => x.LinkedTrait == skill.Item1))
+			.Distinct()
+			.ToList();
+	}
 
     public override InitialisationPhase InitialisationPhase => InitialisationPhase.First;
 

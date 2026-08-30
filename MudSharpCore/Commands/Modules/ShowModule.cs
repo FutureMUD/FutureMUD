@@ -148,6 +148,7 @@ public class ShowModule : Module<ICharacter>
 	#3itemquality#0 - shows all item qualities 
 	#3knowledges#0 - shows knowledges
 	#3languages#0 - shows all languages
+	#3signedlanguages [<name filter>]#0 - shows all signed languages
 	#3materials#0 - shows all materials
 	#3merits#0 - shows all merits
 	#3outcomes#0 - shows a list of the possible outcomes
@@ -406,6 +407,9 @@ Using #3show#0 on its own displays the topic list appropriate to your current pe
             case "languages":
                 Show_Languages(actor, ss);
                 break;
+			case "signedlanguages":
+				Show_SignedLanguages(actor, ss);
+				break;
             case "accents":
                 Show_Accents(actor, ss);
                 break;
@@ -3431,6 +3435,36 @@ Using #3show#0 on its own displays the topic list appropriate to your current pe
             )
         );
     }
+
+	internal static void Show_SignedLanguages(ICharacter actor, StringStack input)
+	{
+		if (!actor.IsAdministrator())
+		{
+			actor.Send("You are not authorised to use show in this way.");
+			return;
+		}
+
+		var filter = input.SafeRemainingArgument;
+		var languages = actor.Gameworld.SignedLanguages
+			.Where(x => filter.Length == 0 || x.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase))
+			.OrderBy(x => x.Name)
+			.ToList();
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			languages.Select(language => new[]
+			{
+				language.Id.ToString("N0", actor),
+				language.Name,
+				language.LinkedTrait.Name,
+				language.Model.Name,
+				language.Varieties.Count().ToString("N0", actor),
+				language.ArticulationProfiles.Count().ToString("N0", actor),
+				language.LanguageObfuscationFactor.ToString("N3", actor)
+			}),
+			new[] { "ID#", "Name", "Linked Trait", "Model", "Varieties", "Profiles", "Obfuscation" },
+			actor.Account.LineFormatLength,
+			colour: Telnet.Green,
+			unicodeTable: actor.Account.UseUnicode));
+	}
 
     private static void Show_Accents(ICharacter actor, StringStack input)
     {

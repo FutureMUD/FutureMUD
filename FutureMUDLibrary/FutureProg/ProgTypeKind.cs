@@ -73,5 +73,6 @@ public enum ProgTypeKind
 	Trap,
 	NPCSkillPackage,
 	SignedLanguage,
-	SignedLanguageVariety
+	SignedVariety,
+	SignedLanguageVariety = SignedVariety
 }

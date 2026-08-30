@@ -175,11 +175,35 @@ The syntax is:
     }
 
 	[PlayerCommand("SignedLanguages", "signedlanguages")]
-	[HelpInfo("signedlanguages", @"The #3signedlanguages#0 command lists the signed languages your character understands. Signed languages are learned independently from spoken and written languages, so knowing one does not imply knowing another.
+	[HelpInfo("signedlanguages", @"The #3signedlanguages#0 command lists the signed languages your character understands. Signed languages are learned independently from spoken and written languages, so knowing one does not imply knowing another. Use #3signedlanguages list#0 to browse every signed language configured in the game; an optional name filter narrows the catalogue.
 
-	#3signedlanguages#0", AutoHelp.HelpArg)]
+	#3signedlanguages#0
+	#3signedlanguages list [<name filter>]#0", AutoHelp.HelpArg)]
 	protected static void SignedLanguages(ICharacter actor, string input)
 	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.PopForSwitch().EqualTo("list"))
+		{
+			var filter = ss.SafeRemainingArgument;
+			var languages = actor.Gameworld.SignedLanguages
+				.Where(x => filter.Length == 0 || x.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase))
+				.OrderBy(x => x.Name)
+				.ToList();
+			actor.OutputHandler.Send(StringUtilities.GetTextTable(
+				languages.Select(language => new[]
+				{
+					language.Name.TitleCase(),
+					actor.SignedLanguages.Contains(language).ToColouredString(),
+					actor.CurrentSignedLanguage == language ? "Current".ColourValue() : string.Empty,
+					language.Varieties.Select(x => x.Name.TitleCase()).ListToString()
+				}),
+				new[] { "Signed Language", "Known?", "In Use", "Varieties" },
+				actor.Account.LineFormatLength,
+				colour: Telnet.Green,
+				unicodeTable: actor.Account.UseUnicode));
+			return;
+		}
+
 		var sb = new StringBuilder();
 		sb.AppendLine("You know the following signed languages:");
 		sb.AppendLine();

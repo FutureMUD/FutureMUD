@@ -133,12 +133,13 @@ namespace MudSharp.Framework
 
 
 		/// <summary>
-		/// Fluent method to surround the input with guillements («/»)
+		/// Fluent method to surround the input with guillemets («/»)
 		/// </summary>
 		/// <param name="input">The text to surround</param>
 		/// <param name="truth">If true, perform the action. If not, return the input</param>
 		/// <returns></returns>
-		public static string DoubleGuillemets(this string input, bool truth = true) { 
+		public static string DoubleGuillemets(this string input, bool truth = true)
+		{
             if (!truth)
             {
                 return input;

@@ -107,7 +107,8 @@ public static class ProgVariableTypeRegistry
 		RegisterExact(ProgTypeKind.Trap, ProgVariableTypes.Trap, "Trap", "trap");
 		RegisterExact(ProgTypeKind.NPCSkillPackage, ProgVariableTypes.NPCSkillPackage, "NPCSkillPackage", "npcskillpackage", "skillpackage");
 		RegisterExact(ProgTypeKind.SignedLanguage, ProgVariableTypes.SignedLanguage, "SignedLanguage", "signedlanguage", "signlanguage");
-		RegisterExact(ProgTypeKind.SignedLanguageVariety, ProgVariableTypes.SignedLanguageVariety, "SignedLanguageVariety", "signedlanguagevariety", "signvariety");
+		RegisterExact(ProgTypeKind.SignedVariety, ProgVariableTypes.SignedVariety, "SignedVariety",
+			"signedvariety", "signedlanguagevariety", "signvariety");
 
         RegisterNamed(ProgVariableTypes.CollectionItem, "CollectionItem", false, "collectionitem");
         RegisterNamed(ProgVariableTypes.Perceivable, "Perceivable", false, "perceivable");

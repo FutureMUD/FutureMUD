@@ -144,6 +144,43 @@ public class EventTypeMetadataTests
 				ProgVariableTypes.Text, ProgVariableTypes.Text]);
 	}
 
+	[TestMethod]
+	public void SignedCommunicationEventTypes_UseFirstClassLanguagePayloads()
+	{
+		Assert.AreEqual(147, (int)EventType.CharacterSigns);
+		Assert.AreEqual(148, (int)EventType.CharacterSignsWitness);
+		Assert.AreEqual(149, (int)EventType.CharacterSignsDirect);
+		Assert.AreEqual(150, (int)EventType.CharacterSignsDirectTarget);
+		Assert.AreEqual(151, (int)EventType.CharacterSignsDirectWitness);
+
+		AssertEventMetadata(EventType.CharacterSigns,
+			["character", "signedlanguage", "signedvariety", "text", "number"],
+			["signer", "language", "variety", "message", "outcome"],
+			[ProgVariableTypes.Character, ProgVariableTypes.SignedLanguage, ProgVariableTypes.SignedVariety,
+				ProgVariableTypes.Text, ProgVariableTypes.Number]);
+		AssertEventMetadata(EventType.CharacterSignsWitness,
+			["character", "perceivable", "signedlanguage", "signedvariety", "text", "number"],
+			["signer", "witness", "language", "variety", "message", "outcome"],
+			[ProgVariableTypes.Character, ProgVariableTypes.Perceivable, ProgVariableTypes.SignedLanguage,
+				ProgVariableTypes.SignedVariety, ProgVariableTypes.Text, ProgVariableTypes.Number]);
+		AssertEventMetadata(EventType.CharacterSignsDirect,
+			["character", "perceivable", "signedlanguage", "signedvariety", "text", "number"],
+			["signer", "target", "language", "variety", "message", "outcome"],
+			[ProgVariableTypes.Character, ProgVariableTypes.Perceivable, ProgVariableTypes.SignedLanguage,
+				ProgVariableTypes.SignedVariety, ProgVariableTypes.Text, ProgVariableTypes.Number]);
+		AssertEventMetadata(EventType.CharacterSignsDirectTarget,
+			["character", "perceivable", "signedlanguage", "signedvariety", "text", "number"],
+			["signer", "target", "language", "variety", "message", "outcome"],
+			[ProgVariableTypes.Character, ProgVariableTypes.Perceivable, ProgVariableTypes.SignedLanguage,
+				ProgVariableTypes.SignedVariety, ProgVariableTypes.Text, ProgVariableTypes.Number]);
+		AssertEventMetadata(EventType.CharacterSignsDirectWitness,
+			["character", "perceivable", "perceivable", "signedlanguage", "signedvariety", "text", "number"],
+			["signer", "target", "witness", "language", "variety", "message", "outcome"],
+			[ProgVariableTypes.Character, ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+				ProgVariableTypes.SignedLanguage, ProgVariableTypes.SignedVariety, ProgVariableTypes.Text,
+				ProgVariableTypes.Number]);
+	}
+
     private static void AssertEventMetadata(EventType eventType, string[] parameterTypes, string[] parameterNames,
         ProgVariableTypes[] progTypes)
     {

@@ -378,7 +378,7 @@ public class SignedLanguage : SaveableItem, ISignedLanguage
 			"name" => new TextVariable(Name),
 			"trait" => LinkedTrait,
 			"unknown" => new TextVariable(UnknownLanguageDescription),
-			"varieties" => new CollectionVariable(_varieties.ToList(), ProgVariableTypes.SignedLanguageVariety),
+			"varieties" => new CollectionVariable(_varieties.ToList(), ProgVariableTypes.SignedVariety),
 			_ => throw new NotSupportedException()
 		};
 	}
@@ -395,7 +395,7 @@ public class SignedLanguage : SaveableItem, ISignedLanguage
 				["name"] = ProgVariableTypes.Text,
 				["trait"] = ProgVariableTypes.Trait,
 				["unknown"] = ProgVariableTypes.Text,
-				["varieties"] = ProgVariableTypes.SignedLanguageVariety | ProgVariableTypes.Collection
+				["varieties"] = ProgVariableTypes.SignedVariety | ProgVariableTypes.Collection
 			},
 			new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 			{
@@ -434,7 +434,7 @@ public class SignedLanguage : SaveableItem, ISignedLanguage
 	}
 }
 
-public class SignedLanguageVariety : FrameworkItem, ISignedLanguageVariety, IProgVariable
+public class SignedLanguageVariety : FrameworkItem, ISignedLanguageVariety
 {
 	public SignedLanguageVariety(MudSharp.Models.SignedLanguageVariety variety, ISignedLanguage language)
 	{
@@ -453,7 +453,7 @@ public class SignedLanguageVariety : FrameworkItem, ISignedLanguageVariety, IPro
 	public string Suffix { get; }
 	public string VagueSuffix { get; }
 	public Difficulty RecognitionDifficulty { get; }
-	public ProgVariableTypes Type => ProgVariableTypes.SignedLanguageVariety;
+	public ProgVariableTypes Type => ProgVariableTypes.SignedVariety;
 	public object GetObject => this;
 	public IProgVariable GetProperty(string property) => property.ToLowerInvariant() switch
 	{
@@ -461,8 +461,38 @@ public class SignedLanguageVariety : FrameworkItem, ISignedLanguageVariety, IPro
 		"name" => new TextVariable(Name),
 		"language" => Language,
 		"description" => new TextVariable(Description),
+		"suffix" => new TextVariable(Suffix),
+		"vague" or "vaguesuffix" => new TextVariable(VagueSuffix),
+		"difficulty" => new NumberVariable((int)RecognitionDifficulty),
 		_ => throw new NotSupportedException()
 	};
+
+	public static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.SignedVariety,
+			new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = ProgVariableTypes.Number,
+				["name"] = ProgVariableTypes.Text,
+				["language"] = ProgVariableTypes.SignedLanguage,
+				["description"] = ProgVariableTypes.Text,
+				["suffix"] = ProgVariableTypes.Text,
+				["vague"] = ProgVariableTypes.Text,
+				["vaguesuffix"] = ProgVariableTypes.Text,
+				["difficulty"] = ProgVariableTypes.Number
+			},
+			new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = "The ID of the signed-language variety",
+				["name"] = "The name of the signed-language variety",
+				["language"] = "The signed language to which this variety belongs",
+				["description"] = "The builder description of the variety",
+				["suffix"] = "The suffix shown when the variety is recognised",
+				["vague"] = "The suffix shown when the variety is not recognised",
+				["vaguesuffix"] = "The suffix shown when the variety is not recognised",
+				["difficulty"] = "The numeric difficulty for recognising the variety"
+			});
+	}
 }
 
 public class SignedLanguageArticulationProfile : FrameworkItem, ISignedLanguageArticulationProfile

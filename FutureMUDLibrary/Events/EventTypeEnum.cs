@@ -755,19 +755,19 @@ namespace MudSharp.Events
         [EventInfo("Fires on a character when a bounded structured noise reaches that character's exact spatial location. Reception does not imply a successful hearing check.", ["character", "location", "perceivable", "number", "number", "text", "text", "text"], ["listener", "origin", "source", "volume", "proximity", "type", "direction", "echo"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
 		CharacterNoiseReceived = 146,
 
-		[EventInfo("Fires on a character when they sign without a direct target.", ["character", "text", "text", "text", "number"], ["signer", "language", "variety", "message", "outcome"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number])]
+		[EventInfo("Fires on a character when they sign without a direct target.", ["character", "signedlanguage", "signedvariety", "text", "number"], ["signer", "language", "variety", "message", "outcome"])]
 		CharacterSigns = 147,
 
-		[EventInfo("Fires on a visible perceivable witnessing untargeted signing.", ["character", "perceivable", "text", "text", "text", "number"], ["signer", "witness", "language", "variety", "message", "outcome"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number])]
+		[EventInfo("Fires on a visible perceivable witnessing untargeted signing.", ["character", "perceivable", "signedlanguage", "signedvariety", "text", "number"], ["signer", "witness", "language", "variety", "message", "outcome"])]
 		CharacterSignsWitness = 148,
 
-		[EventInfo("Fires on a character when they sign directly to a target.", ["character", "perceivable", "text", "text", "text", "number"], ["signer", "target", "language", "variety", "message", "outcome"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number])]
+		[EventInfo("Fires on a character when they sign directly to a target.", ["character", "perceivable", "signedlanguage", "signedvariety", "text", "number"], ["signer", "target", "language", "variety", "message", "outcome"])]
 		CharacterSignsDirect = 149,
 
-		[EventInfo("Fires on the target of direct signing.", ["character", "perceivable", "text", "text", "text", "number"], ["signer", "target", "language", "variety", "message", "outcome"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number])]
+		[EventInfo("Fires on the target of direct signing.", ["character", "perceivable", "signedlanguage", "signedvariety", "text", "number"], ["signer", "target", "language", "variety", "message", "outcome"])]
 		CharacterSignsDirectTarget = 150,
 
-		[EventInfo("Fires on a visible perceivable witnessing directed signing.", ["character", "perceivable", "perceivable", "text", "text", "text", "number"], ["signer", "target", "witness", "language", "variety", "message", "outcome"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number])]
+		[EventInfo("Fires on a visible perceivable witnessing directed signing.", ["character", "perceivable", "perceivable", "signedlanguage", "signedvariety", "text", "number"], ["signer", "target", "witness", "language", "variety", "message", "outcome"])]
 		CharacterSignsDirectWitness = 151
     }
 }

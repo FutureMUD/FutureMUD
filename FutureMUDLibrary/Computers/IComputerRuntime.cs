@@ -145,6 +145,19 @@ public interface IComputerTerminal
 	IEnumerable<IComputerTerminalSession> Sessions { get; }
 }
 
+/// <summary>
+/// A terminal that can create and manage an interactive character session. Keeping this
+/// separate from <see cref="IComputerTerminal"/> preserves compatibility with passive or
+/// remotely modelled terminal endpoints.
+/// </summary>
+public interface IInteractiveComputerTerminal : IComputerTerminal
+{
+	bool TryConnectSession(ICharacter actor, out IComputerTerminalSession? session, out string error);
+	void DisconnectSession(ICharacter actor, bool removeEffect);
+	bool TrySelectOwner(ICharacter actor, IComputerExecutableOwner owner, out string error);
+	bool TryType(ICharacter actor, string text, out string error);
+}
+
 public sealed class ComputerNetworkHostSummary
 {
 	public required IComputerHost Host { get; init; }

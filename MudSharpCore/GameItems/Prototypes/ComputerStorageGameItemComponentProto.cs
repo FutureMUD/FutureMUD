@@ -17,7 +17,12 @@ public class ComputerStorageGameItemComponentProto : GameItemComponentProto, ICo
 	#3desc <desc>#0 - sets the description of the component{SpecificBuildingHelpText}";
 
 	public ComputerStorageGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-		: base(gameworld, originator, "Computer Storage")
+		: this(gameworld, originator, "Computer Storage")
+	{
+	}
+
+	protected ComputerStorageGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
+		: base(gameworld, originator, type)
 	{
 		StorageCapacityInBytes = 1048576;
 	}

@@ -24,7 +24,7 @@ public class ComputerTerminalSessionEffect : Effect, IEffectSubtype
 
 	public override void RemovalEffect()
 	{
-		if (Session.Terminal is GameItems.Components.ComputerTerminalGameItemComponent terminal)
+		if (Session.Terminal is IInteractiveComputerTerminal terminal)
 		{
 			terminal.DisconnectSession(Session.User, false);
 		}

@@ -25,6 +25,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 
 	private sealed class RecordingJob : MediaJob
 	{
+		public required IComputerFileOwner StorageOwner { get; init; }
 		public long RecordingId { get; set; }
 		public string FileName { get; set; } = string.Empty;
 		public required string BaseFileName { get; init; }
@@ -145,11 +146,6 @@ public sealed class ComputerMediaService : IComputerMediaService
 	public long StartRecording(IComputerHost host, string input, string fileName, out string error)
 	{
 		error = string.Empty;
-		if (!TryGetHostComponent(host, out var component, out error) || host.FileSystem is null)
-		{
-			return 0L;
-		}
-
 		if (!host.Powered)
 		{
 			error = "That computer host is not powered.";
@@ -168,8 +164,13 @@ public sealed class ComputerMediaService : IComputerMediaService
 			error = "There is no connected media input with that name.";
 			return 0L;
 		}
+		if (!TryGetRecordingStorage(host, mediaInterface, out var storageOwner, out var component,
+			    out var fileSystem, out error))
+		{
+			return 0L;
+		}
 
-		if (host.FileSystem.FileExists(fileName))
+		if (fileSystem.FileExists(fileName))
 		{
 			error = $"A file named {fileName} already exists.";
 			return 0L;
@@ -190,7 +191,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 			return 0L;
 		}
 
-		if (!host.FileSystem.WriteMediaFile(fileName.Trim(), recording.RecordingId, 0L, false, out error))
+		if (!fileSystem.WriteMediaFile(fileName.Trim(), recording.RecordingId, 0L, false, out error))
 		{
 			_gameworld.MediaRecordingService.DeleteReference(component.Id, fileName.Trim(), out _);
 			return 0L;
@@ -204,6 +205,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 			Id = id,
 			Host = host,
 			Interface = mediaInterface,
+			StorageOwner = storageOwner,
 			Endpoint = input,
 			StartedAtUtc = createdAt,
 			RecordingId = recording.RecordingId,
@@ -253,11 +255,6 @@ public sealed class ComputerMediaService : IComputerMediaService
 		out string error)
 	{
 		error = string.Empty;
-		if (!TryGetHostComponent(host, out _, out error) || host.FileSystem is null)
-		{
-			return 0L;
-		}
-
 		if (!host.Powered)
 		{
 			error = "That computer host is not powered.";
@@ -288,6 +285,10 @@ public sealed class ComputerMediaService : IComputerMediaService
 			error = "There is no connected media input with that name.";
 			return 0L;
 		}
+		if (!TryGetRecordingStorage(host, mediaInterface, out var storageOwner, out _, out _, out error))
+		{
+			return 0L;
+		}
 
 		var id = Interlocked.Increment(ref _nextJobId);
 		ComputerMediaPacketReceived? handler = null;
@@ -298,6 +299,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 			Id = id,
 			Host = host,
 			Interface = mediaInterface,
+			StorageOwner = storageOwner,
 			Endpoint = input,
 			StartedAtUtc = now,
 			BaseFileName = baseFileName.Trim(),
@@ -406,11 +408,6 @@ public sealed class ComputerMediaService : IComputerMediaService
 	public bool CaptureStill(IComputerHost host, string input, string fileName, out string error)
 	{
 		error = string.Empty;
-		if (!TryGetHostComponent(host, out var component, out error) || host.FileSystem is null)
-		{
-			return false;
-		}
-
 		if (!host.Powered)
 		{
 			error = "That computer host is not powered.";
@@ -423,6 +420,11 @@ public sealed class ComputerMediaService : IComputerMediaService
 			error = "There is no connected media input with that name.";
 			return false;
 		}
+		if (!TryGetRecordingStorage(host, mediaInterface, out _, out var component, out var fileSystem,
+			    out error))
+		{
+			return false;
+		}
 
 		if (!TryGetLatestScene(mediaInterface, out var scene))
 		{
@@ -430,7 +432,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 			return false;
 		}
 
-		if (host.FileSystem.FileExists(fileName))
+		if (fileSystem.FileExists(fileName))
 		{
 			error = $"A file named {fileName} already exists.";
 			return false;
@@ -455,7 +457,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 			return false;
 		}
 
-		if (host.FileSystem.WriteMediaFile(fileName.Trim(), recording.RecordingId, finalised.LogicalSizeInBytes,
+		if (fileSystem.WriteMediaFile(fileName.Trim(), recording.RecordingId, finalised.LogicalSizeInBytes,
 			false, out error))
 		{
 			return true;
@@ -506,11 +508,31 @@ public sealed class ComputerMediaService : IComputerMediaService
 		StopJobsForHost(host);
 	}
 
+	public void InterruptJobs(IComputerHost host, IComputerMediaInterface mediaInterface)
+	{
+		List<MediaJob> jobs;
+		lock (_sync)
+		{
+			jobs = _jobs.Values
+				.Where(x => ReferenceEquals(x.Host, host) && ReferenceEquals(x.Interface, mediaInterface))
+				.ToList();
+			foreach (var job in jobs)
+			{
+				_jobs.Remove(job.Id);
+			}
+		}
+
+		foreach (var job in jobs)
+		{
+			StopJob(job, MediaRecordingStatus.Interrupted, out _);
+		}
+	}
+
 	private IEnumerable<IComputerMediaInterface> GetInterfaces(IComputerHost host)
 	{
 		return _gameworld.Items
 			.SelectMany(x => x.GetItemTypes<IComputerMediaInterface>())
-			.Where(x => ReferenceEquals(x.ConnectedHost, host))
+			.Where(x => ReferenceEquals(x.ConnectedHost, host) || ReferenceEquals(x, host))
 			.ToList();
 	}
 
@@ -608,13 +630,13 @@ public sealed class ComputerMediaService : IComputerMediaService
 		}
 
 		var descriptor = _gameworld.MediaRecordingService.GetRecording(recording.RecordingId);
-		if (descriptor is null || recording.Host.FileSystem is null)
+		if (descriptor is null || recording.StorageOwner.FileSystem is not { } fileSystem)
 		{
 			error = "The media recording finalised but its host file system is no longer available.";
 			return false;
 		}
 
-		if (recording.Host.FileSystem.UpdateMediaFileSize(recording.FileName, descriptor.LogicalSizeInBytes, out error))
+		if (fileSystem.UpdateMediaFileSize(recording.FileName, descriptor.LogicalSizeInBytes, out error))
 		{
 			if (recording.Kind != ComputerMediaJobKind.Recording)
 			{
@@ -626,10 +648,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 			return true;
 		}
 
-		if (recording.Host is IGameItemComponent)
-		{
-			recording.Host.FileSystem.DeleteFile(recording.FileName);
-		}
+		fileSystem.DeleteFile(recording.FileName);
 
 		error = $"The recording was discarded because its final compressed size exceeds the host storage capacity: {error}";
 		return false;
@@ -646,7 +665,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 
 		foreach (var job in jobs)
 		{
-			if (!job.Host.Powered)
+			if (!job.Host.Powered || !job.Interface.MediaAvailable)
 			{
 				lock (_sync)
 				{
@@ -683,7 +702,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 
 		foreach (var job in jobs)
 		{
-			if (!job.Host.Powered)
+			if (!job.Host.Powered || !job.Interface.MediaAvailable)
 			{
 				StopJob(job.Host, job.Id, out _);
 				continue;
@@ -721,8 +740,10 @@ public sealed class ComputerMediaService : IComputerMediaService
 	private bool StartRecordingSegment(RecordingJob job, DateTime startedAtUtc, out string error)
 	{
 		error = string.Empty;
-		if (!TryGetHostComponent(job.Host, out var component, out error) || job.Host.FileSystem is null)
+		if (job.StorageOwner is not IGameItemComponent { Id: > 0L } component ||
+		    job.StorageOwner.FileSystem is not { } fileSystem)
 		{
+			error = "Media jobs require an available physical storage component.";
 			return false;
 		}
 
@@ -738,7 +759,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 			return false;
 		}
 
-		if (!job.Host.FileSystem.WriteMediaFile(fileName, recording.RecordingId, 0L, false, out error))
+		if (!fileSystem.WriteMediaFile(fileName, recording.RecordingId, 0L, false, out error))
 		{
 			_gameworld.MediaRecordingService.DeleteReference(component.Id, fileName, out _);
 			return false;
@@ -752,7 +773,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 
 	private bool ExpireRollingSegments(RecordingJob job, DateTime now)
 	{
-		if (job.Retention is not { } retention || job.Host.FileSystem is null)
+		if (job.Retention is not { } retention || job.StorageOwner.FileSystem is not { } fileSystem)
 		{
 			return true;
 		}
@@ -764,7 +785,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 		{
 			// A user may have already moved or deleted an old segment. Either way it no longer belongs to this
 			// rolling namespace, so expiry remains successful and the surveillance job keeps running.
-			job.Host.FileSystem.DeleteFile(segment.FileName);
+			fileSystem.DeleteFile(segment.FileName);
 			job.FinalisedSegments.Remove(segment);
 		}
 
@@ -805,7 +826,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 		do
 		{
 			candidate = $"{stem}-{_inCharacterTimestamp(job.Host)}-{++job.SegmentSequence:D4}{extension}";
-		} while (job.Host.FileSystem?.FileExists(candidate) == true);
+		} while (job.StorageOwner.FileSystem?.FileExists(candidate) == true);
 
 		return candidate;
 	}
@@ -838,13 +859,13 @@ public sealed class ComputerMediaService : IComputerMediaService
 	{
 		error = string.Empty;
 		var descriptor = _gameworld.MediaRecordingService.GetRecording(job.RecordingId);
-		if (descriptor is null || job.Host.FileSystem is null)
+		if (descriptor is null || job.StorageOwner.FileSystem is not { } fileSystem)
 		{
 			error = "The media recording or its host file system is no longer available.";
 			return false;
 		}
 
-		var file = job.Host.FileSystem.GetFile(job.FileName);
+		var file = fileSystem.GetFile(job.FileName);
 		if (file is null || file.Kind != ComputerFileKind.Media)
 		{
 			error = "The media file is no longer available.";
@@ -852,7 +873,7 @@ public sealed class ComputerMediaService : IComputerMediaService
 		}
 
 		return file.SizeInBytes == descriptor.LogicalSizeInBytes ||
-		       job.Host.FileSystem.UpdateMediaFileSize(job.FileName, descriptor.LogicalSizeInBytes, out error);
+		       fileSystem.UpdateMediaFileSize(job.FileName, descriptor.LogicalSizeInBytes, out error);
 	}
 
 	private bool TryGetLatestScene(IComputerMediaInterface mediaInterface, out MediaScenePayload scene)
@@ -876,7 +897,8 @@ public sealed class ComputerMediaService : IComputerMediaService
 
 	private static bool TryGetHostComponent(IComputerHost host, out IGameItemComponent component, out string error)
 	{
-		if (host is IGameItemComponent itemComponent && itemComponent.Id > 0L)
+		var owner = host is IComputerMediaStorageTarget target ? target.ActiveMediaStorage : host;
+		if (owner is IGameItemComponent itemComponent && itemComponent.Id > 0L)
 		{
 			component = itemComponent;
 			error = string.Empty;
@@ -885,6 +907,30 @@ public sealed class ComputerMediaService : IComputerMediaService
 
 		component = null!;
 		error = "Media jobs require a physical computer-host component.";
+		return false;
+	}
+
+	private static bool TryGetRecordingStorage(IComputerHost host, IComputerMediaInterface mediaInterface,
+		out IComputerFileOwner storageOwner, out IGameItemComponent component, out IComputerFileSystem fileSystem,
+		out string error)
+	{
+		storageOwner = mediaInterface is IComputerMediaStorageTarget interfaceTarget
+			? interfaceTarget.ActiveMediaStorage
+			: host is IComputerMediaStorageTarget hostTarget
+				? hostTarget.ActiveMediaStorage
+				: host;
+		if (storageOwner is IGameItemComponent { Id: > 0L } itemComponent &&
+		    storageOwner.FileSystem is { } availableFileSystem)
+		{
+			component = itemComponent;
+			fileSystem = availableFileSystem;
+			error = string.Empty;
+			return true;
+		}
+
+		component = null!;
+		fileSystem = null!;
+		error = "Media jobs require an available physical storage component.";
 		return false;
 	}
 }

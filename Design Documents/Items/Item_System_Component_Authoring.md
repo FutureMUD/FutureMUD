@@ -25,6 +25,8 @@ Media components start with the shared `IMediaSource`, `IMediaSink`, `IMediaAudi
 
 Use a purpose-built sensor perceiver for any capture source. It must honour normal visibility, layers, planes, illumination, and audibility, and must exclude OOC/staff/non-observable output. Persist durable recording data through `IMediaRecordingService` rather than component XML. The detailed packet, snapshot, quota, and lifecycle contract is in [Computer and Electronics A/V Framework](../Technology/Media_System_Runtime_and_Workflows.md).
 
+For internal-memory cameras, add `Digital Media Recorder` to the same item as `Camera` and configure matching capabilities. Its `capacity` is measured in bytes. For removable-media cameras, use `Media Deck` with `siblings` enabled plus a normal container; do not add a second recorder component. Implant recorders own their camera viewpoint and use the implant builder settings for body, bodypart, space, damage grace, and power alongside media capability, sensitivity, interval, endpoint, input, output, and capacity settings.
+
 ## Step 1: Decide on the Public Contract
 ### Reuse an existing interface when possible
 Many item systems already query for public interfaces in `FutureMUDLibrary/GameItems/Interfaces`.

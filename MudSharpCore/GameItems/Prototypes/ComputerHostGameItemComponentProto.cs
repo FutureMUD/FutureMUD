@@ -19,7 +19,12 @@ public class ComputerHostGameItemComponentProto : PoweredMachineBaseGameItemComp
 		$@"{BuildingHelpText}{SpecificBuildingHelpText}";
 
 	public ComputerHostGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-		: base(gameworld, originator, "Computer Host")
+		: this(gameworld, originator, "Computer Host")
+	{
+	}
+
+	protected ComputerHostGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
+		: base(gameworld, originator, type)
 	{
 		StorageCapacityInBytes = 131072;
 		StoragePorts = 2;

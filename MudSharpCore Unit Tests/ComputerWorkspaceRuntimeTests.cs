@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Accounts;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
 using MudSharp.Computers;
@@ -14,6 +15,7 @@ using MudSharp.Construction.Grids;
 using MudSharp.Database;
 using MudSharp.Editor;
 using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
@@ -34,6 +36,83 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ComputerWorkspaceRuntimeTests
 {
+	[TestMethod]
+	public void ImplantComputerUtilities_ResolvesUniqueAliasOnSameBodyAndNeuralBus()
+	{
+		var body = new Mock<IBody>();
+		var source = new Mock<IImplantRespondToCommands>();
+		var target = new Mock<IImplantRespondToCommands>();
+		var bus = new Mock<IImplantNeuralLink>();
+		source.SetupGet(x => x.InstalledBody).Returns(body.Object);
+		target.SetupGet(x => x.InstalledBody).Returns(body.Object);
+		target.SetupGet(x => x.AliasForCommands).Returns("drive");
+		bus.SetupGet(x => x.DNIConnected).Returns(true);
+		bus.SetupGet(x => x.LinkedImplants).Returns([source.Object, target.Object]);
+		bus.Setup(x => x.IsLinkedTo(It.IsAny<IImplant>())).Returns(true);
+		body.SetupGet(x => x.Implants).Returns([bus.Object, source.Object, target.Object]);
+
+		var result = ImplantComputerUtilities.ResolveAliased<IImplantRespondToCommands>(source.Object, "drive", out var error);
+
+		Assert.AreSame(target.Object, result);
+		Assert.AreEqual(string.Empty, error);
+	}
+
+	[TestMethod]
+	public void ImplantComputerUtilities_RejectsStaleCrossBodyAlias()
+	{
+		var sourceBody = new Mock<IBody>();
+		var otherBody = new Mock<IBody>();
+		var source = new Mock<IImplantRespondToCommands>();
+		var staleTarget = new Mock<IImplantRespondToCommands>();
+		var bus = new Mock<IImplantNeuralLink>();
+		source.SetupGet(x => x.InstalledBody).Returns(sourceBody.Object);
+		staleTarget.SetupGet(x => x.InstalledBody).Returns(otherBody.Object);
+		staleTarget.SetupGet(x => x.AliasForCommands).Returns("drive");
+		bus.SetupGet(x => x.DNIConnected).Returns(true);
+		bus.SetupGet(x => x.LinkedImplants).Returns([source.Object, staleTarget.Object]);
+		bus.Setup(x => x.IsLinkedTo(It.IsAny<IImplant>())).Returns(true);
+		sourceBody.SetupGet(x => x.Implants).Returns([bus.Object, source.Object]);
+
+		var result = ImplantComputerUtilities.ResolveAliased<IImplantRespondToCommands>(source.Object, "drive", out var error);
+
+		Assert.IsNull(result);
+		StringAssert.Contains(error.ToLowerInvariant(), "no linked implant");
+	}
+
+	[TestMethod]
+	public void ImplantComputerUtilities_RejectsAmbiguousPoweredNeuralBuses()
+	{
+		var body = new Mock<IBody>();
+		var source = new Mock<IImplantRespondToCommands>();
+		var firstBus = new Mock<IImplantNeuralLink>();
+		var secondBus = new Mock<IImplantNeuralLink>();
+		source.SetupGet(x => x.InstalledBody).Returns(body.Object);
+		foreach (var bus in new[] { firstBus, secondBus })
+		{
+			bus.SetupGet(x => x.DNIConnected).Returns(true);
+			bus.Setup(x => x.IsLinkedTo(source.Object)).Returns(true);
+		}
+		body.SetupGet(x => x.Implants).Returns([firstBus.Object, secondBus.Object, source.Object]);
+
+		var result = ImplantComputerUtilities.GetPoweredBus(source.Object);
+
+		Assert.IsNull(result);
+	}
+
+	[TestMethod]
+	public void ComputerTerminalSessionEffect_RemovalUsesInteractiveTerminalContract()
+	{
+		var actor = new Mock<ICharacter>();
+		var terminal = new Mock<IInteractiveComputerTerminal>();
+		var session = new Mock<IComputerTerminalSession>();
+		session.SetupGet(x => x.User).Returns(actor.Object);
+		session.SetupGet(x => x.Terminal).Returns(terminal.Object);
+		var effect = new ComputerTerminalSessionEffect(actor.Object) { Session = session.Object };
+
+		effect.RemovalEffect();
+
+		terminal.Verify(x => x.DisconnectSession(actor.Object, false), Times.Once);
+	}
 	private sealed record FMDBState(FuturemudDatabaseContext? Context, object? Connection, uint InstanceCount);
 
 	[ClassInitialize]
@@ -2629,6 +2708,17 @@ return userinput()";
 	}
 
 	[TestMethod]
+	public void ComputerMediaService_InterfaceStorageTarget_TakesPriorityOverHostStorage()
+	{
+		var fixture = CreateMediaPolicyFixture();
+
+		var jobId = fixture.Service.StartRecording(fixture.Host.Object, "camera-in", "implant.av", out var error);
+
+		Assert.IsTrue(jobId > 0L, error);
+		Assert.AreEqual(99L, fixture.LastRecordingOwnerId);
+	}
+
+	[TestMethod]
 	public void MediaBuiltInApplication_SurveillanceDurationExamples_ParseAsDocumented()
 	{
 		var method = typeof(MediaBuiltInApplicationExecutor).GetMethod("TryParseDuration",
@@ -2655,7 +2745,7 @@ return userinput()";
 
 		public MediaPolicyFixture(ComputerMediaService service, Mock<IComputerHost> host,
 			Mock<IComputerMediaInterface> mediaInterface, ComputerMutableFileSystem fileSystem,
-			Mock<IHeartbeatManager> heartbeat, DateTime now, Action<DateTime> setClock)
+			Mock<IHeartbeatManager> heartbeat, DateTime now, Action<DateTime> setClock, Func<long> recordingOwner)
 		{
 			Service = service;
 			Host = host;
@@ -2664,6 +2754,7 @@ return userinput()";
 			_heartbeat = heartbeat;
 			_now = now;
 			_setClock = setClock;
+			_recordingOwner = recordingOwner;
 		}
 
 		public ComputerMediaService Service { get; }
@@ -2671,6 +2762,8 @@ return userinput()";
 		public Mock<IComputerMediaInterface> MediaInterface { get; }
 		public ComputerMutableFileSystem FileSystem { get; }
 		public DateTime Now => _now;
+		private readonly Func<long> _recordingOwner;
+		public long LastRecordingOwnerId => _recordingOwner();
 
 		public void Advance(TimeSpan duration)
 		{
@@ -2697,6 +2790,12 @@ return userinput()";
 		var host = new Mock<IComputerHost>();
 		var hostComponent = host.As<IGameItemComponent>();
 		hostComponent.SetupGet(x => x.Id).Returns(77L);
+		var hostStorageOwner = new Mock<IComputerFileOwner>();
+		hostStorageOwner.SetupGet(x => x.FileSystem).Returns(new ComputerMutableFileSystem(1_000_000L));
+		hostStorageOwner.SetupGet(x => x.Name).Returns("Host Storage");
+		hostStorageOwner.SetupGet(x => x.FileOwnerId).Returns(88L);
+		hostStorageOwner.As<IGameItemComponent>().SetupGet(x => x.Id).Returns(88L);
+		host.As<IComputerMediaStorageTarget>().SetupGet(x => x.ActiveMediaStorage).Returns(hostStorageOwner.Object);
 		host.SetupGet(x => x.Powered).Returns(true);
 		host.SetupGet(x => x.FileSystem).Returns(fileSystem);
 		var mediaInterface = new Mock<IComputerMediaInterface>();
@@ -2708,6 +2807,14 @@ return userinput()";
 		mediaInterface.SetupGet(x => x.MediaEndpoint).Returns(inputEndpoint);
 		mediaInterface.SetupGet(x => x.MediaCapabilities).Returns(MediaCapabilities.Video);
 		mediaInterface.SetupGet(x => x.MediaAvailable).Returns(true);
+		var interfaceStorageOwner = new Mock<IComputerFileOwner>();
+		interfaceStorageOwner.SetupGet(x => x.FileSystem).Returns(fileSystem);
+		interfaceStorageOwner.SetupGet(x => x.Name).Returns("Implant Drive");
+		interfaceStorageOwner.SetupGet(x => x.FileOwnerId).Returns(99L);
+		interfaceStorageOwner.As<IGameItemComponent>().SetupGet(x => x.Id).Returns(99L);
+		mediaInterface.As<IComputerMediaStorageTarget>()
+			.SetupGet(x => x.ActiveMediaStorage)
+			.Returns(interfaceStorageOwner.Object);
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(10L);
 		item.Setup(x => x.GetItemTypes<IComputerMediaInterface>()).Returns([mediaInterface.Object]);
@@ -2715,10 +2822,12 @@ return userinput()";
 		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
 		gameworld.SetupGet(x => x.MediaRecordingService).Returns(recordingService.Object);
 		long nextRecordingId = 0L;
+		long lastRecordingOwnerId = 0L;
 		var descriptors = new Dictionary<long, MediaRecordingDescriptor>();
 		recordingService.Setup(x => x.CreateRecording(It.IsAny<MediaRecordingCreateRequest>()))
 			.Returns((MediaRecordingCreateRequest request) =>
 			{
+				lastRecordingOwnerId = request.OwnerGameItemComponentId;
 				var descriptor = new MediaRecordingDescriptor(++nextRecordingId, request.Capabilities,
 					MediaRecordingStatus.Recording, request.StartedAtUtc, null, TimeSpan.Zero, 100L, request.Name);
 				descriptors[descriptor.RecordingId] = descriptor;
@@ -2743,7 +2852,7 @@ return userinput()";
 			       $"{inCharacterNow:dd'T'HHmmss}";
 		});
 		return new MediaPolicyFixture(service, host, mediaInterface, fileSystem, heartbeat, now,
-			value => currentNow = value);
+			value => currentNow = value, () => lastRecordingOwnerId);
 	}
 
 	[TestMethod]

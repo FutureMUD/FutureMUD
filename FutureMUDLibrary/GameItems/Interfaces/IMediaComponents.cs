@@ -96,6 +96,14 @@ public interface IMediaDeck : IGameItemComponent
 	bool Stop(out string error);
 }
 
+public interface IDigitalMediaRecorder : IMediaDeck, IComputerFileOwner
+{
+	IComputerFileSystem RecordingFileSystem { get; }
+	bool CaptureStill(string name, out string error);
+	string? GetStill(string name, TimeSpan? offset, out string error);
+	IEnumerable<IComputerFile> MediaFiles { get; }
+}
+
 public delegate void ComputerMediaPacketReceived(IComputerMediaInterface mediaInterface, MediaPacket packet);
 
 public interface IComputerMediaInterface : IMediaSink, IMediaSource

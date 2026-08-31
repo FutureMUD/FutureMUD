@@ -112,10 +112,10 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 	public long? OwnerHostItemId => null;
 	public long? OwnerStorageItemId => Parent.Id;
 	public long CapacityInBytes => _fileSystem.CapacityInBytes;
-	public bool Mounted => MountedHost is not null;
-	public IComputerHost? MountedHost => _connectedHost as IComputerHost;
+	public virtual bool Mounted => MountedHost is not null;
+	public virtual IComputerHost? MountedHost => _connectedHost as IComputerHost;
 	public IComputerHost ExecutionHost => MountedHost ?? new ComputerHostDefinition { Name = $"{Parent.Name} (offline)", Powered = false };
-	public IComputerFileSystem? FileSystem => _fileSystem;
+	public virtual IComputerFileSystem? FileSystem => _fileSystem;
 	public IEnumerable<IComputerExecutableDefinition> Executables => _executables.Values.OrderBy(x => x.Name).ThenBy(x => x.Id);
 	public IEnumerable<IComputerProcess> Processes => _processes.Values.OrderByDescending(x => x.LastUpdatedAtUtc).ThenByDescending(x => x.Id);
 	public IEnumerable<ConnectorType> Connections => [ComputerConnectionTypes.StoragePlug];

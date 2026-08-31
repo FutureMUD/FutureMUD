@@ -23,7 +23,7 @@ The focus is on:
 
 ## Media presentation and integration
 
-Media monitors decorate a full description with power, binding, mode, and current-frame state. `LOOK <monitor>` includes the latest live or playback frame. Ambient monitors relay eligible playback into the cell; opt-in monitors require `watch feed <monitor>` and can be left with `watch feed none`. Audio presentation is separately configurable. Speakers render audio through normal language-aware playback, so listeners use their own current comprehension.
+Media monitors decorate a full description with power, binding, mode, audio volume, and current-frame state. `LOOK <monitor>` includes the latest live or playback frame. Ambient monitors relay eligible playback into the cell; opt-in monitors require `watch feed <monitor>` and can be left with `watch feed none`. Audio presentation is separately configurable, and `media <monitor|speaker> volume <volume>` scales or mutes an individual device. Speakers render audio through normal language-aware playback, so listeners use their own current comprehension. Audible playback raises ordinary noise events; loud output can propagate to adjacent cells, while a provenance-detected recapture cycle becomes one local, non-propagating electronic-feedback echo.
 
 Media uses normal item containment for inserted media and normal `IConnectable` presentation for local links. Computer files that refer to recordings are clearly typed media files: they participate in File Manager/FTP lists and transfers but reject text viewing/appending. See [Computer and Electronics A/V Framework](../Technology/Media_System_Runtime_and_Workflows.md) for the complete player and builder workflow.
 

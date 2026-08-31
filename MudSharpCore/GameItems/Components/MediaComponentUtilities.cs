@@ -71,6 +71,62 @@ internal static class MediaComponentUtilities
 
 	public static AudioVolume? GetAudioVolume(IOutput output)
 	{
-		return output is AudioOutput audio ? audio.Volume : null;
+		return output switch
+		{
+			AudioOutput audio => audio.Volume,
+			IRecordableLanguageOutput { LanguageInfo: SpokenLanguageInfo spoken } => spoken.Volume,
+			_ => null
+		};
+	}
+
+	public static AudioVolume GetAudioVolume(MediaPacket packet)
+	{
+		var rawVolume = packet.Payload switch
+		{
+			MediaLanguagePayload { IsSigned: false } language => language.Volume,
+			MediaTextPayload { IsAudible: true, Volume: { } volume } => volume,
+			_ => (int)AudioVolume.Decent
+		};
+		return Enum.IsDefined(typeof(AudioVolume), rawVolume)
+			? (AudioVolume)rawVolume
+			: AudioVolume.Decent;
+	}
+
+	public static AudioVolume ScaleAudioVolume(AudioVolume source, AudioVolume output)
+	{
+		if (source == AudioVolume.Silent || output == AudioVolume.Silent)
+		{
+			return AudioVolume.Silent;
+		}
+
+		var scaled = (int)source + (int)output - (int)AudioVolume.Decent;
+		return (AudioVolume)Math.Clamp(scaled, (int)AudioVolume.Faint, (int)AudioVolume.DangerouslyLoud);
+	}
+
+	public static MediaPacket ApplyOutputVolume(MediaPacket packet, AudioVolume output)
+	{
+		if (!packet.Capabilities.HasFlag(MediaCapabilities.Audio))
+		{
+			return packet;
+		}
+
+		var volume = ScaleAudioVolume(GetAudioVolume(packet), output);
+		var payload = packet.Payload switch
+		{
+			MediaLanguagePayload { IsSigned: false } language => language with { Volume = (int)volume },
+			MediaTextPayload { IsAudible: true } text => text with { Volume = (int)volume },
+			_ => packet.Payload
+		};
+		var capabilities = volume == AudioVolume.Silent
+			? packet.Capabilities & ~MediaCapabilities.Audio
+			: packet.Capabilities;
+		return packet with { Capabilities = capabilities, Payload = payload };
+	}
+
+	public static bool IsLoudFeedbackLoop(MediaPacket packet, MediaEndpointAddress captureEndpoint)
+	{
+		return packet.Capabilities.HasFlag(MediaCapabilities.Audio) &&
+		       GetAudioVolume(packet) >= AudioVolume.Loud &&
+		       (packet.Source == captureEndpoint || packet.HasVisited(captureEndpoint));
 	}
 }

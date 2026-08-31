@@ -12,7 +12,7 @@ Version one supports audio, video, and combined A/V. It records observable in-ch
 
 Language packets retain language/accent or variety, outcome, volume, raw text, pre-language and optional emotes, and an immutable speaker identity snapshot. Playback uses the normal language output path, so a recipient applies current language comprehension rather than seeing a recorder-side translation. Signed language is visual; spoken language is audio. Ordinary audible and visual IC output is retained as sensor-viewpoint text, and a scene packet contains canonical full-look output plus its SHA-256 content hash.
 
-`MediaChannelService` routes packets only to active compatible sinks. It rejects invalid output endpoints, refuses a stream that has already visited a destination, and applies a 16-hop provenance limit. A component can capture another display once when it is legitimately observable, but repeated source/endpoint identities are rejected before they can produce a feedback loop.
+`MediaChannelService` routes packets only to active compatible sinks. It rejects invalid output endpoints, refuses a stream that has already visited a destination, and applies a 16-hop provenance limit. A component can capture another display once when it is legitimately observable. If a camera attempts to recapture loud playback whose provenance already contains that camera, the cycle is terminated and the playback device emits one very-loud local electronic-feedback echo. That feedback is marked non-capturable and is not propagated to adjacent cells, so it cannot seed another media or noise loop.
 
 Capture is performed by a purpose-built camera/microphone sensor perceiver. It follows normal location, layer, plane, closed-visibility, illumination, audibility, and output visibility rules. OOC, staff-only, ignored-watcher, and non-normal output is not captured. A powered camera captures a canonical frame immediately when a consumer binds and then at its configured interval, never below five seconds. Consecutive equal snapshot hashes extend a frame range rather than duplicate scene storage.
 
@@ -32,8 +32,8 @@ All media-capable components use normal `IConnectable` topology conventions whil
 
 - `Camera` is a powered video or A/V capture source with sensitivity, stable output endpoint, port count, and a snapshot interval of five seconds or longer.
 - `Push To Talk Microphone` is a powered audio source implementing `ITransmit`; `transmit` and `transmitwith` publish typed spoken-language packets.
-- `Media Monitor` is a video or A/V sink. `ambient` prototypes relay eligible playback into the cell; opt-in models are watched with `watch feed <monitor>` and stopped with `watch feed none`. `LOOK <monitor>` always includes the latest live/playback frame. Audio presentation can be independently disabled.
-- `Media Speaker` is an audio sink for decks, boomboxes, microphones, and computer output.
+- `Media Monitor` is a video or A/V sink. `ambient` prototypes relay eligible playback into the cell; opt-in models are watched with `watch feed <monitor>` and stopped with `watch feed none`. `LOOK <monitor>` always includes the latest live/playback frame. Audio presentation can be independently disabled, and its output volume can be scaled from silent through dangerously loud.
+- `Media Speaker` is an audio sink for decks, boomboxes, microphones, and computer output, with the same adjustable output-volume range.
 - `Computer Media Interface` exposes named Media-application inputs/outputs through a sibling `ComputerHost`.
 - `Media Deck` records, plays, or both, requires a compatible inserted `MediaStorageMedium`, and has no tape-position state in v1.
 - `MediaStorageMedium` has a format key, capabilities, duration capacity, write protection, and named immutable recording references. Duplicate names require explicit erase.
@@ -47,12 +47,15 @@ The common physical command surface is:
 
 ```
 media <item> status
+media <monitor|speaker> volume <silent|faint|quiet|decent|loud|very loud|extremely loud|dangerously loud>
 media <medium> list
 media <deck> record <name>
 media <deck> play <name>
 media <deck> stop
 media <medium> erase <name>
 ```
+
+Spoken packets retain their authored speech volume and ordinary audio packets retain the source `AudioVolume`. A sink's `decent` setting is unity gain; other settings shift the source volume up or down and clamp it to the engine range, while `silent` removes audio without suppressing video. Every audible monitor or speaker presentation raises the normal `NoiseEmitted` event. Output below `loud` remains local; `loud` and higher output uses the existing cell/RouteCell audio propagation system and can be heard, with normal attenuation and direction text, in nearby locations.
 
 ## Computer and network workflows
 
@@ -79,7 +82,7 @@ The experimental `Tape` component and its XML recording payload are retired. The
 ## Builder and verification checklist
 
 1. Configure compatible endpoint keys/capabilities and power, then prove the links with ordinary player `connect` / `disconnect` and `switch` commands. Use a passive splitter for fan-out rather than assuming a camera has only one listener.
-2. For composite TV/VCR or boombox items, use sibling source acceptance on the monitor/speaker/deck as appropriate and ordinary container content for the medium.
+2. For composite TV/VCR or boombox items, use sibling source acceptance on the monitor/speaker/deck as appropriate, author a sensible default output volume, and use ordinary container content for the medium.
 3. Test darkness, plane/layer separation, closed visibility, and inaudible output before relying on a sensor feed.
 4. Test record/play, duplicate names, write protection, full medium/quota, erase, power loss, and incompatible format/capability handling.
 5. For network feeds, test public routing, private ACL membership, disabled accounts, ACL removal, VPN/direct/exchange reachability, and reconnect without retaining credentials.

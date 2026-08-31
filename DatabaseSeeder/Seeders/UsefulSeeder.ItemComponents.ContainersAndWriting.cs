@@ -609,6 +609,7 @@ public partial class UsefulSeeder
                 new XElement("Capabilities", MediaCapabilities.Audio | MediaCapabilities.Video),
                 new XElement("AmbientPresentation", true),
                 new XElement("AudioEnabled", true),
+				new XElement("OutputVolume", (int)AudioVolume.Decent),
                 new XElement("EndpointKey", "monitor-av"),
                 new XElement("AcceptSiblingSources", false)));
         CreateModernComponent("Media Speaker", "MediaSpeaker_Standard",
@@ -616,6 +617,7 @@ public partial class UsefulSeeder
             PoweredMachineDefinition(15.0, 0.4, true, false,
                 "@ click|clicks on.",
                 "@ click|clicks off.",
+				new XElement("OutputVolume", (int)AudioVolume.Decent),
                 new XElement("EndpointKey", "speaker"),
                 new XElement("AcceptSiblingSources", false)));
         CreateModernComponent("Computer Media Interface", "ComputerMediaInterface_AV",

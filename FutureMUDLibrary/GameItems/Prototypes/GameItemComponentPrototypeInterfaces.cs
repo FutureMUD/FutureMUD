@@ -103,6 +103,11 @@ public interface IMediaBoundSinkPrototype : IAggregateGameItemComponentPrototype
 {
 }
 
+public interface IMediaAudioSinkPrototype : IAggregateGameItemComponentPrototype<IMediaAudioSink>,
+	IMediaBoundSinkPrototype
+{
+}
+
 public interface IMediaCameraPrototype : IMediaCaptureSourcePrototype, IConnectablePrototype
 {
 }
@@ -112,12 +117,12 @@ public interface IPushToTalkMicrophonePrototype : IMediaSourcePrototype, ITransm
 {
 }
 
-public interface IMediaMonitorPrototype : IExclusiveGameItemComponentPrototype<IMediaMonitor>, IMediaBoundSinkPrototype,
+public interface IMediaMonitorPrototype : IExclusiveGameItemComponentPrototype<IMediaMonitor>, IMediaAudioSinkPrototype,
 	IConnectablePrototype
 {
 }
 
-public interface IMediaSpeakerPrototype : IMediaBoundSinkPrototype, IConnectablePrototype
+public interface IMediaSpeakerPrototype : IMediaAudioSinkPrototype, IConnectablePrototype
 {
 }
 

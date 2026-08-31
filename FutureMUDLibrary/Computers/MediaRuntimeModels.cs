@@ -92,7 +92,7 @@ public sealed record MediaLanguagePayload(
 	string OptionalEmote,
 	long? DurationMilliseconds = null) : MediaPayload;
 
-public sealed record MediaTextPayload(string Text, bool IsAudible, bool IsVisual) : MediaPayload;
+public sealed record MediaTextPayload(string Text, bool IsAudible, bool IsVisual, int? Volume = null) : MediaPayload;
 
 public sealed record MediaScenePayload(string CanonicalScene, string ContentHash) : MediaPayload;
 

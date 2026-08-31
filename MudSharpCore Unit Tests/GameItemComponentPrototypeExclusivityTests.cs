@@ -33,6 +33,7 @@ public class GameItemComponentPrototypeExclusivityTests
 		typeof(IMediaSource),
 		typeof(IMediaSink),
 		typeof(IMediaBoundSink),
+		typeof(IMediaAudioSink),
 		typeof(IComputerMediaInterface),
 		typeof(IConsumePower),
 		typeof(IItemTimeRateModifier),

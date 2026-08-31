@@ -26,6 +26,7 @@ public sealed class MediaPlaybackOutput : Output, IMediaPacketOutput
 	}
 
 	public MediaPacket MediaPacket { get; }
+	public IPerceivable PresentationSource => _presentationSource;
 
 	public override string RawString => MediaPacket.Payload switch
 	{

@@ -1,15 +1,17 @@
 #nullable enable
 
 using MudSharp.Computers;
+using MudSharp.Form.Audio;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine.Outputs;
 
 namespace MudSharp.GameItems.Components;
 
-public class MediaSpeakerGameItemComponent : MediaBoundSinkPoweredComponentBase
+public class MediaSpeakerGameItemComponent : MediaBoundSinkPoweredComponentBase, IMediaAudioSink
 {
 	private MediaSpeakerGameItemComponentProto _prototype;
+	private AudioVolume? _outputVolumeOverride;
 
 	public MediaSpeakerGameItemComponent(MediaSpeakerGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false)
@@ -33,12 +35,14 @@ public class MediaSpeakerGameItemComponent : MediaBoundSinkPoweredComponentBase
 		: base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
+		_outputVolumeOverride = rhs._outputVolumeOverride;
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
 	public override MediaEndpointAddress MediaEndpoint => new(Parent.Id, Id, _prototype.EndpointKey, MediaEndpointDirection.Input);
 	public override MediaCapabilities MediaCapabilities => MediaCapabilities.Audio;
 	public override bool MediaAvailable => IsPowered && Parent.TrueLocations.Any();
+	public AudioVolume OutputVolume => _outputVolumeOverride ?? _prototype.OutputVolume;
 	protected override bool AcceptSiblingSources => _prototype.AcceptSiblingSources;
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -54,6 +58,11 @@ public class MediaSpeakerGameItemComponent : MediaBoundSinkPoweredComponentBase
 
 	protected override XElement SaveToXml(XElement root)
 	{
+		if (_outputVolumeOverride is { } volume)
+		{
+			root.Add(new XElement("OutputVolumeOverride", (int)volume));
+		}
+
 		return SaveMediaSinkState(root);
 	}
 
@@ -80,12 +89,37 @@ public class MediaSpeakerGameItemComponent : MediaBoundSinkPoweredComponentBase
 			return;
 		}
 
-		var audioPacket = packet with { Capabilities = MediaCapabilities.Audio };
+		var audioPacket = MediaAudioPresentation.ApplyOutputVolume(
+			packet with { Capabilities = MediaCapabilities.Audio }, OutputVolume);
+		if (!audioPacket.Capabilities.HasFlag(MediaCapabilities.Audio))
+		{
+			return;
+		}
+
 		Parent.Handle(new MediaPlaybackOutput(Gameworld, Parent, audioPacket), OutputRange.Local);
+		MediaAudioPresentation.EmitPlaybackNoise(Parent, audioPacket);
+	}
+
+	public bool SetOutputVolume(AudioVolume volume, out string error)
+	{
+		if (!Enum.IsDefined(volume))
+		{
+			error = "That is not a valid audio volume.";
+			return false;
+		}
+
+		_outputVolumeOverride = volume;
+		Changed = true;
+		error = string.Empty;
+		return true;
 	}
 
 	private void LoadRuntimeState(XElement root)
 	{
 		LoadMediaSinkState(root);
+		_outputVolumeOverride = int.TryParse(root.Element("OutputVolumeOverride")?.Value, out var rawVolume) &&
+		                        Enum.IsDefined(typeof(AudioVolume), rawVolume)
+			? (AudioVolume)rawVolume
+			: null;
 	}
 }

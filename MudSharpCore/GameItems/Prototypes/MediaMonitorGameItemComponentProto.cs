@@ -2,6 +2,7 @@
 
 using MudSharp.Accounts;
 using MudSharp.Computers;
+using MudSharp.Form.Audio;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
 
@@ -13,6 +14,7 @@ public class MediaMonitorGameItemComponentProto : PoweredMachineBaseGameItemComp
 	#3capabilities <video|av>#0 - sets whether this monitor accepts video only or audio/video
 	#3ambient#0 - toggles ambient relay to everyone in the cell; otherwise viewers must use watch feed
 	#3audio#0 - toggles audio presentation when A/V is supported
+	#3volume <volume>#0 - sets the default audio output volume, including silent
 	#3endpoint <key>#0 - sets the stable local input endpoint key
 	#3siblings#0 - toggles accepting a source endpoint on the same composite item";
 
@@ -22,6 +24,7 @@ public class MediaMonitorGameItemComponentProto : PoweredMachineBaseGameItemComp
 		Capabilities = MediaCapabilities.Video;
 		AmbientPresentation = true;
 		AudioEnabled = false;
+		OutputVolume = AudioVolume.Decent;
 		EndpointKey = "monitor";
 		AcceptSiblingSources = false;
 		Wattage = 35.0;
@@ -36,6 +39,7 @@ public class MediaMonitorGameItemComponentProto : PoweredMachineBaseGameItemComp
 	public MediaCapabilities Capabilities { get; protected set; }
 	public bool AmbientPresentation { get; protected set; }
 	public bool AudioEnabled { get; protected set; }
+	public AudioVolume OutputVolume { get; protected set; }
 	public string EndpointKey { get; protected set; } = "monitor";
 	public bool AcceptSiblingSources { get; protected set; }
 	public override string TypeDescription => "Media Monitor";
@@ -46,6 +50,7 @@ public class MediaMonitorGameItemComponentProto : PoweredMachineBaseGameItemComp
 		return $"Capabilities: {MediaComponentUtilities.DescribeCapabilities(Capabilities).ColourValue()}\n" +
 		       $"Presentation: {(AmbientPresentation ? "ambient".ColourValue() : "opt-in".ColourCommand())}\n" +
 		       $"Audio: {AudioEnabled.ToColouredString()}\n" +
+		       $"Audio Volume: {OutputVolume.DescribeEnum().ColourValue()}\n" +
 		       $"Endpoint: {EndpointKey.ColourCommand()}\n" +
 		       $"Sibling Binding: {AcceptSiblingSources.ToColouredString()}";
 	}
@@ -63,6 +68,10 @@ public class MediaMonitorGameItemComponentProto : PoweredMachineBaseGameItemComp
 
 		AmbientPresentation = !bool.TryParse(root.Element("AmbientPresentation")?.Value, out var ambient) || ambient;
 		AudioEnabled = bool.TryParse(root.Element("AudioEnabled")?.Value, out var audio) && audio;
+		OutputVolume = int.TryParse(root.Element("OutputVolume")?.Value, out var rawVolume) &&
+		               Enum.IsDefined(typeof(AudioVolume), rawVolume)
+			? (AudioVolume)rawVolume
+			: AudioVolume.Decent;
 		EndpointKey = root.Element("EndpointKey")?.Value?.Trim() ?? "monitor";
 		AcceptSiblingSources = bool.TryParse(root.Element("AcceptSiblingSources")?.Value, out var siblings) && siblings;
 	}
@@ -72,6 +81,7 @@ public class MediaMonitorGameItemComponentProto : PoweredMachineBaseGameItemComp
 		root.Add(new XElement("Capabilities", Capabilities));
 		root.Add(new XElement("AmbientPresentation", AmbientPresentation));
 		root.Add(new XElement("AudioEnabled", AudioEnabled));
+		root.Add(new XElement("OutputVolume", (int)OutputVolume));
 		root.Add(new XElement("EndpointKey", EndpointKey));
 		root.Add(new XElement("AcceptSiblingSources", AcceptSiblingSources));
 		return root;
@@ -97,6 +107,8 @@ public class MediaMonitorGameItemComponentProto : PoweredMachineBaseGameItemComp
 				Changed = true;
 				actor.Send($"This monitor will {(AudioEnabled ? "now".ColourValue() : "no longer".ColourError())} present audio.");
 				return true;
+			case "volume":
+				return BuildingCommandVolume(actor, command);
 			case "endpoint":
 				return BuildingCommandEndpoint(actor, command);
 			case "siblings":
@@ -108,6 +120,20 @@ public class MediaMonitorGameItemComponentProto : PoweredMachineBaseGameItemComp
 			default:
 				return base.BuildingCommand(actor, command.GetUndo());
 		}
+	}
+
+	private bool BuildingCommandVolume(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParseEnum<AudioVolume>(out var volume))
+		{
+			actor.Send($"You must specify a valid audio volume: {Enum.GetValues<AudioVolume>().Select(x => x.DescribeEnum()).ListToString()}.");
+			return false;
+		}
+
+		OutputVolume = volume;
+		Changed = true;
+		actor.Send($"This monitor's default audio output is now {OutputVolume.DescribeEnum().ColourValue()}.");
+		return true;
 	}
 
 	private bool BuildingCommandCapabilities(ICharacter actor, StringStack command)

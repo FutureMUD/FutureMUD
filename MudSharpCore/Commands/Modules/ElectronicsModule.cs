@@ -7,6 +7,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Editor;
 using MudSharp.Effects.Concrete;
+using MudSharp.Form.Audio;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Inventory;
@@ -22,7 +23,8 @@ internal class ElectronicsModule : Module<ICharacter>
 	private const string MediaHelpText = @"The #3media#0 command operates local media decks and their removable physical media.
 
 You can use the following syntax:
-	#3media <item> status#0 - shows a deck or medium's current state
+	#3media <item> status#0 - shows a deck, medium, monitor, or speaker's current state
+	#3media <monitor|speaker> volume <volume>#0 - sets its audio output volume; silent mutes it
 	#3media <medium> list#0 - lists named recordings stored on a physical medium
 	#3media <deck> record <name>#0 - starts recording its connected media input onto the inserted medium
 	#3media <deck> play <name>#0 - plays a named recording from the inserted medium to its connected output
@@ -184,15 +186,16 @@ If more than one terminal could be used, specify one explicitly or connect first
 
 		var deck = item.GetItemType<IMediaDeck>();
 		var medium = item.GetItemType<IMediaStorageMedium>();
-		if (deck is null && medium is null)
+		var audioSink = item.GetItemType<IMediaAudioSink>();
+		if (deck is null && medium is null && audioSink is null)
 		{
-			actor.Send($"{item.HowSeen(actor, true)} is not a media deck or physical storage medium.");
+			actor.Send($"{item.HowSeen(actor, true)} is not an operable media device or physical storage medium.");
 			return;
 		}
 
 		if (ss.IsFinished)
 		{
-			ShowMediaStatus(actor, item, deck, medium);
+			ShowMediaStatus(actor, item, deck, medium, audioSink);
 			return;
 		}
 
@@ -200,7 +203,10 @@ If more than one terminal could be used, specify one explicitly or connect first
 		{
 			case "status":
 			case "show":
-				ShowMediaStatus(actor, item, deck, medium);
+				ShowMediaStatus(actor, item, deck, medium, audioSink);
+				return;
+			case "volume":
+				MediaVolume(actor, item, audioSink, ss);
 				return;
 			case "list":
 				MediaList(actor, medium);
@@ -225,7 +231,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 	}
 
 	private static void ShowMediaStatus(ICharacter actor, IGameItem item, IMediaDeck? deck,
-		IMediaStorageMedium? medium)
+		IMediaStorageMedium? medium, IMediaAudioSink? audioSink)
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine($"Media Status: {item.HowSeen(actor, true).ColourName()}");
@@ -246,7 +252,47 @@ If more than one terminal could be used, specify one explicitly or connect first
 			sb.AppendLine($"Recordings: {medium.Recordings.Count.ToString("N0", actor).ColourValue()}");
 		}
 
+		if (audioSink is not null)
+		{
+			sb.AppendLine($"Audio Output Volume: {audioSink.OutputVolume.DescribeEnum().ColourValue()}");
+		}
+
 		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void MediaVolume(ICharacter actor, IGameItem item, IMediaAudioSink? audioSink, StringStack ss)
+	{
+		if (audioSink is null)
+		{
+			actor.Send("Only a media monitor or speaker has adjustable audio output volume.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send($"The current audio output volume is {audioSink.OutputVolume.DescribeEnum().ColourValue()}.");
+			return;
+		}
+
+		var text = ss.SafeRemainingArgument;
+		var parsed = text.EqualToAny("mute", "muted", "off")
+			? AudioVolume.Silent
+			: text.TryParseEnum<AudioVolume>(out var volume)
+				? volume
+				: (AudioVolume)(-1);
+		if (!Enum.IsDefined(parsed))
+		{
+			actor.Send($"You must specify a valid audio volume: {Enum.GetValues<AudioVolume>().Select(x => x.DescribeEnum()).ListToString()}.");
+			return;
+		}
+
+		if (!audioSink.SetOutputVolume(parsed, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		actor.Send($"You set {item.HowSeen(actor, true).ColourName()}'s audio output to {parsed.DescribeEnum().ColourValue()}.");
 	}
 
 	private static void MediaList(ICharacter actor, IMediaStorageMedium? medium)

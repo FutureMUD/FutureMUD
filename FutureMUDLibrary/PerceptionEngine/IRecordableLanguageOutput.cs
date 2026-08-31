@@ -25,4 +25,5 @@ public interface IRecordableLanguageOutput : IOutput
 public interface IMediaPacketOutput : IOutput
 {
 	MediaPacket MediaPacket { get; }
+	IPerceivable PresentationSource { get; }
 }

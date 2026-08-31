@@ -3,17 +3,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Text.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
+using MudSharp.Commands.Modules;
 using MudSharp.Construction;
+using MudSharp.Computers;
 using MudSharp.Events;
 using MudSharp.Events.Hooks;
 using MudSharp.Form.Audio;
+using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Functions;
 using MudSharp.FutureProg.Variables;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 
@@ -22,6 +30,137 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class NoiseEmissionTests
 {
+	[TestMethod]
+	public void MediaAudioVolume_SourceAndOutputSettings_ScaleAndMuteWithoutRemovingVideo()
+	{
+		var packet = new MediaPacket(Guid.NewGuid(), 1L, DateTime.UtcNow,
+			MediaCapabilities.Audio | MediaCapabilities.Video, MediaEventKind.AudioVideo,
+			new MediaEndpointAddress(1L, 2L, "camera"), [],
+			new MediaTextPayload("A television programme plays.", true, true, (int)AudioVolume.Quiet));
+
+		var amplified = MediaAudioPresentation.ApplyOutputVolume(packet, AudioVolume.VeryLoud);
+		var muted = MediaAudioPresentation.ApplyOutputVolume(packet, AudioVolume.Silent);
+
+		Assert.AreEqual(AudioVolume.Loud, MediaComponentUtilities.GetAudioVolume(amplified));
+		Assert.AreEqual(MediaCapabilities.Audio | MediaCapabilities.Video, amplified.Capabilities);
+		Assert.AreEqual(MediaCapabilities.Video, muted.Capabilities);
+		Assert.AreEqual(AudioVolume.Silent, MediaComponentUtilities.GetAudioVolume(muted));
+	}
+
+	[TestMethod]
+	public void MediaTextPayload_LegacyJsonWithoutVolume_DefaultsToUnitySourceVolume()
+	{
+		var payload = JsonSerializer.Deserialize<MediaTextPayload>(
+			"""{"Text":"legacy audio","IsAudible":true,"IsVisual":false}""");
+
+		Assert.IsNotNull(payload);
+		var packet = CreateAudioMediaPacket(AudioVolume.Quiet) with { Payload = payload };
+		Assert.AreEqual(AudioVolume.Decent, MediaComponentUtilities.GetAudioVolume(packet));
+	}
+
+	[TestMethod]
+	public void IsLoudFeedbackLoop_RequiresLoudAudioAndRepeatedCaptureEndpoint()
+	{
+		var camera = new MediaEndpointAddress(1L, 2L, "camera");
+		var monitor = new MediaEndpointAddress(3L, 4L, "monitor", MediaEndpointDirection.Input);
+		var quietLoop = CreateAudioMediaPacket(AudioVolume.Quiet) with { Provenance = [camera, monitor] };
+		var loudLoop = CreateAudioMediaPacket(AudioVolume.Loud) with { Provenance = [camera, monitor] };
+		var loudFirstCapture = CreateAudioMediaPacket(AudioVolume.Loud) with
+		{
+			Source = new MediaEndpointAddress(5L, 6L, "other-camera"),
+			Provenance = [monitor]
+		};
+
+		Assert.IsFalse(MediaComponentUtilities.IsLoudFeedbackLoop(quietLoop, camera));
+		Assert.IsTrue(MediaComponentUtilities.IsLoudFeedbackLoop(loudLoop, camera));
+		Assert.IsFalse(MediaComponentUtilities.IsLoudFeedbackLoop(loudFirstCapture, camera));
+	}
+
+	[TestMethod]
+	public void MediaVolume_MuteAlias_SetsPlayerFacingAudioSinkToSilent()
+	{
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
+		var item = new Mock<IGameItem>();
+		item.Setup(x => x.HowSeen(actor.Object, true, DescriptionType.Short, true, PerceiveIgnoreFlags.None))
+			.Returns("a media monitor");
+		var sink = new Mock<IMediaAudioSink>();
+		var error = string.Empty;
+		sink.Setup(x => x.SetOutputVolume(AudioVolume.Silent, out error)).Returns(true);
+		var method = typeof(ElectronicsModule).GetMethod("MediaVolume",
+			BindingFlags.Static | BindingFlags.NonPublic);
+
+		Assert.IsNotNull(method);
+		method.Invoke(null, [actor.Object, item.Object, sink.Object, new StringStack("mute")]);
+
+		sink.Verify(x => x.SetOutputVolume(AudioVolume.Silent, out It.Ref<string>.IsAny), Times.Once);
+	}
+
+	[TestMethod]
+	public void EmitPlaybackNoise_QuietAudio_RaisesNoiseEventWithoutNearbyPropagation()
+	{
+		var origin = new Mock<ICell>();
+		var device = new Mock<IGameItem>();
+		device.SetupGet(x => x.TrueLocations).Returns([origin.Object]);
+		var packet = CreateAudioMediaPacket(AudioVolume.Quiet);
+
+		MediaAudioPresentation.EmitPlaybackNoise(device.Object, packet);
+
+		origin.Verify(x => x.HandleEvent(EventType.NoiseEmitted,
+			It.Is<object[]>(args =>
+				ReferenceEquals(args[0], origin.Object) &&
+				ReferenceEquals(args[1], device.Object) &&
+				(int)args[2] == (int)AudioVolume.Quiet &&
+				(string)args[3] == "media playback")), Times.Once);
+		origin.Verify(x => x.HandleAudioEcho(It.IsAny<string>(), It.IsAny<AudioVolume>(),
+			It.IsAny<IPerceiver>(), It.IsAny<RoomLayer>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void EmitPlaybackNoise_LoudAudio_UsesNormalNearbyPropagationPath()
+	{
+		var origin = new Mock<ICell>();
+		var device = new Mock<IGameItem>();
+		device.SetupGet(x => x.TrueLocations).Returns([origin.Object]);
+		device.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+
+		MediaAudioPresentation.EmitPlaybackNoise(device.Object, CreateAudioMediaPacket(AudioVolume.Loud));
+
+		origin.Verify(x => x.HandleAudioEcho(
+			"You hear audio from an electronic media device {0}.", AudioVolume.Loud, device.Object,
+			RoomLayer.GroundLevel, true, "media playback"), Times.Once);
+	}
+
+	[TestMethod]
+	public void EmitFeedback_IsVeryLoudLocalNoiseThatCannotPropagateOrBeRecaptured()
+	{
+		var origin = new Mock<ICell>();
+		var device = new Mock<IGameItem>();
+		device.SetupGet(x => x.TrueLocations).Returns([origin.Object]);
+
+		MediaAudioPresentation.EmitFeedback(device.Object);
+
+		device.Verify(x => x.Handle(
+			It.Is<AudioOutput>(output =>
+				output.Volume == AudioVolume.VeryLoud &&
+				output.Flags.HasFlag(OutputFlags.IgnoreWatchers) &&
+				output.Flags.HasFlag(OutputFlags.PurelyAudible)),
+			OutputRange.Local), Times.Once);
+		origin.Verify(x => x.HandleEvent(EventType.NoiseEmitted,
+			It.Is<object[]>(args =>
+				(int)args[2] == (int)AudioVolume.VeryLoud &&
+				(string)args[3] == "electronic feedback")), Times.Once);
+		origin.Verify(x => x.HandleAudioEcho(It.IsAny<string>(), It.IsAny<AudioVolume>(),
+			It.IsAny<IPerceiver>(), It.IsAny<RoomLayer>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
+	}
+
+	private static MediaPacket CreateAudioMediaPacket(AudioVolume volume)
+	{
+		return new MediaPacket(Guid.NewGuid(), 1L, DateTime.UtcNow, MediaCapabilities.Audio,
+			MediaEventKind.Audio, new MediaEndpointAddress(1L, 2L, "camera"), [],
+			new MediaTextPayload("Audio plays.", true, false, (int)volume));
+	}
+
 	[TestMethod]
 	public void RaiseEvent_NonSilentNoise_FiresOnceOnOriginWithDocumentedPayload()
 	{

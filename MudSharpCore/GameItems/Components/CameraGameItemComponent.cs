@@ -126,6 +126,12 @@ public class CameraGameItemComponent : MediaEndpointPoweredComponentBase, IMedia
 			if (sourcePacket.HasVisited(MediaEndpoint) || sourcePacket.Source == MediaEndpoint ||
 			    (sourcePacket.Capabilities & MediaCapabilities) == MediaCapabilities.None)
 			{
+				if (MediaCapabilities.HasFlag(MediaCapabilities.Audio) &&
+				    MediaComponentUtilities.IsLoudFeedbackLoop(sourcePacket, MediaEndpoint))
+				{
+					MediaAudioPresentation.EmitFeedback(mediaOutput.PresentationSource as IGameItem ?? Parent);
+				}
+
 				return false;
 			}
 
@@ -182,7 +188,10 @@ public class CameraGameItemComponent : MediaEndpointPoweredComponentBase, IMedia
 				: MediaEventKind.Video;
 		packet = CreatePacket(requestedCapabilities, kind,
 			new MediaTextPayload(output.ParseFor(sensor), requestedCapabilities.HasFlag(MediaCapabilities.Audio),
-				requestedCapabilities.HasFlag(MediaCapabilities.Video)));
+				requestedCapabilities.HasFlag(MediaCapabilities.Video),
+				requestedCapabilities.HasFlag(MediaCapabilities.Audio)
+					? (int)(MediaComponentUtilities.GetAudioVolume(output) ?? AudioVolume.Decent)
+					: null));
 		return true;
 	}
 

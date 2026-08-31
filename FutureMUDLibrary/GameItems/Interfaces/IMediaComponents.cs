@@ -3,6 +3,7 @@
 using MudSharp.Computers;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Form.Audio;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Law;
 using System;
@@ -67,7 +68,13 @@ public interface IMediaStorageMedium : IGameItemComponent
 	bool DeleteRecording(string name, out string error);
 }
 
-public interface IMediaMonitor : IMediaBoundSink
+public interface IMediaAudioSink : IMediaBoundSink
+{
+	AudioVolume OutputVolume { get; }
+	bool SetOutputVolume(AudioVolume volume, out string error);
+}
+
+public interface IMediaMonitor : IMediaAudioSink
 {
 	bool AmbientPresentation { get; }
 	bool AudioEnabled { get; }

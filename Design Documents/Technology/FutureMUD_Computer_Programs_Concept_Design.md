@@ -17,6 +17,7 @@ The first implementation slice for this design has now landed. The currently imp
   - private character workspaces
   - `ComputerHost` items
   - `ComputerStorage` items mounted into a host
+  - implanted equivalents: `Implant Computer Host`, `Implant Computer Storage`, and `Implant Computer Terminal`, associated through a shared powered neural interface
 - dedicated persistence models and EF tables for character-owned computer executables, executable parameters, and computer-program processes
 - a private character-owned workspace for computer functions and computer programs, exposed through `ICharacterComputerWorkspace`, `IComputerExecutionService`, and `IComputerHelpService`
 - the first real computer item component families in `MudSharpCore/GameItems`:
@@ -206,6 +207,8 @@ The main post-1.0 expansion points are:
 - IComputerPrograms don't always run to completion. They often have wait points like sleeping, waiting for terminal user input, or waiting for signal input. This is handled through custom computer-only functions and statement types.
 - Variable references continue to use the normal `@variable` syntax when read in expressions
 - In the current shipped phase there are now real `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, and `NetworkAdapter` item components
+- Implanted variants reuse those runtime contracts. A linked user assigns a host with `implant <terminal-alias> host <host-alias>`, opens it with `implant <terminal-alias> connect`, and then uses the ordinary `programming`, `type`, File Manager, Media, and process workflows. Implant hosts expose no network adapter by default.
+- Implant storage only mounts while its selected host, drive, and shared neural bus are available. Losing that relationship closes dependent terminal sessions and deactivates storage-owned processes. Host, drive, and terminal state and associations use component XML and are revalidated after load; no separate implant-computer database schema is introduced.
 - Standalone functions and programs can still live in a private character-owned workspace, but the same runtime now also supports host-owned and storage-owned executables
 - Workspace artifacts still persist in dedicated tables keyed to the owning character, and suspended workspace program processes persist locals, frame state, wake time, result, and last error separately from item revision data
 - Host-backed and storage-backed executables currently persist in item component XML as part of the owning item runtime, not yet in separate generic database tables

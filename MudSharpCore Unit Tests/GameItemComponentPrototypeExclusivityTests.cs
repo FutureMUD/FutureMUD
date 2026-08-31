@@ -2,10 +2,12 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
@@ -49,6 +51,23 @@ public class GameItemComponentPrototypeExclusivityTests
 		typeof(IProvideItemTargetProjections),
 		typeof(IProvideItemSpatialHost)
 	];
+
+	[TestMethod]
+	public void ImplantComputerPrototypes_DatabaseLoadInitialisesImplantSettingsBeforeVirtualXmlLoad()
+	{
+		const string definition = "<Definition><ImplantExternal>true</ImplantExternal>" +
+		                          "<ImplantExternalDescription>test implant</ImplantExternalDescription></Definition>";
+		var prototypes = new IImplantMachinePrototypeSettings[]
+		{
+			CreateDatabasePrototype<ImplantComputerHostGameItemComponentProto>(definition),
+			CreateDatabasePrototype<ImplantComputerStorageGameItemComponentProto>(definition),
+			CreateDatabasePrototype<ImplantComputerTerminalGameItemComponentProto>(definition),
+			CreateDatabasePrototype<ImplantAVRecorderGameItemComponentProto>(definition)
+		};
+
+		Assert.IsTrue(prototypes.All(x => x.External));
+		Assert.IsTrue(prototypes.All(x => x.ExternalDescription == "test implant"));
+	}
 
 	[TestMethod]
 	public void FindConflicts_DuplicateExclusiveContainer_FindsConflict()
@@ -301,6 +320,11 @@ public class GameItemComponentPrototypeExclusivityTests
 
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
+		var body = new Mock<IBodyPrototype>();
+		body.SetupGet(x => x.AllBodypartsBonesAndOrgans).Returns(Array.Empty<IBodypart>());
+		var bodies = new Mock<IUneditableAll<IBodyPrototype>>();
+		bodies.Setup(x => x.Get(It.IsAny<long>())).Returns(body.Object);
+		gameworld.SetupGet(x => x.BodyPrototypes).Returns(bodies.Object);
 		return (T)Activator.CreateInstance(typeof(T),
 			BindingFlags.Instance | BindingFlags.NonPublic,
 			null,

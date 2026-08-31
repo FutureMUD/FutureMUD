@@ -133,12 +133,12 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	public long? OwnerHostItemId => Parent.Id;
 	public long? OwnerStorageItemId => null;
 	public IComputerHost ExecutionHost => this;
-	public bool Powered => IsPowered;
-	public IComputerFileSystem? FileSystem => _fileSystem;
+	public virtual bool Powered => IsPowered;
+	public virtual IComputerFileSystem? FileSystem => _fileSystem;
 	public IEnumerable<IComputerExecutableDefinition> Executables => _executables.Values.OrderBy(x => x.Name).ThenBy(x => x.Id);
 	public IEnumerable<IComputerProcess> Processes => _processes.Values.OrderByDescending(x => x.LastUpdatedAtUtc).ThenByDescending(x => x.Id);
 	public IEnumerable<IComputerBuiltInApplication> BuiltInApplications => ComputerBuiltInApplications.ForHost(Parent.Id);
-	public IEnumerable<IComputerStorage> MountedStorage => _connectedItems.OfType<IComputerStorage>().ToList();
+	public IEnumerable<IComputerStorage> MountedStorage => _connectedItems.OfType<IComputerStorage>().Where(x => x.Mounted).ToList();
 	public IEnumerable<IComputerTerminal> ConnectedTerminals => _connectedItems.OfType<IComputerTerminal>().ToList();
 	public IEnumerable<INetworkAdapter> NetworkAdapters => _connectedItems.OfType<INetworkAdapter>().ToList();
 	public IEnumerable<string> EnabledNetworkServices => _enabledNetworkServices.OrderBy(x => x).ToList();

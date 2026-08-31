@@ -6,7 +6,7 @@ using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
 
-public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemComponent, IComputerTerminal, IConnectable
+public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemComponent, IInteractiveComputerTerminal, IConnectable
 {
 	private readonly List<IComputerTerminalSession> _sessions = [];
 	private readonly List<long> _pendingConnectionIds = [];
@@ -38,7 +38,7 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 
 	public override IGameItemComponentProto Prototype => _prototype;
 	public long TerminalItemId => Parent.Id;
-	public IComputerHost? ConnectedHost => _connectedHost as IComputerHost;
+	public virtual IComputerHost? ConnectedHost => _connectedHost as IComputerHost;
 	public IEnumerable<IComputerTerminalSession> Sessions => _sessions.ToList();
 	public IEnumerable<ConnectorType> Connections => [ComputerConnectionTypes.TerminalPlug];
 	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems =>
@@ -134,7 +134,7 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 		CloseAllSessions();
 	}
 
-	public bool TryConnectSession(ICharacter actor, out IComputerTerminalSession? session, out string error)
+	public virtual bool TryConnectSession(ICharacter actor, out IComputerTerminalSession? session, out string error)
 	{
 		session = null;
 		if (!SwitchedOn)

@@ -126,6 +126,7 @@ Stock item content uses the `GameItem` health strategy seeded in `CoreDataSeeder
 | `IDefibrillator` and `DefibrillatorGameItemComponent` | Equipment-gated electrical rescue support |
 | `IExternalOrganFunction` and `ExternalOrganGameItemComponent` | External artificial-organ support for body systems |
 | `IImplant` and `ImplantBaseGameItemComponent` | Core implant behavior shared by specialized implant types |
+| Implant computer host, storage, terminal, and A/V recorder | Powered cybernetic computer peripherals; peer assignment is restricted to implants in the same body on the same powered neural interface |
 | `IOrganImplant` and `ImplantOrganGameItemComponent` | Implanted artificial organs and organ augmentation |
 | `ImplantPowerPlantGameItemComponent`, `ImplantPowerRouterGameItemComponent`, `ImplantPowerSupplyGameItemComponent` | Power infrastructure for advanced implants |
 | `ImplantRadioGameItemComponent`, `ImplantTraitChangerGameItemComponent`, container-style implant components | Advanced implant payloads that sit adjacent to the health framework |

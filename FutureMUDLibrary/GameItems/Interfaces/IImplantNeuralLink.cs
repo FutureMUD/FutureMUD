@@ -17,5 +17,6 @@ namespace MudSharp.GameItems.Interfaces
         void DoReportStatus();
         bool PermitsAudio { get; }
         bool PermitsVisual { get; }
+		IReadOnlyCollection<IImplant> LinkedImplants { get; }
     }
 }

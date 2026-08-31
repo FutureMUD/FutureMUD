@@ -254,6 +254,12 @@ public interface IComputerMediaService
 	bool CaptureStill(IComputerHost host, string input, string fileName, out string error);
 	bool StopJob(IComputerHost host, long jobId, out string error);
 	void InterruptJobs(IComputerHost host);
+	void InterruptJobs(IComputerHost host, IComputerMediaInterface mediaInterface);
+}
+
+public interface IComputerMediaStorageTarget
+{
+	IComputerFileOwner ActiveMediaStorage { get; }
 }
 
 /// <summary>

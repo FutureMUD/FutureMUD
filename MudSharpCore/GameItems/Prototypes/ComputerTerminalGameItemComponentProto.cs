@@ -18,7 +18,12 @@ public class ComputerTerminalGameItemComponentProto : PoweredMachineBaseGameItem
 		$@"{BuildingHelpText}{SpecificBuildingHelpText}";
 
 	public ComputerTerminalGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-		: base(gameworld, originator, "Computer Terminal")
+		: this(gameworld, originator, "Computer Terminal")
+	{
+	}
+
+	protected ComputerTerminalGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
+		: base(gameworld, originator, type)
 	{
 	}
 

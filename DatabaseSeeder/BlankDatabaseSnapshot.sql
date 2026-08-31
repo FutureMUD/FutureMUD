@@ -15674,3 +15674,86 @@ DELIMITER ;
 CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
 COMMIT;
+
+-- EF-generated idempotent delta for 20260830121659_AddMediaRecordingStorage
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260830121659_AddMediaRecordingStorage') THEN
+        CREATE TABLE `mediarecordings` (
+            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `SchemaVersion` int(11) NOT NULL DEFAULT 1,
+            `Capabilities` int(11) NOT NULL,
+            `Status` int(11) NOT NULL,
+            `Name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            `CreatedAtUtc` datetime NOT NULL,
+            `FinalisedAtUtc` datetime NULL,
+            `DurationMilliseconds` bigint(20) NOT NULL,
+            `LogicalSizeInBytes` bigint(20) NOT NULL,
+            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`)
+        ) CHARACTER SET=utf8mb4;
+
+        CREATE TABLE `mediascenesnapshots` (
+            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `ContentHash` char(64) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+            `UncompressedSizeBytes` int(11) NOT NULL,
+            `Payload` longblob NOT NULL,
+            `CreatedAtUtc` datetime NOT NULL,
+            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`)
+        ) CHARACTER SET=utf8mb4;
+
+        CREATE TABLE `mediarecordingchunks` (
+            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `MediaRecordingId` bigint(20) NOT NULL,
+            `Sequence` int(11) NOT NULL,
+            `OffsetMilliseconds` bigint(20) NOT NULL,
+            `DurationMilliseconds` bigint(20) NOT NULL,
+            `UncompressedSizeBytes` int(11) NOT NULL,
+            `Payload` longblob NOT NULL,
+            `CreatedAtUtc` datetime NOT NULL,
+            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+            CONSTRAINT `FK_MediaRecordingChunks_MediaRecordings` FOREIGN KEY (`MediaRecordingId`) REFERENCES `mediarecordings` (`Id`) ON DELETE CASCADE
+        ) CHARACTER SET=utf8mb4;
+
+        CREATE TABLE `mediarecordingreferences` (
+            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `GameItemComponentId` bigint(20) NOT NULL,
+            `MediaRecordingId` bigint(20) NOT NULL,
+            `Name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            `PubliclyAccessible` bit(1) NOT NULL,
+            `CreatedAtUtc` datetime NOT NULL,
+            `LastModifiedAtUtc` datetime NOT NULL,
+            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+            CONSTRAINT `FK_MediaRecordingReferences_GameItemComponents` FOREIGN KEY (`GameItemComponentId`) REFERENCES `gameitemcomponents` (`Id`) ON DELETE CASCADE,
+            CONSTRAINT `FK_MediaRecordingReferences_MediaRecordings` FOREIGN KEY (`MediaRecordingId`) REFERENCES `mediarecordings` (`Id`) ON DELETE CASCADE
+        ) CHARACTER SET=utf8mb4;
+
+        CREATE TABLE `mediarecordingframes` (
+            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `MediaRecordingId` bigint(20) NOT NULL,
+            `MediaSceneSnapshotId` bigint(20) NOT NULL,
+            `StartOffsetMilliseconds` bigint(20) NOT NULL,
+            `EndOffsetMilliseconds` bigint(20) NOT NULL,
+            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+            CONSTRAINT `FK_MediaRecordingFrames_MediaRecordings` FOREIGN KEY (`MediaRecordingId`) REFERENCES `mediarecordings` (`Id`) ON DELETE CASCADE,
+            CONSTRAINT `FK_MediaRecordingFrames_MediaSceneSnapshots` FOREIGN KEY (`MediaSceneSnapshotId`) REFERENCES `mediascenesnapshots` (`Id`) ON DELETE RESTRICT
+        ) CHARACTER SET=utf8mb4;
+
+        CREATE UNIQUE INDEX `UX_MediaRecordingChunks_Recording_Sequence` ON `mediarecordingchunks` (`MediaRecordingId`, `Sequence`);
+        CREATE INDEX `FK_MediaRecordingFrames_MediaSceneSnapshots_idx` ON `mediarecordingframes` (`MediaSceneSnapshotId`);
+        CREATE INDEX `IX_MediaRecordingFrames_Recording_Offset` ON `mediarecordingframes` (`MediaRecordingId`, `StartOffsetMilliseconds`);
+        CREATE INDEX `FK_MediaRecordingReferences_MediaRecordings_idx` ON `mediarecordingreferences` (`MediaRecordingId`);
+        CREATE UNIQUE INDEX `UX_MediaRecordingReferences_Component_Name` ON `mediarecordingreferences` (`GameItemComponentId`, `Name`);
+        CREATE INDEX `IX_MediaRecordings_Status_Created` ON `mediarecordings` (`Status`, `CreatedAtUtc`);
+        CREATE UNIQUE INDEX `UX_MediaSceneSnapshots_ContentHash` ON `mediascenesnapshots` (`ContentHash`);
+
+        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+        VALUES ('20260830121659_AddMediaRecordingStorage', '9.0.11');
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+COMMIT;

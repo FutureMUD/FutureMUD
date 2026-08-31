@@ -32,24 +32,24 @@ public class DummyPerceiver : DummyPerceivable, IPerceiver
         return true;
     }
 
-    public bool CanHear(IPerceivable thing)
+    public virtual bool CanHear(IPerceivable thing)
     {
         return true;
     }
 
-    public bool CanSense(IPerceivable thing, bool ignoreFuzzy = false)
+    public virtual bool CanSense(IPerceivable thing, bool ignoreFuzzy = false)
     {
         return true;
     }
 
-    public bool CanSee(IPerceivable thing, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
+    public virtual bool CanSee(IPerceivable thing, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
     {
         return true;
     }
 
     public double VisionPercentage => 1.0;
 
-    public bool CanSmell(IPerceivable thing)
+    public virtual bool CanSmell(IPerceivable thing)
     {
         return true;
     }

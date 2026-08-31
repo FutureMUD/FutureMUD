@@ -5,6 +5,7 @@ using MudSharp.Database;
 using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 
 namespace MudSharp.Computers;
@@ -19,11 +20,17 @@ public class ComputerExecutionService : IComputerExecutionService
 	private readonly Dictionary<long, IComputerExecutableOwner> _mutableExecutableOwners = new();
 	private readonly List<IComputerExecutableOwner> _registeredItemOwners = [];
 	private readonly Dictionary<long, ComputerSignalWaitSubscription> _signalWaitSubscriptions = new();
+	private readonly Dictionary<long, ComputerMediaWaitSubscription> _mediaWaitSubscriptions = new();
 	private bool _loaded;
 
 	public ComputerExecutionService(IFuturemud gameworld)
 	{
 		_gameworld = gameworld;
+		var mediaChannel = _gameworld.MediaChannelService;
+		if (mediaChannel is not null)
+		{
+			mediaChannel.PacketDelivered += HandleMediaWaitPacketDelivered;
+		}
 	}
 
 	public void LoadPersistedState()
@@ -53,6 +60,11 @@ public class ComputerExecutionService : IComputerExecutionService
 						if (process.WaitType == ComputerProcessWaitType.Sleep)
 						{
 							ScheduleResume_NoLock(process);
+						}
+						else if (process.WaitType == ComputerProcessWaitType.Media &&
+						         ResolveOwnerForProcess_NoLock(process) is { } owner && owner.ExecutionHost.Powered)
+						{
+							AttachMediaWait_NoLock(owner, process);
 						}
 						break;
 				}
@@ -225,6 +237,7 @@ public class ComputerExecutionService : IComputerExecutionService
 
 					_gameworld.Scheduler.Destroy(runtimeProcess, ScheduleType.ComputerProgram);
 					DetachSignalWait_NoLock(runtimeProcess.Id);
+					DetachMediaWait_NoLock(runtimeProcess.Id);
 					mutableOwner.DeleteProcessDefinition(runtimeProcess);
 				}
 
@@ -467,6 +480,7 @@ public class ComputerExecutionService : IComputerExecutionService
 
 			_gameworld.Scheduler.Destroy(runtimeProcess, ScheduleType.ComputerProgram);
 			DetachSignalWait_NoLock(runtimeProcess.Id);
+			DetachMediaWait_NoLock(runtimeProcess.Id);
 			runtimeProcess.Status = ComputerProcessStatus.Killed;
 			runtimeProcess.WaitType = ComputerProcessWaitType.None;
 			runtimeProcess.WakeTimeUtc = null;
@@ -492,6 +506,7 @@ public class ComputerExecutionService : IComputerExecutionService
 			foreach (var process in ResolveProcesses_NoLock(owner).OfType<ComputerRuntimeProcess>().ToList())
 			{
 				DetachSignalWait_NoLock(process.Id);
+				DetachMediaWait_NoLock(process.Id);
 				switch (process.Status)
 				{
 					case ComputerProcessStatus.Running:
@@ -516,6 +531,10 @@ public class ComputerExecutionService : IComputerExecutionService
 					                                     process.WaitType == ComputerProcessWaitType.Signal:
 						AttachSignalWait_NoLock(owner, process, true);
 						break;
+					case ComputerProcessStatus.Sleeping when owner.ExecutionHost.Powered &&
+					                                     process.WaitType == ComputerProcessWaitType.Media:
+						AttachMediaWait_NoLock(owner, process);
+						break;
 				}
 			}
 		}
@@ -531,6 +550,7 @@ public class ComputerExecutionService : IComputerExecutionService
 			{
 				_gameworld.Scheduler.Destroy(process, ScheduleType.ComputerProgram);
 				DetachSignalWait_NoLock(process.Id);
+				DetachMediaWait_NoLock(process.Id);
 
 				if (!process.IsRunning)
 				{
@@ -1200,6 +1220,7 @@ public class ComputerExecutionService : IComputerExecutionService
 
 		_gameworld.Scheduler.Destroy(process, ScheduleType.ComputerProgram);
 		DetachSignalWait_NoLock(process.Id);
+		DetachMediaWait_NoLock(process.Id);
 		process.Status = outcome.Status;
 		process.WaitType = outcome.WaitType;
 		process.WakeTimeUtc = outcome.WakeTimeUtc;
@@ -1224,6 +1245,9 @@ public class ComputerExecutionService : IComputerExecutionService
 					break;
 				case ComputerProcessWaitType.Signal:
 					AttachSignalWait_NoLock(owner, process, false);
+					break;
+				case ComputerProcessWaitType.Media:
+					AttachMediaWait_NoLock(owner, process);
 					break;
 			}
 		}
@@ -1388,6 +1412,114 @@ public class ComputerExecutionService : IComputerExecutionService
 			Gameworld = _gameworld,
 			Process = liveProcess,
 			PendingSignalInput = signal,
+			LaunchDepth = (ComputerExecutionContextScope.Current?.LaunchDepth ?? 0) + 1
+		});
+
+		liveProcess.Status = ComputerProcessStatus.Running;
+		liveProcess.WaitType = ComputerProcessWaitType.None;
+		liveProcess.WakeTimeUtc = null;
+		liveProcess.WaitArgument = null;
+		liveProcess.WaitingCharacterId = null;
+		liveProcess.WaitingTerminalItemId = null;
+		liveProcess.LastUpdatedAtUtc = DateTime.UtcNow;
+		PersistProcess_NoLock(owner, liveProcess);
+
+		var outcome = ComputerProgramExecutor.Execute(program, Enumerable.Empty<object?>(), liveProcess.StateJson);
+		ApplyExecutionOutcome_NoLock(owner, liveProcess, outcome);
+	}
+
+	private void AttachMediaWait_NoLock(IComputerExecutableOwner owner, ComputerRuntimeProcess process)
+	{
+		if (process.Status != ComputerProcessStatus.Sleeping || process.WaitType != ComputerProcessWaitType.Media ||
+		    _mediaWaitSubscriptions.ContainsKey(process.Id))
+		{
+			return;
+		}
+
+		if (!ComputerProcessWaitArguments.TryParseMedia(process.WaitArgument, out var endpoint) ||
+		    !_gameworld.ComputerMediaService.IsMediaInput(owner.ExecutionHost, endpoint))
+		{
+			ApplyExecutionOutcome_NoLock(owner, process, new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Failed,
+				Error = "The awaited media input is no longer available."
+			});
+			return;
+		}
+
+		_mediaWaitSubscriptions[process.Id] = new ComputerMediaWaitSubscription
+		{
+			ProcessId = process.Id,
+			Endpoint = endpoint
+		};
+	}
+
+	private void DetachMediaWait_NoLock(long processId)
+	{
+		_mediaWaitSubscriptions.Remove(processId);
+	}
+
+	private void HandleMediaWaitPacketDelivered(IMediaSink sink, MediaPacket packet)
+	{
+		lock (_sync)
+		{
+			var processIds = _mediaWaitSubscriptions.Values
+				.Where(x => x.Endpoint == sink.MediaInputEndpoint)
+				.Select(x => x.ProcessId)
+				.ToList();
+			foreach (var processId in processIds)
+			{
+				var process = EnumerateAllProcesses_NoLock()
+					.FirstOrDefault(x => x.Id == processId);
+				if (process is null)
+				{
+					DetachMediaWait_NoLock(processId);
+					continue;
+				}
+
+				var owner = ResolveOwnerForProcess_NoLock(process);
+				if (owner is null)
+				{
+					DetachMediaWait_NoLock(processId);
+					continue;
+				}
+
+				HandleMediaWaitTriggered_NoLock(owner, process, packet);
+			}
+		}
+	}
+
+	private void HandleMediaWaitTriggered_NoLock(IComputerExecutableOwner owner, ComputerRuntimeProcess process,
+		MediaPacket packet)
+	{
+		var liveProcess = ResolveProcesses_NoLock(owner)
+			.OfType<ComputerRuntimeProcess>()
+			.FirstOrDefault(x => x.Id == process.Id);
+		if (liveProcess is null || liveProcess.Status != ComputerProcessStatus.Sleeping ||
+		    liveProcess.WaitType != ComputerProcessWaitType.Media ||
+		    liveProcess.Program is not ComputerRuntimeProgramBase program || !owner.ExecutionHost.Powered)
+		{
+			return;
+		}
+
+		DetachMediaWait_NoLock(liveProcess.Id);
+		if (!EnsureCompiled_NoLock(owner, program, out var compileError))
+		{
+			ApplyExecutionOutcome_NoLock(owner, liveProcess, new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Failed,
+				Error = compileError
+			});
+			return;
+		}
+
+		using var scope = new ComputerExecutionContextScope(new ComputerExecutionContext
+		{
+			Owner = owner,
+			Host = owner.ExecutionHost,
+			Gameworld = _gameworld,
+			Process = liveProcess,
+			PendingMediaInput = packet,
 			LaunchDepth = (ComputerExecutionContextScope.Current?.LaunchDepth ?? 0) + 1
 		});
 
@@ -1614,6 +1746,8 @@ public class ComputerExecutionService : IComputerExecutionService
 					"mail" => _gameworld.ComputerMailService.GetAdvertisedServiceDetails(targetHost, x.ApplicationId)
 						.ToList(),
 					"ftp" => _gameworld.ComputerFileTransferService.GetAdvertisedServiceDetails(targetHost, x.ApplicationId)
+						.ToList(),
+					"media" => _gameworld.ComputerMediaNetworkService.GetAdvertisedServiceDetails(targetHost, x.ApplicationId)
 						.ToList(),
 					_ => []
 				};

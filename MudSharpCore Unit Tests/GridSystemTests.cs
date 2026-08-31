@@ -7,6 +7,7 @@ using MudSharp.Character;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Communication.Language.DifficultyModels;
+using MudSharp.Computers;
 using MudSharp.Construction;
 using MudSharp.Construction.Grids;
 using MudSharp.Events;
@@ -494,7 +495,7 @@ public class GridSystemTests
         TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4, true, "9999");
         grid.SetMaximumRings(2);
         Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 230L, CreateCell().Object);
-        (Mock<IGameItem> Item, TapeGameItemComponent Component) tape = CreateTape(gameworld.Object, 231L);
+        (Mock<IGameItem> Item, MediaStorageMediumGameItemComponent Component) tape = CreateAudioMedium(gameworld.Object, 231L);
         AnsweringMachineGameItemComponent machine = new(CreateAnsweringMachineProto(gameworld.Object, 2),
             machineParent.Object, true);
         TelephoneDouble caller = new(gameworld.Object, 232);
@@ -652,11 +653,11 @@ public class GridSystemTests
         Mock<IFuturemud> gameworld = CreateGameworld(languageList: [language.Object], accentList: [accent.Object]);
         TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
         Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 200L, CreateCell().Object);
-        (Mock<IGameItem> Item, TapeGameItemComponent Component) tape = CreateTape(gameworld.Object, 201L);
+        (Mock<IGameItem> Item, MediaStorageMediumGameItemComponent Component) tape = CreateAudioMedium(gameworld.Object, 201L);
         AnsweringMachineGameItemComponent machine = new(CreateAnsweringMachineProto(gameworld.Object, 2), machineParent.Object, true);
         TelephoneDouble caller = new(gameworld.Object, 202);
 
-        Assert.IsTrue(tape.Component.StoreRecording(
+        Assert.IsTrue(StoreRecordedAudio(gameworld.Object, tape.Component,
             new StoredAudioRecording(
                 "__greeting__",
                 new RecordedAudio(
@@ -709,7 +710,7 @@ public class GridSystemTests
         Mock<IFuturemud> gameworld = CreateGameworld();
         TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
         Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 210L, CreateCell().Object);
-        (Mock<IGameItem> Item, TapeGameItemComponent Component) tape = CreateTape(gameworld.Object, 211L);
+        (Mock<IGameItem> Item, MediaStorageMediumGameItemComponent Component) tape = CreateAudioMedium(gameworld.Object, 211L);
         AnsweringMachineGameItemComponent machine = new(CreateAnsweringMachineProto(gameworld.Object, 2), machineParent.Object, true);
         TelephoneDouble caller = new(gameworld.Object, 212);
         TelephoneDouble extension = new(gameworld.Object, 213) { ExternalOwner = machine };
@@ -736,12 +737,12 @@ public class GridSystemTests
     }
 
     [TestMethod]
-    public void TelecommunicationsGrid_AnsweringMachineWithWriteProtectedTapeStillAnswers()
+    public void TelecommunicationsGrid_AnsweringMachineWithWriteProtectedMediumStillAnswers()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
         TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
         Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 220L, CreateCell().Object);
-        (Mock<IGameItem> Item, TapeGameItemComponent Component) tape = CreateTape(gameworld.Object, 221L);
+        (Mock<IGameItem> Item, MediaStorageMediumGameItemComponent Component) tape = CreateAudioMedium(gameworld.Object, 221L);
         AnsweringMachineGameItemComponent machine = new(CreateAnsweringMachineProto(gameworld.Object, 2), machineParent.Object, true);
         TelephoneDouble caller = new(gameworld.Object, 222);
 
@@ -767,12 +768,12 @@ public class GridSystemTests
     }
 
     [TestMethod]
-    public void AnsweringMachine_SelectGreetingRecordStop_SavesGreetingToTape()
+    public void AnsweringMachine_SelectGreetingRecordStop_SavesGreetingToMedium()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
         ICell cell = CreateCell().Object;
         Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 230L, cell);
-        (Mock<IGameItem> Item, TapeGameItemComponent Component) tape = CreateTape(gameworld.Object, 231L);
+        (Mock<IGameItem> Item, MediaStorageMediumGameItemComponent Component) tape = CreateAudioMedium(gameworld.Object, 231L);
         AnsweringMachineGameItemComponent machine = new(CreateAnsweringMachineProto(gameworld.Object, 2), machineParent.Object, true);
         Mock<ICharacter> actor = CreateCharacter(gameworld.Object, 232L, cell);
         Mock<ILanguage> language = CreateLanguage(301);
@@ -793,10 +794,10 @@ public class GridSystemTests
     }
 
     [TestMethod]
-    public void AnsweringMachine_LoadRestoresInsertedTapeAndSettings()
+    public void AnsweringMachine_LoadRestoresInsertedMediumAndSettings()
     {
         Mock<IFuturemud> tapeGameworld = CreateGameworld();
-        (Mock<IGameItem> Item, TapeGameItemComponent Component) tape = CreateTape(tapeGameworld.Object, 241L);
+        (Mock<IGameItem> Item, MediaStorageMediumGameItemComponent Component) tape = CreateAudioMedium(tapeGameworld.Object, 241L);
         Mock<IFuturemud> gameworld = CreateGameworld(itemList: [tape.Item.Object]);
         gameworld.Setup(x => x.TryGetItem(tape.Item.Object.Id, true)).Returns(tape.Item.Object);
 
@@ -806,16 +807,41 @@ public class GridSystemTests
         {
             Id = 1,
             Definition =
-                $"<Definition><Grid>0</Grid><SwitchedOn>false</SwitchedOn><PreferredNumber></PreferredNumber><AllowSharedNumber>false</AllowSharedNumber><AutoAnswerRings>5</AutoAnswerRings><RingVolumeOverride>-1</RingVolumeOverride><Tape>{tape.Item.Object.Id}</Tape><ConnectedItems /></Definition>"
+                $"<Definition><Grid>0</Grid><SwitchedOn>false</SwitchedOn><PreferredNumber></PreferredNumber><AllowSharedNumber>false</AllowSharedNumber><AutoAnswerRings>5</AutoAnswerRings><RingVolumeOverride>-1</RingVolumeOverride><Medium>{tape.Item.Object.Id}</Medium><ConnectedItems /></Definition>"
         }, proto, parent.Object);
 
         component.FinaliseLoad();
 
         Assert.IsFalse(component.SwitchedOn);
         Assert.AreEqual(5, component.AutoAnswerRings);
-        Assert.IsNotNull(component.Tape);
+        Assert.IsNotNull(component.Medium);
         Assert.AreEqual(tape.Item.Object, component.Contents.Single());
     }
+
+	[TestMethod]
+	public void MediaStorageMedium_EnforcesCapacityAndWriteProtection()
+	{
+		Mock<IFuturemud> gameworld = CreateGameworld();
+		var medium = CreateAudioMedium(gameworld.Object, 242L, capacityMinutes: 0.01).Component;
+		var service = gameworld.Object.MediaRecordingService;
+		var startedAt = DateTime.UtcNow;
+		var first = service.CreateRecording(new MediaRecordingCreateRequest(MediaCapabilities.Audio, "first", startedAt,
+			medium.Id));
+		Assert.IsTrue(service.FinaliseRecording(first.RecordingId, MediaRecordingStatus.Finalised,
+			startedAt.AddMilliseconds(500), out var error), error);
+		Assert.IsTrue(medium.StoreRecording(service.GetRecording(first.RecordingId)!, out error), error);
+
+		var second = service.CreateRecording(new MediaRecordingCreateRequest(MediaCapabilities.Audio, "second", startedAt,
+			medium.Id));
+		Assert.IsTrue(service.FinaliseRecording(second.RecordingId, MediaRecordingStatus.Finalised,
+			startedAt.AddMilliseconds(200), out error), error);
+		Assert.IsFalse(medium.StoreRecording(service.GetRecording(second.RecordingId)!, out error));
+		StringAssert.Contains(error, "capacity");
+
+		medium.WriteProtected = true;
+		Assert.IsFalse(medium.DeleteRecording("first", out error));
+		StringAssert.Contains(error, "write-protected");
+	}
 
     [TestMethod]
     public void TelecommunicationsGrid_RoutesLongDistanceCallsAcrossLinkedExchanges()
@@ -1163,6 +1189,7 @@ public class GridSystemTests
         Mock<ISaveManager> saveManager = new();
         Mock<IUneditableAll<IBodyPrototype>> bodyPrototypes = new();
         Mock<IHeartbeatManager> heartbeatManager = new();
+        TestMediaRecordingService mediaRecordingService = new();
         Mock<IUnitManager> unitManager = new();
         Mock<IUneditableAll<IGameItem>> items = CreateCollection(itemList ?? Enumerable.Empty<IGameItem>());
         Mock<IUneditableAll<IGrid>> grids = CreateCollection(gridList ?? Enumerable.Empty<IGrid>());
@@ -1176,6 +1203,7 @@ public class GridSystemTests
         gameworld.SetupGet(x => x.BodyPrototypes).Returns(bodyPrototypes.Object);
         gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
         gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeatManager.Object);
+		gameworld.SetupGet(x => x.MediaRecordingService).Returns(mediaRecordingService);
         gameworld.SetupGet(x => x.Items).Returns(items.Object);
         gameworld.SetupGet(x => x.Grids).Returns(grids.Object);
         gameworld.SetupGet(x => x.Languages).Returns(languages.Object);
@@ -1185,6 +1213,192 @@ public class GridSystemTests
                  .Returns<long, bool>((id, _) => items.Object.Get(id)!);
         return gameworld;
     }
+
+	private sealed class TestMediaRecordingService : IMediaRecordingService
+	{
+		private sealed class RecordingState
+		{
+			public required MediaRecordingDescriptor Descriptor { get; set; }
+			public List<MediaPacket> Packets { get; } = [];
+			public List<(long StartMilliseconds, long EndMilliseconds, string Scene)> Frames { get; } = [];
+		}
+
+		private long _nextRecordingId;
+		private readonly Dictionary<long, RecordingState> _recordings = [];
+		private readonly Dictionary<string, MediaRecordingReference> _references =
+			new(StringComparer.InvariantCultureIgnoreCase);
+
+		public MediaRecordingDescriptor CreateRecording(MediaRecordingCreateRequest request)
+		{
+			var descriptor = new MediaRecordingDescriptor(++_nextRecordingId, request.Capabilities,
+				MediaRecordingStatus.Recording, request.StartedAtUtc, null, TimeSpan.Zero, 0L, request.Name);
+			_recordings[descriptor.RecordingId] = new RecordingState { Descriptor = descriptor };
+			return descriptor;
+		}
+
+		public bool AppendPacket(long recordingId, MediaPacket packet, out string error)
+		{
+			error = string.Empty;
+			if (!_recordings.TryGetValue(recordingId, out var state) ||
+			    state.Descriptor.Status != MediaRecordingStatus.Recording)
+			{
+				error = "That recording is no longer accepting packets.";
+				return false;
+			}
+
+			state.Packets.Add(packet);
+			return true;
+		}
+
+		public bool AppendSceneFrame(long recordingId, TimeSpan startOffset, TimeSpan endOffset, string canonicalScene,
+			out string error)
+		{
+			error = string.Empty;
+			if (!_recordings.TryGetValue(recordingId, out var state) ||
+			    state.Descriptor.Status != MediaRecordingStatus.Recording)
+			{
+				error = "That recording is no longer accepting scene frames.";
+				return false;
+			}
+
+			state.Frames.Add(((long)startOffset.TotalMilliseconds, (long)endOffset.TotalMilliseconds, canonicalScene));
+			return true;
+		}
+
+		public bool FinaliseRecording(long recordingId, MediaRecordingStatus status, DateTime completedAtUtc, out string error)
+		{
+			error = string.Empty;
+			if (!_recordings.TryGetValue(recordingId, out var state) ||
+			    state.Descriptor.Status != MediaRecordingStatus.Recording)
+			{
+				error = "That recording has already been finalised.";
+				return false;
+			}
+
+			var packetDuration = state.Packets
+				.Select(x => x.TimestampUtc - state.Descriptor.CreatedAtUtc)
+				.DefaultIfEmpty(TimeSpan.Zero)
+				.Max();
+			var frameDuration = state.Frames.Select(x => x.EndMilliseconds).DefaultIfEmpty(0L).Max();
+			var duration = new[]
+			{
+				packetDuration,
+				TimeSpan.FromMilliseconds(frameDuration),
+				completedAtUtc - state.Descriptor.CreatedAtUtc
+			}.Max();
+			state.Descriptor = state.Descriptor with
+			{
+				Status = status,
+				FinalisedAtUtc = completedAtUtc,
+				Duration = duration > TimeSpan.Zero ? duration : TimeSpan.Zero,
+				LogicalSizeInBytes = state.Packets.Sum(x => x.Payload.ToString()?.Length ?? 0) +
+				                     state.Frames.Sum(x => x.Scene.Length)
+			};
+			return true;
+		}
+
+		public MediaRecordingDescriptor? GetRecording(long recordingId)
+		{
+			return _recordings.GetValueOrDefault(recordingId)?.Descriptor;
+		}
+
+		public IEnumerable<MediaPacket> ReadPackets(long recordingId)
+		{
+			return _recordings.GetValueOrDefault(recordingId)?.Packets
+				.OrderBy(x => x.TimestampUtc)
+				.ThenBy(x => x.Sequence)
+				.ToList() ?? [];
+		}
+
+		public MediaScenePayload? GetSceneAt(long recordingId, TimeSpan offset)
+		{
+			var offsetMilliseconds = (long)offset.TotalMilliseconds;
+			var frame = _recordings.GetValueOrDefault(recordingId)?.Frames
+				.Where(x => x.StartMilliseconds <= offsetMilliseconds && x.EndMilliseconds >= offsetMilliseconds)
+				.Select(x => x.Scene)
+				.LastOrDefault();
+			return frame is null ? null : new MediaScenePayload(frame, "test");
+		}
+
+		public IEnumerable<MediaRecordingDescriptor> GetRecordings(long ownerGameItemComponentId)
+		{
+			return GetReferences(ownerGameItemComponentId)
+				.Select(x => GetRecording(x.RecordingId))
+				.Where(x => x is not null)
+				.Cast<MediaRecordingDescriptor>()
+				.ToList();
+		}
+
+		public IEnumerable<MediaRecordingReference> GetReferences(long ownerGameItemComponentId)
+		{
+			return _references.Values
+				.Where(x => x.OwnerGameItemComponentId == ownerGameItemComponentId)
+				.OrderBy(x => x.Name)
+				.ToList();
+		}
+
+		public bool CreateReference(MediaRecordingReference reference, out string error)
+		{
+			error = string.Empty;
+			var key = GetReferenceKey(reference.OwnerGameItemComponentId, reference.Name);
+			if (!_recordings.ContainsKey(reference.RecordingId))
+			{
+				error = "That media recording no longer exists.";
+				return false;
+			}
+
+			if (!_references.TryAdd(key, reference))
+			{
+				error = "That medium already has a recording with that name.";
+				return false;
+			}
+
+			return true;
+		}
+
+		public bool DeleteReference(long ownerGameItemComponentId, string name, out string error)
+		{
+			error = string.Empty;
+			var key = GetReferenceKey(ownerGameItemComponentId, name);
+			if (!_references.Remove(key, out var reference))
+			{
+				error = "There is no media recording with that name.";
+				return false;
+			}
+
+			if (!_references.Values.Any(x => x.RecordingId == reference.RecordingId))
+			{
+				_recordings.Remove(reference.RecordingId);
+			}
+
+			return true;
+		}
+
+		public bool SetReferencePubliclyAccessible(long ownerGameItemComponentId, string name, bool publiclyAccessible,
+			out string error)
+		{
+			var key = GetReferenceKey(ownerGameItemComponentId, name);
+			if (!_references.TryGetValue(key, out var reference))
+			{
+				error = "There is no media recording with that name.";
+				return false;
+			}
+
+			_references[key] = reference with { PubliclyAccessible = publiclyAccessible, LastModifiedAtUtc = DateTime.UtcNow };
+			error = string.Empty;
+			return true;
+		}
+
+		public MediaRecordingReference? GetReference(long ownerGameItemComponentId, string name)
+		{
+			return _references.GetValueOrDefault(GetReferenceKey(ownerGameItemComponentId, name));
+		}
+
+		private static string GetReferenceKey(long ownerGameItemComponentId, string name)
+		{
+			return $"{ownerGameItemComponentId}:{name}";
+		}
+	}
 
     private static Mock<IUneditableAll<T>> CreateCollection<T>(IEnumerable<T> items)
         where T : class, IFrameworkItem
@@ -1361,15 +1575,16 @@ public class GridSystemTests
                .Invoke([model, gameworld]);
     }
 
-    private static TapeGameItemComponentProto CreateTapeProto(IFuturemud gameworld, double capacityMinutes = 30.0)
+    private static MediaStorageMediumGameItemComponentProto CreateAudioMediumProto(IFuturemud gameworld,
+        double capacityMinutes = 30.0)
     {
         MudSharp.Models.GameItemComponentProto model = new()
         {
             Id = 24,
-            Name = "Tape",
+            Name = "Audio Medium",
             Description = "Test",
             RevisionNumber = 1,
-            Definition = $"<Definition><CapacityMs>{(long)TimeSpan.FromMinutes(capacityMinutes).TotalMilliseconds}</CapacityMs></Definition>",
+            Definition = $"<Definition><FormatKey>compact-cassette</FormatKey><Capabilities>Audio</Capabilities><CapacityMilliseconds>{(long)TimeSpan.FromMinutes(capacityMinutes).TotalMilliseconds}</CapacityMilliseconds></Definition>",
             EditableItem = new MudSharp.Models.EditableItem
             {
                 RevisionStatus = (int)RevisionStatus.Current,
@@ -1377,7 +1592,7 @@ public class GridSystemTests
             }
         };
 
-        return (TapeGameItemComponentProto)typeof(TapeGameItemComponentProto)
+        return (MediaStorageMediumGameItemComponentProto)typeof(MediaStorageMediumGameItemComponentProto)
                .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
                    [typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
                .Invoke([model, gameworld]);
@@ -1407,7 +1622,7 @@ public class GridSystemTests
                .Invoke([model, gameworld]);
     }
 
-    private static (Mock<IGameItem> Item, TapeGameItemComponent Component) CreateTape(IFuturemud gameworld, long id,
+    private static (Mock<IGameItem> Item, MediaStorageMediumGameItemComponent Component) CreateAudioMedium(IFuturemud gameworld, long id,
         double capacityMinutes = 30.0)
     {
         Mock<IGameItem> item = CreateBasicItem(gameworld, id);
@@ -1417,10 +1632,48 @@ public class GridSystemTests
         item.Setup(x => x.FinaliseLoadTimeTasks());
         item.Setup(x => x.Get(It.IsAny<IBody>())).Returns(item.Object);
 
-        TapeGameItemComponent component = new(CreateTapeProto(gameworld, capacityMinutes), item.Object, true);
-        item.Setup(x => x.GetItemType<IAudioStorageTape>()).Returns(component);
+        MediaStorageMediumGameItemComponent component = new(CreateAudioMediumProto(gameworld, capacityMinutes), item.Object, true);
+        item.Setup(x => x.GetItemType<IMediaStorageMedium>()).Returns(component);
         return (item, component);
     }
+
+	private static bool StoreRecordedAudio(IFuturemud gameworld, IMediaStorageMedium medium,
+		StoredAudioRecording recording, out string error)
+	{
+		var mediaRecording = gameworld.MediaRecordingService.CreateRecording(new MediaRecordingCreateRequest(
+			MediaCapabilities.Audio, recording.Name, recording.RecordedAtUtc, medium.Id));
+		var timestamp = recording.RecordedAtUtc;
+		var source = new MediaEndpointAddress(medium.Parent.Id, medium.Id, "test-audio");
+		long sequence = 0L;
+		foreach (var segment in recording.Recording.Segments)
+		{
+			timestamp += segment.DelayBeforeSegment;
+			var packet = new MediaPacket(Guid.NewGuid(), ++sequence, timestamp, MediaCapabilities.Audio,
+				MediaEventKind.Audio, source, [source], new MediaLanguagePayload(false, segment.LanguageId,
+					segment.AccentId, segment.RawText, (int)segment.Volume, (int)segment.Outcome,
+					segment.Speaker.CharacterId, segment.Speaker.Name, (short)segment.Speaker.Gender, string.Empty,
+					string.Empty, (long)segment.EstimatedSegmentDuration.TotalMilliseconds));
+			if (!gameworld.MediaRecordingService.AppendPacket(mediaRecording.RecordingId, packet, out error))
+			{
+				return false;
+			}
+		}
+
+		if (!gameworld.MediaRecordingService.FinaliseRecording(mediaRecording.RecordingId,
+			MediaRecordingStatus.Finalised, recording.RecordedAtUtc + recording.Recording.TotalDuration, out error))
+		{
+			return false;
+		}
+
+		var descriptor = gameworld.MediaRecordingService.GetRecording(mediaRecording.RecordingId);
+		if (descriptor is null)
+		{
+			error = "The test recording did not finalise.";
+			return false;
+		}
+
+		return medium.StoreRecording(descriptor with { Name = recording.Name }, out error);
+	}
 
     private static TelecommunicationsGridCreatorGameItemComponentProto CreateTelecommunicationsGridCreatorProto(
         IFuturemud gameworld, string prefix, int numberLength)

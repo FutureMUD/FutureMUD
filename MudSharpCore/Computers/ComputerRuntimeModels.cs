@@ -66,7 +66,9 @@ public sealed class ComputerProcessDefinition : IComputerProcess
 public sealed class ComputerTextFile : IComputerFile
 {
 	public string FileName { get; init; } = string.Empty;
+	public ComputerFileKind Kind => ComputerFileKind.Text;
 	public string TextContents { get; init; } = string.Empty;
+	public long? MediaRecordingId => null;
 	public long SizeInBytes => Encoding.UTF8.GetByteCount(TextContents ?? string.Empty);
 	public DateTime CreatedAtUtc { get; init; } = DateTime.UtcNow;
 	public DateTime LastModifiedAtUtc { get; init; } = DateTime.UtcNow;
@@ -96,7 +98,13 @@ public sealed class ComputerFileSystemDefinition : IComputerFileSystem
 
 	public string ReadFile(string fileName)
 	{
-		return GetFile(fileName)?.TextContents ?? string.Empty;
+		var file = GetFile(fileName);
+		if (file?.Kind == ComputerFileKind.Media)
+		{
+			throw new ComputerFileKindException("Media files cannot be read as text.");
+		}
+
+		return file?.TextContents ?? string.Empty;
 	}
 
 	public void WriteFile(string fileName, string textContents)
@@ -105,6 +113,17 @@ public sealed class ComputerFileSystemDefinition : IComputerFileSystem
 	}
 
 	public void AppendFile(string fileName, string textContents)
+	{
+		throw new NotSupportedException("ComputerFileSystemDefinition is read-only.");
+	}
+
+	public bool WriteMediaFile(string fileName, long recordingId, long sizeInBytes, bool publiclyAccessible,
+		out string error)
+	{
+		throw new NotSupportedException("ComputerFileSystemDefinition is read-only.");
+	}
+
+	public bool UpdateMediaFileSize(string fileName, long sizeInBytes, out string error)
 	{
 		throw new NotSupportedException("ComputerFileSystemDefinition is read-only.");
 	}

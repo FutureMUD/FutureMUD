@@ -22,6 +22,7 @@ internal static class ComputerBuiltInApplicationExecutors
 		new IComputerBuiltInApplicationExecutor[]
 		{
 			new FileManagerBuiltInApplicationExecutor(),
+			new MediaBuiltInApplicationExecutor(),
 			new FtpBuiltInApplicationExecutor(),
 			new BoardsBuiltInApplicationExecutor(),
 			new MailBuiltInApplicationExecutor(),
@@ -47,6 +48,14 @@ internal static class ComputerBuiltInApplicationExecutors
 			return executor.Execute(gameworld, actor, owner, session, process, application);
 		}
 		catch (ComputerFileSystemCapacityException ex)
+		{
+			return new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Failed,
+				Error = ex.Message
+			};
+		}
+		catch (ComputerFileKindException ex)
 		{
 			return new ComputerProgramExecutionOutcome
 			{
@@ -128,7 +137,8 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 			"append" => HandleWrite(session, host, state, ss, append: true),
 			"delete" or "del" or "rm" => HandleDelete(session, host, state, ss),
 			"copy" or "cp" when !ss.IsFinished && ss.PeekSpeech().EqualTo("public") => HandleCopyPublic(gameworld, session, host, state, ss),
-			"copy" or "cp" => HandleCopy(session, host, state, ss),
+			"copy" or "cp" => HandleCopy(gameworld, session, host, state, ss),
+			"move" or "mv" => HandleMove(gameworld, session, host, state, ss),
 			"use" or "owner" => HandleUse(session, host, state, ss),
 			"exit" or "quit" => ($"{application.Name.ColourName()} closing.", true),
 			_ => ($"That is not a valid {application.Name.ColourName()} command.\n\n{RenderPrompt(session.User, host, state, null)}", false)
@@ -150,6 +160,10 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		if (file is null)
 		{
 			return ($"{DescribeOwner(owner).ColourName()} does not have a file named {fileName.ColourName()}.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+		}
+		if (file.Kind == ComputerFileKind.Media)
+		{
+			return ($"{file.FileName.ColourName()} is a media recording. Use the Media application to play it or create a still.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
 		}
 
 		var sb = new StringBuilder();
@@ -206,18 +220,20 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		else
 		{
 			sb.AppendLine(StringUtilities.GetTextTable(
-				publicFiles.Select(file => new List<string>
-				{
-					file.OwnerDisplayName,
-					file.FileName,
-					file.SizeInBytes.ToString("N0", session.User),
+			publicFiles.Select(file => new List<string>
+			{
+				file.OwnerDisplayName,
+				file.FileName,
+				file.Kind.DescribeEnum(),
+				file.SizeInBytes.ToString("N0", session.User),
 					file.LastModifiedAtUtc.ToString(session.User)
 				}),
 				new List<string>
-				{
-					"Owner",
-					"File",
-					"Size",
+			{
+				"Owner",
+				"File",
+				"Type",
+				"Size",
 					"Modified"
 				},
 				session.User.LineFormatLength,
@@ -266,6 +282,11 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 			return ($"{error}\n\n{RenderPrompt(session.User, host, state, null)}", false);
 		}
 
+		if (details.Summary.Kind == ComputerFileKind.Media)
+		{
+			return ($"{details.Summary.FileName.ColourName()} is a media recording and cannot be displayed as text.\n\n{RenderPrompt(session.User, host, state, null)}", false);
+		}
+
 		var sb = new StringBuilder();
 		sb.AppendLine($"{details.Summary.FileName.ColourName()} on {summary.Host.Name.ColourName()}");
 		sb.AppendLine($"Size: {details.Summary.SizeInBytes.ToString("N0", session.User).ColourValue()} bytes");
@@ -297,6 +318,11 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		if (fileSystem is null)
 		{
 			return ($"{DescribeOwner(owner).ColourName()} does not expose a writable file system.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+		}
+
+		if (fileSystem.GetFile(fileName)?.Kind == ComputerFileKind.Media)
+		{
+			return ($"{fileName.ColourName()} is a media recording and cannot be {(append ? "appended to" : "overwritten")} as text.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
 		}
 
 		if (append)
@@ -334,6 +360,11 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		if (fileSystem is null)
 		{
 			return ($"{DescribeOwner(owner).ColourName()} does not expose a writable file system.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+		}
+
+		if (fileSystem.GetFile(fileName)?.Kind == ComputerFileKind.Media)
+		{
+			return ($"{fileName.ColourName()} is a media recording and cannot be edited as text.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
 		}
 
 		if (!string.IsNullOrEmpty(warning))
@@ -401,7 +432,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		return (sb.ToString(), false);
 	}
 
-	private static (string Output, bool Exit) HandleCopy(IComputerTerminalSession session, IComputerHost host,
+	private static (string Output, bool Exit) HandleCopy(IFuturemud gameworld, IComputerTerminalSession session, IComputerHost host,
 		FileManagerState state, StringStack ss)
 	{
 		if (ss.IsFinished)
@@ -445,8 +476,19 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 			return ($"{DescribeOwner(targetOwner).ColourName()} does not expose a writable file system.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
 		}
 
-		targetFileSystem.WriteFile(sourceFile.FileName, sourceFile.TextContents);
-		targetFileSystem.SetFilePubliclyAccessible(sourceFile.FileName, sourceFile.PubliclyAccessible);
+		if (sourceFile.Kind == ComputerFileKind.Media)
+		{
+			if (!ComputerMediaFileUtilities.CopyMediaFile(gameworld, sourceFile, targetOwner, sourceFile.FileName,
+				sourceFile.PubliclyAccessible, out var copyError))
+			{
+				return ($"{copyError}\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+			}
+		}
+		else
+		{
+			targetFileSystem.WriteFile(sourceFile.FileName, sourceFile.TextContents);
+			targetFileSystem.SetFilePubliclyAccessible(sourceFile.FileName, sourceFile.PubliclyAccessible);
+		}
 		var sb = new StringBuilder();
 		if (!string.IsNullOrEmpty(warning))
 		{
@@ -457,6 +499,76 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		sb.AppendLine($"Copied {sourceFile.FileName.ColourName()} from {DescribeOwner(sourceOwner).ColourName()} to {DescribeOwner(targetOwner).ColourName()}.");
 		sb.Append(RenderPrompt(session.User, host, state, null));
 		return (sb.ToString(), false);
+	}
+
+	private static (string Output, bool Exit) HandleMove(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerHost host, FileManagerState state, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			return ("Which file do you want to move?\n\n" + RenderPrompt(session.User, host, state, null), false);
+		}
+
+		var fileName = ss.PopSpeech();
+		if (!ss.IsFinished && ss.PeekSpeech().EqualTo("to"))
+		{
+			ss.PopSpeech();
+		}
+
+		if (ss.IsFinished)
+		{
+			return ("Where do you want to move that file?\n\n" + RenderPrompt(session.User, host, state, null), false);
+		}
+
+		var targetText = ss.SafeRemainingArgument;
+		var (sourceOwner, warning) = ResolveTargetOwner(host, state);
+		var sourceFile = sourceOwner.FileSystem?.GetFile(fileName);
+		if (sourceFile is null)
+		{
+			return ($"{DescribeOwner(sourceOwner).ColourName()} does not have a file named {fileName.ColourName()}.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+		}
+
+		var targetOwner = ResolveSelectableOwner(host, targetText);
+		if (targetOwner is null)
+		{
+			return ($"You must target one of the available local file owners on {host.Name.ColourName()}.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+		}
+
+		if (ReferenceEquals(targetOwner, sourceOwner))
+		{
+			return ($"That file is already on {DescribeOwner(sourceOwner).ColourName()}.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+		}
+
+		if (targetOwner.FileSystem is not { } targetFileSystem || sourceOwner.FileSystem is not { } sourceFileSystem)
+		{
+			return ($"Both source and target must expose writable file systems.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+		}
+
+		if (targetFileSystem.FileExists(sourceFile.FileName))
+		{
+			return ($"{DescribeOwner(targetOwner).ColourName()} already has a file named {sourceFile.FileName.ColourName()}.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+		}
+
+		if (sourceFile.Kind == ComputerFileKind.Media)
+		{
+			if (!ComputerMediaFileUtilities.CopyMediaFile(gameworld, sourceFile, targetOwner, sourceFile.FileName,
+				    sourceFile.PubliclyAccessible, out var copyError))
+			{
+				return ($"{copyError}\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+			}
+		}
+		else
+		{
+			targetFileSystem.WriteFile(sourceFile.FileName, sourceFile.TextContents);
+			targetFileSystem.SetFilePubliclyAccessible(sourceFile.FileName, sourceFile.PubliclyAccessible);
+		}
+
+		if (!sourceFileSystem.DeleteFile(sourceFile.FileName))
+		{
+			return ($"The file was copied but could not be removed from {DescribeOwner(sourceOwner).ColourName()}.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+		}
+
+		return ($"Moved {sourceFile.FileName.ColourName()} from {DescribeOwner(sourceOwner).ColourName()} to {DescribeOwner(targetOwner).ColourName()}.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
 	}
 
 	private static (string Output, bool Exit) HandleCopyPublic(IFuturemud gameworld, IComputerTerminalSession session,
@@ -519,8 +631,28 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 				false);
 		}
 
-		targetFileSystem.WriteFile(details.Summary.FileName, details.TextContents);
-		targetFileSystem.SetFilePubliclyAccessible(details.Summary.FileName, false);
+		if (details.Summary.Kind == ComputerFileKind.Media)
+		{
+			if (details.Summary.MediaRecordingId is not { } recordingId)
+			{
+				return ($"That remote media file has no valid recording reference.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+			}
+
+			if (!ComputerMediaFileUtilities.CopyMediaFile(gameworld, new ComputerMutableMediaFile
+			{
+				FileName = details.Summary.FileName,
+				MediaRecordingId = recordingId,
+				SizeInBytes = details.Summary.SizeInBytes
+			}, targetOwner, details.Summary.FileName, false, out var copyError))
+			{
+				return ($"{copyError}\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+			}
+		}
+		else
+		{
+			targetFileSystem.WriteFile(details.Summary.FileName, details.TextContents);
+			targetFileSystem.SetFilePubliclyAccessible(details.Summary.FileName, false);
+		}
 		var sb = new StringBuilder();
 		if (!string.IsNullOrEmpty(warning))
 		{
@@ -578,6 +710,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		sb.AppendLine($"\t{"append <file> <text>".ColourCommand()} - append text to a file");
 		sb.AppendLine($"\t{"delete <file>".ColourCommand()} - delete a file");
 		sb.AppendLine($"\t{"copy <file> <target>".ColourCommand()} - copy a file to any available local file owner");
+		sb.AppendLine($"\t{"move <file> <target>".ColourCommand()} - move a file to any available local file owner");
 		sb.AppendLine($"\t{"copy public <host> <file> [to <target>]".ColourCommand()} - copy a published public network file to a local target");
 		sb.AppendLine($"\t{"owners".ColourCommand()} - list available file owners");
 		sb.AppendLine($"\t{"use <target>".ColourCommand()} - switch the current target");
@@ -632,6 +765,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 			files.Select(file => new List<string>
 			{
 				file.FileName,
+				file.Kind.DescribeEnum(),
 				file.SizeInBytes.ToString("N0", user),
 				file.PubliclyAccessible.ToColouredString(),
 				file.LastModifiedAtUtc.ToString(user)
@@ -639,6 +773,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 			new List<string>
 			{
 				"File",
+				"Type",
 				"Size",
 				"Public",
 				"Modified"
@@ -3175,6 +3310,12 @@ internal sealed class SysMonBuiltInApplicationExecutor : IComputerBuiltInApplica
 		    ComputerProcessWaitArguments.TryParseSignal(process.WaitArgument, out var binding))
 		{
 			return $"Signal ({SignalComponentUtilities.DescribeSignalComponent(binding)})";
+		}
+
+		if (process.WaitType == ComputerProcessWaitType.Media &&
+		    ComputerProcessWaitArguments.TryParseMedia(process.WaitArgument, out var endpoint))
+		{
+			return $"Media ({endpoint.ItemId.ToString("N0", user)}/{endpoint.ComponentId.ToString("N0", user)}/{endpoint.EndpointKey})";
 		}
 
 		return process.WaitType.DescribeEnum();

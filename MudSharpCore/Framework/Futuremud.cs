@@ -145,9 +145,13 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         ComputerNetworkIdentityService = new ComputerNetworkIdentityService(this);
         ComputerNetworkTunnelService = new ComputerNetworkTunnelService(this);
         ComputerBoardService = new ComputerBoardService(this);
-        ComputerMailService = new ComputerMailService(this);
-        ComputerFileTransferService = new ComputerFileTransferService(this);
-        ComputerExecutionService = new ComputerExecutionService(this);
+		ComputerMailService = new ComputerMailService(this);
+		ComputerFileTransferService = new ComputerFileTransferService(this);
+		MediaRecordingService = new MediaRecordingService(this);
+		MediaChannelService = new MediaChannelService(this);
+		ComputerMediaService = new ComputerMediaService(this);
+		ComputerExecutionService = new ComputerExecutionService(this);
+		ComputerMediaNetworkService = new ComputerMediaNetworkService(this);
 
         server?.Bind(_connections, AddConnection);
 

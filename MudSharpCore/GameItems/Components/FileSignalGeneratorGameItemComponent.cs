@@ -50,6 +50,15 @@ public class FileSignalGeneratorGameItemComponent : PoweredMachineBaseGameItemCo
 			LastModifiedAtUtc = x.LastModifiedAtUtc,
 			PubliclyAccessible = x.PubliclyAccessible
 		}));
+		_fileSystem.LoadMediaFiles(rhs._fileSystem.MutableMediaFiles.Select(x => new ComputerMutableMediaFile
+		{
+			FileName = x.FileName,
+			MediaRecordingId = x.MediaRecordingId,
+			SizeInBytes = x.SizeInBytes,
+			CreatedAtUtc = x.CreatedAtUtc,
+			LastModifiedAtUtc = x.LastModifiedAtUtc,
+			PubliclyAccessible = x.PubliclyAccessible
+		}));
 		_parsedSignalValue = rhs._parsedSignalValue;
 		_fileStatus = rhs._fileStatus;
 		_currentSignal = rhs._currentSignal;
@@ -106,7 +115,7 @@ public class FileSignalGeneratorGameItemComponent : PoweredMachineBaseGameItemCo
 
 	protected override XElement SaveToXml(XElement root)
 	{
-		root.Add(ComputerMutableOwnerXmlPersistence.SaveFiles(_fileSystem.MutableFiles));
+		root.Add(ComputerMutableOwnerXmlPersistence.SaveFiles(_fileSystem.MutableFiles, _fileSystem.MutableMediaFiles));
 		return root;
 	}
 
@@ -142,6 +151,7 @@ public class FileSignalGeneratorGameItemComponent : PoweredMachineBaseGameItemCo
 	private void LoadRuntimeState(XElement root)
 	{
 		_fileSystem.LoadFiles(ComputerMutableOwnerXmlPersistence.LoadFiles(root.Element("Files")));
+		_fileSystem.LoadMediaFiles(ComputerMutableOwnerXmlPersistence.LoadMediaFiles(root.Element("Files")));
 		EnsureSignalFileExists();
 	}
 

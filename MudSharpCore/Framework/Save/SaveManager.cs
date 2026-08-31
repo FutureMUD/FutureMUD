@@ -185,8 +185,8 @@ public class SaveManager : ISaveManager
         using (new FMDB())
         {
             Action action = item.InitialiseItem();
-            action();
             FMDB.Context.SaveChanges();
+            action();
             Abort(item);
         }
     }

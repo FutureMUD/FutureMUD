@@ -6,13 +6,15 @@ using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
 
-public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent, IComputerHost, IComputerMutableOwner, IComputerFtpAccountStore, IConnectable
+public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent, IComputerHost, IComputerMutableOwner, IComputerFtpAccountStore, IComputerMediaConfigurationHost, IConnectable
 {
 	private readonly List<IConnectable> _connectedItems = [];
 	private readonly HashSet<string> _enabledNetworkServices = new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly HashSet<string> _hostedVpnNetworkIds = new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly HashSet<long> _hostedBoardIds = [];
 	private readonly Dictionary<string, ComputerMutableFtpAccount> _ftpAccounts = new(StringComparer.InvariantCultureIgnoreCase);
+	private readonly Dictionary<string, MediaFeedConfiguration> _mediaFeeds = new(StringComparer.InvariantCultureIgnoreCase);
+	private readonly Dictionary<string, MediaSubscriptionConfiguration> _mediaSubscriptions = new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly List<long> _pendingConnectionIds = [];
 	private readonly Dictionary<long, ComputerRuntimeExecutableBase> _executables = new();
 	private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
@@ -54,6 +56,9 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 			LastModifiedAtUtc = x.LastModifiedAtUtc,
 			PubliclyAccessible = x.PubliclyAccessible
 		}));
+		// Media files have durable recording references keyed to this component's database ID. A copied
+		// physical host does not have an ID while this constructor runs, so copying them here would create
+		// dangling ownership. Transfer media through FileManager or FTP once the destination exists instead.
 		foreach (var executable in rhs._executables.Values)
 		{
 			ComputerRuntimeExecutableBase clone;
@@ -140,6 +145,12 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	public IEnumerable<string> HostedVpnNetworkIds => _hostedVpnNetworkIds.OrderBy(x => x).ToList();
 	public IEnumerable<long> HostedBoardIds => _hostedBoardIds.OrderBy(x => x).ToList();
 	public IEnumerable<IComputerFtpAccount> FtpAccounts => _ftpAccounts.Values.OrderBy(x => x.UserName).ToList();
+	public IEnumerable<MediaFeedConfiguration> MediaFeeds => _mediaFeeds.Values
+		.OrderBy(x => x.FeedName)
+		.ToList();
+	public IEnumerable<MediaSubscriptionConfiguration> MediaSubscriptions => _mediaSubscriptions.Values
+		.OrderBy(x => x.SubscriptionName)
+		.ToList();
 	public IEnumerable<ConnectorType> Connections => Enumerable.Range(0, _prototype.StoragePorts).Select(_ => ComputerConnectionTypes.HostStoragePort)
 		.Concat(Enumerable.Range(0, _prototype.TerminalPorts).Select(_ => ComputerConnectionTypes.HostTerminalPort))
 		.Concat(Enumerable.Range(0, _prototype.NetworkPorts).Select(_ => ComputerConnectionTypes.HostNetworkPort))
@@ -238,7 +249,8 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 			from boardId in _hostedBoardIds.OrderBy(x => x)
 			select new XElement("Board", new XAttribute("id", boardId))));
 		root.Add(ComputerMutableOwnerXmlPersistence.SaveFtpAccounts(_ftpAccounts.Values));
-		root.Add(ComputerMutableOwnerXmlPersistence.SaveFiles(_fileSystem.MutableFiles));
+		root.Add(ComputerMutableOwnerXmlPersistence.SaveMediaConfiguration(_mediaFeeds.Values, _mediaSubscriptions.Values));
+		root.Add(ComputerMutableOwnerXmlPersistence.SaveFiles(_fileSystem.MutableFiles, _fileSystem.MutableMediaFiles));
 		root.Add(ComputerMutableOwnerXmlPersistence.SaveExecutables(_executables.Values));
 		root.Add(ComputerMutableOwnerXmlPersistence.SaveProcesses(_processes.Values));
 		root.Add(new XElement("ConnectedItems",
@@ -267,6 +279,8 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 
 	public override void Quit()
 	{
+		Gameworld.ComputerMediaService.InterruptJobs(this);
+		Gameworld.ComputerMediaNetworkService?.InterruptSubscriptions(this);
 		Gameworld.ComputerExecutionService.DeactivateOwner(this);
 		foreach (var storage in MountedStorage.Cast<IComputerExecutableOwner>().ToList())
 		{
@@ -283,10 +297,20 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 			RawDisconnect(item, true);
 		}
 
+		Gameworld.ComputerMediaService.InterruptJobs(this);
+		Gameworld.ComputerMediaNetworkService?.InterruptSubscriptions(this);
 		Gameworld.ComputerExecutionService.DeactivateOwner(this);
 		foreach (var storage in MountedStorage.Cast<IComputerExecutableOwner>().ToList())
 		{
 			Gameworld.ComputerExecutionService.DeactivateOwner(storage);
+		}
+
+		if (Id > 0L)
+		{
+			foreach (var reference in Gameworld.MediaRecordingService.GetReferences(Id).ToList())
+			{
+				Gameworld.MediaRecordingService.DeleteReference(Id, reference.Name, out _);
+			}
 		}
 
 		base.Delete();
@@ -314,6 +338,8 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 
 	protected override void OnPowerCutOutAction()
 	{
+		Gameworld.ComputerMediaService.InterruptJobs(this);
+		Gameworld.ComputerMediaNetworkService?.InterruptSubscriptions(this);
 		foreach (var storage in MountedStorage.Cast<IComputerExecutableOwner>().ToList())
 		{
 			Gameworld.ComputerExecutionService.DeactivateOwner(storage);
@@ -355,6 +381,71 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 		else
 		{
 			_enabledNetworkServices.Remove(application.ApplicationId);
+		}
+
+		Changed = true;
+		return true;
+	}
+
+	public bool UpsertMediaFeed(MediaFeedConfiguration configuration, out string error)
+	{
+		error = string.Empty;
+		var feedName = configuration.FeedName.Trim();
+		var inputName = configuration.InputName.Trim();
+		if (string.IsNullOrWhiteSpace(feedName) || string.IsNullOrWhiteSpace(inputName))
+		{
+			error = "Media feeds require both a name and an input.";
+			return false;
+		}
+
+		_mediaFeeds[feedName] = new MediaFeedConfiguration(feedName, inputName, configuration.IsPublic,
+			configuration.AllowedAccountIds.Where(x => x > 0L).Distinct().OrderBy(x => x).ToList());
+		Changed = true;
+		return true;
+	}
+
+	public bool RemoveMediaFeed(string feedName, out string error)
+	{
+		error = string.Empty;
+		if (!_mediaFeeds.Remove(feedName.Trim()))
+		{
+			error = "There is no media feed with that name on this host.";
+			return false;
+		}
+
+		Changed = true;
+		return true;
+	}
+
+	public bool UpsertMediaSubscription(MediaSubscriptionConfiguration configuration, out string error)
+	{
+		error = string.Empty;
+		var subscriptionName = configuration.SubscriptionName.Trim();
+		if (string.IsNullOrWhiteSpace(subscriptionName) || configuration.SourceHostItemId <= 0L ||
+		    string.IsNullOrWhiteSpace(configuration.FeedName) || string.IsNullOrWhiteSpace(configuration.OutputName))
+		{
+			error = "Media subscriptions require a name, source host, feed and output.";
+			return false;
+		}
+
+		_mediaSubscriptions[subscriptionName] = configuration with
+		{
+			SubscriptionName = subscriptionName,
+			SourceAddress = configuration.SourceAddress.Trim(),
+			FeedName = configuration.FeedName.Trim(),
+			OutputName = configuration.OutputName.Trim()
+		};
+		Changed = true;
+		return true;
+	}
+
+	public bool RemoveMediaSubscription(string subscriptionName, out string error)
+	{
+		error = string.Empty;
+		if (!_mediaSubscriptions.Remove(subscriptionName.Trim()))
+		{
+			error = "There is no media subscription with that name on this host.";
+			return false;
 		}
 
 		Changed = true;
@@ -660,6 +751,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	{
 		_fileSystem.CapacityInBytes = _prototype.StorageCapacityInBytes;
 		_fileSystem.LoadFiles(ComputerMutableOwnerXmlPersistence.LoadFiles(root.Element("Files")));
+		_fileSystem.LoadMediaFiles(ComputerMutableOwnerXmlPersistence.LoadMediaFiles(root.Element("Files")));
 		foreach (var executable in ComputerMutableOwnerXmlPersistence.LoadExecutables(
 			         root.Element("Executables"),
 			         Gameworld,
@@ -713,6 +805,17 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 			_ftpAccounts[account.UserName] = account;
 		}
 
+		var mediaConfiguration = ComputerMutableOwnerXmlPersistence.LoadMediaConfiguration(root.Element("MediaConfiguration"));
+		foreach (var feed in mediaConfiguration.Feeds)
+		{
+			_mediaFeeds[feed.FeedName] = feed;
+		}
+
+		foreach (var subscription in mediaConfiguration.Subscriptions)
+		{
+			_mediaSubscriptions[subscription.SubscriptionName] = subscription;
+		}
+
 		_pendingConnectionIds.AddRange(root.Element("ConnectedItems")?.Elements("Connection")
 			.Select(x => long.TryParse(x.Attribute("id")?.Value, out var id) ? id : 0L)
 			.Where(x => x > 0) ?? Enumerable.Empty<long>());
@@ -756,6 +859,23 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	private void FileSystemOnFileChanged(IComputerFileSystem fileSystem, ComputerFileSystemChange change)
 	{
 		Changed = true;
+		if (change.Kind != ComputerFileKind.Media)
+		{
+			return;
+		}
+
+		if (change.ChangeType == ComputerFileSystemChangeType.Deleted)
+		{
+			Gameworld.MediaRecordingService.DeleteReference(Id, change.FileName, out _);
+			return;
+		}
+
+		if (change.ChangeType == ComputerFileSystemChangeType.PublicAccessChanged &&
+		    fileSystem.GetFile(change.FileName) is { } file)
+		{
+			Gameworld.MediaRecordingService.SetReferencePubliclyAccessible(Id, change.FileName,
+				file.PubliclyAccessible, out _);
+		}
 	}
 
 	private static ConnectorType GetConnectorTypeFor(IConnectable other)

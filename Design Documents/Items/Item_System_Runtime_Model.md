@@ -12,6 +12,11 @@ This document explains how the item system is structured in code and at runtime:
 - morph and destruction behaviour
 
 ## Primary Abstractions
+
+## Media recording persistence
+
+Media endpoints use stable item/component/endpoint addresses so live bindings survive reference reconstruction and can be safely compared for routing loops. Recordings are not stored in game-item XML: immutable metadata, Brotli packet chunks, deduplicated canonical scene blobs, frame ranges, and named component-owned references live in dedicated media tables. Components persist only runtime settings and stable bindings; deleting a final media reference transactionally reclaims its recording and unreferenced snapshots. See [Computer and Electronics A/V Framework](../Technology/Media_System_Runtime_and_Workflows.md).
+
 ### `IGameItem`
 `IGameItem` is the live object that exists in the world. It extends perceiver and body-adjacent interfaces, so items are not just data records; they are active world objects with descriptions, location, health, events, and effects.
 
@@ -325,7 +330,7 @@ Current runtime connection rules for that slice are:
 - powered machine automation modules can be authored to draw power from their automation host's parent-item power source when mounted, including compatible attached or connected power-producing items on that host; otherwise powered machines still resolve power from their own parent item
 - mounted automation modules lazily restore their host linkage from saved host identity during load/login so host-derived power, signal access, and room context continue to work after a reboot
 - mounted automation modules now follow the shared item lifecycle contract: load restores structure, while `Login()` is the first point where they begin live power drawdown, signal subscriptions, timers, and similar active behaviour
-- world boot now logs in only world-root items that are actually present in cells; items rooted in character inventories stay dormant until their owning body or character logs in and propagates the lifecycle to them
+- world boot finalises and logs in the complete graph materialised from world-root cell items, including independent items found only through persisted connections and items discovered while another component finalises; finalisation is idempotent so nested or cyclic graphs are safe, while items rooted only in character inventories stay dormant until their owning body or character logs in and propagates the lifecycle to them
 - `AutomationMountHost` forwards `Login()`, `Quit()`, and `Delete()` to mounted bay items so extracted modules still come online and tear down with their host item even though they are not ordinary cell-contained items
 - powered machine automation modules and other powered-machine-based automation components now treat power resolution as a topology-aware live process rather than a single login-time lookup: they subscribe to relevant parent and host power-topology changes, retry for a longer post-login window if switched on but initially unpowered, and refresh power resolution when connected or mounted power availability changes after reboot/load ordering
 - `ElectronicDoor` now performs the same kind of late reconnect retry for its signal binding after load/login, so a controller or mounted module that becomes discoverable slightly later in the reboot sequence can still subscribe and drive the door without manual rewiring
@@ -562,14 +567,14 @@ It demonstrates several common component patterns:
 - destruction and morph transfer logic
 - `Copy(...)` support for deep-copy item creation
 
-## Real Example: Tape and Answering Machine
-`TapeGameItemComponent` plus `AnsweringMachineGameItemComponent` is the current reference for a mixed media-and-telecom subsystem.
+## Real Example: Media Storage and Answering Machine
+`MediaStorageMediumGameItemComponent` plus `AnsweringMachineGameItemComponent` is the current reference for a mixed media-and-telecom subsystem.
 
-`TapeGameItemComponentProto` authors only storage capacity. The runtime tape component owns:
+`MediaStorageMediumGameItemComponentProto` authors format key, audio/video capability, and duration capacity. The runtime medium component owns:
 - write-protect state
-- named stored recordings
-- used and remaining capacity calculations
-- XML persistence for those recordings
+- named immutable recording references
+- used and remaining duration calculations
+- database-backed recording-reference lifetime rather than recording XML
 
 `AnsweringMachineGameItemComponentProto` authors:
 - power draw while switched on
@@ -582,9 +587,11 @@ The answering-machine runtime component then owns:
 - number ownership or delegation to an upstream outlet
 - live ringing, call participation, and auto-answer timing
 - scheduled greeting playback, beep emission, and caller-message recording
-- a one-slot tape container workflow
+- a one-slot compatible-audio-medium container workflow
 - `ISelectable` commands for `on`, `off`, `rings`, `greeting ...`, `messages play`, `message <index>`, and `erase ...`
 - recursive discovery of downstream handsets so a human pickup on an extension can displace the machine from the live call
+
+The answering machine writes typed spoken-language packets through the common recording service and reconstructs its telephone greeting/message playback from those packets. The pre-A/V `Tape` component was intentionally retired without XML migration; recreate development prototypes with `MediaStorageMedium`.
 
 ## Special Cases
 ### Read-only or auto-initialised component types

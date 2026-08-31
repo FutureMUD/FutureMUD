@@ -27,6 +27,24 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BootLoadingRegressionTests
 {
+	[TestMethod]
+	public void FinaliseWorldItemGraph_DrainsItemsDiscoveredThroughConnections()
+	{
+		var items = new List<IGameItem>();
+		var connectedItem = new Mock<IGameItem>();
+		connectedItem.SetupGet(x => x.Id).Returns(2L);
+		var placedItem = new Mock<IGameItem>();
+		placedItem.SetupGet(x => x.Id).Returns(1L);
+		placedItem.Setup(x => x.FinaliseLoadTimeTasks())
+			.Callback(() => items.Add(connectedItem.Object));
+		items.Add(placedItem.Object);
+
+		Futuremud.FinaliseWorldItemGraph(() => items.ToList());
+
+		placedItem.Verify(x => x.FinaliseLoadTimeTasks(), Times.Once);
+		connectedItem.Verify(x => x.FinaliseLoadTimeTasks(), Times.Once);
+	}
+
     [TestMethod]
     public void TryGetCharacter_PreNpcBootPhase_ThrowsBeforeMaterialisingNewCharacter()
     {

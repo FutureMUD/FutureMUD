@@ -50,6 +50,9 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 			LastModifiedAtUtc = x.LastModifiedAtUtc,
 			PubliclyAccessible = x.PubliclyAccessible
 		}));
+		// Media files have durable recording references keyed to this component's database ID. A copied
+		// storage device does not have an ID while this constructor runs, so copying them here would create
+		// dangling ownership. Transfer media through FileManager or FTP once the destination exists instead.
 		foreach (var executable in rhs._executables.Values)
 		{
 			ComputerRuntimeExecutableBase clone;
@@ -159,7 +162,7 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 		return new XElement("Definition",
 			new XElement("NextExecutableId", _nextExecutableId),
 			new XElement("NextProcessId", _nextProcessId),
-			ComputerMutableOwnerXmlPersistence.SaveFiles(_fileSystem.MutableFiles),
+			ComputerMutableOwnerXmlPersistence.SaveFiles(_fileSystem.MutableFiles, _fileSystem.MutableMediaFiles),
 			ComputerMutableOwnerXmlPersistence.SaveExecutables(_executables.Values),
 			ComputerMutableOwnerXmlPersistence.SaveProcesses(_processes.Values),
 			new XElement("ConnectedItems",
@@ -197,6 +200,14 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 		if (_connectedHost is not null)
 		{
 			RawDisconnect(_connectedHost, true);
+		}
+
+		if (Id > 0L)
+		{
+			foreach (var reference in Gameworld.MediaRecordingService.GetReferences(Id).ToList())
+			{
+				Gameworld.MediaRecordingService.DeleteReference(Id, reference.Name, out _);
+			}
 		}
 
 		base.Delete();
@@ -371,6 +382,7 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 	private void LoadRuntimeState(XElement root)
 	{
 		_fileSystem.LoadFiles(ComputerMutableOwnerXmlPersistence.LoadFiles(root.Element("Files")));
+		_fileSystem.LoadMediaFiles(ComputerMutableOwnerXmlPersistence.LoadMediaFiles(root.Element("Files")));
 		foreach (var executable in ComputerMutableOwnerXmlPersistence.LoadExecutables(
 			         root.Element("Executables"),
 			         Gameworld,
@@ -446,5 +458,22 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 	private void FileSystemOnFileChanged(IComputerFileSystem fileSystem, ComputerFileSystemChange change)
 	{
 		Changed = true;
+		if (change.Kind != ComputerFileKind.Media)
+		{
+			return;
+		}
+
+		if (change.ChangeType == ComputerFileSystemChangeType.Deleted)
+		{
+			Gameworld.MediaRecordingService.DeleteReference(Id, change.FileName, out _);
+			return;
+		}
+
+		if (change.ChangeType == ComputerFileSystemChangeType.PublicAccessChanged &&
+		    fileSystem.GetFile(change.FileName) is { } file)
+		{
+			Gameworld.MediaRecordingService.SetReferencePubliclyAccessible(Id, change.FileName,
+				file.PubliclyAccessible, out _);
+		}
 	}
 }

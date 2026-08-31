@@ -39,6 +39,11 @@ public static class ComputerBuiltInApplications
 			"Local file browser, copy tool, mounted-storage manager, and public network file reader.",
 			false),
 		new(
+			"media",
+			"Media",
+			"Local A/V input, continuous, rolling, segmented and event-triggered recording, still-capture, playback, and live-feed service control.",
+			true),
+		new(
 			"directory",
 			"Directory",
 			"Local and telecom-backed host and service discovery utility.",

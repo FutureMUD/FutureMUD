@@ -12,6 +12,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.Movement;
@@ -1651,7 +1652,7 @@ See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
     [PlayerCommand("Watch", "watch")]
     [RequiredCharacterState(CharacterState.Conscious)]
     [NoMeleeCombatCommand]
-    [HelpInfo("watch", @"The #3watch#0 command is used to watch for movement and activity in adjacent locations to where you are, and be alerted when it occurs.
+    [HelpInfo("watch", @"The #3watch#0 command is used to watch for movement and activity in adjacent locations to where you are, and be alerted when it occurs. It can also watch a non-ambient media monitor feed.
 
 You can watch any or all rooms adjacent to you, however if you move, enter combat or lose consciousness you will stop watching.
 
@@ -1659,10 +1660,18 @@ The syntax is as follows:
 
 	#3watch <direction>#0 - watch only the room to the direction
 	#3watch all#0 - watch all rooms adjacent to you
-	#3watch none#0 - stop watching any rooms", AutoHelp.HelpArgOrNoArg)]
+	#3watch none#0 - stop watching any rooms
+	#3watch feed <monitor>#0 - opt in to a local media monitor
+	#3watch feed none#0 - stop watching media monitors", AutoHelp.HelpArgOrNoArg)]
     protected static void Watch(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
+        if (ss.Peek().EqualTo("feed"))
+        {
+            WatchFeed(actor, ss);
+            return;
+        }
+
         if (ss.Peek().EqualToAny("none", "off", "stop", "clear"))
         {
             if (actor.EffectsOfType<WatchMaster>().Any())
@@ -1723,6 +1732,43 @@ The syntax is as follows:
         actor.OutputHandler.Send(
             $"You begin watching the locations accessed via the exits to {exits.Select(x => x.OutboundDirectionDescription).ListToString()}.");
     }
+
+	private static void WatchFeed(ICharacter actor, StringStack command)
+	{
+		command.PopSpeech();
+		if (command.IsFinished)
+		{
+			actor.Send("Which media monitor do you want to watch?");
+			return;
+		}
+
+		if (command.Peek().EqualToAny("none", "off", "stop", "clear"))
+		{
+			var stopped = actor.Gameworld.Items
+				.SelectMany(x => x.GetItemTypes<IMediaMonitor>())
+				.Count(x => x.StopWatching(actor));
+			actor.Send(stopped > 0
+				? "You stop watching media feeds."
+				: "You are not currently watching any media feed.");
+			return;
+		}
+
+		var item = actor.TargetItem(command.PopSpeech());
+		var monitor = item?.GetItemType<IMediaMonitor>();
+		if (monitor is null)
+		{
+			actor.Send("You do not see a media monitor like that.");
+			return;
+		}
+
+		if (!monitor.Watch(actor, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		actor.Send($"You begin watching {item.HowSeen(actor)}.");
+	}
 
     [PlayerCommand("Point", "point")]
     [RequiredCharacterState(CharacterState.Able)]

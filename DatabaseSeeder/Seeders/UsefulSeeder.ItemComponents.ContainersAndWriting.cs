@@ -3,6 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Body.Traits;
 using MudSharp.Body;
+using MudSharp.Computers;
 using MudSharp.Database;
 using MudSharp.Form.Audio;
 using MudSharp.Form.Material;
@@ -562,7 +563,7 @@ public partial class UsefulSeeder
             new XElement("Definition",
                 new XElement("Wattage", 1200.0)));
         CreateModernComponent("AnsweringMachine", "AnsweringMachine_Standard",
-            "Turns an item into a daisy-chain answering machine with a standard ring delay.",
+            "Turns an item into a daisy-chain answering machine that records onto a compatible audio medium.",
             new XElement("Definition",
                 new XElement("Wattage", 6.0),
                 new XElement("RingEmote", new XCData("@ ring|rings insistently.")),
@@ -572,14 +573,108 @@ public partial class UsefulSeeder
                 ConnectorsElement(
                     new ConnectorType(Gender.Male, "TelephoneLine", true),
                     new ConnectorType(Gender.Female, "TelephoneLine", true))));
-        CreateModernComponent("Tape", "Tape_Cassette30",
-            "Turns an item into a standard thirty-minute cassette tape.",
+        CreateModernComponent("Camera", "MediaCamera_Video",
+            "Turns an item into a powered video camera with a five-second scene snapshot interval.",
+            PoweredMachineDefinition(8.0, 0.25, true, false,
+                "@ hum|hums quietly as its image sensor powers up.",
+                "@ click|clicks off as its image sensor powers down.",
+                new XElement("Capabilities", MediaCapabilities.Video),
+                new XElement("SensorSensitivity", 1.0),
+                new XElement("SnapshotIntervalMilliseconds", 5000L),
+                new XElement("EndpointKey", "camera-video"),
+                new XElement("OutputPorts", 1)));
+        CreateModernComponent("Camera", "MediaCamera_AV",
+            "Turns an item into a powered audio/video camera with a five-second scene snapshot interval.",
+            PoweredMachineDefinition(10.0, 0.3, true, false,
+                "@ hum|hums quietly as its A/V sensor powers up.",
+                "@ click|clicks off as its A/V sensor powers down.",
+                new XElement("Capabilities", MediaCapabilities.Audio | MediaCapabilities.Video),
+                new XElement("SensorSensitivity", 1.0),
+                new XElement("SnapshotIntervalMilliseconds", 5000L),
+                new XElement("EndpointKey", "camera-av"),
+                new XElement("OutputPorts", 1)));
+        CreateModernComponent("Push To Talk Microphone", "PushToTalkMicrophone_Standard",
+            "Turns an item into a powered push-to-talk microphone for transmit and transmitwith.",
+            PoweredMachineDefinition(1.0, 0.05, true, false,
+                "@ click|clicks on.",
+                "@ click|clicks off.",
+                new XElement("EndpointKey", "microphone"),
+                new XElement("OutputPorts", 1),
+                new XElement("TransmitPremote", new XCData("$0 press|presses the transmit control on $1."))));
+        CreateModernComponent("Media Monitor", "MediaMonitor_AV",
+            "Turns an item into an ambient audio/video monitor for local camera and deck feeds.",
+            PoweredMachineDefinition(35.0, 0.75, true, false,
+                "@ flicker|flickers to life.",
+                "@ dim|dims to black.",
+                new XElement("Capabilities", MediaCapabilities.Audio | MediaCapabilities.Video),
+                new XElement("AmbientPresentation", true),
+                new XElement("AudioEnabled", true),
+                new XElement("EndpointKey", "monitor-av"),
+                new XElement("AcceptSiblingSources", false)));
+        CreateModernComponent("Media Speaker", "MediaSpeaker_Standard",
+            "Turns an item into a powered speaker for live and recorded audio feeds.",
+            PoweredMachineDefinition(15.0, 0.4, true, false,
+                "@ click|clicks on.",
+                "@ click|clicks off.",
+                new XElement("EndpointKey", "speaker"),
+                new XElement("AcceptSiblingSources", false)));
+        CreateModernComponent("Computer Media Interface", "ComputerMediaInterface_AV",
+            "Turns an item into a powered A/V gateway for a sibling computer host.",
+            PoweredMachineDefinition(3.0, 0.1, true, true,
+                "@ blink|blinks as its media interface comes online.",
+                "@ dim|dims as its media interface goes offline.",
+                new XElement("Capabilities", MediaCapabilities.Audio | MediaCapabilities.Video),
+                new XElement("InputName", "media-in"),
+                new XElement("OutputName", "media-out"),
+                new XElement("EndpointKey", "computer-media"),
+                new XElement("AcceptSiblingSources", true)));
+        CreateModernComponent("Media Deck", "MediaDeck_VHS",
+            "Turns an item into a VHS A/V recording and playback deck.",
+            PoweredMachineDefinition(24.0, 0.5, true, false,
+                "@ hum|hums as the VCR powers on.",
+                "@ click|clicks off as the VCR powers down.",
+                new XElement("FormatKey", "vhs"),
+                new XElement("Capabilities", MediaCapabilities.Audio | MediaCapabilities.Video),
+                new XElement("CanRecord", true),
+                new XElement("CanPlayback", true),
+                new XElement("EndpointKey", "vhs-deck"),
+                new XElement("AcceptSiblingSources", true),
+                new XElement("OutputPorts", 1)));
+        CreateModernComponent("Media Storage Medium", "MediaStorageMedium_VHS120",
+            "Turns an item into a write-protectable 120-minute VHS A/V medium.",
             new XElement("Definition",
-                new XElement("CapacityMs", (long)TimeSpan.FromMinutes(30).TotalMilliseconds)));
-        CreateModernComponent("Tape", "Tape_Microcassette10",
-            "Turns an item into a compact ten-minute microcassette.",
+                new XElement("FormatKey", "vhs"),
+                new XElement("Capabilities", MediaCapabilities.Audio | MediaCapabilities.Video),
+                new XElement("CapacityMilliseconds", (long)TimeSpan.FromMinutes(120).TotalMilliseconds)));
+        CreateModernComponent("Media Deck", "MediaDeck_CompactCassette",
+            "Turns an item into a compact-cassette audio recording and playback deck.",
+            PoweredMachineDefinition(12.0, 0.2, true, false,
+                "@ click|clicks as the cassette deck powers on.",
+                "@ click|clicks as the cassette deck powers down.",
+                new XElement("FormatKey", "compact-cassette"),
+                new XElement("Capabilities", MediaCapabilities.Audio),
+                new XElement("CanRecord", true),
+                new XElement("CanPlayback", true),
+                new XElement("EndpointKey", "cassette-deck"),
+                new XElement("AcceptSiblingSources", true),
+                new XElement("OutputPorts", 1)));
+        CreateModernComponent("Media Storage Medium", "MediaStorageMedium_CompactCassette60",
+            "Turns an item into a write-protectable 60-minute compact-cassette audio medium.",
             new XElement("Definition",
-                new XElement("CapacityMs", (long)TimeSpan.FromMinutes(10).TotalMilliseconds)));
+                new XElement("FormatKey", "compact-cassette"),
+                new XElement("Capabilities", MediaCapabilities.Audio),
+                new XElement("CapacityMilliseconds", (long)TimeSpan.FromMinutes(60).TotalMilliseconds)));
+        CreateModernComponent("Media Cable", "MediaCable_AV",
+            "Turns an item into a passive local cable for compatible audio/video media endpoints.",
+            PoweredMachineDefinition(0.0, 0.0, false, false, string.Empty, string.Empty,
+                new XElement("Capabilities", MediaCapabilities.Audio | MediaCapabilities.Video),
+                new XElement("EndpointKey", "media-cable")));
+        CreateModernComponent("Media Splitter", "MediaSplitter_AV",
+            "Turns an item into a passive three-way splitter for compatible audio/video media endpoints.",
+            PoweredMachineDefinition(0.0, 0.0, false, false, string.Empty, string.Empty,
+                new XElement("Capabilities", MediaCapabilities.Audio | MediaCapabilities.Video),
+                new XElement("EndpointKey", "media-splitter"),
+                new XElement("OutputPorts", 3)));
 
         GameItemComponentProto computerHostPersonal = CreateModernComponent("Computer Host", "ComputerHost_Personal",
             "Turns an item into a personal computer host with modest internal storage.",

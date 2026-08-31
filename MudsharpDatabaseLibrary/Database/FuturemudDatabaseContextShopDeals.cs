@@ -52,7 +52,8 @@ namespace MudSharp.Database
 					.HasConstraintName("FK_NPCSkillPackageSkills_Traits");
 			});
             ConfigureCharacterComputerWorkspace(modelBuilder);
-            ConfigureComputerMail(modelBuilder);
+			ConfigureComputerMail(modelBuilder);
+			ConfigureMediaRecordings(modelBuilder);
             ConfigureStables(modelBuilder);
             ConfigureHospitals(modelBuilder);
 			ConfigureRestaurants(modelBuilder);

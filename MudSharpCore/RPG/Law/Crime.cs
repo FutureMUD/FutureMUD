@@ -344,6 +344,7 @@ public class Crime : LateInitialisingItem, ICrime
         if (!_witnessIds.Contains(witnessId))
         {
             _witnessIds.Add(witnessId);
+			Changed = true;
         }
     }
 

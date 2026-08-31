@@ -20,7 +20,8 @@ public enum ComputerProcessWaitType
 	None = 0,
 	Sleep = 1,
 	UserInput = 2,
-	Signal = 3
+	Signal = 3,
+	Media = 4
 }
 
 public enum ComputerPowerLossBehaviour

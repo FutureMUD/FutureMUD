@@ -117,6 +117,29 @@ return @togglevalue");
 	}
 
 	[TestMethod]
+	public void GameItemComponentManager_RegistersMediaComponentTypes()
+	{
+		var manager = new GameItemComponentManager();
+		var primaryTypes = manager.PrimaryTypes.ToList();
+		var helpTypes = manager.TypeHelpInfo.Select(x => x.Name).ToList();
+
+		CollectionAssert.IsSubsetOf(
+			new[]
+			{
+				"camera", "pttmicrophone", "mediamonitor", "mediaspeaker", "computermediainterface",
+				"mediadeck", "mediastoragemedium", "mediacable", "mediasplitter"
+			},
+			primaryTypes);
+		CollectionAssert.IsSubsetOf(
+			new[]
+			{
+				"Camera", "Push To Talk Microphone", "Media Monitor", "Media Speaker",
+				"Computer Media Interface", "Media Deck", "Media Storage Medium", "Media Cable", "Media Splitter"
+			},
+			helpTypes);
+	}
+
+	[TestMethod]
 	public void FileSignalGenerator_UpdatesSignalWhenBackingFileChanges()
 	{
 		var gameworld = CreateGameworld();
@@ -153,6 +176,25 @@ return @togglevalue");
 		fileSystem.WriteFile("other.txt", "123");
 
 		Assert.AreEqual(5, fileSystem.UsedBytes);
+	}
+
+	[TestMethod]
+	public void ComputerMutableFileSystem_MediaFilesAreQuotaChargedAndRejectTextOperations()
+	{
+		var fileSystem = new ComputerMutableFileSystem(10);
+		ComputerFileSystemChange? change = null;
+		fileSystem.FileChanged += (_, changed) => change = changed;
+
+		Assert.IsTrue(fileSystem.WriteMediaFile("camera.av", 42L, 8L, false, out var error), error);
+		Assert.AreEqual(8L, fileSystem.UsedBytes);
+		Assert.AreEqual(ComputerFileKind.Media, fileSystem.GetFile("camera.av")!.Kind);
+		Assert.AreEqual(ComputerFileKind.Media, change!.Kind);
+		Assert.AreEqual(42L, change.MediaRecordingId);
+		Assert.ThrowsException<ComputerFileKindException>(() => fileSystem.ReadFile("camera.av"));
+		Assert.ThrowsException<ComputerFileKindException>(() => fileSystem.WriteFile("camera.av", "not media"));
+		Assert.ThrowsException<ComputerFileKindException>(() => fileSystem.AppendFile("camera.av", "not media"));
+		Assert.IsFalse(fileSystem.WriteMediaFile("second.av", 43L, 3L, false, out var capacityError));
+		StringAssert.Contains(capacityError, "capacity");
 	}
 
 	[TestMethod]

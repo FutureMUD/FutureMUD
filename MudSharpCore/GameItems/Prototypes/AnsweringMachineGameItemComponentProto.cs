@@ -100,7 +100,7 @@ public class AnsweringMachineGameItemComponentProto : GameItemComponentProto, IC
             (proto, gameworld) => new AnsweringMachineGameItemComponentProto(proto, gameworld));
         manager.AddTypeHelpInfo(
             "AnsweringMachine",
-            $"A daisy-chained {"[telephone]".Colour(Telnet.BoldBlue)} that can play a greeting, record messages to a {"[tape]".Colour(Telnet.BoldGreen)}, and expose downstream handsets",
+            $"A daisy-chained {"[telephone]".Colour(Telnet.BoldBlue)} that can play a greeting, record messages to a compatible {"[audio medium]".Colour(Telnet.BoldGreen)}, and expose downstream handsets",
             BuildingHelpText
         );
     }

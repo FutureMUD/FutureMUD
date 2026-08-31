@@ -20,6 +20,13 @@ The focus is on:
 - cross-system integration points such as health and magic
 
 ## Description Model
+
+## Media presentation and integration
+
+Media monitors decorate a full description with power, binding, mode, and current-frame state. `LOOK <monitor>` includes the latest live or playback frame. Ambient monitors relay eligible playback into the cell; opt-in monitors require `watch feed <monitor>` and can be left with `watch feed none`. Audio presentation is separately configurable. Speakers render audio through normal language-aware playback, so listeners use their own current comprehension.
+
+Media uses normal item containment for inserted media and normal `IConnectable` presentation for local links. Computer files that refer to recordings are clearly typed media files: they participate in File Manager/FTP lists and transfers but reject text viewing/appending. See [Computer and Electronics A/V Framework](../Technology/Media_System_Runtime_and_Workflows.md) for the complete player and builder workflow.
+
 ### Item-level descriptions
 Item prototypes provide the base descriptive layer:
 - builder-visible unique lookup name

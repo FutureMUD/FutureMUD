@@ -199,8 +199,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
     public IComputerNetworkIdentityService ComputerNetworkIdentityService { get; private set; }
     public IComputerNetworkTunnelService ComputerNetworkTunnelService { get; private set; }
     public IComputerBoardService ComputerBoardService { get; private set; }
-    public IComputerMailService ComputerMailService { get; private set; }
-    public IComputerFileTransferService ComputerFileTransferService { get; private set; }
+	public IComputerMailService ComputerMailService { get; private set; }
+	public IComputerFileTransferService ComputerFileTransferService { get; private set; }
+	public IMediaChannelService MediaChannelService { get; private set; }
+	public IMediaRecordingService MediaRecordingService { get; private set; }
+	public IComputerMediaService ComputerMediaService { get; private set; }
+	public IComputerMediaNetworkService ComputerMediaNetworkService { get; private set; }
     public IEnumerable<IPlayerConnection> Connections => _connections.Snapshot;
 
     void IFuturemudLoader.LoadFromDatabase()
@@ -564,10 +568,14 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
         {
             CheckNewPlayerHints();
         }, ScheduleType.System, TimeSpan.FromMinutes(1), "Check New Player Hints"));
-        if (ComputerExecutionService is ComputerExecutionService computerExecutionService)
-        {
-            computerExecutionService.LoadPersistedState();
-        }
+		if (ComputerExecutionService is ComputerExecutionService computerExecutionService)
+		{
+			computerExecutionService.LoadPersistedState();
+		}
+		if (MediaRecordingService is MediaRecordingService mediaRecordingService)
+		{
+			mediaRecordingService.RecoverInterruptedRecordings();
+		}
         sw.Stop();
         ConsoleUtilities.WriteLine($"Total Boot Time: #2{TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds)}#0");
         foreach (ICharacter npc in NPCs)
@@ -2418,6 +2426,11 @@ For information on the syntax to use in emotes (such as those included in bracke
             ICell gcell = _cells.Get(cell.Key.Id);
             count += gcell?.LoadItems(cell) ?? 0;
         }
+
+		// Components can materialise independent connected items which have no direct cell row of their own.
+		// Finalise every item that entered the world-item graph, including items discovered while finalising it.
+		// GameItem.FinaliseLoadTimeTasks is deliberately idempotent to make nested and cyclic graphs safe.
+		FinaliseWorldItemGraph(() => _items.ToList());
 #if DEBUG
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
@@ -2441,11 +2454,28 @@ For information on the syntax to use in emotes (such as those included in bracke
         }
 
 		ConsoleUtilities.WriteLine("#ELogging in world game items...#0");
-		foreach (ICell cell in _cells)
+		foreach (var item in _items.ToList())
 		{
-			foreach (IGameItem item in cell.GameItems.ToList())
+			item.Login();
+		}
+	}
+
+	internal static void FinaliseWorldItemGraph(Func<IReadOnlyCollection<IGameItem>> snapshotItems)
+	{
+		var finalisedItems = new HashSet<IGameItem>(ReferenceEqualityComparer.Instance);
+		while (true)
+		{
+			var pendingItems = snapshotItems()
+				.Where(finalisedItems.Add)
+				.ToList();
+			if (!pendingItems.Any())
 			{
-				item.Login();
+				return;
+			}
+
+			foreach (var item in pendingItems)
+			{
+				item.FinaliseLoadTimeTasks();
 			}
 		}
 	}
@@ -4142,7 +4172,15 @@ For information on the syntax to use in emotes (such as those included in bracke
                                                       select proto).ToList();
         foreach (Models.GameItemComponentProto proto in protos)
         {
-            _itemComponentProtos.Add(GameItemComponentManager.GetProto(proto, this));
+            var component = GameItemComponentManager.GetProto(proto, this);
+            if (component is null)
+            {
+                throw new InvalidOperationException(
+                    $"Game item component prototype #{proto.Id:N0} ({proto.Name}) has the unregistered type " +
+                    $"'{proto.Type}'. Recreate that retired component definition with a supported component type.");
+            }
+
+            _itemComponentProtos.Add(component);
         }
 #if DEBUG
         sw.Stop();

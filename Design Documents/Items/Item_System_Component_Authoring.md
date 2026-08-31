@@ -19,6 +19,12 @@ Adding a new item capability usually means all of the following:
 
 The template in `Item Templates/GameItem` helps with steps 2 through 4, but it does not solve the design work, interface design, or gameplay integration for you.
 
+## Media component authoring
+
+Media components start with the shared `IMediaSource`, `IMediaSink`, `IMediaCaptureSource`, `IMediaStorageMedium`, and `IMediaDeck` contracts in `FutureMUDLibrary`. Give every endpoint a durable key and explicit direction, define audio/video capability compatibility, and route through `IMediaChannelService`; do not reuse `ComputerSignal`. Physical endpoint topology still implements `IConnectable`. A sink should define a distinct input endpoint when it can also republish media, append provenance on output, and accept no packet that has already visited it.
+
+Use a purpose-built sensor perceiver for any capture source. It must honour normal visibility, layers, planes, illumination, and audibility, and must exclude OOC/staff/non-observable output. Persist durable recording data through `IMediaRecordingService` rather than component XML. The detailed packet, snapshot, quota, and lifecycle contract is in [Computer and Electronics A/V Framework](../Technology/Media_System_Runtime_and_Workflows.md).
+
 ## Step 1: Decide on the Public Contract
 ### Reuse an existing interface when possible
 Many item systems already query for public interfaces in `FutureMUDLibrary/GameItems/Interfaces`.
@@ -45,7 +51,7 @@ Do not represent a black-powder loading step as a stage flag alone. Consumables 
 
 If the feature also needs shared immutable value objects rather than only a query surface, place those models in `FutureMUDLibrary` too. The recorded-audio implementation is the reference pattern:
 - immutable playback data lives in `MudSharp.Form.Audio`
-- gameplay-facing item queries live behind interfaces such as `IAudioStorageTape` and `IAnsweringMachine`
+- gameplay-facing item queries live behind interfaces such as `IMediaStorageMedium` and `IAnsweringMachine`
 - XML helpers live with the shared models so stage-1 persistence can stay inside normal item/component XML without feature-specific database tables
 
 Zero-gravity components are another reference for small gameplay contracts:
@@ -347,7 +353,7 @@ The telephone and cellular implementation is a good reference when a subsystem h
 - a fax machine usually combines telecom endpoint behaviour with machine-style runtime state such as paper storage, ink usage, and an in-memory queue for inbound faxes that arrived before the printer could physically output them
 - if the item participates in telecom wiring or telecom-grid power, also consider `ICanConnectToTelecommunicationsGrid`, `IConnectable`, `IConsumePower`, and `IProducePower`
 - an answering machine is the reference for a chained endpoint: it can expose both itself and downstream handsets through `ConnectedTelephones`, while still either owning its own number or delegating numbering to an upstream outlet
-- the answering machine also shows how to keep a reusable medium generic: the tape is just an `IAudioStorageTape`, while the machine owns the telecom-specific greeting, message, and `ISelectable` control surface
+- the answering machine also shows how to keep a reusable medium generic: an audio-capable `IMediaStorageMedium` owns immutable recording references, while the machine owns the telecom-specific greeting, message, and `ISelectable` control surface
 - the telecommunications grid creator proto is the reference for exchange-authored defaults: prefix, subscriber digits, maximum rings, hosted-voicemail enablement, and the reserved service access number all belong there and flow into the runtime grid instance
 - for this kind of split design, keep authored defaults such as wattage, connector shapes, ring volume, ring emote, premote, and default answer-after-rings on the prototype, and keep inserted media, saved recordings, live call state, and armed recording state on the runtime component
 

@@ -30,7 +30,7 @@
     },
     {
         "Component Type Name":  "AnsweringMachine",
-        "Component Type Description":  "A daisy-chained [telephone] that can play a greeting, record messages to a [tape], and expose downstream handsets",
+        "Component Type Description":  "A daisy-chained [telephone] that can play a greeting, record messages to a compatible [audio medium], and expose downstream handsets",
         "Exclusive Types":  [
                                 "IAnsweringMachine",
                                 "IContainer",
@@ -220,6 +220,13 @@
                             ]
     },
     {
+        "Component Type Name":  "Camera",
+        "Component Type Description":  "Makes an item a [powered] media camera source for local video or A/V routing",
+        "Exclusive Types":  [
+                                "IMediaCaptureSource"
+                            ]
+    },
+    {
         "Component Type Name":  "CashRegister",
         "Component Type Description":  "A type of [container] that interacts with the game\u0027s shop mechanics when used as a till",
         "Exclusive Types":  [
@@ -282,6 +289,13 @@
     {
         "Component Type Name":  "Computer Host",
         "Component Type Description":  "Makes an item a [computer host] [powered] runtime owner for files, executables, and processes",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Computer Media Interface",
+        "Component Type Description":  "Makes an item a [powered] local media gateway for a sibling computer host",
         "Exclusive Types":  [
 
                             ]
@@ -930,6 +944,48 @@
                             ]
     },
     {
+        "Component Type Name":  "Media Cable",
+        "Component Type Description":  "Makes an item a passive [local media cable] with one input and one output",
+        "Exclusive Types":  [
+                                "IMediaSink"
+                            ]
+    },
+    {
+        "Component Type Name":  "Media Deck",
+        "Component Type Description":  "Makes an item a [powered] deck that records to and plays from compatible physical media",
+        "Exclusive Types":  [
+                                "IMediaDeck"
+                            ]
+    },
+    {
+        "Component Type Name":  "Media Monitor",
+        "Component Type Description":  "Makes an item a [powered] video or A/V media display sink",
+        "Exclusive Types":  [
+                                "IMediaSink"
+                            ]
+    },
+    {
+        "Component Type Name":  "Media Speaker",
+        "Component Type Description":  "Makes an item a [powered] media audio sink",
+        "Exclusive Types":  [
+                                "IMediaSink"
+                            ]
+    },
+    {
+        "Component Type Name":  "Media Splitter",
+        "Component Type Description":  "Makes an item a passive [local media splitter] for fan-out",
+        "Exclusive Types":  [
+                                "IMediaSink"
+                            ]
+    },
+    {
+        "Component Type Name":  "Media Storage Medium",
+        "Component Type Description":  "Makes an item a write-protectable physical medium for immutable audio/video recordings",
+        "Exclusive Types":  [
+                                "IMediaStorageMedium"
+                            ]
+    },
+    {
         "Component Type Name":  "MeleeWeapon",
         "Component Type Description":  "Turns an item into a [melee weapon]",
         "Exclusive Types":  [
@@ -1140,6 +1196,14 @@
                             ]
     },
     {
+        "Component Type Name":  "Push To Talk Microphone",
+        "Component Type Description":  "Makes an item a [powered] microphone source for transmit and transmitwith",
+        "Exclusive Types":  [
+                                "IMediaSource",
+                                "ITransmit"
+                            ]
+    },
+    {
         "Component Type Name":  "RadioDetonator",
         "Component Type Description":  "This item when [powered] listens for a radio frequency and acts as a [trigger]",
         "Exclusive Types":  [
@@ -1300,13 +1364,6 @@
                                 "IFlip",
                                 "IProvideCover",
                                 "ITable"
-                            ]
-    },
-    {
-        "Component Type Name":  "Tape",
-        "Component Type Description":  "A reusable [audio storage medium] that can hold recorded speech for answering machines and future devices",
-        "Exclusive Types":  [
-                                "IAudioStorageTape"
                             ]
     },
     {

@@ -1148,6 +1148,13 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     /// </summary>
     public void FinaliseLoadTimeTasks()
     {
+		if (_loadTimeTasksFinalised)
+		{
+			return;
+		}
+
+		// Mark this before walking components because connected and contained item graphs can be cyclic.
+		_loadTimeTasksFinalised = true;
         foreach (IGameItemComponent component in Components)
         {
             component.FinaliseLoad();
@@ -1158,6 +1165,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             item.FinaliseLoadTimeTasks();
         }
     }
+
+	private bool _loadTimeTasksFinalised;
 
     #endregion
 

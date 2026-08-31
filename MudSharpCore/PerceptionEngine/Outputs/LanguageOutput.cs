@@ -2,7 +2,7 @@
 
 namespace MudSharp.PerceptionEngine.Outputs;
 
-public class LanguageOutput : Output
+public class LanguageOutput : Output, IRecordableLanguageOutput
 {
     protected LanguageInfo _languageText;
     protected IEmote _optionalEmote;
@@ -24,7 +24,10 @@ public class LanguageOutput : Output
         AllValid = _preLanguageEmote.Valid & (_optionalEmote?.Valid != false);
     }
 
-    public IPerceivable DefaultSource { get; protected set; }
+	public IPerceivable DefaultSource { get; protected set; }
+	public LanguageInfo LanguageInfo => _languageText;
+	public IEmote PreLanguageEmote => _preLanguageEmote;
+	public IEmote OptionalEmote => _optionalEmote;
 
     public bool AllValid { get; protected set; }
 
@@ -69,7 +72,7 @@ public class LanguageOutput : Output
     }
 }
 
-public class PriorLanguageOutput : Output
+public class PriorLanguageOutput : Output, IRecordableLanguageOutput
 {
     protected LanguageInfo _languageText;
     protected IEmote _optionalEmote;
@@ -91,7 +94,10 @@ public class PriorLanguageOutput : Output
         AllValid = _preLanguageEmote.Valid & (_optionalEmote?.Valid != false);
     }
 
-    public IPerceivable DefaultSource { get; protected set; }
+	public IPerceivable DefaultSource { get; protected set; }
+	public LanguageInfo LanguageInfo => _languageText;
+	public IEmote PreLanguageEmote => _preLanguageEmote;
+	public IEmote OptionalEmote => _optionalEmote;
 
     public bool AllValid { get; protected set; }
 

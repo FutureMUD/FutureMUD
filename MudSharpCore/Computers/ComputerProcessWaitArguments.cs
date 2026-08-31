@@ -22,6 +22,13 @@ internal static class ComputerProcessWaitArguments
 		public string SourceEndpointKey { get; set; } = string.Empty;
 	}
 
+	private sealed class MediaWaitPayload
+	{
+		public long ItemId { get; set; }
+		public long ComponentId { get; set; }
+		public string EndpointKey { get; set; } = string.Empty;
+	}
+
 	public static string CreateUserInput(long characterId, long terminalItemId)
 	{
 		return JsonSerializer.Serialize(new UserInputWaitPayload
@@ -93,6 +100,43 @@ internal static class ComputerProcessWaitArguments
 				payload.SourceComponentId,
 				payload.SourceComponentName ?? string.Empty,
 				SignalComponentUtilities.NormaliseSignalEndpointKey(payload.SourceEndpointKey));
+			return true;
+		}
+		catch (JsonException)
+		{
+			return false;
+		}
+	}
+
+	public static string CreateMedia(MediaEndpointAddress endpoint)
+	{
+		return JsonSerializer.Serialize(new MediaWaitPayload
+		{
+			ItemId = endpoint.ItemId,
+			ComponentId = endpoint.ComponentId,
+			EndpointKey = endpoint.EndpointKey
+		});
+	}
+
+	public static bool TryParseMedia(string? waitArgument, out MediaEndpointAddress endpoint)
+	{
+		endpoint = MediaEndpointAddress.Empty;
+		if (string.IsNullOrWhiteSpace(waitArgument))
+		{
+			return false;
+		}
+
+		try
+		{
+			var payload = JsonSerializer.Deserialize<MediaWaitPayload>(waitArgument);
+			if (payload is null || payload.ItemId <= 0L || payload.ComponentId <= 0L ||
+			    string.IsNullOrWhiteSpace(payload.EndpointKey))
+			{
+				return false;
+			}
+
+			endpoint = new MediaEndpointAddress(payload.ItemId, payload.ComponentId, payload.EndpointKey,
+				MediaEndpointDirection.Input);
 			return true;
 		}
 		catch (JsonException)

@@ -9,7 +9,7 @@ public interface IAnsweringMachine : ITelephone
     int AutoAnswerRings { get; }
     bool IsRecordingGreeting { get; }
     bool IsRecordingMessage { get; }
-    IAudioStorageTape? Tape { get; }
+	IMediaStorageMedium? Medium { get; }
     StoredAudioRecording? GreetingRecording { get; }
     IReadOnlyList<StoredAudioRecording> MessageRecordings { get; }
 }

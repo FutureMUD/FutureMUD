@@ -338,8 +338,12 @@ namespace MudSharp.Framework
         IComputerNetworkIdentityService ComputerNetworkIdentityService { get; }
         IComputerNetworkTunnelService ComputerNetworkTunnelService { get; }
         IComputerBoardService ComputerBoardService { get; }
-        IComputerMailService ComputerMailService { get; }
-        IComputerFileTransferService ComputerFileTransferService { get; }
+		IComputerMailService ComputerMailService { get; }
+		IComputerFileTransferService ComputerFileTransferService { get; }
+		IMediaChannelService MediaChannelService { get; }
+		IMediaRecordingService MediaRecordingService { get; }
+		IComputerMediaService ComputerMediaService { get; }
+		IComputerMediaNetworkService ComputerMediaNetworkService { get; }
         IArenaLifecycleService ArenaLifecycleService { get; }
         IArenaScheduler ArenaScheduler { get; }
         IArenaObservationService ArenaObservationService { get; }

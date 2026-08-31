@@ -14,6 +14,7 @@ internal sealed class ComputerExecutionContext
 	public int LaunchDepth { get; init; }
 	public string? PendingTerminalInput { get; internal set; }
 	public ComputerSignal? PendingSignalInput { get; internal set; }
+	public MediaPacket? PendingMediaInput { get; internal set; }
 
 	public string? ConsumePendingTerminalInput()
 	{
@@ -26,6 +27,13 @@ internal sealed class ComputerExecutionContext
 	{
 		var input = PendingSignalInput;
 		PendingSignalInput = null;
+		return input;
+	}
+
+	public MediaPacket? ConsumePendingMediaInput()
+	{
+		var input = PendingMediaInput;
+		PendingMediaInput = null;
 		return input;
 	}
 }

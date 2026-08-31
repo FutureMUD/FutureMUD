@@ -136,7 +136,7 @@
     },
     {
         "Component Name":  "AnsweringMachine_Standard",
-        "Component Description":  "Turns an item into a daisy-chain answering machine with a standard ring delay.",
+        "Component Description":  "Turns an item into a daisy-chain answering machine that records onto a compatible audio medium.",
         "Component Type":  "AnsweringMachine"
     },
     {
@@ -993,6 +993,11 @@
         "Component Name":  "ComputerHost_Server",
         "Component Description":  "Turns an item into a larger server-style computer host.",
         "Component Type":  "Computer Host"
+    },
+    {
+        "Component Name":  "ComputerMediaInterface_AV",
+        "Component Description":  "Turns an item into a powered A/V gateway for a sibling computer host.",
+        "Component Type":  "Computer Media Interface"
     },
     {
         "Component Name":  "ComputerStorage_Fixed",
@@ -4538,6 +4543,56 @@
         "Component Name":  "Melee_Warhammer",
         "Component Description":  "Turns an item into a Warhammer melee weapon",
         "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "MediaCable_AV",
+        "Component Description":  "Turns an item into a passive local cable for compatible audio/video media endpoints.",
+        "Component Type":  "Media Cable"
+    },
+    {
+        "Component Name":  "MediaCamera_AV",
+        "Component Description":  "Turns an item into a powered audio/video camera with a five-second scene snapshot interval.",
+        "Component Type":  "Camera"
+    },
+    {
+        "Component Name":  "MediaCamera_Video",
+        "Component Description":  "Turns an item into a powered video camera with a five-second scene snapshot interval.",
+        "Component Type":  "Camera"
+    },
+    {
+        "Component Name":  "MediaDeck_CompactCassette",
+        "Component Description":  "Turns an item into a compact-cassette audio recording and playback deck.",
+        "Component Type":  "Media Deck"
+    },
+    {
+        "Component Name":  "MediaDeck_VHS",
+        "Component Description":  "Turns an item into a VHS A/V recording and playback deck.",
+        "Component Type":  "Media Deck"
+    },
+    {
+        "Component Name":  "MediaMonitor_AV",
+        "Component Description":  "Turns an item into an ambient audio/video monitor for local camera and deck feeds.",
+        "Component Type":  "Media Monitor"
+    },
+    {
+        "Component Name":  "MediaSpeaker_Standard",
+        "Component Description":  "Turns an item into a powered speaker for live and recorded audio feeds.",
+        "Component Type":  "Media Speaker"
+    },
+    {
+        "Component Name":  "MediaSplitter_AV",
+        "Component Description":  "Turns an item into a passive three-way splitter for compatible audio/video media endpoints.",
+        "Component Type":  "Media Splitter"
+    },
+    {
+        "Component Name":  "MediaStorageMedium_CompactCassette60",
+        "Component Description":  "Turns an item into a write-protectable 60-minute compact-cassette audio medium.",
+        "Component Type":  "Media Storage Medium"
+    },
+    {
+        "Component Name":  "MediaStorageMedium_VHS120",
+        "Component Description":  "Turns an item into a write-protectable 120-minute VHS A/V medium.",
+        "Component Type":  "Media Storage Medium"
     },
     {
         "Component Name":  "Microcontroller_Basic",
@@ -18065,6 +18120,11 @@
         "Component Type":  "Push Button"
     },
     {
+        "Component Name":  "PushToTalkMicrophone_Standard",
+        "Component Description":  "Turns an item into a powered push-to-talk microphone for transmit and transmitwith.",
+        "Component Type":  "Push To Talk Microphone"
+    },
+    {
         "Component Name":  "RainSensor_Outdoor",
         "Component Description":  "Turns an item into a powered outdoor rain sensor.",
         "Component Type":  "Rain Sensor"
@@ -18943,16 +19003,6 @@
         "Component Name":  "Table_Twenty",
         "Component Description":  "Makes an item a table that can take twenty occupants",
         "Component Type":  "Table"
-    },
-    {
-        "Component Name":  "Tape_Cassette30",
-        "Component Description":  "Turns an item into a standard thirty-minute cassette tape.",
-        "Component Type":  "Tape"
-    },
-    {
-        "Component Name":  "Tape_Microcassette10",
-        "Component Description":  "Turns an item into a compact ten-minute microcassette.",
-        "Component Type":  "Tape"
     },
     {
         "Component Name":  "TelecommunicationsGridCreator_Standard",

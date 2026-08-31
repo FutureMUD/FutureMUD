@@ -301,7 +301,7 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 		return new ComputerRemoteFileDetails
 		{
 			Summary = ToSummary(targetHost, hostAddress, owner, file, !authenticated),
-			TextContents = file.TextContents
+			TextContents = file.Kind == ComputerFileKind.Text ? file.TextContents : string.Empty
 		};
 	}
 
@@ -310,6 +310,35 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 	{
 		return MutateRemoteFile(sourceHost, targetHost, account, ownerIdentifier, fileName,
 			fileSystem => fileSystem.WriteFile(fileName, textContents ?? string.Empty), out error);
+	}
+
+	public bool WriteMediaFile(IComputerHost sourceHost, IComputerHost targetHost, IComputerFtpAccount account,
+		string? ownerIdentifier, string fileName, long recordingId, long sizeInBytes, out string error)
+	{
+		error = string.Empty;
+		if (string.IsNullOrWhiteSpace(fileName))
+		{
+			error = "You must specify a file name.";
+			return false;
+		}
+
+		if (!TryEnsureAuthenticatedAccount(sourceHost, targetHost, account, out error))
+		{
+			return false;
+		}
+
+		var owner = ResolveRemoteOwner(targetHost, ownerIdentifier, out error);
+		if (owner is null)
+		{
+			return false;
+		}
+
+		return ComputerMediaFileUtilities.CopyMediaFile(_gameworld, new ComputerMutableMediaFile
+		{
+			FileName = fileName,
+			MediaRecordingId = recordingId,
+			SizeInBytes = sizeInBytes
+		}, owner, fileName, false, out error);
 	}
 
 	public bool AppendFile(IComputerHost sourceHost, IComputerHost targetHost, IComputerFtpAccount account,
@@ -354,6 +383,66 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 		}
 
 		return true;
+	}
+
+	public bool MoveFile(IComputerHost sourceHost, IComputerHost targetHost, IComputerFtpAccount account,
+		string? ownerIdentifier, string fileName, string newFileName, out string error)
+	{
+		error = string.Empty;
+		if (string.IsNullOrWhiteSpace(fileName) || string.IsNullOrWhiteSpace(newFileName))
+		{
+			error = "You must specify both the existing and new file names.";
+			return false;
+		}
+
+		if (!TryEnsureAuthenticatedAccount(sourceHost, targetHost, account, out error))
+		{
+			return false;
+		}
+
+		var owner = ResolveRemoteOwner(targetHost, ownerIdentifier, out error);
+		if (owner?.FileSystem is not { } fileSystem)
+		{
+			error = string.IsNullOrEmpty(error)
+				? "That remote owner does not expose a writable file system."
+				: error;
+			return false;
+		}
+
+		var file = fileSystem.GetFile(fileName);
+		if (file is null)
+		{
+			error = $"{ComputerFileTransferUtilities.DescribeOwner(owner).ColourName()} does not have a file named {fileName.ColourName()}.";
+			return false;
+		}
+
+		if (fileSystem.FileExists(newFileName))
+		{
+			error = $"{ComputerFileTransferUtilities.DescribeOwner(owner).ColourName()} already has a file named {newFileName.ColourName()}.";
+			return false;
+		}
+
+		if (file.Kind == ComputerFileKind.Media)
+		{
+			if (!ComputerMediaFileUtilities.CopyMediaFile(_gameworld, file, owner, newFileName,
+				    file.PubliclyAccessible, out error))
+			{
+				return false;
+			}
+		}
+		else
+		{
+			fileSystem.WriteFile(newFileName, file.TextContents);
+			fileSystem.SetFilePubliclyAccessible(newFileName, file.PubliclyAccessible);
+		}
+
+		if (fileSystem.DeleteFile(fileName))
+		{
+			return true;
+		}
+
+		error = "The new file was created, but the old file could not be deleted.";
+		return false;
 	}
 
 	public IEnumerable<string> GetAdvertisedServiceDetails(IComputerHost host, string applicationId)
@@ -403,6 +492,11 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 			return true;
 		}
 		catch (ComputerFileSystemCapacityException ex)
+		{
+			error = ex.Message;
+			return false;
+		}
+		catch (ComputerFileKindException ex)
 		{
 			error = ex.Message;
 			return false;
@@ -498,7 +592,9 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 			CreatedAtUtc = file.CreatedAtUtc,
 			LastModifiedAtUtc = file.LastModifiedAtUtc,
 			PubliclyAccessible = file.PubliclyAccessible,
-			ReadOnly = readOnly
+			ReadOnly = readOnly,
+			Kind = file.Kind,
+			MediaRecordingId = file.MediaRecordingId
 		};
 	}
 

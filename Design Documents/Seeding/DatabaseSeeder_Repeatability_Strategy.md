@@ -221,6 +221,12 @@ Treat a replay-profile failure as deliberate configuration drift, not a reason t
 
 These five seeders need separate design work before repeatability claims are expanded because they seed foundational or very large interdependent graphs.
 
+## UsefulSeeder media component package
+
+The UsefulSeeder modern-component package owns deterministic component prototypes only for `MediaCamera_Video`, `MediaCamera_AV`, `PushToTalkMicrophone_Standard`, `MediaMonitor_AV`, `MediaSpeaker_Standard`, `ComputerMediaInterface_AV`, VHS and compact-cassette `MediaDeck`/`MediaStorageMedium` pairs, `MediaCable_AV`, and `MediaSplitter_AV`. It creates no finished camera, monitor, VCR, or boombox item prototypes and adds no new question; the existing Debug replay answer remains `modernitems=yes`.
+
+The modern-package marker list and repeatability test own this complete media set. Reruns must preserve exactly one row per stable component name, retain the expected type/format/capability/capacity definitions, and must not recreate the retired `Tape` rows. Builders compose stock items from these components in their game-specific content layer.
+
 ## Contributor Checklist
 - When adding or changing a seeder, update both its metadata and any shared-answer mapping that applies.
 - Fix incorrect stock content at the seed definition first. Do not add a correction layer that is required for a clean install to be correct.

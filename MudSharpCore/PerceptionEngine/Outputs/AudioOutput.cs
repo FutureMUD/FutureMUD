@@ -18,6 +18,7 @@ public class AudioOutput : EmoteOutput
     };
 
     private AudioVolume _volume;
+	public AudioVolume Volume => _volume;
     public AudioOutput(IEmote emote,
         AudioVolume volume,
         OutputVisibility visibility = OutputVisibility.Normal,

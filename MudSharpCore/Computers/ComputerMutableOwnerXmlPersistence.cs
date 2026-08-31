@@ -184,6 +184,7 @@ internal static class ComputerMutableOwnerXmlPersistence
 		}
 
 		return element.Elements("File")
+			.Where(x => !string.Equals(x.Attribute("kind")?.Value, "media", StringComparison.InvariantCultureIgnoreCase))
 			.Select(x => new ComputerMutableTextFile
 			{
 				FileName = x.Attribute("name")?.Value ?? string.Empty,
@@ -192,6 +193,30 @@ internal static class ComputerMutableOwnerXmlPersistence
 				LastModifiedAtUtc = TryParseDateTime(x.Attribute("modified")?.Value) ?? DateTime.UtcNow,
 				PubliclyAccessible = bool.TryParse(x.Attribute("public")?.Value, out var isPublic) && isPublic
 			})
+			.ToList();
+	}
+
+	public static IEnumerable<ComputerMutableMediaFile> LoadMediaFiles(XElement? element)
+	{
+		if (element is null)
+		{
+			return Enumerable.Empty<ComputerMutableMediaFile>();
+		}
+
+		return element.Elements("File")
+			.Where(x => x.Attribute("kind")?.Value.EqualTo("media") == true)
+			.Select(x => new ComputerMutableMediaFile
+			{
+				FileName = x.Attribute("name")?.Value ?? string.Empty,
+				MediaRecordingId = long.TryParse(x.Attribute("recording")?.Value, out var recordingId) && recordingId > 0L
+					? recordingId
+					: null,
+				SizeInBytes = long.TryParse(x.Attribute("size")?.Value, out var size) && size >= 0L ? size : 0L,
+				CreatedAtUtc = TryParseDateTime(x.Attribute("created")?.Value) ?? DateTime.UtcNow,
+				LastModifiedAtUtc = TryParseDateTime(x.Attribute("modified")?.Value) ?? DateTime.UtcNow,
+				PubliclyAccessible = bool.TryParse(x.Attribute("public")?.Value, out var isPublic) && isPublic
+			})
+			.Where(x => x.MediaRecordingId.HasValue)
 			.ToList();
 	}
 
@@ -205,6 +230,28 @@ internal static class ComputerMutableOwnerXmlPersistence
 				new XAttribute("modified", file.LastModifiedAtUtc.ToString("O")),
 				new XAttribute("public", file.PubliclyAccessible),
 				new XCData(file.TextContents ?? string.Empty)));
+	}
+
+	public static XElement SaveFiles(IEnumerable<ComputerMutableTextFile> textFiles,
+		IEnumerable<ComputerMutableMediaFile> mediaFiles)
+	{
+		return new XElement("Files",
+			textFiles
+				.Select(file => new XElement("File",
+					new XAttribute("name", file.FileName),
+					new XAttribute("created", file.CreatedAtUtc.ToString("O")),
+					new XAttribute("modified", file.LastModifiedAtUtc.ToString("O")),
+					new XAttribute("public", file.PubliclyAccessible),
+					new XCData(file.TextContents ?? string.Empty)))
+				.Concat(mediaFiles.Select(file => new XElement("File",
+					new XAttribute("name", file.FileName),
+					new XAttribute("kind", "media"),
+					new XAttribute("recording", file.MediaRecordingId ?? 0L),
+					new XAttribute("size", file.SizeInBytes),
+					new XAttribute("created", file.CreatedAtUtc.ToString("O")),
+					new XAttribute("modified", file.LastModifiedAtUtc.ToString("O")),
+					new XAttribute("public", file.PubliclyAccessible))))
+				.OrderBy(x => x.Attribute("name")?.Value));
 	}
 
 	public static IEnumerable<ComputerMutableFtpAccount> LoadFtpAccounts(XElement? element)
@@ -235,6 +282,72 @@ internal static class ComputerMutableOwnerXmlPersistence
 				new XAttribute("hash", account.PasswordHash),
 				new XAttribute("salt", account.PasswordSalt),
 				new XAttribute("enabled", account.Enabled)));
+	}
+
+	public static (IReadOnlyCollection<MediaFeedConfiguration> Feeds,
+		IReadOnlyCollection<MediaSubscriptionConfiguration> Subscriptions) LoadMediaConfiguration(XElement? element)
+	{
+		if (element is null)
+		{
+			return (Array.Empty<MediaFeedConfiguration>(), Array.Empty<MediaSubscriptionConfiguration>());
+		}
+
+		var feeds = element.Element("Feeds")?.Elements("Feed")
+			.Select(x => new MediaFeedConfiguration(
+				x.Attribute("name")?.Value?.Trim() ?? string.Empty,
+				x.Attribute("input")?.Value?.Trim() ?? string.Empty,
+				!bool.TryParse(x.Attribute("public")?.Value, out var isPublic) || isPublic,
+				x.Elements("Account")
+					.Select(account => long.TryParse(account.Attribute("id")?.Value, out var id) ? id : 0L)
+					.Where(id => id > 0L)
+					.Distinct()
+					.OrderBy(id => id)
+					.ToList()))
+			.Where(x => !string.IsNullOrWhiteSpace(x.FeedName) && !string.IsNullOrWhiteSpace(x.InputName))
+			.GroupBy(x => x.FeedName, StringComparer.InvariantCultureIgnoreCase)
+			.Select(x => x.Last())
+			.ToList() ?? [];
+
+		var subscriptions = element.Element("Subscriptions")?.Elements("Subscription")
+			.Select(x => new MediaSubscriptionConfiguration(
+				x.Attribute("name")?.Value?.Trim() ?? string.Empty,
+				long.TryParse(x.Attribute("source")?.Value, out var sourceHostItemId) ? sourceHostItemId : 0L,
+				x.Attribute("address")?.Value?.Trim() ?? string.Empty,
+				x.Attribute("feed")?.Value?.Trim() ?? string.Empty,
+				x.Attribute("output")?.Value?.Trim() ?? string.Empty,
+				long.TryParse(x.Attribute("account")?.Value, out var accountId) && accountId > 0L ? accountId : null,
+				!bool.TryParse(x.Attribute("enabled")?.Value, out var enabled) || enabled))
+			.Where(x => !string.IsNullOrWhiteSpace(x.SubscriptionName) && x.SourceHostItemId > 0L &&
+			            !string.IsNullOrWhiteSpace(x.FeedName) && !string.IsNullOrWhiteSpace(x.OutputName))
+			.GroupBy(x => x.SubscriptionName, StringComparer.InvariantCultureIgnoreCase)
+			.Select(x => x.Last())
+			.ToList() ?? [];
+
+		return (feeds, subscriptions);
+	}
+
+	public static XElement SaveMediaConfiguration(IEnumerable<MediaFeedConfiguration> feeds,
+		IEnumerable<MediaSubscriptionConfiguration> subscriptions)
+	{
+		return new XElement("MediaConfiguration",
+			new XElement("Feeds",
+				from feed in feeds.OrderBy(x => x.FeedName)
+				select new XElement("Feed",
+					new XAttribute("name", feed.FeedName),
+					new XAttribute("input", feed.InputName),
+					new XAttribute("public", feed.IsPublic),
+					from accountId in feed.AllowedAccountIds.Where(x => x > 0L).Distinct().OrderBy(x => x)
+					select new XElement("Account", new XAttribute("id", accountId)))),
+			new XElement("Subscriptions",
+				from subscription in subscriptions.OrderBy(x => x.SubscriptionName)
+				select new XElement("Subscription",
+					new XAttribute("name", subscription.SubscriptionName),
+					new XAttribute("source", subscription.SourceHostItemId),
+					new XAttribute("address", subscription.SourceAddress),
+					new XAttribute("feed", subscription.FeedName),
+					new XAttribute("output", subscription.OutputName),
+					new XAttribute("account", subscription.AccountId ?? 0L),
+					new XAttribute("enabled", subscription.Enabled))));
 	}
 
 	private static DateTime? TryParseDateTime(string? value)

@@ -9,9 +9,11 @@ using MudSharp.Character;
 using MudSharp.Commands.Modules;
 using MudSharp.Computers;
 using MudSharp.Community.Boards;
+using MudSharp.Construction;
 using MudSharp.Construction.Grids;
 using MudSharp.Database;
 using MudSharp.Editor;
+using MudSharp.Effects;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
@@ -21,6 +23,7 @@ using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
+using MudSharp.RPG.Law;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -2478,6 +2481,344 @@ return userinput()";
 		return program;
 	}
 
+	[TestMethod]
+	public void MediaChannelService_PublishesOnePacketToEveryCompatibleSink()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var service = new MediaChannelService(gameworld.Object);
+		var source = new MediaEndpointAddress(1L, 10L, "microphone");
+		var packet = new MediaPacket(Guid.NewGuid(), 1L, DateTime.UtcNow, MediaCapabilities.Audio,
+			MediaEventKind.Audio, source, [source], new MediaTextPayload("Test transmission", true, false));
+		var sinks = Enumerable.Range(1, 3)
+			.Select(index =>
+			{
+				var endpoint = new MediaEndpointAddress(index + 1L, index + 10L, $"speaker-{index}",
+					MediaEndpointDirection.Input);
+				var sink = new Mock<IMediaSink>();
+				sink.SetupGet(x => x.MediaAvailable).Returns(true);
+				sink.SetupGet(x => x.MediaEndpoint).Returns(endpoint);
+				sink.SetupGet(x => x.MediaInputEndpoint).Returns(endpoint);
+				sink.Setup(x => x.Accepts(It.IsAny<MediaPacket>())).Returns(true);
+				service.RegisterSink(sink.Object);
+				return (Sink: sink, Endpoint: endpoint);
+			})
+			.ToList();
+
+		service.Publish(packet);
+
+		foreach (var (sink, endpoint) in sinks)
+		{
+			sink.Verify(x => x.ReceiveMedia(It.Is<MediaPacket>(delivered =>
+				delivered.StreamId == packet.StreamId &&
+				delivered.Sequence == packet.Sequence &&
+				delivered.Provenance.Contains(endpoint))), Times.Once);
+		}
+	}
+
+	[TestMethod]
+	public void MediaChannelService_AddViewerAsCrimeWitness_HandlesLateCrimeLookupAndUsesProvenanceOnce()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var viewer = new Mock<ICharacter>();
+		viewer.SetupGet(x => x.Id).Returns(51L);
+		var criminal = new Mock<ICharacter>();
+		criminal.SetupGet(x => x.Id).Returns(12L);
+		var crime = new Mock<ICrime>();
+		crime.SetupGet(x => x.Id).Returns(77L);
+		crime.SetupGet(x => x.CriminalId).Returns(12L);
+		crime.SetupGet(x => x.Criminal).Returns(criminal.Object);
+		crime.SetupGet(x => x.WitnessIds).Returns(Array.Empty<long>());
+		var crimes = BuildRepository(new[] { crime.Object });
+		crimes.Setup(x => x.Get(77L)).Returns((ICrime)null!);
+		gameworld.SetupGet(x => x.Crimes).Returns(crimes.Object);
+		var service = new MediaChannelService(gameworld.Object);
+		var source = new MediaEndpointAddress(1L, 2L, "camera");
+		var packet = new MediaPacket(Guid.NewGuid(), 1L, DateTime.UtcNow, MediaCapabilities.Video,
+			MediaEventKind.CrimeWitness, source, [source], new MediaCrimePayload(77L));
+
+		var added = service.AddViewerAsCrimeWitness(viewer.Object, packet);
+
+		Assert.IsTrue(added);
+		crime.Verify(x => x.AddWitness(51L), Times.Once);
+		viewer.Verify(x => x.HandleEvent(MudSharp.Events.EventType.WitnessedCrime, It.IsAny<object[]>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void MediaSensorPerceiver_CanSee_UsesPositivePerceptionVisibilityContract()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var location = new Mock<ICell>();
+		var owner = new Mock<IGameItem>();
+		var target = new Mock<IPerceivable>();
+		gameworld.SetupGet(x => x.DefaultPlane).Returns((MudSharp.Planes.IPlane)null!);
+		location.Setup(x => x.CurrentIllumination(It.IsAny<IPerceiver>())).Returns(1000.0);
+		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		owner.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		owner.SetupGet(x => x.BasePlanarPresence).Returns(MudSharp.Planes.PlanarPresenceDefinition.DefaultMaterial(1L));
+		owner.SetupGet(x => x.Effects).Returns(Array.Empty<MudSharp.Effects.IEffect>());
+		target.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		target.SetupGet(x => x.Location).Returns(location.Object);
+		target.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		target.SetupGet(x => x.Effects).Returns(Array.Empty<MudSharp.Effects.IEffect>());
+		target.Setup(x => x.HiddenFromPerception(It.IsAny<IPerceiver>(), PerceptionTypes.AllVisual,
+			It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
+		var sensor = new MediaSensorPerceiver(owner.Object, location.Object, 1.0);
+
+		Assert.IsTrue(sensor.CanSee(target.Object));
+
+		target.Setup(x => x.HiddenFromPerception(It.IsAny<IPerceiver>(), PerceptionTypes.AllVisual,
+			It.IsAny<PerceiveIgnoreFlags>())).Returns(false);
+		Assert.IsFalse(sensor.CanSee(target.Object));
+	}
+
+	[TestMethod]
+	public void ComputerMediaService_SegmentedRecording_RotatesToTimestampedFiles()
+	{
+		var fixture = CreateMediaPolicyFixture();
+		var jobId = fixture.Service.StartSegmentedRecording(fixture.Host.Object, "camera-in", "lobby.av",
+			TimeSpan.FromSeconds(5), out var error);
+
+		Assert.IsTrue(jobId > 0L, error);
+		Assert.AreEqual(1, fixture.FileSystem.Files.Count());
+		fixture.Advance(TimeSpan.FromSeconds(5));
+		Assert.AreEqual(2, fixture.FileSystem.Files.Count());
+		var actualFiles = fixture.FileSystem.Files.Select(x => x.FileName).OrderBy(x => x).ToArray();
+		CollectionAssert.AreEqual(
+			new[] { "lobby-1703jan01T040000-0001.av", "lobby-1703jan01T040005-0002.av" },
+			actualFiles, $"Actual files: {string.Join(", ", actualFiles)}");
+	}
+
+	[TestMethod]
+	public void ComputerMediaService_RollingRecording_ExpiresFinalisedSegmentsOutsideRetention()
+	{
+		var fixture = CreateMediaPolicyFixture();
+		var jobId = fixture.Service.StartRollingRecording(fixture.Host.Object, "camera-in", "yard",
+			TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(5), out var error);
+
+		Assert.IsTrue(jobId > 0L, error);
+		fixture.Advance(TimeSpan.FromSeconds(5));
+		fixture.Advance(TimeSpan.FromSeconds(5));
+		fixture.Advance(TimeSpan.FromSeconds(5));
+
+		Assert.AreEqual(3, fixture.FileSystem.Files.Count());
+		Assert.IsFalse(fixture.FileSystem.FileExists("yard-1703jan01T040000-0001.av"));
+		Assert.IsTrue(fixture.FileSystem.FileExists("yard-1703jan01T040015-0004.av"));
+	}
+
+	[TestMethod]
+	public void ComputerMediaService_EventRecording_IgnoresPeriodicFramesAndRearmsAfterQuietWindow()
+	{
+		var fixture = CreateMediaPolicyFixture();
+		var jobId = fixture.Service.StartEventRecording(fixture.Host.Object, "camera-in", "door",
+			TimeSpan.FromSeconds(5), out var error);
+		var source = fixture.MediaInterface.Object.MediaInputEndpoint;
+		var scene = new MediaPacket(Guid.NewGuid(), 1L, fixture.Now, MediaCapabilities.Video,
+			MediaEventKind.SceneSnapshot, source, [source], new MediaScenePayload("An empty doorway.", "hash"));
+		var movement = new MediaPacket(scene.StreamId, 2L, fixture.Now, MediaCapabilities.Video,
+			MediaEventKind.Video, source, [source], new MediaTextPayload("Someone enters.", false, true));
+
+		Assert.IsTrue(jobId > 0L, error);
+		fixture.Publish(scene);
+		Assert.AreEqual(0, fixture.FileSystem.Files.Count());
+		fixture.Publish(movement);
+		Assert.AreEqual(1, fixture.FileSystem.Files.Count());
+		fixture.Advance(TimeSpan.FromSeconds(5));
+		Assert.AreEqual("armed / 5 seconds after event", fixture.Service.GetJobs(fixture.Host.Object).Single().Policy);
+		fixture.Publish(movement with { Sequence = 3L, TimestampUtc = fixture.Now });
+		Assert.AreEqual(2, fixture.FileSystem.Files.Count());
+	}
+
+	[TestMethod]
+	public void MediaBuiltInApplication_SurveillanceDurationExamples_ParseAsDocumented()
+	{
+		var method = typeof(MediaBuiltInApplicationExecutor).GetMethod("TryParseDuration",
+			BindingFlags.Static | BindingFlags.NonPublic)!;
+
+		foreach (var (text, expected) in new[]
+		         {
+			         ("24h", TimeSpan.FromHours(24)),
+			         ("12h", TimeSpan.FromHours(12)),
+			         ("5m", TimeSpan.FromMinutes(5))
+		         })
+		{
+			var arguments = new object?[] { text, null };
+			Assert.IsTrue((bool)method.Invoke(null, arguments)!);
+			Assert.AreEqual(expected, (TimeSpan)arguments[1]!);
+		}
+	}
+
+	private sealed class MediaPolicyFixture
+	{
+		private readonly Mock<IHeartbeatManager> _heartbeat;
+		private readonly Action<DateTime> _setClock;
+		private DateTime _now;
+
+		public MediaPolicyFixture(ComputerMediaService service, Mock<IComputerHost> host,
+			Mock<IComputerMediaInterface> mediaInterface, ComputerMutableFileSystem fileSystem,
+			Mock<IHeartbeatManager> heartbeat, DateTime now, Action<DateTime> setClock)
+		{
+			Service = service;
+			Host = host;
+			MediaInterface = mediaInterface;
+			FileSystem = fileSystem;
+			_heartbeat = heartbeat;
+			_now = now;
+			_setClock = setClock;
+		}
+
+		public ComputerMediaService Service { get; }
+		public Mock<IComputerHost> Host { get; }
+		public Mock<IComputerMediaInterface> MediaInterface { get; }
+		public ComputerMutableFileSystem FileSystem { get; }
+		public DateTime Now => _now;
+
+		public void Advance(TimeSpan duration)
+		{
+			_now += duration;
+			_setClock(_now);
+			_heartbeat.Raise(x => x.SecondHeartbeat += null!);
+		}
+
+		public void Publish(MediaPacket packet)
+		{
+			MediaInterface.Raise(x => x.MediaPacketReceived += null!, MediaInterface.Object, packet);
+		}
+	}
+
+	private static MediaPolicyFixture CreateMediaPolicyFixture()
+	{
+		var now = new DateTime(2040, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+		var inCharacterStart = new DateTime(1703, 1, 1, 4, 0, 0, DateTimeKind.Unspecified);
+		var currentNow = now;
+		var gameworld = new Mock<IFuturemud>();
+		var heartbeat = new Mock<IHeartbeatManager>();
+		var recordingService = new Mock<IMediaRecordingService>();
+		var fileSystem = new ComputerMutableFileSystem(1_000_000L);
+		var host = new Mock<IComputerHost>();
+		var hostComponent = host.As<IGameItemComponent>();
+		hostComponent.SetupGet(x => x.Id).Returns(77L);
+		host.SetupGet(x => x.Powered).Returns(true);
+		host.SetupGet(x => x.FileSystem).Returns(fileSystem);
+		var mediaInterface = new Mock<IComputerMediaInterface>();
+		var inputEndpoint = new MediaEndpointAddress(10L, 11L, "camera-in", MediaEndpointDirection.Input);
+		mediaInterface.SetupGet(x => x.ConnectedHost).Returns(host.Object);
+		mediaInterface.SetupGet(x => x.InputNames).Returns(["camera-in"]);
+		mediaInterface.SetupGet(x => x.OutputNames).Returns(Array.Empty<string>());
+		mediaInterface.SetupGet(x => x.MediaInputEndpoint).Returns(inputEndpoint);
+		mediaInterface.SetupGet(x => x.MediaEndpoint).Returns(inputEndpoint);
+		mediaInterface.SetupGet(x => x.MediaCapabilities).Returns(MediaCapabilities.Video);
+		mediaInterface.SetupGet(x => x.MediaAvailable).Returns(true);
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(10L);
+		item.Setup(x => x.GetItemTypes<IComputerMediaInterface>()).Returns([mediaInterface.Object]);
+		gameworld.SetupGet(x => x.Items).Returns(BuildRepository(new[] { item.Object }).Object);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
+		gameworld.SetupGet(x => x.MediaRecordingService).Returns(recordingService.Object);
+		long nextRecordingId = 0L;
+		var descriptors = new Dictionary<long, MediaRecordingDescriptor>();
+		recordingService.Setup(x => x.CreateRecording(It.IsAny<MediaRecordingCreateRequest>()))
+			.Returns((MediaRecordingCreateRequest request) =>
+			{
+				var descriptor = new MediaRecordingDescriptor(++nextRecordingId, request.Capabilities,
+					MediaRecordingStatus.Recording, request.StartedAtUtc, null, TimeSpan.Zero, 100L, request.Name);
+				descriptors[descriptor.RecordingId] = descriptor;
+				return descriptor;
+			});
+		recordingService.Setup(x => x.CreateReference(It.IsAny<MudSharp.Computers.MediaRecordingReference>(),
+			out It.Ref<string>.IsAny)).Returns(true);
+		recordingService.Setup(x => x.AppendPacket(It.IsAny<long>(), It.IsAny<MediaPacket>(),
+			out It.Ref<string>.IsAny)).Returns(true);
+		recordingService.Setup(x => x.AppendSceneFrame(It.IsAny<long>(), It.IsAny<TimeSpan>(),
+			It.IsAny<TimeSpan>(), It.IsAny<string>(), out It.Ref<string>.IsAny)).Returns(true);
+		recordingService.Setup(x => x.FinaliseRecording(It.IsAny<long>(), It.IsAny<MediaRecordingStatus>(),
+			It.IsAny<DateTime>(), out It.Ref<string>.IsAny)).Returns(true);
+		recordingService.Setup(x => x.GetRecording(It.IsAny<long>()))
+			.Returns((long id) => descriptors.GetValueOrDefault(id));
+		recordingService.Setup(x => x.DeleteReference(It.IsAny<long>(), It.IsAny<string>(),
+			out It.Ref<string>.IsAny)).Returns(true);
+		var service = new ComputerMediaService(gameworld.Object, () => currentNow, _ =>
+		{
+			var inCharacterNow = inCharacterStart + (currentNow - now);
+			return $"{inCharacterNow:yyyy}{inCharacterNow:MMM}".ToLowerInvariant() +
+			       $"{inCharacterNow:dd'T'HHmmss}";
+		});
+		return new MediaPolicyFixture(service, host, mediaInterface, fileSystem, heartbeat, now,
+			value => currentNow = value);
+	}
+
+	[TestMethod]
+	public void MediaRecordingService_RoundTripsStructuredPacketsAndExtendsMatchingSceneRanges()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var scheduler = new Mock<IScheduler>();
+			var gameworld = CreateGameworld(scheduler);
+			var heartbeat = new Mock<IHeartbeatManager>();
+			gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
+			var service = new MediaRecordingService(gameworld.Object);
+			gameworld.SetupGet(x => x.MediaRecordingService).Returns(service);
+			var startedAt = DateTime.UtcNow;
+			var recording = service.CreateRecording(new MediaRecordingCreateRequest(
+				MediaCapabilities.Audio | MediaCapabilities.Video, "security-feed", startedAt, 1L));
+			var source = new MediaEndpointAddress(4L, 5L, "camera-out");
+			var payload = new MediaLanguagePayload(false, 100L, 101L, "Please identify yourself.", 5, 68,
+				12L, "Ava", 1, "calmly", "watching the door");
+			var packet = new MediaPacket(Guid.NewGuid(), 1L, startedAt.AddSeconds(1),
+				MediaCapabilities.Audio, MediaEventKind.Audio, source, new[] { source }, payload);
+
+			Assert.IsTrue(service.AppendPacket(recording.RecordingId, packet, out var appendError), appendError);
+			var crimePacket = new MediaPacket(packet.StreamId, 2L, startedAt.AddSeconds(2), MediaCapabilities.Video,
+				MediaEventKind.CrimeWitness, source, new[] { source }, new MediaCrimePayload(88L));
+			Assert.IsTrue(service.AppendPacket(recording.RecordingId, crimePacket, out var crimeAppendError),
+				crimeAppendError);
+			Assert.IsTrue(service.AppendSceneFrame(recording.RecordingId, TimeSpan.Zero, TimeSpan.Zero,
+				"A quiet vestibule.", out var firstFrameError), firstFrameError);
+			Assert.IsTrue(service.AppendSceneFrame(recording.RecordingId, TimeSpan.FromSeconds(5),
+				TimeSpan.FromSeconds(5), "A quiet vestibule.", out var secondFrameError), secondFrameError);
+			Assert.IsTrue(service.AppendSceneFrame(recording.RecordingId, TimeSpan.FromSeconds(10),
+				TimeSpan.FromSeconds(10), "A courier is now waiting in the vestibule.", out var thirdFrameError),
+				thirdFrameError);
+			Assert.IsTrue(service.FinaliseRecording(recording.RecordingId, MediaRecordingStatus.Finalised,
+				startedAt.AddSeconds(15), out var finaliseError), finaliseError);
+
+			var replayedPackets = service.ReadPackets(recording.RecordingId).OrderBy(x => x.Sequence).ToList();
+			var replayed = replayedPackets[0];
+			var firstScene = service.GetSceneAt(recording.RecordingId, TimeSpan.FromSeconds(3));
+			var finalScene = service.GetSceneAt(recording.RecordingId, TimeSpan.FromSeconds(15));
+			var frames = context.MediaRecordingFrames
+				.OrderBy(x => x.StartOffsetMilliseconds)
+				.ToList();
+			var chunk = context.MediaRecordingChunks.Single();
+			var descriptor = service.GetRecording(recording.RecordingId);
+
+			Assert.AreEqual(packet.StreamId, replayed.StreamId);
+			Assert.AreEqual(packet.Sequence, replayed.Sequence);
+			Assert.AreEqual(payload, replayed.Payload);
+			Assert.AreEqual(2, replayedPackets.Count);
+			Assert.AreEqual(new MediaCrimePayload(88L), replayedPackets[1].Payload);
+			Assert.IsNotNull(firstScene);
+			Assert.AreEqual("A quiet vestibule.", firstScene.CanonicalScene);
+			Assert.IsNotNull(finalScene);
+			Assert.AreEqual("A courier is now waiting in the vestibule.", finalScene.CanonicalScene);
+			Assert.AreEqual(2, frames.Count);
+			Assert.AreEqual(0L, frames[0].StartOffsetMilliseconds);
+			Assert.AreEqual(10_000L, frames[0].EndOffsetMilliseconds);
+			Assert.AreEqual(10_000L, frames[1].StartOffsetMilliseconds);
+			Assert.AreEqual(15_000L, frames[1].EndOffsetMilliseconds);
+			Assert.AreEqual(2, context.MediaSceneSnapshots.Count());
+			Assert.IsTrue(chunk.UncompressedSizeBytes > chunk.Payload.Length);
+			Assert.IsNotNull(descriptor);
+			Assert.IsTrue(descriptor.LogicalSizeInBytes >= chunk.Payload.Length);
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
 	private static FuturemudDatabaseContext BuildContext()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -2496,6 +2837,8 @@ return userinput()";
 		var networkIdentityService = new ComputerNetworkIdentityService(gameworld.Object);
 		var networkTunnelService = new ComputerNetworkTunnelService(gameworld.Object);
 		var fileTransferService = new ComputerFileTransferService(gameworld.Object);
+		var mediaChannelService = new Mock<IMediaChannelService>();
+		gameworld.SetupGet(x => x.MediaChannelService).Returns(mediaChannelService.Object);
 		var executionService = new ComputerExecutionService(gameworld.Object);
 		var boards = BuildRepository<IBoard>(Array.Empty<IBoard>());
 		gameworld.SetupGet(x => x.Scheduler).Returns(scheduler.Object);

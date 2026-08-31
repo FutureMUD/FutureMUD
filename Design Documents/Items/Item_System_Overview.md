@@ -19,6 +19,12 @@ The intended audience is engine developers. Builder commands and content workflo
 - [Item System Content Workflows](./Item_System_Content_Workflows.md) explains the builder-facing `item` and `comp` workflows developers rely on when testing and shipping content.
 - [Item System Presentation and Integration](./Item_System_Presentation_and_Integration.md) explains how items present themselves to players and how they integrate with inventory, grouping, skins, health, magic, and other runtime systems.
 
+## Media A/V components
+
+Computer and electronics A/V is an item-composition system: cameras, PTT microphones, monitors, speakers, computer media interfaces, decks, physical media, cables, and splitters are independent component roles joined through normal physical connection and containment rules. Their typed packets, durable recordings, and network delivery are documented in [Computer and Electronics A/V Framework](../Technology/Media_System_Runtime_and_Workflows.md). No media component puts A/V data on the numeric automation signal bus.
+
+The retired `Tape` component is not a compatibility item type. Compose an audio-capable `MediaStorageMedium` with an answering machine, deck, or boombox instead.
+
 ## Core Idea
 FutureMUD items are composed rather than inherited.
 

@@ -11,6 +11,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 
@@ -18,6 +19,18 @@ namespace MudSharp.Commands.Modules;
 
 internal class ElectronicsModule : Module<ICharacter>
 {
+	private const string MediaHelpText = @"The #3media#0 command operates local media decks and their removable physical media.
+
+You can use the following syntax:
+	#3media <item> status#0 - shows a deck or medium's current state
+	#3media <medium> list#0 - lists named recordings stored on a physical medium
+	#3media <deck> record <name>#0 - starts recording its connected media input onto the inserted medium
+	#3media <deck> play <name>#0 - plays a named recording from the inserted medium to its connected output
+	#3media <deck> stop#0 - stops recording or playback
+	#3media <medium> erase <name>#0 - permanently erases a named recording
+
+Use normal #3put#0 and #3get#0 commands to insert or remove a compatible medium from a deck's container.";
+
 	private const string ElectricalHelpText = @"The #3electrical#0 command is used to inspect, install, route, and configure signal-driven electrical systems.
 
 You can use the following syntax:
@@ -140,6 +153,220 @@ If more than one terminal could be used, specify one explicitly or connect first
 	}
 
 	public static ElectronicsModule Instance { get; } = new();
+
+	[PlayerCommand("Media", "media")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[DelayBlock("general", "movement", "You must first stop {0} before you can do that.")]
+	[NoHideCommand]
+	[HelpInfo("media", MediaHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void Media(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(MediaHelpText.SubstituteANSIColour());
+			return;
+		}
+
+		var item = actor.TargetItem(ss.PopSpeech());
+		if (item is null)
+		{
+			actor.Send("You do not see any such media device or physical medium.");
+			return;
+		}
+
+		var manipulation = CanManipulateElectronicsTarget(actor, item);
+		if (!manipulation.Truth)
+		{
+			actor.Send(manipulation.Message);
+			return;
+		}
+
+		var deck = item.GetItemType<IMediaDeck>();
+		var medium = item.GetItemType<IMediaStorageMedium>();
+		if (deck is null && medium is null)
+		{
+			actor.Send($"{item.HowSeen(actor, true)} is not a media deck or physical storage medium.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			ShowMediaStatus(actor, item, deck, medium);
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "status":
+			case "show":
+				ShowMediaStatus(actor, item, deck, medium);
+				return;
+			case "list":
+				MediaList(actor, medium);
+				return;
+			case "record":
+				MediaRecord(actor, item, deck, ss);
+				return;
+			case "play":
+				MediaPlay(actor, item, deck, ss);
+				return;
+			case "stop":
+				MediaStop(actor, item, deck);
+				return;
+			case "erase":
+			case "delete":
+				MediaErase(actor, item, medium, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(MediaHelpText.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void ShowMediaStatus(ICharacter actor, IGameItem item, IMediaDeck? deck,
+		IMediaStorageMedium? medium)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Media Status: {item.HowSeen(actor, true).ColourName()}");
+		if (deck is not null)
+		{
+			sb.AppendLine($"Deck Format: {deck.FormatKey.ColourCommand()}");
+			sb.AppendLine($"Capabilities: {MediaComponentUtilities.DescribeCapabilities(deck.MediaCapabilities).ColourValue()}");
+			sb.AppendLine($"Record: {deck.CanRecord.ToColouredString()}, Playback: {deck.CanPlayback.ToColouredString()}");
+			sb.AppendLine($"State: {(deck.IsRecording ? "recording".ColourError() : deck.IsPlaying ? "playing".ColourValue() : "stopped".ColourCommand())}");
+		}
+
+		if (medium is not null)
+		{
+			sb.AppendLine($"Medium Format: {medium.FormatKey.ColourCommand()}");
+			sb.AppendLine($"Capabilities: {MediaComponentUtilities.DescribeCapabilities(medium.MediaCapabilities).ColourValue()}");
+			sb.AppendLine($"Capacity: {medium.UsedCapacity.Describe(actor).ColourValue()} used of {medium.Capacity.Describe(actor).ColourValue()} ({medium.RemainingCapacity.Describe(actor).ColourValue()} remaining)");
+			sb.AppendLine($"Write Protection: {medium.WriteProtected.ToColouredString()}");
+			sb.AppendLine($"Recordings: {medium.Recordings.Count.ToString("N0", actor).ColourValue()}");
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void MediaList(ICharacter actor, IMediaStorageMedium? medium)
+	{
+		if (medium is null)
+		{
+			actor.Send("Only a physical media storage medium can list recordings.");
+			return;
+		}
+
+		var rows = medium.Recordings
+			.Select(x => (Reference: x, Recording: actor.Gameworld.MediaRecordingService.GetRecording(x.RecordingId)))
+			.Where(x => x.Recording is not null)
+			.OrderBy(x => x.Reference.Name)
+			.Select(x => new List<string>
+			{
+				x.Reference.Name,
+				MediaComponentUtilities.DescribeCapabilities(x.Recording!.Capabilities),
+				x.Recording.Duration.Describe(actor),
+				x.Recording.Status.DescribeEnum(),
+				x.Recording.LogicalSizeInBytes.ToString("N0", actor)
+			})
+			.ToList();
+		if (!rows.Any())
+		{
+			actor.Send("That physical medium contains no recordings.");
+			return;
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(rows,
+			["Name", "Media", "Duration", "Status", "Logical Bytes"], actor));
+	}
+
+	private static void MediaRecord(ICharacter actor, IGameItem item, IMediaDeck? deck, StringStack ss)
+	{
+		if (deck is null)
+		{
+			actor.Send("Only a media deck can record.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send("What name do you want to give this recording?");
+			return;
+		}
+
+		if (!deck.StartRecording(ss.SafeRemainingArgument, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		actor.Send($"You start {"recording".ColourError()} on {item.HowSeen(actor, true).ColourName()}.");
+	}
+
+	private static void MediaPlay(ICharacter actor, IGameItem item, IMediaDeck? deck, StringStack ss)
+	{
+		if (deck is null)
+		{
+			actor.Send("Only a media deck can play recordings.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send("Which recording do you want to play?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument;
+		if (!deck.StartPlayback(name, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		actor.Send($"You start playing {name.ColourCommand()} on {item.HowSeen(actor, true).ColourName()}.");
+	}
+
+	private static void MediaStop(ICharacter actor, IGameItem item, IMediaDeck? deck)
+	{
+		if (deck is null)
+		{
+			actor.Send("Only a media deck can be stopped.");
+			return;
+		}
+
+		if (!deck.Stop(out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		actor.Send($"You stop {item.HowSeen(actor, true).ColourName()}.");
+	}
+
+	private static void MediaErase(ICharacter actor, IGameItem item, IMediaStorageMedium? medium, StringStack ss)
+	{
+		if (medium is null)
+		{
+			actor.Send("Only a physical media storage medium can erase recordings.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send("Which recording do you want to erase?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument;
+		if (!medium.DeleteRecording(name, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		actor.Send($"You erase {name.ColourCommand()} from {item.HowSeen(actor, true).ColourName()}.");
+	}
 
 	[PlayerCommand("Electrical", "electrical")]
 	[RequiredCharacterState(CharacterState.Able)]
@@ -3308,6 +3535,12 @@ If more than one terminal could be used, specify one explicitly or connect first
 		    ComputerProcessWaitArguments.TryParseSignal(process.WaitArgument, out var signalBinding))
 		{
 			return $"Signal ({SignalComponentUtilities.DescribeSignalComponent(signalBinding)})";
+		}
+
+		if (process.WaitType == ComputerProcessWaitType.Media &&
+		    ComputerProcessWaitArguments.TryParseMedia(process.WaitArgument, out var endpoint))
+		{
+			return $"Media ({endpoint.ItemId.ToString("N0", actor)}/{endpoint.ComponentId.ToString("N0", actor)}/{endpoint.EndpointKey})";
 		}
 
 		return process.WaitType.DescribeEnum();

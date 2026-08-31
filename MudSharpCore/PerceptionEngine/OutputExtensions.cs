@@ -2,6 +2,8 @@
 using MudSharp.Form.Shape;
 using MudSharp.GameItems;
 
+#nullable enable annotations
+
 namespace MudSharp.PerceptionEngine;
 
 public static partial class OutputHandlerExtensions
@@ -149,6 +151,7 @@ public static class OutputExtensions
 
 	private static void HandleWholeLocation(ILocation location, IOutput output)
 	{
+		CaptureMedia(location, output);
 		foreach (var character in location?.Characters ?? [])
 		{
 			character.OutputHandler?.Send(output, !output.Style.HasFlag(OutputStyle.NoNewLine),
@@ -179,6 +182,7 @@ public static class OutputExtensions
 		RoomLayer layer,
 		IOutput output)
 	{
+		CaptureMedia(location, output);
 		var routeRecipients = RouteLocalCharacters(location, source, layer);
 		if (routeRecipients is null)
 		{
@@ -346,14 +350,16 @@ public static class OutputExtensions
         location.Handle(new RawOutput(text, flags: flags));
     }
 
-    public static void Handle(this ILocation location, IOutput output)
-    {
-        var source = OutputSource(output);
+	public static void Handle(this ILocation location, IOutput output)
+	{
+		var source = OutputSource(output);
 		if (location is ICell { RouteDefinition: not null })
 		{
 			location.HandleLocal(source, source?.RoomLayer ?? RoomLayer.GroundLevel, output);
 			return;
 		}
+
+		CaptureMedia(location, output);
 
 		foreach (ICharacter ch in location?.Characters ?? [])
         {
@@ -410,19 +416,21 @@ public static class OutputExtensions
         location.Handle(layer, new RawOutput(text, flags: flags));
     }
 
-    public static void Handle(this ILocation location, RoomLayer layer, IOutput output)
-    {
+	public static void Handle(this ILocation location, RoomLayer layer, IOutput output)
+	{
 		if (location is ICell { RouteDefinition: not null })
 		{
 			location.HandleLocal(OutputSource(output), layer, output);
 			return;
 		}
 
+		CaptureMedia(location, output);
+
 		foreach (ICharacter ch in location?.LayerCharacters(layer) ?? [])
         {
             ch.OutputHandler?.Send(output, !output.Style.HasFlag(OutputStyle.NoNewLine),
                 !output.Style.HasFlag(OutputStyle.NoPage));
-        }
+	}
 
         if (!output.Flags.HasFlag(OutputFlags.IgnoreWatchers))
         {
@@ -442,6 +450,16 @@ public static class OutputExtensions
             location.HandleRoomEcho(output.ParseFor(null), layer);
         }
     }
+
+	private static void CaptureMedia(ILocation? location, IOutput? output)
+	{
+		if (location is null || output is null)
+		{
+			return;
+		}
+
+		location.Gameworld?.MediaChannelService?.CaptureOutput(location, output);
+	}
 
     public static void Handle(this IOutputHandler handler, string text, OutputRange range = OutputRange.Personal)
     {

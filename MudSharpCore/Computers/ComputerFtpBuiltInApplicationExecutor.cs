@@ -94,6 +94,7 @@ internal sealed class FtpBuiltInApplicationExecutor : IComputerBuiltInApplicatio
 			"show" or "read" or "cat" => HandleShow(gameworld, session, state, remoteHost, account, ss),
 			"get" => HandleGet(gameworld, session, state, remoteHost, account, ss),
 			"put" => HandlePut(gameworld, session, state, remoteHost, account, ss),
+			"move" or "mv" or "rename" => HandleMove(gameworld, session, state, remoteHost, account, ss),
 			"delete" or "del" or "rm" => HandleDelete(gameworld, session, state, remoteHost, account, ss),
 			"exit" or "quit" => ($"{application.Name.ColourName()} closing.", true),
 			_ => ($"That is not a valid {application.Name.ColourName()} command.\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}", false)
@@ -313,6 +314,7 @@ internal sealed class FtpBuiltInApplicationExecutor : IComputerBuiltInApplicatio
 				files.Select(file => new List<string>
 				{
 					file.FileName,
+					file.Kind.DescribeEnum(),
 					file.SizeInBytes.ToString("N0", session.User),
 					file.PubliclyAccessible.ToColouredString(),
 					file.LastModifiedAtUtc.ToString(session.User)
@@ -320,6 +322,7 @@ internal sealed class FtpBuiltInApplicationExecutor : IComputerBuiltInApplicatio
 				new List<string>
 				{
 					"File",
+					"Type",
 					"Size",
 					"Public",
 					"Modified"
@@ -361,6 +364,11 @@ internal sealed class FtpBuiltInApplicationExecutor : IComputerBuiltInApplicatio
 		if (details is null)
 		{
 			return ($"{error}\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}", false);
+		}
+
+		if (details.Summary.Kind == ComputerFileKind.Media)
+		{
+			return ($"{details.Summary.FileName.ColourName()} is a media recording and cannot be shown as text. Download it with {"get".ColourCommand()} or use the Media application after transfer.\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}", false);
 		}
 
 		var sb = new StringBuilder();
@@ -427,8 +435,28 @@ internal sealed class FtpBuiltInApplicationExecutor : IComputerBuiltInApplicatio
 				false);
 		}
 
-		targetOwner.FileSystem.WriteFile(details.Summary.FileName, details.TextContents);
-		targetOwner.FileSystem.SetFilePubliclyAccessible(details.Summary.FileName, false);
+		if (details.Summary.Kind == ComputerFileKind.Media)
+		{
+			if (details.Summary.MediaRecordingId is not { } recordingId)
+			{
+				return ($"That remote media file has no valid recording reference.\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}", false);
+			}
+
+			if (!ComputerMediaFileUtilities.CopyMediaFile(gameworld, new ComputerMutableMediaFile
+			{
+				FileName = details.Summary.FileName,
+				MediaRecordingId = recordingId,
+				SizeInBytes = details.Summary.SizeInBytes
+			}, targetOwner, details.Summary.FileName, false, out error))
+			{
+				return ($"{error}\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}", false);
+			}
+		}
+		else
+		{
+			targetOwner.FileSystem.WriteFile(details.Summary.FileName, details.TextContents);
+			targetOwner.FileSystem.SetFilePubliclyAccessible(details.Summary.FileName, false);
+		}
 		return ($"Copied {details.Summary.FileName.ColourName()} from {remoteHost.Name.ColourName()} to {ComputerFileTransferUtilities.DescribeOwner(targetOwner).ColourName()}.\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}",
 			false);
 	}
@@ -463,14 +491,37 @@ internal sealed class FtpBuiltInApplicationExecutor : IComputerBuiltInApplicatio
 		}
 
 		var remoteFileName = ss.IsFinished ? localFileName : ss.SafeRemainingArgument;
-		if (!gameworld.ComputerFileTransferService.WriteFile(
-			    session.Host,
-			    remoteHost,
-			    account,
-			    state.SelectedRemoteOwnerIdentifier,
-			    remoteFileName,
-			    localFile.TextContents,
-			    out var error))
+		string error;
+		bool uploaded;
+		if (localFile.Kind == ComputerFileKind.Media)
+		{
+			if (localFile.MediaRecordingId is not { } recordingId)
+			{
+				return ($"That local media file has no valid recording reference.\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}", false);
+			}
+
+			uploaded = gameworld.ComputerFileTransferService.WriteMediaFile(
+				session.Host,
+				remoteHost,
+				account,
+				state.SelectedRemoteOwnerIdentifier,
+				remoteFileName,
+				recordingId,
+				localFile.SizeInBytes,
+				out error);
+		}
+		else
+		{
+			uploaded = gameworld.ComputerFileTransferService.WriteFile(
+				session.Host,
+				remoteHost,
+				account,
+				state.SelectedRemoteOwnerIdentifier,
+				remoteFileName,
+				localFile.TextContents,
+				out error);
+		}
+		if (!uploaded)
 		{
 			return ($"{error}\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}", false);
 		}
@@ -513,6 +564,45 @@ internal sealed class FtpBuiltInApplicationExecutor : IComputerBuiltInApplicatio
 		}
 
 		return ($"Deleted {remoteFileName.ColourName()} from {remoteHost.Name.ColourName()}.\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}",
+			false);
+	}
+
+	private static (string Output, bool Exit) HandleMove(IFuturemud gameworld, IComputerTerminalSession session,
+		FtpState state, IComputerHost? remoteHost, IComputerFtpAccount? account, StringStack ss)
+	{
+		if (remoteHost is null)
+		{
+			return ($"You must open a remote FTP host first.\n\n{RenderPrompt(session.User, state, null, null, null)}",
+				false);
+		}
+
+		if (account is null)
+		{
+			return ($"You must log in before you can move remote files.\n\n{RenderPrompt(session.User, state, remoteHost, null, null)}",
+				false);
+		}
+
+		if (ss.IsFinished)
+		{
+			return ($"Which remote file do you want to move?\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}",
+				false);
+		}
+
+		var fileName = ss.PopSpeech();
+		if (ss.IsFinished)
+		{
+			return ($"What new name should {fileName.ColourName()} have?\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}",
+				false);
+		}
+
+		var newFileName = ss.SafeRemainingArgument;
+		if (!gameworld.ComputerFileTransferService.MoveFile(session.Host, remoteHost, account,
+			    state.SelectedRemoteOwnerIdentifier, fileName, newFileName, out var error))
+		{
+			return ($"{error}\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}", false);
+		}
+
+		return ($"Moved {fileName.ColourName()} to {newFileName.ColourName()} on {remoteHost.Name.ColourName()}.\n\n{RenderPrompt(session.User, state, remoteHost, account, null)}",
 			false);
 	}
 
@@ -564,6 +654,7 @@ internal sealed class FtpBuiltInApplicationExecutor : IComputerBuiltInApplicatio
 		sb.AppendLine($"\t{"show <file>".ColourCommand()} - display a remote file");
 		sb.AppendLine($"\t{"get <file> [to <target>]".ColourCommand()} - copy a remote file to the current local owner or another local target");
 		sb.AppendLine($"\t{"put <local-file> [remote-file]".ColourCommand()} - upload a local file to the selected remote owner");
+		sb.AppendLine($"\t{"move <file> <new-name>".ColourCommand()} - rename a remote file");
 		sb.AppendLine($"\t{"delete <file>".ColourCommand()} - delete a remote file");
 		sb.AppendLine($"\t{"help".ColourCommand()} - show this help");
 		sb.AppendLine($"\t{"exit".ColourCommand()} - close FTP");

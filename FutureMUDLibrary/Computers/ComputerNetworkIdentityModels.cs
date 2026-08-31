@@ -41,5 +41,6 @@ public interface IComputerNetworkIdentityService
 	bool SetAccountPassword(IComputerHost host, string address, string password, out string error);
 	ComputerNetworkAuthenticationResult Authenticate(IComputerHost sourceHost, string address, string password);
 	IComputerNetworkAccount? GetAccount(IComputerHost sourceHost, long accountId, out string error);
+	IComputerNetworkAccount? FindAccount(IComputerHost sourceHost, string address, out string error);
 	IEnumerable<string> GetAdvertisedDomainDetails(IComputerHost host);
 }

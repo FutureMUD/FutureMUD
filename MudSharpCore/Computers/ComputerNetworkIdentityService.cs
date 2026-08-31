@@ -415,6 +415,31 @@ public sealed class ComputerNetworkIdentityService : IComputerNetworkIdentitySer
 		}
 	}
 
+	public IComputerNetworkAccount? FindAccount(IComputerHost sourceHost, string address, out string error)
+	{
+		if (!TrySplitAddress(address, out var userName, out var domainName, out error) ||
+		    !TryResolveHostedDomain(sourceHost, domainName, out _, out var domain, out error))
+		{
+			return null;
+		}
+
+		using (new FMDB())
+		{
+			var account = FMDB.Context.ComputerMailAccounts
+				.AsNoTracking()
+				.Include(x => x.ComputerMailDomain)
+				.FirstOrDefault(x => x.ComputerMailDomainId == domain.Id && x.UserName == userName);
+			if (account is null || !account.IsEnabled)
+			{
+				error = $"The account {address.ColourName()} is not available.";
+				return null;
+			}
+
+			error = string.Empty;
+			return ToRuntimeAccount(account);
+		}
+	}
+
 	public IEnumerable<string> GetAdvertisedDomainDetails(IComputerHost host)
 	{
 		return GetHostedDomains(host)

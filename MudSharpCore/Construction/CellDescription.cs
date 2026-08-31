@@ -667,8 +667,8 @@ public partial class Cell
             descSubSB.AppendLine("There is a trial taking place here. You can use the TRIAL command to see details.".ColourIncludingReset(Telnet.BoldOrange));
         }
 
-        sb.Append(descSubSB.ToString().Wrap(character.Account.InnerLineFormatLength));
-        return sb.ToString().Wrap(character?.Account.LineFormatLength ?? 120);
+		sb.Append(descSubSB.ToString().Wrap(character?.Account.InnerLineFormatLength ?? 120));
+		return sb.ToString().Wrap(character?.Account.LineFormatLength ?? 120);
     }
 
     private void AppendLegalSurrenderRoomDescriptionAddenda(StringBuilder descSubSB, ICharacter character,

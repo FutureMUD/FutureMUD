@@ -638,6 +638,22 @@ type exit
 - `Boards` should authenticate via shared `user@domain` identities and allow reading plus creation or deletion of network-authored posts on exposed boards.
 - `FTP` should permit anonymous public-file reads and authenticated remote file manipulation separately.
 
+## Media A/V acceptance scenarios
+
+Build only component-composed dev items for this pass. Create a powered A/V camera, PTT microphone, A/V monitor, speaker, computer host/terminal/media interface, VHS deck plus VHS medium, compact-cassette deck plus cassette medium, and passive A/V cable/splitter. Do not use the retired Tape component.
+
+1. Connect camera to monitor. Power both, produce ordinary visible/audible IC output, verify the monitor's current frame through `look`, then test `watch feed` when the monitor is opt-in.
+2. Put a splitter after the camera and connect both the monitor and computer media interface. Start `Media` `record media-in as scene.av`, verify simultaneous live display and recording, then `play scene.av to media-out` into the monitor.
+3. Use `transmit` and `transmitwith` through the PTT microphone into a speaker and an A/V monitor with audio enabled. Verify listener language comprehension is applied on playback.
+4. Record a still through `snapshot media-in as still.av`, list/copy it in File Manager and FTP, transfer it, and inspect it through `still`. Confirm text read/append rejects each media file.
+5. Assemble a TV/VCR as monitor plus VHS deck with sibling output enabled. Insert compatible VHS, record a named feed, stop, play, erase, and repeat write-protection, full-medium, duplicate-name, and incompatible-format cases. Repeat audio-only playback with a cassette deck plus speaker boombox.
+6. Enable Media network service on two reachable hosts. Test public publication/subscription over direct and exchange/VPN routes. Test a private feed after `login`, ACL add/remove, disabled-account denial, route loss, reconnect, and confirm no password appears in host configuration.
+7. Test camera sensor boundaries: darkness, incompatible layer/plane, closed visibility, inaudible source output, OOC output, and staff-only output must not produce a recording event. Test camera/display feedback and confirm the 16-hop/provenance guard stops a loop.
+8. While recording, cut power or disconnect the medium. Confirm it finalises as interrupted and committed chunks remain playable; active host recording/playback jobs must not resume after restart.
+9. Start `recordsplit media-in as shift.av every 12h`; advance through a boundary and confirm the old timestamped file finalises while a new one records. Confirm the filename stamp matches the computer location's IC calendar/clock rather than host wall time. Stop the job and verify the current segment finalises.
+10. Start `recordloop media-in as surveillance.av retain 24h segments 1h`; advance beyond 24 hours and confirm only expired files owned by that rolling job are deleted. Copy one old segment before expiry and confirm the independent copy survives.
+11. Start `recordevent media-in as motion.av for 5m`. Confirm periodic five-second scene frames create no files, then move or speak in the camera area and verify a recording starts. Produce another event near the deadline and confirm it extends; after five quiet minutes confirm the file finalises and the job returns to armed state. Stop the job to disarm it.
+
 ## Regression Notes
 When running these scenarios, pay special attention to:
 - `comp set` forwarding on component protos that inherit from other protos with their own builder commands

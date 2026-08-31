@@ -38,6 +38,8 @@ public sealed class ComputerRemoteFileSummary
 	public DateTime LastModifiedAtUtc { get; init; }
 	public bool PubliclyAccessible { get; init; }
 	public bool ReadOnly { get; init; }
+	public ComputerFileKind Kind { get; init; }
+	public long? MediaRecordingId { get; init; }
 }
 
 public sealed class ComputerRemoteFileDetails
@@ -65,9 +67,13 @@ public interface IComputerFileTransferService
 		string? ownerIdentifier, string fileName, out string error);
 	bool WriteFile(IComputerHost sourceHost, IComputerHost targetHost, IComputerFtpAccount account,
 		string? ownerIdentifier, string fileName, string textContents, out string error);
+	bool WriteMediaFile(IComputerHost sourceHost, IComputerHost targetHost, IComputerFtpAccount account,
+		string? ownerIdentifier, string fileName, long recordingId, long sizeInBytes, out string error);
 	bool AppendFile(IComputerHost sourceHost, IComputerHost targetHost, IComputerFtpAccount account,
 		string? ownerIdentifier, string fileName, string textContents, out string error);
 	bool DeleteFile(IComputerHost sourceHost, IComputerHost targetHost, IComputerFtpAccount account,
 		string? ownerIdentifier, string fileName, out string error);
+	bool MoveFile(IComputerHost sourceHost, IComputerHost targetHost, IComputerFtpAccount account,
+		string? ownerIdentifier, string fileName, string newFileName, out string error);
 	IEnumerable<string> GetAdvertisedServiceDetails(IComputerHost host, string applicationId);
 }

@@ -104,11 +104,32 @@ public sealed class ComputerRuntimeProcess : IComputerProcess, IFrameworkItem
 public sealed class ComputerMutableTextFile : IComputerFile
 {
 	public string FileName { get; set; } = string.Empty;
+	public ComputerFileKind Kind => ComputerFileKind.Text;
 	public string TextContents { get; set; } = string.Empty;
+	public long? MediaRecordingId => null;
 	public long SizeInBytes => Encoding.UTF8.GetByteCount(TextContents ?? string.Empty);
 	public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 	public DateTime LastModifiedAtUtc { get; set; } = DateTime.UtcNow;
 	public bool PubliclyAccessible { get; set; }
+}
+
+public sealed class ComputerMutableMediaFile : IComputerFile
+{
+	public string FileName { get; set; } = string.Empty;
+	public ComputerFileKind Kind => ComputerFileKind.Media;
+	public string TextContents => string.Empty;
+	public long? MediaRecordingId { get; set; }
+	public long SizeInBytes { get; set; }
+	public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+	public DateTime LastModifiedAtUtc { get; set; } = DateTime.UtcNow;
+	public bool PubliclyAccessible { get; set; }
+}
+
+public sealed class ComputerFileKindException : InvalidOperationException
+{
+	public ComputerFileKindException(string message) : base(message)
+	{
+	}
 }
 
 public sealed class ComputerMutableFtpAccount : IComputerFtpAccount
@@ -122,6 +143,7 @@ public sealed class ComputerMutableFtpAccount : IComputerFtpAccount
 public sealed class ComputerMutableFileSystem : IComputerFileSystem
 {
 	private readonly List<ComputerMutableTextFile> _files = [];
+	private readonly List<ComputerMutableMediaFile> _mediaFiles = [];
 
 	public ComputerMutableFileSystem(long capacityInBytes)
 	{
@@ -129,26 +151,33 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 	}
 
 	public long CapacityInBytes { get; set; }
-	public long UsedBytes => _files.Sum(x => x.SizeInBytes);
-	public IEnumerable<IComputerFile> Files => _files;
+	public long UsedBytes => _files.Sum(x => x.SizeInBytes) + _mediaFiles.Sum(x => x.SizeInBytes);
+	public IEnumerable<IComputerFile> Files => _files.Cast<IComputerFile>().Concat(_mediaFiles);
 	public event ComputerFileSystemChanged? FileChanged;
 
 	public IReadOnlyCollection<ComputerMutableTextFile> MutableFiles => _files.AsReadOnly();
+	public IReadOnlyCollection<ComputerMutableMediaFile> MutableMediaFiles => _mediaFiles.AsReadOnly();
+	public IReadOnlyCollection<IComputerFile> AllFiles => Files.ToList().AsReadOnly();
 
 	public bool FileExists(string fileName)
 	{
-		return _files.Any(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+		return Files.Any(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
 	}
 
 	public IComputerFile? GetFile(string fileName)
 	{
-		return _files.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+		return Files.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
 	}
 
 	public string ReadFile(string fileName)
 	{
-		return _files.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase))
-			?.TextContents ?? string.Empty;
+		var file = GetFile(fileName);
+		if (file?.Kind == ComputerFileKind.Media)
+		{
+			throw new ComputerFileKindException($"{fileName} is a media file and cannot be read as text.");
+		}
+
+		return file?.TextContents ?? string.Empty;
 	}
 
 	private void EnsureCapacityForWrite(ComputerMutableTextFile? existing, string replacementContents)
@@ -180,6 +209,12 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 	{
 		var now = DateTime.UtcNow;
 		var contents = textContents ?? string.Empty;
+		var existingMedia = _mediaFiles.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+		if (existingMedia is not null)
+		{
+			throw new ComputerFileKindException($"{fileName} is a media file and cannot be overwritten with text.");
+		}
+
 		var existing = _files.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
 		EnsureCapacityForWrite(existing, contents);
 		if (existing is null)
@@ -212,6 +247,11 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 	{
 		var now = DateTime.UtcNow;
 		var contents = textContents ?? string.Empty;
+		if (_mediaFiles.Any(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase)))
+		{
+			throw new ComputerFileKindException($"{fileName} is a media file and cannot be appended as text.");
+		}
+
 		var existing = _files.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
 		EnsureCapacityForAppend(contents);
 		if (existing is null)
@@ -243,16 +283,30 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 	public bool DeleteFile(string fileName)
 	{
 		var existing = _files.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
-		if (existing is null)
+		if (existing is not null)
+		{
+			_files.Remove(existing);
+			FileChanged?.Invoke(this, new ComputerFileSystemChange
+			{
+				FileName = fileName,
+				ChangeType = ComputerFileSystemChangeType.Deleted
+			});
+			return true;
+		}
+
+		var media = _mediaFiles.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+		if (media is null)
 		{
 			return false;
 		}
 
-		_files.Remove(existing);
+		_mediaFiles.Remove(media);
 		FileChanged?.Invoke(this, new ComputerFileSystemChange
 		{
 			FileName = fileName,
-			ChangeType = ComputerFileSystemChangeType.Deleted
+			ChangeType = ComputerFileSystemChangeType.Deleted,
+			Kind = ComputerFileKind.Media,
+			MediaRecordingId = media.MediaRecordingId
 		});
 		return true;
 	}
@@ -260,17 +314,32 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 	public bool SetFilePubliclyAccessible(string fileName, bool isPublic)
 	{
 		var existing = _files.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
-		if (existing is null)
+		if (existing is not null)
+		{
+			existing.PubliclyAccessible = isPublic;
+			existing.LastModifiedAtUtc = DateTime.UtcNow;
+			FileChanged?.Invoke(this, new ComputerFileSystemChange
+			{
+				FileName = fileName,
+				ChangeType = ComputerFileSystemChangeType.PublicAccessChanged
+			});
+			return true;
+		}
+
+		var media = _mediaFiles.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+		if (media is null)
 		{
 			return false;
 		}
 
-		existing.PubliclyAccessible = isPublic;
-		existing.LastModifiedAtUtc = DateTime.UtcNow;
+		media.PubliclyAccessible = isPublic;
+		media.LastModifiedAtUtc = DateTime.UtcNow;
 		FileChanged?.Invoke(this, new ComputerFileSystemChange
 		{
 			FileName = fileName,
-			ChangeType = ComputerFileSystemChangeType.PublicAccessChanged
+			ChangeType = ComputerFileSystemChangeType.PublicAccessChanged,
+			Kind = ComputerFileKind.Media,
+			MediaRecordingId = media.MediaRecordingId
 		});
 		return true;
 	}
@@ -279,6 +348,94 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 	{
 		_files.Clear();
 		_files.AddRange(files);
+	}
+
+	public void LoadMediaFiles(IEnumerable<ComputerMutableMediaFile> files)
+	{
+		_mediaFiles.Clear();
+		_mediaFiles.AddRange(files);
+	}
+
+	public bool WriteMediaFile(string fileName, long recordingId, long sizeInBytes, bool publiclyAccessible,
+		out string error)
+	{
+		error = string.Empty;
+		if (recordingId <= 0L)
+		{
+			error = "A media file must reference a valid recording.";
+			return false;
+		}
+
+		if (sizeInBytes < 0L)
+		{
+			error = "A media file cannot have a negative size.";
+			return false;
+		}
+
+		if (FileExists(fileName))
+		{
+			error = $"A file named {fileName} already exists.";
+			return false;
+		}
+
+		if (UsedBytes + sizeInBytes > CapacityInBytes)
+		{
+			error = $"That media file would exceed the file system capacity of {CapacityInBytes:N0} bytes.";
+			return false;
+		}
+
+		var now = DateTime.UtcNow;
+		_mediaFiles.Add(new ComputerMutableMediaFile
+		{
+			FileName = fileName,
+			MediaRecordingId = recordingId,
+			SizeInBytes = sizeInBytes,
+			PubliclyAccessible = publiclyAccessible,
+			CreatedAtUtc = now,
+			LastModifiedAtUtc = now
+		});
+		FileChanged?.Invoke(this, new ComputerFileSystemChange
+		{
+			FileName = fileName,
+			ChangeType = ComputerFileSystemChangeType.Written,
+			Kind = ComputerFileKind.Media,
+			MediaRecordingId = recordingId
+		});
+		return true;
+	}
+
+	public bool UpdateMediaFileSize(string fileName, long sizeInBytes, out string error)
+	{
+		error = string.Empty;
+		if (sizeInBytes < 0L)
+		{
+			error = "A media file cannot have a negative size.";
+			return false;
+		}
+
+		var media = _mediaFiles.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+		if (media is null)
+		{
+			error = "There is no media file with that name.";
+			return false;
+		}
+
+		if (UsedBytes - media.SizeInBytes + sizeInBytes > CapacityInBytes)
+		{
+			error = $"That media file would exceed the file system capacity of {CapacityInBytes:N0} bytes.";
+			return false;
+		}
+
+		media.SizeInBytes = sizeInBytes;
+		media.LastModifiedAtUtc = DateTime.UtcNow;
+		FileChanged?.Invoke(this, new ComputerFileSystemChange
+		{
+			FileName = fileName,
+			ChangeType = ComputerFileSystemChangeType.Written,
+			Kind = ComputerFileKind.Media,
+			MediaRecordingId = media.MediaRecordingId
+		});
+		return true;
 	}
 }
 

@@ -336,8 +336,18 @@ public class UsefulSeederModernPackageTests
             "CellPhoneTower_Local",
             "CellPhoneTower_Regional",
             "AnsweringMachine_Standard",
-            "Tape_Cassette30",
-            "Tape_Microcassette10",
+            "MediaCamera_Video",
+            "MediaCamera_AV",
+            "PushToTalkMicrophone_Standard",
+            "MediaMonitor_AV",
+            "MediaSpeaker_Standard",
+            "ComputerMediaInterface_AV",
+            "MediaDeck_VHS",
+            "MediaStorageMedium_VHS120",
+            "MediaDeck_CompactCassette",
+            "MediaStorageMedium_CompactCassette60",
+            "MediaCable_AV",
+            "MediaSplitter_AV",
             "ComputerHost_Server",
             "ComputerStorage_Portable",
             "ComputerStorage_Fixed",
@@ -427,6 +437,24 @@ public class UsefulSeederModernPackageTests
 
         GameItemComponentProto anchor = context.GameItemComponentProtos.Single(x => x.Name == "ZeroGravityAnchor_SetPiece");
         Assert.AreEqual("ZeroGravityAnchor", anchor.Type);
+
+        GameItemComponentProto videoCamera = context.GameItemComponentProtos.Single(x => x.Name == "MediaCamera_Video");
+        XElement videoCameraDefinition = XElement.Parse(videoCamera.Definition);
+        Assert.AreEqual("Camera", videoCamera.Type);
+        Assert.AreEqual("Video", videoCameraDefinition.Element("Capabilities")?.Value);
+        Assert.AreEqual("5000", videoCameraDefinition.Element("SnapshotIntervalMilliseconds")?.Value);
+
+        GameItemComponentProto vhsDeck = context.GameItemComponentProtos.Single(x => x.Name == "MediaDeck_VHS");
+        XElement vhsDeckDefinition = XElement.Parse(vhsDeck.Definition);
+        Assert.AreEqual("Media Deck", vhsDeck.Type);
+        Assert.AreEqual("vhs", vhsDeckDefinition.Element("FormatKey")?.Value);
+
+        GameItemComponentProto vhsMedium = context.GameItemComponentProtos.Single(x => x.Name == "MediaStorageMedium_VHS120");
+        XElement vhsMediumDefinition = XElement.Parse(vhsMedium.Definition);
+        Assert.AreEqual("Media Storage Medium", vhsMedium.Type);
+        Assert.AreEqual(((long)TimeSpan.FromMinutes(120).TotalMilliseconds).ToString(),
+            vhsMediumDefinition.Element("CapacityMilliseconds")?.Value);
+        Assert.AreEqual(0, context.GameItemComponentProtos.Count(x => x.Type == "Tape"));
     }
 
     [TestMethod]

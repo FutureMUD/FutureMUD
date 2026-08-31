@@ -16014,6 +16014,207 @@ namespace MudSharp.Migrations
                     b.ToTable("Materials_Tags", (string)null);
                 });
 
+            modelBuilder.Entity("MudSharp.Models.MediaRecording", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Capabilities")
+                        .HasColumnType("int(11)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<long>("DurationMilliseconds")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime?>("FinalisedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<long>("LogicalSizeInBytes")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<int>("SchemaVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(1);
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("Status", "CreatedAtUtc")
+                        .HasDatabaseName("IX_MediaRecordings_Status_Created");
+
+                    b.ToTable("MediaRecordings", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MediaRecordingChunk", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<long>("DurationMilliseconds")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("MediaRecordingId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("OffsetMilliseconds")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<byte[]>("Payload")
+                        .IsRequired()
+                        .HasColumnType("longblob");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("UncompressedSizeBytes")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("MediaRecordingId", "Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("UX_MediaRecordingChunks_Recording_Sequence");
+
+                    b.ToTable("MediaRecordingChunks", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MediaRecordingFrame", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("EndOffsetMilliseconds")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("MediaRecordingId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("MediaSceneSnapshotId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("StartOffsetMilliseconds")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("MediaSceneSnapshotId")
+                        .HasDatabaseName("FK_MediaRecordingFrames_MediaSceneSnapshots_idx");
+
+                    b.HasIndex("MediaRecordingId", "StartOffsetMilliseconds")
+                        .HasDatabaseName("IX_MediaRecordingFrames_Recording_Offset");
+
+                    b.ToTable("MediaRecordingFrames", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MediaRecordingReference", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<long>("GameItemComponentId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("LastModifiedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<long>("MediaRecordingId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<ulong>("PubliclyAccessible")
+                        .HasColumnType("bit(1)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("MediaRecordingId")
+                        .HasDatabaseName("FK_MediaRecordingReferences_MediaRecordings_idx");
+
+                    b.HasIndex("GameItemComponentId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_MediaRecordingReferences_Component_Name");
+
+                    b.ToTable("MediaRecordingReferences", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MediaSceneSnapshot", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength()
+                        .UseCollation("ascii_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ContentHash"), "ascii");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<byte[]>("Payload")
+                        .IsRequired()
+                        .HasColumnType("longblob");
+
+                    b.Property<int>("UncompressedSizeBytes")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("ContentHash")
+                        .IsUnique()
+                        .HasDatabaseName("UX_MediaSceneSnapshots_ContentHash");
+
+                    b.ToTable("MediaSceneSnapshots", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.Merchandise", b =>
                 {
                     b.Property<long>("Id")
@@ -32308,6 +32509,60 @@ namespace MudSharp.Migrations
                     b.Navigation("Tag");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.MediaRecordingChunk", b =>
+                {
+                    b.HasOne("MudSharp.Models.MediaRecording", "MediaRecording")
+                        .WithMany("Chunks")
+                        .HasForeignKey("MediaRecordingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_MediaRecordingChunks_MediaRecordings");
+
+                    b.Navigation("MediaRecording");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MediaRecordingFrame", b =>
+                {
+                    b.HasOne("MudSharp.Models.MediaRecording", "MediaRecording")
+                        .WithMany("Frames")
+                        .HasForeignKey("MediaRecordingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_MediaRecordingFrames_MediaRecordings");
+
+                    b.HasOne("MudSharp.Models.MediaSceneSnapshot", "MediaSceneSnapshot")
+                        .WithMany("Frames")
+                        .HasForeignKey("MediaSceneSnapshotId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_MediaRecordingFrames_MediaSceneSnapshots");
+
+                    b.Navigation("MediaRecording");
+
+                    b.Navigation("MediaSceneSnapshot");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MediaRecordingReference", b =>
+                {
+                    b.HasOne("MudSharp.Models.GameItemComponent", "GameItemComponent")
+                        .WithMany()
+                        .HasForeignKey("GameItemComponentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_MediaRecordingReferences_GameItemComponents");
+
+                    b.HasOne("MudSharp.Models.MediaRecording", "MediaRecording")
+                        .WithMany("References")
+                        .HasForeignKey("MediaRecordingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_MediaRecordingReferences_MediaRecordings");
+
+                    b.Navigation("GameItemComponent");
+
+                    b.Navigation("MediaRecording");
+                });
+
             modelBuilder.Entity("MudSharp.Models.Merchandise", b =>
                 {
                     b.HasOne("MudSharp.Models.GameItem", "PreferredDisplayContainer")
@@ -37876,6 +38131,20 @@ namespace MudSharp.Migrations
                     b.Navigation("Races");
 
                     b.Navigation("RacesEdibleMaterials");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MediaRecording", b =>
+                {
+                    b.Navigation("Chunks");
+
+                    b.Navigation("Frames");
+
+                    b.Navigation("References");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MediaSceneSnapshot", b =>
+                {
+                    b.Navigation("Frames");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Merchandise", b =>

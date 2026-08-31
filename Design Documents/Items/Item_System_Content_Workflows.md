@@ -22,6 +22,12 @@ On an established database, the Items seeder offers a `blackpowder` repair scope
 Weapon carriers use `attach` and `detach` to establish or remove the relation and ordinary `sheathe` / `draw` to stow or retrieve an attached weapon. A retained dropped weapon is hanging, so `recover <weapon>` returns it to inventory and `release <weapon>` drops it deliberately.
 
 ## Working with Component Prototypes
+
+## Media device composition
+
+Use `comp typehelp` before authoring `Camera`, `Push To Talk Microphone`, `Media Monitor`, `Media Speaker`, `Computer Media Interface`, `Media Deck`, `Media Storage Medium`, `Media Cable`, or `Media Splitter`. Configure matching format keys/capabilities and normal powered-machine settings. A camera’s snapshot interval cannot be below five seconds. Connect local ports with ordinary connector workflows; add a splitter for fan-out. For a TV/VCR or boombox, attach compatible sibling components to one item and enable sibling input acceptance where required.
+
+Use ordinary container commands to insert/remove physical media, then use `media <item> status`, `media <medium> list`, `media <deck> record <name>`, `media <deck> play <name>`, `media <deck> stop`, and `media <medium> erase <name>`. Test duplicate names, write protection, capacity, and incompatible formats/capabilities before submitting a composite item. The UsefulSeeder supplies components only, so builders remain responsible for game-specific finished device prototypes.
 ### Discover available component types
 Use:
 - `comp types`
@@ -43,7 +49,7 @@ Telecommunications examples include:
 - `comp edit new cellularphone`
 - `comp edit new cellphonetower`
 - `comp edit new implanttelephone`
-- `comp edit new tape`
+- `comp edit new mediastoragemedium`
 - `comp edit new answeringmachine`
 
 Signal-automation examples now include:
@@ -96,7 +102,7 @@ Ritual-offering examples include:
 - `comp edit new incenseburner`
 - `comp edit new offeringreceiver`
 
-`UsefulSeeder` now ships stock component examples across those modern families, including lithium batteries, cellular devices, answering-machine tapes, computer/network gear, signal automation, gas containers, rebreathers, inhalers, defibrillators, and external-organ support machines. Its general item package also includes a broad furniture-container catalogue for tables, shelves, bookcases, racks, stands, cabinets, wardrobes, trunks, drawers, counters, bins, beds and display cases, size-labelled door, gate, glass-door, and locking-door component presets for door items intended to match exit `DoorSize` values from `Tiny` through `Gigantic`, contextual latch presets for containers, doors, gates, and portcullis-style barriers, public infinite water-source presets for taps, drinking fountains, pumps, standpipes, troughs, and communal cisterns, and Skill-Package-aware `WornTraitChanger` presets for worn stealth, movement, dexterity, sight, hearing, and athletic bonuses or penalties; the item prototype size itself must still be set on the item. Food presets now have two stock surfaces: `CookingSeeder` installs general `PreparedFood` examples for direct load, forageable stock, stackable servings, and cooking recipe products, while the antiquity food pass keeps its prepared-food prototypes, liquids, vessels, tools, commodity tags, spoilage rules, and crafts in `ItemSeeder` partials so it can consume `AnimalButcherySeeder` outputs without duplicating them. The primary-production historic item pass now seeds portable tool and carrying-aid prototypes with ordinary `Holdable`, `Destroyable_*`, and `Container_*` components, while visible resource deposits and static apparatus deliberately omit `Holdable` so builders can place them as fixed/non-gettable site markers. `AnimalButcherySeeder` installs raw butchery output item prototypes for stock animal and beast-only mythical race profiles. Those outputs are non-edible props by default, use simple held, destroyable, stackable composition, and are tagged for raw meat cuts, raw hides, offal, trophies, venom organs, and crafting animal products. Soft organic outputs morph into the generic rotten-meat prototype, while durable hard products such as bone, tusk, horn, chitin, shell, feather, scale, tooth, beak, claw, and antler remain stable crafting materials. Fax-machine examples and breathing-filter cartridge ecosystems remain later dedicated content passes.
+`UsefulSeeder` now ships stock component examples across those modern families, including lithium batteries, cellular devices, answering-machine audio media, computer/network gear, signal automation, gas containers, rebreathers, inhalers, defibrillators, and external-organ support machines. Its general item package also includes a broad furniture-container catalogue for tables, shelves, bookcases, racks, stands, cabinets, wardrobes, trunks, drawers, counters, bins, beds and display cases, size-labelled door, gate, glass-door, and locking-door component presets for door items intended to match exit `DoorSize` values from `Tiny` through `Gigantic`, contextual latch presets for containers, doors, gates, and portcullis-style barriers, public infinite water-source presets for taps, drinking fountains, pumps, standpipes, troughs, and communal cisterns, and Skill-Package-aware `WornTraitChanger` presets for worn stealth, movement, dexterity, sight, hearing, and athletic bonuses or penalties; the item prototype size itself must still be set on the item. Food presets now have two stock surfaces: `CookingSeeder` installs general `PreparedFood` examples for direct load, forageable stock, stackable servings, and cooking recipe products, while the antiquity food pass keeps its prepared-food prototypes, liquids, vessels, tools, commodity tags, spoilage rules, and crafts in `ItemSeeder` partials so it can consume `AnimalButcherySeeder` outputs without duplicating them. The primary-production historic item pass now seeds portable tool and carrying-aid prototypes with ordinary `Holdable`, `Destroyable_*`, and `Container_*` components, while visible resource deposits and static apparatus deliberately omit `Holdable` so builders can place them as fixed/non-gettable site markers. `AnimalButcherySeeder` installs raw butchery output item prototypes for stock animal and beast-only mythical race profiles. Those outputs are non-edible props by default, use simple held, destroyable, stackable composition, and are tagged for raw meat cuts, raw hides, offal, trophies, venom organs, and crafting animal products. Soft organic outputs morph into the generic rotten-meat prototype, while durable hard products such as bone, tusk, horn, chitin, shell, feather, scale, tooth, beak, claw, and antler remain stable crafting materials. Fax-machine examples and breathing-filter cartridge ecosystems remain later dedicated content passes.
 
 `UsefulSeeder` also ships antiquity ritual examples: `IncenseBurner_Antiquity_BronzeCenser`; the item-only `OfferingReceiver_Antiquity_HouseholdAltar`, `OfferingReceiver_Antiquity_VotiveBasin`, and `OfferingReceiver_Antiquity_FuneralTray`; and four liquid-enabled profiles for a temple libation table, oil-lamp shrine, oracular tripod, and blood-offering bowl. Pair the censer with items tagged `Functions / Household Items / Household Religious Items / Incense Fuel`; the seeded `antiquity_resin_incense_pellets` item is the stock test fuel. Liquid examples use `Materials / Liquids / Ritual Offerings` descendants for libations, lamp oil, and blood offerings.
 
@@ -297,7 +303,7 @@ For telecommunications content, also validate:
 - whether a chained answering machine lets downstream handsets ring first, then answers after its configured ring count
 - whether the telecommunications grid creator enables hosted voicemail with the expected access number and keeps that reserved number unavailable for ordinary subscribers
 - whether a custom greeting plays back with preserved language metadata and timing before the beep
-- whether caller speech is recorded onto the inserted tape, and whether tape full or write-protect only blocks recording rather than the basic answer flow
+- whether caller speech is recorded onto the inserted audio-capable medium, and whether medium full or write-protect only blocks recording rather than the basic answer flow
 - whether an unanswered hosted-voicemail-enabled line routes to the exchange mailbox only after local answering-machine opportunities have passed
 - whether dialling the hosted voicemail access number from the subscribed line announces mailbox counts, plays message contents, and honours keypad deletion commands
 - whether `dial <phone> <digits>` starts a call while idle and sends keypad digits once the call is already connected
@@ -450,11 +456,11 @@ When adding a new item capability, the most reliable end-to-end workflow is:
 9. Exercise the runtime behaviour in-game.
 10. Run `comp update` when revision churn has occurred.
 
-For the stage-1 answering-machine workflow, a practical end-to-end pass is:
-1. Create a `tape` component and set its storage minutes.
+For the generic-media answering-machine workflow, a practical end-to-end pass is:
+1. Create a `mediastoragemedium` component and set its format key, audio capability, and duration capacity.
 2. Create an `answeringmachine` component and configure wattage, connectors, ring volume, premote, and answer-after-rings.
 3. Attach both to test item prototypes and load them with a compatible telecom outlet and handset.
-4. Insert a tape into the live machine.
+4. Insert the audio medium into the live machine.
 5. Use `select <machine> greeting record`, speak in the same location, and finish with `select <machine> greeting stop`.
 6. Place a call and let it ring through to validate greeting playback, beep timing, and message capture.
 7. While the call is connected, use `dial <phone> 123#` to validate keypad relay instead of a second outbound call attempt.

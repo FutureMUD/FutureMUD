@@ -12,6 +12,8 @@ public sealed class ComputerFileSystemChange
 {
 	public string FileName { get; init; } = string.Empty;
 	public ComputerFileSystemChangeType ChangeType { get; init; }
+	public ComputerFileKind Kind { get; init; } = ComputerFileKind.Text;
+	public long? MediaRecordingId { get; init; }
 }
 
 public enum ComputerFileSystemChangeType
@@ -66,7 +68,9 @@ public interface IComputerProcess
 public interface IComputerFile
 {
 	string FileName { get; }
+	ComputerFileKind Kind { get; }
 	string TextContents { get; }
+	long? MediaRecordingId { get; }
 	long SizeInBytes { get; }
 	DateTime CreatedAtUtc { get; }
 	DateTime LastModifiedAtUtc { get; }
@@ -84,6 +88,8 @@ public interface IComputerFileSystem
 	string ReadFile(string fileName);
 	void WriteFile(string fileName, string textContents);
 	void AppendFile(string fileName, string textContents);
+	bool WriteMediaFile(string fileName, long recordingId, long sizeInBytes, bool publiclyAccessible, out string error);
+	bool UpdateMediaFileSize(string fileName, long sizeInBytes, out string error);
 	bool DeleteFile(string fileName);
 	bool SetFilePubliclyAccessible(string fileName, bool isPublic);
 }

@@ -77,7 +77,69 @@ public interface IArmourPrototype : IExclusiveGameItemComponentPrototype<IArmour
 {
 }
 
-public interface IAudioStorageTapePrototype : IExclusiveGameItemComponentPrototype<IAudioStorageTape>
+/// <summary>
+/// Marker for an item component that exposes one or more compatible media endpoints. Endpoints themselves are
+/// aggregate capabilities so a composite item can combine a display, a deck and a computer gateway.
+/// </summary>
+public interface IMediaEndpointPrototype : IAggregateGameItemComponentPrototype<IMediaEndpoint>
+{
+}
+
+public interface IMediaSourcePrototype : IAggregateGameItemComponentPrototype<IMediaSource>, IMediaEndpointPrototype
+{
+}
+
+public interface IMediaCaptureSourcePrototype : IExclusiveGameItemComponentPrototype<IMediaCaptureSource>,
+	IMediaSourcePrototype
+{
+}
+
+public interface IMediaSinkPrototype : IAggregateGameItemComponentPrototype<IMediaSink>, IMediaEndpointPrototype
+{
+}
+
+public interface IMediaBoundSinkPrototype : IAggregateGameItemComponentPrototype<IMediaBoundSink>,
+	IMediaSinkPrototype
+{
+}
+
+public interface IMediaCameraPrototype : IMediaCaptureSourcePrototype, IConnectablePrototype
+{
+}
+
+public interface IPushToTalkMicrophonePrototype : IMediaSourcePrototype, ITransmitPrototype,
+	IConnectablePrototype
+{
+}
+
+public interface IMediaMonitorPrototype : IExclusiveGameItemComponentPrototype<IMediaMonitor>, IMediaBoundSinkPrototype,
+	IConnectablePrototype
+{
+}
+
+public interface IMediaSpeakerPrototype : IMediaBoundSinkPrototype, IConnectablePrototype
+{
+}
+
+public interface IComputerMediaInterfacePrototype : IAggregateGameItemComponentPrototype<IComputerMediaInterface>,
+	IMediaBoundSinkPrototype, IMediaSourcePrototype, IConnectablePrototype
+{
+}
+
+public interface IMediaDeckPrototype : IExclusiveGameItemComponentPrototype<IMediaDeck>, IMediaBoundSinkPrototype,
+	IMediaSourcePrototype, IConnectablePrototype
+{
+}
+
+public interface IMediaStorageMediumPrototype : IExclusiveGameItemComponentPrototype<IMediaStorageMedium>
+{
+}
+
+public interface IMediaCablePrototype : IMediaBoundSinkPrototype, IMediaSourcePrototype, IConnectablePrototype
+{
+}
+
+public interface IMediaSplitterPrototype : IMediaBoundSinkPrototype, IMediaSourcePrototype, IConnectablePrototype
 {
 }
 

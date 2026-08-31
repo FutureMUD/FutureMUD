@@ -171,6 +171,14 @@ The 1.0 design for this subsystem is now:
 - `FTP` and public network files remain XML-backed on the owning host, storage, or component file owner
 - automation is still grounded in mounted modules, sibling/local bindings, dedicated housings, and chained one-hop cable segments, but computers are now first-class participants in that environment through `WaitSignal()`, local file ownership, diagnostics, and file-backed generators
 
+## Media application and program runtime
+
+The shipped built-in `Media` application exposes host-owned A/V recording, still capture, playback, feeds, and saved subscriptions through a connected terminal. It uses named `ComputerMediaInterface` ports on the same host. Media files are immutable recording references rather than text files: `FileManager` and `FTP` can list/copy/move/delete them, while text read/write/append calls refuse them. Host-owned surveillance jobs add rolling retention (`recordloop`), fixed-time segmentation (`recordsplit`), and quiet-window event capture (`recordevent`). Rolling storage expires immutable timestamped segments rather than rewriting shared recording chunks; event jobs remain armed without allocating a file until a non-periodic captured event arrives.
+
+The Media program API is intentionally metadata-safe. `GetMediaInputs()`, `GetMediaOutputs()`, `StartMediaRecording`, `StartMediaPlayback`, `CaptureMediaStill`, `StopMediaJob`, `PublishMediaFeed`, and `SubscribeMediaFeed` operate through the host's configured endpoints. `WaitMediaEvent(endpoint)` persists a `Media` process wait, consumes only the next matching event, and resumes with metadata keys rather than media content. Programs do not receive login passwords; a private feed program call uses an application-authorised persisted subscription.
+
+Media feeds use the same direct, exchange, and VPN reachability policy as Mail, Boards, and FTP. Public feeds require reachability. Private feeds additionally revalidate an enabled `user@domain` account identified by stable id in the feed ACL. Feed/subscription configuration persists with the host; active recorder and playback jobs stop on a power loss and do not resume.
+
 ## Future Plans Beyond 1.0
 
 The main post-1.0 expansion points are:

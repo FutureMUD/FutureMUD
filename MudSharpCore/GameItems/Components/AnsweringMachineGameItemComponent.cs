@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using MudSharp.Communication.Language;
+using MudSharp.Computers;
 using MudSharp.Construction;
 using MudSharp.Construction.Grids;
 using MudSharp.Events;
@@ -40,8 +41,8 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
     private ConnectorType? _connectedPowerSourceConnector;
     private ITelephoneNumberOwner? _connectedLineOwner;
     private int _autoAnswerRings;
-    private IGameItem? _tapeItem;
-    private long _pendingTapeItemId;
+	private IGameItem? _mediumItem;
+	private long _pendingMediumItemId;
     private bool _isRecordingGreeting;
     private long _greetingRecorderId;
     private DateTime? _lastGreetingSegmentUtc;
@@ -114,7 +115,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         }
 
         _directGrid = Gameworld.Grids.Get(long.Parse(root.Element("Grid")?.Value ?? "0")) as ITelecommunicationsGrid;
-        _pendingTapeItemId = long.TryParse(root.Element("Tape")?.Value, out long tapeId) ? tapeId : 0L;
+		_pendingMediumItemId = long.TryParse(root.Element("Medium")?.Value, out long mediumId) ? mediumId : 0L;
         XElement? element = root.Element("ConnectedItems");
         if (element == null)
         {
@@ -146,7 +147,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
             new XElement("HostedVoicemailEnabled", _hostedVoicemailEnabled),
             new XElement("AutoAnswerRings", _autoAnswerRings),
             new XElement("RingVolumeOverride", _ringVolumeOverride.HasValue ? (int)_ringVolumeOverride.Value : -1),
-            new XElement("Tape", _tapeItem?.Id ?? 0L),
+			new XElement("Medium", _mediumItem?.Id ?? 0L),
             new XElement("ConnectedItems",
                 from item in ConnectedItems
                 select new XElement("Item",
@@ -198,20 +199,20 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
         _pendingDependentLoadTimeConnections.Clear();
 
-        if (_pendingTapeItemId > 0)
-        {
-            IGameItem tape = Gameworld.TryGetItem(_pendingTapeItemId, true);
-            if (tape != null)
-            {
-                tape.Get(null);
-                tape.LoadTimeSetContainedIn(Parent);
-                _tapeItem = tape;
-            }
+		if (_pendingMediumItemId > 0)
+		{
+			IGameItem medium = Gameworld.TryGetItem(_pendingMediumItemId, true);
+			if (medium != null)
+			{
+				medium.Get(null);
+				medium.LoadTimeSetContainedIn(Parent);
+				_mediumItem = medium;
+			}
 
-            _pendingTapeItemId = 0L;
-        }
+			_pendingMediumItemId = 0L;
+		}
 
-        _tapeItem?.FinaliseLoadTimeTasks();
+		_mediumItem?.FinaliseLoadTimeTasks();
         if (_directGrid != null && _connectedLineOwner == null)
         {
             _directGrid.JoinGrid((ITelephoneNumberOwner)this);
@@ -236,18 +237,18 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
             consumer.OnPowerCutOut();
         }
 
-        _tapeItem?.Delete();
-        _tapeItem = null;
+		_mediumItem?.Delete();
+		_mediumItem = null;
     }
 
     public override void Quit()
     {
-        _tapeItem?.Quit();
+		_mediumItem?.Quit();
     }
 
     public override void Login()
     {
-        _tapeItem?.Login();
+		_mediumItem?.Login();
     }
 
     public IEnumerable<ConnectorType> Connections => _prototype.Connections;
@@ -448,7 +449,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         sb.AppendLine($"Its ringer is set to {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()}.");
         sb.AppendLine($"It answers after {AutoAnswerRings.ToString("N0", voyeur).ColourValue()} rings.");
         sb.AppendLine($"Hosted voicemail is {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.");
-        sb.AppendLine($"Its tape slot currently contains {(_tapeItem?.HowSeen(voyeur) ?? "nothing".ColourError())}.");
+		sb.AppendLine($"Its media slot currently contains {(_mediumItem?.HowSeen(voyeur) ?? "nothing".ColourError())}.");
         sb.AppendLine($"It has {(GreetingRecording == null ? "no custom greeting".ColourError() : "a custom greeting".ColourValue())} and {MessageRecordings.Count.ToString("N0", voyeur).ColourValue()} saved message{(MessageRecordings.Count == 1 ? string.Empty : "s")}.");
         sb.AppendLine($"It is connected to {(TelecommunicationsGrid == null ? "no telecommunications grid".ColourError() : $"grid #{TelecommunicationsGrid.Id.ToString("N0", voyeur)}".ColourValue())}.");
         sb.AppendLine($"Its handset path is {(IsOffHook ? "off the hook".ColourError() : "on the hook".ColourValue())}.");
@@ -564,15 +565,133 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         }
     }
 
-    public bool IsRecordingGreeting => _isRecordingGreeting;
-    public bool IsRecordingMessage => _isRecordingMessage;
-    public IAudioStorageTape? Tape => _tapeItem?.GetItemType<IAudioStorageTape>();
-    public StoredAudioRecording? GreetingRecording => Tape?.GetRecording(GreetingRecordingName);
-    public IReadOnlyList<StoredAudioRecording> MessageRecordings =>
-        (Tape?.Recordings ?? [])
-        .Where(x => !x.Name.EqualTo(GreetingRecordingName))
-        .OrderBy(x => x.RecordedAtUtc)
-        .ToList();
+	public bool IsRecordingGreeting => _isRecordingGreeting;
+	public bool IsRecordingMessage => _isRecordingMessage;
+	public IMediaStorageMedium? Medium => _mediumItem?.GetItemType<IMediaStorageMedium>();
+	public StoredAudioRecording? GreetingRecording => GetStoredRecording(GreetingRecordingName);
+	public IReadOnlyList<StoredAudioRecording> MessageRecordings =>
+		(Medium?.Recordings ?? [])
+		.Where(x => !x.Name.EqualTo(GreetingRecordingName))
+		.Select(x => GetStoredRecording(x.Name))
+		.Where(x => x is not null)
+		.Cast<StoredAudioRecording>()
+		.OrderBy(x => x.RecordedAtUtc)
+		.ToList();
+
+	private StoredAudioRecording? GetStoredRecording(string name)
+	{
+		var medium = Medium;
+		var reference = medium?.GetRecording(name);
+		if (reference is null)
+		{
+			return null;
+		}
+
+		var descriptor = Gameworld.MediaRecordingService.GetRecording(reference.RecordingId);
+		if (descriptor is null || (descriptor.Capabilities & MediaCapabilities.Audio) == MediaCapabilities.None)
+		{
+			return null;
+		}
+
+		var previousTimestamp = descriptor.CreatedAtUtc;
+		var timedSegments = Gameworld.MediaRecordingService.ReadPackets(reference.RecordingId)
+			.Where(x => x.Payload is MediaLanguagePayload { IsSigned: false })
+			.OrderBy(x => x.TimestampUtc)
+			.ThenBy(x => x.Sequence)
+			.Select(packet =>
+			{
+				var segment = ToRecordedAudioSegment(packet, previousTimestamp);
+				previousTimestamp = packet.TimestampUtc;
+				return segment;
+			})
+			.Where(x => x is not null)
+			.Cast<RecordedAudioSegment>()
+			.ToList();
+		return timedSegments.Any()
+			? new StoredAudioRecording(reference.Name, new RecordedAudio(timedSegments), descriptor.CreatedAtUtc)
+			: null;
+	}
+
+	private static RecordedAudioSegment? ToRecordedAudioSegment(MediaPacket packet, DateTime? previousTimestamp)
+	{
+		if (packet.Payload is not MediaLanguagePayload { IsSigned: false } language)
+		{
+			return null;
+		}
+
+		var delay = previousTimestamp.HasValue
+			? packet.TimestampUtc - previousTimestamp.Value
+			: TimeSpan.Zero;
+		return new RecordedAudioSegment(
+			delay > TimeSpan.Zero ? delay : TimeSpan.Zero,
+			language.DurationMilliseconds.HasValue
+				? TimeSpan.FromMilliseconds(Math.Max(0L, language.DurationMilliseconds.Value))
+				: RecordedAudioSegment.EstimateDuration(language.RawText),
+			language.LanguageId,
+			language.AccentOrVarietyId,
+			language.RawText,
+			Enum.IsDefined(typeof(AudioVolume), language.Volume) ? (AudioVolume)language.Volume : AudioVolume.Decent,
+			Enum.IsDefined(typeof(Outcome), language.Outcome) ? (Outcome)language.Outcome : Outcome.Pass,
+			new RecordedAudioSpeakerSnapshot(language.SpeakerCharacterId, language.SpeakerName,
+				Enum.IsDefined(typeof(Gender), language.SpeakerGender) ? (Gender)language.SpeakerGender : Gender.Neuter));
+	}
+
+	private bool StoreAudioRecording(StoredAudioRecording recording, out string error)
+	{
+		var medium = Medium;
+		if (medium is null)
+		{
+			error = "There is no compatible audio medium installed.";
+			return false;
+		}
+
+		var expectedDuration = recording.Recording.TotalDuration;
+		var provisional = new MediaRecordingDescriptor(0L, MediaCapabilities.Audio,
+			MediaRecordingStatus.Finalised, recording.RecordedAtUtc,
+			recording.RecordedAtUtc + expectedDuration, expectedDuration, 0L, recording.Name);
+		if (!medium.CanStoreRecording(provisional, out error))
+		{
+			return false;
+		}
+
+		var created = Gameworld.MediaRecordingService.CreateRecording(new MediaRecordingCreateRequest(
+			MediaCapabilities.Audio, recording.Name, recording.RecordedAtUtc, medium.Id));
+		var source = new MediaEndpointAddress(Parent.Id, Id, "answering-machine", MediaEndpointDirection.Output);
+		var timestamp = recording.RecordedAtUtc;
+		var streamId = Guid.NewGuid();
+		long sequence = 0L;
+		foreach (var segment in recording.Recording.Segments)
+		{
+			timestamp += segment.DelayBeforeSegment;
+			var payload = new MediaLanguagePayload(false, segment.LanguageId, segment.AccentId, segment.RawText,
+				(int)segment.Volume, (int)segment.Outcome, segment.Speaker.CharacterId, segment.Speaker.Name,
+				(short)segment.Speaker.Gender, string.Empty, string.Empty,
+				(long)segment.EstimatedSegmentDuration.TotalMilliseconds);
+			var packet = new MediaPacket(streamId, ++sequence, timestamp, MediaCapabilities.Audio,
+				MediaEventKind.Audio, source, [source], payload);
+			if (!Gameworld.MediaRecordingService.AppendPacket(created.RecordingId, packet, out error))
+			{
+				Gameworld.MediaRecordingService.FinaliseRecording(created.RecordingId, MediaRecordingStatus.Failed,
+					DateTime.UtcNow, out _);
+				return false;
+			}
+		}
+
+		if (!Gameworld.MediaRecordingService.FinaliseRecording(created.RecordingId, MediaRecordingStatus.Finalised,
+			recording.RecordedAtUtc + expectedDuration, out error))
+		{
+			return false;
+		}
+
+		var descriptor = Gameworld.MediaRecordingService.GetRecording(created.RecordingId);
+		if (descriptor is null)
+		{
+			error = "The recorded audio could not be finalised.";
+			return false;
+		}
+
+		return medium.StoreRecording(descriptor with { Name = recording.Name }, out error);
+	}
 
     ITelecommunicationsGrid? ICanConnectToTelecommunicationsGrid.TelecommunicationsGrid
     {
@@ -1233,9 +1352,9 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         }
     }
 
-    private void BeginMessageRecording()
-    {
-        if (Tape == null || Tape.WriteProtected)
+	private void BeginMessageRecording()
+	{
+		if (Medium == null || Medium.WriteProtected)
         {
             return;
         }
@@ -1248,9 +1367,9 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         Changed = true;
     }
 
-    private void AppendMessageSegment(SpokenLanguageInfo spokenLanguage)
-    {
-        if (Tape == null || string.IsNullOrWhiteSpace(_activeMessageName) || _activeMessageRecordedAtUtc == null)
+	private void AppendMessageSegment(SpokenLanguageInfo spokenLanguage)
+	{
+		if (Medium == null || string.IsNullOrWhiteSpace(_activeMessageName) || _activeMessageRecordedAtUtc == null)
         {
             _isRecordingMessage = false;
             return;
@@ -1261,7 +1380,10 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         RecordedAudioSegment segment = RecordedAudioSegment.FromSpokenLanguage(spokenLanguage, delay);
         RecordedAudio recording = new(_workingMessageSegments.Concat([segment]));
         StoredAudioRecording stored = new(_activeMessageName, recording, _activeMessageRecordedAtUtc.Value);
-        if (!Tape.CanStoreRecording(stored, out _))
+		var provisional = new MediaRecordingDescriptor(0L, MediaCapabilities.Audio,
+			MediaRecordingStatus.Finalised, stored.RecordedAtUtc,
+			stored.RecordedAtUtc + stored.Recording.TotalDuration, stored.Recording.TotalDuration, 0L, stored.Name);
+		if (Medium?.CanStoreRecording(provisional, out _) != true)
         {
             FinishMessageRecording();
             return;
@@ -1279,11 +1401,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         }
 
         _isRecordingMessage = false;
-        if (Tape != null && !string.IsNullOrWhiteSpace(_activeMessageName) && _activeMessageRecordedAtUtc != null &&
-            _workingMessageSegments.Any())
-        {
-            RecordedAudio recording = new(_workingMessageSegments);
-            Tape.StoreRecording(new StoredAudioRecording(_activeMessageName, recording, _activeMessageRecordedAtUtc.Value), out _);
+		if (Medium != null && !string.IsNullOrWhiteSpace(_activeMessageName) && _activeMessageRecordedAtUtc != null &&
+			_workingMessageSegments.Any())
+		{
+			RecordedAudio recording = new(_workingMessageSegments);
+			StoreAudioRecording(new StoredAudioRecording(_activeMessageName, recording, _activeMessageRecordedAtUtc.Value), out _);
         }
 
         _workingMessageSegments.Clear();
@@ -1312,10 +1434,10 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
         _isRecordingGreeting = false;
         _greetingRecorderId = 0L;
-        if (Tape == null)
-        {
-            _workingGreetingSegments.Clear();
-            error = "There is no tape installed to save the greeting.";
+		if (Medium == null)
+		{
+			_workingGreetingSegments.Clear();
+			error = "There is no compatible medium installed to save the greeting.";
             return false;
         }
 
@@ -1326,7 +1448,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         }
 
         StoredAudioRecording stored = new(GreetingRecordingName, new RecordedAudio(_workingGreetingSegments), DateTime.UtcNow);
-        if (!Tape.StoreRecording(stored, out error))
+		if (!StoreAudioRecording(stored, out error))
         {
             return false;
         }
@@ -1438,15 +1560,15 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         switch (ss.PopSpeech().ToLowerInvariant())
         {
             case "record":
-                if (Tape == null)
-                {
-                    character.Send("There is no tape inserted.");
-                    return false;
-                }
+				if (Medium == null)
+				{
+					character.Send("There is no compatible medium inserted.");
+					return false;
+				}
 
-                if (Tape.WriteProtected)
-                {
-                    character.Send("The inserted tape is write-protected.");
+				if (Medium.WriteProtected)
+				{
+					character.Send("The inserted medium is write-protected.");
                     return false;
                 }
 
@@ -1460,7 +1582,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
                     return false;
                 }
 
-                character.Send($"{Parent.HowSeen(character, true)} saves the new greeting to its tape.");
+				character.Send($"{Parent.HowSeen(character, true)} saves the new greeting to its medium.");
                 return true;
             case "play":
                 if (GreetingRecording == null)
@@ -1473,9 +1595,9 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
                 character.Send($"{Parent.HowSeen(character, true)} plays back its greeting.");
                 return true;
             case "erase":
-                if (Tape == null || !Tape.DeleteRecording(GreetingRecordingName))
-                {
-                    character.Send("There is no removable greeting recording on the inserted tape.");
+				if (Medium is null || !Medium.DeleteRecording(GreetingRecordingName, out _))
+				{
+					character.Send("There is no removable greeting recording on the inserted medium.");
                     return false;
                 }
 
@@ -1557,18 +1679,18 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     private bool EraseMessages(ICharacter character, StringStack ss)
     {
-        if (Tape == null)
-        {
-            character.Send("There is no tape inserted.");
+		if (Medium == null)
+		{
+			character.Send("There is no compatible medium inserted.");
             return false;
         }
 
         string target = ss.PopSpeech().ToLowerInvariant();
-        if (target.EqualTo("all"))
-        {
-            foreach (StoredAudioRecording? message in MessageRecordings.ToList())
-            {
-                Tape.DeleteRecording(message.Name);
+		if (target.EqualTo("all"))
+		{
+			foreach (StoredAudioRecording? message in MessageRecordings.ToList())
+			{
+				Medium.DeleteRecording(message.Name, out _);
             }
 
             character.Send($"You erase all stored messages from {Parent.HowSeen(character)}.");
@@ -1582,7 +1704,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         }
 
         StoredAudioRecording? recording = MessageRecordings.ElementAtOrDefault(index - 1);
-        if (recording == null || !Tape.DeleteRecording(recording.Name))
+		if (recording == null || !Medium.DeleteRecording(recording.Name, out _))
         {
             character.Send("There is no message with that index.");
             return false;
@@ -1613,41 +1735,43 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         }
     }
 
-    public IEnumerable<IGameItem> Contents => _tapeItem == null ? [] : [_tapeItem];
+	public IEnumerable<IGameItem> Contents => _mediumItem == null ? [] : [_mediumItem];
     public string ContentsPreposition => MessagesPreposition;
     public bool Transparent => true;
-    public bool CanPut(IGameItem item)
-    {
-        return _tapeItem == null && item.GetItemType<IAudioStorageTape>() != null;
-    }
+	public bool CanPut(IGameItem item)
+	{
+		return _mediumItem == null && item.GetItemType<IMediaStorageMedium>() is { MediaCapabilities: var capabilities } &&
+		       (capabilities & MediaCapabilities.Audio) != MediaCapabilities.None;
+	}
 
     public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
-        _tapeItem = item;
+		_mediumItem = item;
         item.ContainedIn = Parent;
         Changed = true;
     }
 
     public WhyCannotPutReason WhyCannotPut(IGameItem item)
     {
-        if (_tapeItem != null)
+		if (_mediumItem != null)
         {
             return WhyCannotPutReason.ContainerFull;
         }
 
-        return item.GetItemType<IAudioStorageTape>() == null
+		return item.GetItemType<IMediaStorageMedium>() is not { MediaCapabilities: var capabilities } ||
+		       (capabilities & MediaCapabilities.Audio) == MediaCapabilities.None
             ? WhyCannotPutReason.NotCorrectItemType
             : WhyCannotPutReason.NotContainer;
     }
 
     public bool CanTake(ICharacter taker, IGameItem item, int quantity)
     {
-        return _tapeItem == item && item.CanGet(quantity).AsBool();
+		return _mediumItem == item && item.CanGet(quantity).AsBool();
     }
 
     public IGameItem Take(ICharacter taker, IGameItem item, int quantity)
     {
-        _tapeItem = null;
+		_mediumItem = null;
         item.ContainedIn = null;
         Changed = true;
         return item;
@@ -1655,35 +1779,35 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public WhyCannotGetContainerReason WhyCannotTake(ICharacter taker, IGameItem item)
     {
-        return _tapeItem != item ? WhyCannotGetContainerReason.NotContained : WhyCannotGetContainerReason.NotContainer;
+		return _mediumItem != item ? WhyCannotGetContainerReason.NotContained : WhyCannotGetContainerReason.NotContainer;
     }
 
     public int CanPutAmount(IGameItem item)
     {
-        return _tapeItem == null ? 1 : 0;
+		return _mediumItem == null ? 1 : 0;
     }
 
     public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
-        if (_tapeItem == null)
+		if (_mediumItem == null)
         {
             return;
         }
 
-        IGameItem tape = _tapeItem;
-        _tapeItem = null;
-        tape.ContainedIn = null;
-        if (intoContainer != null && intoContainer.CanPut(tape))
-        {
-            intoContainer.Put(emptier, tape);
-        }
-        else if (emptier?.Location != null)
-        {
-            tape.InsertAtSource(emptier);
-        }
-        else
-        {
-            tape.Delete();
+		IGameItem medium = _mediumItem;
+		_mediumItem = null;
+		medium.ContainedIn = null;
+		if (intoContainer != null && intoContainer.CanPut(medium))
+		{
+			intoContainer.Put(emptier, medium);
+		}
+		else if (emptier?.Location != null)
+		{
+			medium.InsertAtSource(emptier);
+		}
+		else
+		{
+			medium.Delete();
         }
 
         Changed = true;
@@ -1691,12 +1815,12 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public override bool Take(IGameItem item)
     {
-        if (_tapeItem != item)
+		if (_mediumItem != item)
         {
             return false;
         }
 
-        _tapeItem = null;
+		_mediumItem = null;
         item.ContainedIn = null;
         Changed = true;
         return true;
@@ -1704,12 +1828,12 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public override bool SwapInPlace(IGameItem existingItem, IGameItem newItem)
     {
-        if (_tapeItem != existingItem || newItem.GetItemType<IAudioStorageTape>() == null)
+		if (_mediumItem != existingItem || !CanPut(newItem))
         {
             return false;
         }
 
-        _tapeItem = newItem;
+		_mediumItem = newItem;
         newItem.ContainedIn = Parent;
         existingItem.ContainedIn = null;
         Changed = true;
@@ -1718,24 +1842,24 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
     {
-        if (_tapeItem != null)
-        {
-            IContainer? newContainer = newItem?.GetItemType<IContainer>();
-            if (newContainer != null && newContainer.CanPut(_tapeItem))
-            {
-                newContainer.Put(null, _tapeItem);
-            }
-            else if (location != null)
-            {
-                _tapeItem.ContainedIn = null;
-                InsertAtParentSpatialLocation(_tapeItem, location);
-            }
-            else
-            {
-                _tapeItem.Delete();
-            }
+		if (_mediumItem != null)
+		{
+			IContainer? newContainer = newItem?.GetItemType<IContainer>();
+			if (newContainer != null && newContainer.CanPut(_mediumItem))
+			{
+				newContainer.Put(null, _mediumItem);
+			}
+			else if (location != null)
+			{
+				_mediumItem.ContainedIn = null;
+				InsertAtParentSpatialLocation(_mediumItem, location);
+			}
+			else
+			{
+				_mediumItem.Delete();
+			}
 
-            _tapeItem = null;
+			_mediumItem = null;
         }
 
         foreach (IConnectable? connectedItem in _connectedItems.Select(x => x.Item2).ToList())

@@ -24,6 +24,12 @@ Crime records retain the raw automatic context for administrator diagnostics. `c
 
 Builder customisation remains data-driven: use legal authority enforcement zones for jurisdiction, property `lawful` settings and authorisations for trespass policy, the murder and grievous-wound static settings for injury thresholds, and law progs for venue, route, item, victim, offender, or circumstance-specific exceptions.
 
+## Video-Derived Witnesses
+
+A powered video camera whose sensor can see the offender at the crime location records a typed reference to the newly created crime. The reference carries no transcript, verdict, or copied legal state; it is durable provenance linking that point in the stream to the authoritative crime record. It remains attached through live monitors, computer recording and file transfer, network feeds, VHS-style physical media, and later playback.
+
+Characters are added to `Crime.WitnessIds` when they actually view that video evidence, not merely because a camera or recorder exists. Ambient monitor viewers must be able to see the display and linkdead player bodies are excluded; opt-in monitors apply only to active watchers who can see it, and a five-second stored still applies only crime references represented by that still interval. Audio-only sinks never add witnesses. Viewing raises the normal `WitnessedCrime` event and witness additions mark the crime dirty for persistence. The offender is never added as their own witness and repeated playback is idempotent.
+
 ## Death Sentences
 
 Death sentences are represented by `PunishmentResult.Execution`. When multiple punishments are combined, the execution flag is preserved alongside fines, custodial sentences, and good-behaviour bonds.

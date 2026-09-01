@@ -136,7 +136,7 @@ public class ToggleSwitchGameItemComponentProto : GameItemComponentProto, ISigna
 			(gameworld, account) => new ToggleSwitchGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Toggle Switch",
 			(proto, gameworld) => new ToggleSwitchGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"ToggleSwitch",
 			$"A {"[switchable]".Colour(Telnet.Yellow)} {SignalComponentUtilities.SignalGeneratorTag} persistent signal input for computer-controlled items",
 			CombinedBuildingHelpText);

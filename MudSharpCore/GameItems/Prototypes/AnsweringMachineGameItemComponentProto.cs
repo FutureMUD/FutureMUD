@@ -98,7 +98,7 @@ public class AnsweringMachineGameItemComponentProto : GameItemComponentProto, IC
             (gameworld, account) => new AnsweringMachineGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("AnsweringMachine",
             (proto, gameworld) => new AnsweringMachineGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "AnsweringMachine",
             $"A daisy-chained {"[telephone]".Colour(Telnet.BoldBlue)} that can play a greeting, record messages to a compatible {"[audio medium]".Colour(Telnet.BoldGreen)}, and expose downstream handsets",
             BuildingHelpText

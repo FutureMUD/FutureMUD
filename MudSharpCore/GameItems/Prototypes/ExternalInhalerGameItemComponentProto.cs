@@ -164,6 +164,6 @@ public class ExternalInhalerGameItemComponentProto : GameItemComponentProto, ICo
     {
         manager.AddBuilderLoader("ExternalInhaler".ToLowerInvariant(), true, (gameworld, account) => new ExternalInhalerGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ExternalInhaler", (proto, gameworld) => new ExternalInhalerGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo("ExternalInhaler", "An inhaler that uses attachable gas canisters.", BuildingHelpText);
+        manager.AddModernTypeHelpInfo("ExternalInhaler", "An inhaler that uses attachable gas canisters.", BuildingHelpText);
     }
 }

@@ -67,7 +67,7 @@ public class ImplantOrganGameItemComponentProto : ImplantBaseGameItemComponentPr
             (gameworld, account) => new ImplantOrganGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ImplantOrgan",
             (proto, gameworld) => new ImplantOrganGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddFuturisticTypeHelpInfo(
             "ImplantOrgan",
             $"A basic {"[implant]".Colour(Telnet.Pink)} that functions as an artificial organ when {"[powered]".Colour(Telnet.Magenta)} and installed",
             BuildingHelpText

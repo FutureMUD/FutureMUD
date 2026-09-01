@@ -150,7 +150,7 @@ public class ComputerHostGameItemComponentProto : PoweredMachineBaseGameItemComp
 			(gameworld, account) => new ComputerHostGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Computer Host",
 			(proto, gameworld) => new ComputerHostGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"Computer Host",
 			$"Makes an item a {"[computer host]".Colour(Telnet.BoldGreen)} {"[powered]".Colour(Telnet.BoldGreen)} runtime owner for files, executables, and processes",
 			CombinedBuildingHelpText);

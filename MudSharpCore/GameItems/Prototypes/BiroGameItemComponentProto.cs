@@ -75,7 +75,7 @@ public class BiroGameItemComponentProto : GameItemComponentProto, IWritingImplem
         manager.AddBuilderLoader("Biro".ToLowerInvariant(), true,
             (gameworld, account) => new BiroGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Biro", (proto, gameworld) => new BiroGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Biro",
             $"Turns an item {"[writing implement]".Colour(Telnet.Yellow)} of type biro pen",
             BuildingHelpText

@@ -103,7 +103,7 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnecta
             (gameworld, account) => new TelephoneGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Telephone",
             (proto, gameworld) => new TelephoneGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Telephone",
             $"Connects an item to a {"[telecommunications grid]".Colour(Telnet.BoldBlue)} and allows ringing, answering and live calls. It can also expose physical telecom connectors.",
             BuildingHelpText

@@ -156,6 +156,6 @@ public class RcsThrusterGameItemComponentProto : GameItemComponentProto, IConnec
 	{
 		manager.AddBuilderLoader("RcsThruster".ToLowerInvariant(), true, (gameworld, account) => new RcsThrusterGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("RcsThruster", (proto, gameworld) => new RcsThrusterGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("RcsThruster", "A wearable connectable zero-gravity propulsion component that consumes gas.", BuildingHelpText);
+		manager.AddFuturisticTypeHelpInfo("RcsThruster", "A wearable connectable zero-gravity propulsion component that consumes gas.", BuildingHelpText);
 	}
 }

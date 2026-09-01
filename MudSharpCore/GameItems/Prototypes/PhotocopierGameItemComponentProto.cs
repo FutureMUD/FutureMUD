@@ -27,7 +27,7 @@ public class PhotocopierGameItemComponentProto : PoweredMachineBaseGameItemCompo
             (gameworld, account) => new PhotocopierGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Photocopier",
             (proto, gameworld) => new PhotocopierGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Photocopier",
             $"A {"[powered]".Colour(Telnet.Magenta)} machine that can copy all the text on a sheet of {"[paper]".Colour(Telnet.Yellow)}",
             BuildingHelpText

@@ -124,7 +124,7 @@ public class PushToTalkMicrophoneGameItemComponentProto : PoweredMachineBaseGame
 			(gameworld, account) => new PushToTalkMicrophoneGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Push To Talk Microphone",
 			(proto, gameworld) => new PushToTalkMicrophoneGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("Push To Talk Microphone",
+		manager.AddModernTypeHelpInfo("Push To Talk Microphone",
 			$"Makes an item a powered {"[push-to-talk microphone]".Colour(Telnet.BoldGreen)} compatible with transmit and transmitwith",
 			$"{BuildingHelpText}{SpecificBuildingHelpText}");
 	}

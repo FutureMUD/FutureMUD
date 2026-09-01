@@ -181,7 +181,7 @@ public class MediaMonitorGameItemComponentProto : PoweredMachineBaseGameItemComp
 			(gameworld, account) => new MediaMonitorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Media Monitor",
 			(proto, gameworld) => new MediaMonitorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("Media Monitor",
+		manager.AddModernTypeHelpInfo("Media Monitor",
 			$"Makes an item a powered {"[media display]".Colour(Telnet.BoldGreen)} sink for camera, deck, and network playback",
 			$"{BuildingHelpText}{SpecificBuildingHelpText}");
 	}

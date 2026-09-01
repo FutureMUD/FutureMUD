@@ -68,7 +68,7 @@ public class ImplantTelephoneGameItemComponentProto : ImplantBaseGameItemCompone
             (gameworld, account) => new ImplantTelephoneGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ImplantTelephone",
             (proto, gameworld) => new ImplantTelephoneGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddFuturisticTypeHelpInfo(
             "ImplantTelephone",
             $"An {"[implant]".Colour(Telnet.Pink)} cellular telephone that is controlled through a {"[neural interface]".Colour(Telnet.Pink)}",
             BuildingHelpText

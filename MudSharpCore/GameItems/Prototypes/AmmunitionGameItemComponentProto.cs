@@ -115,7 +115,7 @@ public class AmmunitionGameItemComponentProto : GameItemComponentProto, IAmmoPro
             (gameworld, account) => new AmmunitionGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Ammunition",
             (proto, gameworld) => new AmmunitionGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Ammunition",
             "Turns an item into a round fired from a gun",
             $"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tammo <ammo>- sets the ammo grade, for example, {"9x19mm Parabellum".Colour(Telnet.Green)}.\n\tbullet <proto> - sets the bullet proto for this round, which will be loaded when fired.\n\tshell <proto> - sets the shell proto for this round, which will be loaded when fired."

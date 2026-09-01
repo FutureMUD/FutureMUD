@@ -15,9 +15,9 @@ public class GameItemComponentManager : IGameItemComponentManager
         _registeredDatabaseLoaders =
             new();
 
-    private readonly List<(string Name, string Blurb, string Help)> _typeHelpInfo = new();
+    private readonly List<GameItemComponentTypeHelpInfo> _typeHelpInfo = new();
 
-    public IEnumerable<(string Name, string Blurb, string Help)> TypeHelpInfo => _typeHelpInfo;
+    public IEnumerable<GameItemComponentTypeHelpInfo> TypeHelpInfo => _typeHelpInfo;
 
     public GameItemComponentManager()
     {
@@ -36,8 +36,31 @@ public class GameItemComponentManager : IGameItemComponentManager
 
     public void AddTypeHelpInfo(string name, string blurb, string help)
     {
-        _typeHelpInfo.Add((name, blurb, help));
+		AddTypeHelpInfo(name, blurb, help, GameItemComponentTypeTechnology.None);
     }
+
+	public void AddModernTypeHelpInfo(string name, string blurb, string help)
+	{
+		AddTypeHelpInfo(name, blurb, help, GameItemComponentTypeTechnology.Modern);
+	}
+
+	public void AddFuturisticTypeHelpInfo(string name, string blurb, string help)
+	{
+		AddTypeHelpInfo(name, blurb, help, GameItemComponentTypeTechnology.Futuristic);
+	}
+
+	private void AddTypeHelpInfo(string name, string blurb, string help,
+		GameItemComponentTypeTechnology technology)
+	{
+		_typeHelpInfo.Add(new GameItemComponentTypeHelpInfo(name, blurb, help, technology));
+	}
+
+	public IEnumerable<GameItemComponentTypeHelpInfo> GetTypeHelpInfo(bool showModern, bool showFuturistic)
+	{
+		return _typeHelpInfo.Where(x =>
+			(showModern || !x.IsModern) &&
+			(showFuturistic || !x.IsFuturistic));
+	}
 
     public void AddBuilderLoader(string name, bool primary,
         Func<IFuturemud, IAccount, IGameItemComponentProto> initialiser)

@@ -70,7 +70,7 @@ public class ProgPowerSupplyGameItemComponentProto : GameItemComponentProto, IPr
         manager.AddDatabaseLoader("ProgPowerSupply",
             (proto, gameworld) => new ProgPowerSupplyGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "ProgPowerSupply",
             $"This item {"[provides power]".Colour(Telnet.BoldMagenta)} with no fuel source so long as switched on by a prog",
             BuildingHelpText

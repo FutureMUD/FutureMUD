@@ -118,7 +118,7 @@ public class FirearmAttachmentGameItemComponentProto : GameItemComponentProto, I
 			(gameworld, account) => new FirearmAttachmentGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("FirearmAttachment",
 			(proto, gameworld) => new FirearmAttachmentGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("FirearmAttachment",
+		manager.AddModernTypeHelpInfo("FirearmAttachment",
 			"Makes an item a modular attachment for modern firearms",
 			BuildingHelpText);
 	}

@@ -107,7 +107,7 @@ public class WashingMachineGameItemComponentProto : GameItemComponentProto, ILiq
         manager.AddDatabaseLoader("WashingMachine",
             (proto, gameworld) => new WashingMachineGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "WashingMachine",
             $"A {"[powered]".Colour(Telnet.Magenta)} machine that is a {"[container]".Colour(Telnet.BoldGreen)} that washes items",
             BuildingHelpText

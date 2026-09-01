@@ -82,7 +82,7 @@ public class PowerSupplyGameItemComponentProto : GameItemComponentProto, IProduc
         manager.AddDatabaseLoader("PowerSupply",
             (proto, gameworld) => new PowerSupplyGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "PowerSupply",
             $"This component {"[supplies power]".Colour(Telnet.BoldMagenta)} to the item via other {"[connectable]".Colour(Telnet.BoldBlue)} components",
             BuildingHelpText

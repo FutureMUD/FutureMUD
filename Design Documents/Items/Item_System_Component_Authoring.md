@@ -201,6 +201,10 @@ Typical registration includes:
 - `AddDatabaseLoader(...)` for boot-time loading from the stored type string
 - `AddTypeHelpInfo(...)` for type listings and builder help
 
+Component registrations must also identify technology-specific builder entries. Use `AddModernTypeHelpInfo(...)` for contemporary industrial, electrical, electronic, computing, firearm, appliance, and medical-device types, and `AddFuturisticTypeHelpInfo(...)` for explicitly science-fictional types such as implants, lasers, zero-gravity hardware, and fictional power sources. Leave general-purpose physical capabilities on `AddTypeHelpInfo(...)` so historical games retain reusable containers, locks, wearables, weapons, and similar composition tools.
+
+The static settings `ShowModernItemComponentTypes` and `ShowFuturisticItemComponentTypes` control whether those tagged registrations appear in `comp types`. Both default to `true`. They are discovery filters only: disabling either setting does not unregister loaders, prevent `comp edit new <type>`, block stored components from loading, or remove direct `comp typehelp <type>` access.
+
 For automation and signal-capable types, use the type-summary text intentionally:
 - signal emitters should usually advertise a coloured `[signal generator]` tag
 - signal-driven sinks should usually advertise a coloured `[signal consumer]` tag

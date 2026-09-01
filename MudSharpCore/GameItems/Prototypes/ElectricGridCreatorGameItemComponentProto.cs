@@ -60,7 +60,7 @@ public class ElectricGridCreatorGameItemComponentProto : GameItemComponentProto
         manager.AddDatabaseLoader("ElectricGridCreator",
             (proto, gameworld) => new ElectricGridCreatorGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "ElectricGridCreator",
             $"When put in a room, creates an {"[electric grid]".Colour(Telnet.BoldOrange)}",
             BuildingHelpText

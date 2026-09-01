@@ -70,7 +70,7 @@ public class CellularPhoneGameItemComponentProto : GameItemComponentProto, ITele
             (gameworld, account) => new CellularPhoneGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("CellularPhone",
             (proto, gameworld) => new CellularPhoneGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "CellularPhone",
             $"A {"[powered]".Colour(Telnet.BoldMagenta)} telephone that relies on a {"[cell phone tower]".Colour(Telnet.BoldGreen)} in the same zone",
             BuildingHelpText

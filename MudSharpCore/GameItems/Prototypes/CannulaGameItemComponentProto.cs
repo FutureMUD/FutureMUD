@@ -91,7 +91,7 @@ public class CannulaGameItemComponentProto : GameItemComponentProto, ICannulaPro
             (gameworld, account) => new CannulaGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Cannula", (proto, gameworld) => new CannulaGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Cannula",
             $"An externally {"[connectable]".Colour(Telnet.BoldBlue)} {"[implant]".Colour(Telnet.Pink)} allowing access to the blood stream",
             BuildingHelpText

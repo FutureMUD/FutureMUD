@@ -58,7 +58,7 @@ public class ImplantRefrigeratorGameItemComponentProto : ImplantContainerGameIte
 			(gameworld, account) => new ImplantRefrigeratorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("ImplantRefrigerator",
 			(proto, gameworld) => new ImplantRefrigeratorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("ImplantRefrigerator",
+		manager.AddFuturisticTypeHelpInfo("ImplantRefrigerator",
 			$"An implantable {"[container]".Colour(Telnet.BoldGreen)} with refrigeration mechanics", BuildingHelpText);
 	}
 

@@ -112,7 +112,7 @@ public class MediaSpeakerGameItemComponentProto : PoweredMachineBaseGameItemComp
 			(gameworld, account) => new MediaSpeakerGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Media Speaker",
 			(proto, gameworld) => new MediaSpeakerGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("Media Speaker",
+		manager.AddModernTypeHelpInfo("Media Speaker",
 			$"Makes an item a powered {"[media speaker]".Colour(Telnet.BoldGreen)} for live and recorded audio",
 			$"{BuildingHelpText}{SpecificBuildingHelpText}");
 	}

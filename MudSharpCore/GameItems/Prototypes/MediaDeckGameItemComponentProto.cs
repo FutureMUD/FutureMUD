@@ -206,7 +206,7 @@ public class MediaDeckGameItemComponentProto : PoweredMachineBaseGameItemCompone
 			(gameworld, account) => new MediaDeckGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Media Deck",
 			(proto, gameworld) => new MediaDeckGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("Media Deck",
+		manager.AddModernTypeHelpInfo("Media Deck",
 			$"Makes an item a powered {"[media deck]".Colour(Telnet.BoldGreen)} that records to and plays from a compatible physical medium",
 			$"{BuildingHelpText}{SpecificBuildingHelpText}");
 	}

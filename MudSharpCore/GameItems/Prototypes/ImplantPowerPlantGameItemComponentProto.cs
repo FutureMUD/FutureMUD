@@ -88,7 +88,7 @@ public class ImplantPowerPlantGameItemComponentProto : GameItemComponentProto, I
             (gameworld, account) => new ImplantPowerPlantGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ImplantPowerPlant",
             (proto, gameworld) => new ImplantPowerPlantGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddFuturisticTypeHelpInfo(
             "ImplantPowerPlant",
             $"An {"[implant]".Colour(Telnet.Pink)} that if {"[powered]".Colour(Telnet.Magenta)} will itself {"[provide power]".Colour(Telnet.BoldMagenta)} for other implants in the body",
             BuildingHelpText

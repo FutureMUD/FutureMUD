@@ -84,7 +84,7 @@ public class FlareAmmunitionGameItemComponentProto : AmmunitionGameItemComponent
             (gameworld, account) => new FlareAmmunitionGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("FlareAmmunition",
             (proto, gameworld) => new FlareAmmunitionGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "FlareAmmunition",
             $"This is a special type of ammunition fired from flare guns",
             BuildingHelpText

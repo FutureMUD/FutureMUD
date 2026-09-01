@@ -133,7 +133,7 @@ public class BatteryPoweredGameItemComponentProto : GameItemComponentProto, ICon
         manager.AddDatabaseLoader("BatteryPowered",
             (proto, gameworld) => new BatteryPoweredGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "BatteryPowered",
             $"A {"[container]".Colour(Telnet.BoldGreen)} that {"[provides power]".Colour(Telnet.BoldMagenta)} to other components via inserted batteries and can expose a physical connector",
             BuildingHelpText

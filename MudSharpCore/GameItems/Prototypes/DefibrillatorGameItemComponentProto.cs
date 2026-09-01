@@ -72,7 +72,7 @@ public class DefibrillatorGameItemComponentProto : GameItemComponentProto, IDefi
         manager.AddDatabaseLoader("Defibrillator",
             (proto, gameworld) => new DefibrillatorGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Defibrillator",
             $"Makes an item a defibrillator that when {"[powered]".Colour(Telnet.Magenta)} can defibrillate arrythmic hearts",
             BuildingHelpText

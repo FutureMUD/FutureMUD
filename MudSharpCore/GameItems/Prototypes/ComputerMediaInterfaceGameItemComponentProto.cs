@@ -158,7 +158,7 @@ public class ComputerMediaInterfaceGameItemComponentProto : PoweredMachineBaseGa
 			(gameworld, account) => new ComputerMediaInterfaceGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Computer Media Interface",
 			(proto, gameworld) => new ComputerMediaInterfaceGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("Computer Media Interface",
+		manager.AddModernTypeHelpInfo("Computer Media Interface",
 			$"Makes an item a powered {"[computer media interface]".Colour(Telnet.BoldGreen)} gateway for a sibling computer host",
 			$"{BuildingHelpText}{SpecificBuildingHelpText}");
 	}

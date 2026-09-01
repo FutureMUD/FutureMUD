@@ -119,7 +119,7 @@ public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComp
         manager.AddDatabaseLoader("InternalMagazineGun",
             (proto, gameworld) => new InternalMagazineGunGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "InternalMagazineGun",
             $"Makes an item a {"[ranged weapon]".Colour(Telnet.BoldCyan)} with internal-magazine semi-automatic gun mechanics",
             $@"{BuildingHelpText}

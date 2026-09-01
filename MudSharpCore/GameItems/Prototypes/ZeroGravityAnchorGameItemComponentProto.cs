@@ -54,6 +54,6 @@ public class ZeroGravityAnchorGameItemComponentProto : GameItemComponentProto, I
 	{
 		manager.AddBuilderLoader("ZeroGravityAnchor".ToLowerInvariant(), true, (gameworld, account) => new ZeroGravityAnchorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("ZeroGravityAnchor", (proto, gameworld) => new ZeroGravityAnchorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("ZeroGravityAnchor", "A fixed item usable as a zero-gravity push-off anchor.", BuildingHelpText);
+		manager.AddFuturisticTypeHelpInfo("ZeroGravityAnchor", "A fixed item usable as a zero-gravity push-off anchor.", BuildingHelpText);
 	}
 }

@@ -132,6 +132,6 @@ public class IntegratedInhalerGameItemComponentProto : GameItemComponentProto, I
     {
         manager.AddBuilderLoader("IntegratedInhaler".ToLowerInvariant(), true, (gameworld, account) => new IntegratedInhalerGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("IntegratedInhaler", (proto, gameworld) => new IntegratedInhalerGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo("IntegratedInhaler", "An inhaler with built in gas store.", BuildingHelpText);
+        manager.AddModernTypeHelpInfo("IntegratedInhaler", "An inhaler with built in gas store.", BuildingHelpText);
     }
 }

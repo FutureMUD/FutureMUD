@@ -84,7 +84,7 @@ public class DripGameItemComponentProto : GameItemComponentProto, IDripPrototype
             (gameworld, account) => new DripGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Drip", (proto, gameworld) => new DripGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Drip",
             $"Item is {"[connectable]".Colour(Telnet.BoldBlue)} between a cannula and an IV bag to rate limit infusion",
             BuildingHelpText

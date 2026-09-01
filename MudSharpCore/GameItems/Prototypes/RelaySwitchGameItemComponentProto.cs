@@ -161,7 +161,7 @@ public class RelaySwitchGameItemComponentProto : ProgPowerSupplyGameItemComponen
 			(gameworld, account) => new RelaySwitchGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Relay Switch",
 			(proto, gameworld) => new RelaySwitchGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"RelaySwitch",
 			$"{"[provides power]".Colour(Telnet.BoldMagenta)} {SignalComponentUtilities.SignalConsumerTag} that closes or opens a power feed from a signal source",
 			BuildingHelpText);

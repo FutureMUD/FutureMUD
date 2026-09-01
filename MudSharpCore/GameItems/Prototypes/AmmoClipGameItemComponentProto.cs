@@ -76,7 +76,7 @@ public class AmmoClipGameItemComponentProto : GameItemComponentProto, IAmmoClipP
             (gameworld, account) => new AmmoClipGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("AmmoClip",
             (proto, gameworld) => new AmmoClipGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "AmmoClip",
             $"A type of {"[container]".Colour(Telnet.BoldGreen)} used to store rounds for guns",
             $"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tcapacity <number> - sets the maximum number of rounds in this ammo clip.\n\ttype <type> - sets the form factor of the ammo clip to the specified type, for example {"Glock 9mm".Colour(Telnet.Green)}. This must be matched by the firearm that uses it.\n\tammo <ammo>- sets the ammo grade that this ammo clip uses, for example, {"9x19mm Parabellum".Colour(Telnet.Green)}."

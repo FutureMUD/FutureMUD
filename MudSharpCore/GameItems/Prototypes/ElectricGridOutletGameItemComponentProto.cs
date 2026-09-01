@@ -84,7 +84,7 @@ public class ElectricGridOutletGameItemComponentProto : GameItemComponentProto, 
             (gameworld, account) => new ElectricGridOutletGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ElectricGridOutlet",
             (proto, gameworld) => new ElectricGridOutletGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "ElectricGridOutlet",
             $"Item {"[provides power]".Colour(Telnet.BoldMagenta)} to connected {"[connectable]".Colour(Telnet.BoldYellow)} items from an {"[electric grid]".Colour(Telnet.BoldOrange)}",
             BuildingHelpText

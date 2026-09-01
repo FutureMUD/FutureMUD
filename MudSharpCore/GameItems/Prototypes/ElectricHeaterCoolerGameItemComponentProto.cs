@@ -52,7 +52,7 @@ public class ElectricHeaterCoolerGameItemComponentProto : SwitchableThermalSourc
             (gameworld, account) => new ElectricHeaterCoolerGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ElectricHeaterCooler",
             (proto, gameworld) => new ElectricHeaterCoolerGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "ElectricHeaterCooler",
             $"A powered thermal source that alters indoor room temperature and nearby targets",
             BuildingHelpText

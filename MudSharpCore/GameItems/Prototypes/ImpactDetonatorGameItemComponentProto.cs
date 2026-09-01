@@ -61,7 +61,7 @@ public class ImpactDetonatorGameItemComponentProto : GameItemComponentProto, IIm
 			(gameworld, account) => new ImpactDetonatorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("ImpactDetonator",
 			(proto, gameworld) => new ImpactDetonatorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("ImpactDetonator",
+		manager.AddModernTypeHelpInfo("ImpactDetonator",
 			"Detonates a sibling Bomb component after this item resolves as a fired ammunition projectile",
 			BuildingHelpText);
 	}

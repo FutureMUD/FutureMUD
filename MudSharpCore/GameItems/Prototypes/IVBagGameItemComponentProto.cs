@@ -109,7 +109,7 @@ public class IVBagGameItemComponentProto : GameItemComponentProto, ILiquidContai
         manager.AddBuilderLoader("IVBag".ToLowerInvariant(), true,
             (gameworld, account) => new IVBagGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("IVBag", (proto, gameworld) => new IVBagGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "IVBag",
             $"A type of {"[liquid container]".Colour(Telnet.BoldGreen)} that is {"[connectable]".Colour(Telnet.BoldBlue)} to a cannula to drain/supply blood",
             BuildingHelpText

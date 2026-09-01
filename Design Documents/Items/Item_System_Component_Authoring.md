@@ -554,6 +554,15 @@ When adding similar capabilities in future:
 3. Keep activation-specific state and persistence on the runtime component.
 4. Explicitly decide how morph, destruction, load-time finalisation, and deep-copy flows should treat inserted media or fuel.
 
+## Electronic Access-Control Components
+
+- `keypad` adds a powered numeric reader. Configure `code`, `value`, `duration`, optional prototype-default `selftarget`, normal powered-machine settings, and `mountpower` for host power.
+- `biometricscanner` adds a powered identity reader. Configure `shape <bodypart shape>`, signal settings, and optional self-target. Shape matching includes preserved subparts, so a severed hand may satisfy a thumb scanner.
+- `keycard` supplies card storage; `code add|remove|clear` defines optional initial codes. Runtime writers and progs can later change each copy independently.
+- `keycardscanner` accepts cards when any stored code matches. Its `code add|remove|clear` settings are copy defaults and it shares the reader signal, mount-power, and self-target settings.
+- `keycardwriter` is a powered machine used by the staged `electrical ... writecard` workflow. It does not emit an access signal.
+- For a built-in reader, put the reader and lock on one item and use `electrical <reader> selftarget <lock component>` on the live item. For multiple credential methods, mount separate readers and combine their ordinary `signal` endpoints through a microcontroller before the electronic lock.
+
 ## Refrigeration, Drying, and Portable Power Components
 
 - `refrigerator` inherits standard container settings. Use `capacity`, `maxsize`, `transparent`, and `closable`, then configure `wattage`, `poweredclosed`, `poweredopen`, `unpoweredclosed`, and `unpoweredopen`. Rates are percentages of normal elapsed time. An unclosable refrigerator is always open and therefore uses an open rate.

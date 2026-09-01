@@ -18,6 +18,7 @@ using MudSharp.Framework.Scheduling;
 using MudSharp.Framework.Units;
 using MudSharp.Form.Shape;
 using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Components;
@@ -101,7 +102,7 @@ return @togglevalue");
 				"electroniclock", "electronicdoor", "alarmsiren", "automationmounthost", "signalcable",
 				"lightsensor", "rainsensor", "temperaturesensor", "keypad", "relayswitch",
 				"filesignalgenerator",
-				"automationhousing"
+				"automationhousing", "biometricscanner", "keycard", "keycardscanner", "keycardwriter"
 			},
 			primaryTypes);
 		CollectionAssert.IsSubsetOf(
@@ -111,7 +112,7 @@ return @togglevalue");
 				"ElectronicLock", "ElectronicDoor", "AlarmSiren", "Automation Mount Host", "Signal Cable Segment",
 				"LightSensor", "RainSensor", "TemperatureSensor", "Keypad", "RelaySwitch",
 				"FileSignalGenerator",
-				"Automation Housing"
+				"Automation Housing", "BiometricScanner", "Keycard", "KeycardScanner", "KeycardWriter"
 			},
 			helpTypes);
 	}
@@ -1096,6 +1097,202 @@ return @togglevalue");
 	}
 
 	[TestMethod]
+	public void Keypad_RuntimeCodeOverride_ChangesAuthenticationAndPersists()
+	{
+		var gameworld = CreateGameworld();
+		var item = CreateBasicItem(gameworld.Object, 5051L, "Access Keypad");
+		var keypad = new KeypadGameItemComponent(CreateKeypadProto(gameworld.Object), item.Object, true)
+		{
+			SwitchedOn = true
+		};
+		keypad.OnPowerCutIn();
+
+		Assert.IsTrue(keypad.TrySetCode("5678", out var error), error);
+		Assert.IsFalse(keypad.TryCode("1234", out _));
+		Assert.IsTrue(keypad.TryCode("5678", out error), error);
+
+		var xml = (string)typeof(GameItemComponent)
+			.GetMethod("SaveToXml", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(keypad, [])!;
+		StringAssert.Contains(xml, "5678");
+	}
+
+	[TestMethod]
+	public void Keypad_SelfTargetPulse_UnlocksThenRelocksSiblingLock()
+	{
+		var gameworld = CreateGameworld();
+		var item = CreateBasicItem(gameworld.Object, 5057L, "Embedded Keypad Lock");
+		var lockPrototype = new Mock<ILockPrototype>();
+		lockPrototype.SetupGet(x => x.Id).Returns(700L);
+		lockPrototype.SetupGet(x => x.Name).Returns("Built-In Lock");
+		var targetLock = new Mock<ILock>();
+		targetLock.SetupGet(x => x.Parent).Returns(item.Object);
+		targetLock.SetupGet(x => x.Prototype).Returns(lockPrototype.Object);
+		item.Setup(x => x.GetItemTypes<ILock>()).Returns([targetLock.Object]);
+		var keypad = new KeypadGameItemComponent(CreateKeypadProto(gameworld.Object), item.Object, true)
+		{
+			SwitchedOn = true
+		};
+		Assert.IsTrue(keypad.TrySetSelfTarget(targetLock.Object, out var error), error);
+		keypad.OnPowerCutIn();
+
+		Assert.IsTrue(keypad.TryCode("1234", out error), error);
+		targetLock.Verify(x => x.SetLocked(false, true), Times.AtLeastOnce);
+		typeof(AccessControlReaderGameItemComponent)
+			.GetField("_activeUntil", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(keypad, DateTime.UtcNow.AddSeconds(-1));
+		typeof(AccessControlReaderGameItemComponent)
+			.GetMethod("HeartbeatTick", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(keypad, []);
+
+		Assert.AreEqual(0.0, keypad.CurrentValue, 0.0001);
+		targetLock.Verify(x => x.SetLocked(true, true), Times.AtLeastOnce);
+	}
+
+	[TestMethod]
+	public void KeycardAndReader_MultipleCaseSensitiveCodes_MatchAndRevoke()
+	{
+		var gameworld = CreateGameworld();
+		var cardItem = CreateBasicItem(gameworld.Object, 5052L, "Keycard");
+		var readerItem = CreateBasicItem(gameworld.Object, 5053L, "Reader");
+		var card = new KeycardGameItemComponent(CreateKeycardProto(gameworld.Object), cardItem.Object, true);
+		var reader = new KeycardScannerGameItemComponent(CreateKeycardScannerProto(gameworld.Object), readerItem.Object,
+			true)
+		{
+			SwitchedOn = true
+		};
+		reader.OnPowerCutIn();
+
+		Assert.IsTrue(card.AddCode("Zone-A", out var error), error);
+		Assert.IsTrue(card.AddCode("Zone-B", out error), error);
+		Assert.IsTrue(reader.AddAcceptedCode("Zone-B", out error), error);
+		Assert.IsFalse(reader.AcceptsCode("zone-b"));
+		Assert.IsTrue(reader.TryCard(card, out error), error);
+		Assert.AreEqual(1.0, reader.CurrentValue, 0.0001);
+		Assert.IsTrue(reader.RemoveAcceptedCode("Zone-B", out error), error);
+		Assert.IsFalse(reader.TryCard(card, out _));
+	}
+
+	[TestMethod]
+	public void Keycard_EnforcesUniquePrintableSixtyFourCodeLimit()
+	{
+		var gameworld = CreateGameworld();
+		var item = CreateBasicItem(gameworld.Object, 5054L, "Keycard");
+		var card = new KeycardGameItemComponent(CreateKeycardProto(gameworld.Object), item.Object, true);
+
+		for (var i = 0; i < 64; i++)
+		{
+			Assert.IsTrue(card.AddCode($"Zone-{i:N0}", out var error), error);
+		}
+		Assert.IsFalse(card.AddCode("Zone-64", out _));
+		Assert.IsFalse(card.AddCode("Zone-0", out _));
+		Assert.IsFalse(card.AddCode("bad\ncode", out _));
+		Assert.IsFalse(card.AddCode(new string('x', 65), out _));
+	}
+
+	[TestMethod]
+	public void KeycardWriter_ExposesMountContractAndRequiresLivePower()
+	{
+		var gameworld = CreateGameworld();
+		var item = CreateBasicItem(gameworld.Object, 5059L, "Keycard Writer");
+		var writer = new KeycardWriterGameItemComponent(CreateKeycardWriterProto(gameworld.Object), item.Object, true);
+
+		Assert.AreEqual("KeycardWriter", writer.MountType);
+		Assert.AreEqual(1, writer.FreeConnections.Count());
+		Assert.IsFalse(writer.CanWrite(out _));
+		writer.SwitchedOn = true;
+		Assert.IsFalse(writer.CanWrite(out _));
+		writer.OnPowerCutIn();
+		Assert.IsTrue(writer.CanWrite(out var error), error);
+	}
+
+	[TestMethod]
+	public void BiometricScanner_HeldSeveredPartContainingShape_UsesOriginalIdentity()
+	{
+		var gameworld = CreateGameworld();
+		var shape = new Mock<IBodypartShape>();
+		shape.SetupGet(x => x.Id).Returns(88L);
+		shape.SetupGet(x => x.Name).Returns("thumb");
+		var shapes = new Mock<IUneditableAll<IBodypartShape>>();
+		shapes.Setup(x => x.Get(88L)).Returns(shape.Object);
+		gameworld.SetupGet(x => x.BodypartShapes).Returns(shapes.Object);
+		var scannerItem = CreateBasicItem(gameworld.Object, 5055L, "Biometric Scanner");
+		var scanner = new BiometricScannerGameItemComponent(CreateBiometricScannerProto(gameworld.Object, 88L),
+			scannerItem.Object, true)
+		{
+			SwitchedOn = true
+		};
+		scanner.OnPowerCutIn();
+		var enrolled = new Mock<ICharacter>();
+		enrolled.SetupGet(x => x.Id).Returns(42L);
+		enrolled.SetupGet(x => x.Name).Returns("Test Person");
+		Assert.IsTrue(scanner.AddAuthorisedPerson(enrolled.Object, out var error), error);
+
+		var preservedPart = new Mock<IBodypart>();
+		preservedPart.SetupGet(x => x.Shape).Returns(shape.Object);
+		var severed = new Mock<ISeveredBodypart>();
+		severed.SetupGet(x => x.OriginalCharacterId).Returns(42L);
+		severed.SetupGet(x => x.Parts).Returns([preservedPart.Object]);
+		var severedItem = CreateBasicItem(gameworld.Object, 5056L, "Severed Hand");
+		severedItem.Setup(x => x.GetItemType<ISeveredBodypart>()).Returns(severed.Object);
+
+		Assert.IsTrue(scanner.CanScan(Mock.Of<ICharacter>(), severedItem.Object, out var identityId, out error), error);
+		Assert.AreEqual(42L, identityId);
+		Assert.AreEqual(1.0, scanner.CurrentValue, 0.0001);
+		Assert.IsTrue(scanner.RemoveAuthorisedPerson(42L, out error), error);
+		Assert.IsFalse(scanner.CanScan(Mock.Of<ICharacter>(), severedItem.Object, out _, out _));
+	}
+
+	[TestMethod]
+	public void AccessControlFutureProgFunctions_RegisterCompleteMetadata()
+	{
+		var expected = new[]
+		{
+			"keypadcode", "setkeypadcode", "biometricadd", "biometricremove", "biometricclear",
+			"biometricallows", "biometricids", "keycardaddcode", "keycardremovecode", "keycardclearcodes",
+			"keycardhascode", "keycardcodes", "keycardreaderaddcode", "keycardreaderremovecode",
+			"keycardreaderclearcodes", "keycardreaderacceptscode", "keycardreadercodes"
+		};
+		var infos = FutureProg.GetFunctionCompilerInformations()
+			.Where(x => expected.Contains(x.FunctionName))
+			.ToList();
+
+		CollectionAssert.AreEquivalent(expected, infos.Select(x => x.FunctionName).ToArray());
+		Assert.IsTrue(infos.All(x => x.FunctionName.Length > 0 && x.Category == "Items" &&
+		                             x.ParameterNames.Count() == x.Parameters.Count() &&
+		                             x.ParameterHelp.Count() == x.Parameters.Count()));
+	}
+
+	[TestMethod]
+	public void AccessControlFutureProgFunctions_ExecuteMutationAndChangedStateSemantics()
+	{
+		var gameworld = CreateGameworld();
+		var item = CreateBasicItem(gameworld.Object, 5058L, "Access Keypad");
+		var keypad = new KeypadGameItemComponent(CreateKeypadProto(gameworld.Object), item.Object, true);
+		item.Setup(x => x.GetItemType<IKeypad>()).Returns(keypad);
+		var setInfo = FutureProg.GetFunctionCompilerInformations().Single(x =>
+			x.FunctionName == "setkeypadcode" && x.Parameters.SequenceEqual(
+				[ProgVariableTypes.Item, ProgVariableTypes.Text], FutureProgVariableComparer.Instance));
+		var setFunction = setInfo.CompilerFunction(
+			[new ConstantFunction(item.Object, ProgVariableTypes.Item), new ConstantFunction(new TextVariable("2468"))],
+			gameworld.Object);
+
+		Assert.AreEqual(StatementResult.Normal, setFunction.Execute(Mock.Of<IVariableSpace>()));
+		Assert.AreEqual(true, setFunction.Result.GetObject);
+		Assert.AreEqual("2468", keypad.Code);
+		Assert.AreEqual(StatementResult.Normal, setFunction.Execute(Mock.Of<IVariableSpace>()));
+		Assert.AreEqual(false, setFunction.Result.GetObject);
+
+		var getInfo = FutureProg.GetFunctionCompilerInformations().Single(x =>
+			x.FunctionName == "keypadcode" && x.Parameters.SequenceEqual(
+				[ProgVariableTypes.Item], FutureProgVariableComparer.Instance));
+		var getFunction = getInfo.CompilerFunction([new ConstantFunction(item.Object, ProgVariableTypes.Item)],
+			gameworld.Object);
+		Assert.AreEqual(StatementResult.Normal, getFunction.Execute(Mock.Of<IVariableSpace>()));
+		Assert.AreEqual("2468", getFunction.Result.GetObject);
+	}
+
+	[TestMethod]
 	public void RelaySwitch_ReceiveSignal_PowersConnectedConsumersWhenClosed()
 	{
 		var gameworld = CreateGameworld();
@@ -1661,6 +1858,7 @@ return @togglevalue");
 	{
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(id);
+		item.SetupGet(x => x.GetObject).Returns(item.Object);
 		item.SetupGet(x => x.Name).Returns(name);
 		item.SetupGet(x => x.Gameworld).Returns(gameworld);
 		item.SetupGet(x => x.TrueLocations).Returns(trueLocations);
@@ -1988,6 +2186,135 @@ return @togglevalue");
 			]);
 	}
 
+	private static KeycardGameItemComponentProto CreateKeycardProto(IFuturemud gameworld)
+	{
+		return (KeycardGameItemComponentProto)typeof(KeycardGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 4066L,
+					Name = "Keycard",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = new XElement("Definition", new XElement("Codes")).ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static KeycardScannerGameItemComponentProto CreateKeycardScannerProto(IFuturemud gameworld)
+	{
+		var definition = new XElement("Definition",
+			new XElement("Wattage", 35.0),
+			new XElement("WattageDiscount", 0.0),
+			new XElement("Switchable", true),
+			new XElement("UseMountHostPowerSource", true),
+			new XElement("PowerOnEmote", new XCData("@ hum|hums briefly as it powers on")),
+			new XElement("PowerOffEmote", new XCData("@ shudder|shudders as it powers down.")),
+			new XElement("OnPoweredProg", 0),
+			new XElement("OnUnpoweredProg", 0),
+			new XElement("SignalValue", 1.0),
+			new XElement("SignalDurationSeconds", 1.0),
+			new XElement("Codes"));
+
+		return (KeycardScannerGameItemComponentProto)typeof(KeycardScannerGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 4067L,
+					Name = "Keycard Scanner",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static BiometricScannerGameItemComponentProto CreateBiometricScannerProto(IFuturemud gameworld,
+		long bodypartShapeId)
+	{
+		var definition = new XElement("Definition",
+			new XElement("Wattage", 35.0),
+			new XElement("WattageDiscount", 0.0),
+			new XElement("Switchable", true),
+			new XElement("UseMountHostPowerSource", true),
+			new XElement("PowerOnEmote", new XCData("@ hum|hums briefly as it powers on")),
+			new XElement("PowerOffEmote", new XCData("@ shudder|shudders as it powers down.")),
+			new XElement("OnPoweredProg", 0),
+			new XElement("OnUnpoweredProg", 0),
+			new XElement("SignalValue", 1.0),
+			new XElement("SignalDurationSeconds", 1.0),
+			new XElement("BodypartShape", bodypartShapeId));
+
+		return (BiometricScannerGameItemComponentProto)typeof(BiometricScannerGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 4068L,
+					Name = "Biometric Scanner",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static KeycardWriterGameItemComponentProto CreateKeycardWriterProto(IFuturemud gameworld)
+	{
+		var definition = new XElement("Definition",
+			new XElement("Wattage", 50.0),
+			new XElement("WattageDiscount", 0.0),
+			new XElement("Switchable", true),
+			new XElement("UseMountHostPowerSource", true),
+			new XElement("PowerOnEmote", new XCData("@ hum|hums briefly as it powers on")),
+			new XElement("PowerOffEmote", new XCData("@ shudder|shudders as it powers down.")),
+			new XElement("OnPoweredProg", 0),
+			new XElement("OnUnpoweredProg", 0));
+
+		return (KeycardWriterGameItemComponentProto)typeof(KeycardWriterGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 4069L,
+					Name = "Keycard Writer",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
 	private static RelaySwitchGameItemComponentProto CreateRelaySwitchProto(IFuturemud gameworld)
 	{
 		var definition = new XElement("Definition",
@@ -2160,5 +2487,21 @@ return @togglevalue");
 			BindingFlags.Instance | BindingFlags.NonPublic);
 		var contents = (List<IGameItem>)field!.GetValue(housing)!;
 		contents.AddRange(items);
+	}
+
+	private sealed class ConstantFunction : IFunction
+	{
+		public ConstantFunction(IProgVariable result, ProgVariableTypes? returnType = null)
+		{
+			Result = result;
+			ReturnType = returnType ?? result.Type;
+		}
+
+		public IProgVariable Result { get; private set; }
+		public ProgVariableTypes ReturnType { get; }
+		public string ErrorMessage => string.Empty;
+		public StatementResult ExpectedResult => StatementResult.Normal;
+		public StatementResult Execute(IVariableSpace variables) => StatementResult.Normal;
+		public bool IsReturnOrContainsReturnOnAllBranches() => false;
 	}
 }

@@ -22,6 +22,7 @@ Current behavioural notes:
 - live source and component targeting should use normal parent-item keywords, with `item@component` only when the component itself must be named explicitly
 - duplicate nearby items should be disambiguated with ordinary numeric item targeting such as `2.sensor`, not raw component ids
 - `electrical <item>` should now be the primary debugging surface for automation chains, showing controller inputs, cable mirror routes, nearby routed cable segments, current values, machine state, and whether links are currently resolved or broken
+- access-control acceptance uses `access` for credentials and `electrical` for servicing. Exercise an installed reader bound to an electronic lock and an embedded self-target reader on both a door and a lockable container. Confirm correct, incorrect, expired, unpowered, and post-restart behavior; living and severed-part biometrics; multi-code write/revoke; administrator-instant and genuine player-staged configuration; and microcontroller combination when several readers share one lock.
 - use an ordinary non-immwalk mover for motion-sensor testing; administrators with `IImmwalkEffect` no longer emit the witnessed movement events that motion sensors consume
 - `Directory` should now be the primary debugging surface for reachable hosts, service advertisement, routes, gateways, and active VPN tunnels
 - `SysMon` should now be the primary debugging surface for local host power, processes, adapters, hosted VPNs, and active session tunnel state

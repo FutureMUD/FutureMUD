@@ -12,6 +12,7 @@ namespace MudSharp.GameItems.Interfaces
 
         double DecayPoints { get; set; }
 
+        // IButcherable.Parts exposes every preserved subpart for anatomy-based consumers.
         IBodypart RootPart { get; }
         double EatenWeight { get; set; }
         double RemainingEdibleWeight { get; }

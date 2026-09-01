@@ -166,6 +166,35 @@ public interface IAutomationMountHostPrototype : IExclusiveGameItemComponentProt
 {
 }
 
+public interface IAccessControlReaderPrototype : IExclusiveGameItemComponentPrototype<IAccessControlReader>,
+	ISignalSourceComponentPrototype, IAutomationMountablePrototype, IConnectablePrototype
+{
+}
+
+public interface IKeypadPrototype : IExclusiveGameItemComponentPrototype<IKeypad>, IAccessControlReaderPrototype,
+	ISelectablePrototype
+{
+}
+
+public interface IBiometricScannerPrototype : IExclusiveGameItemComponentPrototype<IBiometricScanner>,
+	IAccessControlReaderPrototype
+{
+}
+
+public interface IKeycardPrototype : IExclusiveGameItemComponentPrototype<IKeycard>
+{
+}
+
+public interface IKeycardScannerPrototype : IExclusiveGameItemComponentPrototype<IKeycardScanner>,
+	IAccessControlReaderPrototype
+{
+}
+
+public interface IKeycardWriterPrototype : IExclusiveGameItemComponentPrototype<IKeycardWriter>, IConsumePowerPrototype,
+	ISwitchablePrototype, IOnOffPrototype, IAutomationMountablePrototype, IConnectablePrototype
+{
+}
+
 public interface IBankPaymentItemPrototype : IExclusiveGameItemComponentPrototype<IBankPaymentItem>
 {
 }

@@ -65,7 +65,7 @@ public class GridPowerSupplyGameItemComponentProto : GameItemComponentProto, IPr
         manager.AddDatabaseLoader("GridPowerSupply",
             (proto, gameworld) => new GridPowerSupplyGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "GridPowerSupply",
             $"This item {"[provides power]".Colour(Telnet.BoldMagenta)} directly from an {"[electric grid]".Colour(Telnet.BoldOrange)}. Can combine with a {"[connectable]".Colour(Telnet.BoldBlue)} to create a power point",
             BuildingHelpText

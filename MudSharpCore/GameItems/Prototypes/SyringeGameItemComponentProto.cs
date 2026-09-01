@@ -21,7 +21,7 @@ public class SyringeGameItemComponentProto : GameItemComponentProto, ILiquidCont
             (gameworld, account) => new SyringeGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Syringe",
             (proto, gameworld) => new SyringeGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Syringe",
             $"A {"[liquid container]".Colour(Telnet.BoldGreen)} that can be used to {"[inject]".Colour(Telnet.Yellow)} the liquid into someone",
             BuildingHelpText

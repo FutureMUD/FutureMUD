@@ -44,7 +44,7 @@ public class ArtilleryMountGameItemComponentProto : GameItemComponentProto, IArt
 	{
 		manager.AddBuilderLoader("artillerymount", true, (gameworld, account) => new ArtilleryMountGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("ArtilleryMount", (proto, gameworld) => new ArtilleryMountGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("ArtilleryMount", "Makes an item a host for an artillery piece", BuildingHelpText);
+		manager.AddModernTypeHelpInfo("ArtilleryMount", "Makes an item a host for an artillery piece", BuildingHelpText);
 	}
 
 	private const string BuildingHelpText = @"You can use the following options with this component:

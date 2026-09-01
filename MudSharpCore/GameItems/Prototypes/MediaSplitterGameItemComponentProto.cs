@@ -119,7 +119,7 @@ public class MediaSplitterGameItemComponentProto : PoweredMachineBaseGameItemCom
 			(gameworld, account) => new MediaSplitterGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Media Splitter",
 			(proto, gameworld) => new MediaSplitterGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("Media Splitter",
+		manager.AddModernTypeHelpInfo("Media Splitter",
 			$"Makes an item a passive {"[local media splitter]".Colour(Telnet.BoldGreen)} that fans one source out to multiple sinks",
 			$"{BuildingHelpText}{SpecificBuildingHelpText}");
 	}

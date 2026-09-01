@@ -38,6 +38,8 @@ This is the fastest way to verify:
 - the builder-facing type keyword is correct
 - the help text is useful
 
+`comp types` respects the `ShowModernItemComponentTypes` and `ShowFuturisticItemComponentTypes` static settings. Both settings default to `true`; setting one to `false` hides its tagged entries from this discovery list without disabling creation, loading, use, or direct `comp typehelp` lookup for those component types.
+
 ### Create a new component prototype
 Use:
 - `comp edit new <type>`

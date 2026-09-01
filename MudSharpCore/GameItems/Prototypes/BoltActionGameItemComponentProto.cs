@@ -97,7 +97,7 @@ public class BoltActionGameItemComponentProto : FirearmBaseGameItemComponentProt
         manager.AddDatabaseLoader("BoltAction",
             (proto, gameworld) => new BoltActionGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "BoltAction",
             $"Makes an item a {"[ranged weapon]".Colour(Telnet.BoldCyan)} with bolt-action rifle mechanics",
             $@"{BuildingHelpText}

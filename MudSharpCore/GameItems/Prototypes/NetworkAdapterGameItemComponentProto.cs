@@ -196,7 +196,7 @@ public class NetworkAdapterGameItemComponentProto : PoweredMachineBaseGameItemCo
 			(gameworld, account) => new NetworkAdapterGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Network Adapter",
 			(proto, gameworld) => new NetworkAdapterGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"Network Adapter",
 			$"Makes an item a {"[network adapter]".Colour(Telnet.BoldGreen)} {"[powered]".Colour(Telnet.BoldGreen)} telecom-backed network endpoint for a computer host",
 			CombinedBuildingHelpText);

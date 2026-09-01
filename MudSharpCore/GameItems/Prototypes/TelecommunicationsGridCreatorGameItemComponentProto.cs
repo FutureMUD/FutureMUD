@@ -61,7 +61,7 @@ public class TelecommunicationsGridCreatorGameItemComponentProto : GameItemCompo
             (gameworld, account) => new TelecommunicationsGridCreatorGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("TelecommunicationsGridCreator",
             (proto, gameworld) => new TelecommunicationsGridCreatorGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "TelecommunicationsGridCreator",
             $"When put in a room, creates a {"[telecommunications grid]".Colour(Telnet.BoldBlue)}",
             BuildingHelpText

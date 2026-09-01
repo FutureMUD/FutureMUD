@@ -64,7 +64,7 @@ public class BankPaymentGameItemComponentProto : GameItemComponentProto, IBankPa
             (gameworld, account) => new BankPaymentGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("BankPayment",
             (proto, gameworld) => new BankPaymentGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "BankPayment",
             $"Lets the item be used for {"[Payment]".Colour(Telnet.BoldYellow)} from a bank",
             BuildingHelpText

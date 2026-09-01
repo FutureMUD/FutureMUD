@@ -37,7 +37,7 @@ public class OutboardMotorGameItemComponentProto : GameItemComponentProto, IOutb
 			(gameworld, account) => new OutboardMotorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Outboard Motor",
 			(proto, gameworld) => new OutboardMotorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("OutboardMotor",
+		manager.AddModernTypeHelpInfo("OutboardMotor",
 			$"Makes an item an {"[outboard motor]".Colour(Telnet.BoldGreen)} for surface-water vehicles.",
 			BuildingHelpText);
 	}

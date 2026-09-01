@@ -97,7 +97,7 @@ public class ImplantBaseGameItemComponentProto : GameItemComponentProto, IImplan
             (gameworld, account) => new ImplantBaseGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ImplantBase",
             (proto, gameworld) => new ImplantBaseGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddFuturisticTypeHelpInfo(
             "Implant",
             $"A basic {"[implant]".Colour(Telnet.Pink)} that simply draws power and takes up space but has no direct function",
             BuildingHelpText

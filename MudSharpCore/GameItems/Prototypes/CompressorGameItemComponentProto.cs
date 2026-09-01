@@ -93,7 +93,7 @@ public class CompressorGameItemComponentProto : PoweredMachineBaseGameItemCompon
         manager.AddDatabaseLoader("Compressor",
             (proto, gameworld) => new CompressorGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Compressor",
             $"This is a {"[powered]".Colour(Telnet.Magenta)} machine that fills {"[gas containers]".Colour(Telnet.BoldGreen)} with atmosphere",
             BuildingHelpText

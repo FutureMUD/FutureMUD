@@ -63,7 +63,7 @@ public class FaxMachineGameItemComponentProto : TelephoneGameItemComponentProto,
             (gameworld, account) => new FaxMachineGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("FaxMachine",
             (proto, gameworld) => new FaxMachineGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "FaxMachine",
             $"Connects an item to a {"[telecommunications grid]".Colour(Telnet.BoldBlue)} and lets it send readable documents as faxes while printing or queueing incoming faxes.",
             BuildingHelpText

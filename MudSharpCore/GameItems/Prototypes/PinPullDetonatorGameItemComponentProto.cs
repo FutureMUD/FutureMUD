@@ -130,7 +130,7 @@ public class PinPullDetonatorGameItemComponentProto : GameItemComponentProto,
 			(gameworld, account) => new PinPullDetonatorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("PinPullDetonator",
 			(proto, gameworld) => new PinPullDetonatorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("PinPullDetonator",
+		manager.AddModernTypeHelpInfo("PinPullDetonator",
 			$"An irreversible {"[pin-pull]".Colour(Telnet.Yellow)} countdown trigger for an explosive payload",
 			BuildingHelpText);
 	}

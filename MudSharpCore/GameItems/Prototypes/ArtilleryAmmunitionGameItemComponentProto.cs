@@ -46,7 +46,7 @@ public class ArtilleryAmmunitionGameItemComponentProto : AmmunitionGameItemCompo
 	{
 		manager.AddBuilderLoader("artilleryammo", true, (gameworld, account) => new ArtilleryAmmunitionGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("ArtilleryAmmunition", (proto, gameworld) => new ArtilleryAmmunitionGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("ArtilleryAmmunition", "Makes an item ammunition for a crew-served artillery piece", "Options: ammo <type>, bullet <proto>, payload <type>, profile <name>.");
+		manager.AddModernTypeHelpInfo("ArtilleryAmmunition", "Makes an item ammunition for a crew-served artillery piece", "Options: ammo <type>, bullet <proto>, payload <type>, profile <name>.");
 	}
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)

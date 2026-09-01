@@ -44,7 +44,7 @@ public class ArtilleryChamberGameItemComponentProto : GameItemComponentProto, IA
 			(gameworld, account) => new ArtilleryChamberGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("ArtilleryChamber",
 			(proto, gameworld) => new ArtilleryChamberGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("ArtilleryChamber", "Makes an item a removable artillery breech chamber", BuildingHelpText);
+		manager.AddModernTypeHelpInfo("ArtilleryChamber", "Makes an item a removable artillery breech chamber", BuildingHelpText);
 	}
 
 	private const string BuildingHelpText = @"You can use the following options with this component:

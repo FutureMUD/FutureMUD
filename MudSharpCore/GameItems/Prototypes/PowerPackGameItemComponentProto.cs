@@ -75,7 +75,7 @@ public class PowerPackGameItemComponentProto : GameItemComponentProto, ILaserPow
             (gameworld, account) => new PowerPackGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("PowerPack",
             (proto, gameworld) => new PowerPackGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddFuturisticTypeHelpInfo(
             "PowerPack",
             $"A special type of ammunition specifically for Laser guns",
             BuildingHelpText

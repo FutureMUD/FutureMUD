@@ -86,7 +86,7 @@ public class PowerBankGameItemComponentProto : ConnectableGameItemComponentProto
 		manager.AddBuilderLoader("power bank", false,
 			(gameworld, account) => new PowerBankGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("PowerBank", (proto, gameworld) => new PowerBankGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("PowerBank", "An integrated rechargeable power source for connected items", BuildingHelpText);
+		manager.AddModernTypeHelpInfo("PowerBank", "An integrated rechargeable power source for connected items", BuildingHelpText);
 	}
 
 	public override IEditableRevisableItem CreateNewRevision(ICharacter initiator) =>

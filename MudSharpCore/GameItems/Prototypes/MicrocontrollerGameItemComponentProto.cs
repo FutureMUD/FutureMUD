@@ -294,7 +294,7 @@ public class MicrocontrollerGameItemComponentProto : PoweredMachineBaseGameItemC
 			(gameworld, account) => new MicrocontrollerGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Microcontroller",
 			(proto, gameworld) => new MicrocontrollerGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"Microcontroller",
 			$"A {"[powered]".Colour(Telnet.Magenta)} {SignalComponentUtilities.SignalGeneratorTag} {SignalComponentUtilities.SignalConsumerTag} controller that evaluates inline computer-function logic from sibling signal inputs",
 			CombinedBuildingHelpText);

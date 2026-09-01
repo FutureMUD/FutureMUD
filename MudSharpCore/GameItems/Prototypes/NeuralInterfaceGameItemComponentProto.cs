@@ -63,7 +63,7 @@ public class NeuralInterfaceGameItemComponentProto : ImplantBaseGameItemComponen
             (gameworld, account) => new NeuralInterfaceGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("NeuralInterface",
             (proto, gameworld) => new NeuralInterfaceGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddFuturisticTypeHelpInfo(
             "NeuralInterface",
             $"An {"[implant]".Colour(Telnet.Pink)} that permits other implants to be {"[neurally interfaced]".Colour(Telnet.Pink)} and controlled with the mind",
             BuildingHelpText

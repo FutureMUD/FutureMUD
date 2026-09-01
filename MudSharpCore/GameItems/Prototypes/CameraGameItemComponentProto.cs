@@ -185,7 +185,7 @@ public class CameraGameItemComponentProto : PoweredMachineBaseGameItemComponentP
 			(gameworld, account) => new CameraGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Camera",
 			(proto, gameworld) => new CameraGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("Camera",
+		manager.AddModernTypeHelpInfo("Camera",
 			$"Makes an item a powered {"[media camera]".Colour(Telnet.BoldGreen)} source for local video or A/V routing",
 			$"{BuildingHelpText}{SpecificBuildingHelpText}");
 	}

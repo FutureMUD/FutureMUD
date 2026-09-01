@@ -138,7 +138,7 @@ public class ArtilleryPieceGameItemComponentProto : GameItemComponentProto, IArt
 		manager.AddBuilderLoader("artillery", true, (gameworld, account) => new ArtilleryPieceGameItemComponentProto(gameworld, account));
 		manager.AddBuilderLoader("artillerypiece", false, (gameworld, account) => new ArtilleryPieceGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("ArtilleryPiece", (proto, gameworld) => new ArtilleryPieceGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("ArtilleryPiece", "Makes an item a portable, crew-served artillery piece", BuildingHelpText);
+		manager.AddModernTypeHelpInfo("ArtilleryPiece", "Makes an item a portable, crew-served artillery piece", BuildingHelpText);
 	}
 
 	private const string BuildingHelpText = @"You can use the following options:

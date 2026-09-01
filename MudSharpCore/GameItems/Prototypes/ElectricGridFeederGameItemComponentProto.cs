@@ -85,7 +85,7 @@ public class ElectricGridFeederGameItemComponentProto : GameItemComponentProto, 
         manager.AddDatabaseLoader("ElectricGridFeeder",
             (proto, gameworld) => new ElectricGridFeederGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "ElectricGridFeeder",
             $"Item lets {"[connectable]".Colour(Telnet.BoldYellow)} items that {"[provide power]".Colour(Telnet.BoldMagenta)} feed directly into an {"[electric grid]".Colour(Telnet.BoldOrange)}",
             BuildingHelpText

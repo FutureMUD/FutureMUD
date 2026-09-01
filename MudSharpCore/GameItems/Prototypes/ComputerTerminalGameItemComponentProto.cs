@@ -56,7 +56,7 @@ public class ComputerTerminalGameItemComponentProto : PoweredMachineBaseGameItem
 			(gameworld, account) => new ComputerTerminalGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Computer Terminal",
 			(proto, gameworld) => new ComputerTerminalGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"Computer Terminal",
 			$"Makes an item a {"[computer terminal]".Colour(Telnet.BoldGreen)} {"[powered]".Colour(Telnet.BoldGreen)} user session endpoint for a computer host",
 			CombinedBuildingHelpText);

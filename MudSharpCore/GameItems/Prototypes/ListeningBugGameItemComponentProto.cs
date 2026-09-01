@@ -98,7 +98,7 @@ public class ListeningBugGameItemComponentProto : GameItemComponentProto, IConsu
             (gameworld, account) => new ListeningBugGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ListeningBug",
             (proto, gameworld) => new ListeningBugGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "ListeningBug",
             $"When {"[powered]".Colour(Telnet.Magenta)} will listen and retransmit speech in location",
             BuildingHelpText

@@ -73,7 +73,7 @@ public class BayonetAttachmentGameItemComponentProto : GameItemComponentProto, I
 			(gameworld, account) => new BayonetAttachmentGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("BayonetAttachment",
 			(proto, gameworld) => new BayonetAttachmentGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"BayonetAttachment",
 			"Makes an item a musket bayonet attachment",
 			BuildingHelpText);

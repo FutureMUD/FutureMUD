@@ -262,7 +262,7 @@ public class TimerSensorGameItemComponentProto : PoweredMachineBaseGameItemCompo
 			(gameworld, account) => new TimerSensorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Timer Sensor",
 			(proto, gameworld) => new TimerSensorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"TimerSensor",
 			$"A {"[powered]".Colour(Telnet.Magenta)} {SignalComponentUtilities.SignalGeneratorTag} that emits a repeating active/inactive signal cycle",
 			CombinedBuildingHelpText);

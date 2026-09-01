@@ -80,7 +80,7 @@ public class CashRegisterGameItemComponentProto : GameItemComponentProto, IConta
         manager.AddDatabaseLoader("CashRegister",
             (proto, gameworld) => new CashRegisterGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "CashRegister",
             $"A type of {"[container]".Colour(Telnet.BoldGreen)} that interacts with the game's shop mechanics when used as a till",
             BuildingHelpText

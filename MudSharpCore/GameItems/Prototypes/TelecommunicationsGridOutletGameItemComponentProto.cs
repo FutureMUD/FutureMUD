@@ -68,7 +68,7 @@ public class TelecommunicationsGridOutletGameItemComponentProto : GameItemCompon
             (gameworld, account) => new TelecommunicationsGridOutletGameItemComponentProto(gameworld, account));
         manager.AddBuilderLoader("Telecommunications Grid Outlet".ToLowerInvariant(), false,
             (gameworld, account) => new TelecommunicationsGridOutletGameItemComponentProto(gameworld, account));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "TelecommunicationsGridOutlet",
             $"Item {"[provides telephone service and grid power]".Colour(Telnet.BoldMagenta)} to connected telecom devices from a {"[telecommunications grid]".Colour(Telnet.BoldBlue)}",
             BuildingHelpText

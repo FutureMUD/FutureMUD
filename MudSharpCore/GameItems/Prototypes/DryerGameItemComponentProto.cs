@@ -55,7 +55,7 @@ public class DryerGameItemComponentProto : ContainerGameItemComponentProto, ICon
 	{
 		manager.AddBuilderLoader("dryer", true, (gameworld, account) => new DryerGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Dryer", (proto, gameworld) => new DryerGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("Dryer",
+		manager.AddModernTypeHelpInfo("Dryer",
 			$"A powered, switchable {"[container]".Colour(Telnet.BoldGreen)} that accelerates surface-liquid drying",
 			BuildingHelpText);
 	}

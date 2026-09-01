@@ -239,7 +239,7 @@ public class FlareGameItemComponentProto : GameItemComponentProto, ILightablePro
         manager.AddBuilderLoader("flare", true,
             (gameworld, account) => new FlareGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Flare", (proto, gameworld) => new FlareGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Flare",
             $"A {"[light source]".Colour(Telnet.BoldPink)} that once {"[lit]".Colour(Telnet.Red)} burns until gone",
             BuildingHelpText

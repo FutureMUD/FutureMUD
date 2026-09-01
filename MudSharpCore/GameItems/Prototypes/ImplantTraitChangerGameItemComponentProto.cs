@@ -81,7 +81,7 @@ public class ImplantTraitChangerGameItemComponentProto : ImplantBaseGameItemComp
             (gameworld, account) => new ImplantTraitChangerGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ImplantTraitChanger",
             (proto, gameworld) => new ImplantTraitChangerGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddFuturisticTypeHelpInfo(
             "ImplantTraitChanger",
             $"An {"[implant]".Colour(Telnet.Pink)} that gives a bonus/penalty to a skill or attribute when {"[powered]".Colour(Telnet.Magenta)}",
             BuildingHelpText

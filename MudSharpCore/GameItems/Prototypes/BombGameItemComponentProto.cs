@@ -118,7 +118,7 @@ public class BombGameItemComponentProto : GameItemComponentProto, IDetonatablePr
             (gameworld, account) => new BombGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Bomb", (proto, gameworld) => new BombGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Bomb",
             $"Makes an item an {"[explosive]".Colour(Telnet.BoldRed)} when triggered. Must be combined with a {"[trigger]".Colour(Telnet.Yellow)}.",
             BuildingHelpText

@@ -91,7 +91,7 @@ public class ComputerStorageGameItemComponentProto : GameItemComponentProto, ICo
 			(gameworld, account) => new ComputerStorageGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Computer Storage",
 			(proto, gameworld) => new ComputerStorageGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"Computer Storage",
 			$"Makes an item {"[computer storage]".Colour(Telnet.BoldGreen)} for files and executables mounted into a computer host",
 			CombinedBuildingHelpText);

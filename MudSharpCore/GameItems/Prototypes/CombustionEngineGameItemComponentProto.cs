@@ -42,7 +42,7 @@ public class CombustionEngineGameItemComponentProto : GameItemComponentProto, IV
 			(gameworld, account) => new CombustionEngineGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Combustion Engine",
 			(proto, gameworld) => new CombustionEngineGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("CombustionEngine",
+		manager.AddModernTypeHelpInfo("CombustionEngine",
 			$"Makes an item a liquid-fuelled terrestrial {"[vehicle engine]".Colour(Telnet.BoldGreen)}.",
 			BuildingHelpText);
 	}

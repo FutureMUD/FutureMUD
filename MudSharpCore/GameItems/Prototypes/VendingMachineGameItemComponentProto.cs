@@ -113,7 +113,7 @@ public class VendingMachineGameItemComponentProto : GameItemComponentProto, ICon
         manager.AddDatabaseLoader("Vending Machine",
             (proto, gameworld) => new VendingMachineGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "VendingMachine",
             $"An {"[container]".Colour(Telnet.BoldGreen)} item that allows players to {"[insert]".Colour(Telnet.Yellow)} money and {"[select]".Colour(Telnet.Yellow)} options to vend",
             BuildingHelpText

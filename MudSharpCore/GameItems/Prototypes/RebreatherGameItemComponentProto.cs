@@ -83,7 +83,7 @@ public class RebreatherGameItemComponentProto : GameItemComponentProto, IConnect
             (gameworld, account) => new RebreatherGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Rebreather",
             (proto, gameworld) => new RebreatherGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Rebreather",
             $"Item is {"[connectable]".Colour(Telnet.BoldBlue)} to a {"gas container".Colour(Telnet.BoldGreen)} and combined with a {"[wearable]".Colour(Telnet.BoldYellow)} allows breathing the gas",
             BuildingHelpText

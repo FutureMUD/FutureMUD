@@ -71,7 +71,7 @@ public class RefrigeratorGameItemComponentProto : ContainerGameItemComponentProt
 			(gameworld, account) => new RefrigeratorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Refrigerator",
 			(proto, gameworld) => new RefrigeratorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("Refrigerator",
+		manager.AddModernTypeHelpInfo("Refrigerator",
 			$"A powered {"[container]".Colour(Telnet.BoldGreen)} that slows food freshness, biological decay and opted-in morph timers",
 			BuildingHelpText);
 	}

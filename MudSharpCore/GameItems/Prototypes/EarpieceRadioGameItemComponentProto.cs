@@ -97,7 +97,7 @@ public class EarpieceRadioGameItemComponentProto : GameItemComponentProto, IRece
             (gameworld, account) => new EarpieceRadioGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("EarpieceRadio",
             (proto, gameworld) => new EarpieceRadioGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "EarpieceRadio",
             $"An item that when {"[powered]".Colour(Telnet.Magenta)} and combined with an ear {"[wearable]".Colour(Telnet.BoldYellow)} makes a receive-only radio",
             BuildingHelpText

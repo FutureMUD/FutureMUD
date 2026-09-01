@@ -72,7 +72,7 @@ public class LockingCashRegisterGameItemComponentProto : CashRegisterGameItemCom
 			(gameworld, account) => new LockingCashRegisterGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("LockingCashRegister",
 			(proto, gameworld) => new LockingCashRegisterGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("LockingCashRegister",
+		manager.AddModernTypeHelpInfo("LockingCashRegister",
 			$"A shop {"[cash register]".Colour(Telnet.BoldGreen)} with a built-in {"[lock]".Colour(Telnet.Yellow)}",
 			BuildingHelpText);
 	}

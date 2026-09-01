@@ -179,7 +179,7 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 			(gameworld, account) => new ElectronicLockGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Electronic Lock",
 			(proto, gameworld) => new ElectronicLockGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"ElectronicLock",
 			$"A {"[lock]".Colour(Telnet.Yellow)} {SignalComponentUtilities.SignalConsumerTag} that responds automatically to a sibling signal source component",
 			CombinedBuildingHelpText);

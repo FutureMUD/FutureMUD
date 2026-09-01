@@ -86,7 +86,7 @@ public class LiquidConsumingPropGameItemComponentProto : GameItemComponentProto,
             (gameworld, account) => new LiquidConsumingPropGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("LiquidConsumingProp",
             (proto, gameworld) => new LiquidConsumingPropGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "LiquidConsumingProp",
             $"A prop that stores liquid and then {"[consumes]".Colour(Telnet.BoldMagenta)} it at a fixed rate, making it handy for steady drain setups",
             BuildingHelpText

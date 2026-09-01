@@ -84,7 +84,7 @@ public class PowerSocketGameItemComponentProto : GameItemComponentProto, IConnec
             (gameworld, account) => new PowerSocketGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("PowerSocket",
             (proto, gameworld) => new PowerSocketGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "PowerSocket",
             $"Creates {"[connectable]".Colour(Telnet.BoldBlue)} power sockets that are usually paired with another component that {"[provides power]".Colour(Telnet.BoldMagenta)}",
             BuildingHelpText

@@ -223,7 +223,7 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 			(gameworld, account) => new SignalLightGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Signal Light",
 			(proto, gameworld) => new SignalLightGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"SignalLight",
 			$"A {"[light source]".Colour(Telnet.Pink)} {SignalComponentUtilities.SignalConsumerTag} driven by a sibling signal source component",
 			CombinedBuildingHelpText);

@@ -82,7 +82,7 @@ public class UnlimitedGeneratorGameItemComponentProto : GameItemComponentProto, 
             (gameworld, account) => new UnlimitedGeneratorGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("UnlimitedGenerator",
             (proto, gameworld) => new UnlimitedGeneratorGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddFuturisticTypeHelpInfo(
             "UnlimitedGenerator",
             $"An item that {"[produces power]".Colour(Telnet.BoldMagenta)} by its very nature",
             BuildingHelpText

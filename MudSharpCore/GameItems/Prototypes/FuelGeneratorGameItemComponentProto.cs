@@ -447,7 +447,7 @@ Fuel Out Prog: {(FuelOutProg != null ? FuelOutProg.FunctionName.Colour(Telnet.Cy
         manager.AddDatabaseLoader("Fuel Generator",
             (proto, gameworld) => new FuelGeneratorGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "FuelGenerator",
             $"A {"[liquid container]".Colour(Telnet.BoldGreen)} that {"[produces power]".Colour(Telnet.BoldMagenta)} by burning its liquid",
             BuildingHelpText

@@ -258,7 +258,7 @@ public class SignalDetonatorGameItemComponentProto : GameItemComponentProto,
 			(gameworld, account) => new SignalDetonatorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("SignalDetonator",
 			(proto, gameworld) => new SignalDetonatorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("SignalDetonator",
+		manager.AddModernTypeHelpInfo("SignalDetonator",
 			$"An {SignalComponentUtilities.SignalConsumerTag} {"[armable]".Colour(Telnet.Yellow)} trigger for electronic or physical control signals",
 			BuildingHelpText);
 	}

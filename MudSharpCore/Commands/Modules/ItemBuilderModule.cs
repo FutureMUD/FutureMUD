@@ -618,7 +618,9 @@ Note: The following two subcommands take a long time and can sometimes cause iss
 
         private static void Component_Types(ICharacter actor, StringStack input)
         {
-            List<(string Name, string Blurb, string Help)> types = actor.Gameworld.GameItemComponentManager.TypeHelpInfo.ToList();
+			var types = actor.Gameworld.GameItemComponentManager.GetTypeHelpInfo(
+				actor.Gameworld.GetStaticBool(GameItemComponentTypeVisibility.ShowModernSettingName),
+				actor.Gameworld.GetStaticBool(GameItemComponentTypeVisibility.ShowFuturisticSettingName)).ToList();
             while (!input.IsFinished)
             {
                 string txt = input.PopSpeech();
@@ -667,9 +669,9 @@ Note: The following two subcommands take a long time and can sometimes cause iss
 
             string which = input.SafeRemainingArgument;
             string normalisedWhich = ComponentTypeHelpLookupText(which);
-            (string Name, string Blurb, string Help) type = actor.Gameworld.GameItemComponentManager.TypeHelpInfo.FirstOrDefault(x =>
+			var type = actor.Gameworld.GameItemComponentManager.TypeHelpInfo.FirstOrDefault(x =>
                 x.Name.EqualTo(which) || ComponentTypeHelpLookupText(x.Name).EqualTo(normalisedWhich));
-            if (string.IsNullOrEmpty(type.Help))
+			if (type is null || string.IsNullOrEmpty(type.Help))
             {
                 actor.OutputHandler.Send(
                     "That is not a valid component type, or that component type doesn't yet have a help entry.");

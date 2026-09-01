@@ -121,7 +121,7 @@ public class ExternalOrganGameItemComponentProto : GameItemComponentProto, IExte
         manager.AddDatabaseLoader("ExternalOrgan",
             (proto, gameworld) => new ExternalOrganGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "ExternalOrgan",
             $"This is a {"[powered]".Colour(Telnet.Magenta)} machine that is {"[connectable]".Colour(Telnet.BoldBlue)} to a cannula, and provides organ function to a character",
             BuildingHelpText

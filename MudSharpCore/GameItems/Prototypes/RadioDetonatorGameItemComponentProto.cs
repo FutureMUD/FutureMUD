@@ -84,7 +84,7 @@ public class RadioDetonatorGameItemComponentProto : GameItemComponentProto, IRec
         manager.AddDatabaseLoader("RadioDetonator",
             (proto, gameworld) => new RadioDetonatorGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "RadioDetonator",
             $"This item when {"[powered]".Colour(Telnet.Magenta)} listens for a radio frequency and acts as a {"[trigger]".Colour(Telnet.Yellow)}",
             BuildingHelpText

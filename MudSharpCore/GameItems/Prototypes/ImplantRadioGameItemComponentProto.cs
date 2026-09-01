@@ -108,7 +108,7 @@ public class ImplantRadioGameItemComponentProto : ImplantBaseGameItemComponentPr
             (gameworld, account) => new ImplantRadioGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ImplantRadio",
             (proto, gameworld) => new ImplantRadioGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddFuturisticTypeHelpInfo(
             "ImplantRadio",
             $"An {"[implant]".Colour(Telnet.Pink)} that is also a two-way radio when {"[neurally interfaced]".Colour(Telnet.Pink)}",
             BuildingHelpText

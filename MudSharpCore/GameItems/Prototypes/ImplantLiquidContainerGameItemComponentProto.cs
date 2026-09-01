@@ -98,7 +98,7 @@ public class ImplantLiquidContainerGameItemComponentProto : ImplantBaseGameItemC
             (gameworld, account) => new ImplantLiquidContainerGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ImplantLiquidContainer",
             (proto, gameworld) => new ImplantLiquidContainerGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddFuturisticTypeHelpInfo(
             "ImplantLiquidContainer",
             $"An {"[implant]".Colour(Telnet.Pink)} that is also a {"[liquid container]".Colour(Telnet.BoldGreen)}",
             BuildingHelpText

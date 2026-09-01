@@ -107,7 +107,7 @@ public class BatteryChargerGameItemComponentProto : GameItemComponentProto, ICon
             (gameworld, account) => new BatteryChargerGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("BatteryCharger",
             (proto, gameworld) => new BatteryChargerGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "BatteryCharger",
             $"A type of {"[container]".Colour(Telnet.BoldGreen)} that when {"[powered]".Colour(Telnet.Magenta)} charges rechargeable {"[battery]".ColourCommand()} items",
             BuildingHelpText

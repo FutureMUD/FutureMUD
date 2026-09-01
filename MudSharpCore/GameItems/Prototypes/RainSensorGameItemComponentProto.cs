@@ -54,7 +54,7 @@ public class RainSensorGameItemComponentProto : PoweredMachineBaseGameItemCompon
 			(gameworld, account) => new RainSensorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Rain Sensor",
 			(proto, gameworld) => new RainSensorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"RainSensor",
 			$"A {"[powered]".Colour(Telnet.Magenta)} {SignalComponentUtilities.SignalGeneratorTag} that emits current rainfall intensity",
 			CombinedBuildingHelpText);

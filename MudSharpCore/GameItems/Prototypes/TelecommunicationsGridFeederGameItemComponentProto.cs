@@ -71,7 +71,7 @@ public class TelecommunicationsGridFeederGameItemComponentProto : GameItemCompon
             (gameworld, account) => new TelecommunicationsGridFeederGameItemComponentProto(gameworld, account));
         manager.AddBuilderLoader("Telecommunications Grid Feeder".ToLowerInvariant(), false,
             (gameworld, account) => new TelecommunicationsGridFeederGameItemComponentProto(gameworld, account));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "TelecommunicationsGridFeeder",
             $"Item lets {"[powered]".Colour(Telnet.BoldMagenta)} sources feed into a {"[telecommunications grid]".Colour(Telnet.BoldBlue)}",
             BuildingHelpText

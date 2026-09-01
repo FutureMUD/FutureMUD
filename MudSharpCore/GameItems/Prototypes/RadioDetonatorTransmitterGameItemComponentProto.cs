@@ -78,7 +78,7 @@ public class RadioDetonatorTransmitterGameItemComponentProto : GameItemComponent
             (gameworld, account) => new RadioDetonatorTransmitterGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("RadioDetonatorTransmitter",
             (proto, gameworld) => new RadioDetonatorTransmitterGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "RadioDetonatorTransmitter",
             $"A {"[powered]".Colour(Telnet.Magenta)} device that acts as a remote {"[trigger]".Colour(Telnet.Yellow)} for radio detonated bombs",
             BuildingHelpText

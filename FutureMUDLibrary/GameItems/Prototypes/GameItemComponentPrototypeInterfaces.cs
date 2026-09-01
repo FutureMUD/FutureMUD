@@ -1,5 +1,6 @@
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
+using MudSharp.Computers;
 using MudSharp.GameItems.Interfaces;
 
 #nullable enable
@@ -133,6 +134,11 @@ public interface IComputerMediaInterfacePrototype : IAggregateGameItemComponentP
 
 public interface IMediaDeckPrototype : IExclusiveGameItemComponentPrototype<IMediaDeck>, IMediaBoundSinkPrototype,
 	IMediaSourcePrototype, IConnectablePrototype
+{
+}
+
+public interface IDigitalMediaRecorderPrototype : IExclusiveGameItemComponentPrototype<IDigitalMediaRecorder>,
+	IMediaDeckPrototype
 {
 }
 
@@ -419,6 +425,31 @@ public interface IImplantReportStatusPrototype : IExclusiveGameItemComponentProt
 }
 
 public interface IImplantRespondToCommandsPrototype : IExclusiveGameItemComponentPrototype<IImplantRespondToCommands>, IImplantPrototype
+{
+}
+
+public interface IImplantComputerHostPrototype : IExclusiveGameItemComponentPrototype<IImplantComputerHost>,
+	IImplantRespondToCommandsPrototype
+{
+}
+
+public interface IImplantComputerPeripheralPrototype : IExclusiveGameItemComponentPrototype<IImplantComputerPeripheral>,
+	IImplantRespondToCommandsPrototype
+{
+}
+
+public interface IImplantComputerStoragePrototype : IExclusiveGameItemComponentPrototype<IImplantComputerStorage>,
+	IImplantComputerPeripheralPrototype
+{
+}
+
+public interface IImplantComputerTerminalPrototype : IExclusiveGameItemComponentPrototype<IImplantComputerTerminal>,
+	IImplantComputerPeripheralPrototype
+{
+}
+
+public interface IImplantAVRecorderPrototype : IExclusiveGameItemComponentPrototype<IImplantAVRecorder>,
+	IImplantComputerPeripheralPrototype, IDigitalMediaRecorderPrototype
 {
 }
 

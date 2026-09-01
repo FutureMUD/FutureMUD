@@ -53,7 +53,7 @@ public class TemperatureSensorGameItemComponentProto : PoweredMachineBaseGameIte
 			(gameworld, account) => new TemperatureSensorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Temperature Sensor",
 			(proto, gameworld) => new TemperatureSensorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"TemperatureSensor",
 			$"A {"[powered]".Colour(Telnet.Magenta)} {SignalComponentUtilities.SignalGeneratorTag} that emits current ambient temperature in Celsius",
 			CombinedBuildingHelpText);

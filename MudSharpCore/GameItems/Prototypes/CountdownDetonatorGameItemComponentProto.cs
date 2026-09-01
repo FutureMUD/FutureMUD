@@ -182,7 +182,7 @@ public class CountdownDetonatorGameItemComponentProto : GameItemComponentProto,
 			(gameworld, account) => new CountdownDetonatorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("CountdownDetonator",
 			(proto, gameworld) => new CountdownDetonatorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("CountdownDetonator",
+		manager.AddModernTypeHelpInfo("CountdownDetonator",
 			$"An {"[armable]".Colour(Telnet.Yellow)} countdown trigger for a sibling explosive payload",
 			BuildingHelpText);
 	}

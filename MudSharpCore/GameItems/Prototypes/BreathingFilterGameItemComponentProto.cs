@@ -81,7 +81,7 @@ public class BreathingFilterGameItemComponentProto : GameItemComponentProto, IPr
         manager.AddDatabaseLoader("BreathingFilter",
             (proto, gameworld) => new BreathingFilterGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "BreathingFilter",
             $"A {"[container]".Colour(Telnet.BoldGreen)} for filters that combined with another {"[wearable]".Colour(Telnet.BoldYellow)} transforms one gas type to another (e.g. smoke to breathable air)",
             BuildingHelpText

@@ -79,7 +79,7 @@ public class PowerToolGameItemComponentProto : GameItemComponentProto, IToolItem
         manager.AddDatabaseLoader("PowerTool",
             (proto, gameworld) => new PowerToolGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "PowerTool",
             $"A {"[powered]".Colour(Telnet.Magenta)} item that will speed up (or slow down) crafting when used as a 'tool' in that craft",
             BuildingHelpText

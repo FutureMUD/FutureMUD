@@ -62,7 +62,7 @@ public class PoweredPropGameItemComponentProto : PoweredMachineBaseGameItemCompo
             (gameworld, account) => new PoweredPropGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("PoweredProp",
             (proto, gameworld) => new PoweredPropGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "PoweredProp",
             $"A {"[powered]".Colour(Telnet.Magenta)} machine that can execute a prog when running",
             BuildingHelpText

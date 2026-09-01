@@ -149,7 +149,7 @@ public class KeypadGameItemComponentProto : AccessControlReaderGameItemComponent
 			(gameworld, account) => new KeypadGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Keypad",
 			(proto, gameworld) => new KeypadGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"Keypad",
 			$"A {"[selectable]".Colour(Telnet.Yellow)} {"[powered]".Colour(Telnet.Magenta)} {SignalComponentUtilities.SignalGeneratorTag} that emits a momentary signal after the correct numeric code",
 			CombinedBuildingHelpText);

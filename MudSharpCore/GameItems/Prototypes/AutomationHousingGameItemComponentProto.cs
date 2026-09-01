@@ -123,7 +123,7 @@ Unlock (No Actor): {UnlockEmoteNoActor.ColourCommand()}";
 			(gameworld, account) => new AutomationHousingGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Automation Housing",
 			(proto, gameworld) => new AutomationHousingGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"Automation Housing",
 			$"Makes an item a {"[lockable automation housing]".Colour(Telnet.BoldGreen)} for concealed service hardware",
 			CombinedBuildingHelpText);

@@ -53,7 +53,7 @@ public class CellPhoneTowerGameItemComponentProto : GameItemComponentProto, ICel
             (gameworld, account) => new CellPhoneTowerGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("CellPhoneTower",
             (proto, gameworld) => new CellPhoneTowerGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "CellPhoneTower",
             $"A {"[telecommunications grid]".Colour(Telnet.BoldBlue)} antenna that provides cellular service to its {"[zone]".Colour(Telnet.BoldGreen)}",
             BuildingHelpText

@@ -135,7 +135,7 @@ public class MediaStorageMediumGameItemComponentProto : GameItemComponentProto, 
 			(gameworld, account) => new MediaStorageMediumGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Media Storage Medium",
 			(proto, gameworld) => new MediaStorageMediumGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("Media Storage Medium",
+		manager.AddModernTypeHelpInfo("Media Storage Medium",
 			$"Makes an item a reusable {"[physical media medium]".Colour(Telnet.BoldGreen)} for a compatible media deck",
 			SpecificBuildingHelpText);
 	}

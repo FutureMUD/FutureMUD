@@ -168,7 +168,7 @@ public class FileSignalGeneratorGameItemComponentProto : PoweredMachineBaseGameI
 			(gameworld, account) => new FileSignalGeneratorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("File Signal Generator",
 			(proto, gameworld) => new FileSignalGeneratorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"FileSignalGenerator",
 			$"A {"[powered]".Colour(Telnet.Magenta)} {SignalComponentUtilities.SignalGeneratorTag} that emits a numeric value read from a backing file",
 			CombinedBuildingHelpText);

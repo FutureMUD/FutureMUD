@@ -52,7 +52,7 @@ public class LightSensorGameItemComponentProto : PoweredMachineBaseGameItemCompo
 			(gameworld, account) => new LightSensorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Light Sensor",
 			(proto, gameworld) => new LightSensorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"LightSensor",
 			$"A {"[powered]".Colour(Telnet.Magenta)} {SignalComponentUtilities.SignalGeneratorTag} that emits the current ambient illumination in lux",
 			CombinedBuildingHelpText);

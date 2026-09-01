@@ -35,9 +35,11 @@ Mounted readers can be used from their host item without opening its service pan
 You can use the following syntax:
 	#3media <item> status#0 - shows a deck, medium, monitor, or speaker's current state
 	#3media <monitor|speaker> volume <volume>#0 - sets its audio output volume; silent mutes it
-	#3media <medium> list#0 - lists named recordings stored on a physical medium
+	#3media <medium|digital recorder> list#0 - lists named recordings
 	#3media <deck> record <name>#0 - starts recording its connected media input onto the inserted medium
+	#3media <digital recorder> snapshot <name>#0 - saves the current camera frame
 	#3media <deck> play <name>#0 - plays a named recording from the inserted medium to its connected output
+	#3media <digital recorder> still <name> [<hh:mm:ss>]#0 - inspects a stored video frame
 	#3media <deck> stop#0 - stops recording or playback
 	#3media <medium> erase <name>#0 - permanently erases a named recording
 
@@ -201,8 +203,9 @@ If more than one terminal could be used, specify one explicitly or connect first
 
 		var deck = item.GetItemType<IMediaDeck>();
 		var medium = item.GetItemType<IMediaStorageMedium>();
+		var digitalRecorder = item.GetItemType<IDigitalMediaRecorder>();
 		var audioSink = item.GetItemType<IMediaAudioSink>();
-		if (deck is null && medium is null && audioSink is null)
+		if (deck is null && medium is null && digitalRecorder is null && audioSink is null)
 		{
 			actor.Send($"{item.HowSeen(actor, true)} is not an operable media device or physical storage medium.");
 			return;
@@ -224,7 +227,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 				MediaVolume(actor, item, audioSink, ss);
 				return;
 			case "list":
-				MediaList(actor, medium);
+				MediaList(actor, medium, digitalRecorder);
 				return;
 			case "record":
 				MediaRecord(actor, item, deck, ss);
@@ -237,7 +240,14 @@ If more than one terminal could be used, specify one explicitly or connect first
 				return;
 			case "erase":
 			case "delete":
-				MediaErase(actor, item, medium, ss);
+				MediaErase(actor, item, medium, digitalRecorder, ss);
+				return;
+			case "snapshot":
+			case "stillcapture":
+				MediaSnapshot(actor, item, digitalRecorder, ss);
+				return;
+			case "still":
+				MediaStill(actor, digitalRecorder, ss);
 				return;
 			default:
 				actor.OutputHandler.Send(MediaHelpText.SubstituteANSIColour());
@@ -310,15 +320,20 @@ If more than one terminal could be used, specify one explicitly or connect first
 		actor.Send($"You set {item.HowSeen(actor, true).ColourName()}'s audio output to {parsed.DescribeEnum().ColourValue()}.");
 	}
 
-	private static void MediaList(ICharacter actor, IMediaStorageMedium? medium)
+	private static void MediaList(ICharacter actor, IMediaStorageMedium? medium, IDigitalMediaRecorder? digitalRecorder)
 	{
-		if (medium is null)
+		if (medium is null && digitalRecorder is null)
 		{
 			actor.Send("Only a physical media storage medium can list recordings.");
 			return;
 		}
 
-		var rows = medium.Recordings
+		var references = medium?.Recordings ?? digitalRecorder!.MediaFiles
+			.Where(x => x.MediaRecordingId.HasValue)
+			.Select(x => new MediaRecordingReference(digitalRecorder.Id, x.FileName, x.MediaRecordingId!.Value,
+				x.PubliclyAccessible, x.CreatedAtUtc, x.LastModifiedAtUtc))
+			.ToList();
+		var rows = references
 			.Select(x => (Reference: x, Recording: actor.Gameworld.MediaRecordingService.GetRecording(x.RecordingId)))
 			.Where(x => x.Recording is not null)
 			.OrderBy(x => x.Reference.Name)
@@ -333,7 +348,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 			.ToList();
 		if (!rows.Any())
 		{
-			actor.Send("That physical medium contains no recordings.");
+			actor.Send("That device contains no recordings.");
 			return;
 		}
 
@@ -405,9 +420,10 @@ If more than one terminal could be used, specify one explicitly or connect first
 		actor.Send($"You stop {item.HowSeen(actor, true).ColourName()}.");
 	}
 
-	private static void MediaErase(ICharacter actor, IGameItem item, IMediaStorageMedium? medium, StringStack ss)
+	private static void MediaErase(ICharacter actor, IGameItem item, IMediaStorageMedium? medium,
+		IDigitalMediaRecorder? digitalRecorder, StringStack ss)
 	{
-		if (medium is null)
+		if (medium is null && digitalRecorder is null)
 		{
 			actor.Send("Only a physical media storage medium can erase recordings.");
 			return;
@@ -420,9 +436,13 @@ If more than one terminal could be used, specify one explicitly or connect first
 		}
 
 		var name = ss.SafeRemainingArgument;
-		if (!medium.DeleteRecording(name, out var error))
+		var error = string.Empty;
+		var success = medium is not null
+			? medium.DeleteRecording(name, out error)
+			: digitalRecorder!.RecordingFileSystem.DeleteFile(name);
+		if (!success)
 		{
-			actor.Send(error);
+			actor.Send(medium is not null ? error : "That recorder has no media file with that name.");
 			return;
 		}
 
@@ -524,6 +544,47 @@ If more than one terminal could be used, specify one explicitly or connect first
 					: cardError);
 				return;
 		}
+	}
+	private static void MediaSnapshot(ICharacter actor, IGameItem item, IDigitalMediaRecorder? recorder, StringStack ss)
+	{
+		if (recorder is null)
+		{
+			actor.Send("Only a digital media recorder can capture an internal snapshot.");
+			return;
+		}
+		if (ss.IsFinished)
+		{
+			actor.Send("What name do you want to give the snapshot?");
+			return;
+		}
+		if (!recorder.CaptureStill(ss.SafeRemainingArgument, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+		actor.Send($"You capture a snapshot on {item.HowSeen(actor, true).ColourName()}.");
+	}
+
+	private static void MediaStill(ICharacter actor, IDigitalMediaRecorder? recorder, StringStack ss)
+	{
+		if (recorder is null || ss.IsFinished)
+		{
+			actor.Send("Specify a digital recorder media file and optionally a timestamp.");
+			return;
+		}
+		var name = ss.PopSpeech();
+		TimeSpan? offset = null;
+		if (!ss.IsFinished)
+		{
+			if (!TimeSpan.TryParse(ss.SafeRemainingArgument, actor, out var parsed) || parsed < TimeSpan.Zero)
+			{
+				actor.Send("Timestamps must use a non-negative hh:mm:ss value.");
+				return;
+			}
+			offset = parsed;
+		}
+		var scene = recorder.GetStill(name, offset, out var error);
+		actor.Send(scene ?? error);
 	}
 
 	[PlayerCommand("Electrical", "electrical")]
@@ -843,7 +904,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 			return;
 		}
 
-		if (terminalItem.Components.OfType<IComputerTerminal>().FirstOrDefault() is not ComputerTerminalGameItemComponent terminal)
+		if (terminalItem.Components.OfType<IComputerTerminal>().FirstOrDefault() is not IInteractiveComputerTerminal terminal)
 		{
 			actor.Send($"{terminalItem.HowSeen(actor, true)} is not a usable computer terminal.");
 			return;
@@ -883,7 +944,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 			return;
 		}
 
-		if (session.Terminal is not ComputerTerminalGameItemComponent terminal)
+		if (session.Terminal is not IInteractiveComputerTerminal terminal)
 		{
 			actor.Send("That terminal session is not attached to a configurable computer terminal.");
 			return;
@@ -4033,7 +4094,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		return actor.CombinedEffectsOfType<ComputerTerminalSessionEffect>().FirstOrDefault();
 	}
 
-	private static bool TryEnsureProgrammingTerminalSession(ICharacter actor, ComputerTerminalGameItemComponent terminal,
+	internal static bool TryEnsureProgrammingTerminalSession(ICharacter actor, IInteractiveComputerTerminal terminal,
 		out IComputerTerminalSession? session, out bool connectedTerminal, out string error)
 	{
 		session = null;
@@ -4069,36 +4130,36 @@ If more than one terminal could be used, specify one explicitly or connect first
 		return GetCurrentProgrammingTerminalSessionEffect(actor)?.Session;
 	}
 
-	private static IEnumerable<(IGameItem Item, ComputerTerminalGameItemComponent Terminal)> GetContextualComputerTerminals(
+	private static IEnumerable<(IGameItem Item, IInteractiveComputerTerminal Terminal)> GetContextualComputerTerminals(
 		ICharacter actor)
 	{
 		return actor.ContextualItems
 			.Select(x => (Item: x, Terminal: x.Components.OfType<IComputerTerminal>().FirstOrDefault()))
-			.Where(x => x.Terminal is ComputerTerminalGameItemComponent)
-			.Select(x => (x.Item, (ComputerTerminalGameItemComponent)x.Terminal!))
+			.Where(x => x.Terminal is IInteractiveComputerTerminal)
+			.Select(x => (x.Item, (IInteractiveComputerTerminal)x.Terminal!))
 			.GroupBy(x => x.Item.Id)
 			.Select(x => x.First())
 			.ToList();
 	}
 
-	private static IEnumerable<(IGameItem Item, ComputerTerminalGameItemComponent Terminal)>
+	private static IEnumerable<(IGameItem Item, IInteractiveComputerTerminal Terminal)>
 		GetPositionTargetComputerTerminals(ICharacter actor)
 	{
 		if (actor.PositionTarget is not IGameItem itemTarget)
 		{
-			return Enumerable.Empty<(IGameItem Item, ComputerTerminalGameItemComponent Terminal)>();
+			return Enumerable.Empty<(IGameItem Item, IInteractiveComputerTerminal Terminal)>();
 		}
 
-		var terminals = new List<(IGameItem Item, ComputerTerminalGameItemComponent Terminal)>();
-		if (itemTarget.Components.OfType<IComputerTerminal>().FirstOrDefault() is ComputerTerminalGameItemComponent direct)
+		var terminals = new List<(IGameItem Item, IInteractiveComputerTerminal Terminal)>();
+		if (itemTarget.Components.OfType<IComputerTerminal>().FirstOrDefault() is IInteractiveComputerTerminal direct)
 		{
 			terminals.Add((itemTarget, direct));
 		}
 
 		terminals.AddRange(itemTarget.AttachedAndConnectedItems
 			.Select(x => (Item: x, Terminal: x.Components.OfType<IComputerTerminal>().FirstOrDefault()))
-			.Where(x => x.Terminal is ComputerTerminalGameItemComponent)
-			.Select(x => (x.Item, (ComputerTerminalGameItemComponent)x.Terminal!)));
+			.Where(x => x.Terminal is IInteractiveComputerTerminal)
+			.Select(x => (x.Item, (IInteractiveComputerTerminal)x.Terminal!)));
 
 		return terminals
 			.GroupBy(x => x.Item.Id)
@@ -4107,7 +4168,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 	}
 
 	private static bool TryResolveTerminalForTyping(ICharacter actor, string argumentText, out IGameItem terminalItem,
-		out ComputerTerminalGameItemComponent terminal, out string text, out string error)
+		out IInteractiveComputerTerminal terminal, out string text, out string error)
 	{
 		terminalItem = null!;
 		terminal = null!;
@@ -4120,7 +4181,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		{
 			var explicitTerminalItem = actor.TargetItem(firstToken);
 			if (explicitTerminalItem?.Components.OfType<IComputerTerminal>().FirstOrDefault() is
-				ComputerTerminalGameItemComponent explicitTerminal)
+				IInteractiveComputerTerminal explicitTerminal)
 			{
 				terminalItem = explicitTerminalItem;
 				terminal = explicitTerminal;
@@ -4130,9 +4191,9 @@ If more than one terminal could be used, specify one explicitly or connect first
 		}
 
 		var currentSession = GetCurrentProgrammingTerminalSession(actor);
-		if (currentSession?.Terminal is ComputerTerminalGameItemComponent currentTerminal)
+		if (currentSession?.Terminal is IInteractiveComputerTerminal currentTerminal)
 		{
-			terminalItem = currentTerminal.Parent;
+			terminalItem = ((IGameItemComponent)currentTerminal).Parent;
 			terminal = currentTerminal;
 			text = argumentText;
 			return true;

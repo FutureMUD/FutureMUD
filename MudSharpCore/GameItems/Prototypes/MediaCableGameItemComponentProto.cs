@@ -101,7 +101,7 @@ public class MediaCableGameItemComponentProto : PoweredMachineBaseGameItemCompon
 			(gameworld, account) => new MediaCableGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Media Cable",
 			(proto, gameworld) => new MediaCableGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("Media Cable",
+		manager.AddModernTypeHelpInfo("Media Cable",
 			$"Makes an item a passive {"[local media cable]".Colour(Telnet.BoldGreen)} with one media input and one output",
 			$"{BuildingHelpText}{SpecificBuildingHelpText}");
 	}

@@ -17,7 +17,12 @@ public class ComputerStorageGameItemComponentProto : GameItemComponentProto, ICo
 	#3desc <desc>#0 - sets the description of the component{SpecificBuildingHelpText}";
 
 	public ComputerStorageGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-		: base(gameworld, originator, "Computer Storage")
+		: this(gameworld, originator, "Computer Storage")
+	{
+	}
+
+	protected ComputerStorageGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
+		: base(gameworld, originator, type)
 	{
 		StorageCapacityInBytes = 1048576;
 	}
@@ -86,7 +91,7 @@ public class ComputerStorageGameItemComponentProto : GameItemComponentProto, ICo
 			(gameworld, account) => new ComputerStorageGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Computer Storage",
 			(proto, gameworld) => new ComputerStorageGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"Computer Storage",
 			$"Makes an item {"[computer storage]".Colour(Telnet.BoldGreen)} for files and executables mounted into a computer host",
 			CombinedBuildingHelpText);

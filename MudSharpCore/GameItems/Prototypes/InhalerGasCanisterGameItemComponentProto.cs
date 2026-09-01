@@ -124,6 +124,6 @@ public class InhalerGasCanisterGameItemComponentProto : GameItemComponentProto
     {
         manager.AddBuilderLoader("InhalerGasCanister".ToLowerInvariant(), true, (gameworld, account) => new InhalerGasCanisterGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("InhalerGasCanister", (proto, gameworld) => new InhalerGasCanisterGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo("InhalerGasCanister", "A gas canister for inhalers.", BuildingHelpText);
+        manager.AddModernTypeHelpInfo("InhalerGasCanister", "A gas canister for inhalers.", BuildingHelpText);
     }
 }

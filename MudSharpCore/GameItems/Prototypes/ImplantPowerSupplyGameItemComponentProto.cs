@@ -61,7 +61,7 @@ public class ImplantPowerSupplyGameItemComponentProto : GameItemComponentProto, 
             (gameworld, account) => new ImplantPowerSupplyGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ImplantPowerSupply",
             (proto, gameworld) => new ImplantPowerSupplyGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddFuturisticTypeHelpInfo(
             "ImplantPowerSupply",
             $"Interfaces between an {"[implant]".Colour(Telnet.Pink)} and an implant power plant to {"[provide power]".Colour(Telnet.BoldMagenta)} for itself",
             BuildingHelpText

@@ -279,7 +279,7 @@ public class ElectricLightGameItemComponentProto : GameItemComponentProto, IProd
         manager.AddDatabaseLoader("ElectricLight",
             (proto, gameworld) => new ElectricLightGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "ElectricLight",
             $"A {"[light source]".Colour(Telnet.BoldPink)} when {"[powered]".Colour(Telnet.Magenta)}, can be {"[lit]".Colour(Telnet.Red)} by players",
             BuildingHelpText

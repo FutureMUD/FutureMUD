@@ -25,6 +25,8 @@ Media components start with the shared `IMediaSource`, `IMediaSink`, `IMediaAudi
 
 Use a purpose-built sensor perceiver for any capture source. It must honour normal visibility, layers, planes, illumination, and audibility, and must exclude OOC/staff/non-observable output. Persist durable recording data through `IMediaRecordingService` rather than component XML. The detailed packet, snapshot, quota, and lifecycle contract is in [Computer and Electronics A/V Framework](../Technology/Media_System_Runtime_and_Workflows.md).
 
+For internal-memory cameras, add `Digital Media Recorder` to the same item as `Camera` and configure matching capabilities. Its `capacity` is measured in bytes. For removable-media cameras, use `Media Deck` with `siblings` enabled plus a normal container; do not add a second recorder component. Implant recorders own their camera viewpoint and use the implant builder settings for body, bodypart, space, damage grace, and power alongside media capability, sensitivity, interval, endpoint, input, output, and capacity settings.
+
 ## Step 1: Decide on the Public Contract
 ### Reuse an existing interface when possible
 Many item systems already query for public interfaces in `FutureMUDLibrary/GameItems/Interfaces`.
@@ -198,6 +200,10 @@ Typical registration includes:
 - `AddBuilderLoader(...)` for `comp edit new <type>`
 - `AddDatabaseLoader(...)` for boot-time loading from the stored type string
 - `AddTypeHelpInfo(...)` for type listings and builder help
+
+Component registrations must also identify technology-specific builder entries. Use `AddModernTypeHelpInfo(...)` for contemporary industrial, electrical, electronic, computing, firearm, appliance, and medical-device types, and `AddFuturisticTypeHelpInfo(...)` for explicitly science-fictional types such as implants, lasers, zero-gravity hardware, and fictional power sources. Leave general-purpose physical capabilities on `AddTypeHelpInfo(...)` so historical games retain reusable containers, locks, wearables, weapons, and similar composition tools.
+
+The static settings `ShowModernItemComponentTypes` and `ShowFuturisticItemComponentTypes` control whether those tagged registrations appear in `comp types`. Both default to `true`. They are discovery filters only: disabling either setting does not unregister loaders, prevent `comp edit new <type>`, block stored components from loading, or remove direct `comp typehelp <type>` access.
 
 For automation and signal-capable types, use the type-summary text intentionally:
 - signal emitters should usually advertise a coloured `[signal generator]` tag

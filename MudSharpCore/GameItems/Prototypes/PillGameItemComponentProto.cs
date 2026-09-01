@@ -67,7 +67,7 @@ public class PillGameItemComponentProto : GameItemComponentProto, ISwallowablePr
             (gameworld, account) => new PillGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Pill", (proto, gameworld) => new PillGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Pill",
             $"Turns the item into a pill that can be {"[swallowed]".Colour(Telnet.Yellow)} to deliver a drug dose",
             BuildingHelpText

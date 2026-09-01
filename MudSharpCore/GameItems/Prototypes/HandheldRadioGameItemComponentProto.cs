@@ -146,7 +146,7 @@ public class HandheldRadioGameItemComponentProto : GameItemComponentProto, ITran
         manager.AddDatabaseLoader("HandheldRadio",
             (proto, gameworld) => new HandheldRadioGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "HandheldRadio",
             $"A {"[powered]".Colour(Telnet.Magenta)} device that functions as a two-way radio",
             BuildingHelpText

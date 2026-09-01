@@ -44,7 +44,7 @@ public class ElectricEngineGameItemComponentProto : PoweredMachineBaseGameItemCo
 			(gameworld, account) => new ElectricEngineGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Electric Engine",
 			(proto, gameworld) => new ElectricEngineGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("ElectricEngine",
+		manager.AddModernTypeHelpInfo("ElectricEngine",
 			$"Makes an item an electrically powered terrestrial {"[vehicle engine]".Colour(Telnet.BoldGreen)}.",
 			BuildingHelpText);
 	}

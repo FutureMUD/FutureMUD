@@ -98,7 +98,7 @@ public class GasContainerGameItemComponentProto : GameItemComponentProto, IConne
         manager.AddDatabaseLoader("GasContainer",
             (proto, gameworld) => new GasContainerGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "GasContainer",
             $"A {"[gas container]".Colour(Telnet.BoldGreen)} that is {"[connectable]".Colour(Telnet.BoldBlue)} to other gas consumers",
             BuildingHelpText

@@ -27,6 +27,8 @@ Media monitors decorate a full description with power, binding, mode, audio volu
 
 Media uses normal item containment for inserted media and normal `IConnectable` presentation for local links. Computer files that refer to recordings are clearly typed media files: they participate in File Manager/FTP lists and transfers but reject text viewing/appending. See [Computer and Electronics A/V Framework](../Technology/Media_System_Runtime_and_Workflows.md) for the complete player and builder workflow.
 
+Digital recorders extend the `media` command with internal `list`, `snapshot`, `still`, and `erase` operations in addition to record/play/stop. Implanted recorders expose the equivalent operations under their neural implant alias, while implanted terminals create an ordinary terminal effect so all existing computer commands retain one interaction model.
+
 ### Item-level descriptions
 Item prototypes provide the base descriptive layer:
 - builder-visible unique lookup name

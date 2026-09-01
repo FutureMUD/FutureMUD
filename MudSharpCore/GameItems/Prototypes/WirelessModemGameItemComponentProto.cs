@@ -203,7 +203,7 @@ public class WirelessModemGameItemComponentProto : PoweredMachineBaseGameItemCom
 			(gameworld, account) => new WirelessModemGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Wireless Modem",
 			(proto, gameworld) => new WirelessModemGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"Wireless Modem",
 			$"Makes an item a {"[powered]".Colour(Telnet.BoldGreen)} cellular-backed wireless network modem for a computer host",
 			CombinedBuildingHelpText);

@@ -38,8 +38,25 @@ All media-capable components use normal `IConnectable` topology conventions whil
 - `Media Deck` records, plays, or both, requires a compatible inserted `MediaStorageMedium`, and has no tape-position state in v1.
 - `MediaStorageMedium` has a format key, capabilities, duration capacity, write protection, and named immutable recording references. Duplicate names require explicit erase.
 - `Media Cable` and `Media Splitter` are passive relay components. A cable has one input/one output; a splitter has one input and multiple outputs for fan-out.
+- `Digital Media Recorder` is a powered, byte-quota computer file owner which accepts a sibling camera and records directly to immutable media files. It supports direct record, snapshot, playback, still inspection, list, stop, and erase operations without requiring a separate computer terminal.
 
 Composite items can bind sibling endpoints explicitly. A TV/VCR is a `MediaMonitor` plus a VHS `MediaDeck` whose sibling output is enabled. A boombox is a compact-cassette `MediaDeck` plus `MediaSpeaker`. Ordinary container operations insert and remove physical media.
+
+A handheld removable-media video camera is deliberately composed from `Camera`, a recording-enabled `MediaDeck` with sibling sources enabled, and a normal container holding one compatible `MediaStorageMedium`. A digital handheld camera instead combines `Camera` with `Digital Media Recorder`; optional monitor and speaker siblings provide local playback.
+
+## Neural recording and implanted computers
+
+Implanted computers use the installed neural interface as a validated data bus. An `Implant Computer Host`, `Implant Computer Storage`, `Implant Computer Terminal`, and `Implant A/V Recorder` must be installed in the same body and linked to the same powered neural interface before aliases can assign them to one another. Storage and terminal assignments reuse the ordinary computer host contracts, so File Manager, Media, executable ownership, processes, and terminal applications behave like their physical equivalents.
+
+The implant recorder can write to its internal byte quota or a selected powered implant hard drive. Internal recording continues if neural control drops after the job starts; an external-drive job is interrupted when that drive or shared neural bus becomes unavailable. Captured scenes use the wearer's effective cell, layer, and plane. Neural playback requires the linked interface to permit each media capability carried by the recording.
+
+The neural command surface is:
+
+- `implant <terminal-alias> host <host-alias|none>`, `connect`, and `disconnect` for terminal assignment and sessions.
+- `implant <drive-alias> host <host-alias|none>` for a general-purpose implant drive mount.
+- `implant <recorder-alias> on|off`, `status`, `host <host-alias|none>`, `storage <internal|drive-alias>`, `record <name>`, `snapshot <name>`, `stop`, `list`, `erase <name>`, `play <name>`, and `still <name> [timestamp]` for the recorder.
+
+Aliases, switch state, files, executables, processes, and selected component IDs remain in component XML. Load-time and heartbeat validation fail closed when an assignment is missing, cross-body, ambiguous, or no longer on the same neural bus. Power loss, implant removal, deletion, quit, and destructive morphs close terminal sessions, unmount unavailable storage, deactivate affected processes, unsubscribe media endpoints, and finalise active recording jobs as interrupted. Copies begin without recording references, live jobs, peripheral assignments, or terminal sessions. Existing recording tables remain authoritative, so these components require no additional EF migration.
 
 Installation uses the ordinary player-facing item workflow: place compatible devices together, use `connect <item> <item>` for each camera/cable/splitter/monitor/deck link, use `disconnect <item> <item>` to change it, and then switch powered endpoints on. These commands run the same port, capability, colocation, and free-connector validation as builder-created fixtures. Builders should not persist endpoint XML or database rows as a substitute for proving the player workflow.
 

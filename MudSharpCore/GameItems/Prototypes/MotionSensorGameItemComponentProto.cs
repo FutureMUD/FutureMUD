@@ -201,7 +201,7 @@ public class MotionSensorGameItemComponentProto : PoweredMachineBaseGameItemComp
 			(gameworld, account) => new MotionSensorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Motion Sensor",
 			(proto, gameworld) => new MotionSensorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"MotionSensor",
 			$"A {"[powered]".Colour(Telnet.Magenta)} {SignalComponentUtilities.SignalGeneratorTag} that emits a timed signal when it witnesses configured movement",
 			CombinedBuildingHelpText);

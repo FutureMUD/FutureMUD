@@ -188,7 +188,7 @@ public class ClockDetonatorGameItemComponentProto : GameItemComponentProto,
 			(gameworld, account) => new ClockDetonatorGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("ClockDetonator",
 			(proto, gameworld) => new ClockDetonatorGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("ClockDetonator",
+		manager.AddModernTypeHelpInfo("ClockDetonator",
 			$"An {"[armable]".Colour(Telnet.Yellow)} exact in-game datetime trigger for an explosive payload",
 			BuildingHelpText);
 	}

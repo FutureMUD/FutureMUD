@@ -86,6 +86,6 @@ public class ZeroGravityTetherGameItemComponentProto : GameItemComponentProto, I
 	{
 		manager.AddBuilderLoader("ZeroGravityTether".ToLowerInvariant(), true, (gameworld, account) => new ZeroGravityTetherGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("ZeroGravityTether", (proto, gameworld) => new ZeroGravityTetherGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo("ZeroGravityTether", "A zero-gravity tether line with a maximum room length.", BuildingHelpText);
+		manager.AddFuturisticTypeHelpInfo("ZeroGravityTether", "A zero-gravity tether line with a maximum room length.", BuildingHelpText);
 	}
 }

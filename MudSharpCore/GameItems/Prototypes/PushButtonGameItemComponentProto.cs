@@ -191,7 +191,7 @@ public class PushButtonGameItemComponentProto : GameItemComponentProto, ISelecta
 			(gameworld, account) => new PushButtonGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Push Button",
 			(proto, gameworld) => new PushButtonGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"PushButton",
 			$"A {"[selectable]".Colour(Telnet.Yellow)} {SignalComponentUtilities.SignalGeneratorTag} momentary signal input for computer-controlled items",
 			CombinedBuildingHelpText);

@@ -90,7 +90,7 @@ public class GunGameItemComponentProto : FirearmBaseGameItemComponentProto, IFir
             (gameworld, account) => new GunGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Gun", (proto, gameworld) => new GunGameItemComponentProto(proto, gameworld));
 
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Gun",
             $"Makes an item a {"[ranged weapon]".Colour(Telnet.BoldCyan)} with removable-magazine semi-automatic gun mechanics",
             $@"{BuildingHelpText}

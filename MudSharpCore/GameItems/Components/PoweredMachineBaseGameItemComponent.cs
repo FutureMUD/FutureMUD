@@ -331,6 +331,11 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 		SetPowerSource(ResolvePowerSource());
 	}
 
+	protected void ReleasePowerSourceConnection()
+	{
+		EndPowerDrawdown();
+	}
+
 	private void BeginPowerDrawdown()
 	{
 		if (!_runtimeActive)

@@ -65,6 +65,14 @@ public class NeuralInterfaceGameItemComponent : ImplantBaseGameItemComponent, II
 
     public bool PermitsAudio => _neuralInterfacePrototype.PermitsAudio;
     public bool PermitsVisual => _neuralInterfacePrototype.PermitsVisual;
+	public IReadOnlyCollection<IImplant> LinkedImplants
+	{
+		get
+		{
+			FinaliseLoadTimeConnectedImplants();
+			return _connectedImplants.ToList();
+		}
+	}
 
     public void IssueCommand(string alias, string command, StringStack arguments)
     {

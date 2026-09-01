@@ -85,7 +85,7 @@ public class FuelHeaterCoolerGameItemComponentProto : SwitchableThermalSourceGam
             (gameworld, account) => new FuelHeaterCoolerGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("FuelHeaterCooler",
             (proto, gameworld) => new FuelHeaterCoolerGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "FuelHeaterCooler",
             $"A connectable thermal source that consumes either a configured liquid or gas fuel",
             BuildingHelpText

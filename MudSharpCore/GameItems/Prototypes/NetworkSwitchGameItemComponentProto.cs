@@ -97,7 +97,7 @@ public class NetworkSwitchGameItemComponentProto : PoweredMachineBaseGameItemCom
 			(gameworld, account) => new NetworkSwitchGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Network Switch",
 			(proto, gameworld) => new NetworkSwitchGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"Network Switch",
 			$"Makes an item a {"[powered]".Colour(Telnet.BoldGreen)} daisy-chainable telecommunications switch",
 			CombinedBuildingHelpText);

@@ -247,7 +247,7 @@ public class AutomationMountHostGameItemComponentProto : GameItemComponentProto,
 			(gameworld, account) => new AutomationMountHostGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Automation Mount Host",
 			(proto, gameworld) => new AutomationMountHostGameItemComponentProto(proto, gameworld));
-		manager.AddTypeHelpInfo(
+		manager.AddModernTypeHelpInfo(
 			"Automation Mount Host",
 			$"Adds named {"[automation bays]".Colour(Telnet.BoldGreen)} for installable modules such as microcontrollers",
 			CombinedBuildingHelpText);

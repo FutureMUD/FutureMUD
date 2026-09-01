@@ -92,7 +92,7 @@ public class BatteryGameItemComponentProto : GameItemComponentProto, IBatteryPro
             (gameworld, account) => new BatteryGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("Battery",
             (proto, gameworld) => new BatteryGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddModernTypeHelpInfo(
             "Battery",
             $"Turns an item into a {"[battery]".ColourCommand()}",
             BuildingHelpText

@@ -102,7 +102,7 @@ public class ImplantPowerRouterGameItemComponentProto : GameItemComponentProto, 
             (gameworld, account) => new ImplantPowerRouterGameItemComponentProto(gameworld, account));
         manager.AddDatabaseLoader("ImplantPowerRouter",
             (proto, gameworld) => new ImplantPowerRouterGameItemComponentProto(proto, gameworld));
-        manager.AddTypeHelpInfo(
+        manager.AddFuturisticTypeHelpInfo(
             "ImplantPowerRouter",
             $"An {"[implant]".Colour(Telnet.Pink)} that connects to multiple implant power plants and dynamically {"[provides power]".Colour(Telnet.BoldMagenta)} for other implants in the body",
             BuildingHelpText

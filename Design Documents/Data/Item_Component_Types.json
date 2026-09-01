@@ -14,6 +14,15 @@
                             ]
     },
     {
+        "Component Type Name":  "BiometricScanner",
+        "Component Type Description":  "A [powered] biometric [signal generator] for access control",
+        "Exclusive Types":  [
+                                "IAccessControlReader",
+                                "IAutomationMountable",
+                                "IBiometricScanner"
+                            ]
+    },
+    {
         "Component Type Name":  "AmmoClip",
         "Component Type Description":  "A type of [container] used to store rounds for guns",
         "Exclusive Types":  [
@@ -808,9 +817,36 @@
                             ]
     },
     {
+        "Component Type Name":  "Keycard",
+        "Component Type Description":  "Stores multiple case-sensitive electronic access codes",
+        "Exclusive Types":  [
+                                "IKeycard"
+                            ]
+    },
+    {
+        "Component Type Name":  "KeycardScanner",
+        "Component Type Description":  "A [powered] keycard [signal generator] for access control",
+        "Exclusive Types":  [
+                                "IAccessControlReader",
+                                "IAutomationMountable",
+                                "IKeycardScanner"
+                            ]
+    },
+    {
+        "Component Type Name":  "KeycardWriter",
+        "Component Type Description":  "A [powered] machine that programs electronic keycards",
+        "Exclusive Types":  [
+                                "IAutomationMountable",
+                                "IKeycardWriter"
+                            ]
+    },
+    {
         "Component Type Name":  "Keypad",
         "Component Type Description":  "A [selectable] [powered] [signal generator] that emits a momentary signal after the correct numeric code",
         "Exclusive Types":  [
+                                "IAccessControlReader",
+                                "IAutomationMountable",
+                                "IKeypad",
                                 "ISelectable"
                             ]
     },

@@ -6,12 +6,10 @@ using MudSharp.GameItems.Components;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, ISelectablePrototype, ISignalSourceComponentPrototype
+public class KeypadGameItemComponentProto : AccessControlReaderGameItemComponentProto, IKeypadPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3code <digits>#0 - the numeric code that activates this keypad
-	#3value <number>#0 - the signal value emitted after the correct code is entered
-	#3duration <seconds>#0 - how long the keypad remains active after a correct entry
 	#3emote <emote>#0 - the emote shown when someone enters a code. Use @ for the actor and $1 for the item
 
 #6Notes:#0
@@ -19,7 +17,7 @@ public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentP
 	This powered keypad is used via #3select <item> <digits>#0 and only emits its signal while switched on and powered.";
 
 	private static readonly string CombinedBuildingHelpText =
-		$@"{PoweredMachineBaseGameItemComponentProto.BuildingHelpText}{SpecificBuildingHelpText}";
+		$@"{PoweredMachineBaseGameItemComponentProto.BuildingHelpText}{AccessControlBuildingHelpText}{SpecificBuildingHelpText}";
 
 	protected KeypadGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Keypad")
@@ -27,7 +25,6 @@ public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentP
 		UseMountHostPowerSource = true;
 		Wattage = 35.0;
 		Code = string.Empty;
-		SignalValue = 1.0;
 		SignalDuration = TimeSpan.FromSeconds(1);
 		EntryEmote = "@ tap|taps digits into $1";
 	}
@@ -38,41 +35,29 @@ public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentP
 	}
 
 	public string Code { get; protected set; } = string.Empty;
-	public double SignalValue { get; protected set; }
-	public TimeSpan SignalDuration { get; protected set; }
 	public string EntryEmote { get; protected set; } = string.Empty;
 	public override string TypeDescription => "Keypad";
+	public override string AccessMountType => "Keypad";
 
 	protected override string ComponentDescriptionOLCByline => "This item is a powered keypad";
 
 	protected override string ComponentDescriptionOLCAddendum(ICharacter actor)
 	{
 		return
-			$"Code: {Code.ColourCommand()}\nSignal Value: {SignalValue.ToString("N2", actor).ColourValue()}\nActive Duration: {SignalDuration.Describe(actor).ColourValue()}\nEntry Emote: {EntryEmote.ColourCommand()}";
+			$"Code: {Code.ColourCommand()}\nEntry Emote: {EntryEmote.ColourCommand()}\n{AccessControlDescription(actor)}";
 	}
 
 	protected override void LoadFromXml(XElement root)
 	{
 		base.LoadFromXml(root);
+		LoadAccessControlFromXml(root);
 		Code = root.Element("Code")?.Value ?? string.Empty;
-		SignalValue = double.TryParse(root.Element("SignalValue")?.Value, out var signalValue) && double.IsFinite(signalValue)
-			? signalValue
-			: 1.0;
-		SignalDuration = TimeSpan.FromSeconds(
-			double.TryParse(root.Element("SignalDurationSeconds")?.Value, out var duration) &&
-			double.IsFinite(duration) &&
-			duration > 0.0 &&
-			duration <= TimeSpan.MaxValue.TotalSeconds
-				? duration
-				: 1.0);
 		EntryEmote = root.Element("EntryEmote")?.Value ?? "@ tap|taps digits into $1";
 	}
 
-	protected override XElement SaveSubtypeToXml(XElement root)
+	protected override XElement SaveAccessSubtypeToXml(XElement root)
 	{
 		root.Add(new XElement("Code", new XCData(Code)));
-		root.Add(new XElement("SignalValue", SignalValue));
-		root.Add(new XElement("SignalDurationSeconds", SignalDuration.TotalSeconds));
 		root.Add(new XElement("EntryEmote", new XCData(EntryEmote)));
 		return root;
 	}
@@ -85,12 +70,6 @@ public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentP
 		{
 			case "code":
 				return BuildingCommandCode(actor, command);
-			case "value":
-			case "signal":
-				return BuildingCommandSignalValue(actor, command);
-			case "duration":
-			case "time":
-				return BuildingCommandDuration(actor, command);
 			case "emote":
 			case "entryemote":
 				return BuildingCommandEmote(actor, command);
@@ -120,51 +99,6 @@ public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentP
 		return true;
 	}
 
-	private bool BuildingCommandSignalValue(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.Send("What numeric signal value should this keypad emit after a correct code?");
-			return false;
-		}
-
-		if (!double.TryParse(command.SafeRemainingArgument, out var value) || !double.IsFinite(value))
-		{
-			actor.Send("You must enter a valid number for the signal value.");
-			return false;
-		}
-
-		SignalValue = value;
-		Changed = true;
-		actor.Send(
-			$"This keypad now emits a signal value of {SignalValue.ToString("N2", actor).ColourValue()} after a correct code entry.");
-		return true;
-	}
-
-	private bool BuildingCommandDuration(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.Send("How many seconds should this keypad remain active after a correct code?");
-			return false;
-		}
-
-		if (!double.TryParse(command.SafeRemainingArgument, out var value) ||
-		    !double.IsFinite(value) ||
-		    value <= 0.0 ||
-		    value > TimeSpan.MaxValue.TotalSeconds)
-		{
-			actor.Send("You must enter a positive number of seconds.");
-			return false;
-		}
-
-		SignalDuration = TimeSpan.FromSeconds(value);
-		Changed = true;
-		actor.Send(
-			$"This keypad will now remain active for {SignalDuration.Describe(actor).ColourValue()} after a correct code entry.");
-		return true;
-	}
-
 	private bool BuildingCommandEmote(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -189,9 +123,9 @@ public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentP
 	public override bool CanSubmit()
 	{
 		return !string.IsNullOrWhiteSpace(Code) &&
-		       Code.All(char.IsDigit) &&
-		       SignalDuration > TimeSpan.Zero &&
-		       base.CanSubmit();
+			   Code.All(char.IsDigit) &&
+			   SignalDuration > TimeSpan.Zero &&
+			   base.CanSubmit();
 	}
 
 	public override string WhyCannotSubmit()

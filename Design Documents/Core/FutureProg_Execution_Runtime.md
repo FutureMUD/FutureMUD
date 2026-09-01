@@ -107,3 +107,8 @@ The baseline nested-call benchmark could not complete because the old recursion 
 - Loop-local declarations begin each iteration absent from the local scope.
 - Collection and dictionary adapters avoid redundant materialisation where ownership is internal.
 - Optimisations that fail their benchmark gate are removed rather than retained speculatively.
+## Electronic Access-Control Item Functions
+
+Trusted FutureProgs can mutate credential state without physical tools or power and do not emit authentication pulses. Keypads expose `keypadcode(item)` and `setkeypadcode(item, code)`. Biometric readers expose `biometricadd`, `biometricremove`, `biometricclear`, `biometricallows`, and `biometricids`. Cards expose `keycardaddcode`, `keycardremovecode`, `keycardclearcodes`, `keycardhascode`, and `keycardcodes`; readers use the parallel `keycardreader...` functions. Mutation functions return true only for a valid state change, while incompatible query items return empty text, false, or an empty collection.
+
+Typical hooks rotate a keypad with `setkeypadcode(@door, "4821")`, enroll or revoke an identity when access policy changes, issue several zone codes to one card with repeated `keycardaddcode`, and synchronize a reader by clearing then adding the current policy codes. Scheduled revocation should remove the credential from both issued cards and accepting readers when policy requires both sides to forget it.

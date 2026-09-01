@@ -20,6 +20,16 @@ namespace MudSharp.Commands.Modules;
 
 internal class ElectronicsModule : Module<ICharacter>
 {
+	private const string AccessHelpText = @"The #3access#0 command presents a credential to an electronic access reader.
+
+You can use the following syntax:
+	#3access <keypad> <code>#0 - enters a keypad code
+	#3access <biometric scanner>#0 - scans your configured bodypart
+	#3access <biometric scanner> <held severed part>#0 - presents preserved anatomy
+	#3access <keycard reader> <held keycard>#0 - swipes a keycard
+
+Mounted readers can be used from their host item without opening its service panel.";
+
 	private const string MediaHelpText = @"The #3media#0 command operates local media decks and their removable physical media.
 
 You can use the following syntax:
@@ -45,10 +55,15 @@ You can use the following syntax:
 	#3electrical <item> clear <component>#0 - clears any live rewiring on a configurable sink, or clears a routed cable on a cable item
 	#3electrical <item> threshold <component> <value>#0 - changes the component's activation threshold
 	#3electrical <item> mode <component> above|below#0 - changes whether the sink activates above or below the threshold
+	#3electrical <keypad> keypad code <digits>#0 - changes a keypad's runtime code
+	#3electrical <scanner> biometric add|remove|list <person|saved identity>#0 - manages biometric access
+	#3electrical <reader> keycard add|remove|list <code>#0 - manages accepted keycard codes
+	#3electrical <writer> writecard add|remove|clear|list <card> [<code>]#0 - programs a keycard
+	#3electrical <reader> selftarget none|<lock component>#0 - selects a built-in sibling lock to drive directly
 
 Component and source identifiers use the parent item's normal keywords, or #6item@component#0 when you need to name a specific component on a specific item.
 Duplicate nearby items can be disambiguated with the normal numeric item targeting syntax, e.g. #62.sensor#0.
-Routed cables are one-room segments. Longer runs are built by chaining another cable in the next room.";
+	Routed cables are one-room segments. Longer runs are built by chaining another cable in the next room.";
 
 	private const string ProgrammingHelpText = @"The #3programming#0 command is used to inspect and work with computer functions, computer programs, and installed microcontrollers.
 
@@ -414,6 +429,103 @@ If more than one terminal could be used, specify one explicitly or connect first
 		actor.Send($"You erase {name.ColourCommand()} from {item.HowSeen(actor, true).ColourName()}.");
 	}
 
+	[PlayerCommand("Access", "access")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[NoHideCommand]
+	[HelpInfo("access", AccessHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void Access(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(AccessHelpText.SubstituteANSIColour());
+			return;
+		}
+
+		var item = actor.TargetItem(ss.PopSpeech());
+		if (item is null)
+		{
+			actor.Send("You do not see that access reader.");
+			return;
+		}
+
+		var readers = item.GetItemTypes<IAccessControlReader>()
+			.Concat(item.GetItemTypes<IAutomationMountHost>()
+				.SelectMany(x => x.Bays)
+				.Where(x => x.MountedItem is not null)
+				.SelectMany(x => x.MountedItem!.GetItemTypes<IAccessControlReader>()))
+			.Distinct()
+			.ToList();
+		if (readers.Count != 1)
+		{
+			actor.Send(readers.Any()
+				? "That item exposes several access readers; target the specific reader module."
+				: "That item does not expose an electronic access reader.");
+			return;
+		}
+
+		var reader = readers.Single();
+		var manipulation = actor.CanManipulateItem(item);
+		if (!manipulation.Truth)
+		{
+			actor.Send(manipulation.Message);
+			return;
+		}
+
+		switch (reader)
+		{
+			case IKeypad keypad:
+				if (ss.IsFinished)
+				{
+					actor.Send("What code do you want to enter?");
+					return;
+				}
+				actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ enter|enters a code into $1.", actor,
+					actor, reader.Parent)));
+				actor.Send(keypad.TryCode(ss.SafeRemainingArgument, out var keypadError)
+					? "The keypad accepts the code."
+					: keypadError);
+				return;
+			case IBiometricScanner biometric:
+				IGameItem? bodypart = null;
+				if (!ss.IsFinished)
+				{
+					bodypart = actor.TargetPersonalItem(ss.SafeRemainingArgument);
+					if (bodypart is null)
+					{
+						actor.Send("You are not holding any such severed bodypart.");
+						return;
+					}
+				}
+				actor.OutputHandler.Handle(new EmoteOutput(new Emote(bodypart is null
+					? "@ present|presents &0 to $1."
+					: "@ present|presents $2 to $1.", actor, actor, reader.Parent, bodypart)));
+				actor.Send(biometric.CanScan(actor, bodypart, out _, out var biometricError)
+					? "The biometric scanner accepts the identity."
+					: biometricError);
+				return;
+			case IKeycardScanner keycardReader:
+				if (ss.IsFinished)
+				{
+					actor.Send("Which held keycard do you want to swipe?");
+					return;
+				}
+				var cardItem = actor.TargetPersonalItem(ss.SafeRemainingArgument);
+				var card = cardItem?.GetItemType<IKeycard>();
+				if (card is null)
+				{
+					actor.Send("You are not holding any such keycard.");
+					return;
+				}
+				actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ swipe|swipes $2 through $1.", actor,
+					actor, reader.Parent, cardItem)));
+				actor.Send(keycardReader.TryCard(card, out var cardError)
+					? "The keycard reader accepts the card."
+					: cardError);
+				return;
+		}
+	}
+
 	[PlayerCommand("Electrical", "electrical")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "movement", "You must first stop {0} before you can do that.")]
@@ -487,6 +599,21 @@ If more than one terminal could be used, specify one explicitly or connect first
 			case "mode":
 				ElectricalMode(actor, item, ss);
 				return;
+			case "keypad":
+				ElectricalKeypad(actor, item, ss);
+				return;
+			case "biometric":
+				ElectricalBiometric(actor, item, ss);
+				return;
+			case "keycard":
+				ElectricalKeycardReader(actor, item, ss);
+				return;
+			case "writecard":
+				ElectricalWriteCard(actor, item, ss);
+				return;
+			case "selftarget":
+				ElectricalSelfTarget(actor, item, ss);
+				return;
 			default:
 				actor.OutputHandler.Send(ElectricalHelpText.SubstituteANSIColour());
 				return;
@@ -550,7 +677,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		}
 
 		if (!TryResolveTerminalForTyping(actor, ss.SafeRemainingArgument.Trim(), out var terminalItem, out var terminal,
-			    out var text, out var error))
+				out var text, out var error))
 		{
 			actor.Send(error);
 			return;
@@ -1263,6 +1390,285 @@ If more than one terminal could be used, specify one explicitly or connect first
 			() => EnumerateShockRiskItems(cableItem));
 	}
 
+	private static void ElectricalKeypad(ICharacter actor, IGameItem item, StringStack ss)
+	{
+		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
+		{
+			actor.Send(serviceError);
+			return;
+		}
+
+		var keypad = item.GetItemType<IKeypad>();
+		if (keypad is null)
+		{
+			actor.Send("That item is not a keypad.");
+			return;
+		}
+		if (!ss.PopForSwitch().EqualTo("code") || ss.IsFinished || !ss.SafeRemainingArgument.All(char.IsDigit))
+		{
+			actor.Send("Use electrical <keypad> keypad code <digits>.");
+			return;
+		}
+
+		var code = ss.SafeRemainingArgument;
+		StartAccessConfigurationAction(actor, item, outcome =>
+		{
+			if (!keypad.TrySetCode(code, out var error))
+			{
+				actor.Send(error);
+				return false;
+			}
+			actor.Send($"You set the keypad code to {code.ColourCommand()}.");
+			return true;
+		});
+	}
+
+	private static void ElectricalSelfTarget(ICharacter actor, IGameItem item, StringStack ss)
+	{
+		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
+		{
+			actor.Send(serviceError);
+			return;
+		}
+
+		var reader = item.GetItemType<IAccessControlReader>();
+		if (reader is null)
+		{
+			actor.Send("That item does not contain an access reader.");
+			return;
+		}
+		if (ss.IsFinished)
+		{
+			actor.Send("Which sibling lock should this reader target, or NONE?");
+			return;
+		}
+
+		ILock? target = null;
+		if (!ss.SafeRemainingArgument.EqualTo("none"))
+		{
+			target = ResolveComponentOnItem<ILock>(actor, item, ss.SafeRemainingArgument, "lock component");
+			if (target is null)
+			{
+				return;
+			}
+		}
+
+		StartAccessConfigurationAction(actor, item, outcome =>
+		{
+			if (!reader.TrySetSelfTarget(target, out var error))
+			{
+				actor.Send(error);
+				return false;
+			}
+			actor.Send(target is null
+				? "You clear the reader's direct self-target lock."
+				: $"You configure the reader to directly drive {DescribeComponent(actor, target).ColourName()}.");
+			return true;
+		});
+	}
+
+	private static void ElectricalBiometric(ICharacter actor, IGameItem item, StringStack ss)
+	{
+		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
+		{
+			actor.Send(serviceError);
+			return;
+		}
+
+		var scanner = item.GetItemType<IBiometricScanner>();
+		if (scanner is null)
+		{
+			actor.Send("That item is not a biometric scanner.");
+			return;
+		}
+
+		var action = ss.PopForSwitch();
+		if (action.EqualTo("list"))
+		{
+			actor.Send(scanner.AuthorisedPeople.Any()
+				? $"Authorised identities:\n{scanner.AuthorisedPeople.Select(x => $"\t{x.Name.ColourName()} (#{x.CharacterId.ToString("N0", actor)})").ListToLines()}"
+				: "This scanner has no authorised identities.");
+			return;
+		}
+
+		if (ss.IsFinished || !action.EqualToAny("add", "remove"))
+		{
+			actor.Send("Use biometric add <present-person>, biometric remove <saved-name|identity-id>, or biometric list.");
+			return;
+		}
+
+		ICharacter? person = null;
+		long identityId = 0L;
+		if (action.EqualTo("add"))
+		{
+			person = actor.TargetActor(ss.SafeRemainingArgument);
+			if (person is null)
+			{
+				actor.Send("There is no such person present to enrol.");
+				return;
+			}
+		}
+		else
+		{
+			var token = ss.SafeRemainingArgument;
+			var matches = scanner.AuthorisedPeople
+				.Where(x => long.TryParse(token, out var id) ? x.CharacterId == id : x.Name.EqualTo(token))
+				.ToList();
+			if (matches.Count != 1)
+			{
+				actor.Send(matches.Any() ? "That saved name is ambiguous; use its identity ID." : "No saved identity matches that name or ID.");
+				return;
+			}
+			identityId = matches.Single().CharacterId;
+		}
+
+		var enrolledPerson = person;
+		StartAccessConfigurationAction(actor, item, outcome =>
+		{
+			var success = action.EqualTo("add")
+				? scanner.AddAuthorisedPerson(enrolledPerson!, out var error)
+				: scanner.RemoveAuthorisedPerson(identityId, out error);
+			if (!success)
+			{
+				actor.Send(error);
+				return false;
+			}
+			actor.Send(action.EqualTo("add")
+				? $"You enrol {enrolledPerson!.HowSeen(actor).ColourName()} in the scanner."
+				: "You revoke that identity from the scanner.");
+			return true;
+		});
+	}
+
+	private static void ElectricalKeycardReader(ICharacter actor, IGameItem item, StringStack ss)
+	{
+		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
+		{
+			actor.Send(serviceError);
+			return;
+		}
+
+		var reader = item.GetItemType<IKeycardScanner>();
+		if (reader is null)
+		{
+			actor.Send("That item is not a keycard reader.");
+			return;
+		}
+		var action = ss.PopForSwitch();
+		if (action.EqualTo("list"))
+		{
+			actor.Send(reader.AcceptedCodes.Any()
+				? $"Accepted codes: {reader.AcceptedCodes.Select(x => x.ColourCommand()).ListToString()}"
+				: "This reader accepts no codes.");
+			return;
+		}
+		if (!action.EqualToAny("add", "remove") || ss.IsFinished)
+		{
+			actor.Send("Use keycard add <code>, keycard remove <code>, or keycard list.");
+			return;
+		}
+
+		var code = ss.SafeRemainingArgument;
+		StartAccessConfigurationAction(actor, item, outcome =>
+		{
+			var success = action.EqualTo("add")
+				? reader.AddAcceptedCode(code, out var error)
+				: reader.RemoveAcceptedCode(code, out error);
+			if (!success)
+			{
+				actor.Send(error);
+				return false;
+			}
+			actor.Send($"You {(action.EqualTo("add") ? "add" : "remove")} {code.ColourCommand()} {(action.EqualTo("add") ? "to" : "from")} the reader.");
+			return true;
+		});
+	}
+
+	private static void ElectricalWriteCard(ICharacter actor, IGameItem item, StringStack ss)
+	{
+		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
+		{
+			actor.Send(serviceError);
+			return;
+		}
+
+		var writer = item.GetItemType<IKeycardWriter>();
+		if (writer is null)
+		{
+			actor.Send("That item is not a keycard writer.");
+			return;
+		}
+		if (!writer.CanWrite(out var writerError))
+		{
+			actor.Send(writerError);
+			return;
+		}
+
+		var action = ss.PopForSwitch();
+		if (!action.EqualToAny("add", "remove", "clear", "list") || ss.IsFinished)
+		{
+			actor.Send("Use writecard add|remove|clear|list <card> [<code>].");
+			return;
+		}
+
+		var cardItem = actor.TargetPersonalItem(ss.PopSpeech());
+		var card = cardItem?.GetItemType<IKeycard>();
+		if (card is null)
+		{
+			actor.Send("You are not holding any such keycard.");
+			return;
+		}
+		if (action.EqualTo("list"))
+		{
+			actor.Send(card.Codes.Any()
+				? $"Codes on {cardItem!.HowSeen(actor, true)}: {card.Codes.Select(x => x.ColourCommand()).ListToString()}"
+				: $"{cardItem!.HowSeen(actor, true)} has no codes.");
+			return;
+		}
+		if (action.EqualToAny("add", "remove") && ss.IsFinished)
+		{
+			actor.Send("Which code do you want to write or remove?");
+			return;
+		}
+
+		if (!TryAcquireSpecificItemPlan(actor, cardItem!, out var cardPlan))
+		{
+			return;
+		}
+		var code = ss.SafeRemainingArgument;
+		StartElectricalAction(actor, item, "ElectricalConfigureActionDurationSeconds",
+			CheckType.ConfigureElectricalComponentCheck, "ElectricalConfigureTraitName", "ElectricalToolTagName",
+			"programming $1", "ElectricalConfigureActionBeginEmote", "ElectricalConfigureActionContinueEmote",
+			"ElectricalConfigureActionCancelEmote", "ElectricalConfigureActionSuccessEmote",
+			"ElectricalConfigureActionFailureEmote", outcome =>
+			{
+				var success = action switch
+				{
+					"add" => card.AddCode(code, out _),
+					"remove" => card.RemoveCode(code, out _),
+					_ => card.ClearCodes()
+				};
+				if (!success)
+				{
+					actor.Send("The requested card programming operation did not change the card.");
+					return false;
+				}
+				actor.Send($"You finish programming {cardItem!.HowSeen(actor, true).ColourName()}.");
+				return true;
+			}, [cardPlan], outcome => [cardItem!], () => EnumerateShockRiskItems(item));
+	}
+
+	private static void StartAccessConfigurationAction(ICharacter actor, IGameItem item,
+		Func<CheckOutcome, bool> successAction)
+	{
+		StartElectricalAction(actor, item, "ElectricalConfigureActionDurationSeconds",
+			CheckType.ConfigureElectricalComponentCheck, "ElectricalConfigureTraitName", "ElectricalToolTagName",
+			"configuring $1", "ElectricalConfigureActionBeginEmote", "ElectricalConfigureActionContinueEmote",
+			"ElectricalConfigureActionCancelEmote", "ElectricalConfigureActionSuccessEmote",
+			"ElectricalConfigureActionFailureEmote", successAction, null, null,
+			() => EnumerateShockRiskItems(item));
+	}
+
 	private static void ElectricalBind(ICharacter actor, IGameItem item, StringStack ss)
 	{
 		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
@@ -1626,7 +2032,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 
 		var type = MudSharp.FutureProg.FutureProg.GetTypeByName(ss.SafeRemainingArgument);
 		if (type == ProgVariableTypes.Error ||
-		    !ComputerCompilationRestrictions.IsTypeAllowedInContext(type, FutureProgCompilationContext.ComputerProgram))
+			!ComputerCompilationRestrictions.IsTypeAllowedInContext(type, FutureProgCompilationContext.ComputerProgram))
 		{
 			actor.Send("That is not a programming-safe type.");
 			return;
@@ -1669,7 +2075,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 			var category = ss.SafeRemainingArgument;
 			infos = infos
 				.Where(x => x.Category.EqualTo(category) ||
-				            x.Category.StartsWith(category, StringComparison.InvariantCultureIgnoreCase))
+							x.Category.StartsWith(category, StringComparison.InvariantCultureIgnoreCase))
 				.ToList();
 		}
 
@@ -1834,7 +2240,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		var owner = GetCurrentProgrammingOwner(actor);
 		var name = ss.IsFinished ? $"Unnamed{kind.Value.DescribeEnum()}" : ss.SafeRemainingArgument.Trim();
 		if (actor.Gameworld.ComputerExecutionService.GetExecutables(owner)
-			    .Any(x => x.Name.EqualTo(name)))
+				.Any(x => x.Name.EqualTo(name)))
 		{
 			actor.Send($"There is already an executable with that name on {DescribeComputerOwner(actor, owner)}.");
 			return;
@@ -1978,7 +2384,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		var owner = ResolveExecutableOwner(actor, executable) ?? GetCurrentProgrammingOwner(actor);
 		var name = ss.SafeRemainingArgument.Trim();
 		if (actor.Gameworld.ComputerExecutionService.GetExecutables(owner)
-			    .Any(x => x.Id != executable.Id && x.Name.EqualTo(name)))
+				.Any(x => x.Id != executable.Id && x.Name.EqualTo(name)))
 		{
 			actor.Send($"There is already another executable with that name on {DescribeComputerOwner(actor, owner)}.");
 			return;
@@ -2001,7 +2407,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 
 		var type = MudSharp.FutureProg.FutureProg.GetTypeByName(ss.SafeRemainingArgument);
 		if (type == ProgVariableTypes.Error ||
-		    !ComputerCompilationRestrictions.IsTypeAllowedInContext(type, executable.CompilationContext))
+			!ComputerCompilationRestrictions.IsTypeAllowedInContext(type, executable.CompilationContext))
 		{
 			actor.Send("That is not a valid programming-safe return type for that executable.");
 			return;
@@ -2115,7 +2521,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 
 		var type = MudSharp.FutureProg.FutureProg.GetTypeByName(ss.SafeRemainingArgument);
 		if (type == ProgVariableTypes.Error ||
-		    !ComputerCompilationRestrictions.IsTypeAllowedInContext(type, executable.CompilationContext))
+			!ComputerCompilationRestrictions.IsTypeAllowedInContext(type, executable.CompilationContext))
 		{
 			actor.Send("That is not a valid programming-safe parameter type for that executable.");
 			return;
@@ -3562,7 +3968,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		}
 
 		if (process.WaitType == ComputerProcessWaitType.UserInput &&
-		    process.WaitingTerminalItemId.HasValue)
+			process.WaitingTerminalItemId.HasValue)
 		{
 			var terminal = actor.Gameworld.TryGetItem(process.WaitingTerminalItemId.Value, true);
 			var waitingUser = process.WaitingCharacterId.HasValue
@@ -3578,13 +3984,13 @@ If more than one terminal could be used, specify one explicitly or connect first
 		}
 
 		if (process.WaitType == ComputerProcessWaitType.Signal &&
-		    ComputerProcessWaitArguments.TryParseSignal(process.WaitArgument, out var signalBinding))
+			ComputerProcessWaitArguments.TryParseSignal(process.WaitArgument, out var signalBinding))
 		{
 			return $"Signal ({SignalComponentUtilities.DescribeSignalComponent(signalBinding)})";
 		}
 
 		if (process.WaitType == ComputerProcessWaitType.Media &&
-		    ComputerProcessWaitArguments.TryParseMedia(process.WaitArgument, out var endpoint))
+			ComputerProcessWaitArguments.TryParseMedia(process.WaitArgument, out var endpoint))
 		{
 			return $"Media ({endpoint.ItemId.ToString("N0", actor)}/{endpoint.ComponentId.ToString("N0", actor)}/{endpoint.EndpointKey})";
 		}
@@ -3646,7 +4052,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		}
 
 		if (existingEffect is not null && ReferenceEquals(existingEffect.Session.Terminal, terminal) &&
-		    ReferenceEquals(existingEffect.Session, session))
+			ReferenceEquals(existingEffect.Session, session))
 		{
 			return true;
 		}
@@ -3714,7 +4120,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		{
 			var explicitTerminalItem = actor.TargetItem(firstToken);
 			if (explicitTerminalItem?.Components.OfType<IComputerTerminal>().FirstOrDefault() is
-			    ComputerTerminalGameItemComponent explicitTerminal)
+				ComputerTerminalGameItemComponent explicitTerminal)
 			{
 				terminalItem = explicitTerminalItem;
 				terminal = explicitTerminal;
@@ -3769,7 +4175,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 	private static IComputerExecutableOwner GetCurrentProgrammingOwner(ICharacter actor)
 	{
 		return GetCurrentProgrammingTerminalSession(actor)?.CurrentOwner ??
-		       actor.Gameworld.ComputerExecutionService.GetWorkspace(actor);
+			   actor.Gameworld.ComputerExecutionService.GetWorkspace(actor);
 	}
 
 	private static IComputerExecutableOwner? ResolveExecutableOwner(ICharacter actor, IComputerExecutableDefinition executable)
@@ -4319,7 +4725,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 	{
 		var extraPlans = additionalInventoryPlans?.ToList() ?? [];
 		if (TryExecuteConfiguredActionImmediatelyForAdministrator(actor, checkType, extraPlans, successAction,
-			    successExemptItemsAction))
+				successExemptItemsAction))
 		{
 			return;
 		}
@@ -5004,14 +5410,14 @@ If more than one terminal could be used, specify one explicitly or connect first
 		}
 
 		return candidateItems.GetFromItemListByKeyword(identifier, actor) ??
-		       candidateItems.GetFromItemListByKeywordIncludingNames(identifier, actor);
+			   candidateItems.GetFromItemListByKeywordIncludingNames(identifier, actor);
 	}
 
 	private static string DescribeAvailableElectricalTargets(ICharacter actor, IGameItem item)
 	{
 		var items = new[] { item }
 			.Concat(item.GetItemType<IAutomationHousing>() is IAutomationHousing housing &&
-			        housing.CanAccessHousing(actor, out _)
+					housing.CanAccessHousing(actor, out _)
 				? housing.ConcealedItems
 				: [])
 			.Distinct()
@@ -5063,13 +5469,13 @@ If more than one terminal could be used, specify one explicitly or connect first
 		}
 
 		if (item.GetItemType<IAutomationMountHost>() is IAutomationMountHost host &&
-		    !host.CanAccessMounts(actor, out error))
+			!host.CanAccessMounts(actor, out error))
 		{
 			return false;
 		}
 
 		if (item.GetItemType<IAutomationHousing>() is IAutomationHousing housing &&
-		    !housing.CanAccessHousing(actor, out error))
+			!housing.CanAccessHousing(actor, out error))
 		{
 			return false;
 		}
@@ -5309,9 +5715,9 @@ If more than one terminal could be used, specify one explicitly or connect first
 			? actor.Gameworld.TryGetItem(binding.SourceItemId, true)
 			: null;
 		var itemDescription = sourceItem?.HowSeen(actor, true) ??
-		                      (!string.IsNullOrWhiteSpace(binding.SourceItemName)
-			                      ? binding.SourceItemName
-			                      : "unknown item");
+							  (!string.IsNullOrWhiteSpace(binding.SourceItemName)
+								  ? binding.SourceItemName
+								  : "unknown item");
 		var componentDescription = !string.IsNullOrWhiteSpace(binding.SourceComponentName)
 			? binding.SourceComponentName
 			: "unknown component";

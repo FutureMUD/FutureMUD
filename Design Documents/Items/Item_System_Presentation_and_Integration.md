@@ -240,6 +240,12 @@ Liquid ritual offerings use `libate <amount|all> from <container> at <focus> [(e
 Telephone presentation is not only textual state. For room-facing telephones and cellular phones, ringing is an audible output with an effective ring volume. Players adjust that through the ordinary `switch` command rather than a staff-only builder path: wired phones expose `quiet`, `normal`, and `loud`, while cellular phones also expose `silent`. Nearby rooms may hear ringing through ordinary audio-echo rules, but a silent cellular phone can still vibrate for the wearer if it is sitting inside a worn container. Implant telephones do not emit room audio and instead report ringing and connection progress through implant messaging.
 
 The current signal-automation slice has its own presentation and integration rules:
+
+- access readers decorate full descriptions with their credential role, power state, and canonical `access` syntax without revealing credentials
+- successful and rejected authentication are visible interactions, but keypad failures do not disclose whether a near-miss was close to the code
+- mounted access readers remain usable through the visible host surface even while the service housing is closed; configuration and wiring diagnostics still require service access
+- self-target readers lock their selected sibling whenever they are inactive, unpowered, expired, or unresolved; multi-reader installations should combine normal signals through a microcontroller rather than compete for a direct sibling lock
+- biometric allowlists present saved names and stable identity IDs to authorised electronics workers; keycard code lists are case-sensitive builder/programming data and are not shown by ordinary item descriptions
 - `ComputerHost` decorates the full description with its switch state, power state, executable count, file count, how many storage devices, terminals, and network adapters are currently connected, and any hosted VPN networks it exposes for authenticated tunnelling
 - `ComputerStorage` decorates the full description with whether it is mounted, how many stored executables it has, and how many files it contains
 - `ComputerTerminal` decorates the full description with its switch state, power state, and the currently connected host if any

@@ -22,6 +22,11 @@ internal class MudSharp
             return;
         }
 
+		if (TryRunIndustrialisedPrerequisiteAudit(args))
+		{
+			return;
+		}
+
 		if (TryRunGoogleEmailAuthorization(args))
 		{
 			return;
@@ -228,6 +233,55 @@ internal class MudSharp
 		catch (Exception exception)
 		{
 			Console.Error.WriteLine($"Documentation export failed: {exception.Message}");
+			Environment.ExitCode = 1;
+		}
+
+		return true;
+	}
+
+	private static bool TryRunIndustrialisedPrerequisiteAudit(string[] args)
+	{
+		if (args.Length == 0 ||
+		    !args[0].Equals("--audit-industrialised-prerequisites", StringComparison.OrdinalIgnoreCase))
+		{
+			return false;
+		}
+
+		if (args.Length is < 2 or > 3 ||
+		    (args.Length == 3 && !args[2].Equals("--check", StringComparison.OrdinalIgnoreCase)))
+		{
+			Console.Error.WriteLine(
+				"Usage: MudSharp --audit-industrialised-prerequisites <repository-root> [--check]");
+			Environment.ExitCode = 2;
+			return true;
+		}
+
+		try
+		{
+			var result = IndustrialisedPrerequisiteAuditExporter.Run(args[1], args.Length == 3);
+			Console.WriteLine(
+				$"Audited {result.RuntimeComponentCount:N0} runtime component types " +
+				$"({result.ModernComponentCount:N0} modern, {result.FuturisticComponentCount:N0} futuristic, " +
+				$"{result.GeneralComponentCount:N0} general) against {result.SeededPrototypeCount:N0} seeded profiles; " +
+				$"{result.MissingSameTypeStockCount:N0} types have no same-type exported stock.");
+			foreach (var changedFile in result.ChangedFiles)
+			{
+				Console.WriteLine($"Updated {changedFile}.");
+			}
+
+			foreach (var error in result.Errors)
+			{
+				Console.Error.WriteLine(error);
+			}
+
+			if (result.Errors.Count > 0)
+			{
+				Environment.ExitCode = 1;
+			}
+		}
+		catch (Exception exception)
+		{
+			Console.Error.WriteLine($"Industrialised prerequisite audit failed: {exception.Message}");
 			Environment.ExitCode = 1;
 		}
 

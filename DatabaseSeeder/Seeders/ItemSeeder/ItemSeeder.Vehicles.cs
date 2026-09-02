@@ -281,8 +281,9 @@ public partial class ItemSeeder
 		return string.IsNullOrWhiteSpace(eras)
 			? []
 			: eras.Split([' ', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-				.Select(x => x.ToLowerInvariant())
-				.Where(VehicleEraTags.ContainsKey)
+				.Select(x => GetVehicleEraToken(x.ToLowerInvariant()))
+				.Where(x => x is not null && VehicleEraTags.ContainsKey(x))
+				.Select(x => x!)
 				.ToHashSet(StringComparer.OrdinalIgnoreCase);
 	}
 

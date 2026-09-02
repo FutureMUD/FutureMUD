@@ -164,9 +164,9 @@ public class VehicleSeederTests
 	public void VehicleEraParser_NormalisesFiltersAndDeduplicates()
 	{
 		var parsed = ItemSeeder.ParseVehicleEraTokensForTesting(
-			"Antiquity, medieval medieval earlymodern unknown COMPUTER");
+			"Antiquity, medieval medieval earlymodern unknown industrial revolution nuclear atomic information COMPUTER");
 		CollectionAssert.AreEquivalent(
-			new[] { "antiquity", "medieval", "earlymodern", "computer" },
+			new[] { "antiquity", "medieval", "earlymodern", "revolution", "atomic", "computer" },
 			parsed.ToArray());
 		Assert.AreEqual(0, ItemSeeder.ParseVehicleEraTokensForTesting(null).Count);
 		Assert.AreEqual(0, ItemSeeder.ParseVehicleEraTokensForTesting("unknown").Count);

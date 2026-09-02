@@ -83,18 +83,20 @@ SeedVehicleItemsAndPrototypes(eras);
 
 This ordering is deliberate. Vehicle definitions resolve materials, liquids, traits, ordinary components, tags and previously seeded item prototypes from the caches populated by the ordinary item pass.
 
-The accepted era tokens and tags are:
+ItemSeeder presents readable canonical later-era names and maps them to the established vehicle tokens. The accepted tokens and tags are:
 
-| Token | Era tag |
-|---|---|
-| `antiquity` | `Era / Antiquity Era` |
-| `medieval` | `Era / Medieval Era` |
-| `renaissance` | `Era / Renaissance Era` |
-| `earlymodern` | `Era / Early Modern Era` |
-| `revolution` | `Era / Industrial Era` |
-| `modern` | `Era / Modern Era` |
-| `atomic` | `Era / Nuclear Era` |
-| `computer` | `Era / Information Age Era` |
+| ItemSeeder key | Compatibility alias / vehicle key | Era tag |
+|---|---|---|
+| `antiquity` | `antiquity` | `Era / Antiquity Era` |
+| `medieval` | `medieval` | `Era / Medieval Era` |
+| `renaissance` | `renaissance` | `Era / Renaissance Era` |
+| `earlymodern` | `earlymodern` | `Era / Early Modern Era` |
+| `industrial` | `revolution` | `Era / Industrial Era` |
+| `modern` | `modern` | `Era / Modern Era` |
+| `nuclear` | `atomic` | `Era / Nuclear Era` |
+| `information` | `computer` | `Era / Information Age Era` |
+
+Both forms are normalised before vehicle admission. Industrial, Modern, Nuclear and Information remain inactive at the ItemSeeder selection surface until their ordinary-item modules contain substantive content.
 
 Only selected eras are inserted. A vehicle may declare multiple supported eras; selecting any one of them installs the
 same stable prototype and applies every era tag for which that design is suitable. This prevents duplicate near-identical

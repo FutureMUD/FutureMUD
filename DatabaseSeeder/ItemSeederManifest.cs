@@ -123,14 +123,21 @@ internal static class ItemSeederManifestCatalogue
 		new ItemSeederManifestModule("medieval", "Medieval", ["shared-preindustrial"], ["medieval"]),
 		new ItemSeederManifestModule("renaissance", "Renaissance", ["shared-preindustrial"], ["renaissance"]),
 		new ItemSeederManifestModule("earlymodern", "Early Modern", ["shared-preindustrial"], ["earlymodern"]),
-		new ItemSeederManifestModule("lifecycle", "Lifecycle Links", ["shared-preindustrial"],
-			["antiquity", "medieval", "renaissance", "earlymodern"]),
-		new ItemSeederManifestModule("outfits", "Outfits", ["antiquity", "medieval", "renaissance", "earlymodern"],
-			["antiquity", "medieval", "renaissance", "earlymodern"]),
-		new ItemSeederManifestModule("crafts", "Crafts", ["foundations", "shared-preindustrial"],
-			["antiquity", "medieval", "renaissance", "earlymodern"]),
+		new ItemSeederManifestModule("shared-industrialised", "Shared Industrialised Content", ["foundations"],
+			["industrial", "modern", "nuclear", "information"]),
+		new ItemSeederManifestModule("industrial", "Industrial", ["shared-industrialised"], ["industrial"]),
+		new ItemSeederManifestModule("modern", "Modern", ["shared-industrialised"], ["modern"]),
+		new ItemSeederManifestModule("nuclear", "Nuclear", ["shared-industrialised"], ["nuclear"]),
+		new ItemSeederManifestModule("information", "Information Age", ["shared-industrialised"], ["information"]),
+		new ItemSeederManifestModule("lifecycle", "Lifecycle Links", ["shared-preindustrial", "shared-industrialised"],
+			["antiquity", "medieval", "renaissance", "earlymodern", "industrial", "modern", "nuclear", "information"]),
+		new ItemSeederManifestModule("outfits", "Outfits",
+			["antiquity", "medieval", "renaissance", "earlymodern", "industrial", "modern", "nuclear", "information"],
+			["antiquity", "medieval", "renaissance", "earlymodern", "industrial", "modern", "nuclear", "information"]),
+		new ItemSeederManifestModule("crafts", "Crafts", ["foundations", "shared-preindustrial", "shared-industrialised"],
+			["antiquity", "medieval", "renaissance", "earlymodern", "industrial", "modern", "nuclear", "information"]),
 		new ItemSeederManifestModule("vehicles", "Vehicles", ["foundations"],
-			["antiquity", "medieval", "renaissance", "earlymodern"])
+			["antiquity", "medieval", "renaissance", "earlymodern", "industrial", "modern", "nuclear", "information"])
 	];
 
 	public static string Fingerprint(object? value)

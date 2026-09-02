@@ -36,20 +36,49 @@ Please enter the eras that you want to be created, separated by spaces.
 What is your choice? ", (context, answers) => true,
 				(text, context) =>
 				{
-					string[] split = text.Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
-					foreach (string item in split) { switch (item.ToLowerInvariant())
-						{
-							case "antiquity":
-							case "medieval":
-							case "renaissance":
-							case "earlymodern":
-								continue;
-							default:
-								return (false,
-									$"The option '{item.ToLowerInvariant()}' is not a valid era selection.");
-						} } return (true, string.Empty);
+					return ValidateEraSelection(text);
 				}
 			),
+		("technologyprofile",
+				@"Later-era item catalogues use one remembered world technology profile so that stock power, paper, telecommunications, data/media and vehicle-support items remain mutually compatible.
+
+Choose one of #3neutral#0, #3northamerican#0, #3continentaleuropean#0, #3britishirish#0, #3australasian#0, #3japanese#0, #3chinese#0 or #3custom#0.
+
+The custom option composes exact component prototypes already supplied by UsefulSeeder; ItemSeeder does not create component prototypes.
+
+What is your choice? ",
+				(context, answers) => HasRequestedIndustrialisedEra(answers),
+				(text, context) => ValidateTechnologyProfile(text)),
+		("technologypower",
+				@"Enter the exact UsefulSeeder component prototype names used by this custom profile for mains power and power conversion, separated by commas.
+
+What is your choice? ",
+				(context, answers) => HasSelectedCustomTechnologyProfile(answers),
+				(text, context) => ValidateCustomComponentList(text, context, "power")),
+		("technologypaper",
+				@"Enter the paper format families admitted by this custom profile, separated by commas.
+
+What is your choice? ",
+				(context, answers) => HasSelectedCustomTechnologyProfile(answers),
+				(text, context) => ValidateCustomText(text, "paper format")),
+		("technologytelecom",
+				@"Enter the exact UsefulSeeder component prototype names used by this custom profile for telecommunications, separated by commas.
+
+What is your choice? ",
+				(context, answers) => HasSelectedCustomTechnologyProfile(answers),
+				(text, context) => ValidateCustomComponentList(text, context, "telecommunications")),
+		("technologynetworkmedia",
+				@"Enter the exact UsefulSeeder component prototype names used by this custom profile for networks and local media, separated by commas.
+
+What is your choice? ",
+				(context, answers) => HasSelectedCustomTechnologyProfile(answers),
+				(text, context) => ValidateCustomComponentList(text, context, "network and media")),
+		("technologyvehicle",
+				@"Enter the exact UsefulSeeder component prototype names used by this custom profile for vehicle charging and service connectors, separated by commas.
+
+What is your choice? ",
+				(context, answers) => HasSelectedCustomTechnologyProfile(answers),
+				(text, context) => ValidateCustomComponentList(text, context, "vehicle service")),
 		("scope",
 				@"This database already has managed ItemSeeder content. You can reconcile the whole selected-era catalogue, or run the much smaller black-powder support repair when you only need the physical ammunition, tools, tags, weapon items, and gunpowder craft used by muskets and artillery.
 
@@ -1654,19 +1683,6 @@ What is your choice? ",
 		}
 	}
 
-
-	private static readonly string[] ImplementedEraKeys = ["antiquity", "medieval", "renaissance", "earlymodern"];
-
-	private static IReadOnlyCollection<string> ParseEraTokens(string? eras)
-	{
-		return (eras ?? string.Empty)
-			.Split([' ', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-			.Select(x => x.ToLowerInvariant())
-			.Where(x => ImplementedEraKeys.Contains(x, StringComparer.OrdinalIgnoreCase))
-			.Distinct(StringComparer.OrdinalIgnoreCase)
-			.OrderBy(x => Array.IndexOf(ImplementedEraKeys, x))
-			.ToArray();
-	}
 
 	private IReadOnlyCollection<string> ResolveSelectedEras(
 		FuturemudDatabaseContext context,

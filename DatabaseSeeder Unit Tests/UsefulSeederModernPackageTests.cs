@@ -321,6 +321,30 @@ public class UsefulSeederModernPackageTests
             Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected a single modern marker named {name}.");
         }
 
+		foreach (string name in UsefulSeeder.IndustrialisedPrerequisiteComponentNamesForTesting)
+		{
+			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name),
+				$"Expected one reusable Industrialised prerequisite component named {name}.");
+			Assert.IsNotNull(XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == name).Definition));
+		}
+
+		GameItemComponentProto powerBank = context.GameItemComponentProtos
+			.Single(x => x.Name == "PowerBank_USB_C_Standard");
+		XElement powerBankDefinition = XElement.Parse(powerBank.Definition);
+		Assert.AreEqual("PowerBank", powerBank.Type);
+		Assert.AreEqual(1, powerBankDefinition.Element("InputConnectors")?.Elements("Connection").Count());
+		Assert.AreEqual(1, powerBankDefinition.Element("OutputConnectors")?.Elements("Connection").Count());
+
+		GameItemComponentProto refrigerator = context.GameItemComponentProtos
+			.Single(x => x.Name == "Refrigerator_Domestic");
+		Assert.AreEqual("Refrigerator", refrigerator.Type);
+		Assert.AreEqual("0.1", XElement.Parse(refrigerator.Definition).Element("PoweredClosedRate")?.Value);
+
+		GameItemComponentProto powerTool = context.GameItemComponentProtos
+			.Single(x => x.Name == "PowerTool_Workshop");
+		Assert.AreEqual("PowerTool", powerTool.Type);
+		Assert.AreEqual("800", XElement.Parse(powerTool.Definition).Element("Wattage")?.Value);
+
         string[] additionalModernCoverage =
         [
             "Battery_LiIon_Pack",

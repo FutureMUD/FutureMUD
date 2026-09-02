@@ -16,6 +16,14 @@ internal sealed record GameItemComponentRegistrationAuditEntry(
 	IReadOnlyList<string> ComponentCapabilities,
 	IReadOnlyList<string> ExclusiveCapabilities,
 	IReadOnlyList<string> RequiredSiblingCapabilities,
+	string RuntimeComponentClass,
+	bool HasPrototypeXmlLoad,
+	bool HasPrototypeXmlSave,
+	bool HasCreateNew,
+	bool HasComponentLoad,
+	bool HasRevisionCopy,
+	bool HasBuilderCommands,
+	bool HasRuntimeCopy,
 	bool HasBuilderLoader,
 	bool HasDatabaseLoader,
 	bool HasHelp,
@@ -222,6 +230,12 @@ public class GameItemComponentManager : IGameItemComponentManager
 		var hasContextDependentRequirements =
 			typeof(IGameItemComponentPrototypeRequirementProvider).IsAssignableFrom(builder.PrototypeType) &&
 			requiredCapabilities.Count == 0;
+		var runtimeComponentTypeName = builder.PrototypeType.Name.Replace("GameItemComponentProto", "GameItemComponent",
+			StringComparison.Ordinal);
+		var runtimeComponentType = builder.PrototypeType.Assembly.GetType(
+			$"MudSharp.GameItems.Components.{runtimeComponentTypeName}");
+		const BindingFlags instanceMethods = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+		bool HasMethod(Type type, string name) => type.GetMethods(instanceMethods).Any(x => x.Name == name);
 
 		return new GameItemComponentRegistrationAuditEntry(
 			builder.CanonicalDatabaseType!,
@@ -233,6 +247,14 @@ public class GameItemComponentManager : IGameItemComponentManager
 			componentCapabilities,
 			exclusiveCapabilities,
 			requiredCapabilities,
+			runtimeComponentType?.FullName ?? string.Empty,
+			HasMethod(builder.PrototypeType, "LoadFromXml"),
+			HasMethod(builder.PrototypeType, "SaveToXml"),
+			HasMethod(builder.PrototypeType, "CreateNew"),
+			HasMethod(builder.PrototypeType, "LoadComponent"),
+			HasMethod(builder.PrototypeType, "CreateNewRevision"),
+			HasMethod(builder.PrototypeType, "BuildingCommand"),
+			runtimeComponentType is not null && HasMethod(runtimeComponentType, "Copy"),
 			builder.BuilderAliases.Count > 0,
 			true,
 			builder.HelpInfo is not null,

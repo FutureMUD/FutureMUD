@@ -245,11 +245,11 @@ This family is deliberately reserved for a separate detailed system-design slice
 
 ## Industrialised prerequisite audit - no new engine family required
 
-The September 2026 Stage 1 audit compares all 244 canonical runtime item-component registrations against 4,395 exported reusable profiles and a focused material, liquid, gas and tag prerequisite ledger. It recovered 22 already seeded profiles from export drift and added 16 rerunnable UsefulSeeder profiles using existing dedicated mechanics.
+The September 2026 Stage 1 audit compares all 244 canonical runtime item-component registrations against 4,402 exported reusable profiles and a focused material, liquid, gas and tag prerequisite ledger. It recovered 22 already seeded profiles from export drift and added 23 rerunnable owner-controlled profiles using existing dedicated mechanics.
 
-The remaining Industrialised-relevant differences are recorded in `Industrialised_Component_Prerequisite_Audit.tsv`. Ten are owner-specific stock candidates with existing runtime support, six are dependency-bound to later finished items or VehicleSeeder graphs, and the rest are explicit system, alternate-stock or futuristic dispositions. None currently justifies a new engine component family.
+The remaining Industrialised-relevant differences are recorded in `Industrialised_Component_Prerequisite_Audit.tsv`. Nine are dependency-bound to anatomy, finished-item output/source references or VehicleSeeder graphs, and the rest are explicit system, alternate-stock or futuristic dispositions. No reusable-stock gap or new engine component-family gap remains.
 
-One existing runtime contract does require a later correctness slice: `PowerToolGameItemComponent` multiplies prototype wattage by the complete use duration before calling `IProducePower.CanDrawdownSpike` and `DrawdownSpike`. Battery producers interpret that argument as energy converted from watt-seconds, while mains and grid producers interpret it as instantaneous watts. Correcting that unit mismatch requires a coordinated power-provider contract and regression pass rather than a seeder-only change. The stock `PowerTool_*` profiles are therefore valid authoring examples, but Stage 2 must not claim duration-accurate mains power consumption until that contract is repaired.
+The power-tool unit mismatch is closed. `IProducePower` exposes a duration-aware spike overload, `PowerToolGameItemComponent` passes watts and duration separately, and finite battery stores debit the correct watt-hours while continuous providers validate the instantaneous load. Focused regressions protect the overload choice and finite-store arithmetic.
 
 If Stage 2 discovers further behavior that registered types cannot represent honestly, that concrete behavior and dependent item references must be added here before catalogue admission.
 

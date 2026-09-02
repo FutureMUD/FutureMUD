@@ -95,7 +95,7 @@ public class PowerToolGameItemComponent : GameItemComponent, IToolItem, IConsume
             return false;
         }
 
-        if (Parent.GetItemType<IProducePower>()?.CanDrawdownSpike(_prototype.Wattage * baseUsage.TotalSeconds) != true)
+        if (Parent.GetItemType<IProducePower>()?.CanDrawdownSpike(_prototype.Wattage, baseUsage) != true)
         {
             return false;
         }
@@ -110,7 +110,7 @@ public class PowerToolGameItemComponent : GameItemComponent, IToolItem, IConsume
 
     public void UseTool(ITag toolTag, TimeSpan usage)
     {
-        Parent.GetItemType<IProducePower>()?.DrawdownSpike(_prototype.Wattage * usage.TotalSeconds);
+        Parent.GetItemType<IProducePower>()?.DrawdownSpike(_prototype.Wattage, usage);
         TimeSpan max = MaximumDuration();
         if (max <= TimeSpan.Zero || usage <= TimeSpan.Zero)
         {

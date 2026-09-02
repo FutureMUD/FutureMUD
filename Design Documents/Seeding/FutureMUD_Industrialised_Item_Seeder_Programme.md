@@ -9,7 +9,7 @@ The September 2026 first-pass planning brief is an input to this document, not a
 | Evidence | Current count |
 |---|---:|
 | Runtime item component types | 244 |
-| Seeded reusable component prototypes | 4,395 |
+| Seeded reusable component prototypes | 4,402 |
 | Materials | 976 |
 | Liquids | 330 |
 | Gases | 68 |
@@ -62,9 +62,9 @@ Exit gate: Debug and Release seeder builds pass; replay and manifest tests pass;
 
 Audit each required component, material, liquid, gas and tag against live source. Add missing reusable prototypes to UsefulSeeder, with stable names and behavioural tests. Add required materials and substances to their owning seeders. Add only source-backed tags.
 
-Status: the full 244-type registry and near-term resource audit is complete. The pass recovered 22 source-seeded rows from export drift and added 16 valid rerunnable UsefulSeeder profiles. Forty-six runtime types have no same-type exported stock, but each now has an explicit disposition: 18 futuristic/specialist deferrals, 6 system/context-owned types, 6 dependency-bound types, 6 honest alternate satisfactions and 10 owner-specific stock candidates. All directly required audited materials, liquids, gases and tag paths already resolve, so no speculative resource or empty taxonomy additions were made.
+Status: complete. The full 244-type registry and near-term resource audit recovered 22 source-seeded rows from export drift, added 16 valid rerunnable UsefulSeeder profiles, and added seven valid owner-controlled profiles for media recording, bolt actions, flares and remote or clock detonators. Thirty-nine runtime types have no same-type exported stock, and every one now has an explicit disposition: 18 futuristic/specialist deferrals, 6 system/context-owned types, 9 dependency-bound types and 6 honest alternate satisfactions. No type remains marked `reusable-stock-required`. All directly required audited materials, liquids, gases and tag paths resolve, so no speculative resource or empty taxonomy additions were made.
 
-Exit gate: every shared/Industrial row dependency resolves by exact exported name; there are no unexplained type-only placeholders or alternate-type assumptions.
+Exit gate: every runtime type has one deterministic structural-seam audit and one explicit stock disposition; no `reusable-stock-required` disposition remains; and every declared Stage 1 resource resolves by exact exported name. Exact dependencies in future shared/Industrial source rows are a Stage 2 admission check because those rows do not exist during Stage 1. Stage 2 must reject each row before persistence if an exact component, resource or tag dependency is unresolved.
 
 ### Stage 2 - shared plus Industrial
 

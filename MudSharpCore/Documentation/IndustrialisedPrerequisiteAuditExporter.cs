@@ -30,6 +30,14 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 		[property: JsonPropertyName("Component Capabilities")] IReadOnlyList<string> ComponentCapabilities,
 		[property: JsonPropertyName("Exclusive Types")] IReadOnlyList<string> ExclusiveCapabilities,
 		[property: JsonPropertyName("Required Sibling Types")] IReadOnlyList<string> RequiredSiblingCapabilities,
+		[property: JsonPropertyName("Runtime Component Class")] string RuntimeComponentClass,
+		[property: JsonPropertyName("Has Prototype XML Load")] bool HasPrototypeXmlLoad,
+		[property: JsonPropertyName("Has Prototype XML Save")] bool HasPrototypeXmlSave,
+		[property: JsonPropertyName("Has Create Path")] bool HasCreateNew,
+		[property: JsonPropertyName("Has Component Load Path")] bool HasComponentLoad,
+		[property: JsonPropertyName("Has Revision Copy Path")] bool HasRevisionCopy,
+		[property: JsonPropertyName("Has Builder Command Path")] bool HasBuilderCommands,
+		[property: JsonPropertyName("Has Runtime Copy Path")] bool HasRuntimeCopy,
 		[property: JsonPropertyName("Has Context-Dependent Requirements")] bool HasContextDependentRequirements,
 		[property: JsonPropertyName("Has Builder Loader")] bool HasBuilderLoader,
 		[property: JsonPropertyName("Has Database Loader")] bool HasDatabaseLoader,
@@ -56,7 +64,8 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 
 	private static readonly HashSet<string> DependencyBound = new(StringComparer.OrdinalIgnoreCase)
 	{
-		"BreathingFilter", "FaxMachine", "Photocopier", "VehicleAccessPoint", "VehicleCargoSpace", "VehicleExterior"
+		"BiometricScanner", "BreathingFilter", "FaxMachine", "Photocopier", "Salvageable", "SignalDetonator",
+		"VehicleAccessPoint", "VehicleCargoSpace", "VehicleExterior"
 	};
 
 	private static readonly HashSet<string> CombatOwned = new(StringComparer.OrdinalIgnoreCase)
@@ -138,6 +147,10 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 		var curated = ReadCuratedDispositions(componentAuditPath);
 		var componentJson = BuildComponentTypesJson(registrations);
 		var componentTsv = BuildComponentAuditTsv(registrations, seededCounts, curated);
+		if (componentTsv.Contains("\treusable-stock-required\t", StringComparison.Ordinal))
+		{
+			errors.Add("Stage 1 is not closed: one or more component registrations still require reusable stock.");
+		}
 		var resourceTsv = BuildResourceAuditTsv(dataDirectory, errors);
 
 		ReconcileFile(componentTypesPath, componentJson, checkOnly, changedFiles, errors, root);
@@ -182,6 +195,31 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 			{
 				errors.Add($"{registration.CanonicalDatabaseType} has no component help registration.");
 			}
+
+			if (string.IsNullOrWhiteSpace(registration.RuntimeComponentClass))
+			{
+				errors.Add($"{registration.CanonicalDatabaseType} has no matching runtime component class.");
+			}
+
+			if (!registration.HasPrototypeXmlLoad || !registration.HasPrototypeXmlSave)
+			{
+				errors.Add($"{registration.CanonicalDatabaseType} does not expose both prototype XML load and save paths.");
+			}
+
+			if (!registration.HasCreateNew || !registration.HasComponentLoad || !registration.HasRevisionCopy)
+			{
+				errors.Add($"{registration.CanonicalDatabaseType} does not expose all create, load and revision-copy paths.");
+			}
+
+			if (!registration.HasBuilderCommands)
+			{
+				errors.Add($"{registration.CanonicalDatabaseType} has no builder-command path.");
+			}
+
+			if (!registration.HasRuntimeCopy)
+			{
+				errors.Add($"{registration.CanonicalDatabaseType} has no runtime component copy path.");
+			}
 		}
 	}
 
@@ -209,6 +247,14 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 			x.ComponentCapabilities,
 			x.ExclusiveCapabilities,
 			x.RequiredSiblingCapabilities,
+			x.RuntimeComponentClass,
+			x.HasPrototypeXmlLoad,
+			x.HasPrototypeXmlSave,
+			x.HasCreateNew,
+			x.HasComponentLoad,
+			x.HasRevisionCopy,
+			x.HasBuilderCommands,
+			x.HasRuntimeCopy,
 			x.HasContextDependentRequirements,
 			x.HasBuilderLoader,
 			x.HasDatabaseLoader,
@@ -223,7 +269,7 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 	{
 		var lines = new List<string>
 		{
-			"Canonical Type\tTechnology\tBuilder Primary\tBuilder Aliases\tDatabase Loader\tPrototype Class\tExclusive Capabilities\tRequired Sibling Capabilities\tSeeded Prototype Count\tSeeder Owner\tIndustrialised Relevance\tDisposition\tNotes"
+			"Canonical Type\tTechnology\tBuilder Primary\tBuilder Aliases\tDatabase Loader\tPrototype Class\tExclusive Capabilities\tRequired Sibling Capabilities\tSeeded Prototype Count\tSeeder Owner\tIndustrialised Relevance\tDisposition\tNotes\tRuntime Component Class\tPrototype XML Load\tPrototype XML Save\tCreate Path\tComponent Load Path\tRevision Copy Path\tBuilder Command Path\tRuntime Copy Path"
 		};
 		foreach (var registration in registrations)
 		{
@@ -248,7 +294,15 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 				Tsv(disposition.Owner),
 				Tsv(disposition.Relevance),
 				Tsv(disposition.Disposition),
-				Tsv(disposition.Notes)));
+				Tsv(disposition.Notes),
+				Tsv(registration.RuntimeComponentClass),
+				YesNo(registration.HasPrototypeXmlLoad),
+				YesNo(registration.HasPrototypeXmlSave),
+				YesNo(registration.HasCreateNew),
+				YesNo(registration.HasComponentLoad),
+				YesNo(registration.HasRevisionCopy),
+				YesNo(registration.HasBuilderCommands),
+				YesNo(registration.HasRuntimeCopy)));
 		}
 
 		return string.Join(Environment.NewLine, lines) + Environment.NewLine;
@@ -352,11 +406,22 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 		if (ContainsType(DependencyBound, registration.CanonicalDatabaseType))
 		{
 			return new CuratedDisposition("dependency-bound", DefaultOwner(registration.CanonicalDatabaseType),
-				DefaultRelevance(registration), "Requires finished-item or world-specific references; do not seed placeholder IDs.");
+				DefaultRelevance(registration), DependencyReason(registration.CanonicalDatabaseType));
 		}
 
 		return new CuratedDisposition("reusable-stock-required", DefaultOwner(registration.CanonicalDatabaseType),
 			DefaultRelevance(registration), "Runtime support exists but no same-type reusable stock is exported.");
+	}
+
+	private static string DependencyReason(string canonicalType)
+	{
+		return NormaliseType(canonicalType) switch
+		{
+			"biometricscanner" => "Requires a selected world anatomy shape; UsefulSeeder must not guess one when run independently.",
+			"salvageable" => "Requires concrete material or item outputs owned by the finished item; a generic empty profile would not be useful.",
+			"signaldetonator" => "Requires a concrete signal-source component and endpoint; seed it with the finished explosive or automation graph.",
+			_ => "Requires finished-item or world-specific references; do not seed placeholder IDs."
+		};
 	}
 
 	private static string DefaultOwner(string canonicalType)
@@ -405,6 +470,8 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 
 		return technology.HasFlag(GameItemComponentTypeTechnology.Modern) ? "Modern" : "General";
 	}
+
+	private static string YesNo(bool value) => value ? "yes" : "no";
 
 	private static void ReconcileFile(
 		string path,

@@ -41,11 +41,21 @@ public class IndustrialisedPrerequisiteAuditTests
 		Assert.AreEqual(18, typeRows.Count(x => x.GetProperty("Technology").GetString() == "Futuristic"));
 		Assert.IsTrue(typeRows.All(x => x.GetProperty("Has Database Loader").GetBoolean()));
 		Assert.IsTrue(typeRows.All(x => x.GetProperty("Has Help").GetBoolean()));
+		Assert.IsTrue(typeRows.All(x => x.GetProperty("Has Prototype XML Load").GetBoolean()));
+		Assert.IsTrue(typeRows.All(x => x.GetProperty("Has Prototype XML Save").GetBoolean()));
+		Assert.IsTrue(typeRows.All(x => x.GetProperty("Has Create Path").GetBoolean()));
+		Assert.IsTrue(typeRows.All(x => x.GetProperty("Has Component Load Path").GetBoolean()));
+		Assert.IsTrue(typeRows.All(x => x.GetProperty("Has Revision Copy Path").GetBoolean()));
+		Assert.IsTrue(typeRows.All(x => x.GetProperty("Has Builder Command Path").GetBoolean()));
+		Assert.IsTrue(typeRows.All(x => x.GetProperty("Has Runtime Copy Path").GetBoolean()));
+		Assert.IsTrue(typeRows.All(x =>
+			!string.IsNullOrWhiteSpace(x.GetProperty("Runtime Component Class").GetString())));
 
 		var componentAuditRows = File.ReadAllLines(Path.Combine(RepositoryRoot, "Design Documents", "Seeding",
 			"Industrialised_Component_Prerequisite_Audit.tsv"));
 		Assert.AreEqual(245, componentAuditRows.Length);
-		Assert.AreEqual(13, componentAuditRows[0].Split('\t').Length);
+		Assert.AreEqual(21, componentAuditRows[0].Split('\t').Length);
+		Assert.IsFalse(componentAuditRows.Skip(1).Any(x => x.Split('\t')[11] == "reusable-stock-required"));
 
 		var resourceAuditRows = File.ReadAllLines(Path.Combine(RepositoryRoot, "Design Documents", "Seeding",
 			"Industrialised_Resource_Prerequisite_Audit.tsv"));
@@ -67,6 +77,10 @@ public class IndustrialisedPrerequisiteAuditTests
 			.ToList();
 		Assert.AreEqual(rows.Count, rows.Select(x => x.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		foreach (var name in UsefulSeeder.IndustrialisedPrerequisiteComponentNamesForTesting)
+		{
+			Assert.AreEqual(1, rows.Count(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)), name);
+		}
+		foreach (var name in CombatSeeder.IndustrialisedPrerequisiteComponentNamesForTesting)
 		{
 			Assert.AreEqual(1, rows.Count(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)), name);
 		}

@@ -702,3 +702,5 @@ Item custody and direct magic/violence impressions use a lazy `PsychometricHisto
 ## Magical substance integration
 
 Liquid-instance XML preserves magical lot and charge state through splits, mixing and transfer. Substance exposure parents own persistent spell children and use the retained surface-liquid state for maintained oils. See [Magical Substances](../Magic/Magical_Substances.md).
+
+Discrete power requests retain watts as the instantaneous load. The legacy one-argument `IProducePower.DrawdownSpike(wattage)` contract represents an instantaneous spike and remains suitable for continuous producers. Consumers whose operation has a measurable duration use the duration-aware overload instead. Finite stores such as `BatteryPowered` and `PowerBank` convert watts multiplied by elapsed hours into watt-hours for availability checks and debit, while continuous producers validate the same watt load without inventing stored-energy accounting. `PowerTool` uses this duration-aware path for both preflight and consumption, so a tool rated in watts no longer passes watt-seconds into an API whose argument is watts.

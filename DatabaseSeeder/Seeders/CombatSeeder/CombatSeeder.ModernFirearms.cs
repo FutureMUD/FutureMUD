@@ -20,6 +20,16 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class CombatSeeder
 {
+	internal static IReadOnlyList<string> IndustrialisedPrerequisiteComponentNamesForTesting { get; } =
+	[
+		"BoltAction_762_Standard",
+		"ClockDetonator_Standard",
+		"Flare_Handheld_Standard",
+		"FlareAmmunition_12_Gauge_Signal",
+		"RadioDetonator_Standard",
+		"RadioDetonatorTransmitter_Standard"
+	];
+
 	private int EnsureModernFirearmSamples(FuturemudDatabaseContext context)
 	{
 		var changes = 0;
@@ -428,6 +438,9 @@ public partial class CombatSeeder
 		var precisionRifle = EnsureRangedType("7.62 Precision Rifle", "7.62x51mm NATO", AmmunitionLoadType.Direct,
 			10, false, 10, 8.0, 0.35, 0.24, true, Difficulty.Easy, 6.0, 1.5, 0.45,
 			rangePenalty: 0.75, unaimedPenalty: 7.0);
+		var boltActionRifle = EnsureRangedType("7.62 Bolt-Action Rifle", "7.62x51mm NATO",
+			AmmunitionLoadType.Magazine, 20, false, 10, 8.0, 0.35, 0.24, true, Difficulty.Easy,
+			6.0, 1.5, 0.45, rangePenalty: 0.75, unaimedPenalty: 7.0);
 		var antiMaterielRifle = EnsureRangedType("Anti-Materiel Rifle", ".50 BMG", AmmunitionLoadType.Direct,
 			5, false, 12, 18.0, 0.65, 0.78, true, Difficulty.Hard, 10.0, 2.2, 0.6,
 			rangePenalty: 0.9, unaimedPenalty: 9.0);
@@ -468,6 +481,10 @@ public partial class CombatSeeder
 		var precisionRifleComponent = EnsureComponent("InternalMagazineGun", "Rifle_762_Precision",
 			"Turns an item into a manually cycled 7.62mm precision rifle",
 			FirearmDefinition(precisionRifle, true, muzzleFormFactor: "7.62-threaded", selectFire: false));
+		var boltActionRifleComponent = EnsureComponent("BoltAction", "BoltAction_762_Standard",
+			"Turns an item into a magazine-fed manually cycled 7.62mm bolt-action rifle",
+			FirearmDefinition(boltActionRifle, false, "STANAG 7.62", "7.62-threaded",
+				FirearmCycleType.Manual, false));
 		var antiMaterielComponent = EnsureComponent("InternalMagazineGun", "Rifle_50_Anti_Materiel",
 			"Turns an item into a manually cycled anti-materiel rifle",
 			FirearmDefinition(antiMaterielRifle, true, muzzleFormFactor: "50-threaded", selectFire: false));
@@ -492,6 +509,8 @@ public partial class CombatSeeder
 			"(8+(pointblank*5))*quality*sqrt(degree+1)");
 		var grenadeAmmunition = EnsureAmmunition("40mm Low-Velocity Grenade", "40x46mm Grenade", 1,
 			RangedScatterType.Arcing, 0.0, "(3+pointblank)*quality*sqrt(degree+1)");
+		var signalFlareAmmunition = EnsureAmmunition("12 Gauge Signal Flare", "12 Gauge Signal Flare", 1,
+			RangedScatterType.Arcing, 0.0, "1", DamageType.Ballistic);
 		var pistolBall = EnsureAmmunition("9x19mm Ball", "9x19mm NATO", 1, RangedScatterType.Ballistic, 0.0,
 			"(6+(pointblank*3))*quality*sqrt(degree+1)");
 		var pistolExpanding = EnsureAmmunition("9x19mm Expanding", "9x19mm NATO", 1, RangedScatterType.Ballistic, 0.0,
@@ -625,6 +644,71 @@ public partial class CombatSeeder
 			new XElement("Definition"));
 		var holdable = context.GameItemComponentProtos.First(x => x.Type == "Holdable");
 		var stackable = context.GameItemComponentProtos.First(x => x.Name == "Stack_Number");
+		var flareProjectile = EnsureItemPrototype("ModernFirearms_12_Gauge_Signal_Flare_Projectile",
+			"12-gauge signal flare projectile", "12 gauge signal flare projectile", "a signal flare projectile",
+			"A signal flare projectile lies here.",
+			"This pyrotechnic projectile is launched by a compatible flare cartridge.",
+			SizeCategory.VerySmall, 35.0, holdable);
+		var flareCasing = EnsureItemPrototype("ModernFirearms_12_Gauge_Signal_Flare_Casing",
+			"spent 12-gauge signal flare casing", "spent 12 gauge signal flare casing",
+			"a spent signal flare casing", "A spent signal flare casing lies here.",
+			"This is the empty casing from a fired signal flare cartridge.", SizeCategory.Tiny, 12.0,
+			holdable, stackable);
+		var flareAmmunitionComponent = EnsureComponent("FlareAmmunition", "FlareAmmunition_12_Gauge_Signal",
+			"Turns an item into a 12-gauge aerial signal-flare cartridge",
+			new XElement("Definition",
+				new XElement("AmmoType", signalFlareAmmunition.Id),
+				new XElement("CasingProto", flareCasing.Id),
+				new XElement("BulletProto", flareProjectile.Id),
+				new XElement("FlareDuration", 240.0),
+				new XElement("FlareIllumination", 1000.0),
+				new XElement("FlareZoneDescription", new XCData("A bright white signal flare burns high overhead")),
+				new XElement("FlareZoneDescriptionColour", Telnet.BoldWhite.Name),
+				new XElement("FlareBeginEmote", new XCData("A bright white flare shoots into the sky, bathing the area in light.")),
+				new XElement("FlareEndEmote", new XCData("The bright signal flare overhead gutters out."))));
+		EnsureItemPrototype("ModernFirearms_12_Gauge_Signal_Flare_Round", "12-gauge signal flare cartridge",
+			"12 gauge signal flare cartridge round", "a signal flare cartridge",
+			"A signal flare cartridge lies here.",
+			"This complete cartridge launches a long-burning aerial signal flare.", SizeCategory.VerySmall,
+			75.0, holdable, flareAmmunitionComponent);
+		EnsureComponent("Flare", "Flare_Handheld_Standard",
+			"Turns an item into a bright, finite-duration handheld signal flare",
+			new XElement("Definition",
+				new XElement("IlluminationProvided", 250.0),
+				new XElement("SecondsOfFuel", 900),
+				new XElement("RequiresIgnitionSource", true),
+				new XElement("LightEmote", new XCData("@ ignite|ignites $1, which erupts in brilliant light.")),
+				new XElement("TenPercentFuelEcho", new XCData("$0 begins to gutter as its fuel runs low.")),
+				new XElement("FuelExpendedEcho", new XCData("$0 gutters out and goes dark."))));
+
+		var calendar = context.Calendars
+			.OrderBy(x => x.Id)
+			.First();
+		var clock = context.Clocks.First(x => x.Id == calendar.FeedClockId);
+		EnsureComponent("ClockDetonator", "ClockDetonator_Standard",
+			"Turns an item into a disarmable world-clock explosive trigger",
+			new XElement("Definition",
+				new XElement("Calendar", calendar.Id),
+				new XElement("Clock", clock.Id),
+				new XElement("TimeZone", clock.PrimaryTimezoneId),
+				new XElement("CanBeDisarmed", true),
+				new XElement("ArmEmote", new XCData("@ arm|arms the clock detonator on $1.")),
+				new XElement("DisarmEmote", new XCData("@ disarm|disarms the clock detonator on $1."))));
+		EnsureComponent("RadioDetonator", "RadioDetonator_Standard",
+			"Turns an item into a powered receiver for a radio detonator transmitter",
+			new XElement("Definition",
+				new XElement("PowerConsumptionInWatts", 0.1),
+				new XElement("OnPowerOnEmote", new XCData("The armed indicator on $0 lights red.")),
+				new XElement("OnPowerOffEmote", new XCData("The armed indicator on $0 goes dark."))));
+		EnsureComponent("RadioDetonatorTransmitter", "RadioDetonatorTransmitter_Standard",
+			"Turns an item into a powered short-range radio detonator transmitter",
+			new XElement("Definition",
+				new XElement("PowerConsumptionOnBroadcast", 10.0),
+				new XElement("PowerConsumptionOnIdle", 0.5),
+				new XElement("PowerOnEmote", new XCData("@ switch|switches $1 on.")),
+				new XElement("PowerOffEmote", new XCData("@ switch|switches $1 off.")),
+				new XElement("DetonateCommandEmote", new XCData("@ press|presses the detonation control on $1.")),
+				new XElement("DetonationRange", 20)));
 		var wearVest = context.GameItemComponentProtos.First(x => x.Name == "Wear_Vest");
 		var softArmour = context.GameItemComponentProtos.First(x => x.Name == "Armour_LevelIIIaBallisticArmour");
 		var hardArmour = context.GameItemComponentProtos.First(x => x.Name == "Armour_LevelIVBallisticArmour");
@@ -739,6 +823,8 @@ public partial class CombatSeeder
 			"a 7.62 battle rifle", SizeCategory.Large, 4300.0, battleRifleComponent);
 		EnsureWeaponItem("Precision_762_Rifle", "7.62 precision rifle", "762 precision rifle",
 			"a long 7.62 precision rifle", SizeCategory.Large, 6200.0, precisionRifleComponent);
+		EnsureWeaponItem("Bolt_Action_762_Rifle", "7.62 bolt-action rifle", "762 bolt action rifle",
+			"a long 7.62 bolt-action rifle", SizeCategory.Large, 4300.0, boltActionRifleComponent);
 		EnsureWeaponItem("Anti_Materiel_Rifle", "anti-materiel rifle", "anti materiel rifle 50",
 			"a massive anti-materiel rifle", SizeCategory.Huge, 13000.0, antiMaterielComponent);
 		EnsureWeaponItem("Pump_Shotgun", "12-gauge pump shotgun", "12 gauge pump shotgun",

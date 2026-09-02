@@ -345,6 +345,13 @@ public class UsefulSeederModernPackageTests
 		Assert.AreEqual("PowerTool", powerTool.Type);
 		Assert.AreEqual("800", XElement.Parse(powerTool.Definition).Element("Wattage")?.Value);
 
+		GameItemComponentProto digitalRecorder = context.GameItemComponentProtos
+			.Single(x => x.Name == "DigitalMediaRecorder_AV_Standard");
+		XElement digitalRecorderDefinition = XElement.Parse(digitalRecorder.Definition);
+		Assert.AreEqual("Digital Media Recorder", digitalRecorder.Type);
+		Assert.AreEqual("8000000000", digitalRecorderDefinition.Element("StorageCapacityInBytes")?.Value);
+		Assert.AreEqual("Audio, Video", digitalRecorderDefinition.Element("Capabilities")?.Value);
+
         string[] additionalModernCoverage =
         [
             "Battery_LiIon_Pack",

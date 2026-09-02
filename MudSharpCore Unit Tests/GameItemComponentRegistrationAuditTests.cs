@@ -24,6 +24,14 @@ public class GameItemComponentRegistrationAuditTests
 			entries.Select(x => x.CanonicalDatabaseType).Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		Assert.IsTrue(entries.All(x => x.HasDatabaseLoader));
 		Assert.IsTrue(entries.All(x => x.HasHelp));
+		Assert.IsTrue(entries.All(x => x.HasPrototypeXmlLoad));
+		Assert.IsTrue(entries.All(x => x.HasPrototypeXmlSave));
+		Assert.IsTrue(entries.All(x => x.HasCreateNew));
+		Assert.IsTrue(entries.All(x => x.HasComponentLoad));
+		Assert.IsTrue(entries.All(x => x.HasRevisionCopy));
+		Assert.IsTrue(entries.All(x => x.HasBuilderCommands));
+		Assert.IsTrue(entries.All(x => !string.IsNullOrWhiteSpace(x.RuntimeComponentClass)));
+		Assert.IsTrue(entries.All(x => x.HasRuntimeCopy));
 		CollectionAssert.AreEqual(
 			entries.Select(x => x.CanonicalDatabaseType).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToList(),
 			entries.Select(x => x.CanonicalDatabaseType).ToList());
@@ -49,5 +57,17 @@ public class GameItemComponentRegistrationAuditTests
 
 		var attachment = entries.Single(x => x.CanonicalDatabaseType == "FirearmAttachment");
 		Assert.IsTrue(attachment.HasContextDependentRequirements);
+
+		foreach (var canonicalType in new[]
+		         {
+			         "PowerTool", "Compressor", "Refrigerator", "Dryer", "PowerBank", "Photocopier",
+			         "FaxMachine", "Vending Machine", "BankPayment", "Flare", "FlareAmmunition", "AmmoClip",
+			         "BoltAction", "ClockDetonator", "RadioDetonator", "RadioDetonatorTransmitter"
+		         })
+		{
+			var entry = entries.Single(x => x.CanonicalDatabaseType == canonicalType);
+			Assert.IsFalse(string.IsNullOrWhiteSpace(entry.RuntimeComponentClass), canonicalType);
+			Assert.IsTrue(entry.HasRuntimeCopy, canonicalType);
+		}
 	}
 }

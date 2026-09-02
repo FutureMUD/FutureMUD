@@ -21577,5 +21577,12 @@
     { "Component Name": "Refrigerator_Domestic", "Component Description": "Turns an item into a powered domestic refrigerator that slows freshness and biological timers.", "Component Type": "Refrigerator" },
     { "Component Name": "Refrigerator_Commercial", "Component Description": "Turns an item into a high-capacity commercial refrigerator with improved powered preservation.", "Component Type": "Refrigerator" },
     { "Component Name": "VendingMachine_Standard", "Component Description": "Turns an item into a configurable modern vending machine and money-accepting container.", "Component Type": "Vending Machine" },
-    { "Component Name": "WashingMachine_Domestic", "Component Description": "Turns an item into a powered domestic washing machine with a locking transparent door.", "Component Type": "WashingMachine" }
+    { "Component Name": "WashingMachine_Domestic", "Component Description": "Turns an item into a powered domestic washing machine with a locking transparent door.", "Component Type": "WashingMachine" },
+    { "Component Name": "DigitalMediaRecorder_AV_Standard", "Component Description": "Turns an item into a powered audio-visual recorder with local internal storage.", "Component Type": "Digital Media Recorder" },
+    { "Component Name": "BoltAction_762_Standard", "Component Description": "Turns an item into a magazine-fed manually cycled 7.62mm bolt-action rifle", "Component Type": "BoltAction" },
+    { "Component Name": "ClockDetonator_Standard", "Component Description": "Turns an item into a disarmable world-clock explosive trigger", "Component Type": "ClockDetonator" },
+    { "Component Name": "Flare_Handheld_Standard", "Component Description": "Turns an item into a bright, finite-duration handheld signal flare", "Component Type": "Flare" },
+    { "Component Name": "FlareAmmunition_12_Gauge_Signal", "Component Description": "Turns an item into a 12-gauge aerial signal-flare cartridge", "Component Type": "FlareAmmunition" },
+    { "Component Name": "RadioDetonator_Standard", "Component Description": "Turns an item into a powered receiver for a radio detonator transmitter", "Component Type": "RadioDetonator" },
+    { "Component Name": "RadioDetonatorTransmitter_Standard", "Component Description": "Turns an item into a powered short-range radio detonator transmitter", "Component Type": "RadioDetonatorTransmitter" }
 ]

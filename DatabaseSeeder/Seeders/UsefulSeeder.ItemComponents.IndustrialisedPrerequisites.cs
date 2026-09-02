@@ -19,6 +19,7 @@ public partial class UsefulSeeder
 		"BankPayment_SingleUse",
 		"CashRegister_Modern_Standard",
 		"Compressor_Workshop",
+		"DigitalMediaRecorder_AV_Standard",
 		"Dryer_Domestic",
 		"Keycard_Blank",
 		"KeycardScanner_Standard",
@@ -149,6 +150,20 @@ public partial class UsefulSeeder
 			ContainerDefinition(10000.0, SizeCategory.Normal, true,
 				new XElement("PowerUsageInWatts", 2000.0),
 				new XElement("DryingMultiplier", 10.0)));
+
+		Upsert("Digital Media Recorder", "DigitalMediaRecorder_AV_Standard",
+			"Turns an item into a powered audio-visual recorder with local internal storage.",
+			PoweredMachineDefinition(20.0, 0.5, false,
+				"@ chime|chimes as its recorder powers on.",
+				"@ click|clicks off as its recorder powers down.",
+				new XElement("StorageCapacityInBytes", 8_000_000_000L),
+				new XElement("StoragePorts", 1),
+				new XElement("TerminalPorts", 0),
+				new XElement("NetworkPorts", 1),
+				new XElement("Capabilities", "Audio, Video"),
+				new XElement("EndpointKey", "recorder"),
+				new XElement("InputName", "camera"),
+				new XElement("OutputName", "playback")));
 
 		var usbInput = new XElement("Connection", new XAttribute("gender", (short)Gender.Female),
 			new XAttribute("type", "USB-C"));

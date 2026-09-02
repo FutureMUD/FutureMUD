@@ -628,6 +628,8 @@ When closing an item-content dependency:
 4. export `Seeded_Item_Components.json`, `Item_Component_Types.json` when applicable, and `SeededTagHierarchy.csv`;
 5. update the era source reference and consolidated dependency ledger only after source and export names match.
 
+For the Industrialised catalogue, run `scripts/audit-industrialised-prerequisites.ps1` after changing runtime registrations, reusable component stock, or the prerequisite resource set. The command regenerates runtime-factual component metadata and joins it to the maintained seeded catalogue; use `-Check -NoBuild` in verification. Human overrides in the audit TSV must use a `manual:` disposition so refreshes preserve an intentional decision rather than preserving stale factual state.
+
 For the initial historical-arms tranche, verify locked till selection, container tag admission, legacy paper-cartridge XML, musket charge/bore compatibility, bayonet slot and firing rules, spanning-tool inventory plans, and crossbow ready-state persistence.
 
 For the standards, signals, and instruments tranche, additionally verify:

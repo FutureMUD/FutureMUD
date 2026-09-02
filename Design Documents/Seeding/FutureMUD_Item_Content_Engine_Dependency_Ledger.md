@@ -243,6 +243,16 @@ This family is deliberately reserved for a separate detailed system-design slice
 
 `antiquity_temple_libation_table`, `antiquity_oil_lamp_shrine`, `antiquity_oracular_tripod`, and `antiquity_blood_offering_bowl` are seeded against exact liquid-enabled `OfferingReceiver_Antiquity_*` profiles. The oil-lamp shrine composes the existing `Lantern` capability rather than duplicating lighting state. Ritual ownership, detailed history, cooldown, law, clan, and religion policy remain external FutureProg/event integrations and are not required to represent these stock items honestly.
 
+## Industrialised prerequisite audit - no new engine family required
+
+The September 2026 Stage 1 audit compares all 244 canonical runtime item-component registrations against 4,395 exported reusable profiles and a focused material, liquid, gas and tag prerequisite ledger. It recovered 22 already seeded profiles from export drift and added 16 rerunnable UsefulSeeder profiles using existing dedicated mechanics.
+
+The remaining Industrialised-relevant differences are recorded in `Industrialised_Component_Prerequisite_Audit.tsv`. Ten are owner-specific stock candidates with existing runtime support, six are dependency-bound to later finished items or VehicleSeeder graphs, and the rest are explicit system, alternate-stock or futuristic dispositions. None currently justifies a new engine component family.
+
+One existing runtime contract does require a later correctness slice: `PowerToolGameItemComponent` multiplies prototype wattage by the complete use duration before calling `IProducePower.CanDrawdownSpike` and `DrawdownSpike`. Battery producers interpret that argument as energy converted from watt-seconds, while mains and grid producers interpret it as instantaneous watts. Correcting that unit mismatch requires a coordinated power-provider contract and regression pass rather than a seeder-only change. The stock `PowerTool_*` profiles are therefore valid authoring examples, but Stage 2 must not claim duration-accurate mains power consumption until that contract is repaired.
+
+If Stage 2 discovers further behavior that registered types cannot represent honestly, that concrete behavior and dependent item references must be added here before catalogue admission.
+
 ## Completion boundary
 
 The data-only dependency completion pass may seed components only when the current runtime can express their advertised behaviour. A prototype moves out of this ledger only when its engine support, persistence, builder workflow, tests, and maintained catalogue export are complete.

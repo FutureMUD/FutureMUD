@@ -131,7 +131,7 @@ For source-only catalogue fixes, prefer invariant tests that scan the seed defin
 - `ClanSeeder`
 
 ### Manifest-backed full reconciliation
-- `ItemSeeder`, with foundations, shared pre-industrial, Antiquity, Medieval, Renaissance, Early Modern, lifecycle, outfit, craft, and vehicle modules
+- `ItemSeeder`, with foundations, shared pre-industrial, Antiquity, Medieval, Renaissance, Early Modern, inactive shared-industrialised/Industrial/Modern/Nuclear/Information architecture, lifecycle, outfit, craft, and vehicle modules
 
 ## ItemSeeder Ownership and Revision Rules
 
@@ -140,7 +140,9 @@ For source-only catalogue fixes, prefer invariant tests that scan the seed defin
 - A legacy row is adopted only when its unique identity and complete canonical signature match. Drifted or ambiguous untracked rows remain unmanaged and block mutation.
 - A managed aggregate is refreshed only while its live fingerprint matches the last applied stock fingerprint. Any builder modification preserves the entire aggregate.
 - Builder-added records and relationships are retained. Removed stock is marked retired in provenance and is never deleted.
-- Revolution, Modern, Atomic, and Computer are not selectable until executable modules contain real stock definitions.
+- Industrial, Modern, Nuclear, and Information are not selectable until executable modules contain real stock definitions. `revolution`, `atomic`, and `computer` remain accepted aliases for compatibility with VehicleSeeder data.
+- Later-era technology-profile questions are owned by ItemSeeder. All replay profiles inventory answers for the profile and each custom dimension even while current-era filters keep them inactive. Reusable profile components are UsefulSeeder-owned prerequisites.
+- Once later-era stock exists on a non-empty database, normal reconciliation must not change the remembered technology profile. A profile conversion requires an explicit migration because it can replace component graphs across managed and customised items.
 - `--check-item-manifest` validates the checked-in registry without a database. `--export-item-manifest [path]` exports the same canonical document without connecting to a database.
 
 ## Debug Replay Profiles
@@ -154,6 +156,8 @@ The maintained profiles are:
 - `early-modern-standard` for cumulative Medieval, Renaissance, and Early Modern content using the Europe/1703 DemoMUD-style baseline.
 
 Each profile is a typed inventory of concrete seeder types and question IDs; it is not a recording of menu positions, display names, or console keystrokes. The inventory includes every enabled seeder in the current dependency plan except the intentionally alternative `SkillSeeder`; it uses `SkillPackageSeeder` instead. It includes the Mythical, Supernatural, Robot, and AI Storyteller packages. Answers are stored for every declared question, including questions that may be inactive for one particular profile run. The runner re-evaluates filters and validators against the live database, ignores supplied answers for inactive questions, and rejects an active missing or invalid answer before the relevant seeder starts.
+
+For ItemSeeder this inventory includes `technologyprofile`, `technologypower`, `technologypaper`, `technologytelecom`, `technologynetworkmedia`, and `technologyvehicle`. Current maintained profiles select `neutral`; their custom answers are deliberate inactive placeholders which keep question-contract drift visible until a later-era replay profile is activated.
 
 Replay runs require a freshly migrated, unseeded database. The runner refuses a target with bootstrap accounts or remembered seeder choices and never resets, overwrites, or cross-seeder-rolls back a database. Each completed seeder commits through the same executor used by the interactive path. A blocked prerequisite or exception stops the run immediately; completed work is preserved, later steps are not run, and the result reports completed, failed, and unstarted steps.
 

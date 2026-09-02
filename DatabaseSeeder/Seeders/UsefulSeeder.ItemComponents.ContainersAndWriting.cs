@@ -1370,6 +1370,8 @@ public partial class UsefulSeeder
             }
         }
 
+		SeedIndustrialisedPrerequisiteComponents(context, now, dbaccount, ref nextId, gasSocketType);
+
         context.SaveChanges();
     }
 

@@ -468,6 +468,12 @@ internal static class DebugSeederReplayProfiles
 			Step<RobotSeeder>(),
 			Step<ItemSeeder>(
 				("eras", itemEras),
+				("technologyprofile", "neutral"),
+				("technologypower", "PowerSupply_Mains"),
+				("technologypaper", "A4, Letter"),
+				("technologytelecom", "Telephone_Standard"),
+				("technologynetworkmedia", "NetworkAdapter_Standard"),
+				("technologyvehicle", "VehicleSeeder_ElectricEngine_Traction"),
 				("scope", "all")),
 			Step<AnimalButcherySeeder>(),
 			Step<SupernaturalSeeder>(

@@ -49,6 +49,14 @@ Add future era content by defining data first:
 
 If an era needs different behaviour, express it through configuration or a small strategy helper. Do not copy a retired helper family and edit the copy.
 
+## Industrialised era registry and installer boundary
+
+The later-era programme is registered centrally by `ItemSeeder.IndustrialisedArchitecture.cs`. Canonical ordinary-item keys are `industrial`, `modern`, `nuclear` and `information`; `revolution`, `atomic` and `computer` are compatibility aliases used by the established vehicle catalogue. Registry presence is not activation: all four entries remain non-selectable until their executable manifest modules contain real, validated stock.
+
+The installer experience remains inside ItemSeeder. ItemSeeder asks for the world technology profile and any custom composition, maps public era names to internal helpers, and reports missing prerequisites. UsefulSeeder continues to own reusable component prototypes, and domain TSV loaders may live in dedicated helper files. Do not add a second user-facing later-era package or expose UsefulSeeder implementation questions as a substitute for the ItemSeeder profile.
+
+Later eras share `shared-industrialised`, then add one canonical era module. Durable unchanged goods continue to use the existing shared pre-industrial stable identities. See the [Industrialised ItemSeeder Programme](./FutureMUD_Industrialised_Item_Seeder_Programme.md) and [Shared Industrialised Baseline](./FutureMUD_Industrialised_Shared_Baseline_Design_Reference.md).
+
 ## Shared pre-industrial compatibility layer
 
 Cross-era reuse does not directly invoke broad earlier-era catalogues. Existing `historic_*` and `primary_production_*` rows retain their stable references, while selected Antiquity and Medieval forms receive `preindustrial_*` aliases with copied physical/component data and source-attribution builder notes. Alias lifecycle targets must resolve to aliases when both endpoints are promoted.

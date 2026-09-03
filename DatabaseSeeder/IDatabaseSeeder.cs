@@ -36,3 +36,8 @@ public interface IDatabaseSeeder
         return SeederMetadataRegistry.Assess(this, context);
     }
 }
+
+public interface ISeederAnswerNormalizer
+{
+	IReadOnlyDictionary<string, string> NormalizeAnswers(IReadOnlyDictionary<string, string> answers);
+}

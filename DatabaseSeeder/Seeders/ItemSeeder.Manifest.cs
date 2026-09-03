@@ -34,7 +34,7 @@ public partial class ItemSeeder
 				var itemCount = manifest.Entries.Count(x => x.EntityType.Equals("item", StringComparison.OrdinalIgnoreCase));
 				var craftCount = manifest.Entries.Count(x => x.EntityType.Equals("craft", StringComparison.OrdinalIgnoreCase));
 				var otherCount = manifest.Entries.Count - itemCount - craftCount;
-				return $"This seeder installs and safely reconciles {itemCount:N0} stock item prototypes, {craftCount:N0} crafts, and {otherCount:N0} supporting stock aggregates across the implemented pre-industrial eras. Reruns repair untouched stock, retain builder customization, and can add eras without removing previously installed content.";
+				return $"This seeder installs and safely reconciles {itemCount:N0} stock item prototypes, {craftCount:N0} crafts, and {otherCount:N0} supporting stock aggregates across the implemented eras. Reruns repair untouched stock, retain builder customization, and can add eras without removing previously installed content.";
 			}
 		}
 		catch (Exception)
@@ -42,7 +42,7 @@ public partial class ItemSeeder
 			// Packaged builds may not carry the repository layout used by development tooling.
 		}
 
-		return "This seeder installs and safely reconciles the manifest-backed stock item, craft, outfit, food, and vehicle catalogues for the implemented pre-industrial eras. Reruns repair untouched stock, retain builder customization, and can add eras without removing previously installed content.";
+		return "This seeder installs and safely reconciles the manifest-backed stock item, craft, outfit, food, and vehicle catalogues for the implemented eras. Reruns repair untouched stock, retain builder customization, and can add eras without removing previously installed content.";
 	}
 
 	private enum ManifestAggregateDisposition
@@ -334,7 +334,8 @@ public partial class ItemSeeder
 		{
 			SeedData(context, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 			{
-				["eras"] = "antiquity medieval renaissance earlymodern"
+				["eras"] = "antiquity medieval renaissance earlymodern industrial",
+				["technologyprofile"] = "neutral"
 			});
 			return ItemSeederManifestCatalogue.BuildDocument(
 				_manifestEntries.Values,
@@ -491,34 +492,19 @@ public partial class ItemSeeder
 			.GroupBy(x => x.Id)
 			.ToDictionary(x => x.Key, x => _tagsByFullPath.First(y => y.Value.Id == x.Key).Key);
 		var tagIds = item.GameItemProtosTags.Select(x => x.TagId).ToHashSet();
-		if (_context!.Entry(item).State != Microsoft.EntityFrameworkCore.EntityState.Added)
-		{
-			tagIds.UnionWith(_context.GameItemProtosTags
-				.Where(x => x.GameItemProtoId == item.Id && x.GameItemProtoRevisionNumber == item.RevisionNumber)
-				.Select(x => x.TagId));
-		}
 
 		var componentKeys = item.GameItemProtosGameItemComponentProtos
 			.Select(x => (x.GameItemComponentProtoId, x.GameItemComponentRevision))
 			.ToHashSet();
-		if (_context.Entry(item).State != Microsoft.EntityFrameworkCore.EntityState.Added)
-		{
-			componentKeys.UnionWith(_context.GameItemProtosGameItemComponentProtos
-				.Where(x => x.GameItemProtoId == item.Id && x.GameItemProtoRevision == item.RevisionNumber)
-				.Select(x => new ValueTuple<long, int>(x.GameItemComponentProtoId, x.GameItemComponentRevision)));
-		}
 
-		var componentNames = _context.GameItemComponentProtos.Local
-			.AsEnumerable()
-			.Concat(_context.GameItemComponentProtos.AsEnumerable())
-			.Where(x => componentKeys.Contains((x.Id, x.RevisionNumber)))
-			.Select(x => x.Name)
+		var componentNames = componentKeys
+			.Where(_componentNamesByKey.ContainsKey)
+			.Select(x => _componentNamesByKey[x])
 			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
 			.ToArray();
-		var materialName = _materials.Values
-			.FirstOrDefault(x => x.Id == item.MaterialId)?.Name ??
-			_context.Materials.Where(x => x.Id == item.MaterialId).Select(x => x.Name).First();
+		var materialName = _materialNamesById.GetValueOrDefault(item.MaterialId) ??
+			_context!.Materials.Where(x => x.Id == item.MaterialId).Select(x => x.Name).First();
 		var morphReference = ResolveItemStableReference(item.MorphGameItemProtoId);
 		var destroyedReference = ResolveItemStableReference(item.OnDestroyedGameItemProtoId);
 
@@ -596,14 +582,7 @@ public partial class ItemSeeder
 			return null;
 		}
 
-		return _context!.GameItemProtos.Local
-			.AsEnumerable()
-			.Concat(_context.GameItemProtos.AsEnumerable())
-			.Where(x => x.Id == logicalId.Value && !string.IsNullOrWhiteSpace(x.UniqueName))
-			.OrderByDescending(x => x.EditableItem?.RevisionStatus == 4)
-			.ThenByDescending(x => x.RevisionNumber)
-			.Select(x => x.UniqueName)
-			.FirstOrDefault();
+		return _itemStableReferencesById.GetValueOrDefault(logicalId.Value);
 	}
 
 	private LiquidManifestDefinition BuildLiveLiquidManifestDefinition(Liquid liquid)

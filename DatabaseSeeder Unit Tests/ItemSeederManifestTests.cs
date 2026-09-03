@@ -53,12 +53,14 @@ public class ItemSeederManifestTests
 	}
 
 	[TestMethod]
-	public void LaterNoOpEras_AreNotAdvertised()
+	public void IndustrialEra_IsAdvertisedButLaterNoOpErasAreNot()
 	{
 		var question = new DatabaseSeeder.Seeders.ItemSeeder().SeederQuestions.Single(x => x.Id == "eras");
+		Assert.IsTrue(question.Validator("industrial", null!).Success);
+		Assert.IsTrue(question.Validator("revolution", null!).Success);
 		foreach (var unsupported in new[]
 		         {
-			         "industrial", "revolution", "modern", "nuclear", "atomic", "information", "computer"
+			         "modern", "nuclear", "atomic", "information", "computer"
 		         })
 		{
 			Assert.IsFalse(question.Validator(unsupported, null!).Success, unsupported);
@@ -70,7 +72,7 @@ public class ItemSeederManifestTests
 	{
 		var definitions = DatabaseSeeder.Seeders.ItemSeeder.EraDefinitionsForTesting;
 		Assert.AreEqual(8, definitions.Count);
-		Assert.AreEqual(4, definitions.Count(x => x.Selectable));
+		Assert.AreEqual(5, definitions.Count(x => x.Selectable));
 		Assert.IsTrue(definitions.Single(x => x.Key == "industrial").Aliases.Contains("revolution"));
 		Assert.AreEqual("revolution", definitions.Single(x => x.Key == "industrial").VehicleEraKey);
 		Assert.IsTrue(definitions.Single(x => x.Key == "nuclear").Aliases.Contains("atomic"));

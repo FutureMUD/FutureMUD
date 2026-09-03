@@ -31,7 +31,10 @@ internal static class SeederExecutionService
 		try
 		{
 			var result = seeder.SeedData(context, answers);
-			SeederAnswerMemory.PersistAnswers(context, seeder, questions, answers, version.ToString(), DateTime.UtcNow);
+			var persistedAnswers = seeder is ISeederAnswerNormalizer normalizer
+				? normalizer.NormalizeAnswers(answers)
+				: answers;
+			SeederAnswerMemory.PersistAnswers(context, seeder, questions, persistedAnswers, version.ToString(), DateTime.UtcNow);
 			context.SaveChanges();
 			return SeederExecutionResult.Completed(result);
 		}

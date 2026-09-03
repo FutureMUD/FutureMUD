@@ -56,7 +56,7 @@ public partial class ItemSeeder
 		new("medieval", [], "Medieval", "Era / Medieval Era", "medieval", "medieval_", "medieval", true),
 		new("renaissance", [], "Renaissance", "Era / Renaissance Era", "renaissance", "renaissance_", "renaissance", true),
 		new("earlymodern", [], "Early Modern", "Era / Early Modern Era", "earlymodern", "earlymodern_", "earlymodern", true),
-		new("industrial", ["revolution"], "Industrial", "Era / Industrial Era", "industrial", "industrial_", "revolution", false),
+		new("industrial", ["revolution"], "Industrial", "Era / Industrial Era", "industrial", "industrial_", "revolution", true),
 		new("modern", [], "Modern", "Era / Modern Era", "modern", "modern_", "modern", false),
 		new("nuclear", ["atomic"], "Nuclear", "Era / Nuclear Era", "nuclear", "nuclear_", "atomic", false),
 		new("information", ["computer"], "Information Age", "Era / Information Age Era", "information", "information_", "computer", false)

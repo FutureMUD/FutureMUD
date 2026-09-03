@@ -4,11 +4,15 @@
 
 `industrial` is the canonical ItemSeeder key; `revolution` remains an accepted compatibility alias and the internal VehicleSeeder token. The era tag is `Era / Industrial Era`, the manifest module is `industrial`, and era-specific stable references begin `industrial_`.
 
-This era is not currently selectable. It becomes the first later era to activate only after the shared industrialised layer and Industrial delta satisfy the programme gates.
+Current code makes this era selectable; Modern, Nuclear and Information remain inactive. That flag does not certify production readiness: the [clothing, footwear and uniforms specification](./FutureMUD_Industrialised_Clothing_Footwear_Uniforms_Design_Reference.md) identifies draft content and outstanding acceptance gates. Earlier claims that all activation gates were satisfied were premature. This documentation change does not modify activation.
+
+The [approved clothing Wave 1 scope](./Industrialised_Clothing_Wave1_Evidence_and_Coverage.md) replaces the former 70 Industrial-only clothing quota with 20 planned Industrial-only bases, accepted in the user's scope/count approval on 2026-09-03 (Gate 1 passed). With other domains unchanged, the approved planning Industrial-only total is 600. An Industrial selection would additionally admit 112 of the new shared clothing bases and 113 reused earlier identities; these are not extra Industrial-only prototypes. Its 84 proposed clothing ensembles still require production authoring and live wearability proof. Conventional colours are overridable outfit defaults, with no approved Wave 1 fixed locks; production Gates 2–7 remain open.
 
 ## Scope
 
-The Industrial delta target is 650 ordinary prototypes on top of the 5,800 shared layer and compatible durable pre-industrial stock. It represents mechanised production and extraction, steam infrastructure, rail and telegraph society, manufactured household goods, early mass retail, sanitation, civic institutions and the beginning of practical electrical systems.
+The draft Industrial delta contains 650 ordinary rows on top of 5,800 shared rows and compatible durable pre-industrial stock. These are current source counts, not accepted production quotas. Its intended coverage is mechanised production and extraction, steam infrastructure, rail and telegraph society, manufactured household goods, early mass retail, sanitation, civic institutions and the beginning of practical electrical systems.
+
+Clothing's former 70 Industrial and 600 shared base allocations are superseded by coverage-based acceptance. With other domains unchanged, approved totals become `580 + C_industrial` and `5,200 + C_shared`, with skins and reused bases counted separately. Follow the clothing reference's inventory-first waves, production-route/value distinctions, variable-colour default, authored prose and complete outfit requirements. Plan all later bands without admitting later-only content to Industrial.
 
 Priority domains are:
 
@@ -24,12 +28,12 @@ Priority domains are:
 
 Hand tools, simple containers, furniture and textiles unchanged from earlier periods reuse existing stock. Fully motorised consumer society belongs to Modern. Do not imply automated production lines, broadcast electronics or digital controls through inert descriptions.
 
-The vehicle milestone includes bicycles and coupled rail stock plus source-backed steam/early-motor road and water vehicles that the existing runtime can express. Aircraft and free-coordinate movement are excluded.
+The vehicle milestone contains 40 `vehicle_revolution_*` canonical graphs: bicycles, road and service vehicles, route-bound tram and rail stock, agricultural and industrial vehicles, and supported surface-water vessels. Rail vehicles are independently route-bound because the current subsystem does not model coupled consists or steam-drive simulation. Aircraft, submarines and free-coordinate movement are excluded.
 
 ## Implementation stages
 
 1. Close shared and Industrial dependency ledger entries in their owning seeders.
-2. Establish domain TSV allocations and value-index anchors.
+2. Approve domain coverage and reconciled allocations; gather usable labour-relative price evidence rather than relying on generic anchors.
 3. Implement the shared loader and shared rows before delta rows.
 4. Add Industrial lifecycle, craft and outfit relationships where they create play rather than decorative graph size.
 5. Generate admission and executable manifests, then test fresh, repeat, update and customised records.
@@ -37,4 +41,6 @@ The vehicle milestone includes bicycles and coupled rail stock plus source-backe
 
 ## Activation gate
 
-Activation requires populated shared and Industrial source files, no unresolved prerequisites, stable-reference uniqueness, supported descriptions, manifest/replay success, full DatabaseSeeder tests, fresh and populated database replay, generated export parity and representative live-MUD inspection. The activation review must publish actual counts and explain any variance from the 650 target.
+Activation requires populated shared and Industrial source files, no unresolved prerequisites, stable-reference uniqueness, reviewed supported descriptions, meaningful crafts/lifecycle links, complete wearable outfits, manifest/replay success, full DatabaseSeeder and relevant runtime tests, fresh and populated database replay, generated export parity and representative live-MUD inspection. Publish actual accepted counts and the approved reconciliation of the original targets. All seven clothing gates are necessary but not sufficient for whole-Stage-2 acceptance.
+
+The earlier 650 delta rows, 5,800 shared rows, 2,337 craft products, 1,290 lifecycle participants, 100 outfits and 40 vehicles describe the draft implementation. They do not close the revised content gates. Earlier replay/presence-check history is retained in the programme; the replacement catalogue needs new tests and live evidence. If a database or live-MUD fixture is unavailable, record its gate as outstanding rather than passed. No missing fixture or successful generic preflight authorises activation.

@@ -13,8 +13,37 @@ using System.Threading.Tasks;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class ItemSeeder : IDatabaseSeeder
+public partial class ItemSeeder : IDatabaseSeeder, ISeederAnswerNormalizer
 {
+	public IReadOnlyDictionary<string, string> NormalizeAnswers(IReadOnlyDictionary<string, string> answers)
+	{
+		var normalized = new Dictionary<string, string>(answers, StringComparer.OrdinalIgnoreCase);
+		if (normalized.TryGetValue("eras", out var eras))
+		{
+			normalized["eras"] = string.Join(" ", SplitSelectionTokens(eras)
+				.Select(x => EraDefinitionsByToken.GetValueOrDefault(x))
+				.Where(x => x is not null)
+				.Select(x => x!.Key)
+				.Distinct(StringComparer.OrdinalIgnoreCase)
+				.OrderBy(x => Array.IndexOf(EraDefinitions.Select(y => y.Key).ToArray(), x)));
+		}
+		if (normalized.TryGetValue("technologyprofile", out var profile))
+		{
+			normalized["technologyprofile"] = profile.Trim().ToLowerInvariant();
+		}
+		foreach (var key in new[] { "technologypower", "technologypaper", "technologytelecom", "technologynetworkmedia", "technologyvehicle" })
+		{
+			if (!normalized.TryGetValue(key, out var value))
+			{
+				continue;
+			}
+			normalized[key] = string.Join(", ", value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+				.Distinct(StringComparer.OrdinalIgnoreCase)
+				.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+		}
+		return normalized;
+	}
+
     /// <inheritdoc />
     public IEnumerable<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions => new List<(string Id, string Question,
             Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
@@ -27,8 +56,9 @@ public partial class ItemSeeder : IDatabaseSeeder
     #BMedieval#0 - The medieval period, roughly 500 to 1400 CE
     #BRenaissance#0 - The renaissance period, roughly 1400 to 1600 CE
     #BEarlyModern#0 - The enlightenment and early modern period, roughly 1600 to 1750 CE
+    #BIndustrial#0 - Mechanised production, steam, rail, telegraphy and early practical electricity (alias: #3revolution#0)
 
-Later eras are intentionally unavailable until they have implemented manifest modules; selecting an era therefore always installs real content.
+Modern, Nuclear and Information Age catalogues remain unavailable until their own activation gates pass.
 
 
 Please enter the eras that you want to be created, separated by spaces.
@@ -112,15 +142,19 @@ What is your choice? ",
 	public bool SafeToRunMoreThanOnce => true;
 
     private Dictionary<string, GameItemComponentProto> _components = new(StringComparer.InvariantCultureIgnoreCase);
+	private Dictionary<(long Id, int Revision), string> _componentNamesByKey = [];
+	private HashSet<(long ItemId, int ItemRevision, long ComponentId, int ComponentRevision)> _itemComponentKeys = [];
     private Dictionary<string, Tag> _tags = new(StringComparer.InvariantCultureIgnoreCase);
     private Dictionary<string, Tag> _tagsByFullPath = new(StringComparer.InvariantCultureIgnoreCase);
     private Dictionary<string, Material> _materials = new(StringComparer.InvariantCultureIgnoreCase);
+	private Dictionary<long, string> _materialNamesById = [];
     private Dictionary<string, Liquid> _liquids = new(StringComparer.InvariantCultureIgnoreCase);
     private Dictionary<string, FutureProg> _progs = new(StringComparer.InvariantCultureIgnoreCase);
     private DictionaryWithDefault<string, TraitDefinition> _traits = new(StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, GameItemProto> _items = new(StringComparer.InvariantCultureIgnoreCase);
 	private Dictionary<string, GameItemProto> _itemsByStableReference = new(StringComparer.OrdinalIgnoreCase);
 	private Dictionary<long, GameItemProto> _itemsById = [];
+	private HashSet<long> _preexistingItemIds = [];
 	private Dictionary<long, string> _itemStableReferencesById = [];
 	private Dictionary<string, IReadOnlyList<GameItemProto>> _legacyItemsByShortDescription =
 		new(StringComparer.OrdinalIgnoreCase);
@@ -158,11 +192,15 @@ What is your choice? ",
 				.ToDictionary(x => x.Key, x => x.OrderByDescending(record => record.AppliedAt).First(),
 					StringComparer.OrdinalIgnoreCase);
 
-		_components = _context.GameItemComponentProtos.Local
+		var componentPrototypes = _context.GameItemComponentProtos.Local
 			.AsEnumerable()
 			.Concat(_context.GameItemComponentProtos
 				.Include(x => x.EditableItem)
 				.AsEnumerable())
+			.GroupBy(x => (x.Id, x.RevisionNumber))
+			.Select(x => x.First())
+			.ToArray();
+		_components = componentPrototypes
 			.GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
 			.ToDictionary(
 				x => x.Key,
@@ -170,6 +208,16 @@ What is your choice? ",
 				     x.FirstOrDefault(y => y.EditableItem?.RevisionStatus is 1 or 2) ??
 				     x.OrderByDescending(y => y.RevisionNumber).First(),
 				StringComparer.OrdinalIgnoreCase);
+		_componentNamesByKey = componentPrototypes
+			.ToDictionary(x => (x.Id, x.RevisionNumber), x => x.Name);
+		_itemComponentKeys = _context.GameItemProtosGameItemComponentProtos
+			.AsNoTracking()
+			.Select(x => new ValueTuple<long, int, long, int>(
+				x.GameItemProtoId,
+				x.GameItemProtoRevision,
+				x.GameItemComponentProtoId,
+				x.GameItemComponentRevision))
+			.ToHashSet();
         _tags = _context.Tags
             .AsEnumerable()
             .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
@@ -225,6 +273,7 @@ What is your choice? ",
 
 		_materials = materialGroups.ToDictionary(x => x.Key, x => x.OrderBy(y => y.Id).First(),
 			StringComparer.OrdinalIgnoreCase);
+		_materialNamesById = _materials.Values.ToDictionary(x => x.Id, x => x.Name);
 		_liquids = liquidGroups.ToDictionary(x => x.Key, x => x.OrderBy(y => y.Id).First(),
 			StringComparer.OrdinalIgnoreCase);
 		_nextItemId = _context.GameItemProtos.Any()
@@ -257,6 +306,7 @@ What is your choice? ",
 		}
 
 		_items = new Dictionary<string, GameItemProto>(StringComparer.InvariantCultureIgnoreCase);
+		_preexistingItemIds = itemPrototypes.Select(x => x.Id).ToHashSet();
 		_itemsByStableReference = new(StringComparer.OrdinalIgnoreCase);
 		_itemsById = [];
 		_itemStableReferencesById = [];
@@ -354,7 +404,7 @@ What is your choice? ",
 
         SeedReworkItems();
 		if (_questionAnswers.TryGetValue("eras", out var selectedEras) &&
-			HasAnyEra(selectedEras, "antiquity", "medieval", "renaissance", "earlymodern"))
+			HasAnyEra(selectedEras, "antiquity", "medieval", "renaissance", "earlymodern", "industrial"))
 		{
 			RunSeedStage("Saving item changes before crafting", SaveItemChangesBeforeCrafting);
 		}
@@ -417,7 +467,8 @@ What is your choice? ",
 			return;
 		}
 
-		_progressStageCount = 8; // Prerequisites, craft progs, the item flush, four craft batches, and the final save.
+		// In-memory manifest capture skips database-only prerequisite and final-save stages.
+		_progressStageCount = _manifestCaptureOnly ? 7 : 10;
 
 		if (!questionAnswers.TryGetValue("eras", out var eras))
 		{
@@ -427,6 +478,11 @@ What is your choice? ",
 		if (HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern"))
 		{
 			_progressStageCount++;
+		}
+
+		if (HasAnyEra(eras, "industrial"))
+		{
+			_progressStageCount += 3; // Catalogue items, outfits and crafts.
 		}
 
 		if (HasAnyEra(eras, "renaissance"))
@@ -1908,6 +1964,14 @@ What is your choice? ",
 				using var manifestModule = UseManifestModule("earlymodern", "earlymodern");
 				SeedEarlyModernItems();
 			});
+		}
+
+		if (eras.Contains("industrial", StringComparison.InvariantCultureIgnoreCase))
+		{
+			RunSeedStage("Creating shared industrialised and Industrial items", () =>
+				SeedIndustrialisedCatalogueItems(eras));
+			RunSeedStage("Creating Industrial outfits and loadouts", () =>
+				SeedIndustrialisedCatalogueOutfits(eras));
 		}
 
 		if (HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern"))

@@ -10,6 +10,8 @@ This document explains:
 
 This document deliberately separates verified current state from recommended future direction.
 
+Industrialised ItemSeeder content pricing is governed separately by the [historical pricing methodology](../Seeding/FutureMUD_Industrialised_Historical_Pricing_Methodology.md) and [clothing production specification](../Seeding/FutureMUD_Industrialised_Clothing_Footwear_Uniforms_Design_Reference.md). Those are approved authoring requirements, not new economy runtime behaviour or certification of existing draft prices. They require local-labour value evidence and independent production-route/period quality reasoning; skins do not introduce a separate inherent price or an automatic repricing system.
+
 ## Current Seeder Reality
 ### Verified current state
 The current repository has two dedicated economy seeders:

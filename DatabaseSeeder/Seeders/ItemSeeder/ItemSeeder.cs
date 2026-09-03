@@ -178,6 +178,8 @@ What is your choice? ",
 
     private void InitialiseDependencies()
     {
+		_traitGateProgRows = null;
+		_pendingGeneratedManifestIdentities.Clear();
 		if (_context is null)
 		{
 			throw new ApplicationException("Context cannot be null at this point.");
@@ -370,6 +372,23 @@ What is your choice? ",
 		{
 		RunSeedStage("Loading item prerequisites", InitialiseDependencies);
 		var blackPowderOnly = IsBlackPowderOnlyScope(_questionAnswers);
+		if (!blackPowderOnly && HasAnyEra(_questionAnswers["eras"], "industrial"))
+		{
+			RunSeedStage(_manifestCaptureOnly
+				? "Preparing Industrialised clothing manifest capture"
+				: "Validating Industrialised item and clothing prerequisites", () =>
+			{
+				var profile = ResolveIndustrialisedTechnologyProfile();
+				if (_manifestCaptureOnly)
+				{
+					PrepareIndustrialisedClothingManifestCapture(_questionAnswers["eras"], profile);
+					return;
+				}
+				ValidateIndustrialisedTechnologyProfileImmutability(profile);
+				ValidateIndustrialisedCataloguePrerequisites(profile);
+				ValidateIndustrialisedClothingPrerequisites(_questionAnswers["eras"], profile);
+			});
+		}
 		if (!_manifestCaptureOnly && _questionAnswers.TryGetValue("eras", out var requestedEras) && HasAnyEra(requestedEras, "renaissance"))
 		{
 			RunSeedStage("Validating Renaissance military prerequisites", ValidateRenaissanceMilitaryPrerequisites);
@@ -392,7 +411,7 @@ What is your choice? ",
 				CreateProgs();
 			});
 			SeedBlackPowderCraftsOnly();
-			RunSeedStage("Saving black-powder item and craft changes", () => _context.SaveChanges());
+			RunSeedStage("Saving black-powder item and craft changes", SaveManifestChanges);
 			transaction?.Commit();
 			Console.WriteLine($"[Item Seeder] Completed in {_progressStopwatch!.Elapsed.TotalSeconds:N1}s.");
 
@@ -429,7 +448,7 @@ What is your choice? ",
 		RetireMissingManagedRecords();
 		if (!_manifestCaptureOnly)
 		{
-			RunSeedStage("Saving item and craft changes", () => _context.SaveChanges());
+			RunSeedStage("Saving item and craft changes", SaveManifestChanges);
 		}
 		if (_manifestCaptureOnly)
 		{
@@ -482,7 +501,7 @@ What is your choice? ",
 
 		if (HasAnyEra(eras, "industrial"))
 		{
-			_progressStageCount += 3; // Catalogue items, outfits and crafts.
+			_progressStageCount += 4; // Preflight or capture preparation, catalogue items, outfits and crafts.
 		}
 
 		if (HasAnyEra(eras, "renaissance"))
@@ -572,7 +591,7 @@ What is your choice? ",
 			return;
 		}
 
-		_context!.SaveChanges();
+		SaveManifestChanges();
 		DetachTrackedEntities(entity => entity is GameItemProto or
 			GameItemComponent or
 			GameItemProtosDefaultVariable or
@@ -820,7 +839,9 @@ What is your choice? ",
 		}
 
 		var managedRecord = FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey);
-		var existing = FindItemByStableReference(stableReference);
+		var existing = _clothingPhysicalDefinitions.ContainsKey(stableReference)
+			? ResolveClothingPhysicalItem(definition, IndustrialisedCatalogue.Clothing.Bases.Single(x => x.ItemReference == stableReference).Source)
+			: FindItemByStableReference(stableReference);
 		if (existing is null && allowLegacyShortDescriptionMatch)
 		{
 			existing = FindExactLegacyItemMatch(stableReference, sdesc, definition);
@@ -841,6 +862,15 @@ What is your choice? ",
 					$"ItemSeeder ownership conflict for item:{stableReference}: provenance names logical ID {managedRecord.LogicalId:N0}, but the active stable reference resolves to {existing.Id:N0}.");
 			}
 
+			// The canonical item fingerprint uses the managed stable key, not mutable UniqueName.
+			// A renamed clothing target must therefore be explicitly preserved as customised.
+			if (managedRecord is not null && IsRenamedClothingPhysicalItem(existing, stableReference))
+			{
+				MarkManifestAggregateCustomized(manifestEntry.EntityType, manifestEntry.StableKey);
+				IncrementManifestResult(manifestEntry.Module, x => x with { Customized = x.Customized + 1 });
+				CacheReworkItem(stableReference, existing);
+				return existing;
+			}
 			var liveDefinition = BuildLiveItemManifestDefinition(existing, stableReference);
 			var liveFingerprint = ItemSeederManifestCatalogue.Fingerprint(liveDefinition);
 			if (managedRecord is null && !liveFingerprint.Equals(manifestEntry.Fingerprint, StringComparison.OrdinalIgnoreCase))
@@ -870,7 +900,8 @@ What is your choice? ",
 			}
 
 			var changed = !liveFingerprint.Equals(manifestEntry.Fingerprint, StringComparison.OrdinalIgnoreCase);
-			ApplyItemManifestDefinition(existing, definition, tagList, componentList, builderNotes);
+			ApplyItemManifestDefinition(existing, definition, tagList, componentList, builderNotes,
+				replaceStockComponents: managedRecord is not null);
 			CacheReworkItem(stableReference, existing);
 			ApplyItemLifecycleSettings(existing, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
 			RecordAppliedManifestEntry(manifestEntry, existing.Id, existing.RevisionNumber);
@@ -1074,8 +1105,31 @@ What is your choice? ",
 		ItemManifestDefinition definition,
 		IEnumerable<string> tags,
 		IEnumerable<string> components,
-		string? builderNotes)
+		string? builderNotes,
+		bool replaceStockComponents = false)
 	{
+		var desiredComponents = components.Where(x => !string.IsNullOrWhiteSpace(x))
+			.Select(name => _components[name]).ToArray();
+		if (replaceStockComponents)
+		{
+			var links = item.GameItemProtosGameItemComponentProtos.ToArray();
+			if (links.Any(x => !_componentNamesByKey.ContainsKey((x.GameItemComponentProtoId, x.GameItemComponentRevision))) ||
+				links.Select(x => _componentNamesByKey[(x.GameItemComponentProtoId, x.GameItemComponentRevision)])
+					.Distinct(StringComparer.OrdinalIgnoreCase).Count() != links.Length)
+			{
+				throw new InvalidOperationException($"ItemSeeder cannot replace components on {definition.StableReference}: unresolved or duplicate component links are not covered by its stock fingerprint.");
+			}
+			// Only the exact last-applied managed aggregate reaches this branch. Remove obsolete
+			// prototype links, never component definitions, item instances or customised aggregates.
+			// The missing-link repair path is deliberately additive and does not use this permission.
+			var desiredIds = desiredComponents.Select(x => x.Id).ToHashSet();
+			foreach (var obsolete in item.GameItemProtosGameItemComponentProtos
+				.Where(x => !desiredIds.Contains(x.GameItemComponentProtoId)).ToArray())
+			{
+				item.GameItemProtosGameItemComponentProtos.Remove(obsolete);
+				_context!.GameItemProtosGameItemComponentProtos.Remove(obsolete);
+			}
+		}
 		item.Name = definition.Noun;
 		item.UniqueName = GameItemProtoLookupExtensions.NormaliseUniqueName(definition.StableReference);
 		item.Keywords = definition.Keywords;
@@ -1092,12 +1146,13 @@ What is your choice? ",
 		item.IsHiddenFromPlayers = definition.HiddenFromPlayers;
 		ApplyReworkItemMetadata(item, definition.StableReference, tags, builderNotes);
 		var existingComponents = item.GameItemProtosGameItemComponentProtos
-			.Select(x => (x.GameItemComponentProtoId, x.GameItemComponentRevision))
+			.Select(x => x.GameItemComponentProtoId)
 			.ToHashSet();
-		foreach (var componentName in components.Where(x => !string.IsNullOrWhiteSpace(x)))
+		foreach (var component in desiredComponents)
 		{
-			var component = _components[componentName];
-			if (!existingComponents.Add((component.Id, component.RevisionNumber)))
+			// Reconciliation retains an attached component revision; it must not add a second
+			// revision of that logical component alongside it when newer stock becomes current.
+			if (!existingComponents.Add(component.Id))
 			{
 				continue;
 			}
@@ -1755,9 +1810,12 @@ What is your choice? ",
 			eras.UnionWith(ParseEraTokens(SeederAnswerMemory.GetLatestSeederAnswer(context, Name, "eras")));
 			foreach (var module in context.SeederManagedRecords
 			         .Where(x => x.Seeder == Name && !x.Retired)
-			         .Select(x => x.Module)
-			         .Distinct()
-			         .AsEnumerable())
+			         .Select(x => new { x.Module, x.EntityType, x.StableKey })
+			         .AsEnumerable()
+			         // A reused dependency is not evidence that its entire owning era was installed.
+			         // Keep this independent of current admissions so retiring a clothing row cannot activate an earlier package.
+			         .Where(x => x.EntityType != "item" || FindHistoricalClothingSource(x.StableKey) is null)
+			         .Select(x => x.Module).Distinct())
 			{
 				if (ImplementedEraKeys.Contains(module, StringComparer.OrdinalIgnoreCase))
 				{

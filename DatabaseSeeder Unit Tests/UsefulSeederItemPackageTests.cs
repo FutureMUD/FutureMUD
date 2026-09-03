@@ -156,6 +156,9 @@ public class UsefulSeederItemPackageTests
 		[
 			("All_Colours", "Colour"),
 			("Basic_Colours", "Colour"),
+			("Clothing_Leather_Colours", "Colour"),
+			("Clothing_Wood_Colours", "Colour"),
+			("Clothing_Lacquer_Colours", "Colour"),
 			("Fine_Colours", "Colour"),
 			("Drab_Colours", "Colour"),
 			("Gem_Colours", "Gem"),
@@ -523,6 +526,43 @@ public class UsefulSeederItemPackageTests
 		context.SaveChanges();
 
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyItemPackagePresence(context));
+	}
+
+	[TestMethod]
+	[DataRow("all")]
+	[DataRow("Variable_LeatherColour")]
+	[DataRow("Variable_WoodColour")]
+	[DataRow("Variable_LacquerColour")]
+	public void ClassifyItemPackagePresence_MissingClothingColours_AdvertisesExistingPackage(string missing)
+	{
+		using var context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		string[] clothingComponents = ["Variable_LeatherColour", "Variable_WoodColour", "Variable_LacquerColour"];
+		var installed = UsefulSeeder.StockItemMarkersForTesting
+			.Concat(clothingComponents)
+			.Distinct(StringComparer.Ordinal)
+			.Where(name => missing == "all" ? !clothingComponents.Contains(name) : name != missing);
+		long id = 100;
+		foreach (var name in installed)
+		{
+			context.GameItemComponentProtos.Add(CreateComponentMarker(id++, name));
+		}
+
+		context.SaveChanges();
+		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, UsefulSeeder.ClassifyItemPackagePresence(context),
+			"A previously complete standard-component installation must advertise missing clothing prerequisites.");
+		var question = new UsefulSeeder().SeederQuestions.Single(x => x.Id == "items");
+		Assert.IsTrue(question.Filter(context, new Dictionary<string, string>()));
+		Assert.IsTrue(question.Validator("yes", context).Success);
+
+		foreach (var name in clothingComponents.Where(name => missing == "all" || name == missing))
+		{
+			context.GameItemComponentProtos.Add(CreateComponentMarker(id++, name));
+		}
+
+		context.SaveChanges();
+		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyItemPackagePresence(context));
+		Assert.IsFalse(context.ChangeTracker.HasChanges());
 	}
 
 	[TestMethod]

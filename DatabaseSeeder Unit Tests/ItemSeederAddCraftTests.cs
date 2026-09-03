@@ -444,6 +444,115 @@ public class ItemSeederAddCraftTests
 	}
 
 	[TestMethod]
+	public void ItemSeeder_AddCraft_MixedVariableProducts_UseExactSelectedValuesAndInputIndexes()
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		var craft = new ItemSeeder().AddCraftFromImportsForTesting(context,
+			"test mixed colour craft", "Testing", BasicPhases(),
+			["TagVariable - 1x an item with the Variable Ingredient tag with variable Colour"], BasicTools(),
+			["SimpleVariableProduct - 1x a variable test product (#103); variable Colour=$i1; fixedvariable Origin=mine"],
+			["SimpleVariableProduct - 1x a failed test product (#106); fixedvariable Fine Colour=bone white"]);
+		var success = XElement.Parse(craft.CraftProducts.Single(x => !x.IsFailProduct).Definition);
+		Assert.AreEqual("1", success.Element("Variable")!.Value);
+		Assert.AreEqual("0", success.Element("Variable")!.Attribute("inputindex")!.Value);
+		Assert.AreEqual("2", success.Element("FixedVariable")!.Value);
+		Assert.AreEqual("3", success.Element("FixedVariable")!.Attribute("value")!.Value);
+		var failure = XElement.Parse(craft.CraftProducts.Single(x => x.IsFailProduct).Definition);
+		Assert.AreEqual("3", failure.Element("FixedVariable")!.Value);
+		Assert.AreEqual("4", failure.Element("FixedVariable")!.Attribute("value")!.Value);
+		Assert.AreEqual(0, failure.Elements("Variable").Count());
+	}
+
+	[TestMethod]
+	public void ItemSeeder_CompiledClothingRecipe_PersistsUnskinnedProductAndExactAuthoredPhases()
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		context.GameItemProtos.Single(x => x.Id == 103).UniqueName = "coat";
+		context.SaveChanges();
+		var d = IndustrialisedClothingCraftPlanTests.Document();
+		d = d with
+		{
+			Colours = d.Colours.Select(x => x with { Definition = "Colour", AllowedValues = new[] { "red", "blue" }, DefaultValue = "blue" }).ToArray(),
+			CraftInputs = d.CraftInputs.Select(x => x with { Reference = "iron" }).ToArray(),
+			CraftTools = d.CraftTools.Select(x => x with { Tag = "Tool Tag" }).ToArray(),
+			CraftProducts = d.CraftProducts.Select(x => x with { Reference = x.FailureProduct ? "iron" : "coat", SkinReference = "" }).ToArray()
+		};
+		var spec = IndustrialisedClothingCraftPlan.Compile(d, d.Crafts.Single()) with
+		{
+			AppearProg = context.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue"),
+			Trait = context.TraitDefinitions.Single(x => x.Name == "Crafting")
+		};
+		var seeder = new ItemSeeder();
+		var first = seeder.AddCraftForTesting(context, spec);
+		context.SaveChanges();
+		var product = XElement.Parse(first.CraftProducts.Single(x => !x.IsFailProduct).Definition);
+		Assert.AreEqual("103", product.Element("ProductProducedId")!.Value);
+		Assert.AreEqual("0", product.Element("Skin")!.Value);
+		Assert.AreEqual("1", product.Element("Variable")!.Value);
+		Assert.AreEqual("0", product.Element("Variable")!.Attribute("inputindex")!.Value);
+		Assert.AreEqual("500", XElement.Parse(first.CraftInputs.Single().Definition).Element("Weight")!.Value);
+		Assert.AreEqual("125", XElement.Parse(first.CraftProducts.Single(x => x.IsFailProduct).Definition).Element("Weight")!.Value);
+		CollectionAssert.AreEqual(spec.Phases.Select(x => x.Echo).ToArray(), first.CraftPhases.OrderBy(x => x.PhaseNumber).Select(x => x.Echo).ToArray());
+		CollectionAssert.AreEqual(spec.Phases.Select(x => x.FailEcho).ToArray(), first.CraftPhases.OrderBy(x => x.PhaseNumber).Select(x => x.FailEcho).ToArray());
+		Assert.AreEqual(spec.ActiveCraftItemSdesc, first.ActiveCraftItemSdesc);
+		var second = new ItemSeeder().AddCraftForTesting(context, spec);
+		Assert.AreEqual(first.Id, second.Id);
+		Assert.AreEqual(1, context.Crafts.Count());
+		Assert.AreEqual(2, context.CraftProducts.Count());
+		var manifest = seeder.GetCapturedManifestEntriesForTesting().Single(x => x.EntityType == "craft");
+		Assert.AreEqual("sew_coat", manifest.StableKey);
+		CollectionAssert.Contains(manifest.Dependencies.ToArray(), "item:coat");
+		var renamed = new ItemSeeder().AddCraftForTesting(context, spec with { Name = "sew fitted coat" });
+		context.SaveChanges();
+		Assert.AreEqual(first.Id, renamed.Id);
+		Assert.AreEqual("sew fitted coat", renamed.Name);
+		renamed.Blurb = "A builder's custom recipe description.";
+		context.SaveChanges();
+		var preserved = new ItemSeeder().AddCraftForTesting(context, spec with { Name = "sew revised coat" });
+		Assert.AreEqual(first.Id, preserved.Id);
+		Assert.AreEqual("sew fitted coat", preserved.Name);
+		Assert.AreEqual("A builder's custom recipe description.", preserved.Blurb);
+		Assert.AreEqual(1, context.Crafts.Count());
+	}
+
+	[TestMethod]
+	public void ItemSeeder_StableSkinReference_CannotSilentlyBecomeAnUnskinnedProduct()
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		context.GameItemProtos.Single(x => x.Id == 103).UniqueName = "coat";
+		context.GameItemSkins.Add(new GameItemSkin { Id = 501, Name = "trimmed_coat", ItemProtoId = 103, EditableItem = Editable() });
+		context.SaveChanges();
+		var craft = new ItemSeeder().AddCraftFromImportsForTesting(context, "stable skinned coat", "Tailoring", BasicPhases(), BasicInputs(), BasicTools(),
+			["SimpleVariableProduct - 1x @coat; skin @trimmed_coat; fixedvariable Colour=red"], []);
+		Assert.AreEqual("501", XElement.Parse(craft.CraftProducts.Single().Definition).Element("Skin")!.Value);
+		Assert.IsNull(context.GameItemSkins.Single().Quality);
+		var before = context.Crafts.Count();
+		Assert.ThrowsException<ApplicationException>(() => new ItemSeeder().AddCraftFromImportsForTesting(context, "missing skin", "Tailoring", BasicPhases(), BasicInputs(), BasicTools(),
+			["SimpleVariableProduct - 1x @coat; skin @absent; fixedvariable Colour=red"], []));
+		Assert.AreEqual(before, context.Crafts.Count());
+	}
+
+	[TestMethod]
+	[DataRow("variable Colour=$i1; fixedvariable Colour=red")]
+	[DataRow("fixedvariable Colour=red; fixedvariable Colour=blue")]
+	[DataRow("fixedvariable Colour=mine")]
+	[DataRow("fixedvariable Missing=red")]
+	[DataRow("variable Colour=$i0")]
+	public void ItemSeeder_AddCraft_InvalidSelectedVariableRules_RejectBeforeCraftInsertion(string options)
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		Assert.ThrowsException<ApplicationException>(() => new ItemSeeder().AddCraftFromImportsForTesting(context,
+			"test invalid mixed colour craft", "Testing", BasicPhases(), BasicInputs(), BasicTools(),
+			[$"SimpleVariableProduct - 1x a variable test product (#103); {options}"], []));
+		Assert.AreEqual(0, context.Crafts.Local.Count);
+		Assert.AreEqual(0, context.CraftProducts.Local.Count);
+	}
+
+	[TestMethod]
 	public void ItemSeeder_AddCraft_TypedSpecPersistsPhaseMetadataAndLifecycleProgs()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -707,6 +816,23 @@ public class ItemSeederAddCraftTests
 		Assert.IsTrue(appear.FunctionText.Contains(@"ToTrait(""9"")"));
 		Assert.IsTrue(appear.FunctionText.StartsWith($"// Knowledge {knowledge.Id} = \"Ancient Medical Treatment Supplies\"", StringComparison.Ordinal));
 		Assert.IsTrue(appear.FunctionText.Contains("// Trait 9 = \"First Aid\""));
+	}
+
+	[TestMethod]
+	public void GeneratedIdentity_KnowledgeAndItsAccessProgsAreOwnedOnFirstInstallation()
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		new ItemSeeder().AddKnowledgeGatedCraftFromImportsForTesting(context, "owned knowledge craft", "Testing",
+			"Advanced Stitching", "Crafting", null, BasicPhases(), BasicInputs(), BasicTools(), BasicProducts(), []);
+		context.SaveChanges();
+		context.ChangeTracker.Clear();
+		var knowledge = context.Knowledges.Single(x => x.Name == "Advanced Stitching");
+		Assert.AreEqual(knowledge.Id, context.SeederManagedRecords.Single(x => x.EntityType == "knowledge" && x.StableKey == knowledge.Name).LogicalId);
+		var progRecords = context.SeederManagedRecords.Where(x => x.EntityType == "prog").ToArray();
+		Assert.AreEqual(3, progRecords.Length);
+		foreach (var record in progRecords)
+			Assert.AreEqual(context.FutureProgs.Single(x => x.FunctionName == record.StableKey).Id, record.LogicalId);
 	}
 
 	[TestMethod]

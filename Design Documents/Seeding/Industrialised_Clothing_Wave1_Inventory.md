@@ -2,7 +2,7 @@
 
 ## Contract and reading key
 
-This is the approved scope inventory under the [clothing specification](./FutureMUD_Industrialised_Clothing_Footwear_Uniforms_Design_Reference.md), not executable item source or finished descriptions. The user approved its counts and overall scope on 2026-09-03, with conventional colours assigned to outfit defaults; see the evidence/coverage approval record. Gates 2–7 remain open. Do not generate prose from the briefs below.
+This is the approved scope inventory under the [clothing specification](./FutureMUD_Industrialised_Clothing_Footwear_Uniforms_Design_Reference.md), not executable item source or finished descriptions. The user approved its counts and overall scope on 2026-09-03, with conventional colours assigned to outfit defaults; see the evidence/coverage approval record. Infrastructure and dependency Gate 2 passed on 2026-09-04; content and production Gates 3–7 remain open. Do not generate prose from the briefs below.
 
 Each table row represents one physical/economic base design, not a colour, size, profession or country variant. `Key` is its unique planning reference. For `new` rows, reserve `<prefix>clothing_<Key>`: `industrialised_` for two or more admitted eras, otherwise the sole canonical era prefix. For reuse rows, `Source` is the exact existing identity; never rename it to the planning key.
 

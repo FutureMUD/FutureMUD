@@ -14,16 +14,18 @@ The September 2026 audited baseline is:
 | Modern-tagged runtime types | 109 |
 | Futuristic-tagged runtime types | 18 |
 | General runtime types | 117 |
-| Exported reusable component profiles | 4,402 |
+| Exported reusable component profiles | 4,557 |
 | Runtime types without same-type exported stock | 39 |
-| Materials | 976 |
+| Materials | 977 |
 | Liquids | 330 |
 | Gases | 68 |
 | Tag hierarchy paths | 2,300 |
 
-The complete one-row-per-runtime-type evidence is in `Industrialised_Component_Prerequisite_Audit.tsv`. It records canonical database keys, builder aliases, prototype and runtime implementation classes, technology classification, exclusive interfaces, known sibling requirements, XML load/save availability, create/load/revision-copy paths, builder-command availability, runtime copy support, export counts, ownership and disposition. `Item_Component_Types.json` is generated from the same runtime snapshot and is no longer a hand-maintained partial list.
+The complete one-row-per-runtime-type evidence is in `Industrialised_Component_Prerequisite_Audit.tsv`. It records canonical database keys, builder aliases, prototype and runtime implementation classes, technology classification, exclusive interfaces, known sibling requirements, XML load/save availability, create/load/revision-copy paths, builder-command availability, runtime copy support, export counts, ownership and disposition. `Item_Component_Types.json` is generated from the same runtime snapshot and is no longer a hand-maintained partial list. It also records whether a prototype overrides `PreventManualLoad`, so catalogue/outfit preflight can exclude runtime-generated-only items from manual materialisation without a separately maintained type list.
 
-## Closure delivered in this tranche
+The original Stage 1 closure held 4,402 profiles. Wave 2 clothing prerequisites add 43 HumanSeeder wearable configurations (41 missing geometry families, a lowered-hood alternative and corrected paired garters), 109 consumed layer variants and three UsefulSeeder Variable configurations for leather, wood and lacquer colours. The current total is 4,557, including 360 Wearable and 25 Variable profiles. CoreDataSeeder supplies the three associated characteristic profiles from existing colour values. Wearable stock ownership is correctly attributed to HumanSeeder and AnimalSeeder, not UsefulSeeder. Runtime type counts and the 39 type-level dispositions are unchanged. These profiles are prerequisites, not additional finished garments or an extra installer package; full clothing dependencies remain governed by the [Wave 2 gate register](./Industrialised_Clothing_Wave2_Infrastructure_and_Gate2.md).
+
+## Closure delivered in Stage 1
 
 The maintained component export gained 45 source-backed rows:
 
@@ -52,6 +54,8 @@ No new engine component family is required for the profiles delivered here. Depe
 `Industrialised_Resource_Prerequisite_Audit.tsv` records every resource currently required by the delivered profile set and near-term shared/Industrial infrastructure. All entries resolve exactly in the maintained exports, including structural metals, copper, silicon, plastics, rubber, composite materials, fuels, detergent, machine and hydraulic oils, common industrial gases, R-134a, all four later-era roots, and the existing tool, household, communications, repair, transport and warehousing market paths.
 
 No new material, liquid, gas or tag was added merely to make this tranche appear complete. Copper wire is an item form of copper rather than a new material; electronic waste is an item/category concern rather than a material; and speculative electrical, office or appliance tag branches remain deferred until Stage 2 has real rows that consume them.
+
+Wave 2's approved clothing inventory identifies `industrialised_clothing_pith_helmet` as the consumer of distinct plant-pith stock. CoreDataSeeder now supplies `pith` and three shola/sola aliases, preserving cork as a separate material. The [evidence and parameter rationale](./Industrialised_Clothing_Wave2_Infrastructure_and_Gate2.md#pith-material-prerequisite) distinguish the genus-density analogue and gameplay estimates from measured data. Existing tag paths are reused. Fresh/rerun tests verify aliases, custom-property preservation and maintained-export parity; all 364 planned clothing material references resolve to 26 unique stock solids. This does not complete garment composition, native colours or outfit validation.
 
 ## Engine and authoring conclusions
 

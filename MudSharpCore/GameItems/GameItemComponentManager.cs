@@ -27,7 +27,8 @@ internal sealed record GameItemComponentRegistrationAuditEntry(
 	bool HasBuilderLoader,
 	bool HasDatabaseLoader,
 	bool HasHelp,
-	bool HasContextDependentRequirements);
+	bool HasContextDependentRequirements,
+	bool PreventsManualLoad);
 
 public class GameItemComponentManager : IGameItemComponentManager
 {
@@ -234,6 +235,8 @@ public class GameItemComponentManager : IGameItemComponentManager
 			StringComparison.Ordinal);
 		var runtimeComponentType = builder.PrototypeType.Assembly.GetType(
 			$"MudSharp.GameItems.Components.{runtimeComponentTypeName}");
+		var preventsManualLoad = builder.PrototypeType.GetProperty(nameof(GameItemComponentProto.PreventManualLoad))?
+			.GetMethod?.DeclaringType != typeof(GameItemComponentProto);
 		const BindingFlags instanceMethods = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 		bool HasMethod(Type type, string name) => type.GetMethods(instanceMethods).Any(x => x.Name == name);
 
@@ -258,6 +261,7 @@ public class GameItemComponentManager : IGameItemComponentManager
 			builder.BuilderAliases.Count > 0,
 			true,
 			builder.HelpInfo is not null,
-			hasContextDependentRequirements);
+			hasContextDependentRequirements,
+			preventsManualLoad);
 	}
 }

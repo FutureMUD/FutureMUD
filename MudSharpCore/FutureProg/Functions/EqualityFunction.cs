@@ -5,11 +5,13 @@ namespace MudSharp.FutureProg.Functions;
 internal class EqualityFunction : BinaryFunction
 {
 	private readonly ProgVariableTypeCode _comparisonType;
+	private readonly bool _personalNameComparison;
 
     public EqualityFunction(IFunction lhs, IFunction rhs)
         : base(lhs, rhs)
     {
 		_comparisonType = (lhs.ReturnType & ~ProgVariableTypes.Literal).LegacyCode;
+		_personalNameComparison = (lhs.ReturnType & ~ProgVariableTypes.Literal) == ProgVariableTypes.PersonalName;
     }
 
     public override ProgVariableTypes ReturnType
@@ -24,6 +26,12 @@ internal class EqualityFunction : BinaryFunction
         {
             return StatementResult.Error;
         }
+
+		if (_personalNameComparison)
+		{
+			Result = new BooleanVariable(Equals(LHS?.Result?.GetObject, RHS?.Result?.GetObject));
+			return StatementResult.Normal;
+		}
 
 		switch (_comparisonType)
         {

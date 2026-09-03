@@ -1,6 +1,7 @@
 ﻿using MudSharp.CharacterCreation;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg.Variables;
 using System.Text.RegularExpressions;
 
 namespace MudSharp.Character.Name;
@@ -93,6 +94,44 @@ public class NameCulture : SaveableItem, INameCulture
 
     public IEnumerable<NameCultureElement> NameCultureElements => _nameCultureElements;
     public IEnumerable<IRandomNameProfile> RandomNameProfiles => _randomNameProfiles;
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable(Name),
+            "randomnameprofiles" or "profiles" => new CollectionVariable(
+                _randomNameProfiles.ToList(), ProgVariableTypes.RandomNameProfile),
+            "nameusages" => new CollectionVariable(
+                _nameCultureElements.Select(x => x.Usage.DescribeEnum()).ToList(), ProgVariableTypes.Text),
+            _ => throw new NotSupportedException()
+        };
+    }
+
+    public ProgVariableTypes Type => ProgVariableTypes.NameCulture;
+    public object GetObject => this;
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.NameCulture,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["randomnameprofiles"] = ProgVariableTypes.RandomNameProfile | ProgVariableTypes.Collection,
+                ["profiles"] = ProgVariableTypes.RandomNameProfile | ProgVariableTypes.Collection,
+                ["nameusages"] = ProgVariableTypes.Text | ProgVariableTypes.Collection
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The ID of this name culture",
+                ["name"] = "The name of this name culture",
+                ["randomnameprofiles"] = "The random-name profiles configured for this name culture",
+                ["profiles"] = "An alias for RANDOMNAMEPROFILES",
+                ["nameusages"] = "The naming-element usages supported by this name culture"
+            });
+    }
 
 
     public Tuple<string, List<NameUsage>> NamePattern(NameStyle style)

@@ -868,6 +868,69 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
         string parameterArgument = parNumber > 0 ? $" at parameter {parNumber.ToString("N0", actor)}" : "";
 
+        if (type == ProgVariableTypes.NameCulture)
+        {
+            INameCulture nameCulture = actor.Gameworld.NameCultures.GetByIdOrName(parText);
+            if (nameCulture is null)
+            {
+                actor.OutputHandler.Send($"There is no such name culture{parameterArgument}.");
+                return (null, false);
+            }
+
+            return (nameCulture, true);
+        }
+
+        if (type == ProgVariableTypes.RandomNameProfile)
+        {
+            IRandomNameProfile randomNameProfile = actor.Gameworld.RandomNameProfiles.GetByIdOrName(parText);
+            if (randomNameProfile is null)
+            {
+                actor.OutputHandler.Send($"There is no such random name profile{parameterArgument}.");
+                return (null, false);
+            }
+
+            return (randomNameProfile, true);
+        }
+
+        if (type == ProgVariableTypes.PersonalName)
+        {
+            if (parText.EqualTo("null"))
+            {
+                return (null, true);
+            }
+
+            StringStack nameStack = new(parText);
+            if (nameStack.IsFinished)
+            {
+                actor.OutputHandler.Send(
+                    $"You must specify a name culture followed by a complete name{parameterArgument}.");
+                return (null, false);
+            }
+
+            INameCulture nameCulture = actor.Gameworld.NameCultures.GetByIdOrName(nameStack.PopSpeech());
+            if (nameCulture is null)
+            {
+                actor.OutputHandler.Send($"There is no such name culture{parameterArgument}.");
+                return (null, false);
+            }
+
+            if (nameStack.IsFinished)
+            {
+                actor.OutputHandler.Send(
+                    $"You must specify a complete name after the name culture{parameterArgument}.");
+                return (null, false);
+            }
+
+            IPersonalName personalName = nameCulture.GetPersonalName(nameStack.SafeRemainingArgument, true);
+            if (personalName is null)
+            {
+                actor.OutputHandler.Send($"That is not a valid name for the {nameCulture.Name.ColourName()} name culture{parameterArgument}.");
+                return (null, false);
+            }
+
+            return (personalName, true);
+        }
+
         if (type == ProgVariableTypes.LegalClass)
         {
             ILegalClass legalClass = actor.Gameworld.LegalClasses.GetByIdOrName(parText);

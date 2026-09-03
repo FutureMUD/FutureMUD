@@ -18,7 +18,7 @@ namespace MudSharp.Character.Name
         FullWithNickname = 5
     }
 
-    public interface INameCulture : IEditableItem, ISaveable, IXmlSavable
+    public interface INameCulture : IEditableItem, ISaveable, IXmlSavable, IProgVariable
     {
 
         IEnumerable<NameCultureElement> NameCultureElements { get; }

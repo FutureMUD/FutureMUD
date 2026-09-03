@@ -63,6 +63,33 @@ New exact types added after the legacy bit range, such as `LegalClass`, should g
 
 This centralises logic that was previously spread across multiple FutureProg helpers and switches.
 
+## Naming Values
+
+FutureProg exposes three first-class naming types:
+
+- `NameCulture` is a reference type for the reusable naming rules and patterns.
+- `RandomNameProfile` is a reference type for a weighted random-name source within a name culture.
+- `PersonalName` is a value type. It retains its name culture and individual name elements when it crosses a variable-register boundary, rather than relying on the transient `FrameworkItem` ID of a generated name. Personal names compare by their culture and raw elements, case-insensitively.
+
+The principal dot references are:
+
+- `nameculture.id`, `nameculture.name`, `nameculture.randomnameprofiles`, and `nameculture.nameusages`.
+- `randomnameprofile.id`, `randomnameprofile.name`, `randomnameprofile.culture`, `randomnameprofile.gender`, `randomnameprofile.ready`, `randomnameprofile.randomname`, and `randomnameprofile.names`.
+- `personalname.culture`, formatted forms such as `name`, `givenname`, `simplefullname`, `affectionate`, `surname`, and `fullwithnickname`, plus `elements` and the individual raw element properties such as `birthname`, `diminutive`, `surnameelement`, `nickname`, `patronym`, and `regnalname`.
+
+`character.personalname` exposes the character's real `PersonalName`; `character.currentname` exposes its current alias. `chargen.personalname` exposes the selected name or a typed null while it has not been selected. The established text properties (`character.name`, `fullname`, `surname`, `cname`, and their chargen equivalents) remain text for compatibility with existing progs.
+
+Culture and ethnicity keep their existing text `namecultures` collections. Their new `namecultureobjects` collections provide the typed `NameCulture` values, and their gender-specific `malenameculture`, `femalenameculture`, `neuternameculture`, `nonbinarynameculture`, and `indeterminatenameculture` references provide individual configurations. Ethnicity-specific gender properties return null when the parent culture's configuration applies.
+
+The built-in naming functions are:
+
+- `tonameculture(number|text)`
+- `torandomnameprofile(number|text)` and `torandomnameprofile(nameculture, text)`
+- `getpersonalname(nameculture, text)`
+- `randompersonalname(randomnameprofile)`
+
+All lookup and creation functions return a typed null when a target is absent, a profile is not ready, or supplied name text does not validate. For `prog execute`, a `PersonalName` argument is entered as a quoted-or-unquoted name culture followed by the complete name text.
+
 ## Persistence Format
 
 FutureProg type persistence now uses a canonical versioned string definition:

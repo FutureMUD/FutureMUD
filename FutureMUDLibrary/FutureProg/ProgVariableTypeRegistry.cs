@@ -109,6 +109,10 @@ public static class ProgVariableTypeRegistry
 		RegisterExact(ProgTypeKind.SignedLanguage, ProgVariableTypes.SignedLanguage, "SignedLanguage", "signedlanguage", "signlanguage");
 		RegisterExact(ProgTypeKind.SignedVariety, ProgVariableTypes.SignedVariety, "SignedVariety",
 			"signedvariety", "signedlanguagevariety", "signvariety");
+		RegisterExact(ProgTypeKind.NameCulture, ProgVariableTypes.NameCulture, "NameCulture", "nameculture");
+		RegisterExact(ProgTypeKind.RandomNameProfile, ProgVariableTypes.RandomNameProfile, "RandomNameProfile",
+			"randomnameprofile", "nameprofile", "randomname");
+		RegisterExact(ProgTypeKind.PersonalName, ProgVariableTypes.PersonalName, "PersonalName", "personalname");
 
         RegisterNamed(ProgVariableTypes.CollectionItem, "CollectionItem", false, "collectionitem");
         RegisterNamed(ProgVariableTypes.Perceivable, "Perceivable", false, "perceivable");

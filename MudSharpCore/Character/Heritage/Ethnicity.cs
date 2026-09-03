@@ -343,6 +343,12 @@ public class Ethnicity : SaveableItem, IEthnicity
             { "ethnicsubgroup", ProgVariableTypes.Text },
             { "parentrace", ProgVariableTypes.Race },
             { "namecultures", ProgVariableTypes.Text | ProgVariableTypes.Collection},
+            { "namecultureobjects", ProgVariableTypes.NameCulture | ProgVariableTypes.Collection},
+            { "malenameculture", ProgVariableTypes.NameCulture },
+            { "femalenameculture", ProgVariableTypes.NameCulture },
+            { "neuternameculture", ProgVariableTypes.NameCulture },
+            { "nonbinarynameculture", ProgVariableTypes.NameCulture },
+            { "indeterminatenameculture", ProgVariableTypes.NameCulture },
             { "tempfloor", ProgVariableTypes.Number },
             { "tempceiling", ProgVariableTypes.Number },
         };
@@ -360,6 +366,12 @@ public class Ethnicity : SaveableItem, IEthnicity
             { "ethnicgroup", "An alias for the GROUP property" },
             { "ethnicsubgroup", "An alias for the SUBGROUP property" },
             { "namecultures", "A collection of the name cultures for this ethnicity, if present"},
+            { "namecultureobjects", "The ethnicity-specific name-culture override objects"},
+            { "malenameculture", "The male name-culture override, or null when the culture's setting applies"},
+            { "femalenameculture", "The female name-culture override, or null when the culture's setting applies"},
+            { "neuternameculture", "The neuter name-culture override, or null when the culture's setting applies"},
+            { "nonbinarynameculture", "The non-binary name-culture override, or null when the culture's setting applies"},
+            { "indeterminatenameculture", "The indeterminate-gender name-culture override, or null when the culture's setting applies"},
             { "tempfloor", "The modifier to the floor of tolerable temperatures" },
             { "tempceiling", "The modifier to the ceiling of tolerable temperatures" },
         };
@@ -395,6 +407,24 @@ public class Ethnicity : SaveableItem, IEthnicity
                 break;
             case "namecultures":
                 returnVar = new CollectionVariable(NameCultures.SelectNotNull(x => x?.Name).Distinct().ToList(), ProgVariableTypes.Text);
+                break;
+            case "namecultureobjects":
+                returnVar = new CollectionVariable(NameCultures.ToList(), ProgVariableTypes.NameCulture);
+                break;
+            case "malenameculture":
+                returnVar = NameCultureForGender(Gender.Male) as IProgVariable ?? new NullVariable(ProgVariableTypes.NameCulture);
+                break;
+            case "femalenameculture":
+                returnVar = NameCultureForGender(Gender.Female) as IProgVariable ?? new NullVariable(ProgVariableTypes.NameCulture);
+                break;
+            case "neuternameculture":
+                returnVar = NameCultureForGender(Gender.Neuter) as IProgVariable ?? new NullVariable(ProgVariableTypes.NameCulture);
+                break;
+            case "nonbinarynameculture":
+                returnVar = NameCultureForGender(Gender.NonBinary) as IProgVariable ?? new NullVariable(ProgVariableTypes.NameCulture);
+                break;
+            case "indeterminatenameculture":
+                returnVar = NameCultureForGender(Gender.Indeterminate) as IProgVariable ?? new NullVariable(ProgVariableTypes.NameCulture);
                 break;
             case "tempfloor":
                 return new NumberVariable(TolerableTemperatureFloorEffect);

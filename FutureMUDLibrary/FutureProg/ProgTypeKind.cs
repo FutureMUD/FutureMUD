@@ -74,5 +74,8 @@ public enum ProgTypeKind
 	NPCSkillPackage,
 	SignedLanguage,
 	SignedVariety,
-	SignedLanguageVariety = SignedVariety
+	SignedLanguageVariety = SignedVariety,
+	NameCulture,
+	RandomNameProfile,
+	PersonalName
 }

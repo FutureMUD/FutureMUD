@@ -1,4 +1,5 @@
 ﻿using MudSharp.Database;
+using MudSharp.Character.Name;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Functions;
@@ -17,6 +18,19 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
     private readonly HashSet<Tuple<ProgVariableTypes, string>> _changedTypes =
         new();
+
+    private static bool UsesValueStorage(ProgVariableTypes type)
+    {
+        return type == ProgVariableTypes.PersonalName || type.LegacyCode is
+            ProgVariableTypeCode.Boolean or
+            ProgVariableTypeCode.Gender or
+            ProgVariableTypeCode.Text or
+            ProgVariableTypeCode.Number or
+            ProgVariableTypeCode.TimeSpan or
+            ProgVariableTypeCode.DateTime or
+            ProgVariableTypeCode.MudDateTime or
+            ProgVariableTypeCode.LiquidMixture;
+    }
 
     #region Constructors
 
@@ -51,40 +65,28 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                 {
                     IVariableValue newValue;
                     ProgVariableTypes valueType = _types[type][sub.Property];
-                    switch (valueType.LegacyCode)
+                    if (UsesValueStorage(valueType))
                     {
-                        case ProgVariableTypeCode.Boolean:
-                        case ProgVariableTypeCode.Gender:
-                        case ProgVariableTypeCode.Text:
-                        case ProgVariableTypeCode.Number:
-                        case ProgVariableTypeCode.TimeSpan:
-                        case ProgVariableTypeCode.DateTime:
-                        case ProgVariableTypeCode.MudDateTime:
-                        case ProgVariableTypeCode.LiquidMixture:
-                            newValue = new ValueVariableValue(XElement.Parse(sub.DefaultValue), valueType, gameworld);
-                            break;
-                        default:
-                            if (valueType.HasFlag(ProgVariableTypes.Collection))
-                            {
-                                newValue = new CollectionVariableValue(XElement.Parse(sub.DefaultValue), valueType,
-                                    gameworld);
-                            }
-                            else if (valueType.HasFlag(ProgVariableTypes.Dictionary))
-                            {
-                                newValue = new DictionaryVariableValue(XElement.Parse(sub.DefaultValue), valueType,
-                                    gameworld);
-                            }
-                            else if (valueType.HasFlag(ProgVariableTypes.CollectionDictionary))
-                            {
-                                newValue = new CollectionDictionaryVariableValue(XElement.Parse(sub.DefaultValue),
-                                    valueType, gameworld);
-                            }
-                            else
-                            {
-                                newValue = new ReferenceVariableValue(XElement.Parse(sub.DefaultValue), valueType);
-                            }
-
-                            break;
+                        newValue = new ValueVariableValue(XElement.Parse(sub.DefaultValue), valueType, gameworld);
+                    }
+                    else if (valueType.HasFlag(ProgVariableTypes.Collection))
+                    {
+                        newValue = new CollectionVariableValue(XElement.Parse(sub.DefaultValue), valueType,
+                            gameworld);
+                    }
+                    else if (valueType.HasFlag(ProgVariableTypes.Dictionary))
+                    {
+                        newValue = new DictionaryVariableValue(XElement.Parse(sub.DefaultValue), valueType,
+                            gameworld);
+                    }
+                    else if (valueType.HasFlag(ProgVariableTypes.CollectionDictionary))
+                    {
+                        newValue = new CollectionDictionaryVariableValue(XElement.Parse(sub.DefaultValue),
+                            valueType, gameworld);
+                    }
+                    else
+                    {
+                        newValue = new ReferenceVariableValue(XElement.Parse(sub.DefaultValue), valueType);
                     }
 
                     newDict[sub.Property] = newValue;
@@ -101,30 +103,28 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             {
                 ProgVariableTypes type = ProgVariableTypes.FromStorageString(item.ValueTypeDefinition);
                 IVariableValue newValue;
-                switch (type.LegacyCode)
+                if (UsesValueStorage(type))
                 {
-                    case ProgVariableTypeCode.Boolean:
-                    case ProgVariableTypeCode.Gender:
-                    case ProgVariableTypeCode.Text:
-                    case ProgVariableTypeCode.Number:
-                    case ProgVariableTypeCode.DateTime:
-                    case ProgVariableTypeCode.TimeSpan:
-                    case ProgVariableTypeCode.MudDateTime:
-                    case ProgVariableTypeCode.LiquidMixture:
-                        newValue = new ValueVariableValue(XElement.Parse(item.ValueDefinition), type, gameworld);
-                        break;
-                    default:
-                        if (type.HasFlag(ProgVariableTypes.Collection))
-                        {
-                            newValue = new CollectionVariableValue(XElement.Parse(item.ValueDefinition), type,
-                                gameworld);
-                        }
-                        else
-                        {
-                            newValue = new ReferenceVariableValue(XElement.Parse(item.ValueDefinition), type);
-                        }
-
-                        break;
+                    newValue = new ValueVariableValue(XElement.Parse(item.ValueDefinition), type, gameworld);
+                }
+                else if (type.HasFlag(ProgVariableTypes.Collection))
+                {
+                    newValue = new CollectionVariableValue(XElement.Parse(item.ValueDefinition), type,
+                        gameworld);
+                }
+                else if (type.HasFlag(ProgVariableTypes.Dictionary))
+                {
+                    newValue = new DictionaryVariableValue(XElement.Parse(item.ValueDefinition), type,
+                        gameworld);
+                }
+                else if (type.HasFlag(ProgVariableTypes.CollectionDictionary))
+                {
+                    newValue = new CollectionDictionaryVariableValue(XElement.Parse(item.ValueDefinition), type,
+                        gameworld);
+                }
+                else
+                {
+                    newValue = new ReferenceVariableValue(XElement.Parse(item.ValueDefinition), type);
                 }
 
                 _values[
@@ -259,6 +259,11 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                 return null;
             }
 
+            if (variable.Type == ProgVariableTypes.PersonalName)
+            {
+                return null;
+            }
+
             switch (variable.Type.LegacyCode)
             {
                 case ProgVariableTypeCode.Gender:
@@ -302,21 +307,13 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             UnderlyingType = type ^ ProgVariableTypes.Collection;
             foreach (XElement element in root.Elements("var"))
             {
-                switch (UnderlyingType.LegacyCode)
+                if (UsesValueStorage(UnderlyingType))
                 {
-                    case ProgVariableTypeCode.Number:
-                    case ProgVariableTypeCode.Text:
-                    case ProgVariableTypeCode.Boolean:
-                    case ProgVariableTypeCode.Gender:
-                    case ProgVariableTypeCode.DateTime:
-                    case ProgVariableTypeCode.TimeSpan:
-                    case ProgVariableTypeCode.MudDateTime:
-                    case ProgVariableTypeCode.LiquidMixture:
-                        Collection.Add(new ValueVariableValue(element, UnderlyingType, gameworld));
-                        break;
-                    default:
-                        Collection.Add(new ReferenceVariableValue(element, UnderlyingType));
-                        break;
+                    Collection.Add(new ValueVariableValue(element, UnderlyingType, gameworld));
+                }
+                else
+                {
+                    Collection.Add(new ReferenceVariableValue(element, UnderlyingType));
                 }
             }
         }
@@ -366,33 +363,23 @@ internal class VariableRegister : SaveableItem, IVariableRegister
         public CollectionDictionaryVariableValue(XElement root, ProgVariableTypes type, IFuturemud gameworld)
         {
             Dictionary = new CollectionDictionary<string, IVariableValue>();
-            UnderlyingType = type ^ ProgVariableTypes.Collection;
+            UnderlyingType = type ^ ProgVariableTypes.CollectionDictionary;
             foreach (XElement element in root.Elements("value"))
             {
                 string key = element.Element("key").Value;
-                switch (UnderlyingType.LegacyCode)
+                if (UsesValueStorage(UnderlyingType))
                 {
-                    case ProgVariableTypeCode.Number:
-                    case ProgVariableTypeCode.Text:
-                    case ProgVariableTypeCode.Boolean:
-                    case ProgVariableTypeCode.Gender:
-                    case ProgVariableTypeCode.DateTime:
-                    case ProgVariableTypeCode.TimeSpan:
-                    case ProgVariableTypeCode.MudDateTime:
-                    case ProgVariableTypeCode.LiquidMixture:
-                        foreach (XElement sub in element.Elements("var"))
-                        {
-                            Dictionary.Add(key, new ValueVariableValue(sub, UnderlyingType, gameworld));
-                        }
-
-                        break;
-                    default:
-                        foreach (XElement sub in element.Elements("var"))
-                        {
-                            Dictionary.Add(key, new ReferenceVariableValue(sub, UnderlyingType));
-                        }
-
-                        break;
+                    foreach (XElement sub in element.Elements("var"))
+                    {
+                        Dictionary.Add(key, new ValueVariableValue(sub, UnderlyingType, gameworld));
+                    }
+                }
+                else
+                {
+                    foreach (XElement sub in element.Elements("var"))
+                    {
+                        Dictionary.Add(key, new ReferenceVariableValue(sub, UnderlyingType));
+                    }
                 }
             }
         }
@@ -453,26 +440,18 @@ internal class VariableRegister : SaveableItem, IVariableRegister
         public DictionaryVariableValue(XElement root, ProgVariableTypes type, IFuturemud gameworld)
         {
             Dictionary = new Dictionary<string, IVariableValue>();
-            UnderlyingType = type ^ ProgVariableTypes.Collection;
+            UnderlyingType = type ^ ProgVariableTypes.Dictionary;
             foreach (XElement element in root.Elements("value"))
             {
-                switch (UnderlyingType.LegacyCode)
+                if (UsesValueStorage(UnderlyingType))
                 {
-                    case ProgVariableTypeCode.Number:
-                    case ProgVariableTypeCode.Text:
-                    case ProgVariableTypeCode.Boolean:
-                    case ProgVariableTypeCode.Gender:
-                    case ProgVariableTypeCode.DateTime:
-                    case ProgVariableTypeCode.TimeSpan:
-                    case ProgVariableTypeCode.MudDateTime:
-                    case ProgVariableTypeCode.LiquidMixture:
-                        Dictionary.Add(element.Element("key").Value,
-                            new ValueVariableValue(element.Element("var"), UnderlyingType, gameworld));
-                        break;
-                    default:
-                        Dictionary.Add(element.Element("key").Value,
-                            new ReferenceVariableValue(element.Element("var"), UnderlyingType));
-                        break;
+                    Dictionary.Add(element.Element("key").Value,
+                        new ValueVariableValue(element.Element("var"), UnderlyingType, gameworld));
+                }
+                else
+                {
+                    Dictionary.Add(element.Element("key").Value,
+                        new ReferenceVariableValue(element.Element("var"), UnderlyingType));
                 }
             }
         }
@@ -524,6 +503,26 @@ internal class VariableRegister : SaveableItem, IVariableRegister
         {
             Type = type;
             XElement valueRoot = root.Name == "var" ? root : root.Element("var") ?? root;
+
+            if (type == ProgVariableTypes.PersonalName)
+            {
+                XElement nameRoot = valueRoot.Name == "Name" ? valueRoot : valueRoot.Element("Name");
+                if (nameRoot is null)
+                {
+                    return;
+                }
+
+                try
+                {
+                    Value = new PersonalName(nameRoot, gameworld);
+                }
+                catch
+                {
+                    Value = null;
+                }
+
+                return;
+            }
 
             switch (type.LegacyCode)
             {
@@ -579,6 +578,11 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                 return new NullVariable(Type);
             }
 
+            if (Type == ProgVariableTypes.PersonalName)
+            {
+                return (Value as IPersonalName) as IProgVariable ?? new NullVariable(Type);
+            }
+
             switch (Type.LegacyCode)
             {
                 case ProgVariableTypeCode.Number:
@@ -610,6 +614,13 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
         public XElement SaveToXml()
         {
+            if (Type == ProgVariableTypes.PersonalName)
+            {
+                return Value is IPersonalName personalName
+                    ? new XElement("var", personalName.SaveToXml())
+                    : new XElement("var");
+            }
+
             switch (Type.LegacyCode)
             {
                 case ProgVariableTypeCode.DateTime:
@@ -671,6 +682,16 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 		public IProgVariable GetVariable(IFuturemud game)
 		{
+			if (Type == ProgVariableTypes.NameCulture)
+			{
+				return game.NameCultures.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.RandomNameProfile)
+			{
+				return game.RandomNameProfiles.Get(ID);
+			}
+
 			if (Type == ProgVariableTypes.LegalClass)
 			{
 				return game.LegalClasses.Get(ID);
@@ -967,6 +988,15 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             return new CollectionDictionaryVariableValue { Dictionary = collection, UnderlyingType = underlying };
         }
 
+        if (type == ProgVariableTypes.PersonalName)
+        {
+            return new ValueVariableValue
+            {
+                Type = type,
+                Value = value.GetObject as IPersonalName
+            };
+        }
+
         switch (type.LegacyCode)
         {
             case ProgVariableTypeCode.Error:
@@ -1111,7 +1141,20 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
         _changedDefaults.Add(new Tuple<ProgVariableTypes, string>(ownerType, variable.ToLowerInvariant()));
 
-        if (ProgVariableTypes.ValueType.HasFlag(variableType))
+        if (variableType == ProgVariableTypes.PersonalName)
+        {
+            defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
+            {
+                Type = variableType,
+                Value = defaultValue switch
+                {
+                    IPersonalName personalName => personalName,
+                    IProgVariable { GetObject: IPersonalName personalName } => personalName,
+                    _ => null
+                }
+            };
+        }
+        else if (ProgVariableTypes.ValueType.HasFlag(variableType))
         {
             switch (variableType.LegacyCode)
             {

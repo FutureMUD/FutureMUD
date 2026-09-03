@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace MudSharp.Character.Name
 {
-    public interface IRandomNameProfile : IFrameworkItem, ISaveable, IEditableItem
+    public interface IRandomNameProfile : IFrameworkItem, ISaveable, IEditableItem, IProgVariable
     {
         IReadOnlyDictionary<NameUsage, string> NameUsageDiceExpressions { get; }
         IReadOnlyDictionary<NameUsage, List<(string Value, int Weight)>> RandomNames { get; }

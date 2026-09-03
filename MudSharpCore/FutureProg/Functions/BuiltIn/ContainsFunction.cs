@@ -49,6 +49,13 @@ internal class ContainsFunction : BuiltInFunction
         }
 
         IProgVariable iResult = itemFunction.Result;
+		if ((itemFunction.ReturnType & ~ProgVariableTypes.Literal) == ProgVariableTypes.PersonalName)
+		{
+			Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
+				.Any(x => Equals(x.GetObject, iResult?.GetObject)));
+			return StatementResult.Normal;
+		}
+
         switch ((itemFunction.ReturnType & ~ProgVariableTypes.Literal).LegacyCode)
         {
             case ProgVariableTypeCode.Boolean:

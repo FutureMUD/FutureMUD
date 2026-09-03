@@ -744,36 +744,7 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_linen_wimple",
-			"wimple",
-			"a $colour linen wimple",
-			null,
-			"This $colour linen wimple is a linen head and neck covering shaped by smooth folds around the throat and lower face. The fabric is light but close, leaving the outer edge neat enough to sit under a veil or hood. The $colour dye is simple and even, showing most clearly across the broad panels and worn edges.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			160.0,
-			9.0m,
-			true,
-			false,
-			"linen",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Headwear"
-			],
-			[
-				"Holdable",
-				"Wear_Veil",
-				"Destroyable_Clothing",
-				"Insulation_Minor",
-				"Armour_LightClothing",
-				"Variable_BasicColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_linen_wimple")!);
 
 		CreateItem(
 			"medieval_wool_hood",
@@ -3747,98 +3718,11 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_cotton_sari",
-			"sari",
-			"a $colour cotton sari",
-			null,
-			"This $colour cotton sari is a long wrapped garment with enough length to form both lower drape and upper fold. The cloth relies on pleating, tucking, and wrapping rather than seams, leaving the edge visible along the fall. The $colour dye is simple and even, showing most clearly across the broad panels and worn edges.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			520.0,
-			18.0m,
-			true,
-			false,
-			"cotton",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_BasicColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_cotton_sari")!);
 
-		CreateItem(
-			"medieval_fine_silk_sari",
-			"sari",
-			"a fine $colour silk sari",
-			null,
-			"This fine $colour silk sari is a long wrapped garment with enough length to form both lower drape and upper fold. The cloth relies on pleating, tucking, and wrapping rather than seams, leaving the edge visible along the fall. The $colour dye reads cleanly across the cloth, with richer depth where the folds overlap and catch shadow.",
-			SizeCategory.Normal,
-			ItemQuality.Good,
-			420.0,
-			140.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_FineColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_fine_silk_sari")!);
 
-		CreateItem(
-			"medieval_short_cotton_bodice",
-			"bodice",
-			"a short $colour cotton bodice",
-			null,
-			"This short $colour cotton bodice is a short fitted upper-body garment with a close waist, shaped sides, and narrow shoulder coverage. It is meant to sit with a wrapped lower cloth or skirt, keeping the torso neat without heavy layering. The $colour dye is simple and even, showing most clearly across the broad panels and worn edges.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			180.0,
-			10.0m,
-			true,
-			false,
-			"cotton",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Shirt",
-				"Destroyable_Clothing",
-				"Insulation_Minor",
-				"Armour_LightClothing",
-				"Variable_BasicColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_short_cotton_bodice")!);
 
 		CreateItem(
 			"medieval_fine_silk_bodice",
@@ -5969,35 +5853,7 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_leather_smith_apron",
-			"apron",
-			"a leather smith's apron",
-			null,
-			"This leather smith's apron is a heavy protective apron cut from sturdy leather with a broad chest and long lower fall. The surface is plain and tough, with visible creases and scuffs where tools, heat, and work would mark it. Natural variations in the leather show along the grain, flex marks, and cut edge.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			650.0,
-			28.0m,
-			true,
-			false,
-			"leather",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Apron",
-				"Destroyable_Clothing",
-				"Insulation_Minor",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_leather_smith_apron")!);
 
 		CreateItem(
 			"medieval_linen_sleeve_guards",
@@ -8609,127 +8465,13 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_latin_amice",
-			"amice",
-			"a white linen amice",
-			null,
-			"This white linen amice is a rectangular cloth sized to sit around the neck and shoulders beneath other vestments. Its edges are neatly folded, and small ties are worked into the corners to keep the cloth close. The linen is plain, pale, and smooth, serving as a clean visible layer at the collar.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			120.0,
-			10.0m,
-			true,
-			false,
-			"linen",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Scarf",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_latin_amice")!);
 
-		CreateItem(
-			"medieval_latin_linen_cincture",
-			"cincture",
-			"a white linen cincture",
-			null,
-			"This white linen cincture is a narrow corded sash for drawing in a loose robe at the waist. It is braided from pale linen with a simple hand and modest hanging ends. The surface is clean and undecorated, giving it the appearance of an ordered working tie rather than a rich belt.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			80.0,
-			6.0m,
-			true,
-			false,
-			"linen",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Belts"
-			],
-			[
-				"Holdable",
-				"Wear_Sash",
-				"Destroyable_Clothing",
-				"Insulation_Minor",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_latin_linen_cincture")!);
 
-		CreateItem(
-			"medieval_latin_stole",
-			"stole",
-			"a $colour silk stole",
-			null,
-			"This $colour silk stole is a long, narrow band of cloth with neatly weighted ends and a smooth lustre. The silk catches light along its length, making the $colour tone appear richer where the fabric bends. Its construction is formal and restrained, with straight edges and a clearly ceremonial fall.",
-			SizeCategory.Small,
-			ItemQuality.Good,
-			110.0,
-			50.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Scarf",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_FineColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_latin_stole")!);
 
-		CreateItem(
-			"medieval_latin_maniple",
-			"maniple",
-			"a $colour silk maniple",
-			null,
-			"This $colour silk maniple is a short band of fine cloth made to hang from the forearm. The silk is light and smooth, with the $colour shade most visible across the folded central panel. Its ends are carefully squared, giving the small vestment a deliberate and formal outline.",
-			SizeCategory.Small,
-			ItemQuality.Good,
-			60.0,
-			30.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Bracer",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_FineColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_latin_maniple")!);
 
 		CreateItem(
 			"medieval_latin_chasuble",
@@ -8762,36 +8504,7 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_latin_dalmatic_vestment",
-			"dalmatic",
-			"a fine $colour silk dalmatic",
-			null,
-			"This fine $colour silk dalmatic is a loose, straight vestment with broad sleeves and a squared body. The $colour silk hangs smoothly from the shoulders, leaving the sleeve openings wide and visible. Its formal cut gives it a robe-like dignity while keeping the shape distinct from a closed cloak or mantle.",
-			SizeCategory.Normal,
-			ItemQuality.Good,
-			650.0,
-			140.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_FineColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_latin_dalmatic_vestment")!);
 
 		CreateItem(
 			"medieval_latin_processional_cope",
@@ -8914,35 +8627,7 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_eastern_black_riassa",
-			"riassa",
-			"a black wool riassa",
-			null,
-			"This black wool riassa is a long outer robe with a loose body and broad, unhurried sleeves. The cloth is sober and dark, falling from the shoulders in a straight vertical line. Its construction is plain but ample, giving the wearer a formal clerical outline without bright trimming.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			850.0,
-			30.0m,
-			true,
-			false,
-			"wool",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_eastern_black_riassa")!);
 
 		CreateItem(
 			"medieval_eastern_monastic_mantle",
@@ -9034,35 +8719,7 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_eastern_sticharion",
-			"sticharion",
-			"a white linen sticharion",
-			null,
-			"This white linen sticharion is a long, straight liturgical robe with close sleeves and a pale, even surface. The linen falls cleanly to the feet, forming a bright underlayer beneath richer vestments. Its seams are tidy and restrained, emphasizing length and whiteness rather than decoration.",
-			SizeCategory.Normal,
-			ItemQuality.Good,
-			480.0,
-			40.0m,
-			true,
-			false,
-			"linen",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_eastern_sticharion")!);
 
 		CreateItem(
 			"medieval_eastern_orarion",
@@ -9095,98 +8752,11 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_eastern_epitrachelion",
-			"epitrachelion",
-			"a $colour silk epitrachelion",
-			null,
-			"This $colour silk epitrachelion is a paired stole joined at the neck and falling in two long panels down the front. The $colour silk has a formal sheen, broken by the fold where the fabric sits around the collar. Its length, symmetry, and careful edging make it distinct from an ordinary scarf.",
-			SizeCategory.Small,
-			ItemQuality.Good,
-			190.0,
-			70.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Scarf",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_FineColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_eastern_epitrachelion")!);
 
-		CreateItem(
-			"medieval_eastern_epimanikia",
-			"epimanikia",
-			"a pair of $colour silk epimanikia",
-			null,
-			"These $colour silk epimanikia are fitted cuffs made to wrap around the lower sleeves. The silk panels are small but carefully shaped, with ties or narrow bands visible at the inner wrist. Their $colour surface gives a bright, formal finish to the hands and forearms.",
-			SizeCategory.Small,
-			ItemQuality.Good,
-			80.0,
-			50.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Gloves"
-			],
-			[
-				"Holdable",
-				"Wear_Bracers",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_FineColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_eastern_epimanikia")!);
 
-		CreateItem(
-			"medieval_eastern_phelonion",
-			"phelonion",
-			"a fine $colour silk phelonion",
-			null,
-			"This fine $colour silk phelonion is a wide sleeveless outer vestment with a rounded fall from the shoulders. The front is cut to clear the hands while the back drops in a fuller sweep, showing the $colour silk in deep folds. Its form resembles a ceremonial mantle, but the head opening and continuous body give it a distinctive liturgical shape.",
-			SizeCategory.Normal,
-			ItemQuality.Good,
-			780.0,
-			170.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Poncho",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_FineColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_eastern_phelonion")!);
 
 		CreateItem(
 			"medieval_eastern_sakkos",
@@ -9249,65 +8819,9 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_eastern_kamilavkion",
-			"kamilavkion",
-			"a black felt kamilavkion",
-			null,
-			"This black felt kamilavkion is a stiff cylindrical cap with a flat crown and straight sides. The felt is dense and matte, holding the cap in a crisp, upright shape. Its severe black surface and clean silhouette give it a formal clerical character.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			170.0,
-			20.0m,
-			true,
-			false,
-			"felt",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Headwear"
-			],
-			[
-				"Holdable",
-				"Wear_Hat",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_eastern_kamilavkion")!);
 
-		CreateItem(
-			"medieval_islamic_plain_imam_qamis",
-			"qamis",
-			"a plain white cotton imam qamis",
-			null,
-			"This plain white cotton qamis is a long, straight robe with modest sleeves and a clean front. The cotton is light but opaque, falling in simple folds suited to warm interiors and layered dress. Its whiteness and spare construction make it visibly clean without making it ornate.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			420.0,
-			18.0m,
-			true,
-			false,
-			"cotton",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_islamic_plain_imam_qamis")!);
 
 		CreateItem(
 			"medieval_islamic_plain_imam_turban",
@@ -9549,95 +9063,11 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_jewish_tallit_gadol",
-			"tallit",
-			"a white wool tallit gadol",
-			null,
-			"This white wool tallit gadol is a broad rectangular prayer shawl with dark narrow stripes near the ends. The wool is light enough to drape over the shoulders but large enough to cover much of the upper body. Long fringes hang from the corners, making the garment visibly distinct from an ordinary mantle.",
-			SizeCategory.Normal,
-			ItemQuality.Good,
-			420.0,
-			40.0m,
-			true,
-			false,
-			"wool",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Mantle",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_HeavyClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_jewish_tallit_gadol")!);
 
-		CreateItem(
-			"medieval_jewish_tallit_katan",
-			"tallit",
-			"a white wool tallit katan",
-			null,
-			"This white wool tallit katan is a small four-cornered undergarment with a simple head opening and straight hanging panels. The wool is plain and pale, meant to sit beneath or between ordinary clothing layers. Fringes at the corners mark it clearly even though the body of the garment is spare.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			230.0,
-			22.0m,
-			true,
-			false,
-			"wool",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Vest",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_jewish_tallit_katan")!);
 
-		CreateItem(
-			"medieval_jewish_skullcap",
-			"skullcap",
-			"a plain wool skullcap",
-			null,
-			"This plain wool skullcap is a small close-fitting cap made to sit neatly on the crown of the head. The wool is dark, soft, and unornamented, with shallow seams shaping the rounded form. It is modest and compact, giving little visual weight beyond its careful fit.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			60.0,
-			6.0m,
-			true,
-			false,
-			"wool",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Headwear"
-			],
-			[
-				"Holdable",
-				"Wear_Skullcap",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_jewish_skullcap")!);
 
 		CreateItem(
 			"medieval_jewish_scholars_robe",
@@ -9669,35 +9099,7 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_hindu_white_priest_dhoti",
-			"dhoti",
-			"a white cotton priest's dhoti",
-			null,
-			"This white cotton priest's dhoti is a long lower cloth folded and wrapped into a clean, ankle-length drape. The cotton is light, plain, and kept pale, with the broad folds showing the garment's rectangular origin. Its simplicity and whiteness make it visibly more ritual-clean than a colourful everyday lower cloth.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			360.0,
-			16.0m,
-			true,
-			false,
-			"cotton",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Loincloth",
-				"Destroyable_Clothing",
-				"Insulation_Minor",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_hindu_white_priest_dhoti")!);
 
 		CreateItem(
 			"medieval_hindu_white_uttariya",
@@ -9729,35 +9131,7 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_hindu_kaupina",
-			"kaupina",
-			"a plain cotton kaupina",
-			null,
-			"This plain cotton kaupina is a very simple loincloth made from a narrow length of white cloth. It is cut and folded for minimal coverage, with no decoration beyond the clean edges of the fabric. The cotton is light and practical, giving the garment an intentionally austere appearance.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			90.0,
-			4.0m,
-			true,
-			false,
-			"cotton",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Loincloth",
-				"Destroyable_Clothing",
-				"Insulation_Minor",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_hindu_kaupina")!);
 
 		CreateItem(
 			"medieval_hindu_ochre_ascetic_wrap",
@@ -9819,65 +9193,9 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_jain_white_ascetic_robe",
-			"robe",
-			"a white cotton ascetic robe",
-			null,
-			"This white cotton ascetic robe is a plain, lightly wrapped garment with a straight and modest fall. The cotton is pale, unadorned, and deliberately simple, showing only folds and hems. Its appearance is white-clad and austere, avoiding rich dye, trim, or display.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			420.0,
-			16.0m,
-			true,
-			false,
-			"cotton",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_jain_white_ascetic_robe")!);
 
-		CreateItem(
-			"medieval_jain_white_shoulder_wrap",
-			"wrap",
-			"a white cotton shoulder wrap",
-			null,
-			"This white cotton shoulder wrap is a plain rectangular cloth made to cover the upper body in a modest drape. The cotton is light and uncoloured, with neat edges and no visible decoration. It sits quietly over a robe or lower cloth, reinforcing a spare white-clad appearance.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			160.0,
-			8.0m,
-			true,
-			false,
-			"cotton",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Mantle",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_HeavyClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_jain_white_shoulder_wrap")!);
 
 		CreateItem(
 			"medieval_buddhist_plain_underrobe",
@@ -10059,246 +9377,21 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_daoist_cross_collar_robe",
-			"robe",
-			"a dark cotton Daoist robe",
-			null,
-			"This dark cotton Daoist robe is cut with a cross-collar front, long sleeves, and a straight body. The cotton is plain and smooth, allowing the overlapping collar and tied closure to define the garment. It looks formal but not lavish, suited to a religious specialist rather than court display.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			520.0,
-			24.0m,
-			true,
-			false,
-			"cotton",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_daoist_cross_collar_robe")!);
 
-		CreateItem(
-			"medieval_daoist_cloud_sleeved_robe",
-			"robe",
-			"a fine $colour cloud-sleeved robe",
-			null,
-			"This fine $colour cloud-sleeved robe is a silk ritual garment with broad sleeves and a loose cross-collar body. The sleeves spread widely from the arm, making the $colour silk fall in soft ceremonial folds. Its shape is more expansive than an ordinary robe, giving the garment a deliberate temple-formal presence.",
-			SizeCategory.Normal,
-			ItemQuality.Good,
-			680.0,
-			130.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_FineColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_daoist_cloud_sleeved_robe")!);
 
-		CreateItem(
-			"medieval_daoist_ritual_cap",
-			"cap",
-			"a black cloth ritual cap",
-			null,
-			"This black cloth ritual cap is a compact headpiece made from stiffened cotton panels. The shape is neat and angular, with a dark surface that sits close to the head. It is modest in scale but clearly formal, adding a precise finish to a robe without bright decoration.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			90.0,
-			12.0m,
-			true,
-			false,
-			"cotton",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Headwear"
-			],
-			[
-				"Holdable",
-				"Wear_Hat",
-				"Destroyable_Clothing",
-				"Insulation_Minor",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_daoist_ritual_cap")!);
 
-		CreateItem(
-			"medieval_shinto_white_joe_robe",
-			"jōe",
-			"a white hemp jōe robe",
-			null,
-			"This white hemp jōe robe is a pale ceremonial garment with a straight body and broad, courtly sleeves. The hemp is clean and carefully finished, giving the robe a crisp surface despite its simple colour. Its shape recalls formal court dress, but the lack of pattern keeps it restrained and shrine-focused.",
-			SizeCategory.Normal,
-			ItemQuality.Good,
-			520.0,
-			42.0m,
-			true,
-			false,
-			"hemp",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_shinto_white_joe_robe")!);
 
-		CreateItem(
-			"medieval_shinto_priest_hakama",
-			"hakama",
-			"a pair of white shrine hakama",
-			null,
-			"These white shrine hakama are broad pleated trousers with a full, skirt-like fall. The hemp cloth is pale and crisp, holding the pleats in clean vertical lines. Their breadth and colour make them visibly ceremonial rather than ordinary work hakama.",
-			SizeCategory.Normal,
-			ItemQuality.Good,
-			480.0,
-			34.0m,
-			true,
-			false,
-			"hemp",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Legwear"
-			],
-			[
-				"Holdable",
-				"Wear_Trousers",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_shinto_priest_hakama")!);
 
-		CreateItem(
-			"medieval_shinto_priest_eboshi",
-			"eboshi",
-			"a black lacquered eboshi",
-			null,
-			"This black lacquered eboshi is a tall, folded headpiece with a crisp upright silhouette. The silk body is stiffened and darkened to a smooth black surface, keeping its shape above the brow. It looks formal and courtly, pairing with shrine robes without needing additional ornament.",
-			SizeCategory.Small,
-			ItemQuality.Good,
-			110.0,
-			38.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Headwear"
-			],
-			[
-				"Holdable",
-				"Wear_Hat",
-				"Destroyable_Clothing",
-				"Insulation_Minor",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_shinto_priest_eboshi")!);
 
-		CreateItem(
-			"medieval_shinto_miko_white_kosode",
-			"kosode",
-			"a white hemp shrine kosode",
-			null,
-			"This white hemp shrine kosode is a short-sleeved robe with a straight wrapped front and narrow body. The hemp is pale, clean, and simply finished, showing little beyond the collar line and sleeve openings. It forms a modest upper layer for shrine service rather than a fashionable court garment.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			420.0,
-			24.0m,
-			true,
-			false,
-			"hemp",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_shinto_miko_white_kosode")!);
 
-		CreateItem(
-			"medieval_shinto_miko_red_hakama",
-			"hakama",
-			"a pair of red shrine hakama",
-			null,
-			"These red shrine hakama are broad pleated trousers made to fall in long, straight folds. The hemp cloth is dyed a clear red, making the lower garment stand out sharply beneath a white kosode. Their pleats and fullness give them a formal shrine-service outline while remaining practical to move in.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			460.0,
-			28.0m,
-			true,
-			false,
-			"hemp",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Legwear"
-			],
-			[
-				"Holdable",
-				"Wear_Trousers",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_shinto_miko_red_hakama")!);
 
 		CreateItem(
 			"medieval_steppe_ritual_felt_coat",
@@ -10595,36 +9688,7 @@ public partial class ItemSeeder
 			null
 		);
 
-		CreateItem(
-			"medieval_tablet_woven_garters",
-			"garters",
-			"a pair of $colour tablet-woven garters",
-			null,
-			"These $colour tablet-woven garters are narrow wool bands with a firm, patterned structure. Each strip is long enough to wrap neatly around the leg, with cleanly finished ends that can lie flat against hose or chausses. The $colour tone shows best across the raised weave and makes them more refined than plain work ties.",
-			SizeCategory.Small,
-			ItemQuality.Good,
-			60.0,
-			16.0m,
-			true,
-			false,
-			"wool",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Legwear"
-			],
-			[
-				"Holdable",
-				"Wear_Leggings",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_FineColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("medieval_tablet_woven_garters")!);
 
 		CreateItem(
 			"medieval_wool_leg_ties",

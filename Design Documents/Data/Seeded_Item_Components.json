@@ -19465,6 +19465,16 @@
         "Component Type":  "Variable"
     },
     {
+        "Component Name":  "Variable_LacquerColour",
+        "Component Description":  "Dark brown, black and red lacquer tones for the $colour variable; no ceremonial colour rule is imposed.",
+        "Component Type":  "Variable"
+    },
+    {
+        "Component Name":  "Variable_LeatherColour",
+        "Component Description":  "Natural and dyed leather tones for the $colour variable.",
+        "Component Type":  "Variable"
+    },
+    {
         "Component Name":  "Variable_MetalFinish",
         "Component Description":  "Gives an item a random variable called $finish from the Jewellery_Metal_Finishes list.",
         "Component Type":  "Variable"
@@ -19482,6 +19492,11 @@
     {
         "Component Name":  "Variable_RpiMixedVariables",
         "Component Description":  "Gives an imported RPI item the common colour, fine colour, drab colour, gem, fine gem, and common stone variables.",
+        "Component Type":  "Variable"
+    },
+    {
+        "Component Name":  "Variable_WoodColour",
+        "Component Description":  "Natural wood tones for the $colour variable; no paint, stain, species or surface treatment is implied.",
         "Component Type":  "Variable"
     },
     {
@@ -19645,6 +19660,16 @@
         "Component Type":  "FirearmAttachment"
     },
     {
+        "Component Name":  "Wear_Academic_Hood",
+        "Component Description":  "Permits the item to be worn as Academic Hood",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Academic_Hood_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Academic_Hood, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Ankle_Garland",
         "Component Description":  "Permits the item to be worn in the Ankle Garland wear configuration",
         "Component Type":  "Wearable"
@@ -19667,6 +19692,11 @@
     {
         "Component Name":  "Wear_Apron",
         "Component Description":  "Permits the item to be worn in the Apron wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Apron_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Apron, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -19705,6 +19735,16 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Backless_Shoes",
+        "Component Description":  "Permits the item to be worn as Backless Shoes",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Backless_Shoes_Layer_0_75",
+        "Component Description":  "Clothing wear configuration based on Wear_Backless_Shoes, consuming 0.75 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Backpack",
         "Component Description":  "Permits the item to be worn in the Backpack wear configuration",
         "Component Type":  "Wearable"
@@ -19720,8 +19760,18 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Badge_Layer_0",
+        "Component Description":  "Clothing wear configuration based on Wear_Badge, consuming 0 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Balaclava",
         "Component Description":  "Permits the item to be worn in the Balaclava wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Balaclava_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Balaclava, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -19760,6 +19810,16 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Bib_Overalls",
+        "Component Description":  "Permits the item to be worn as Bib Overalls",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bib_Overalls_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Bib_Overalls, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Bit",
         "Component Description":  "Permits the item to be worn in the Bit wear configuration",
         "Component Type":  "Wearable"
@@ -19775,8 +19835,28 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Bodysuit_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Bodysuit, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bodysuit_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Bodysuit, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Bodysuit_Thong",
         "Component Description":  "Permits the item to be worn in the Bodysuit Thong wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bonnet",
+        "Component Description":  "Permits the item to be worn as Bonnet",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bonnet_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Bonnet, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -19815,8 +19895,18 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Bowtie_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Bowtie, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Bra",
         "Component Description":  "Permits the item to be worn in the Bra wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bra_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Bra, consuming 0.25 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -19840,6 +19930,16 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Braces",
+        "Component Description":  "Permits the item to be worn as Braces",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Braces_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Braces, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Brassarts",
         "Component Description":  "Permits the item to be worn in the Brassarts wear configuration",
         "Component Type":  "Wearable"
@@ -19860,6 +19960,16 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Breeches_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Breeches, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Breeches_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Breeches, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Bridle",
         "Component Description":  "Permits the item to be worn in the Bridle wear configuration",
         "Component Type":  "Wearable"
@@ -19867,6 +19977,11 @@
     {
         "Component Name":  "Wear_Briefs",
         "Component Description":  "Permits the item to be worn in the Briefs wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Briefs_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Briefs, consuming 0.25 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -19882,6 +19997,16 @@
     {
         "Component Name":  "Wear_Brow_Ring",
         "Component Description":  "Permits the item to be worn in the Brow Ring wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Camisole",
+        "Component Description":  "Permits the item to be worn as Camisole",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Camisole_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Camisole, consuming 0.25 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -19927,6 +20052,16 @@
     {
         "Component Name":  "Wear_Circlet",
         "Component Description":  "Permits the item to be worn in the Circlet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Clerical_Collar",
+        "Component Description":  "Permits the item to be worn as Clerical Collar",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Clerical_Collar_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Clerical_Collar, consuming 0.25 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -19990,6 +20125,46 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Cutaway_Coat",
+        "Component Description":  "Permits the item to be worn as Cutaway Coat",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Cutaway_Coat_Layer_0_75",
+        "Component Description":  "Clothing wear configuration based on Wear_Cutaway_Coat, consuming 0.75 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Cutaway_Jacket",
+        "Component Description":  "Permits the item to be worn as Cutaway Jacket",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Cutaway_Jacket_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Cutaway_Jacket, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Detachable_Collar",
+        "Component Description":  "Permits the item to be worn as Detachable Collar",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Detachable_Collar_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Detachable_Collar, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Detachable_Cuffs",
+        "Component Description":  "Permits the item to be worn as Detachable Cuffs",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Detachable_Cuffs_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Detachable_Cuffs, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Detachable_Sleeves",
         "Component Description":  "Permits the item to be worn in the Detachable Sleeves wear configuration",
         "Component Type":  "Wearable"
@@ -20007,6 +20182,11 @@
     {
         "Component Name":  "Wear_Dress",
         "Component Description":  "Permits the item to be worn in the Dress wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Dress_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Dress, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20040,6 +20220,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Fingerless_Gloves_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Fingerless_Gloves, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Flanchards",
         "Component Description":  "Permits the item to be worn in the Flanchards wear configuration",
         "Component Type":  "Wearable"
@@ -20060,8 +20245,28 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Garters",
+        "Component Description":  "Permits the item to be worn as Garters",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Garters_Layer_0_1",
+        "Component Description":  "Clothing wear configuration based on Wear_Garters, consuming 0.1 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Gauntlets",
         "Component Description":  "Permits the item to be worn in the Gauntlets wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Girdle",
+        "Component Description":  "Permits the item to be worn as Girdle",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Girdle_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Girdle, consuming 0.25 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20077,6 +20282,16 @@
     {
         "Component Name":  "Wear_Gloves",
         "Component Description":  "Permits the item to be worn in the Gloves wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Gloves_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Gloves, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Gloves_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Gloves, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20120,6 +20335,16 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Hairnet",
+        "Component Description":  "Permits the item to be worn as Hairnet",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hairnet_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Hairnet, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Hairpin",
         "Component Description":  "Permits the item to be worn in the Hairpin wear configuration",
         "Component Type":  "Wearable"
@@ -20150,6 +20375,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Hat_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Hat, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Haubergeon",
         "Component Description":  "Permits the item to be worn in the Haubergeon wear configuration",
         "Component Type":  "Wearable"
@@ -20170,6 +20400,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Head_Veil_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Head_Veil, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Headband",
         "Component Description":  "Permits the item to be worn in the Headband wear configuration",
         "Component Type":  "Wearable"
@@ -20185,8 +20420,58 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_High-Neck_Dress",
+        "Component Description":  "Permits the item to be worn as High-Neck Dress",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_High-Neck_Dress_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_High-Neck_Dress, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_High-Neck_Jacket",
+        "Component Description":  "Permits the item to be worn as High-Neck Jacket",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_High-Neck_Jacket_Layer_0_75",
+        "Component Description":  "Clothing wear configuration based on Wear_High-Neck_Jacket, consuming 0.75 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_High-Neck_Shirt",
+        "Component Description":  "Permits the item to be worn as High-Neck Shirt",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_High-Neck_Shirt_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_High-Neck_Shirt, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_High-Waisted_Skirt",
+        "Component Description":  "Permits the item to be worn as High-Waisted Skirt",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_High-Waisted_Skirt_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_High-Waisted_Skirt, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Hood",
         "Component Description":  "Permits the item to be worn in the Hood wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hooded_Long_Coat",
+        "Component Description":  "Permits the item to be worn as Hooded Long Coat Lowered or Hooded Long Coat",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hooded_Long_Coat_Lowered",
+        "Component Description":  "Permits the item to be worn as Hooded Long Coat Lowered",
         "Component Type":  "Wearable"
     },
     {
@@ -20195,8 +20480,63 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Hoodie_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Hoodie, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hoodie_Layer_0_5_NonBulky",
+        "Component Description":  "Clothing wear configuration based on Wear_Hoodie, consuming 0.5 layer weight. This configuration permits non-bulky layering.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Infant_Bodysuit",
+        "Component Description":  "Permits the item to be worn as Infant Bodysuit",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Infant_Bodysuit_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Infant_Bodysuit, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Infant_Footwear",
+        "Component Description":  "Permits the item to be worn as Infant Footwear",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Infant_Footwear_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Infant_Footwear, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Infant_Gown",
+        "Component Description":  "Permits the item to be worn as Infant Gown",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Infant_Gown_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Infant_Gown, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Jacket",
         "Component Description":  "Permits the item to be worn in the Jacket wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Jacket_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Jacket, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Jacket_Layer_0_5_NonBulky",
+        "Component Description":  "Clothing wear configuration based on Wear_Jacket, consuming 0.5 layer weight. This configuration permits non-bulky layering.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Jacket_Layer_0_75",
+        "Component Description":  "Clothing wear configuration based on Wear_Jacket, consuming 0.75 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20207,6 +20547,16 @@
     {
         "Component Name":  "Wear_Jumpsuit",
         "Component Description":  "Permits the item to be worn in the Jumpsuit wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Jumpsuit_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Jumpsuit, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Jumpsuit_Layer_0_75",
+        "Component Description":  "Clothing wear configuration based on Wear_Jumpsuit, consuming 0.75 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20230,6 +20580,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Leggings_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Leggings, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_LegHarness",
         "Component Description":  "Permits the item to be worn as LegHarness",
         "Component Type":  "Wearable"
@@ -20245,8 +20600,33 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Long-Sleeved_Gown_Layer_0_25_NonBulky",
+        "Component Description":  "Clothing wear configuration based on Wear_Long-Sleeved_Gown, consuming 0.25 layer weight. This configuration permits non-bulky layering.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Long_Coat",
         "Component Description":  "Permits the item to be worn in the Long Coat wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long_Coat_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Long_Coat, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long_Coat_Layer_0_75",
+        "Component Description":  "Clothing wear configuration based on Wear_Long_Coat, consuming 0.75 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long_Gloves",
+        "Component Description":  "Permits the item to be worn as Long Gloves",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long_Gloves_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Long_Gloves, consuming 0.25 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20255,8 +20635,18 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Long_Open_Robe_Layer_0_75",
+        "Component Description":  "Clothing wear configuration based on Wear_Long_Open_Robe, consuming 0.75 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Long_Skirt",
         "Component Description":  "Permits the item to be worn in the Long Skirt wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long_Skirt_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Long_Skirt, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20270,6 +20660,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Long-Sleeved_Dress_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Long-Sleeved_Dress, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Long-Sleeved_Gown",
         "Component Description":  "Permits the item to be worn in the Long-Sleeved Gown wear configuration",
         "Component Type":  "Wearable"
@@ -20277,6 +20672,26 @@
     {
         "Component Name":  "Wear_Long-Sleeved_Tunic",
         "Component Description":  "Permits the item to be worn in the Long-Sleeved Tunic wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long-Sleeved_Tunic_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Long-Sleeved_Tunic, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Low-Cut_Shoes",
+        "Component Description":  "Permits the item to be worn as Low-Cut Shoes",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Low-Cut_Shoes_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Low-Cut_Shoes, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Low-Cut_Shoes_Layer_0_75",
+        "Component Description":  "Clothing wear configuration based on Wear_Low-Cut_Shoes, consuming 0.75 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20295,8 +20710,33 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Mini_Skirt_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Mini_Skirt, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Mittens",
         "Component Description":  "Permits the item to be worn in the Mittens wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Nappy",
+        "Component Description":  "Permits the item to be worn as Nappy",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Nappy_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Nappy, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Nappy_Pins",
+        "Component Description":  "Permits the item to be worn as Nappy Pins",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Nappy_Pins_Layer_0",
+        "Component Description":  "Clothing wear configuration based on Wear_Nappy_Pins, consuming 0 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20330,6 +20770,21 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Necktie_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Necktie, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Net_Skirt",
+        "Component Description":  "Permits the item to be worn as Net Skirt",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Net_Skirt_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Net_Skirt, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Nipple_Ring",
         "Component Description":  "Permits the item to be worn in the Nipple Ring wear configuration",
         "Component Type":  "Wearable"
@@ -20355,6 +20810,16 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Open-Back_Gown",
+        "Component Description":  "Permits the item to be worn as Open-Back Gown",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Open-Back_Gown_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Open-Back_Gown, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Open-Toed_Shoes",
         "Component Description":  "Permits the item to be worn in the Open-Toed Shoes wear configuration",
         "Component Type":  "Wearable"
@@ -20362,6 +20827,11 @@
     {
         "Component Name":  "Wear_Overshoes",
         "Component Description":  "Permits the item to be worn in the Overshoes wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Overshoes_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Overshoes, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20390,6 +20860,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Pin_Layer_0",
+        "Component Description":  "Clothing wear configuration based on Wear_Pin, consuming 0 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Pixane",
         "Component Description":  "Permits the item to be worn in the Pixane wear configuration",
         "Component Type":  "Wearable"
@@ -20410,6 +20885,41 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Poncho_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Poncho, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Rank_Slides",
+        "Component Description":  "Permits the item to be worn as Rank Slides",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Rank_Slides_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Rank_Slides, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Rear_Skirt_Support",
+        "Component Description":  "Permits the item to be worn as Rear Skirt Support",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Rear_Skirt_Support_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Rear_Skirt_Support, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Ribbon_Bar",
+        "Component Description":  "Permits the item to be worn as Ribbon Bar",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Ribbon_Bar_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Ribbon_Bar, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Ring",
         "Component Description":  "Permits the item to be worn in the Ring wear configuration",
         "Component Type":  "Wearable"
@@ -20417,6 +20927,16 @@
     {
         "Component Name":  "Wear_Robe",
         "Component Description":  "Permits the item to be worn in the Robe wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Robe_Layer_0_5_NonBulky",
+        "Component Description":  "Clothing wear configuration based on Wear_Robe, consuming 0.5 layer weight. This configuration permits non-bulky layering.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Robe_Layer_0_75_NonBulky",
+        "Component Description":  "Clothing wear configuration based on Wear_Robe, consuming 0.75 layer weight. This configuration permits non-bulky layering.",
         "Component Type":  "Wearable"
     },
     {
@@ -20445,8 +20965,18 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Sandals_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Sandals, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Sash",
         "Component Description":  "Permits the item to be worn in the Sash wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sash_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Sash, consuming 0.25 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20455,8 +20985,33 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Scarf_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Scarf, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Shirt",
         "Component Description":  "Permits the item to be worn in the Shirt wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Shirt_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Shirt, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Shirt_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Shirt, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Shirtfront",
+        "Component Description":  "Permits the item to be worn as Shirtfront",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Shirtfront_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Shirtfront, consuming 0.25 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20470,8 +21025,38 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Short_Stays",
+        "Component Description":  "Permits the item to be worn as Short Stays",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Short_Stays_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Short_Stays, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Short_Wrap_Jacket",
+        "Component Description":  "Permits the item to be worn as Short Wrap Jacket",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Short_Wrap_Jacket_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Short_Wrap_Jacket, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Shorts",
         "Component Description":  "Permits the item to be worn in the Shorts wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Shorts_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Shorts, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Shorts_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Shorts, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20495,8 +21080,23 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Skirt_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Skirt, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Skirt_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Skirt, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Skirt_Support",
         "Component Description":  "Permits the item to be worn in the Skirt Support wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Skirt_Support_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Skirt_Support, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20505,13 +21105,38 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Skullcap_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Skullcap, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Skullcap_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Skullcap, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Sleeveless_Dress",
         "Component Description":  "Permits the item to be worn in the Sleeveless Dress wear configuration",
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Sleeveless_Dress_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Sleeveless_Dress, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sleeveless_Dress_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Sleeveless_Dress, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Sleeveless_Gown",
         "Component Description":  "Permits the item to be worn in the Sleeveless Gown wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sleeveless_Gown_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Sleeveless_Gown, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20530,8 +21155,23 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Socks_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Socks, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Spangenhelm",
         "Component Description":  "Permits the item to be worn in the Spangenhelm wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Spats",
+        "Component Description":  "Permits the item to be worn as Spats",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Spats_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Spats, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20540,13 +21180,53 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Split_Drawers",
+        "Component Description":  "Permits the item to be worn as Split Drawers",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Split_Drawers_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Split_Drawers, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Standing_Collar",
+        "Component Description":  "Permits the item to be worn as Standing Collar",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Standing_Collar_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Standing_Collar, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Stays",
         "Component Description":  "Permits the item to be worn in the Stays wear configuration",
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Stays_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Stays, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Stocking_Support_Belt",
+        "Component Description":  "Permits the item to be worn as Stocking Support Belt",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Stocking_Support_Belt_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Stocking_Support_Belt, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Stockings",
         "Component Description":  "Permits the item to be worn in the Stockings wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Stockings_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Stockings, consuming 0.25 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20570,8 +21250,28 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_T-Shirt_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_T-Shirt, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_T-Shirt_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_T-Shirt, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Tabard",
         "Component Description":  "Permits the item to be worn in the Tabard wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Tailcoat",
+        "Component Description":  "Permits the item to be worn as Tailcoat",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Tailcoat_Layer_0_75",
+        "Component Description":  "Clothing wear configuration based on Wear_Tailcoat, consuming 0.75 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20600,6 +21300,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Tights_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Tights, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Toe_Ring",
         "Component Description":  "Permits the item to be worn in the Toe Ring wear configuration",
         "Component Type":  "Wearable"
@@ -20615,6 +21320,16 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Trained_Skirt",
+        "Component Description":  "Permits the item to be worn as Trained Skirt",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Trained_Skirt_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Trained_Skirt, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Trousers",
         "Component Description":  "Permits the item to be worn in the Trousers wear configuration",
         "Component Type":  "Wearable"
@@ -20625,8 +21340,23 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Trousers_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Trousers, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Trousers_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Trousers, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Tunic",
         "Component Description":  "Permits the item to be worn in the Tunic wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Tunic_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Tunic, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20645,8 +21375,23 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Veil_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Veil, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Vest",
         "Component Description":  "Permits the item to be worn in the Vest wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Vest_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Vest, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Vest_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Vest, consuming 0.5 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -20660,13 +21405,43 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Waist_Apron",
+        "Component Description":  "Permits the item to be worn as Waist Apron",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Waist_Apron_Layer_0_5",
+        "Component Description":  "Clothing wear configuration based on Wear_Waist_Apron, consuming 0.5 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Waist_Chain",
         "Component Description":  "Permits the item to be worn in the Waist Chain wear configuration",
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Waist_Layer_0_1",
+        "Component Description":  "Clothing wear configuration based on Wear_Waist, consuming 0.1 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Waist_Layer_0_25",
+        "Component Description":  "Clothing wear configuration based on Wear_Waist, consuming 0.25 layer weight.",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Waist_Ornament",
         "Component Description":  "Permits the item to be worn in the Waist Ornament wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Wide_Over-Robe",
+        "Component Description":  "Permits the item to be worn as Wide Over-Robe",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Wide_Over-Robe_Layer_0_75",
+        "Component Description":  "Clothing wear configuration based on Wear_Wide_Over-Robe, consuming 0.75 layer weight.",
         "Component Type":  "Wearable"
     },
     {
@@ -21539,5 +22314,50 @@
     { "Component Name": "Repair_Printing_Equipment_Poor", "Component Description": "Turns an item into a poor specialist repair kit for printing equipment items", "Component Type": "RepairKit" },
     { "Component Name": "Repair_Scientific_Instrument", "Component Description": "Turns an item into a specialist repair kit for scientific instrument items", "Component Type": "RepairKit" },
     { "Component Name": "Repair_Scientific_Instrument_Good", "Component Description": "Turns an item into a good specialist repair kit for scientific instrument items", "Component Type": "RepairKit" },
-    { "Component Name": "Repair_Scientific_Instrument_Poor", "Component Description": "Turns an item into a poor specialist repair kit for scientific instrument items", "Component Type": "RepairKit" }
+    { "Component Name": "Repair_Scientific_Instrument_Poor", "Component Description": "Turns an item into a poor specialist repair kit for scientific instrument items", "Component Type": "RepairKit" },
+    { "Component Name": "Magazine_Compact_9mm", "Component Description": "Turns an item into a compact 9mm magazine", "Component Type": "AmmoClip" },
+    { "Component Name": "Magazine_Service_9mm", "Component Description": "Turns an item into a service 9mm magazine", "Component Type": "AmmoClip" },
+    { "Component Name": "Magazine_SMG_9mm", "Component Description": "Turns an item into a 9mm submachine-gun magazine", "Component Type": "AmmoClip" },
+    { "Component Name": "Magazine_STANAG_556", "Component Description": "Turns an item into a 5.56 STANAG magazine", "Component Type": "AmmoClip" },
+    { "Component Name": "Magazine_STANAG_762", "Component Description": "Turns an item into a 7.62 battle-rifle magazine", "Component Type": "AmmoClip" },
+    { "Component Name": "Magazine_Belt_556", "Component Description": "Turns an item into a 5.56 disintegrating ammunition belt", "Component Type": "AmmoClip" },
+    { "Component Name": "Magazine_Belt_762", "Component Description": "Turns an item into a 7.62 disintegrating ammunition belt", "Component Type": "AmmoClip" },
+    { "Component Name": "PinPull_Hand_Grenade", "Component Description": "Adds a four-second irreversible pin-pull fuse", "Component Type": "PinPullDetonator" },
+    { "Component Name": "Countdown_Plastic_Explosive", "Component Description": "Adds a configurable countdown detonator to an explosive charge", "Component Type": "CountdownDetonator" },
+    { "Component Name": "ShopStall_Antiquity_OpenCounter", "Component Description": "Turns an item into an open antiquity market counter or stall surface.", "Component Type": "ShopStall" },
+    { "Component Name": "ShopStall_Antiquity_LockableCounter", "Component Description": "Turns an item into a lockable antiquity market counter for unattended goods.", "Component Type": "ShopStall" },
+    { "Component Name": "ShopStall_Antiquity_PortableBooth", "Component Description": "Turns an item into a lighter portable stall for fairs, camps and travelling merchants.", "Component Type": "ShopStall" },
+    { "Component Name": "MarketGoodWeight_Antiquity_StapleFood", "Component Description": "Turns an item into an antiquity market-good weight for staples such as grain, beer and wine.", "Component Type": "MarketGoodWeight" },
+    { "Component Name": "MarketGoodWeight_Antiquity_LuxuryCraft", "Component Description": "Turns an item into an antiquity market-good weight for luxury crafts and elite household wares.", "Component Type": "MarketGoodWeight" },
+    { "Component Name": "MarketGoodWeight_Antiquity_MilitarySupply", "Component Description": "Turns an item into an antiquity market-good weight for military supply goods.", "Component Type": "MarketGoodWeight" },
+    { "Component Name": "MeasuringInstrument_Antiquity_BalanceScale", "Component Description": "Turns an item into a weight-mode balance scale with modest use-based drift.", "Component Type": "MeasuringInstrument" },
+    { "Component Name": "MeasuringInstrument_Antiquity_StandardWeights", "Component Description": "Turns an item into a standard weight set for comparing trade goods.", "Component Type": "MeasuringInstrument" },
+    { "Component Name": "MeasuringInstrument_Antiquity_FalseWeights", "Component Description": "Turns an item into a weight set intended for biased trade measures.", "Component Type": "MeasuringInstrument" },
+    { "Component Name": "MeasuringInstrument_Antiquity_GrainMeasure", "Component Description": "Turns an item into a grain measure interpreted as a weight-mode trade measure.", "Component Type": "MeasuringInstrument" },
+    { "Component Name": "MeasuringInstrument_Antiquity_OilCup", "Component Description": "Turns an item into a fluid-volume measure cup for oil.", "Component Type": "MeasuringInstrument" },
+    { "Component Name": "MeasuringInstrument_Antiquity_WineCup", "Component Description": "Turns an item into a fluid-volume measure cup for wine.", "Component Type": "MeasuringInstrument" },
+    { "Component Name": "MeasuringInstrument_Antiquity_TaxAssessorKit", "Component Description": "Turns an item into a tax assessor's kit for weighing taxable goods.", "Component Type": "MeasuringInstrument" },
+    { "Component Name": "BankPayment_Unlimited", "Component Description": "Turns an item into a reusable bank-account payment credential.", "Component Type": "BankPayment" },
+    { "Component Name": "BankPayment_SingleUse", "Component Description": "Turns an item into a single-use bank-account payment credential.", "Component Type": "BankPayment" },
+    { "Component Name": "CashRegister_Modern_Standard", "Component Description": "Turns an item into a modern shop-aware cash register and till.", "Component Type": "CashRegister" },
+    { "Component Name": "Compressor_Workshop", "Component Description": "Turns an item into a powered workshop compressor for standard gas connectors.", "Component Type": "Compressor" },
+    { "Component Name": "Dryer_Domestic", "Component Description": "Turns an item into a powered domestic tumble dryer that accelerates surface-liquid drying.", "Component Type": "Dryer" },
+    { "Component Name": "Keycard_Blank", "Component Description": "Turns an item into a programmable electronic keycard with no initial access codes.", "Component Type": "Keycard" },
+    { "Component Name": "KeycardScanner_Standard", "Component Description": "Turns an item into a powered keycard reader that emits a short successful-access signal.", "Component Type": "KeycardScanner" },
+    { "Component Name": "KeycardWriter_Standard", "Component Description": "Turns an item into a powered machine for programming electronic keycards.", "Component Type": "KeycardWriter" },
+    { "Component Name": "PowerBank_USB_C_Standard", "Component Description": "Turns an item into a rechargeable USB-C power bank with bounded input and output.", "Component Type": "PowerBank" },
+    { "Component Name": "PowerTool_Light", "Component Description": "Turns an item into a light powered craft tool with modest consumption and acceleration.", "Component Type": "PowerTool" },
+    { "Component Name": "PowerTool_Workshop", "Component Description": "Turns an item into a general workshop power tool with strong craft acceleration.", "Component Type": "PowerTool" },
+    { "Component Name": "PowerTool_Heavy", "Component Description": "Turns an item into a heavy industrial power tool with high consumption and durable operation.", "Component Type": "PowerTool" },
+    { "Component Name": "Refrigerator_Domestic", "Component Description": "Turns an item into a powered domestic refrigerator that slows freshness and biological timers.", "Component Type": "Refrigerator" },
+    { "Component Name": "Refrigerator_Commercial", "Component Description": "Turns an item into a high-capacity commercial refrigerator with improved powered preservation.", "Component Type": "Refrigerator" },
+    { "Component Name": "VendingMachine_Standard", "Component Description": "Turns an item into a configurable modern vending machine and money-accepting container.", "Component Type": "Vending Machine" },
+    { "Component Name": "WashingMachine_Domestic", "Component Description": "Turns an item into a powered domestic washing machine with a locking transparent door.", "Component Type": "WashingMachine" },
+    { "Component Name": "DigitalMediaRecorder_AV_Standard", "Component Description": "Turns an item into a powered audio-visual recorder with local internal storage.", "Component Type": "Digital Media Recorder" },
+    { "Component Name": "BoltAction_762_Standard", "Component Description": "Turns an item into a magazine-fed manually cycled 7.62mm bolt-action rifle", "Component Type": "BoltAction" },
+    { "Component Name": "ClockDetonator_Standard", "Component Description": "Turns an item into a disarmable world-clock explosive trigger", "Component Type": "ClockDetonator" },
+    { "Component Name": "Flare_Handheld_Standard", "Component Description": "Turns an item into a bright, finite-duration handheld signal flare", "Component Type": "Flare" },
+    { "Component Name": "FlareAmmunition_12_Gauge_Signal", "Component Description": "Turns an item into a 12-gauge aerial signal-flare cartridge", "Component Type": "FlareAmmunition" },
+    { "Component Name": "RadioDetonator_Standard", "Component Description": "Turns an item into a powered receiver for a radio detonator transmitter", "Component Type": "RadioDetonator" },
+    { "Component Name": "RadioDetonatorTransmitter_Standard", "Component Description": "Turns an item into a powered short-range radio detonator transmitter", "Component Type": "RadioDetonatorTransmitter" }
 ]

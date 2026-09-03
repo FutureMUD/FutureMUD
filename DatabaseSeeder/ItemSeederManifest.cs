@@ -104,7 +104,7 @@ internal sealed class ItemSeederManifestModule(
 
 internal static class ItemSeederManifestCatalogue
 {
-	public const string ManifestVersion = "1";
+	public const string ManifestVersion = "3";
 	public const string DefaultRelativePath = "Design Documents/Seeding/Seeded_Item_Manifest.json";
 
 	private static readonly JsonSerializerOptions JsonOptions = new()
@@ -123,14 +123,21 @@ internal static class ItemSeederManifestCatalogue
 		new ItemSeederManifestModule("medieval", "Medieval", ["shared-preindustrial"], ["medieval"]),
 		new ItemSeederManifestModule("renaissance", "Renaissance", ["shared-preindustrial"], ["renaissance"]),
 		new ItemSeederManifestModule("earlymodern", "Early Modern", ["shared-preindustrial"], ["earlymodern"]),
-		new ItemSeederManifestModule("lifecycle", "Lifecycle Links", ["shared-preindustrial"],
-			["antiquity", "medieval", "renaissance", "earlymodern"]),
-		new ItemSeederManifestModule("outfits", "Outfits", ["antiquity", "medieval", "renaissance", "earlymodern"],
-			["antiquity", "medieval", "renaissance", "earlymodern"]),
-		new ItemSeederManifestModule("crafts", "Crafts", ["foundations", "shared-preindustrial"],
-			["antiquity", "medieval", "renaissance", "earlymodern"]),
+		new ItemSeederManifestModule("shared-industrialised", "Shared Industrialised Content", ["foundations"],
+			["industrial", "modern", "nuclear", "information"]),
+		new ItemSeederManifestModule("industrial", "Industrial", ["shared-industrialised"], ["industrial"]),
+		new ItemSeederManifestModule("modern", "Modern", ["shared-industrialised"], ["modern"]),
+		new ItemSeederManifestModule("nuclear", "Nuclear", ["shared-industrialised"], ["nuclear"]),
+		new ItemSeederManifestModule("information", "Information Age", ["shared-industrialised"], ["information"]),
+		new ItemSeederManifestModule("lifecycle", "Lifecycle Links", ["shared-preindustrial", "shared-industrialised"],
+			["antiquity", "medieval", "renaissance", "earlymodern", "industrial", "modern", "nuclear", "information"]),
+		new ItemSeederManifestModule("outfits", "Outfits",
+			["antiquity", "medieval", "renaissance", "earlymodern", "industrial", "modern", "nuclear", "information"],
+			["antiquity", "medieval", "renaissance", "earlymodern", "industrial", "modern", "nuclear", "information"]),
+		new ItemSeederManifestModule("crafts", "Crafts", ["foundations", "shared-preindustrial", "shared-industrialised"],
+			["antiquity", "medieval", "renaissance", "earlymodern", "industrial", "modern", "nuclear", "information"]),
 		new ItemSeederManifestModule("vehicles", "Vehicles", ["foundations"],
-			["antiquity", "medieval", "renaissance", "earlymodern"])
+			["antiquity", "medieval", "renaissance", "earlymodern", "industrial", "modern", "nuclear", "information"])
 	];
 
 	public static string Fingerprint(object? value)
@@ -211,6 +218,10 @@ internal static class ItemSeederManifestCatalogue
 	public static ItemSeederManifestDocument Load(string path)
 	{
 		var document = Deserialize(File.ReadAllText(path));
+		if (document.ManifestVersion != ManifestVersion)
+		{
+			throw new InvalidDataException($"ItemSeeder manifest contract {document.ManifestVersion} is not current ({ManifestVersion}); recapture the manifest.");
+		}
 		Validate(document.Entries);
 		return document;
 	}
@@ -259,9 +270,14 @@ internal static class ItemSeederManifestCatalogue
 	{
 		var sourceDirectory = Path.Combine(repositoryRoot, "DatabaseSeeder", "Seeders");
 		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-		foreach (var path in Directory
-		         .EnumerateFiles(sourceDirectory, "ItemSeeder*.cs", SearchOption.TopDirectoryOnly)
-		         .OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
+		var sourcePaths = Directory
+			.EnumerateFiles(sourceDirectory, "ItemSeeder*.cs", SearchOption.TopDirectoryOnly)
+			.Concat(Directory.EnumerateFiles(sourceDirectory, "Industrialised*.cs", SearchOption.TopDirectoryOnly))
+			.Concat(Directory.EnumerateFiles(Path.Combine(sourceDirectory, "FoodCatalogue"), "*.tsv", SearchOption.AllDirectories))
+			.Concat(Directory.EnumerateFiles(Path.Combine(sourceDirectory, "MedicalRepairCatalogue"), "*.tsv", SearchOption.AllDirectories))
+			.Concat(Directory.EnumerateFiles(Path.Combine(sourceDirectory, "IndustrialisedCatalogue"), "*.tsv", SearchOption.AllDirectories))
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase);
+		foreach (var path in sourcePaths)
 		{
 			var relativePath = Path.GetRelativePath(repositoryRoot, path).Replace('\\', '/');
 			hash.AppendData(Encoding.UTF8.GetBytes(relativePath));

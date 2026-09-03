@@ -26,6 +26,28 @@ public class ItemSeederManifestTests
 					$"{module.Key} -> {dependency}");
 			}
 		}
+
+		foreach (var expected in new[]
+		         {
+			         "shared-industrialised", "industrial", "modern", "nuclear", "information"
+		         })
+		{
+			Assert.IsTrue(modules.Any(x => x.Key.Equals(expected, StringComparison.OrdinalIgnoreCase)), expected);
+		}
+	}
+
+	[TestMethod]
+	public void RuntimeManifestLoad_RejectsOlderContractEvenWhenEntriesAreOtherwiseValid()
+	{
+		var path = Path.GetTempFileName();
+		try
+		{
+			var document = ItemSeederManifestCatalogue.BuildDocument([], "test") with { ManifestVersion = "2" };
+			File.WriteAllText(path, ItemSeederManifestCatalogue.Serialize(document));
+			StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() => ItemSeederManifestCatalogue.Load(path)).Message,
+				"recapture the manifest");
+		}
+		finally { File.Delete(path); }
 	}
 
 	[TestMethod]
@@ -45,13 +67,59 @@ public class ItemSeederManifestTests
 	}
 
 	[TestMethod]
-	public void LaterNoOpEras_AreNotAdvertised()
+	public void IndustrialEra_IsAdvertisedButLaterNoOpErasAreNot()
 	{
 		var question = new DatabaseSeeder.Seeders.ItemSeeder().SeederQuestions.Single(x => x.Id == "eras");
-		foreach (var unsupported in new[] { "revolution", "modern", "atomic", "computer" })
+		Assert.IsTrue(question.Validator("industrial", null!).Success);
+		Assert.IsTrue(question.Validator("revolution", null!).Success);
+		foreach (var unsupported in new[]
+		         {
+			         "modern", "nuclear", "atomic", "information", "computer"
+		         })
 		{
 			Assert.IsFalse(question.Validator(unsupported, null!).Success, unsupported);
 		}
+	}
+
+	[TestMethod]
+	public void LaterEraRegistry_UsesReadableCanonicalKeysAndLegacyVehicleAliases()
+	{
+		var definitions = DatabaseSeeder.Seeders.ItemSeeder.EraDefinitionsForTesting;
+		Assert.AreEqual(8, definitions.Count);
+		Assert.AreEqual(5, definitions.Count(x => x.Selectable));
+		Assert.IsTrue(definitions.Single(x => x.Key == "industrial").Aliases.Contains("revolution"));
+		Assert.AreEqual("revolution", definitions.Single(x => x.Key == "industrial").VehicleEraKey);
+		Assert.IsTrue(definitions.Single(x => x.Key == "nuclear").Aliases.Contains("atomic"));
+		Assert.AreEqual("atomic", definitions.Single(x => x.Key == "nuclear").VehicleEraKey);
+		Assert.IsTrue(definitions.Single(x => x.Key == "information").Aliases.Contains("computer"));
+		Assert.AreEqual("computer", definitions.Single(x => x.Key == "information").VehicleEraKey);
+	}
+
+	[TestMethod]
+	public void TechnologyProfileQuestions_RemainInsideItemSeederAndInactiveForCurrentEras()
+	{
+		var seeder = new DatabaseSeeder.Seeders.ItemSeeder();
+		var questions = seeder.SeederQuestions.ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
+		var currentAnswers = new System.Collections.Generic.Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["eras"] = "medieval"
+		};
+		Assert.IsFalse(questions["technologyprofile"].Filter(null!, currentAnswers));
+
+		var plannedAnswers = new System.Collections.Generic.Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["eras"] = "industrial",
+			["technologyprofile"] = "custom"
+		};
+		Assert.IsTrue(questions["technologyprofile"].Filter(null!, plannedAnswers));
+		Assert.IsTrue(questions["technologypower"].Filter(null!, plannedAnswers));
+		Assert.IsTrue(questions["technologypaper"].Filter(null!, plannedAnswers));
+		Assert.IsTrue(questions["technologytelecom"].Filter(null!, plannedAnswers));
+		Assert.IsTrue(questions["technologynetworkmedia"].Filter(null!, plannedAnswers));
+		Assert.IsTrue(questions["technologyvehicle"].Filter(null!, plannedAnswers));
+		Assert.IsTrue(questions["technologyprofile"].Validator("neutral", null!).Success);
+		Assert.IsFalse(questions["technologyprofile"].Validator("unknown", null!).Success);
+		Assert.AreEqual(8, DatabaseSeeder.Seeders.ItemSeeder.TechnologyProfilesForTesting.Count);
 	}
 
 	[TestMethod]

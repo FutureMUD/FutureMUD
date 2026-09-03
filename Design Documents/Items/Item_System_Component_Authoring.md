@@ -142,6 +142,8 @@ Put the following here:
 - registration through `RegisterComponentInitialiser(...)`
 - capability marker interfaces that mirror the runtime component interfaces
 
+Persist numeric XML values with culture-independent XML conversions on both sides. Wearable layer consumption and damage ratios use `XElement`/`XAttribute` numeric serialization and explicit numeric casts when loading. Default-culture `double.Parse` is not the inverse: a fractional layer weight can fail or change magnitude on a comma-decimal server. Preserve absent-element defaults for legacy revisions and test both load and save/reload under multiple host cultures.
+
 ### Prototype capability markers
 When a runtime component implements a public `IGameItemComponent` capability interface, the matching component proto should implement the corresponding marker in `FutureMUDLibrary/GameItems/Prototypes`.
 

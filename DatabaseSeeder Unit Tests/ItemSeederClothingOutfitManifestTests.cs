@@ -116,10 +116,24 @@ public class ItemSeederClothingOutfitManifestTests
 	public void DocumentedClothingItems_HaveSubstantiveAppearanceDescriptions()
 	{
 		var items = ItemSeeder.DocumentedClothingItemDescriptionsForTesting;
+		var sharedSources = ItemSeeder.ApprovedHistoricalClothingSourcesForAudit()
+			.Where(x => x.OwningModule == "medieval")
+			.ToDictionary(x => x.StableReference, StringComparer.Ordinal);
 
 		Assert.IsTrue(items.Count > 1300);
-		Assert.IsTrue(items.All(x => x.FullDescription.Length >= 300));
-		Assert.IsTrue(items.All(x => x.FullDescription.Count(character => character == '.') >= 4));
+		Assert.AreEqual(33, sharedSources.Count);
+		foreach (var item in items)
+		{
+			if (sharedSources.TryGetValue(item.StableReference, out var source))
+			{
+				// Canonical complete prose must not be padded or replaced to meet a sentence quota.
+				Assert.AreEqual(source.FullDescription, item.FullDescription, item.StableReference);
+				Assert.IsFalse(string.IsNullOrWhiteSpace(item.FullDescription), item.StableReference);
+				continue;
+			}
+			Assert.IsTrue(item.FullDescription.Length >= 300, item.StableReference);
+			Assert.IsTrue(item.FullDescription.Count(character => character == '.') >= 4, item.StableReference);
+		}
 		Assert.IsTrue(items.All(x => !x.FullDescription.Contains(
 			"recognisable form and drape", StringComparison.OrdinalIgnoreCase)));
 		Assert.IsTrue(items.All(x => !x.FullDescription.Contains(
@@ -191,7 +205,7 @@ public class ItemSeederClothingOutfitManifestTests
 	{
 		var skins = ItemSeeder.DocumentedClothingSkinsForTesting
 			.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
-		var expected = new Dictionary<string, (string Base, string ItemName, string ShortDescription, ItemQuality Quality)>
+		var expected = new Dictionary<string, (string Base, string ItemName, string ShortDescription, ItemQuality? Quality)>
 		{
 			["antiquity_skin_senatorial_broad_striped_tunica"] =
 				("antiquity_fine_linen_tunica", "tunica", "a broad-striped white linen tunica", ItemQuality.Good),
@@ -200,7 +214,7 @@ public class ItemSeederClothingOutfitManifestTests
 			["renaissance_skin_venetian_senatorial_red_gown"] =
 				("renaissance_western_furred_gown", "gown", "a scarlet fur-edged senatorial gown", ItemQuality.VeryGood),
 			["earlymodern_skin_judicial_full_sleeved_robe"] =
-				("renaissance_institution_academic_robe", "robe", "a long dark full-sleeved judicial robe", ItemQuality.VeryGood),
+				("renaissance_institution_academic_robe", "robe", "a long $colour full-sleeved judicial robe", null),
 			["earlymodern_skin_formal_mourning_mantua"] =
 				("earlymodern_western_clothing_plain_mantua_gown", "mantua", "a full black formal mourning mantua", ItemQuality.VeryGood)
 		};

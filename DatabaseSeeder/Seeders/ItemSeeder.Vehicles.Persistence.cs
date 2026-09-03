@@ -234,6 +234,15 @@ public partial class ItemSeeder
 			cargo.ProjectionItemProtoRevision = projection.RevisionNumber;
 		}
 
+		// Adding vehicle child graphs with navigation properties can cause EF to promote an
+		// already tracked projection item to Added. Existing logical item IDs must always be
+		// updated in place or an unchanged rerun can attempt to insert the same primary key.
+		foreach (var entry in _context.ChangeTracker.Entries<GameItemProto>()
+		         .Where(x => x.State == EntityState.Added && _preexistingItemIds.Contains(x.Entity.Id)))
+		{
+			entry.State = EntityState.Modified;
+		}
+		DiscardDuplicatePendingItemJoins();
 		_context.SaveChanges();
 		var appliedFingerprint = ItemSeederManifestCatalogue.Fingerprint(
 			BuildLiveVehicleGraphManifestDefinition(vehicle));
@@ -396,20 +405,31 @@ public partial class ItemSeeder
 
 	private void EnsureItemHasComponent(GameItemProto item, GameItemComponentProto component)
 	{
-		var exists = item.GameItemProtosGameItemComponentProtos.Any(x =>
-				x.GameItemComponentProtoId == component.Id && x.GameItemComponentRevision == component.RevisionNumber) ||
-			_context!.GameItemProtosGameItemComponentProtos.Local.Any(x =>
-				x.GameItemProtoId == item.Id && x.GameItemProtoRevision == item.RevisionNumber &&
-				x.GameItemComponentProtoId == component.Id && x.GameItemComponentRevision == component.RevisionNumber) ||
-			_context.GameItemProtosGameItemComponentProtos.Any(x =>
-				x.GameItemProtoId == item.Id && x.GameItemProtoRevision == item.RevisionNumber &&
-				x.GameItemComponentProtoId == component.Id && x.GameItemComponentRevision == component.RevisionNumber);
-		if (exists)
+		var key = (item.Id, item.RevisionNumber, component.Id, component.RevisionNumber);
+		if (item.GameItemProtosGameItemComponentProtos.Any(x =>
+			x.GameItemComponentProtoId == component.Id && x.GameItemComponentRevision == component.RevisionNumber))
+		{
+			_itemComponentKeys.Add(key);
+			return;
+		}
+		if (!_itemComponentKeys.Add(key))
+		{
+			return;
+		}
+		// The wider item reconciliation can detach and reattach join entities while
+		// retaining the same database key. Confirm a cache miss against persisted
+		// state before adding: a populated rerun must never enqueue a duplicate join.
+		if (_context!.GameItemProtosGameItemComponentProtos
+		    .AsNoTracking()
+		    .Any(x => x.GameItemProtoId == item.Id &&
+		              x.GameItemProtoRevision == item.RevisionNumber &&
+		              x.GameItemComponentProtoId == component.Id &&
+		              x.GameItemComponentRevision == component.RevisionNumber))
 		{
 			return;
 		}
 
-		_context!.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+		_context.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
 		{
 			GameItemProtoId = item.Id,
 			GameItemProtoRevision = item.RevisionNumber,
@@ -418,6 +438,64 @@ public partial class ItemSeeder
 			GameItemProto = item,
 			GameItemComponent = component
 		});
+	}
+
+	private void DiscardDuplicatePendingItemJoins()
+	{
+		_context!.ChangeTracker.DetectChanges();
+		var pendingComponents = _context.ChangeTracker
+			.Entries<GameItemProtosGameItemComponentProtos>()
+			.Where(x => x.State == EntityState.Added)
+			.ToArray();
+		foreach (var group in pendingComponents.GroupBy(x => (
+		         x.Entity.GameItemProtoId,
+		         x.Entity.GameItemProtoRevision,
+		         x.Entity.GameItemComponentProtoId,
+		         x.Entity.GameItemComponentRevision)))
+		{
+			foreach (var duplicate in group.Skip(1))
+			{
+				duplicate.State = EntityState.Detached;
+			}
+
+			var candidate = group.First();
+			var key = group.Key;
+			if (_context.GameItemProtosGameItemComponentProtos
+			    .AsNoTracking()
+			    .Any(x => x.GameItemProtoId == key.GameItemProtoId &&
+			              x.GameItemProtoRevision == key.GameItemProtoRevision &&
+			              x.GameItemComponentProtoId == key.GameItemComponentProtoId &&
+			              x.GameItemComponentRevision == key.GameItemComponentRevision))
+			{
+				candidate.State = EntityState.Detached;
+			}
+		}
+
+		var pendingTags = _context.ChangeTracker
+			.Entries<GameItemProtosTags>()
+			.Where(x => x.State == EntityState.Added)
+			.ToArray();
+		foreach (var group in pendingTags.GroupBy(x => (
+		         x.Entity.GameItemProtoId,
+		         x.Entity.TagId,
+		         x.Entity.GameItemProtoRevisionNumber)))
+		{
+			foreach (var duplicate in group.Skip(1))
+			{
+				duplicate.State = EntityState.Detached;
+			}
+
+			var candidate = group.First();
+			var key = group.Key;
+			if (_context.GameItemProtosTags
+			    .AsNoTracking()
+			    .Any(x => x.GameItemProtoId == key.GameItemProtoId &&
+			              x.TagId == key.TagId &&
+			              x.GameItemProtoRevisionNumber == key.GameItemProtoRevisionNumber))
+			{
+				candidate.State = EntityState.Detached;
+			}
+		}
 	}
 
 }

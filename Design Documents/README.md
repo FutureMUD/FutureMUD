@@ -177,6 +177,22 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Culture Seeder Heritage Pack Reference](./Seeding/Culture_Seeder_Heritage_Pack_Reference.md)
 - [Clan Seeder Template Catalogue](./Seeding/Clan_Seeder_Template_Catalogue.md)
 - [Era Seeder Shared Architecture](./Seeding/Era_Seeder_Shared_Architecture.md)
+- [Industrialised ItemSeeder Programme](./Seeding/FutureMUD_Industrialised_Item_Seeder_Programme.md)
+- [Industrialised Shared Baseline Design Reference](./Seeding/FutureMUD_Industrialised_Shared_Baseline_Design_Reference.md)
+- [Industrialised Clothing, Footwear and Uniforms Design Reference](./Seeding/FutureMUD_Industrialised_Clothing_Footwear_Uniforms_Design_Reference.md)
+  - Wave 1 approved scope (Gate 1 passed; production gates open): [garment inventory](./Seeding/Industrialised_Clothing_Wave1_Inventory.md), [outfits](./Seeding/Industrialised_Clothing_Wave1_Outfits.md), [family/reuse review](./Seeding/Industrialised_Clothing_Wave1_Reuse_Review.md), and [evidence and scope approval record](./Seeding/Industrialised_Clothing_Wave1_Evidence_and_Coverage.md)
+  - [Wave 2 infrastructure and Gate 2 evidence](./Seeding/Industrialised_Clothing_Wave2_Infrastructure_and_Gate2.md) — in progress; includes stock-anatomy ensemble checks, new-base/skin/outfit/craft/access-prog ownership and first-install generated IDs; preserved outfit/recipe graphs, wearer, stock craft capabilities and database proof remain open
+  - [Clothing source-graph audit](./Seeding/Industrialised_Clothing_Catalogue_Audit.tsv) — derived row-level evidence; structural checks are not database or production acceptance
+  - [Full clothing dependency plan](./Seeding/Industrialised_Clothing_Dependency_Plan.tsv) — all 364 approved bases, exact stock-name gaps and outfit consumers; physical verification remains open
+- [Industrial Era Master Design Reference](./Seeding/FutureMUD_Industrial_Item_Seeder_Master_Era_Design_Reference.md)
+- [Modern Era Master Design Reference](./Seeding/FutureMUD_Modern_Item_Seeder_Master_Era_Design_Reference.md)
+- [Nuclear Era Master Design Reference](./Seeding/FutureMUD_Nuclear_Item_Seeder_Master_Era_Design_Reference.md)
+- [Information Age Master Design Reference](./Seeding/FutureMUD_InformationAge_Item_Seeder_Master_Era_Design_Reference.md)
+- [Industrialised Capability, Material and Tag Gap Reference](./Seeding/FutureMUD_Industrialised_Component_Material_Tag_Gap_Reference.md)
+- [Industrialised Runtime Component Prerequisite Audit](./Seeding/Industrialised_Component_Prerequisite_Audit.tsv)
+- [Industrialised Resource Prerequisite Audit](./Seeding/Industrialised_Resource_Prerequisite_Audit.tsv)
+- [Industrialised Historical Pricing Methodology](./Seeding/FutureMUD_Industrialised_Historical_Pricing_Methodology.md)
+- [Industrialised Stage 2 Catalogue Audit](./Seeding/Industrialised_Item_Catalogue_Audit.tsv)
 - [Renaissance Master Era Design Reference](./Seeding/FutureMUD_Renaissance_Master_Era_Design_Reference.md)
 - [Renaissance Shared Baseline Admission Manifest](./Seeding/FutureMUD_Renaissance_Shared_Baseline_Admission_Manifest.md)
 - [Renaissance Shared Food Admission Manifest](./Seeding/FutureMUD_Renaissance_Shared_Food_Admission_Manifest.md)

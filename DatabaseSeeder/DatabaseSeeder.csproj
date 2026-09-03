@@ -41,6 +41,9 @@
 	</Content>
 	<EmbeddedResource Include="Seeders\FoodCatalogue\**\*.tsv" />
 	<EmbeddedResource Include="Seeders\MedicalRepairCatalogue\**\*.tsv" />
+	<EmbeddedResource Include="Seeders\IndustrialisedCatalogue\**\*.tsv" />
+	<EmbeddedResource Include="..\Design Documents\Data\Item_Component_Types.json" Link="IndustrialisedCatalogue\Item_Component_Types.json" />
+	<EmbeddedResource Include="..\Design Documents\Data\Seeded_Item_Components.json" Link="IndustrialisedCatalogue\Seeded_Item_Components.json" />
   </ItemGroup>
 
 </Project>

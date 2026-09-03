@@ -114,6 +114,13 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 		_powerBankPrototype.MaximumOutputInWatts;
 	public bool CanDrawdownSpike(double wattage) => ProducingPower && wattage >= 0.0 &&
 		wattage <= _powerBankPrototype.MaximumOutputInWatts && WattHoursRemaining >= wattage / 3600.0;
+	public bool CanDrawdownSpike(double wattage, TimeSpan duration)
+	{
+		var wattHours = wattage * duration.TotalHours;
+		return ProducingPower && double.IsFinite(wattage) && wattage >= 0.0 && duration > TimeSpan.Zero &&
+		       double.IsFinite(duration.TotalHours) && double.IsFinite(wattHours) &&
+		       wattage <= _powerBankPrototype.MaximumOutputInWatts && WattHoursRemaining >= wattHours;
+	}
 	public bool DrawdownSpike(double wattage)
 	{
 		if (!CanDrawdownSpike(wattage))
@@ -121,6 +128,17 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 			return false;
 		}
 		WattHoursRemaining -= wattage / 3600.0;
+		Changed = true;
+		CheckHeartbeat();
+		return true;
+	}
+	public bool DrawdownSpike(double wattage, TimeSpan duration)
+	{
+		if (!CanDrawdownSpike(wattage, duration))
+		{
+			return false;
+		}
+		WattHoursRemaining -= wattage * duration.TotalHours;
 		Changed = true;
 		CheckHeartbeat();
 		return true;

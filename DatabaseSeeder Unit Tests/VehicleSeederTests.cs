@@ -25,8 +25,8 @@ public class VehicleSeederTests
 	public void VehicleExampleCatalogue_HasBroadUniqueCrossEraCoverage()
 	{
 		var examples = ItemSeeder.VehicleExamplesForTesting;
-		Assert.AreEqual(57, examples.Count);
-		Assert.AreEqual(57, examples.Select(x => x.StableReference)
+		Assert.AreEqual(93, examples.Count);
+		Assert.AreEqual(93, examples.Select(x => x.StableReference)
 			.Distinct(StringComparer.OrdinalIgnoreCase).Count());
 
 		var expectedMinimums = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
@@ -35,7 +35,7 @@ public class VehicleSeederTests
 			["medieval"] = 15,
 			["renaissance"] = 18,
 			["earlymodern"] = 24,
-			["revolution"] = 4,
+			["revolution"] = 40,
 			["modern"] = 4,
 			["atomic"] = 4,
 			["computer"] = 4
@@ -59,6 +59,24 @@ public class VehicleSeederTests
 
 		Assert.AreEqual(41, examples.Count(x =>
 			x.SupportedEraKeys.Any(era => era is "antiquity" or "medieval" or "renaissance" or "earlymodern")));
+	}
+
+	[TestMethod]
+	public void IndustrialVehicleCatalogue_ProvidesFortyIndependentSupportedExamples()
+	{
+		var industrial = ItemSeeder.VehicleExamplesForTesting
+			.Where(x => x.EraKey == "revolution")
+			.ToArray();
+
+		Assert.AreEqual(40, industrial.Length);
+		Assert.IsTrue(industrial.Any(x => x.Archetype == "IndustrialRailVehicle"));
+		Assert.IsTrue(industrial.Any(x => x.Archetype == "IndustrialRoadVehicle"));
+		Assert.IsTrue(industrial.Any(x => x.Archetype == "IndustrialWatercraft"));
+		Assert.IsTrue(industrial.Any(x => x.Archetype == "IndustrialSailingVessel"));
+		Assert.IsTrue(industrial.Where(x => x.Archetype == "IndustrialRailVehicle")
+			.All(x => x.HasRouteMovement && !x.HasExplicitPropulsion));
+		Assert.IsFalse(industrial.Any(x => x.StableReference.Contains("air", StringComparison.OrdinalIgnoreCase) ||
+									x.StableReference.Contains("submarine", StringComparison.OrdinalIgnoreCase)));
 	}
 
 	[TestMethod]
@@ -164,9 +182,9 @@ public class VehicleSeederTests
 	public void VehicleEraParser_NormalisesFiltersAndDeduplicates()
 	{
 		var parsed = ItemSeeder.ParseVehicleEraTokensForTesting(
-			"Antiquity, medieval medieval earlymodern unknown COMPUTER");
+			"Antiquity, medieval medieval earlymodern unknown industrial revolution nuclear atomic information COMPUTER");
 		CollectionAssert.AreEquivalent(
-			new[] { "antiquity", "medieval", "earlymodern", "computer" },
+			new[] { "antiquity", "medieval", "earlymodern", "revolution", "atomic", "computer" },
 			parsed.ToArray());
 		Assert.AreEqual(0, ItemSeeder.ParseVehicleEraTokensForTesting(null).Count);
 		Assert.AreEqual(0, ItemSeeder.ParseVehicleEraTokensForTesting("unknown").Count);

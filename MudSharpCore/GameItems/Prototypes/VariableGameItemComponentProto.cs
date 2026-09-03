@@ -45,7 +45,7 @@ public class VariableGameItemComponentProto : GameItemComponentProto, IVariableP
     public Dictionary<ICharacteristicDefinition, ICharacteristicValue> GetValuesFromString(string paramString)
     {
         Dictionary<ICharacteristicDefinition, ICharacteristicValue> prePopulatedVariables = new();
-        Regex regex = new("(\\w+)(?:=|\\:)(\"(:?[\\w ]+)\"|(:?[\\w]+))");
+        Regex regex = new("(\\w+)(?:=|\\:)(\"(:?[^\"\\r\\n]+)\"|(:?[^\\s\"]+))");
         foreach (Match match in regex.Matches(paramString))
         {
             ICharacteristicDefinition definition = null;

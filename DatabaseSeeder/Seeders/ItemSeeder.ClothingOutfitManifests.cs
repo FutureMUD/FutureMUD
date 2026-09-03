@@ -3,12 +3,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using DbGameItemSkin = MudSharp.Models.GameItemSkin;
+using CultureInfo = System.Globalization.CultureInfo;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -37,12 +40,19 @@ public partial class ItemSeeder
 		string ItemName,
 		string ShortDescription,
 		string FullDescription,
-		ItemQuality Quality);
+		ItemQuality? Quality);
 
-	private sealed record OutfitManifestItemSpec(
+	internal sealed record OutfitManifestItemSpec(
 		string ItemStableReference,
 		string? SkinStableReference)
 	{
+		public string? EntryKey { get; init; }
+		public string? WearProfile { get; init; }
+		public OutfitTemplateItemPlacement Placement { get; init; } = OutfitTemplateItemPlacement.Worn;
+		public string? ContainerKey { get; init; }
+		public string LoadArguments { get; init; } = string.Empty;
+		public string EffectiveKey => EntryKey ?? ItemStableReference;
+
 		public static implicit operator OutfitManifestItemSpec(string itemStableReference)
 		{
 			return new OutfitManifestItemSpec(itemStableReference, null);
@@ -62,7 +72,8 @@ public partial class ItemSeeder
 
 	internal sealed record ClothingOutfitManifestItemTestData(
 		string ItemStableReference,
-		string? SkinStableReference);
+		string? SkinStableReference,
+		string LoadArguments);
 
 	internal sealed record ClothingOutfitManifestTestData(
 		string StableKey,
@@ -85,7 +96,7 @@ public partial class ItemSeeder
 		string ItemName,
 		string ShortDescription,
 		string FullDescription,
-		ItemQuality Quality);
+		ItemQuality? Quality);
 
 	internal static IReadOnlyList<ClothingOutfitManifestTestData> AntiquityOutfitManifestSpecsForTesting =>
 		ToTestData(AntiquityOutfitManifestSpecs);
@@ -162,7 +173,8 @@ public partial class ItemSeeder
 				x.Items
 					.Select(item => new ClothingOutfitManifestItemTestData(
 						item.ItemStableReference,
-						item.SkinStableReference))
+						item.SkinStableReference,
+						item.LoadArguments))
 					.ToArray()))
 			.ToArray();
 	}
@@ -358,24 +370,39 @@ public partial class ItemSeeder
 			throw new InvalidOperationException(
 				$"Documented clothing outfits reference unknown skin keys: {string.Join(", ", unknown)}.");
 		}
+		return SeedDocumentedClothingSkins(specs);
+	}
 
+	private IReadOnlyDictionary<string, DbGameItemSkin> SeedDocumentedClothingSkins(
+		IReadOnlyCollection<DocumentedClothingSkinSpec> specs)
+	{
+		if (_context is null)
+		{
+			throw new InvalidOperationException("The item seeder context must be initialised before clothing skins are seeded.");
+		}
 		var alwaysTrue = _context.FutureProgs.SingleOrDefault(x => x.FunctionName == "AlwaysTrue");
 		if (alwaysTrue is null && !_manifestCaptureOnly)
 		{
 			throw new InvalidOperationException("Documented clothing skins require the existing AlwaysTrue FutureProg.");
 		}
 		var alwaysTrueName = alwaysTrue?.FunctionName ?? "AlwaysTrue";
-		var currentSkins = _context.GameItemSkins
+		var skinRows = _context.GameItemSkins
 			.Include(x => x.EditableItem)
 			.AsEnumerable()
-			.Where(x => x.EditableItem?.RevisionStatus == (int)RevisionStatus.Current)
-			.GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-			.ToDictionary(
-				x => x.Key,
-				x => x.Single(),
-				StringComparer.OrdinalIgnoreCase);
-		var nextSkinId = _context.GameItemSkins.Any()
-			? _context.GameItemSkins.Max(x => x.Id) + 1
+			.Concat(_context.GameItemSkins.Local)
+			.DistinctBy(x => (x.Id, x.RevisionNumber))
+			.ToArray();
+		var targets = new Dictionary<string, DbGameItemSkin?>(StringComparer.OrdinalIgnoreCase);
+		// Check the whole batch before registering/adopting or changing even its first skin.
+		foreach (var spec in specs)
+		{
+			if (!_itemsByStableReference.TryGetValue(spec.BaseItemStableReference, out var baseItem))
+				throw new InvalidOperationException($"Documented clothing skin {spec.StableReference} references missing item prototype {spec.BaseItemStableReference}.");
+			if (!targets.TryAdd(spec.StableReference, ValidateDocumentedClothingSkinOwnership(spec, baseItem.Id, skinRows, alwaysTrueName)))
+				throw new InvalidOperationException($"A clothing skin batch repeats stable reference {spec.StableReference}.");
+		}
+		var nextSkinId = skinRows.Length > 0
+			? skinRows.Max(x => x.Id) + 1
 			: 1;
 		var resolved = new Dictionary<string, DbGameItemSkin>(StringComparer.OrdinalIgnoreCase);
 
@@ -387,16 +414,7 @@ public partial class ItemSeeder
 					$"Documented clothing skin {spec.StableReference} references missing item prototype {spec.BaseItemStableReference}.");
 			}
 
-			var expectedDefinition = new ItemSkinManifestDefinition(
-				spec.StableReference,
-				spec.BaseItemStableReference,
-				spec.ItemName,
-				spec.ShortDescription,
-				spec.FullDescription,
-				null,
-				(int)spec.Quality,
-				false,
-				alwaysTrueName);
+			var expectedDefinition = DocumentedClothingSkinDefinition(spec, alwaysTrueName);
 			var manifestEntry = RegisterManifestAggregate(
 				"item-skin",
 				spec.StableReference,
@@ -407,7 +425,7 @@ public partial class ItemSeeder
 				continue;
 			}
 
-			if (currentSkins.TryGetValue(spec.StableReference, out var existing))
+			if (targets[spec.StableReference] is { } existing)
 			{
 				var liveDefinition = BuildLiveDocumentedClothingSkinDefinition(existing);
 				var disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
@@ -433,7 +451,7 @@ public partial class ItemSeeder
 				ShortDescription = spec.ShortDescription,
 				FullDescription = spec.FullDescription,
 				LongDescription = null,
-				Quality = (int)spec.Quality,
+				Quality = (int?)spec.Quality,
 				IsPublic = false,
 				CanUseSkinProgId = alwaysTrue!.Id,
 				EditableItem = new EditableItem
@@ -488,7 +506,7 @@ public partial class ItemSeeder
 		skin.ShortDescription = spec.ShortDescription;
 		skin.FullDescription = spec.FullDescription;
 		skin.LongDescription = null;
-		skin.Quality = (int)spec.Quality;
+		skin.Quality = (int?)spec.Quality;
 		skin.IsPublic = false;
 		skin.CanUseSkinProgId = alwaysTrue.Id;
 	}
@@ -512,20 +530,36 @@ public partial class ItemSeeder
 		var templates = _context.OutfitTemplates
 			.Include(x => x.OutfitTemplateItems)
 			.AsEnumerable()
+			.Concat(_context.OutfitTemplates.Local)
+			.Distinct()
 			.ToList();
-		foreach (var manifest in manifests)
+		var wearProfiles = _context.WearProfiles.AsNoTracking().ToArray();
+		var values = _context.CharacteristicValues.AsNoTracking().ToArray();
+		var definitions = _context.CharacteristicDefinitions.AsNoTracking().ToArray();
+		var manifestList = manifests.ToArray();
+		var targets = new Dictionary<string, OutfitTemplate?>(StringComparer.OrdinalIgnoreCase);
+		var skinReferences = _manifestCaptureOnly ? new Dictionary<long, string>() : OutfitSkinReferences(skins);
+		if (manifestList.GroupBy(x => x.StableKey, StringComparer.OrdinalIgnoreCase).Any(x => x.Count() > 1) ||
+			manifestList.GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase).Any(x => x.Count() > 1))
 		{
-			var marker = GetOutfitManifestMarker(manifest.StableKey);
-			var manifestDefinition = new OutfitManifestDefinition(
-				manifest.StableKey,
-				manifest.Name,
-				$"{manifest.Description}{Environment.NewLine}{marker}",
-				(int)OutfitExclusivity.NonExclusive,
-				manifest.Items
-					.Select(x => new OutfitManifestItemDefinition(
-						x.ItemStableReference,
-						x.SkinStableReference))
-					.ToArray());
+			throw new InvalidOperationException("An outfit batch cannot repeat a stable key or template name.");
+		}
+		// Validate the whole requested batch before updating even its first template.
+		foreach (var manifest in manifestList)
+		{
+			ValidateOutfitEntries(manifest, wearProfiles, !_manifestCaptureOnly);
+			if (!_manifestCaptureOnly)
+			{
+				var existing = ValidateOutfitManifestTarget(manifest, _items, skins, templates,
+					FindManagedRecord("outfit", manifest.StableKey)?.LogicalId);
+				ValidateOutfitManifestOwnership(manifest, existing, BuildOutfitManifestDefinition(manifest, values, definitions),
+					existing is null ? null : BuildLiveOutfitManifestDefinition(manifest.StableKey, existing, skinReferences, wearProfiles, values, definitions));
+				targets.Add(manifest.StableKey, existing);
+			}
+		}
+		foreach (var manifest in manifestList)
+		{
+			var manifestDefinition = BuildOutfitManifestDefinition(manifest, values, definitions);
 			var manifestEntry = RegisterManifestAggregate(
 				"outfit",
 				manifest.StableKey,
@@ -540,23 +574,11 @@ public partial class ItemSeeder
 				continue;
 			}
 
-			var existing = templates.SingleOrDefault(x => HasOutfitManifestMarker(x.Description, marker));
+			var existing = targets[manifest.StableKey];
 			if (existing is not null)
 			{
-				var liveDefinition = new OutfitManifestDefinition(
-					manifest.StableKey,
-					existing.Name,
-					existing.Description,
-					existing.Exclusivity,
-					existing.OutfitTemplateItems
-						.OrderBy(x => x.WearOrder)
-						.Select(x => new OutfitManifestItemDefinition(
-							x.TemplateKey,
-							x.SkinId is null
-								? null
-								: skins.Values.SingleOrDefault(y => y.Id == x.SkinId.Value)?.Name ??
-								  $"<missing:{x.SkinId}>"))
-						.ToArray());
+				var liveDefinition = BuildLiveOutfitManifestDefinition(manifest.StableKey, existing, skinReferences, wearProfiles, values, definitions);
+				UpgradeLegacyOutfitFingerprint(manifest.StableKey, existing, liveDefinition);
 				var disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
 				if (disposition is ManifestAggregateDisposition.Customized or ManifestAggregateDisposition.Unchanged)
 				{
@@ -568,8 +590,8 @@ public partial class ItemSeeder
 				continue;
 			}
 
-			UpsertOutfitManifest(_context, manifest, _items, skins, templates);
-			CompleteManifestAggregate(manifestEntry, null, manifestDefinition, ManifestAggregateDisposition.Insert);
+			var created = UpsertOutfitManifest(_context, manifest, _items, skins, templates);
+			CompleteGeneratedManifestAggregate(manifestEntry, created, manifestDefinition);
 		}
 	}
 
@@ -580,6 +602,46 @@ public partial class ItemSeeder
 		IReadOnlyDictionary<string, DbGameItemSkin> skins,
 		ICollection<OutfitTemplate> templates)
 	{
+		var wearProfiles = context.WearProfiles.AsNoTracking().ToArray();
+		ValidateOutfitEntries(manifest, wearProfiles);
+		var outfitTemplate = ValidateOutfitManifestTarget(manifest, itemPrototypes, skins, templates);
+		if (outfitTemplate is null)
+		{
+			outfitTemplate = new OutfitTemplate();
+			context.OutfitTemplates.Add(outfitTemplate);
+			templates.Add(outfitTemplate);
+		}
+		else
+		{
+			context.OutfitTemplateItems.RemoveRange(outfitTemplate.OutfitTemplateItems);
+			outfitTemplate.OutfitTemplateItems.Clear();
+		}
+
+		outfitTemplate.Name = manifest.Name;
+		outfitTemplate.Description = $"{manifest.Description}{Environment.NewLine}{GetOutfitManifestMarker(manifest.StableKey)}";
+		outfitTemplate.Exclusivity = (int)OutfitExclusivity.NonExclusive;
+		foreach (var (item, wearOrder) in manifest.Items.Select((x, index) => (x, index)))
+		{
+			outfitTemplate.OutfitTemplateItems.Add(new OutfitTemplateItem
+			{
+				TemplateKey = item.EffectiveKey,
+				GameItemProtoId = itemPrototypes[item.ItemStableReference].Id,
+				SkinId = item.SkinStableReference is null ? null : skins[item.SkinStableReference].Id,
+				WearProfileId = item.WearProfile is null ? null : wearProfiles.Single(x => x.Name == item.WearProfile).Id,
+				Placement = (int)item.Placement,
+				ContainerKey = item.ContainerKey,
+				LoadArguments = item.LoadArguments,
+				WearOrder = wearOrder
+			});
+		}
+
+		return outfitTemplate;
+	}
+
+	private static OutfitTemplate? ValidateOutfitManifestTarget(OutfitManifestSpec manifest,
+		IReadOnlyDictionary<string, GameItemProto> itemPrototypes,
+		IReadOnlyDictionary<string, DbGameItemSkin> skins, ICollection<OutfitTemplate> templates, long? ownedLogicalId = null)
+	{
 		if (manifest.Name.Length > 200)
 		{
 			throw new InvalidOperationException(
@@ -587,7 +649,7 @@ public partial class ItemSeeder
 		}
 
 		var duplicateReferences = manifest.Items
-			.Select(x => x.ItemStableReference)
+			.Select(x => x.EffectiveKey)
 			.GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
 			.Where(x => x.Count() > 1)
 			.Select(x => x.Key)
@@ -595,7 +657,7 @@ public partial class ItemSeeder
 		if (duplicateReferences.Length > 0)
 		{
 			throw new InvalidOperationException(
-				$"Outfit manifest {manifest.StableKey} repeats item references: {string.Join(", ", duplicateReferences)}.");
+				$"Outfit manifest {manifest.StableKey} repeats entry keys: {string.Join(", ", duplicateReferences)}.");
 		}
 
 		var missingReferences = manifest.Items
@@ -629,62 +691,74 @@ public partial class ItemSeeder
 				$"Outfit manifest {manifest.StableKey} binds skins to incompatible item prototypes: {string.Join(", ", mismatchedSkins)}.");
 		}
 
-		var marker = GetOutfitManifestMarker(manifest.StableKey);
-		var ownedMatches = templates
-			.Where(x => HasOutfitManifestMarker(x.Description, marker))
-			.ToArray();
-		if (ownedMatches.Length > 1)
-		{
-			throw new InvalidOperationException(
-				$"Multiple outfit templates claim stock manifest key {manifest.StableKey}.");
-		}
+		return ResolveOutfitManifestIdentity(manifest, templates, ownedLogicalId);
+	}
 
-		var nameMatch = templates.FirstOrDefault(x => x.Name.Equals(manifest.Name, StringComparison.OrdinalIgnoreCase));
-		var outfitTemplate = ownedMatches.SingleOrDefault();
-		if (outfitTemplate is null && nameMatch is not null)
+	private static void ValidateOutfitEntries(OutfitManifestSpec manifest, IReadOnlyCollection<WearProfile> wearProfiles,
+		bool requireWearProfileResolution = true)
+	{
+		var earlierKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		foreach (var item in manifest.Items)
 		{
-			throw new InvalidOperationException(
-				$"Cannot seed stock outfit manifest {manifest.StableKey} because a builder-authored template already uses the name {manifest.Name}.");
-		}
-
-		if (outfitTemplate is not null && nameMatch is not null && !ReferenceEquals(outfitTemplate, nameMatch))
-		{
-			throw new InvalidOperationException(
-				$"Cannot restore stock outfit manifest {manifest.StableKey} to the name {manifest.Name} because another template already uses it.");
-		}
-
-		if (outfitTemplate is null)
-		{
-			outfitTemplate = new OutfitTemplate();
-			context.OutfitTemplates.Add(outfitTemplate);
-			templates.Add(outfitTemplate);
-		}
-		else
-		{
-			context.OutfitTemplateItems.RemoveRange(outfitTemplate.OutfitTemplateItems);
-			outfitTemplate.OutfitTemplateItems.Clear();
-		}
-
-		outfitTemplate.Name = manifest.Name;
-		outfitTemplate.Description = $"{manifest.Description}{Environment.NewLine}{marker}";
-		outfitTemplate.Exclusivity = (int)OutfitExclusivity.NonExclusive;
-
-		foreach (var (item, wearOrder) in manifest.Items.Select((x, index) => (x, index)))
-		{
-			outfitTemplate.OutfitTemplateItems.Add(new OutfitTemplateItem
+			if (string.IsNullOrWhiteSpace(item.EffectiveKey) || item.EffectiveKey.Length > 100 || !Enum.IsDefined(item.Placement))
 			{
-				TemplateKey = item.ItemStableReference,
-				GameItemProtoId = itemPrototypes[item.ItemStableReference].Id,
-				SkinId = item.SkinStableReference is null ? null : skins[item.SkinStableReference].Id,
-				WearProfileId = null,
-				Placement = (int)OutfitTemplateItemPlacement.Worn,
-				ContainerKey = null,
-				LoadArguments = string.Empty,
-				WearOrder = wearOrder
-			});
+				throw new InvalidOperationException($"Outfit {manifest.StableKey} has an invalid entry key or placement.");
+			}
+			if (item.WearProfile is not null && (item.Placement != OutfitTemplateItemPlacement.Worn ||
+				requireWearProfileResolution &&
+				(wearProfiles.Count(x => x.Name.Equals(item.WearProfile, StringComparison.OrdinalIgnoreCase)) != 1 ||
+				 !wearProfiles.Any(x => x.Name == item.WearProfile))))
+			{
+				throw new InvalidOperationException($"Outfit {manifest.StableKey}/{item.EffectiveKey} has a missing, ambiguous or incompatible wear profile {item.WearProfile}.");
+			}
+			var requiresContainer = item.Placement is OutfitTemplateItemPlacement.Container or OutfitTemplateItemPlacement.AttachedToBelt or OutfitTemplateItemPlacement.Sheathed;
+			if (requiresContainer != (item.ContainerKey is not null) ||
+				(item.ContainerKey is not null && !earlierKeys.Contains(item.ContainerKey)))
+			{
+				throw new InvalidOperationException($"Outfit {manifest.StableKey}/{item.EffectiveKey} requires a compatible earlier related entry only for container, belt or sheath placement.");
+			}
+			if (!earlierKeys.Add(item.EffectiveKey))
+			{
+				throw new InvalidOperationException($"Outfit {manifest.StableKey} repeats entry keys: {item.EffectiveKey}.");
+			}
+		}
+	}
+
+	private static string NormalizeOutfitLoadArguments(string arguments, IReadOnlyCollection<CharacteristicValue> values,
+		IReadOnlyCollection<CharacteristicDefinition> definitions) => Regex.Replace(arguments,
+		@"(?<variable>\w+)(?<separator>=|:)(?<value>[0-9]+)(?!\w)", match =>
+		{
+			if (!long.TryParse(match.Groups["value"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var id))
+			{
+				return match.Value;
+			}
+			var value = values.SingleOrDefault(x => x.Id == id);
+			var definition = value is null ? null : definitions.SingleOrDefault(x => x.Id == value.DefinitionId);
+			return value is null || definition is null ? match.Value :
+				$"{match.Groups["variable"].Value}{match.Groups["separator"].Value}[{definition.Name}/{value.Name}]";
+		});
+
+	private void UpgradeLegacyOutfitFingerprint(string stableKey, OutfitTemplate existing, OutfitManifestDefinition live)
+	{
+		var managed = FindManagedRecord("outfit", stableKey);
+		if (managed is null || (managed.LogicalId is not null && managed.LogicalId != existing.Id) || live.Items.Where((x, order) =>
+			x.EntryKey != x.ItemStableReference || x.WearOrder != order || x.WearProfile is not null ||
+			x.Placement != (int)OutfitTemplateItemPlacement.Worn || x.ContainerKey is not null || x.LoadArguments.Length > 0).Any())
+		{
+			return;
 		}
 
-		return outfitTemplate;
+		// Version 2 did not fingerprint these fields. Only its actual default composition can be
+		// upgraded; changed colours, item IDs, placement or order must remain builder-owned.
+		var legacy = new
+		{
+			live.StableKey, live.Name, live.Description, live.Exclusivity,
+			Items = live.Items.Select(x => new { x.ItemStableReference, x.SkinStableReference }).ToArray()
+		};
+		if (ItemSeederManifestCatalogue.Fingerprint(legacy) == managed.AppliedFingerprint)
+		{
+			managed.AppliedFingerprint = ItemSeederManifestCatalogue.Fingerprint(live);
+		}
 	}
 
 	private static string GetOutfitManifestMarker(string stableKey)
@@ -697,6 +771,23 @@ public partial class ItemSeeder
 		return description
 			.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries)
 			.Any(x => x.Equals(marker, StringComparison.Ordinal));
+	}
+
+	internal static void ReconcileOutfitForTesting(FuturemudDatabaseContext context, string stableKey,
+		string description, OutfitManifestItemSpec[] entries, IReadOnlyDictionary<string, GameItemProto> items,
+		IReadOnlyDictionary<string, DbGameItemSkin>? skins = null)
+	{
+		var seeder = new ItemSeeder
+		{
+			_context = context,
+			_items = new Dictionary<string, GameItemProto>(items, StringComparer.OrdinalIgnoreCase),
+			_itemStableReferencesById = items.ToDictionary(x => x.Value.Id, x => x.Key),
+			_managedRecordsByIdentity = context.SeederManagedRecords.Where(x => x.Seeder == "Items")
+				.AsEnumerable().ToDictionary(x => ManagedRecordIdentity(x.EntityType, x.StableKey), StringComparer.OrdinalIgnoreCase)
+		};
+		using var module = seeder.UseManifestModule("outfits", "industrial");
+		seeder.UpsertOutfitManifests([new(stableKey, "Test ensemble", description, entries)],
+			skins ?? new Dictionary<string, DbGameItemSkin>());
 	}
 
 	internal static OutfitTemplate UpsertOutfitManifestForTesting(

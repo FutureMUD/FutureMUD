@@ -1,43 +1,96 @@
-﻿using MudSharp.Accounts;
+#nullable enable
+
+using MudSharp.Accounts;
+using MudSharp.GameItems.Prototypes;
 using System.Reflection;
 
 namespace MudSharp.GameItems;
 
+internal sealed record GameItemComponentRegistrationAuditEntry(
+	string CanonicalDatabaseType,
+	string? PrimaryBuilderType,
+	IReadOnlyList<string> BuilderAliases,
+	string PrototypeClass,
+	string Description,
+	GameItemComponentTypeTechnology Technology,
+	IReadOnlyList<string> ComponentCapabilities,
+	IReadOnlyList<string> ExclusiveCapabilities,
+	IReadOnlyList<string> RequiredSiblingCapabilities,
+	string RuntimeComponentClass,
+	bool HasPrototypeXmlLoad,
+	bool HasPrototypeXmlSave,
+	bool HasCreateNew,
+	bool HasComponentLoad,
+	bool HasRevisionCopy,
+	bool HasBuilderCommands,
+	bool HasRuntimeCopy,
+	bool HasBuilderLoader,
+	bool HasDatabaseLoader,
+	bool HasHelp,
+	bool HasContextDependentRequirements,
+	bool PreventsManualLoad);
+
 public class GameItemComponentManager : IGameItemComponentManager
 {
-    private readonly List<string> _primaryTypes = new();
+	private sealed class RegistrationAuditBuilder(Type prototypeType)
+	{
+		public Type PrototypeType { get; } = prototypeType;
+		public List<string> BuilderAliases { get; } = [];
+		public string? PrimaryBuilderType { get; set; }
+		public string? CanonicalDatabaseType { get; set; }
+		public GameItemComponentTypeHelpInfo? HelpInfo { get; set; }
+	}
 
-    private readonly Dictionary<string, Func<IFuturemud, IAccount, IGameItemComponentProto>>
-        _registeredComponentProtos = new();
+	private readonly List<string> _primaryTypes = [];
+	private readonly Dictionary<string, Func<IFuturemud, IAccount, IGameItemComponentProto>>
+		_registeredComponentProtos = [];
+	private readonly Dictionary<string,
+		Func<MudSharp.Models.GameItemComponentProto, IFuturemud, IGameItemComponentProto>>
+		_registeredDatabaseLoaders = [];
+	private readonly List<GameItemComponentTypeHelpInfo> _typeHelpInfo = [];
+	private readonly Dictionary<Type, RegistrationAuditBuilder> _registrationAuditBuilders = [];
+	private Type? _registeringPrototypeType;
 
-    private readonly Dictionary<string,
-            Func<MudSharp.Models.GameItemComponentProto, IFuturemud, IGameItemComponentProto>>
-        _registeredDatabaseLoaders =
-            new();
+	public GameItemComponentManager()
+	{
+		foreach (var type in Assembly.GetExecutingAssembly()
+		                             .GetTypes()
+		                             .Where(x => x.IsSubclassOf(typeof(GameItemComponentProto)))
+		                             .OrderBy(x => x.FullName, StringComparer.Ordinal))
+		{
+			var method = type.GetMethod("RegisterComponentInitialiser", BindingFlags.Static | BindingFlags.Public);
+			if (method is null)
+			{
+				continue;
+			}
 
-    private readonly List<GameItemComponentTypeHelpInfo> _typeHelpInfo = new();
+			_registeringPrototypeType = type;
+			_registrationAuditBuilders[type] = new RegistrationAuditBuilder(type);
+			try
+			{
+				method.Invoke(null, new object[] { this });
+			}
+			finally
+			{
+				_registeringPrototypeType = null;
+			}
+		}
+	}
 
-    public IEnumerable<GameItemComponentTypeHelpInfo> TypeHelpInfo => _typeHelpInfo;
+	public IEnumerable<string> PrimaryTypes => _primaryTypes;
+	public IEnumerable<GameItemComponentTypeHelpInfo> TypeHelpInfo => _typeHelpInfo;
 
-    public GameItemComponentManager()
-    {
-        foreach (
-            Type type in
-            Assembly.GetExecutingAssembly()
-                    .GetTypes()
-                    .Where(x => x.IsSubclassOf(typeof(GameItemComponentProto))))
-        {
-            MethodInfo method = type.GetMethod("RegisterComponentInitialiser", BindingFlags.Static | BindingFlags.Public);
-            method?.Invoke(null, new object[] { this });
-        }
-    }
+	internal IReadOnlyList<GameItemComponentRegistrationAuditEntry> RegistrationAuditEntries =>
+		_registrationAuditBuilders.Values
+		                          .Where(x => !string.IsNullOrWhiteSpace(x.CanonicalDatabaseType))
+		                          .Select(CreateAuditEntry)
+		                          .OrderBy(x => x.CanonicalDatabaseType, StringComparer.OrdinalIgnoreCase)
+		                          .ToList();
 
-    public IEnumerable<string> PrimaryTypes => _primaryTypes;
-
-    public void AddTypeHelpInfo(string name, string blurb, string help)
-    {
+	public void AddTypeHelpInfo(string name, string blurb, string help)
+	{
 		AddTypeHelpInfo(name, blurb, help, GameItemComponentTypeTechnology.None);
-    }
+	}
 
 	public void AddModernTypeHelpInfo(string name, string blurb, string help)
 	{
@@ -52,7 +105,12 @@ public class GameItemComponentManager : IGameItemComponentManager
 	private void AddTypeHelpInfo(string name, string blurb, string help,
 		GameItemComponentTypeTechnology technology)
 	{
-		_typeHelpInfo.Add(new GameItemComponentTypeHelpInfo(name, blurb, help, technology));
+		var helpInfo = new GameItemComponentTypeHelpInfo(name, blurb, help, technology);
+		_typeHelpInfo.Add(helpInfo);
+		if (CurrentAuditBuilder is not null)
+		{
+			CurrentAuditBuilder.HelpInfo = helpInfo;
+		}
 	}
 
 	public IEnumerable<GameItemComponentTypeHelpInfo> GetTypeHelpInfo(bool showModern, bool showFuturistic)
@@ -62,56 +120,148 @@ public class GameItemComponentManager : IGameItemComponentManager
 			(showFuturistic || !x.IsFuturistic));
 	}
 
-    public void AddBuilderLoader(string name, bool primary,
-        Func<IFuturemud, IAccount, IGameItemComponentProto> initialiser)
-    {
-        name = name.ToLowerInvariant();
-        if (_registeredComponentProtos.ContainsKey(name))
-        {
-            if (!primary)
-            {
-                return;
-            }
+	public void AddBuilderLoader(string name, bool primary,
+		Func<IFuturemud, IAccount, IGameItemComponentProto> initialiser)
+	{
+		name = name.ToLowerInvariant();
+		if (CurrentAuditBuilder is not null)
+		{
+			if (!CurrentAuditBuilder.BuilderAliases.Contains(name, StringComparer.OrdinalIgnoreCase))
+			{
+				CurrentAuditBuilder.BuilderAliases.Add(name);
+			}
 
-            if (_primaryTypes.Contains(name))
-            {
-                throw new ArgumentException($"A primary game item component builder loader named {name} is already registered.");
-            }
+			if (primary)
+			{
+				CurrentAuditBuilder.PrimaryBuilderType = name;
+			}
+		}
 
-            _registeredComponentProtos[name] = initialiser;
-            _primaryTypes.Add(name);
-            return;
-        }
+		if (_registeredComponentProtos.ContainsKey(name))
+		{
+			if (!primary)
+			{
+				return;
+			}
 
-        _registeredComponentProtos.Add(name, initialiser);
-        if (primary)
-        {
-            _primaryTypes.Add(name);
-        }
-    }
+			if (_primaryTypes.Contains(name))
+			{
+				throw new ArgumentException(
+					$"A primary game item component builder loader named {name} is already registered.");
+			}
 
-    public void AddDatabaseLoader(string name,
-        Func<MudSharp.Models.GameItemComponentProto, IFuturemud, IGameItemComponentProto> initialiser)
-    {
-        _registeredDatabaseLoaders.Add(name, initialiser);
-    }
+			_registeredComponentProtos[name] = initialiser;
+			_primaryTypes.Add(name);
+			return;
+		}
 
-    public IGameItemComponentProto GetProto(string name, IFuturemud gameworld, IAccount account)
-    {
-        IGameItemComponentProto proto = _registeredComponentProtos.TryGetValue(name.ToLowerInvariant(), out Func<IFuturemud, IAccount, IGameItemComponentProto> output)
-            ? output(gameworld, account)
-            : null;
-        if (proto != null)
-        // This line is an easy way for us to have game item components that don't need to repeat a bunch of code to insert themselves into the database when initialised, because the non-base types haven't been initialised when that happens
-        {
-            gameworld.SaveManager.Flush();
-        }
+		_registeredComponentProtos.Add(name, initialiser);
+		if (primary)
+		{
+			_primaryTypes.Add(name);
+		}
+	}
 
-        return proto;
-    }
+	public void AddDatabaseLoader(string name,
+		Func<MudSharp.Models.GameItemComponentProto, IFuturemud, IGameItemComponentProto> initialiser)
+	{
+		if (CurrentAuditBuilder is not null)
+		{
+			CurrentAuditBuilder.CanonicalDatabaseType = name;
+		}
 
-    public IGameItemComponentProto GetProto(MudSharp.Models.GameItemComponentProto dbproto, IFuturemud gameworld)
-    {
-        return _registeredDatabaseLoaders.TryGetValue(dbproto.Type, out Func<Models.GameItemComponentProto, IFuturemud, IGameItemComponentProto> output) ? output(dbproto, gameworld) : null;
-    }
+		_registeredDatabaseLoaders.Add(name, initialiser);
+	}
+
+	public IGameItemComponentProto? GetProto(string name, IFuturemud gameworld, IAccount account)
+	{
+		var proto = _registeredComponentProtos.TryGetValue(name.ToLowerInvariant(), out var output)
+			? output(gameworld, account)
+			: null;
+		if (proto is not null)
+		{
+			// This line lets component constructors persist after the derived type has been initialised.
+			gameworld.SaveManager.Flush();
+		}
+
+		return proto;
+	}
+
+	public IGameItemComponentProto? GetProto(MudSharp.Models.GameItemComponentProto dbproto, IFuturemud gameworld)
+	{
+		return _registeredDatabaseLoaders.TryGetValue(dbproto.Type, out var output)
+			? output(dbproto, gameworld)
+			: null;
+	}
+
+	private RegistrationAuditBuilder? CurrentAuditBuilder => _registeringPrototypeType is not null &&
+		_registrationAuditBuilders.TryGetValue(_registeringPrototypeType, out var builder)
+			? builder
+			: null;
+
+	private static GameItemComponentRegistrationAuditEntry CreateAuditEntry(RegistrationAuditBuilder builder)
+	{
+		var componentMarker = typeof(IGameItemComponentPrototype<>);
+		var exclusiveMarker = typeof(IExclusiveGameItemComponentPrototype<>);
+		var interfaces = builder.PrototypeType.GetInterfaces();
+		var componentCapabilities = interfaces
+		                            .Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == componentMarker)
+		                            .Select(x => x.GetGenericArguments()[0].Name)
+		                            .Distinct(StringComparer.Ordinal)
+		                            .OrderBy(x => x, StringComparer.Ordinal)
+		                            .ToList();
+		var exclusiveCapabilities = interfaces
+		                            .Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == exclusiveMarker)
+		                            .Select(x => x.GetGenericArguments()[0].Name)
+		                            .Distinct(StringComparer.Ordinal)
+		                            .OrderBy(x => x, StringComparer.Ordinal)
+		                            .ToList();
+		var requiredCapabilities = builder.PrototypeType
+		                                  .GetFields(BindingFlags.Static | BindingFlags.Public |
+		                                             BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)
+		                                  .Where(x => typeof(IEnumerable<GameItemComponentPrototypeRequirement>)
+		                                      .IsAssignableFrom(x.FieldType))
+		                                  .SelectMany(x =>
+		                                      x.GetValue(null) as IEnumerable<GameItemComponentPrototypeRequirement> ??
+		                                      [])
+		                                  .Select(x => x.Capability.Name)
+		                                  .Distinct(StringComparer.Ordinal)
+		                                  .OrderBy(x => x, StringComparer.Ordinal)
+		                                  .ToList();
+		var hasContextDependentRequirements =
+			typeof(IGameItemComponentPrototypeRequirementProvider).IsAssignableFrom(builder.PrototypeType) &&
+			requiredCapabilities.Count == 0;
+		var runtimeComponentTypeName = builder.PrototypeType.Name.Replace("GameItemComponentProto", "GameItemComponent",
+			StringComparison.Ordinal);
+		var runtimeComponentType = builder.PrototypeType.Assembly.GetType(
+			$"MudSharp.GameItems.Components.{runtimeComponentTypeName}");
+		var preventsManualLoad = builder.PrototypeType.GetProperty(nameof(GameItemComponentProto.PreventManualLoad))?
+			.GetMethod?.DeclaringType != typeof(GameItemComponentProto);
+		const BindingFlags instanceMethods = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+		bool HasMethod(Type type, string name) => type.GetMethods(instanceMethods).Any(x => x.Name == name);
+
+		return new GameItemComponentRegistrationAuditEntry(
+			builder.CanonicalDatabaseType!,
+			builder.PrimaryBuilderType,
+			builder.BuilderAliases.OrderBy(x => x, StringComparer.Ordinal).ToList(),
+			builder.PrototypeType.FullName ?? builder.PrototypeType.Name,
+			builder.HelpInfo?.Blurb ?? string.Empty,
+			builder.HelpInfo?.Technology ?? GameItemComponentTypeTechnology.None,
+			componentCapabilities,
+			exclusiveCapabilities,
+			requiredCapabilities,
+			runtimeComponentType?.FullName ?? string.Empty,
+			HasMethod(builder.PrototypeType, "LoadFromXml"),
+			HasMethod(builder.PrototypeType, "SaveToXml"),
+			HasMethod(builder.PrototypeType, "CreateNew"),
+			HasMethod(builder.PrototypeType, "LoadComponent"),
+			HasMethod(builder.PrototypeType, "CreateNewRevision"),
+			HasMethod(builder.PrototypeType, "BuildingCommand"),
+			runtimeComponentType is not null && HasMethod(runtimeComponentType, "Copy"),
+			builder.BuilderAliases.Count > 0,
+			true,
+			builder.HelpInfo is not null,
+			hasContextDependentRequirements,
+			preventsManualLoad);
+	}
 }

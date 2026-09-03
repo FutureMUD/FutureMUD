@@ -260,7 +260,18 @@ public class PreIndustrialBaselineTests
 	{
 		var aliasSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.Aliases.cs");
 		var medievalReferences = Regex.Matches(aliasSource, "\"medieval_[a-z0-9_]+\"").Count;
-		Assert.AreEqual(PreIndustrialBaselineExpectations.DirectAliasSpecs.Count, medievalReferences,
+		var sharedSources = Regex.Matches(aliasSource, @"CreateHistoricalClothingItem\(FindHistoricalClothingSource\(""(?<ref>[^""]+)""\)")
+			.Cast<Match>().Select(x => ItemSeeder.FindHistoricalClothingSource(x.Groups["ref"].Value)).ToArray();
+		Assert.AreEqual(2, sharedSources.Length);
+		foreach (var source in sharedSources)
+		{
+			Assert.IsNotNull(source);
+			Assert.IsTrue(source.LegacyAliasReference?.StartsWith("medieval_", StringComparison.Ordinal) == true);
+			Assert.IsFalse(source.MorphTo?.StartsWith("medieval_", StringComparison.Ordinal) == true);
+			Assert.IsFalse(source.DestroyedItem?.StartsWith("medieval_", StringComparison.Ordinal) == true);
+			Assert.AreEqual("shared-preindustrial", source.OwningModule);
+		}
+		Assert.AreEqual(PreIndustrialBaselineExpectations.DirectAliasSpecs.Count, medievalReferences + sharedSources.Length,
 			"Each alias call should contain only its source medieval reference; lifecycle targets must use aliases.");
 	}
 

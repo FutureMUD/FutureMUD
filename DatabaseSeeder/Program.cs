@@ -50,6 +50,11 @@ internal class Program
 
     private static void Main(string[] args)
     {
+		if (IndustrialisedCatalogueAudit.TryHandleCommand(args))
+		{
+			return;
+		}
+
         Version version = Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0);
         if (args.Any(x => x.Equals("--refresh-blank-snapshot", StringComparison.OrdinalIgnoreCase)))
         {

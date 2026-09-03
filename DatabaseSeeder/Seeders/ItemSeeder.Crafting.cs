@@ -60,6 +60,8 @@ public partial class ItemSeeder
 
 	internal sealed record CraftDefinitionSpec
 	{
+		public string? StableReference { get; init; }
+		public bool PreserveAuthoredText { get; init; }
 		public string Name { get; init; } = string.Empty;
 		public string Category { get; init; } = string.Empty;
 		public string Blurb { get; init; } = string.Empty;
@@ -638,7 +640,7 @@ public partial class ItemSeeder
 		}
 
 		_progs[name] = prog;
-		CompleteManifestAggregate(manifestEntry, null, manifestDefinition, ManifestAggregateDisposition.Insert);
+		CompleteGeneratedManifestAggregate(manifestEntry, prog, manifestDefinition);
 		return prog;
 	}
 
@@ -779,7 +781,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
 		if (!_manifestCaptureOnly)
 		{
-			_context.SaveChanges();
+			SaveManifestChanges();
 		}
     }
 
@@ -791,7 +793,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
     private Regex ConditionRepairInputRegex = new(@"^(?<repair>[0-9,.]+%) repair of an item with the (?<tag>.+) tag$", RegexOptions.IgnoreCase);
 
-    private Regex SimpleItemInputRegex = new(@"^(?<quantity>\d+)x (?<sdesc>.+) \(#(?<craftid>\d+)\)$", RegexOptions.IgnoreCase);
+    private Regex SimpleItemInputRegex = new(@"^(?<quantity>\d+)x (?:(?<sdesc>@[a-z][a-z0-9_]*)|(?<sdesc>.+) \(#(?<craftid>\d+)\))$", RegexOptions.IgnoreCase);
 
     private Regex SimpleMaterialInputRegex = new(@"^(?<quantity>\d+)x an item with material tagged as (?<tag>.+)$", RegexOptions.IgnoreCase);
 
@@ -809,7 +811,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
     private Regex TagToolRegex = new(@"^an item with the (?<tag>.+) tag$", RegexOptions.IgnoreCase);
 
-    private Regex SimpleProductRegex = new(@"^(?<quantity>\d+)x (?<sdesc>.+) \(#(?<craftid>\d+)\)$", RegexOptions.IgnoreCase);
+    private Regex SimpleProductRegex = new(@"^(?<quantity>\d+)x (?:(?<sdesc>@[a-z][a-z0-9_]*)|(?<sdesc>.+) \(#(?<craftid>\d+)\))$", RegexOptions.IgnoreCase);
 
     private Regex LiquidProductRegex = new(@"^(?<quantity>\d+)x (?<sdesc>.+) \(#(?<craftid>\d+)\) filled with (?:(?<litres>\d+(?:\.\d+)?) litres?)*\s*(?:(?<millilitres>\d+(?:\.\d+)?) millilitres?)* of (?<liquid>.+)$", RegexOptions.IgnoreCase);
 
@@ -981,6 +983,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
     private MudSharp.Models.Tag LookupTag(string text)
     {
+		if (_tagsByFullPath.TryGetValue(text.Trim(), out var qualifiedTag)) return qualifiedTag;
         if (_tags.TryGetValue(text.Trim(), out MudSharp.Models.Tag? tag))
         {
             return tag;
@@ -1011,6 +1014,8 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
     private GameItemProto? LookupItem(Match match)
     {
+		var reference = match.Groups["sdesc"].Value.Trim();
+		if (reference.StartsWith('@') && !HasValue(match.Groups["craftid"])) return _itemsByStableReference.GetValueOrDefault(reference[1..]);
         if (HasValue(match.Groups["craftid"]) && long.TryParse(match.Groups["craftid"].Value, out long id))
         {
 			if (_itemsById.TryGetValue(id, out GameItemProto? cachedItem))
@@ -1026,6 +1031,8 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
     private GameItemProto LookupItem(string text)
     {
+		if (text.Trim().StartsWith('@')) return _itemsByStableReference.GetValueOrDefault(text.Trim()[1..]) ??
+			throw new ApplicationException($"Unknown stable item reference {text}");
         Match match = RequireMatch(ItemReferenceRegex, text, $"Invalid item reference {text}");
         if (HasValue(match.Groups["craftid"]) && long.TryParse(match.Groups["craftid"].Value, out long id))
         {
@@ -1189,6 +1196,18 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
     private GameItemSkin? LookupSkin(GameItemProto item, string text)
     {
         string trimmed = text.Trim();
+		if (trimmed.StartsWith('@'))
+		{
+			var reference = trimmed[1..];
+			var logicalId = FindManagedRecord("item-skin", reference)?.LogicalId;
+			var matches = _context!.GameItemSkins.Local.Concat(_context.GameItemSkins.Include(x => x.EditableItem).AsEnumerable())
+				.Where(x => x.ItemProtoId == item.Id && (logicalId.HasValue ? x.Id == logicalId : x.Name == reference))
+				.Where(x => x.EditableItem?.RevisionStatus == 4)
+				.DistinctBy(x => (x.Id, x.RevisionNumber)).ToArray();
+			if (matches.Length != 1)
+				throw new ApplicationException($"Missing or ambiguous stable skin reference {reference} for item {item.UniqueName}.");
+			return matches[0];
+		}
         if (trimmed.EqualToAny("none", "clear", "0"))
         {
             return null;
@@ -1620,6 +1639,22 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
     {
         XElement definition = BuildItemProductDefinition(details, options);
         definition.Add(BuildSimpleVariableElements(options));
+		foreach (var option in options.Where(x => x.StartsWith("fixedvariable ", StringComparison.OrdinalIgnoreCase)))
+		{
+			var match = RequireMatch(ProgVariableMappingRegex, option["fixedvariable ".Length..].Trim(), "Invalid fixed-variable mapping");
+			var characteristic = LookupCharacteristicDefinition(match.Groups["definition"].Value);
+			var value = LookupCharacteristicValue(characteristic, match.Groups["prog"].Value);
+			definition.Add(new XElement("FixedVariable", new XAttribute("value", value.Id), characteristic.Id));
+		}
+		var rules = definition.Elements().Where(x => x.Name == "Variable" || x.Name == "FixedVariable").ToArray();
+		if (rules.Select(x => x.Value).Distinct().Count() != rules.Length)
+		{
+			throw new ApplicationException("Each variable-product characteristic must have exactly one input or selected-value rule.");
+		}
+		if (rules.Where(x => x.Name == "Variable").Any(x => (int)x.Attribute("inputindex")! < 0))
+		{
+			throw new ApplicationException("Variable-product source inputs are one-based and must be positive.");
+		}
         return definition;
     }
 
@@ -2057,6 +2092,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
 	private static CraftDefinitionSpec NormaliseCraftDefinition(CraftDefinitionSpec spec)
 	{
+		if (spec.PreserveAuthoredText) return spec;
 		if (spec.Phases.Count == 0)
 		{
 			return spec;
@@ -2153,10 +2189,15 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 				$"Craft '{spec.Name}' has {errors.Count.ToString(System.Globalization.CultureInfo.InvariantCulture)} validation error(s):\n - {string.Join("\n - ", errors.Select(x => x.ToString()))}");
 		}
 
-		var stableKey = $"{spec.Category.Trim()}/{spec.Name.Trim()}";
+		var stableKey = spec.StableReference ?? $"{spec.Category.Trim()}/{spec.Name.Trim()}";
+		var existing = !_manifestCaptureOnly && spec.StableReference is not null
+			? ResolveOwnedCraftTarget(stableKey, spec.Name, spec.Category, _context!.Crafts.Local.ToArray())
+			: FindExistingCraft(spec.Name, spec.Category);
+		if (!_manifestCaptureOnly && spec.StableReference is not null)
+			ValidateUnmanagedCraftSignature(stableKey, existing, spec);
 		if (IsManifestAggregateRegistered("craft", stableKey))
 		{
-			return FindExistingCraft(spec.Name, spec.Category) ??
+			return existing ??
 			       _craftsByNameAndCategory[CraftLookupKey(spec.Name, spec.Category)];
 		}
 
@@ -2167,7 +2208,6 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 			manifestDefinition,
 			GetCraftProductManifestDependencies(spec));
 		var managedRecord = FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey);
-		var existing = FindExistingCraft(spec.Name, spec.Category);
 		if (_manifestCaptureOnly)
 		{
 			if (existing is not null)
@@ -2277,6 +2317,16 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
 	private IEnumerable<string> GetCraftProductManifestDependencies(CraftDefinitionSpec spec)
 	{
+		if (spec.StableReference is not null)
+		{
+			foreach (var reference in spec.Inputs.Select(x => x.Details).Concat(spec.Products.Concat(spec.FailProducts).Select(x => x.Details))
+				.SelectMany(x => Regex.Matches(x, @"@(?<reference>[a-z][a-z0-9_]*)").Select(m => m.Groups["reference"].Value))
+				.Distinct(StringComparer.Ordinal)) yield return $"item:{reference}";
+			foreach (var skin in spec.Products.Concat(spec.FailProducts).SelectMany(x => x.Options)
+				.Where(x => x.StartsWith("skin ", StringComparison.Ordinal)).Select(x => x[5..].TrimStart('@')).Distinct(StringComparer.Ordinal))
+				yield return $"item-skin:{skin}";
+			yield break;
+		}
 		foreach (var product in spec.Products)
 		{
 			var match = Regex.Match(product.Details, @"\(#(?<id>\d+)\)");
@@ -2435,6 +2485,11 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
 	private void RebuildCraft(Craft craft, CraftDefinitionSpec spec, bool removeExistingChildren = true)
 	{
+		if (!string.IsNullOrEmpty(craft.Name) && !string.IsNullOrEmpty(craft.Category))
+		{
+			var previousKey = CraftLookupKey(craft.Name, craft.Category);
+			if (_craftsByNameAndCategory.GetValueOrDefault(previousKey) == craft) _craftsByNameAndCategory.Remove(previousKey);
+		}
 		if (removeExistingChildren)
 		{
 			_context!.CraftProducts.RemoveRange(craft.CraftProducts);
@@ -2449,6 +2504,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
 		craft.Name = spec.Name;
 		craft.Category = spec.Category;
+		_craftsByNameAndCategory[CraftLookupKey(craft.Name, craft.Category)] = craft;
 		craft.Blurb = spec.Blurb;
 		craft.ActionDescription = spec.Action;
 		craft.ActiveCraftItemSdesc = spec.ActiveCraftItemSdesc;
@@ -2498,7 +2554,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
 		if (!_deferCraftProductSave)
 		{
-			_context!.SaveChanges();
+			SaveManifestChanges();
 		}
 		foreach (var product in spec.Products.Concat(spec.FailProducts))
 		{
@@ -2507,7 +2563,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
 		if (!_deferCraftProductSave)
 		{
-			_context!.SaveChanges();
+			SaveManifestChanges();
 		}
 	}
 
@@ -2554,12 +2610,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 
 	private void SaveCraftChanges()
 	{
-		if (!_context!.ChangeTracker.AutoDetectChangesEnabled)
-		{
-			_context.ChangeTracker.DetectChanges();
-		}
-
-		_context.SaveChanges();
+		SaveManifestChanges();
 	}
 
     private static int? GetMaterialDefiningInputIndex(List<(int Product, int Input)>? indexes, int productNumber)
@@ -2924,7 +2975,7 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 		knowledge.CanLearnProg = alwaysTrueProg;
 		if (isNew)
 		{
-			CompleteManifestAggregate(manifestEntry, null, manifestDefinition, ManifestAggregateDisposition.Insert);
+			CompleteGeneratedManifestAggregate(manifestEntry, knowledge, manifestDefinition);
 			if (!_manifestCaptureOnly)
 			{
 				SaveCraftChanges();
@@ -2940,6 +2991,26 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 	private (FutureProg AppearProg, FutureProg CanUseProg, FutureProg WhyCannotUseProg, TraitDefinition Trait) EnsureTraitGateProgs(string traitName, int? minimumTraitValue)
 	{
 		TraitDefinition trait = LookupTraitDefinition(traitName);
+		var definitions = TraitGateDefinitions(trait, minimumTraitValue);
+		if (!_manifestCaptureOnly)
+		{
+			// Load the existing parameter graph once per dependency context, not once per recipe.
+			_traitGateProgRows ??= _context!.FutureProgs.Include(x => x.FutureProgsParameters).ToArray();
+			var rows = _traitGateProgRows.Concat(_context!.FutureProgs.Local).Distinct().ToArray();
+			// Validate every gate before creating even the first prog; preserve renamed owned targets.
+			var targets = definitions.Select(x => ResolveTraitGateProgOwnership(x, rows)).ToArray();
+			for (var i = 0; i < definitions.Length; i++)
+				if (targets[i] is { } target) _progs[definitions[i].Name] = target;
+		}
+		var gates = definitions.Select(definition => EnsureFutureProg(definition.Name, definition.Category,
+			definition.Subcategory, (ProgVariableTypes)definition.ReturnType, definition.Comment,
+			definition.Parameters.Select(x => ((ProgVariableTypes)x.Type, x.Name)), definition.Text)).ToArray();
+		SaveFutureProgsIfRequired(gates);
+		return (gates[0], gates[1], gates[2], trait);
+	}
+
+	private static ProgManifestDefinition[] TraitGateDefinitions(TraitDefinition trait, int? minimumTraitValue)
+	{
 		string traitComment = FutureProgReferenceComment("Trait", trait.Id, trait.Name);
 		string booleanText = minimumTraitValue is null
 			? $@"{traitComment}
@@ -2951,14 +3022,15 @@ return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureIn
 			? $@"return ""You do not have the {traitText} skill."""
 			: $@"return ""You need at least {minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)} in {traitText} to do that craft.""";
 
-		FutureProg appearProg = EnsureFutureProg(TraitGateProgName("Ap", trait, minimumTraitValue), "Crafting", "Access", ProgVariableTypes.Boolean, "",
-			[(ProgVariableTypes.Character, "ch")], booleanText);
-		FutureProg canUseProg = EnsureFutureProg(TraitGateProgName("Use", trait, minimumTraitValue), "Crafting", "Access", ProgVariableTypes.Boolean, "",
-			[(ProgVariableTypes.Character, "ch")], booleanText);
-		FutureProg whyCannotUseProg = EnsureFutureProg(TraitGateProgName("Why", trait, minimumTraitValue), "Crafting", "Access", ProgVariableTypes.Text, "",
-			[(ProgVariableTypes.Character, "ch")], whyText);
-		SaveFutureProgsIfRequired(appearProg, canUseProg, whyCannotUseProg);
-		return (appearProg, canUseProg, whyCannotUseProg, trait);
+		return
+		[
+			new(TraitGateProgName("Ap", trait, minimumTraitValue), "Crafting", "Access", (long)ProgVariableTypes.Boolean, "",
+				booleanText, [new((long)ProgVariableTypes.Character, "ch")]),
+			new(TraitGateProgName("Use", trait, minimumTraitValue), "Crafting", "Access", (long)ProgVariableTypes.Boolean, "",
+				booleanText, [new((long)ProgVariableTypes.Character, "ch")]),
+			new(TraitGateProgName("Why", trait, minimumTraitValue), "Crafting", "Access", (long)ProgVariableTypes.Text, "",
+				whyText, [new((long)ProgVariableTypes.Character, "ch")])
+		];
 	}
 
 	private (FutureProg AppearProg, FutureProg CanUseProg, FutureProg WhyCannotUseProg, TraitDefinition Trait,
@@ -3198,6 +3270,11 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 					using var manifestModule = UseManifestModule("crafts", "renaissance");
 					SeedRenaissanceFinishedItemCrafts();
 				});
+			}
+			if (HasAnyEra(eras, "industrial"))
+			{
+				RunSeedStage("Creating shared industrialised and Industrial crafts", () =>
+					SeedIndustrialisedCatalogueCrafts(eras));
 			}
 			FlushDeferredCraftPersistence();
 		}

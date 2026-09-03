@@ -336,7 +336,29 @@ internal static class DebugSeederReplayProfiles
 			"Early Modern Age",
 			"earlymodern",
 			"medieval renaissance earlymodern",
-			"earthrenaissanceeurope")
+			"earthrenaissanceeurope"),
+		CreateProfile(
+			"industrial-neutral",
+			"Industrial Neutral",
+			"Full Debug replay through Industrial ItemSeeder content using the neutral compatibility profile.",
+			"Debug Industrial",
+			"1897",
+			"Early Modern Age",
+			"earlymodern",
+			"medieval renaissance earlymodern industrial",
+			"earthrenaissanceeurope",
+			"neutral"),
+		CreateProfile(
+			"industrial-custom",
+			"Industrial Custom",
+			"Full Debug replay through Industrial ItemSeeder content using an explicit custom compatibility profile.",
+			"Debug Industrial Custom",
+			"1897",
+			"Early Modern Age",
+			"earlymodern",
+			"medieval renaissance earlymodern industrial",
+			"earthrenaissanceeurope",
+			"custom")
 	];
 
 	private static SeederReplayProfile CreateProfile(
@@ -348,7 +370,8 @@ internal static class DebugSeederReplayProfiles
 		string economyEra,
 		string healthTechLevel,
 		string itemEras,
-		string culturePack)
+		string culturePack,
+		string technologyProfile = "neutral")
 	{
 		var epoch = $"1 January {year}";
 		var moonEpoch = $"21 January {year}";
@@ -468,6 +491,12 @@ internal static class DebugSeederReplayProfiles
 			Step<RobotSeeder>(),
 			Step<ItemSeeder>(
 				("eras", itemEras),
+				("technologyprofile", technologyProfile),
+				("technologypower", "Connectable_Male_To_MainsPlug"),
+				("technologypaper", "A4, Letter"),
+				("technologytelecom", "Telephone_Standard"),
+				("technologynetworkmedia", "NetworkAdapter_Wired"),
+				("technologyvehicle", "AttachableConnectable_PowerLead"),
 				("scope", "all")),
 			Step<AnimalButcherySeeder>(),
 			Step<SupernaturalSeeder>(

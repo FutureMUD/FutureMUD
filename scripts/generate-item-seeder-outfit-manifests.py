@@ -24,7 +24,53 @@ RENAISSANCE_DOCS = (
 	RENAISSANCE_AFRICA_AMERICAS_DOC,
 )
 MEDIEVAL_SOURCE = ROOT / "DatabaseSeeder/Seeders/ItemSeeder.MedievalClothing.cs"
+HISTORICAL_CLOTHING_SOURCE = ROOT / "DatabaseSeeder/Seeders/ItemSeeder.HistoricalClothingSources.Data.cs"
 OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder.ClothingOutfitManifestData.Generated.cs"
+
+# Conventional colours of these existing example ensembles, not restrictions on their garments.
+# The complete shared base descriptions remain authored C# source; no prose is assembled here.
+HISTORICAL_OUTFIT_COLOUR_DEFAULTS = {
+	"renaissance_institution_liturgical_alb": "colour=white",
+	"medieval_jewish_tallit_gadol": "colour1=white colour2=black",
+	"medieval_jewish_tallit_katan": "colour=white",
+	"medieval_jewish_skullcap": "colour=black",
+	"medieval_islamic_plain_imam_qamis": "colour=white",
+	"medieval_hindu_white_priest_dhoti": "colour=white",
+	"medieval_latin_amice": "colour=white",
+	"medieval_latin_linen_cincture": "colour=white",
+	"medieval_eastern_sticharion": "colour=white",
+	"medieval_eastern_black_riassa": "colour=black",
+	"medieval_eastern_kamilavkion": "colour=black",
+	"medieval_hindu_kaupina": "colour=white",
+	"medieval_jain_white_ascetic_robe": "colour=white",
+	"medieval_jain_white_shoulder_wrap": "colour=white",
+	"medieval_daoist_cross_collar_robe": "colour=black",
+	"medieval_daoist_ritual_cap": "colour=black",
+	"medieval_shinto_white_joe_robe": "colour=white",
+	"medieval_shinto_priest_hakama": "colour=white",
+	"medieval_shinto_miko_white_kosode": "colour=white",
+	"medieval_shinto_miko_red_hakama": "colour=red",
+	"medieval_shinto_priest_eboshi": "colour=black",
+	"earlymodern_religious_daoist_cloud_shoes": "colour=black",
+	"earlymodern_religious_hindu_sacred_thread": "colour=white",
+	"earlymodern_religious_jain_mouthcloth": "colour=white",
+	"earlymodern_religious_reformed_preaching_bands": "colour=white",
+	"earlymodern_religious_theravada_underrobe": 'colour="saffron yellow"',
+	"earlymodern_religious_theravada_upperrobe": 'colour="saffron yellow"',
+	"earlymodern_religious_tibetan_shamtab": 'colour="maroon red"',
+	"earlymodern_religious_tibetan_vest": 'colour="maroon red"',
+	"earlymodern_religious_tibetan_mantle": 'colour="maroon red"',
+	"earlymodern_religious_zoroastrian_sudreh": "colour=white",
+	"earlymodern_religious_zoroastrian_kusti": "colour=white",
+	"earlymodern_religious_zoroastrian_prayer_cap": "colour=white",
+	"renaissance_institution_linen_surplus": "colour=white",
+}
+
+# Presentation conventions that apply only to one historical example outfit.
+# Explicit authored entry arguments still take precedence over either default map.
+HISTORICAL_OUTFIT_ENTRY_COLOUR_DEFAULTS = {
+	("earlymodern_outfit_0884", "renaissance_institution_academic_robe"): "colour=black",
+}
 
 
 @dataclass(frozen=True)
@@ -39,6 +85,7 @@ class Outfit:
 class OutfitManifestItem:
 	item_stable_reference: str
 	skin_stable_reference: str | None = None
+	load_arguments: str = ""
 
 
 @dataclass(frozen=True)
@@ -520,11 +567,16 @@ def split_csharp_arguments(text: str) -> list[str]:
 	in_string = False
 	verbatim = False
 	escaped = False
+	skip_quote = False
 	for index, char in enumerate(text):
+		if skip_quote:
+			skip_quote = False
+			continue
 		if in_string:
 			if verbatim:
 				if char == '"':
 					if index + 1 < len(text) and text[index + 1] == '"':
+						skip_quote = True
 						continue
 					in_string = False
 			elif escaped:
@@ -560,19 +612,27 @@ def csharp_string(value: str) -> str:
 	return re.sub(r"\\(.)", lambda match: escapes.get(match.group(1), match.group(0)), body)
 
 
-def extract_create_item_calls(path: Path) -> dict[str, Item]:
+def extract_create_item_calls(path: Path, call_name: str = "CreateItem", *, preserve_authored: bool = False) -> dict[str, Item]:
 	text = path.read_text(encoding="utf-8-sig")
 	items: dict[str, Item] = {}
 	position = 0
-	while (start := text.find("CreateItem(", position)) >= 0:
-		index = start + len("CreateItem(")
+	call_prefix = f"{call_name}("
+	while (start := text.find(call_prefix, position)) >= 0:
+		index = start + len(call_prefix)
 		depth = 1
 		in_string = False
+		verbatim = False
 		escaped = False
 		while index < len(text) and depth:
 			char = text[index]
 			if in_string:
-				if escaped:
+				if verbatim:
+					if char == '"':
+						if index + 1 < len(text) and text[index + 1] == '"':
+							index += 2
+							continue
+						in_string = False
+				elif escaped:
 					escaped = False
 				elif char == "\\":
 					escaped = True
@@ -580,19 +640,22 @@ def extract_create_item_calls(path: Path) -> dict[str, Item]:
 					in_string = False
 			elif char == '"':
 				in_string = True
+				verbatim = index > 0 and text[index - 1] == "@"
 			elif char == "(":
 				depth += 1
 			elif char == ")":
 				depth -= 1
 			index += 1
+		if depth:
+			raise ValueError(f"{path}:{text.count(chr(10), 0, start) + 1}: unterminated {call_name} call")
 		position = index
-		arguments = split_csharp_arguments(text[start + len("CreateItem("):index - 1])
+		arguments = split_csharp_arguments(text[start + len(call_prefix):index - 1])
 		if len(arguments) < 18 or not arguments[0].lstrip().startswith('"'):
 			continue
 		stable_reference = csharp_string(arguments[0])
 		components = tuple(re.findall(r'"([^"]+)"', arguments[13]))
 		tags = tuple(re.findall(r'"([^"]+)"', arguments[12]))
-		items[stable_reference] = Item(
+		item = Item(
 			stable_reference,
 			csharp_string(arguments[1]),
 			csharp_string(arguments[2]),
@@ -606,7 +669,23 @@ def extract_create_item_calls(path: Path) -> dict[str, Item]:
 			tags,
 			components,
 			"Early Modern admission of an exact Medieval clothing definition.",
+			preserve_authored,
 		)
+		if stable_reference in items:
+			raise ValueError(f"{path}: duplicate item source {stable_reference}")
+		items[stable_reference] = item
+	return items
+
+
+def medieval_first_definition_items() -> dict[str, Item]:
+	items = extract_create_item_calls(MEDIEVAL_SOURCE)
+	shared = extract_create_item_calls(HISTORICAL_CLOTHING_SOURCE, "new", preserve_authored=True)
+	for reference, item in shared.items():
+		if not reference.startswith("medieval_"):
+			continue  # The two pre-industrial aliases retain their established admission source.
+		if reference in items:
+			raise ValueError(f"Duplicate direct/shared Medieval item source {reference}")
+		items[reference] = item
 	return items
 
 
@@ -643,7 +722,7 @@ def renaissance_admission_items() -> dict[str, Item]:
 	rows: dict[str, tuple[str, str, str, str]] = {}
 	for line in read(RENAISSANCE_WESTERN_DOC):
 		match = re.match(r"^\|\s*`(renaissance_institution_[^`]+)`\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*`([^`]+)`", line)
-		if match:
+		if match and len(line.strip().strip("|").split("|")) == 5:
 			rows[match.group(1)] = tuple(value.strip() for value in match.groups())  # type: ignore[assignment]
 	wear = {
 		"renaissance_institution_academic_robe": "Wear_Long_Open_Robe",
@@ -662,7 +741,11 @@ def renaissance_admission_items() -> dict[str, Item]:
 		"renaissance_institution_preaching_gown": ("1200.0", "120.0"),
 	}
 	items: dict[str, Item] = {}
+	overrides = renaissance_item_overrides()
 	for key, component in wear.items():
+		if key in overrides:
+			items[key] = item_from_9_cell_row(overrides[key])
+			continue
 		_, public_form, material, _ = rows[key]
 		noun = public_form.split()[-1]
 		short_description = f"a {public_form}"
@@ -866,14 +949,17 @@ def renaissance_catalogue_rows() -> dict[str, list[str]]:
 def renaissance_item_overrides() -> dict[str, list[str]]:
 	rows: dict[str, list[str]] = {}
 	for path in RENAISSANCE_DOCS:
-		for line in read(path):
+		for line_number, line in enumerate(read(path), 1):
 			match = re.match(r"^\|\s*`(renaissance_[^`]+)`\s*\|", line)
 			if match is None:
 				continue
 			cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
 			if len(cells) != 9:
 				continue
-			rows[match.group(1)] = cells
+			key = match.group(1)
+			if key in rows and rows[key] != cells:
+				raise ValueError(f"{path}:{line_number}: Conflicting Renaissance stock overrides for {key}")
+			rows[key] = cells
 	return rows
 
 
@@ -942,6 +1028,7 @@ def manifest_item_array(values: tuple[OutfitManifestItem, ...]) -> str:
 	return "[" + ", ".join(
 		f"new({cs(value.item_stable_reference)}, "
 		f"{cs(value.skin_stable_reference) if value.skin_stable_reference else 'null'})"
+		+ (f" {{ LoadArguments = {cs(value.load_arguments)} }}" if value.load_arguments else "")
 		for value in values
 	) + "]"
 
@@ -949,9 +1036,13 @@ def manifest_item_array(values: tuple[OutfitManifestItem, ...]) -> str:
 def render_manifest_array(name: str, outfits: list[Outfit]) -> list[str]:
 	lines = [f"\tprivate static readonly OutfitManifestSpec[] {name} =", "\t["]
 	for outfit in outfits:
+		entries = tuple(replace(item, load_arguments=item.load_arguments or
+			HISTORICAL_OUTFIT_ENTRY_COLOUR_DEFAULTS.get((outfit.key, item.item_stable_reference),
+				HISTORICAL_OUTFIT_COLOUR_DEFAULTS.get(item.item_stable_reference, "")))
+			for item in outfit.items)
 		lines.append(
 			f"\t\tnew({cs(outfit.key)}, {cs(outfit.name)}, {cs(outfit.description)}, "
-			f"{manifest_item_array(outfit.items)}),"
+			f"{manifest_item_array(entries)}),"
 		)
 	lines.extend(["\t];", ""])
 	return lines
@@ -978,10 +1069,11 @@ def render_item_array(name: str, items: list[Item]) -> list[str]:
 def render_skin_array(name: str, skins: list[Skin]) -> list[str]:
 	lines = [f"\tprivate static readonly DocumentedClothingSkinSpec[] {name} =", "\t["]
 	for skin in skins:
+		quality = "null" if skin.quality == "null" else f"ItemQuality.{skin.quality}"
 		lines.append(
 			f"\t\tnew({cs(skin.stable_reference)}, {cs(skin.base_item_stable_reference)}, "
 			f"{cs(skin.item_name)}, {cs(skin.short_description)}, {cs(skin.full_description)}, "
-			f"ItemQuality.{skin.quality}),"
+			f"{quality}),"
 		)
 	lines.extend(["\t];", ""])
 	return lines
@@ -1025,7 +1117,7 @@ def generate() -> str:
 			raise ValueError(f"Outfit {outfit.key} exceeds an outfit-template database text limit")
 
 	rows = markdown_9_cell_rows()
-	medieval_source_items = extract_create_item_calls(MEDIEVAL_SOURCE)
+	medieval_source_items = medieval_first_definition_items()
 	renaissance_admissions = renaissance_admission_items()
 	renaissance_rows = renaissance_catalogue_rows()
 	renaissance_overrides = renaissance_item_overrides()
@@ -1174,6 +1266,10 @@ def generate() -> str:
 	}
 	antiquity_items = [with_belt_capacity(antiquity_source_items[key]) for key in sorted(antiquity_missing_refs)]
 	for item in [*antiquity_items, *renaissance_items.values(), *early_modern_items.values()]:
+		if item.use_authored_full_description:
+			if not item.full_description.strip():
+				raise ValueError(f"Empty authored clothing description for {item.stable_reference}")
+			continue  # Editorial acceptance is separate; never replace authored prose to meet a sentence quota.
 		description = authored_full_description(
 			item.short_description, item.noun, item.material, item.components, item.quality
 		)
@@ -1184,7 +1280,7 @@ def generate() -> str:
 
 	lines = [
 		"// <auto-generated>",
-		"// Generated by scripts/generate-item-seeder-outfit-manifests.py from the canonical clothing design references.",
+		"// Generated by scripts/generate-item-seeder-outfit-manifests.py from canonical clothing references and shared historical source records.",
 		"// Do not edit this file by hand.",
 		"// </auto-generated>",
 		"#nullable enable",

@@ -11,6 +11,10 @@ This document explains how the item system is structured in code and at runtime:
 - revision updates
 - morph and destruction behaviour
 
+## Wearable numeric persistence
+
+Wearable component XML uses culture-independent numbers for `LayerWeightConsumption`, `SeeThroughDamageRatio` and the `Waterproof` damage-ratio attribute, matching `XElement`/`XAttribute` serialization. Loading on a comma-decimal host must neither reject `0.25` nor reinterpret it as `25`. Legacy definitions without these values retain layer weight 1.0 and damage ratios 0.5. Profiles, default profile, bulky/visibility flags and waterproof state survive the same round trip; no schema or builder-command change is required.
+
 ## Primary Abstractions
 
 ## Media recording persistence
@@ -693,3 +697,5 @@ Environment boundaries rebase elapsed state before and after containment, open/c
 Refrigerators modify freshness, biological decay, and opted-in morphs. Dryers modify only surface-liquid drying and are active only while powered, switched on, and closed. Implant refrigerators use implant power and function factor. These providers affect nested descendants but never the provider item itself.
 
 `PowerBank` combines power consumption and production around persisted internal watt-hours. Input power charges storage subject to the input limit and efficiency; output consumers always discharge storage subject to the output limit, including while charging. Depletion cuts output consumers and later charge recovery offers power again. Input and output connector sets are directional and live connections use the existing connectable restoration lifecycle.
+
+Discrete power requests retain watts as the instantaneous load. The legacy one-argument `IProducePower.DrawdownSpike(wattage)` contract represents an instantaneous spike and remains suitable for continuous producers. Consumers whose operation has a measurable duration use the duration-aware overload instead. Finite stores such as `BatteryPowered` and `PowerBank` convert watts multiplied by elapsed hours into watt-hours for availability checks and debit, while continuous producers validate the same watt load without inventing stored-energy accounting. `PowerTool` uses this duration-aware path for both preflight and consumption, so a tool rated in watts no longer passes watt-seconds into an API whose argument is watts.

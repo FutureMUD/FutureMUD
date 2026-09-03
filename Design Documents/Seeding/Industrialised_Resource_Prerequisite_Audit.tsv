@@ -1,0 +1,41 @@
+﻿Kind	Canonical Name or Path	Export Match	Owner	Disposition	Identified Consumer
+Gas	Acetylene	yes	CoreDataSeeder	reuse	welding and cutting equipment
+Gas	Argon	yes	CoreDataSeeder	reuse	shielding gas and industrial processes
+Gas	Butane	yes	CoreDataSeeder	reuse	portable fuel stock
+Gas	Carbon Monoxide	yes	CoreDataSeeder	reuse	hazard modelling
+Gas	Natural Gas	yes	CoreDataSeeder	reuse	domestic and industrial fuel
+Gas	Nitrogen	yes	CoreDataSeeder	reuse	compressed gas and inerting
+Gas	Oxygen	yes	CoreDataSeeder	reuse	medical and industrial gas stock
+Gas	Propane	yes	CoreDataSeeder	reuse	portable heating and machinery
+Gas	Refrigerant R-134a	yes	CoreDataSeeder	reuse	refrigeration equipment
+Liquid	detergent	yes	CoreDataSeeder	reuse	washing machinery
+Liquid	diesel	yes	CoreDataSeeder	reuse	combustion engines and generators
+Liquid	gasoline	yes	CoreDataSeeder	reuse	combustion engines and portable machinery
+Liquid	hydraulic fluid	yes	CoreDataSeeder	reuse	industrial machinery
+Liquid	kerosene	yes	CoreDataSeeder	reuse	heating lighting and engines
+Liquid	machine oil	yes	CoreDataSeeder	reuse	machinery maintenance
+Material	ABS plastic	yes	CoreDataSeeder	reuse	appliance and equipment housings
+Material	aluminium	yes	CoreDataSeeder	reuse	light equipment housings and heat exchangers
+Material	cardboard	yes	CoreDataSeeder	reuse	packaging and office consumables
+Material	concrete	yes	CoreDataSeeder	reuse	industrial and civic fixtures
+Material	copper	yes	CoreDataSeeder	reuse	electrical conductors and windings
+Material	epoxy resin	yes	CoreDataSeeder	reuse	electrical and composite assembly
+Material	fiberglass	yes	CoreDataSeeder	reuse	equipment shells and insulation
+Material	mild steel	yes	CoreDataSeeder	reuse	general machinery
+Material	natural rubber	yes	CoreDataSeeder	reuse	seals hoses and insulation
+Material	pith	yes	CoreDataSeeder	new-stock	industrialised_clothing_pith_helmet plant-pith core; no ballistic claim
+Material	silicon	yes	CoreDataSeeder	reuse	electronic component substrate
+Material	silicone rubber	yes	CoreDataSeeder	reuse	electrical seals and flexible insulation
+Material	stainless steel	yes	CoreDataSeeder	reuse	food medical and appliance equipment
+Material	tool steel	yes	CoreDataSeeder	reuse	powered tool working surfaces
+Tag	Era / Industrial Era	yes	UsefulSeeder	reuse	Industrial-era catalogue admission
+Tag	Era / Information Age Era	yes	UsefulSeeder	reuse	Information-age catalogue admission
+Tag	Era / Modern Era	yes	UsefulSeeder	reuse	Modern-era catalogue admission
+Tag	Era / Nuclear Era	yes	UsefulSeeder	reuse	Nuclear-era catalogue admission
+Tag	Functions / Tools	yes	UsefulSeeder	reuse	tool classification
+Tag	Market / Communications	yes	UsefulSeeder	reuse	communications equipment
+Tag	Market / Household Goods	yes	UsefulSeeder	reuse	domestic appliances
+Tag	Market / Professional Tools	yes	UsefulSeeder	reuse	trade and office equipment
+Tag	Market / Repair Supplies	yes	UsefulSeeder	reuse	maintenance stock
+Tag	Market / Transportation	yes	UsefulSeeder	reuse	vehicle and transport support
+Tag	Market / Warehousing	yes	UsefulSeeder	reuse	storage and logistics equipment

@@ -253,11 +253,10 @@ public class FlareAmmunitionGameItemComponentProto : AmmunitionGameItemComponent
 
         FlareIllumination = value;
         Changed = true;
-        actor.OutputHandler.Send(
-            $"This flare will now provide {$"{FlareIllumination.ToString("N3", actor)} lux".ColourValue()} of illumination to the zone when fired into the sky.");
-        return true;
-        throw new NotImplementedException();
-    }
+		actor.OutputHandler.Send(
+			$"This flare will now provide {$"{FlareIllumination.ToString("N3", actor)} lux".ColourValue()} of illumination to the zone when fired into the sky.");
+		return true;
+	}
 
     #endregion
 

@@ -21,8 +21,14 @@ public partial class Character
             case "name":
                 returnVar = new TextVariable(PersonalName.GetName(NameStyle.GivenOnly));
                 break;
+            case "personalname":
+                returnVar = PersonalName;
+                break;
             case "cname":
                 returnVar = new TextVariable(CurrentName.GetName(NameStyle.GivenOnly));
+                break;
+            case "currentname":
+                returnVar = CurrentName;
                 break;
             case "simplefullname":
                 returnVar = new TextVariable(PersonalName.GetName(NameStyle.SimpleFull));
@@ -299,6 +305,7 @@ public partial class Character
             { "focusedinstance", ProgVariableTypes.Character },
             { "effects", ProgVariableTypes.Collection | ProgVariableTypes.Effect },
             { "name", ProgVariableTypes.Text },
+            { "personalname", ProgVariableTypes.PersonalName },
             { "type", ProgVariableTypes.Text },
             { "simplefullname", ProgVariableTypes.Text },
             { "fullname", ProgVariableTypes.Text },
@@ -307,6 +314,7 @@ public partial class Character
             { "cfullname", ProgVariableTypes.Text },
             { "csurname", ProgVariableTypes.Text },
             { "cname", ProgVariableTypes.Text },
+            { "currentname", ProgVariableTypes.PersonalName },
             { "gender", ProgVariableTypes.Gender },
             { "height", ProgVariableTypes.Number },
             { "weight", ProgVariableTypes.Number },
@@ -390,6 +398,7 @@ public partial class Character
             { "focusedinstance", "The currently focused actor instance for this character identity." },
             { "effects", "A collection of all effects on the character" },
             { "name", "Their real first name" },
+            { "personalname", "Their full real personal name, including its name culture and individual elements" },
             { "simplefullname", "The simple version of their real full name" },
             { "fullname", "Their real full name" },
             { "surname", "Their real surname" },
@@ -397,6 +406,7 @@ public partial class Character
             { "cfullname", "Their current alias' full name" },
             { "csurname", "Their current alias' surname" },
             { "cname", "Their current alias' first name" },
+            { "currentname", "Their current personal name or alias, including its name culture and individual elements" },
             { "gender", "Their real gender" },
             { "height", "Their height in base units (cm)" },
             { "weight", "Their weight in base units (grams)" },

@@ -259,6 +259,12 @@ public class Culture : SaveableItem, ICulture
             { "id", ProgVariableTypes.Number },
             { "name", ProgVariableTypes.Text },
             { "namecultures", ProgVariableTypes.Text | ProgVariableTypes.Collection},
+            { "namecultureobjects", ProgVariableTypes.NameCulture | ProgVariableTypes.Collection},
+            { "malenameculture", ProgVariableTypes.NameCulture },
+            { "femalenameculture", ProgVariableTypes.NameCulture },
+            { "neuternameculture", ProgVariableTypes.NameCulture },
+            { "nonbinarynameculture", ProgVariableTypes.NameCulture },
+            { "indeterminatenameculture", ProgVariableTypes.NameCulture },
             { "tempfloor", ProgVariableTypes.Number },
             { "tempceiling", ProgVariableTypes.Number },
         };
@@ -271,6 +277,12 @@ public class Culture : SaveableItem, ICulture
             { "id", "The ID of the culture" },
             { "name", "The name of the culture" },
             { "namecultures", "A collection of the name cultures for this culture, if present"},
+            { "namecultureobjects", "The configured name-culture objects for this culture"},
+            { "malenameculture", "The name culture configured for male characters of this culture"},
+            { "femalenameculture", "The name culture configured for female characters of this culture"},
+            { "neuternameculture", "The name culture configured for neuter characters of this culture"},
+            { "nonbinarynameculture", "The name culture configured for non-binary characters of this culture"},
+            { "indeterminatenameculture", "The name culture configured for indeterminate-gender characters of this culture"},
             { "tempfloor", "The modifier to the floor of tolerable temperatures" },
             { "tempceiling", "The modifier to the ceiling of tolerable temperatures" },
         };
@@ -292,6 +304,18 @@ public class Culture : SaveableItem, ICulture
                 return new TextVariable(Name);
             case "namecultures":
                 return new CollectionVariable(NameCultures.SelectNotNull(x => x?.Name).Distinct().ToList(), ProgVariableTypes.Text);
+            case "namecultureobjects":
+                return new CollectionVariable(NameCultures.ToList(), ProgVariableTypes.NameCulture);
+            case "malenameculture":
+                return NameCultureForGender(Gender.Male) as IProgVariable ?? new NullVariable(ProgVariableTypes.NameCulture);
+            case "femalenameculture":
+                return NameCultureForGender(Gender.Female) as IProgVariable ?? new NullVariable(ProgVariableTypes.NameCulture);
+            case "neuternameculture":
+                return NameCultureForGender(Gender.Neuter) as IProgVariable ?? new NullVariable(ProgVariableTypes.NameCulture);
+            case "nonbinarynameculture":
+                return NameCultureForGender(Gender.NonBinary) as IProgVariable ?? new NullVariable(ProgVariableTypes.NameCulture);
+            case "indeterminatenameculture":
+                return NameCultureForGender(Gender.Indeterminate) as IProgVariable ?? new NullVariable(ProgVariableTypes.NameCulture);
             case "tempfloor":
                 return new NumberVariable(TolerableTemperatureFloorEffect);
             case "tempceiling":

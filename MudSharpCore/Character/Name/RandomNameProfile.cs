@@ -2,6 +2,7 @@
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.Character.Name;
 
@@ -134,6 +135,55 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
     public INameCulture Culture { get; private set; }
 
     public Gender Gender { get; private set; }
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable(Name),
+            "culture" => Culture,
+            "gender" => new GenderVariable(Gender),
+            "ready" => new BooleanVariable(IsReady),
+            "randomname" or "randompersonalname" => IsReady
+                ? GetRandomPersonalName(true)
+                : new NullVariable(ProgVariableTypes.PersonalName),
+            "names" => new CollectionVariable(
+                _randomNamesDictionary.SelectMany(x => x.Value).Select(x => x.Value).ToList(),
+                ProgVariableTypes.Text),
+            _ => throw new NotSupportedException()
+        };
+    }
+
+    public ProgVariableTypes Type => ProgVariableTypes.RandomNameProfile;
+    public object GetObject => this;
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.RandomNameProfile,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["culture"] = ProgVariableTypes.NameCulture,
+                ["gender"] = ProgVariableTypes.Gender,
+                ["ready"] = ProgVariableTypes.Boolean,
+                ["randomname"] = ProgVariableTypes.PersonalName,
+                ["randompersonalname"] = ProgVariableTypes.PersonalName,
+                ["names"] = ProgVariableTypes.Text | ProgVariableTypes.Collection
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The ID of this random-name profile",
+                ["name"] = "The name of this random-name profile",
+                ["culture"] = "The name culture whose rules this profile uses",
+                ["gender"] = "The gender that this random-name profile is configured for",
+                ["ready"] = "Whether this profile has the random-name data required to generate a name",
+                ["randomname"] = "A newly generated personal name, or null when the profile is not ready",
+                ["randompersonalname"] = "An alias for RANDOMNAME",
+                ["names"] = "All source name elements configured in this random-name profile"
+            });
+    }
 
     public bool IsCompatibleGender(Gender gender)
     {

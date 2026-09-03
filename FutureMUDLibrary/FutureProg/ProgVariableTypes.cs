@@ -95,6 +95,9 @@ public readonly struct ProgVariableTypes : IEquatable<ProgVariableTypes>
 	public static readonly ProgVariableTypes SignedLanguage = FromLegacyBitIndex(70);
 	public static readonly ProgVariableTypes SignedVariety = FromLegacyBitIndex(71);
 	public static readonly ProgVariableTypes SignedLanguageVariety = SignedVariety;
+	public static readonly ProgVariableTypes NameCulture = FromLegacyBitIndex(72);
+	public static readonly ProgVariableTypes RandomNameProfile = FromLegacyBitIndex(73);
+	public static readonly ProgVariableTypes PersonalName = FromLegacyBitIndex(74);
 
     public static readonly ProgVariableTypes CollectionItem =
         Number | Boolean | Gender | Text | DateTime | TimeSpan | Character | Item | Chargen | Location | Zone |
@@ -104,12 +107,12 @@ public readonly struct ProgVariableTypes : IEquatable<ProgVariableTypes>
 		Liquid | Gas | MagicSchool | MagicCapability | MagicSpell | Bank | BankAccount | BankAccountType |
 		LegalAuthority | Law | Crime | Market | MarketCategory | LiquidMixture | Script | Writing | Area |
 		LegalClass | AgricultureField | VehicleRoute | VehicleService | VehicleJourney | Trap | NPCSkillPackage |
-		SignedLanguage | SignedVariety;
+		SignedLanguage | SignedVariety | NameCulture | RandomNameProfile | PersonalName;
 
     public static readonly ProgVariableTypes Perceivable = Item | Character | Location | Zone | Shard;
     public static readonly ProgVariableTypes Perceiver = Item | Character;
     public static readonly ProgVariableTypes MagicResourceHaver = Item | Character | Location;
-    public static readonly ProgVariableTypes ValueType = Text | Number | Boolean | DateTime | TimeSpan | Literal | Gender | MudDateTime | LiquidMixture;
+    public static readonly ProgVariableTypes ValueType = Text | Number | Boolean | DateTime | TimeSpan | Literal | Gender | MudDateTime | LiquidMixture | PersonalName;
     public static readonly ProgVariableTypes ReferenceType = CollectionItem ^ (ValueType ^ Literal);
     public static readonly ProgVariableTypes Anything = CollectionItem | ValueType | Collection | Dictionary | CollectionDictionary | Literal;
     public static readonly ProgVariableTypes Toon = Character | Chargen;

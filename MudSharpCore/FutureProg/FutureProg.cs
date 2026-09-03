@@ -1354,6 +1354,21 @@ public class FutureProg : SaveableItem, IFutureProg
 
 		ProgVariableTypes type = variable.Type & ~ProgVariableTypes.Literal;
 		IFrameworkItem thing = variable.GetObject as IFrameworkItem;
+		if (type == ProgVariableTypes.NameCulture)
+		{
+			return $"Name Culture #{thing.Id} - {thing.Name}";
+		}
+
+		if (type == ProgVariableTypes.RandomNameProfile)
+		{
+			return $"Random Name Profile #{thing.Id} - {thing.Name}";
+		}
+
+		if (type == ProgVariableTypes.PersonalName)
+		{
+			return $"Personal Name - {((IPersonalName)variable.GetObject).GetName(NameStyle.FullWithNickname)}";
+		}
+
 		if (type == ProgVariableTypes.LegalClass)
 		{
 			return $"Legal Class #{thing.Id} - {thing.Name}";

@@ -1,5 +1,7 @@
 ﻿using MudSharp.Framework;
 
+using MudSharp.FutureProg;
+
 namespace MudSharp.Character.Name
 {
 
@@ -81,7 +83,7 @@ namespace MudSharp.Character.Name
         OwnerName = 14,
     }
 
-    public interface IPersonalName : IFrameworkItem, IHaveFuturemud, IXmlSavable
+    public interface IPersonalName : IFrameworkItem, IHaveFuturemud, IXmlSavable, IProgVariable
     {
         INameCulture Culture { get; }
         string GetName(NameStyle style);

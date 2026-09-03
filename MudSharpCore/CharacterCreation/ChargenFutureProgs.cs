@@ -33,6 +33,10 @@ public partial class Chargen
                 returnVar = new TextVariable(SelectedName != null ? SelectedName.GetName(NameStyle.GivenOnly) : "");
                 break;
 
+            case "personalname":
+                returnVar = SelectedName as IProgVariable ?? new NullVariable(ProgVariableTypes.PersonalName);
+                break;
+
             case "simplefullname":
                 returnVar = new TextVariable(SelectedName != null ? SelectedName.GetName(NameStyle.SimpleFull) : "");
                 break;
@@ -144,6 +148,7 @@ public partial class Chargen
         {
             { "id", ProgVariableTypes.Number },
             { "name", ProgVariableTypes.Text },
+            { "personalname", ProgVariableTypes.PersonalName },
             { "simplefullname", ProgVariableTypes.Text },
             { "fullname", ProgVariableTypes.Text },
             { "surname", ProgVariableTypes.Text },
@@ -176,6 +181,7 @@ public partial class Chargen
         {
             { "id", "" },
             { "name", "" },
+            { "personalname", "The personal name currently selected in character generation, or null when none has been selected" },
             { "simplefullname", "" },
             { "fullname", "" },
             { "surname", "" },
@@ -208,6 +214,7 @@ public partial class Chargen
         {
             { "id", ProgVariableTypes.Number },
             { "name", ProgVariableTypes.Text },
+            { "personalname", ProgVariableTypes.PersonalName },
             { "simplefullname", ProgVariableTypes.Text },
             { "fullname", ProgVariableTypes.Text },
             { "surname", ProgVariableTypes.Text },
@@ -240,6 +247,7 @@ public partial class Chargen
         {
             { "id", "" },
             { "name", "" },
+            { "personalname", "The personal name currently selected in character generation, or null when none has been selected" },
             { "simplefullname", "" },
             { "fullname", "" },
             { "surname", "" },

@@ -11,6 +11,10 @@ This document explains how the item system is structured in code and at runtime:
 - revision updates
 - morph and destruction behaviour
 
+## Wearable numeric persistence
+
+Wearable component XML uses culture-independent numbers for `LayerWeightConsumption`, `SeeThroughDamageRatio` and the `Waterproof` damage-ratio attribute, matching `XElement`/`XAttribute` serialization. Loading on a comma-decimal host must neither reject `0.25` nor reinterpret it as `25`. Legacy definitions without these values retain layer weight 1.0 and damage ratios 0.5. Profiles, default profile, bulky/visibility flags and waterproof state survive the same round trip; no schema or builder-command change is required.
+
 ## Primary Abstractions
 
 ## Media recording persistence

@@ -96,7 +96,10 @@ internal sealed record IndustrialisedItemCatalogueDocument(
 	IReadOnlyList<IndustrialisedCraftCatalogueRow> Crafts,
 	IReadOnlyList<IndustrialisedOutfitCatalogueRow> Outfits,
 	IReadOnlyList<IndustrialisedTechnologyBindingRow> TechnologyBindings,
-	IReadOnlyList<IndustrialisedPriceEvidenceRow> PriceEvidence);
+	IReadOnlyList<IndustrialisedPriceEvidenceRow> PriceEvidence)
+{
+	public required IndustrialisedClothingCatalogueDocument Clothing { get; init; }
+}
 
 internal static class IndustrialisedItemCatalogue
 {
@@ -137,81 +140,62 @@ internal static class IndustrialisedItemCatalogue
 	private static IndustrialisedItemCatalogueDocument LoadInternal()
 	{
 		var assembly = typeof(IndustrialisedItemCatalogue).Assembly;
-		var resources = assembly.GetManifestResourceNames()
-			.Where(x => x.Contains(ResourceMarker, StringComparison.Ordinal) && x.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase))
-			.OrderBy(x => x, StringComparer.Ordinal)
-			.ToArray();
-		if (resources.Length == 0)
-		{
-			throw new InvalidDataException("No embedded Industrialised ItemSeeder catalogue resources were found.");
-		}
-
-		var items = resources.Where(x => x.Contains(".Items.", StringComparison.Ordinal))
-			.SelectMany(x => Parse(assembly, x, ItemHeaders, ParseItem)).ToArray();
-		var crafts = resources.Where(x => x.EndsWith(".crafts.tsv", StringComparison.OrdinalIgnoreCase))
-			.SelectMany(x => Parse(assembly, x, CraftHeaders, ParseCraft)).ToArray();
-		var outfits = resources.Where(x => x.EndsWith(".outfits.tsv", StringComparison.OrdinalIgnoreCase))
-			.SelectMany(x => Parse(assembly, x, OutfitHeaders, ParseOutfit)).ToArray();
-		var technology = resources.Where(x => x.EndsWith(".technology-profile-bindings.tsv", StringComparison.OrdinalIgnoreCase))
-			.SelectMany(x => Parse(assembly, x, TechnologyHeaders, ParseTechnology)).ToArray();
-		var prices = resources.Where(x => x.EndsWith(".historical-price-evidence.tsv", StringComparison.OrdinalIgnoreCase))
-			.SelectMany(x => Parse(assembly, x, PriceHeaders, ParsePrice)).ToArray();
-
-		Validate(items, crafts, outfits, technology, prices);
-		return new IndustrialisedItemCatalogueDocument(items, crafts, outfits, technology, prices);
+		return LoadSources(assembly.GetManifestResourceNames()
+			.Where(x => x.Contains(ResourceMarker, StringComparison.Ordinal) && x.EndsWith(".tsv", StringComparison.Ordinal))
+			.Select(name =>
+			{
+				using var stream = assembly.GetManifestResourceStream(name) ??
+					throw new InvalidDataException($"Embedded catalogue resource {name} could not be opened.");
+				using var reader = new StreamReader(stream);
+				var relativeName = name[(name.IndexOf(ResourceMarker, StringComparison.Ordinal) + ResourceMarker.Length)..];
+				return new IndustrialisedCatalogueSource(relativeName
+					.Replace("Items.", "Items/", StringComparison.Ordinal)
+					.Replace("Clothing.", "Clothing/", StringComparison.Ordinal)
+					.Replace("Pricing.", "Pricing/", StringComparison.Ordinal), reader.ReadToEnd());
+			}));
 	}
 
-	private static IEnumerable<T> Parse<T>(Assembly assembly, string resource, string[] headers,
-		Func<string, int, string[], T> parser)
+	internal static IndustrialisedItemCatalogueDocument LoadDirectory(string directory) =>
+		LoadSources(Directory.EnumerateFiles(directory, "*.tsv", SearchOption.AllDirectories)
+			.Select(path => new IndustrialisedCatalogueSource(Path.GetRelativePath(directory, path).Replace('\\', '/'), File.ReadAllText(path))));
+
+	internal static IndustrialisedItemCatalogueDocument LoadSources(IEnumerable<IndustrialisedCatalogueSource> input)
 	{
-		using var stream = assembly.GetManifestResourceStream(resource) ??
-			throw new InvalidDataException($"Embedded catalogue resource {resource} could not be opened.");
-		using var reader = new StreamReader(stream, detectEncodingFromByteOrderMarks: true);
-		var header = reader.ReadLine()?.TrimStart('\uFEFF').Split('\t') ?? [];
-		if (!header.SequenceEqual(headers, StringComparer.Ordinal))
+		var sources = input.OrderBy(x => x.Name, StringComparer.Ordinal).ToArray();
+		RequireUnique(sources, x => x.Name, "source path");
+		var singletonNames = new[] { "crafts.tsv", "outfits.tsv", "technology-profile-bindings.tsv", "Pricing/historical-price-evidence.tsv" };
+		foreach (var name in singletonNames)
 		{
-			throw new InvalidDataException($"{resource}:1 has an invalid header. Expected: {string.Join("\\t", headers)}");
+			if (sources.Count(x => x.Name == name) != 1)
+			{
+				throw new InvalidDataException($"Catalogue requires source {name} exactly once.");
+			}
 		}
 
-		var lineNumber = 1;
-		while (reader.ReadLine() is { } line)
+		var itemSources = sources.Where(x => x.Name.StartsWith("Items/", StringComparison.Ordinal) &&
+			x.Name.EndsWith(".items.tsv", StringComparison.Ordinal)).ToArray();
+		var clothingSources = sources.Where(x => x.Name.StartsWith("Clothing/", StringComparison.Ordinal)).ToArray();
+		var clothing = IndustrialisedClothingCatalogue.Load(clothingSources);
+		var unexpected = sources.Except(itemSources).Except(clothingSources).Where(x => !singletonNames.Contains(x.Name, StringComparer.Ordinal)).ToArray();
+		if (unexpected.Length > 0 || itemSources.Length == 0)
 		{
-			lineNumber++;
-			if (string.IsNullOrWhiteSpace(line))
-			{
-				continue;
-			}
-
-			var fields = line.Split('\t');
-			if (fields.Length != headers.Length)
-			{
-				throw new InvalidDataException($"{resource}:{lineNumber} has {fields.Length} columns; expected {headers.Length}.");
-			}
-
-			T value;
-			try
-			{
-				value = parser(resource, lineNumber, fields);
-			}
-			catch (Exception ex) when (ex is not InvalidDataException)
-			{
-				throw new InvalidDataException($"{resource}:{lineNumber}: {ex.Message}", ex);
-			}
-
-			yield return value;
+			throw new InvalidDataException($"Missing item sources or unrecognised catalogue sources: {string.Join(", ", unexpected.Select(x => x.Name))}.");
 		}
+
+		var items = itemSources.SelectMany(x => x.Read(ItemHeaders, ParseItem)).ToArray();
+		var crafts = sources.Single(x => x.Name == "crafts.tsv").Read(CraftHeaders, ParseCraft).ToArray();
+		var outfits = sources.Single(x => x.Name == "outfits.tsv").Read(OutfitHeaders, ParseOutfit).ToArray();
+		var technology = sources.Single(x => x.Name == "technology-profile-bindings.tsv").Read(TechnologyHeaders, ParseTechnology).ToArray();
+		var prices = sources.Single(x => x.Name == "Pricing/historical-price-evidence.tsv").Read(PriceHeaders, ParsePrice).ToArray();
+		Validate(items, crafts, outfits, technology, prices);
+		return new IndustrialisedItemCatalogueDocument(Array.AsReadOnly(items), Array.AsReadOnly(crafts),
+			Array.AsReadOnly(outfits), Array.AsReadOnly(technology), Array.AsReadOnly(prices)) { Clothing = clothing };
 	}
 
 	private static IndustrialisedItemCatalogueRow ParseItem(string source, int line, string[] x)
 	{
-		if (!Enum.TryParse<SizeCategory>(x[7], true, out var size))
-		{
-			throw new InvalidDataException($"{source}:{line}: unknown size '{x[7]}'.");
-		}
-		if (!Enum.TryParse<ItemQuality>(x[8], true, out var quality))
-		{
-			throw new InvalidDataException($"{source}:{line}: unknown quality '{x[8]}'.");
-		}
+		var size = IndustrialisedCatalogueValues.EnumValue<SizeCategory>(x[7]);
+		var quality = IndustrialisedCatalogueValues.EnumValue<ItemQuality>(x[8]);
 		return new IndustrialisedItemCatalogueRow(source, line, x[0], x[1], x[2], List(x[3]), x[4], x[5], x[6],
 			size, quality, Double(x[9]), Decimal(x[10]), x[11], List(x[12]), List(x[13]), List(x[14]),
 			List(x[15]), Null(x[16]), Int(x[17]), Null(x[18]), Null(x[19]), List(x[20]), x[21], Bool(x[22]), Null(x[23]));
@@ -317,12 +301,11 @@ internal static class IndustrialisedItemCatalogue
 		}
 	}
 
-	private static IReadOnlyList<string> List(string text) => text.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-		.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+	private static IReadOnlyList<string> List(string text) => IndustrialisedCatalogueValues.List(text);
 	private static string? Null(string text) => string.IsNullOrWhiteSpace(text) ? null : text;
-	private static int Int(string text) => int.Parse(text, NumberStyles.Integer, CultureInfo.InvariantCulture);
-	private static double Double(string text) => double.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
-	private static decimal Decimal(string text) => decimal.Parse(text, NumberStyles.Number, CultureInfo.InvariantCulture);
+	private static int Int(string text) => IndustrialisedCatalogueValues.Int(text);
+	private static double Double(string text) => IndustrialisedCatalogueValues.Double(text);
+	private static decimal Decimal(string text) => IndustrialisedCatalogueValues.Decimal(text);
 	private static decimal? NullableDecimal(string text) => string.IsNullOrWhiteSpace(text) ? null : Decimal(text);
 	private static bool Bool(string text) => bool.Parse(text);
 }
@@ -332,7 +315,8 @@ internal sealed record IndustrialisedComponentTypeMetadata(
 	IReadOnlyList<string> Capabilities,
 	IReadOnlyList<string> ExclusiveTypes,
 	IReadOnlyList<string> RequiredSiblingTypes,
-	bool ContextDependentRequirements);
+	bool ContextDependentRequirements,
+	bool PreventsManualLoad);
 
 internal sealed record IndustrialisedComponentPrototypeMetadata(string Name, string Type);
 
@@ -355,7 +339,8 @@ internal static class IndustrialisedComponentMetadataCatalogue
 			Strings(x, "Component Capabilities"),
 			Strings(x, "Exclusive Types"),
 			Strings(x, "Required Sibling Types"),
-			x.GetProperty("Has Context-Dependent Requirements").GetBoolean())).ToArray();
+			x.GetProperty("Has Context-Dependent Requirements").GetBoolean(),
+			x.GetProperty("Prevents Manual Load").GetBoolean())).ToArray();
 		var prototypeRows = prototypes.RootElement.EnumerateArray().Select(x => new IndustrialisedComponentPrototypeMetadata(
 			x.GetProperty("Component Name").GetString()!,
 			x.GetProperty("Component Type").GetString()!)).ToArray();

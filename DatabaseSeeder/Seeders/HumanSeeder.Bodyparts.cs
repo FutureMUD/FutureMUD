@@ -2271,11 +2271,16 @@ public partial class HumanSeeder
 
         #endregion
 
+        SeedHumanWearProfiles(baseHumanoid);
+    }
+
+    private void SeedHumanWearProfiles(BodyProto baseHumanoid, bool includeAdditional = true)
+    {
         #region Wear Profiles
 
         List<WearProfile> addedProfiles = new();
         Dictionary<string, bool> bulkies = new(StringComparer.OrdinalIgnoreCase);
-        nextId = _context.WearProfiles.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
+        long nextId = _context.WearProfiles.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
 
         void AddWearProfileDirect(string name, string wearInv, string wear1st, string wear3rd, string wearAffix,
             string description, bool requireContainerIsEmpty, bool bulky,
@@ -5849,7 +5854,7 @@ public partial class HumanSeeder
         _context.SaveChanges();
         DateTime now = DateTime.UtcNow;
         Account dbaccount = _context.Accounts.First();
-        long id = _context.GameItemComponentProtos.Max(x => x.Id) + 1;
+        long id = _context.GameItemComponentProtos.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
         foreach (WearProfile profile in addedProfiles)
         {
             GameItemComponentProto component = new()
@@ -5876,8 +5881,13 @@ public partial class HumanSeeder
             _context.GameItemComponentProtos.Add(component);
         }
 
-        AddMissingHumanWearProfiles(baseHumanoid, AdditionalHumanWearProfiles);
-        EnsureAdditionalHumanWearComponents(baseHumanoid);
+        _context.SaveChanges();
+        if (includeAdditional)
+        {
+            AddMissingHumanWearProfiles(baseHumanoid, AdditionalHumanWearProfiles);
+            EnsureAdditionalHumanWearComponents(baseHumanoid);
+            EnsureIndustrialisedClothingWearLayers();
+        }
 
         #endregion
 

@@ -39,6 +39,7 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 		[property: JsonPropertyName("Has Builder Command Path")] bool HasBuilderCommands,
 		[property: JsonPropertyName("Has Runtime Copy Path")] bool HasRuntimeCopy,
 		[property: JsonPropertyName("Has Context-Dependent Requirements")] bool HasContextDependentRequirements,
+		[property: JsonPropertyName("Prevents Manual Load")] bool PreventsManualLoad,
 		[property: JsonPropertyName("Has Builder Loader")] bool HasBuilderLoader,
 		[property: JsonPropertyName("Has Database Loader")] bool HasDatabaseLoader,
 		[property: JsonPropertyName("Has Help")] bool HasHelp);
@@ -85,6 +86,7 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 		new("Material", "fiberglass", "CoreDataSeeder", "reuse", "equipment shells and insulation"),
 		new("Material", "mild steel", "CoreDataSeeder", "reuse", "general machinery"),
 		new("Material", "natural rubber", "CoreDataSeeder", "reuse", "seals hoses and insulation"),
+		new("Material", "pith", "CoreDataSeeder", "new-stock", "industrialised_clothing_pith_helmet plant-pith core; no ballistic claim"),
 		new("Material", "silicon", "CoreDataSeeder", "reuse", "electronic component substrate"),
 		new("Material", "silicone rubber", "CoreDataSeeder", "reuse", "electrical seals and flexible insulation"),
 		new("Material", "stainless steel", "CoreDataSeeder", "reuse", "food medical and appliance equipment"),
@@ -256,6 +258,7 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 			x.HasBuilderCommands,
 			x.HasRuntimeCopy,
 			x.HasContextDependentRequirements,
+			x.PreventsManualLoad,
 			x.HasBuilderLoader,
 			x.HasDatabaseLoader,
 			x.HasHelp)).ToList();
@@ -426,6 +429,11 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 
 	private static string DefaultOwner(string canonicalType)
 	{
+		if (canonicalType.Equals("Wearable", StringComparison.OrdinalIgnoreCase))
+		{
+			return "HumanSeeder;AnimalSeeder";
+		}
+
 		if (canonicalType.StartsWith("Vehicle ", StringComparison.OrdinalIgnoreCase))
 		{
 			return "VehicleSeeder";

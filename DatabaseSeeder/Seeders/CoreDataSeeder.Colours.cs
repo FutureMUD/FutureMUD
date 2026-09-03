@@ -26,6 +26,8 @@ public partial class CoreDataSeeder
     {
 		if (context.Colours.Any())
 		{
+			ReconcileStockColourLookups(context);
+			EnsureClothingColourProfiles(context);
 			return;
 		}
 
@@ -33,7 +35,7 @@ public partial class CoreDataSeeder
         {
             Type = 2,
             Name = "Colour",
-            Pattern = "colou?r",
+            Pattern = "^colou?r$",
             Description = "The base variable for all colour types",
             Model = "standard"
         };
@@ -44,7 +46,7 @@ public partial class CoreDataSeeder
         {
             Type = 2,
             Name = "Colour1",
-            Pattern = "colou?r1",
+            Pattern = "^colou?r1$",
             Description = "A child of the Colour variable for use when an item has multiple colours",
             Model = "standard",
             ParentId = colourDef.Id
@@ -53,7 +55,7 @@ public partial class CoreDataSeeder
         {
             Type = 2,
             Name = "Colour2",
-            Pattern = "colou?r2",
+            Pattern = "^colou?r2$",
             Description = "A child of the Colour variable for use when an item has multiple colours",
             Model = "standard",
             ParentId = colourDef.Id
@@ -62,7 +64,7 @@ public partial class CoreDataSeeder
         {
             Type = 2,
             Name = "Colour3",
-            Pattern = "colou?r3",
+            Pattern = "^colou?r3$",
             Description = "A child of the Colour variable for use when an item has multiple colours",
             Model = "standard",
             ParentId = colourDef.Id
@@ -2647,7 +2649,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "ebony",
+            Name = "ebony (stock colour 25)",
             DefinitionId = colourDef.Id,
             Value = "25",
             Default = false,
@@ -3241,7 +3243,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "cerulean",
+            Name = "cerulean (stock colour 91)",
             DefinitionId = colourDef.Id,
             Value = "91",
             Default = false,
@@ -3952,7 +3954,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "blotched red",
+            Name = "blotched red (stock colour 170)",
             DefinitionId = colourDef.Id,
             Value = "170",
             Default = false,
@@ -4078,7 +4080,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "dull orange",
+            Name = "dull orange (stock colour 184)",
             DefinitionId = colourDef.Id,
             Value = "184",
             Default = false,
@@ -4204,7 +4206,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "faded purple",
+            Name = "faded purple (stock colour 198)",
             DefinitionId = colourDef.Id,
             Value = "198",
             Default = false,
@@ -4708,7 +4710,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "violet red",
+            Name = "violet red (stock colour 254)",
             DefinitionId = colourDef.Id,
             Value = "254",
             Default = false,
@@ -4726,7 +4728,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "hot pink",
+            Name = "hot pink (stock colour 256)",
             DefinitionId = colourDef.Id,
             Value = "256",
             Default = false,
@@ -4744,7 +4746,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "maroon red",
+            Name = "maroon red (stock colour 258)",
             DefinitionId = colourDef.Id,
             Value = "258",
             Default = false,
@@ -4762,7 +4764,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "plum purple",
+            Name = "plum purple (stock colour 260)",
             DefinitionId = colourDef.Id,
             Value = "260",
             Default = false,
@@ -4780,7 +4782,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "magenta red",
+            Name = "magenta red (stock colour 262)",
             DefinitionId = colourDef.Id,
             Value = "262",
             Default = false,
@@ -4798,7 +4800,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "cobalt blue",
+            Name = "cobalt blue (stock colour 264)",
             DefinitionId = colourDef.Id,
             Value = "264",
             Default = false,
@@ -4816,7 +4818,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "light steel blue",
+            Name = "light steel blue (stock colour 266)",
             DefinitionId = colourDef.Id,
             Value = "266",
             Default = false,
@@ -4834,7 +4836,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "slate gray",
+            Name = "slate gray (stock colour 268)",
             DefinitionId = colourDef.Id,
             Value = "268",
             Default = false,
@@ -4852,7 +4854,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "turquoise blue",
+            Name = "turquoise blue (stock colour 270)",
             DefinitionId = colourDef.Id,
             Value = "270",
             Default = false,
@@ -4870,7 +4872,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "cyan blue",
+            Name = "cyan blue (stock colour 272)",
             DefinitionId = colourDef.Id,
             Value = "272",
             Default = false,
@@ -4888,7 +4890,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "cobalt green",
+            Name = "cobalt green (stock colour 274)",
             DefinitionId = colourDef.Id,
             Value = "274",
             Default = false,
@@ -4906,7 +4908,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "lime green",
+            Name = "lime green (stock colour 276)",
             DefinitionId = colourDef.Id,
             Value = "276",
             Default = false,
@@ -4924,7 +4926,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "ivory white",
+            Name = "ivory white (stock colour 278)",
             DefinitionId = colourDef.Id,
             Value = "278",
             Default = false,
@@ -4942,7 +4944,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "goldenrod yellow",
+            Name = "goldenrod yellow (stock colour 280)",
             DefinitionId = colourDef.Id,
             Value = "280",
             Default = false,
@@ -4960,7 +4962,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "dark khaki",
+            Name = "dark khaki (stock colour 282)",
             DefinitionId = colourDef.Id,
             Value = "282",
             Default = false,
@@ -4978,7 +4980,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "banana yellow",
+            Name = "banana yellow (stock colour 284)",
             DefinitionId = colourDef.Id,
             Value = "284",
             Default = false,
@@ -4996,7 +4998,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "orange red",
+            Name = "orange red (stock colour 286)",
             DefinitionId = colourDef.Id,
             Value = "286",
             Default = false,
@@ -5014,7 +5016,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "moccasin brown",
+            Name = "moccasin brown (stock colour 288)",
             DefinitionId = colourDef.Id,
             Value = "288",
             Default = false,
@@ -5032,7 +5034,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "tan yellow",
+            Name = "tan yellow (stock colour 290)",
             DefinitionId = colourDef.Id,
             Value = "290",
             Default = false,
@@ -5050,7 +5052,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "brick brown",
+            Name = "brick brown (stock colour 292)",
             DefinitionId = colourDef.Id,
             Value = "292",
             Default = false,
@@ -5068,7 +5070,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "carrot orange",
+            Name = "carrot orange (stock colour 294)",
             DefinitionId = colourDef.Id,
             Value = "294",
             Default = false,
@@ -5086,7 +5088,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "peachpuff pink",
+            Name = "peachpuff pink (stock colour 296)",
             DefinitionId = colourDef.Id,
             Value = "296",
             Default = false,
@@ -5104,7 +5106,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "sienna brown",
+            Name = "sienna brown (stock colour 298)",
             DefinitionId = colourDef.Id,
             Value = "298",
             Default = false,
@@ -5122,7 +5124,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "saddle brown",
+            Name = "saddle brown (stock colour 300)",
             DefinitionId = colourDef.Id,
             Value = "300",
             Default = false,
@@ -5140,7 +5142,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "salmon pink",
+            Name = "salmon pink (stock colour 302)",
             DefinitionId = colourDef.Id,
             Value = "302",
             Default = false,
@@ -5158,7 +5160,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "sepia brown",
+            Name = "sepia brown (stock colour 304)",
             DefinitionId = colourDef.Id,
             Value = "304",
             Default = false,
@@ -5176,7 +5178,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "fire brick brown",
+            Name = "fire brick brown (stock colour 306)",
             DefinitionId = colourDef.Id,
             Value = "306",
             Default = false,
@@ -5194,7 +5196,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "teal blue",
+            Name = "teal blue (stock colour 308)",
             DefinitionId = colourDef.Id,
             Value = "308",
             Default = false,
@@ -5212,7 +5214,7 @@ public partial class CoreDataSeeder
         context.CharacteristicValues.Add(new CharacteristicValue
         {
             Id = nextId++,
-            Name = "dark gray",
+            Name = "dark gray (stock colour 310)",
             DefinitionId = colourDef.Id,
             Value = "310",
             Default = false,
@@ -5671,5 +5673,6 @@ public partial class CoreDataSeeder
         });
 
         context.SaveChanges();
+		EnsureClothingColourProfiles(context);
     }
 }

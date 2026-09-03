@@ -2,6 +2,7 @@
 
 using MudSharp.GameItems;
 using MudSharp.Framework;
+using MudSharp.Form.Material;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
 using System;
@@ -13,6 +14,16 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ItemSeeder
 {
+	private readonly IndustrialisedItemCatalogueDocument? _industrialisedCatalogueOverride;
+	private IndustrialisedItemCatalogueDocument IndustrialisedCatalogue => _industrialisedCatalogueOverride ?? IndustrialisedItemCatalogue.Document;
+
+	public ItemSeeder() { }
+
+	internal ItemSeeder(IndustrialisedItemCatalogueDocument catalogue)
+	{
+		_industrialisedCatalogueOverride = catalogue;
+	}
+
 	private sealed record ResolvedIndustrialisedTechnologyProfile(
 		string Key,
 		IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<string>>> Bindings);
@@ -42,7 +53,7 @@ public partial class ItemSeeder
 				});
 		}
 
-		var rows = IndustrialisedItemCatalogue.Document.TechnologyBindings
+		var rows = IndustrialisedCatalogue.TechnologyBindings
 			.Where(x => x.Profile.Equals(profileKey, StringComparison.OrdinalIgnoreCase))
 			.ToArray();
 		if (rows.Length == 0)
@@ -78,7 +89,7 @@ public partial class ItemSeeder
 				throw new InvalidOperationException($"{row.Source}:{row.Line}: profile {profile.Key} cannot resolve {binding}.");
 			}
 
-			var metadata = IndustrialisedItemCatalogue.Document.TechnologyBindings.FirstOrDefault(x =>
+			var metadata = IndustrialisedCatalogue.TechnologyBindings.FirstOrDefault(x =>
 				x.Profile.Equals(profile.Key, StringComparison.OrdinalIgnoreCase) &&
 				x.Dimension.Equals(parts[0], StringComparison.OrdinalIgnoreCase) &&
 				x.Family.Equals(parts[1], StringComparison.OrdinalIgnoreCase));
@@ -94,13 +105,13 @@ public partial class ItemSeeder
 
 	private void ValidateIndustrialisedCataloguePrerequisites(ResolvedIndustrialisedTechnologyProfile profile)
 	{
-		var catalogue = IndustrialisedItemCatalogue.Document;
+		var catalogue = IndustrialisedCatalogue;
 		var componentMetadata = IndustrialisedComponentMetadataCatalogue.Document;
 		var itemByKey = catalogue.Items.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
 		var issues = new List<string>();
 		foreach (var row in catalogue.Items)
 		{
-			if (!_materials.ContainsKey(row.Material))
+			if (!_materials.TryGetValue(row.Material, out var material) || material.Type != (int)MaterialType.Solid)
 			{
 				issues.Add($"{row.Source}:{row.Line}: missing solid material {row.Material}");
 			}
@@ -168,7 +179,7 @@ public partial class ItemSeeder
 			{
 				issues.Add($"{craft.Source}:{craft.Line}: craft product is missing or has incompatible admissions");
 			}
-			if (!_materials.ContainsKey(craft.InputMaterial))
+			if (!_materials.TryGetValue(craft.InputMaterial, out var material) || material.Type != (int)MaterialType.Solid)
 			{
 				issues.Add($"{craft.Source}:{craft.Line}: missing craft material {craft.InputMaterial}");
 			}
@@ -201,11 +212,13 @@ public partial class ItemSeeder
 
 	private void SeedIndustrialisedCatalogueItems(string eras)
 	{
+		// Recheck the complete new-clothing ownership batch before the first reuse or new-item write.
+		foreach (var item in IndustrialisedCatalogue.Clothing.Bases.Where(x => _clothingPhysicalDefinitions.ContainsKey(x.ItemReference)))
+			ResolveClothingPhysicalItem(_clothingPhysicalDefinitions[item.ItemReference], item.Source);
+		SeedIndustrialisedClothingReuse(eras);
 		var profile = ResolveIndustrialisedTechnologyProfile();
-		ValidateIndustrialisedTechnologyProfileImmutability(profile);
-		ValidateIndustrialisedCataloguePrerequisites(profile);
 		var selected = ParseEraTokens(eras).ToHashSet(StringComparer.OrdinalIgnoreCase);
-		var rows = IndustrialisedItemCatalogue.Document.Items
+		var rows = IndustrialisedCatalogue.Items
 			.Where(x => _manifestCaptureOnly || x.EraAdmissions.Any(selected.Contains))
 			.OrderBy(x => x.Layer, StringComparer.Ordinal)
 			.ThenBy(x => x.StableReference, StringComparer.Ordinal)
@@ -224,7 +237,7 @@ public partial class ItemSeeder
 				row.Quality,
 				row.WeightGrams,
 				row.CostIndex,
-				false,
+				IndustrialisedCatalogue.Clothing.Skins.Any(x => x.BaseItemReference == row.StableReference),
 				false,
 				row.Material,
 				row.Tags,
@@ -241,7 +254,7 @@ public partial class ItemSeeder
 	private void SeedIndustrialisedCatalogueCrafts(string eras)
 	{
 		var selected = ParseEraTokens(eras).ToHashSet(StringComparer.OrdinalIgnoreCase);
-		foreach (var craft in IndustrialisedItemCatalogue.Document.Crafts
+		foreach (var craft in IndustrialisedCatalogue.Crafts
 			         .Where(x => _manifestCaptureOnly || x.EraAdmissions.Any(selected.Contains)))
 		{
 			if (!_itemsByStableReference.TryGetValue(craft.ProductStableReference, out var item))
@@ -276,12 +289,13 @@ public partial class ItemSeeder
 				[$"SimpleProduct - 1x {item.ShortDescription} (#{item.Id})"],
 				[]);
 		}
+		SeedIndustrialisedClothingCrafts(eras);
 	}
 
 	private void SeedIndustrialisedCatalogueOutfits(string eras)
 	{
 		var selected = ParseEraTokens(eras).ToHashSet(StringComparer.OrdinalIgnoreCase);
-		var outfits = IndustrialisedItemCatalogue.Document.Outfits
+		var outfits = IndustrialisedCatalogue.Outfits
 			.Where(x => _manifestCaptureOnly || x.EraAdmissions.Any(selected.Contains))
 			.Select(x => new OutfitManifestSpec(
 				x.OutfitReference,
@@ -291,5 +305,6 @@ public partial class ItemSeeder
 			.ToArray();
 		using var manifestModule = UseManifestModule("outfits", "industrial", "modern", "nuclear", "information");
 		UpsertOutfitManifests(outfits);
+		SeedIndustrialisedClothingPresentations(eras);
 	}
 }

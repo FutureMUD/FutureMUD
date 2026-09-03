@@ -23,6 +23,7 @@ Material	epoxy resin	yes	CoreDataSeeder	reuse	electrical and composite assembly
 Material	fiberglass	yes	CoreDataSeeder	reuse	equipment shells and insulation
 Material	mild steel	yes	CoreDataSeeder	reuse	general machinery
 Material	natural rubber	yes	CoreDataSeeder	reuse	seals hoses and insulation
+Material	pith	yes	CoreDataSeeder	new-stock	industrialised_clothing_pith_helmet plant-pith core; no ballistic claim
 Material	silicon	yes	CoreDataSeeder	reuse	electronic component substrate
 Material	silicone rubber	yes	CoreDataSeeder	reuse	electrical seals and flexible insulation
 Material	stainless steel	yes	CoreDataSeeder	reuse	food medical and appliance equipment

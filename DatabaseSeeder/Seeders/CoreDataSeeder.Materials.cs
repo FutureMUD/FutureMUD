@@ -245,6 +245,12 @@ public partial class CoreDataSeeder
 
 		AddMaterial("gourd shell", MaterialBehaviourType.Shell, 0.2, true, 12000, 18000, 0.15, 0.08, 0.0001, 1800,
 			"Natural Materials", "Primary Production Commodity");
+		// Shola/sola stem material for the approved plant-pith sun helmet, distinct from cork.
+		// Evidence and the distinction between the genus-density analogue and gameplay estimates:
+		// Design Documents/Seeding/Industrialised_Clothing_Wave2_Infrastructure_and_Gate2.md#pith-material-prerequisite
+		AddMaterial("pith", MaterialBehaviourType.Wood, 0.04, true, 1000, 1000, 1.0, 0.06, 0.0001, 1300,
+			"Wood", "Primary Production Commodity");
+		EnsureAlias(materials["pith"], "shola pith", "sola pith", "sholapith");
 		AddMaterial("papier-mache", MaterialBehaviourType.Fabric, 0.45, true, 6000, 16000, 0.8, 0.12, 0.0001, 1300,
 			"Paper Product", "Manufactured Materials", "Primary Production Commodity");
 		AddMaterial("birch bark", MaterialBehaviourType.Fabric, 0.55, true, 9000, 18000, 0.7, 0.12, 0.0001, 1400,

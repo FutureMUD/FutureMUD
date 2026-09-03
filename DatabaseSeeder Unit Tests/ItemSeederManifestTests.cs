@@ -37,6 +37,20 @@ public class ItemSeederManifestTests
 	}
 
 	[TestMethod]
+	public void RuntimeManifestLoad_RejectsOlderContractEvenWhenEntriesAreOtherwiseValid()
+	{
+		var path = Path.GetTempFileName();
+		try
+		{
+			var document = ItemSeederManifestCatalogue.BuildDocument([], "test") with { ManifestVersion = "2" };
+			File.WriteAllText(path, ItemSeederManifestCatalogue.Serialize(document));
+			StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() => ItemSeederManifestCatalogue.Load(path)).Message,
+				"recapture the manifest");
+		}
+		finally { File.Delete(path); }
+	}
+
+	[TestMethod]
 	public void CanonicalManifest_IsValidAndCurrent()
 	{
 		var root = ItemSeederManifestCatalogue.FindRepositoryRoot();

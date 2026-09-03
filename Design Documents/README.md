@@ -181,6 +181,9 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Industrialised Shared Baseline Design Reference](./Seeding/FutureMUD_Industrialised_Shared_Baseline_Design_Reference.md)
 - [Industrialised Clothing, Footwear and Uniforms Design Reference](./Seeding/FutureMUD_Industrialised_Clothing_Footwear_Uniforms_Design_Reference.md)
   - Wave 1 approved scope (Gate 1 passed; production gates open): [garment inventory](./Seeding/Industrialised_Clothing_Wave1_Inventory.md), [outfits](./Seeding/Industrialised_Clothing_Wave1_Outfits.md), [family/reuse review](./Seeding/Industrialised_Clothing_Wave1_Reuse_Review.md), and [evidence and scope approval record](./Seeding/Industrialised_Clothing_Wave1_Evidence_and_Coverage.md)
+  - [Wave 2 infrastructure and Gate 2 evidence](./Seeding/Industrialised_Clothing_Wave2_Infrastructure_and_Gate2.md) — in progress; includes stock-anatomy ensemble checks, new-base/skin/outfit/craft/access-prog ownership and first-install generated IDs; preserved outfit/recipe graphs, wearer, stock craft capabilities and database proof remain open
+  - [Clothing source-graph audit](./Seeding/Industrialised_Clothing_Catalogue_Audit.tsv) — derived row-level evidence; structural checks are not database or production acceptance
+  - [Full clothing dependency plan](./Seeding/Industrialised_Clothing_Dependency_Plan.tsv) — all 364 approved bases, exact stock-name gaps and outfit consumers; physical verification remains open
 - [Industrial Era Master Design Reference](./Seeding/FutureMUD_Industrial_Item_Seeder_Master_Era_Design_Reference.md)
 - [Modern Era Master Design Reference](./Seeding/FutureMUD_Modern_Item_Seeder_Master_Era_Design_Reference.md)
 - [Nuclear Era Master Design Reference](./Seeding/FutureMUD_Nuclear_Item_Seeder_Master_Era_Design_Reference.md)

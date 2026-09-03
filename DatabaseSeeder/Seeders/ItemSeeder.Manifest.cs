@@ -188,7 +188,13 @@ public partial class ItemSeeder
 
 	private sealed record OutfitManifestItemDefinition(
 		string ItemStableReference,
-		string? SkinStableReference);
+		string? SkinStableReference,
+		string EntryKey,
+		string? WearProfile,
+		int Placement,
+		string? ContainerKey,
+		string LoadArguments,
+		int WearOrder);
 
 	private sealed record OutfitManifestDefinition(
 		string StableKey,
@@ -282,6 +288,12 @@ public partial class ItemSeeder
 		string? module = null,
 		IEnumerable<string>? eraAdmissions = null)
 	{
+		if (entityType == "item" && FindHistoricalClothingSource(stableKey) is not null)
+		{
+			// Reuse expands the existing aggregate's admissions; it never gives the same item a second owner or identity.
+			eraAdmissions = (eraAdmissions ?? _activeManifestEras).Concat(IndustrialisedCatalogue.Clothing.Bases
+				.Where(x => x.ItemReference == stableKey).SelectMany(x => x.EraAdmissions));
+		}
 		var entry = new ItemSeederManifestEntry(
 			entityType,
 			stableKey.Trim(),

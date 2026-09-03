@@ -115,6 +115,7 @@ public class IndustrialisedItemCatalogueTests
 		Assert.IsTrue(File.Exists(Path.Combine(root, "scripts", "sync-industrialised-item-catalogue.ps1")));
 		var audit = File.ReadAllLines(Path.Combine(root, "Design Documents", "Seeding", "Industrialised_Item_Catalogue_Audit.tsv"));
 		Assert.AreEqual(6451, audit.Length);
-		Assert.IsTrue(audit.Skip(1).All(x => x.EndsWith("\tvalid", StringComparison.Ordinal)));
+		Assert.AreEqual(DatabaseSeeder.IndustrialisedCatalogueAudit.Header, audit[0]);
+		Assert.IsTrue(audit.Skip(1).All(x => x.Split('\t')[12] == "parsed;production-unreviewed"));
 	}
 }

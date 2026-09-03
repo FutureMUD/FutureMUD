@@ -5856,70 +5856,9 @@ public partial class ItemSeeder
 					null
 				);
 
-		CreatePreIndustrialAlias(
-					"medieval_plain_leather_belt",
-					"preindustrial_clothing_plain_leather_belt",
-					"belt",
-					"a plain leather belt",
-					null,
-					"This plain leather belt is a long strap of sturdy leather with a simple fastening and burnished edges. The surface is left unornamented, relying on the grain of the hide and the evenness of the cut for its appearance. Natural variations in the leather show along the grain, flex marks, and cut edge.",
-					SizeCategory.Small,
-					ItemQuality.Standard,
-					180.0,
-					10.0m,
-					true,
-					false,
-					"leather",
-					[
-						"Market / Clothing / Standard Clothing",
-						"Functions / Worn Items / Belts"
-					],
-					[
-						"Holdable",
-						"Wear_Waist",
-						"Destroyable_Clothing",
-						"Insulation_Minor",
-						"Armour_LightClothing",
-						"Belt_2"
-					],
-					null,
-					null,
-					null,
-					null
-				);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("preindustrial_clothing_plain_leather_belt")!);
 
-		CreatePreIndustrialAlias(
-					"medieval_simple_woven_sash",
-					"preindustrial_clothing_simple_woven_sash",
-					"sash",
-					"a $colour woven sash",
-					null,
-					"This $colour woven sash is a long wool band with firm selvages and simple squared ends. It is made to wrap, knot, or girdle clothing without adding a hard buckle or metal fitting. The $colour dye is simple and even, showing most clearly across the broad panels and worn edges.",
-					SizeCategory.Small,
-					ItemQuality.Standard,
-					120.0,
-					6.0m,
-					true,
-					false,
-					"wool",
-					[
-						"Market / Clothing / Standard Clothing",
-						"Functions / Worn Items / Belts"
-					],
-					[
-						"Holdable",
-						"Wear_Sash",
-						"Destroyable_Clothing",
-						"Insulation_Moderate",
-						"Armour_LightClothing",
-						"Variable_BasicColour",
-						"Belt_6"
-					],
-					null,
-					null,
-					null,
-					null
-				);
+		CreateHistoricalClothingItem(FindHistoricalClothingSource("preindustrial_clothing_simple_woven_sash")!);
 
 		CreatePreIndustrialAlias(
 					"medieval_door_shared_bamboo_screen_hanging",

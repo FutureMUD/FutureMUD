@@ -104,7 +104,7 @@ internal sealed class ItemSeederManifestModule(
 
 internal static class ItemSeederManifestCatalogue
 {
-	public const string ManifestVersion = "2";
+	public const string ManifestVersion = "3";
 	public const string DefaultRelativePath = "Design Documents/Seeding/Seeded_Item_Manifest.json";
 
 	private static readonly JsonSerializerOptions JsonOptions = new()
@@ -218,6 +218,10 @@ internal static class ItemSeederManifestCatalogue
 	public static ItemSeederManifestDocument Load(string path)
 	{
 		var document = Deserialize(File.ReadAllText(path));
+		if (document.ManifestVersion != ManifestVersion)
+		{
+			throw new InvalidDataException($"ItemSeeder manifest contract {document.ManifestVersion} is not current ({ManifestVersion}); recapture the manifest.");
+		}
 		Validate(document.Entries);
 		return document;
 	}
@@ -268,6 +272,7 @@ internal static class ItemSeederManifestCatalogue
 		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 		var sourcePaths = Directory
 			.EnumerateFiles(sourceDirectory, "ItemSeeder*.cs", SearchOption.TopDirectoryOnly)
+			.Concat(Directory.EnumerateFiles(sourceDirectory, "Industrialised*.cs", SearchOption.TopDirectoryOnly))
 			.Concat(Directory.EnumerateFiles(Path.Combine(sourceDirectory, "FoodCatalogue"), "*.tsv", SearchOption.AllDirectories))
 			.Concat(Directory.EnumerateFiles(Path.Combine(sourceDirectory, "MedicalRepairCatalogue"), "*.tsv", SearchOption.AllDirectories))
 			.Concat(Directory.EnumerateFiles(Path.Combine(sourceDirectory, "IndustrialisedCatalogue"), "*.tsv", SearchOption.AllDirectories))

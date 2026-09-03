@@ -113,8 +113,15 @@ function Test-ReviewSnapshot {
 		$rows = [regex]::Matches($ReviewText, ('(?m)^\| ' + $eraNames[$admission.Era] + ' \| \d+ \|[^\r\n]+'))
 		if ($rows.Count -ne 1 -or $rows[0].Value -cne $expected) { $issues.Add("Stale admission count: $($admission.Era)") }
 	}
-	foreach ($hash in @($Report.InventorySha256,$Report.OutfitsSha256,$Report.SourcePresenceSha256)) {
-		if (-not $ReviewText.Contains($hash)) { $issues.Add("Stale review fingerprint: $hash") }
+	$fingerprints = [ordered]@{
+		'Inventory'=$Report.InventorySha256
+		'Outfits'=$Report.OutfitsSha256
+		'Literal source/manifest presence inputs'=$Report.SourcePresenceSha256
+	}
+	foreach ($entry in $fingerprints.GetEnumerator()) {
+		$expected = '| ' + $entry.Key + ' | `' + $entry.Value + '` |'
+		$rows = [regex]::Matches($ReviewText, ('(?m)^\| ' + [regex]::Escape($entry.Key) + ' \|[^\r\n]+'))
+		if ($rows.Count -ne 1 -or $rows[0].Value -cne $expected) { $issues.Add("Stale review fingerprint: $($entry.Key)") }
 	}
 	$issues.ToArray()
 }
@@ -206,7 +213,9 @@ if ($CheckReview) {
 		if (-not @(Test-ReviewSnapshot $report $staleText | Where-Object { $_.StartsWith('Stale review fingerprint:') }).Count) { throw 'Self-test failed to detect fingerprint drift.' }
 		$staleText = $reviewText + "`n| New bases | $($report.NewBases) |"
 		if (-not @(Test-ReviewSnapshot $report $staleText | Where-Object { $_ -eq 'Stale review measure: New bases' }).Count) { throw 'Self-test failed to detect a duplicate review measure.' }
-		'Self-tests passed: three maintained-review drift cases.'
+		$staleText = $reviewText.Replace($report.SourcePresenceSha256, ('0' * 64)) + "`nUnreviewed live hash: $($report.SourcePresenceSha256)"
+		if (-not @(Test-ReviewSnapshot $report $staleText | Where-Object { $_ -eq 'Stale review fingerprint: Literal source/manifest presence inputs' }).Count) { throw 'Self-test failed to reject an unreviewed hash mentioned outside the evidence table.' }
+		'Self-tests passed: four maintained-review drift cases.'
 	}
 	'PASS: maintained review counts, fingerprints and family coverage; this does not grant user approval.'
 }

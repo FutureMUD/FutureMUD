@@ -3199,6 +3199,11 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 					SeedRenaissanceFinishedItemCrafts();
 				});
 			}
+			if (HasAnyEra(eras, "industrial"))
+			{
+				RunSeedStage("Creating shared industrialised and Industrial crafts", () =>
+					SeedIndustrialisedCatalogueCrafts(eras));
+			}
 			FlushDeferredCraftPersistence();
 		}
 		finally

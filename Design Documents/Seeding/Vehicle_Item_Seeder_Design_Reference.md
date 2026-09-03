@@ -382,7 +382,7 @@ Practical rules:
 
 ## Demonstration Catalogue
 
-The catalogue contains 57 unique prototypes. Shared-era admission produces the following effective coverage:
+The catalogue contains 93 unique prototypes. Shared-era admission produces the following effective coverage:
 
 | Era selection | Available prototypes | Representative breadth |
 |---|---:|---|
@@ -390,7 +390,7 @@ The catalogue contains 57 unique prototypes. Shared-era admission produces the f
 | Medieval | 15 | market and covered carts, farm and timber wagons, sledge, rowboat, wherry, longship, cog, dhow, punts, ferries and cargo barges |
 | Renaissance | 18 | carriage, artillery wagon and limber, timber and farm wagons, launch, pinnace, caravel, carrack, galleon, dhow, wherry and inland working craft |
 | Early Modern | 24 | stagecoach, hackney coach, post chaise, dray, wagons and limber, whaleboat, sloop, schooner, packet, frigate, ship of the line, earlier ocean traders and inland craft |
-| Industrial | 4 | horse tram, delivery wagon, canal skiff and sailing cutter |
+| Industrial | 40 | horse tram, independent route-bound rail cars and freight wagons, urban and commercial draft vehicles, canal and river craft, and coastal sailing vessels |
 | Modern | 4 | petrol touring car, diesel lorry, aluminium dinghy and motor launch |
 | Nuclear | 4 | family saloon, intercity coach, runabout and cabin cruiser |
 | Information Age | 4 | electric city car, autonomous shuttle, kayak and rescue RIB |
@@ -491,6 +491,6 @@ The first pass intentionally does not provide:
 - installation-specific room-scale terrain and interior-cell catalogues;
 - free-coordinate 2D/3D movement;
 - collision, signalling, dispatch or timetable systems; or
-- aircraft-, submarine- or rail-consist-specific movement strategies that do not yet exist in the runtime.
+- aircraft-, submarine- or rail-consist-specific movement strategies that do not yet exist in the runtime. Industrial rail rows are independent route-bound objects; they do not claim coupling, dispatch, signalling or steam-drive behaviour.
 
 Add a new archetype helper when several future vehicles share a genuinely new topology, such as bicycles, coupled rail vehicles, room-scale ships or aircraft. Add a one-off explicit specification when a vehicle is exceptional. In both cases retain the validation boundary, add tests, update this document, seed all new support components through rerunnable helpers, and avoid claiming runtime behaviour the engine does not yet implement.

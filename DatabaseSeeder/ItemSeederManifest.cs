@@ -104,7 +104,7 @@ internal sealed class ItemSeederManifestModule(
 
 internal static class ItemSeederManifestCatalogue
 {
-	public const string ManifestVersion = "1";
+	public const string ManifestVersion = "2";
 	public const string DefaultRelativePath = "Design Documents/Seeding/Seeded_Item_Manifest.json";
 
 	private static readonly JsonSerializerOptions JsonOptions = new()
@@ -264,11 +264,18 @@ internal static class ItemSeederManifestCatalogue
 
 	public static string ComputeSourceFingerprint(string repositoryRoot)
 	{
-		var sourceDirectory = Path.Combine(repositoryRoot, "DatabaseSeeder", "Seeders", "ItemSeeder");
+		var seedersDirectory = Path.Combine(repositoryRoot, "DatabaseSeeder", "Seeders");
+		var sourceDirectory = Path.Combine(seedersDirectory, "ItemSeeder");
+		var industrialisedCatalogueDirectory = Path.Combine(seedersDirectory, "IndustrialisedCatalogue");
 		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-		foreach (var path in Directory
-		         .EnumerateFiles(sourceDirectory, "ItemSeeder*.cs", SearchOption.TopDirectoryOnly)
-		         .OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
+		var sourcePaths = Directory
+			.EnumerateFiles(sourceDirectory, "ItemSeeder*.cs", SearchOption.TopDirectoryOnly)
+			.Concat(Directory.EnumerateFiles(seedersDirectory, "Industrialised*.cs", SearchOption.TopDirectoryOnly))
+			.Concat(Directory.EnumerateFiles(Path.Combine(sourceDirectory, "FoodCatalogue"), "*.tsv", SearchOption.AllDirectories))
+			.Concat(Directory.EnumerateFiles(Path.Combine(sourceDirectory, "MedicalRepairCatalogue"), "*.tsv", SearchOption.AllDirectories))
+			.Concat(Directory.EnumerateFiles(industrialisedCatalogueDirectory, "*.tsv", SearchOption.AllDirectories))
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase);
+		foreach (var path in sourcePaths)
 		{
 			var relativePath = Path.GetRelativePath(repositoryRoot, path).Replace('\\', '/');
 			hash.AppendData(Encoding.UTF8.GetBytes(relativePath));

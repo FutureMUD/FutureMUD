@@ -253,6 +253,38 @@ The power-tool unit mismatch is closed. `IProducePower` exposes a duration-aware
 
 If Stage 2 discovers further behavior that registered types cannot represent honestly, that concrete behavior and dependent item references must be added here before catalogue admission.
 
+## Industrialised Stage 2 catalogue boundary
+
+The Stage 2 draft source contains 6,450 ordinary rows and 40 Industrial vehicle graphs without introducing a new runtime subsystem. Existing preflight embeds Stage 1 runtime-registration and seeded-component snapshots, but does not certify finished prose, meaningful manufacturing or complete outfits. Generic profile bindings are used where the runtime has no regional connector distinction; production descriptions must not imply a distinction that the graph cannot enforce. Clothing Gate 1 scope is approved; Gates 2–7 remain open, and current row counts are not production admission.
+
+Rail stock is limited to independently route-bound vehicles. Coupled consists, steam-drive simulation, aircraft, submarines and free-coordinate travel remain deferred engine work and are not claimed by the admitted catalogue. No Stage 2 row relies on those behaviours.
+
+### Industrialised clothing integration and behaviour boundaries
+
+The [clothing, footwear and uniforms specification](./FutureMUD_Industrialised_Clothing_Footwear_Uniforms_Design_Reference.md) approves requirements, not new runtime subsystems. Its [Wave 1 inventory and review](./Industrialised_Clothing_Wave1_Evidence_and_Coverage.md) now supplies concrete planning keys and reuse identities; the user approved its current counts and overall scope on 2026-09-03, with conventional colours moved to outfit defaults. No generated placeholder is admitted merely because a reference is present.
+
+| Tracking key | Classification / status | Required work or boundary | Acceptance dependency |
+|---|---|---|---|
+| `clothing-authored-source` | Seeder/source integration — open | Replace clothing prose generation with preserved authored text; expose skins, metadata and safe refresh/check in the typed catalogue and fingerprints | Clothing Gates 2, 4, 6 |
+| `clothing-outfit-colour` | Seeder integration and runtime proof — open | Bind exact skins, palettes/characteristics, coordinated load arguments, placement and wear order through existing outfit capabilities; apply conventional colours as overridable outfit defaults rather than base/skin locks, reject unsupported selections, and verify coordination/reload; any future fixed exception needs separate approval | Clothing Gates 2, 3, 5, 6 |
+| `clothing-production-products` | Seeder integration — open | Meaningful ordered inputs/tools/phases, skin-specific products and colour/material handling; unmasked craft quality and failure behaviour | Clothing Gates 2, 3, 5 |
+| `clothing-price-quality` | Content/evidence and validation — open | Distinct bases for differing inherent prices, explicit period admissions, evidence-backed route comparisons and seed-order determinism; no blanket manufacture premium | Clothing Gates 1, 4, 6 |
+| `clothing-factory-automation` | Conditional behaviour dependency — deferred, not supplied by this package | Machine-assisted or batch crafting must not claim unattended production lines; add exact dependent items and a separately approved runtime design if those are required | Cannot admit an automated claim until resolved or explicitly excluded |
+| `clothing-special-behaviour` | Conditional behaviour dependency — scope identified, integration proof open | Check alteration, specialist fit/closures, protective and camouflage claims against real capabilities; add concrete unsupported operations/references before admission | Clothing Gates 1–3 and 5 |
+
+Wave 1 attaches these specific proof obligations without asserting that they require new engine subsystems:
+
+- `stocking_garters`, `suspender_belt`, `braces`, `detachable_collar`, `detachable_cuffs`, `rank_slides` and `nappy_pins`: validate attachment, removal and wear-profile relationships. Broad legacy `Wear_Leggings` or scarf profiles are not proof of correct placement.
+- `cage_crinoline`, `crinolette`, `bustle_pad`, `short_stays` and the long corsets: prove complete multilayer compositions; no simulated anatomical reshaping is promised.
+- `academic_hood`, `linen_wimple`, `amice`, `liturgical_cuffs`, `liturgical_zone` and their outfits: separate objects, workable wear order and fixed/variable colour consistency.
+- `waist_apron`, `wool_waistcoat`, cargo/field garments and cycling jersey: actual container capability for advertised pockets, not text-only storage.
+- `rubber_overshoes`, `canvas_gaiters`, `spats` and weather shells: compatibility with inner footwear/clothing and truthful material behaviour.
+- All 113 proposed reused identities: originating-era-independent availability, first-definition consistency, authored default/skin compatibility and deterministic unchanged economics. Existing generated supplements must not override the earlier owner according to era-selection order.
+
+Functional amauti carrying, pressure suits, active clothing electronics and unattended factories remain exclusions/deferrals under the user's approved scope; none is counted as implemented. The ordinary fur parka is not a placeholder for those mechanics. Machine-assisted and attended batch recipes remain in scope.
+
+Do not interpret these seeder/content gaps as missing runtime skin support: `SimpleProduct` already persists skins, and `TemplateOutfitItem` already stores skins, load arguments, placement and wear order. No EF migration or new subsystem is assumed. An unavailable runtime fixture leaves verification outstanding, and approved deferrals must remove unsupported claims rather than count them as delivered functionality.
+
 ## Completion boundary
 
 The data-only dependency completion pass may seed components only when the current runtime can express their advertised behaviour. A prototype moves out of this ledger only when its engine support, persistence, builder workflow, tests, and maintained catalogue export are complete.

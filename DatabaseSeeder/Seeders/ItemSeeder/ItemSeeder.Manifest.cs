@@ -325,7 +325,7 @@ public partial class ItemSeeder
 	internal ItemSeederManifestDocument CaptureManifest(
 		MudSharp.Database.FuturemudDatabaseContext context,
 		string repositoryRoot,
-		string eras = "antiquity medieval renaissance earlymodern")
+		string eras = "antiquity medieval renaissance earlymodern industrial")
 	{
 		_manifestCaptureOnly = true;
 		_manifestEntries.Clear();
@@ -335,7 +335,8 @@ public partial class ItemSeeder
 		{
 			SeedData(context, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 			{
-				["eras"] = eras
+				["eras"] = eras,
+				["technologyprofile"] = "neutral"
 			});
 			return ItemSeederManifestCatalogue.BuildDocument(
 				_manifestEntries.Values,

@@ -41,7 +41,7 @@ internal class RemoveHookFunction : BuiltInFunction
         }
 
         IHook hook = hookResult.Type == ProgVariableTypes.Number
-            ? Gameworld.Hooks.Get((long)(double)hookResult.GetObject)
+            ? Gameworld.Hooks.Get((long)(decimal)hookResult.GetObject)
             : Gameworld.Hooks.GetByName(hookResult.GetObject.ToString());
 
         if (hook == null)
@@ -56,7 +56,13 @@ internal class RemoveHookFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        Result = new BooleanVariable(targetAsPerceivable.RemoveHook(hook));
+        var removed = targetAsPerceivable.RemoveHook(hook);
+        if (removed)
+        {
+            targetAsPerceivable.HooksChanged = true;
+        }
+
+        Result = new BooleanVariable(removed);
         return StatementResult.Normal;
     }
 

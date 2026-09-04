@@ -177,6 +177,8 @@ At boot:
 2. persisted hooks are loaded from the database
 3. each row is delegated to the registered concrete loader
 
+FutureProg `addhook` and `removehook` mutations participate in the target's normal save lifecycle. When either function returns true for a persistent character, item, or room, that target's hook attachment rows are updated by its next canonical save and restored at boot. A false result means no attachment changed and does not dirty the target. Temporary perceivables continue to reject hook mutations and do not acquire persistent state.
+
 ## Dispatch Model
 ### Direct `HandleEvent` Dispatch
 Perceivables and related engine objects can receive events directly through `HandleEvent(...)`.

@@ -1,6 +1,8 @@
 ﻿using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.TimeAndDate.Time;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.Celestial;
 
@@ -78,7 +80,32 @@ public abstract class CelestialObject : PerceivedItem, ICelestialObject
 
     #region IFutureProgVariable Implementation
 
-    public override ProgVariableTypes Type => ProgVariableTypes.Error;
+    public override ProgVariableTypes Type => ProgVariableTypes.CelestialObject;
+
+    public new static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.CelestialObject,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["type"] = ProgVariableTypes.Text,
+                ["effects"] = ProgVariableTypes.Effect | ProgVariableTypes.Collection,
+                ["currentcelestialday"] = ProgVariableTypes.Number,
+                ["celestialdaysperyear"] = ProgVariableTypes.Number,
+                ["determinestimeofday"] = ProgVariableTypes.Boolean
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable celestial-object identity.",
+                ["name"] = "The celestial object's name.",
+                ["type"] = "The framework item type.",
+                ["effects"] = "The active effects on this perceivable.",
+                ["currentcelestialday"] = "The current fractional celestial day.",
+                ["celestialdaysperyear"] = "The number of celestial days in one celestial year.",
+                ["determinestimeofday"] = "Whether this object's elevation is used to determine time of day."
+            });
+    }
 
     #endregion
 

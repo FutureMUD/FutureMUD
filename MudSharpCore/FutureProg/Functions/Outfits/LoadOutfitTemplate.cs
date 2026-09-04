@@ -1,4 +1,6 @@
 ﻿
+using MudSharp.GameItems;
+
 namespace MudSharp.FutureProg.Functions.Outfits;
 
 internal sealed class LoadOutfitTemplate : BuiltInFunction
@@ -30,9 +32,11 @@ internal sealed class LoadOutfitTemplate : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var template = _useName
-			? _gameworld.OutfitTemplates.GetByIdOrName(ParameterFunctions[0].Result.GetObject?.ToString() ?? string.Empty)
-			: _gameworld.OutfitTemplates.Get((long)(decimal)ParameterFunctions[0].Result.GetObject);
+		var directTemplate = ParameterFunctions[0].Result.GetObject as IOutfitTemplate;
+		var template = directTemplate ??
+		               (_useName
+			               ? _gameworld.OutfitTemplates.GetByIdOrName(ParameterFunctions[0].Result.GetObject?.ToString() ?? string.Empty)
+			               : _gameworld.OutfitTemplates.Get((long)(decimal)ParameterFunctions[0].Result.GetObject));
 		if (template is null)
 		{
 			ErrorMessage = "There was no such outfit template.";
@@ -162,5 +166,49 @@ internal sealed class LoadOutfitTemplate : BuiltInFunction
 			"Outfits",
 			ProgVariableTypes.Outfit
 		));
+
+		RegisterTypedTemplate(useOverride: false, useLoadArguments: false);
+		RegisterTypedTemplate(useOverride: true, useLoadArguments: false);
+		RegisterTypedTemplate(useOverride: true, useLoadArguments: true);
+	}
+
+	private static void RegisterTypedTemplate(bool useOverride, bool useLoadArguments)
+	{
+		var parameterTypes = useLoadArguments
+			? new[] { ProgVariableTypes.OutfitTemplate, ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Text }
+			: useOverride
+				? new[] { ProgVariableTypes.OutfitTemplate, ProgVariableTypes.Character, ProgVariableTypes.Text }
+				: new[] { ProgVariableTypes.OutfitTemplate, ProgVariableTypes.Character };
+		var parameterNames = useLoadArguments
+			? new List<string> { "template", "target", "outfitName", "loadArgs" }
+			: useOverride
+				? new List<string> { "template", "target", "outfitName" }
+				: new List<string> { "template", "target" };
+		var parameterHelp = useLoadArguments
+			? new List<string>
+			{
+				"The resolved outfit template to load", "The character who should receive the created outfit and items",
+				"The name to use for the created outfit", "Additional item load arguments to apply to every created item"
+			}
+			: useOverride
+				? new List<string>
+				{
+					"The resolved outfit template to load", "The character who should receive the created outfit and items",
+					"The name to use for the created outfit"
+				}
+				: new List<string>
+				{
+					"The resolved outfit template to load", "The character who should receive the created outfit and items"
+				};
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"loadoutfittemplate",
+			parameterTypes,
+			(pars, gameworld) => new LoadOutfitTemplate(pars, gameworld, useName: false, useOverride, useLoadArguments),
+			parameterNames,
+			parameterHelp,
+			"Loads all items in a resolved outfit template onto the target and returns the created outfit.",
+			"Outfits",
+			ProgVariableTypes.Outfit));
 	}
 }

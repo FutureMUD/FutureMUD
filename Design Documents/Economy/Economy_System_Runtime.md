@@ -608,10 +608,15 @@ Verified current FutureProg integration includes:
 - economy functions for market influences
 - item ownership functions for checking direct ownership, property trust, clan-authorised property use, typed shop/bank ownership, generic employment-host ownership, and ownership mutation
 - FutureProg variable registration on banks, bank accounts, bank account types, currencies, markets, market categories, shops, and merchandise
+- exact FutureProg reference support on properties, property keys, leases, lease orders, sale orders, economic zones, and channels, including persistent variable-register references
+- `property(location)` and the `ispropertyowner`, `ispropertyleaseholder`, and `ispropertytenant` queries, which use the existing property access rules
+- `sendchannel(channel, character, text)`, which delegates to the normal channel delivery and permission path rather than bypassing membership or speaker checks
 - item variable registration for durable `hasowner`, `ownerid`, and `ownertype` metadata; the object-valued `owner` remains available when the owner has a native FutureProg type
 - multiple permission and selection hooks in banks, jobs, shoppers, shops, taxes, and market data
 
 This matters because many higher-level world rules are intended to be configured by builders rather than hard-coded into the runtime types.
+
+Property children deliberately have no parallel global registry. Their durable FutureProg and variable-register references resolve through the live property collections; active and retained expired lease records are both addressable by ID. Property mutation remains on the existing consent-aware and transactional command/runtime paths.
 
 ### Game Items and Effects
 Economy behavior also reaches into the item and effect systems.

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace MudSharp.Economy.Property
 {
-    public interface IPropertyLeaseOrder : IFrameworkItem
+    public interface IPropertyLeaseOrder : IFrameworkItem, IProgVariable
     {
         IProperty Property { get; }
         decimal PricePerInterval { get; set; }

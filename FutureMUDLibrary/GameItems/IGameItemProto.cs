@@ -14,7 +14,7 @@ using System.Collections.Generic;
 
 namespace MudSharp.GameItems
 {
-    public interface IGameItemProto : IEditableRevisableItem, IHaveTags, IHavePlanarPresence
+    public interface IGameItemProto : IEditableRevisableItem, IHaveTags, IHavePlanarPresence, IProgVariable
     {
         IHealthStrategy HealthStrategy { get; }
         string? UniqueName { get; }

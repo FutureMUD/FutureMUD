@@ -11,6 +11,8 @@ using MudSharp.Economy.Tax;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.FutureProg.Statements;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
@@ -537,6 +539,90 @@ public class EconomicZone : SaveableItem, IEconomicZone
     }
 
     public override string FrameworkItemType => "EconomicZone";
+
+    public ProgVariableTypes Type => ProgVariableTypes.EconomicZone;
+    public object GetObject => this;
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable(Name),
+            "zone" => ZoneForTimePurposes,
+            "currency" => Currency,
+            "controllingclan" => ControllingClan is IProgVariable clan
+                ? clan
+                : new NullVariable(ProgVariableTypes.Clan),
+            "totalrevenueheld" => new NumberVariable(TotalRevenueHeld),
+            "financialperiodinterval" => new TextVariable(FinancialPeriodInterval.Describe(FinancialPeriodReferenceCalendar)),
+            "financialperiodclock" => FinancialPeriodReferenceClock,
+            "financialperiodcalendar" => FinancialPeriodReferenceCalendar,
+            "timezone" => new TextVariable(FinancialPeriodTimezone?.Alias ?? string.Empty),
+            "properties" => new CollectionVariable(Gameworld.Properties
+                .Where(x => x.EconomicZone.Id == Id)
+                .ToList(), ProgVariableTypes.Property),
+            "propertycount" => new NumberVariable(Gameworld.Properties.Count(x => x.EconomicZone.Id == Id)),
+            "estatesenabled" => new BooleanVariable(EstatesEnabled),
+            "conveyancingcells" => new CollectionVariable(ConveyancingCells.ToList(), ProgVariableTypes.Location),
+            "jobfindingcells" => new CollectionVariable(JobFindingCells.ToList(), ProgVariableTypes.Location),
+            "probateofficecells" => new CollectionVariable(ProbateOfficeCells.ToList(), ProgVariableTypes.Location),
+            "morgueoffice" => MorgueOfficeCell is IProgVariable morgueOffice
+                ? morgueOffice
+                : new NullVariable(ProgVariableTypes.Location),
+            "morguestorage" => MorgueStorageCell is IProgVariable morgueStorage
+                ? morgueStorage
+                : new NullVariable(ProgVariableTypes.Location),
+            _ => throw new NotSupportedException($"Unsupported economic zone property {property}.")
+        };
+    }
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.EconomicZone,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["zone"] = ProgVariableTypes.Zone,
+                ["currency"] = ProgVariableTypes.Currency,
+                ["controllingclan"] = ProgVariableTypes.Clan,
+                ["totalrevenueheld"] = ProgVariableTypes.Number,
+                ["financialperiodinterval"] = ProgVariableTypes.Text,
+                ["financialperiodclock"] = ProgVariableTypes.Clock,
+                ["financialperiodcalendar"] = ProgVariableTypes.Calendar,
+                ["timezone"] = ProgVariableTypes.Text,
+                ["properties"] = ProgVariableTypes.Property | ProgVariableTypes.Collection,
+                ["propertycount"] = ProgVariableTypes.Number,
+                ["estatesenabled"] = ProgVariableTypes.Boolean,
+                ["conveyancingcells"] = ProgVariableTypes.Location | ProgVariableTypes.Collection,
+                ["jobfindingcells"] = ProgVariableTypes.Location | ProgVariableTypes.Collection,
+                ["probateofficecells"] = ProgVariableTypes.Location | ProgVariableTypes.Collection,
+                ["morgueoffice"] = ProgVariableTypes.Location,
+                ["morguestorage"] = ProgVariableTypes.Location
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable economic-zone identity.",
+                ["name"] = "The economic-zone name.",
+                ["zone"] = "The zone used for this economic zone's time purposes.",
+                ["currency"] = "The default currency of this economic zone.",
+                ["controllingclan"] = "The controlling clan, or null.",
+                ["totalrevenueheld"] = "The zone revenue currently held in reserve.",
+                ["financialperiodinterval"] = "The human-readable financial-period interval.",
+                ["financialperiodclock"] = "The clock used for financial periods.",
+                ["financialperiodcalendar"] = "The calendar used for financial periods.",
+                ["timezone"] = "The financial-period timezone alias.",
+                ["properties"] = "The properties assigned to this economic zone.",
+                ["propertycount"] = "The number of properties assigned to this economic zone.",
+                ["estatesenabled"] = "Whether new estates may be created in this economic zone.",
+                ["conveyancingcells"] = "The cells used for conveyancing workflows.",
+                ["jobfindingcells"] = "The cells used for job-finding workflows.",
+                ["probateofficecells"] = "The cells used for probate workflows.",
+                ["morgueoffice"] = "The morgue office cell, or null.",
+                ["morguestorage"] = "The morgue storage cell, or null."
+            });
+    }
 
     private readonly DecimalCounter<long> _shopsOutstandingProfitTaxes = new();
     private readonly DecimalCounter<long> _shopsOutstandingSalesTaxes = new();

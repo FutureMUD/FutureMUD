@@ -90,6 +90,49 @@ The built-in naming functions are:
 
 All lookup and creation functions return a typed null when a target is absent, a profile is not ready, or supplied name text does not validate. For `prog execute`, a `PersonalName` argument is entered as a quoted-or-unquoted name culture followed by the complete name text.
 
+## Phase 1 Builder References
+
+Phase 1 promotes globally resolvable, builder-authored configuration and world objects to exact FutureProg reference types. Each type is a collection item and a reference value, so it can be passed to typed built-ins, returned in collections, and stored in the variable register. `prog execute` resolves these exact types by ID or name.
+
+Every Phase 1 type has an ID-or-name lookup with the following shape: `function(number|text)`. Missing targets return a typed null.
+
+| Type | Lookup | Principal dot references | Typed integrations |
+| --- | --- | --- | --- |
+| `Tag` | `tag` | `id`, `name`, `fullname`, `parent` | `istagged(..., tag)` |
+| `ItemPrototype` | `itemprototype` | `id`, `name`, `uniquename`, `status`, `revision`, `shortdesc`, `fulldesc`, `material`, `weight`, `preventmanualload` | `loaditem` |
+| `NPCTemplate` | `npctemplate` | `id`, `name`, `uniquename`, `status`, `revision`, `templatetype` | `loadnpc` |
+| `OutfitTemplate` | `outfittemplate` | `id`, `name`, `description`, `exclusivity`, `itemcount` | `loadoutfittemplate` |
+| `Vehicle` | `vehicle` | `id`, `name`, `exterioritem`, `location`, `layer`, `routeposition`, `occupants`, `controller`, `activejourney`, `disabled`, `destroyed` | vehicle readiness, train-weight, and tow-stress functions |
+| `CelestialObject` | `celestial` | `id`, `name`, `currentcelestialday`, `celestialdaysperyear`, `determinestimeofday` | celestial elevation, position, and astronomical-event functions |
+| `Grid` | `grid` | `id`, `name`, `gridtype`, `locations` | `connecttogrid`, `extendgrid`, `withdrawgrid` |
+| `CharacteristicDefinition` | `characteristicdefinition` | `id`, `name`, `description`, `type`, `parent`, `defaultvalue` | `getcharacteristicvalue`, `setcharacteristic` |
+| `CharacteristicValue` | `characteristicvalue` | `id`, `name`, `definition`, `value`, `basicvalue`, `fancyvalue`, `pluralisation` | `getcharacteristicvalue`, `setcharacteristic` |
+| `AgricultureFieldProfile` | `fieldprofile` | `id`, `name`, `description`, default-score and allowed-use configuration | `createfield` |
+| `AgricultureCropDefinition` | `cropdefinition` | `id`, `name`, `description`, growth, harvest, climate, pollination, and yield configuration | `startfieldproject` |
+| `AgricultureHerdDefinition` | `herddefinition` | `id`, `name`, `description`, grazing, condition, `npctemplate`, and output configuration | `startfieldproject`, `drawfieldherd`, `absorbnpcintofieldherd` |
+| `AgricultureWoodlandDefinition` | `woodlanddefinition` | `id`, `name`, `description`, establishment, harvest-cycle, and yield configuration | `startfieldproject` |
+| `AgricultureOperation` | `agricultureoperation` | `id`, `name`, `description`, operation and target types, uses, project, and result configuration | `startfieldproject` |
+
+The established text fields on `AgricultureField` remain compatible. Its additional typed properties are `profiledefinition`, `cropdefinition`, and `woodlanddefinition`; these avoid forcing builders to parse legacy text names when chaining a field into the new definition types.
+
+## Phase 2 Economy and Communication References
+
+Phase 2 promotes the durable property workflow records, economic zones, and channels. Every promoted type is an exact reference type, can be placed in a collection or persistent variable register, and can be supplied to `prog execute`.
+
+The globally named roots use ID-or-name lookups. Property keys, leases, lease orders, and sale orders use numeric ID lookups only because their names are scoped to their owning property rather than globally unique. The runtime resolves those child records through the live collections of their owning property, including retained expired lease and lease-order history.
+
+| Type | Lookup | Principal dot references | Typed integrations |
+| --- | --- | --- | --- |
+| `Property` | `property(number|text)` | `economiczone`, `locations`, `saleorder`, `leaseorder`, `lease`, retained lease/order history, `keys`, sale/lease state | `property(location)`, property access queries |
+| `PropertyKey` | `propertykey(number)` | `property`, `item`, `added`, `replacementcost`, `returned` | durable register values and property-key inspection |
+| `PropertyLease` | `propertylease(number)` | `property`, `leaseorder`, leaseholder identity fields, payments, interval, dates, renewal, bond, tenant count | `ispropertytenant` |
+| `PropertyLeaseOrder` | `propertyleaseorder(number)` | `property`, pricing, bond, interval, duration, renewal/relist/novation/rekey settings, consent counts, eligibility prog names | property lease inspection |
+| `PropertySaleOrder` | `propertysaleorder(number)` | `property`, reserve price, status, start, duration, sale visibility, consent counts | property sale inspection |
+| `EconomicZone` | `economiczone(number|text)` | `zone`, `currency`, `controllingclan`, financial-period configuration, `properties`, estate and service cells | property/economy selection |
+| `Channel` | `channel(number|text)` | command words, presentation and command-tree settings, eligibility prog names, colour, Discord configuration | `sendchannel(channel, character, text)` |
+
+`ispropertyowner(property, character)`, `ispropertyleaseholder(property, character)`, and `ispropertytenant(property, character)` use the property system's authoritative access checks. `sendchannel` is intentionally a void operation and delegates to `IChannel.Send(character, text)`, preserving the normal speaker, membership, listener, missed-listener, and Discord paths. It does not add a system-message overload or subscription mutation surface.
+
 ## Persistence Format
 
 FutureProg type persistence now uses a canonical versioned string definition:
@@ -131,7 +174,7 @@ FutureProg parameter and local-variable references are case-insensitive. Persist
 
 Collection variables must expose `IProgVariable` elements at runtime, even when a helper or dot reference builds a collection from scalar CLR values such as `string`, `decimal`, `bool`, `DateTime`, `TimeSpan`, `MudDateTime`, or `Gender`. The `CollectionVariable` constructor normalises those scalar elements so collection extension functions, admin result display, and dot references like `first`, `last`, and `reverse` all see the same element shape.
 
-Variable-register persistence must be total for every type that can be registered and saved. Value types, including `LiquidMixture`, serialise through value XML rather than reference IDs; unsupported or null preserved values must not create null `IVariableValue` entries. Resetting a stored register value removes the persisted override row and falls back to the default value.
+Variable-register persistence must be total for every type that can be registered and saved. A type is registerable only when it has a value serialisation or a stable, globally resolvable reference; runtime-scoped `Chargen`, `Exit`, `Effect`, `Trap`, `Outfit`, and `OutfitItem` values are rejected rather than being saved as unusable reference IDs. Value types, including `LiquidMixture`, serialise through value XML rather than reference IDs; unsupported or null preserved values must not create null `IVariableValue` entries. Resetting a stored register value removes the persisted override row and falls back to the default value.
 
 Script-time helpers that search, roll, or evaluate user-authored formulas must enforce bounded work. Weekday occurrence helpers reject zero or excessive occurrence counts, dice formulas have explicit dice/sides/roll limits, exploding dice must not be guaranteed infinite, and formula evaluation fails closed on invalid custom-function arguments, overflow, or non-finite numeric output.
 
@@ -143,14 +186,14 @@ Writing text is not exposed through the `writing.text` FutureProg dot reference.
 
 Celestial event built-ins return `MudDateTime` and use the supplied room or zone as the observer geography:
 
-- `nextsunrise(location|zone, celestialId, calendar[, occurrence])`
-- `nextsunset(location|zone, celestialId, calendar[, occurrence])`
-- `nextsolarlongitude(location|zone, celestialId, calendar, longitudeDegrees[, occurrence])`
-- `nextnewmoon(location|zone, moonId, calendar[, occurrence])`
-- `nextfullmoon(location|zone, moonId, calendar[, occurrence])`
-- `nextvisiblecrescent(location|zone, sunId, moonId, calendar[, occurrence])`
+- `nextsunrise(location|zone, celestialId|celestial, calendar[, occurrence])`
+- `nextsunset(location|zone, celestialId|celestial, calendar[, occurrence])`
+- `nextsolarlongitude(location|zone, celestialId|celestial, calendar, longitudeDegrees[, occurrence])`
+- `nextnewmoon(location|zone, moonId|moon, calendar[, occurrence])`
+- `nextfullmoon(location|zone, moonId|moon, calendar[, occurrence])`
+- `nextvisiblecrescent(location|zone, sunId|sun, moonId|moon, calendar[, occurrence])`
 
-The optional `occurrence` argument returns the nth next event. Invalid zones, calendars, celestial IDs, unsupported ephemeris types, or bounded-search failures return `MudDateTime.Never`.
+The optional `occurrence` argument returns the nth next event. Invalid zones, calendars, celestial references, unsupported ephemeris types, or bounded-search failures return `MudDateTime.Never`.
 
 ## Migration Expectations
 

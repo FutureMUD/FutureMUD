@@ -1,6 +1,8 @@
 ﻿using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.Construction.Grids;
 
@@ -117,9 +119,43 @@ public abstract class GridBase : LateInitialisingItem, IGrid
         Changed = false;
     }
 
-    public abstract string GridType { get; }
+	public abstract string GridType { get; }
 
-    public abstract string Show(ICharacter actor);
+	public ProgVariableTypes Type => ProgVariableTypes.Grid;
+	public object GetObject => this;
+
+	public IProgVariable GetProperty(string property)
+	{
+		return property.ToLowerInvariant() switch
+		{
+			"id" => new NumberVariable(Id),
+			"name" => new TextVariable(Name),
+			"gridtype" => new TextVariable(GridType),
+			"locations" => new CollectionVariable(Locations.ToList(), ProgVariableTypes.Location),
+			_ => throw new NotSupportedException($"Unsupported grid property {property}.")
+		};
+	}
+
+	public static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Grid,
+			new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = ProgVariableTypes.Number,
+				["name"] = ProgVariableTypes.Text,
+				["gridtype"] = ProgVariableTypes.Text,
+				["locations"] = ProgVariableTypes.Location | ProgVariableTypes.Collection
+			},
+			new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = "The stable grid identity.",
+				["name"] = "The grid name.",
+				["gridtype"] = "The concrete grid implementation type.",
+				["locations"] = "The cells that currently belong to this grid."
+			});
+	}
+
+	public abstract string Show(ICharacter actor);
 
     public override object DatabaseInsert()
     {

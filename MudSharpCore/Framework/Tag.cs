@@ -1,5 +1,7 @@
 ﻿using MudSharp.Database;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 
 #nullable enable
 #nullable disable warnings
@@ -92,6 +94,40 @@ public class Tag : SaveableItem, ILoadingTag
     }
 
     public override string FrameworkItemType => "Tag";
+
+    public ProgVariableTypes Type => ProgVariableTypes.Tag;
+    public object GetObject => this;
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable(Name),
+            "fullname" => new TextVariable(FullName),
+            "parent" => Parent is IProgVariable parent ? parent : new NullVariable(ProgVariableTypes.Tag),
+            _ => throw new NotSupportedException($"Unsupported tag property {property}.")
+        };
+    }
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Tag,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["fullname"] = ProgVariableTypes.Text,
+                ["parent"] = ProgVariableTypes.Tag
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable identity of this tag.",
+                ["name"] = "The tag name without its parent hierarchy.",
+                ["fullname"] = "The complete parent-qualified tag name.",
+                ["parent"] = "The immediate parent tag, or null for a root tag."
+            });
+    }
 
     #region IEditableTag Members
 

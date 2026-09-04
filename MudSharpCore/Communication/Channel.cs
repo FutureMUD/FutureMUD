@@ -5,6 +5,7 @@ using MudSharp.Economy;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Statements;
+using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
 using System.Numerics;
 
@@ -95,6 +96,69 @@ public class Channel : SaveableItem, IChannel
     }
 
     public override string FrameworkItemType => "Channel";
+
+    public ProgVariableTypes Type => ProgVariableTypes.Channel;
+    public object GetObject => this;
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable(Name),
+            "commandwords" => new CollectionVariable(CommandWords
+                .Select(x => new TextVariable(x))
+                .ToList(), ProgVariableTypes.Text),
+            "announcesjoiners" => new BooleanVariable(AnnounceChannelJoiners),
+            "announcesmissedlisteners" => new BooleanVariable(AnnounceMissedListeners),
+            "addtoplayercommands" => new BooleanVariable(AddToPlayerCommandTree),
+            "addtoguidecommands" => new BooleanVariable(AddToGuideCommandTree),
+            "mode" => new TextVariable(Mode.DescribeEnum()),
+            "listenerprog" => new TextVariable(ChannelListenerProg?.FunctionName ?? string.Empty),
+            "speakerprog" => new TextVariable(ChannelSpeakerProg?.FunctionName ?? string.Empty),
+            "colour" => new TextVariable(ChannelColour),
+            "hasdiscordchannel" => new BooleanVariable(DiscordChannelId.HasValue),
+            "discordchannelid" => new NumberVariable((decimal)(DiscordChannelId ?? 0UL)),
+            _ => throw new NotSupportedException($"Unsupported channel property {property}.")
+        };
+    }
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Channel,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["commandwords"] = ProgVariableTypes.Text | ProgVariableTypes.Collection,
+                ["announcesjoiners"] = ProgVariableTypes.Boolean,
+                ["announcesmissedlisteners"] = ProgVariableTypes.Boolean,
+                ["addtoplayercommands"] = ProgVariableTypes.Boolean,
+                ["addtoguidecommands"] = ProgVariableTypes.Boolean,
+                ["mode"] = ProgVariableTypes.Text,
+                ["listenerprog"] = ProgVariableTypes.Text,
+                ["speakerprog"] = ProgVariableTypes.Text,
+                ["colour"] = ProgVariableTypes.Text,
+                ["hasdiscordchannel"] = ProgVariableTypes.Boolean,
+                ["discordchannelid"] = ProgVariableTypes.Number
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable channel identity.",
+                ["name"] = "The channel name.",
+                ["commandwords"] = "The command words that address this channel.",
+                ["announcesjoiners"] = "Whether joins and leaves are announced.",
+                ["announcesmissedlisteners"] = "Whether missed listeners are reported to the speaker.",
+                ["addtoplayercommands"] = "Whether the channel is added to player command trees.",
+                ["addtoguidecommands"] = "Whether the channel is added to guide command trees.",
+                ["mode"] = "The speaker-name presentation mode.",
+                ["listenerprog"] = "The listener eligibility prog function name.",
+                ["speakerprog"] = "The speaker eligibility prog function name.",
+                ["colour"] = "The configured ANSI channel colour.",
+                ["hasdiscordchannel"] = "Whether this channel echoes to Discord.",
+                ["discordchannelid"] = "The configured Discord channel ID, or zero."
+            });
+    }
 
     private string GetSpeakerName(ICharacter source, ICharacter viewer)
     {

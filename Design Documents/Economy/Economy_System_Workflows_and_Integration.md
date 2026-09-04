@@ -346,6 +346,8 @@ Operational hotel commands:
 - managers use `roomrent deposit`, `roomrent withdraw`, and `roomrent ledger` to manage the hotel virtual reserve
 - managers use `roomrent taxes` to remit accumulated hotel rental taxes from the hotel reserve and optional bank funds to the economic zone
 
+Property-aware FutureProgs can resolve `property`, `propertykey`, `propertylease`, `propertyleaseorder`, and `propertysaleorder` records, inspect their typed dot properties, and retain them in variable registers. `property(location)` finds the mapped property, while `ispropertyowner`, `ispropertyleaseholder`, and `ispropertytenant` evaluate the existing access rules. Scripts do not gain direct ownership, lease, or consent mutation: those changes stay on the existing command and runtime transaction paths.
+
 Contributor note:
 
 - sale-order and lease-order consent loading must compare property owners by stored owner id and owner type rather than dereferencing `PropertyOwner.Owner` during boot

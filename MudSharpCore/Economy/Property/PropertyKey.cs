@@ -1,5 +1,7 @@
 ﻿using MudSharp.Database;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.TimeAndDate;
 
@@ -8,6 +10,51 @@ namespace MudSharp.Economy.Property;
 public class PropertyKey : SaveableItem, IPropertyKey
 {
     public override string FrameworkItemType => "PropertyKey";
+
+    public ProgVariableTypes Type => ProgVariableTypes.PropertyKey;
+    public object GetObject => this;
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable(Name),
+            "property" => Property,
+            "item" => GameItem is IProgVariable item
+                ? item
+                : new NullVariable(ProgVariableTypes.Item),
+            "added" => AddedToPropertyOnDate,
+            "replacementcost" => new NumberVariable(CostToReplace),
+            "returned" => new BooleanVariable(IsReturned),
+            _ => throw new NotSupportedException($"Unsupported property key property {property}.")
+        };
+    }
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.PropertyKey,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["property"] = ProgVariableTypes.Property,
+                ["item"] = ProgVariableTypes.Item,
+                ["added"] = ProgVariableTypes.MudDateTime,
+                ["replacementcost"] = ProgVariableTypes.Number,
+                ["returned"] = ProgVariableTypes.Boolean
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable property-key identity.",
+                ["name"] = "The property-key name.",
+                ["property"] = "The property to which this key belongs.",
+                ["item"] = "The live key item, or null if it no longer resolves.",
+                ["added"] = "The in-world time when this key was added to the property.",
+                ["replacementcost"] = "The recorded cost to replace this key.",
+                ["returned"] = "Whether the key has been returned."
+            });
+    }
 
     public PropertyKey(Models.PropertyKey key, IProperty property, IFuturemud gameworld)
     {

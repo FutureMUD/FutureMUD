@@ -4,6 +4,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
@@ -13,7 +14,7 @@ using System.Collections.Generic;
 
 namespace MudSharp.Vehicles;
 
-public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable
+public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable, IProgVariable
 {
 	IVehiclePrototype Prototype { get; }
 	int PrototypeRevisionNumber { get; }

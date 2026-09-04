@@ -35,8 +35,10 @@ internal class CelestialElevationFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var id = Convert.ToInt64(ParameterFunctions[1].Result?.GetObject ?? 0L);
-		var celestial = zone.Celestials.FirstOrDefault(x => x.Id == id);
+		var celestialParameter = ParameterFunctions[1].Result?.GetObject;
+		var celestial = celestialParameter is ICelestialObject directCelestial
+			? zone.Celestials.FirstOrDefault(x => x.Id == directCelestial.Id)
+			: zone.Celestials.FirstOrDefault(x => x.Id == Convert.ToInt64(celestialParameter ?? 0L));
 		if (celestial is null)
 		{
 			Result = new NumberVariable(0.0);
@@ -71,5 +73,21 @@ internal class CelestialElevationFunction : BuiltInFunction
 			"Celestials",
 			ProgVariableTypes.Number
 		));
+
+		RegisterTypedCelestial(ProgVariableTypes.Location);
+		RegisterTypedCelestial(ProgVariableTypes.Zone);
+	}
+
+	private static void RegisterTypedCelestial(ProgVariableTypes locationType)
+	{
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"celestialelevation",
+			[locationType, ProgVariableTypes.CelestialObject],
+			(pars, _) => new CelestialElevationFunction(pars),
+			["locationOrZone", "celestial"],
+			["The room or zone whose celestial collection is searched.", "The resolved celestial object to inspect."],
+			"Returns the resolved celestial object's current elevation above or below the horizon in radians. Returns 0 if the zone or celestial object cannot be found.",
+			"Celestials",
+			ProgVariableTypes.Number));
 	}
 }

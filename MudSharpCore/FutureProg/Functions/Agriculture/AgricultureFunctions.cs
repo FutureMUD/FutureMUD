@@ -155,9 +155,10 @@ internal class CreateFieldFunction : BuiltInFunction
 
 	private IAgricultureFieldProfile ResolveProfile()
 	{
-		return ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number)
+		return ParameterFunctions[1].Result?.GetObject as IAgricultureFieldProfile ??
+		       (ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number)
 			? _gameworld.AgricultureFieldProfiles.Get(Convert.ToInt64(ParameterFunctions[1].Result?.GetObject ?? 0))
-			: _gameworld.AgricultureFieldProfiles.GetByIdOrName((string)ParameterFunctions[1].Result?.GetObject ?? string.Empty);
+			: _gameworld.AgricultureFieldProfiles.GetByIdOrName((string)ParameterFunctions[1].Result?.GetObject ?? string.Empty));
 	}
 
 	public static void RegisterFunctionCompiler()
@@ -169,6 +170,15 @@ internal class CreateFieldFunction : BuiltInFunction
 			new[] { "location" },
 			new[] { "The location to create a field in, using the terrain default agriculture profile" },
 			"Creates an agriculture field in a location, returning null if one already exists or no profile is available.",
+			"Agriculture",
+			ProgVariableTypes.AgricultureField));
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"CreateField".ToLowerInvariant(),
+			[ProgVariableTypes.Location, ProgVariableTypes.AgricultureFieldProfile],
+			(pars, gameworld) => new CreateFieldFunction(pars, gameworld),
+			["location", "profile"],
+			["The location to create a field in", "The resolved agriculture field profile"],
+			"Creates an agriculture field in a location with the resolved profile.",
 			"Agriculture",
 			ProgVariableTypes.AgricultureField));
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
@@ -389,10 +399,15 @@ internal class StartFieldProjectFunction : BuiltInFunction
 
 		var actor = (ICharacter)ParameterFunctions[0].Result?.GetObject;
 		var field = (IAgricultureField)ParameterFunctions[1].Result?.GetObject;
-		var operationText = (string)ParameterFunctions[2].Result?.GetObject ?? string.Empty;
-		var operation = _gameworld.AgricultureOperations.GetByIdOrName(operationText);
-		var targetText = ParameterFunctions.Count > 3 ? (string)ParameterFunctions[3].Result?.GetObject ?? string.Empty : string.Empty;
-		var target = operation == null ? null : AgricultureFunctionHelpers.ResolveTarget(_gameworld, operation, targetText);
+		var operation = ParameterFunctions[2].Result?.GetObject as IAgricultureOperation ??
+		                _gameworld.AgricultureOperations.GetByIdOrName((string)ParameterFunctions[2].Result?.GetObject ?? string.Empty);
+		var target = ParameterFunctions.Count > 3
+			? ParameterFunctions[3].Result?.GetObject as IFrameworkItem ??
+			  (operation is null
+				  ? null
+				  : AgricultureFunctionHelpers.ResolveTarget(_gameworld, operation,
+					  (string)ParameterFunctions[3].Result?.GetObject ?? string.Empty))
+			: null;
 		Result = new BooleanVariable(AgricultureFunctionHelpers.StartProject(actor, field, operation, target));
 		return StatementResult.Normal;
 	}
@@ -415,6 +430,31 @@ internal class StartFieldProjectFunction : BuiltInFunction
 			new[] { "actor", "field", "operation", "target" },
 			new[] { "The character starting the project", "The field", "The operation name or ID", "The crop, herd, or woodland target name or ID" },
 			"Starts an agriculture project with a dynamic target.",
+			"Agriculture",
+			ProgVariableTypes.Boolean));
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"StartFieldProject".ToLowerInvariant(),
+			[ProgVariableTypes.Character, ProgVariableTypes.AgricultureField, ProgVariableTypes.AgricultureOperation],
+			(pars, gameworld) => new StartFieldProjectFunction(pars, gameworld),
+			["actor", "field", "operation"],
+			["The character starting the project", "The field", "The resolved agriculture operation"],
+			"Starts an agriculture project with no target.",
+			"Agriculture",
+			ProgVariableTypes.Boolean));
+		RegisterTypedTarget(ProgVariableTypes.AgricultureCropDefinition, "crop");
+		RegisterTypedTarget(ProgVariableTypes.AgricultureHerdDefinition, "herd");
+		RegisterTypedTarget(ProgVariableTypes.AgricultureWoodlandDefinition, "woodland");
+	}
+
+	private static void RegisterTypedTarget(ProgVariableTypes targetType, string targetName)
+	{
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"StartFieldProject".ToLowerInvariant(),
+			[ProgVariableTypes.Character, ProgVariableTypes.AgricultureField, ProgVariableTypes.AgricultureOperation, targetType],
+			(pars, gameworld) => new StartFieldProjectFunction(pars, gameworld),
+			["actor", "field", "operation", "target"],
+			["The character starting the project", "The field", "The resolved agriculture operation", $"The resolved {targetName} target"],
+			"Starts an agriculture project with a resolved target.",
 			"Agriculture",
 			ProgVariableTypes.Boolean));
 	}
@@ -446,7 +486,8 @@ internal class FieldHerdFunction : BuiltInFunction
 
 		var actor = (ICharacter)ParameterFunctions[0].Result?.GetObject;
 		var field = (IAgricultureField)ParameterFunctions[1].Result?.GetObject;
-		var herd = _gameworld.AgricultureHerdDefinitions.GetByIdOrName((string)ParameterFunctions[2].Result?.GetObject ?? string.Empty);
+		var herd = ParameterFunctions[2].Result?.GetObject as IAgricultureHerdDefinition ??
+		           _gameworld.AgricultureHerdDefinitions.GetByIdOrName((string)ParameterFunctions[2].Result?.GetObject ?? string.Empty);
 		if (actor == null || field == null || herd == null)
 		{
 			Result = new BooleanVariable(false);
@@ -482,6 +523,24 @@ internal class FieldHerdFunction : BuiltInFunction
 			(pars, gameworld) => new FieldHerdFunction(pars, gameworld, true),
 			new[] { "actor", "field", "herd", "npc" },
 			new[] { "The character doing the absorption", "The field", "The herd definition name or ID", "The NPC to absorb" },
+			"Absorbs a live NPC into an abstract field herd.",
+			"Agriculture",
+			ProgVariableTypes.Boolean));
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"DrawFieldHerd".ToLowerInvariant(),
+			[ProgVariableTypes.Character, ProgVariableTypes.AgricultureField, ProgVariableTypes.AgricultureHerdDefinition, ProgVariableTypes.Number],
+			(pars, gameworld) => new FieldHerdFunction(pars, gameworld, false),
+			["actor", "field", "herd", "count"],
+			["The character drawing animals", "The field", "The resolved herd definition", "The number of animals"],
+			"Draws live NPC livestock from an abstract field herd.",
+			"Agriculture",
+			ProgVariableTypes.Boolean));
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"AbsorbNpcIntoFieldHerd".ToLowerInvariant(),
+			[ProgVariableTypes.Character, ProgVariableTypes.AgricultureField, ProgVariableTypes.AgricultureHerdDefinition, ProgVariableTypes.Character],
+			(pars, gameworld) => new FieldHerdFunction(pars, gameworld, true),
+			["actor", "field", "herd", "npc"],
+			["The character doing the absorption", "The field", "The resolved herd definition", "The NPC to absorb"],
 			"Absorbs a live NPC into an abstract field herd.",
 			"Agriculture",
 			ProgVariableTypes.Boolean));

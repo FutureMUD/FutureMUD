@@ -28,6 +28,19 @@ internal class ExtendGrid : BuiltInFunction
                 ProgVariableTypes.Boolean
             )
         );
+
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "ExtendGrid".ToLowerInvariant(),
+                [ProgVariableTypes.Grid, ProgVariableTypes.Location],
+                (pars, gameworld) => new ExtendGrid(pars, gameworld),
+                ["grid", "location"],
+                ["The resolved grid to extend", "The location you want to extend the grid to"],
+                "This function allows you to extend a grid (electrical, gas, liquid etc) to a new location. Returns true if the extension happened, false implies the grid was already present or there was another error.",
+                "Grids",
+                ProgVariableTypes.Boolean
+            )
+        );
     }
 
     #endregion
@@ -54,8 +67,8 @@ internal class ExtendGrid : BuiltInFunction
             return StatementResult.Error;
         }
 
-        long gridid = Convert.ToInt64(ParameterFunctions[0].Result?.GetObject ?? 0);
-        IGrid grid = Gameworld.Grids.Get(gridid);
+        IGrid grid = ParameterFunctions[0].Result?.GetObject as IGrid ??
+                     Gameworld.Grids.Get(Convert.ToInt64(ParameterFunctions[0].Result?.GetObject ?? 0));
         if (grid == null)
         {
             Result = new BooleanVariable(false);

@@ -41,7 +41,11 @@ internal class IsTaggedFunction : BuiltInFunction
         }
 
         ITag tag;
-        if (UseId)
+        if (ParameterFunctions[1].Result?.GetObject is ITag typedTag)
+        {
+            tag = typedTag;
+        }
+        else if (UseId)
         {
             tag = Gameworld.Tags.Get((int)(decimal)ParameterFunctions[1].Result.GetObject);
         }
@@ -156,6 +160,26 @@ internal class IsTaggedFunction : BuiltInFunction
                 new List<string>
                     { "The thing whose tags you want to interrogate", "The id of the tag you want to test for" },
                 "Returns whether or not the thing has or counts as the specified tag. For example, if you specify the tag 'Cutting Implement' and thing is tagged with the 'Knife' tag, and Knife is a Cutting Implement, then thing is a cutting implement.",
+                "Tags",
+                ProgVariableTypes.Boolean
+            )
+        );
+
+        RegisterTypedTag(ProgVariableTypes.Item);
+        RegisterTypedTag(ProgVariableTypes.Location);
+        RegisterTypedTag(ProgVariableTypes.Terrain);
+    }
+
+    private static void RegisterTypedTag(ProgVariableTypes thingType)
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "istagged",
+                [thingType, ProgVariableTypes.Tag],
+                (pars, gameworld) => new IsTaggedFunction(pars, false, gameworld),
+                ["thing", "tag"],
+                ["The thing whose tags you want to interrogate", "The resolved tag to test"],
+                "Returns whether or not the thing has or counts as the supplied tag.",
                 "Tags",
                 ProgVariableTypes.Boolean
             )

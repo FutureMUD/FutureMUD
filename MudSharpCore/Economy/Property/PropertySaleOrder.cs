@@ -1,6 +1,8 @@
 ﻿using MoreLinq;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.TimeAndDate;
 
 namespace MudSharp.Economy.Property;
@@ -74,6 +76,58 @@ public class PropertySaleOrder : SaveableItem, IPropertySaleOrder
     private MudDateTime _startOfListing;
     private TimeSpan _durationOfListing;
     public override string FrameworkItemType => "PropertySaleOrder";
+
+    public ProgVariableTypes Type => ProgVariableTypes.PropertySaleOrder;
+    public object GetObject => this;
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable($"{Property.Name} sale order #{Id:N0}"),
+            "property" => Property,
+            "reserveprice" => new NumberVariable(ReservePrice),
+            "orderstatus" => new TextVariable(OrderStatus.DescribeEnum()),
+            "start" => StartOfListing,
+            "duration" => new TimeSpanVariable(DurationOfListing),
+            "showforsale" => new BooleanVariable(ShowForSale),
+            "consentcount" => new NumberVariable(PropertyOwnerConsent.Count),
+            "ownerconsentcount" => new NumberVariable(PropertyOwnerConsent.Values.Count(x => x)),
+            _ => throw new NotSupportedException($"Unsupported property sale order property {property}.")
+        };
+    }
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.PropertySaleOrder,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["property"] = ProgVariableTypes.Property,
+                ["reserveprice"] = ProgVariableTypes.Number,
+                ["orderstatus"] = ProgVariableTypes.Text,
+                ["start"] = ProgVariableTypes.MudDateTime,
+                ["duration"] = ProgVariableTypes.TimeSpan,
+                ["showforsale"] = ProgVariableTypes.Boolean,
+                ["consentcount"] = ProgVariableTypes.Number,
+                ["ownerconsentcount"] = ProgVariableTypes.Number
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable property-sale-order identity.",
+                ["name"] = "A generated description of this sale order.",
+                ["property"] = "The property governed by this sale order.",
+                ["reserveprice"] = "The reserve price for this sale order.",
+                ["orderstatus"] = "The current sale-order status.",
+                ["start"] = "The in-world listing start time.",
+                ["duration"] = "The configured sale-listing duration.",
+                ["showforsale"] = "Whether the order is currently visible for sale.",
+                ["consentcount"] = "The number of owners whose consent is tracked.",
+                ["ownerconsentcount"] = "The number of owners who have given consent."
+            });
+    }
 
     #region Overrides of SaveableItem
 

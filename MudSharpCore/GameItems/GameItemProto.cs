@@ -9,6 +9,8 @@ using MudSharp.Form.Material;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Framework.Units;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.Models;
@@ -144,6 +146,58 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
     }
 
     public override string FrameworkItemType => "GameItemProto";
+
+    public ProgVariableTypes Type => ProgVariableTypes.ItemPrototype;
+    public object GetObject => this;
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable(Name),
+            "uniquename" => new TextVariable(UniqueName ?? string.Empty),
+            "status" => new TextVariable(Status.DescribeEnum()),
+            "revision" => new NumberVariable(RevisionNumber),
+            "shortdesc" => new TextVariable(ShortDescription),
+            "fulldesc" => new TextVariable(FullDescription),
+            "material" => Material is null ? new NullVariable(ProgVariableTypes.Solid) : Material,
+            "weight" => new NumberVariable((decimal)Weight),
+            "preventmanualload" => new BooleanVariable(PreventManualLoad),
+            _ => throw new NotSupportedException($"Unsupported item prototype property {property}.")
+        };
+    }
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.ItemPrototype,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["uniquename"] = ProgVariableTypes.Text,
+                ["status"] = ProgVariableTypes.Text,
+                ["revision"] = ProgVariableTypes.Number,
+                ["shortdesc"] = ProgVariableTypes.Text,
+                ["fulldesc"] = ProgVariableTypes.Text,
+                ["material"] = ProgVariableTypes.Solid,
+                ["weight"] = ProgVariableTypes.Number,
+                ["preventmanualload"] = ProgVariableTypes.Boolean
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable item-prototype identity.",
+                ["name"] = "The builder-authored noun.",
+                ["uniquename"] = "The optional unique lookup name.",
+                ["status"] = "The revision status.",
+                ["revision"] = "The revision number.",
+                ["shortdesc"] = "The short description used for newly loaded items.",
+                ["fulldesc"] = "The full description used for newly loaded items.",
+                ["material"] = "The default solid material.",
+                ["weight"] = "The default item weight.",
+                ["preventmanualload"] = "Whether this prototype rejects direct manual or prog loading."
+            });
+    }
 
     public override string Show(ICharacter actor)
     {

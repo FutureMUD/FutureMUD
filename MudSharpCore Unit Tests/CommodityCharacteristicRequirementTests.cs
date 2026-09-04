@@ -4,6 +4,7 @@ using MudSharp.Form.Characteristics;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
@@ -43,6 +44,9 @@ public class CommodityCharacteristicRequirementTests
 		public ICharacteristicDefinition Parent => null;
 		public bool Changed { get; set; }
 		public IFuturemud Gameworld => null;
+		ProgVariableTypes IProgVariable.Type => ProgVariableTypes.CharacteristicDefinition;
+		IProgVariable IProgVariable.GetProperty(string property) => new NullVariable(ProgVariableTypes.Void);
+		object IProgVariable.GetObject => this;
 
 		public bool IsValue(ICharacteristicValue value)
 		{
@@ -96,6 +100,9 @@ public class CommodityCharacteristicRequirementTests
 		public string GetBasicValue => Name;
 		public string GetFancyValue => Name;
 		public PluralisationType Pluralisation => PluralisationType.Singular;
+		ProgVariableTypes IProgVariable.Type => ProgVariableTypes.CharacteristicValue;
+		IProgVariable IProgVariable.GetProperty(string property) => new NullVariable(ProgVariableTypes.Void);
+		object IProgVariable.GetObject => this;
 
 		public void BuildingCommand(MudSharp.Character.ICharacter actor, StringStack command)
 		{

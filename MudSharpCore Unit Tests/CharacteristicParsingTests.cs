@@ -3,6 +3,7 @@ using MudSharp.Form.Characteristics;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -36,6 +37,10 @@ public class CharacteristicParsingTests
         public ICharacteristicDefinition Parent => null;
         public bool Changed { get; set; }
         public IFuturemud Gameworld { get; }
+        ProgVariableTypes IProgVariable.Type => ProgVariableTypes.CharacteristicDefinition;
+        IProgVariable IProgVariable.GetProperty(string property) => new NullVariable(ProgVariableTypes.Void);
+        object IProgVariable.GetObject => this;
+
         public bool IsValue(ICharacteristicValue value)
         {
             return value?.Definition == this;
@@ -86,6 +91,10 @@ public class CharacteristicParsingTests
         public string GetBasicValue => GetValue;
         public string GetFancyValue => GetValue;
         public PluralisationType Pluralisation { get; }
+        ProgVariableTypes IProgVariable.Type => ProgVariableTypes.CharacteristicValue;
+        IProgVariable IProgVariable.GetProperty(string property) => new NullVariable(ProgVariableTypes.Void);
+        object IProgVariable.GetObject => this;
+
         public void BuildingCommand(MudSharp.Character.ICharacter actor, MudSharp.Framework.StringStack command) { }
         public string Show(MudSharp.Character.ICharacter actor)
         {

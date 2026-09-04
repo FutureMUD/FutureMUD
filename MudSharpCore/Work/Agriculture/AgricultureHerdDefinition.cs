@@ -2,6 +2,9 @@
 using MudSharp.Framework.Save;
 using MudSharp.NPC.Templates;
 
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
+
 namespace MudSharp.Work.Agriculture;
 
 public class AgricultureHerdDefinition : SaveableItem, IAgricultureHerdDefinition
@@ -53,6 +56,57 @@ public class AgricultureHerdDefinition : SaveableItem, IAgricultureHerdDefinitio
 	}
 
 	public override string FrameworkItemType => "AgricultureHerdDefinition";
+	public ProgVariableTypes Type => ProgVariableTypes.AgricultureHerdDefinition;
+	public object GetObject => this;
+
+	public IProgVariable GetProperty(string property)
+	{
+		return property.ToLowerInvariant() switch
+		{
+			"id" => new NumberVariable(Id),
+			"name" => new TextVariable(Name),
+			"description" => new TextVariable(Description),
+			"animalunits" => new NumberVariable((decimal)AnimalUnits),
+			"dailygraze" => new NumberVariable((decimal)DailyGraze),
+			"maximumcondition" => new NumberVariable(MaximumCondition),
+			"npctemplate" => NpcTemplate is IProgVariable npcTemplate
+				? npcTemplate
+				: new NullVariable(ProgVariableTypes.NPCTemplate),
+			"canmaterialise" => new BooleanVariable(CanMaterialise),
+			"secondaryoutputcount" => new NumberVariable(SecondaryOutputs.Count),
+			_ => throw new NotSupportedException($"Unsupported agriculture herd property {property}.")
+		};
+	}
+
+	public static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.AgricultureHerdDefinition,
+			new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = ProgVariableTypes.Number,
+				["name"] = ProgVariableTypes.Text,
+				["description"] = ProgVariableTypes.Text,
+				["animalunits"] = ProgVariableTypes.Number,
+				["dailygraze"] = ProgVariableTypes.Number,
+				["maximumcondition"] = ProgVariableTypes.Number,
+				["npctemplate"] = ProgVariableTypes.NPCTemplate,
+				["canmaterialise"] = ProgVariableTypes.Boolean,
+				["secondaryoutputcount"] = ProgVariableTypes.Number
+			},
+			new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = "The stable herd-definition identity.",
+				["name"] = "The herd-definition name.",
+				["description"] = "The builder-authored herd description.",
+				["animalunits"] = "Animal units represented by each herd member.",
+				["dailygraze"] = "Daily grazing demand per herd member.",
+				["maximumcondition"] = "The maximum herd condition score.",
+				["npctemplate"] = "The NPC template used to materialise herd members, or null.",
+				["canmaterialise"] = "Whether this herd has an NPC template to materialise.",
+				["secondaryoutputcount"] = "The number of configured secondary commodity outputs."
+			});
+	}
+
 	public string Description { get; private set; }
 	public double AnimalUnits { get; private set; }
 	public double DailyGraze { get; private set; }

@@ -1,5 +1,7 @@
 ﻿using MudSharp.Database;
 using MudSharp.Models;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using System.Text.RegularExpressions;
 
 namespace MudSharp.Form.Characteristics;
@@ -51,6 +53,50 @@ public class CharacteristicDefinition : FrameworkItem, ICharacteristicDefinition
     }
 
     public sealed override string FrameworkItemType => "CharacteristicDefinition";
+
+    ProgVariableTypes IProgVariable.Type => ProgVariableTypes.CharacteristicDefinition;
+    object IProgVariable.GetObject => this;
+
+    IProgVariable IProgVariable.GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable(Name),
+            "description" => new TextVariable(Description),
+            "type" => new TextVariable(Type.DescribeEnum()),
+            "parent" => Parent is IProgVariable parent
+                ? parent
+                : new NullVariable(ProgVariableTypes.CharacteristicDefinition),
+            "defaultvalue" => DefaultValue is IProgVariable defaultValue
+                ? defaultValue
+                : new NullVariable(ProgVariableTypes.CharacteristicValue),
+            _ => throw new NotSupportedException($"Unsupported characteristic definition property {property}.")
+        };
+    }
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.CharacteristicDefinition,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["description"] = ProgVariableTypes.Text,
+                ["type"] = ProgVariableTypes.Text,
+                ["parent"] = ProgVariableTypes.CharacteristicDefinition,
+                ["defaultvalue"] = ProgVariableTypes.CharacteristicValue
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable characteristic-definition identity.",
+                ["name"] = "The characteristic definition name.",
+                ["description"] = "The builder-authored characteristic description.",
+                ["type"] = "The characteristic definition type.",
+                ["parent"] = "The parent definition, or null.",
+                ["defaultvalue"] = "The default characteristic value, or null."
+            });
+    }
 
     #region IHaveFuturemud Members
 

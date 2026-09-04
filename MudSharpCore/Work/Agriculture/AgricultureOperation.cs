@@ -2,6 +2,9 @@
 using MudSharp.Framework.Save;
 using MudSharp.Work.Projects;
 
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
+
 namespace MudSharp.Work.Agriculture;
 
 public class AgricultureOperation : SaveableItem, IAgricultureOperation
@@ -95,6 +98,85 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 	}
 
 	public override string FrameworkItemType => "AgricultureOperation";
+	public ProgVariableTypes Type => ProgVariableTypes.AgricultureOperation;
+	public object GetObject => this;
+
+	public IProgVariable GetProperty(string property)
+	{
+		return property.ToLowerInvariant() switch
+		{
+			"id" => new NumberVariable(Id),
+			"name" => new TextVariable(Name),
+			"description" => new TextVariable(Description),
+			"operationtype" => new TextVariable(OperationType.DescribeEnum()),
+			"targettype" => new TextVariable(TargetType.DescribeEnum()),
+			"requireduse" => new TextVariable(RequiredUse.DescribeEnum()),
+			"resultuse" => new TextVariable(ResultUse.DescribeEnum()),
+			"project" => Project as IProgVariable ?? new NullVariable(ProgVariableTypes.Project),
+			"allowusecount" => new NumberVariable(AllowedUses.Count),
+			"scoredeltacount" => new NumberVariable(ScoreDeltas.Count),
+			"woodlandyieldmultiplier" => new NumberVariable((decimal)WoodlandYieldMultiplier),
+			"woodlandyieldcost" => new NumberVariable(WoodlandYieldCost),
+			"herdyieldmultiplier" => new NumberVariable((decimal)HerdYieldMultiplier),
+			"herdyieldcost" => new NumberVariable(HerdYieldCost),
+			"apiaryinstallhivecount" => new NumberVariable(ApiaryInstallHiveCount),
+			"apiarypollinationradius" => new NumberVariable(ApiaryPollinationRadius),
+			"apiaryyieldmultiplier" => new NumberVariable((decimal)ApiaryYieldMultiplier),
+			"apiaryyieldcost" => new NumberVariable(ApiaryYieldCost),
+			"apiaryyieldoutputcount" => new NumberVariable(ApiaryYieldOutputs.Count),
+			_ => throw new NotSupportedException($"Unsupported agriculture operation property {property}.")
+		};
+	}
+
+	public static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.AgricultureOperation,
+			new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = ProgVariableTypes.Number,
+				["name"] = ProgVariableTypes.Text,
+				["description"] = ProgVariableTypes.Text,
+				["operationtype"] = ProgVariableTypes.Text,
+				["targettype"] = ProgVariableTypes.Text,
+				["requireduse"] = ProgVariableTypes.Text,
+				["resultuse"] = ProgVariableTypes.Text,
+				["project"] = ProgVariableTypes.Project,
+				["allowusecount"] = ProgVariableTypes.Number,
+				["scoredeltacount"] = ProgVariableTypes.Number,
+				["woodlandyieldmultiplier"] = ProgVariableTypes.Number,
+				["woodlandyieldcost"] = ProgVariableTypes.Number,
+				["herdyieldmultiplier"] = ProgVariableTypes.Number,
+				["herdyieldcost"] = ProgVariableTypes.Number,
+				["apiaryinstallhivecount"] = ProgVariableTypes.Number,
+				["apiarypollinationradius"] = ProgVariableTypes.Number,
+				["apiaryyieldmultiplier"] = ProgVariableTypes.Number,
+				["apiaryyieldcost"] = ProgVariableTypes.Number,
+				["apiaryyieldoutputcount"] = ProgVariableTypes.Number
+			},
+			new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = "The stable agriculture-operation identity.",
+				["name"] = "The agriculture-operation name.",
+				["description"] = "The builder-authored operation description.",
+				["operationtype"] = "The operation category.",
+				["targettype"] = "The target category required by the operation.",
+				["requireduse"] = "The field use normally required before this operation.",
+				["resultuse"] = "The field use produced by this operation.",
+				["project"] = "The project definition used to perform this operation, or null.",
+				["allowusecount"] = "The number of field uses accepted by this operation.",
+				["scoredeltacount"] = "The number of configured agriculture-score deltas.",
+				["woodlandyieldmultiplier"] = "The woodland-yield multiplier.",
+				["woodlandyieldcost"] = "The woodland-yield cost.",
+				["herdyieldmultiplier"] = "The herd-yield multiplier.",
+				["herdyieldcost"] = "The herd-yield cost.",
+				["apiaryinstallhivecount"] = "The number of hives installed by this operation.",
+				["apiarypollinationradius"] = "The apiary pollination radius.",
+				["apiaryyieldmultiplier"] = "The apiary-yield multiplier.",
+				["apiaryyieldcost"] = "The apiary-yield cost.",
+				["apiaryyieldoutputcount"] = "The number of configured apiary commodity outputs."
+			});
+	}
+
 	public string Description { get; private set; }
 	public AgricultureOperationType OperationType { get; private set; }
 	public AgricultureTargetType TargetType { get; private set; }

@@ -12,7 +12,7 @@ using System.Collections.Generic;
 namespace MudSharp.NPC.Templates
 {
 #nullable enable
-    public interface INPCTemplate : IEditableRevisableItem
+    public interface INPCTemplate : IEditableRevisableItem, IProgVariable
     {
         string NPCTemplateType { get; }
         string? UniqueName { get; }

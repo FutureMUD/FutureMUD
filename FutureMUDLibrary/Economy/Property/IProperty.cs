@@ -23,7 +23,7 @@ namespace MudSharp.Economy.Property
         Executed
     }
 
-    public interface IProperty : IFrameworkItem, ISaveable, IEditableItem, IKeywordedItem
+    public interface IProperty : IFrameworkItem, ISaveable, IEditableItem, IKeywordedItem, IProgVariable
     {
         IEconomicZone EconomicZone { get; }
         IEnumerable<IPropertyOwner> PropertyOwners { get; }

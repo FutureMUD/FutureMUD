@@ -13,6 +13,7 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Property;
 using MudSharp.Editor;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
@@ -616,6 +617,12 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
             return $"the {((IFrameworkItem)result).Name.ColourValue()} legal class";
         }
 
+        if (returnType.IsExactType && returnType.LegacyCode == ProgVariableTypeCode.Unknown &&
+            result is IFrameworkItem frameworkItem)
+        {
+            return $"the {frameworkItem.Name.ColourValue()} {returnType.Describe().Colour(Telnet.VariableGreen)}";
+        }
+
         switch (returnType.LegacyCode)
         {
             case ProgVariableTypeCode.Boolean:
@@ -867,6 +874,132 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
         }
 
         string parameterArgument = parNumber > 0 ? $" at parameter {parNumber.ToString("N0", actor)}" : "";
+
+        if (type == ProgVariableTypes.Tag)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.Tags.GetByIdOrName(parText), "tag",
+                parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.ItemPrototype)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.ItemProtos.GetByIdOrName(parText),
+                "item prototype", parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.NPCTemplate)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.NpcTemplates.GetByIdOrName(parText), "NPC template",
+                parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.OutfitTemplate)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.OutfitTemplates.GetByIdOrName(parText),
+                "outfit template", parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.Vehicle)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.Vehicles.GetByIdOrName(parText), "vehicle",
+                parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.CelestialObject)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.CelestialObjects.GetByIdOrName(parText),
+                "celestial object", parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.Grid)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.Grids.GetByIdOrName(parText), "grid",
+                parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.CharacteristicDefinition)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.Characteristics.GetByIdOrName(parText),
+                "characteristic definition", parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.CharacteristicValue)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.CharacteristicValues.GetByIdOrName(parText),
+                "characteristic value", parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.AgricultureFieldProfile)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.AgricultureFieldProfiles.GetByIdOrName(parText),
+                "agriculture field profile", parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.AgricultureCropDefinition)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.AgricultureCropDefinitions.GetByIdOrName(parText),
+                "agriculture crop definition", parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.AgricultureHerdDefinition)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.AgricultureHerdDefinitions.GetByIdOrName(parText),
+                "agriculture herd definition", parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.AgricultureWoodlandDefinition)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.AgricultureWoodlandDefinitions.GetByIdOrName(parText),
+                "agriculture woodland definition", parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.AgricultureOperation)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.AgricultureOperations.GetByIdOrName(parText),
+                "agriculture operation", parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.Property)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.Properties.GetByIdOrName(parText), "property",
+                parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.PropertyKey)
+        {
+            return ResolvePropertyChildArgument(actor, parText, parameterArgument, "property key",
+                PropertyReferenceLookup.GetPropertyKey);
+        }
+
+        if (type == ProgVariableTypes.PropertyLease)
+        {
+            return ResolvePropertyChildArgument(actor, parText, parameterArgument, "property lease",
+                PropertyReferenceLookup.GetPropertyLease);
+        }
+
+        if (type == ProgVariableTypes.PropertyLeaseOrder)
+        {
+            return ResolvePropertyChildArgument(actor, parText, parameterArgument, "property lease order",
+                PropertyReferenceLookup.GetPropertyLeaseOrder);
+        }
+
+        if (type == ProgVariableTypes.PropertySaleOrder)
+        {
+            return ResolvePropertyChildArgument(actor, parText, parameterArgument, "property sale order",
+                PropertyReferenceLookup.GetPropertySaleOrder);
+        }
+
+        if (type == ProgVariableTypes.EconomicZone)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.EconomicZones.GetByIdOrName(parText),
+                "economic zone", parameterArgument);
+        }
+
+        if (type == ProgVariableTypes.Channel)
+        {
+            return ResolveFrameworkItemArgument(actor, actor.Gameworld.Channels.GetByIdOrName(parText), "channel",
+                parameterArgument);
+        }
 
         if (type == ProgVariableTypes.NameCulture)
         {
@@ -1497,6 +1630,30 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
                     $"The variable type {type.Describe().Colour(Telnet.VariableCyan)} is not yet supported in this command. Sorry.");
                 return (null, false);
         }
+    }
+
+    private static (object result, bool success) ResolvePropertyChildArgument(ICharacter actor, string text,
+        string parameterArgument, string typeName, Func<IFuturemud, long, IFrameworkItem> resolver)
+    {
+        if (!long.TryParse(text, out long id))
+        {
+            actor.OutputHandler.Send($"You must enter a numeric ID for the {typeName}{parameterArgument}.");
+            return (null, false);
+        }
+
+        return ResolveFrameworkItemArgument(actor, resolver(actor.Gameworld, id), typeName, parameterArgument);
+    }
+
+    private static (object result, bool success) ResolveFrameworkItemArgument(ICharacter actor, IFrameworkItem item,
+        string typeName, string parameterArgument)
+    {
+        if (item is not null)
+        {
+            return (item, true);
+        }
+
+        actor.OutputHandler.Send($"There is no such {typeName}{parameterArgument}.");
+        return (null, false);
     }
 
     private static void ProgSetText(ICharacter actor, IFutureProg prog, StringStack command, bool append)
@@ -2284,6 +2441,12 @@ To see what register values a room, item or character has use the #3sniff#0 comm
         if (varType == ProgVariableTypes.Error)
         {
             actor.Send("That is not a valid variable type.");
+            return;
+        }
+
+        if (!VariableRegister.SupportsPersistentStorage(varType))
+        {
+            actor.Send("That variable type is runtime-scoped and cannot be stored in the persistent variable register.");
             return;
         }
 

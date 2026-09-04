@@ -212,3 +212,54 @@ internal class CharacteristicValueFunction : BuiltInFunction
         return StatementResult.Normal;
     }
 }
+
+internal sealed class GetCharacteristicValueFunction : BuiltInFunction
+{
+	private GetCharacteristicValueFunction(IList<IFunction> parameters) : base(parameters)
+	{
+	}
+
+	public override ProgVariableTypes ReturnType
+	{
+		get => ProgVariableTypes.CharacteristicValue;
+		protected set { }
+	}
+
+	public override StatementResult Execute(IVariableSpace variables)
+	{
+		if (base.Execute(variables) == StatementResult.Error)
+		{
+			return StatementResult.Error;
+		}
+
+		if (ParameterFunctions[0].Result?.GetObject is not IHaveCharacteristics target ||
+		    ParameterFunctions[1].Result?.GetObject is not ICharacteristicDefinition definition)
+		{
+			Result = new NullVariable(ProgVariableTypes.CharacteristicValue);
+			return StatementResult.Normal;
+		}
+
+		Result = target.GetCharacteristic(definition, null) as IProgVariable ??
+		         new NullVariable(ProgVariableTypes.CharacteristicValue);
+		return StatementResult.Normal;
+	}
+
+	public static void RegisterFunctionCompiler()
+	{
+		Register(ProgVariableTypes.Character, "The character whose characteristic value you want to retrieve.");
+		Register(ProgVariableTypes.Item, "The item whose characteristic value you want to retrieve.");
+	}
+
+	private static void Register(ProgVariableTypes targetType, string targetHelp)
+	{
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"getcharacteristicvalue",
+			[targetType, ProgVariableTypes.CharacteristicDefinition],
+			(pars, _) => new GetCharacteristicValueFunction(pars),
+			["target", "definition"],
+			[targetHelp, "The resolved characteristic definition to retrieve."],
+			"Returns the selected characteristic value for a character or item, or null if it has no value for that definition.",
+			"Characteristics",
+			ProgVariableTypes.CharacteristicValue));
+	}
+}

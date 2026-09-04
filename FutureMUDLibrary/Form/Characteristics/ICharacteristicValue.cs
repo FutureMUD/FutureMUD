@@ -16,7 +16,7 @@ namespace MudSharp.Form.Characteristics
         Singular
     }
 
-    public interface ICharacteristicValue : IFrameworkItem
+    public interface ICharacteristicValue : IFrameworkItem, IProgVariable
     {
         IFutureProg ChargenApplicabilityProg
         {

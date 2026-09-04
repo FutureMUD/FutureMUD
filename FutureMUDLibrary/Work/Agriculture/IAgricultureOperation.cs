@@ -5,7 +5,7 @@ using MudSharp.Work.Projects;
 
 namespace MudSharp.Work.Agriculture;
 
-public interface IAgricultureOperation : IFrameworkItem, IHaveFuturemud
+public interface IAgricultureOperation : IFrameworkItem, IHaveFuturemud, IProgVariable
 {
 	string Description { get; }
 	AgricultureOperationType OperationType { get; }

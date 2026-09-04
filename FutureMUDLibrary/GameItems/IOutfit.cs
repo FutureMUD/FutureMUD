@@ -62,7 +62,7 @@ namespace MudSharp.GameItems
 
     }
 
-    public interface IOutfitTemplate : IEditableItem
+    public interface IOutfitTemplate : IEditableItem, IProgVariable
     {
         string Description { get; set; }
         OutfitExclusivity Exclusivity { get; set; }

@@ -1,6 +1,9 @@
 ﻿using MudSharp.Database;
 using MudSharp.Framework.Save;
 
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
+
 namespace MudSharp.Work.Agriculture;
 
 public class AgricultureFieldProfile : SaveableItem, IAgricultureFieldProfile
@@ -49,6 +52,54 @@ public class AgricultureFieldProfile : SaveableItem, IAgricultureFieldProfile
 	}
 
 	public override string FrameworkItemType => "AgricultureFieldProfile";
+	public ProgVariableTypes Type => ProgVariableTypes.AgricultureFieldProfile;
+	public object GetObject => this;
+
+	public IProgVariable GetProperty(string property)
+	{
+		return property.ToLowerInvariant() switch
+		{
+			"id" => new NumberVariable(Id),
+			"name" => new TextVariable(Name),
+			"description" => new TextVariable(Description),
+			"defaultscorecount" => new NumberVariable(_defaultScores.Count),
+			"allowsfallow" => new BooleanVariable(AllowsUse(AgricultureFieldUse.Fallow)),
+			"allowscrop" => new BooleanVariable(AllowsUse(AgricultureFieldUse.Crop)),
+			"allowspasture" => new BooleanVariable(AllowsUse(AgricultureFieldUse.Pasture)),
+			"allowswoodland" => new BooleanVariable(AllowsUse(AgricultureFieldUse.Woodland)),
+			"allowsorchard" => new BooleanVariable(AllowsUse(AgricultureFieldUse.Orchard)),
+			_ => throw new NotSupportedException($"Unsupported agriculture field profile property {property}.")
+		};
+	}
+
+	public static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.AgricultureFieldProfile,
+			new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = ProgVariableTypes.Number,
+				["name"] = ProgVariableTypes.Text,
+				["description"] = ProgVariableTypes.Text,
+				["defaultscorecount"] = ProgVariableTypes.Number,
+				["allowsfallow"] = ProgVariableTypes.Boolean,
+				["allowscrop"] = ProgVariableTypes.Boolean,
+				["allowspasture"] = ProgVariableTypes.Boolean,
+				["allowswoodland"] = ProgVariableTypes.Boolean,
+				["allowsorchard"] = ProgVariableTypes.Boolean
+			},
+			new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = "The stable field-profile identity.",
+				["name"] = "The field-profile name.",
+				["description"] = "The builder-authored field-profile description.",
+				["defaultscorecount"] = "The number of configured default agriculture scores.",
+				["allowsfallow"] = "Whether fields using this profile can be fallow.",
+				["allowscrop"] = "Whether fields using this profile can grow annual crops.",
+				["allowspasture"] = "Whether fields using this profile can be pasture.",
+				["allowswoodland"] = "Whether fields using this profile can be woodland.",
+				["allowsorchard"] = "Whether fields using this profile can be orchard land."
+			});
+	}
 	public string Description { get; private set; }
 	public IReadOnlyDictionary<AgricultureScoreType, int> DefaultScores => _defaultScores;
 

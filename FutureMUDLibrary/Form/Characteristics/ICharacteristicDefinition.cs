@@ -1,6 +1,7 @@
 ﻿using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
 using System;
 using System.Text.RegularExpressions;
 
@@ -59,7 +60,7 @@ namespace MudSharp.Form.Characteristics
         DisplayTable = 2
     }
 
-    public interface ICharacteristicDefinition : IFrameworkItem, ISaveable
+    public interface ICharacteristicDefinition : IFrameworkItem, ISaveable, IProgVariable
     {
         /// <summary>
         ///     The Regex that matches this characteristic definition
@@ -73,7 +74,7 @@ namespace MudSharp.Form.Characteristics
         /// <summary>
         ///     The CharacteristicType that describes the behaviour type of this CharacteristicDefinition
         /// </summary>
-        CharacteristicType Type { get; }
+        new CharacteristicType Type { get; }
 
         /// <summary>
         ///     Controls how the values of this ICharacteristicDefinition should be displayed in the Chargen system

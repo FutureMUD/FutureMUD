@@ -64,7 +64,7 @@ public class FutureProgFunctionDocumentationTests
 	}
 
 	[TestMethod]
-	public void CelestialElevationFunction_Metadata_HasLocationAndZoneNumberOverloads()
+	public void CelestialElevationFunction_Metadata_HasLocationAndZoneReferenceOverloads()
 	{
 		FutureProgTestBootstrap.EnsureInitialised();
 
@@ -72,11 +72,15 @@ public class FutureProgFunctionDocumentationTests
 		                          .Where(x => x.FunctionName.EqualTo("celestialelevation"))
 		                          .ToList();
 
-		Assert.AreEqual(2, overloads.Count);
+		Assert.AreEqual(4, overloads.Count);
 		Assert.IsTrue(overloads.Any(x =>
 			x.Parameters.SequenceEqual(new[] { ProgVariableTypes.Location, ProgVariableTypes.Number })));
 		Assert.IsTrue(overloads.Any(x =>
 			x.Parameters.SequenceEqual(new[] { ProgVariableTypes.Zone, ProgVariableTypes.Number })));
+		Assert.IsTrue(overloads.Any(x =>
+			x.Parameters.SequenceEqual(new[] { ProgVariableTypes.Location, ProgVariableTypes.CelestialObject })));
+		Assert.IsTrue(overloads.Any(x =>
+			x.Parameters.SequenceEqual(new[] { ProgVariableTypes.Zone, ProgVariableTypes.CelestialObject })));
 		Assert.IsTrue(overloads.All(x => x.ReturnType == ProgVariableTypes.Number));
 		Assert.IsTrue(overloads.All(x => x.Category.EqualTo("Celestials")));
 		Assert.IsTrue(overloads.All(x => x.FunctionHelp.Contains("radians", StringComparison.OrdinalIgnoreCase)));

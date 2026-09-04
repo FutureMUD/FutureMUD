@@ -1,6 +1,8 @@
 ﻿using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.Form.Characteristics;
 
@@ -84,6 +86,51 @@ public class CharacteristicValue : FrameworkItem, ISaveable, ICharacteristicValu
     public IFutureProg OngoingValidityProg { get; protected set; }
 
     public sealed override string FrameworkItemType => "CharacteristicValue";
+
+    public ProgVariableTypes Type => ProgVariableTypes.CharacteristicValue;
+    public object GetObject => this;
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable(Name),
+            "definition" => Definition is IProgVariable definition
+                ? definition
+                : new NullVariable(ProgVariableTypes.CharacteristicDefinition),
+            "value" => new TextVariable(GetValue),
+            "basicvalue" => new TextVariable(GetBasicValue),
+            "fancyvalue" => new TextVariable(GetFancyValue),
+            "pluralisation" => new TextVariable(Pluralisation.DescribeEnum()),
+            _ => throw new NotSupportedException($"Unsupported characteristic value property {property}.")
+        };
+    }
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.CharacteristicValue,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["definition"] = ProgVariableTypes.CharacteristicDefinition,
+                ["value"] = ProgVariableTypes.Text,
+                ["basicvalue"] = ProgVariableTypes.Text,
+                ["fancyvalue"] = ProgVariableTypes.Text,
+                ["pluralisation"] = ProgVariableTypes.Text
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable characteristic-value identity.",
+                ["name"] = "The characteristic value name.",
+                ["definition"] = "The definition this value belongs to.",
+                ["value"] = "The value's ordinary text.",
+                ["basicvalue"] = "The value's basic display text.",
+                ["fancyvalue"] = "The value's rich display text.",
+                ["pluralisation"] = "The configured pluralisation behaviour."
+            });
+    }
 
     public virtual string GetValue => Name;
 

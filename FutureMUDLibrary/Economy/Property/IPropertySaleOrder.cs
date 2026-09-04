@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace MudSharp.Economy.Property
 {
-    public interface IPropertySaleOrder : IFrameworkItem
+    public interface IPropertySaleOrder : IFrameworkItem, MudSharp.FutureProg.IProgVariable
     {
         IProperty Property { get; }
         decimal ReservePrice { get; set; }

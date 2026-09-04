@@ -26,7 +26,9 @@ internal static class VehicleFutureProgHelpers
 
 	public static IVehicle? VehicleFrom(IFunction function)
 	{
-		return ItemFrom(function)?.GetItemType<IVehicleExterior>()?.Vehicle;
+		return function.Result as IVehicle ??
+		       function.Result?.GetObject as IVehicle ??
+		       ItemFrom(function)?.GetItemType<IVehicleExterior>()?.Vehicle;
 	}
 
 	public static IVehicleMovementProfilePrototype? MovementProfile(IVehicle vehicle)
@@ -116,12 +118,19 @@ internal class VehicleCanActionFunction : BuiltInFunction
 
 	private static void Register(string name, VehicleOperationalAction action, string description)
 	{
+		Register(name, action, description, ProgVariableTypes.Item, "The vehicle exterior item.");
+		Register(name, action, description, ProgVariableTypes.Vehicle, "The resolved vehicle.");
+	}
+
+	private static void Register(string name, VehicleOperationalAction action, string description,
+		ProgVariableTypes vehicleType, string vehicleHelp)
+	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			name,
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
+			[ProgVariableTypes.Character, vehicleType],
 			(pars, _) => new VehicleCanActionFunction(pars, action),
-			new[] { "character", "vehicle" },
-			new[] { "The character attempting the action.", "The vehicle exterior item." },
+			["character", "vehicle"],
+			["The character attempting the action.", vehicleHelp],
 			description,
 			"Vehicles",
 			ProgVariableTypes.Boolean));
@@ -172,6 +181,16 @@ internal class VehicleCanStartFunction : BuiltInFunction
 			(pars, _) => new VehicleCanStartFunction(pars),
 			new[] { "character", "vehicle" },
 			new[] { "The character attempting to start or route the vehicle.", "The vehicle exterior item." },
+			"Returns true if the character and vehicle pass route-ready movement preflight without checking a specific exit.",
+			"Vehicles",
+			ProgVariableTypes.Boolean));
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"vehiclecanstart",
+			[ProgVariableTypes.Character, ProgVariableTypes.Vehicle],
+			(pars, _) => new VehicleCanStartFunction(pars),
+			["character", "vehicle"],
+			["The character attempting to start or route the vehicle.", "The resolved vehicle."],
 			"Returns true if the character and vehicle pass route-ready movement preflight without checking a specific exit.",
 			"Vehicles",
 			ProgVariableTypes.Boolean));
@@ -264,6 +283,16 @@ internal class VehicleReadinessReasonFunction : BuiltInFunction
 			"Returns the blocking reason for a vehicle action, or blank text if the action is ready.",
 			"Vehicles",
 			ProgVariableTypes.Text));
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"vehiclereadinessreason",
+			[ProgVariableTypes.Character, ProgVariableTypes.Vehicle, ProgVariableTypes.Text],
+			(pars, _) => new VehicleReadinessReasonFunction(pars),
+			["character", "vehicle", "action"],
+			["The character attempting the action.", "The resolved vehicle.", "board, control, service, repair, hitch, start, move, or route."],
+			"Returns the blocking reason for a vehicle action, or blank text if the action is ready.",
+			"Vehicles",
+			ProgVariableTypes.Text));
 	}
 }
 
@@ -301,6 +330,16 @@ internal class VehicleTrainWeightFunction : BuiltInFunction
 			(pars, _) => new VehicleTrainWeightFunction(pars),
 			new[] { "vehicle" },
 			new[] { "The vehicle exterior item." },
+			"Returns the effective weight of the vehicle's unified hitch/tow train.",
+			"Vehicles",
+			ProgVariableTypes.Number));
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"vehicletrainweight",
+			[ProgVariableTypes.Vehicle],
+			(pars, _) => new VehicleTrainWeightFunction(pars),
+			["vehicle"],
+			["The resolved vehicle."],
 			"Returns the effective weight of the vehicle's unified hitch/tow train.",
 			"Vehicles",
 			ProgVariableTypes.Number));
@@ -347,6 +386,16 @@ internal class VehicleTowStressFunction : BuiltInFunction
 			(pars, _) => new VehicleTowStressFunction(pars),
 			new[] { "vehicle" },
 			new[] { "The vehicle exterior item." },
+			"Returns the highest hitch/tow stress ratio in the vehicle's unified train, or 0 if none applies.",
+			"Vehicles",
+			ProgVariableTypes.Number));
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"vehicletowstress",
+			[ProgVariableTypes.Vehicle],
+			(pars, _) => new VehicleTowStressFunction(pars),
+			["vehicle"],
+			["The resolved vehicle."],
 			"Returns the highest hitch/tow stress ratio in the vehicle's unified train, or 0 if none applies.",
 			"Vehicles",
 			ProgVariableTypes.Number));

@@ -187,6 +187,29 @@ internal class SetCharacteristicFunction : BuiltInFunction
                 ProgVariableTypes.Boolean
             )
         );
+
+        RegisterTypedCharacteristic(ProgVariableTypes.Character, "character");
+        RegisterTypedCharacteristic(ProgVariableTypes.Item, "item");
+    }
+
+    private static void RegisterTypedCharacteristic(ProgVariableTypes targetType, string targetName)
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "setcharacteristic",
+                [targetType, ProgVariableTypes.CharacteristicDefinition, ProgVariableTypes.CharacteristicValue],
+                (pars, gameworld) => new SetCharacteristicFunction(pars, gameworld),
+                [targetName, "definition", "value"],
+                [
+                    $"The {targetName} whose characteristics you want to set",
+                    "The resolved characteristic definition to use",
+                    "The resolved characteristic value that you want to set"
+                ],
+                "Sets the intrinsic characteristic value for the characteristic definition on the supplied target. Returns true if successful.",
+                "Characteristics",
+                ProgVariableTypes.Boolean
+            )
+        );
     }
 
     public override StatementResult Execute(IVariableSpace variables)
@@ -202,18 +225,20 @@ internal class SetCharacteristicFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        ICharacteristicDefinition definition = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Text)
-            ? _gameworld.Characteristics.GetByName(ParameterFunctions[1].Result?.GetObject as string ?? "")
-            : _gameworld.Characteristics.Get((long)(ParameterFunctions[1].Result?.GetObject as decimal? ?? 0.0M));
+        ICharacteristicDefinition definition = ParameterFunctions[1].Result?.GetObject as ICharacteristicDefinition ??
+            (ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Text)
+                ? _gameworld.Characteristics.GetByName(ParameterFunctions[1].Result?.GetObject as string ?? "")
+                : _gameworld.Characteristics.Get((long)(ParameterFunctions[1].Result?.GetObject as decimal? ?? 0.0M)));
         if (definition == null)
         {
             Result = new BooleanVariable(false);
             return StatementResult.Normal;
         }
 
-        ICharacteristicValue value = ParameterFunctions[2].ReturnType.CompatibleWith(ProgVariableTypes.Text)
-            ? _gameworld.CharacteristicValues.GetByName(ParameterFunctions[2].Result?.GetObject as string ?? "")
-            : _gameworld.CharacteristicValues.Get((long)(ParameterFunctions[2].Result?.GetObject as decimal? ?? 0.0M));
+        ICharacteristicValue value = ParameterFunctions[2].Result?.GetObject as ICharacteristicValue ??
+            (ParameterFunctions[2].ReturnType.CompatibleWith(ProgVariableTypes.Text)
+                ? _gameworld.CharacteristicValues.GetByName(ParameterFunctions[2].Result?.GetObject as string ?? "")
+                : _gameworld.CharacteristicValues.Get((long)(ParameterFunctions[2].Result?.GetObject as decimal? ?? 0.0M)));
         if (value == null || !definition.IsValue(value))
         {
             Result = new BooleanVariable(false);

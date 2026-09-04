@@ -175,6 +175,24 @@ public class PathingAIDoorSmashScheduleTests
 	}
 
 	[TestMethod]
+	public void NativeWeaponSmash_BindsSelectedWeaponToRealMove()
+	{
+		var character = new Mock<ICharacter>();
+		var target = new Mock<IGameItem>();
+		var weapon = new Mock<IMeleeWeapon>();
+		var attack = new Mock<IWeaponAttack>();
+
+		var move = PathingAIBase.CreateMeleeWeaponSmashMove(character.Object, target.Object, weapon.Object,
+			attack.Object);
+
+		Assert.AreSame(character.Object, move.Assailant);
+		Assert.AreSame(target.Object, move.Target);
+		Assert.AreSame(weapon.Object, move.Weapon);
+		Assert.AreSame(attack.Object, move.Attack);
+		Assert.IsNull(move.ParentItem);
+	}
+
+	[TestMethod]
 	public void RepeatedClosedDoorRetries_ReuseFocusDeadlineAndCallbackSchedule()
 	{
 		var fixture = CreateFixture();

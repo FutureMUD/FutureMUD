@@ -473,8 +473,8 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         IWeaponAttack option = weaponoption.Item1.Item2.GetWeightedRandom(x => x.Weighting);
         if (ch.Combat == null)
         {
-            MeleeWeaponSmashItemAttack nmove = new(option)
-            { Assailant = ch, Target = exit.Exit.Door.Parent, ParentItem = null, Attack = option };
+            MeleeWeaponSmashItemAttack nmove = CreateMeleeWeaponSmashMove(ch, exit.Exit.Door.Parent,
+                weaponoption.Item1.Item1, option);
             nmove.ResolveMove(null);
             ch.SpendStamina(nmove.StaminaCost);
             ch.AddEffect(
@@ -489,6 +489,15 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         }
 
         return true;
+    }
+
+    internal static MeleeWeaponSmashItemAttack CreateMeleeWeaponSmashMove(ICharacter assailant, IGameItem target,
+        IMeleeWeapon weapon, IWeaponAttack attack)
+    {
+        return new MeleeWeaponSmashItemAttack(attack)
+        {
+            Assailant = assailant, Target = target, ParentItem = null, Weapon = weapon, Attack = attack
+        };
     }
 
     protected bool HandleCommandDelayExpired(ICharacter ch, IEnumerable<string> commands)

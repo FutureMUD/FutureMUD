@@ -37,6 +37,8 @@ public interface IBankAccount : IFrameworkItem, ISaveable, IProgVariable
     bool IsAccountOwner(IFrameworkItem owner);
     bool IsAuthorisedAccountUser(ICharacter character);
     IFrameworkItem AccountOwner { get; }
+	long AccountOwnerId { get; }
+	string AccountOwnerFrameworkItemType { get; }
     void SetAccountOwner(IFrameworkItem owner);
     void SetName(string name);
 

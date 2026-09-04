@@ -178,6 +178,8 @@ public interface IEconomyAnalyticsService
 		EconomicVolumeClassification? volumeClassification, long? economicZoneId = null,
 		long? currencyId = null, int count = 30);
 	IReadOnlyList<EconomyRisk> GetRisks(long? economicZoneId = null);
+	IReadOnlyList<EconomyRisk> GetRisks(IReadOnlyList<EconomyHolding> currentHoldings,
+		long? economicZoneId = null);
 	long? TakeSnapshot(EconomySnapshotReason reason, long? economicZoneId = null,
 		long? financialPeriodId = null);
 	void NotifyFinancialPeriodClosed(long economicZoneId, long financialPeriodId);

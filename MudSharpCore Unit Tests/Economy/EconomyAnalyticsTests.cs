@@ -1,9 +1,19 @@
 #nullable enable
 
 using System;
+using System.Linq;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using MudSharp.Character;
+using MudSharp.Commands;
+using MudSharp.Commands.Modules;
+using MudSharp.Database;
 using MudSharp.Economy;
+using MudSharp.Economy.Analytics;
 using MudSharp.Framework;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp_Unit_Tests.Economy;
 
@@ -40,5 +50,43 @@ public class EconomyAnalyticsTests
 		Assert.AreEqual("true", DefaultStaticSettings.DefaultStaticConfigurations["EconomyAnalyticsRolloverSnapshotsEnabled"]);
 		Assert.IsFalse(EconomyAnalyticsMath.IsValidSnapshotInterval(TimeSpan.FromMinutes(59)));
 		Assert.IsTrue(EconomyAnalyticsMath.IsValidSnapshotInterval(TimeSpan.FromHours(1)));
+	}
+
+	[TestMethod]
+	public void EconomyCommand_NoArguments_ShowsHelpWithoutStartingAnalytics()
+	{
+		var output = new Mock<IOutputHandler>();
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		var method = typeof(EconomyModule).GetMethod("EconomyAnalytics",
+			BindingFlags.Static | BindingFlags.NonPublic);
+
+		Assert.IsNotNull(method);
+		method.Invoke(null, [actor.Object, "economy"]);
+
+		output.Verify(x => x.Send(It.Is<string>(text => text.Contains("economy money")), true, false), Times.Once);
+		actor.VerifyGet(x => x.Gameworld, Times.Never);
+		var help = EconomyModule.Instance.Commands.TCommands["economy"].HelpInfo;
+		Assert.IsNotNull(help);
+		Assert.AreEqual(AutoHelp.HelpArgOrNoArg, help.AutoHelpSetting);
+	}
+
+	[TestMethod]
+	public void AnalyticsAggregateQueries_AreRelationallyTranslatable()
+	{
+		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseMySql("server=localhost;port=3306;database=dbo;uid=futuremud;password=unused",
+				ServerVersion.Parse("8.0.36-mysql"))
+			.Options;
+		using var context = new FuturemudDatabaseContext(options);
+
+		var trendSql = EconomyAnalyticsService.BuildTrendQuery(context.EconomySnapshotEntries
+			.Where(x => x.Metric == (int)EconomyHoldingMetric.BroadMoneySupply), 2).ToQueryString();
+		var volumeSql = EconomyAnalyticsService.BuildVolumeAggregateQuery(context.EconomicActivityRecords)
+			.ToQueryString();
+
+		StringAssert.Contains(trendSql, "ORDER BY");
+		StringAssert.Contains(trendSql, "LIMIT");
+		StringAssert.Contains(volumeSql, "GROUP BY");
 	}
 }

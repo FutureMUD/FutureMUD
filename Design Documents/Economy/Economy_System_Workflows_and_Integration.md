@@ -553,7 +553,8 @@ A restaurant manager can maintain crafting inputs with `goals draft new restaura
 
 Administrators use `economy` as the reporting umbrella:
 
-- `economy [summary] [<zone>|all]` shows current broad supply, PC-controlled share, last-day exchange and movement, snapshot state, trend direction, coverage, and warning count.
+- `economy` with no subcommand displays help and never starts a live census. The help warns that live reports include persisted offline holdings and can take noticeable time on very large worlds, keeping an exploratory or accidental command from running the most expensive report on the game loop.
+- `economy summary [<zone>|all]` explicitly requests current broad supply, PC-controlled share, last-day exchange and movement, snapshot state, trend direction, coverage, and warning count.
 - `economy money [<zone>|all] [<currency>] [details]` reports each money layer and control bucket; `details` adds the largest custody records and malformed/ambiguous entries.
 - `economy volume real <day|week|month> [...]` uses UTC ranges. `economy volume mud <zone> <day|week|month|period> [...]` uses persisted zone calendar and financial-period keys and therefore requires a zone.
 - `economy trends <supply|exchange|movement|pcwealth|reserves> [...]` reads durable snapshots. When collection is disabled it still displays retained history and explicitly reports the disabled state.
@@ -562,5 +563,7 @@ Administrators use `economy` as the reporting umbrella:
 - `economy snapshot [<zone>|all]` takes a labelled manual snapshot only while collection is enabled.
 
 Reports and manual snapshots require Admin. `economy config` is readable by Admin, while `economy config snapshots <on|off>`, `economy config interval <timespan>`, and `economy config rollover <on|off>` require High Admin. The interval rejects values below one hour. Changes persist immediately in static configuration and require no reboot. Turning collection off prevents baseline, periodic, rollover, and manual writes while preserving old snapshots; turning it back on creates a baseline only if no history exists, otherwise the previous periodic cadence remains authoritative.
+
+Live-census commands remain synchronous because they combine current in-memory economy state with persisted offline currency. Their database work is bounded to relevant currency ancestry/custody rows, bank-owner classifications are batched without loading character objects, ledger volume is aggregated server-side, and summary risk analysis reuses the report's existing census. Durable trend queries order and limit their grouped SQL result before constructing runtime points so they remain provider-translatable.
 
 Business operations should call `IEconomyAnalyticsService.RecordActivity` once at their semantic completion boundary. Shop sale/purchase/refund/tax records are captured centrally by `IShop.AddTransaction`; bank account transfers and player cash gifts record one transfer after settlement. New services, rent, property, auction, wage/project, clan, tax, legal-payment, source, and sink paths must use the same entry point rather than inferring volume from paired bank or virtual-cash ledger legs.

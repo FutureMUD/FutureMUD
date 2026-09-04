@@ -14,6 +14,19 @@ namespace MudSharp.Economy.Analytics;
 
 public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 {
+	internal sealed class EconomyVolumeAggregateRow
+	{
+		public int ActivityType { get; init; }
+		public bool PcInvolved { get; init; }
+		public long EventCount { get; init; }
+		public decimal ExchangeGlobalBaseValue { get; init; }
+		public decimal MovementGlobalBaseValue { get; init; }
+		public decimal TotalGlobalBaseValue { get; init; }
+	}
+
+	private sealed record CharacterControlRecord(long Id, long? AccountId, bool IsAdminAvatar, bool IsGuest,
+		bool IsNpc, long? BodyguardCharacterId);
+
 	public const string SnapshotsEnabledConfiguration = "EconomyAnalyticsSnapshotsEnabled";
 	public const string SnapshotIntervalConfiguration = "EconomyAnalyticsSnapshotIntervalMinutes";
 	public const string RolloverSnapshotsEnabledConfiguration = "EconomyAnalyticsRolloverSnapshotsEnabled";
@@ -98,14 +111,14 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 			return;
 		}
 
-		var currency = _gameworld.Currencies.FirstOrDefault(x => x.Id == activity.CurrencyId);
+		var currency = _gameworld.Currencies.Get(activity.CurrencyId);
 		if (currency is null)
 		{
 			return;
 		}
 
 		var zone = activity.EconomicZoneId.HasValue
-			? _gameworld.EconomicZones.FirstOrDefault(x => x.Id == activity.EconomicZoneId.Value)
+			? _gameworld.EconomicZones.Get(activity.EconomicZoneId.Value)
 			: null;
 		var mudDate = zone?.FinancialPeriodReferenceCalendar.CurrentDate;
 		var now = DateTime.UtcNow;
@@ -155,6 +168,12 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 
 	public EconomicControlBucket ResolveControl(string? frameworkItemType, long? frameworkItemId)
 	{
+		return ResolveControl(frameworkItemType, frameworkItemId, new Dictionary<long, EconomicControlBucket>());
+	}
+
+	private EconomicControlBucket ResolveControl(string? frameworkItemType, long? frameworkItemId,
+		Dictionary<long, EconomicControlBucket> characterControlCache)
+	{
 		if (string.IsNullOrWhiteSpace(frameworkItemType) || !frameworkItemId.HasValue)
 		{
 			return EconomicControlBucket.Unclaimed;
@@ -162,12 +181,12 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 
 		if (frameworkItemType.EqualTo("Character") || frameworkItemType.EqualTo("ICharacter"))
 		{
-			return ResolveCharacterControl(frameworkItemId.Value);
+			return ResolveCharacterControl(frameworkItemId.Value, characterControlCache);
 		}
 
 		if (frameworkItemType.EqualTo("Clan") || frameworkItemType.EqualTo("IClan"))
 		{
-			var clan = _gameworld.Clans.FirstOrDefault(x => x.Id == frameworkItemId.Value);
+			var clan = _gameworld.Clans.Get(frameworkItemId.Value);
 			if (clan is null)
 			{
 				return EconomicControlBucket.Institutional;
@@ -175,37 +194,38 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 
 			return clan.Memberships.Any(x =>
 				!x.IsArchivedMembership &&
-				ResolveCharacterControl(x.MemberId) == EconomicControlBucket.DirectPc &&
 				(x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageBankAccounts) ||
 				 x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewTreasury) ||
-				 x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanProperty)))
+				 x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanProperty)) &&
+				ResolveCharacterControl(x.MemberId, characterControlCache) == EconomicControlBucket.DirectPc)
 				? EconomicControlBucket.SharedPcControlled
 				: EconomicControlBucket.Institutional;
 		}
 
 		if (frameworkItemType.EqualTo("Shop") || frameworkItemType.EqualTo("IShop"))
 		{
-			var shop = _gameworld.Shops.FirstOrDefault(x => x.Id == frameworkItemId.Value);
-			return shop is not null && _gameworld.Characters.Any(x =>
-				ResolveCharacterControl(x.Id) == EconomicControlBucket.DirectPc &&
-				(shop.IsManager(x) || shop.IsProprietor(x)))
+			var shop = _gameworld.Shops.Get(frameworkItemId.Value);
+			return shop is not null && _gameworld.Characters
+				.Where(x => shop.IsManager(x) || shop.IsProprietor(x))
+				.Any(x => ResolveCharacterControl(x.Id, characterControlCache) == EconomicControlBucket.DirectPc)
 				? EconomicControlBucket.SharedPcControlled
 				: EconomicControlBucket.Institutional;
 		}
 
 		if (frameworkItemType.EqualTo("Property") || frameworkItemType.EqualTo("IProperty"))
 		{
-			var property = _gameworld.Properties.FirstOrDefault(x => x.Id == frameworkItemId.Value);
+			var property = _gameworld.Properties.Get(frameworkItemId.Value);
 			if (property is null)
 			{
 				return EconomicControlBucket.Institutional;
 			}
 
 			var controls = property.PropertyOwners
-				.Select(x => ResolveControl(x.OwnerFrameworkItemType, x.OwnerId))
+				.Select(x => ResolveControl(x.OwnerFrameworkItemType, x.OwnerId, characterControlCache))
 				.Append(property.Lease is null
 					? EconomicControlBucket.Institutional
-					: ResolveControl(property.Lease.Leaseholder.FrameworkItemType, property.Lease.Leaseholder.Id));
+					: ResolveControl(property.Lease.Leaseholder.FrameworkItemType, property.Lease.Leaseholder.Id,
+						characterControlCache));
 			return controls.Any(IsPcControlled)
 				? EconomicControlBucket.SharedPcControlled
 				: EconomicControlBucket.Institutional;
@@ -214,47 +234,108 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 		return EconomicControlBucket.Institutional;
 	}
 
-	private EconomicControlBucket ResolveCharacterControl(long characterId)
+	private EconomicControlBucket ResolveCharacterControl(long characterId,
+		Dictionary<long, EconomicControlBucket> characterControlCache)
 	{
+		if (!characterControlCache.ContainsKey(characterId))
+		{
+			PreloadCharacterControls([characterId], characterControlCache);
+		}
+
+		return characterControlCache.GetValueOrDefault(characterId, EconomicControlBucket.Ambiguous);
+	}
+
+	private void PreloadCharacterControls(IEnumerable<long> characterIds,
+		Dictionary<long, EconomicControlBucket> characterControlCache)
+	{
+		var requestedIds = characterIds
+			.Where(x => x > 0 && !characterControlCache.ContainsKey(x))
+			.Distinct()
+			.ToList();
+		if (requestedIds.Count == 0)
+		{
+			return;
+		}
+
+		var records = new Dictionary<long, CharacterControlRecord>();
+		var pendingIds = requestedIds.ToHashSet();
 		using (new FMDB())
 		{
-			var character = FMDB.Context.Characters
-				.AsNoTracking()
-				.Where(x => x.Id == characterId)
-				.Select(x => new { x.Id, x.AccountId, x.IsAdminAvatar })
-				.FirstOrDefault();
-			if (character is null)
+			while (pendingIds.Count > 0)
 			{
-				return EconomicControlBucket.Ambiguous;
+				var batchIds = pendingIds.Take(1000).ToList();
+				pendingIds.ExceptWith(batchIds);
+				var characters = FMDB.Context.Characters
+					.AsNoTracking()
+					.Where(x => batchIds.Contains(x.Id))
+					.Select(x => new { x.Id, x.AccountId, x.IsAdminAvatar })
+					.ToList();
+				var guestIds = FMDB.Context.Guests
+					.AsNoTracking()
+					.Where(x => batchIds.Contains(x.CharacterId))
+					.Select(x => x.CharacterId)
+					.ToHashSet();
+				var npcs = FMDB.Context.Npcs
+					.AsNoTracking()
+					.Where(x => batchIds.Contains(x.CharacterId))
+					.Select(x => new { x.CharacterId, x.BodyguardCharacterId })
+					.ToDictionary(x => x.CharacterId);
+				foreach (var character in characters)
+				{
+					var npc = npcs.GetValueOrDefault(character.Id);
+					var record = new CharacterControlRecord(character.Id, character.AccountId,
+						character.IsAdminAvatar, guestIds.Contains(character.Id), npc is not null,
+						npc?.BodyguardCharacterId);
+					records[record.Id] = record;
+					if (record.BodyguardCharacterId is { } bodyguardId &&
+					    !characterControlCache.ContainsKey(bodyguardId) && !records.ContainsKey(bodyguardId))
+					{
+						pendingIds.Add(bodyguardId);
+					}
+				}
 			}
+		}
 
-			if (character.IsAdminAvatar)
-			{
-				return EconomicControlBucket.Staff;
-			}
-			if (FMDB.Context.Guests.AsNoTracking().Any(x => x.CharacterId == characterId))
-			{
-				return EconomicControlBucket.Npc;
-			}
+		foreach (var characterId in requestedIds)
+		{
+			ResolveCharacterControlRecord(characterId, records, characterControlCache, []);
+		}
+	}
 
-			var npc = FMDB.Context.Npcs
-				.AsNoTracking()
-				.FirstOrDefault(x => x.CharacterId == characterId);
-			if (npc is null)
-			{
-				return character.AccountId.HasValue
-					? EconomicControlBucket.DirectPc
-					: EconomicControlBucket.Ambiguous;
-			}
+	private static EconomicControlBucket ResolveCharacterControlRecord(long characterId,
+		IReadOnlyDictionary<long, CharacterControlRecord> records,
+		Dictionary<long, EconomicControlBucket> characterControlCache, HashSet<long> resolving)
+	{
+		if (characterControlCache.TryGetValue(characterId, out var cached))
+		{
+			return cached;
+		}
 
-			if (npc.BodyguardCharacterId.HasValue &&
-			    ResolveCharacterControl(npc.BodyguardCharacterId.Value) == EconomicControlBucket.DirectPc)
-			{
-				return EconomicControlBucket.SharedPcControlled;
-			}
+		if (!records.TryGetValue(characterId, out var character))
+		{
+			return characterControlCache[characterId] = EconomicControlBucket.Ambiguous;
+		}
 
+		if (!resolving.Add(characterId))
+		{
 			return EconomicControlBucket.Npc;
 		}
+
+		var result = character.IsAdminAvatar
+			? EconomicControlBucket.Staff
+			: character.IsGuest
+				? EconomicControlBucket.Npc
+				: !character.IsNpc
+					? character.AccountId.HasValue
+						? EconomicControlBucket.DirectPc
+						: EconomicControlBucket.Ambiguous
+					: character.BodyguardCharacterId is { } bodyguardId &&
+					  ResolveCharacterControlRecord(bodyguardId, records, characterControlCache, resolving) ==
+					  EconomicControlBucket.DirectPc
+						? EconomicControlBucket.SharedPcControlled
+						: EconomicControlBucket.Npc;
+		resolving.Remove(characterId);
+		return characterControlCache[characterId] = result;
 	}
 
 	private static bool IsPcControlled(EconomicControlBucket bucket)
@@ -265,43 +346,63 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 	public IReadOnlyList<EconomyHolding> GetCurrentHoldings(long? economicZoneId = null, long? currencyId = null)
 	{
 		var holdings = new List<EconomyHolding>();
-		AddPhysicalCashHoldings(holdings);
+		var bankAccounts = _gameworld.BankAccounts
+			.Where(x => x.CurrentBalance != 0.0M)
+			.Where(x => !economicZoneId.HasValue || x.Bank.EconomicZone.Id == economicZoneId)
+			.Where(x => !currencyId.HasValue || x.Currency.Id == currencyId)
+			.ToList();
+		var characterControlCache = new Dictionary<long, EconomicControlBucket>();
+		PreloadCharacterControls(bankAccounts
+			.Where(x => x.AccountOwnerFrameworkItemType.EqualTo("Character") ||
+			            x.AccountOwnerFrameworkItemType.EqualTo("ICharacter"))
+			.Select(x => x.AccountOwnerId), characterControlCache);
+		AddPhysicalCashHoldings(holdings, characterControlCache);
 
-		foreach (var account in _gameworld.BankAccounts)
+		foreach (var account in bankAccounts)
 		{
 			var amount = account.CurrentBalance;
 			var metric = amount >= 0.0M ? EconomyHoldingMetric.BankDeposits : EconomyHoldingMetric.BankDebt;
-			var owner = account.AccountOwner;
 			holdings.Add(CreateHolding(account.Bank.EconomicZone.Id, account.Currency, metric,
-				ResolveControl(owner.FrameworkItemType, owner.Id), Math.Abs(amount), owner.Id,
-				owner.FrameworkItemType, account.AccountReference));
+				ResolveControl(account.AccountOwnerFrameworkItemType, account.AccountOwnerId, characterControlCache),
+				Math.Abs(amount), account.AccountOwnerId, account.AccountOwnerFrameworkItemType,
+				account.AccountReference));
 		}
 
-		foreach (var bank in _gameworld.Banks)
+		foreach (var bank in _gameworld.Banks
+		         .Where(x => !economicZoneId.HasValue || x.EconomicZone.Id == economicZoneId))
 		{
-			foreach (var reserve in bank.CurrencyReserves)
+			foreach (var reserve in bank.CurrencyReserves
+			         .Where(x => !currencyId.HasValue || x.Key.Id == currencyId))
 			{
 				holdings.Add(CreateHolding(bank.EconomicZone.Id, reserve.Key, EconomyHoldingMetric.BankReserves,
 					EconomicControlBucket.Institutional, reserve.Value, bank.Id, bank.FrameworkItemType, bank.Name));
 			}
 		}
 
-		foreach (var shop in _gameworld.Shops.Where(x => x.CashBalance != 0.0M))
+		foreach (var shop in _gameworld.Shops
+		         .Where(x => x.CashBalance != 0.0M)
+		         .Where(x => !economicZoneId.HasValue || x.EconomicZone.Id == economicZoneId)
+		         .Where(x => !currencyId.HasValue || x.Currency.Id == currencyId))
 		{
 			holdings.Add(CreateHolding(shop.EconomicZone.Id, shop.Currency, EconomyHoldingMetric.VirtualBalance,
-				ResolveControl(shop.FrameworkItemType, shop.Id), shop.CashBalance, shop.Id,
+				ResolveControl(shop.FrameworkItemType, shop.Id, characterControlCache), shop.CashBalance, shop.Id,
 				shop.FrameworkItemType, shop.Name));
 		}
 
 		using (new FMDB())
 		{
-			var virtualBalances = FMDB.Context.VirtualCashBalances
+			var virtualBalanceQuery = FMDB.Context.VirtualCashBalances
 				.AsNoTracking()
-				.Where(x => x.Balance != 0.0M && x.OwnerType != "EconomicZone" && x.OwnerType != "Shop")
-				.ToList();
+				.Where(x => x.Balance != 0.0M && x.OwnerType != "EconomicZone" && x.OwnerType != "Shop");
+			if (currencyId.HasValue)
+			{
+				virtualBalanceQuery = virtualBalanceQuery.Where(x => x.CurrencyId == currencyId);
+			}
+
+			var virtualBalances = virtualBalanceQuery.ToList();
 			foreach (var balance in virtualBalances)
 			{
-				var currency = _gameworld.Currencies.FirstOrDefault(x => x.Id == balance.CurrencyId);
+				var currency = _gameworld.Currencies.Get(balance.CurrencyId);
 				if (currency is null)
 				{
 					continue;
@@ -309,12 +410,14 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 
 				var zoneId = ResolveEconomicZone(balance.OwnerType, balance.OwnerId);
 				holdings.Add(CreateHolding(zoneId, currency, EconomyHoldingMetric.VirtualBalance,
-					ResolveControl(balance.OwnerType, balance.OwnerId), balance.Balance, balance.OwnerId,
+					ResolveControl(balance.OwnerType, balance.OwnerId, characterControlCache), balance.Balance, balance.OwnerId,
 					balance.OwnerType, $"{balance.OwnerType} #{balance.OwnerId:N0}"));
 			}
 		}
 
-		foreach (var property in _gameworld.Properties)
+		foreach (var property in _gameworld.Properties
+		         .Where(x => !economicZoneId.HasValue || x.EconomicZone.Id == economicZoneId)
+		         .Where(x => !currencyId.HasValue || x.EconomicZone.Currency.Id == currencyId))
 		{
 			var value = property.SaleOrder is { ShowForSale: true }
 				? property.SaleOrder.ReservePrice
@@ -329,7 +432,7 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 				var amount = value * owner.ShareOfOwnership;
 				holdings.Add(CreateHolding(property.EconomicZone.Id, property.EconomicZone.Currency,
 					EconomyHoldingMetric.PropertyEquity,
-					ResolveControl(owner.OwnerFrameworkItemType, owner.OwnerId), amount, owner.OwnerId,
+					ResolveControl(owner.OwnerFrameworkItemType, owner.OwnerId, characterControlCache), amount, owner.OwnerId,
 					owner.OwnerFrameworkItemType, property.Name));
 			}
 		}
@@ -348,7 +451,8 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 			amount * currency.BaseCurrencyToGlobalBaseCurrencyConversion, controllerId, controllerType, description);
 	}
 
-	private void AddPhysicalCashHoldings(List<EconomyHolding> holdings)
+	private void AddPhysicalCashHoldings(List<EconomyHolding> holdings,
+		Dictionary<long, EconomicControlBucket> characterControlCache)
 	{
 		using (new FMDB())
 		{
@@ -369,40 +473,138 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 					item.OwnerId,
 					item.OwnerType
 				}).ToList();
-			var itemParents = FMDB.Context.GameItems.AsNoTracking()
-				.Where(x => x.ContainerId != null)
-				.ToDictionary(x => x.Id, x => x.ContainerId);
-			var itemOwners = FMDB.Context.GameItems.AsNoTracking()
-				.Where(x => x.OwnerId != null && x.OwnerType != null)
-				.ToDictionary(x => x.Id, x => (x.OwnerType, x.OwnerId));
-			var bodyItems = FMDB.Context.BodiesGameItems.AsNoTracking()
-				.ToDictionary(x => x.GameItemId, x => x.BodyId);
-			var cellItems = FMDB.Context.CellsGameItems.AsNoTracking()
-				.ToDictionary(x => x.GameItemId, x => x.CellId);
-			var tillItems = FMDB.Context.ShopsTills.AsNoTracking()
-				.ToDictionary(x => x.GameItemId, x => x.ShopId);
-			var treasuryCells = FMDB.Context.ClansTreasuryCells.AsNoTracking()
-				.GroupBy(x => x.CellId)
-				.ToDictionary(x => x.Key, x => x.Select(y => y.ClanId).ToList());
-			var propertyCells = FMDB.Context.PropertyLocations.AsNoTracking()
-				.GroupBy(x => x.CellId)
-				.ToDictionary(x => x.Key, x => x.Select(y => y.PropertyId).ToList());
+			var itemCustody = currencyComponents.ToDictionary(x => x.GameItemId,
+				x => (x.ContainerId, x.OwnerId, OwnerType: (string?)x.OwnerType));
+			var parentIds = itemCustody.Values
+				.Select(x => x.ContainerId)
+				.Where(x => x.HasValue)
+				.Select(x => x!.Value)
+				.Where(x => !itemCustody.ContainsKey(x))
+				.ToHashSet();
+			while (parentIds.Count > 0)
+			{
+				var nextParentIds = new HashSet<long>();
+				foreach (var batch in parentIds.Chunk(1000))
+				{
+					var ids = batch.ToList();
+					var parents = FMDB.Context.GameItems
+						.AsNoTracking()
+						.Where(x => ids.Contains(x.Id))
+						.Select(x => new { x.Id, x.ContainerId, x.OwnerId, x.OwnerType })
+						.ToList();
+					foreach (var parent in parents)
+					{
+						itemCustody[parent.Id] = (parent.ContainerId, parent.OwnerId, parent.OwnerType);
+						if (parent.ContainerId is { } nextParentId && !itemCustody.ContainsKey(nextParentId))
+						{
+							nextParentIds.Add(nextParentId);
+						}
+					}
+				}
+
+				parentIds = nextParentIds;
+			}
+
+			var rootIds = currencyComponents
+				.Select(x => RootItemId(x.GameItemId, itemCustody))
+				.ToHashSet();
+			var bodyItems = new Dictionary<long, long>();
+			var cellItems = new Dictionary<long, long>();
+			var tillItems = new Dictionary<long, long>();
+			foreach (var batch in rootIds.Chunk(1000))
+			{
+				var ids = batch.ToList();
+				foreach (var row in FMDB.Context.BodiesGameItems.AsNoTracking()
+					         .Where(x => ids.Contains(x.GameItemId))
+					         .Select(x => new { x.GameItemId, x.BodyId }))
+				{
+					bodyItems[row.GameItemId] = row.BodyId;
+				}
+
+				foreach (var row in FMDB.Context.CellsGameItems.AsNoTracking()
+					         .Where(x => ids.Contains(x.GameItemId))
+					         .Select(x => new { x.GameItemId, x.CellId }))
+				{
+					cellItems[row.GameItemId] = row.CellId;
+				}
+
+				foreach (var row in FMDB.Context.ShopsTills.AsNoTracking()
+					         .Where(x => ids.Contains(x.GameItemId))
+					         .Select(x => new { x.GameItemId, x.ShopId }))
+				{
+					tillItems[row.GameItemId] = row.ShopId;
+				}
+			}
+
+			var bodyCustodians = new Dictionary<long, (long CharacterId, long? CellId)>();
+			var bodyIds = bodyItems.Values.ToHashSet();
+			foreach (var batch in bodyIds.Chunk(1000))
+			{
+				var ids = batch.ToList();
+				foreach (var character in FMDB.Context.Characters.AsNoTracking()
+					         .Where(x => ids.Contains(x.BodyId))
+					         .Select(x => new { x.BodyId, x.Id, x.Location }))
+				{
+					bodyCustodians.TryAdd(character.BodyId, (character.Id, character.Location));
+				}
+
+				var missingIds = ids.Where(x => !bodyCustodians.ContainsKey(x)).ToList();
+				foreach (var instance in FMDB.Context.CharacterInstances.AsNoTracking()
+					         .Where(x => missingIds.Contains(x.BodyId) && x.IsControllable)
+					         .Select(x => new
+					         {
+						         x.BodyId,
+						         CharacterId = x.PrimaryCharacterId ?? x.CharacterId,
+						         x.LocationId
+					         }))
+				{
+					bodyCustodians.TryAdd(instance.BodyId, (instance.CharacterId, instance.LocationId));
+				}
+			}
+
+			PreloadCharacterControls(bodyCustodians.Values.Select(x => x.CharacterId), characterControlCache);
+			var relevantCellIds = cellItems.Values.ToHashSet();
+			var treasuryCells = new Dictionary<long, List<long>>();
+			var propertyCells = new Dictionary<long, List<long>>();
+			foreach (var batch in relevantCellIds.Chunk(1000))
+			{
+				var ids = batch.ToList();
+				foreach (var row in FMDB.Context.ClansTreasuryCells.AsNoTracking()
+					         .Where(x => ids.Contains(x.CellId))
+					         .Select(x => new { x.CellId, x.ClanId }))
+				{
+					if (!treasuryCells.TryGetValue(row.CellId, out var clanIds))
+					{
+						clanIds = [];
+						treasuryCells[row.CellId] = clanIds;
+					}
+
+					clanIds.Add(row.ClanId);
+				}
+
+				foreach (var row in FMDB.Context.PropertyLocations.AsNoTracking()
+					         .Where(x => ids.Contains(x.CellId))
+					         .Select(x => new { x.CellId, x.PropertyId }))
+				{
+					if (!propertyCells.TryGetValue(row.CellId, out var propertyIds))
+					{
+						propertyIds = [];
+						propertyCells[row.CellId] = propertyIds;
+					}
+
+					propertyIds.Add(row.PropertyId);
+				}
+			}
 
 			foreach (var component in currencyComponents)
 			{
-				long rootId = component.GameItemId;
-				var visited = new HashSet<long>();
-				while (itemParents.TryGetValue(rootId, out var parentId) && parentId.HasValue && visited.Add(rootId))
-				{
-					rootId = parentId.Value;
-				}
-
-				var rootOwner = itemOwners.GetValueOrDefault(rootId);
+				var rootId = RootItemId(component.GameItemId, itemCustody);
+				var rootOwner = itemCustody.GetValueOrDefault(rootId);
 				var (ownerType, ownerId, bucket, zoneId, description) = ResolvePhysicalCustody(
 					rootOwner.OwnerType ?? component.OwnerType, rootOwner.OwnerId ?? component.OwnerId,
-					rootId, bodyItems, cellItems, tillItems,
-					treasuryCells, propertyCells);
-				var loaded = _gameworld.Items.FirstOrDefault(x => x.Id == component.GameItemId)
+					rootId, bodyItems, bodyCustodians, cellItems, tillItems,
+					treasuryCells, propertyCells, characterControlCache);
+				var loaded = _gameworld.Items.Get(component.GameItemId)
 					?.GetItemType<ICurrencyPile>();
 				if (loaded is not null)
 				{
@@ -424,7 +626,7 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 						.GroupBy(x => coinValues[x.Id].CurrencyId);
 					foreach (var currencyGroup in amounts)
 					{
-						var currency = _gameworld.Currencies.FirstOrDefault(x => x.Id == currencyGroup.Key);
+						var currency = _gameworld.Currencies.Get(currencyGroup.Key);
 						if (currency is null)
 						{
 							continue;
@@ -447,39 +649,32 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 
 	private (string? OwnerType, long? OwnerId, EconomicControlBucket Bucket, long? ZoneId, string Description)
 		ResolvePhysicalCustody(string? explicitOwnerType, long? explicitOwnerId, long rootItemId,
-			IReadOnlyDictionary<long, long> bodyItems, IReadOnlyDictionary<long, long> cellItems,
+			IReadOnlyDictionary<long, long> bodyItems,
+			IReadOnlyDictionary<long, (long CharacterId, long? CellId)> bodyCustodians,
+			IReadOnlyDictionary<long, long> cellItems,
 			IReadOnlyDictionary<long, long> tillItems, IReadOnlyDictionary<long, List<long>> treasuryCells,
-			IReadOnlyDictionary<long, List<long>> propertyCells)
+			IReadOnlyDictionary<long, List<long>> propertyCells,
+			Dictionary<long, EconomicControlBucket> characterControlCache)
 	{
 		if (!string.IsNullOrWhiteSpace(explicitOwnerType) && explicitOwnerId.HasValue)
 		{
-			return (explicitOwnerType, explicitOwnerId, ResolveControl(explicitOwnerType, explicitOwnerId),
+			return (explicitOwnerType, explicitOwnerId,
+				ResolveControl(explicitOwnerType, explicitOwnerId, characterControlCache),
 				ResolveEconomicZone(explicitOwnerType, explicitOwnerId.Value), "explicit ownership");
 		}
 
-		if (bodyItems.TryGetValue(rootItemId, out var bodyId))
+		if (bodyItems.TryGetValue(rootItemId, out var bodyId) &&
+		    bodyCustodians.TryGetValue(bodyId, out var custodian))
 		{
-			using (new FMDB())
-			{
-				var characterId = FMDB.Context.Characters.AsNoTracking()
-					.Where(x => x.BodyId == bodyId)
-					.Select(x => (long?)x.Id)
-					.FirstOrDefault() ?? FMDB.Context.CharacterInstances.AsNoTracking()
-					.Where(x => x.BodyId == bodyId && x.IsControllable)
-					.Select(x => x.PrimaryCharacterId ?? x.CharacterId)
-					.Cast<long?>()
-					.FirstOrDefault();
-				if (characterId.HasValue)
-				{
-					return ("Character", characterId, ResolveCharacterControl(characterId.Value),
-						ResolveCharacterZone(characterId.Value), "body custody");
-				}
-			}
+			return ("Character", custodian.CharacterId,
+				ResolveCharacterControl(custodian.CharacterId, characterControlCache),
+				custodian.CellId.HasValue ? ResolveCellZone(custodian.CellId.Value) : null, "body custody");
 		}
 
 		if (tillItems.TryGetValue(rootItemId, out var shopId))
 		{
-			return ("Shop", shopId, ResolveControl("Shop", shopId), ResolveEconomicZone("Shop", shopId),
+			return ("Shop", shopId, ResolveControl("Shop", shopId, characterControlCache),
+				ResolveEconomicZone("Shop", shopId),
 				"shop register");
 		}
 
@@ -508,7 +703,7 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 		if (claims.Count == 1)
 		{
 			var claim = claims[0];
-			return (claim.Type, claim.Id, ResolveControl(claim.Type, claim.Id),
+			return (claim.Type, claim.Id, ResolveControl(claim.Type, claim.Id, characterControlCache),
 				ResolveEconomicZone(claim.Type, claim.Id), $"{claim.Type.ToLowerInvariant()} custody");
 		}
 
@@ -519,17 +714,17 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 	{
 		if (ownerType.EqualTo("Shop"))
 		{
-			return _gameworld.Shops.FirstOrDefault(x => x.Id == ownerId)?.EconomicZone.Id;
+			return _gameworld.Shops.Get(ownerId)?.EconomicZone.Id;
 		}
 
 		if (ownerType.EqualTo("Bank"))
 		{
-			return _gameworld.Banks.FirstOrDefault(x => x.Id == ownerId)?.EconomicZone.Id;
+			return _gameworld.Banks.Get(ownerId)?.EconomicZone.Id;
 		}
 
 		if (ownerType.EqualTo("Property"))
 		{
-			return _gameworld.Properties.FirstOrDefault(x => x.Id == ownerId)?.EconomicZone.Id;
+			return _gameworld.Properties.Get(ownerId)?.EconomicZone.Id;
 		}
 
 		if (ownerType.EqualTo("Character"))
@@ -554,7 +749,7 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 
 	private long? ResolveCellZone(long cellId)
 	{
-		var cell = _gameworld.Cells.FirstOrDefault(x => x.Id == cellId);
+		var cell = _gameworld.Cells.Get(cellId);
 		return cell is null
 			? null
 			: _gameworld.EconomicZones.FirstOrDefault(x => x.ZoneForTimePurposes == cell.Zone)?.Id;
@@ -595,7 +790,7 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 			else
 			{
 				var zone = economicZoneId.HasValue
-					? _gameworld.EconomicZones.FirstOrDefault(x => x.Id == economicZoneId.Value)
+					? _gameworld.EconomicZones.Get(economicZoneId.Value)
 					: null;
 				var date = zone?.FinancialPeriodReferenceCalendar.CurrentDate;
 				if (zone is null || date is null)
@@ -614,10 +809,11 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 				};
 			}
 
-			var records = query.ToList();
+			var aggregates = BuildVolumeAggregateQuery(query).ToList();
+			List<Models.EconomicActivityRecord> pendingRecords;
 			lock (_pendingActivityLock)
 			{
-				records.AddRange(_pendingActivities
+				pendingRecords = _pendingActivities
 					.Select(x => x.Record)
 					.Where(x => (!economicZoneId.HasValue || x.EconomicZoneId == economicZoneId) &&
 					            (!currencyId.HasValue || x.CurrencyId == currencyId) &&
@@ -627,36 +823,100 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 							            x.RealDateTime >= start && x.RealDateTime <= now,
 						            EconomyQueryWindowKind.FinancialPeriod => x.FinancialPeriodId == financialPeriodId,
 						            _ => MatchesCurrentMudWindow(x, window, economicZoneId)
-					            })));
+					            }))
+					.ToList();
 			}
-			var exchange = records
+
+			var exchange = aggregates.Sum(x => x.ExchangeGlobalBaseValue) + pendingRecords
 				.Where(x => ((EconomicVolumeClassification)x.VolumeClassification)
 					.HasFlag(EconomicVolumeClassification.Exchange))
 				.Sum(x => x.GlobalBaseValue);
-			var movement = records
+			var movement = aggregates.Sum(x => x.MovementGlobalBaseValue) + pendingRecords
 				.Where(x => (((EconomicVolumeClassification)x.VolumeClassification) &
 				             (EconomicVolumeClassification.Exchange | EconomicVolumeClassification.GeneralTransfer |
 				              EconomicVolumeClassification.Source | EconomicVolumeClassification.Sink)) != 0)
 				.Sum(x => x.GlobalBaseValue);
-			var byActivity = records
+			var byActivity = aggregates
 				.GroupBy(x => (EconomicActivityType)x.ActivityType)
-				.ToDictionary(x => x.Key, x => x.Sum(y => y.GlobalBaseValue));
-			var byPc = records
+				.ToDictionary(x => x.Key, x => x.Sum(y => y.TotalGlobalBaseValue));
+			foreach (var group in pendingRecords
+				.GroupBy(x => (EconomicActivityType)x.ActivityType)
+				.Select(x => (x.Key, Value: x.Sum(y => y.GlobalBaseValue))))
+			{
+				byActivity[group.Key] = byActivity.GetValueOrDefault(group.Key) + group.Value;
+			}
+
+			var byPc = aggregates
+				.GroupBy(x => x.PcInvolved
+					? EconomicControlBucket.SharedPcControlled
+					: EconomicControlBucket.Institutional)
+				.ToDictionary(x => x.Key, x => x.Sum(y => y.TotalGlobalBaseValue));
+			foreach (var group in pendingRecords
 				.GroupBy(x => IsPcControlled((EconomicControlBucket)x.SourceControlBucket) ||
 				              IsPcControlled((EconomicControlBucket)x.DestinationControlBucket)
 					? EconomicControlBucket.SharedPcControlled
 					: EconomicControlBucket.Institutional)
-				.ToDictionary(x => x.Key, x => x.Sum(y => y.GlobalBaseValue));
+				.Select(x => (x.Key, Value: x.Sum(y => y.GlobalBaseValue))))
+			{
+				byPc[group.Key] = byPc.GetValueOrDefault(group.Key) + group.Value;
+			}
+
 			return new EconomyVolumeResult(ActivityCoverageStartUtc ?? now, start, now, exchange, movement,
-				byActivity, byPc, records.Count);
+				byActivity, byPc, aggregates.Sum(x => x.EventCount) + pendingRecords.Count);
 		}
+	}
+
+	private static long RootItemId(long itemId,
+		IReadOnlyDictionary<long, (long? ContainerId, long? OwnerId, string? OwnerType)> itemCustody)
+	{
+		var rootId = itemId;
+		var visited = new HashSet<long>();
+		while (itemCustody.TryGetValue(rootId, out var custody) && custody.ContainerId is { } parentId &&
+		       visited.Add(rootId))
+		{
+			rootId = parentId;
+		}
+
+		return rootId;
+	}
+
+	internal static IQueryable<EconomyVolumeAggregateRow> BuildVolumeAggregateQuery(
+		IQueryable<Models.EconomicActivityRecord> query)
+	{
+		const int exchangeMask = (int)EconomicVolumeClassification.Exchange;
+		const int movementMask = (int)(EconomicVolumeClassification.Exchange |
+		                               EconomicVolumeClassification.GeneralTransfer |
+		                               EconomicVolumeClassification.Source |
+		                               EconomicVolumeClassification.Sink);
+		return query
+			.GroupBy(x => new
+			{
+				x.ActivityType,
+				PcInvolved = x.SourceControlBucket == (int)EconomicControlBucket.DirectPc ||
+				             x.SourceControlBucket == (int)EconomicControlBucket.SharedPcControlled ||
+				             x.DestinationControlBucket == (int)EconomicControlBucket.DirectPc ||
+				             x.DestinationControlBucket == (int)EconomicControlBucket.SharedPcControlled
+			})
+			.Select(x => new EconomyVolumeAggregateRow
+			{
+				ActivityType = x.Key.ActivityType,
+				PcInvolved = x.Key.PcInvolved,
+				EventCount = x.LongCount(),
+				ExchangeGlobalBaseValue = x.Sum(y => (y.VolumeClassification & exchangeMask) != 0
+					? y.GlobalBaseValue
+					: 0.0M),
+				MovementGlobalBaseValue = x.Sum(y => (y.VolumeClassification & movementMask) != 0
+					? y.GlobalBaseValue
+					: 0.0M),
+				TotalGlobalBaseValue = x.Sum(y => y.GlobalBaseValue)
+			});
 	}
 
 	private bool MatchesCurrentMudWindow(Models.EconomicActivityRecord record, EconomyQueryWindowKind window,
 		long? economicZoneId)
 	{
 		var zone = economicZoneId.HasValue
-			? _gameworld.EconomicZones.FirstOrDefault(x => x.Id == economicZoneId.Value)
+			? _gameworld.EconomicZones.Get(economicZoneId.Value)
 			: null;
 		var date = zone?.FinancialPeriodReferenceCalendar.CurrentDate;
 		if (zone is null || date is null || record.MudCalendarId != zone.FinancialPeriodReferenceCalendar.Id ||
@@ -703,7 +963,14 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 				query = query.Where(x => x.CurrencyId == currencyId);
 			}
 
-			return query
+			return BuildTrendQuery(query, count).ToList();
+		}
+	}
+
+	internal static IQueryable<EconomySnapshotPoint> BuildTrendQuery(
+		IQueryable<Models.EconomySnapshotEntry> query, int count)
+	{
+		return query
 				.GroupBy(x => new
 				{
 					x.EconomySnapshotId,
@@ -712,20 +979,23 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 					x.EconomySnapshot.FinancialPeriodId,
 					x.EconomySnapshot.Reason
 				})
+				.OrderByDescending(x => x.Key.RealDateTime)
+				.Take(Math.Clamp(count, 1, 100))
 				.Select(x => new EconomySnapshotPoint(x.Key.EconomySnapshotId, x.Key.RealDateTime,
 					x.Key.EconomicZoneId, x.Key.FinancialPeriodId, (EconomySnapshotReason)x.Key.Reason,
-					x.Sum(y => y.GlobalBaseValue)))
-				.OrderByDescending(x => x.RealDateTimeUtc)
-				.Take(Math.Clamp(count, 1, 100))
-				.ToList();
-		}
+					x.Sum(y => y.GlobalBaseValue)));
 	}
 
 	public IReadOnlyList<EconomyRisk> GetRisks(long? economicZoneId = null)
 	{
+		return GetRisks(GetCurrentHoldings(economicZoneId), economicZoneId);
+	}
+
+	public IReadOnlyList<EconomyRisk> GetRisks(IReadOnlyList<EconomyHolding> currentHoldings,
+		long? economicZoneId = null)
+	{
 		var risks = new List<EconomyRisk>();
-		var holdings = GetCurrentHoldings(economicZoneId);
-		foreach (var group in holdings.GroupBy(x => new { x.EconomicZoneId, x.CurrencyId }))
+		foreach (var group in currentHoldings.GroupBy(x => new { x.EconomicZoneId, x.CurrencyId }))
 		{
 			var deposits = group.Where(x => x.Metric == EconomyHoldingMetric.BankDeposits).Sum(x => x.Amount);
 			var reserves = group.Where(x => x.Metric == EconomyHoldingMetric.BankReserves).Sum(x => x.Amount);
@@ -745,7 +1015,7 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 			}
 		}
 
-		var ambiguous = holdings
+		var ambiguous = currentHoldings
 			.Where(x => x.Metric == EconomyHoldingMetric.PhysicalCash &&
 			            x.ControlBucket is EconomicControlBucket.Ambiguous or EconomicControlBucket.Unclaimed)
 			.Sum(x => x.GlobalBaseValue);
@@ -754,14 +1024,14 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 			risks.Add(new EconomyRisk("unclaimed-cash", "Physical cash has ambiguous or unclaimed custody.", ambiguous,
 				economicZoneId));
 		}
-		var malformedCount = holdings.Count(x => x.Metric == EconomyHoldingMetric.PhysicalCash &&
+		var malformedCount = currentHoldings.Count(x => x.Metric == EconomyHoldingMetric.PhysicalCash &&
 			x.Description?.StartsWith("Malformed", StringComparison.InvariantCultureIgnoreCase) == true);
 		if (malformedCount > 0)
 		{
 			risks.Add(new EconomyRisk("malformed-currency", $"{malformedCount:N0} persisted currency components could not be parsed."));
 		}
 
-		var virtualLiabilities = holdings
+		var virtualLiabilities = currentHoldings
 			.Where(x => x.Metric == EconomyHoldingMetric.VirtualBalance && x.Amount < 0.0M)
 			.Sum(x => Math.Abs(x.GlobalBaseValue));
 		if (virtualLiabilities > 0.0M)
@@ -784,7 +1054,7 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 
 	private decimal GetConversion(long currencyId)
 	{
-		return _gameworld.Currencies.FirstOrDefault(x => x.Id == currencyId)
+		return _gameworld.Currencies.Get(currencyId)
 			?.BaseCurrencyToGlobalBaseCurrencyConversion ?? 0.0M;
 	}
 
@@ -820,7 +1090,7 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 
 				var now = DateTime.UtcNow;
 				var zone = economicZoneId.HasValue
-					? _gameworld.EconomicZones.FirstOrDefault(x => x.Id == economicZoneId.Value)
+					? _gameworld.EconomicZones.Get(economicZoneId.Value)
 					: null;
 				var snapshot = new Models.EconomySnapshot
 				{

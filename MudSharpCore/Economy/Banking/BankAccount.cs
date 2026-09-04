@@ -145,6 +145,9 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
         }
     }
 
+	public long AccountOwnerId => _accountOwnerReference?.Id ?? 0;
+	public string AccountOwnerFrameworkItemType => _accountOwnerReference?.FrameworkItemType ?? string.Empty;
+
     public void SetAccountOwner(IFrameworkItem owner)
     {
         _accountOwner = owner;

@@ -14,7 +14,7 @@ internal partial class EconomyModule
 {
 	private const string EconomyAnalyticsHelp = @"The #3economy#0 command gives administrators a live view of money supply, exchange, movement, PC-controlled wealth, trends, and risks. Historical volume begins when the analytics ledger is deployed; old shop and bank histories are not treated as a complete backfill.
 
-	#3economy [summary] [<zone>|all]#0
+	#3economy summary [<zone>|all]#0
 	#3economy money [<zone>|all] [<currency>] [details]#0
 	#3economy volume real <day|week|month> [<zone>|all] [<currency>]#0
 	#3economy volume mud <zone> <day|week|month|period> [<currency>]#0
@@ -27,15 +27,21 @@ internal partial class EconomyModule
 	#3economy config interval <timespan>#0
 	#3economy config rollover <on|off>#0
 
-Reports and manual snapshots require Admin. Configuration changes require High Admin. The minimum periodic interval is one hour; disabling snapshots preserves existing history and leaves live reports and the activity ledger running.";
+Running #3economy#0 without a subcommand only displays this help. Live census reports include persisted offline holdings and may take noticeable time on very large worlds, so they must be requested explicitly. Reports and manual snapshots require Admin. Configuration changes require High Admin. The minimum periodic interval is one hour; disabling snapshots preserves existing history and leaves live reports and the activity ledger running.";
 
 	[PlayerCommand("EconomyAnalytics", "economy")]
 	[CommandPermission(PermissionLevel.Admin)]
-	[HelpInfo("economy", EconomyAnalyticsHelp, AutoHelp.HelpArg)]
+	[HelpInfo("economy", EconomyAnalyticsHelp, AutoHelp.HelpArgOrNoArg)]
 	protected static void EconomyAnalytics(ICharacter actor, string input)
 	{
 		var command = new StringStack(input.RemoveFirstWord());
-		var verb = command.IsFinished ? "summary" : command.PopForSwitch();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(EconomyAnalyticsHelp.SubstituteANSIColour());
+			return;
+		}
+
+		var verb = command.PopForSwitch();
 		switch (verb)
 		{
 			case "summary":
@@ -95,7 +101,7 @@ Reports and manual snapshots require Admin. Configuration changes require High A
 			.Sum(x => x.GlobalBaseValue);
 		var deposits = holdings.Where(x => x.Metric == EconomyHoldingMetric.BankDeposits).Sum(x => x.GlobalBaseValue);
 		var reserves = holdings.Where(x => x.Metric == EconomyHoldingMetric.BankReserves).Sum(x => x.GlobalBaseValue);
-		var risks = service.GetRisks(zoneId);
+		var risks = service.GetRisks(holdings, zoneId);
 		var trends = service.GetTrends(EconomyHoldingMetric.BroadMoneySupply, null, zoneId, count: 2);
 		var direction = trends.Count < 2
 			? "insufficient history"

@@ -339,6 +339,13 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 
 	protected virtual MovementStrategyResult TryMoveThroughExit(ICharacter ch, ICellExit exit)
 	{
+		if (exit.Exit.Door?.IsOpen == false &&
+		    ch.EffectsOfType<BreakDownDoor>()
+		      .Any(x => ReferenceEquals(x.PathingEpisode, this) && ReferenceEquals(x.Exit, exit)))
+		{
+			return MovementStrategyResult.Waiting;
+		}
+
 		var existingFoci = ch.EffectsOfType<BreakDownDoor>().ToList();
 		var strategy = MovementStrategyFactory.GetStrategy(OpenDoors, UseKeys, SmashLockedDoors, UseDoorguards);
 		var result = strategy.TryToMove(ch, exit);

@@ -335,6 +335,18 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         return template.CreatePlan(ch);
     }
 
+	private IInventoryPlan GetWieldPlanForItem(ICharacter ch, IGameItem item)
+	{
+		InventoryPlanTemplate template = new(ch.Gameworld,
+		[
+			new InventoryPlanPhaseTemplate(1,
+			[
+				new InventoryPlanActionWield(ch.Gameworld, 0, 0, candidate => candidate == item, null)
+			])
+		]);
+		return template.CreatePlan(ch);
+	}
+
     protected void CheckCloseDoor(ICharacter ch, ICellExit exit)
     {
         if (ch.State.HasFlag(CharacterState.Dead))
@@ -376,7 +388,6 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         {
             if (!unarmedSmashes.Any())
             {
-                RemoveOwnedDoorFoci(ch);
                 return false;
             }
 
@@ -417,21 +428,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         while (weaponSmashes.Any())
         {
             Tuple<IMeleeWeapon, IEnumerable<IWeaponAttack>> action = weaponSmashes.GetRandomElement();
-            InventoryPlanTemplate template = new(ch.Gameworld,
-                new[]
-                {
-                    new InventoryPlanPhaseTemplate(1,
-                        new[]
-                        {
-                            new InventoryPlanActionWield(ch.Gameworld, 0, 0,
-                                item => item == action.Item1.Parent,
-                                null
-                            )
-                        }
-                    )
-                }
-            );
-            IInventoryPlan plan = template.CreatePlan(ch);
+			IInventoryPlan plan = GetWieldPlanForItem(ch, action.Item1.Parent);
             weaponSmashes.RemoveAll(x => x.Item1 == action.Item1);
             if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible)
             {
@@ -466,7 +463,6 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
                 return true;
             }
 
-            RemoveOwnedDoorFoci(ch);
             return false;
         }
 
@@ -550,6 +546,13 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return true;
         }
 
+		if (!CanSmashDoor(ch, exit))
+		{
+			RemovePathingEpisode(ch, focus.PathingEpisode);
+			CheckPathingEffect(ch, true);
+			return true;
+		}
+
         if (DoorSmashDelayProg is not null && focus.NextSmashAttemptUtc is null)
         {
             focus.NextSmashAttemptUtc = NextDoorSmashAttempt(ch, exit);
@@ -569,13 +572,61 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             }
         }
 
-        if (Smash(ch, exit) && DoorSmashDelayProg is not null)
+		if (!Smash(ch, exit))
+		{
+			RemovePathingEpisode(ch, focus.PathingEpisode);
+			CheckPathingEffect(ch, true);
+			return true;
+		}
+
+		if (DoorSmashDelayProg is not null)
         {
             focus.NextSmashAttemptUtc = NextDoorSmashAttempt(ch, exit);
         }
 
         return true;
     }
+
+	protected virtual bool CanSmashDoor(ICharacter ch, ICellExit exit)
+	{
+		var door = exit.Exit.Door;
+		if (door?.IsOpen != false || !door.CanPlayersSmash ||
+		    door.Parent.GetItemType<IDestroyable>() is null)
+		{
+			return false;
+		}
+
+		if (ch.Race.UsableNaturalWeaponAttacks(ch, door.Parent, false,
+			    BuiltInCombatMoveType.UnarmedSmashItem).Any())
+		{
+			return true;
+		}
+
+		if (!ch.Race.CombatSettings.CanUseWeapons)
+		{
+			return false;
+		}
+
+		return ch.Body.HeldOrWieldedItems
+		         .Concat(ch.Body.ExternalItems
+		                   .SelectNotNull(x => x.GetItemType<ISheath>())
+		                   .SelectNotNull(x => x.Content?.Parent))
+		         .SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
+		         .Any(weapon =>
+		         {
+			         if (!weapon.WeaponType.UsableAttacks(ch, weapon.Parent, door.Parent,
+				             ch.Body.WieldedHandCount(weapon.Parent) == 1
+				             ? AttackHandednessOptions.OneHandedOnly
+				             : AttackHandednessOptions.TwoHandedOnly,
+				             false, BuiltInCombatMoveType.MeleeWeaponSmashItem).Any())
+			         {
+				         return false;
+			         }
+
+			         return GetWieldPlanForItem(ch, weapon.Parent).PlanIsFeasible() ==
+			                InventoryPlanFeasibility.Feasible;
+		         });
+	}
 
     private DateTime NextDoorSmashAttempt(ICharacter ch, ICellExit exit)
     {
@@ -669,7 +720,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
                 }
             }
 
-            if (SmashLockedDoors && x.Exit.Door != null)
+			if (SmashLockedDoors && CanSmashDoor(ch, x))
             {
                 return true;
             }

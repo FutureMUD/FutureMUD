@@ -8,10 +8,13 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
+using MudSharp.Character.Heritage;
+using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 using MudSharp.Movement;
@@ -82,11 +85,20 @@ public class PathingAICommonOptionLoadTests
 		var (ai, _) = Load(typeof(PathToLocationAI), includeCommonOptions: true, openDoors: false);
 		var door = new Mock<IDoor>();
 		door.SetupGet(x => x.IsOpen).Returns(false);
+		door.SetupGet(x => x.CanPlayersSmash).Returns(true);
+		var doorItem = new Mock<IGameItem>();
+		doorItem.Setup(x => x.GetItemType<IDestroyable>()).Returns(new Mock<IDestroyable>().Object);
+		door.SetupGet(x => x.Parent).Returns(doorItem.Object);
 		var exit = new Mock<IExit>();
 		exit.SetupGet(x => x.Door).Returns(door.Object);
 		var cellExit = new Mock<ICellExit>();
 		cellExit.SetupGet(x => x.Exit).Returns(exit.Object);
 		var character = new Mock<ICharacter>();
+		var race = new Mock<IRace>();
+		race.SetupGet(x => x.CombatSettings).Returns(new RacialCombatSettings { CanUseWeapons = false });
+		race.Setup(x => x.UsableNaturalWeaponAttacks(character.Object, doorItem.Object, false,
+			It.IsAny<BuiltInCombatMoveType[]>())).Returns(new[] { new Mock<INaturalAttack>().Object });
+		character.SetupGet(x => x.Race).Returns(race.Object);
 		character.Setup(x => x.CanCross(cellExit.Object)).Returns((false, null!));
 		character.Setup(x => x.CanMove(cellExit.Object, It.IsAny<CanMoveFlags>()))
 			.Returns(new CanMoveResponse { Result = false, ErrorMessage = "blocked" });

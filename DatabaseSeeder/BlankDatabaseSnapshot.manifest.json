@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.4.0.0",
-  "LatestMigrationId": "20260830121659_AddMediaRecordingStorage",
-  "GeneratedUtc": "2026-08-30T13:14:31.3634308Z"
+  "LatestMigrationId": "20260904111218_AddEconomyAnalytics",
+  "GeneratedUtc": "2026-09-04T11:21:52.6304910Z"
 }

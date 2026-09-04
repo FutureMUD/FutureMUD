@@ -595,6 +595,10 @@ Economic zone manager commands:
 		}
 
 		property.RentHotelRoom(actor, room, duration, rentalCharge, taxCharge);
+		actor.Gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
+			EconomicActivityType.Rent, EconomicVolumeClassification.Exchange, property.EconomicZone.Currency.Id,
+			total, property.EconomicZone.Id, actor.Id, actor.FrameworkItemType, property.Id,
+			property.FrameworkItemType, null, null, $"{room.Name}: hotel stay at {property.Name}"));
 		GiveRoomKeys(actor, room);
 		actor.OutputHandler.Send(
 			$"You rent {room.Name.ColourName()} at {property.Name.ColourName()} for {duration.Describe(actor).ColourValue()}, paying {property.EconomicZone.Currency.Describe(rentalCharge, CurrencyDescriptionPatternType.Short).ColourValue()} rent, {property.EconomicZone.Currency.Describe(room.SecurityDeposit, CurrencyDescriptionPatternType.Short).ColourValue()} deposit and {property.EconomicZone.Currency.Describe(taxCharge, CurrencyDescriptionPatternType.Short).ColourValue()} tax.");

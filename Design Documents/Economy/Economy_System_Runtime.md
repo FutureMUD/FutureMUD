@@ -667,6 +667,18 @@ When adding future economy features, the safest path is usually:
 
 That sequence is inferred from current implementation style rather than enforced by one base class, but it matches the design of the existing subsystem well.
 
+## Admin Economy Analytics Runtime
+
+`IEconomyAnalyticsService` is the canonical runtime entry point for economy-wide reporting. It deliberately keeps monetary layers separate: physical currency, positive customer bank deposits, overdraft debt, virtual host balances, bank backing reserves, and property equity are separate holding metrics. Bank reserves are backing assets and are never added to broad liquid supply. The legacy economic-zone revenue balance is excluded from the generic virtual-balance census because `TotalRevenueHeld` mirrors the zone's virtual-cash entry.
+
+The physical-currency census reads every persisted currency component so offline PC inventories remain visible, walks container ancestry to its root, and classifies custody in this order: explicit item ownership, body custody, shop till, clan treasury, property, or unclaimed cell. A loaded currency component overlays its current in-memory value on the persisted row so unsaved coin changes are reflected without counting the same pile twice. Malformed component XML and conflicting treasury/property claims are reported as ambiguous rather than silently assigned.
+
+PC control means effective access by an ordinary account-backed, non-admin-avatar character. Direct character holdings remain individually attributable. Clan, shop, property, leased-property, bodyguard, and controllable-instance paths are reported as shared PC-controlled wealth when their effective access resolves to such a character. Shared organisational wealth is not attributed to a single PC for inequality calculations. Property equity uses an active visible sale reserve or otherwise the last sale value, multiplied by each owner's share; leaseholders control cash in the leased property but do not receive its equity.
+
+`EconomicActivityRecords` is an append-only semantic ledger. Each row stores UTC time, the economic zone, current financial period and zone calendar keys, native value, contemporaneous global-base value, and source/destination control buckets resolved at event time. Exchange volume includes sale/service/property consideration; gross movement adds genuine owner-to-owner transfers, sources, and sinks while excluding internal layer movement. New installations begin with an empty ledger and report their coverage start rather than treating bounded bank or shop histories as complete backfill data.
+
+Snapshots are stored as an atomic `EconomySnapshots` header with aggregated `EconomySnapshotEntries`. The runtime takes an initial baseline, then checks the due time from the last successful baseline/periodic capture during the fuzzy-minute heartbeat. The default interval is 24 hours with financial-period rollover snapshots enabled. Manual and rollover snapshots do not move the periodic cadence. Snapshot collection can be disabled entirely without deleting history or disabling the live census and activity ledger.
+
 ## Hospital Security and Integrity
 
 `HospitalService.ConsentPolicy` persists either `InformedConsentRequired` or `EmergencyPresumedConsent`. Informed consent is the default; a third party cannot create that service for a helpless patient. Conscious third parties continue through the normal acceptance proposal. Stabilisation is the sole existing service backfilled to emergency presumed consent by `20260816012516_HospitalServiceConsentPolicy`, and managers set the policy with `hospital service set <service> consent informed|emergency`.

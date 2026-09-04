@@ -17,6 +17,9 @@ public static class DefaultStaticSettings
     public static readonly IReadOnlyDictionary<string, string> DefaultStaticConfigurations =
         new Dictionary<string, string>
         {
+			{ "EconomyAnalyticsSnapshotsEnabled", "true" },
+			{ "EconomyAnalyticsSnapshotIntervalMinutes", "1440" },
+			{ "EconomyAnalyticsRolloverSnapshotsEnabled", "true" },
             { "CPRAllowed", "true" },
 			{ GameItemComponentTypeVisibility.ShowModernSettingName, "true" },
 			{ GameItemComponentTypeVisibility.ShowFuturisticSettingName, "true" },

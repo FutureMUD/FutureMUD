@@ -235,6 +235,9 @@ namespace MudSharp.Database
         public virtual DbSet<EconomicZoneRevenue> EconomicZoneRevenues { get; set; }
         public virtual DbSet<EconomicZoneShopTax> EconomicZoneShopTaxes { get; set; }
         public virtual DbSet<EconomicZone> EconomicZones { get; set; }
+        public virtual DbSet<EconomicActivityRecord> EconomicActivityRecords { get; set; }
+        public virtual DbSet<EconomySnapshot> EconomySnapshots { get; set; }
+        public virtual DbSet<EconomySnapshotEntry> EconomySnapshotEntries { get; set; }
         public virtual DbSet<Estate> Estates { get; set; }
         public virtual DbSet<EstateAsset> EstateAssets { get; set; }
         public virtual DbSet<EstateClaim> EstateClaims { get; set; }

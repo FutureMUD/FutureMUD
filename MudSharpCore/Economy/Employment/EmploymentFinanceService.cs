@@ -4,6 +4,7 @@ using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Property;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Prototypes;
@@ -1376,8 +1377,14 @@ internal static class EmploymentFinanceService
 		switch (payable.PaymentMethod.MethodKind)
 		{
 			case PaymentMethodKind.Cash:
-				return DebitAvailable(finance, payable.Amount.Amount, actor, finance.Owner, "Payroll", reference,
-					EmploymentClock.CurrentDateTime(host), out reason);
+				if (!DebitAvailable(finance, payable.Amount.Amount, actor, finance.Owner, "Payroll", reference,
+					    EmploymentClock.CurrentDateTime(host), out reason))
+				{
+					return false;
+				}
+
+				RecordPayrollActivity(finance, payable);
+				return true;
 			case PaymentMethodKind.EmployeeBankAccount:
 			case PaymentMethodKind.SpecifiedBankAccount:
 				var account = payable.PaymentMethod.BankAccount!;
@@ -1390,12 +1397,34 @@ internal static class EmploymentFinanceService
 				account.DepositFromTransaction(payable.Amount.Amount, reference);
 				account.Bank.CurrencyReserves[payable.Amount.Currency] += payable.Amount.Amount;
 				account.Bank.Changed = true;
+				RecordPayrollActivity(finance, payable);
 				reason = string.Empty;
 				return true;
 			default:
 				reason = $"Employment wage disbursement by {payable.PaymentMethod.MethodKind.DescribeEnum()} is not implemented yet; the payable remains outstanding.";
 				return false;
 		}
+	}
+
+	private static void RecordPayrollActivity(FinanceHost finance, EmploymentPayable payable)
+	{
+		var zoneId = finance.Owner switch
+		{
+			IShop shop => shop.EconomicZone?.Id,
+			IBank bank => bank.EconomicZone?.Id,
+			IStable stable => stable.EconomicZone?.Id,
+			IHospital hospital => hospital.EconomicZone?.Id,
+			IProperty property => property.EconomicZone?.Id,
+			_ => (long?)null
+		};
+		var gameworld = (finance.Owner as IHaveFuturemud)?.Gameworld;
+		gameworld?.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
+			finance.Owner is MudSharp.Work.Projects.IActiveProject
+				? EconomicActivityType.ProjectPayment
+				: EconomicActivityType.Wage,
+			EconomicVolumeClassification.Exchange, payable.Amount.Currency.Id, payable.Amount.Amount, zoneId,
+			finance.Owner.Id, finance.Owner.FrameworkItemType, payable.EmployeeId, "Character", payable.Id,
+			"EmploymentPayable", payable.EmployeeName));
 	}
 
 	internal static IReadOnlyCollection<ICell> PurchaseLocationHints(IEmploymentTaskContext context, ICharacter? actor,

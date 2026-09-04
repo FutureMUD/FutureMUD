@@ -5867,6 +5867,19 @@ Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full action and
             bankTarget.CurrencyReserves[bankTarget.PrimaryCurrency] += targetAmount;
             bankTarget.Changed = true;
         }
+		actor.Gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
+			EconomicActivityType.BankTransfer,
+			EconomicVolumeClassification.GeneralTransfer,
+			bank.PrimaryCurrency.Id,
+			amount,
+			bank.EconomicZone.Id,
+			account.AccountOwner.Id,
+			account.AccountOwner.FrameworkItemType,
+			accountTarget.AccountOwner.Id,
+			accountTarget.AccountOwner.FrameworkItemType,
+			account.Id,
+			account.FrameworkItemType,
+			ss.SafeRemainingArgument));
 
         string moneyDescription = bank.PrimaryCurrency.Describe(amount, CurrencyDescriptionPatternType.Short)
                                    .ColourValue();

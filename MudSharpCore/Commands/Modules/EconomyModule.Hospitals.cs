@@ -1741,6 +1741,13 @@ Administrators can also use:
 		request.ProcedureParameters = procedureParameters;
 		request.MarkCharged(amountPaid, debtCharged,
 			HospitalServiceBilling.IsDonorPaidServiceType(service.ServiceType) ? 0.0M : null);
+		if (amountPaid + debtCharged > 0.0M)
+		{
+			requester.Gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
+				EconomicActivityType.Service, EconomicVolumeClassification.Exchange, hospital.Currency.Id,
+				amountPaid + debtCharged, hospital.EconomicZone.Id, requester.Id, requester.FrameworkItemType,
+				hospital.Id, hospital.FrameworkItemType, service.Id, service.FrameworkItemType, service.Name));
+		}
 
 		hospital.AddServiceRequest(request);
 		var task = hospital.TaskBoard.CreateActiveTask(

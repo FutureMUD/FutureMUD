@@ -496,6 +496,8 @@ It adds FutureProg-driven path control such as:
 - fallback location selection
 - waypoint routing
 
+Its concrete AI definitions use the same persisted door, key, guard, forced-movement, and door-smashing options as `PathingAIBase`. Construction and reload restore those common options before the first path search, while older definitions that omit an option retain the legacy `false` default. The specialised FutureProg and aggression fields are still loaded only by their owning class.
+
 ### `GroupAIType`
 This is the base class for most group behavior policies. It contributes:
 

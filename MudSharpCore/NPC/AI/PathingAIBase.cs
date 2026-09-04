@@ -35,13 +35,18 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
     protected virtual void LoadFromXML(XElement root)
     {
+		LoadCommonPathingOptions(root);
+		LoadDoorSmashDelayProg(root);
+	}
+
+	protected void LoadCommonPathingOptions(XElement root)
+	{
         OpenDoors = bool.Parse(root.Element("OpenDoors")?.Value ?? "false");
         UseKeys = bool.Parse(root.Element("UseKeys")?.Value ?? "false");
         SmashLockedDoors = bool.Parse(root.Element("SmashLockedDoors")?.Value ?? "false");
         CloseDoorsBehind = bool.Parse(root.Element("CloseDoorsBehind")?.Value ?? "false");
         UseDoorguards = bool.Parse(root.Element("UseDoorguards")?.Value ?? "false");
         MoveEvenIfObstructionInWay = bool.Parse(root.Element("MoveEvenIfObstructionInWay")?.Value ?? "false");
-        LoadDoorSmashDelayProg(root);
     }
 
     protected void LoadDoorSmashDelayProg(XElement root)

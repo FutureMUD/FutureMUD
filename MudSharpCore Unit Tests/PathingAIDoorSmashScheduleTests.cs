@@ -7,8 +7,9 @@ using System.Reflection;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using MudSharp.Character;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
+using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Combat;
 using MudSharp.Construction;
@@ -48,12 +49,14 @@ public class PathingAIDoorSmashScheduleTests
         public int SmashCount { get; private set; }
         public bool Enabled { get; set; } = true;
 
-        public void SetDelayProg(IFutureProg? prog) => DoorSmashDelayProg = prog;
+		public void SetDelayProg(IFutureProg? prog) => DoorSmashDelayProg = prog;
 		public void EnableDoorSmashing() => SmashLockedDoors = true;
-        public bool RunCheckSmash(ICharacter character) => CheckSmash(character);
+		public void EnableCloseDoorsBehind() => CloseDoorsBehind = true;
+		public bool RunCheckSmash(ICharacter character) => CheckSmash(character);
 		public bool RunFiveSecondTick(ICharacter character) => FiveSecondTick(character);
 		public void RunFollowPathAction(ICharacter character, FollowingPath path) => FollowPathAction(character, path);
 		public bool RunSuitability(ICharacter character, ICellExit exit) => GetSuitabilityFunction(character)(exit);
+		public void RunCheckCloseDoor(ICharacter character, ICellExit exit) => CheckCloseDoor(character, exit);
         public string SavedDefinition => PrepareDefinitionForSave(SaveToXml());
 
         protected override DateTime UtcNow => Clock;
@@ -525,6 +528,32 @@ public class PathingAIDoorSmashScheduleTests
 		Assert.IsTrue(path.UseKeys);
 		Assert.IsTrue(path.SmashLockedDoors);
 		Assert.IsTrue(fixture.Effects.Contains(path));
+	}
+
+	[TestMethod]
+	public void SiblingOwnedCloseBehindPath_SuppressesEarlyEventClose()
+	{
+		var fixture = CreateFixture();
+		var owner = new TestPathingAI();
+		var sibling = new TestPathingAI();
+		owner.EnableCloseDoorsBehind();
+		var siblingPath = new FollowingPath(fixture.Character.Object, Array.Empty<ICellExit>())
+		{
+			PathingOwner = sibling,
+			CloseDoorsBehind = true
+		};
+		fixture.Effects.Add(siblingPath);
+		var body = new Mock<IBody>();
+		fixture.Character.SetupGet(x => x.Body).Returns(body.Object);
+		fixture.Door.SetupGet(x => x.IsOpen).Returns(true);
+		var destination = new Mock<ICell>();
+		fixture.CellExit.SetupGet(x => x.Destination).Returns(destination.Object);
+		fixture.Origin.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
+		destination.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
+
+		owner.RunCheckCloseDoor(fixture.Character.Object, fixture.CellExit.Object);
+
+		body.Verify(x => x.Close(fixture.Door.Object, null!, null!), Times.Never);
 	}
 
 	[TestMethod]

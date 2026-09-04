@@ -367,4 +367,6 @@ Migration `20260904111218_AddEconomyAnalytics` creates `EconomicActivityRecords`
 - `EconomyAnalyticsSnapshotIntervalMinutes = 1440`
 - `EconomyAnalyticsRolloverSnapshotsEnabled = true`
 
+The runtime default registry additionally exposes `EconomyAnalyticsGlobalDisplayCurrencyId = 0`. It is intentionally content-neutral rather than seeded with a world-specific database ID: `0` makes analytics use the world's first currency, and `economy config currency <currency>` persists an explicit selection when the world operator chooses one.
+
 No economy content package is required. The service creates its first baseline after the world, items, characters, and economy hosts finish loading. The activity ledger starts empty and its reports state their actual coverage start; the seeder does not import or reinterpret old bank/shop histories. Operators that do not want durable trend data can set snapshots off immediately (or after installation) without affecting live reports or future activity-volume collection. Existing snapshot rows are retained indefinitely in this initial version; database-constrained games should disable collection before history growth becomes material.

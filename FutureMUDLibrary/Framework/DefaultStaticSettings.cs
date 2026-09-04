@@ -20,6 +20,7 @@ public static class DefaultStaticSettings
 			{ "EconomyAnalyticsSnapshotsEnabled", "true" },
 			{ "EconomyAnalyticsSnapshotIntervalMinutes", "1440" },
 			{ "EconomyAnalyticsRolloverSnapshotsEnabled", "true" },
+			{ "EconomyAnalyticsGlobalDisplayCurrencyId", "0" },
             { "CPRAllowed", "true" },
 			{ GameItemComponentTypeVisibility.ShowModernSettingName, "true" },
 			{ GameItemComponentTypeVisibility.ShowFuturisticSettingName, "true" },

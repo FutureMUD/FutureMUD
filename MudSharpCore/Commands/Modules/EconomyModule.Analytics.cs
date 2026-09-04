@@ -26,8 +26,9 @@ internal partial class EconomyModule
 	#3economy config snapshots <on|off>#0
 	#3economy config interval <timespan>#0
 	#3economy config rollover <on|off>#0
+	#3economy config currency <currency>#0
 
-Running #3economy#0 without a subcommand only displays this help. Live census reports include persisted offline holdings and may take noticeable time on very large worlds, so they must be requested explicitly. Reports and manual snapshots require Admin. Configuration changes require High Admin. The minimum periodic interval is one hour; disabling snapshots preserves existing history and leaves live reports and the activity ledger running.";
+Running #3economy#0 without a subcommand only displays this help. Live census reports include persisted offline holdings and may take noticeable time on very large worlds, so they must be requested explicitly. Native values use their own currency descriptions; cross-currency global values use the configured display currency, or the first currency when none is configured. Reports and manual snapshots require Admin. Configuration changes require High Admin. The minimum periodic interval is one hour; disabling snapshots preserves existing history and leaves live reports and the activity ledger running.";
 
 	[PlayerCommand("EconomyAnalytics", "economy")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -84,6 +85,7 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 		}
 
 		var service = actor.Gameworld.EconomyAnalytics;
+		var globalDisplayCurrency = service.GlobalDisplayCurrency;
 		var holdings = service.GetCurrentHoldings(zoneId);
 		var volume = service.GetVolume(EconomyQueryWindowKind.RealDay, zoneId);
 		var supply = holdings
@@ -110,12 +112,12 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 				: trends[0].GlobalBaseValue < trends[1].GlobalBaseValue ? "falling" : "flat";
 		var sb = new StringBuilder();
 		sb.AppendLine("Economy Summary".ColourName());
-		sb.AppendLine($"Broad liquid supply: {supply.ToString("N2", actor).ColourValue()} global-base units");
+		sb.AppendLine($"Broad liquid supply: {DescribeGlobalValue(globalDisplayCurrency, supply).ColourValue()}");
 		sb.AppendLine($"PC-controlled liquid share: {(supply > 0.0M ? pcControlledLiquid / supply : 0.0M).ToString("P1", actor).ColourValue()}");
-		sb.AppendLine($"PC-controlled wealth including property: {pcWealth.ToString("N2", actor).ColourValue()} global-base units");
+		sb.AppendLine($"PC-controlled wealth including property: {DescribeGlobalValue(globalDisplayCurrency, pcWealth).ColourValue()}");
 		sb.AppendLine($"Bank reserve coverage: {(deposits > 0.0M ? reserves / deposits : 1.0M).ToString("P1", actor).ColourValue()}");
-		sb.AppendLine($"Last 24h exchange: {volume.ExchangeGlobalBaseValue.ToString("N2", actor).ColourValue()}");
-		sb.AppendLine($"Last 24h gross movement: {volume.MovementGlobalBaseValue.ToString("N2", actor).ColourValue()}");
+		sb.AppendLine($"Last 24h exchange: {DescribeGlobalValue(globalDisplayCurrency, volume.ExchangeGlobalBaseValue).ColourValue()}");
+		sb.AppendLine($"Last 24h gross movement: {DescribeGlobalValue(globalDisplayCurrency, volume.MovementGlobalBaseValue).ColourValue()}");
 		sb.AppendLine($"Supply trend: {direction.ColourName()}");
 		sb.AppendLine($"Snapshot collection: {service.SnapshotsEnabled.ToColouredString()}");
 		sb.AppendLine($"Latest snapshot: {(service.LastSnapshotUtc?.ToString("g", actor) ?? "never").ColourValue()}");
@@ -131,7 +133,9 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 			return;
 		}
 
-		var holdings = actor.Gameworld.EconomyAnalytics.GetCurrentHoldings(zoneId, currencyId);
+		var service = actor.Gameworld.EconomyAnalytics;
+		var holdings = service.GetCurrentHoldings(zoneId, currencyId);
+		var globalDisplayCurrency = service.GlobalDisplayCurrency;
 		var rows = holdings
 			.GroupBy(x => new { x.CurrencyId, x.Metric, x.ControlBucket })
 			.OrderBy(x => x.Key.CurrencyId)
@@ -142,14 +146,14 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 				AnalyticsCurrencyName(actor, x.Key.CurrencyId),
 				x.Key.Metric.DescribeEnum(),
 				x.Key.ControlBucket.DescribeEnum(),
-				x.Sum(y => y.Amount).ToString("N2", actor),
-				x.Sum(y => y.GlobalBaseValue).ToString("N2", actor),
+				DescribeNativeValue(actor, x.Key.CurrencyId, x.Sum(y => y.Amount)),
+				DescribeGlobalValue(globalDisplayCurrency, x.Sum(y => y.GlobalBaseValue)),
 				x.Count().ToString("N0", actor)
 			});
 		var sb = new StringBuilder();
 		sb.AppendLine("Current Money Holdings".ColourName());
 		sb.AppendLine(StringUtilities.GetTextTable(rows,
-			new[] { "Currency", "Layer", "Control", "Native", "Global Base", "Records" },
+			new[] { "Currency", "Layer", "Control", "Native Value", "Global Value", "Records" },
 			actor.LineFormatLength, colour: Telnet.Yellow, unicodeTable: actor.Account.UseUnicode));
 		if (details)
 		{
@@ -160,9 +164,9 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 				.Select(x => new[]
 				{
 					AnalyticsCurrencyName(actor, x.CurrencyId), x.Metric.DescribeEnum(),
-					x.ControlBucket.DescribeEnum(), x.Amount.ToString("N2", actor),
+					x.ControlBucket.DescribeEnum(), DescribeNativeValue(actor, x.CurrencyId, x.Amount),
 					x.Description ?? string.Empty
-				}), new[] { "Currency", "Layer", "Control", "Native", "Custody" },
+				}), new[] { "Currency", "Layer", "Control", "Native Value", "Custody" },
 				actor.LineFormatLength, colour: Telnet.Yellow, unicodeTable: actor.Account.UseUnicode));
 		}
 
@@ -243,19 +247,21 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 			return;
 		}
 
-		var result = actor.Gameworld.EconomyAnalytics.GetVolume(window, zoneId, currencyId, periodId);
+		var service = actor.Gameworld.EconomyAnalytics;
+		var result = service.GetVolume(window, zoneId, currencyId, periodId);
+		var globalDisplayCurrency = service.GlobalDisplayCurrency;
 		var sb = new StringBuilder();
 		sb.AppendLine("Economic Volume".ColourName());
 		sb.AppendLine($"Events: {result.EventCount.ToString("N0", actor).ColourValue()}");
-		sb.AppendLine($"Exchange: {result.ExchangeGlobalBaseValue.ToString("N2", actor).ColourValue()} global-base units");
-		sb.AppendLine($"Gross movement: {result.MovementGlobalBaseValue.ToString("N2", actor).ColourValue()} global-base units");
+		sb.AppendLine($"Exchange: {DescribeGlobalValue(globalDisplayCurrency, result.ExchangeGlobalBaseValue).ColourValue()}");
+		sb.AppendLine($"Gross movement: {DescribeGlobalValue(globalDisplayCurrency, result.MovementGlobalBaseValue).ColourValue()}");
 		sb.AppendLine($"Coverage begins: {result.CoverageStartUtc.ToString("g", actor).ColourValue()}");
 		if (result.ByActivity.Count > 0)
 		{
 			sb.AppendLine(StringUtilities.GetTextTable(result.ByActivity
 				.OrderByDescending(x => x.Value)
-				.Select(x => new[] { x.Key.DescribeEnum(), x.Value.ToString("N2", actor) }),
-				new[] { "Activity", "Global Base" }, actor.LineFormatLength,
+				.Select(x => new[] { x.Key.DescribeEnum(), DescribeGlobalValue(globalDisplayCurrency, x.Value) }),
+				new[] { "Activity", "Global Value" }, actor.LineFormatLength,
 				colour: Telnet.Yellow, unicodeTable: actor.Account.UseUnicode));
 		}
 		if (result.ByPcInvolvement.Count > 0)
@@ -265,8 +271,8 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 				.Select(x => new[]
 				{
 					x.Key == EconomicControlBucket.SharedPcControlled ? "PC involved" : "Other",
-					x.Value.ToString("N2", actor)
-				}), new[] { "Participation", "Global Base" }, actor.LineFormatLength,
+					DescribeGlobalValue(globalDisplayCurrency, x.Value)
+				}), new[] { "Participation", "Global Value" }, actor.LineFormatLength,
 				colour: Telnet.Yellow, unicodeTable: actor.Account.UseUnicode));
 		}
 
@@ -329,10 +335,12 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 			return;
 		}
 
-		var points = actor.Gameworld.EconomyAnalytics.GetTrends(metric, null, zoneId, currencyId, count);
+		var service = actor.Gameworld.EconomyAnalytics;
+		var points = service.GetTrends(metric, null, zoneId, currencyId, count);
+		var globalDisplayCurrency = service.GlobalDisplayCurrency;
 		var sb = new StringBuilder();
 		sb.AppendLine($"{requested.TitleCase()} Trend".ColourName());
-		sb.AppendLine($"Snapshot collection: {actor.Gameworld.EconomyAnalytics.SnapshotsEnabled.ToColouredString()}");
+		sb.AppendLine($"Snapshot collection: {service.SnapshotsEnabled.ToColouredString()}");
 		if (points.Count == 0)
 		{
 			sb.AppendLine("There is no matching snapshot history.");
@@ -342,8 +350,9 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 			sb.AppendLine(StringUtilities.GetTextTable(points.Select(x => new[]
 			{
 				x.RealDateTimeUtc.ToString("g", actor), x.Reason.DescribeEnum(),
-				x.EconomicZoneId?.ToString("N0", actor) ?? "All", x.GlobalBaseValue.ToString("N2", actor)
-			}), new[] { "Captured", "Reason", "Zone", "Global Base" }, actor.LineFormatLength,
+				x.EconomicZoneId?.ToString("N0", actor) ?? "All",
+				DescribeGlobalValue(globalDisplayCurrency, x.GlobalBaseValue)
+			}), new[] { "Captured", "Reason", "Zone", "Global Value" }, actor.LineFormatLength,
 				colour: Telnet.Yellow, unicodeTable: actor.Account.UseUnicode));
 		}
 
@@ -390,7 +399,9 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 			return;
 		}
 
-		var holdings = actor.Gameworld.EconomyAnalytics.GetCurrentHoldings(zoneId, currencyId)
+		var service = actor.Gameworld.EconomyAnalytics;
+		var globalDisplayCurrency = service.GlobalDisplayCurrency;
+		var holdings = service.GetCurrentHoldings(zoneId, currencyId)
 			.Where(x => x.Metric is not EconomyHoldingMetric.BankDebt and not EconomyHoldingMetric.BankReserves)
 			.ToList();
 		var direct = holdings
@@ -413,17 +424,18 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 		var topDecileShare = totalDirect <= 0.0M ? 0.0M : direct.Take(topDecileCount).Sum(x => x.Wealth) / totalDirect;
 		var sb = new StringBuilder();
 		sb.AppendLine("PC-Controlled Wealth".ColourName());
-		sb.AppendLine($"Direct PC wealth: {totalDirect.ToString("N2", actor).ColourValue()} global-base units");
-		sb.AppendLine($"Shared institutions/property: {shared.ToString("N2", actor).ColourValue()} global-base units");
-		sb.AppendLine($"Median direct wealth: {median.ToString("N2", actor).ColourValue()}");
+		sb.AppendLine($"Direct PC wealth: {DescribeGlobalValue(globalDisplayCurrency, totalDirect).ColourValue()}");
+		sb.AppendLine($"Shared institutions/property: {DescribeGlobalValue(globalDisplayCurrency, shared).ColourValue()}");
+		sb.AppendLine($"Median direct wealth: {DescribeGlobalValue(globalDisplayCurrency, median).ColourValue()}");
 		sb.AppendLine($"Top-decile share: {topDecileShare.ToString("P1", actor).ColourValue()}");
 		sb.AppendLine($"Gini coefficient: {EconomyAnalyticsMath.Gini(direct.Select(x => x.Wealth)).ToString("N3", actor).ColourValue()}");
 		if (direct.Count > 0)
 		{
 			sb.AppendLine(StringUtilities.GetTextTable(direct.Take(top).Select((x, index) => new[]
 			{
-				(index + 1).ToString("N0", actor), x.Id.ToString("N0", actor), x.Wealth.ToString("N2", actor)
-			}), new[] { "Rank", "PC ID", "Global Base" }, actor.LineFormatLength,
+				(index + 1).ToString("N0", actor), x.Id.ToString("N0", actor),
+				DescribeGlobalValue(globalDisplayCurrency, x.Wealth)
+			}), new[] { "Rank", "PC ID", "Global Wealth" }, actor.LineFormatLength,
 				colour: Telnet.Yellow, unicodeTable: actor.Account.UseUnicode));
 		}
 
@@ -437,7 +449,9 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 			return;
 		}
 
-		var risks = actor.Gameworld.EconomyAnalytics.GetRisks(zoneId);
+		var service = actor.Gameworld.EconomyAnalytics;
+		var globalDisplayCurrency = service.GlobalDisplayCurrency;
+		var risks = service.GetRisks(zoneId);
 		if (risks.Count == 0)
 		{
 			actor.OutputHandler.Send("No economy analytics risks are currently detected.".Colour(Telnet.Green));
@@ -446,9 +460,12 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 
 		actor.OutputHandler.Send(StringUtilities.GetTextTable(risks.Select(x => new[]
 		{
-			x.Code, x.Description, x.GlobalBaseValue?.ToString("N2", actor) ?? string.Empty,
+			x.Code, x.Description,
+			x.GlobalBaseValue.HasValue
+				? DescribeGlobalValue(globalDisplayCurrency, x.GlobalBaseValue.Value)
+				: string.Empty,
 			x.EconomicZoneId?.ToString("N0", actor) ?? "All"
-		}), new[] { "Risk", "Description", "Global Base", "Zone" }, actor.LineFormatLength,
+		}), new[] { "Risk", "Description", "Global Value", "Zone" }, actor.LineFormatLength,
 			colour: Telnet.Red, unicodeTable: actor.Account.UseUnicode));
 	}
 
@@ -481,6 +498,7 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 			sb.AppendLine($"Snapshots enabled: {service.SnapshotsEnabled.ToColouredString()}");
 			sb.AppendLine($"Periodic interval: {service.SnapshotInterval.Describe(actor).ColourValue()}");
 			sb.AppendLine($"Rollover snapshots: {service.RolloverSnapshotsEnabled.ToColouredString()}");
+			sb.AppendLine($"Global display currency: {service.GlobalDisplayCurrency.Name.ColourName()}");
 			sb.AppendLine($"Last snapshot: {(service.LastSnapshotUtc?.ToString("g", actor) ?? "never").ColourValue()}");
 			sb.AppendLine($"Next periodic snapshot: {(service.NextPeriodicSnapshotUtc?.ToString("g", actor) ?? "disabled").ColourValue()}");
 			sb.AppendLine($"Ledger coverage begins: {(service.ActivityCoverageStartUtc?.ToString("g", actor) ?? "no events recorded").ColourValue()}");
@@ -536,8 +554,26 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 
 				actor.OutputHandler.Send($"Periodic economy snapshots will now be taken every {interval.Describe(actor).ColourValue()}.");
 				return;
+			case "currency":
+			case "displaycurrency":
+			case "globalcurrency":
+				if (!TryResolveAnalyticsCurrency(actor, command.SafeRemainingArgument, out var currencyId))
+				{
+					return;
+				}
+
+				var currency = actor.Gameworld.Currencies.Get(currencyId!.Value)!;
+				if (!service.TrySetGlobalDisplayCurrency(currency, out var currencyError))
+				{
+					actor.OutputHandler.Send(currencyError.ColourError());
+					return;
+				}
+
+				actor.OutputHandler.Send(
+					$"Global economy values will now be displayed as {currency.Name.ColourName()}.");
+				return;
 			default:
-				actor.OutputHandler.Send("You can configure snapshots, interval, or rollover.");
+				actor.OutputHandler.Send("You can configure snapshots, interval, rollover, or currency.");
 				return;
 		}
 	}
@@ -660,5 +696,19 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 	{
 		return actor.Gameworld.Currencies.FirstOrDefault(x => x.Id == currencyId)?.Name ??
 		       (currencyId == 0 ? "Unknown" : $"#{currencyId:N0}");
+	}
+
+	private static string DescribeNativeValue(ICharacter actor, long currencyId, decimal amount)
+	{
+		return actor.Gameworld.Currencies.Get(currencyId)?
+			.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal) ?? "Unknown currency";
+	}
+
+	internal static string DescribeGlobalValue(ICurrency currency, decimal globalBaseValue)
+	{
+		return currency.Describe(
+			EconomyAnalyticsMath.ConvertGlobalBaseValue(globalBaseValue,
+				currency.BaseCurrencyToGlobalBaseCurrencyConversion),
+			CurrencyDescriptionPatternType.ShortDecimal);
 	}
 }

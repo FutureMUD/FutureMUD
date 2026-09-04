@@ -30,6 +30,7 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 	public const string SnapshotsEnabledConfiguration = "EconomyAnalyticsSnapshotsEnabled";
 	public const string SnapshotIntervalConfiguration = "EconomyAnalyticsSnapshotIntervalMinutes";
 	public const string RolloverSnapshotsEnabledConfiguration = "EconomyAnalyticsRolloverSnapshotsEnabled";
+	public const string GlobalDisplayCurrencyConfiguration = "EconomyAnalyticsGlobalDisplayCurrencyId";
 	public static readonly TimeSpan MinimumSnapshotInterval = TimeSpan.FromHours(1.0);
 
 	private readonly IFuturemud _gameworld;
@@ -49,6 +50,31 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 		Math.Max(MinimumSnapshotInterval.TotalMinutes,
 			_gameworld.GetStaticDouble(SnapshotIntervalConfiguration)));
 	public bool RolloverSnapshotsEnabled => _gameworld.GetStaticBool(RolloverSnapshotsEnabledConfiguration);
+	public ICurrency GlobalDisplayCurrency
+	{
+		get
+		{
+			var firstCurrency = _gameworld.Currencies.FirstOrDefault() ??
+			                    throw new InvalidOperationException(
+				                    "Economy analytics requires at least one currency.");
+			var configuredCurrency = _gameworld.Currencies.Get(
+				_gameworld.GetStaticLong(GlobalDisplayCurrencyConfiguration));
+			if (configuredCurrency?.BaseCurrencyToGlobalBaseCurrencyConversion > 0.0M)
+			{
+				return configuredCurrency;
+			}
+
+			if (firstCurrency.BaseCurrencyToGlobalBaseCurrencyConversion > 0.0M)
+			{
+				return firstCurrency;
+			}
+
+			return _gameworld.Currencies.FirstOrDefault(x =>
+			           x.BaseCurrencyToGlobalBaseCurrencyConversion > 0.0M) ??
+			       throw new InvalidOperationException(
+				       "Economy analytics requires at least one currency with a positive global-base conversion factor.");
+		}
+	}
 	public DateTime? LastSnapshotUtc { get; private set; }
 	public DateTime? LastPeriodicSnapshotUtc { get; private set; }
 	public DateTime? NextPeriodicSnapshotUtc => !SnapshotsEnabled
@@ -1223,6 +1249,20 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 	public void SetRolloverSnapshotsEnabled(bool enabled)
 	{
 		SaveConfiguration(RolloverSnapshotsEnabledConfiguration, enabled.ToString().ToLowerInvariant());
+	}
+
+	public bool TrySetGlobalDisplayCurrency(ICurrency currency, out string error)
+	{
+		if (currency.BaseCurrencyToGlobalBaseCurrencyConversion <= 0.0M)
+		{
+			error = $"{currency.Name} cannot display global values because its global-base conversion factor is zero.";
+			return false;
+		}
+
+		SaveConfiguration(GlobalDisplayCurrencyConfiguration,
+			currency.Id.ToString(System.Globalization.CultureInfo.InvariantCulture));
+		error = string.Empty;
+		return true;
 	}
 
 	private void SaveConfiguration(string name, string value)

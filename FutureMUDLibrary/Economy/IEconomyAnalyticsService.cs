@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 
 namespace MudSharp.Economy;
@@ -157,6 +158,18 @@ public static class EconomyAnalyticsMath
 	{
 		return interval >= TimeSpan.FromHours(1.0);
 	}
+
+	public static decimal ConvertGlobalBaseValue(decimal globalBaseValue,
+		decimal baseCurrencyToGlobalBaseCurrencyConversion)
+	{
+		if (baseCurrencyToGlobalBaseCurrencyConversion <= 0.0M)
+		{
+			throw new ArgumentOutOfRangeException(nameof(baseCurrencyToGlobalBaseCurrencyConversion),
+				"A display currency must have a positive global-base conversion factor.");
+		}
+
+		return globalBaseValue / baseCurrencyToGlobalBaseCurrencyConversion;
+	}
 }
 
 public interface IEconomyAnalyticsService
@@ -164,6 +177,7 @@ public interface IEconomyAnalyticsService
 	bool SnapshotsEnabled { get; }
 	TimeSpan SnapshotInterval { get; }
 	bool RolloverSnapshotsEnabled { get; }
+	ICurrency GlobalDisplayCurrency { get; }
 	DateTime? LastSnapshotUtc { get; }
 	DateTime? NextPeriodicSnapshotUtc { get; }
 	DateTime? ActivityCoverageStartUtc { get; }
@@ -186,4 +200,5 @@ public interface IEconomyAnalyticsService
 	void SetSnapshotsEnabled(bool enabled);
 	bool TrySetSnapshotInterval(TimeSpan interval, out string error);
 	void SetRolloverSnapshotsEnabled(bool enabled);
+	bool TrySetGlobalDisplayCurrency(ICurrency currency, out string error);
 }

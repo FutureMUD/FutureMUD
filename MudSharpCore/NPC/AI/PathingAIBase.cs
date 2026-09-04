@@ -518,12 +518,6 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return true;
         }
 
-        if (ch.Effects.Any(x => x.IsBlockingEffect("general") ||
-                                x.GetSubtype<ICommandDelay>()?.IsDelayed("smash") == true))
-        {
-            return false;
-        }
-
         var focus = ch.EffectsOfType<BreakDownDoor>().First();
         ICellExit exit = focus.Exit;
 
@@ -549,13 +543,19 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return true;
         }
 
+        if (DoorSmashDelayProg is not null && focus.NextSmashAttemptUtc is null)
+        {
+            focus.NextSmashAttemptUtc = NextDoorSmashAttempt(ch, exit);
+        }
+
+        if (ch.Effects.Any(x => x.IsBlockingEffect("general") ||
+                                x.GetSubtype<ICommandDelay>()?.IsDelayed("smash") == true))
+        {
+            return false;
+        }
+
         if (DoorSmashDelayProg is not null)
         {
-            if (focus.NextSmashAttemptUtc is null)
-            {
-                focus.NextSmashAttemptUtc = NextDoorSmashAttempt(ch, exit);
-            }
-
             if (UtcNow < focus.NextSmashAttemptUtc)
             {
                 return true;

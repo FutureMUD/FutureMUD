@@ -155,6 +155,39 @@ public class PathingAIDoorSmashScheduleTests
     }
 
     [TestMethod]
+    public void ConfiguredCallback_InitialisesOnceWhileMovementIsBlockedAndHonoursDueTimeAfterUnblock()
+    {
+        var fixture = CreateFixture();
+        var followingPath = new FollowingPath(fixture.Character.Object, new[] { fixture.CellExit.Object });
+        var blocker = new BlockingDelayedAction(fixture.Character.Object, _ => { }, "waiting to move",
+            "general", string.Empty);
+        fixture.Effects.Add(followingPath);
+        fixture.Effects.Add(blocker);
+        var prog = DelayProg(77, (_, _) => 30_000M);
+        var ai = new TestPathingAI { Clock = new DateTime(2026, 8, 22, 0, 0, 0, DateTimeKind.Utc) };
+        ai.SetDelayProg(prog.Object);
+
+        Assert.IsFalse(ai.RunCheckSmash(fixture.Character.Object));
+        Assert.AreEqual(ai.Clock.AddSeconds(30), fixture.Focus.NextSmashAttemptUtc);
+        Assert.AreEqual(0, ai.SmashCount);
+        prog.Verify(x => x.ExecuteDecimal(It.IsAny<object[]>()), Times.Once);
+
+        ai.Clock = ai.Clock.AddSeconds(10);
+        Assert.IsFalse(ai.RunCheckSmash(fixture.Character.Object));
+        prog.Verify(x => x.ExecuteDecimal(It.IsAny<object[]>()), Times.Once);
+
+        fixture.Effects.Remove(blocker);
+        ai.Clock = ai.Clock.AddSeconds(19);
+        Assert.IsTrue(ai.RunCheckSmash(fixture.Character.Object));
+        Assert.AreEqual(0, ai.SmashCount);
+
+        ai.Clock = ai.Clock.AddSeconds(1);
+        Assert.IsTrue(ai.RunCheckSmash(fixture.Character.Object));
+        Assert.AreEqual(1, ai.SmashCount);
+        prog.Verify(x => x.ExecuteDecimal(It.IsAny<object[]>()), Times.Exactly(2));
+    }
+
+    [TestMethod]
     public void InvalidOriginOrOpenDoor_RemovesFocusWithoutCallingCallbackOrSmashing()
     {
         var fixture = CreateFixture();

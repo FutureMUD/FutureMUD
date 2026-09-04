@@ -218,6 +218,8 @@ All `PathingAIBase` AIs retain their legacy native door-smash cadence unless a b
 
 When configured, the callback runs before the first native smash for a newly created `BreakDownDoor` focus and again after each real native smash attempt. The focus keeps its own transient next-attempt time, so different NPCs using the same AI remain independent. The focus and its wait are intentionally not saved: after a reload, reconstructed pathing calls the prog again before any attack, allowing a feature-owned persistent deadline to supply the remaining delay. Use `smashdelay none` to restore the legacy cadence.
 
+Focus validity is checked before that first callback. Once valid, a null due time is initialised even while another effect blocks general actions or the `smash` command; the blocker still suppresses the native attack, and repeated blocked ticks reuse the same due time rather than calling the callback again.
+
 The focus is discarded when pathing is disabled, the NPC is dead or unable, the NPC leaves the exit origin, or the exact obstruction is no longer a closed door. Scheduling does not replace the native smash implementation: attack selection, damage, stamina, output, noise, and the ordinary command delay remain owned by the existing path.
 
 #### Group AI

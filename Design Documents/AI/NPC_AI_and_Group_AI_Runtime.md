@@ -486,6 +486,8 @@ It centralizes common movement concerns such as:
 
 When `CloseDoorsBehind` is enabled, shared `FollowingPath` movement leaves an open door alone while another character is actively moving through the same exit. This considers traffic in either direction and other members of a coordinated movement. If the NPC had to unlock the door for that traversal, security takes precedence: it still closes the door and, when key use is enabled, locks it again behind itself.
 
+Each path created through `PathingAIBase` is a transient episode owned by that exact AI instance. Any `BreakDownDoor` focus created while advancing the path belongs to the same episode. On an NPC with several pathing AIs, only the owner may advance, reconfigure, smash for, or clear that episode; attachment order does not select a preferred AI. The ownership and door-smash deadline are deliberately not persisted. After load, whichever AI creates the replacement path owns the reconstructed episode. `FollowingPath` instances created by patrols, group policies, or other non-`PathingAIBase` consumers remain ownerless and continue to be advanced by those consumers directly.
+
 ### `PathingAIWithProgTargetsBase`
 Use this when pathing destinations should come from content configuration instead of hard-coded logic.
 

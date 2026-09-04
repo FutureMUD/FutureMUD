@@ -17,7 +17,9 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
+using MudSharp.Movement;
 using MudSharp.NPC.AI;
+using MudSharp.NPC.AI.Strategies;
 using MudSharp.PerceptionEngine;
 
 namespace MudSharp_Unit_Tests;
@@ -41,6 +43,8 @@ public class PathingAIDoorSmashScheduleTests
 
         public void SetDelayProg(IFutureProg? prog) => DoorSmashDelayProg = prog;
         public bool RunCheckSmash(ICharacter character) => CheckSmash(character);
+		public bool RunFiveSecondTick(ICharacter character) => FiveSecondTick(character);
+		public void RunFollowPathAction(ICharacter character, FollowingPath path) => FollowPathAction(character, path);
         public string SavedDefinition => PrepareDefinitionForSave(SaveToXml());
 
         protected override DateTime UtcNow => Clock;
@@ -59,6 +63,7 @@ public class PathingAIDoorSmashScheduleTests
     private sealed record SmashFixture(
         Mock<ICharacter> Character,
         Mock<ICell> Origin,
+		Mock<IDoor> Door,
         Mock<ICellExit> CellExit,
         BreakDownDoor Focus,
         List<IEffect> Effects);
@@ -82,11 +87,42 @@ public class PathingAIDoorSmashScheduleTests
         character.Setup(x => x.AffectedBy<BreakDownDoor>()).Returns(() => effects.Contains(focus));
         character.Setup(x => x.EffectsOfType<BreakDownDoor>(It.IsAny<Predicate<BreakDownDoor>>()))
             .Returns((Predicate<BreakDownDoor>? predicate) =>
-                predicate is null || predicate(focus) ? new[] { focus } : Array.Empty<BreakDownDoor>());
+                effects.OfType<BreakDownDoor>().Where(x => predicate is null || predicate(x)));
+        character.Setup(x => x.EffectsOfType<FollowingPath>(It.IsAny<Predicate<FollowingPath>>()))
+            .Returns((Predicate<FollowingPath>? predicate) =>
+                effects.OfType<FollowingPath>().Where(x => predicate is null || predicate(x)));
         character.Setup(x => x.RemoveAllEffects(It.IsAny<Predicate<IEffect>>(), It.IsAny<bool>()))
             .Callback((Predicate<IEffect> predicate, bool _) => effects.RemoveAll(predicate));
-        return new SmashFixture(character, origin, cellExit, focus, effects);
+		character.Setup(x => x.RemoveAllEffects<BreakDownDoor>(It.IsAny<Predicate<BreakDownDoor>>(), It.IsAny<bool>()))
+		         .Callback((Predicate<BreakDownDoor>? predicate, bool _) =>
+			         effects.RemoveAll(x => x is BreakDownDoor focusEffect &&
+			                                (predicate is null || predicate(focusEffect))));
+		character.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>()))
+		         .Callback((IEffect effect, bool _) => effects.Remove(effect));
+        return new SmashFixture(character, origin, door, cellExit, focus, effects);
     }
+
+	private sealed class TestFollowingPath : FollowingPath
+	{
+		public TestFollowingPath(ICharacter owner, IEnumerable<ICellExit> exits) : base(owner, exits)
+		{
+		}
+
+		public MovementStrategyResult RunTryMoveThroughExit(ICharacter character, ICellExit exit) =>
+			TryMoveThroughExit(character, exit);
+	}
+
+	private static void Bind(SmashFixture fixture, TestPathingAI ai)
+	{
+		var path = fixture.Effects.OfType<FollowingPath>().FirstOrDefault() ??
+		           new FollowingPath(fixture.Character.Object, Array.Empty<ICellExit>());
+		path.PathingOwner = ai;
+		fixture.Focus.PathingEpisode = path;
+		if (!fixture.Effects.Contains(path))
+		{
+			fixture.Effects.Add(path);
+		}
+	}
 
     private static Mock<IFutureProg> DelayProg(long id, Func<ICharacter, ICellExit, decimal> delay)
     {
@@ -98,6 +134,189 @@ public class PathingAIDoorSmashScheduleTests
         return prog;
     }
 
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void MultiplePathingAIs_ProcessOnlyTheirOwnEpisodeRegardlessOfOrder(bool siblingFirst)
+	{
+		var fixture = CreateFixture();
+		var ownerProg = DelayProg(77, (_, _) => 30_000M);
+		var siblingProg = DelayProg(78, (_, _) => throw new AssertFailedException("Sibling callback ran."));
+		var now = new DateTime(2026, 8, 23, 0, 0, 0, DateTimeKind.Utc);
+		var owner = new TestPathingAI { Clock = now };
+		owner.SetDelayProg(ownerProg.Object);
+		var sibling = new TestPathingAI { Clock = now, Enabled = false };
+		sibling.SetDelayProg(siblingProg.Object);
+		Bind(fixture, owner);
+		var path = fixture.Focus.PathingEpisode!;
+		path.SmashLockedDoors = true;
+
+		if (siblingFirst)
+		{
+			Assert.IsFalse(sibling.RunFiveSecondTick(fixture.Character.Object));
+			Assert.IsTrue(owner.RunFiveSecondTick(fixture.Character.Object));
+		}
+		else
+		{
+			Assert.IsTrue(owner.RunFiveSecondTick(fixture.Character.Object));
+			Assert.IsFalse(sibling.RunFiveSecondTick(fixture.Character.Object));
+		}
+
+		Assert.IsTrue(fixture.Effects.Contains(path));
+		Assert.IsTrue(fixture.Effects.Contains(fixture.Focus));
+		Assert.AreEqual(now.AddSeconds(30), fixture.Focus.NextSmashAttemptUtc);
+		Assert.IsTrue(path.SmashLockedDoors);
+		ownerProg.Verify(x => x.ExecuteDecimal(It.IsAny<object[]>()), Times.Once);
+		siblingProg.Verify(x => x.ExecuteDecimal(It.IsAny<object[]>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void SiblingCannotReconfigureAnOwnedPath()
+	{
+		var fixture = CreateFixture();
+		var owner = new TestPathingAI();
+		var sibling = new TestPathingAI();
+		Bind(fixture, owner);
+		var path = fixture.Focus.PathingEpisode!;
+		path.OpenDoors = true;
+		path.UseKeys = true;
+		path.SmashLockedDoors = true;
+
+		sibling.RunFollowPathAction(fixture.Character.Object, path);
+
+		Assert.AreSame(owner, path.PathingOwner);
+		Assert.IsTrue(path.OpenDoors);
+		Assert.IsTrue(path.UseKeys);
+		Assert.IsTrue(path.SmashLockedDoors);
+		Assert.IsTrue(fixture.Effects.Contains(path));
+	}
+
+	[TestMethod]
+	public void DisablingOwnerClearsOnlyItsEpisode()
+	{
+		var fixture = CreateFixture();
+		var disabledOwner = new TestPathingAI { Enabled = false };
+		Bind(fixture, disabledOwner);
+		var disabledPath = fixture.Focus.PathingEpisode!;
+		var sibling = new TestPathingAI();
+		var siblingPath = new FollowingPath(fixture.Character.Object, Array.Empty<ICellExit>())
+		{
+			PathingOwner = sibling
+		};
+		var siblingFocus = new BreakDownDoor(fixture.Character.Object, fixture.CellExit.Object)
+		{
+			PathingEpisode = siblingPath
+		};
+		fixture.Effects.Add(siblingPath);
+		fixture.Effects.Add(siblingFocus);
+
+		Assert.IsTrue(disabledOwner.RunCheckSmash(fixture.Character.Object));
+
+		Assert.IsFalse(fixture.Effects.Contains(disabledPath));
+		Assert.IsFalse(fixture.Effects.Contains(fixture.Focus));
+		Assert.IsTrue(fixture.Effects.Contains(siblingPath));
+		Assert.IsTrue(fixture.Effects.Contains(siblingFocus));
+	}
+
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void InvalidOriginOrOpenDoorClearsOnlyOwningEpisode(bool openDoor)
+	{
+		var fixture = CreateFixture();
+		var owner = new TestPathingAI();
+		Bind(fixture, owner);
+		var ownerPath = fixture.Focus.PathingEpisode!;
+		var sibling = new TestPathingAI();
+		var siblingPath = new FollowingPath(fixture.Character.Object, Array.Empty<ICellExit>())
+		{
+			PathingOwner = sibling
+		};
+		var siblingFocus = new BreakDownDoor(fixture.Character.Object, fixture.CellExit.Object)
+		{
+			PathingEpisode = siblingPath
+		};
+		fixture.Effects.Add(siblingPath);
+		fixture.Effects.Add(siblingFocus);
+		if (openDoor)
+		{
+			fixture.Door.SetupGet(x => x.IsOpen).Returns(true);
+		}
+		else
+		{
+			fixture.Character.SetupGet(x => x.Location).Returns(new Mock<ICell>().Object);
+		}
+
+		Assert.IsTrue(owner.RunCheckSmash(fixture.Character.Object));
+
+		Assert.IsFalse(fixture.Effects.Contains(fixture.Focus));
+		Assert.IsFalse(fixture.Effects.Contains(ownerPath));
+		Assert.IsTrue(fixture.Effects.Contains(siblingPath));
+		Assert.IsTrue(fixture.Effects.Contains(siblingFocus));
+	}
+
+	[TestMethod]
+	public void CompletingPathClearsOnlyItsAssociatedDoorFocus()
+	{
+		var fixture = CreateFixture();
+		var owner = new TestPathingAI();
+		Bind(fixture, owner);
+		var completedPath = fixture.Focus.PathingEpisode!;
+		var siblingPath = new FollowingPath(fixture.Character.Object, Array.Empty<ICellExit>());
+		var siblingFocus = new BreakDownDoor(fixture.Character.Object, fixture.CellExit.Object)
+		{
+			PathingEpisode = siblingPath
+		};
+		fixture.Effects.Add(siblingPath);
+		fixture.Effects.Add(siblingFocus);
+
+		completedPath.FollowPathAction();
+
+		Assert.IsFalse(fixture.Effects.Contains(completedPath));
+		Assert.IsFalse(fixture.Effects.Contains(fixture.Focus));
+		Assert.IsTrue(fixture.Effects.Contains(siblingPath));
+		Assert.IsTrue(fixture.Effects.Contains(siblingFocus));
+	}
+
+	[TestMethod]
+	public void DoorFocusCreatedByMovementIsAssociatedWithItsPathEpisode()
+	{
+		var fixture = CreateFixture();
+		fixture.Effects.Remove(fixture.Focus);
+		var terrain = new Mock<ITerrain>();
+		terrain.SetupGet(x => x.GravityModel).Returns(GravityModel.Normal);
+		fixture.Origin.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
+		fixture.Character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		fixture.Character.Setup(x => x.CanMove(It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
+		fixture.Character.Setup(x => x.CanMove(fixture.CellExit.Object, It.IsAny<CanMoveFlags>()))
+		       .Returns(CanMoveResponse.True);
+		fixture.Character.Setup(x => x.AddEffect(It.IsAny<IEffect>()))
+		       .Callback((IEffect effect) => fixture.Effects.Add(effect));
+		var path = new TestFollowingPath(fixture.Character.Object, new[] { fixture.CellExit.Object })
+		{
+			SmashLockedDoors = true
+		};
+
+		var result = path.RunTryMoveThroughExit(fixture.Character.Object, fixture.CellExit.Object);
+		var focus = fixture.Effects.OfType<BreakDownDoor>().Single();
+
+		Assert.AreEqual(MovementStrategyResult.Waiting, result);
+		Assert.AreSame(path, focus.PathingEpisode);
+	}
+
+	[TestMethod]
+	public void OwnerlessPathStillSupportsItsDirectConsumer()
+	{
+		var fixture = CreateFixture();
+		var path = new FollowingPath(fixture.Character.Object, Array.Empty<ICellExit>());
+		fixture.Effects.Add(path);
+
+		path.FollowPathAction();
+
+		Assert.IsNull(path.PathingOwner);
+		Assert.IsFalse(fixture.Effects.Contains(path));
+	}
+
     [TestMethod]
     public void ConfiguredCallback_DelaysFirstAttemptAndReschedulesAfterDueAttempt()
     {
@@ -105,6 +324,7 @@ public class PathingAIDoorSmashScheduleTests
         var prog = DelayProg(77, (_, _) => 60_000M);
         var ai = new TestPathingAI { Clock = new DateTime(2026, 8, 22, 0, 0, 0, DateTimeKind.Utc) };
         ai.SetDelayProg(prog.Object);
+		Bind(fixture, ai);
 
         Assert.IsTrue(ai.RunCheckSmash(fixture.Character.Object));
         Assert.AreEqual(0, ai.SmashCount);
@@ -129,6 +349,8 @@ public class PathingAIDoorSmashScheduleTests
         var prog = DelayProg(77, (character, _) => ReferenceEquals(character, first.Character.Object) ? 10_000M : 20_000M);
         var ai = new TestPathingAI { Clock = new DateTime(2026, 8, 22, 0, 0, 0, DateTimeKind.Utc) };
         ai.SetDelayProg(prog.Object);
+		Bind(first, ai);
+		Bind(second, ai);
 
         ai.RunCheckSmash(first.Character.Object);
         ai.RunCheckSmash(second.Character.Object);
@@ -146,6 +368,7 @@ public class PathingAIDoorSmashScheduleTests
         var prog = DelayProg(77, (_, _) => 30_000M);
         var ai = new TestPathingAI { Clock = DateTime.UtcNow };
         ai.SetDelayProg(prog.Object);
+		Bind(fixture, ai);
 
         ai.RunCheckSmash(fixture.Character.Object);
 
@@ -166,6 +389,7 @@ public class PathingAIDoorSmashScheduleTests
         var prog = DelayProg(77, (_, _) => 30_000M);
         var ai = new TestPathingAI { Clock = new DateTime(2026, 8, 22, 0, 0, 0, DateTimeKind.Utc) };
         ai.SetDelayProg(prog.Object);
+		Bind(fixture, ai);
 
         Assert.IsFalse(ai.RunCheckSmash(fixture.Character.Object));
         Assert.AreEqual(ai.Clock.AddSeconds(30), fixture.Focus.NextSmashAttemptUtc);
@@ -195,6 +419,7 @@ public class PathingAIDoorSmashScheduleTests
         var prog = DelayProg(77, (_, _) => 1M);
         var ai = new TestPathingAI { Clock = DateTime.UtcNow };
         ai.SetDelayProg(prog.Object);
+		Bind(fixture, ai);
 
         ai.RunCheckSmash(fixture.Character.Object);
 
@@ -210,6 +435,7 @@ public class PathingAIDoorSmashScheduleTests
         var prog = DelayProg(77, (_, _) => 1M);
         var ai = new TestPathingAI { Clock = DateTime.UtcNow, Enabled = false };
         ai.SetDelayProg(prog.Object);
+		Bind(fixture, ai);
 
         ai.RunCheckSmash(fixture.Character.Object);
 
@@ -223,6 +449,7 @@ public class PathingAIDoorSmashScheduleTests
     {
         var fixture = CreateFixture();
         var ai = new TestPathingAI { Clock = DateTime.UtcNow };
+		Bind(fixture, ai);
 
         ai.RunCheckSmash(fixture.Character.Object);
 

@@ -2987,7 +2987,7 @@ public class AnimalAI : PathingAIBase
 
 		FollowingPath effect = CreatePathingEffect(character, exits);
 		character.AddEffect(effect);
-		effect.FollowPathAction();
+		FollowPathAction(character, effect);
 		return true;
 	}
 
@@ -3007,7 +3007,7 @@ public class AnimalAI : PathingAIBase
 
 		FollowingMultiLayerPath effect = new(character, Enumerable.Empty<ICellExit>(), RefugeLayer, RefugeLayer);
 		character.AddEffect(effect);
-		effect.FollowPathAction();
+		FollowPathAction(character, effect);
 		return true;
 	}
 

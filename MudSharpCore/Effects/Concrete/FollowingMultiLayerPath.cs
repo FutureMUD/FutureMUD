@@ -45,7 +45,7 @@ public class FollowingMultiLayerPath : FollowingPath
 
             if (!PathTowardsLayer(TargetMovingLayer))
             {
-                ch.RemoveEffect(this);
+                RemovePath(ch);
             }
 
             return;
@@ -59,13 +59,13 @@ public class FollowingMultiLayerPath : FollowingPath
                 {
                     ch.Land();
                 }
-                ch.RemoveEffect(this);
+                RemovePath(ch);
                 return;
             }
 
             if (!PathTowardsLayer(TargetFinalLayer))
             {
-                ch.RemoveEffect(this);
+                RemovePath(ch);
             }
 
             return;

@@ -236,7 +236,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
         if (ch.State.IsDead() || ch.State.IsInStatis() || !ch.State.IsAble())
         {
-            ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
+            RemoveOwnedPathingEffects(ch);
             return false;
         }
 
@@ -301,11 +301,12 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return true;
         }
 
-        if (ch.AffectedBy<BreakDownDoor>())
+        var focus = ch.EffectsOfType<BreakDownDoor>().FirstOrDefault(Owns);
+        if (focus is not null)
         {
             if (!IsPathingEnabled(ch))
             {
-                ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
+                RemovePathingEpisode(ch, focus.PathingEpisode);
                 return true;
             }
 
@@ -348,7 +349,8 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
 		// FollowingPath closes after the whole movement has resolved. Closing here would happen while
 		// other members of the same movement may still be crossing the threshold.
-		if (ch.EffectsOfType<FollowingPath>().Any(x => x.CloseDoorsBehind))
+		if (ch.EffectsOfType<FollowingPath>()
+		      .Any(x => (x.PathingOwner is null || Owns(x)) && x.CloseDoorsBehind))
 		{
 			return;
 		}
@@ -374,7 +376,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         {
             if (!unarmedSmashes.Any())
             {
-                ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
+                RemoveOwnedDoorFoci(ch);
                 return false;
             }
 
@@ -464,7 +466,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
                 return true;
             }
 
-            ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
+            RemoveOwnedDoorFoci(ch);
             return false;
         }
 
@@ -512,30 +514,30 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
     protected bool CheckSmash(ICharacter ch)
     {
-        if (!ch.AffectedBy<BreakDownDoor>())
+        var focus = ch.EffectsOfType<BreakDownDoor>().FirstOrDefault(Owns);
+        if (focus is null)
         {
             return false;
         }
 
         if (!IsPathingEnabled(ch))
         {
-            ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
+            RemovePathingEpisode(ch, focus.PathingEpisode);
             return true;
         }
 
-        var focus = ch.EffectsOfType<BreakDownDoor>().First();
         ICellExit exit = focus.Exit;
 
         if (exit.Origin != ch.Location)
         {
-            ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
+            RemoveOwnedDoorFocus(ch, focus);
             CheckPathingEffect(ch, false);
             return true;
         }
 
         if (exit.Exit.Door?.IsOpen != false)
         {
-            ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
+            RemoveOwnedDoorFocus(ch, focus);
             CheckPathingEffect(ch, false);
             return true;
         }
@@ -543,7 +545,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         if (OpenDoors && ch.Body.CanOpen(exit.Exit.Door))
         {
             ch.Body.Open(exit.Exit.Door, null, null);
-            ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
+            RemoveOwnedDoorFocus(ch, focus);
             CheckPathingEffect(ch, false);
             return true;
         }
@@ -600,6 +602,13 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return;
         }
 
+        FollowingPath path = ch.EffectsOfType<FollowingPath>().FirstOrDefault(Owns);
+        if (path is not null && !IsPathingEnabled(ch))
+        {
+            RemovePathingEpisode(ch, path);
+            return;
+        }
+
         if (ch.Movement != null || ch.Combat != null ||
             ch.Effects.Any(x => x.IsBlockingEffect("movement") || x.IsBlockingEffect("combat-engage")))
         {
@@ -611,7 +620,6 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return;
         }
 
-        FollowingPath path = ch.EffectsOfType<FollowingPath>().FirstOrDefault();
         if (path == null)
         {
             if (createIfNotPathing && IsPathingEnabled(ch))
@@ -697,6 +705,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 				RequiresSpatialFollowing(spatialPath))
 			{
 				var spatialEffect = CreatePathingEffect(ch, spatialPath);
+				spatialEffect.PathingOwner = this;
 				ch.AddEffect(spatialEffect);
 				OnBeginPathing(ch, spatialTarget, spatialPath.TraversedExits);
 				FollowPathAction(ch, spatialEffect);
@@ -710,6 +719,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		}
 
 		FollowingPath effect = CreatePathingEffect(ch, path);
+		effect.PathingOwner = this;
 		ch.AddEffect(effect);
 		OnBeginPathing(ch, target, path);
 		FollowPathAction(ch, effect);
@@ -838,6 +848,12 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
     public void FollowPathAction(ICharacter ch, FollowingPath path)
     {
+		path.PathingOwner ??= this;
+		if (!Owns(path))
+		{
+			return;
+		}
+
         path.OpenDoors = OpenDoors;
         path.UseKeys = UseKeys;
         path.SmashLockedDoors = SmashLockedDoors;
@@ -845,6 +861,43 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         path.CloseDoorsBehind = CloseDoorsBehind;
         path.FollowPathAction();
     }
+
+	private bool Owns(FollowingPath path)
+	{
+		return ReferenceEquals(path.PathingOwner, this);
+	}
+
+	private bool Owns(BreakDownDoor focus)
+	{
+		return focus.PathingEpisode is not null && Owns(focus.PathingEpisode);
+	}
+
+	private static void RemoveOwnedDoorFocus(ICharacter ch, BreakDownDoor focus)
+	{
+		ch.RemoveEffect(focus);
+	}
+
+	private void RemoveOwnedDoorFoci(ICharacter ch)
+	{
+		ch.RemoveAllEffects<BreakDownDoor>(Owns);
+	}
+
+	private void RemovePathingEpisode(ICharacter ch, FollowingPath? path)
+	{
+		if (path is null || !Owns(path))
+		{
+			return;
+		}
+
+		ch.RemoveAllEffects<BreakDownDoor>(x => ReferenceEquals(x.PathingEpisode, path));
+		ch.RemoveEffect(path);
+	}
+
+	private void RemoveOwnedPathingEffects(ICharacter ch)
+	{
+		RemoveOwnedDoorFoci(ch);
+		ch.RemoveAllEffects<FollowingPath>(Owns);
+	}
 
     protected abstract (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch);
 

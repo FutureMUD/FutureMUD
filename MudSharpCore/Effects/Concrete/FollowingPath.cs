@@ -7,6 +7,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Movement;
+using MudSharp.NPC.AI;
 using MudSharp.NPC.AI.Strategies;
 
 #nullable enable annotations
@@ -94,6 +95,12 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
     public bool UseDoorguards { get; set; }
 	public bool CloseDoorsBehind { get; set; }
 
+	/// <summary>
+	/// The pathing AI that owns this transient episode, if it was created by one. Ownerless paths remain
+	/// available to non-AI consumers such as patrol and group movement.
+	/// </summary>
+	public PathingAIBase? PathingOwner { get; internal set; }
+
 	public static FollowingPath CreateFullFriendlyPath(ICharacter owner, IEnumerable<ICellExit> exits,
 		bool closeDoorsBehind = false)
 	{
@@ -127,7 +134,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 
         if (ch.State.HasFlag(CharacterState.Dead) || ch.Corpse != null)
         {
-            ch.RemoveEffect(this);
+            RemovePath(ch);
             return;
         }
 
@@ -139,7 +146,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 
         if (Exits.Count == 0)
         {
-            ch.RemoveEffect(this);
+            RemovePath(ch);
             return;
         }
 
@@ -147,7 +154,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
         if (ZeroGravityMovementHelper.IsZeroGravity(ch.Location, ch.RoomLayer, ch) &&
             !ZeroGravityMovementHelper.CanManeuver(ch))
         {
-            ch.RemoveEffect(this);
+            RemovePath(ch);
             return;
         }
 
@@ -163,13 +170,13 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 
 		        if (Exits.Count == 0 && RemoveWhenExitsEmpty)
 		        {
-			        ch.RemoveEffect(this);
+		        RemovePath(ch);
 		        }
 
 		        return;
 	        }
 
-	        ch.RemoveEffect(this);
+	        RemovePath(ch);
 	        return;
         }
 
@@ -180,7 +187,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
                                   .FirstOrDefault();
             if (!PathTowardsLayer(targetLayer))
             {
-                ch.RemoveEffect(this);
+                RemovePath(ch);
                 return;
             }
         }
@@ -191,29 +198,28 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
             IPositionState mobile = ch.MostUprightMobilePosition();
             if (mobile == null || !ch.CanMovePosition(mobile))
             {
-                ch.RemoveEffect(this);
+                RemovePath(ch);
                 return;
             }
 
             ch.MovePosition(mobile, null, null);
         }
 
-        IMovementStrategy strategy = MovementStrategyFactory.GetStrategy(OpenDoors, UseKeys, SmashLockedDoors, UseDoorguards);
-		switch (strategy.TryToMove(ch, exit))
+		switch (TryMoveThroughExit(ch, exit))
 		{
 			case MovementStrategyResult.Moved:
 				Exits.Dequeue();
 				CloseDoorBehindAfterMovement(ch, exit);
 				if (Exits.Count == 0 && RemoveWhenExitsEmpty)
 				{
-					ch.RemoveEffect(this);
+					RemovePath(ch);
 				}
 
 				return;
 			case MovementStrategyResult.Waiting:
 				return;
 			default:
-				ch.RemoveEffect(this);
+				RemovePath(ch);
 				return;
 		}
     }
@@ -222,7 +228,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 	{
 		if (_spatialSteps is null || _spatialSteps.Count == 0)
 		{
-			ch.RemoveEffect(this);
+			RemovePath(ch);
 			return;
 		}
 
@@ -233,7 +239,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 
 		if (!RevalidateTopologyPins())
 		{
-			ch.RemoveEffect(this);
+			RemovePath(ch);
 			return;
 		}
 
@@ -244,7 +250,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 			ConsumeSpatialStep(step);
 			if (_spatialSteps.Count == 0)
 			{
-				ch.RemoveEffect(this);
+				RemovePath(ch);
 			}
 
 			return;
@@ -252,7 +258,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 
 		if (!LocationsMatch(current, step.Origin))
 		{
-			ch.RemoveEffect(this);
+			RemovePath(ch);
 			return;
 		}
 
@@ -261,7 +267,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 			case ILinearRoutePathStep linear:
 				if (!RevalidateLinearStep(linear) || !TryBeginLinearRouteMovement(ch, linear))
 				{
-					ch.RemoveEffect(this);
+					RemovePath(ch);
 				}
 
 				return;
@@ -269,7 +275,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 				FollowSpatialExitStep(ch, traversal);
 				return;
 			default:
-				ch.RemoveEffect(this);
+				RemovePath(ch);
 				return;
 		}
 	}
@@ -279,14 +285,14 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		var exit = traversal.Exit;
 		if (!RevalidateExitStep(ch, traversal))
 		{
-			ch.RemoveEffect(this);
+			RemovePath(ch);
 			return;
 		}
 
 		if (ZeroGravityMovementHelper.IsZeroGravity(ch.Location, ch.RoomLayer, ch) &&
 			!ZeroGravityMovementHelper.CanManeuver(ch))
 		{
-			ch.RemoveEffect(this);
+			RemovePath(ch);
 			return;
 		}
 
@@ -299,7 +305,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 			var mobile = ch.MostUprightMobilePosition();
 			if (mobile is null || !ch.CanMovePosition(mobile))
 			{
-				ch.RemoveEffect(this);
+				RemovePath(ch);
 				return;
 			}
 
@@ -308,7 +314,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 
 		if (_spatialExitSuitability?.Invoke(exit) != true)
 		{
-			ch.RemoveEffect(this);
+			RemovePath(ch);
 			return;
 		}
 
@@ -319,22 +325,43 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 				CloseDoorBehindAfterMovement(ch, exit);
 				if (_spatialSteps!.Count == 0)
 				{
-					ch.RemoveEffect(this);
+					RemovePath(ch);
 				}
 
 				return;
 			case MovementStrategyResult.Waiting:
 				return;
 			default:
-				ch.RemoveEffect(this);
+				RemovePath(ch);
 				return;
 		}
 	}
 
 	protected virtual MovementStrategyResult TryMoveThroughExit(ICharacter ch, ICellExit exit)
 	{
+		var existingFoci = ch.EffectsOfType<BreakDownDoor>().ToList();
 		var strategy = MovementStrategyFactory.GetStrategy(OpenDoors, UseKeys, SmashLockedDoors, UseDoorguards);
-		return strategy.TryToMove(ch, exit);
+		var result = strategy.TryToMove(ch, exit);
+		foreach (var focus in ch.EffectsOfType<BreakDownDoor>()
+		                         .Where(x => x.PathingEpisode is null &&
+		                                     existingFoci.All(y => !ReferenceEquals(x, y))))
+		{
+			focus.PathingEpisode = this;
+		}
+
+		return result;
+	}
+
+	protected void RemovePath(ICharacter ch)
+	{
+		ch.RemoveAllEffects<BreakDownDoor>(x => ReferenceEquals(x.PathingEpisode, this));
+		ch.RemoveEffect(this);
+	}
+
+	public override void RemovalEffect()
+	{
+		((ICharacter)Owner).RemoveAllEffects<BreakDownDoor>(x => ReferenceEquals(x.PathingEpisode, this));
+		base.RemovalEffect();
 	}
 
 	protected virtual bool TryBeginLinearRouteMovement(ICharacter ch, ILinearRoutePathStep step)

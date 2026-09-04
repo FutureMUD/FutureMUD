@@ -123,6 +123,77 @@ public class NpcAiRegressionTests
         return (AnimalAI)ctor.Invoke(new object[] { model, gameworld.Object });
     }
 
+	[TestMethod]
+	public void AnimalAI_RefugeExitProducer_AssignsItsOwnerBeforeFirstPathAction()
+	{
+		var animal = LoadAnimalAIFromDefinition("""
+			<Definition><OpenDoors>true</OpenDoors><CloseDoorsBehind>true</CloseDoorsBehind>
+			<Refuge type="Home" /></Definition>
+			""", prog => prog.Setup(x => x.ExecuteBool(false, It.IsAny<object[]>())).Returns(true));
+		var character = new Mock<ICharacter>();
+		var origin = new Mock<ICell>();
+		var destination = new Mock<ICell>();
+		destination.SetupGet(x => x.Id).Returns(2);
+		destination.SetupGet(x => x.Location).Returns(destination.Object);
+		var cells = new All<ICell>();
+		cells.Add(destination.Object);
+		var world = new Mock<IFuturemud>();
+		world.SetupGet(x => x.Cells).Returns(cells);
+		character.SetupGet(x => x.Gameworld).Returns(world.Object);
+		character.SetupGet(x => x.Location).Returns(origin.Object);
+		var exit = new Mock<ICellExit>();
+		exit.SetupGet(x => x.Origin).Returns(origin.Object);
+		exit.SetupGet(x => x.Destination).Returns(destination.Object);
+		origin.Setup(x => x.ExitsFor(null, true)).Returns([exit.Object]);
+		character.Setup(x => x.CanCross(exit.Object)).Returns((true, null!));
+		character.Setup(x => x.CanMove(exit.Object, It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
+		var home = new NpcHomeBaseEffect(character.Object);
+		home.SetHomeCell(destination.Object);
+		character.Setup(x => x.CombinedEffectsOfType<NpcHomeBaseEffect>()).Returns([home]);
+		FollowingPath? created = null;
+		character.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback<IEffect>(effect =>
+		{
+			created = (FollowingPath)effect;
+			// Stop at the first consumer; this test covers producer ownership, not locomotion.
+			character.SetupGet(x => x.State).Returns(CharacterState.Dead);
+		});
+		var producer = typeof(AnimalAI).GetMethod("TryMoveToRefuge", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		Assert.IsTrue(producer.Invoke(animal, [character.Object]) is true);
+		Assert.IsNotNull(created);
+		Assert.AreSame(animal, created.PathingOwner);
+		Assert.AreSame(exit.Object, created.Exits.Peek());
+		Assert.IsTrue(created.OpenDoors);
+		Assert.IsTrue(created.CloseDoorsBehind);
+		character.Verify(x => x.RemoveEffect(created, It.IsAny<bool>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void AnimalAI_RefugeLayerProducer_AssignsOwnerAndStartsFlight()
+	{
+		var animal = LoadAnimalAIFromDefinition("""
+			<Definition><OpenDoors>true</OpenDoors><Movement type="Fly" />
+			<Refuge type="Sky"><Layer>InAir</Layer></Refuge></Definition>
+			""");
+		var character = new Mock<ICharacter>();
+		var terrain = new Mock<ITerrain>();
+		terrain.SetupGet(x => x.GravityModel).Returns(GravityModel.Normal);
+		var cell = new Mock<ICell>();
+		cell.Setup(x => x.Terrain(character.Object)).Returns(terrain.Object);
+		character.SetupGet(x => x.Location).Returns(cell.Object);
+		character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		character.Setup(x => x.CanFly()).Returns((true, string.Empty));
+		FollowingMultiLayerPath? created = null;
+		character.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback<IEffect>(effect =>
+			created = (FollowingMultiLayerPath)effect);
+		var producer = typeof(AnimalAI).GetMethod("TryMoveToRefugeLayer", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		Assert.IsTrue(producer.Invoke(animal, [character.Object]) is true);
+		Assert.IsNotNull(created);
+		Assert.AreSame(animal, created.PathingOwner);
+		Assert.AreEqual(RoomLayer.InAir, created.TargetFinalLayer);
+		Assert.IsTrue(created.OpenDoors);
+		character.Verify(x => x.Fly(null), Times.Once);
+	}
+
     [TestMethod]
     public void ArenaParticipantAI_GetOpponents_ReturnsOnlyOpposingSideParticipants()
     {

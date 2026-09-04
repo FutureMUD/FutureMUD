@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
+using MudSharp.Body.Traits;
 using MudSharp.Character.Heritage;
 using MudSharp.Combat;
 using MudSharp.Construction;
@@ -25,6 +26,8 @@ using MudSharp.Movement;
 using MudSharp.NPC.AI;
 using MudSharp.NPC.AI.Strategies;
 using MudSharp.PerceptionEngine;
+using MudSharp.Health;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp_Unit_Tests;
 
@@ -190,6 +193,59 @@ public class PathingAIDoorSmashScheduleTests
 		Assert.AreSame(weapon.Object, move.Weapon);
 		Assert.AreSame(attack.Object, move.Attack);
 		Assert.IsNull(move.ParentItem);
+	}
+
+	[TestMethod]
+	public void NativeWeaponSmash_RealConsumerUsesBoundWeaponAndCurrentFormulaEvaluation()
+	{
+		var character = new Mock<ICharacter>();
+		var target = new Mock<IGameItem>();
+		var weaponItem = new Mock<IGameItem>();
+		weaponItem.SetupGet(x => x.Quality).Returns(ItemQuality.Standard);
+		var weapon = new Mock<IMeleeWeapon>();
+		weapon.SetupGet(x => x.Parent).Returns(weaponItem.Object);
+		var weaponType = new Mock<IWeaponType>();
+		var trait = new Mock<ITraitDefinition>();
+		weaponType.SetupGet(x => x.AttackTrait).Returns(trait.Object);
+		weapon.SetupGet(x => x.WeaponType).Returns(weaponType.Object);
+		var world = new Mock<IFuturemud>();
+		world.SetupGet(x => x.LegalAuthorities).Returns(new All<MudSharp.RPG.Law.ILegalAuthority>());
+		character.SetupGet(x => x.Gameworld).Returns(world.Object);
+		character.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
+		var check = new Mock<ICheck>();
+		check.Setup(x => x.Check(character.Object, Difficulty.Easy, trait.Object, target.Object, 0.0,
+			TraitUseType.Practical, It.IsAny<(string Parameter, object value)[]>()))
+			.Returns(CheckOutcome.SimpleOutcome(CheckType.MeleeWeaponCheck, Outcome.Pass));
+		world.Setup(x => x.GetCheck(CheckType.MeleeWeaponCheck)).Returns(check.Object);
+		var expression = new MudSharp.Body.Traits.TraitExpression("10 + degree + quality", world.Object);
+		var profile = new Mock<IDamageProfile>();
+		profile.SetupGet(x => x.DamageExpression).Returns(expression);
+		profile.SetupGet(x => x.BaseAngleOfIncidence).Returns(Math.PI / 2.0);
+		var attack = new Mock<IWeaponAttack>();
+		attack.SetupGet(x => x.Profile).Returns(profile.Object);
+		var messages = new Mock<ICombatMessageManager>();
+		messages.Setup(x => x.GetMessageFor(character.Object, target.Object, weaponItem.Object, attack.Object,
+			BuiltInCombatMoveType.MeleeWeaponSmashItem, Outcome.Pass, null)).Returns("A measured strike.");
+		world.SetupGet(x => x.CombatMessageManager).Returns(messages.Object);
+		IDamage? targetDamage = null;
+		IDamage? weaponDamage = null;
+		target.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Callback<IDamage>(damage => targetDamage = damage)
+			.Returns(Array.Empty<IWound>());
+		weaponItem.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Callback<IDamage>(damage => weaponDamage = damage)
+			.Returns(Array.Empty<IWound>());
+
+		var move = PathingAIBase.CreateMeleeWeaponSmashMove(character.Object, target.Object, weapon.Object, attack.Object);
+		var result = move.ResolveMove(null!);
+
+		Assert.IsTrue(result.MoveWasSuccessful);
+		Assert.IsNotNull(targetDamage);
+		Assert.IsNotNull(weaponDamage);
+		var expected = 10 + (int)new OpposedOutcome(Outcome.Pass, Outcome.NotTested).Degree + (int)ItemQuality.Standard;
+		Assert.AreEqual(expected, targetDamage.DamageAmount, 0.000001);
+		Assert.AreEqual(expected * 0.05, weaponDamage.DamageAmount, 0.000001);
+		Assert.AreSame(weaponItem.Object, targetDamage.ToolOrigin);
+		check.VerifyAll();
+		messages.VerifyAll();
 	}
 
 	[TestMethod]

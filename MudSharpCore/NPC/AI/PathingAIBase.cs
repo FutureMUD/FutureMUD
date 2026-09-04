@@ -41,6 +41,21 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         CloseDoorsBehind = bool.Parse(root.Element("CloseDoorsBehind")?.Value ?? "false");
         UseDoorguards = bool.Parse(root.Element("UseDoorguards")?.Value ?? "false");
         MoveEvenIfObstructionInWay = bool.Parse(root.Element("MoveEvenIfObstructionInWay")?.Value ?? "false");
+        LoadDoorSmashDelayProg(root);
+    }
+
+    protected void LoadDoorSmashDelayProg(XElement root)
+    {
+        DoorSmashDelayProg = long.TryParse(root.Element("DoorSmashDelayProg")?.Value, out var progId) && progId > 0
+            ? Gameworld.FutureProgs.Get(progId)
+            : null;
+    }
+
+    protected override string PrepareDefinitionForSave(string definition)
+    {
+        var root = XElement.Parse(definition);
+        root.SetElementValue("DoorSmashDelayProg", DoorSmashDelayProg?.Id ?? 0L);
+        return root.ToString();
     }
 
     #endregion
@@ -57,6 +72,8 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
     public bool UseDoorguards { get; protected set; }
 
+    public IFutureProg? DoorSmashDelayProg { get; protected set; }
+
     public override string Show(ICharacter actor)
     {
         StringBuilder sb = new();
@@ -69,6 +86,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         sb.AppendLine($"Close Doors: {CloseDoorsBehind.ToColouredString()}");
         sb.AppendLine($"Use Doorguards: {UseDoorguards.ToColouredString()}");
         sb.AppendLine($"Move Even If Blocked: {MoveEvenIfObstructionInWay.ToColouredString()}");
+        sb.AppendLine($"Door Smash Delay Prog: {DoorSmashDelayProg?.MXPClickableFunctionName() ?? "None".ColourError()} (milliseconds)");
         return sb.ToString();
     }
 
@@ -77,7 +95,8 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 	#3useguards#0 - toggles AI using doorguards
 	#3closedoors#0 - toggles the AI closing doors behind them
 	#3smashdoors#0 - toggles the AI smashing doors it can't get through
-	#3forcemove#0 - toggles the AI moving even if it can't get through";
+	#3forcemove#0 - toggles the AI moving even if it can't get through
+	#3smashdelay <prog|none>#0 - sets an optional Number(Character, Exit) delay callback in milliseconds";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -97,8 +116,41 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
                 return BuildingCommandUseDoorguards(actor);
             case "forcemove":
                 return BuildingCommandForceMove(actor);
+            case "smashdelay":
+                return BuildingCommandSmashDelay(actor, command);
         }
         return base.BuildingCommand(actor, command.GetUndo());
+    }
+
+    private bool BuildingCommandSmashDelay(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which Number (Character, Exit) prog should schedule native door-smash attempts, or none to clear it?");
+            return false;
+        }
+
+        if (command.PeekSpeech().EqualTo("none"))
+        {
+            command.PopSpeech();
+            DoorSmashDelayProg = null;
+            Changed = true;
+            actor.OutputHandler.Send("This AI will use the legacy native door-smash cadence.");
+            return true;
+        }
+
+        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+            ProgVariableTypes.Number,
+            [new[] { ProgVariableTypes.Character, ProgVariableTypes.Exit }]).LookupProg();
+        if (prog is null)
+        {
+            return false;
+        }
+
+        DoorSmashDelayProg = prog;
+        Changed = true;
+        actor.OutputHandler.Send($"This AI will use {prog.MXPClickableFunctionName()} to schedule native door-smash attempts in milliseconds.");
+        return true;
     }
 
     private bool BuildingCommandForceMove(ICharacter actor)
@@ -172,8 +224,14 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
                 break;
         }
 
-        if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
+        if (ch is null)
         {
+            return false;
+        }
+
+        if (ch.State.IsDead() || ch.State.IsInStatis() || !ch.State.IsAble())
+        {
+            ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
             return false;
         }
 
@@ -240,6 +298,12 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
         if (ch.AffectedBy<BreakDownDoor>())
         {
+            if (!IsPathingEnabled(ch))
+            {
+                ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
+                return true;
+            }
+
             CheckSmash(ch);
             return true;
         }
@@ -290,11 +354,11 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         }
     }
 
-    protected void Smash(ICharacter ch, ICellExit exit)
+    protected virtual bool Smash(ICharacter ch, ICellExit exit)
     {
         if (ch.State.HasFlag(CharacterState.Dead))
         {
-            return;
+            return false;
         }
 
         List<INaturalAttack> unarmedSmashes = ch.Race
@@ -306,7 +370,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             if (!unarmedSmashes.Any())
             {
                 ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
-                return;
+                return false;
             }
 
             INaturalAttack attack = unarmedSmashes.GetWeightedRandom(x => x.Attack.Weighting);
@@ -327,7 +391,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
                     SelectedCombatAction.GetEffectSmashItemUnarmed(ch, exit.Exit.Door.Parent, null, attack));
             }
 
-            return;
+            return true;
         }
 
         List<IMeleeWeapon> weapons = ch.Body.HeldOrWieldedItems
@@ -392,11 +456,11 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
                         SelectedCombatAction.GetEffectSmashItemUnarmed(ch, exit.Exit.Door.Parent, null, attack));
                 }
 
-                return;
+                return true;
             }
 
             ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
-            return;
+            return false;
         }
 
         Tuple<Tuple<IMeleeWeapon, IEnumerable<IWeaponAttack>>, IInventoryPlan> weaponoption = options.GetWeightedRandom(x => x.Item1.Item2.Sum(y => y.Weighting));
@@ -420,6 +484,8 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             ch.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectSmashItem(ch, exit.Exit.Door.Parent, null,
                 weaponoption.Item1.Item1, option));
         }
+
+        return true;
     }
 
     protected bool HandleCommandDelayExpired(ICharacter ch, IEnumerable<string> commands)
@@ -437,11 +503,19 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         return CheckSmash(ch);
     }
 
-    private bool CheckSmash(ICharacter ch)
+    protected virtual DateTime UtcNow => DateTime.UtcNow;
+
+    protected bool CheckSmash(ICharacter ch)
     {
         if (!ch.AffectedBy<BreakDownDoor>())
         {
             return false;
+        }
+
+        if (!IsPathingEnabled(ch))
+        {
+            ch.RemoveAllEffects(x => x.IsEffectType<BreakDownDoor>());
+            return true;
         }
 
         if (ch.Effects.Any(x => x.IsBlockingEffect("general") ||
@@ -450,7 +524,8 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return false;
         }
 
-        ICellExit exit = ch.EffectsOfType<BreakDownDoor>().First().Exit;
+        var focus = ch.EffectsOfType<BreakDownDoor>().First();
+        ICellExit exit = focus.Exit;
 
         if (exit.Origin != ch.Location)
         {
@@ -474,8 +549,33 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return true;
         }
 
-        Smash(ch, ch.EffectsOfType<BreakDownDoor>().First().Exit);
+        if (DoorSmashDelayProg is not null)
+        {
+            if (focus.NextSmashAttemptUtc is null)
+            {
+                focus.NextSmashAttemptUtc = NextDoorSmashAttempt(ch, exit);
+            }
+
+            if (UtcNow < focus.NextSmashAttemptUtc)
+            {
+                return true;
+            }
+        }
+
+        if (Smash(ch, exit) && DoorSmashDelayProg is not null)
+        {
+            focus.NextSmashAttemptUtc = NextDoorSmashAttempt(ch, exit);
+        }
+
         return true;
+    }
+
+    private DateTime NextDoorSmashAttempt(ICharacter ch, ICellExit exit)
+    {
+        var milliseconds = Math.Max(0.0M, DoorSmashDelayProg?.ExecuteDecimal(ch, exit) ?? 0.0M);
+        var now = UtcNow;
+        var maximumMilliseconds = (decimal)(DateTime.MaxValue - now).TotalMilliseconds;
+        return now.AddMilliseconds((double)Math.Min(milliseconds, maximumMilliseconds));
     }
 
     protected void ClosedDoor(ICharacter ch, ICellExit exit)

@@ -212,6 +212,14 @@ Periodic tick wiring is explicit:
 
 That means `HandlesEvent` is not just documentation. It directly controls whether the NPC is subscribed to expensive repeating heartbeats.
 
+#### Optional native door-smash scheduling
+
+All `PathingAIBase` AIs retain their legacy native door-smash cadence unless a builder sets `smashdelay <prog>`. The optional prog must return `Number` and accept `(Character smasher, Exit obstruction)`; its result is a nonnegative delay in milliseconds.
+
+When configured, the callback runs before the first native smash for a newly created `BreakDownDoor` focus and again after each real native smash attempt. The focus keeps its own transient next-attempt time, so different NPCs using the same AI remain independent. The focus and its wait are intentionally not saved: after a reload, reconstructed pathing calls the prog again before any attack, allowing a feature-owned persistent deadline to supply the remaining delay. Use `smashdelay none` to restore the legacy cadence.
+
+The focus is discarded when pathing is disabled, the NPC is dead or unable, the NPC leaves the exit origin, or the exact obstruction is no longer a closed door. Scheduling does not replace the native smash implementation: attack selection, damage, stamina, output, noise, and the ordinary command delay remain owned by the existing path.
+
 #### Group AI
 Group AI instances subscribe themselves directly on creation/load:
 

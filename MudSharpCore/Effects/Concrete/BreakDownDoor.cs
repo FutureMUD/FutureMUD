@@ -7,6 +7,8 @@ public class BreakDownDoor : Effect, IEffectSubtype
     public ICharacter CharacterOwner { get; set; }
     public ICellExit Exit { get; set; }
 
+    public DateTime? NextSmashAttemptUtc { get; set; }
+
     public BreakDownDoor(ICharacter owner, ICellExit exit) : base(owner)
     {
         CharacterOwner = owner;

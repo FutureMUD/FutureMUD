@@ -6,6 +6,8 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
@@ -173,8 +175,70 @@ public class Vehicle : SaveableItem, IVehicle
 	}
 
 	public override string FrameworkItemType => "Vehicle";
+
+	public ProgVariableTypes Type => ProgVariableTypes.Vehicle;
+	public object GetObject => this;
+
+	public IProgVariable GetProperty(string property)
+	{
+		return property.ToLowerInvariant() switch
+		{
+			"id" => new NumberVariable(Id),
+			"name" => new TextVariable(Name),
+			"exterioritem" => ExteriorItem is null ? new NullVariable(ProgVariableTypes.Item) : ExteriorItem,
+			"location" => Location is null ? new NullVariable(ProgVariableTypes.Location) : Location,
+			"layer" => new TextVariable(RoomLayer.DescribeEnum()),
+			"routeposition" => new NumberVariable((decimal)(RoutePositionMetres ?? 0.0)),
+			"occupants" => new CollectionVariable(Occupants.ToList(), ProgVariableTypes.Character),
+			"controller" => Controller is null ? new NullVariable(ProgVariableTypes.Character) : Controller,
+			"activejourney" => ActiveJourney is { } activeJourney
+				? activeJourney
+				: new NullVariable(ProgVariableTypes.VehicleJourney),
+			"disabled" => new BooleanVariable(Disabled),
+			"destroyed" => new BooleanVariable(Destroyed),
+			_ => throw new NotSupportedException($"Unsupported vehicle property {property}.")
+		};
+	}
+
+	public static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Vehicle,
+			new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = ProgVariableTypes.Number,
+				["name"] = ProgVariableTypes.Text,
+				["exterioritem"] = ProgVariableTypes.Item,
+				["location"] = ProgVariableTypes.Location,
+				["layer"] = ProgVariableTypes.Text,
+				["routeposition"] = ProgVariableTypes.Number,
+				["occupants"] = ProgVariableTypes.Character | ProgVariableTypes.Collection,
+				["controller"] = ProgVariableTypes.Character,
+				["activejourney"] = ProgVariableTypes.VehicleJourney,
+				["disabled"] = ProgVariableTypes.Boolean,
+				["destroyed"] = ProgVariableTypes.Boolean
+			},
+			new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = "The stable vehicle identity.",
+				["name"] = "The vehicle name.",
+				["exterioritem"] = "The linked exterior game item, or null.",
+				["location"] = "The vehicle's current cell, or null.",
+				["layer"] = "The vehicle's current room layer.",
+				["routeposition"] = "The current route-cell coordinate in metres, or zero outside a route cell.",
+				["occupants"] = "The characters currently occupying the vehicle.",
+				["controller"] = "The current vehicle controller, or null.",
+				["activejourney"] = "The active automatic journey, or null.",
+				["disabled"] = "Whether vehicle damage or state has disabled it.",
+				["destroyed"] = "Whether the vehicle has been destroyed."
+			});
+	}
+
 	public IVehiclePrototype Prototype => Gameworld.VehiclePrototypes.Get(_prototypeId, _prototypeRevision);
 	public int PrototypeRevisionNumber => _prototypeRevision;
+	public IVehicleJourney ActiveJourney => Gameworld.VehicleJourneys
+		.Where(x => x.Vehicle.Id == Id)
+		.OrderByDescending(x => x.Id)
+		.FirstOrDefault(x => x.State is not (VehicleJourneyState.Arrived or VehicleJourneyState.Cancelled or VehicleJourneyState.Faulted));
 
 	public IGameItem ExteriorItem
 	{

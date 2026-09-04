@@ -117,7 +117,7 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject, ILunarEphemeris
         // Moon does not need to register for output
     }
 
-    public override ProgVariableTypes Type => ProgVariableTypes.Error;
+    public override ProgVariableTypes Type => ProgVariableTypes.CelestialObject;
 
     public override object DatabaseInsert()
     {

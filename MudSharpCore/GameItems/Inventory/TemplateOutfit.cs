@@ -3,6 +3,8 @@ using MudSharp.Events;
 using MudSharp.Construction;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
 using DbOutfitTemplate = MudSharp.Models.OutfitTemplate;
@@ -99,6 +101,43 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 	}
 
 	public override string FrameworkItemType => "OutfitTemplate";
+
+	public ProgVariableTypes Type => ProgVariableTypes.OutfitTemplate;
+	public object GetObject => this;
+
+	public IProgVariable GetProperty(string property)
+	{
+		return property.ToLowerInvariant() switch
+		{
+			"id" => new NumberVariable(Id),
+			"name" => new TextVariable(Name),
+			"description" => new TextVariable(Description),
+			"exclusivity" => new TextVariable(Exclusivity.DescribeEnum()),
+			"itemcount" => new NumberVariable(_items.Count),
+			_ => throw new NotSupportedException($"Unsupported outfit template property {property}.")
+		};
+	}
+
+	public static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.OutfitTemplate,
+			new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = ProgVariableTypes.Number,
+				["name"] = ProgVariableTypes.Text,
+				["description"] = ProgVariableTypes.Text,
+				["exclusivity"] = ProgVariableTypes.Text,
+				["itemcount"] = ProgVariableTypes.Number
+			},
+			new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = "The stable outfit-template identity.",
+				["name"] = "The outfit template name.",
+				["description"] = "The builder-authored outfit description.",
+				["exclusivity"] = "The outfit's item-exclusivity policy.",
+				["itemcount"] = "The number of item entries in the template."
+			});
+	}
 
 	public override string Name => _name;
 

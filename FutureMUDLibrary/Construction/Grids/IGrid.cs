@@ -1,6 +1,7 @@
 ﻿using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Construction.Grids
 {
-    public interface IGrid : IFrameworkItem, ISaveable
+    public interface IGrid : IFrameworkItem, ISaveable, IProgVariable
     {
         IEnumerable<ICell> Locations { get; }
         void ExtendTo(ICell cell);

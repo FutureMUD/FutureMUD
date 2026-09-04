@@ -1,6 +1,9 @@
 ﻿using MudSharp.Database;
 using MudSharp.Framework.Save;
 
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
+
 namespace MudSharp.Work.Agriculture;
 
 public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinition
@@ -68,6 +71,72 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 	}
 
 	public override string FrameworkItemType => "AgricultureCropDefinition";
+	public ProgVariableTypes Type => ProgVariableTypes.AgricultureCropDefinition;
+	public object GetObject => this;
+
+	public IProgVariable GetProperty(string property)
+	{
+		return property.ToLowerInvariant() switch
+		{
+			"id" => new NumberVariable(Id),
+			"name" => new TextVariable(Name),
+			"description" => new TextVariable(Description),
+			"category" => new TextVariable(Category),
+			"growthdays" => new NumberVariable(BaseGrowthDays),
+			"harvestwindowdays" => new NumberVariable(HarvestWindowDays),
+			"minimummoisture" => new NumberVariable(MinimumMoisture),
+			"maximummoisture" => new NumberVariable(MaximumMoisture),
+			"minimumtemperature" => new NumberVariable(MinimumTemperature),
+			"maximumtemperature" => new NumberVariable(MaximumTemperature),
+			"pollinationdependency" => new TextVariable(PollinationDependency.DescribeEnum()),
+			"perennial" => new BooleanVariable(IsPerennial),
+			"harvestcycledays" => new NumberVariable(HarvestCycleDays),
+			"yieldoutputcount" => new NumberVariable(YieldOutputs.Count),
+			"seedrequirementcount" => new NumberVariable(SeedRequirements.Count),
+			_ => throw new NotSupportedException($"Unsupported agriculture crop property {property}.")
+		};
+	}
+
+	public static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.AgricultureCropDefinition,
+			new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = ProgVariableTypes.Number,
+				["name"] = ProgVariableTypes.Text,
+				["description"] = ProgVariableTypes.Text,
+				["category"] = ProgVariableTypes.Text,
+				["growthdays"] = ProgVariableTypes.Number,
+				["harvestwindowdays"] = ProgVariableTypes.Number,
+				["minimummoisture"] = ProgVariableTypes.Number,
+				["maximummoisture"] = ProgVariableTypes.Number,
+				["minimumtemperature"] = ProgVariableTypes.Number,
+				["maximumtemperature"] = ProgVariableTypes.Number,
+				["pollinationdependency"] = ProgVariableTypes.Text,
+				["perennial"] = ProgVariableTypes.Boolean,
+				["harvestcycledays"] = ProgVariableTypes.Number,
+				["yieldoutputcount"] = ProgVariableTypes.Number,
+				["seedrequirementcount"] = ProgVariableTypes.Number
+			},
+			new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = "The stable crop-definition identity.",
+				["name"] = "The crop-definition name.",
+				["description"] = "The builder-authored crop description.",
+				["category"] = "The crop category.",
+				["growthdays"] = "The base growth duration in days.",
+				["harvestwindowdays"] = "The harvest-window duration in days.",
+				["minimummoisture"] = "The minimum preferred moisture score.",
+				["maximummoisture"] = "The maximum preferred moisture score.",
+				["minimumtemperature"] = "The minimum preferred temperature.",
+				["maximumtemperature"] = "The maximum preferred temperature.",
+				["pollinationdependency"] = "The pollination dependency level.",
+				["perennial"] = "Whether the crop is perennial.",
+				["harvestcycledays"] = "The recurring harvest-cycle duration in days.",
+				["yieldoutputcount"] = "The number of configured harvest outputs.",
+				["seedrequirementcount"] = "The number of configured seed requirements."
+			});
+	}
 	public string Description { get; private set; }
 	public string Category { get; private set; }
 	public int BaseGrowthDays { get; private set; }

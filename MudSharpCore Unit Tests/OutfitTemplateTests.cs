@@ -465,12 +465,15 @@ public class OutfitTemplateTests
 		                          .Where(x => x.FunctionName.EqualTo("loadoutfittemplate"))
 		                          .ToList();
 
-		Assert.AreEqual(6, overloads.Count);
+		Assert.AreEqual(9, overloads.Count);
 		Assert.IsTrue(overloads.All(x => x.ReturnType == ProgVariableTypes.Outfit));
 		Assert.IsTrue(overloads.All(x => x.Category.EqualTo("Outfits")));
 		Assert.IsTrue(overloads.All(x => x.FunctionHelp.Contains("outfit template")));
 		Assert.IsTrue(overloads.Any(x => x.Parameters.SequenceEqual(new[] { ProgVariableTypes.Number, ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Text })));
 		Assert.IsTrue(overloads.Any(x => x.Parameters.SequenceEqual(new[] { ProgVariableTypes.Text, ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Text })));
+		Assert.IsTrue(overloads.Any(x => x.Parameters.SequenceEqual(new[] { ProgVariableTypes.OutfitTemplate, ProgVariableTypes.Character })));
+		Assert.IsTrue(overloads.Any(x => x.Parameters.SequenceEqual(new[] { ProgVariableTypes.OutfitTemplate, ProgVariableTypes.Character, ProgVariableTypes.Text })));
+		Assert.IsTrue(overloads.Any(x => x.Parameters.SequenceEqual(new[] { ProgVariableTypes.OutfitTemplate, ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Text })));
 	}
 
 	private static TemplateOutfitItem TemplateItem(

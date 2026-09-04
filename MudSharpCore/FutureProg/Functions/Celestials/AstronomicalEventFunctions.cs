@@ -44,9 +44,14 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var primaryId = Convert.ToInt64(ParameterFunctions[1].Result?.GetObject ?? 0L);
-		var primary = zone.Celestials.FirstOrDefault(x => x.Id == primaryId) as ICelestialEphemeris ??
-		              _gameworld.CelestialObjects.Get(primaryId) as ICelestialEphemeris;
+		var primaryParameter = ParameterFunctions[1].Result?.GetObject;
+		var primary = primaryParameter switch
+		{
+			ICelestialEphemeris ephemeris => ephemeris,
+			ICelestialObject => null,
+			_ => zone.Celestials.FirstOrDefault(x => x.Id == Convert.ToInt64(primaryParameter ?? 0L)) as ICelestialEphemeris ??
+			     _gameworld.CelestialObjects.Get(Convert.ToInt64(primaryParameter ?? 0L)) as ICelestialEphemeris
+		};
 		if (primary is null)
 		{
 			Result = MudDateTime.Never;
@@ -63,9 +68,14 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 		}
 		else if (_eventType == AstronomicalEventType.VisibleCrescent)
 		{
-			var secondaryId = Convert.ToInt64(ParameterFunctions[2].Result?.GetObject ?? 0L);
-			secondary = zone.Celestials.FirstOrDefault(x => x.Id == secondaryId) as ICelestialEphemeris ??
-			            _gameworld.CelestialObjects.Get(secondaryId) as ICelestialEphemeris;
+			var secondaryParameter = ParameterFunctions[2].Result?.GetObject;
+			secondary = secondaryParameter switch
+			{
+				ICelestialEphemeris ephemeris => ephemeris,
+				ICelestialObject => null,
+				_ => zone.Celestials.FirstOrDefault(x => x.Id == Convert.ToInt64(secondaryParameter ?? 0L)) as ICelestialEphemeris ??
+				     _gameworld.CelestialObjects.Get(Convert.ToInt64(secondaryParameter ?? 0L)) as ICelestialEphemeris
+			};
 			occurrenceIndex = 4;
 			if (secondary is null)
 			{
@@ -125,6 +135,16 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 			["celestialId", "calendar", "occurrence"],
 			["The ID of the solar celestial.", "The calendar used to display the returned mud datetime.", "The nth next occurrence to return."],
 			description);
+		RegisterLocationAndZone(name, type,
+			[ProgVariableTypes.CelestialObject, ProgVariableTypes.Calendar],
+			["celestial", "calendar"],
+			["The resolved solar celestial.", "The calendar used to display the returned mud datetime."],
+			description);
+		RegisterLocationAndZone(name, type,
+			[ProgVariableTypes.CelestialObject, ProgVariableTypes.Calendar, ProgVariableTypes.Number],
+			["celestial", "calendar", "occurrence"],
+			["The resolved solar celestial.", "The calendar used to display the returned mud datetime.", "The nth next occurrence to return."],
+			description);
 	}
 
 	private static void RegisterLunar(string name, AstronomicalEventType type, string description)
@@ -138,6 +158,16 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 			[ProgVariableTypes.Number, ProgVariableTypes.Calendar, ProgVariableTypes.Number],
 			["celestialId", "calendar", "occurrence"],
 			["The ID of the lunar celestial.", "The calendar used to display the returned mud datetime.", "The nth next occurrence to return."],
+			description);
+		RegisterLocationAndZone(name, type,
+			[ProgVariableTypes.CelestialObject, ProgVariableTypes.Calendar],
+			["celestial", "calendar"],
+			["The resolved lunar celestial.", "The calendar used to display the returned mud datetime."],
+			description);
+		RegisterLocationAndZone(name, type,
+			[ProgVariableTypes.CelestialObject, ProgVariableTypes.Calendar, ProgVariableTypes.Number],
+			["celestial", "calendar", "occurrence"],
+			["The resolved lunar celestial.", "The calendar used to display the returned mud datetime.", "The nth next occurrence to return."],
 			description);
 	}
 
@@ -154,6 +184,16 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 			["celestialId", "calendar", "longitudeDegrees", "occurrence"],
 			["The ID of the solar celestial.", "The calendar used to display the returned mud datetime.", "The target solar longitude in degrees.", "The nth next occurrence to return."],
 			description);
+		RegisterLocationAndZone("nextsolarlongitude", AstronomicalEventType.SolarLongitude,
+			[ProgVariableTypes.CelestialObject, ProgVariableTypes.Calendar, ProgVariableTypes.Number],
+			["celestial", "calendar", "longitudeDegrees"],
+			["The resolved solar celestial.", "The calendar used to display the returned mud datetime.", "The target solar longitude in degrees."],
+			description);
+		RegisterLocationAndZone("nextsolarlongitude", AstronomicalEventType.SolarLongitude,
+			[ProgVariableTypes.CelestialObject, ProgVariableTypes.Calendar, ProgVariableTypes.Number, ProgVariableTypes.Number],
+			["celestial", "calendar", "longitudeDegrees", "occurrence"],
+			["The resolved solar celestial.", "The calendar used to display the returned mud datetime.", "The target solar longitude in degrees.", "The nth next occurrence to return."],
+			description);
 	}
 
 	private static void RegisterVisibleCrescent()
@@ -168,6 +208,16 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 			[ProgVariableTypes.Number, ProgVariableTypes.Number, ProgVariableTypes.Calendar, ProgVariableTypes.Number],
 			["sunId", "moonId", "calendar", "occurrence"],
 			["The ID of the solar celestial.", "The ID of the lunar celestial.", "The calendar used to display the returned mud datetime.", "The nth next occurrence to return."],
+			description);
+		RegisterLocationAndZone("nextvisiblecrescent", AstronomicalEventType.VisibleCrescent,
+			[ProgVariableTypes.CelestialObject, ProgVariableTypes.CelestialObject, ProgVariableTypes.Calendar],
+			["sun", "moon", "calendar"],
+			["The resolved solar celestial.", "The resolved lunar celestial.", "The calendar used to display the returned mud datetime."],
+			description);
+		RegisterLocationAndZone("nextvisiblecrescent", AstronomicalEventType.VisibleCrescent,
+			[ProgVariableTypes.CelestialObject, ProgVariableTypes.CelestialObject, ProgVariableTypes.Calendar, ProgVariableTypes.Number],
+			["sun", "moon", "calendar", "occurrence"],
+			["The resolved solar celestial.", "The resolved lunar celestial.", "The calendar used to display the returned mud datetime.", "The nth next occurrence to return."],
 			description);
 	}
 

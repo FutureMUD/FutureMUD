@@ -98,6 +98,27 @@ public readonly struct ProgVariableTypes : IEquatable<ProgVariableTypes>
 	public static readonly ProgVariableTypes NameCulture = FromLegacyBitIndex(72);
 	public static readonly ProgVariableTypes RandomNameProfile = FromLegacyBitIndex(73);
 	public static readonly ProgVariableTypes PersonalName = FromLegacyBitIndex(74);
+	public static readonly ProgVariableTypes Tag = FromLegacyBitIndex(75);
+	public static readonly ProgVariableTypes ItemPrototype = FromLegacyBitIndex(76);
+	public static readonly ProgVariableTypes NPCTemplate = FromLegacyBitIndex(77);
+	public static readonly ProgVariableTypes OutfitTemplate = FromLegacyBitIndex(78);
+	public static readonly ProgVariableTypes Vehicle = FromLegacyBitIndex(79);
+	public static readonly ProgVariableTypes CelestialObject = FromLegacyBitIndex(80);
+	public static readonly ProgVariableTypes Grid = FromLegacyBitIndex(81);
+	public static readonly ProgVariableTypes CharacteristicDefinition = FromLegacyBitIndex(82);
+	public static readonly ProgVariableTypes CharacteristicValue = FromLegacyBitIndex(83);
+	public static readonly ProgVariableTypes AgricultureFieldProfile = FromLegacyBitIndex(84);
+	public static readonly ProgVariableTypes AgricultureCropDefinition = FromLegacyBitIndex(85);
+	public static readonly ProgVariableTypes AgricultureHerdDefinition = FromLegacyBitIndex(86);
+	public static readonly ProgVariableTypes AgricultureWoodlandDefinition = FromLegacyBitIndex(87);
+	public static readonly ProgVariableTypes AgricultureOperation = FromLegacyBitIndex(88);
+	public static readonly ProgVariableTypes Property = FromLegacyBitIndex(89);
+	public static readonly ProgVariableTypes PropertyKey = FromLegacyBitIndex(90);
+	public static readonly ProgVariableTypes PropertyLease = FromLegacyBitIndex(91);
+	public static readonly ProgVariableTypes PropertyLeaseOrder = FromLegacyBitIndex(92);
+	public static readonly ProgVariableTypes PropertySaleOrder = FromLegacyBitIndex(93);
+	public static readonly ProgVariableTypes EconomicZone = FromLegacyBitIndex(94);
+	public static readonly ProgVariableTypes Channel = FromLegacyBitIndex(95);
 
     public static readonly ProgVariableTypes CollectionItem =
         Number | Boolean | Gender | Text | DateTime | TimeSpan | Character | Item | Chargen | Location | Zone |
@@ -107,7 +128,11 @@ public readonly struct ProgVariableTypes : IEquatable<ProgVariableTypes>
 		Liquid | Gas | MagicSchool | MagicCapability | MagicSpell | Bank | BankAccount | BankAccountType |
 		LegalAuthority | Law | Crime | Market | MarketCategory | LiquidMixture | Script | Writing | Area |
 		LegalClass | AgricultureField | VehicleRoute | VehicleService | VehicleJourney | Trap | NPCSkillPackage |
-		SignedLanguage | SignedVariety | NameCulture | RandomNameProfile | PersonalName;
+		SignedLanguage | SignedVariety | NameCulture | RandomNameProfile | PersonalName | Tag | ItemPrototype |
+		NPCTemplate | OutfitTemplate | Vehicle | CelestialObject | Grid | CharacteristicDefinition |
+		CharacteristicValue | AgricultureFieldProfile | AgricultureCropDefinition | AgricultureHerdDefinition |
+		AgricultureWoodlandDefinition | AgricultureOperation | Property | PropertyKey | PropertyLease |
+		PropertyLeaseOrder | PropertySaleOrder | EconomicZone | Channel;
 
     public static readonly ProgVariableTypes Perceivable = Item | Character | Location | Zone | Shard;
     public static readonly ProgVariableTypes Perceiver = Item | Character;

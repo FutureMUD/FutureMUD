@@ -36,12 +36,15 @@ internal class LoadItemFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
-        var inputText = UseUniqueName
-            ? (string)ParameterFunctions[0].Result.GetObject
-            : ((long)(decimal)ParameterFunctions[0].Result.GetObject).ToString();
-        IGameItemProto proto = UseUniqueName
-            ? _gameworld.ItemProtos.FindByUniqueName(inputText)
-            : _gameworld.ItemProtos.Get(long.Parse(inputText));
+        var directPrototype = ParameterFunctions[0].Result.GetObject as IGameItemProto;
+        var inputText = directPrototype?.Name ??
+                        (UseUniqueName
+                            ? (string)ParameterFunctions[0].Result.GetObject
+                            : ((long)(decimal)ParameterFunctions[0].Result.GetObject).ToString());
+        IGameItemProto proto = directPrototype ??
+                              (UseUniqueName
+                                  ? _gameworld.ItemProtos.FindByUniqueName(inputText)
+                                  : _gameworld.ItemProtos.Get(long.Parse(inputText)));
         if (proto == null)
         {
             ErrorMessage = "There was no prototype " + inputText;
@@ -204,5 +207,45 @@ internal class LoadItemFunction : BuiltInFunction
             "Items",
             ProgVariableTypes.Item
         ));
+
+        RegisterTypedPrototype(false, false);
+        RegisterTypedPrototype(true, false);
+        RegisterTypedPrototype(false, true);
+        RegisterTypedPrototype(true, true);
+    }
+
+    private static void RegisterTypedPrototype(bool useQuantity, bool useParameters)
+    {
+        var parameterTypes = useQuantity
+            ? useParameters
+                ? new[] { ProgVariableTypes.ItemPrototype, ProgVariableTypes.Number, ProgVariableTypes.Text }
+                : new[] { ProgVariableTypes.ItemPrototype, ProgVariableTypes.Number }
+            : useParameters
+                ? new[] { ProgVariableTypes.ItemPrototype, ProgVariableTypes.Text }
+                : new[] { ProgVariableTypes.ItemPrototype };
+        var parameterNames = useQuantity
+            ? useParameters ? new List<string> { "prototype", "quantity", "variables" } : new List<string> { "prototype", "quantity" }
+            : useParameters ? new List<string> { "prototype", "variables" } : new List<string> { "prototype" };
+        var parameterHelp = useQuantity
+            ? useParameters
+                ? new List<string>
+                {
+                    "The resolved item prototype to load", "The stack quantity when applicable",
+                    "Default values for registered item variables"
+                }
+                : new List<string> { "The resolved item prototype to load", "The stack quantity when applicable" }
+            : useParameters
+                ? new List<string> { "The resolved item prototype to load", "Default values for registered item variables" }
+                : new List<string> { "The resolved item prototype to load" };
+
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "loaditem",
+            parameterTypes,
+            (pars, gameworld) => new LoadItemFunction(pars, gameworld, useQuantity, useParameters, false),
+            parameterNames,
+            parameterHelp,
+            "Loads a new item from a resolved item prototype. It does not put the item anywhere.",
+            "Items",
+            ProgVariableTypes.Item));
     }
 }

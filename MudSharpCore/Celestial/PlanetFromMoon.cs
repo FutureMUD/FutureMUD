@@ -54,7 +54,7 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
     }
 
     public override void Register(IOutputHandler handler) { }
-    public override ProgVariableTypes Type => ProgVariableTypes.Error;
+    public override ProgVariableTypes Type => ProgVariableTypes.CelestialObject;
     public override object DatabaseInsert()
     {
         return null;

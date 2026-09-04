@@ -2,6 +2,8 @@
 using MoreLinq;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.TimeAndDate.Intervals;
 using Org.BouncyCastle.Asn1.Cms;
 
@@ -118,6 +120,82 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
     private decimal _feeIncreasePercentageAfterLeaseTerm;
 
     public override string FrameworkItemType => "PropertyLeaseOrder";
+
+    public ProgVariableTypes Type => ProgVariableTypes.PropertyLeaseOrder;
+    public object GetObject => this;
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable($"{Property.Name} lease order #{Id:N0}"),
+            "property" => Property,
+            "priceperinterval" => new NumberVariable(PricePerInterval),
+            "bondrequired" => new NumberVariable(BondRequired),
+            "interval" => new TextVariable(Interval.Describe(Property.EconomicZone.FinancialPeriodReferenceCalendar)),
+            "minimumduration" => new TimeSpanVariable(MinimumLeaseDuration),
+            "maximumduration" => new TimeSpanVariable(MaximumLeaseDuration),
+            "allowautorenew" => new BooleanVariable(AllowAutoRenew),
+            "automaticallyrelist" => new BooleanVariable(AutomaticallyRelistAfterLeaseTerm),
+            "allownovation" => new BooleanVariable(AllowLeaseNovation),
+            "rekeyonend" => new BooleanVariable(RekeyOnLeaseEnd),
+            "feeincreasepercentage" => new NumberVariable(FeeIncreasePercentageAfterLeaseTerm),
+            "listed" => new BooleanVariable(ListedForLease),
+            "consentcount" => new NumberVariable(PropertyOwnerConsent.Count),
+            "ownerconsentcount" => new NumberVariable(PropertyOwnerConsent.Values.Count(x => x)),
+            "charactereligibilityprog" => new TextVariable(CanLeaseProgCharacter?.Name ?? string.Empty),
+            "claneligibilityprog" => new TextVariable(CanLeaseProgClan?.Name ?? string.Empty),
+            _ => throw new NotSupportedException($"Unsupported property lease order property {property}.")
+        };
+    }
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.PropertyLeaseOrder,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["property"] = ProgVariableTypes.Property,
+                ["priceperinterval"] = ProgVariableTypes.Number,
+                ["bondrequired"] = ProgVariableTypes.Number,
+                ["interval"] = ProgVariableTypes.Text,
+                ["minimumduration"] = ProgVariableTypes.TimeSpan,
+                ["maximumduration"] = ProgVariableTypes.TimeSpan,
+                ["allowautorenew"] = ProgVariableTypes.Boolean,
+                ["automaticallyrelist"] = ProgVariableTypes.Boolean,
+                ["allownovation"] = ProgVariableTypes.Boolean,
+                ["rekeyonend"] = ProgVariableTypes.Boolean,
+                ["feeincreasepercentage"] = ProgVariableTypes.Number,
+                ["listed"] = ProgVariableTypes.Boolean,
+                ["consentcount"] = ProgVariableTypes.Number,
+                ["ownerconsentcount"] = ProgVariableTypes.Number,
+                ["charactereligibilityprog"] = ProgVariableTypes.Text,
+                ["claneligibilityprog"] = ProgVariableTypes.Text
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable property-lease-order identity.",
+                ["name"] = "A generated description of this lease order.",
+                ["property"] = "The property governed by this lease order.",
+                ["priceperinterval"] = "The proposed lease charge per interval.",
+                ["bondrequired"] = "The required lease bond.",
+                ["interval"] = "The human-readable recurring payment interval.",
+                ["minimumduration"] = "The minimum permitted lease duration.",
+                ["maximumduration"] = "The maximum permitted lease duration.",
+                ["allowautorenew"] = "Whether a lease may auto-renew.",
+                ["automaticallyrelist"] = "Whether the order relists after a lease ends.",
+                ["allownovation"] = "Whether the lease may be novated.",
+                ["rekeyonend"] = "Whether locks are rekeyed when the lease ends.",
+                ["feeincreasepercentage"] = "The price and bond increase percentage after a lease term.",
+                ["listed"] = "Whether the order is currently listed for lease.",
+                ["consentcount"] = "The number of owners whose consent is tracked.",
+                ["ownerconsentcount"] = "The number of owners who have given consent.",
+                ["charactereligibilityprog"] = "The character eligibility prog name, or empty text.",
+                ["claneligibilityprog"] = "The clan eligibility prog name, or empty text."
+            });
+    }
 
     #region Overrides of SaveableItem
 

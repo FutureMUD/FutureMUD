@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using MudSharp.Framework;
+using MudSharp.FutureProg;
 
 namespace MudSharp.Work.Agriculture;
 
-public interface IAgricultureCropDefinition : IFrameworkItem, IHaveFuturemud
+public interface IAgricultureCropDefinition : IFrameworkItem, IHaveFuturemud, IProgVariable
 {
 	string Description { get; }
 	string Category { get; }

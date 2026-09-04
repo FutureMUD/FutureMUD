@@ -1,6 +1,9 @@
 ﻿using MudSharp.Database;
 using MudSharp.Framework.Save;
 
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
+
 namespace MudSharp.Work.Agriculture;
 
 public class AgricultureWoodlandDefinition : SaveableItem, IAgricultureWoodlandDefinition
@@ -43,6 +46,49 @@ public class AgricultureWoodlandDefinition : SaveableItem, IAgricultureWoodlandD
 	}
 
 	public override string FrameworkItemType => "AgricultureWoodlandDefinition";
+	public ProgVariableTypes Type => ProgVariableTypes.AgricultureWoodlandDefinition;
+	public object GetObject => this;
+
+	public IProgVariable GetProperty(string property)
+	{
+		return property.ToLowerInvariant() switch
+		{
+			"id" => new NumberVariable(Id),
+			"name" => new TextVariable(Name),
+			"description" => new TextVariable(Description),
+			"woodlandtype" => new TextVariable(WoodlandType),
+			"establishmentdays" => new NumberVariable(EstablishmentDays),
+			"harvestcycledays" => new NumberVariable(HarvestCycleDays),
+			"yieldoutputcount" => new NumberVariable(YieldOutputs.Count),
+			_ => throw new NotSupportedException($"Unsupported agriculture woodland property {property}.")
+		};
+	}
+
+	public static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.AgricultureWoodlandDefinition,
+			new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = ProgVariableTypes.Number,
+				["name"] = ProgVariableTypes.Text,
+				["description"] = ProgVariableTypes.Text,
+				["woodlandtype"] = ProgVariableTypes.Text,
+				["establishmentdays"] = ProgVariableTypes.Number,
+				["harvestcycledays"] = ProgVariableTypes.Number,
+				["yieldoutputcount"] = ProgVariableTypes.Number
+			},
+			new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["id"] = "The stable woodland-definition identity.",
+				["name"] = "The woodland-definition name.",
+				["description"] = "The builder-authored woodland description.",
+				["woodlandtype"] = "The woodland category.",
+				["establishmentdays"] = "The establishment duration in days.",
+				["harvestcycledays"] = "The harvest-cycle duration in days.",
+				["yieldoutputcount"] = "The number of configured woodland commodity outputs."
+			});
+	}
+
 	public string Description { get; private set; }
 	public string WoodlandType { get; private set; }
 	public int EstablishmentDays { get; private set; }

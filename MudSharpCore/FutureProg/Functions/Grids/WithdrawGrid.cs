@@ -28,6 +28,19 @@ internal class WithdrawGrid : BuiltInFunction
                 ProgVariableTypes.Boolean
             )
         );
+
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "WithdrawGrid".ToLowerInvariant(),
+                [ProgVariableTypes.Grid, ProgVariableTypes.Location],
+                (pars, gameworld) => new WithdrawGrid(pars, gameworld),
+                ["grid", "location"],
+                ["The resolved grid to withdraw from", "The location you want to withdraw the grid from"],
+                "This function allows you to withdraw a grid (electrical, gas, liquid etc) from a location. Returns true if the withdrawal happened, false implies the grid was not present or there was another error.",
+                "Grids",
+                ProgVariableTypes.Boolean
+            )
+        );
     }
 
     #endregion
@@ -54,8 +67,8 @@ internal class WithdrawGrid : BuiltInFunction
             return StatementResult.Error;
         }
 
-        long gridid = Convert.ToInt64(ParameterFunctions[0].Result?.GetObject ?? 0);
-        IGrid grid = Gameworld.Grids.Get(gridid);
+        IGrid grid = ParameterFunctions[0].Result?.GetObject as IGrid ??
+                     Gameworld.Grids.Get(Convert.ToInt64(ParameterFunctions[0].Result?.GetObject ?? 0));
         if (grid == null)
         {
             Result = new BooleanVariable(false);

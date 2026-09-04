@@ -28,6 +28,19 @@ internal class ConnectToGrid : BuiltInFunction
                 ProgVariableTypes.Boolean
             )
         );
+
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "ConnectToGrid".ToLowerInvariant(),
+                [ProgVariableTypes.Grid, ProgVariableTypes.Item],
+                (pars, gameworld) => new ConnectToGrid(pars, gameworld),
+                ["grid", "item"],
+                ["The resolved grid to connect to", "The grid-interfacing item you want to connect"],
+                "This function takes a grid-interfacing item like a grid feeder or grid outlet and connects it. Returns true if it succeeded.",
+                "Grids",
+                ProgVariableTypes.Boolean
+            )
+        );
     }
 
     #endregion
@@ -54,8 +67,8 @@ internal class ConnectToGrid : BuiltInFunction
             return StatementResult.Error;
         }
 
-        long gridid = Convert.ToInt64(ParameterFunctions[0].Result?.GetObject ?? 0);
-        IGrid grid = Gameworld.Grids.Get(gridid);
+        IGrid grid = ParameterFunctions[0].Result?.GetObject as IGrid ??
+                     Gameworld.Grids.Get(Convert.ToInt64(ParameterFunctions[0].Result?.GetObject ?? 0));
         if (grid == null)
         {
             Result = new BooleanVariable(false);

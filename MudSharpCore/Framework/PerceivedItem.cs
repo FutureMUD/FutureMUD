@@ -1192,6 +1192,19 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     public virtual IProgVariable GetProperty(string property)
     {
+        if (this is MudSharp.Celestial.ICelestialObject celestial)
+        {
+            switch (property.ToLowerInvariant())
+            {
+                case "currentcelestialday":
+                    return new NumberVariable((decimal)celestial.CurrentCelestialDay);
+                case "celestialdaysperyear":
+                    return new NumberVariable((decimal)celestial.CelestialDaysPerYear);
+                case "determinestimeofday":
+                    return new BooleanVariable(celestial.CelestialAngleIsUsedToDetermineTimeOfDay);
+            }
+        }
+
         switch (property.ToLowerInvariant())
         {
             case "id":

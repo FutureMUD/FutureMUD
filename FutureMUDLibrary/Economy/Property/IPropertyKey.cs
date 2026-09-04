@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Economy.Property
 {
-    public interface IPropertyKey : IFrameworkItem, ISaveable
+    public interface IPropertyKey : IFrameworkItem, ISaveable, MudSharp.FutureProg.IProgVariable
     {
         IProperty Property { get; set; }
         IGameItem GameItem { get; set; }

@@ -1,6 +1,7 @@
 ﻿using MudSharp.Database;
 using MudSharp.Character.Name;
 using MudSharp.Form.Material;
+using MudSharp.Economy.Property;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Functions;
 using MudSharp.FutureProg.Variables;
@@ -30,6 +31,28 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             ProgVariableTypeCode.DateTime or
             ProgVariableTypeCode.MudDateTime or
             ProgVariableTypeCode.LiquidMixture;
+    }
+
+    internal static bool SupportsPersistentStorage(ProgVariableTypes type)
+    {
+        if (type.IsLiteral)
+        {
+            return false;
+        }
+
+        type = type.WithoutContainerModifiers();
+        if (!type.IsExactType || type == ProgVariableTypes.Void)
+        {
+            return false;
+        }
+
+        return type != ProgVariableTypes.Error &&
+               type != ProgVariableTypes.Exit &&
+               type != ProgVariableTypes.Chargen &&
+               type != ProgVariableTypes.Effect &&
+               type != ProgVariableTypes.Outfit &&
+               type != ProgVariableTypes.OutfitItem &&
+               type != ProgVariableTypes.Trap;
     }
 
     #region Constructors
@@ -682,6 +705,111 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 		public IProgVariable GetVariable(IFuturemud game)
 		{
+			if (Type == ProgVariableTypes.Tag)
+			{
+				return game.Tags.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.ItemPrototype)
+			{
+				return game.ItemProtos.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.NPCTemplate)
+			{
+				return game.NpcTemplates.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.OutfitTemplate)
+			{
+				return game.OutfitTemplates.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.Vehicle)
+			{
+				return game.Vehicles.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.CelestialObject)
+			{
+				return game.CelestialObjects.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.Grid)
+			{
+				return game.Grids.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.CharacteristicDefinition)
+			{
+				return game.Characteristics.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.CharacteristicValue)
+			{
+				return game.CharacteristicValues.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.AgricultureFieldProfile)
+			{
+				return game.AgricultureFieldProfiles.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.AgricultureCropDefinition)
+			{
+				return game.AgricultureCropDefinitions.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.AgricultureHerdDefinition)
+			{
+				return game.AgricultureHerdDefinitions.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.AgricultureWoodlandDefinition)
+			{
+				return game.AgricultureWoodlandDefinitions.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.AgricultureOperation)
+			{
+				return game.AgricultureOperations.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.Property)
+			{
+				return game.Properties.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.PropertyKey)
+			{
+				return PropertyReferenceLookup.GetPropertyKey(game, ID);
+			}
+
+			if (Type == ProgVariableTypes.PropertyLease)
+			{
+				return PropertyReferenceLookup.GetPropertyLease(game, ID);
+			}
+
+			if (Type == ProgVariableTypes.PropertyLeaseOrder)
+			{
+				return PropertyReferenceLookup.GetPropertyLeaseOrder(game, ID);
+			}
+
+			if (Type == ProgVariableTypes.PropertySaleOrder)
+			{
+				return PropertyReferenceLookup.GetPropertySaleOrder(game, ID);
+			}
+
+			if (Type == ProgVariableTypes.EconomicZone)
+			{
+				return game.EconomicZones.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.Channel)
+			{
+				return game.Channels.Get(ID);
+			}
+
 			if (Type == ProgVariableTypes.NameCulture)
 			{
 				return game.NameCultures.Get(ID);
@@ -695,6 +823,43 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			if (Type == ProgVariableTypes.LegalClass)
 			{
 				return game.LegalClasses.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.AgricultureField)
+			{
+				return game.AgricultureFields.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.VehicleRoute)
+			{
+				return game.VehicleRoutes.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.VehicleService)
+			{
+				return game.VehicleServices.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.VehicleJourney)
+			{
+				return game.VehicleJourneys.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.NPCSkillPackage)
+			{
+				return game.NpcSkillPackages.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.SignedLanguage)
+			{
+				return game.SignedLanguages.Get(ID);
+			}
+
+			if (Type == ProgVariableTypes.SignedVariety)
+			{
+				return game.SignedLanguages
+				           .SelectMany(x => x.Varieties)
+				           .FirstOrDefault(x => x.Id == ID);
 			}
 
 			switch (Type.LegacyCode)
@@ -779,6 +944,10 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                     return game.Laws.Get(ID);
                 case ProgVariableTypeCode.Crime:
                     return game.Crimes.Get(ID);
+                case ProgVariableTypeCode.Market:
+                    return game.Markets.Get(ID);
+                case ProgVariableTypeCode.MarketCategory:
+                    return game.MarketCategories.Get(ID);
                 case ProgVariableTypeCode.Script:
                     return game.Scripts.Get(ID);
                 case ProgVariableTypeCode.Writing:
@@ -929,6 +1098,11 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
     private IVariableValue GetValue(ProgVariableTypes type, IProgVariable value)
     {
+        if (!SupportsPersistentStorage(type))
+        {
+            return null;
+        }
+
         if (type.HasFlag(ProgVariableTypes.Collection))
         {
             if (value == null)
@@ -1074,6 +1248,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
         ProgVariableTypes variableType = _types[type][variable];
         IVariableValue newValue = GetValue(variableType, value);
         if (newValue is null &&
+            SupportsPersistentStorage(variableType) &&
             !variableType.HasFlag(ProgVariableTypes.Collection) &&
             !variableType.HasFlag(ProgVariableTypes.Dictionary) &&
             !variableType.HasFlag(ProgVariableTypes.CollectionDictionary) &&
@@ -1121,7 +1296,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
     {
         Dictionary<string, ProgVariableTypes> dictionary = _types.ValueOrDefault(ownerType, default) ?? new Dictionary<string, ProgVariableTypes>();
 
-        if (dictionary.ContainsKey(variable.ToLowerInvariant()))
+        if (dictionary.ContainsKey(variable.ToLowerInvariant()) || !SupportsPersistentStorage(variableType))
         {
             return false;
         }

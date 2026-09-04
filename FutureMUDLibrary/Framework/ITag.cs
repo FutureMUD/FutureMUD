@@ -3,7 +3,7 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Framework
 {
-    public interface ITag : IFrameworkItem
+    public interface ITag : IFrameworkItem, IProgVariable
     {
         ITag Parent { get; set; }
         IFutureProg ShouldSeeProg { get; set; }

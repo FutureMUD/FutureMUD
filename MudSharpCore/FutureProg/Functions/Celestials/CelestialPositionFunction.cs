@@ -34,8 +34,10 @@ internal class CelestialPositionFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        long id = Convert.ToInt64(ParameterFunctions[1].Result?.GetObject ?? 0L);
-        ICelestialObject celestial = zone.Celestials.FirstOrDefault(x => x.Id == id);
+        var celestialParameter = ParameterFunctions[1].Result?.GetObject;
+        ICelestialObject celestial = celestialParameter is ICelestialObject directCelestial
+            ? zone.Celestials.FirstOrDefault(x => x.Id == directCelestial.Id)
+            : zone.Celestials.FirstOrDefault(x => x.Id == Convert.ToInt64(celestialParameter ?? 0L));
         if (celestial == null)
         {
             Result = new TextVariable(string.Empty);
@@ -70,5 +72,21 @@ internal class CelestialPositionFunction : BuiltInFunction
             "Celestials",
             ProgVariableTypes.Text
         ));
+
+        RegisterTypedCelestial(ProgVariableTypes.Location);
+        RegisterTypedCelestial(ProgVariableTypes.Zone);
+    }
+
+    private static void RegisterTypedCelestial(ProgVariableTypes locationType)
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "celestialposition",
+            [locationType, ProgVariableTypes.CelestialObject],
+            (pars, _) => new CelestialPositionFunction(pars),
+            ["locationOrZone", "celestial"],
+            ["The room or zone whose celestial collection is searched.", "The resolved celestial object to describe."],
+            "Returns the same descriptive position text used by the celestial system. Returns an empty string if the zone or celestial object cannot be found.",
+            "Celestials",
+            ProgVariableTypes.Text));
     }
 }

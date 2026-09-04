@@ -8,6 +8,8 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.NPC.AI;
@@ -603,5 +605,45 @@ public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate, IEdi
         }
 
         return base.WhyCannotSubmit();
+    }
+
+    public ProgVariableTypes Type => ProgVariableTypes.NPCTemplate;
+    public object GetObject => this;
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable(Name),
+            "uniquename" => new TextVariable(UniqueName ?? string.Empty),
+            "status" => new TextVariable(Status.DescribeEnum()),
+            "revision" => new NumberVariable(RevisionNumber),
+            "templatetype" => new TextVariable(NPCTemplateType),
+            _ => throw new NotSupportedException($"Unsupported NPC template property {property}.")
+        };
+    }
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.NPCTemplate,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["uniquename"] = ProgVariableTypes.Text,
+                ["status"] = ProgVariableTypes.Text,
+                ["revision"] = ProgVariableTypes.Number,
+                ["templatetype"] = ProgVariableTypes.Text
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable NPC-template identity.",
+                ["name"] = "The builder-authored template name.",
+                ["uniquename"] = "The optional unique lookup name.",
+                ["status"] = "The revision status.",
+                ["revision"] = "The revision number.",
+                ["templatetype"] = "The concrete NPC template kind."
+            });
     }
 }

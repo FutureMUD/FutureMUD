@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Economy
 {
-    public interface IEconomicZone : IEditableItem, ISaveable
+    public interface IEconomicZone : IEditableItem, ISaveable, MudSharp.FutureProg.IProgVariable
     {
         IZone ZoneForTimePurposes { get; }
         ICurrency Currency { get; }

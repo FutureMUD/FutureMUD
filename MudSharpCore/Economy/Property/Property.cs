@@ -8,6 +8,8 @@ using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
@@ -153,6 +155,85 @@ public partial class Property : SaveableItem, IProperty
     private readonly List<IPropertyKey> _propertyKeys = new();
 
     public override string FrameworkItemType => "Property";
+
+    public ProgVariableTypes Type => ProgVariableTypes.Property;
+    public object GetObject => this;
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable(Name),
+            "economiczone" => EconomicZone,
+            "locations" => new CollectionVariable(PropertyLocations.ToList(), ProgVariableTypes.Location),
+            "detaileddescription" => new TextVariable(DetailedDescription),
+            "lastchangeofownership" => LastChangeOfOwnership,
+            "lastsalevalue" => new NumberVariable(LastSaleValue),
+            "saleorder" => SaleOrder is IProgVariable saleOrder
+                ? saleOrder
+                : new NullVariable(ProgVariableTypes.PropertySaleOrder),
+            "leaseorder" => LeaseOrder is IProgVariable leaseOrder
+                ? leaseOrder
+                : new NullVariable(ProgVariableTypes.PropertyLeaseOrder),
+            "lease" => Lease is IProgVariable lease
+                ? lease
+                : new NullVariable(ProgVariableTypes.PropertyLease),
+            "expiredleases" => new CollectionVariable(ExpiredLeases.ToList(), ProgVariableTypes.PropertyLease),
+            "expiredleaseorders" => new CollectionVariable(ExpiredLeaseOrders.ToList(), ProgVariableTypes.PropertyLeaseOrder),
+            "keys" => new CollectionVariable(PropertyKeys.ToList(), ProgVariableTypes.PropertyKey),
+            "applycriminalcode" => new BooleanVariable(ApplyCriminalCodeInProperty),
+            "ownercount" => new NumberVariable(PropertyOwners.Count()),
+            "isforsale" => new BooleanVariable(SaleOrder?.ShowForSale == true),
+            "isforlease" => new BooleanVariable(LeaseOrder?.ListedForLease == true),
+            _ => throw new NotSupportedException($"Unsupported property property {property}.")
+        };
+    }
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Property,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["economiczone"] = ProgVariableTypes.EconomicZone,
+                ["locations"] = ProgVariableTypes.Location | ProgVariableTypes.Collection,
+                ["detaileddescription"] = ProgVariableTypes.Text,
+                ["lastchangeofownership"] = ProgVariableTypes.MudDateTime,
+                ["lastsalevalue"] = ProgVariableTypes.Number,
+                ["saleorder"] = ProgVariableTypes.PropertySaleOrder,
+                ["leaseorder"] = ProgVariableTypes.PropertyLeaseOrder,
+                ["lease"] = ProgVariableTypes.PropertyLease,
+                ["expiredleases"] = ProgVariableTypes.PropertyLease | ProgVariableTypes.Collection,
+                ["expiredleaseorders"] = ProgVariableTypes.PropertyLeaseOrder | ProgVariableTypes.Collection,
+                ["keys"] = ProgVariableTypes.PropertyKey | ProgVariableTypes.Collection,
+                ["applycriminalcode"] = ProgVariableTypes.Boolean,
+                ["ownercount"] = ProgVariableTypes.Number,
+                ["isforsale"] = ProgVariableTypes.Boolean,
+                ["isforlease"] = ProgVariableTypes.Boolean
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable property identity.",
+                ["name"] = "The property name.",
+                ["economiczone"] = "The economic zone that governs this property.",
+                ["locations"] = "The cells assigned to this property.",
+                ["detaileddescription"] = "The builder-authored detailed property description.",
+                ["lastchangeofownership"] = "The in-world time when ownership last changed.",
+                ["lastsalevalue"] = "The last recorded sale value.",
+                ["saleorder"] = "The active sale order, or null.",
+                ["leaseorder"] = "The active lease order, or null.",
+                ["lease"] = "The active lease, or null.",
+                ["expiredleases"] = "The expired leases retained for this property.",
+                ["expiredleaseorders"] = "The expired lease orders retained for this property.",
+                ["keys"] = "The durable property keys.",
+                ["applycriminalcode"] = "Whether local criminal-law rules apply inside the property.",
+                ["ownercount"] = "The number of ownership shares currently recorded.",
+                ["isforsale"] = "Whether the active sale order is currently visible for sale.",
+                ["isforlease"] = "Whether the active lease order is currently listed for lease."
+            });
+    }
 
     #region Overrides of SaveableItem
 

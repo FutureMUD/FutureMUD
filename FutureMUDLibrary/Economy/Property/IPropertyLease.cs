@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace MudSharp.Economy.Property
 {
-    public interface IPropertyLease : IFrameworkItem
+    public interface IPropertyLease : IFrameworkItem, MudSharp.FutureProg.IProgVariable
     {
         IProperty Property { get; }
         IPropertyLeaseOrder LeaseOrder { get; }

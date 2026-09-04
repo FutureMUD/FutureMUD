@@ -16,7 +16,7 @@ namespace MudSharp.Communication
         AnonymousToPlayers
     }
 
-    public interface IChannel : IFrameworkItem, IHaveFuturemud, IEditableItem
+    public interface IChannel : IFrameworkItem, IHaveFuturemud, IEditableItem, IProgVariable
     {
         IEnumerable<string> CommandWords { get; }
         void Send(ICharacter source, string message);

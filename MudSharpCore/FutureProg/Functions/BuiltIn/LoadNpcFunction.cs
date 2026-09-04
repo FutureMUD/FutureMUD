@@ -30,7 +30,11 @@ internal class LoadNpcFunction : BuiltInFunction
         var templateParameter = ParameterFunctions[0].Result?.GetObject;
         var templateLabel = templateParameter?.ToString() ?? "<null>";
         INPCTemplate proto;
-        if (templateParameter is decimal number)
+        if (templateParameter is INPCTemplate directTemplate)
+        {
+            proto = directTemplate;
+        }
+        else if (templateParameter is decimal number)
         {
             var vnum = (long)number;
             proto = _gameworld.NpcTemplates.Get(vnum);
@@ -143,5 +147,25 @@ internal class LoadNpcFunction : BuiltInFunction
             "NPCs",
             ProgVariableTypes.Character
         ));
+
+        RegisterTypedTemplate(false);
+        RegisterTypedTemplate(true);
+    }
+
+    private static void RegisterTypedTemplate(bool useLayer)
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "loadnpc",
+            useLayer
+                ? [ProgVariableTypes.NPCTemplate, ProgVariableTypes.Location, ProgVariableTypes.Text]
+                : [ProgVariableTypes.NPCTemplate, ProgVariableTypes.Location],
+            (pars, gameworld) => new LoadNpcFunction(pars, gameworld),
+            useLayer ? ["template", "location", "layer"] : ["template", "location"],
+            useLayer
+                ? ["The resolved NPC template to load", "The destination location", "The layer into which to load the NPC"]
+                : ["The resolved NPC template to load", "The destination location"],
+            "Loads an NPC from a resolved current NPC template into a location.",
+            "NPCs",
+            ProgVariableTypes.Character));
     }
 }

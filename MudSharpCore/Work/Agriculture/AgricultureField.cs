@@ -1367,13 +1367,22 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			"id" => new NumberVariable(Id),
 			"location" => Cell,
 			"profile" => new TextVariable(Profile?.Name ?? string.Empty),
+			"profiledefinition" => Profile is IProgVariable profile
+				? profile
+				: new NullVariable(ProgVariableTypes.AgricultureFieldProfile),
 			"use" => new TextVariable(CurrentUse.DescribeEnum()),
 			"crop" => new TextVariable(CurrentCrop?.Name ?? string.Empty),
+			"cropdefinition" => CurrentCrop is IProgVariable crop
+				? crop
+				: new NullVariable(ProgVariableTypes.AgricultureCropDefinition),
 			"cropstage" => new TextVariable(CropStage.DescribeEnum()),
 			"cropharvests" => new NumberVariable(_cropHarvestCount),
 			"crophealth" => new NumberVariable(_cropHealth),
 			"cropyield" => new NumberVariable(_cropYieldPotential),
 			"woodland" => new TextVariable(CurrentWoodland?.Name ?? string.Empty),
+			"woodlanddefinition" => CurrentWoodland is IProgVariable woodland
+				? woodland
+				: new NullVariable(ProgVariableTypes.AgricultureWoodlandDefinition),
 			"woodlandhealth" => new NumberVariable(_woodlandHealth),
 			"woodlandyield" => new NumberVariable(_woodlandYieldPotential),
 			"hasapiary" => new BooleanVariable(HasActiveApiary),
@@ -1407,13 +1416,16 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			{ "id", ProgVariableTypes.Number },
 			{ "location", ProgVariableTypes.Location },
 			{ "profile", ProgVariableTypes.Text },
+			{ "profiledefinition", ProgVariableTypes.AgricultureFieldProfile },
 			{ "use", ProgVariableTypes.Text },
 			{ "crop", ProgVariableTypes.Text },
+			{ "cropdefinition", ProgVariableTypes.AgricultureCropDefinition },
 			{ "cropstage", ProgVariableTypes.Text },
 			{ "cropharvests", ProgVariableTypes.Number },
 			{ "crophealth", ProgVariableTypes.Number },
 			{ "cropyield", ProgVariableTypes.Number },
 			{ "woodland", ProgVariableTypes.Text },
+			{ "woodlanddefinition", ProgVariableTypes.AgricultureWoodlandDefinition },
 			{ "woodlandhealth", ProgVariableTypes.Number },
 			{ "woodlandyield", ProgVariableTypes.Number },
 			{ "hasapiary", ProgVariableTypes.Boolean },

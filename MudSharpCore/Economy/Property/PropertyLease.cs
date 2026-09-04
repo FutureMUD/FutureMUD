@@ -1,6 +1,8 @@
 ﻿using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Intervals;
@@ -218,6 +220,82 @@ public class PropertyLease : SaveableItem, IPropertyLease
     }
 
     public override string FrameworkItemType => "PropertyLease";
+
+    public ProgVariableTypes Type => ProgVariableTypes.PropertyLease;
+    public object GetObject => this;
+
+    public IProgVariable GetProperty(string property)
+    {
+        return property.ToLowerInvariant() switch
+        {
+            "id" => new NumberVariable(Id),
+            "name" => new TextVariable($"{Property.Name} lease #{Id:N0}"),
+            "property" => Property,
+            "leaseorder" => LeaseOrder,
+            "leaseholderid" => new NumberVariable(Leaseholder?.Id ?? 0),
+            "leaseholdertype" => new TextVariable(Leaseholder?.FrameworkItemType ?? string.Empty),
+            "leaseholdername" => new TextVariable(Leaseholder?.Name ?? string.Empty),
+            "priceperinterval" => new NumberVariable(PricePerInterval),
+            "bondpayment" => new NumberVariable(BondPayment),
+            "paymentbalance" => new NumberVariable(PaymentBalance),
+            "bondclaimed" => new NumberVariable(BondClaimed),
+            "interval" => new TextVariable(Interval.Describe(Property.EconomicZone.FinancialPeriodReferenceCalendar)),
+            "leasestart" => LeaseStart,
+            "leaseend" => LeaseEnd,
+            "lastpayment" => LastLeasePayment,
+            "autorenew" => new BooleanVariable(AutoRenew),
+            "bondreturned" => new BooleanVariable(BondReturned),
+            "tenantcount" => new NumberVariable(DeclaredTenants.Count()),
+            _ => throw new NotSupportedException($"Unsupported property lease property {property}.")
+        };
+    }
+
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.PropertyLease,
+            new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = ProgVariableTypes.Number,
+                ["name"] = ProgVariableTypes.Text,
+                ["property"] = ProgVariableTypes.Property,
+                ["leaseorder"] = ProgVariableTypes.PropertyLeaseOrder,
+                ["leaseholderid"] = ProgVariableTypes.Number,
+                ["leaseholdertype"] = ProgVariableTypes.Text,
+                ["leaseholdername"] = ProgVariableTypes.Text,
+                ["priceperinterval"] = ProgVariableTypes.Number,
+                ["bondpayment"] = ProgVariableTypes.Number,
+                ["paymentbalance"] = ProgVariableTypes.Number,
+                ["bondclaimed"] = ProgVariableTypes.Number,
+                ["interval"] = ProgVariableTypes.Text,
+                ["leasestart"] = ProgVariableTypes.MudDateTime,
+                ["leaseend"] = ProgVariableTypes.MudDateTime,
+                ["lastpayment"] = ProgVariableTypes.MudDateTime,
+                ["autorenew"] = ProgVariableTypes.Boolean,
+                ["bondreturned"] = ProgVariableTypes.Boolean,
+                ["tenantcount"] = ProgVariableTypes.Number
+            },
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                ["id"] = "The stable property-lease identity.",
+                ["name"] = "A generated description of this lease.",
+                ["property"] = "The property governed by this lease.",
+                ["leaseorder"] = "The lease order from which this lease was created.",
+                ["leaseholderid"] = "The durable identity of the leaseholder, or zero if it no longer resolves.",
+                ["leaseholdertype"] = "The framework-item type of the leaseholder.",
+                ["leaseholdername"] = "The resolved leaseholder name, or empty text.",
+                ["priceperinterval"] = "The lease charge per recurring interval.",
+                ["bondpayment"] = "The bond paid for the lease.",
+                ["paymentbalance"] = "The outstanding lease payment balance.",
+                ["bondclaimed"] = "The amount of the bond that has been claimed.",
+                ["interval"] = "The human-readable recurring payment interval.",
+                ["leasestart"] = "The in-world lease start time.",
+                ["leaseend"] = "The in-world lease end time.",
+                ["lastpayment"] = "The in-world time of the last lease payment.",
+                ["autorenew"] = "Whether the lease is configured to auto-renew.",
+                ["bondreturned"] = "Whether the bond has been returned.",
+                ["tenantcount"] = "The number of declared tenants."
+            });
+    }
 
     #region Overrides of SaveableItem
 

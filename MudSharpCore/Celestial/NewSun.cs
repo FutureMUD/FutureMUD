@@ -247,7 +247,7 @@ public class NewSun : PerceivedItem, ICelestialObject, ISolarEphemeris
         // Do nothing
     }
 
-    public override ProgVariableTypes Type => ProgVariableTypes.Error;
+    public override ProgVariableTypes Type => ProgVariableTypes.CelestialObject;
 
     public override object DatabaseInsert()
     {

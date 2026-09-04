@@ -113,6 +113,39 @@ public static class ProgVariableTypeRegistry
 		RegisterExact(ProgTypeKind.RandomNameProfile, ProgVariableTypes.RandomNameProfile, "RandomNameProfile",
 			"randomnameprofile", "nameprofile", "randomname");
 		RegisterExact(ProgTypeKind.PersonalName, ProgVariableTypes.PersonalName, "PersonalName", "personalname");
+		RegisterExact(ProgTypeKind.Tag, ProgVariableTypes.Tag, "Tag", "tag");
+		RegisterExact(ProgTypeKind.ItemPrototype, ProgVariableTypes.ItemPrototype, "ItemPrototype", "itemprototype",
+			"itemproto");
+		RegisterExact(ProgTypeKind.NPCTemplate, ProgVariableTypes.NPCTemplate, "NPCTemplate", "npctemplate",
+			"npcprototype", "npcproto");
+		RegisterExact(ProgTypeKind.OutfitTemplate, ProgVariableTypes.OutfitTemplate, "OutfitTemplate", "outfittemplate");
+		RegisterExact(ProgTypeKind.Vehicle, ProgVariableTypes.Vehicle, "Vehicle", "vehicle");
+		RegisterExact(ProgTypeKind.CelestialObject, ProgVariableTypes.CelestialObject, "CelestialObject",
+			"celestialobject", "celestial");
+		RegisterExact(ProgTypeKind.Grid, ProgVariableTypes.Grid, "Grid", "grid");
+		RegisterExact(ProgTypeKind.CharacteristicDefinition, ProgVariableTypes.CharacteristicDefinition,
+			"CharacteristicDefinition", "characteristicdefinition", "characteristic");
+		RegisterExact(ProgTypeKind.CharacteristicValue, ProgVariableTypes.CharacteristicValue, "CharacteristicValue",
+			"characteristicvalue");
+		RegisterExact(ProgTypeKind.AgricultureFieldProfile, ProgVariableTypes.AgricultureFieldProfile,
+			"AgricultureFieldProfile", "agriculturefieldprofile", "fieldprofile");
+		RegisterExact(ProgTypeKind.AgricultureCropDefinition, ProgVariableTypes.AgricultureCropDefinition,
+			"AgricultureCropDefinition", "agriculturecropdefinition", "cropdefinition");
+		RegisterExact(ProgTypeKind.AgricultureHerdDefinition, ProgVariableTypes.AgricultureHerdDefinition,
+			"AgricultureHerdDefinition", "agricultureherddefinition", "herddefinition");
+		RegisterExact(ProgTypeKind.AgricultureWoodlandDefinition, ProgVariableTypes.AgricultureWoodlandDefinition,
+			"AgricultureWoodlandDefinition", "agriculturewoodlanddefinition", "woodlanddefinition");
+		RegisterExact(ProgTypeKind.AgricultureOperation, ProgVariableTypes.AgricultureOperation,
+			"AgricultureOperation", "agricultureoperation", "fieldoperation");
+		RegisterExact(ProgTypeKind.Property, ProgVariableTypes.Property, "Property", "property");
+		RegisterExact(ProgTypeKind.PropertyKey, ProgVariableTypes.PropertyKey, "PropertyKey", "propertykey");
+		RegisterExact(ProgTypeKind.PropertyLease, ProgVariableTypes.PropertyLease, "PropertyLease", "propertylease");
+		RegisterExact(ProgTypeKind.PropertyLeaseOrder, ProgVariableTypes.PropertyLeaseOrder,
+			"PropertyLeaseOrder", "propertyleaseorder");
+		RegisterExact(ProgTypeKind.PropertySaleOrder, ProgVariableTypes.PropertySaleOrder,
+			"PropertySaleOrder", "propertysaleorder");
+		RegisterExact(ProgTypeKind.EconomicZone, ProgVariableTypes.EconomicZone, "EconomicZone", "economiczone");
+		RegisterExact(ProgTypeKind.Channel, ProgVariableTypes.Channel, "Channel", "channel");
 
         RegisterNamed(ProgVariableTypes.CollectionItem, "CollectionItem", false, "collectionitem");
         RegisterNamed(ProgVariableTypes.Perceivable, "Perceivable", false, "perceivable");

@@ -106,6 +106,7 @@ public partial class ItemSeeder
 	private void ValidateIndustrialisedCataloguePrerequisites(ResolvedIndustrialisedTechnologyProfile profile)
 	{
 		var catalogue = IndustrialisedCatalogue;
+		catalogue.Food?.EnsureProductionReadyForSeeding();
 		var componentMetadata = IndustrialisedComponentMetadataCatalogue.Document;
 		var itemByKey = catalogue.Items.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
 		var issues = new List<string>();

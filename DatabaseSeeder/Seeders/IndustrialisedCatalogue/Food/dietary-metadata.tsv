@@ -1,0 +1,21 @@
+Profile	Contents	AnimalFeedPurposes	ReviewState
+dietary_staples			DependencyReviewed
+dietary_baking			DependencyReviewed
+dietary_noodles-and-dumplings			DependencyReviewed
+dietary_plant-foods			DependencyReviewed
+dietary_fruit-and-nuts			DependencyReviewed
+dietary_dairy-and-eggs	Dairy;Egg		DependencyReviewed
+dietary_meat-and-offal	AnimalFlesh		DependencyReviewed
+dietary_aquatic-foods	Fish		DependencyReviewed
+dietary_composite-dishes			DependencyReviewed
+dietary_preserves-and-condiments			DependencyReviewed
+dietary_processed-intermediates			DependencyReviewed
+dietary_desserts			DependencyReviewed
+dietary_snacks			DependencyReviewed
+dietary_rations			DependencyReviewed
+dietary_infant-and-dietetic			DependencyReviewed
+dietary_processed-animal-feeds		LivestockMaintenance;CompanionAnimal	DependencyReviewed
+dietary_non-alcoholic-drinks			DependencyReviewed
+dietary_stimulant-infusions	Caffeine		DependencyReviewed
+dietary_alcoholic-drinks	Alcohol		DependencyReviewed
+dietary_beverage-intermediates			DependencyReviewed

@@ -692,7 +692,7 @@ public class HealthSeederTests
             "Willow Bark Tea", "Mandrake Draught", "Honey Poultice", "Garlic Salve", "Mint Infusion",
             "Ephedra Brew", "Foxglove Tincture", "Aloe Burn Salve", "Poppy Latex Draught", "Henbane Smoke",
             "Yarrow Styptic", "Mint and Ginger Tonic", "Herbal Burn Salve", "Bronchial Smoke",
-            "Alum Styptic", "Theriac Electuary", "Soporific Fumes"
+            "Alum Styptic", "Theriac Electuary", "Soporific Fumes", "Dietary Caffeine", "Food-Borne Illness"
         ];
         CollectionAssert.AreEquivalent(expectedDrugs, context.Drugs.Select(x => x.Name).OrderBy(x => x).ToArray());
 
@@ -704,6 +704,11 @@ public class HealthSeederTests
             .AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration).BreathingDriveMultiplier);
         Assert.AreEqual(0.65, RuntimeDrug(context, "Poppy Latex Draught")
             .AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence).ExposureGainPerGram);
+		Assert.AreEqual(1.15, RuntimeDrug(context, "Food-Borne Illness")
+			.AdditionalInfoFor<NeedRateAdditionalInfo>(DrugType.NeedRate).HungerMultiplier);
+		Assert.AreEqual(1.25, RuntimeDrug(context, "Food-Borne Illness")
+			.AdditionalInfoFor<NeedRateAdditionalInfo>(DrugType.NeedRate).ThirstMultiplier);
+		Assert.AreEqual(5.0, context.Drugs.Single(x => x.Name == "Dietary Caffeine").IntensityPerGram);
 
         Tag medicineTag = context.Tags.Single(x => x.Name == "Medicine" && x.Parent != null && x.Parent.Name == "Liquids");
         Liquid theriac = context.Liquids.Single(x => x.Name == "theriac syrup");

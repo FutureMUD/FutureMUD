@@ -61,6 +61,9 @@ public class PreparedFoodGameItemComponentProto : GameItemComponentProto, IPrepa
 		sb.AppendLine($"On-stale prog: {(Profile.OnStaleProg is null ? "none".ColourError() : $"#{Profile.OnStaleProg.Id.ToString("N0", actor)} ({Profile.OnStaleProg.Name})".ColourName())}");
 		sb.AppendLine();
 		sb.AppendLine($"Default ingredients: {(Profile.Ingredients.Any() ? Profile.Ingredients.Select(x => $"{x.Role.ColourName()}: {x.Description.ColourValue()}").ListToString() : "none".ColourError())}");
+		sb.AppendLine($"Major allergens: {(Profile.Ingredients.SelectMany(x => x.Allergens).Distinct().Any() ? Profile.Ingredients.SelectMany(x => x.Allergens).Distinct().Select(x => x.DescribeEnum().ColourName()).ListToString() : "none".ColourError())}");
+		sb.AppendLine($"Factual dietary contents: {(Profile.DietaryContents.Any() ? Profile.DietaryContents.Select(x => x.DescribeEnum().ColourName()).ListToString() : "none".ColourError())}");
+		sb.AppendLine($"Animal-feed purposes: {(Profile.AnimalFeedPurposes.Any() ? Profile.AnimalFeedPurposes.Select(x => x.DescribeEnum().ColourName()).ListToString() : "none".ColourError())}");
 		sb.AppendLine($"Default drug doses: {(Profile.DrugDoses.Any() ? Profile.DrugDoses.Select(x => $"{x.Drug?.Name.ColourName() ?? "unknown"} @ {$"{Gameworld.UnitManager.DescribeDecimal(x.Grams, UnitType.Mass, actor)}".ColourValue()}").ListToString() : "none".ColourError())}");
 		sb.AppendLine($"Stale drug doses: {(Profile.StaleDrugDoses.Any() ? Profile.StaleDrugDoses.Select(x => $"{x.Drug?.Name.ColourName() ?? "unknown"} @ {$"{Gameworld.UnitManager.DescribeDecimal(x.Grams, UnitType.Mass, actor)}".ColourValue()}").ListToString() : "none".ColourError())}");
 		return sb.ToString();
@@ -107,6 +110,14 @@ public class PreparedFoodGameItemComponentProto : GameItemComponentProto, IPrepa
 		if (root.Element("StaleDrugDoses") is { } staleDoses)
 		{
 			profile.StaleDrugDoses.AddRange(staleDoses.Elements("Dose").Select(x => FoodDrugDose.LoadFromXml(x, Gameworld)));
+		}
+		foreach (var element in root.Element("DietaryContents")?.Elements("Content") ?? [])
+		{
+			if (Enum.TryParse<DietaryContent>(element.Value, true, out var value)) profile.DietaryContents.Add(value);
+		}
+		foreach (var element in root.Element("AnimalFeedPurposes")?.Elements("Purpose") ?? [])
+		{
+			if (Enum.TryParse<AnimalFeedPurpose>(element.Value, true, out var value)) profile.AnimalFeedPurposes.Add(value);
 		}
 
 		Profile = profile;
@@ -168,7 +179,9 @@ public class PreparedFoodGameItemComponentProto : GameItemComponentProto, IPrepa
 			new XElement("OnStaleProg", Profile.OnStaleProg?.Id ?? 0),
 			new XElement("Ingredients", Profile.Ingredients.Select(x => x.SaveToXml())),
 			new XElement("DrugDoses", Profile.DrugDoses.Select(x => x.SaveToXml())),
-			new XElement("StaleDrugDoses", Profile.StaleDrugDoses.Select(x => x.SaveToXml()))
+			new XElement("StaleDrugDoses", Profile.StaleDrugDoses.Select(x => x.SaveToXml())),
+			new XElement("DietaryContents", Profile.DietaryContents.OrderBy(x => x).Select(x => new XElement("Content", x))),
+			new XElement("AnimalFeedPurposes", Profile.AnimalFeedPurposes.OrderBy(x => x).Select(x => new XElement("Purpose", x)))
 		).ToString();
 	}
 
@@ -218,7 +231,11 @@ public class PreparedFoodGameItemComponentProto : GameItemComponentProto, IPrepa
 	#3short <template|clear>#0 - optional short-description template
 	#3full <template|clear>#0 - optional full-description template
 	#3ingredient add <role> <text>#0 - adds a default ingredient ledger entry
+	#3ingredient category <#> <category>#0 - sets an ingredient's factual category
+	#3ingredient allergen <#> <allergen>#0 - toggles a major allergen on an ingredient
 	#3ingredient clear#0 - clears default ingredient entries
+	#3dietary <content>#0 - toggles a factual dietary content (this is not a suitability label)
+	#3feedpurpose <purpose|none>#0 - toggles an animal-feed purpose, or clears all purposes
 	#3drug <drug> <grams>#0 - adds an ingested default drug dose
 	#3drug clear#0 - clears default drug doses
 	#3staledrug <drug> <grams>#0 - adds an ingested stale/spoiled drug dose
@@ -276,6 +293,11 @@ public class PreparedFoodGameItemComponentProto : GameItemComponentProto, IPrepa
 				return BuildingCommandAbsorb(actor, command);
 			case "ingredient":
 				return BuildingCommandIngredient(actor, command);
+			case "dietary":
+				return BuildingCommandMetadata(actor, command, Profile.DietaryContents, "dietary content");
+			case "feedpurpose":
+			case "feed":
+				return BuildingCommandMetadata(actor, command, Profile.AnimalFeedPurposes, "animal-feed purpose");
 			case "drug":
 			case "dose":
 				return BuildingCommandDrug(actor, command, false);
@@ -614,10 +636,72 @@ public class PreparedFoodGameItemComponentProto : GameItemComponentProto, IPrepa
 				Changed = true;
 				actor.Send("This food no longer has any default ingredient ledger entries.");
 				return true;
+			case "category":
+				if (!int.TryParse(command.PopSpeech(), out var categoryIndex) || categoryIndex < 1 || categoryIndex > Profile.Ingredients.Count)
+				{
+					actor.Send("Which ingredient number do you want to categorise?");
+					return false;
+				}
+				if (!Enum.TryParse<FoodIngredientCategory>(command.SafeRemainingArgument.Replace(" ", string.Empty), true, out var category))
+				{
+					actor.Send($"That is not a valid ingredient category. Valid categories are {Enum.GetValues<FoodIngredientCategory>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+					return false;
+				}
+				Profile.Ingredients[categoryIndex - 1].Category = category;
+				Changed = true;
+				actor.Send($"Ingredient {categoryIndex.ToString("N0", actor).ColourValue()} is now categorised as {category.DescribeEnum().ColourName()}.");
+				return true;
+			case "allergen":
+				if (!int.TryParse(command.PopSpeech(), out var allergenIndex) || allergenIndex < 1 || allergenIndex > Profile.Ingredients.Count)
+				{
+					actor.Send("Which ingredient number do you want to edit?");
+					return false;
+				}
+				if (!Enum.TryParse<MajorFoodAllergen>(command.SafeRemainingArgument.Replace(" ", string.Empty), true, out var allergen))
+				{
+					actor.Send($"That is not a recognised major allergen. Valid allergens are {Enum.GetValues<MajorFoodAllergen>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+					return false;
+				}
+				var ingredient = Profile.Ingredients[allergenIndex - 1];
+				var added = ingredient.Allergens.Add(allergen);
+				if (!added) ingredient.Allergens.Remove(allergen);
+				Changed = true;
+				actor.Send($"{allergen.DescribeEnum().ColourName()} is {(added ? "now" : "no longer")} declared for ingredient {allergenIndex.ToString("N0", actor).ColourValue()}.");
+				return true;
 			default:
-				actor.Send("Use INGREDIENT ADD <role> <text> or INGREDIENT CLEAR.");
+				actor.Send("Use INGREDIENT ADD <role> <text>, INGREDIENT CATEGORY <#> <category>, INGREDIENT ALLERGEN <#> <allergen>, or INGREDIENT CLEAR.");
 				return false;
 		}
+	}
+
+	private bool BuildingCommandMetadata<T>(ICharacter actor, StringStack command, HashSet<T> values, string label)
+		where T : struct, Enum
+	{
+		if (command.IsFinished)
+		{
+			actor.Send($"Which {label} do you want to toggle? Valid values are {Enum.GetValues<T>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return false;
+		}
+
+		if (command.PeekSpeech().EqualToAny("none", "clear"))
+		{
+			values.Clear();
+			Changed = true;
+			actor.Send($"This food no longer declares any {label.Pluralise()}.");
+			return true;
+		}
+
+		if (!Enum.TryParse<T>(command.SafeRemainingArgument.Replace(" ", string.Empty), true, out var value))
+		{
+			actor.Send($"That is not a valid {label}. Valid values are {Enum.GetValues<T>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return false;
+		}
+
+		var added = values.Add(value);
+		if (!added) values.Remove(value);
+		Changed = true;
+		actor.Send($"{value.DescribeEnum().ColourName()} is {(added ? "now" : "no longer")} declared as {label.A_An()} for this food.");
+		return true;
 	}
 
 	private bool BuildingCommandDrug(ICharacter actor, StringStack command, bool stale)

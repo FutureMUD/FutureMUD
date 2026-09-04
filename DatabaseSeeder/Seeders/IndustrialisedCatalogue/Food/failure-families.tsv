@@ -1,0 +1,2 @@
+StableReference	Description	Hazard	ReviewState
+failure_food_unusable	an unusable failed food preparation	none claimed	DependencyReviewed

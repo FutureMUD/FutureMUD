@@ -1,0 +1,465 @@
+Profile	Order	Role	Category	Description	SourceReference	Quantity	Unit	Allergens
+ingredient_industrialised_food_staples_001	1	defining ingredient	Other	standardised wheat meal (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_staples_002	1	defining ingredient	Other	standardised long-grain rice (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_staples_003	1	defining ingredient	Other	standardised maize meal (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_staples_004	1	defining ingredient	Other	standardised oat groats (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_staples_005	1	defining ingredient	Other	standardised rye meal (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_staples_006	1	defining ingredient	Other	standardised barley grits (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_staples_007	1	defining ingredient	Other	standardised potato staple (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_staples_008	1	defining ingredient	Other	standardised cassava meal (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_staples_009	1	defining ingredient	Other	standardised millet grain (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_staples_010	1	defining ingredient	Other	standardised sorghum grain (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_staples_001	1	defining ingredient	Other	standardised wheat meal (industrial form)	same-graph	100	g	
+ingredient_industrial_food_staples_002	1	defining ingredient	Other	standardised long-grain rice (industrial form)	same-graph	100	g	
+ingredient_modern_food_staples_001	1	defining ingredient	Other	standardised wheat meal (modern form)	same-graph	100	g	
+ingredient_modern_food_staples_002	1	defining ingredient	Other	standardised long-grain rice (modern form)	same-graph	100	g	
+ingredient_modern_food_staples_003	1	defining ingredient	Other	standardised maize meal (modern form)	same-graph	100	g	
+ingredient_nuclear_food_staples_001	1	defining ingredient	Other	standardised wheat meal (nuclear form)	same-graph	100	g	
+ingredient_information_food_staples_001	1	defining ingredient	Other	standardised wheat meal (information form)	same-graph	100	g	
+ingredient_industrialised_food_baking_001	1	defining ingredient	Other	standardised sandwich loaf (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_002	1	defining ingredient	Other	standardised soda bread (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_003	1	defining ingredient	Other	standardised milk bread (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_004	1	defining ingredient	Other	standardised rye loaf (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_005	1	defining ingredient	Other	standardised crispbread (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_006	1	defining ingredient	Other	standardised tea biscuit (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_007	1	defining ingredient	Other	standardised shortcake (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_008	1	defining ingredient	Other	standardised sponge cake (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_009	1	defining ingredient	Other	standardised fruit cake (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_010	1	defining ingredient	Other	standardised laminated pastry (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_011	1	defining ingredient	Other	institutional sandwich loaf (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_012	1	defining ingredient	Other	institutional soda bread (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_013	1	defining ingredient	Other	institutional milk bread (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_014	1	defining ingredient	Other	institutional rye loaf (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_015	1	defining ingredient	Other	institutional crispbread (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_baking_016	1	defining ingredient	Other	institutional tea biscuit (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_baking_001	1	defining ingredient	Other	standardised sandwich loaf (industrial form)	same-graph	100	g	
+ingredient_industrial_food_baking_002	1	defining ingredient	Other	standardised soda bread (industrial form)	same-graph	100	g	
+ingredient_industrial_food_baking_003	1	defining ingredient	Other	standardised milk bread (industrial form)	same-graph	100	g	
+ingredient_modern_food_baking_001	1	defining ingredient	Other	standardised sandwich loaf (modern form)	same-graph	100	g	
+ingredient_modern_food_baking_002	1	defining ingredient	Other	standardised soda bread (modern form)	same-graph	100	g	
+ingredient_modern_food_baking_003	1	defining ingredient	Other	standardised milk bread (modern form)	same-graph	100	g	
+ingredient_modern_food_baking_004	1	defining ingredient	Other	standardised rye loaf (modern form)	same-graph	100	g	
+ingredient_modern_food_baking_005	1	defining ingredient	Other	standardised crispbread (modern form)	same-graph	100	g	
+ingredient_nuclear_food_baking_001	1	defining ingredient	Other	standardised sandwich loaf (nuclear form)	same-graph	100	g	
+ingredient_nuclear_food_baking_002	1	defining ingredient	Other	standardised soda bread (nuclear form)	same-graph	100	g	
+ingredient_information_food_baking_001	1	defining ingredient	Other	standardised sandwich loaf (information form)	same-graph	100	g	
+ingredient_information_food_baking_002	1	defining ingredient	Other	standardised soda bread (information form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_001	1	defining ingredient	Other	standardised wheat noodles (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_002	1	defining ingredient	Other	standardised rice noodles (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_003	1	defining ingredient	Other	standardised egg noodles (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_004	1	defining ingredient	Other	standardised starch noodles (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_005	1	defining ingredient	Other	standardised filled dumplings (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_006	1	defining ingredient	Other	standardised potato dumplings (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_007	1	defining ingredient	Other	standardised steamed buns (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_008	1	defining ingredient	Other	standardised pasta ribbons (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_009	1	defining ingredient	Other	standardised pasta tubes (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_010	1	defining ingredient	Other	standardised instant noodles (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_011	1	defining ingredient	Other	institutional wheat noodles (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_012	1	defining ingredient	Other	institutional rice noodles (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_013	1	defining ingredient	Other	institutional egg noodles (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_noodle_dumpling_014	1	defining ingredient	Other	institutional starch noodles (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_noodle_dumpling_001	1	defining ingredient	Other	standardised wheat noodles (industrial form)	same-graph	100	g	
+ingredient_industrial_food_noodle_dumpling_002	1	defining ingredient	Other	standardised rice noodles (industrial form)	same-graph	100	g	
+ingredient_modern_food_noodle_dumpling_001	1	defining ingredient	Other	standardised wheat noodles (modern form)	same-graph	100	g	
+ingredient_modern_food_noodle_dumpling_002	1	defining ingredient	Other	standardised rice noodles (modern form)	same-graph	100	g	
+ingredient_modern_food_noodle_dumpling_003	1	defining ingredient	Other	standardised egg noodles (modern form)	same-graph	100	g	
+ingredient_modern_food_noodle_dumpling_004	1	defining ingredient	Other	standardised starch noodles (modern form)	same-graph	100	g	
+ingredient_nuclear_food_noodle_dumpling_001	1	defining ingredient	Other	standardised wheat noodles (nuclear form)	same-graph	100	g	
+ingredient_information_food_noodle_dumpling_001	1	defining ingredient	Other	standardised wheat noodles (information form)	same-graph	100	g	
+ingredient_information_food_noodle_dumpling_002	1	defining ingredient	Other	standardised rice noodles (information form)	same-graph	100	g	
+ingredient_industrialised_food_plant_001	1	defining ingredient	Other	standardised bean loaf (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_002	1	defining ingredient	Other	standardised lentil stew (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_003	1	defining ingredient	Other	standardised pea puree (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_004	1	defining ingredient	Other	standardised mushroom cutlet (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_005	1	defining ingredient	Other	standardised vegetable hash (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_006	1	defining ingredient	Other	standardised soy curd (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_007	1	defining ingredient	Other	standardised gluten roast (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_008	1	defining ingredient	Other	standardised chickpea cake (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_009	1	defining ingredient	Other	standardised root mash (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_010	1	defining ingredient	Other	standardised leafy vegetable medley (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_011	1	defining ingredient	Other	institutional bean loaf (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_012	1	defining ingredient	Other	institutional lentil stew (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_013	1	defining ingredient	Other	institutional pea puree (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_plant_014	1	defining ingredient	Other	institutional mushroom cutlet (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_plant_001	1	defining ingredient	Other	standardised bean loaf (industrial form)	same-graph	100	g	
+ingredient_industrial_food_plant_002	1	defining ingredient	Other	standardised lentil stew (industrial form)	same-graph	100	g	
+ingredient_modern_food_plant_001	1	defining ingredient	Other	standardised bean loaf (modern form)	same-graph	100	g	
+ingredient_modern_food_plant_002	1	defining ingredient	Other	standardised lentil stew (modern form)	same-graph	100	g	
+ingredient_modern_food_plant_003	1	defining ingredient	Other	standardised pea puree (modern form)	same-graph	100	g	
+ingredient_modern_food_plant_004	1	defining ingredient	Other	standardised mushroom cutlet (modern form)	same-graph	100	g	
+ingredient_nuclear_food_plant_001	1	defining ingredient	Other	standardised bean loaf (nuclear form)	same-graph	100	g	
+ingredient_information_food_plant_001	1	defining ingredient	Other	standardised bean loaf (information form)	same-graph	100	g	
+ingredient_information_food_plant_002	1	defining ingredient	Other	standardised lentil stew (information form)	same-graph	100	g	
+ingredient_industrialised_food_fruit_nut_001	1	defining ingredient	Other	standardised fruit puree (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_fruit_nut_002	1	defining ingredient	Other	standardised dried fruit mixture (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_fruit_nut_003	1	defining ingredient	Other	standardised nut butter (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_fruit_nut_004	1	defining ingredient	Other	standardised seed paste (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_fruit_nut_005	1	defining ingredient	Other	standardised fruit compote (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_fruit_nut_006	1	defining ingredient	Other	standardised candied peel (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_fruit_nut_007	1	defining ingredient	Other	standardised nut brittle (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_fruit_nut_008	1	defining ingredient	Other	standardised fruit leather (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_fruit_nut_009	1	defining ingredient	Other	standardised roasted nut mixture (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_fruit_nut_010	1	defining ingredient	Other	standardised preserved fruit pulp (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_fruit_nut_001	1	defining ingredient	Other	standardised fruit puree (industrial form)	same-graph	100	g	
+ingredient_modern_food_fruit_nut_001	1	defining ingredient	Other	standardised fruit puree (modern form)	same-graph	100	g	
+ingredient_modern_food_fruit_nut_002	1	defining ingredient	Other	standardised dried fruit mixture (modern form)	same-graph	100	g	
+ingredient_modern_food_fruit_nut_003	1	defining ingredient	Other	standardised nut butter (modern form)	same-graph	100	g	
+ingredient_nuclear_food_fruit_nut_001	1	defining ingredient	Other	standardised fruit puree (nuclear form)	same-graph	100	g	
+ingredient_information_food_fruit_nut_001	1	defining ingredient	Other	standardised fruit puree (information form)	same-graph	100	g	
+ingredient_information_food_fruit_nut_002	1	defining ingredient	Other	standardised dried fruit mixture (information form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_001	1	defining ingredient	Other	standardised cultured milk (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_002	1	defining ingredient	Other	standardised condensed milk (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_003	1	defining ingredient	Other	standardised dried milk (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_004	1	defining ingredient	Other	standardised processed cheese (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_005	1	defining ingredient	Other	standardised egg powder (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_006	1	defining ingredient	Other	standardised set custard (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_007	1	defining ingredient	Other	standardised milk pudding (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_008	1	defining ingredient	Other	standardised yoghurt (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_009	1	defining ingredient	Other	standardised frozen cream (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_010	1	defining ingredient	Other	standardised pasteurised cream (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_011	1	defining ingredient	Other	institutional cultured milk (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_012	1	defining ingredient	Other	institutional condensed milk (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_013	1	defining ingredient	Other	institutional dried milk (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dairy_egg_014	1	defining ingredient	Other	institutional processed cheese (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_dairy_egg_001	1	defining ingredient	Other	standardised cultured milk (industrial form)	same-graph	100	g	
+ingredient_industrial_food_dairy_egg_002	1	defining ingredient	Other	standardised condensed milk (industrial form)	same-graph	100	g	
+ingredient_modern_food_dairy_egg_001	1	defining ingredient	Other	standardised cultured milk (modern form)	same-graph	100	g	
+ingredient_modern_food_dairy_egg_002	1	defining ingredient	Other	standardised condensed milk (modern form)	same-graph	100	g	
+ingredient_modern_food_dairy_egg_003	1	defining ingredient	Other	standardised dried milk (modern form)	same-graph	100	g	
+ingredient_modern_food_dairy_egg_004	1	defining ingredient	Other	standardised processed cheese (modern form)	same-graph	100	g	
+ingredient_nuclear_food_dairy_egg_001	1	defining ingredient	Other	standardised cultured milk (nuclear form)	same-graph	100	g	
+ingredient_information_food_dairy_egg_001	1	defining ingredient	Other	standardised cultured milk (information form)	same-graph	100	g	
+ingredient_information_food_dairy_egg_002	1	defining ingredient	Other	standardised condensed milk (information form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_001	1	defining ingredient	Other	standardised minced meat loaf (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_002	1	defining ingredient	Other	standardised fresh sausage (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_003	1	defining ingredient	Other	standardised cooked sausage (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_004	1	defining ingredient	Other	standardised potted meat (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_005	1	defining ingredient	Other	standardised pressed poultry (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_006	1	defining ingredient	Other	standardised liver paste (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_007	1	defining ingredient	Other	standardised blood sausage (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_008	1	defining ingredient	Other	standardised corned meat (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_009	1	defining ingredient	Other	standardised meat extract (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_010	1	defining ingredient	Other	standardised jellied offal (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_011	1	defining ingredient	Other	institutional minced meat loaf (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_012	1	defining ingredient	Other	institutional fresh sausage (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_013	1	defining ingredient	Other	institutional cooked sausage (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_014	1	defining ingredient	Other	institutional potted meat (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_015	1	defining ingredient	Other	institutional pressed poultry (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_meat_offal_016	1	defining ingredient	Other	institutional liver paste (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_meat_offal_001	1	defining ingredient	Other	standardised minced meat loaf (industrial form)	same-graph	100	g	
+ingredient_industrial_food_meat_offal_002	1	defining ingredient	Other	standardised fresh sausage (industrial form)	same-graph	100	g	
+ingredient_industrial_food_meat_offal_003	1	defining ingredient	Other	standardised cooked sausage (industrial form)	same-graph	100	g	
+ingredient_modern_food_meat_offal_001	1	defining ingredient	Other	standardised minced meat loaf (modern form)	same-graph	100	g	
+ingredient_modern_food_meat_offal_002	1	defining ingredient	Other	standardised fresh sausage (modern form)	same-graph	100	g	
+ingredient_modern_food_meat_offal_003	1	defining ingredient	Other	standardised cooked sausage (modern form)	same-graph	100	g	
+ingredient_modern_food_meat_offal_004	1	defining ingredient	Other	standardised potted meat (modern form)	same-graph	100	g	
+ingredient_modern_food_meat_offal_005	1	defining ingredient	Other	standardised pressed poultry (modern form)	same-graph	100	g	
+ingredient_nuclear_food_meat_offal_001	1	defining ingredient	Other	standardised minced meat loaf (nuclear form)	same-graph	100	g	
+ingredient_nuclear_food_meat_offal_002	1	defining ingredient	Other	standardised fresh sausage (nuclear form)	same-graph	100	g	
+ingredient_information_food_meat_offal_001	1	defining ingredient	Other	standardised minced meat loaf (information form)	same-graph	100	g	
+ingredient_information_food_meat_offal_002	1	defining ingredient	Other	standardised fresh sausage (information form)	same-graph	100	g	
+ingredient_industrialised_food_aquatic_001	1	defining ingredient	Other	standardised fish cake (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_aquatic_002	1	defining ingredient	Other	standardised pressed fish loaf (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_aquatic_003	1	defining ingredient	Other	standardised smoked fish flakes (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_aquatic_004	1	defining ingredient	Other	standardised salted fish paste (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_aquatic_005	1	defining ingredient	Other	standardised shellfish cake (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_aquatic_006	1	defining ingredient	Other	standardised fish roe spread (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_aquatic_007	1	defining ingredient	Other	standardised pickled fish (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_aquatic_008	1	defining ingredient	Other	standardised dried shrimp (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_aquatic_009	1	defining ingredient	Other	standardised fish sausage (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_aquatic_010	1	defining ingredient	Other	standardised cooked mollusc meat (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_aquatic_001	1	defining ingredient	Other	standardised fish cake (industrial form)	same-graph	100	g	
+ingredient_industrial_food_aquatic_002	1	defining ingredient	Other	standardised pressed fish loaf (industrial form)	same-graph	100	g	
+ingredient_modern_food_aquatic_001	1	defining ingredient	Other	standardised fish cake (modern form)	same-graph	100	g	
+ingredient_modern_food_aquatic_002	1	defining ingredient	Other	standardised pressed fish loaf (modern form)	same-graph	100	g	
+ingredient_modern_food_aquatic_003	1	defining ingredient	Other	standardised smoked fish flakes (modern form)	same-graph	100	g	
+ingredient_nuclear_food_aquatic_001	1	defining ingredient	Other	standardised fish cake (nuclear form)	same-graph	100	g	
+ingredient_information_food_aquatic_001	1	defining ingredient	Other	standardised fish cake (information form)	same-graph	100	g	
+ingredient_industrialised_food_composite_001	1	defining ingredient	Other	standardised vegetable curry with rice (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_002	1	defining ingredient	Other	standardised meat stew with dumplings (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_003	1	defining ingredient	Other	standardised bean casserole (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_004	1	defining ingredient	Other	standardised noodle soup (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_005	1	defining ingredient	Other	standardised rice and lentil pilaf (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_006	1	defining ingredient	Other	standardised filled savoury pie (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_007	1	defining ingredient	Other	standardised baked pasta dish (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_008	1	defining ingredient	Other	standardised maize and bean porridge (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_009	1	defining ingredient	Other	standardised fish and potato pie (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_010	1	defining ingredient	Other	standardised stuffed vegetable dish (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_011	1	defining ingredient	Other	institutional vegetable curry with rice (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_012	1	defining ingredient	Other	institutional meat stew with dumplings (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_013	1	defining ingredient	Other	institutional bean casserole (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_014	1	defining ingredient	Other	institutional noodle soup (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_015	1	defining ingredient	Other	institutional rice and lentil pilaf (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_016	1	defining ingredient	Other	institutional filled savoury pie (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_017	1	defining ingredient	Other	institutional baked pasta dish (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_018	1	defining ingredient	Other	institutional maize and bean porridge (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_019	1	defining ingredient	Other	institutional fish and potato pie (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_020	1	defining ingredient	Other	institutional stuffed vegetable dish (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_021	1	defining ingredient	Other	fortified vegetable curry with rice (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_022	1	defining ingredient	Other	fortified meat stew with dumplings (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_023	1	defining ingredient	Other	fortified bean casserole (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_024	1	defining ingredient	Other	fortified noodle soup (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_025	1	defining ingredient	Other	fortified rice and lentil pilaf (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_026	1	defining ingredient	Other	fortified filled savoury pie (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_027	1	defining ingredient	Other	fortified baked pasta dish (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_composite_028	1	defining ingredient	Other	fortified maize and bean porridge (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_composite_001	1	defining ingredient	Other	standardised vegetable curry with rice (industrial form)	same-graph	100	g	
+ingredient_industrial_food_composite_002	1	defining ingredient	Other	standardised meat stew with dumplings (industrial form)	same-graph	100	g	
+ingredient_industrial_food_composite_003	1	defining ingredient	Other	standardised bean casserole (industrial form)	same-graph	100	g	
+ingredient_industrial_food_composite_004	1	defining ingredient	Other	standardised noodle soup (industrial form)	same-graph	100	g	
+ingredient_industrial_food_composite_005	1	defining ingredient	Other	standardised rice and lentil pilaf (industrial form)	same-graph	100	g	
+ingredient_modern_food_composite_001	1	defining ingredient	Other	standardised vegetable curry with rice (modern form)	same-graph	100	g	
+ingredient_modern_food_composite_002	1	defining ingredient	Other	standardised meat stew with dumplings (modern form)	same-graph	100	g	
+ingredient_modern_food_composite_003	1	defining ingredient	Other	standardised bean casserole (modern form)	same-graph	100	g	
+ingredient_modern_food_composite_004	1	defining ingredient	Other	standardised noodle soup (modern form)	same-graph	100	g	
+ingredient_modern_food_composite_005	1	defining ingredient	Other	standardised rice and lentil pilaf (modern form)	same-graph	100	g	
+ingredient_modern_food_composite_006	1	defining ingredient	Other	standardised filled savoury pie (modern form)	same-graph	100	g	
+ingredient_modern_food_composite_007	1	defining ingredient	Other	standardised baked pasta dish (modern form)	same-graph	100	g	
+ingredient_modern_food_composite_008	1	defining ingredient	Other	standardised maize and bean porridge (modern form)	same-graph	100	g	
+ingredient_modern_food_composite_009	1	defining ingredient	Other	standardised fish and potato pie (modern form)	same-graph	100	g	
+ingredient_nuclear_food_composite_001	1	defining ingredient	Other	standardised vegetable curry with rice (nuclear form)	same-graph	100	g	
+ingredient_nuclear_food_composite_002	1	defining ingredient	Other	standardised meat stew with dumplings (nuclear form)	same-graph	100	g	
+ingredient_nuclear_food_composite_003	1	defining ingredient	Other	standardised bean casserole (nuclear form)	same-graph	100	g	
+ingredient_information_food_composite_001	1	defining ingredient	Other	standardised vegetable curry with rice (information form)	same-graph	100	g	
+ingredient_information_food_composite_002	1	defining ingredient	Other	standardised meat stew with dumplings (information form)	same-graph	100	g	
+ingredient_information_food_composite_003	1	defining ingredient	Other	standardised bean casserole (information form)	same-graph	100	g	
+ingredient_information_food_composite_004	1	defining ingredient	Other	standardised noodle soup (information form)	same-graph	100	g	
+ingredient_information_food_composite_005	1	defining ingredient	Other	standardised rice and lentil pilaf (information form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_001	1	defining ingredient	Other	standardised tomato sauce (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_002	1	defining ingredient	Other	standardised mustard emulsion (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_003	1	defining ingredient	Other	standardised fruit chutney (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_004	1	defining ingredient	Other	standardised vegetable pickle (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_005	1	defining ingredient	Other	standardised fermented bean sauce (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_006	1	defining ingredient	Other	standardised meat stock concentrate (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_007	1	defining ingredient	Other	standardised vegetable stock concentrate (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_008	1	defining ingredient	Other	standardised salad dressing (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_009	1	defining ingredient	Other	standardised pepper relish (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_010	1	defining ingredient	Other	standardised malted vinegar sauce (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_011	1	defining ingredient	Other	institutional tomato sauce (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_012	1	defining ingredient	Other	institutional mustard emulsion (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_013	1	defining ingredient	Other	institutional fruit chutney (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_preserve_condiment_014	1	defining ingredient	Other	institutional vegetable pickle (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_preserve_condiment_001	1	defining ingredient	Other	standardised tomato sauce (industrial form)	same-graph	100	g	
+ingredient_industrial_food_preserve_condiment_002	1	defining ingredient	Other	standardised mustard emulsion (industrial form)	same-graph	100	g	
+ingredient_industrial_food_preserve_condiment_003	1	defining ingredient	Other	standardised fruit chutney (industrial form)	same-graph	100	g	
+ingredient_modern_food_preserve_condiment_001	1	defining ingredient	Other	standardised tomato sauce (modern form)	same-graph	100	g	
+ingredient_modern_food_preserve_condiment_002	1	defining ingredient	Other	standardised mustard emulsion (modern form)	same-graph	100	g	
+ingredient_modern_food_preserve_condiment_003	1	defining ingredient	Other	standardised fruit chutney (modern form)	same-graph	100	g	
+ingredient_modern_food_preserve_condiment_004	1	defining ingredient	Other	standardised vegetable pickle (modern form)	same-graph	100	g	
+ingredient_nuclear_food_preserve_condiment_001	1	defining ingredient	Other	standardised tomato sauce (nuclear form)	same-graph	100	g	
+ingredient_information_food_preserve_condiment_001	1	defining ingredient	Other	standardised tomato sauce (information form)	same-graph	100	g	
+ingredient_information_food_preserve_condiment_002	1	defining ingredient	Other	standardised mustard emulsion (information form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_001	1	defining ingredient	Other	standardised refined wheat flour (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_002	1	defining ingredient	Other	standardised corn starch (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_003	1	defining ingredient	Other	standardised malted grain extract (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_004	1	defining ingredient	Other	standardised gelatine powder (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_005	1	defining ingredient	Other	standardised baking powder (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_006	1	defining ingredient	Other	standardised dried yeast (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_007	1	defining ingredient	Other	standardised cocoa powder (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_008	1	defining ingredient	Other	standardised meat extract (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_009	1	defining ingredient	Other	standardised vegetable concentrate (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_010	1	defining ingredient	Other	standardised custard powder (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_011	1	defining ingredient	Other	institutional refined wheat flour (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_012	1	defining ingredient	Other	institutional corn starch (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_013	1	defining ingredient	Other	institutional malted grain extract (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_intermediate_014	1	defining ingredient	Other	institutional gelatine powder (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_intermediate_001	1	defining ingredient	Other	standardised refined wheat flour (industrial form)	same-graph	100	g	
+ingredient_industrial_food_intermediate_002	1	defining ingredient	Other	standardised corn starch (industrial form)	same-graph	100	g	
+ingredient_industrial_food_intermediate_003	1	defining ingredient	Other	standardised malted grain extract (industrial form)	same-graph	100	g	
+ingredient_modern_food_intermediate_001	1	defining ingredient	Other	standardised refined wheat flour (modern form)	same-graph	100	g	
+ingredient_modern_food_intermediate_002	1	defining ingredient	Other	standardised corn starch (modern form)	same-graph	100	g	
+ingredient_modern_food_intermediate_003	1	defining ingredient	Other	standardised malted grain extract (modern form)	same-graph	100	g	
+ingredient_modern_food_intermediate_004	1	defining ingredient	Other	standardised gelatine powder (modern form)	same-graph	100	g	
+ingredient_nuclear_food_intermediate_001	1	defining ingredient	Other	standardised refined wheat flour (nuclear form)	same-graph	100	g	
+ingredient_nuclear_food_intermediate_002	1	defining ingredient	Other	standardised corn starch (nuclear form)	same-graph	100	g	
+ingredient_information_food_intermediate_001	1	defining ingredient	Other	standardised refined wheat flour (information form)	same-graph	100	g	
+ingredient_information_food_intermediate_002	1	defining ingredient	Other	standardised corn starch (information form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_001	1	defining ingredient	Other	standardised set jelly (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_002	1	defining ingredient	Other	standardised milk ice (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_003	1	defining ingredient	Other	standardised custard pudding (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_004	1	defining ingredient	Other	standardised fruit pudding (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_005	1	defining ingredient	Other	standardised sponge pudding (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_006	1	defining ingredient	Other	standardised chocolate confection (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_007	1	defining ingredient	Other	standardised caramel sweet (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_008	1	defining ingredient	Other	standardised wafer biscuit (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_009	1	defining ingredient	Other	standardised frozen fruit ice (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_010	1	defining ingredient	Other	standardised sweetened rice pudding (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_011	1	defining ingredient	Other	institutional set jelly (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_012	1	defining ingredient	Other	institutional milk ice (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_013	1	defining ingredient	Other	institutional custard pudding (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_014	1	defining ingredient	Other	institutional fruit pudding (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_015	1	defining ingredient	Other	institutional sponge pudding (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_016	1	defining ingredient	Other	institutional chocolate confection (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_017	1	defining ingredient	Other	institutional caramel sweet (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_dessert_018	1	defining ingredient	Other	institutional wafer biscuit (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_dessert_001	1	defining ingredient	Other	standardised set jelly (industrial form)	same-graph	100	g	
+ingredient_industrial_food_dessert_002	1	defining ingredient	Other	standardised milk ice (industrial form)	same-graph	100	g	
+ingredient_industrial_food_dessert_003	1	defining ingredient	Other	standardised custard pudding (industrial form)	same-graph	100	g	
+ingredient_modern_food_dessert_001	1	defining ingredient	Other	standardised set jelly (modern form)	same-graph	100	g	
+ingredient_modern_food_dessert_002	1	defining ingredient	Other	standardised milk ice (modern form)	same-graph	100	g	
+ingredient_modern_food_dessert_003	1	defining ingredient	Other	standardised custard pudding (modern form)	same-graph	100	g	
+ingredient_modern_food_dessert_004	1	defining ingredient	Other	standardised fruit pudding (modern form)	same-graph	100	g	
+ingredient_modern_food_dessert_005	1	defining ingredient	Other	standardised sponge pudding (modern form)	same-graph	100	g	
+ingredient_modern_food_dessert_006	1	defining ingredient	Other	standardised chocolate confection (modern form)	same-graph	100	g	
+ingredient_nuclear_food_dessert_001	1	defining ingredient	Other	standardised set jelly (nuclear form)	same-graph	100	g	
+ingredient_nuclear_food_dessert_002	1	defining ingredient	Other	standardised milk ice (nuclear form)	same-graph	100	g	
+ingredient_information_food_dessert_001	1	defining ingredient	Other	standardised set jelly (information form)	same-graph	100	g	
+ingredient_information_food_dessert_002	1	defining ingredient	Other	standardised milk ice (information form)	same-graph	100	g	
+ingredient_information_food_dessert_003	1	defining ingredient	Other	standardised custard pudding (information form)	same-graph	100	g	
+ingredient_information_food_dessert_004	1	defining ingredient	Other	standardised fruit pudding (information form)	same-graph	100	g	
+ingredient_industrialised_food_snack_001	1	defining ingredient	Other	standardised potato crisp (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_002	1	defining ingredient	Other	standardised puffed grain (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_003	1	defining ingredient	Other	standardised roasted seed snack (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_004	1	defining ingredient	Other	standardised cracker biscuit (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_005	1	defining ingredient	Other	standardised salted nut snack (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_006	1	defining ingredient	Other	standardised fruit bar (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_007	1	defining ingredient	Other	standardised wafer snack (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_008	1	defining ingredient	Other	standardised corn crisp (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_009	1	defining ingredient	Other	standardised savoury pretzel (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_010	1	defining ingredient	Other	standardised sweet biscuit (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_011	1	defining ingredient	Other	institutional potato crisp (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_012	1	defining ingredient	Other	institutional puffed grain (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_013	1	defining ingredient	Other	institutional roasted seed snack (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_014	1	defining ingredient	Other	institutional cracker biscuit (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_015	1	defining ingredient	Other	institutional salted nut snack (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_snack_016	1	defining ingredient	Other	institutional fruit bar (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_snack_001	1	defining ingredient	Other	standardised potato crisp (industrial form)	same-graph	100	g	
+ingredient_industrial_food_snack_002	1	defining ingredient	Other	standardised puffed grain (industrial form)	same-graph	100	g	
+ingredient_modern_food_snack_001	1	defining ingredient	Other	standardised potato crisp (modern form)	same-graph	100	g	
+ingredient_modern_food_snack_002	1	defining ingredient	Other	standardised puffed grain (modern form)	same-graph	100	g	
+ingredient_modern_food_snack_003	1	defining ingredient	Other	standardised roasted seed snack (modern form)	same-graph	100	g	
+ingredient_modern_food_snack_004	1	defining ingredient	Other	standardised cracker biscuit (modern form)	same-graph	100	g	
+ingredient_modern_food_snack_005	1	defining ingredient	Other	standardised salted nut snack (modern form)	same-graph	100	g	
+ingredient_nuclear_food_snack_001	1	defining ingredient	Other	standardised potato crisp (nuclear form)	same-graph	100	g	
+ingredient_nuclear_food_snack_002	1	defining ingredient	Other	standardised puffed grain (nuclear form)	same-graph	100	g	
+ingredient_information_food_snack_001	1	defining ingredient	Other	standardised potato crisp (information form)	same-graph	100	g	
+ingredient_information_food_snack_002	1	defining ingredient	Other	standardised puffed grain (information form)	same-graph	100	g	
+ingredient_information_food_snack_003	1	defining ingredient	Other	standardised roasted seed snack (information form)	same-graph	100	g	
+ingredient_industrialised_food_ration_001	1	defining ingredient	Other	standardised compressed field ration (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_ration_002	1	defining ingredient	Other	standardised hardtack ration (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_ration_003	1	defining ingredient	Other	standardised meat-and-biscuit ration (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_ration_004	1	defining ingredient	Other	standardised emergency glucose ration (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_ration_005	1	defining ingredient	Other	standardised dried soup ration (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_ration_006	1	defining ingredient	Other	standardised concentrated travel ration (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_ration_007	1	defining ingredient	Other	standardised lifeboat ration (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_ration_008	1	defining ingredient	Other	standardised hospital convalescent ration (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_ration_009	1	defining ingredient	Other	standardised school meal ration (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_ration_010	1	defining ingredient	Other	standardised expedition ration (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_ration_011	1	defining ingredient	Other	institutional compressed field ration (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_ration_012	1	defining ingredient	Other	institutional hardtack ration (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_ration_001	1	defining ingredient	Other	standardised compressed field ration (industrial form)	same-graph	100	g	
+ingredient_industrial_food_ration_002	1	defining ingredient	Other	standardised hardtack ration (industrial form)	same-graph	100	g	
+ingredient_industrial_food_ration_003	1	defining ingredient	Other	standardised meat-and-biscuit ration (industrial form)	same-graph	100	g	
+ingredient_modern_food_ration_001	1	defining ingredient	Other	standardised compressed field ration (modern form)	same-graph	100	g	
+ingredient_modern_food_ration_002	1	defining ingredient	Other	standardised hardtack ration (modern form)	same-graph	100	g	
+ingredient_modern_food_ration_003	1	defining ingredient	Other	standardised meat-and-biscuit ration (modern form)	same-graph	100	g	
+ingredient_modern_food_ration_004	1	defining ingredient	Other	standardised emergency glucose ration (modern form)	same-graph	100	g	
+ingredient_nuclear_food_ration_001	1	defining ingredient	Other	standardised compressed field ration (nuclear form)	same-graph	100	g	
+ingredient_nuclear_food_ration_002	1	defining ingredient	Other	standardised hardtack ration (nuclear form)	same-graph	100	g	
+ingredient_information_food_ration_001	1	defining ingredient	Other	standardised compressed field ration (information form)	same-graph	100	g	
+ingredient_information_food_ration_002	1	defining ingredient	Other	standardised hardtack ration (information form)	same-graph	100	g	
+ingredient_information_food_ration_003	1	defining ingredient	Other	standardised meat-and-biscuit ration (information form)	same-graph	100	g	
+ingredient_industrialised_food_infant_dietetic_001	1	defining ingredient	Other	standardised infant cereal (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_infant_dietetic_002	1	defining ingredient	Other	standardised malted milk food (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_infant_dietetic_003	1	defining ingredient	Other	standardised strained vegetable food (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_infant_dietetic_004	1	defining ingredient	Other	standardised strained fruit food (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_infant_dietetic_005	1	defining ingredient	Other	standardised soft protein food (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_infant_dietetic_006	1	defining ingredient	Other	standardised low-residue meal (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_infant_dietetic_007	1	defining ingredient	Other	standardised fortified gruel (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_infant_dietetic_008	1	defining ingredient	Other	standardised oral rehydration food (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_infant_dietetic_001	1	defining ingredient	Other	standardised infant cereal (industrial form)	same-graph	100	g	
+ingredient_modern_food_infant_dietetic_001	1	defining ingredient	Other	standardised infant cereal (modern form)	same-graph	100	g	
+ingredient_modern_food_infant_dietetic_002	1	defining ingredient	Other	standardised malted milk food (modern form)	same-graph	100	g	
+ingredient_modern_food_infant_dietetic_003	1	defining ingredient	Other	standardised strained vegetable food (modern form)	same-graph	100	g	
+ingredient_nuclear_food_infant_dietetic_001	1	defining ingredient	Other	standardised infant cereal (nuclear form)	same-graph	100	g	
+ingredient_nuclear_food_infant_dietetic_002	1	defining ingredient	Other	standardised malted milk food (nuclear form)	same-graph	100	g	
+ingredient_information_food_infant_dietetic_001	1	defining ingredient	Other	standardised infant cereal (information form)	same-graph	100	g	
+ingredient_information_food_infant_dietetic_002	1	defining ingredient	Other	standardised malted milk food (information form)	same-graph	100	g	
+ingredient_information_food_infant_dietetic_003	1	defining ingredient	Other	standardised strained vegetable food (information form)	same-graph	100	g	
+ingredient_industrialised_food_animal_feed_001	1	defining ingredient	Other	standardised dairy cattle meal (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_animal_feed_002	1	defining ingredient	Other	standardised poultry layer mash (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_animal_feed_003	1	defining ingredient	Other	standardised poultry grower mash (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_animal_feed_004	1	defining ingredient	Other	standardised working horse cubes (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_animal_feed_005	1	defining ingredient	Other	standardised pig finishing meal (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_animal_feed_006	1	defining ingredient	Other	standardised calf milk replacer (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_animal_feed_007	1	defining ingredient	Other	standardised companion dog meal (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_animal_feed_008	1	defining ingredient	Other	standardised companion cat meal (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_animal_feed_001	1	defining ingredient	Other	standardised dairy cattle meal (industrial form)	same-graph	100	g	
+ingredient_industrial_food_animal_feed_002	1	defining ingredient	Other	standardised poultry layer mash (industrial form)	same-graph	100	g	
+ingredient_modern_food_animal_feed_001	1	defining ingredient	Other	standardised dairy cattle meal (modern form)	same-graph	100	g	
+ingredient_modern_food_animal_feed_002	1	defining ingredient	Other	standardised poultry layer mash (modern form)	same-graph	100	g	
+ingredient_nuclear_food_animal_feed_001	1	defining ingredient	Other	standardised dairy cattle meal (nuclear form)	same-graph	100	g	
+ingredient_information_food_animal_feed_001	1	defining ingredient	Other	standardised dairy cattle meal (information form)	same-graph	100	g	
+ingredient_information_food_animal_feed_002	1	defining ingredient	Other	standardised poultry layer mash (information form)	same-graph	100	g	
+ingredient_industrialised_food_non_alcoholic_001	1	defining ingredient	Other	standardised carbonated mineral water (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_non_alcoholic_002	1	defining ingredient	Other	standardised fruit cordial (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_non_alcoholic_003	1	defining ingredient	Other	standardised pasteurised fruit juice (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_non_alcoholic_004	1	defining ingredient	Other	standardised malted milk drink (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_non_alcoholic_005	1	defining ingredient	Other	standardised lemonade (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_non_alcoholic_006	1	defining ingredient	Other	standardised ginger beer (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_non_alcoholic_007	1	defining ingredient	Other	standardised cola-style tonic (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_non_alcoholic_008	1	defining ingredient	Other	standardised vegetable juice (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_non_alcoholic_009	1	defining ingredient	Other	standardised electrolyte drink (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_non_alcoholic_010	1	defining ingredient	Other	standardised flavoured milk (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_non_alcoholic_011	1	defining ingredient	Other	institutional carbonated mineral water (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_non_alcoholic_012	1	defining ingredient	Other	institutional fruit cordial (industrialised form)	same-graph	250	ml	
+ingredient_industrial_food_non_alcoholic_001	1	defining ingredient	Other	standardised carbonated mineral water (industrial form)	same-graph	250	ml	
+ingredient_industrial_food_non_alcoholic_002	1	defining ingredient	Other	standardised fruit cordial (industrial form)	same-graph	250	ml	
+ingredient_modern_food_non_alcoholic_001	1	defining ingredient	Other	standardised carbonated mineral water (modern form)	same-graph	250	ml	
+ingredient_modern_food_non_alcoholic_002	1	defining ingredient	Other	standardised fruit cordial (modern form)	same-graph	250	ml	
+ingredient_modern_food_non_alcoholic_003	1	defining ingredient	Other	standardised pasteurised fruit juice (modern form)	same-graph	250	ml	
+ingredient_modern_food_non_alcoholic_004	1	defining ingredient	Other	standardised malted milk drink (modern form)	same-graph	250	ml	
+ingredient_nuclear_food_non_alcoholic_001	1	defining ingredient	Other	standardised carbonated mineral water (nuclear form)	same-graph	250	ml	
+ingredient_nuclear_food_non_alcoholic_002	1	defining ingredient	Other	standardised fruit cordial (nuclear form)	same-graph	250	ml	
+ingredient_information_food_non_alcoholic_001	1	defining ingredient	Other	standardised carbonated mineral water (information form)	same-graph	250	ml	
+ingredient_information_food_non_alcoholic_002	1	defining ingredient	Other	standardised fruit cordial (information form)	same-graph	250	ml	
+ingredient_information_food_non_alcoholic_003	1	defining ingredient	Other	standardised pasteurised fruit juice (information form)	same-graph	250	ml	
+ingredient_industrialised_food_stimulant_001	1	defining ingredient	Other	standardised black tea infusion (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_stimulant_002	1	defining ingredient	Other	standardised green tea infusion (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_stimulant_003	1	defining ingredient	Other	standardised roasted coffee infusion (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_stimulant_004	1	defining ingredient	Other	standardised cocoa beverage (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_stimulant_005	1	defining ingredient	Other	standardised maté infusion (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_stimulant_006	1	defining ingredient	Other	standardised chicory coffee (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_stimulant_007	1	defining ingredient	Other	standardised instant coffee (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_stimulant_008	1	defining ingredient	Other	standardised milk tea (industrialised form)	same-graph	250	ml	
+ingredient_industrial_food_stimulant_001	1	defining ingredient	Other	standardised black tea infusion (industrial form)	same-graph	250	ml	
+ingredient_modern_food_stimulant_001	1	defining ingredient	Other	standardised black tea infusion (modern form)	same-graph	250	ml	
+ingredient_modern_food_stimulant_002	1	defining ingredient	Other	standardised green tea infusion (modern form)	same-graph	250	ml	
+ingredient_modern_food_stimulant_003	1	defining ingredient	Other	standardised roasted coffee infusion (modern form)	same-graph	250	ml	
+ingredient_nuclear_food_stimulant_001	1	defining ingredient	Other	standardised black tea infusion (nuclear form)	same-graph	250	ml	
+ingredient_information_food_stimulant_001	1	defining ingredient	Other	standardised black tea infusion (information form)	same-graph	250	ml	
+ingredient_information_food_stimulant_002	1	defining ingredient	Other	standardised green tea infusion (information form)	same-graph	250	ml	
+ingredient_industrialised_food_alcohol_001	1	defining ingredient	Other	standardised pale lager (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_alcohol_002	1	defining ingredient	Other	standardised dark lager (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_alcohol_003	1	defining ingredient	Other	standardised bottled ale (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_alcohol_004	1	defining ingredient	Other	standardised fortified wine (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_alcohol_005	1	defining ingredient	Other	standardised sparkling wine (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_alcohol_006	1	defining ingredient	Other	standardised distilled grain spirit (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_alcohol_007	1	defining ingredient	Other	standardised cane spirit (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_alcohol_008	1	defining ingredient	Other	standardised fruit liqueur (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_alcohol_009	1	defining ingredient	Other	standardised rice beer (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_alcohol_010	1	defining ingredient	Other	standardised cider (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_alcohol_011	1	defining ingredient	Other	institutional pale lager (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_alcohol_012	1	defining ingredient	Other	institutional dark lager (industrialised form)	same-graph	250	ml	
+ingredient_industrial_food_alcohol_001	1	defining ingredient	Other	standardised pale lager (industrial form)	same-graph	250	ml	
+ingredient_industrial_food_alcohol_002	1	defining ingredient	Other	standardised dark lager (industrial form)	same-graph	250	ml	
+ingredient_modern_food_alcohol_001	1	defining ingredient	Other	standardised pale lager (modern form)	same-graph	250	ml	
+ingredient_modern_food_alcohol_002	1	defining ingredient	Other	standardised dark lager (modern form)	same-graph	250	ml	
+ingredient_modern_food_alcohol_003	1	defining ingredient	Other	standardised bottled ale (modern form)	same-graph	250	ml	
+ingredient_modern_food_alcohol_004	1	defining ingredient	Other	standardised fortified wine (modern form)	same-graph	250	ml	
+ingredient_nuclear_food_alcohol_001	1	defining ingredient	Other	standardised pale lager (nuclear form)	same-graph	250	ml	
+ingredient_information_food_alcohol_001	1	defining ingredient	Other	standardised pale lager (information form)	same-graph	250	ml	
+ingredient_information_food_alcohol_002	1	defining ingredient	Other	standardised dark lager (information form)	same-graph	250	ml	
+ingredient_industrialised_food_beverage_intermediate_001	1	defining ingredient	Other	standardised coffee concentrate (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_beverage_intermediate_002	1	defining ingredient	Other	standardised tea concentrate (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_beverage_intermediate_003	1	defining ingredient	Other	standardised fruit syrup (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_beverage_intermediate_004	1	defining ingredient	Other	standardised malted drink extract (industrialised form)	same-graph	250	ml	
+ingredient_industrialised_food_beverage_intermediate_005	1	defining ingredient	Other	standardised instant drink powder (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_beverage_intermediate_006	1	defining ingredient	Other	standardised cocoa drink powder (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_beverage_intermediate_007	1	defining ingredient	Other	standardised carbonation syrup (industrialised form)	same-graph	100	g	
+ingredient_industrialised_food_beverage_intermediate_008	1	defining ingredient	Other	standardised dried tea leaves (industrialised form)	same-graph	100	g	
+ingredient_industrial_food_beverage_intermediate_001	1	defining ingredient	Other	standardised coffee concentrate (industrial form)	same-graph	250	ml	
+ingredient_modern_food_beverage_intermediate_001	1	defining ingredient	Other	standardised coffee concentrate (modern form)	same-graph	250	ml	
+ingredient_modern_food_beverage_intermediate_002	1	defining ingredient	Other	standardised tea concentrate (modern form)	same-graph	100	g	
+ingredient_nuclear_food_beverage_intermediate_001	1	defining ingredient	Other	standardised coffee concentrate (nuclear form)	same-graph	250	ml	
+ingredient_information_food_beverage_intermediate_001	1	defining ingredient	Other	standardised coffee concentrate (information form)	same-graph	250	ml	

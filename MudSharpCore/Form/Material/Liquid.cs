@@ -5,6 +5,7 @@ using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Models;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp.Form.Material;
 
@@ -21,6 +22,10 @@ public class Liquid : Fluid, ILiquid
     private long? _solventId;
     private long? _gasFormId;
     private IGas _gasForm;
+    private long? _staleLiquidId;
+    private long? _spoiledLiquidId;
+    private ILiquid _staleLiquid;
+    private ILiquid _spoiledLiquid;
     private readonly List<ILiquidSurfaceReaction> _surfaceReactions = new();
 
     public ILiquid Clone(string newName)
@@ -34,6 +39,10 @@ public class Liquid : Fluid, ILiquid
         _driedResidueId = rhs._driedResidueId;
         _solventId = rhs._solventId;
         _gasFormId = rhs._gasFormId;
+        _staleLiquidId = rhs._staleLiquidId;
+        _spoiledLiquidId = rhs._spoiledLiquidId;
+        StaleAfter = rhs.StaleAfter;
+        SpoilAfter = rhs.SpoilAfter;
         TasteIntensity = rhs.TasteIntensity;
         TasteText = rhs.TasteText;
         VagueTasteText = rhs.VagueTasteText;
@@ -100,7 +109,11 @@ public class Liquid : Fluid, ILiquid
                 ResidueVolumePercentage = ResidueVolumePercentage,
                 RelativeEnthalpy = RelativeEnthalpy,
                 GasFormId = _gasFormId,
-                SurfaceReactionInfo = SaveSurfaceReactions()
+                SurfaceReactionInfo = SaveSurfaceReactions(),
+                StaleAfterSeconds = StaleAfter?.TotalSeconds,
+                SpoilAfterSeconds = SpoilAfter?.TotalSeconds,
+                StaleLiquidId = _staleLiquidId,
+                SpoiledLiquidId = _spoiledLiquidId
             };
             FMDB.Context.Liquids.Add(dbitem);
             foreach (ITag tag in Tags)
@@ -179,7 +192,11 @@ public class Liquid : Fluid, ILiquid
                 ResidueVolumePercentage = ResidueVolumePercentage,
                 RelativeEnthalpy = RelativeEnthalpy,
                 GasFormId = _gasFormId,
-                SurfaceReactionInfo = SaveSurfaceReactions()
+                SurfaceReactionInfo = SaveSurfaceReactions(),
+                StaleAfterSeconds = StaleAfter?.TotalSeconds,
+                SpoilAfterSeconds = SpoilAfter?.TotalSeconds,
+                StaleLiquidId = _staleLiquidId,
+                SpoiledLiquidId = _spoiledLiquidId
             };
             FMDB.Context.Liquids.Add(dbitem);
             FMDB.Context.SaveChanges();
@@ -222,6 +239,10 @@ public class Liquid : Fluid, ILiquid
         ResidueVolumePercentage = liquid.ResidueVolumePercentage;
         RelativeEnthalpy = liquid.RelativeEnthalpy;
         _gasFormId = liquid.GasFormId;
+        StaleAfter = liquid.StaleAfterSeconds is { } stale ? TimeSpan.FromSeconds(stale) : null;
+        SpoilAfter = liquid.SpoilAfterSeconds is { } spoil ? TimeSpan.FromSeconds(spoil) : null;
+        _staleLiquidId = liquid.StaleLiquidId;
+        _spoiledLiquidId = liquid.SpoiledLiquidId;
         LoadSurfaceReactions(liquid.SurfaceReactionInfo);
 
         if (liquid.DraughtProgId.HasValue)
@@ -270,6 +291,40 @@ public class Liquid : Fluid, ILiquid
     public double FoodSatiatedHoursPerLitre { get; set; }
 
     public double DrinkSatiatedHoursPerLitre { get; set; }
+
+    public TimeSpan? StaleAfter { get; private set; }
+    public TimeSpan? SpoilAfter { get; private set; }
+
+    public ILiquid StaleLiquid
+    {
+        get
+        {
+            if (_staleLiquid is null && _staleLiquidId is not null)
+            {
+                _staleLiquid = Gameworld.Liquids.Get(_staleLiquidId.Value);
+            }
+
+            return _staleLiquid;
+        }
+    }
+
+    public ILiquid SpoiledLiquid
+    {
+        get
+        {
+            if (_spoiledLiquid is null && _spoiledLiquidId is not null)
+            {
+                _spoiledLiquid = Gameworld.Liquids.Get(_spoiledLiquidId.Value);
+            }
+
+            return _spoiledLiquid;
+        }
+    }
+
+    public LiquidFreshnessConfiguration FreshnessConfiguration =>
+        StaleAfter is { } stale && SpoilAfter is { } spoil && StaleLiquid is not null && SpoiledLiquid is not null
+            ? new LiquidFreshnessConfiguration(stale, spoil, StaleLiquid, SpoiledLiquid)
+            : null;
 
     public ISolid DriedResidue
     {
@@ -628,6 +683,9 @@ public class Liquid : Fluid, ILiquid
             $"Counts As: {(CountsAsLiquid != null ? $"{CountsAsLiquid.Name.Colour(CountsAsLiquid.DisplayColour)} @ max quality {CountsAsQuality.Describe().Colour(Telnet.Green)}" : "None".Colour(Telnet.Red))}");
         sb.AppendLine(
             $"Drug: {(Drug is not null ? $"{Drug.Name.ColourValue()} @ {DrugGramsPerUnitVolume.ToString("N3", actor).ColourValue()}g/L" : "None".Colour(Telnet.Red))}");
+        sb.AppendLine(FreshnessConfiguration is { } freshness
+            ? $"Freshness: stale after {freshness.StaleAfter.Describe(actor).ColourValue()}, spoiled after {freshness.SpoilAfter.Describe(actor).ColourValue()}; results {freshness.StaleLiquid.Name.ColourName()} / {freshness.SpoiledLiquid.Name.ColourName()}"
+            : $"Freshness: {"Not Perishable".Colour(Telnet.Red)}");
 
         sb.AppendLine();
         sb.AppendLine($"Damp SDesc: {DampShortDescription.Colour(DisplayColour)}");
@@ -713,7 +771,10 @@ public class Liquid : Fluid, ILiquid
 	#3reaction <#> delete#0 - deletes a surface reaction
 	#3reaction <#> tag <tag>#0 - toggles a target tag for a surface reaction
 	#3reaction <#> type <damage type>#0 - sets a surface reaction's damage type
-	#3reaction <#> damage|pain|stun <amount per litre>#0 - sets a surface reaction amount";
+	#3reaction <#> damage|pain|stun <amount per litre>#0 - sets a surface reaction amount
+	#3freshness <stale duration> <spoiled duration> <stale liquid> <spoiled liquid>#0 - sets perishable-liquid stages
+	#3freshness none#0 - clears perishable-liquid stages";
+
 
     /// <inheritdoc />
     public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -792,12 +853,82 @@ public class Liquid : Fluid, ILiquid
                 return BuildingCommandSdesc(actor, command);
             case "descadd":
                 return BuildingCommandDescAdd(actor, command);
-			case "reaction":
-			case "surfacereaction":
+            case "reaction":
+            case "surfacereaction":
 				return BuildingCommandSurfaceReaction(actor, command);
+            case "freshness":
+                return BuildingCommandFreshness(actor, command);
         }
 
         return base.BuildingCommand(actor, command.GetUndo());
+    }
+
+    private bool BuildingCommandFreshness(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Use #3freshness none#0 or #3freshness <stale duration> <spoiled duration> <stale liquid> <spoiled liquid>#0. Quote durations or liquid names containing spaces.".SubstituteANSIColour());
+            return false;
+        }
+
+        var staleText = command.PopSpeech();
+        if (staleText.EqualTo("none"))
+        {
+            StaleAfter = null;
+            SpoilAfter = null;
+            _staleLiquid = null;
+            _spoiledLiquid = null;
+            _staleLiquidId = null;
+            _spoiledLiquidId = null;
+            Changed = true;
+            actor.OutputHandler.Send($"{Name.ColourName()} is no longer configured as a perishable liquid.");
+            return true;
+        }
+
+        if (!MudTimeSpan.TryParse(staleText, actor, out var staleMud) || (TimeSpan)staleMud <= TimeSpan.Zero ||
+            command.IsFinished)
+        {
+            actor.OutputHandler.Send("The stale threshold must be a positive duration, followed by the other freshness arguments.");
+            return false;
+        }
+
+        var spoilText = command.PopSpeech();
+        if (!MudTimeSpan.TryParse(spoilText, actor, out var spoilMud) || (TimeSpan)spoilMud <= (TimeSpan)staleMud ||
+            command.IsFinished)
+        {
+            actor.OutputHandler.Send("The spoiled threshold must be a duration longer than the stale threshold, followed by both result liquids.");
+            return false;
+        }
+
+        var staleLiquid = Gameworld.Liquids.GetByIdOrName(command.PopSpeech());
+        var spoiledLiquid = command.IsFinished ? null : Gameworld.Liquids.GetByIdOrName(command.PopSpeech());
+        if (!command.IsFinished || staleLiquid is null || spoiledLiquid is null)
+        {
+            actor.OutputHandler.Send("Specify exactly two valid result liquids after the freshness durations.");
+            return false;
+        }
+
+        if (staleLiquid == this || spoiledLiquid == this || staleLiquid == spoiledLiquid)
+        {
+            actor.OutputHandler.Send("The stale and spoiled results must be distinct liquids and cannot be the source liquid.");
+            return false;
+        }
+
+        if (staleLiquid.FreshnessConfiguration is not null || spoiledLiquid.FreshnessConfiguration is not null)
+        {
+            actor.OutputHandler.Send("Freshness result liquids must be terminal and cannot have their own freshness configuration.");
+            return false;
+        }
+
+        StaleAfter = (TimeSpan)staleMud;
+        SpoilAfter = (TimeSpan)spoilMud;
+        _staleLiquid = staleLiquid;
+        _spoiledLiquid = spoiledLiquid;
+        _staleLiquidId = staleLiquid.Id;
+        _spoiledLiquidId = spoiledLiquid.Id;
+        Changed = true;
+        actor.OutputHandler.Send($"{Name.ColourName()} will become {staleLiquid.Name.ColourName()} after {StaleAfter.Value.Describe(actor).ColourValue()} and {spoiledLiquid.Name.ColourName()} after {SpoilAfter.Value.Describe(actor).ColourValue()}.");
+        return true;
     }
 
 	private bool BuildingCommandSurfaceReaction(ICharacter actor, StringStack command)
@@ -1546,6 +1677,10 @@ public class Liquid : Fluid, ILiquid
         dbitem.InjectionConsequence = (int)InjectionConsequence;
         dbitem.GasFormId = _gasFormId;
         dbitem.SurfaceReactionInfo = SaveSurfaceReactions();
+        dbitem.StaleAfterSeconds = StaleAfter?.TotalSeconds;
+        dbitem.SpoilAfterSeconds = SpoilAfter?.TotalSeconds;
+        dbitem.StaleLiquidId = _staleLiquidId;
+        dbitem.SpoiledLiquidId = _spoiledLiquidId;
         FMDB.Context.LiquidsTags.RemoveRange(dbitem.LiquidsTags);
         foreach (ITag tag in Tags)
         {

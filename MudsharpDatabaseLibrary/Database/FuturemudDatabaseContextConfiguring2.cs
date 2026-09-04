@@ -4802,6 +4802,12 @@ namespace MudSharp.Database
                 entity.HasIndex(e => e.SolventId)
                     .HasDatabaseName("FK_Liquids_Liquids_idx");
 
+                entity.HasIndex(e => e.StaleLiquidId)
+                    .HasDatabaseName("FK_Liquids_StaleLiquid_idx");
+
+                entity.HasIndex(e => e.SpoiledLiquidId)
+                    .HasDatabaseName("FK_Liquids_SpoiledLiquid_idx");
+
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.BoilingPoint).HasDefaultValueSql("'373.15'");
@@ -4886,6 +4892,10 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.SolventId).HasColumnType("bigint(20)");
 
+                entity.Property(e => e.StaleLiquidId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.SpoiledLiquidId).HasColumnType("bigint(20)");
+
                 entity.Property(e => e.SolventVolumeRatio).HasDefaultValueSql("'1'");
 
                 entity.Property(e => e.SpecificHeatCapacity).HasDefaultValueSql("'4181'");
@@ -4957,6 +4967,18 @@ namespace MudSharp.Database
                     .HasForeignKey(d => d.SolventId)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK_Liquids_Liquids");
+
+                entity.HasOne(d => d.StaleLiquid)
+                    .WithMany(p => p.InverseStaleLiquid)
+                    .HasForeignKey(d => d.StaleLiquidId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("FK_Liquids_StaleLiquid");
+
+                entity.HasOne(d => d.SpoiledLiquid)
+                    .WithMany(p => p.InverseSpoiledLiquid)
+                    .HasForeignKey(d => d.SpoiledLiquidId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("FK_Liquids_SpoiledLiquid");
             });
 
             modelBuilder.Entity<LiquidsTags>(entity =>

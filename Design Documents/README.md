@@ -88,6 +88,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Pre-Industrial Shared Item Seeder Design Reference](./Seeding/PreIndustrial_Item_Seeder_Design_Reference.md)
 - [Pre-Industrial Item Seeder Alias Catalogue](./Seeding/PreIndustrial_Item_Seeder_Alias_Catalogue.md)
 - [Pre-Industrial Food Catalogue Design Reference](./Seeding/PreIndustrial_Food_Catalogue_Design_Reference.md)
+- [Industrialised Food and Drink Design Reference](./Seeding/FutureMUD_Industrialised_Food_Drink_Design_Reference.md)
 - [Pre-Industrial Jewellery and Doors](./Seeding/FutureMUD_PreIndustrial_Jewellery_Doors_Design_Reference.md)
 - [Renaissance Jewellery and Devotional Goods](./Seeding/FutureMUD_Renaissance_Jewellery_Devotional_Seeder_Design_Reference.md)
 - [Renaissance Doors, Locks, and Gates](./Seeding/FutureMUD_Renaissance_Doors_Locks_Gates_Seeder_Design_Reference.md)
@@ -184,6 +185,9 @@ This folder is organised by subsystem so implementation notes, builder workflows
   - [Wave 2 infrastructure and Gate 2 evidence](./Seeding/Industrialised_Clothing_Wave2_Infrastructure_and_Gate2.md) — in progress; includes stock-anatomy ensemble checks, new-base/skin/outfit/craft/access-prog ownership and first-install generated IDs; preserved outfit/recipe graphs, wearer, stock craft capabilities and database proof remain open
   - [Clothing source-graph audit](./Seeding/Industrialised_Clothing_Catalogue_Audit.tsv) — derived row-level evidence; structural checks are not database or production acceptance
   - [Full clothing dependency plan](./Seeding/Industrialised_Clothing_Dependency_Plan.tsv) — all 364 approved bases, exact stock-name gaps and outfit consumers; physical verification remains open
+- [Industrialised Food and Drink Design Reference](./Seeding/FutureMUD_Industrialised_Food_Drink_Design_Reference.md)
+  - [Gate 1 evidence and approved scope](./Seeding/Industrialised_Food_Wave1_Evidence_and_Coverage.md) — approved 4 September 2026 against recorded source fingerprints
+  - [Gate 2 dependency audit](./Seeding/Industrialised_Food_Dependency_Audit.tsv) — 464 concepts and 307 adopted dependencies; automated graph proof awaiting editorial acceptance
 - [Industrial Era Master Design Reference](./Seeding/FutureMUD_Industrial_Item_Seeder_Master_Era_Design_Reference.md)
 - [Modern Era Master Design Reference](./Seeding/FutureMUD_Modern_Item_Seeder_Master_Era_Design_Reference.md)
 - [Nuclear Era Master Design Reference](./Seeding/FutureMUD_Nuclear_Item_Seeder_Master_Era_Design_Reference.md)

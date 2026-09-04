@@ -79,8 +79,9 @@ namespace MudSharp.Form.Material
 
         public override LiquidInstance SplitVolume(double volume)
         {
+            var result = new BloodLiquidInstance(this) { Amount = volume };
             Amount -= volume;
-            return new BloodLiquidInstance(Source, Race, BloodType, Liquid, Gameworld, volume);
+            return result;
         }
 
         #region Overrides of LiquidInstance

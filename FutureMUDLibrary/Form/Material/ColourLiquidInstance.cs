@@ -19,11 +19,9 @@ namespace MudSharp.Form.Material
             Amount = amount;
         }
 
-        public ColourLiquidInstance(ColourLiquidInstance rhs)
+        public ColourLiquidInstance(ColourLiquidInstance rhs) : base(rhs)
         {
-            Liquid = rhs.Liquid;
             Colour = rhs.Colour;
-            Amount = rhs.Amount;
         }
 
         public ColourLiquidInstance(XElement root, IFuturemud gameworld) : base(root, gameworld)
@@ -38,8 +36,9 @@ namespace MudSharp.Form.Material
 
         public override LiquidInstance SplitVolume(double volume)
         {
+            var result = new ColourLiquidInstance(this) { Amount = volume };
             Amount -= volume;
-            return new ColourLiquidInstance(Liquid, Colour, volume);
+            return result;
         }
 
         public override LiquidInstance Copy()

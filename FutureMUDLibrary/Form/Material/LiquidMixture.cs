@@ -35,6 +35,21 @@ namespace MudSharp.Form.Material
                 );
         }
 
+        /// <summary>
+        /// Resolves every constituent independently. Returns true when persisted freshness state changed.
+        /// </summary>
+        public bool ResolveFreshness(DateTime utcNow, double rateMultiplier)
+        {
+            var changed = _instances.Aggregate(false,
+                (current, instance) => instance.ResolveFreshness(utcNow, rateMultiplier) || current);
+            if (changed)
+            {
+                ContentsUpdated();
+            }
+
+            return changed;
+        }
+
         public IFuturemud Gameworld { get; }
 
         public LiquidMixture(IEnumerable<LiquidInstance> instances, IFuturemud gameworld)
@@ -217,7 +232,7 @@ namespace MudSharp.Form.Material
                     case BloodLiquidInstance bi:
                         matching =
                             Instances.OfType<BloodLiquidInstance>().First(x =>
-                                x.Liquid == instance.Liquid &&
+								x.OriginLiquid == instance.OriginLiquid &&
                                 (bi.Race == null || bi.Race == x.Race) &&
                                 (bi.BloodType == null || bi.BloodType == x.BloodType) &&
                                 (bi.SourceId == 0 || bi.SourceId == x.SourceId) &&
@@ -227,13 +242,13 @@ namespace MudSharp.Form.Material
                     case ColourLiquidInstance co:
                         matching = Instances.OfType<ColourLiquidInstance>()
                             .First(x =>
-                                x.Liquid == instance.Liquid &&
+								x.OriginLiquid == instance.OriginLiquid &&
                                 x.Colour == co.Colour &&
                                 x.Amount >= instance.Amount);
 
                         break;
                     default:
-                        matching = Instances.First(x => x.Liquid == instance.Liquid && x.Amount >= instance.Amount);
+						matching = Instances.First(x => x.OriginLiquid == instance.OriginLiquid && x.Amount >= instance.Amount);
                         break;
                 }
 
@@ -260,7 +275,7 @@ namespace MudSharp.Form.Material
                 {
                     case BloodLiquidInstance bi:
                         if (!Instances.OfType<BloodLiquidInstance>().Any(x =>
-                            x.Liquid == instance.Liquid &&
+							x.OriginLiquid == instance.OriginLiquid &&
                             (bi.Race == null || bi.Race == x.Race) &&
                             (bi.BloodType == null || bi.BloodType == x.BloodType) &&
                             (bi.SourceId == 0 || bi.SourceId == x.SourceId) &&
@@ -273,7 +288,7 @@ namespace MudSharp.Form.Material
                     case ColourLiquidInstance co:
                         if (!Instances.OfType<ColourLiquidInstance>()
                             .Any(x =>
-                                x.Liquid == instance.Liquid &&
+								x.OriginLiquid == instance.OriginLiquid &&
                                 x.Colour == co.Colour &&
                                 x.Amount >= instance.Amount))
                         {
@@ -282,7 +297,7 @@ namespace MudSharp.Form.Material
 
                         break;
                     default:
-                        if (!Instances.Any(x => x.Liquid == instance.Liquid && x.Amount >= instance.Amount))
+						if (!Instances.Any(x => x.OriginLiquid == instance.OriginLiquid && x.Amount >= instance.Amount))
                         {
                             return false;
                         }

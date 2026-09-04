@@ -84,7 +84,8 @@ public class RefrigeratorGameItemComponent : ContainerGameItemComponent, IConsum
 
 	public double? RateMultiplierFor(ItemTimeRateType type)
 	{
-		if (type is not (ItemTimeRateType.PreparedFoodFreshness or ItemTimeRateType.BiologicalDecay or ItemTimeRateType.Morph))
+		if (type is not (ItemTimeRateType.PreparedFoodFreshness or ItemTimeRateType.BiologicalDecay or
+		    ItemTimeRateType.Morph or ItemTimeRateType.LiquidFreshness))
 		{
 			return null;
 		}

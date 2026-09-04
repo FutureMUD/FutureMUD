@@ -99,6 +99,7 @@ internal sealed record IndustrialisedItemCatalogueDocument(
 	IReadOnlyList<IndustrialisedPriceEvidenceRow> PriceEvidence)
 {
 	public required IndustrialisedClothingCatalogueDocument Clothing { get; init; }
+	public IndustrialisedFoodCatalogueDocument? Food { get; init; }
 }
 
 internal static class IndustrialisedItemCatalogue
@@ -151,6 +152,7 @@ internal static class IndustrialisedItemCatalogue
 				return new IndustrialisedCatalogueSource(relativeName
 					.Replace("Items.", "Items/", StringComparison.Ordinal)
 					.Replace("Clothing.", "Clothing/", StringComparison.Ordinal)
+					.Replace("Food.", "Food/", StringComparison.Ordinal)
 					.Replace("Pricing.", "Pricing/", StringComparison.Ordinal), reader.ReadToEnd());
 			}));
 	}
@@ -175,8 +177,12 @@ internal static class IndustrialisedItemCatalogue
 		var itemSources = sources.Where(x => x.Name.StartsWith("Items/", StringComparison.Ordinal) &&
 			x.Name.EndsWith(".items.tsv", StringComparison.Ordinal)).ToArray();
 		var clothingSources = sources.Where(x => x.Name.StartsWith("Clothing/", StringComparison.Ordinal)).ToArray();
+		var foodSources = sources.Where(x => x.Name.StartsWith("Food/", StringComparison.Ordinal)).ToArray();
 		var clothing = IndustrialisedClothingCatalogue.Load(clothingSources);
-		var unexpected = sources.Except(itemSources).Except(clothingSources).Where(x => !singletonNames.Contains(x.Name, StringComparer.Ordinal)).ToArray();
+		var food = foodSources.Length == 0
+			? null
+			: IndustrialisedFoodCatalogue.Load(foodSources.Select(x => x with { Name = x.Name["Food/".Length..] }));
+		var unexpected = sources.Except(itemSources).Except(clothingSources).Except(foodSources).Where(x => !singletonNames.Contains(x.Name, StringComparer.Ordinal)).ToArray();
 		if (unexpected.Length > 0 || itemSources.Length == 0)
 		{
 			throw new InvalidDataException($"Missing item sources or unrecognised catalogue sources: {string.Join(", ", unexpected.Select(x => x.Name))}.");
@@ -189,7 +195,7 @@ internal static class IndustrialisedItemCatalogue
 		var prices = sources.Single(x => x.Name == "Pricing/historical-price-evidence.tsv").Read(PriceHeaders, ParsePrice).ToArray();
 		Validate(items, crafts, outfits, technology, prices);
 		return new IndustrialisedItemCatalogueDocument(Array.AsReadOnly(items), Array.AsReadOnly(crafts),
-			Array.AsReadOnly(outfits), Array.AsReadOnly(technology), Array.AsReadOnly(prices)) { Clothing = clothing };
+			Array.AsReadOnly(outfits), Array.AsReadOnly(technology), Array.AsReadOnly(prices)) { Clothing = clothing, Food = food };
 	}
 
 	private static IndustrialisedItemCatalogueRow ParseItem(string source, int line, string[] x)

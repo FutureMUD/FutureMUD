@@ -2914,6 +2914,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 		{
 			component.ResolveTimeRate(now);
 		}
+		foreach (var container in Components.OfType<ILiquidContainer>())
+		{
+			container.ResolveLiquidFreshness(now);
+		}
 
 		ResolveSurfaceLiquidDrying();
 		if (!Prototype.RefrigerationSensitive ||

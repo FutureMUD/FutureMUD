@@ -95,6 +95,10 @@ internal static class IndustrialisedCatalogueAudit
 			[IndustrialisedClothingAudit.RelativePath] = IndustrialisedClothingAudit.Generate(document.Clothing, sourceHash),
 			[IndustrialisedClothingDependencyAudit.RelativePath] = IndustrialisedClothingDependencyAudit.Generate(repositoryRoot)
 		};
+		if (document.Food is not null)
+		{
+			outputs[IndustrialisedFoodDependencyAudit.RelativePath] = IndustrialisedFoodDependencyAudit.Generate(document.Food, sourceHash);
+		}
 		if (check)
 		{
 			var stale = outputs.Where(pair =>

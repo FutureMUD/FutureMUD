@@ -22359,5 +22359,7 @@
     { "Component Name": "Flare_Handheld_Standard", "Component Description": "Turns an item into a bright, finite-duration handheld signal flare", "Component Type": "Flare" },
     { "Component Name": "FlareAmmunition_12_Gauge_Signal", "Component Description": "Turns an item into a 12-gauge aerial signal-flare cartridge", "Component Type": "FlareAmmunition" },
     { "Component Name": "RadioDetonator_Standard", "Component Description": "Turns an item into a powered receiver for a radio detonator transmitter", "Component Type": "RadioDetonator" },
-    { "Component Name": "RadioDetonatorTransmitter_Standard", "Component Description": "Turns an item into a powered short-range radio detonator transmitter", "Component Type": "RadioDetonatorTransmitter" }
+    { "Component Name": "RadioDetonatorTransmitter_Standard", "Component Description": "Turns an item into a powered short-range radio detonator transmitter", "Component Type": "RadioDetonatorTransmitter" },
+    { "Component Name": "Pill_Dietary_Caffeine", "Component Description": "Turns an item into a pill containing Dietary Caffeine.", "Component Type": "Pill" },
+    { "Component Name": "Pill_Food_Borne_Illness", "Component Description": "Turns an item into a pill containing Food-Borne Illness.", "Component Type": "Pill" }
 ]

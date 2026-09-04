@@ -27,6 +27,73 @@ public enum FoodFreshness
 	Spoiled
 }
 
+public enum FoodIngredientCategory
+{
+	Other,
+	Grain,
+	Vegetable,
+	Fruit,
+	Legume,
+	Nut,
+	Seed,
+	Fungus,
+	Dairy,
+	Egg,
+	Meat,
+	Poultry,
+	Offal,
+	Fish,
+	Crustacean,
+	Mollusc,
+	Insect,
+	FatOrOil,
+	Sweetener,
+	HerbOrSpice,
+	Culture
+}
+
+public enum MajorFoodAllergen
+{
+	GlutenCereal,
+	Crustacean,
+	Egg,
+	Fish,
+	Peanut,
+	Soy,
+	Milk,
+	TreeNut,
+	Celery,
+	Mustard,
+	Sesame,
+	Sulphite,
+	Lupin,
+	Mollusc
+}
+
+public enum DietaryContent
+{
+	AnimalFlesh,
+	Fish,
+	Shellfish,
+	Egg,
+	Dairy,
+	Honey,
+	Gelatine,
+	Alcohol,
+	Caffeine
+}
+
+public enum AnimalFeedPurpose
+{
+	LivestockMaintenance,
+	GrowthOrFinishing,
+	Lactation,
+	WorkingAnimal,
+	CompanionAnimal,
+	YoungAnimal,
+	Supplement
+}
+
 public class FoodIngredientInstance
 {
 	public string Role { get; set; } = "ingredient";
@@ -38,10 +105,12 @@ public class FoodIngredientInstance
 	public double Weight { get; set; }
 	public double Volume { get; set; }
 	public ItemQuality Quality { get; set; } = ItemQuality.Standard;
+	public FoodIngredientCategory Category { get; set; } = FoodIngredientCategory.Other;
+	public HashSet<MajorFoodAllergen> Allergens { get; } = new();
 
 	public FoodIngredientInstance Clone()
 	{
-		return new FoodIngredientInstance
+		var clone = new FoodIngredientInstance
 		{
 			Role = Role,
 			Description = Description,
@@ -51,8 +120,11 @@ public class FoodIngredientInstance
 			LiquidId = LiquidId,
 			Weight = Weight,
 			Volume = Volume,
-			Quality = Quality
+			Quality = Quality,
+			Category = Category
 		};
+		clone.Allergens.UnionWith(Allergens);
+		return clone;
 	}
 
 	public XElement SaveToXml()
@@ -65,6 +137,8 @@ public class FoodIngredientInstance
 			new XAttribute("weight", Weight),
 			new XAttribute("volume", Volume),
 			new XAttribute("quality", (int)Quality),
+			new XAttribute("category", Category),
+			new XAttribute("allergens", string.Join(";", Allergens.OrderBy(x => x))),
 			new XElement("Description", new XCData(Description)),
 			new XElement("Taste", new XCData(TasteText))
 		);
@@ -72,7 +146,7 @@ public class FoodIngredientInstance
 
 	public static FoodIngredientInstance LoadFromXml(XElement root)
 	{
-		return new FoodIngredientInstance
+		var ingredient = new FoodIngredientInstance
 		{
 			Role = root.Attribute("role")?.Value ?? "ingredient",
 			SourceItemProtoId = long.Parse(root.Attribute("source")?.Value ?? "0"),
@@ -82,8 +156,19 @@ public class FoodIngredientInstance
 			Volume = double.Parse(root.Attribute("volume")?.Value ?? "0", CultureInfo.InvariantCulture),
 			Quality = (ItemQuality)int.Parse(root.Attribute("quality")?.Value ?? ((int)ItemQuality.Standard).ToString()),
 			Description = root.Element("Description")?.Value ?? string.Empty,
-			TasteText = root.Element("Taste")?.Value ?? string.Empty
+			TasteText = root.Element("Taste")?.Value ?? string.Empty,
+			Category = Enum.TryParse<FoodIngredientCategory>(root.Attribute("category")?.Value, true, out var category)
+				? category
+				: FoodIngredientCategory.Other
 		};
+		foreach (var text in (root.Attribute("allergens")?.Value ?? string.Empty).Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+		{
+			if (Enum.TryParse<MajorFoodAllergen>(text, true, out var allergen))
+			{
+				ingredient.Allergens.Add(allergen);
+			}
+		}
+		return ingredient;
 	}
 }
 
@@ -156,6 +241,8 @@ public class PreparedFoodProfile
 	public List<FoodIngredientInstance> Ingredients { get; } = new();
 	public List<FoodDrugDose> DrugDoses { get; } = new();
 	public List<FoodDrugDose> StaleDrugDoses { get; } = new();
+	public HashSet<DietaryContent> DietaryContents { get; } = new();
+	public HashSet<AnimalFeedPurpose> AnimalFeedPurposes { get; } = new();
 
 	public PreparedFoodProfile Clone()
 	{
@@ -183,6 +270,8 @@ public class PreparedFoodProfile
 		profile.Ingredients.AddRange(Ingredients.Select(x => x.Clone()));
 		profile.DrugDoses.AddRange(DrugDoses.Select(x => x.Clone()));
 		profile.StaleDrugDoses.AddRange(StaleDrugDoses.Select(x => x.Clone()));
+		profile.DietaryContents.UnionWith(DietaryContents);
+		profile.AnimalFeedPurposes.UnionWith(AnimalFeedPurposes);
 		return profile;
 	}
 }
@@ -194,6 +283,9 @@ public interface IPreparedFood : IEdible
 	DateTime CreatedAt { get; set; }
 	IEnumerable<FoodIngredientInstance> Ingredients { get; }
 	IEnumerable<FoodDrugDose> DrugDoses { get; }
+	IReadOnlySet<MajorFoodAllergen> Allergens { get; }
+	IReadOnlySet<DietaryContent> DietaryContents { get; }
+	IReadOnlySet<AnimalFeedPurpose> AnimalFeedPurposes { get; }
 	void ApplyPreparedFoodProfile(PreparedFoodProfile profile, bool replaceIngredientsAndDoses = true);
 	void AddIngredient(FoodIngredientInstance ingredient);
 	void AddDrugDose(FoodDrugDose dose);

@@ -13,7 +13,8 @@ public enum ItemTimeRateType
 	PreparedFoodFreshness,
 	BiologicalDecay,
 	Morph,
-	SurfaceLiquidDrying
+	SurfaceLiquidDrying,
+	LiquidFreshness
 }
 
 /// <summary>
@@ -23,6 +24,16 @@ public enum ItemTimeRateType
 public interface IItemTimeRateModifier : IGameItemComponent
 {
 	double? RateMultiplierFor(ItemTimeRateType type);
+}
+
+/// <summary>
+/// Contract for a future package component that modifies consumable freshness until it has been opened.
+/// Gate 2 deliberately supplies only the contract; logistics owns the eventual component and opening lifecycle.
+/// </summary>
+public interface IPackageFreshnessModifier : IItemTimeRateModifier
+{
+	bool FreshnessProtectionActive { get; }
+	bool IrreversiblyOpened { get; }
 }
 
 /// <summary>

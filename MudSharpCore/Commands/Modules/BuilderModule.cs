@@ -2574,6 +2574,8 @@ The syntax for this command is as follows:
 	#3liquid set countsas <liquid>#0 - sets another liquid that this one counts as
 	#3liquid set countsas none#0 - this liquid counts as no other liquid
 	#3liquid set countquality <quality>#0 - sets the maximum quality for this when counting as
+	#3liquid set freshness <stale duration> <spoiled duration> <stale liquid> <spoiled liquid>#0 - configures irreversible freshness stages
+	#3liquid set freshness none#0 - removes the freshness configuration
 	#3liquid set freeze <temp>#0 - sets the freeze temperature of this liquid#B*#0
 	#3liquid set boil <temp>#0 - sets the boil temperature of this liquid#B*#0
 	#3liquid set ignite <temp>#0 - sets the ignite temperature of this liquid#B*#0

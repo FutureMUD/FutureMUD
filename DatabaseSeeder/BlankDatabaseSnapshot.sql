@@ -15757,3 +15757,27 @@ DELIMITER ;
 CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
 COMMIT;
+
+-- EF-generated idempotent delta: 20260904015558_AddLiquidFreshness
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260904015558_AddLiquidFreshness') THEN
+        ALTER TABLE `liquids` ADD `SpoilAfterSeconds` double NULL;
+        ALTER TABLE `liquids` ADD `SpoiledLiquidId` bigint(20) NULL;
+        ALTER TABLE `liquids` ADD `StaleAfterSeconds` double NULL;
+        ALTER TABLE `liquids` ADD `StaleLiquidId` bigint(20) NULL;
+        CREATE INDEX `FK_Liquids_SpoiledLiquid_idx` ON `liquids` (`SpoiledLiquidId`);
+        CREATE INDEX `FK_Liquids_StaleLiquid_idx` ON `liquids` (`StaleLiquidId`);
+        ALTER TABLE `liquids` ADD CONSTRAINT `FK_Liquids_SpoiledLiquid` FOREIGN KEY (`SpoiledLiquidId`) REFERENCES `liquids` (`Id`) ON DELETE RESTRICT;
+        ALTER TABLE `liquids` ADD CONSTRAINT `FK_Liquids_StaleLiquid` FOREIGN KEY (`StaleLiquidId`) REFERENCES `liquids` (`Id`) ON DELETE RESTRICT;
+        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+        VALUES ('20260904015558_AddLiquidFreshness', '9.0.11');
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+COMMIT;

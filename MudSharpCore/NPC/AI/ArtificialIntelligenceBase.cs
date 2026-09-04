@@ -60,14 +60,15 @@ public abstract class ArtificialIntelligenceBase : SaveableItem, IArtificialInte
 
     protected void DatabaseInitialise()
     {
-        RawXmlDefinition = SaveToXml();
+        var definition = DefinitionForSave();
+        RawXmlDefinition = definition;
         using (new FMDB())
         {
             ArtificialIntelligence dbitem = new()
             {
                 Name = _name,
                 Type = AIType,
-                Definition = SaveToXml(),
+                Definition = definition,
             };
             FMDB.Context.ArtificialIntelligences.Add(dbitem);
             FMDB.Context.SaveChanges();
@@ -83,7 +84,7 @@ public abstract class ArtificialIntelligenceBase : SaveableItem, IArtificialInte
             {
                 Name = newName,
                 Type = AIType,
-                Definition = SaveToXml()
+                Definition = DefinitionForSave()
             };
             FMDB.Context.ArtificialIntelligences.Add(dbnew);
             FMDB.Context.SaveChanges();
@@ -272,9 +273,19 @@ public abstract class ArtificialIntelligenceBase : SaveableItem, IArtificialInte
     {
         ArtificialIntelligence dbitem = FMDB.Context.ArtificialIntelligences.Find(Id);
         dbitem.Name = Name;
-        dbitem.Definition = SaveToXml();
+        dbitem.Definition = DefinitionForSave();
         Changed = false;
     }
 
     protected abstract string SaveToXml();
+
+    protected virtual string PrepareDefinitionForSave(string definition)
+    {
+        return definition;
+    }
+
+    private string DefinitionForSave()
+    {
+        return PrepareDefinitionForSave(SaveToXml());
+    }
 }

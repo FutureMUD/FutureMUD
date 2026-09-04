@@ -56,7 +56,13 @@ internal class AddHookFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        Result = new BooleanVariable(targetAsPerceivable.InstallHook(hook));
+        var installed = targetAsPerceivable.InstallHook(hook);
+        if (installed)
+        {
+            targetAsPerceivable.HooksChanged = true;
+        }
+
+        Result = new BooleanVariable(installed);
         return StatementResult.Normal;
     }
 

@@ -187,6 +187,8 @@ public abstract class PathingAIWithProgTargetsBase : PathingAIBase
 
     protected override void LoadFromXML(XElement root)
     {
+		LoadCommonPathingOptions(root);
+        LoadDoorSmashDelayProg(root);
         PathingEnabledProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("PathingEnabledProg")?.Value ?? "0"));
         OnStartToPathProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("OnStartToPathProg")?.Value ?? "0"));
         TargetLocationProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("TargetLocationProg")?.Value ?? "0"));

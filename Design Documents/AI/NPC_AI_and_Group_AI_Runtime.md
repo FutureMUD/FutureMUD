@@ -212,6 +212,20 @@ Periodic tick wiring is explicit:
 
 That means `HandlesEvent` is not just documentation. It directly controls whether the NPC is subscribed to expensive repeating heartbeats.
 
+#### Optional native door-smash scheduling
+
+All `PathingAIBase` AIs retain their legacy native door-smash cadence unless a builder sets `smashdelay <prog>`. The optional prog must return `Number` and accept `(Character smasher, Exit obstruction)`; its result is a nonnegative delay in milliseconds.
+
+When configured, the callback runs before the first native smash for a newly created `BreakDownDoor` focus and again after each real native smash attempt. The focus keeps its own transient next-attempt time, so different NPCs using the same AI remain independent. The focus and its wait are intentionally not saved: after a reload, reconstructed pathing calls the prog again before any attack. A pure delay callback therefore establishes a fresh future delay after downtime; it does not catch up missed attacks. Feature callbacks that persist policy state must preserve that no-catch-up reconstruction rule. Use `smashdelay none` to restore the legacy cadence.
+
+Focus validity is checked before that first callback. Once valid, a null due time is initialised even while another effect blocks general actions or the `smash` command; the blocker still suppresses the native attack, and repeated blocked ticks reuse the same due time rather than calling the callback again.
+
+Repeated movement attempts by the same `FollowingPath` episode against the same closed exit reuse that episode's existing `BreakDownDoor` focus. They do not append another focus or replace its due time. Different episodes and different exits retain independent focuses, including legitimate ownerless paths.
+
+A smash-enabled route promises a door edge only while the current obstruction is closed, permits smashing, has an `IDestroyable` damage component, and the actor has at least one currently usable natural or feasible weapon smash. The same predicate is rechecked by the final consumer before scheduling or attacking. If the feasible attack set disappears, the AI removes that owned episode and replans rather than recreating a focus and callback indefinitely. Ordinary openable/traversable routes are evaluated first and are unchanged.
+
+The focus is discarded when pathing is disabled, the NPC is dead or unable, the NPC leaves the exit origin, or the exact obstruction is no longer a closed door. Scheduling does not replace the native smash implementation: attack selection, damage, stamina, output, noise, and the ordinary command delay remain owned by the existing path.
+
 #### Group AI
 Group AI instances subscribe themselves directly on creation/load:
 
@@ -476,6 +490,8 @@ It centralizes common movement concerns such as:
 
 When `CloseDoorsBehind` is enabled, shared `FollowingPath` movement leaves an open door alone while another character is actively moving through the same exit. This considers traffic in either direction and other members of a coordinated movement. If the NPC had to unlock the door for that traversal, security takes precedence: it still closes the door and, when key use is enabled, locks it again behind itself.
 
+Each path created through `PathingAIBase` is a transient episode owned by that exact AI instance. Any `BreakDownDoor` focus created while advancing the path belongs to the same episode. On an NPC with several pathing AIs, only the owner may advance, reconfigure, smash for, or clear that episode; attachment order does not select a preferred AI. The ownership and door-smash deadline are deliberately not persisted. After load, whichever AI creates the replacement path owns the reconstructed episode. `FollowingPath` instances created by patrols, group policies, or other non-`PathingAIBase` consumers remain ownerless and continue to be advanced by those consumers directly.
+
 ### `PathingAIWithProgTargetsBase`
 Use this when pathing destinations should come from content configuration instead of hard-coded logic.
 
@@ -485,6 +501,8 @@ It adds FutureProg-driven path control such as:
 - target selection
 - fallback location selection
 - waypoint routing
+
+Its concrete AI definitions use the same persisted door, key, guard, forced-movement, and door-smashing options as `PathingAIBase`. Construction and reload restore those common options before the first path search, while older definitions that omit an option retain the legacy `false` default. The specialised FutureProg and aggression fields are still loaded only by their owning class.
 
 ### `GroupAIType`
 This is the base class for most group behavior policies. It contributes:

@@ -2,6 +2,7 @@
 using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
+using MudSharp.Economy;
 using MudSharp.FutureProg.Statements;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
@@ -1489,6 +1490,17 @@ The syntax is:
             {
                 actor.Body.Give(actor.Currency, targetActor.Body, targetCurrency,
                     currencyMatch.Groups["exactly"].Value.Length > 0, emote);
+				actor.Gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
+					EconomicActivityType.CashGift,
+					EconomicVolumeClassification.GeneralTransfer,
+					actor.Currency.Id,
+					targetCurrency,
+					actor.Gameworld.EconomicZones.FirstOrDefault(x =>
+						x.ZoneForTimePurposes == actor.Location.Zone)?.Id,
+					actor.Id,
+					actor.FrameworkItemType,
+					targetActor.Id,
+					targetActor.FrameworkItemType));
             }
         }
     }

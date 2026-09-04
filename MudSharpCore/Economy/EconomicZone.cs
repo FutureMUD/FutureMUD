@@ -705,6 +705,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
         OutstandingTaxesOwed += totalPeriodTax;
         _historicalRevenues.Add((newPeriod, totalPeriodTax));
+		Gameworld.EconomyAnalytics?.NotifyFinancialPeriodClosed(Id, oldPeriod.Id);
 
         if (PreviousFinancialPeriodsToKeep < _financialPeriods.Count)
         {

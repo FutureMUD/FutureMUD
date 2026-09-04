@@ -294,6 +294,7 @@ namespace MudSharp.Framework
         IUneditableAll<IManualCombatCommand> ManualCombatCommands { get; }
         IUneditableAll<IShop> Shops { get; }
         IUneditableAll<IEconomicZone> EconomicZones { get; }
+        IEconomyAnalyticsService EconomyAnalytics { get; }
         IUneditableAll<IEstate> Estates { get; }
         IUneditableAll<IGroupAITemplate> GroupAITemplates { get; }
         IUneditableAll<IGroupAI> GroupAIs { get; }

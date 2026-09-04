@@ -435,6 +435,12 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
             {
                 QueueSellerPayment(item, winningBid.Bid);
             }
+			var seller = item.PayoutTarget ?? item.Seller;
+			Gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
+				EconomicActivityType.Auction, EconomicVolumeClassification.Exchange,
+				EconomicZone.Currency.Id, winningBid.Bid, EconomicZone.Id,
+				winningBid.BidderId, "Character", CharacterInstanceIdentityComparer.FrameworkItemId(seller),
+				seller.FrameworkItemType, item.Asset.Id, item.Asset.FrameworkItemType, DescribeLotPlain(item)));
         }
 
         if (item.Seller is IEstate estateSeller)
@@ -738,6 +744,11 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
         }
 
         BidderRefundsOwed[actorIdentityId] = 0.0M;
+		Gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
+			EconomicActivityType.Refund,
+			EconomicVolumeClassification.GeneralTransfer | EconomicVolumeClassification.Refund,
+			EconomicZone.Currency.Id, owed, EconomicZone.Id, Id, FrameworkItemType, actorIdentityId,
+			"Character", Id, FrameworkItemType, "Refund for failed auction bid"));
         Changed = true;
         return true;
     }

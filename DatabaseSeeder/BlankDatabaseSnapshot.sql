@@ -15241,6 +15241,97 @@ CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
 COMMIT;
 
+-- EF-generated idempotent delta for 20260904111218_AddEconomyAnalytics
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260904111218_AddEconomyAnalytics') THEN
+        CREATE TABLE `economicactivityrecords` (
+            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `RealDateTime` datetime NOT NULL,
+            `EconomicZoneId` bigint(20) NULL,
+            `CurrencyId` bigint(20) NOT NULL,
+            `FinancialPeriodId` bigint(20) NULL,
+            `MudCalendarId` bigint(20) NULL,
+            `MudYear` int(11) NULL,
+            `MudMonth` int(11) NULL,
+            `MudWeek` int(11) NULL,
+            `MudDay` int(11) NULL,
+            `MudDateTime` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
+            `ActivityType` int(11) NOT NULL,
+            `VolumeClassification` int(11) NOT NULL,
+            `Amount` decimal(58,29) NOT NULL,
+            `GlobalBaseValue` decimal(58,29) NOT NULL,
+            `SourceId` bigint(20) NULL,
+            `SourceType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
+            `SourceControlBucket` int(11) NOT NULL,
+            `DestinationId` bigint(20) NULL,
+            `DestinationType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
+            `DestinationControlBucket` int(11) NOT NULL,
+            `ReferenceId` bigint(20) NULL,
+            `ReferenceType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
+            `ReferenceText` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
+            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+            CONSTRAINT `FK_EconomicActivityRecords_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT,
+            CONSTRAINT `FK_EconomicActivityRecords_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE SET NULL,
+            CONSTRAINT `FK_EconomicActivityRecords_FinancialPeriods` FOREIGN KEY (`FinancialPeriodId`) REFERENCES `financialperiods` (`Id`) ON DELETE SET NULL
+        ) CHARACTER SET=utf8mb4;
+
+        CREATE TABLE `economysnapshots` (
+            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `RealDateTime` datetime NOT NULL,
+            `EconomicZoneId` bigint(20) NULL,
+            `FinancialPeriodId` bigint(20) NULL,
+            `MudDateTime` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
+            `Reason` int(11) NOT NULL,
+            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+            CONSTRAINT `FK_EconomySnapshots_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE SET NULL,
+            CONSTRAINT `FK_EconomySnapshots_FinancialPeriods` FOREIGN KEY (`FinancialPeriodId`) REFERENCES `financialperiods` (`Id`) ON DELETE SET NULL
+        ) CHARACTER SET=utf8mb4;
+
+        CREATE TABLE `economysnapshotentries` (
+            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `EconomySnapshotId` bigint(20) NOT NULL,
+            `CurrencyId` bigint(20) NOT NULL,
+            `Metric` int(11) NOT NULL,
+            `ControlBucket` int(11) NOT NULL,
+            `Amount` decimal(58,29) NOT NULL,
+            `GlobalBaseValue` decimal(58,29) NOT NULL,
+            `EntityCount` int(11) NOT NULL,
+            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+            CONSTRAINT `FK_EconomySnapshotEntries_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT,
+            CONSTRAINT `FK_EconomySnapshotEntries_Snapshots` FOREIGN KEY (`EconomySnapshotId`) REFERENCES `economysnapshots` (`Id`) ON DELETE CASCADE
+        ) CHARACTER SET=utf8mb4;
+
+        CREATE INDEX `FK_EconomicActivityRecords_Currencies_idx` ON `economicactivityrecords` (`CurrencyId`);
+        CREATE INDEX `IX_EconomicActivityRecords_FinancialPeriodId` ON `economicactivityrecords` (`FinancialPeriodId`);
+        CREATE INDEX `IX_EconomicActivityRecords_MudDate` ON `economicactivityrecords` (`MudCalendarId`, `MudYear`, `MudMonth`, `MudDay`);
+        CREATE INDEX `IX_EconomicActivityRecords_RealDateTime` ON `economicactivityrecords` (`RealDateTime`);
+        CREATE INDEX `IX_EconomicActivityRecords_Zone_FinancialPeriod` ON `economicactivityrecords` (`EconomicZoneId`, `FinancialPeriodId`);
+        CREATE INDEX `IX_EconomicActivityRecords_Zone_RealDateTime` ON `economicactivityrecords` (`EconomicZoneId`, `RealDateTime`);
+        CREATE INDEX `FK_EconomySnapshotEntries_Snapshots_idx` ON `economysnapshotentries` (`EconomySnapshotId`);
+        CREATE INDEX `IX_EconomySnapshotEntries_Currency_Metric_Control` ON `economysnapshotentries` (`CurrencyId`, `Metric`, `ControlBucket`);
+        CREATE INDEX `IX_EconomySnapshots_FinancialPeriodId` ON `economysnapshots` (`FinancialPeriodId`);
+        CREATE INDEX `IX_EconomySnapshots_RealDateTime` ON `economysnapshots` (`RealDateTime`);
+        CREATE INDEX `IX_EconomySnapshots_Zone_RealDateTime` ON `economysnapshots` (`EconomicZoneId`, `RealDateTime`);
+        CREATE UNIQUE INDEX `UX_EconomySnapshots_Zone_Period_Reason` ON `economysnapshots` (`EconomicZoneId`, `FinancialPeriodId`, `Reason`);
+
+        INSERT INTO `staticconfigurations` (`SettingName`, `Definition`) VALUES
+            ('EconomyAnalyticsSnapshotsEnabled', 'true'),
+            ('EconomyAnalyticsSnapshotIntervalMinutes', '1440'),
+            ('EconomyAnalyticsRolloverSnapshotsEnabled', 'true');
+
+        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+        VALUES ('20260904111218_AddEconomyAnalytics', '9.0.11');
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+COMMIT;
+
 -- EF-generated idempotent delta: 20260829031447_AddSignedLanguageCommunication
 START TRANSACTION;
 DROP PROCEDURE IF EXISTS MigrationsScript;

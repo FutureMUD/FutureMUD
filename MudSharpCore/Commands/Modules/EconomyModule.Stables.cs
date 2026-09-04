@@ -1727,7 +1727,7 @@ Administrators can also use:
 			case StablePaymentKind.Cash:
 				TakeStableCash(actor, stable, amount, reference);
 				stay?.AddPayment(amount, actor, reference);
-				return;
+				break;
 			case StablePaymentKind.BankPaymentItem:
 				payment.PaymentItem!.BankAccount.WithdrawFromTransaction(amount, reference);
 				payment.PaymentItem.BankAccount.Bank.CurrencyReserves[stable.Currency] -= amount;
@@ -1739,12 +1739,16 @@ Administrators can also use:
 					payment.PaymentItem.CurrentUsesRemaining--;
 				}
 				stay?.AddPayment(amount, actor, reference);
-				return;
+				break;
 			case StablePaymentKind.StableAccount:
 				payment.Account!.ChargeAccount(amount);
 				stay?.AddPayment(amount, actor, $"Charged to stable account {payment.Account.AccountName}");
-				return;
+				break;
 		}
+		actor.Gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
+			EconomicActivityType.Service, EconomicVolumeClassification.Exchange, stable.Currency.Id, amount,
+			stable.EconomicZone.Id, actor.Id, actor.FrameworkItemType, stable.Id, stable.FrameworkItemType,
+			stay?.Id, stay?.FrameworkItemType, reference));
 	}
 
 	private static void TakeStableCash(ICharacter actor, IStable stable, decimal amount, string reference)

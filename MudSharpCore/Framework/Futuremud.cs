@@ -27,6 +27,7 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Construction.Grids;
 using MudSharp.Database;
 using MudSharp.Economy;
+using MudSharp.Economy.Analytics;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Property;
 using MudSharp.Effects;
@@ -141,6 +142,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         SaveManager = new SaveManager();
         HeartbeatManager = new HeartbeatManager(this);
         ProximityEventService = new ProximityEventService();
+        EconomyAnalytics = new EconomyAnalyticsService(this);
         ComputerHelpService = new ComputerHelpService();
         ComputerNetworkIdentityService = new ComputerNetworkIdentityService(this);
         ComputerNetworkTunnelService = new ComputerNetworkTunnelService(this);

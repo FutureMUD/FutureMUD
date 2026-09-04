@@ -358,3 +358,13 @@ The blank-database snapshot and manifest include migration `20260816012516_Hospi
 ### Restaurant seeding posture
 
 Restaurants are runtime-ready but deliberately have no stock cafe or restaurant package. A useful restaurant needs world-specific cells, physical table furniture, shop merchandise and stock sources, optionally world-specific crafts, plates, containers, bags, staff, payment instruments, service presentation, and legal policy. It should also configure real kitchen containers for ingredients, reusable tools, servingware, inner takeaway containers, and outer takeaway bags as appropriate. Seeding a generic venue would therefore create more misleading content than useful content. The current restaurant workflow migration adds restaurant-wide takeaway-bag configuration and persisted kitchen-storage roles while removing the superseded per-menu bag configuration; a fresh blank snapshot must be refreshed through the standard snapshot workflow after that migration is applied.
+
+### Economy analytics fresh-install state
+
+Migration `20260904111218_AddEconomyAnalytics` creates `EconomicActivityRecords`, `EconomySnapshots`, and `EconomySnapshotEntries` with bounded-query indexes and adds these game-wide defaults:
+
+- `EconomyAnalyticsSnapshotsEnabled = true`
+- `EconomyAnalyticsSnapshotIntervalMinutes = 1440`
+- `EconomyAnalyticsRolloverSnapshotsEnabled = true`
+
+No economy content package is required. The service creates its first baseline after the world, items, characters, and economy hosts finish loading. The activity ledger starts empty and its reports state their actual coverage start; the seeder does not import or reinterpret old bank/shop histories. Operators that do not want durable trend data can set snapshots off immediately (or after installation) without affecting live reports or future activity-volume collection. Existing snapshot rows are retained indefinitely in this initial version; database-constrained games should disable collection before history growth becomes material.

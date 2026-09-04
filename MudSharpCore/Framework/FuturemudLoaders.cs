@@ -194,6 +194,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
 		private set => _heartbeatManager = value;
 	}
     public IProximityEventService ProximityEventService { get; private set; }
+    public IEconomyAnalyticsService EconomyAnalytics { get; }
     public IComputerExecutionService ComputerExecutionService { get; private set; }
     public IComputerHelpService ComputerHelpService { get; private set; }
     public IComputerNetworkIdentityService ComputerNetworkIdentityService { get; private set; }
@@ -499,6 +500,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
         ConsoleUtilities.WriteLine("#C========================================#0");
         ConsoleUtilities.WriteLine("\n#EScheduling core system tasks...#0");
         ClockManager.Initialise();
+        EconomyAnalytics.Initialise();
         ArenaLifecycleService.RebootRecovery();
         // Scheduler.AddSchedule(new RepeatingSchedule<Game>(this, this, fm => fm.SaveManager.Flush(), ScheduleType.System, new TimeSpan(0, 0, 10), "Main Save Loop"));
         //Scheduler.AddSchedule(new RepeatingSchedule<Game>(this, this, fm => new Monitoring.DuplicationMonitor(this).AuditCharacters(), ScheduleType.System, TimeSpan.FromHours(1)));

@@ -438,6 +438,30 @@ public abstract partial class Shop : SaveableItem, IShop
     {
         _transactionRecords.Add(record);
         Changed = true;
+		var analytics = record.TransactionType switch
+		{
+			ShopTransactionType.Sale => new EconomicActivityEvent(EconomicActivityType.RetailSale,
+				EconomicVolumeClassification.Exchange, record.Currency.Id, record.NetValue,
+				EconomicZone.Id, record.ThirdPartyId, "Character", Id, FrameworkItemType,
+				record.Merchandise?.Id, "Merchandise", Name),
+			ShopTransactionType.Purchase => new EconomicActivityEvent(EconomicActivityType.RetailPurchase,
+				EconomicVolumeClassification.Exchange, record.Currency.Id, record.NetValue,
+				EconomicZone.Id, Id, FrameworkItemType, record.ThirdPartyId, "Character",
+				record.Merchandise?.Id, "Merchandise", Name),
+			ShopTransactionType.Refund => new EconomicActivityEvent(EconomicActivityType.Refund,
+				EconomicVolumeClassification.GeneralTransfer | EconomicVolumeClassification.Refund,
+				record.Currency.Id, record.NetValue, EconomicZone.Id, Id, FrameworkItemType,
+				record.ThirdPartyId, "Character", record.Merchandise?.Id, "Merchandise", Name),
+			ShopTransactionType.TaxPayment => new EconomicActivityEvent(EconomicActivityType.Tax,
+				EconomicVolumeClassification.GeneralTransfer, record.Currency.Id, record.NetValue,
+				EconomicZone.Id, Id, FrameworkItemType, EconomicZone.Id, EconomicZone.FrameworkItemType,
+				Id, FrameworkItemType, Name),
+			_ => null
+		};
+		if (analytics is not null)
+		{
+			Gameworld.EconomyAnalytics?.RecordActivity(analytics);
+		}
     }
 
     public void AddToStock(ICharacter actor, IGameItem item, IMerchandise merch)

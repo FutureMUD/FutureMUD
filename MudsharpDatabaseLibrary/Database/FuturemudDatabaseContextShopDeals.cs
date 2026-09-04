@@ -59,6 +59,7 @@ namespace MudSharp.Database
 			ConfigureRestaurants(modelBuilder);
             ConfigureClanFinance(modelBuilder);
             ConfigureVirtualCash(modelBuilder);
+			ConfigureEconomyAnalytics(modelBuilder);
 			ConfigureAgriculture(modelBuilder);
 			ConfigureVehicles(modelBuilder);
 			ConfigureRoomScaleVehicleInteriors(modelBuilder);

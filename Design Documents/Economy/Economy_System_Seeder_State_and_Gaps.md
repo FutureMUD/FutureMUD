@@ -361,6 +361,8 @@ Restaurants are runtime-ready but deliberately have no stock cafe or restaurant 
 
 ### Economy analytics fresh-install state
 
+Employment-market and PC-income analytics extend the existing integer snapshot metrics and semantic activity ledger without a migration, new seeder settings or blank-database snapshot changes. New captures include employment counts and rolling real-day PC job/project/clan income. Existing captures are retained without invented employment history. Legacy job collection and clan payday hooks begin recording on deployment; an older overall ledger coverage date does not establish complete payroll coverage before those hooks were installed. Free specialist counts depend on the world's loaded employment-worker NPCs and their configured capabilities; no generic NPC population is seeded for these reports.
+
 Migration `20260904111218_AddEconomyAnalytics` creates `EconomicActivityRecords`, `EconomySnapshots`, and `EconomySnapshotEntries` with bounded-query indexes and adds these game-wide defaults:
 
 - `EconomyAnalyticsSnapshotsEnabled = true`

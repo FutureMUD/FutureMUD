@@ -1415,6 +1415,7 @@ internal static class EmploymentFinanceService
 			IStable stable => stable.EconomicZone?.Id,
 			IHospital hospital => hospital.EconomicZone?.Id,
 			IProperty property => property.EconomicZone?.Id,
+			IEmploymentHost host => EmploymentClock.EconomicZone(host)?.Id,
 			_ => (long?)null
 		};
 		var gameworld = (finance.Owner as IHaveFuturemud)?.Gameworld;

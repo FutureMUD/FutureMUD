@@ -239,6 +239,7 @@ public static class ProjectPaymentService
 		{
 			payable.ClaimedAt = DateTime.UtcNow;
 			payable.ClaimedBankAccountId = bankAccount.Id;
+			RecordCollectedLabourIncome(actor, payable);
 		}
 
 		message = $"You deposit {bankAccount.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in project payments into {bankAccount.AccountReference.ColourName()}.";
@@ -303,6 +304,7 @@ public static class ProjectPaymentService
 			foreach (var payable in group)
 			{
 				payable.ClaimedAt = DateTime.UtcNow;
+				RecordCollectedLabourIncome(actor, payable);
 			}
 
 			claimedAny = true;
@@ -315,5 +317,22 @@ public static class ProjectPaymentService
 
 		message = messages.ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n");
 		return claimedAny;
+	}
+
+	internal static void RecordCollectedLabourIncome(ICharacter actor, ProjectPayable payable)
+	{
+		if (payable.PayableType != (int)ProjectPayableType.Labour || payable.Amount <= 0.0M)
+		{
+			return;
+		}
+
+		var project = payable.ActiveProjectId.HasValue
+			? actor.Gameworld.ActiveProjects?.Get(payable.ActiveProjectId.Value) : null;
+		var zoneId = project?.Location is { } location
+			? actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ZoneForTimePurposes == location.Zone)?.Id : null;
+		actor.Gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
+			EconomicActivityType.ProjectPayment, EconomicVolumeClassification.Exchange,
+			payable.CurrencyId, payable.Amount, zoneId, payable.ProjectOwnerCharacterId, "Character",
+			payable.CharacterId, "Character", payable.Id, "ProjectPayable", payable.Reason));
 	}
 }

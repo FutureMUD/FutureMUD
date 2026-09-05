@@ -12,13 +12,19 @@ namespace MudSharp.Commands.Modules;
 
 internal partial class EconomyModule
 {
-	private const string EconomyAnalyticsHelp = @"The #3economy#0 command gives administrators a live view of money supply, exchange, movement, PC-controlled wealth, trends, and risks. Historical volume begins when the analytics ledger is deployed; old shop and bank histories are not treated as a complete backfill.
+	private const string EconomyAnalyticsHelp = @"The #3economy#0 command gives administrators a live view of money supply, exchange, movement, PC-controlled wealth, trends, and risks. Employment reports cover legacy player listings and host openings; details show individual employers and postings. Income reports count settled job/project pay and collected clan paydays to ordinary PCs. Income trends are rolling real-day totals, while employment trends are counts at capture time. New metrics have no backfill. Historical volume begins when the analytics ledger is deployed; old shop and bank histories are not treated as a complete backfill.
 
 	#3economy summary [<zone>|all]#0
 	#3economy money [<zone>|all] [<currency>] [details]#0
+	#3economy employment [<zone>|all] [details]#0
+	#3economy income real <day|week|month> [<zone>|all] [<currency>]#0
+	#3economy income mud <zone> <day|week|month|period> [<currency>]#0
 	#3economy volume real <day|week|month> [<zone>|all] [<currency>]#0
 	#3economy volume mud <zone> <day|week|month|period> [<currency>]#0
 	#3economy trends <supply|exchange|movement|pcwealth|reserves> [<zone>|all] [<currency>] [<count>]#0
+	#3economy trends <jobincome|projectincome|clanincome> [<zone>|all] [<currency>] [<count>]#0
+	#3economy trends <pcjobs|employed|free|vacancies|positions> [<zone>|all] [<count>]#0
+	#3economy trends <doctors|managers|freedoctors|freemanagers> [<zone>|all] [<count>]#0
 	#3economy wealth [<zone>|all] [<currency>] [top <count>]#0
 	#3economy risks [<zone>|all]#0
 	#3economy snapshot [<zone>|all]#0
@@ -54,6 +60,13 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 			case "volume":
 				EconomyAnalyticsVolume(actor, command);
 				return;
+			case "income":
+				EconomyAnalyticsVolume(actor, command, true);
+				return;
+			case "employment":
+			case "jobs":
+				EconomyAnalyticsEmployment(actor, command);
+				return;
 			case "trends":
 			case "trend":
 				EconomyAnalyticsTrends(actor, command);
@@ -88,6 +101,7 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 		var globalDisplayCurrency = service.GlobalDisplayCurrency;
 		var holdings = service.GetCurrentHoldings(zoneId);
 		var volume = service.GetVolume(EconomyQueryWindowKind.RealDay, zoneId);
+		var employment = service.GetEmploymentMarket(zoneId);
 		var supply = holdings
 			.Where(x => x.Metric is EconomyHoldingMetric.PhysicalCash or EconomyHoldingMetric.BankDeposits or
 				EconomyHoldingMetric.VirtualBalance)
@@ -119,6 +133,9 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 		sb.AppendLine($"Last 24h exchange: {DescribeGlobalValue(globalDisplayCurrency, volume.ExchangeGlobalBaseValue).ColourValue()}");
 		sb.AppendLine($"Last 24h gross movement: {DescribeGlobalValue(globalDisplayCurrency, volume.MovementGlobalBaseValue).ColourValue()}");
 		sb.AppendLine($"Supply trend: {direction.ColourName()}");
+		sb.AppendLine($"PC-accessible job postings: {employment.Openings.Count(x => x.AcceptsPcs).ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"NPC workers employed / free: {employment.EmployedNpcs.ToString("N0", actor).ColourValue()} / {employment.FreeNpcs.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Last 24h PC job, project and clan income: {DescribeGlobalValue(globalDisplayCurrency, volume.PcIncome.Values.Sum()).ColourValue()}");
 		sb.AppendLine($"Snapshot collection: {service.SnapshotsEnabled.ToColouredString()}");
 		sb.AppendLine($"Latest snapshot: {(service.LastSnapshotUtc?.ToString("g", actor) ?? "never").ColourValue()}");
 		sb.AppendLine($"Ledger coverage begins: {(service.ActivityCoverageStartUtc?.ToString("g", actor) ?? "no events recorded").ColourValue()}");
@@ -173,7 +190,7 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	private static void EconomyAnalyticsVolume(ICharacter actor, StringStack command)
+	private static void EconomyAnalyticsVolume(ICharacter actor, StringStack command, bool incomeOnly = false)
 	{
 		if (command.IsFinished)
 		{
@@ -249,6 +266,11 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 
 		var service = actor.Gameworld.EconomyAnalytics;
 		var result = service.GetVolume(window, zoneId, currencyId, periodId);
+		if (incomeOnly)
+		{
+			EconomyAnalyticsIncome(actor, result, window, zoneId);
+			return;
+		}
 		var globalDisplayCurrency = service.GlobalDisplayCurrency;
 		var sb = new StringBuilder();
 		sb.AppendLine("Economic Volume".ColourName());
@@ -283,7 +305,7 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("Which trend do you want: supply, exchange, movement, pcwealth, or reserves?");
+			actor.OutputHandler.Send("Choose supply, exchange, movement, pcwealth, reserves, jobincome, projectincome, clanincome, pcjobs, employed, free, vacancies, positions, doctors, managers, freedoctors, or freemanagers.");
 			return;
 		}
 
@@ -295,11 +317,23 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 			"movement" => EconomyHoldingMetric.GrossMovement,
 			"pcwealth" => EconomyHoldingMetric.PcControlledWealth,
 			"reserves" => EconomyHoldingMetric.BankReserves,
+			"jobincome" => EconomyHoldingMetric.PcJobIncome,
+			"projectincome" => EconomyHoldingMetric.PcProjectIncome,
+			"clanincome" => EconomyHoldingMetric.PcClanIncome,
+			"pcjobs" => EconomyHoldingMetric.PcOpenJobPostings,
+			"employed" => EconomyHoldingMetric.NpcEmployed,
+			"free" => EconomyHoldingMetric.NpcFree,
+			"vacancies" => EconomyHoldingMetric.HostVacantPostings,
+			"positions" => EconomyHoldingMetric.HostVacantPositions,
+			"doctors" => EconomyHoldingMetric.NpcMedicalWorkers,
+			"managers" => EconomyHoldingMetric.NpcManagers,
+			"freedoctors" => EconomyHoldingMetric.FreeMedicalWorkers,
+			"freemanagers" => EconomyHoldingMetric.FreeManagers,
 			_ => (EconomyHoldingMetric)(-1)
 		};
 		if ((int)metric < 0)
 		{
-			actor.OutputHandler.Send("Which trend do you want: supply, exchange, movement, pcwealth, or reserves?");
+			actor.OutputHandler.Send("Choose supply, exchange, movement, pcwealth, reserves, jobincome, projectincome, clanincome, pcjobs, employed, free, vacancies, positions, doctors, managers, freedoctors, or freemanagers.");
 			return;
 		}
 
@@ -336,6 +370,12 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 		}
 
 		var service = actor.Gameworld.EconomyAnalytics;
+		var countMetric = metric >= EconomyHoldingMetric.PcOpenJobPostings;
+		if (countMetric && currencyId.HasValue)
+		{
+			actor.OutputHandler.Send("Employment counts do not take a currency filter.");
+			return;
+		}
 		var points = service.GetTrends(metric, null, zoneId, currencyId, count);
 		var globalDisplayCurrency = service.GlobalDisplayCurrency;
 		var sb = new StringBuilder();
@@ -351,8 +391,8 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 			{
 				x.RealDateTimeUtc.ToString("g", actor), x.Reason.DescribeEnum(),
 				x.EconomicZoneId?.ToString("N0", actor) ?? "All",
-				DescribeGlobalValue(globalDisplayCurrency, x.GlobalBaseValue)
-			}), new[] { "Captured", "Reason", "Zone", "Global Value" }, actor.LineFormatLength,
+				countMetric ? x.GlobalBaseValue.ToString("N0", actor) : DescribeGlobalValue(globalDisplayCurrency, x.GlobalBaseValue)
+			}), new[] { "Captured", "Reason", "Zone", countMetric ? "Count" : "Global Value" }, actor.LineFormatLength,
 				colour: Telnet.Yellow, unicodeTable: actor.Account.UseUnicode));
 		}
 

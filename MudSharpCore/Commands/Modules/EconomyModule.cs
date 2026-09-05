@@ -9462,6 +9462,14 @@ Note: There may be additional properties that can be edited depending on the typ
         {
             if (job.RevenueEarned.Any(x => x.Value > 0.0M))
             {
+                foreach (var payment in job.RevenueEarned.Where(x => x.Value > 0.0M))
+                {
+                    actor.Gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
+                        EconomicActivityType.Wage, EconomicVolumeClassification.Exchange,
+                        payment.Key.Id, payment.Value, job.Listing.EconomicZone.Id,
+                        job.Listing.Employer.Id, job.Listing.Employer.FrameworkItemType,
+                        actor.Id, "Character", job.Id, "ActiveJob", job.Name));
+                }
                 job.RevenueEarned.Clear();
                 job.Changed = true;
             }

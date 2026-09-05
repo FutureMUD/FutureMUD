@@ -10,7 +10,13 @@ public abstract class PsychicTechniquePower : PsionicTargetedPowerBase
 {
 	protected PsychicTechniquePower(Models.MagicPower model, IFuturemud world) : base(model, world)
 	{
+		InitialiseEchoes();
 		var root = XElement.Parse(model.Definition);
+		// Older technique definitions stored an unused, empty SuccessEcho. Upgrade that omission once.
+		if (root.Element("TechniqueEchoesVersion") is null && string.IsNullOrEmpty(SuccessEcho))
+			SuccessEcho = PsionicPowerEmotes.Get(DatabaseType, "SuccessEcho");
+		foreach (var field in _additionalEchoes.Keys.ToList())
+			if (root.Element(field) is { } echo) _additionalEchoes[field] = echo.Value;
 		foreach (var setting in new[] { "Duration", "Amount", "Loss" })
 		{
 			if (root.Element(setting) is { } element && !double.IsFinite((double)element))
@@ -28,7 +34,25 @@ public abstract class PsychicTechniquePower : PsionicTargetedPowerBase
 		if (FeedbackMode is not ("warning" or "resource" or "stun") || VirtualResistance < Outcome.MajorFail || VirtualResistance > Outcome.MajorPass)
 			throw new ApplicationException($"Psychic power {model.Id} has an invalid feedback mode or virtual resistance.");
 	}
-	protected PsychicTechniquePower(IFuturemud world, IMagicSchool school, string name, ITraitDefinition trait) : base(world, school, name, trait) { }
+	private readonly Dictionary<string, string> _additionalEchoes = new();
+	private void InitialiseEchoes()
+	{
+		foreach (var (field, text) in PsionicPowerEmotes.All[DatabaseType])
+			if (field is not ("FailEcho" or "SuccessEcho")) _additionalEchoes[field] = text;
+	}
+	public string EchoText(string field) => field switch
+	{
+		"FailEcho" => FailEcho,
+		"SuccessEcho" => SuccessEcho,
+		_ => _additionalEchoes[field]
+	};
+	public string FormatEcho(string field, params object[] arguments) => string.Format(EchoText(field), arguments);
+	public void SendEcho(string field, ICharacter recipient, ICharacter actor, IPerceivable? target = null)
+	{
+		var text = EchoText(field);
+		if (!string.IsNullOrEmpty(text)) recipient.OutputHandler.Send(new EmoteOutput(new Emote(text, actor, actor, target ?? actor)));
+	}
+	protected PsychicTechniquePower(IFuturemud world, IMagicSchool school, string name, ITraitDefinition trait) : base(world, school, name, trait) { InitialiseEchoes(); }
 	public TimeSpan Duration { get; private set; } = TimeSpan.FromMinutes(5);
 	public double Amount { get; private set; } = 10;
 	public double Loss { get; private set; } = 0.1;
@@ -40,8 +64,9 @@ public abstract class PsychicTechniquePower : PsionicTargetedPowerBase
 	public int CircleMemberLimit { get; private set; } = 8;
 	public override string DatabaseType => DefaultVerb;
 	public override string PowerType => DefaultVerb.Proper();
-	protected override XElement SaveDefinition() => SaveTargetedDefinition(new XElement("Duration", Duration.TotalSeconds),
-		new XElement("Amount", Amount), new XElement("Loss", Loss), new XElement("Resource", ResourceId), new XElement("Permanent", Permanent), new XElement("FeedbackMode", FeedbackMode), new XElement("VirtualResistance", (int)VirtualResistance), new XElement("VirtualSourceLimit", VirtualSourceLimit), new XElement("CircleMemberLimit", CircleMemberLimit));
+	protected override XElement SaveDefinition() => SaveTargetedDefinition(new XElement("TechniqueEchoesVersion", 1), new XElement("Duration", Duration.TotalSeconds),
+		new XElement("Amount", Amount), new XElement("Loss", Loss), new XElement("Resource", ResourceId), new XElement("Permanent", Permanent), new XElement("FeedbackMode", FeedbackMode), new XElement("VirtualResistance", (int)VirtualResistance), new XElement("VirtualSourceLimit", VirtualSourceLimit), new XElement("CircleMemberLimit", CircleMemberLimit),
+		_additionalEchoes.Select(x => new XElement(x.Key, new XCData(x.Value))));
 	protected bool CanMaintain(ICharacter actor)
 	{
 		var capacity = actor.Capabilities.Where(x => x.School == School).Select(x => x.ConcentrationAbility(actor)).DefaultIfEmpty(0).Max();
@@ -84,10 +109,12 @@ public abstract class PsychicTechniquePower : PsionicTargetedPowerBase
 	}
 	protected override void ShowSubtypeDetails(ICharacter actor, StringBuilder sb)
 	{
+		foreach (var (field, text) in _additionalEchoes) sb.AppendLine($"{field}: {text.ColourCommand()}");
 		sb.AppendLine($"Duration: {Duration.Describe(actor)}; Amount: {Amount.ToString("N2", actor)}; Loss: {Loss.ToString("P0", actor)}");
 		sb.AppendLine($"Resource: {(Gameworld.MagicResources.Get(ResourceId)?.Name ?? "Not set").ColourName()}; Permanent forgetting: {Permanent.ToColouredString()}");
 	}
 	protected override string SubtypeHelpText => base.SubtypeHelpText + @"
+	#3echo <field> <text|clear>#0 - edits an additional echo listed in show; $0 is caster, $1 is target
 	#3duration <seconds>#0 - sets duration, from 1 second to 7 days
 	#3amount <number>#0 - sets magnitude, from 0 to 1000
 	#3loss <fraction>#0 - sets resource-transfer loss, from 0 to 0.99
@@ -100,7 +127,19 @@ public abstract class PsychicTechniquePower : PsionicTargetedPowerBase
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		var option = command.PopForSwitch();
-		if (option == "circlelimit")
+		if (option == "echo")
+		{
+			var requested = command.PopSpeech();
+			var field = _additionalEchoes.Keys.FirstOrDefault(x => x.EqualTo(requested));
+			if (field is null || command.IsFinished) { actor.Send("Specify an additional echo field from show and its text, or clear."); return false; }
+			var text = command.SafeRemainingArgument;
+			if (text.EqualTo("clear")) text = string.Empty;
+			if (!text.IsValidFormatString(new bool[PsionicPowerEmotes.FormatArgumentCount(DatabaseType, field)])) { actor.Send("Use only the documented numbered format placeholders."); return false; }
+			var emote = new Emote(string.Format(text, "text", "text", "text", "text"), new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+			if (!emote.Valid) { actor.Send(emote.ErrorMessage); return false; }
+			_additionalEchoes[field] = text;
+		}
+		else if (option == "circlelimit")
 		{
 			if (!int.TryParse(command.PopSpeech(), out var limit) || limit < 2 || limit > 64) return false;
 			CircleMemberLimit = limit;

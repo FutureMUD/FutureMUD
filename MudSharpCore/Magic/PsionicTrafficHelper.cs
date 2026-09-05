@@ -56,17 +56,17 @@ public static class PsionicTrafficHelper
 		if (notifySource)
 		{
 			source.OutputHandler.Send(
-				$"You push a feeling into {target.HowSeen(source, flags: PerceiveIgnoreFlags.IgnoreConsciousness)}'s mind: {cleanEmotion.ColourCommand()}");
+				PsionicPowerEmotes.FormatShared("EmotionSourceEcho", target.HowSeen(source, flags: PerceiveIgnoreFlags.IgnoreConsciousness), cleanEmotion.ColourCommand()));
 		}
 
 		target.OutputHandler.Send(
-			$"A feeling that is not your own settles into your mind: {cleanEmotion.ColourCommand()}");
+			PsionicPowerEmotes.FormatShared("EmotionTargetEcho", cleanEmotion.ColourCommand()));
 		Audit(source, target, "projected emotion into", cleanEmotion.RawText());
 
 		foreach (var listener in GetMentalListeners(source, target, showFeels: true))
 		{
 			var thinkerDescription = ListenerDescription(target, listener, school, showFeels: true);
-			listener.OutputHandler.Send($"{thinkerDescription} feels {cleanEmotion}");
+			listener.OutputHandler.Send(PsionicPowerEmotes.FormatShared("EmotionListenerEcho", thinkerDescription, cleanEmotion));
 		}
 	}
 
@@ -74,15 +74,15 @@ public static class PsionicTrafficHelper
 	{
 		var cleanThought = thought.Sanitise().NormaliseSpacing().ProperSentences().Fullstop();
 		source.OutputHandler.Send(
-			$"You press a thought into {target.HowSeen(source, flags: PerceiveIgnoreFlags.IgnoreConsciousness)}'s mind:\n\t\"{cleanThought}\"");
+			PsionicPowerEmotes.FormatShared("ThoughtSourceEcho", target.HowSeen(source, flags: PerceiveIgnoreFlags.IgnoreConsciousness), cleanThought));
 		target.OutputHandler.Send(
-			$"A thought that is not your own surfaces in your mind:\n\t\"{cleanThought}\"");
+			PsionicPowerEmotes.FormatShared("ThoughtTargetEcho", cleanThought));
 		Audit(source, target, "suggested thought to", cleanThought.RawText());
 
 		foreach (var listener in GetMentalListeners(source, target, showThinks: true))
 		{
 			var thinkerDescription = ListenerDescription(target, listener, school, showThinks: true);
-			listener.OutputHandler.Send($"{thinkerDescription} thinks,\n\t\"{cleanThought}\"");
+			listener.OutputHandler.Send(PsionicPowerEmotes.FormatShared("ThoughtListenerEcho", thinkerDescription, cleanThought));
 		}
 	}
 

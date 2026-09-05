@@ -34,13 +34,14 @@ public sealed class PsychicCircleEffect : ConcentrationConsumingEffect, IMagicEf
 		_members.Add(member);
 		member.AddEffect(new PsychicCircleMembership(member, this));
 		member.OnQuit += MemberLeft; member.OnDeath += MemberLeft;
-		member.OutputHandler.Send("You join the psychic circle. Use PSICIRCLE SAY <message> or PSICIRCLE LEAVE.");
+		Power.SendEcho("JoinEcho", member, CharacterOwner, member);
 		return true;
 	}
 	private void MemberLeft(IPerceivable member) { if (member is ICharacter character) Leave(character); }
 	public void Leave(ICharacter member)
 	{
 		if (!_members.Remove(member)) return;
+		Power.SendEcho("LeaveEcho", member, CharacterOwner, member);
 		member.OnQuit -= MemberLeft; member.OnDeath -= MemberLeft;
 		member.RemoveAllEffects<PsychicCircleMembership>(x => x.Circle == this);
 		if (member == CharacterOwner && _registered) End(member);
@@ -53,8 +54,8 @@ public sealed class PsychicCircleEffect : ConcentrationConsumingEffect, IMagicEf
 		{
 			if (!Power.TargetIsInRange(CharacterOwner, member, Power.PowerDistance) && member != CharacterOwner) { Leave(member); continue; }
 			if (MagicInterdictionHelper.GetInterdiction(speaker, member, School, false) is not null) continue;
-			member.OutputHandler.Send(speaker == member ? $"Within the psychic circle, you say: {text}" :
-				$"Within the psychic circle, {PsionicTrafficHelper.SourceDescription(speaker, member, School)} says: {text}");
+			member.OutputHandler.Send(speaker == member ? Power.FormatEcho("SelfSpeechEcho", text) :
+				Power.FormatEcho("SpeechEcho", PsionicTrafficHelper.SourceDescription(speaker, member, School), text));
 		}
 		PsionicActivityNotifier.Notify(speaker, Power, "psychic circle speech", _members);
 	}

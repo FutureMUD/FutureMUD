@@ -61,6 +61,7 @@ public sealed class TracePower : PsionicTargetedPowerBase
 
 		var results = Gameworld.GetCheck(CheckType.MagicTelepathyCheck)
 		                       .CheckAgainstAllDifficulties(actor, SkillCheckDifficulty, SkillCheckTrait, target);
+		SendSuccess(actor, target);
 		var links = TraceLinks(target).DistinctBy(x => x.Character).ToList();
 		var traces = TraceResiduals(target).DistinctBy(x => x.TraceId).OrderByDescending(x => x.CreatedUtc).ToList();
 		if (!links.Any() && !traces.Any())

@@ -81,7 +81,7 @@ public class MindExpelPower : MagicPowerBase
             throw new ApplicationException($"The MindExpelPower #{Id} ({Name}) was missing a EmoteText element.");
         }
 
-        EmoteText = element.Value.ToLowerInvariant();
+        EmoteText = element.Value;
 
         element = root.Element("EmoteTextSelf");
         if (element == null)
@@ -89,7 +89,7 @@ public class MindExpelPower : MagicPowerBase
             throw new ApplicationException($"The MindExpelPower #{Id} ({Name}) was missing a EmoteTextSelf element.");
         }
 
-        EmoteTextSelf = element.Value.ToLowerInvariant();
+        EmoteTextSelf = element.Value;
 
         element = root.Element("EchoToExpelledTarget");
         if (element == null)
@@ -97,7 +97,7 @@ public class MindExpelPower : MagicPowerBase
             throw new ApplicationException($"The MindExpelPower #{Id} ({Name}) was missing a EchoToExpelledTarget element.");
         }
 
-        EchoToExpelledTarget = element.Value.ToLowerInvariant();
+        EchoToExpelledTarget = element.Value;
 
         element = root.Element("EchoToNonExpelledTarget");
         if (element == null)
@@ -105,7 +105,7 @@ public class MindExpelPower : MagicPowerBase
             throw new ApplicationException($"The MindExpelPower #{Id} ({Name}) was missing a EchoToNonExpelledTarget element.");
         }
 
-        EchoToNonExpelledTarget = element.Value.ToLowerInvariant();
+        EchoToNonExpelledTarget = element.Value;
 
         element = root.Element("MinimumSuccessThreshold");
         if (element == null)

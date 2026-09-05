@@ -81,7 +81,12 @@ public sealed class MaintainedPsychicEffect : ConcentrationConsumingEffect, IMag
 		if (_reaction is not null) Beneficiary.RemoveEffect(_reaction);
 		_reaction = null;
 	}
-	public override void RemovalEffect() => ReleaseEvents();
+	public override void RemovalEffect()
+	{
+		ReleaseEvents();
+		Power.SendEcho("EndEcho", CharacterOwner, CharacterOwner, Beneficiary);
+		if (Beneficiary != CharacterOwner) Power.SendEcho("TargetEndEcho", Beneficiary, CharacterOwner, Beneficiary);
+	}
 }
 
 public sealed class PsychicReactionEffect : Effect, IMentalActionReaction, IMentalActionDefence
@@ -94,7 +99,7 @@ public sealed class PsychicReactionEffect : Effect, IMentalActionReaction, IMent
 	public void OnMentalAction(MentalActionContext context, MagicInvocationResult result)
 	{
 		if (!_anchor.Valid || !context.Hostile || context.Source == context.Target) return;
-		_anchor.CharacterOwner.OutputHandler.Send("You sense an intrusion against the protected mind.");
+		_anchor.Power.SendEcho("IntrusionEcho", _anchor.CharacterOwner, _anchor.CharacterOwner, _anchor.Beneficiary);
 		if (_anchor.Mode != "feedback") return;
 		var resource = Gameworld.MagicResources.Get(_anchor.Power.ResourceId);
 		if (_anchor.Power.FeedbackMode == "stun")
@@ -108,6 +113,6 @@ public sealed class PsychicReactionEffect : Effect, IMentalActionReaction, IMent
 			context.Source.MagicResourceAmounts.TryGetValue(resource, out var current);
 			context.Source.UseResource(resource, Math.Max(0, Math.Min(current, _anchor.Power.Amount)));
 		}
-		context.Source.OutputHandler.Send("Psychic feedback lashes back against your intrusion.");
+		_anchor.Power.SendEcho("ResponseEcho", context.Source, _anchor.CharacterOwner, context.Source);
 	}
 }

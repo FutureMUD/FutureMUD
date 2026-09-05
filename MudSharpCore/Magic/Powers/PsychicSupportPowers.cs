@@ -16,13 +16,13 @@ public sealed class SomaticSensePower : PsychicTechniquePower
 	{
 		if (!TryPrepareTarget(actor, command, "Whose physical distress do you want to sense?", out var target) || target is null) return;
 		if (!Resolve(actor, target, MentalActionKind.Investigation, true, out var result)) return;
+		SendSuccess(actor, target);
 		var fatigue = target.MaximumStamina <= 0 ? 0 : target.CurrentStamina / target.MaximumStamina;
-		actor.OutputHandler.Send($"You sense {target.HowSeen(actor)} as {target.State.Describe()}, " +
-			(fatigue < 0.2 ? "exhausted" : fatigue < 0.6 ? "tired" : "rested") + ".");
+		actor.OutputHandler.Send(FormatEcho("ConditionEcho", target.HowSeen(actor), target.State.Describe(), fatigue < 0.2 ? "exhausted" : fatigue < 0.6 ? "tired" : "rested"));
 		if (result.Outcome >= Outcome.Pass)
 		{
-			actor.OutputHandler.Send(target.Wounds.Any(x => x.CurrentPain > 0) ? "There is pain within that body." : "You sense no wound pain.");
-			actor.OutputHandler.Send(target.Wounds.Any() ? $"The worst wound feels {target.Wounds.Max(x => x.Severity).DescribeEnum().ToLowerInvariant()}." : "You sense no wounds.");
+			actor.OutputHandler.Send(EchoText(target.Wounds.Any(x => x.CurrentPain > 0) ? "PainEcho" : "NoPainEcho"));
+			actor.OutputHandler.Send(target.Wounds.Any() ? FormatEcho("WoundEcho", target.Wounds.Max(x => x.Severity).DescribeEnum().ToLowerInvariant()) : EchoText("NoWoundsEcho"));
 		}
 		Complete(actor, target, "a somatic reading");
 	}
@@ -43,9 +43,10 @@ public sealed class PsychicTransferPower : PsychicTechniquePower
 		var resource = Gameworld.MagicResources.Get(ResourceId);
 		if (resource is null) { actor.OutputHandler.Send("This power has no configured resource."); return; }
 		if (!Resolve(actor, target, MentalActionKind.ResourceTransfer, mode == "siphon", out _)) return;
+		SendSuccess(actor, target);
 		// Resolution has already paid the invocation cost, before reactions or resource transfer.
 		var transfer = MagicResourceTransfer.Transfer(mode == "siphon" ? target : actor, mode == "siphon" ? actor : target, resource, Amount, Loss);
-		actor.OutputHandler.Send($"You transfer {transfer.Received.ToString("N2", actor).ColourValue()} {resource.Name.ColourName()}.");
+		actor.OutputHandler.Send(FormatEcho(mode == "lend" ? "LendEcho" : "SiphonEcho", transfer.Received.ToString("N2", actor).ColourValue(), resource.Name.ColourName()));
 		PsionicActivityNotifier.Notify(actor, this, "a psychic resource transfer", target);
 	}
 }
@@ -62,7 +63,7 @@ public sealed class DisruptConcentrationPower : PsychicTechniquePower
 		if (!Resolve(actor, target, MentalActionKind.Disruption, true, out _)) return;
 		var effect = target.EffectsOfType<ConcentrationConsumingEffect>().OrderByDescending(x => x.ConcentrationPointsConsumed).FirstOrDefault();
 		effect?.ChallengeConcentration(SkillCheckDifficulty);
-		actor.OutputHandler.Send(new EmoteOutput(new Emote("You drive a sharp pulse of distraction into $1's thoughts.", actor, actor, target)));
+		SendEcho("SuccessEcho", actor, actor, target);
 		Complete(actor, target, "a concentration disruption");
 	}
 }
@@ -82,8 +83,8 @@ public sealed class DreamsendPower : PsychicTechniquePower
 		    target.Location?.EffectsOfType<INoDreamEffect>().Any() == true)
 		{ actor.OutputHandler.Send("That mind is not available to receive a dream."); return; }
 		if (!Resolve(actor, target, MentalActionKind.Influence, true, out _)) return;
-		target.OutputHandler.Send($"Within a dream, you experience:\n{text}");
-		actor.OutputHandler.Send(new EmoteOutput(new Emote("You weave a brief image into $1's dreams.", actor, actor, target)));
+		target.OutputHandler.Send(FormatEcho("DreamEcho", text));
+		SendEcho("SuccessEcho", actor, actor, target);
 		PsionicTrafficHelper.Audit(actor, target, "sent a dream to", text);
 		Complete(actor, target, "a dream sending");
 	}

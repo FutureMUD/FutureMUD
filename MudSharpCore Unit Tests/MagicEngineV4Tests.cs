@@ -32,13 +32,49 @@ namespace MudSharp_Unit_Tests;
 public class MagicEngineV4Tests
 {
 	[TestMethod]
+	public void TechniqueEchoes_PreserveCustomTextAndExplicitSilenceAcrossSaveLoad()
+	{
+		var world = CreateGameworld();
+		world.SetupGet(x => x.SaveManager).Returns(Mock.Of<MudSharp.Framework.Save.ISaveManager>());
+		var resource = new Mock<IMagicResource>(); resource.SetupGet(x => x.Id).Returns(1);
+		world.SetupGet(x => x.MagicResources).Returns(CreateCollectionMock(resource.Object).Object);
+		var stock = PsionicStockContent.Powers.First(x => x.Type == "guardmind");
+		var xml = PsionicStockContent.Definition(stock, 1, 1, 0, 0, 0, 0);
+		xml.SetElementValue("SuccessEcho", "");
+		xml.SetElementValue("TargetEcho", "A familiar shelter surrounds your thoughts.");
+		var model = new MagicPower { Id = 1, Name = stock.Verb, MagicSchoolId = 1, PowerModel = stock.Type, Definition = xml.ToString() };
+		var power = (PsychicTechniquePower)MagicPowerFactory.LoadPower(model, world.Object);
+		Assert.AreEqual("", power.EchoText("SuccessEcho"));
+		Assert.AreEqual("A familiar shelter surrounds your thoughts.", power.EchoText("TargetEcho"));
+		var actor = CreateCharacter(1, world.Object);
+		var output = new Mock<MudSharp.PerceptionEngine.IOutputHandler>();
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		Assert.IsFalse(power.BuildingCommand(actor.Object, new StringStack("echo TargetEcho An invalid {0}.")));
+		Assert.AreEqual("A familiar shelter surrounds your thoughts.", power.EchoText("TargetEcho"));
+		Assert.IsTrue(power.BuildingCommand(actor.Object, new StringStack("echo TargetEcho A CUSTOM shelter.")));
+		power.SendEcho("TargetEcho", actor.Object, actor.Object);
+		output.Verify(x => x.Send(It.IsAny<MudSharp.PerceptionEngine.IOutput>(), true, false), Times.Once);
+		Assert.AreEqual("A CUSTOM shelter.", power.EchoText("TargetEcho"));
+		model.Definition = InvokeSaveDefinition(power).ToString();
+		var reloaded = (PsychicTechniquePower)MagicPowerFactory.LoadPower(model, world.Object);
+		Assert.AreEqual(power.EchoText("TargetEcho"), reloaded.EchoText("TargetEcho"));
+		Assert.AreEqual("", reloaded.EchoText("SuccessEcho"));
+		xml.Element("TechniqueEchoesVersion")!.Remove();
+		xml.Element("TargetEcho")!.Remove();
+		model.Definition = xml.ToString();
+		var legacy = (PsychicTechniquePower)MagicPowerFactory.LoadPower(model, world.Object);
+		Assert.AreEqual(PsionicPowerEmotes.Get(stock.Type, "SuccessEcho"), legacy.EchoText("SuccessEcho"));
+		Assert.AreEqual(PsionicPowerEmotes.Get(stock.Type, "TargetEcho"), legacy.EchoText("TargetEcho"));
+	}
+
+	[TestMethod]
 	public void StockEchoes_ParseAfterTheirDocumentedSubstitutions()
 	{
 		foreach (var (type, fields) in PsionicPowerEmotes.All)
 		foreach (var (field, template) in fields)
 		{
 			var text = template.Replace("{kind}", "psychic").Replace("{description}", "a passing thought");
-			if (type is "connectmind" or "mindsay") text = string.Format(text, "an unfamiliar mind", "A message.");
+			text = string.Format(text, "an unfamiliar mind", "A message.", "a duration", "a value");
 			var emote = new MudSharp.PerceptionEngine.Parsers.Emote(text, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
 			Assert.IsTrue(emote.Valid, $"{type}/{field}: {emote.ErrorMessage}");
 		}
@@ -226,6 +262,13 @@ public class MagicEngineV4Tests
 				var power = MagicPowerFactory.LoadPower(model, world.Object);
 				Assert.IsTrue(power.Verbs.Contains(stock.Verb), stock.Type);
 				Assert.IsTrue(stock.Cost > 0 && stock.Cost <= PsionicStockContent.FocusCap, stock.Type);
+				var fields = power.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
+					.Where(x => x.PropertyType == typeof(string) && (x.Name.Contains("Emote") || x.Name.Contains("Echo")));
+				foreach (var field in fields)
+					Assert.IsTrue(PsionicPowerEmotes.All[stock.Type].ContainsKey(field.Name), $"Missing {stock.Type}.{field.Name}");
+				var saved = InvokeSaveDefinition(power);
+				foreach (var (field, text) in PsionicPowerEmotes.All[stock.Type])
+					Assert.AreEqual(text, saved.Element(field)?.Value, $"Unmapped {stock.Type}.{field}");
 			}
 			catch (Exception exception) { Assert.Fail($"{stock.Type}: {exception}"); }
 		}

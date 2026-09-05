@@ -19,10 +19,11 @@ public sealed class EmotionalInfluencePower : PsychicTechniquePower
 		var subject = mode is "affinity" or "aversion" ? actor.TargetActor(command.SafeRemainingArgument) : actor;
 		if (subject is null) { actor.OutputHandler.Send("Specify a person you can identify here."); return; }
 		if (!Resolve(actor, target, mode == "read" ? MentalActionKind.Investigation : MentalActionKind.Influence, true, out _)) return;
+		SendSuccess(actor, target);
 		if (mode == "read")
 		{
 			var emotions = target.CombinedEffectsOfType<PsychicEmotionEffect>().Select(x => x.Emotion).Distinct().ToList();
-			actor.OutputHandler.Send(emotions.Any() ? $"You sense {emotions.ListToString()} within that mind." : "No distinct emotional influence emerges.");
+			actor.OutputHandler.Send(emotions.Any() ? FormatEcho("ReadingEcho", emotions.ListToString()) : EchoText("NoEmotionsEcho"));
 		}
 		else
 		{

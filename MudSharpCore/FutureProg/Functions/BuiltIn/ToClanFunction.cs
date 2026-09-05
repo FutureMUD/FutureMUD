@@ -1,3 +1,4 @@
+using MudSharp.FutureProg.Variables;
 ﻿
 namespace MudSharp.FutureProg.Functions.BuiltIn;
 
@@ -24,10 +25,17 @@ internal class ToClanFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
+        if (ParameterFunctions[0].Result?.GetObject is null)
+        {
+            Result = new NullVariable(ReturnType);
+            return StatementResult.Normal;
+        }
+
         Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
             ? _gameworld.Clans.Get((string)ParameterFunctions[0].Result.GetObject).FirstOrDefault()
             : _gameworld.Clans.Get((long)(decimal)ParameterFunctions[0].Result.GetObject);
 
+        Result ??= new NullVariable(ReturnType);
         return StatementResult.Normal;
     }
 

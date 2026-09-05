@@ -26,9 +26,15 @@ internal class ToClanAppointmentFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
+        if (ParameterFunctions.Any(x => x.Result?.GetObject is null))
+        {
+            Result = new NullVariable(ReturnType);
+            return StatementResult.Normal;
+        }
+
         if (ParameterFunctions.Count == 1)
         {
-            Result = _gameworld.Clans.SelectMany(x => x.Appointments).Get((long)(decimal)(ParameterFunctions[0].Result?.GetObject ?? 0.0M));
+            Result = _gameworld.Clans.SelectMany(x => x.Appointments).Get((long)(decimal)(ParameterFunctions[0].Result?.GetObject ?? 0.0M)) ?? (IProgVariable)new NullVariable(ReturnType);
             return StatementResult.Normal;
         }
 
@@ -36,6 +42,13 @@ internal class ToClanAppointmentFunction : BuiltInFunction
         if (clan is null)
         {
             Result = new NullVariable(ProgVariableTypes.ClanAppointment);
+            return StatementResult.Normal;
+        }
+
+        if (ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number))
+        {
+            Result = clan.Appointments.Get((long)(decimal)(ParameterFunctions[1].Result?.GetObject ?? 0.0M)) ??
+                     (IProgVariable)new NullVariable(ReturnType);
             return StatementResult.Normal;
         }
 
@@ -48,7 +61,7 @@ internal class ToClanAppointmentFunction : BuiltInFunction
 
         Result = clan.Appointments.FirstOrDefault(x => x.Name.EqualTo(text)) ??
             clan.Appointments.FirstOrDefault(x => x.Titles.Any(y => y.EqualTo(text))) ??
-            clan.Appointments.FirstOrDefault(x => x.Abbreviations.Any(y => y.EqualTo(text)));
+            clan.Appointments.FirstOrDefault(x => x.Abbreviations.Any(y => y.EqualTo(text))) ?? (IProgVariable)new NullVariable(ReturnType);
 
         return StatementResult.Normal;
     }
@@ -76,5 +89,11 @@ internal class ToClanAppointmentFunction : BuiltInFunction
             "Lookup",
             ProgVariableTypes.ClanAppointment
         ));
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "toappointment", [ProgVariableTypes.Clan, ProgVariableTypes.Number],
+            (pars, world) => new ToClanAppointmentFunction(pars, world),
+            ["clan", "id"], ["The clan to search within.", "The appointment ID."],
+            "Returns a appointment by ID within a clan, or null.", "Lookup", ProgVariableTypes.ClanAppointment));
+
     }
 }

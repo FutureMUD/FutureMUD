@@ -133,6 +133,49 @@ The globally named roots use ID-or-name lookups. Property keys, leases, lease or
 
 `ispropertyowner(property, character)`, `ispropertyleaseholder(property, character)`, and `ispropertytenant(property, character)` use the property system's authoritative access checks. `sendchannel` is intentionally a void operation and delegates to `IChannel.Send(character, text)`, preserving the normal speaker, membership, listener, missed-listener, and Discord paths. It does not add a system-message overload or subscription mutation surface.
 
+## Reference Conversion Functions
+
+Straightforward registry conversions share `FrameworkItemLookupFunction`. Owner-scoped conversions use dedicated `ToCharacteristicValueFunction`, `ToBankAccountTypeFunction`, `ToMerchandiseFunction`, `ToLawFunction`, and `ToSignedVarietyFunction` classes, following the existing clan conversion pattern. Each class owns its concrete owner type, lookup rules, return type and compiler registrations; no generic object-based scoped dispatcher is used.
+
+`To<Type>` lookups resolve existing objects; they do not create database records. The new lookup families return a null of their declared type when the identifier or owner is missing. Existing short-form lookup names remain available. All numeric IDs refer to the concrete object identity unless explicitly documented otherwise below.
+
+| Family | Supported conversions |
+| --- | --- |
+| Characteristics | `tocharacteristicdefinition(number|text)`, `tocharacteristicvalue(number|text)`, `tocharacteristicvalue(characteristicdefinition, number|text)` |
+| Time, weather and materials | `tocalendar`, `toclock`, `toweatherevent`, `tosolid`, `toliquid`, `togas`: each accepts an ID or name |
+| Magic | `tomagicspell`, `tomagicschool`, `tomagiccapability`: each accepts an ID or name |
+| Economy | `toshop`, `tomarket`, `tomarketcategory`, `toproperty`, `toeconomiczone`: each accepts an ID or name |
+| Owner-scoped configuration | `tobankaccounttype(number)` or `(bank, number|text)`; `tomerchandise(number)` or `(shop, number|text)`; `tolaw(number)` or `(legalauthority, number|text)` |
+| Signed language varieties | `tosignedvariety(number)` or `(signedlanguage, number|text)`; `tosignedlanguagevariety` is an alias |
+| Builder references | `totag`, `toitemprototype`, `tonpctemplate`, `tooutfittemplate`, `tovehicle`, `tocelestial`, `togrid`, `tochannel`, `tonpcskillpackage`: each accepts an ID or name; `tocelestialobject` is also supported |
+| Agriculture | `toagriculturefield`, `tofieldprofile`, `tocropdefinition`, `toherddefinition`, `towoodlanddefinition`, `toagricultureoperation`: each accepts an ID or name; the definition/profile conversions also accept the full `toagriculture...` type spelling |
+| Durable records | `toproject(number)` resolves an active project, not its revisioned template; `tocrime(number)`, `topropertykey(number)`, `topropertylease(number)`, `topropertyleaseorder(number)`, `topropertysaleorder(number)` use IDs only |
+| Vehicle operations | `tovehicleroute(number|text)` and `tovehicleservice(number|text)` accept ID/name; `tovehiclejourney(number)` uses its durable ID, while `tovehiclejourney(text)` uses its operation GUID |
+
+Scoped text lookups match names case-insensitively within the supplied owner. Characteristic values use the definition's `IsValue` relationship, including inherited values, so another definition's identically named value cannot hide a valid match. The one-argument characteristic value lookup retains its global lookup semantics; supply a definition when a name is ambiguous.
+
+Clan lookups have one compiler registration per signature. `torank(number)` uses a global rank ID, while `torank(clan, number)` preserves the established **rank number** interpretation. `torank(clan, text)` also accepts rank titles and abbreviations. `toappointment` and `topaygrade` accept a global ID, or a clan followed by a name or ID; name lookups retain their title/abbreviation support. Missing clan lookup results are typed nulls. Legal-class lookup retains `tolegalclass(number)` and `tolegalclass(text, legalauthority)`.
+
+The audit deliberately leaves runtime-owned `Chargen`, `Exit`, `Effect`, `Trap`, `Outfit`, and `OutfitItem` without a global ID/name conversion. Their values come from their owning runtime context and existing query/creation functions. Value types such as personal names, liquid mixtures and dates likewise use their existing constructors/parsers. Active projects and workflow records have no new global name overload because names may be repeated. Character and item resolution retains the established loading and identity behavior rather than introducing ambiguous global display-name searches.
+
+### Characteristic Function Overloads
+
+For characters and items, the definition argument of `characteristicvalue`, `characteristicid`, `getcharacteristicvalue`, `setcharacteristic`, and `setcharacteristicrandom` accepts a `CharacteristicDefinition`, numeric ID or text name. `setcharacteristic` independently accepts a `CharacteristicValue`, numeric ID or definition-scoped text name for its value argument, including every mixed combination. It validates the value against the definition before mutation.
+
+The legacy two-argument `characteristicvalue` continues to return a **text name**, and `characteristicid` continues to return a number; missing values remain empty text/zero. `getcharacteristicvalue` returns a **CharacteristicValue** or typed null and also accepts chargens, reading their selected values. This distinction avoids changing the return type of existing scripts.
+
+`getcharacteristic` and `getrealcharacteristic` additionally accept a typed definition and still return description text. The former honors its supplied perceiver; the latter uses no perceiver. Text definition arguments retain basic/fancy suffix support. Typed definition arguments use normal description form; a resolved value also exposes `value`, `basicvalue` and `fancyvalue` dot references.
+
+`setcharacteristicrandom` retains profile ID/name arguments because profiles are not a FutureProg type. It rejects incompatible profiles and invalid selected values. Forced changes make at most 100 retries after the initial selection and return false without mutation if a different value cannot be drawn, preventing a character-specific eligibility filter from producing an endless loop. Profiles with at most one value retain the established allowance to select the same value.
+
+For example:
+
+```text
+return setcharacteristic(@target, tocharacteristicdefinition("eyecolour"), tocharacteristicvalue(tocharacteristicdefinition("eyecolour"), "blue"))
+```
+
+These additions change compiler registrations and runtime lookup/dispatch only. They require no migration and do not change variable-register serialization or existing characteristic persistence.
+
 ## Persistence Format
 
 FutureProg type persistence now uses a canonical versioned string definition:

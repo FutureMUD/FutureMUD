@@ -1,4 +1,5 @@
 ﻿using MudSharp.Form.Characteristics;
+using MudSharp.CharacterCreation;
 using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions.Characteristics;
@@ -20,168 +21,21 @@ internal class CharacteristicValueFunction : BuiltInFunction
         protected set => base.ReturnType = value;
     }
 
-    public static void RegisterFunctionCompiler()
-    {
-        FutureProg.RegisterBuiltInFunctionCompiler(
-            new FunctionCompilerInformation(
-                "characteristicvalue",
-                new[]
-                {
-                    ProgVariableTypes.Character, ProgVariableTypes.Number
-                },
-                (pars, gameworld) => new CharacteristicValueFunction(pars, false, gameworld),
-                new List<string> { "character", "characteristic" },
-                new List<string>
-                {
-                    "The character whose characteristics you are interested in probing",
-                    "The ID Number of the characteristic definition you want to probe the value of"
-                },
-                "This function returns the name of the supplied character's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the eyecolour characteristic, you might get the 'emerald green' as a return value.",
-                "Characteristics",
-                ProgVariableTypes.Text
-            )
-        );
-
-        FutureProg.RegisterBuiltInFunctionCompiler(
-            new FunctionCompilerInformation(
-                "characteristicvalue",
-                new[]
-                {
-                    ProgVariableTypes.Item, ProgVariableTypes.Number
-                },
-                (pars, gameworld) => new CharacteristicValueFunction(pars, false, gameworld),
-                new List<string> { "item", "characteristic" },
-                new List<string>
-                {
-                    "The item whose characteristics you are interested in probing",
-                    "The ID Number of the characteristic definition you want to probe the value of"
-                },
-                "This function returns the name of the supplied items's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the 'hot pink' as a return value.",
-                "Characteristics",
-                ProgVariableTypes.Text
-            )
-        );
-
-        FutureProg.RegisterBuiltInFunctionCompiler(
-            new FunctionCompilerInformation(
-                "characteristicvalue",
-                new[]
-                {
-                    ProgVariableTypes.Character, ProgVariableTypes.Text
-                },
-                (pars, gameworld) => new CharacteristicValueFunction(pars, false, gameworld),
-                new List<string> { "character", "characteristic" },
-                new List<string>
-                {
-                    "The character whose characteristics you are interested in probing",
-                    "The name of the characteristic definition you want to probe the value of"
-                },
-                "This function returns the name of the supplied character's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the eyecolour characteristic, you might get the 'emerald green' as a return value.",
-                "Characteristics",
-                ProgVariableTypes.Text
-            )
-        );
-
-        FutureProg.RegisterBuiltInFunctionCompiler(
-            new FunctionCompilerInformation(
-                "characteristicvalue",
-                new[]
-                {
-                    ProgVariableTypes.Item, ProgVariableTypes.Text
-                },
-                (pars, gameworld) => new CharacteristicValueFunction(pars, false, gameworld),
-                new List<string> { "item", "characteristic" },
-                new List<string>
-                {
-                    "The item whose characteristics you are interested in probing",
-                    "The name of the characteristic definition you want to probe the value of"
-                },
-                "This function returns the name of the supplied items's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the 'hot pink' as a return value.",
-                "Characteristics",
-                ProgVariableTypes.Text
-            )
-        );
-
-        FutureProg.RegisterBuiltInFunctionCompiler(
-            new FunctionCompilerInformation(
-                "characteristicid",
-                new[]
-                {
-                    ProgVariableTypes.Character, ProgVariableTypes.Number
-                },
-                (pars, gameworld) => new CharacteristicValueFunction(pars, true, gameworld),
-                new List<string> { "character", "characteristic" },
-                new List<string>
-                {
-                    "The character whose characteristics you are interested in probing",
-                    "The ID Number of the characteristic definition you want to probe the value of"
-                },
-                "This function returns the ID of the supplied character's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the ID 435 as a return value.",
-                "Characteristics",
-                ProgVariableTypes.Number
-            )
-        );
-
-        FutureProg.RegisterBuiltInFunctionCompiler(
-            new FunctionCompilerInformation(
-                "characteristicid",
-                new[]
-                {
-                    ProgVariableTypes.Item, ProgVariableTypes.Number
-                },
-                (pars, gameworld) => new CharacteristicValueFunction(pars, true, gameworld),
-                new List<string> { "item", "characteristic" },
-                new List<string>
-                {
-                    "The item whose characteristics you are interested in probing",
-                    "The ID Number of the characteristic definition you want to probe the value of"
-                },
-                "This function returns the ID of the supplied items's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the ID 435 as a return value.",
-                "Characteristics",
-                ProgVariableTypes.Number
-            )
-        );
-
-        FutureProg.RegisterBuiltInFunctionCompiler(
-            new FunctionCompilerInformation(
-                "characteristicid",
-                new[]
-                {
-                    ProgVariableTypes.Character, ProgVariableTypes.Text
-                },
-                (pars, gameworld) => new CharacteristicValueFunction(pars, true, gameworld),
-                new List<string> { "character", "characteristic" },
-                new List<string>
-                {
-                    "The character whose characteristics you are interested in probing",
-                    "The name of the characteristic definition you want to probe the value of"
-                },
-                "This function returns the ID of the supplied character's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the ID 435 as a return value.",
-                "Characteristics",
-                ProgVariableTypes.Number
-            )
-        );
-
-        FutureProg.RegisterBuiltInFunctionCompiler(
-            new FunctionCompilerInformation(
-                "characteristicid",
-                new[]
-                {
-                    ProgVariableTypes.Item, ProgVariableTypes.Text
-                },
-                (pars, gameworld) => new CharacteristicValueFunction(pars, true, gameworld),
-                new List<string> { "item", "characteristic" },
-                new List<string>
-                {
-                    "The item whose characteristics you are interested in probing",
-                    "The name of the characteristic definition you want to probe the value of"
-                },
-                "This function returns the ID of the supplied items's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the ID 435 as a return value.",
-                "Characteristics",
-                ProgVariableTypes.Number
-            )
-        );
-    }
+	public static void RegisterFunctionCompiler()
+	{
+		foreach (var targetType in new[] { ProgVariableTypes.Character, ProgVariableTypes.Item })
+		foreach (var definitionType in CharacteristicFunctionLookup.DefinitionTypes)
+		foreach (var id in new[] { false, true })
+		{
+			var resultType = id ? ProgVariableTypes.Number : ProgVariableTypes.Text;
+			FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+				id ? "characteristicid" : "characteristicvalue", [targetType, definitionType],
+				(pars, world) => new CharacteristicValueFunction(pars, id, world),
+				["target", "definition"], ["The character or item to query.", "The characteristic definition, ID or name."],
+				id ? "Returns the intrinsic characteristic value ID, or zero if absent." : "Returns the intrinsic characteristic value name, or empty text if absent.",
+				"Characteristics", resultType));
+		}
+	}
 
     public override StatementResult Execute(IVariableSpace variables)
     {
@@ -190,15 +44,13 @@ internal class CharacteristicValueFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
-        if (ParameterFunctions[0]?.Result is not IHaveCharacteristics target)
+        if (ParameterFunctions[0]?.Result?.GetObject is not IHaveCharacteristics target)
         {
             Result = _returnIdOfCharacteristic ? (IProgVariable)new NumberVariable(0) : new TextVariable("");
             return StatementResult.Normal;
         }
 
-        ICharacteristicDefinition definition = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Text)
-            ? _gameworld.Characteristics.GetByName(ParameterFunctions[1].Result?.GetObject as string ?? "")
-            : _gameworld.Characteristics.Get((long)(ParameterFunctions[1].Result?.GetObject as decimal? ?? 0.0M));
+        var definition = CharacteristicFunctionLookup.Definition(ParameterFunctions[1], _gameworld);
         if (definition == null)
         {
             Result = _returnIdOfCharacteristic ? (IProgVariable)new NumberVariable(0) : new TextVariable("");
@@ -215,8 +67,11 @@ internal class CharacteristicValueFunction : BuiltInFunction
 
 internal sealed class GetCharacteristicValueFunction : BuiltInFunction
 {
-	private GetCharacteristicValueFunction(IList<IFunction> parameters) : base(parameters)
+	private readonly IFuturemud _gameworld;
+
+	private GetCharacteristicValueFunction(IList<IFunction> parameters, IFuturemud gameworld) : base(parameters)
 	{
+		_gameworld = gameworld;
 	}
 
 	public override ProgVariableTypes ReturnType
@@ -232,15 +87,20 @@ internal sealed class GetCharacteristicValueFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		if (ParameterFunctions[0].Result?.GetObject is not IHaveCharacteristics target ||
-		    ParameterFunctions[1].Result?.GetObject is not ICharacteristicDefinition definition)
+		var target = ParameterFunctions[0].Result?.GetObject;
+		if (CharacteristicFunctionLookup.Definition(ParameterFunctions[1], _gameworld) is not { } definition)
 		{
 			Result = new NullVariable(ProgVariableTypes.CharacteristicValue);
 			return StatementResult.Normal;
 		}
 
-		Result = target.GetCharacteristic(definition, null) as IProgVariable ??
-		         new NullVariable(ProgVariableTypes.CharacteristicValue);
+		var value = target switch
+		{
+			IChargen chargen => chargen.SelectedCharacteristics.FirstOrDefault(x => x.Item1 == definition).Item2,
+			IHaveCharacteristics characteristics => characteristics.GetCharacteristic(definition, null),
+			_ => null
+		};
+		Result = value as IProgVariable ?? new NullVariable(ProgVariableTypes.CharacteristicValue);
 		return StatementResult.Normal;
 	}
 
@@ -248,16 +108,18 @@ internal sealed class GetCharacteristicValueFunction : BuiltInFunction
 	{
 		Register(ProgVariableTypes.Character, "The character whose characteristic value you want to retrieve.");
 		Register(ProgVariableTypes.Item, "The item whose characteristic value you want to retrieve.");
+		Register(ProgVariableTypes.Chargen, "The chargen whose selected characteristic value you want to retrieve.");
 	}
 
 	private static void Register(ProgVariableTypes targetType, string targetHelp)
 	{
+		foreach (var definitionType in CharacteristicFunctionLookup.DefinitionTypes)
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"getcharacteristicvalue",
-			[targetType, ProgVariableTypes.CharacteristicDefinition],
-			(pars, _) => new GetCharacteristicValueFunction(pars),
+			[targetType, definitionType],
+			(pars, world) => new GetCharacteristicValueFunction(pars, world),
 			["target", "definition"],
-			[targetHelp, "The resolved characteristic definition to retrieve."],
+			[targetHelp, "The characteristic definition, ID or name to retrieve."],
 			"Returns the selected characteristic value for a character or item, or null if it has no value for that definition.",
 			"Characteristics",
 			ProgVariableTypes.CharacteristicValue));

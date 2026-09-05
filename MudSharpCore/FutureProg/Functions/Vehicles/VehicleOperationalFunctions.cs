@@ -72,6 +72,11 @@ internal sealed class VehicleOperationalLookupFunction : BuiltInFunction
 	private static void Register(string name, ProgVariableTypes parameterType, ProgVariableTypes returnType,
 		LookupType lookupType, string parameterHelp, string functionHelp)
 	{
+		if (!name.StartsWith("to", StringComparison.Ordinal))
+		{
+			Register("to" + name, parameterType, returnType, lookupType, parameterHelp, functionHelp);
+		}
+
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			name,
 			[parameterType],

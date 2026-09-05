@@ -569,3 +569,9 @@ Reports and manual snapshots require Admin. `economy config` is readable by Admi
 Live-census commands remain synchronous because they combine current in-memory economy state with persisted offline currency. Their database work is bounded to relevant currency ancestry/custody rows, bank-owner classifications are batched without loading character objects, ledger volume is aggregated server-side, and summary risk analysis reuses the report's existing census. Durable trend queries order and limit their grouped SQL result before constructing runtime points so they remain provider-translatable.
 
 Business operations should call `IEconomyAnalyticsService.RecordActivity` once at their semantic completion boundary. Shop sale/purchase/refund/tax records are captured centrally by `IShop.AddTransaction`; bank account transfers and player cash gifts record one transfer after settlement. New services, rent, property, auction, wage/project, clan, tax, legal-payment, source, and sink paths must use the same entry point rather than inferring volume from paired bank or virtual-cash ledger legs.
+
+## FutureProg Reference Conversions
+
+Builders can resolve shops, markets, market categories, properties and economic zones using `toshop`, `tomarket`, `tomarketcategory`, `toproperty` and `toeconomiczone` with an ID or name. `tobankaccounttype` accepts a global ID or a bank followed by an ID/name; `tomerchandise` similarly takes a shop for scoped lookup. Property keys, leases, lease orders and sale orders have numeric-only `To` aliases. Missing lookups return null of the declared type. These are read-only reference lookups with no persistence or transaction changes.
+
+See [Reference Conversion Functions](../Core/FutureProg_Type_System.md#reference-conversion-functions) for the complete conversion audit and characteristic overload contracts.

@@ -400,3 +400,9 @@ Refrigeration is intentionally an environmental simulation rather than a visible
 Dryers use normal open/close and switch commands. A running dryer must be closed, powered, and on; opening it visibly performs the ordinary door interaction and leaves it switched off. Accelerated evaporation continues through the existing surface-liquid state, including residue production, and applies to nested contents. Refrigerators do not alter surface-liquid evaporation.
 
 Power banks present through existing connect/disconnect and power behaviour. Their connector direction determines whether a cable supplies charging input or exposes stored output. Simultaneous operation is valid, but consumer availability still reflects output wattage and stored energy. Save/load restores charge before normal connection finalisation so restored consumers cannot receive fictional unlimited passthrough power.
+
+## Typed FutureProg Characteristics
+
+Item characteristic functions accept resolved characteristic definitions alongside the existing ID/name selectors. `setcharacteristic` accepts every combination of definition object/ID/name and value object/ID/name, validates membership, and scopes text value names to the definition. `getcharacteristicvalue` returns a typed value; the existing `characteristicvalue` and `characteristicid` retain text/number results. Typed `getcharacteristic` and `getrealcharacteristic` continue to return description text using their established perceiver semantics. Random setters also accept a typed definition and bound forced-change retries.
+
+`toitemprototype`, `tooutfittemplate`, `totag`, `togrid`, and the characteristic conversions provide consistent `To` entry points alongside existing short names. Item persistence and component ownership are unchanged. See [Reference Conversion Functions](../Core/FutureProg_Type_System.md#reference-conversion-functions) for signatures, null behavior and examples.

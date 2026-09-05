@@ -26,9 +26,15 @@ internal class ToClanRankFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
+        if (ParameterFunctions.Any(x => x.Result?.GetObject is null))
+        {
+            Result = new NullVariable(ReturnType);
+            return StatementResult.Normal;
+        }
+
         if (ParameterFunctions.Count == 1)
         {
-            Result = _gameworld.Clans.SelectMany(x => x.Ranks).Get((long)(decimal)(ParameterFunctions[0].Result?.GetObject ?? 0.0M));
+            Result = _gameworld.Clans.SelectMany(x => x.Ranks).Get((long)(decimal)(ParameterFunctions[0].Result?.GetObject ?? 0.0M)) ?? (IProgVariable)new NullVariable(ReturnType);
             return StatementResult.Normal;
         }
 
@@ -50,12 +56,12 @@ internal class ToClanRankFunction : BuiltInFunction
 
             Result = clan.Ranks.FirstOrDefault(x => x.Name.EqualTo(text)) ??
                      clan.Ranks.FirstOrDefault(x => x.Titles.Any(y => y.EqualTo(text))) ??
-                     clan.Ranks.FirstOrDefault(x => x.Abbreviations.Any(y => y.EqualTo(text)));
+                     clan.Ranks.FirstOrDefault(x => x.Abbreviations.Any(y => y.EqualTo(text))) ?? (IProgVariable)new NullVariable(ReturnType);
 
             return StatementResult.Normal;
         }
 
-        int rankNumber = (int)(decimal)(ParameterFunctions[1].Result?.GetObject ?? 1.0);
+        int rankNumber = (int)(decimal)(ParameterFunctions[1].Result?.GetObject ?? 1.0M);
         Result = clan.Ranks.FirstOrDefault(x => x.RankNumber == rankNumber) ?? (IProgVariable)new NullVariable(ProgVariableTypes.ClanRank);
         return StatementResult.Normal;
     }
@@ -77,9 +83,9 @@ internal class ToClanRankFunction : BuiltInFunction
             "torank",
             new[] { ProgVariableTypes.Clan, ProgVariableTypes.Number },
             (pars, gameworld) => new ToClanRankFunction(pars, gameworld),
-            new List<string> { "clan", "name" },
-            new List<string> { "The clan in which you want to search", "The name to look up" },
-            "Converts a name and clan into the specified type, if one exists",
+            new List<string> { "clan", "rank #" },
+            new List<string> { "The clan in which you want to search", "The rank number of the rank" },
+            "Converts a rank number and clan into the specified type, if one exists",
             "Lookup",
             ProgVariableTypes.ClanRank
         ));
@@ -88,9 +94,9 @@ internal class ToClanRankFunction : BuiltInFunction
             "torank",
             new[] { ProgVariableTypes.Clan, ProgVariableTypes.Text },
             (pars, gameworld) => new ToClanRankFunction(pars, gameworld),
-            new List<string> { "clan", "rank #" },
-            new List<string> { "The clan in which you want to search", "The rank number of the rank" },
-            "Converts a rank number and clan into the specified type, if one exists",
+            new List<string> { "clan", "name" },
+            new List<string> { "The clan in which you want to search", "The name, title or abbreviation to look up" },
+            "Converts a name and clan into the specified type, if one exists",
             "Lookup",
             ProgVariableTypes.ClanRank
         ));

@@ -58,9 +58,9 @@ public class MindAuditPower : MagicPowerBase
         SkillCheckTrait = trait;
         SkillCheckDifficultyProg = Gameworld.AlwaysZeroProg;
         MinimumSuccessThreshold = Outcome.MinorPass;
-        EmoteText = "@ close|closes &0's eyes for a brief moment and looks deep in concentration.";
-        EmoteTextSelf = "You close your eyes and search your mind for foreign presences.";
-        EchoToDetectedTarget = "You feel as if your presence in $0's mind has been detected.";
+        EmoteText = PsionicPowerEmotes.Get("mindaudit", "EmoteText");
+        EmoteTextSelf = PsionicPowerEmotes.Get("mindaudit", "EmoteTextSelf");
+        EchoToDetectedTarget = PsionicPowerEmotes.Get("mindaudit", "EchoToDetectedTarget");
         ShouldEchoDetectionProg = Gameworld.AlwaysFalseProg;
         IsPsionic = true;
         EnablePsionicTraceDefaults();

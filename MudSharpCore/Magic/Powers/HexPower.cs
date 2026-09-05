@@ -46,9 +46,9 @@ public sealed class HexPower : PsionicTargetedPowerBase
 		Categories = PsionicHexCheckCategory.General | PsionicHexCheckCategory.TargetedHostile |
 		             PsionicHexCheckCategory.OffensiveCombat | PsionicHexCheckCategory.DefensiveCombat;
 		ReplaceExisting = true;
-		FailEcho = "You reach for $1's fortune, but your malice slips away.";
-		SuccessEcho = "@ narrow|narrows &0's eyes as a hostile psychic pressure settles over $1.";
-		TargetEcho = "A hostile psychic pressure settles over you.";
+		FailEcho = PsionicPowerEmotes.Get("hex", "FailEcho");
+		SuccessEcho = PsionicPowerEmotes.Get("hex", "SuccessEcho");
+		TargetEcho = PsionicPowerEmotes.Get("hex", "TargetEcho");
 		DoDatabaseInsert();
 	}
 

@@ -60,10 +60,10 @@ public sealed class SensitivityPower : PsionicSustainedSelfPowerBase
 		NotifySelf = false;
 		ConcentrationPointsToSustain = 0.0;
 		SustainPenalty = 0.0;
-		BeginEmote = "Your awareness opens to unseen currents.";
-		EndEmote = "Your awareness closes to unseen currents.";
-		FailEmote = "You reach for unseen currents, but sense nothing.";
-		ActivityEcho = "A ripple of {kind} activity touches your sensitivity: {description}.";
+		BeginEmote = PsionicPowerEmotes.Get("sensitivity", "BeginEmote");
+		EndEmote = PsionicPowerEmotes.Get("sensitivity", "EndEmote");
+		FailEmote = PsionicPowerEmotes.Get("sensitivity", "FailEmote");
+		ActivityEcho = PsionicPowerEmotes.Get("sensitivity", "ActivityEcho");
 		DoDatabaseInsert();
 	}
 

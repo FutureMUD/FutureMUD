@@ -38,9 +38,9 @@ public abstract class PsionicSustainedSelfPowerBase : SustainedMagicPower
 		ConcentrationPointsToSustain = 1.0;
 		SustainPenalty = Gameworld.GetStaticDouble("CheckBonusPerDifficultyLevel") * -1.0;
 		DetectableWithDetectMagic = Difficulty.Normal;
-		BeginEmote = "You gather your psionic focus.";
-		EndEmote = "You release your psionic focus.";
-		FailEmote = "Your focus slips away from you.";
+		BeginEmote = PsionicPowerEmotes.Get(DefaultBeginVerb, "BeginEmote", "You gather your psionic focus.");
+		EndEmote = PsionicPowerEmotes.Get(DefaultBeginVerb, "EndEmote", "You release your psionic focus.");
+		FailEmote = PsionicPowerEmotes.Get(DefaultBeginVerb, "FailEmote", "Your focus slips away from you.");
 	}
 
 	protected abstract string DefaultBeginVerb { get; }

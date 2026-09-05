@@ -264,13 +264,13 @@ public class ConnectMindPower : SustainedMagicPower
     protected ConnectMindPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
     {
         Blurb = "Connect to the mind of someone you're familiar with";
-        _showHelpText = @$"You can use #3{school.SchoolVerb.ToUpperInvariant()} CHOKE <person>#0 to choke someone in your presence, and #3{school.SchoolVerb.ToUpperInvariant()} STOPCHOKE [<person>]#0 to stop choking them. While choked, they will not be able to breathe."; ;
+        _showHelpText = $"Use {school.SchoolVerb} connect <person or dub> to establish a mental link within the same zone, or connect last to answer an incoming presence in range. Use {school.SchoolVerb} disconnect to end the link.";
         BeginVerb = "connect";
         EndVerb = "disconnect";
-        PowerDistance = MagicPowerDistance.SameShardOnly;
+        PowerDistance = MagicPowerDistance.SameZoneOnly;
         SkillCheckTrait = trait;
         SkillCheckDifficulty = Difficulty.VeryEasy;
-        MinimumSuccessThreshold = Outcome.Fail;
+        MinimumSuccessThreshold = Outcome.MinorPass;
         ConcentrationPointsToSustain = 1.0;
         TargetCanSeeIdentityProg = Gameworld.AlwaysFalseProg;
         TargetEligibilityProg = Gameworld.AlwaysTrueProg;
@@ -279,15 +279,15 @@ public class ConnectMindPower : SustainedMagicPower
         _outcomeEchoDictionary[Outcome.MajorFail] = false;
         _outcomeEchoDictionary[Outcome.Fail] = false;
         _outcomeEchoDictionary[Outcome.MinorFail] = false;
-        _outcomeEchoDictionary[Outcome.MinorPass] = false;
-        _outcomeEchoDictionary[Outcome.Pass] = false;
-        _outcomeEchoDictionary[Outcome.MajorPass] = false;
-        EmoteForConnect = "You feel the presence of {0} at the back of your mind.";
-        SelfEmoteForConnect = "You reach out and connect to $1's mind.";
-        EmoteForFailConnect = "You feel the presence of {0} at the back of your mind, but it does not take hold.";
-        SelfEmoteForFailConnect = "You reach out and try to connect to $1's mind, but cannot reach stability.";
-        EmoteForDisconnect = "You feel the presence of {0} withdraw from your mind.";
-        SelfEmoteForDisconnect = "You lose your connection to $1's mind.";
+        _outcomeEchoDictionary[Outcome.MinorPass] = true;
+        _outcomeEchoDictionary[Outcome.Pass] = true;
+        _outcomeEchoDictionary[Outcome.MajorPass] = true;
+        EmoteForConnect = PsionicPowerEmotes.Get("connectmind", "EmoteForConnect");
+        SelfEmoteForConnect = PsionicPowerEmotes.Get("connectmind", "SelfEmoteForConnect");
+        EmoteForFailConnect = PsionicPowerEmotes.Get("connectmind", "EmoteForFailConnect");
+        SelfEmoteForFailConnect = PsionicPowerEmotes.Get("connectmind", "SelfEmoteForFailConnect");
+        EmoteForDisconnect = PsionicPowerEmotes.Get("connectmind", "EmoteForDisconnect");
+        SelfEmoteForDisconnect = PsionicPowerEmotes.Get("connectmind", "SelfEmoteForDisconnect");
         IsPsionic = true;
         EnablePsionicTraceDefaults();
         DoDatabaseInsert();
@@ -454,10 +454,10 @@ public class ConnectMindPower : SustainedMagicPower
             {
                 if (!string.IsNullOrWhiteSpace(EmoteForFailConnect))
                 {
-                    target.OutputHandler.Send(new EmoteOutput(new Emote(EmoteForFailConnect, actor, actor, target)));
+                    target.OutputHandler.Send(new EmoteOutput(new Emote(GetAppropriateConnectEmote(actor, target, true), actor, actor, target)));
                 }
 
-                actor.OutputHandler.Handle(new EmoteOutput(new Emote(SelfEmoteForFailConnect, actor, actor, target)));
+                actor.OutputHandler.Send(new EmoteOutput(new Emote(SelfEmoteForFailConnect, actor, actor, target)));
             }
             else
             {
@@ -467,7 +467,7 @@ public class ConnectMindPower : SustainedMagicPower
                         actor, actor, target)));
                 }
 
-                actor.OutputHandler.Handle(new EmoteOutput(new Emote(SelfEmoteForConnect, actor, actor, target)));
+                actor.OutputHandler.Send(new EmoteOutput(new Emote(SelfEmoteForConnect, actor, actor, target)));
             }
         }
         else
@@ -594,20 +594,20 @@ public class ConnectMindPower : SustainedMagicPower
         }
     }
 
-    public string GetAppropriateConnectEmote(ICharacter connecter, ICharacter connectee)
+    public string GetAppropriateConnectEmote(ICharacter connecter, ICharacter connectee, bool failed = false)
     {
         var concealment = GetMindConcealment(connecter, connectee, School);
         if (concealment is not null)
         {
-            return string.Format(EmoteForConnect, concealment.UnknownIdentityDescription.ColourCharacter());
+            return string.Format(failed ? EmoteForFailConnect : EmoteForConnect, concealment.UnknownIdentityDescription.ColourCharacter());
         }
 
         if (TargetCanSeeIdentityProg.ExecuteBool(connecter, connectee))
         {
-            return string.Format(EmoteForConnect, "$0");
+            return string.Format(failed ? EmoteForFailConnect : EmoteForConnect, "$0");
         }
 
-        return string.Format(EmoteForConnect, UnknownIdentityDescription.ColourCharacter());
+        return string.Format(failed ? EmoteForFailConnect : EmoteForConnect, UnknownIdentityDescription.ColourCharacter());
     }
 
     public string GetAppropriateDisconnectEmote(ICharacter connecter, ICharacter connectee)

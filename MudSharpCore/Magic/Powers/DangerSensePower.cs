@@ -62,11 +62,11 @@ public sealed class DangerSensePower : PsionicSustainedSelfPowerBase
 		ThreatWarningInterval = TimeSpan.FromSeconds(30);
 		ConcentrationPointsToSustain = 0.0;
 		SustainPenalty = 0.0;
-		BeginEmote = "Your awareness spreads into a restless sense of danger.";
-		EndEmote = "Your sense of danger folds back into ordinary awareness.";
-		FailEmote = "You reach for danger, but your awareness stays dull.";
-		ThreatEcho = "A prickling warning crawls across your thoughts: danger is nearby.";
-		DefenseEcho = "A flash of warning sharpens your reactions.";
+		BeginEmote = PsionicPowerEmotes.Get("dangersense", "BeginEmote");
+		EndEmote = PsionicPowerEmotes.Get("dangersense", "EndEmote");
+		FailEmote = PsionicPowerEmotes.Get("dangersense", "FailEmote");
+		ThreatEcho = PsionicPowerEmotes.Get("dangersense", "ThreatEcho");
+		DefenseEcho = PsionicPowerEmotes.Get("dangersense", "DefenseEcho");
 		DoDatabaseInsert();
 	}
 

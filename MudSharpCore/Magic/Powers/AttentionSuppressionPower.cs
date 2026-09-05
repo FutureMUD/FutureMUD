@@ -18,7 +18,7 @@ public sealed class AttentionSuppressionPower : PsychicTechniquePower
 		if (!Resolve(actor, actor, MentalActionKind.Influence, false, out _)) return;
 		actor.RemoveAllEffects<AttentionSuppressionEffect>();
 		actor.AddEffect(new AttentionSuppressionEffect(actor, SkillCheckDifficulty) { OriginPowerId = Id }, Duration);
-		actor.OutputHandler.Send("You encourage other minds to overlook your presence.");
+		actor.OutputHandler.Send("You soften the impression of your presence, inviting attention to slide past you.");
 		Complete(actor, actor, "attention suppression");
 	}
 }

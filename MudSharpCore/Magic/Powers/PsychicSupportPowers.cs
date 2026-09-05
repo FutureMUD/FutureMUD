@@ -62,7 +62,7 @@ public sealed class DisruptConcentrationPower : PsychicTechniquePower
 		if (!Resolve(actor, target, MentalActionKind.Disruption, true, out _)) return;
 		var effect = target.EffectsOfType<ConcentrationConsumingEffect>().OrderByDescending(x => x.ConcentrationPointsConsumed).FirstOrDefault();
 		effect?.ChallengeConcentration(SkillCheckDifficulty);
-		actor.OutputHandler.Send("You strike at the other mind's concentration.");
+		actor.OutputHandler.Send(new EmoteOutput(new Emote("You drive a sharp pulse of distraction into $1's thoughts.", actor, actor, target)));
 		Complete(actor, target, "a concentration disruption");
 	}
 }
@@ -83,7 +83,7 @@ public sealed class DreamsendPower : PsychicTechniquePower
 		{ actor.OutputHandler.Send("That mind is not available to receive a dream."); return; }
 		if (!Resolve(actor, target, MentalActionKind.Influence, true, out _)) return;
 		target.OutputHandler.Send($"Within a dream, you experience:\n{text}");
-		actor.OutputHandler.Send("You send a brief dream into the sleeping mind.");
+		actor.OutputHandler.Send(new EmoteOutput(new Emote("You weave a brief image into $1's dreams.", actor, actor, target)));
 		PsionicTrafficHelper.Audit(actor, target, "sent a dream to", text);
 		Complete(actor, target, "a dream sending");
 	}

@@ -24,7 +24,8 @@ public static class PsionicStockContent
 	];
 	public static IReadOnlyList<PsionicStockPower> Powers { get; } =
 	[
-		new("connectmind", "contact", 0, true, 2, 300, "Contact a nearby mind; disconnect ends the maintained link."),
+		new("connectmind", "contact", 0, true, 2, 300, "Contact a familiar mind in the same zone (same shard in Advanced Psionics). Use a dub for distant targets; disconnect ends the link."),
+		new("connectmind", "connectback", 0, true, 2, 300, "Connect to an incoming presence with connectback last, even if its identity is unknown. End with disconnectback."),
 		new("mindsay", "say", 0, true, 1, 0, "Send directed speech along your mind link. This does not read private thoughts."),
 		new("mindbarrier", "barrier", 20, true, 2, 300, "Maintain a barrier against mental intrusion; endbarrier releases it."),
 		new("mindaudit", "audit", 20, true, 2, 0, "Audit your own mind for incoming presences. Concealment can obscure their identities."),
@@ -60,7 +61,7 @@ public static class PsionicStockContent
 		new("projectemotion", "projectemotion", 20, false, 2, 120, "Communicate a sanitised feeling to a linked mind.")
 	];
 
-	public static XElement Definition(PsionicStockPower stock, long trait, long resource, long yes, long no, long error, long normal)
+	public static XElement Definition(PsionicStockPower stock, long trait, long resource, long yes, long no, long error, long normal, long? identity = null, long? eligibility = null, bool advanced = false)
 	{
 		var root = new XElement("Definition", new XElement("IsPsionic", true), new XElement("CanInvokePowerProg", yes),
 			new XElement("WhyCantInvokePowerProg", error), new XElement("Verb", stock.Verb),
@@ -84,21 +85,21 @@ public static class PsionicStockContent
 		switch (stock.Type)
 		{
 			case "connectmind":
-				Sustain(); Set("ConnectVerb", stock.Verb); Set("DisconnectVerb", "disconnect");
-				Set("TargetCanSeeIdentityProg", yes); Set("TargetEligibilityProg", yes); Set("ExclusiveConnection", false);
+				Sustain(); Set("ConnectVerb", stock.Verb); Set("DisconnectVerb", stock.Verb == "connectback" ? "disconnectback" : "disconnect");
+				Set("PowerDistance", (int)(stock.Verb == "connectback" ? MagicPowerDistance.AnyConnectedMindOrConnectedTo : advanced ? MagicPowerDistance.SameShardOnly : MagicPowerDistance.SameZoneOnly));
+				Set("TargetCanSeeIdentityProg", identity ?? no); Set("TargetEligibilityProg", eligibility ?? yes); Set("ExclusiveConnection", false);
 				Set("UnknownIdentityDescription", "an unfamiliar mind");
-				foreach (var key in new[] { "EmoteForConnect", "SelfEmoteForConnect", "EmoteForDisconnect", "SelfEmoteForDisconnect", "EmoteForFailConnect", "SelfEmoteForFailConnect" }) Set(key, "You feel a mental presence shift.");
-				root.Add(new XElement("OutcomeEchoes", Enum.GetValues<Outcome>().Select(x => new XElement("Outcome", new XAttribute("outcome", (int)x), new XAttribute("shouldecho", true)))));
+				Set("SkillCheckDifficulty", (int)Difficulty.VeryEasy);
+				root.Add(new XElement("OutcomeEchoes", Enum.GetValues<Outcome>().Select(x => new XElement("Outcome", new XAttribute("outcome", (int)x), new XAttribute("shouldecho", x >= Outcome.MinorPass)))));
 				break;
 			case "mindsay":
 				Set("SayVerb", stock.Verb); Set("TellVerb", "tell"); Set("EmoteText", "You project the words: {0}");
 				Set("FailEmoteText", "Your words fade unformed."); Set("TargetEmoteText", "{0} speaks into your mind: {1}");
-				Set("UnknownIdentityDescription", "an unfamiliar mind"); Set("UseAccent", false); Set("UseLanguage", false); Set("TargetCanSeeIdentityProg", yes);
+				Set("UnknownIdentityDescription", "an unfamiliar mind"); Set("UseAccent", false); Set("UseLanguage", false); Set("TargetCanSeeIdentityProg", identity ?? no);
 				root.Element("InvocationCosts")!.Element("Verbs")!.Add(new XElement("Verb", new XAttribute("verb", "tell"), new XElement("Cost", new XAttribute("resource", resource), stock.Cost)));
 				break;
 			case "mindbarrier":
 				Sustain(); Set("AppliesToCharacterProg", yes); Set("PermitAllies", false); Set("PermitTrustedAllies", true); Set("FailIfOvercome", false);
-				foreach (var key in new[] { "EmoteForBegin", "EmoteForBeginSelf", "EmoteForEnd", "EmoteForEndSelf", "BlockEmoteSelf", "BlockEmoteTarget", "OvercomeEmoteSelf", "OvercomeEmoteTarget", "EndWhenNotSustainingError", "BeginWhenAlreadySustainingError" }) Set(key, "The mental barrier shifts.");
 				root.Add(new XElement("Bonuses", Enum.GetValues<Outcome>().Where(x => x >= Outcome.MajorFail).Select(x => new XElement("Bonus", new XAttribute("outcome", (int)x), new XAttribute("bonus", x >= Outcome.MinorPass ? -15 : 0)))));
 				break;
 			case "mindaudit": case "mindexpel":
@@ -111,13 +112,15 @@ public static class PsionicStockContent
 			case "psychicbolt": Set("StunAmount", 10); Set("DamageType", "Eldritch"); break;
 			case "prescience": Set("BoardIdOrName", "Staff"); Set("PromptText", "Describe the question or vision you seek."); Set("SubjectTemplate", "Prescience: {character}"); Set("AuthorTemplate", "{character}"); break;
 			case "hear": case "clairaudience": case "allspeak": case "magicksense": case "dangersense": case "sensitivity":
-				Sustain(); Set("BeginEmote", "You focus your psychic senses."); Set("EndEmote", "Your psychic senses subside."); Set("FailEmote", "You fail to focus your senses.");
+				Sustain();
 				Set("ShowThinks", true); Set("ShowFeels", true); Set("ShowName", false); Set("ShowEmotes", true); Set("ShowDescriptionProg", no);
 				Set("ThreatRange", 1); Set("DefenseBonus", 10); Set("DefenseDurationSeconds", 15); Set("ThreatWarningIntervalSeconds", 30);
 				Set("ScanVerb", "senscan"); Set("ScanDistance", MagicPowerDistance.SameLocationOnly); Set("ActivityKinds", "Magical,Psychic");
 				Set("ActivityRange", 1); Set("PermitCapabilityRead", false); Set("NotifySelf", false);
 				break;
 		}
+		if (PsionicPowerEmotes.All.TryGetValue(stock.Type, out var emotes))
+			foreach (var (field, text) in emotes) Set(field, text);
 		return root;
 	}
 }

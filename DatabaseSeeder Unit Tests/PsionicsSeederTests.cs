@@ -27,6 +27,41 @@ public class PsionicsSeederTests
 		return context;
 	}
 	[TestMethod]
+	public void ContactVariants_HaveSeparateProgsRangesAndDistinctVerbs()
+	{
+		using var context = Context();
+		new PsionicsSeeder().SeedData(context, new Dictionary<string, string> { ["install-psionics"] = "yes" });
+		foreach (var school in context.MagicSchools)
+		{
+			var contact = XElement.Parse(context.MagicPowers.Single(x => x.Name == school.Name + ": contact").Definition);
+			Assert.AreNotEqual(contact.Element("TargetCanSeeIdentityProg")!.Value, contact.Element("TargetEligibilityProg")!.Value);
+			Assert.AreEqual(((int)(school.Name == "Basic Psionics" ? MudSharp.Magic.MagicPowerDistance.SameZoneOnly : MudSharp.Magic.MagicPowerDistance.SameShardOnly)).ToString(), contact.Element("PowerDistance")!.Value);
+			var back = XElement.Parse(context.MagicPowers.Single(x => x.Name == school.Name + ": connectback").Definition);
+			Assert.AreEqual(((int)MudSharp.Magic.MagicPowerDistance.AnyConnectedMindOrConnectedTo).ToString(), back.Element("PowerDistance")!.Value);
+			Assert.AreEqual("disconnectback", back.Element("DisconnectVerb")!.Value);
+			Assert.AreEqual(6, contact.Elements().Where(x => x.Name.LocalName.Contains("Emote") && x.Name.LocalName.Contains("Connect") || x.Name.LocalName.Contains("Emote") && x.Name.LocalName.Contains("Disconnect")).Select(x => x.Value).Distinct().Count());
+		}
+	}
+
+	[TestMethod]
+	public void Rerun_RepairsRecognisedPlaceholdersButKeepsAuthoredEmotes()
+	{
+		using var context = Context();
+		var seeder = new PsionicsSeeder();
+		var answers = new Dictionary<string, string> { ["install-psionics"] = "yes" };
+		seeder.SeedData(context, answers);
+		var power = context.MagicPowers.Single(x => x.Name == "Basic Psionics: contact");
+		var xml = XElement.Parse(power.Definition);
+		xml.SetElementValue("EmoteForConnect", "You feel a mental presence shift.");
+		xml.SetElementValue("SelfEmoteForConnect", "My custom contact echo.");
+		power.Definition = xml.ToString(); context.SaveChanges();
+		seeder.SeedData(context, answers);
+		xml = XElement.Parse(power.Definition);
+		Assert.AreEqual("My custom contact echo.", xml.Element("SelfEmoteForConnect")!.Value);
+		Assert.AreEqual(MudSharp.Magic.PsionicPowerEmotes.Get("connectmind", "EmoteForConnect"), xml.Element("EmoteForConnect")!.Value);
+	}
+
+	[TestMethod]
 	public void InstallAndRerun_PreserveCustomisationsAndNeverGrantAccess()
 	{
 		using var context = Context();

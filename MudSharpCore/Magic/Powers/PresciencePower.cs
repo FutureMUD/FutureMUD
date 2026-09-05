@@ -53,8 +53,8 @@ public sealed class PresciencePower : MagicPowerBase
 		SubjectTemplate = "Prescience: {character}";
 		AuthorTemplate = "{character}";
 		PromptText = "Enter the question you want to send to the unseen currents.";
-		FailEcho = "You open yourself to the future, but the vision remains silent.";
-		SuccessEcho = "You open yourself to the future and shape a question in your mind.";
+		FailEcho = PsionicPowerEmotes.Get("prescience", "FailEcho");
+		SuccessEcho = PsionicPowerEmotes.Get("prescience", "SuccessEcho");
 		DoDatabaseInsert();
 	}
 

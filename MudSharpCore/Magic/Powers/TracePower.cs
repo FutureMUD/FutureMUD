@@ -32,7 +32,7 @@ public sealed class TracePower : PsionicTargetedPowerBase
 	{
 		Blurb = "Inspect active mind links around a target";
 		_showHelpText = $"Use {school.SchoolVerb.ToUpperInvariant()} TRACE <target> to inspect permitted active mental links and residual traces. Checks and concealment limit what you learn. Item and cell traces are unavailable when psychometric impressions are disabled; character traces remain independent.";
-		FailEcho = "You trace the surface of $1's mind, but the connections elude you.";
+		FailEcho = PsionicPowerEmotes.Get("trace", "FailEcho");
 		DoDatabaseInsert();
 	}
 

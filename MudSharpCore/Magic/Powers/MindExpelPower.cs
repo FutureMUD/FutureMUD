@@ -54,10 +54,10 @@ public class MindExpelPower : MagicPowerBase
         SkillCheckTrait = trait;
         SkillCheckDifficultyProg = Gameworld.AlwaysZeroProg;
         MinimumSuccessThreshold = Outcome.MinorPass;
-        EmoteText = "@ close|closes &0's eyes for a brief moment and looks deep in concentration.";
-        EmoteTextSelf = "You close your eyes and attempt to cast out all foreign presences.";
-        EchoToExpelledTarget = "You were ejected from $0's mind.";
-        EchoToNonExpelledTarget = "You sense that $0 tried to expel you from &0's mind, but failed.";
+        EmoteText = PsionicPowerEmotes.Get("mindexpel", "EmoteText");
+        EmoteTextSelf = PsionicPowerEmotes.Get("mindexpel", "EmoteTextSelf");
+        EchoToExpelledTarget = PsionicPowerEmotes.Get("mindexpel", "EchoToExpelledTarget");
+        EchoToNonExpelledTarget = PsionicPowerEmotes.Get("mindexpel", "EchoToNonExpelledTarget");
         IsPsionic = true;
         EnablePsionicTraceDefaults();
         DoDatabaseInsert();

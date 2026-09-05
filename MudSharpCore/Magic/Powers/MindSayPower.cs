@@ -1,4 +1,4 @@
-﻿using Mscc.GenerativeAI;
+using Mscc.GenerativeAI;
 using MudSharp.Body.Traits;
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
@@ -60,10 +60,10 @@ public class MindSayPower : MagicPowerBase
         SkillCheckTrait = trait;
         SkillCheckDifficulty = Difficulty.Easy;
         MinimumSuccessThreshold = Outcome.MinorFail;
-        EmoteText = "You muster your force of will and send the following message to $1";
-        FailEmoteText = "You are unable to amplify your thoughts due to a small lapse in concentration.";
-        TargetEmoteText = "You feel the voice of {0} in your mind saying";
-        TargetCanSeeIdentityProg = Gameworld.AlwaysTrueProg;
+        EmoteText = PsionicPowerEmotes.Get("mindsay", "EmoteText");
+        FailEmoteText = PsionicPowerEmotes.Get("mindsay", "FailEmoteText");
+        TargetEmoteText = PsionicPowerEmotes.Get("mindsay", "TargetEmoteText");
+        TargetCanSeeIdentityProg = Gameworld.AlwaysFalseProg;
         UnknownIdentityDescription = "an unknown entity";
         SayVerb = "say";
         TellVerb = "tell";
@@ -256,14 +256,13 @@ public class MindSayPower : MagicPowerBase
             effect.TargetCharacter.OutputHandler.Send(new LanguageOutput(
                 new Emote(GetAppropriateTargetEmote(actor, effect.TargetCharacter), actor, actor,
                     effect.TargetCharacter), langInfo, null));
-            actor.OutputHandler.Send(new LanguageOutput(new Emote(EmoteText, actor, actor, effect.TargetCharacter),
+            actor.OutputHandler.Send(new LanguageOutput(new Emote(string.Format(EmoteText, ""), actor, actor, effect.TargetCharacter),
                 langInfo, null));
         }
         else
         {
             effect.TargetCharacter.OutputHandler.Send(new EmoteOutput(new Emote(
-                string.Format(GetAppropriateTargetEmote(actor, effect.TargetCharacter), 0,
-                    text.ProperSentences().Fullstop()), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
+                GetAppropriateTargetEmote(actor, effect.TargetCharacter, text.ProperSentences().Fullstop()), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
             actor.OutputHandler.Send(new EmoteOutput(new Emote(
                 string.Format(EmoteText, text.ProperSentences().Fullstop()), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
         }
@@ -321,20 +320,20 @@ public class MindSayPower : MagicPowerBase
         return UnknownIdentityDescription.ColourCharacter();
     }
 
-    public string GetAppropriateTargetEmote(ICharacter connecter, ICharacter connectee)
+    public string GetAppropriateTargetEmote(ICharacter connecter, ICharacter connectee, string text = "")
     {
         var concealment = GetMindConcealment(connecter, connectee, School);
         if (concealment is not null)
         {
-            return string.Format(TargetEmoteText, concealment.UnknownIdentityDescription.ColourCharacter());
+            return string.Format(TargetEmoteText.Replace("{{1}}", "{1}"), concealment.UnknownIdentityDescription.ColourCharacter(), text);
         }
 
         if (TargetCanSeeIdentityProg.ExecuteBool(connecter, connectee))
         {
-            return string.Format(TargetEmoteText, "$0");
+            return string.Format(TargetEmoteText.Replace("{{1}}", "{1}"), "$0", text);
         }
 
-        return string.Format(TargetEmoteText, UnknownIdentityDescription.ColourCharacter());
+        return string.Format(TargetEmoteText.Replace("{{1}}", "{1}"), UnknownIdentityDescription.ColourCharacter(), text);
     }
 
     #region Building Commands
@@ -350,7 +349,7 @@ public class MindSayPower : MagicPowerBase
 	#3identityprog <prog>#0 - sets a prog that controls whether the target knows who the power user is
 	#3emote <emote>#0 - an emote sent to the user when the power is invoked. Don't put a fullstop at the end.
 	#3failemote <emote>#0 - an emote sent to the user when the power fails
-	#3targetemote <emote>#0 - an emote sent to the target. Use #6{0}#0 instead of $0 for the user. Don't put a fullstop at the end.
+	#3targetemote <emote>#0 - an emote sent to the target. Use #6{0}#0 for permitted identity and #6{1}#0 for the message. Language mode appends speech separately.
 
 #6Note - for emotes, use $0 for the user and $1 for the target";
 
@@ -407,15 +406,15 @@ public class MindSayPower : MagicPowerBase
             return false;
         }
 
-        if (!emoteText.IsValidFormatString([false]))
+        if (!emoteText.IsValidFormatString([false, false]))
         {
-            actor.OutputHandler.Send($"The only valid curly-braces reference in this output is {{0}}.");
+            actor.OutputHandler.Send($"The valid curly-braces references are {{0}} (identity) and {{1}} (message).");
             return false;
         }
 
-        EmoteText = emoteText;
+        TargetEmoteText = emoteText;
         Changed = true;
-        actor.OutputHandler.Send($"The echo sent when this power is used is now {EmoteText.ColourCommand()}");
+        actor.OutputHandler.Send($"The echo sent when this power is used is now {TargetEmoteText.ColourCommand()}");
         return true;
     }
 

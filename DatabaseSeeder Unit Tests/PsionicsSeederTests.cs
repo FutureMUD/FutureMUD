@@ -76,6 +76,8 @@ public class PsionicsSeederTests
 			var spell = context.MagicSpells.Single(x => x.Name == "Advanced Psionics: " + stock.Verb);
 			Assert.AreEqual(stock.Seconds.ToString(), context.TraitExpressions.Find(spell.EffectDurationExpressionId)!.Expression);
 			Assert.IsTrue(stock.Cost > 0 && stock.Cost <= MudSharp.Magic.PsionicStockContent.FocusCap);
+			foreach (var (field, echo) in MudSharp.Magic.PsionicPowerEmotes.Spells[stock.Verb])
+				Assert.AreEqual(echo, typeof(MagicSpell).GetProperty(field)!.GetValue(spell));
 		}
 		Assert.AreEqual(0, context.PerceiverMerits.Count());
 		Assert.AreEqual(0, context.CharacterTraits.Count());

@@ -84,7 +84,7 @@ public class MindAuditPower : MagicPowerBase
             throw new ApplicationException($"The MindAuditPower #{Id} ({Name}) was missing a EmoteText element.");
         }
 
-        EmoteText = element.Value.ToLowerInvariant();
+        EmoteText = element.Value;
 
         element = root.Element("EmoteTextSelf");
         if (element == null)
@@ -92,7 +92,7 @@ public class MindAuditPower : MagicPowerBase
             throw new ApplicationException($"The MindAuditPower #{Id} ({Name}) was missing a EmoteTextSelf element.");
         }
 
-        EmoteTextSelf = element.Value.ToLowerInvariant();
+        EmoteTextSelf = element.Value;
 
         element = root.Element("EchoToDetectedTarget");
         if (element == null)
@@ -100,7 +100,7 @@ public class MindAuditPower : MagicPowerBase
             throw new ApplicationException($"The MindAuditPower #{Id} ({Name}) was missing a EchoToDetectedTarget element.");
         }
 
-        EchoToDetectedTarget = element.Value.ToLowerInvariant();
+        EchoToDetectedTarget = element.Value;
 
         element = root.Element("MinimumSuccessThreshold");
         if (element == null)

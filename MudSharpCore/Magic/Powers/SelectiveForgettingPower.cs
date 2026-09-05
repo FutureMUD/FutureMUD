@@ -47,7 +47,7 @@ public sealed class SelectiveForgettingPower : PsychicTechniquePower
 				crime.ForgetWitness(memory, actor, Duration, Permanent);
 				if (!Permanent) target.AddEffect(new WitnessRecallSuppressionEffect(target, this, crime, memory), Duration);
 			}
-			actor.OutputHandler.Send("You press the incident out of that mind's reach.");
+			SendEcho("WitnessEcho", actor, actor, target);
 			Complete(actor, target, "witness forgetting");
 			return;
 		}
@@ -75,7 +75,7 @@ public sealed class SelectiveForgettingPower : PsychicTechniquePower
 		var suppression = mode == "skill" ? new PsychicSkillSuppressionEffect(target, id) : new PsychicSuppressionEffect(target, mode, id);
 		suppression.OriginPowerId = Id;
 		target.AddEffect(suppression, Duration);
-		actor.OutputHandler.Send("You place a veil over that part of the mind.");
+		SendEcho("SuccessEcho", actor, actor, target);
 		Complete(actor, target, "selective forgetting");
 	}
 
@@ -98,6 +98,6 @@ public sealed class SelectiveForgettingPower : PsychicTechniquePower
 			if (outcome.Outcome >= MinimumSuccessThreshold && outcome.Outcome > VirtualResistance) crime.ForgetWitness(memory, actor, Duration, Permanent);
 			Complete(actor, null, "virtual witness forgetting");
 		}
-		actor.OutputHandler.Send("You reach into the remembered impressions of the incident's bystanders.");
+		SendEcho("VirtualEcho", actor, actor);
 	}
 }

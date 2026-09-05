@@ -67,3 +67,28 @@ Reruns repair recognised old generic echo placeholders field by field, separate 
 All existing finite costs, skill bands, durations and safety bounds are retained except the explicitly described contact range/check tuning. Projection and possession remain in the final unlock band. The spell-backed adapter continues to use the backing spell's authored echoes rather than imposing a second set of generic power echoes.
 
 Validation: all nine default suites passed (4,152 tests), followed by focused core and seeder reruns after compatibility/repair refinements. Seeder Release built successfully. A disposable-MUD rerun verified rendered contact, speech, disconnect and barrier echoes plus connect-back installation and its no-incoming-presence refusal. Unknown-presence resolution uses the existing incoming-link targeting path; the live walkthrough did not simulate a second player replying.
+
+
+### Echo catalogue completeness
+
+`PsionicPowerEmotes.All` now corresponds to every string emote/echo field saved by each stock power, including inherited `FailEcho` and `SuccessEcho`. Loading/saving coverage checks both directions: no runtime field may be absent from the catalogue and no catalogue field may be discarded by the power. Audit and expel loaders preserve authored capitalisation instead of lowercasing their text.
+
+An explicit empty `SuccessEcho` means no additional preamble: psychometry and somatic sense return structured readings; empathy has start/transfer/stop echoes; lend/siphon have their own confirmations; circles have membership and speech echoes; emotional reading has its own result echoes; coerce, suggestion and projected emotion use shared traffic. These are intentional empty values, with the actual messages centralised alongside them or in `PsionicPowerEmotes.Shared`. Backing spells use `PsionicPowerEmotes.Spells` for all five spell emote fields. Player payloads and computed result data remain data rather than emote templates.
+
+The newer psychic techniques load and save their additional named echoes in power XML. Builders use `echo <field> <text|clear>` for the additional fields shown by `magic power show`, alongside the existing failure/success echo commands. Static emotes use `$0` for caster and `$1` for subject. Formatted result/traffic text uses the arguments below and is sent as text, so player-authored payloads are never parsed as emotes. Only the available numbered arguments are accepted by the builder.
+
+| Field | Format arguments, in order |
+| --- | --- |
+| ImpressionEcho | impression text, elapsed time |
+| CustodyEcho | permitted carrier identity, unknown-start qualifier, duration |
+| ConditionEcho | target description, consciousness state, fatigue description |
+| WoundEcho | graded severity |
+| DreamEcho | sanitised dream payload |
+| LendEcho / SiphonEcho | received amount, resource name |
+| ReadingEcho | represented emotions |
+| SelfSpeechEcho | sanitised circle message |
+| SpeechEcho | permitted speaker identity, sanitised circle message |
+
+Guard and feedback start/end/intrusion echoes now use the power's saved fields; circles likewise use saved invitation/join/leave/speech fields. A legacy technique definition with its formerly unused empty success field receives the appropriate existing success message on load. The `TechniqueEchoesVersion` XML marker distinguishes that upgrade from an explicitly cleared modern field, which remains silent across save/load. Missing additional fields receive canonical defaults; authored values remain unchanged. This is compatible XML evolution and needs no database migration.
+
+Completeness validation: all default suites passed after the final core rerun (4,153 tests total, including 2,715 core tests). Catalogue reflection and XML round-trip tests check field coverage in both directions. Tests also cover custom text, intentional silence, legacy defaults, builder placeholder validation, and spell field parity. A disposable-MUD walkthrough edited feedback EndEcho and verified that exact custom text on effect removal.

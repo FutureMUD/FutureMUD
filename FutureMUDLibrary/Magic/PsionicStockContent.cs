@@ -63,7 +63,7 @@ public static class PsionicStockContent
 
 	public static XElement Definition(PsionicStockPower stock, long trait, long resource, long yes, long no, long error, long normal, long? identity = null, long? eligibility = null, bool advanced = false)
 	{
-		var root = new XElement("Definition", new XElement("IsPsionic", true), new XElement("CanInvokePowerProg", yes),
+		var root = new XElement("Definition", new XElement("TechniqueEchoesVersion", 1), new XElement("IsPsionic", true), new XElement("CanInvokePowerProg", yes),
 			new XElement("WhyCantInvokePowerProg", error), new XElement("Verb", stock.Verb),
 			new XElement("PowerDistance", stock.Basic ? (int)MagicPowerDistance.SameLocationOnly : (int)MagicPowerDistance.AnyConnectedMindOrConnectedTo),
 			new XElement("SkillCheckDifficulty", (int)Difficulty.Normal), new XElement("SkillCheckTrait", trait),

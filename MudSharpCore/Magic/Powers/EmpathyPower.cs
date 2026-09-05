@@ -48,7 +48,7 @@ public sealed class EmpathyPower : PsionicTargetedPowerBase
 		MaxWounds = 0;
 		SafetyHealthPercent = 0.75;
 		FailEcho = PsionicPowerEmotes.Get("empathy", "FailEcho");
-		SuccessEcho = string.Empty;
+		SuccessEcho = PsionicPowerEmotes.Get("empathy", "SuccessEcho");
 		StartEcho = PsionicPowerEmotes.Get("empathy", "StartEcho");
 		TransferEcho = PsionicPowerEmotes.Get("empathy", "TransferEcho");
 		StopEcho = PsionicPowerEmotes.Get("empathy", "StopEcho");
@@ -134,6 +134,7 @@ public sealed class EmpathyPower : PsionicTargetedPowerBase
 		}
 
 		PsionicActivityNotifier.Notify(actor, this, "an empathic wound transfer", target);
+		SendSuccess(actor, target);
 		ConsumePowerCosts(actor, Verb);
 	}
 

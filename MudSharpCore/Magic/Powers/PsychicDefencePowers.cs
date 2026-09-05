@@ -25,15 +25,15 @@ public sealed class GuardMindPower : PsychicTechniquePower
 				intrusion.OriginatorCharacter.RemoveEffect(intrusion.OriginatorEffect, true);
 				Complete(actor, target, "an assisted mental expulsion");
 			}
-			actor.Send("You help the willing mind push against foreign presences.");
+			SendEcho("ExpelEcho", actor, actor, target);
 			return;
 		}
 		if (!CanMaintain(actor)) return;
 		if (!Resolve(actor, target, MentalActionKind.Investigation, false, out _)) return;
 		actor.RemoveAllEffects<MaintainedPsychicEffect>(x => x.Power == this, true);
 		actor.AddEffect(new MaintainedPsychicEffect(actor, target, this, "guard"), Duration);
-		actor.OutputHandler.Send(new EmoteOutput(new Emote("You extend a watchful boundary around $1's mind.", actor, actor, target)));
-		target.OutputHandler.Send("A watchful presence settles around your thoughts, ready to meet an intrusion.");
+		SendEcho("SuccessEcho", actor, actor, target);
+		SendEcho("TargetEcho", target, actor, target);
 		Complete(actor, target, "a mental aegis");
 	}
 }
@@ -52,7 +52,7 @@ public sealed class PsychicFeedbackPower : PsychicTechniquePower
 		if (!Resolve(actor, actor, MentalActionKind.Investigation, false, out _)) return;
 		actor.RemoveAllEffects<MaintainedPsychicEffect>(x => x.Power == this, true);
 		actor.AddEffect(new MaintainedPsychicEffect(actor, actor, this, "feedback"), Duration);
-		actor.OutputHandler.Send("You gather a taut, answering pressure at the boundary of your thoughts.");
+		SendEcho("SuccessEcho", actor, actor);
 		Complete(actor, actor, "a psychic feedback defence");
 	}
 }

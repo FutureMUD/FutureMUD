@@ -36,10 +36,10 @@ public sealed class TelekinesisPower : PsychicTechniquePower
 		if (!Resolve(actor, actor, MentalActionKind.Influence, false, out _)) return;
 		if (execute())
 		{
-			actor.OutputHandler.Handle(new EmoteOutput(new Emote("An unseen force manipulates $1.", actor, actor, item)));
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote(EchoText("SuccessEcho"), actor, actor, item)));
 			foreach (var target in affected) PsychometricRecorder.Record(actor, ImpressionKind.Magic, $"telekinetic manipulation ({operation})", target, School.Id, directItemOnly: true);
 		}
-		else actor.Send("The mechanism does not respond to your manipulation.");
+		else SendEcho("UnresponsiveEcho", actor, actor, item);
 		Complete(actor, null, "telekinesis");
 	}
 }

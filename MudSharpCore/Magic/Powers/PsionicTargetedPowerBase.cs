@@ -36,7 +36,7 @@ public abstract class PsionicTargetedPowerBase : MagicPowerBase
 		SkillCheckDifficulty = Difficulty.Normal;
 		MinimumSuccessThreshold = Outcome.MinorPass;
 		FailEcho = PsionicPowerEmotes.Get(DefaultVerb, "FailEcho", "You cannot quite force the thought into shape.");
-		SuccessEcho = string.Empty;
+		SuccessEcho = PsionicPowerEmotes.Get(DefaultVerb, "SuccessEcho");
 		DetectableWithDetectMagic = Difficulty.Normal;
 	}
 
@@ -127,6 +127,12 @@ public abstract class PsionicTargetedPowerBase : MagicPowerBase
 				reaction.OnMentalAction(context, new(outcome.Outcome >= MinimumSuccessThreshold ? MagicInvocationStatus.Succeeded : MagicInvocationStatus.Failed, outcome.Outcome));
 		}
 		return outcome;
+	}
+
+	protected void SendSuccess(ICharacter actor, ICharacter target)
+	{
+		if (!string.IsNullOrEmpty(SuccessEcho))
+			actor.OutputHandler.Send(new EmoteOutput(new Emote(SuccessEcho, actor, actor, target)));
 	}
 
 	protected void SendFailure(ICharacter actor, ICharacter target)

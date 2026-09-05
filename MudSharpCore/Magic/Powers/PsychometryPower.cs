@@ -22,6 +22,7 @@ public sealed class PsychometryPower : PsychicTechniquePower
 		ConsumePowerCosts(actor, Verb);
 		var outcome = CheckPower(actor, actor, CheckType.MagicTelepathyCheck);
 		if (outcome.Outcome < MinimumSuccessThreshold) { Complete(actor, null, "an unsuccessful psychometric reading"); SendFailure(actor, actor); return; }
+		SendSuccess(actor, actor);
 		var history = PsychometricRecorder.Read(target);
 		var sb = new StringBuilder();
 		if (history is not null)
@@ -29,18 +30,18 @@ public sealed class PsychometryPower : PsychicTechniquePower
 			foreach (var impression in history.Impressions.Where(x => (target is MudSharp.GameItems.IGameItem || PsychometricRecorder.IsLocal(actor, x)) &&
 			         (x.Kind != ImpressionKind.Feeling || outcome.Outcome == Outcome.MajorPass)))
 			{
-				sb.AppendLine($"{impression.Text} ({(RuntimeClock.UtcNow - impression.CreatedUtc).Describe(actor)} ago)");
+				sb.AppendLine(FormatEcho("ImpressionEcho", impression.Text, (RuntimeClock.UtcNow - impression.CreatedUtc).Describe(actor)));
 			}
-			if (history.MixedProvenance) sb.AppendLine("The object's history is mixed and indistinct.");
+			if (history.MixedProvenance) sb.AppendLine(EchoText("MixedHistoryEcho"));
 			foreach (var custody in history.PreviousCarriers.Concat(history.CurrentCarrier is { } current ? [current] : []))
 			{
 				var carrier = Gameworld.TryGetCharacter(custody.CarrierId, true);
 				var identity = carrier is not null && outcome.Outcome == Outcome.MajorPass
 					? PsionicTrafficHelper.SourceDescription(carrier, actor, School) : "an indistinct person";
-				sb.AppendLine($"Carried by {identity} for {(custody.UnknownBeginning ? "at least " : "")}{((custody.UntilUtc ?? RuntimeClock.UtcNow) - custody.SinceUtc).Describe(actor)}.");
+				sb.AppendLine(FormatEcho("CustodyEcho", identity, custody.UnknownBeginning ? "at least " : "", ((custody.UntilUtc ?? RuntimeClock.UtcNow) - custody.SinceUtc).Describe(actor)));
 			}
 		}
-		actor.OutputHandler.Send(sb.Length == 0 ? "You discern no readable impressions." : sb.ToString());
+		actor.OutputHandler.Send(sb.Length == 0 ? EchoText("NoImpressionsEcho") : sb.ToString());
 		Complete(actor, null, "a psychometric reading");
 	}
 }

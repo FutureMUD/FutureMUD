@@ -22,6 +22,7 @@ public sealed class PsychicCirclePower : PsychicTechniquePower
 			if (!CanMaintain(actor)) return;
 			if (!Resolve(actor, actor, MentalActionKind.Communication, false, out _)) return;
 			actor.AddEffect(new PsychicCircleEffect(actor, this), Duration);
+			SendSuccess(actor, actor);
 			Complete(actor, actor, "a psychic circle");
 			return;
 		}
@@ -32,8 +33,8 @@ public sealed class PsychicCirclePower : PsychicTechniquePower
 		if (circle.Members.Count >= CircleMemberLimit || target.AffectedBy<PsychicCircleMembership>()) { actor.OutputHandler.Send("That mind cannot join this circle."); return; }
 		target.RemoveAllEffects<PsychicCircleInvitation>();
 		target.AddEffect(new PsychicCircleInvitation(target, circle), TimeSpan.FromMinutes(2));
-		target.OutputHandler.Send("You are invited to a psychic circle. Use PSICIRCLE ACCEPT or PSICIRCLE DECLINE.");
-		actor.OutputHandler.Send("You extend an invitation to your psychic circle.");
+		SendEcho("TargetInviteEcho", target, actor, target);
+		SendEcho("InviteEcho", actor, actor, target);
 	}
 	public static void ParticipantCommand(ICharacter actor, StringStack command)
 	{

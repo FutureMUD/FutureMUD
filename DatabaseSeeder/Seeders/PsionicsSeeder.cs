@@ -190,23 +190,11 @@ public sealed class PsionicsSeeder : IDatabaseSeeder
 					CastingDifficulty = (int)Difficulty.Normal, MinimumSuccessThreshold = (int)Outcome.MinorPass,
 					ResistingDifficulty = verb == "possess" ? (int)Difficulty.Normal : null, ResistingTraitDefinitionId = verb == "possess" ? trait.Id : null,
 					EffectDurationExpressionId = duration.Id, ExclusiveDelay = 5, NonExclusiveDelay = 15, AppliedEffectsAreExclusive = true,
-					CastingEmote = verb switch
-					{
-						"project" => "@ grow|grows motionless, &0's gaze turning inward.",
-						"possess" => "@ fix|fixes &0's gaze on $1 with unbroken concentration.",
-						"levitate" => "@ steady|steadies %0, &0's attention fixed on the space beneath &0.",
-						_ => "@ study|studies &0's outline, concentrating on its edges."
-					},
-					FailCastingEmote = "@ falter|falters, &0's concentration breaking.",
-					TargetEmote = verb switch
-					{
-						"project" => "Your awareness loosens from the weight of your body.",
-						"possess" => "Another will presses into your awareness, reaching for control of your body.",
-						"levitate" => "An unseen support takes your weight, freeing you from the ground.",
-						_ => "A translucent shimmer softens the outline you perceive around yourself."
-					},
-					TargetResistedEmote = "You hold fast to your body as the invading will loses its grip.",
-					TargetNullEmote = "Your intended subject offers no foothold for this power.",
+					CastingEmote = PsionicPowerEmotes.Spells[verb]["CastingEmote"],
+					FailCastingEmote = PsionicPowerEmotes.Spells[verb]["FailCastingEmote"],
+					TargetEmote = PsionicPowerEmotes.Spells[verb]["TargetEmote"],
+					TargetResistedEmote = PsionicPowerEmotes.Spells[verb]["TargetResistedEmote"],
+					TargetNullEmote = PsionicPowerEmotes.Spells[verb]["TargetNullEmote"],
 					Definition = new XElement("Spell", new XElement("Trigger", new XAttribute("type", verb == "possess" ? "character" : "self"),
 						new XElement("MinimumPower", (int)SpellPower.Insignificant), new XElement("MaximumPower", (int)SpellPower.Insignificant),
 						new XElement("CanTargetSelf", false), new XElement("TargetFilterProg", 0)),

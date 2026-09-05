@@ -94,6 +94,7 @@ public sealed class CoercePower : PsionicTargetedPowerBase
 			return;
 		}
 
+		SendSuccess(actor, target);
 		var degrees = Math.Max(1, outcome.SuccessDegrees());
 		switch (mode)
 		{
@@ -135,8 +136,8 @@ public sealed class CoercePower : PsionicTargetedPowerBase
 			target.GainStamina(amount);
 		}
 
-		actor.OutputHandler.Send($"You coerce {label} through {target.HowSeen(actor, true)}.");
-		target.OutputHandler.Send($"A psionic pressure forces {label} through your body.");
+		actor.OutputHandler.Send(PsionicPowerEmotes.FormatShared("CoerceSourceEcho", label, target.HowSeen(actor, true)));
+		target.OutputHandler.Send(PsionicPowerEmotes.FormatShared("CoerceTargetEcho", label));
 		PsionicTrafficHelper.Audit(actor, target, $"coerced {label} in", amount.ToString("N2", actor));
 	}
 
@@ -148,8 +149,8 @@ public sealed class CoercePower : PsionicTargetedPowerBase
 			ThirstPoints = thirst
 		}, true);
 
-		actor.OutputHandler.Send($"You coerce {label} through {target.HowSeen(actor, true)}.");
-		target.OutputHandler.Send($"A psionic pressure forces {label} through your body.");
+		actor.OutputHandler.Send(PsionicPowerEmotes.FormatShared("CoerceSourceEcho", label, target.HowSeen(actor, true)));
+		target.OutputHandler.Send(PsionicPowerEmotes.FormatShared("CoerceTargetEcho", label));
 		PsionicTrafficHelper.Audit(actor, target, $"coerced {label} in", $"hunger {hunger:N2}, thirst {thirst:N2}");
 	}
 

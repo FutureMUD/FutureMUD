@@ -324,3 +324,5 @@ These matter to developers extending the subsystem, but they are not standalone 
 - [Magic System: Implemented Types](./Magic_System_Implemented_Types.md#power-types)
 
 Seeded and builder-default psionic echoes share `PsionicPowerEmotes`; see the [per-power content review](../Seeding/Psionics_Seeder.md#authored-power-defaults-and-contact-variants) for contact ranges, connect-back syntax, identity progs and rerun semantics.
+
+The [echo catalogue completeness contract](../Seeding/Psionics_Seeder.md#echo-catalogue-completeness) covers every saved power echo, shared traffic and backing-spell defaults, plus named technique echo editing and legacy XML defaults.

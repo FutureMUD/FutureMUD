@@ -283,6 +283,8 @@ The current hard invariant is:
 Any unspent payment reserve on a deleted active project is removed from the project's virtual cash reserve and returned to the project owner as a claimable project payable.
 
 ### Project payment reserves
+
+Successful cash and bank collection of labour payables records one `ProjectPayment` economic activity per payable. Owner refunds are excluded from employment income. The event retains the payable's original owner, worker, currency and reference even after its project has ended. Zone attribution uses the still-loaded project's location when available; completed projects without a location are included in global analytics only, since payables do not persist a historic economic zone.
 Active projects can hold a virtual cash reserve in a specific currency. The reserve uses the shared economy virtual-cash ledger path, while characters still fund and withdraw it through ordinary physical currency items at the command edge.
 
 Project owners and administrators can:

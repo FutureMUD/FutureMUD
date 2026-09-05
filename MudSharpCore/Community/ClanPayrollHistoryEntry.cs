@@ -1,5 +1,7 @@
 ﻿using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy;
+using MudSharp.Economy.Employment;
 using MudSharp.TimeAndDate;
 
 namespace MudSharp.Community;
@@ -67,6 +69,13 @@ public class ClanPayrollHistoryEntry : IClanPayrollHistoryEntry
 			FMDB.Context.ClanPayrollHistories.Add(dbitem);
 			FMDB.Context.SaveChanges();
 			_id = dbitem.Id;
+		}
+		if (entryType == ClanPayrollHistoryType.PayCollected && amount < 0.0M)
+		{
+			_gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
+				EconomicActivityType.ClanPayment, EconomicVolumeClassification.GeneralTransfer,
+				currency.Id, -amount, EmploymentClock.EconomicZone(Clan)?.Id,
+				Clan.Id, "Clan", membership.MemberId, "Character", Id, "ClanPayrollHistory", description));
 		}
 	}
 

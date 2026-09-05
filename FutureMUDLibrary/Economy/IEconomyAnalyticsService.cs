@@ -51,7 +51,19 @@ public enum EconomyHoldingMetric
 	GrossMovement = 101,
 	PcControlledWealth = 102,
 	ReserveCoverage = 103,
-	BroadMoneySupply = 104
+	BroadMoneySupply = 104,
+	PcJobIncome = 110,
+	PcProjectIncome = 111,
+	PcClanIncome = 112,
+	PcOpenJobPostings = 120,
+	NpcEmployed = 121,
+	NpcFree = 122,
+	HostVacantPostings = 123,
+	HostVacantPositions = 124,
+	NpcMedicalWorkers = 125,
+	NpcManagers = 126,
+	FreeMedicalWorkers = 127,
+	FreeManagers = 128
 }
 
 public enum EconomicControlBucket
@@ -117,7 +129,25 @@ public sealed record EconomyVolumeResult(
 	decimal MovementGlobalBaseValue,
 	IReadOnlyDictionary<EconomicActivityType, decimal> ByActivity,
 	IReadOnlyDictionary<EconomicControlBucket, decimal> ByPcInvolvement,
-	long EventCount);
+	long EventCount)
+{
+	public IReadOnlyDictionary<(long CurrencyId, EconomicActivityType Activity), decimal> PcIncome { get; init; } =
+		new Dictionary<(long, EconomicActivityType), decimal>();
+}
+
+public sealed record EconomyJobOpening(string Employer, string Role, long Id, bool Legacy,
+	bool AcceptsPcs, int? VacantPositions);
+
+public sealed record EconomyEmploymentBreakdown(string Name, int EmployedNpcs, int VacantPostings,
+	int VacantPositions);
+
+public sealed record EconomyEmploymentMarket(
+	IReadOnlyList<EconomyJobOpening> Openings,
+	int EmployedNpcs,
+	int FreeNpcs,
+	IReadOnlyList<EconomyEmploymentBreakdown> Hosts,
+	IReadOnlyList<EconomyEmploymentBreakdown> Roles,
+	IReadOnlyDictionary<string, int> FreeCapabilities);
 
 public sealed record EconomySnapshotPoint(
 	long SnapshotId,
@@ -183,6 +213,7 @@ public interface IEconomyAnalyticsService
 	DateTime? ActivityCoverageStartUtc { get; }
 
 	void Initialise();
+	EconomyEmploymentMarket GetEmploymentMarket(long? economicZoneId = null);
 	void RecordActivity(EconomicActivityEvent activity);
 	EconomicControlBucket ResolveControl(string? frameworkItemType, long? frameworkItemId);
 	IReadOnlyList<EconomyHolding> GetCurrentHoldings(long? economicZoneId = null, long? currencyId = null);

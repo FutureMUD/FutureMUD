@@ -12,11 +12,13 @@ using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.Economy.Analytics;
 
-public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
+public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 {
 	internal sealed class EconomyVolumeAggregateRow
 	{
 		public int ActivityType { get; init; }
+		public long CurrencyId { get; init; }
+		public decimal PcIncomeGlobalBaseValue { get; init; }
 		public bool PcInvolved { get; init; }
 		public long EventCount { get; init; }
 		public decimal ExchangeGlobalBaseValue { get; init; }
@@ -887,8 +889,13 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 				byPc[group.Key] = byPc.GetValueOrDefault(group.Key) + group.Value;
 			}
 
+			var income = aggregates.Concat(BuildVolumeAggregateQuery(pendingRecords.AsQueryable()))
+				.Where(x => x.ActivityType is (int)EconomicActivityType.Wage or
+					(int)EconomicActivityType.ProjectPayment or (int)EconomicActivityType.ClanPayment)
+				.GroupBy(x => (x.CurrencyId, (EconomicActivityType)x.ActivityType))
+				.ToDictionary(x => x.Key, x => x.Sum(y => y.PcIncomeGlobalBaseValue));
 			return new EconomyVolumeResult(ActivityCoverageStartUtc ?? now, start, now, exchange, movement,
-				byActivity, byPc, aggregates.Sum(x => x.EventCount) + pendingRecords.Count);
+				byActivity, byPc, aggregates.Sum(x => x.EventCount) + pendingRecords.Count) { PcIncome = income };
 		}
 	}
 
@@ -918,6 +925,7 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 			.GroupBy(x => new
 			{
 				x.ActivityType,
+				x.CurrencyId,
 				PcInvolved = x.SourceControlBucket == (int)EconomicControlBucket.DirectPc ||
 				             x.SourceControlBucket == (int)EconomicControlBucket.SharedPcControlled ||
 				             x.DestinationControlBucket == (int)EconomicControlBucket.DirectPc ||
@@ -926,6 +934,11 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 			.Select(x => new EconomyVolumeAggregateRow
 			{
 				ActivityType = x.Key.ActivityType,
+				CurrencyId = x.Key.CurrencyId,
+				PcIncomeGlobalBaseValue = x.Sum(y =>
+					y.DestinationControlBucket == (int)EconomicControlBucket.DirectPc &&
+					y.DestinationType == "Character" && (y.VolumeClassification & movementMask) != 0
+						? y.GlobalBaseValue : 0.0M),
 				PcInvolved = x.Key.PcInvolved,
 				EventCount = x.LongCount(),
 				ExchangeGlobalBaseValue = x.Sum(y => (y.VolumeClassification & exchangeMask) != 0
@@ -982,6 +995,10 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 			if (economicZoneId.HasValue)
 			{
 				query = query.Where(x => x.EconomySnapshot.EconomicZoneId == economicZoneId);
+			}
+			else if (selectedMetric >= EconomyHoldingMetric.PcJobIncome)
+			{
+				query = query.Where(x => x.EconomySnapshot.EconomicZoneId == null);
 			}
 
 			if (currencyId.HasValue)
@@ -1147,6 +1164,8 @@ public sealed class EconomyAnalyticsService : IEconomyAnalyticsService
 				var primaryCurrency = zone?.Currency ?? _gameworld.Currencies.FirstOrDefault();
 				if (primaryCurrency is not null)
 				{
+					AddEmploymentSnapshotEntries(snapshot, GetEmploymentMarket(economicZoneId), dayVolume,
+						primaryCurrency);
 					var broadSupply = holdings
 						.Where(x => x.Metric is EconomyHoldingMetric.PhysicalCash or EconomyHoldingMetric.BankDeposits or
 							EconomyHoldingMetric.VirtualBalance)

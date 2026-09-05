@@ -33,8 +33,8 @@ public sealed class ClairvoyancePower : PsionicTargetedPowerBase
 			$"Use {school.SchoolVerb.ToUpperInvariant()} CLAIRVOYANCE <target> to see that target's present location.";
 		PowerDistance = MagicPowerDistance.SeenTargetOnly;
 		SkillCheckDifficulty = Difficulty.Normal;
-		FailEcho = "You reach out for $1's surroundings, but the image collapses.";
-		SuccessEcho = "@ close|closes &0's eyes and peers across distance.";
+		FailEcho = PsionicPowerEmotes.Get("clairvoyance", "FailEcho");
+		SuccessEcho = PsionicPowerEmotes.Get("clairvoyance", "SuccessEcho");
 		DoDatabaseInsert();
 	}
 

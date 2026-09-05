@@ -33,8 +33,8 @@ public sealed class BabblePower : PsionicTargetedPowerBase
 		Blurb = "Scramble a target's outgoing speech";
 		_showHelpText = $"Use {school.SchoolVerb.ToUpperInvariant()} BABBLE <target> to make their speech come out as incomprehensible babble.";
 		DurationSeconds = 120.0;
-		FailEcho = "You brush against $1's speech centres, but cannot tangle them.";
-		SuccessEcho = "You tangle $1's speech centres.";
+		FailEcho = PsionicPowerEmotes.Get("babble", "FailEcho");
+		SuccessEcho = PsionicPowerEmotes.Get("babble", "SuccessEcho");
 		DoDatabaseInsert();
 	}
 

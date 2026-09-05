@@ -42,9 +42,9 @@ public sealed class ClairaudiencePower : SustainedMagicPower
 		ConcentrationPointsToSustain = 1.0;
 		SustainPenalty = Gameworld.GetStaticDouble("CheckBonusPerDifficultyLevel") * -1.0;
 		DetectableWithDetectMagic = Difficulty.Normal;
-		BeginEmote = "You open your hearing through $1's mind.";
-		EndEmote = "You close your remote hearing.";
-		FailEmote = "You reach for $1's senses, but cannot tune them.";
+		BeginEmote = PsionicPowerEmotes.Get("clairaudience", "BeginEmote");
+		EndEmote = PsionicPowerEmotes.Get("clairaudience", "EndEmote");
+		FailEmote = PsionicPowerEmotes.Get("clairaudience", "FailEmote");
 		DoDatabaseInsert();
 	}
 

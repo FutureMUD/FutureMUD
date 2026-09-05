@@ -322,3 +322,5 @@ These matter to developers extending the subsystem, but they are not standalone 
 - [Magic System: Capabilities, Resources, and Generators](./Magic_System_Capabilities_Resources_and_Generators.md)
 - [Magic System: Spells](./Magic_System_Spells.md)
 - [Magic System: Implemented Types](./Magic_System_Implemented_Types.md#power-types)
+
+Seeded and builder-default psionic echoes share `PsionicPowerEmotes`; see the [per-power content review](../Seeding/Psionics_Seeder.md#authored-power-defaults-and-contact-variants) for contact ranges, connect-back syntax, identity progs and rerun semantics.

@@ -40,9 +40,9 @@ public sealed class PsychicBoltPower : PsionicTargetedPowerBase
 		SkillCheckDifficulty = Difficulty.Normal;
 		StunAmount = 20.0;
 		DamageType = DamageType.Eldritch;
-		FailEcho = "You hurl force at $1's mind, but it scatters before impact.";
-		SuccessEcho = "@ hurl|hurls a bolt of invisible psychic force at $1.";
-		TargetEcho = "Invisible psychic force crashes through your mind.";
+		FailEcho = PsionicPowerEmotes.Get("psychicbolt", "FailEcho");
+		SuccessEcho = PsionicPowerEmotes.Get("psychicbolt", "SuccessEcho");
+		TargetEcho = PsionicPowerEmotes.Get("psychicbolt", "TargetEcho");
 		DoDatabaseInsert();
 	}
 

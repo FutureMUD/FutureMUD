@@ -47,6 +47,8 @@ public sealed class PsionicsSeeder : IDatabaseSeeder
 			context.FutureProgs.Add(prog); context.SaveChanges(); return prog;
 		}
 		var yes = Prog("Allowed", ProgVariableTypes.Boolean, "return true").Id;
+		var identity = Prog("TargetKnowsIdentity", ProgVariableTypes.Boolean, "return false").Id;
+		var eligibility = Prog("TargetEligible", ProgVariableTypes.Boolean, "return true").Id;
 		var no = Prog("NoAutomaticAccess", ProgVariableTypes.Boolean, "return false").Id;
 		var error = Prog("Unavailable", ProgVariableTypes.Text, "return \"That psychic action is unavailable.\"").Id;
 		var normal = Prog("NormalDifficulty", ProgVariableTypes.Text, "return \"Normal\"").Id;
@@ -101,12 +103,34 @@ public sealed class PsionicsSeeder : IDatabaseSeeder
 				if (power is null)
 				{
 					power = new MagicPower { Name = powerName, MagicSchoolId = school.Id, PowerModel = stock.Type, Blurb = stock.Help, ShowHelp = stock.Help,
-						Definition = PsionicStockContent.Definition(stock, trait.Id, resource.Id, yes, no, error, normal).ToString() };
+						Definition = PsionicStockContent.Definition(stock, trait.Id, resource.Id, yes, no, error, normal, identity, eligibility, !basic).ToString() };
 					context.MagicPowers.Add(power); context.SaveChanges();
 				}
 				else
 				{
 					if (power.PowerModel != stock.Type || power.MagicSchoolId != school.Id) throw new InvalidOperationException($"Conflicting power identity: {powerName}.");
+					var definition = XElement.Parse(power.Definition);
+					// Repair only known stock placeholders. Independently edited fields remain intact.
+					var desired = PsionicStockContent.Definition(stock, trait.Id, resource.Id, yes, no, error, normal, identity, eligibility, !basic);
+					foreach (var element in definition.Elements().ToList())
+					{
+						if (element.Value is "You feel a mental presence shift." or "The mental barrier shifts." or
+						    "You cannot shape the mental impulse." or "You focus your psychic senses." or
+						    "Your psychic senses subside." or "You fail to focus your senses." or
+						    "You examine the boundaries of your own mind." or "Your mental presence has been noticed." or
+						    "Your mental connection is expelled." or "You feel pressure against your connection." or
+						    "You project the words: {0}" or "Your words fade unformed.")
+							if (desired.Element(element.Name) is { } replacement) element.Value = replacement.Value;
+					}
+					if (stock.Type == "connectmind")
+					{
+						if ((string?)definition.Element("PowerDistance") == ((int)MagicPowerDistance.SameLocationOnly).ToString())
+							definition.SetElementValue("PowerDistance", desired.Element("PowerDistance")!.Value);
+						if ((long?)definition.Element("TargetEligibilityProg") == yes) definition.SetElementValue("TargetEligibilityProg", eligibility);
+					}
+					if (stock.Type is "connectmind" or "mindsay" && (long?)definition.Element("TargetCanSeeIdentityProg") == yes)
+						definition.SetElementValue("TargetCanSeeIdentityProg", identity);
+					power.Definition = definition.ToString();
 					preserved.Add(powerName);
 				}
 				powers.Add((power, stock.Band));
@@ -121,6 +145,14 @@ public sealed class PsionicsSeeder : IDatabaseSeeder
 						powers.Select(x => new XElement("Power", new XAttribute("trait", trait.Id), new XAttribute("minvalue", x.Band), new XAttribute("power", x.Power.Id)))).ToString() });
 			}
 			else if (capability.CapabilityModel != "skilllevel" || capability.MagicSchoolId != school.Id) throw new InvalidOperationException($"Conflicting capability identity: {name}.");
+			else
+			{
+				var definition = XElement.Parse(capability.Definition);
+				foreach (var entry in powers.Where(x => x.Power.Name.EndsWith(": connectback", StringComparison.Ordinal)))
+					if (!definition.Elements("Power").Any(x => (long?)x.Attribute("power") == entry.Power.Id))
+						definition.Add(new XElement("Power", new XAttribute("trait", trait.Id), new XAttribute("minvalue", entry.Band), new XAttribute("power", entry.Power.Id)));
+				capability.Definition = definition.ToString();
+			}
 		}
 		context.SaveChanges(); transaction.Commit();
 		return $"Installed missing psionics definitions; preserved {preserved.Count} existing powers. No characters were granted access. Configure school access explicitly. Psychometric impressions and VNPC reporting delay were not enabled.";
@@ -158,7 +190,23 @@ public sealed class PsionicsSeeder : IDatabaseSeeder
 					CastingDifficulty = (int)Difficulty.Normal, MinimumSuccessThreshold = (int)Outcome.MinorPass,
 					ResistingDifficulty = verb == "possess" ? (int)Difficulty.Normal : null, ResistingTraitDefinitionId = verb == "possess" ? trait.Id : null,
 					EffectDurationExpressionId = duration.Id, ExclusiveDelay = 5, NonExclusiveDelay = 15, AppliedEffectsAreExclusive = true,
-					CastingEmote = "@ concentrate|concentrates intently.", FailCastingEmote = "Your mental impulse dissolves.", TargetEmote = "You feel a psychic impulse.", TargetResistedEmote = "The mind resists the impulse.", TargetNullEmote = "That target cannot receive this effect.",
+					CastingEmote = verb switch
+					{
+						"project" => "@ grow|grows motionless, &0's gaze turning inward.",
+						"possess" => "@ fix|fixes &0's gaze on $1 with unbroken concentration.",
+						"levitate" => "@ steady|steadies %0, &0's attention fixed on the space beneath &0.",
+						_ => "@ study|studies &0's outline, concentrating on its edges."
+					},
+					FailCastingEmote = "@ falter|falters, &0's concentration breaking.",
+					TargetEmote = verb switch
+					{
+						"project" => "Your awareness loosens from the weight of your body.",
+						"possess" => "Another will presses into your awareness, reaching for control of your body.",
+						"levitate" => "An unseen support takes your weight, freeing you from the ground.",
+						_ => "A translucent shimmer softens the outline you perceive around yourself."
+					},
+					TargetResistedEmote = "You hold fast to your body as the invading will loses its grip.",
+					TargetNullEmote = "Your intended subject offers no foothold for this power.",
 					Definition = new XElement("Spell", new XElement("Trigger", new XAttribute("type", verb == "possess" ? "character" : "self"),
 						new XElement("MinimumPower", (int)SpellPower.Insignificant), new XElement("MaximumPower", (int)SpellPower.Insignificant),
 						new XElement("CanTargetSelf", false), new XElement("TargetFilterProg", 0)),

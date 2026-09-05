@@ -47,12 +47,12 @@ public sealed class EmpathyPower : PsionicTargetedPowerBase
 		TransferInterval = TimeSpan.FromSeconds(10);
 		MaxWounds = 0;
 		SafetyHealthPercent = 0.75;
-		FailEcho = "You reach for $1's pain, but cannot take hold of it.";
+		FailEcho = PsionicPowerEmotes.Get("empathy", "FailEcho");
 		SuccessEcho = string.Empty;
-		StartEcho = "@ reach|reaches toward $1's pain with intense psychic focus.";
-		TransferEcho = "@ shudder|shudders as a wound passes from $1 into &0.";
-		StopEcho = "Your empathic link to $1 fades.";
-		SafetyEcho = "You recoil from taking another wound before the pain overwhelms you.";
+		StartEcho = PsionicPowerEmotes.Get("empathy", "StartEcho");
+		TransferEcho = PsionicPowerEmotes.Get("empathy", "TransferEcho");
+		StopEcho = PsionicPowerEmotes.Get("empathy", "StopEcho");
+		SafetyEcho = PsionicPowerEmotes.Get("empathy", "SafetyEcho");
 		DoDatabaseInsert();
 	}
 

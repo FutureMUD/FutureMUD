@@ -34,7 +34,7 @@ public sealed class CoercePower : PsionicTargetedPowerBase
 		_showHelpText = $"Use {school.SchoolVerb.ToUpperInvariant()} COERCE <target> <fatigue|refresh|thirst|quench|hunger|full|thought> [thought] to influence a body or mind.";
 		StaminaFractionPerDegree = 0.05;
 		NeedHoursPerDegree = 2.0;
-		FailEcho = "You press against $1's body and mind, but cannot make it answer.";
+		FailEcho = PsionicPowerEmotes.Get("coerce", "FailEcho");
 		DoDatabaseInsert();
 	}
 

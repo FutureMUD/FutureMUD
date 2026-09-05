@@ -32,7 +32,8 @@ public sealed class GuardMindPower : PsychicTechniquePower
 		if (!Resolve(actor, target, MentalActionKind.Investigation, false, out _)) return;
 		actor.RemoveAllEffects<MaintainedPsychicEffect>(x => x.Power == this, true);
 		actor.AddEffect(new MaintainedPsychicEffect(actor, target, this, "guard"), Duration);
-		actor.OutputHandler.Send("You extend your mental protection over the linked mind.");
+		actor.OutputHandler.Send(new EmoteOutput(new Emote("You extend a watchful boundary around $1's mind.", actor, actor, target)));
+		target.OutputHandler.Send("A watchful presence settles around your thoughts, ready to meet an intrusion.");
 		Complete(actor, target, "a mental aegis");
 	}
 }
@@ -51,7 +52,7 @@ public sealed class PsychicFeedbackPower : PsychicTechniquePower
 		if (!Resolve(actor, actor, MentalActionKind.Investigation, false, out _)) return;
 		actor.RemoveAllEffects<MaintainedPsychicEffect>(x => x.Power == this, true);
 		actor.AddEffect(new MaintainedPsychicEffect(actor, actor, this, "feedback"), Duration);
-		actor.OutputHandler.Send("You prepare your mind to react to intrusion.");
+		actor.OutputHandler.Send("You gather a taut, answering pressure at the boundary of your thoughts.");
 		Complete(actor, actor, "a psychic feedback defence");
 	}
 }

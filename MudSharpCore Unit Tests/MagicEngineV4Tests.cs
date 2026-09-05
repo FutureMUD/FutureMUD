@@ -31,6 +31,44 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicEngineV4Tests
 {
+	[TestMethod]
+	public void StockEchoes_ParseAfterTheirDocumentedSubstitutions()
+	{
+		foreach (var (type, fields) in PsionicPowerEmotes.All)
+		foreach (var (field, template) in fields)
+		{
+			var text = template.Replace("{kind}", "psychic").Replace("{description}", "a passing thought");
+			if (type is "connectmind" or "mindsay") text = string.Format(text, "an unfamiliar mind", "A message.");
+			var emote = new MudSharp.PerceptionEngine.Parsers.Emote(text, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+			Assert.IsTrue(emote.Valid, $"{type}/{field}: {emote.ErrorMessage}");
+		}
+	}
+
+	[TestMethod]
+	public void ContactFailureAndDirectedSpeech_SubstituteIdentityAndMessageOnce()
+	{
+		var world = CreateGameworld();
+		var resource = new Mock<IMagicResource>();
+		resource.SetupGet(x => x.Id).Returns(1);
+		world.SetupGet(x => x.MagicResources).Returns(CreateCollectionMock(resource.Object).Object);
+		var actor = CreateCharacter(1, world.Object);
+		var target = CreateCharacter(2, world.Object);
+		IMagicPower Load(string type)
+		{
+			var stock = PsionicStockContent.Powers.First(x => x.Type == type);
+			return MagicPowerFactory.LoadPower(new MagicPower { Id = 1, Name = type, MagicSchoolId = 1, PowerModel = type,
+				Definition = PsionicStockContent.Definition(stock, 1, 1, 0, 0, 0, 0).ToString() }, world.Object);
+		}
+		var contact = (ConnectMindPower)Load("connectmind");
+		Assert.IsFalse(contact.GetAppropriateConnectEmote(actor.Object, target.Object, true).Contains("{0}"));
+		var speech = (MindSayPower)Load("mindsay");
+		var echo = speech.GetAppropriateTargetEmote(actor.Object, target.Object, "Remember {the gate}.");
+		StringAssert.Contains(echo, "Remember {the gate}.");
+		Assert.IsFalse(echo.Contains("{1}"));
+        speech.TargetEmoteText = "{0} whispers: {{1}}";
+        StringAssert.Contains(speech.GetAppropriateTargetEmote(actor.Object, target.Object, "Legacy message."), "Legacy message.");
+	}
+
 	[DataTestMethod]
 	[DataRow(true)]
 	[DataRow(false)]

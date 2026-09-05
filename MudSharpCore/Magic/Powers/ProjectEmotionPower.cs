@@ -32,7 +32,7 @@ public sealed class ProjectEmotionPower : PsionicTargetedPowerBase
 	{
 		Blurb = "Inject an involuntary feeling into a target mind";
 		_showHelpText = $"Use {school.SchoolVerb.ToUpperInvariant()} PROJECTEMOTION <target> <feeling> to put a feeling into a mind.";
-		FailEcho = "You reach for $1's feelings, but cannot touch them.";
+		FailEcho = PsionicPowerEmotes.Get("projectemotion", "FailEcho");
 		DoDatabaseInsert();
 	}
 

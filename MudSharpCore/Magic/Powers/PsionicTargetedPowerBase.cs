@@ -35,7 +35,7 @@ public abstract class PsionicTargetedPowerBase : MagicPowerBase
 		SkillCheckTrait = trait;
 		SkillCheckDifficulty = Difficulty.Normal;
 		MinimumSuccessThreshold = Outcome.MinorPass;
-		FailEcho = "You cannot quite force the thought into shape.";
+		FailEcho = PsionicPowerEmotes.Get(DefaultVerb, "FailEcho", "You cannot quite force the thought into shape.");
 		SuccessEcho = string.Empty;
 		DetectableWithDetectMagic = Difficulty.Normal;
 	}

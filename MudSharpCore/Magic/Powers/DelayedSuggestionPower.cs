@@ -46,7 +46,7 @@ public sealed class DelayedSuggestionPower : PsychicTechniquePower
 		target.AddEffect(new DelayedPsychicSuggestionEffect(target, actor, this, trigger, subjectId,
 			payloadMode == "thought" ? payload : "", payloadMode == "emotion" ? payload : ""), lifetime);
 		PsionicTrafficHelper.Audit(actor, target, "planted a delayed suggestion in", payload);
-		actor.OutputHandler.Send("You leave a suggestion waiting within that mind.");
+		actor.OutputHandler.Send(new EmoteOutput(new Emote("You tuck the suggestion into $1's thoughts, poised to stir when its moment arrives.", actor, actor, target)));
 		Complete(actor, target, "a delayed suggestion");
 	}
 }

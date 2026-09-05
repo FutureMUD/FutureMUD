@@ -1,4 +1,4 @@
-﻿using Humanizer;
+using Humanizer;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
@@ -1080,7 +1080,7 @@ The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
             }
 
             ICharacterKnowledge knowledge =
-                actor.CharacterKnowledges.FirstOrDefault(
+                actor.CharacterKnowledges.Where(x => actor.Knowledges.Contains(x.Knowledge)).FirstOrDefault(
                     x => x.Knowledge.Name.StartsWith(skilltext, StringComparison.InvariantCultureIgnoreCase));
             if (knowledge == null)
             {

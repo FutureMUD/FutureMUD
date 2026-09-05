@@ -91,7 +91,7 @@ public class CombatEndAI : ArtificialIntelligenceBase
     private void HandleTruceOffered(ICharacter actor, ICharacter target)
     {
         OnOfferedTruce?.Execute(actor, target);
-        if (WillAcceptTruce?.ExecuteBool(actor, target) ?? false)
+        if (PsychicDispositionQuery.WillCooperate(actor, target, WillAcceptTruce?.ExecuteBool(actor, target) ?? false))
         {
             actor.Combat.TruceRequested(actor);
         }

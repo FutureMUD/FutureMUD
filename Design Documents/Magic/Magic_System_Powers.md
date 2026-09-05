@@ -13,6 +13,7 @@ This document is aimed at:
 - seeder authors planning how power data should be staged manually
 
 ## Quick Map
+- Read [Psychic Powers, Impressions and Witness Memory](./Psychic_Powers_Impressions_and_Witness_Memory.md) for the optional psionics schools, new power families and legal-memory integration.
 - Read the runtime flow section if you need to understand how powers reach a player and how they consume resources.
 - Read the builder workflow section if you are authoring content with `magic power`.
 - Read the developer extension section if you are adding a new power type.

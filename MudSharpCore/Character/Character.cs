@@ -3383,6 +3383,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public override bool HasDubFor(IKeyworded target, IEnumerable<string> keywords)
     {
+		if (target is ICharacter person && PsychicSuppressionEffect.Suppresses(this, "recognition", CharacterInstanceIdentityComparer.IdentityId(person))) return false;
         if (target is not IPerceivable perceivable)
         {
             return false;
@@ -3407,6 +3408,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public override bool HasDubFor(IKeyworded target, string keyword)
     {
+		if (target is ICharacter person && PsychicSuppressionEffect.Suppresses(this, "recognition", CharacterInstanceIdentityComparer.IdentityId(person))) return false;
         if (target is not IPerceivable perceivable)
         {
             return false;
@@ -3569,7 +3571,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     #region IHaveKnowledges Members
 
-    public IEnumerable<IKnowledge> Knowledges => CharacterKnowledges.Select(x => x.Knowledge).ToList();
+    public IEnumerable<IKnowledge> Knowledges => CharacterKnowledges.Select(x => x.Knowledge)
+		.Where(x => !PsychicSuppressionEffect.Suppresses(this, "knowledge", x.Id)).ToList();
 
     private readonly List<ICharacterKnowledge> _characterKnowledges = new();
     public IEnumerable<ICharacterKnowledge> CharacterKnowledges => _characterKnowledges;

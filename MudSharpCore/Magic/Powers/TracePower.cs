@@ -31,7 +31,7 @@ public sealed class TracePower : PsionicTargetedPowerBase
 	private TracePower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name, trait)
 	{
 		Blurb = "Inspect active mind links around a target";
-		_showHelpText = $"Use {school.SchoolVerb.ToUpperInvariant()} TRACE <target> to inspect active mental links around a mind.";
+		_showHelpText = $"Use {school.SchoolVerb.ToUpperInvariant()} TRACE <target> to inspect permitted active mental links and residual traces. Checks and concealment limit what you learn. Item and cell traces are unavailable when psychometric impressions are disabled; character traces remain independent.";
 		FailEcho = "You trace the surface of $1's mind, but the connections elude you.";
 		DoDatabaseInsert();
 	}
@@ -141,7 +141,7 @@ public sealed class TracePower : PsionicTargetedPowerBase
 			yield return trace;
 		}
 
-		if (target.Location is null)
+		if (target.Location is null || !PsychometricRecorder.Enabled(target.Gameworld))
 		{
 			yield break;
 		}

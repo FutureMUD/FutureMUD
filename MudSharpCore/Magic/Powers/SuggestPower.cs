@@ -31,7 +31,7 @@ public sealed class SuggestPower : PsionicTargetedPowerBase
 	private SuggestPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name, trait)
 	{
 		Blurb = "Inject an involuntary thought into a target mind";
-		_showHelpText = $"Use {school.SchoolVerb.ToUpperInvariant()} SUGGEST <target> [<emotion wrapper>] <thought> to put a thought into a mind.";
+		_showHelpText = $"Use {school.SchoolVerb.ToUpperInvariant()} SUGGEST <target> [<emotion wrapper>] <thought> to put a thought into a mind. The recipient receives text, not a command: this grants no obedience or control. Mental protections and resistance can prevent delivery.";
 		FailEcho = "You reach for $1's thoughts, but cannot plant your suggestion.";
 		DoDatabaseInsert();
 	}

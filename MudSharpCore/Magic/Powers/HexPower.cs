@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Body.Traits;
 using MudSharp.Effects.Concrete;
@@ -163,7 +163,8 @@ public sealed class HexPower : PsionicTargetedPowerBase
 			return false;
 		}
 
-		if (!double.TryParse(command.SafeRemainingArgument, out var seconds))
+		TimeSpan duration;
+		if (!double.TryParse(command.SafeRemainingArgument, out var seconds) || !double.IsFinite(seconds))
 		{
 			if (!TimeSpan.TryParse(command.SafeRemainingArgument, actor, out var parsed))
 			{
@@ -171,27 +172,29 @@ public sealed class HexPower : PsionicTargetedPowerBase
 				return false;
 			}
 
-			Duration = parsed;
+			duration = parsed;
 		}
 		else
 		{
-			Duration = TimeSpan.FromSeconds(seconds);
+			if (seconds <= 0 || seconds >= TimeSpan.MaxValue.TotalSeconds) { actor.Send("Specify a finite positive duration within TimeSpan bounds."); return false; }
+			duration = TimeSpan.FromSeconds(seconds);
 		}
 
-		if (Duration <= TimeSpan.Zero)
+		if (duration <= TimeSpan.Zero)
 		{
 			actor.OutputHandler.Send("The duration must be positive.");
 			return false;
 		}
 
 		Changed = true;
+		Duration = duration;
 		actor.OutputHandler.Send($"This hex now lasts {Duration.Describe(actor).ColourValue()}.");
 		return true;
 	}
 
 	private bool BuildingCommandPenalty(ICharacter actor, StringStack command)
 	{
-		if (!double.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0)
+		if (!double.TryParse(command.SafeRemainingArgument, out var value) || !double.IsFinite(value) || value < 0.0)
 		{
 			actor.OutputHandler.Send("You must enter a positive number for the check penalty.");
 			return false;

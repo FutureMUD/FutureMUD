@@ -43,6 +43,7 @@ public partial class Character
 
         if (IsPrimaryInstance)
         {
+			MudSharp.Magic.PsychometricRecorder.Record(this, MudSharp.Magic.ImpressionKind.Death, "a death", this);
             RemoveAllEffects<IAstralProjectionEffect>(x => x.AnchorInstanceId == InstanceId, true);
             RemoveAllEffects<IMagicalCopyEffect>(x => x.AnchorInstanceId == InstanceId, true);
             RemoveAllEffects<IPhysicalCloneEffect>(x => x.AnchorInstanceId == InstanceId, true);

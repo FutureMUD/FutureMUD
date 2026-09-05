@@ -592,3 +592,7 @@ Use `item set refrigeration` on a game-item prototype whose morph countdown repr
 ## Restaurant Furniture and Serviceware Authoring
 
 No restaurant-specific item component is required. Create dining furniture with both `Table` and `Container` components, and create reusable plates, trays, cartons, and bags with a compatible `Container` component and adequate size/weight limits. A menu entry configured to `open` must use an item whose prototype supplies `IOpenable`; `plate` needs a serving-container prototype; and `package` needs an inner takeaway-container prototype. The outer takeaway bag is configured once on the restaurant and must have exactly one standard `Container` component so capacity is unambiguous. Put physical examples of reusable plates, inner containers, and bags into kitchen containers assigned the corresponding restaurant storage roles. Plates must be open/usable containers into which the crafted food can be put, and tables must be able to accept the loaded plate as well as allow a server to get it back after it is empty. Test actual containment before activating the menu entry, because restaurant validation rejects incompatible authored combinations.
+
+## Psychometric integration
+
+Psychometric history is a saved item effect, not a mandatory component. Inventory component authors should complete transfers before invoking inventory-change notifications so effective carrier continuity is observed after detach/attach operations. Splitting components should preserve history through the item copy/owner-copy hooks.

@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.Character.Heritage;
 using MudSharp.Character.Name;
@@ -1092,9 +1092,9 @@ internal class HeritageBuilderModule : BaseBuilderModule
         }
 
         string target = ss.SafeRemainingArgument;
-        ICharacterKnowledge knowledge = actor.CharacterKnowledges.FirstOrDefault(x => x.Knowledge.Name.EqualTo(target)) ??
-                        actor.CharacterKnowledges.FirstOrDefault(x => x.Knowledge.Description.EqualTo(target)) ??
-                        actor.CharacterKnowledges.FirstOrDefault(x => x.Name.StartsWith(target, StringComparison.InvariantCultureIgnoreCase));
+        ICharacterKnowledge knowledge = actor.CharacterKnowledges.Where(x => actor.Knowledges.Contains(x.Knowledge)).FirstOrDefault(x => x.Knowledge.Name.EqualTo(target)) ??
+                        actor.CharacterKnowledges.Where(x => actor.Knowledges.Contains(x.Knowledge)).FirstOrDefault(x => x.Knowledge.Description.EqualTo(target)) ??
+                        actor.CharacterKnowledges.Where(x => actor.Knowledges.Contains(x.Knowledge)).FirstOrDefault(x => x.Name.StartsWith(target, StringComparison.InvariantCultureIgnoreCase));
         if (knowledge == null)
         {
             actor.OutputHandler.Send("You don't know of any knowledge like that.");

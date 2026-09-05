@@ -867,3 +867,7 @@ When adding new AI, the safest progression is usually:
 ## Related References
 - Companion event document: [Event_System_for_AI_and_Hooks.md](./Event_System_for_AI_and_Hooks.md)
 - Existing AI storyteller design for contrast with this subsystem: [AI_Storyteller_Design.md](./AI_Storyteller_Design.md)
+
+## Psychic disposition
+
+`PsychicDispositionQuery` mediates discretionary aggression, target ordering and truce cooperation. Positive affinity discourages aggression; aversion affects ordering and cooperation. Configured refusal is never converted into permission. Enforcers retain legal duties. The `PsychicDisposition(character, subject)` FutureProg query exposes represented affinity/aversion for authored decisions without granting commands, prices, property rights or affiliation.

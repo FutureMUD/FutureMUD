@@ -547,6 +547,7 @@ public partial class Character
         {
             return false;
         }
+		RemoveAllEffects<MudSharp.Effects.Concrete.AttentionSuppressionEffect>();
 
         ICombat combat;
 

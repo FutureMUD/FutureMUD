@@ -22,6 +22,8 @@ public static class PsionicActivityNotifier
 	{
 		var activity = new PsionicActivity(source, power, power.IsPsionic ? PsionicActivityKind.Psychic : PsionicActivityKind.Magical,
 			description);
+		var targetList = targets.Where(x => x is not null).Distinct().ToList();
+		PsychometricRecorder.Record(source, ImpressionKind.Magic, description, targetList.FirstOrDefault(), power.School.Id);
 
 		foreach (var effect in source.Gameworld.Characters.SelectMany(x => x.EffectsOfType<PsionicSensitivityEffect>()).ToList())
 		{
@@ -36,13 +38,8 @@ public static class PsionicActivityNotifier
 		}
 
 		var traceId = Guid.NewGuid();
-		var targetList = targets.Where(x => x is not null).Distinct().ToList();
 		var owners = new List<IPerceivable> { source };
 		owners.AddRange(targetList);
-		if (source.Location is not null)
-		{
-			owners.Add(source.Location);
-		}
 
 		foreach (var owner in owners.Distinct())
 		{

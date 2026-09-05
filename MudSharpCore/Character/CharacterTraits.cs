@@ -311,6 +311,7 @@ public partial class Character
 
     public double TraitValue(ITraitDefinition trait, TraitBonusContext context = TraitBonusContext.None)
     {
+		if (MudSharp.Effects.Concrete.PsychicSuppressionEffect.Suppresses(this, "skill", trait.Id)) return 0;
         if (trait.OwnerScope == TraitOwnerScope.Body)
         {
             return Body.TraitValue(trait, context);

@@ -169,7 +169,7 @@ public class MindExpelPower : MagicPowerBase
         Dictionary<Difficulty, CheckOutcome> results = check.CheckAgainstAllDifficulties(actor, Difficulty.Normal, SkillCheckTrait);
         StringBuilder sb = new();
         List<ICharacter> expelledTargets = new();
-        foreach (MindConnectedToEffect effect in actor.EffectsOfType<MindConnectedToEffect>())
+        foreach (MindConnectedToEffect effect in actor.EffectsOfType<MindConnectedToEffect>().ToList())
         {
             string difficultyText = SkillCheckDifficultyProg.Execute<string>(effect.OriginatorCharacter, actor);
             if (!difficultyText.TryParseEnum<Difficulty>(out Difficulty difficulty))
@@ -192,6 +192,7 @@ public class MindExpelPower : MagicPowerBase
                                flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises);
             sb.AppendLine($"You successfully expel the presence of {identity} from your mind.");
             expelledTargets.Add(effect.OriginatorCharacter);
+			effect.OriginatorCharacter.RemoveEffect(effect.OriginatorEffect, true);
 
             if (!string.IsNullOrEmpty(EchoToExpelledTarget))
             {

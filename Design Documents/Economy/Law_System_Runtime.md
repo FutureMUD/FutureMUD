@@ -278,3 +278,11 @@ For RouteCells, configured equipment and execution cells resolve to the cell's a
 ## Player Constraint
 
 The condemned receives `ExecutionPatrolNoQuit` while the execution is being carried out. Its no-quit reason explains that the character cannot quit while law enforcement is carrying out the death sentence. The effect is removed when the patrol completes or aborts.
+
+## Witness recall and delayed virtual reports
+
+Crime witness memory now separates historical witnessing from current recall and delivered reports. Character sources use stable identity; virtual sources use the incident and witness-profile identity. Existing witness IDs load as available recall without fabricating historical virtual identities. `CanWitnessRecall` is the gameplay reporting query. Delivered evidence remains valid after forgetting.
+
+`VNPCWitnessReportDelaySeconds` defaults to zero, preserving immediate reporting. An opt-in value of 120 supports pre-report psychic intervention. Successful pending reports retain their due time, identity knowledge and reliability; suppression defers delivery, permanent forgetting prevents it, and restart delivery checks prevent duplicates. Resolved or removed incidents stop pending work.
+
+Staff inspect `witnessmemory <crime id>` and restore with `witnessmemory <crime id> restore <witness number>`. Restoration is audited. Permanent forgetting requires explicit restoration. These mechanics do not depend on `EnablePsychometricImpressions`. See [Psychic Powers, Impressions and Witness Memory](../Magic/Psychic_Powers_Impressions_and_Witness_Memory.md).

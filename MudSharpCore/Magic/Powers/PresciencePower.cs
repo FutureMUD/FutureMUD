@@ -44,7 +44,7 @@ public sealed class PresciencePower : MagicPowerBase
 		EnablePsionicTraceDefaults();
 		Blurb = "Submit a prescient question to an administrator board";
 		_showHelpText =
-			$"Use {school.SchoolVerb.ToUpperInvariant()} PRESCIENCE to enter a question for staff to answer through dreams or other story methods.";
+			$"Use {school.SchoolVerb.ToUpperInvariant()} PRESCIENCE to enter a question for staff to answer through dreams or other story methods. This submits a request to the configured staff board; it does not automatically predict future events or guarantee an answer.";
 		Verb = "prescience";
 		SkillCheckTrait = trait;
 		SkillCheckDifficulty = Difficulty.Normal;

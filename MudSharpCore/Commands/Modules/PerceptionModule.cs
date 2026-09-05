@@ -480,6 +480,8 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
         AutoHelp.HelpArg)]
     protected static void Look(ICharacter actor, string input)
     {
+		foreach (var person in actor.Location.CharactersInSpatialVicinity(actor).Where(x => x.RoomLayer == actor.RoomLayer))
+		foreach (var effect in person.EffectsOfType<MudSharp.Effects.Concrete.AttentionSuppressionEffect>()) effect.Notices(actor, true);
         StringStack ss = new(input.RemoveFirstWord());
         string arg = ss.PopSafe();
         if (arg.Length == 0)

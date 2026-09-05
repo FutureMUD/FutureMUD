@@ -1037,6 +1037,23 @@ public sealed partial class Futuremud : IDisposable
 
     public void UpdateStaticConfiguration(string whichConfiguration, string newValue)
     {
+		if (whichConfiguration.EqualTo(MudSharp.Magic.PsychometricRecorder.EnabledSetting) &&
+		    !string.Equals(GetStaticConfiguration(whichConfiguration), newValue, StringComparison.OrdinalIgnoreCase))
+		{
+			var epoch = Guid.NewGuid().ToString("N");
+			_staticConfigurations[MudSharp.Magic.PsychometricRecorder.EpochSetting] = epoch;
+			using (new FMDB())
+			{
+				var row = FMDB.Context.StaticConfigurations.Find(MudSharp.Magic.PsychometricRecorder.EpochSetting);
+				if (row is null)
+				{
+					FMDB.Context.StaticConfigurations.Add(new Models.StaticConfiguration
+					{ SettingName = MudSharp.Magic.PsychometricRecorder.EpochSetting, Definition = epoch });
+				}
+				else row.Definition = epoch;
+				FMDB.Context.SaveChanges();
+			}
+		}
         _staticConfigurations[whichConfiguration] = newValue;
         _staticBools.Remove(whichConfiguration);
         _staticDoubles.Remove(whichConfiguration);

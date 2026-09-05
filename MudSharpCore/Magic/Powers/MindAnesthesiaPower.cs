@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Traits;
+using MudSharp.Body.Traits;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
@@ -1049,7 +1049,7 @@ public class MindAnesthesiaPower : SustainedMagicPower
             return false;
         }
 
-        if (!double.TryParse(command.PopSpeech(), out double value))
+        if (!double.TryParse(command.PopSpeech(), out double value) || !double.IsFinite(value))
         {
             actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid number.");
             return false;

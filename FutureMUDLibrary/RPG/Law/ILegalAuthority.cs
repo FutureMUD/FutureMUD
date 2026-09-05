@@ -62,6 +62,7 @@ namespace MudSharp.RPG.Law
         ILegalClass GetLegalClass(ICharacter character);
         IEnforcementAuthority GetEnforcementAuthority(ICharacter character);
         void ReportCrime(ICrime crime, ICharacter witness, bool identityKnown, double reliability);
+		void ReportVirtualCrime(ICrime crime, CrimeWitnessMemory source);
         void AccuseCrime(ICrime crime);
         void RemoveCrime(ICrime crime);
         void FinaliseCrime(ICrime crime);

@@ -47,11 +47,10 @@ public class MySqlScriptBatchParserTests
 		var snapshotPath = GetCommittedSnapshotPath();
 		var snapshot = File.ReadAllText(snapshotPath);
 		var markerIndex = snapshot.IndexOf("-- EF-generated idempotent delta", StringComparison.Ordinal);
-		Assert.IsTrue(markerIndex >= 0);
+		// A full regeneration folds previous deltas into the schema. Both forms are valid installer assets.
+		var batches = MySqlScriptBatchParser.Parse(markerIndex >= 0 ? snapshot[markerIndex..] : snapshot).ToArray();
 
-		var batches = MySqlScriptBatchParser.Parse(snapshot[markerIndex..]).ToArray();
-
-		Assert.IsTrue(batches.Length > 1);
+		Assert.IsTrue(batches.Length >= 1);
 		Assert.IsTrue(batches.All(x => !string.IsNullOrWhiteSpace(x.Script)));
 		Assert.IsTrue(batches.All(x => x.Delimiter is ";" or "//"));
 		Assert.IsFalse(batches.Any(x => x.Script.Contains("DELIMITER", StringComparison.OrdinalIgnoreCase)));

@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Body.Traits;
 using MudSharp.Effects;
@@ -297,7 +297,7 @@ public sealed class DangerSensePower : PsionicSustainedSelfPowerBase
 
 	private bool BuildingCommandDefenseBonus(ICharacter actor, StringStack command)
 	{
-		if (!double.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0)
+		if (!double.TryParse(command.SafeRemainingArgument, out var value) || !double.IsFinite(value) || value < 0.0)
 		{
 			actor.OutputHandler.Send("You must enter a positive defense bonus.");
 			return false;
@@ -311,7 +311,7 @@ public sealed class DangerSensePower : PsionicSustainedSelfPowerBase
 
 	private bool BuildingCommandDuration(ICharacter actor, StringStack command, bool defense)
 	{
-		if (!double.TryParse(command.SafeRemainingArgument, out var seconds) || seconds <= 0.0)
+		if (!double.TryParse(command.SafeRemainingArgument, out var seconds) || !double.IsFinite(seconds) || seconds <= 0.0 || seconds >= TimeSpan.MaxValue.TotalSeconds)
 		{
 			actor.OutputHandler.Send("You must enter a positive number of seconds.");
 			return false;

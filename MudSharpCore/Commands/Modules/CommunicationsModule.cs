@@ -115,7 +115,9 @@ The syntax is:
         if (!feelEmote.Valid)
         {
             actor.OutputHandler.Send(feelEmote.ErrorMessage);
+			return;
         }
+		MudSharp.Magic.PsychometricRecorder.Record(actor, MudSharp.Magic.ImpressionKind.Feeling, feelEmote.ParseFor(actor));
 
         actor.OutputHandler.Send(
             $"You feel{(!string.IsNullOrWhiteSpace(emote.RawText) ? $", {emote.ParseFor(actor)}, " : " ")}{feelEmote.ParseFor(actor)}");

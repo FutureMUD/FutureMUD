@@ -31,6 +31,8 @@ namespace MudSharp.RPG.Law
         string? ThirdPartyFrameworkItemType { get; }
         string? AdditionalInformation { get; }
         IEnumerable<long> WitnessIds { get; }
+		IReadOnlyList<CrimeWitnessMemory> WitnessMemories => Array.Empty<CrimeWitnessMemory>();
+		bool CanWitnessRecall(long identityId) => WitnessIds.Contains(identityId);
         void AddWitness(long witnessId);
         bool IsKnownCrime { get; set; }
         bool HasBeenEnforced { get; set; }

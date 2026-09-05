@@ -657,3 +657,7 @@ Prepared food and biological remains are refrigeration-aware automatically. For 
 For a portable bank, author distinct compatible input and output connectors, then test charging, output under load, simultaneous charging/discharging, depletion, and recovery. Capacity is watt-hours; charging efficiency applies only on input. Output never becomes unlimited passthrough, so size storage and output watts for the intended device duty cycle.
 
 Washing machines and dryers both operate on the authoritative `SurfaceLiquidState`. Do not add legacy contamination effects to make washing or drying content work. Validate empty-load rejection, door interlocks, detergent use, power interruption, cancellation/restart, and spin drying before publishing an appliance profile.
+
+## Authored psychic clues
+
+With `EnablePsychometricImpressions` enabled, staff may use `psychometrichistory <item> <clue>` to attach a bounded authored clue. Clues are separate from automatic provenance. Turning the feature off hides both kinds of history from gameplay without deleting stored clues.

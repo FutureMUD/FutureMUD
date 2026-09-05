@@ -910,6 +910,11 @@ public partial class Body
         {
             return Enumerable.Empty<IWound>();
         }
+		if (damage.ActorOrigin is ICharacter attacker && attacker != Actor)
+		{
+			MudSharp.Magic.PsychometricRecorder.Record(attacker, MudSharp.Magic.ImpressionKind.Violence, "an act of violence", Actor);
+			if (damage.ToolOrigin is { } tool) MudSharp.Magic.PsychometricRecorder.Record(attacker, MudSharp.Magic.ImpressionKind.Violence, "an object involved in violence", tool);
+		}
 
         if (!Bodyparts.Contains(damage.Bodypart) && !Organs.Contains(damage.Bodypart) &&
             !Bones.Contains(damage.Bodypart))

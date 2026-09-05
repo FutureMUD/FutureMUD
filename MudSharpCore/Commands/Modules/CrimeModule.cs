@@ -1,4 +1,4 @@
-﻿using Humanizer;
+using Humanizer;
 using MimeKit.Cryptography;
 using MudSharp.Accounts;
 using MudSharp.Character.Name;
@@ -31,6 +31,34 @@ internal class CrimeModule : Module<ICharacter>
     }
 
     public static CrimeModule Instance { get; } = new();
+
+	[PlayerCommand("WitnessMemory", "witnessmemory")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("witnessmemory", @"Inspect historical witnessing, current recall, pending reports and restoration provenance. Restoring recall does not remove delivered evidence.
+
+	#3witnessmemory <crime id>#0
+	#3witnessmemory <crime id> restore <witness number>#0", AutoHelp.HelpArgOrNoArg)]
+	protected static void WitnessMemory(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		var crime = long.TryParse(ss.PopSpeech(), out var id)
+			? actor.Gameworld.LegalAuthorities.SelectMany(x => x.KnownCrimes.Concat(x.UnknownCrimes).Concat(x.StaleCrimes).Concat(x.ResolvedCrimes)).OfType<Crime>().FirstOrDefault(x => x.Id == id)
+			: null;
+		if (crime is null) { actor.Send("There is no such incident."); return; }
+		if (!ss.IsFinished)
+		{
+			if (ss.PopForSwitch() != "restore" || !int.TryParse(ss.PopSpeech(), out var index) || index < 1 || index > crime.WitnessMemories.Count)
+			{ actor.Send("Specify restore and a witness number from the inspection."); return; }
+			crime.RestoreWitness(crime.WitnessMemories[index - 1], actor);
+		}
+		var sb = new StringBuilder();
+		foreach (var (memory, index) in crime.WitnessMemories.Select((x, i) => (x, i + 1)))
+		{
+			sb.AppendLine($"{index.ToString("N0", actor)}: {memory.Kind.DescribeEnum()} {memory.SourceId.ToString("N0", actor)}; scene {memory.LocationId}; recall {memory.CanRecall(RuntimeClock.UtcNow).ToColouredString()}; permanent {memory.PermanentlyForgotten.ToColouredString()}; suppressed until {memory.SuppressedUntilUtc}; report due {memory.ReportDueUtc}; delivered {memory.ReportDelivered.ToColouredString()}.");
+			foreach (var entry in memory.Audit) sb.AppendLine($"\t{entry}");
+		}
+		actor.Send(sb.Length == 0 ? "No recorded witness sources." : sb.ToString());
+	}
 
     private static bool EnforcerCommandAppearFunc(object och, string cmd)
     {
@@ -157,15 +185,15 @@ The syntax is as follows:
                               Authority: x,
                               Known:
                               x.KnownCrimesForIndividual(target)
-                               .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actorIdentityId))
+                               .Where(y => jurisdictions.Contains(x) || y.CanWitnessRecall(actorIdentityId))
                                .ToList(),
                               Unknown:
                               x.UnknownCrimesForIndividual(target)
-                               .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actorIdentityId))
+                               .Where(y => jurisdictions.Contains(x) || y.CanWitnessRecall(actorIdentityId))
                                .ToList(),
                               Resolved:
                               x.ResolvedCrimesForIndividual(target)
-                               .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actorIdentityId))
+                               .Where(y => jurisdictions.Contains(x) || y.CanWitnessRecall(actorIdentityId))
                                .ToList()
                           ))
                           .Where(x => x.Known.Count > 0 || x.Unknown.Count > 0 || x.Resolved.Count > 0)
@@ -359,7 +387,7 @@ The syntax for this command is as follows:
         }
 
         List<ICrime> accusableCrimes = actor.Gameworld.Crimes
-                                   .Where(x => !x.IsKnownCrime && x.WitnessIds.Contains(CharacterInstanceIdentityComparer.IdentityId(actor)))
+                                   .Where(x => !x.IsKnownCrime && x.CanWitnessRecall(CharacterInstanceIdentityComparer.IdentityId(actor)))
                                    .OrderByDescending(x => x.RealTimeOfCrime)
                                    .ToList();
 

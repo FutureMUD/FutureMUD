@@ -177,7 +177,7 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
         List<IMagicPower> powers = new();
         foreach ((ITraitDefinition trait, double minvalue, IMagicPower power) in _skillPowerMap)
         {
-            if ((actor.GetTrait(trait)?.Value ?? 0.0) >= minvalue)
+            if (!MudSharp.Effects.Concrete.PsychicSuppressionEffect.Suppresses(actor, "skill", trait.Id) && (actor.GetTrait(trait)?.Value ?? 0.0) >= minvalue)
             {
                 if (!powers.Contains(power))
                 {

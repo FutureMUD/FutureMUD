@@ -17,6 +17,8 @@ It is intended for:
 
 ## Capability Types
 
+The psychic expansion adds builder/runtime power tokens `psychometry`, `dreamsend`, `guardmind`, `disruptconcentration`, `transferfocus`, `somaticsense`, `forgetting`, `psychiccircle`, `psychicfeedback`, `telekinesis`, `emotionalinfluence`, `attentionsuppression`, `delayedsuggestion` and `spellbacked`. See [Psychic Powers, Impressions and Witness Memory](./Psychic_Powers_Impressions_and_Witness_Memory.md) for contracts, commands, persistence and optional stock content. Existing persisted tokens are retained.
+
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |
 | --- | --- | --- | --- | --- | --- |
 | `skilllevel` | `SkillLevelBasedMagicCapability` | Capability | Static `RegisterLoader` in `MudSharpCore/Magic/Capabilities/SkillLevelBasedMagicCapability.cs` via `MagicCapabilityFactory` | Yes | Grants school access, concentration rules, regenerators, and inherent powers based on trait thresholds |

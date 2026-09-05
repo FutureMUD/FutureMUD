@@ -8423,6 +8423,9 @@ namespace MudSharp.Migrations
                     b.Property<string>("WitnessIds")
                         .HasColumnType("varchar(1000)");
 
+                    b.Property<string>("WitnessMemory")
+                        .HasColumnType("longtext");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AccuserId")

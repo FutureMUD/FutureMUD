@@ -29,6 +29,25 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicPsionicTraceTests
 {
+	[TestMethod]
+	public void DisabledImpressions_KeepCharacterTracesButNeverRecordCellHistory()
+	{
+		var world = CreateGameworld();
+		world.Setup(x => x.GetStaticBool(PsychometricRecorder.EnabledSetting)).Returns(false);
+		var power = MagicPowerFactory.LoadPower(CreateTracePowerModel(includeTrace: true), world.Object);
+		var cell = CreateCell(31, world.Object);
+		var traces = new List<IPsionicTraceEffect>();
+		var cellTraces = new List<IPsionicTraceEffect>();
+		var source = CreateCharacter(11, "source", world.Object, cell.Object, traces);
+		ConfigureTraceOwner(cell, cellTraces);
+		ConfigureCollections(world, [source.Object], [cell.Object], [power]);
+		PsionicActivityNotifier.Notify(source.Object, power, "self audit", source.Object);
+		Assert.AreEqual(1, traces.Count);
+		Assert.AreEqual(0, cellTraces.Count);
+		Assert.IsNull(PsychometricRecorder.Read(cell.Object));
+		Assert.IsFalse(PsychometricRecorder.AuthorClue(cell.Object, source.Object, "a hidden clue"));
+		cell.Verify(x => x.AddEffect(It.IsAny<IEffect>()), Times.Never);
+	}
 	[TestInitialize]
 	public void TestInitialize()
 	{
@@ -134,16 +153,12 @@ public class MagicPsionicTraceTests
 
 		Assert.AreEqual(1, sourceTraces.Count);
 		Assert.AreEqual(1, targetTraces.Count);
-		Assert.AreEqual(1, cellTraces.Count);
+		Assert.AreEqual(0, cellTraces.Count);
 		Assert.AreEqual(sourceTraces[0].TraceId, targetTraces[0].TraceId);
-		Assert.AreEqual(sourceTraces[0].TraceId, cellTraces[0].TraceId);
 		Assert.IsTrue(sourceTraces.All(x => x.TraceDuration == TimeSpan.FromMinutes(10)));
 		Assert.AreEqual("a residual suggestion", targetTraces[0].ActivityDescription);
 		Assert.AreEqual(target.Object.Id, sourceTraces[0].TargetCharacterId);
 		Assert.AreEqual(target.Object.Id, targetTraces[0].TargetCharacterId);
-		Assert.AreEqual(cell.Object.Id, cellTraces[0].SourceCellId);
-		Assert.IsTrue(cellTraces[0].Involves(source.Object));
-		Assert.IsTrue(cellTraces[0].Involves(target.Object));
 	}
 
 	[TestMethod]
@@ -161,8 +176,7 @@ public class MagicPsionicTraceTests
 		PsionicActivityNotifier.Notify(source.Object, power, "self scan", source.Object);
 
 		Assert.AreEqual(1, sourceTraces.Count);
-		Assert.AreEqual(1, cellTraces.Count);
-		Assert.AreEqual(sourceTraces[0].TraceId, cellTraces[0].TraceId);
+		Assert.AreEqual(0, cellTraces.Count);
 	}
 
 	[TestMethod]
@@ -482,6 +496,7 @@ public class MagicPsionicTraceTests
 		var check = CreateCheck(CheckType.MagicTelepathyCheck, passDifficulties);
 		var sensitivityCheck = CreateCheck(CheckType.SensitivityPower, _ => true);
 		var gameworld = new Mock<IFuturemud>();
+		gameworld.Setup(x => x.GetStaticBool(PsychometricRecorder.EnabledSetting)).Returns(true);
 		gameworld.SetupGet(x => x.FutureProgs).Returns(CreateCollectionMock(trueProg, falseProg).Object);
 		gameworld.SetupGet(x => x.MagicSchools).Returns(CreateCollectionMock(CreateSchool().Object).Object);
 		gameworld.SetupGet(x => x.Traits).Returns(CreateCollectionMock(CreateTrait().Object).Object);

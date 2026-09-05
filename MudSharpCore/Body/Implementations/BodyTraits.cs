@@ -16,6 +16,7 @@ public partial class Body
 
     public double TraitValue(ITraitDefinition definition, TraitBonusContext context = TraitBonusContext.None)
     {
+		if (MudSharp.Effects.Concrete.PsychicSuppressionEffect.Suppresses(Actor, "skill", definition.Id)) return 0;
         if (definition.OwnerScope == TraitOwnerScope.Character)
         {
             return Actor.TraitValue(definition, context);

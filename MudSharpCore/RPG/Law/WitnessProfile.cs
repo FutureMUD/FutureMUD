@@ -126,13 +126,14 @@ public class WitnessProfile : SaveableItem, IWitnessProfile
 
         double baseChance = BaseReportingChance[crime.CrimeLocation.CurrentTimeOfDay];
         baseChance *= ReportingMultiplierProg?.ExecuteDouble(crime.Criminal, crime.Victim, crime) ?? 1.0;
-        if (Constants.Random.NextDouble() >= baseChance)
-        {
-            return;
-        }
+		var willReport = Constants.Random.NextDouble() < baseChance;
 
-        crime.LegalAuthority.ReportCrime(crime, null, IdentityKnownProg?.Execute<bool?>(crime.Criminal) == true,
-            ReportingReliability);
+		if (crime is Crime concrete)
+		{
+			var seconds = Gameworld.GetStaticDouble("VNPCWitnessReportDelaySeconds");
+			concrete.QueueVirtualReport(Id, IdentityKnownProg?.Execute<bool?>(crime.Criminal) == true,
+				ReportingReliability, TimeSpan.FromSeconds(double.IsFinite(seconds) ? Math.Clamp(seconds, 0, 604800) : 0), willReport);
+		}
     }
 
     public string StreetwiseText(ICharacter enquirer)

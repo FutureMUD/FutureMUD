@@ -77,7 +77,7 @@ public class AggressorAI : ArtificialIntelligenceBase
             return false;
         }
 
-        foreach (ICharacter tch in ch.Location.CharactersInSpatialVicinity(ch).Except(ch).Shuffle(Constants.Random))
+        foreach (ICharacter tch in ch.Location.CharactersInSpatialVicinity(ch).Except(ch).Shuffle(Constants.Random).OrderBy(x => PsychicDispositionQuery.ForDecision(ch, x)))
         {
             if (CheckForAttack(ch, tch))
             {
@@ -147,6 +147,7 @@ public class AggressorAI : ArtificialIntelligenceBase
 
     public virtual bool CheckForAttack(ICharacter aggressor, ICharacter target)
     {
+		if (PsychicDispositionQuery.ForDecision(aggressor, target) > 0 && target.CombatTarget != aggressor) return false;
         return PredatorAIHelpers.CheckForAttack(aggressor, target, WillAttackProg, EngageDelayDiceExpression,
             EngageEmote, false);
     }

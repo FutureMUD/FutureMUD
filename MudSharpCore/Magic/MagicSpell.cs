@@ -1476,7 +1476,13 @@ public class MagicSpell : SaveableItem, IMagicSpell
         {
             magician.UseResource(resource, cost);
         }
-        CrimeExtensions.CheckPossibleCrimeAllAuthorities(magician, CrimeTypes.UnlawfulUseOfMagic, null, null, Name);
+		var powerInvocation = SpellPowerInvocation.For(magician, this);
+		powerInvocation?.Complete(MagicInvocationStatus.Failed);
+		PsychometricRecorder.Record(magician, ImpressionKind.Magic, "the casting of a spell", target, School.Id, directItemOnly: powerInvocation is not null);
+		if (OpposedTrait is not null) magician.RemoveAllEffects<AttentionSuppressionEffect>(fireRemovalAction: true);
+        CrimeExtensions.CheckPossibleCrimeAllAuthorities(magician,
+			powerInvocation?.Power.IsPsionic == true ? CrimeTypes.UnlawfulUseOfPsionics : CrimeTypes.UnlawfulUseOfMagic,
+			null, null, Name);
 
         plan.ExecuteWholePlan();
         if (ExclusiveDelay > TimeSpan.Zero)
@@ -1657,6 +1663,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		{
 			ApplySpellEffect(magician, _casterSpellEffects, OpposedOutcomeDegree.None);
 		}
+		powerInvocation?.Complete(MagicInvocationStatus.Succeeded);
 	}
 
 	/// <summary>

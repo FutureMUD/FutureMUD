@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Body.Traits;
 using MudSharp.Health;
@@ -142,7 +142,7 @@ public sealed class PsychicBoltPower : PsionicTargetedPowerBase
 
 	private bool BuildingCommandStun(ICharacter actor, StringStack command)
 	{
-		if (!double.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0)
+		if (!double.TryParse(command.SafeRemainingArgument, out var value) || !double.IsFinite(value) || value < 0.0)
 		{
 			actor.OutputHandler.Send("You must enter a positive stun amount.");
 			return false;

@@ -116,7 +116,17 @@ public abstract class PsionicTargetedPowerBase : MagicPowerBase
 
 	protected CheckOutcome CheckPower(ICharacter actor, ICharacter target, CheckType type)
 	{
-		return Gameworld.GetCheck(type).Check(actor, SkillCheckDifficulty, SkillCheckTrait, target);
+		var hostile = actor != target && DatabaseType is "suggest" or "psychicbolt" or "hex" or "coerce" or "babble" or "projectemotion";
+		var context = new MentalActionContext(actor, target, this, MentalActionKind.Influence, hostile);
+		var bonus = hostile ? target.Effects.OfType<IMentalActionDefence>().Sum(x => x.DefensiveBonus(context)) : 0;
+		var outcome = Gameworld.GetCheck(type).Check(actor, SkillCheckDifficulty, SkillCheckTrait, target, -bonus);
+		if (hostile)
+		{
+			actor.RemoveAllEffects<AttentionSuppressionEffect>(fireRemovalAction: true);
+			foreach (var reaction in target.Effects.OfType<IMentalActionReaction>().ToList())
+				reaction.OnMentalAction(context, new(outcome.Outcome >= MinimumSuccessThreshold ? MagicInvocationStatus.Succeeded : MagicInvocationStatus.Failed, outcome.Outcome));
+		}
+		return outcome;
 	}
 
 	protected void SendFailure(ICharacter actor, ICharacter target)

@@ -53,7 +53,7 @@ public class MindAuditPower : MagicPowerBase
     private MindAuditPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
     {
         Blurb = "Check for foreign presences in your mind";
-        _showHelpText = $"You can use {school.SchoolVerb.ToUpperInvariant()} AUDIT command to check for foreign presences in your mind.";
+        _showHelpText = $"Use {school.SchoolVerb.ToUpperInvariant()} AUDIT to check for foreign presences in your own mind. Concealment and your check determine which presences you detect; an empty result is not proof that no concealed link exists. Use expulsion separately to remove a detected intrusion.";
         Verb = "audit";
         SkillCheckTrait = trait;
         SkillCheckDifficultyProg = Gameworld.AlwaysZeroProg;

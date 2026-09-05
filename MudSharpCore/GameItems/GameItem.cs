@@ -345,6 +345,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void CopyOwnerFrom(IGameItem source)
     {
+		MudSharp.Magic.PsychometricRecorder.CopyHistory(source, this);
         var oldReference = OwnershipReference;
         if (source.OwnershipReference is not { } reference)
         {
@@ -371,6 +372,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void InvokeInventoryChange(InventoryState oldState, InventoryState newState)
     {
+		if (MudSharp.Magic.PsychometricRecorder.Enabled(Gameworld))
+		{
+			foreach (var item in DeepItems.Prepend(this).Distinct()) MudSharp.Magic.PsychometricRecorder.ObserveCustody(item);
+		}
         OnInventoryChange?.Invoke(oldState, newState, this);
     }
 
@@ -1061,6 +1066,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         _quality = rhs._quality;
         _overrideMaterial = rhs._overrideMaterial;
         Gameworld = rhs.Gameworld;
+		MudSharp.Magic.PsychometricRecorder.CopyHistory(rhs, this);
         _name = rhs.Name;
         _keywords = new Lazy<List<string>>(() => rhs.Keywords.ToList());
         PositionState = rhs.PositionState;
@@ -2339,6 +2345,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         if (thisStackable != null && thatStackable != null)
         {
+			MudSharp.Magic.PsychometricRecorder.MergeHistory(this, otherItem);
             thisStackable.Quantity += thatStackable.Quantity;
             return;
         }
@@ -2347,6 +2354,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         ICurrencyPile thatCurrency = otherItem.GetItemType<ICurrencyPile>();
         if (thisCurrency != null && thatCurrency != null && thisCurrency.Currency == thatCurrency.Currency)
         {
+			MudSharp.Magic.PsychometricRecorder.MergeHistory(this, otherItem);
             thisCurrency.AddCoins(thatCurrency.Coins);
             return;
         }
@@ -2355,6 +2363,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         ICommodity thatCommodity = otherItem.GetItemType<ICommodity>();
         if (thisCommodity != null && thatCommodity != null && CommodityCharacteristicRequirement.CommodityIdentityEqual(thisCommodity, thatCommodity))
         {
+			MudSharp.Magic.PsychometricRecorder.MergeHistory(this, otherItem);
             thisCommodity.Weight += thatCommodity.Weight;
             thisCommodity.MergeSpoilageFrom(thatCommodity);
             return;

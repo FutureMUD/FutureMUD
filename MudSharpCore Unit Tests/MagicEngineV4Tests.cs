@@ -31,6 +31,167 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicEngineV4Tests
 {
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void MindBarrier_ApplicabilityUsesProgTruth(bool applies)
+	{
+		var world = CreateGameworld([CreateProg(0, applies).Object]);
+		var resource = new Mock<IMagicResource>();
+		resource.SetupGet(x => x.Id).Returns(1);
+		world.SetupGet(x => x.MagicResources).Returns(CreateCollectionMock(resource.Object).Object);
+		var stock = PsionicStockContent.Powers.First(x => x.Type == "mindbarrier");
+		var power = (MindBarrierPower)MagicPowerFactory.LoadPower(new MagicPower { Id = 1, Name = "Barrier", MagicSchoolId = 1,
+			PowerModel = stock.Type, Definition = PsionicStockContent.Definition(stock, 1, 1, 0, 3, 0, 0).ToString() }, world.Object);
+		var owner = CreateCharacter(1, world.Object);
+		var intruder = CreateCharacter(2, world.Object);
+		Assert.AreEqual(applies, new MindBarrierEffect(owner.Object, -20, power).Applies(intruder.Object));
+	}
+
+	[DataTestMethod]
+	[DataRow("-1")]
+	[DataRow("NaN")]
+	[DataRow("Infinity")]
+	[DataRow("1e300")]
+	public void Hex_InvalidDurationDoesNotChangeExistingDuration(string value)
+	{
+		var world = CreateGameworld();
+		var actor = CreateCharacter(1, world.Object);
+		actor.SetupGet(x => x.OutputHandler).Returns(new Mock<MudSharp.PerceptionEngine.IOutputHandler>().Object);
+		var power = (HexPower)MagicPowerFactory.LoadPower(CreatePowerModel("hex"), world.Object);
+		var original = power.Duration;
+		Assert.IsFalse(power.BuildingCommand(actor.Object, new StringStack("duration " + value)));
+		Assert.AreEqual(original, power.Duration);
+	}
+
+	[TestMethod]
+	public void SpellAdapter_ForwardsUnmodifiedArgumentsWithoutChargingPowerCosts()
+	{
+		var world = CreateGameworld();
+		var spell = new Mock<IMagicSpell>();
+		var trigger = new Mock<ICastMagicTrigger>();
+		var actor = CreateCharacter(1, world.Object);
+		spell.SetupGet(x => x.Id).Returns(12);
+		spell.SetupGet(x => x.School).Returns(world.Object.MagicSchools.Get(1));
+		spell.SetupGet(x => x.ReadyForGame).Returns(true);
+		spell.SetupGet(x => x.Trigger).Returns(trigger.Object);
+		spell.Setup(x => x.CharacterKnowsSpell(actor.Object)).Returns(true);
+		world.SetupGet(x => x.MagicSpells).Returns(CreateCollectionMock(spell.Object).Object);
+		var power = MagicPowerFactory.LoadPower(new MagicPower { Id = 9, Name = "Adapter", MagicSchoolId = 1, PowerModel = "spellbacked",
+			Definition = "<Definition><Verb>invoke</Verb><Spell>12</Spell><CanInvokePowerProg>0</CanInvokePowerProg><WhyCantInvokePowerProg>0</WhyCantInvokePowerProg><InvocationCosts /></Definition>" }, world.Object);
+		var arguments = new StringStack("insignificant \"target name\"");
+		trigger.Setup(x => x.DoTriggerCast(actor.Object, arguments)).Callback(() =>
+		{
+			Assert.IsNotNull(SpellPowerInvocation.For(actor.Object, spell.Object));
+			Assert.AreEqual("insignificant", arguments.PopSpeech());
+			Assert.AreEqual("target name", arguments.PopSpeech());
+		});
+		power.UseCommand(actor.Object, "invoke", arguments);
+		trigger.Verify(x => x.DoTriggerCast(actor.Object, arguments), Times.Once);
+		actor.Verify(x => x.UseResource(It.IsAny<IMagicResource>(), It.IsAny<double>()), Times.Never);
+		Assert.IsNull(SpellPowerInvocation.For(actor.Object, spell.Object));
+	}
+
+	[TestMethod]
+	public void PowerCost_ExactResourceBalanceIsAffordable()
+	{
+		var world = CreateGameworld();
+		var resource = new Mock<IMagicResource>();
+		resource.SetupGet(x => x.Id).Returns(1);
+		world.SetupGet(x => x.MagicResources).Returns(CreateCollectionMock(resource.Object).Object);
+		var stock = PsionicStockContent.Powers.First(x => x.Type == "psychometry");
+		var power = (MagicPowerBase)MagicPowerFactory.LoadPower(new MagicPower { Id = 1, Name = stock.Verb,
+			MagicSchoolId = 1, PowerModel = stock.Type, Definition = PsionicStockContent.Definition(stock, 1, 1, 0, 0, 0, 0).ToString() }, world.Object);
+		var actor = CreateCharacter(1, world.Object);
+		actor.SetupGet(x => x.MagicResourceAmounts).Returns(new Dictionary<IMagicResource, double> { [resource.Object] = stock.Cost });
+		Assert.IsTrue(power.CanAffordToInvokePower(actor.Object, stock.Verb).Truth);
+	}
+
+	[TestMethod]
+	public void SkillSuppression_SaveLoadRetainsSubjectAndOriginWithoutChangingLearnedTraits()
+	{
+		var world = CreateGameworld();
+		var actor = CreateCharacter(1, world.Object);
+		var effect = new PsychicSkillSuppressionEffect(actor.Object, 123) { OriginPowerId = 456 };
+		PsychicSkillSuppressionEffect.InitialiseEffectType();
+		var loaded = (PsychicSkillSuppressionEffect)Effect.LoadEffect(effect.SaveToXml(new Dictionary<IEffect, TimeSpan>()), actor.Object);
+		Assert.AreEqual(123L, loaded.SubjectId);
+		Assert.AreEqual(456L, loaded.OriginPowerId);
+		Assert.AreEqual("skill", loaded.Kind);
+		Assert.IsTrue(actor.Invocations.All(x => x.Method.Name == "get_Gameworld"));
+	}
+
+	[TestMethod]
+	public void MentalAction_OpposedTieFailsAndNotifiesReactionOnce()
+	{
+		var world = CreateGameworld();
+		var source = CreateCharacter(1, world.Object);
+		var target = CreateCharacter(2, world.Object);
+		var reaction = new Mock<IEffect>();
+		var observer = reaction.As<IMentalActionReaction>();
+		var defence = reaction.As<IMentalActionDefence>();
+		defence.Setup(x => x.DefensiveBonus(It.IsAny<MentalActionContext>())).Returns(15);
+		target.SetupGet(x => x.Effects).Returns([reaction.Object]);
+		var check = new Mock<ICheck>();
+		check.Setup(x => x.Check(source.Object, Difficulty.Normal, It.IsAny<ITraitDefinition>(), target.Object, 0, TraitUseType.Practical, It.IsAny<(string, object)[]>()))
+			.Returns(CheckOutcome.SimpleOutcome(CheckType.MagicTelepathyCheck, Outcome.Pass));
+		check.Setup(x => x.Check(target.Object, Difficulty.Normal, source.Object, null, 15, TraitUseType.Practical, It.IsAny<(string, object)[]>()))
+			.Returns(CheckOutcome.SimpleOutcome(CheckType.ResistMagicSpellCheck, Outcome.Pass));
+		world.Setup(x => x.GetCheck(It.IsAny<CheckType>())).Returns(check.Object);
+		var power = new Mock<IMagicPower>();
+		power.SetupGet(x => x.School).Returns(CreateSchool().Object);
+		var context = new MentalActionContext(source.Object, target.Object, power.Object, MentalActionKind.Influence, true);
+		Assert.AreEqual(MagicInvocationStatus.Failed, MentalActionService.Resolve(context, CreateTrait().Object, Difficulty.Normal, Outcome.MinorPass).Status);
+		observer.Verify(x => x.OnMentalAction(context, It.Is<MagicInvocationResult>(r => r.Status == MagicInvocationStatus.Failed)), Times.Once);
+		check.VerifyAll();
+	}
+
+	[TestMethod]
+	public void MentalAction_ProtectedTargetRefusesBeforeChecksOrFeedback()
+	{
+		var world = CreateGameworld();
+		var source = CreateCharacter(1, world.Object);
+		var target = CreateCharacter(2, world.Object);
+		target.Setup(x => x.AffectedBy<IIgnoreForceEffect>()).Returns(true);
+		var power = new Mock<IMagicPower>();
+		var context = new MentalActionContext(source.Object, target.Object, power.Object, MentalActionKind.WitnessForgetting, true);
+		Assert.AreEqual(MagicInvocationStatus.Refused, MentalActionService.Resolve(context, CreateTrait().Object, Difficulty.Normal, Outcome.MinorPass).Status);
+		world.Verify(x => x.GetCheck(It.IsAny<CheckType>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void PsychicDefinition_NonFiniteMagnitudeIsRejected()
+	{
+		var stock = PsionicStockContent.Powers.First(x => x.Type == "psychometry");
+		var definition = PsionicStockContent.Definition(stock, 1, 1, 0, 0, 0, 0);
+		definition.SetElementValue("Amount", "NaN");
+		var model = new MagicPower { Id = 1, Name = stock.Verb, Blurb = stock.Help, ShowHelp = stock.Help,
+			MagicSchoolId = 1, PowerModel = stock.Type, Definition = definition.ToString() };
+		var world = CreateGameworld();
+		world.SetupGet(x => x.MagicResources).Returns(CreateCollectionMock<IMagicResource>().Object);
+		Assert.ThrowsException<ApplicationException>(() => MagicPowerFactory.LoadPower(model, world.Object));
+	}
+
+	[TestMethod]
+	public void PsionicStockDefinitions_AllLoadWithFiniteCostsAndUnchangedTypeTokens()
+	{
+		var world = CreateGameworld();
+		var resource = new Mock<IMagicResource>();
+		resource.SetupGet(x => x.Id).Returns(1);
+		world.SetupGet(x => x.MagicResources).Returns(CreateCollectionMock(resource.Object).Object);
+		foreach (var stock in PsionicStockContent.Powers)
+		{
+			var model = new MagicPower { Id = 1, Name = stock.Verb, Blurb = stock.Help, ShowHelp = stock.Help,
+				MagicSchoolId = 1, PowerModel = stock.Type, Definition = PsionicStockContent.Definition(stock, 1, 1, 0, 0, 0, 0).ToString() };
+			try
+			{
+				var power = MagicPowerFactory.LoadPower(model, world.Object);
+				Assert.IsTrue(power.Verbs.Contains(stock.Verb), stock.Type);
+				Assert.IsTrue(stock.Cost > 0 && stock.Cost <= PsionicStockContent.FocusCap, stock.Type);
+			}
+			catch (Exception exception) { Assert.Fail($"{stock.Type}: {exception}"); }
+		}
+	}
 	private static readonly string[] V4PowerTypes =
 	[
 		"trace",

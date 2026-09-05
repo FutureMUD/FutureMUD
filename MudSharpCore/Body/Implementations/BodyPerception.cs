@@ -150,6 +150,7 @@ public partial class Body
         {
             return true;
         }
+		if (thing is ICharacter person && person.EffectsOfType<MudSharp.Effects.Concrete.AttentionSuppressionEffect>().Any(x => !x.Notices(Actor))) return false;
 
         bool visionExemptThing = thing is IExit || (thing is IGameItem gi && IsInInventory(gi));
         IPerceiver perceiverThing = thing as IPerceiver;

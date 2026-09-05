@@ -111,7 +111,7 @@ public class MindBarrierEffect : ConcentrationConsumingEffect, IMagicEffect, ICh
                 return false;
             }
 
-            if ((MindPower.AppliesToCharacterProg?.Execute<bool?>(ch, CharacterOwner)) != false)
+            if ((MindPower.AppliesToCharacterProg?.Execute<bool?>(ch, CharacterOwner)) == false)
             {
                 return false;
             }

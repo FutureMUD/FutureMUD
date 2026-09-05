@@ -16,7 +16,7 @@ using System.Globalization;
 
 namespace MudSharp.RPG.Law;
 #nullable enable
-public class Crime : LateInitialisingItem, ICrime
+public partial class Crime : LateInitialisingItem, ICrime
 {
     public override IFuturemud Gameworld
     {
@@ -36,6 +36,7 @@ public class Crime : LateInitialisingItem, ICrime
         RealTimeOfCrime = RuntimeClock.UtcNow;
         CrimeLocation = resolvedCrimeLocation;
         _witnessIds.AddRange(witnesses.Select(CharacterInstanceIdentityComparer.IdentityId));
+		InitialiseWitnessMemories(null);
         Law = law;
         ThirdPartyId = thirdparty is null ? null : CharacterInstanceIdentityComparer.FrameworkItemId(thirdparty);
         ThirdPartyFrameworkItemType = thirdparty?.FrameworkItemType;
@@ -100,6 +101,8 @@ public class Crime : LateInitialisingItem, ICrime
         {
             _witnessIds.AddRange(dbitem.WitnessIds.Split(' ').Select(x => long.Parse(x)));
         }
+		InitialiseWitnessMemories(dbitem.WitnessMemory);
+		if (string.IsNullOrWhiteSpace(dbitem.WitnessMemory) && _witnessMemories.Count > 0) Changed = true;
 
         Gameworld.SaveManager.AddLazyLoad(this);
     }
@@ -128,6 +131,7 @@ public class Crime : LateInitialisingItem, ICrime
         dbitem.CriminalCharacteristics = _criminalCharacteristics.Select(x => $"{x.Key.Id} {x.Value.Id}")
                                                                  .ListToCommaSeparatedValues("\n");
         dbitem.WitnessIds = WitnessIds.Select(x => x.ToString()).ListToCommaSeparatedValues(" ");
+		dbitem.WitnessMemory = SaveWitnessMemories();
         dbitem.CalculatedBail = CalculatedBail;
         dbitem.FineRecorded = FineRecorded;
         dbitem.CustodialSentenceLength = CustodialSentenceLength.TotalSeconds;
@@ -165,6 +169,7 @@ public class Crime : LateInitialisingItem, ICrime
             CriminalCharacteristics = _criminalCharacteristics.Select(x => $"{x.Key.Id} {x.Value.Id}")
                                                               .ListToCommaSeparatedValues("\n"),
             WitnessIds = WitnessIds.Select(x => x.ToString()).ListToCommaSeparatedValues(" "),
+			WitnessMemory = SaveWitnessMemories(),
             CalculatedBail = CalculatedBail,
             FineRecorded = FineRecorded,
             CustodialSentenceLength = CustodialSentenceLength.TotalSeconds,
@@ -344,6 +349,7 @@ public class Crime : LateInitialisingItem, ICrime
         if (!_witnessIds.Contains(witnessId))
         {
             _witnessIds.Add(witnessId);
+			_witnessMemories.Add(new CrimeWitnessMemory { Kind = CrimeWitnessSourceKind.Character, SourceId = witnessId, LocationId = CrimeLocation?.Id });
 			Changed = true;
         }
     }
@@ -1015,7 +1021,8 @@ public class Crime : LateInitialisingItem, ICrime
                 difficulty = difficulty.StageUp(1);
             }
 
-            int witnessCount = WitnessIds.Count();
+            int witnessCount = WitnessMemories.Count(x => x.Kind == CrimeWitnessSourceKind.Character &&
+				(x.ReportDelivered || x.CanRecall(RuntimeClock.UtcNow)));
             if (witnessCount >= 4)
             {
                 difficulty = difficulty.StageDown(2);

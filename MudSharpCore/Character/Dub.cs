@@ -45,7 +45,7 @@ public class Dub : SaveableItem, IDub
 
     public override string FrameworkItemType => "Dub";
 
-    IEnumerable<string> IKeyworded.Keywords => Keywords;
+    IEnumerable<string> IKeyworded.Keywords => MudSharp.Effects.Concrete.PsychicSuppressionEffect.Suppresses(Owner, "recognition", TargetId) ? [] : Keywords;
 
     public override void Save()
     {
@@ -59,6 +59,7 @@ public class Dub : SaveableItem, IDub
 
     public string HowSeen(ICharacter actor)
     {
+		if (MudSharp.Effects.Concrete.PsychicSuppressionEffect.Suppresses(actor, "recognition", TargetId)) return LastDescription;
         LastUsage = RuntimeClock.UtcNow;
         Changed = true;
         if (!string.IsNullOrEmpty(IntroducedName))

@@ -398,6 +398,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
     protected virtual bool WillAttack(ICharacter character, ICell cell, ICharacter specific,
         params ICharacter[] targets)
     {
+		if (specific is not null && PsychicDispositionQuery.ForDecision(character, specific) > 0 && specific.CombatTarget != character) return false;
         return WillAttackProg.ExecuteBool(character, cell, specific, targets, ExistingThreatLevel(character));
     }
 

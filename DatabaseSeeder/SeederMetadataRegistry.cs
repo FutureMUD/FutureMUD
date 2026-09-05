@@ -14,6 +14,11 @@ public static class SeederMetadataRegistry
     {
         return seeder.GetType().Name switch
         {
+			nameof(PsionicsSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.InstallMissing,
+				[Requirement("A skill scaffold must already exist.", context => context.TraitDefinitions.Any(x => x.Type == 0))],
+				RerunSummary: "Installs missing named psionics definitions, preserves builder edits and reports conflicting identities.",
+				OwnershipSummary: "Optional schools and unassigned capabilities only; never grants character access.",
+				DependencySeederTypes: [typeof(SkillPackageSeeder), typeof(SupernaturalSeeder)]),
             nameof(CoreDataSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
                 SeederUpdateCapability.RepairExisting,

@@ -322,10 +322,10 @@ public class ConnectMindPower : SustainedMagicPower
             return;
         }
 
-        if (ExclusiveConnection && actor.EffectsOfType<MindConnectedToEffect>().Any(x => x.School == School))
+        if (ExclusiveConnection && actor.EffectsOfType<ConnectMindEffect>().Any(x => x.School == School))
         {
             actor.OutputHandler.Send(
-                "Your mind is already connect to that of another. You must close the other connection before you can open a new one with this power.");
+                "Your mind is already connected to another. You must close the other connection before you can open a new one with this power.");
             return;
         }
 
@@ -333,7 +333,7 @@ public class ConnectMindPower : SustainedMagicPower
 		if (command.Peek().EqualTo("last"))
 		{
 			List<MindConnectedToEffect> potentialTargets = actor.EffectsOfType<MindConnectedToEffect>().Where(x =>
-				actor.EffectsOfType<ConnectMindEffect>().All(y => y.TargetCharacter != x.CharacterOwner)).ToList();
+				actor.EffectsOfType<ConnectMindEffect>().All(y => y.TargetCharacter != x.OriginatorCharacter)).ToList();
 			List<MindConnectedToEffect> eligable = potentialTargets
 			               .Where(x => CanInvokePowerProg?.ExecuteBool(actor, x.OriginatorCharacter) != false &&
 			                           TargetFilterFunction(actor, x.OriginatorCharacter) &&
@@ -420,16 +420,22 @@ public class ConnectMindPower : SustainedMagicPower
             return;
         }
 
+        ConsumePowerCosts(actor, BeginVerb);
         Difficulty difficulty = SkillCheckDifficulty;
         MindBarrierEffect barrier = target.EffectsOfType<MindBarrierEffect>().FirstOrDefault(x => x.Applies(actor));
         if (barrier is not null)
         {
-            difficulty.ApplyBonus(barrier.Bonus);
+            difficulty = difficulty.ApplyBonus(barrier.Bonus);
         }
 
         ICheck check = Gameworld.GetCheck(CheckType.ConnectMindPower);
+		var mentalContext = new MentalActionContext(actor, target, this, MentalActionKind.Communication, !target.IsTrustedAlly(actor));
+		var assistedDefence = target.Effects.OfType<IMentalActionDefence>().Sum(x => x.DefensiveBonus(mentalContext));
+		if (assistedDefence > 0) difficulty = difficulty.StageUp((int)Math.Ceiling(assistedDefence / 10));
         Tuple<CheckOutcome, CheckOutcome> results = check.MultiDifficultyCheck(actor, difficulty, SkillCheckDifficulty, target, SkillCheckTrait);
-        if (results.Item1.IsFail() && results.Item2.IsPass())
+		foreach (var reaction in target.Effects.OfType<IMentalActionReaction>().ToList())
+			reaction.OnMentalAction(mentalContext, new(results.Item1.IsPass() ? MagicInvocationStatus.Succeeded : MagicInvocationStatus.Failed, results.Item1.Outcome));
+        if (barrier is not null && results.Item1.IsFail() && results.Item2.IsPass())
         {
             actor.OutputHandler.Send(new EmoteOutput(new Emote(barrier.MindPower.BlockEmoteTarget, actor, actor, target)));
             target.OutputHandler.Send(new EmoteOutput(new Emote(barrier.MindPower.BlockEmoteSelf, actor, actor, target)));
@@ -482,7 +488,6 @@ public class ConnectMindPower : SustainedMagicPower
             PsionicActivityNotifier.Notify(actor, this, "a mind connection", target);
         }
 
-        ConsumePowerCosts(actor, BeginVerb);
     }
 
     public void UseCommandDisconnect(ICharacter actor, StringStack command)

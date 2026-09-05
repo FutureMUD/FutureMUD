@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MoreLinq.Extensions;
 using MudSharp.RPG.Checks;
 
@@ -17,6 +17,8 @@ public abstract class SustainedMagicPower : MagicPowerBase
         }
 
         ConcentrationPointsToSustain = double.Parse(element.Value);
+		if (!double.IsFinite(ConcentrationPointsToSustain) || ConcentrationPointsToSustain < 0)
+			throw new ApplicationException($"Power {Id} has invalid concentration consumption.");
 
         element = root.Element("SustainPenalty");
         if (element == null)
@@ -26,6 +28,7 @@ public abstract class SustainedMagicPower : MagicPowerBase
         }
 
         SustainPenalty = double.Parse(element.Value);
+		if (!double.IsFinite(SustainPenalty)) throw new ApplicationException($"Power {Id} has a non-finite sustain penalty.");
 
         element = root.Element("DetectableWithDetectMagic");
         if (element == null)
@@ -73,7 +76,7 @@ public abstract class SustainedMagicPower : MagicPowerBase
                         $"Could not load the resource referred to by '{which}' in the SustainResourceCost in the definition XML for power {Id} ({Name}).");
                 }
 
-                if (!double.TryParse(sub.Value, out double dvalue))
+                if (!double.TryParse(sub.Value, out double dvalue) || !double.IsFinite(dvalue) || dvalue < 0)
                 {
                     throw new ApplicationException(
                         $"Could not convert the amount in the SustainResourceCost in the definition XML for power {Id} ({Name}).");
@@ -182,6 +185,10 @@ public abstract class SustainedMagicPower : MagicPowerBase
 	#3help#0 - drops you into an editor to write the player help file
 	#3cost <verb> <which> <number>#0 - sets the cost of using a particular verb
 	#3psionic#0 - toggles whether this power is psionic for crime and policy purposes
+	#3trace#0 - toggles durable psionic trace creation
+	#3traceduration <timespan|seconds>#0 - sets how long traces last
+	#3tracedifficulty <difficulty>#0 - sets how hard traces are to read
+	#3tracedesc <text>#0 - sets the trace activity text
 	#3sustaincost <which> <number>#0 - sets the sustain cost per minute of the power
 	#3duration <expression>#0 - sets the duration the power will last
 	#3concentration <points>#0 - sets the number of concentration points this power occupies
@@ -259,12 +266,13 @@ public abstract class SustainedMagicPower : MagicPowerBase
             return false;
         }
 
-        if (!double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!double.TryParse(command.SafeRemainingArgument, out double value) || !double.IsFinite(value))
         {
             actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
             return false;
         }
 
+        if (value < 0) { actor.Send("Sustain costs cannot be negative."); return false; }
         if (value == 0.0)
         {
             _sustainCostsPerMinute.RemoveAll(x => x.Resource == resource);
@@ -288,12 +296,13 @@ public abstract class SustainedMagicPower : MagicPowerBase
             return false;
         }
 
-        if (!double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!double.TryParse(command.SafeRemainingArgument, out double value) || !double.IsFinite(value))
         {
             actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
             return false;
         }
 
+        if (value < 0) { actor.Send("Concentration consumption cannot be negative."); return false; }
         ConcentrationPointsToSustain = value;
         Changed = true;
         actor.OutputHandler.Send($"Sustaining this power will now use up {value.ToBonusString(actor)} concentration point slots.");
@@ -308,7 +317,7 @@ public abstract class SustainedMagicPower : MagicPowerBase
             return false;
         }
 
-        if (!double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!double.TryParse(command.SafeRemainingArgument, out double value) || !double.IsFinite(value))
         {
             actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
             return false;

@@ -456,3 +456,7 @@ The current builder/runtime type token list is:
 - Regenerator types: `linear`, `state`
 
 For the full inventory, see [Magic System: Implemented Types](./Magic_System_Implemented_Types.md).
+
+## Optional psionics package
+
+The repeatable Psionics seeder installs unassigned Basic and Advanced capabilities, a non-chargen Psionic Discipline skill and shared Focus. Focus caps at 100, regenerates five per real minute while conscious and doubles at rest. Linear generators now support compatible optional `ConsciousOnly` and `RestMultiplier` XML settings and builder options; absent fields preserve existing regeneration behaviour. See [Psychic Powers, Impressions and Witness Memory](./Psychic_Powers_Impressions_and_Witness_Memory.md) for explicit character access setup.

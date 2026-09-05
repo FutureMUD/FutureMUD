@@ -406,3 +406,11 @@ Power banks present through existing connect/disconnect and power behaviour. The
 Item characteristic functions accept resolved characteristic definitions alongside the existing ID/name selectors. `setcharacteristic` accepts every combination of definition object/ID/name and value object/ID/name, validates membership, and scopes text value names to the definition. `getcharacteristicvalue` returns a typed value; the existing `characteristicvalue` and `characteristicid` retain text/number results. Typed `getcharacteristic` and `getrealcharacteristic` continue to return description text using their established perceiver semantics. Random setters also accept a typed definition and bound forced-change retries.
 
 `toitemprototype`, `tooutfittemplate`, `totag`, `togrid`, and the characteristic conversions provide consistent `To` entry points alongside existing short names. Item persistence and component ownership are unchanged. See [Reference Conversion Functions](../Core/FutureProg_Type_System.md#reference-conversion-functions) for signatures, null behavior and examples.
+
+## Psychic presentation
+
+`psychometry <item>` presents recorded history with graded detail and identifies mixed provenance explicitly. `PsychometricImpressions(owner)` is the gated FutureProg text query. Telekinesis respects visible local reach, mass, custody, containers, locks and anchoring; it exposes get/move/open/close rather than unrestricted tool use.
+
+## Telekinetic component manipulation
+
+Telekinesis uses existing switchable, selectable, openable, item-container and liquid-container contracts after checking local reach, planar interaction, custody, access, mass and wards on each endpoint. It supports switch/select, empty, pour/fill and put in addition to get/move/open/close. Closed or locked vessels and component-specific denials remain authoritative. Liquid transfer is bounded by actual contents and destination capacity; item-container overflow follows its normal emptying rules. See [Psychic Powers](../Magic/Psychic_Powers_Impressions_and_Witness_Memory.md) for syntax and limits.

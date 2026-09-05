@@ -693,3 +693,7 @@ Environment boundaries rebase elapsed state before and after containment, open/c
 Refrigerators modify freshness, biological decay, and opted-in morphs. Dryers modify only surface-liquid drying and are active only while powered, switched on, and closed. Implant refrigerators use implant power and function factor. These providers affect nested descendants but never the provider item itself.
 
 `PowerBank` combines power consumption and production around persisted internal watt-hours. Input power charges storage subject to the input limit and efficiency; output consumers always discharge storage subject to the output limit, including while charging. Depletion cuts output consumers and later charge recovery offers power again. Input and output connector sets are directional and live connections use the existing connectable restoration lifecycle.
+
+## Optional psychometric history
+
+Item custody and direct magic/violence impressions use a lazy `PsychometricHistoryEffect`. `EnablePsychometricImpressions` defaults false and gates recording and all gameplay reading, including authored clues. Effective container custody follows completed inventory transfers. Splits copy history; differing merges mark mixed provenance. No nearby ambient events are copied onto items. See [Psychic Powers, Impressions and Witness Memory](../Magic/Psychic_Powers_Impressions_and_Witness_Memory.md) for storage bounds and disabled-interval semantics.

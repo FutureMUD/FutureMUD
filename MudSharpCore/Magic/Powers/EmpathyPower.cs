@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Body;
 using MudSharp.Body.Traits;
@@ -41,7 +41,7 @@ public sealed class EmpathyPower : PsionicTargetedPowerBase
 	{
 		Blurb = "Take wounds from another person into yourself";
 		_showHelpText =
-			$"Use {school.SchoolVerb.ToUpperInvariant()} EMPATHY <target> to transfer wounds from the target to yourself one at a time.";
+			$"Use {school.SchoolVerb.ToUpperInvariant()} EMPATHY <target> to transfer wounds from the target to yourself one at a time. This is wound transfer and can injure you; it does not read emotions. Emotional attunement is a separate power.";
 		PowerDistance = MagicPowerDistance.SameLocationOnly;
 		SkillCheckDifficulty = Difficulty.Normal;
 		TransferInterval = TimeSpan.FromSeconds(10);
@@ -248,7 +248,7 @@ public sealed class EmpathyPower : PsionicTargetedPowerBase
 
 	private bool BuildingCommandInterval(ICharacter actor, StringStack command)
 	{
-		if (!double.TryParse(command.SafeRemainingArgument, out var seconds) || seconds <= 0.0)
+		if (!double.TryParse(command.SafeRemainingArgument, out var seconds) || !double.IsFinite(seconds) || seconds <= 0.0 || seconds >= TimeSpan.MaxValue.TotalSeconds)
 		{
 			actor.OutputHandler.Send("You must enter a positive number of seconds.");
 			return false;
@@ -278,7 +278,7 @@ public sealed class EmpathyPower : PsionicTargetedPowerBase
 
 	private bool BuildingCommandSafety(ICharacter actor, StringStack command)
 	{
-		if (!double.TryParse(command.SafeRemainingArgument.TrimEnd('%'), out var value) || value < 0.0)
+		if (!double.TryParse(command.SafeRemainingArgument.TrimEnd('%'), out var value) || !double.IsFinite(value) || value < 0.0)
 		{
 			actor.OutputHandler.Send("You must enter a non-negative percentage, or 0 to disable safety.");
 			return false;

@@ -59,6 +59,11 @@ public abstract class ConcentrationConsumingEffect : Effect, IConcentrationConsu
 
     private void CharacterOwner_OnWounded(Health.IMortalPerceiver wounded, Health.IWound wound)
     {
+		ChallengeConcentration(wound.ConcentrationDifficulty);
+	}
+
+	public void ChallengeConcentration(Difficulty imposedDifficulty)
+	{
         IMagicCapability capability = CharacterOwner.Capabilities.Where(x => x.School == School).FirstMax(x => x.PowerLevel);
         if (capability == null)
         {
@@ -78,7 +83,7 @@ public abstract class ConcentrationConsumingEffect : Effect, IConcentrationConsu
         Difficulty difficulty = capability
                          .GetConcentrationDifficulty(CharacterOwner, totalConcentration / concentrationCapability,
                              ConcentrationPointsConsumed)
-                         .Highest(wound.ConcentrationDifficulty);
+                         .Highest(imposedDifficulty);
         ICheck check = Gameworld.GetCheck(CheckType.MagicConcentrationOnWounded);
         CheckOutcome outcome = check.Check(CharacterOwner, difficulty);
         if (totalConcentration > concentrationCapability && outcome.Outcome.IsFail())

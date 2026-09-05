@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Traits;
+using MudSharp.Body.Traits;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Models;
@@ -252,7 +252,7 @@ public class MindBarrierPower : SustainedMagicPower
                 throw new ApplicationException(
                     $"The Bonus \"{sub}\" had an invalid outcome attribute in the definition XML for power {Id} ({Name}).");
             }
-            Outcome outcome = (Outcome)int.Parse(sub.Value);
+            Outcome outcome = (Outcome)int.Parse(outcomeAttribute.Value);
 
             XAttribute bonusAttribute = sub.Attribute("bonus");
             if (bonusAttribute == null)
@@ -539,7 +539,7 @@ public class MindBarrierPower : SustainedMagicPower
             return false;
         }
 
-        if (!double.TryParse(command.SafeRemainingArgument, out double bonus))
+        if (!double.TryParse(command.SafeRemainingArgument, out double bonus) || !double.IsFinite(bonus))
         {
             actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid bonus.");
             return false;

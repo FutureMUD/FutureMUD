@@ -17,6 +17,9 @@ public static class DefaultStaticSettings
     public static readonly IReadOnlyDictionary<string, string> DefaultStaticConfigurations =
         new Dictionary<string, string>
         {
+			{ "EnablePsychometricImpressions", "false" },
+			{ "PsychometricImpressionEpoch", "0" },
+			{ "VNPCWitnessReportDelaySeconds", "0" },
 			{ "EconomyAnalyticsSnapshotsEnabled", "true" },
 			{ "EconomyAnalyticsSnapshotIntervalMinutes", "1440" },
 			{ "EconomyAnalyticsRolloverSnapshotsEnabled", "true" },

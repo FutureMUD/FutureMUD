@@ -1,4 +1,4 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
@@ -79,7 +79,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
                             $"Could not load the resource referred to by '{which}' in the InvocationCosts in the definition XML for power {Id} ({Name}).");
                     }
 
-                    if (!double.TryParse(sub.Value, out double dvalue))
+                    if (!double.TryParse(sub.Value, out double dvalue) || !double.IsFinite(dvalue) || dvalue < 0)
                     {
                         throw new ApplicationException(
                             $"Could not convert the amount in the InvocationCosts in the definition XML for power {Id} ({Name}).");
@@ -417,7 +417,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         List<(IMagicResource Resource, double Cost)> costs = InvocationCosts[verb];
         foreach ((IMagicResource resource, double cost) in costs)
         {
-            if (actor.MagicResourceAmounts.FirstOrDefault(x => x.Key == resource).Value <= cost)
+            if (actor.MagicResourceAmounts.FirstOrDefault(x => x.Key == resource).Value < cost)
             {
                 return (false, resource);
             }
@@ -552,7 +552,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         }
 
         TimeSpan newDuration;
-        if (!double.TryParse(command.SafeRemainingArgument, out var seconds))
+        if (!double.TryParse(command.SafeRemainingArgument, out var seconds) || !double.IsFinite(seconds))
         {
             if (!TimeSpan.TryParse(command.SafeRemainingArgument, actor, out var parsed))
             {
@@ -680,7 +680,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
             return false;
         }
 
-        if (!double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!double.TryParse(command.SafeRemainingArgument, out double value) || !double.IsFinite(value))
         {
             actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
             return false;

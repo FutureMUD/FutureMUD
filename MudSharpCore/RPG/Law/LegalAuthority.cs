@@ -224,16 +224,16 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     private readonly DecimalCounter<long> _finesOwed = new();
     private readonly Dictionary<long, MudDateTime> _finePaymentDueDates = new();
-    private readonly List<ICrime> _knownCrimes = new();
+    private readonly HashSet<ICrime> _knownCrimes = new();
     public IEnumerable<ICrime> KnownCrimes => _knownCrimes;
 
-    private readonly List<ICrime> _staleCrimes = new();
+    private readonly HashSet<ICrime> _staleCrimes = new();
     public IEnumerable<ICrime> StaleCrimes => _staleCrimes;
 
-    private readonly List<ICrime> _unknownCrimes = new();
+    private readonly HashSet<ICrime> _unknownCrimes = new();
     public IEnumerable<ICrime> UnknownCrimes => _unknownCrimes;
 
-    private readonly List<ICrime> _resolvedCrimes = new();
+    private readonly HashSet<ICrime> _resolvedCrimes = new();
     public IEnumerable<ICrime> ResolvedCrimes => _resolvedCrimes;
 
     public bool PlayersKnowTheirCrimes { get; set; }
@@ -385,6 +385,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     public void ConvictCrime(ICharacter criminal, ICrime crime, PunishmentResult result)
     {
+		(crime as Crime)?.CancelPendingWitnessReports();
         MudDateTime now = EnforcementZones.FirstOrDefault()?.DateTime() ?? Gameworld.Calendars.First().CurrentDateTime;
         var criminalIdentityId = CharacterInstanceIdentityComparer.IdentityId(criminal);
         _knownCrimes.Remove(crime);
@@ -848,6 +849,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     public void RemoveCrime(ICrime crime)
     {
+		(crime as Crime)?.CancelPendingWitnessReports();
         _knownCrimes.Remove(crime);
         _unknownCrimes.Remove(crime);
         _resolvedCrimes.Remove(crime);
@@ -867,6 +869,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     public void FinaliseCrime(ICrime crime)
     {
+		(crime as Crime)?.CancelPendingWitnessReports();
         _knownCrimes.Remove(crime);
         _knownCrimesLookup[crime.CriminalId].Remove(crime);
         _unknownCrimes.Remove(crime);
@@ -879,14 +882,33 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     public void ReportCrime(ICrime crime, ICharacter witness, bool identityKnown, double reliability)
     {
-        // TODO - should there be any kind of delay on this for fairness?
+		if (_resolvedCrimes.Contains(crime) || crime.HasBeenFinalised) return;
+		if (witness is not null && crime.WitnessMemories.Any(x => x.Kind == CrimeWitnessSourceKind.Character &&
+		    x.SourceId == CharacterInstanceIdentityComparer.IdentityId(witness) && !x.CanRecall(RuntimeClock.UtcNow))) return;
+		ReportCrimeCore(crime, witness, identityKnown, reliability);
+		if (witness is not null)
+		{
+			foreach (var memory in crime.WitnessMemories.Where(x => x.Kind == CrimeWitnessSourceKind.Character &&
+			         x.SourceId == CharacterInstanceIdentityComparer.IdentityId(witness))) memory.ReportDelivered = true;
+		}
+	}
+
+	public void ReportVirtualCrime(ICrime crime, CrimeWitnessMemory source)
+	{
+		if (source.Kind != CrimeWitnessSourceKind.Virtual || !crime.WitnessMemories.Contains(source) ||
+		    source.ReportDelivered || !source.CanRecall(RuntimeClock.UtcNow) || crime.HasBeenFinalised) return;
+		ReportCrimeCore(crime, null, source.IdentityKnown, source.Reliability);
+	}
+
+	private void ReportCrimeCore(ICrime crime, ICharacter witness, bool identityKnown, double reliability)
+	{
 
         if (_resolvedCrimes.Contains(crime))
         {
             return;
         }
 
-        crime.RecordInvestigationEvidence(witness ?? crime.Criminal, reliability, identityKnown);
+        crime.RecordInvestigationEvidence(witness, reliability, identityKnown);
 
         Changed = true;
 

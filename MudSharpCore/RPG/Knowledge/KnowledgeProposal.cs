@@ -24,6 +24,12 @@ public class KnowledgeLessonProposal : LessonProposal, IProposal
 
     public override void Accept(string message = "")
     {
+		if (!Teacher.Knowledges.Contains(Knowledge) || PsychicSuppressionEffect.Suppresses(Student, "knowledge", Knowledge.Id))
+		{
+			Teacher.Send("The lesson cannot proceed while the required recollection is unavailable.");
+			Student.Send("The lesson cannot proceed while the required recollection is unavailable.");
+			return;
+		}
         Difficulty teachDifficulty = Knowledge.TeachDifficulty;
         Difficulty learnDifficulty = Knowledge.LearnDifficulty;
         ILearningFatigueEffect fatigueEffect = Student.EffectsOfType<ILearningFatigueEffect>().FirstOrDefault();

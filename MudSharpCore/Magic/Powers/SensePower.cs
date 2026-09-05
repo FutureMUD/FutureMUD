@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Traits;
+using MudSharp.Body.Traits;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
@@ -727,7 +727,7 @@ public class SensePower : MagicPowerBase
             return false;
         }
 
-        if (!double.TryParse(command.SafeRemainingArgument, out double value) || value <= 0.0)
+        if (!double.TryParse(command.SafeRemainingArgument, out double value) || !double.IsFinite(value) || value <= 0.0)
         {
             actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid positive number of seconds.");
             return false;

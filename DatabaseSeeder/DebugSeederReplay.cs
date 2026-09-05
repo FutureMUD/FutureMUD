@@ -473,7 +473,8 @@ internal static class DebugSeederReplayProfiles
 			Step<SupernaturalSeeder>(
 				("model", "full"),
 				("random", "static"),
-				("messagestyle", "sparse"))
+				("messagestyle", "sparse")),
+			Step<PsionicsSeeder>(("install-psionics", "yes"))
 		]);
 	}
 

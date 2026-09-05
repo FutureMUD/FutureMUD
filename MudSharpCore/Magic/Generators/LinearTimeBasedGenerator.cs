@@ -16,6 +16,8 @@ public class LinearTimeBasedGenerator : BaseMagicResourceGenerator
     {
         WhichResource = rhs.WhichResource;
         AmountPerMinute = rhs.AmountPerMinute;
+		ConsciousOnly = rhs.ConsciousOnly;
+		RestMultiplier = rhs.RestMultiplier;
         using (new FMDB())
         {
             MagicGenerator dbitem = new()
@@ -51,6 +53,9 @@ public class LinearTimeBasedGenerator : BaseMagicResourceGenerator
     public LinearTimeBasedGenerator(Models.MagicGenerator generator, IFuturemud gameworld) : base(generator, gameworld)
     {
         XElement root = XElement.Parse(generator.Definition);
+		ConsciousOnly = (bool?)root.Element("ConsciousOnly") ?? false;
+		RestMultiplier = (double?)root.Element("RestMultiplier") ?? 1.0;
+		if (!double.IsFinite(RestMultiplier) || RestMultiplier < 0 || RestMultiplier > 10) throw new ApplicationException("Invalid regenerator rest multiplier.");
         XElement element = root.Element("WhichResource");
         if (element == null)
         {
@@ -85,12 +90,20 @@ public class LinearTimeBasedGenerator : BaseMagicResourceGenerator
 
     public IMagicResource WhichResource { get; set; }
     public double AmountPerMinute { get; set; }
+	public bool ConsciousOnly { get; private set; }
+	public double RestMultiplier { get; private set; } = 1;
 
     #region Overrides of BaseMagicResourceGenerator
 
     protected override HeartbeatManagerDelegate InternalGetOnMinuteDelegate(IHaveMagicResource thing)
     {
-        return () => { thing.AddResource(WhichResource, AmountPerMinute); };
+		return () =>
+		{
+			if (ConsciousOnly && (thing is not ICharacter conscious || !conscious.State.IsConscious())) return;
+			var resting = thing is ICharacter ch && ch.Combat is null && ch.Movement is null &&
+				ch.PositionState.Name.EqualToAny("Sitting", "Lying Down", "Lounging", "Reclining");
+			thing.AddResource(WhichResource, AmountPerMinute * (resting ? RestMultiplier : 1));
+		};
     }
 
     /// <inheritdoc />
@@ -100,17 +113,31 @@ public class LinearTimeBasedGenerator : BaseMagicResourceGenerator
     {
         return new XElement("Definition",
             new XElement("WhichResource", WhichResource.Id),
-            new XElement("AmountPerMinute", AmountPerMinute)
+            new XElement("AmountPerMinute", AmountPerMinute),
+			new XElement("ConsciousOnly", ConsciousOnly), new XElement("RestMultiplier", RestMultiplier)
         );
     }
 
     protected override string SubtypeHelpText => @"	#3resource <which>#0 - sets the resource gained
-	#3amount <##>#0 - sets the amount of resource gained per minute";
+	#3amount <##>#0 - sets the amount of resource gained per minute
+	#3conscious#0 - toggles requiring a conscious character
+	#3restmultiplier <0-10>#0 - changes regeneration while resting out of combat";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
         switch (command.PopForSwitch())
         {
+			case "conscious":
+				ConsciousOnly = !ConsciousOnly;
+				Changed = true;
+				actor.Send($"Conscious characters only: {ConsciousOnly.ToColouredString()}.");
+				return true;
+			case "restmultiplier":
+				if (!double.TryParse(command.SafeRemainingArgument, out var multiplier) || !double.IsFinite(multiplier) || multiplier < 0 || multiplier > 10) return false;
+				RestMultiplier = multiplier;
+				Changed = true;
+				actor.Send($"Rest multiplier: {multiplier.ToString("N2", actor).ColourValue()}.");
+				return true;
             case "resource":
                 return BuildingCommandResource(actor, command);
             case "amount":

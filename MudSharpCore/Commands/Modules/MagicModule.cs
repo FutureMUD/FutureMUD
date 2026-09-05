@@ -9,6 +9,35 @@ namespace MudSharp.Commands.Modules;
 
 public class MagicModule : Module<ICharacter>
 {
+	[PlayerCommand("PsychometricHistory", "psychometrichistory")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("psychometrichistory", @"Inspect recorder counters or add a bounded authored clue to a cell or item. Gameplay cannot read automatic or authored clues while EnablePsychometricImpressions is false.
+
+	#3psychometrichistory#0 - recorder diagnostics
+	#3psychometrichistory <here|item> <clue>#0 - author a clue, at most 256 characters", AutoHelp.HelpArg)]
+	protected static void PsychometricHistory(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.Send($"Impressions enabled: {PsychometricRecorder.Enabled(actor.Gameworld).ToColouredString()}; active payloads: {PsychometricRecorder.ActivePayloads.ToString("N0", actor)}; recorded: {PsychometricRecorder.Recorded.ToString("N0", actor)}; coalesced: {PsychometricRecorder.Coalesced.ToString("N0", actor)}; evictions: {PsychometricRecorder.Evictions.ToString("N0", actor)}; recording milliseconds: {(1000.0 * PsychometricRecorder.RecordingTicks / System.Diagnostics.Stopwatch.Frequency).ToString("N2", actor)}.");
+			return;
+		}
+		if (!PsychometricRecorder.Enabled(actor.Gameworld)) { actor.Send("EnablePsychometricImpressions is false; automatic recording and all gameplay reading, including authored clues, are disabled."); return; }
+		var keyword = ss.PopSpeech();
+		IPerceivable target = keyword.EqualTo("here") ? actor.Location : actor.TargetItem(keyword);
+		var clue = ss.SafeRemainingArgument;
+		if (target is null || string.IsNullOrWhiteSpace(clue) || clue.Length > 256) { actor.Send("Specify here or an item and a clue of 1 to 256 characters."); return; }
+		PsychometricRecorder.AuthorClue(target, actor, clue);
+		actor.Send("The authored clue has been recorded.");
+	}
+	[PlayerCommand("PsiCircle", "psicircle")]
+	[HelpInfo("psicircle", @"Answer a psychic circle invitation or communicate with a circle you have joined. Joining grants no powers and exposes no private thoughts.
+
+	#3psicircle accept|decline#0 - answer an invitation
+	#3psicircle say <message>#0 - speak to the circle
+	#3psicircle leave#0 - leave the circle", AutoHelp.HelpArgOrNoArg)]
+	protected static void PsiCircle(ICharacter actor, string input) => MudSharp.Magic.Powers.PsychicCirclePower.ParticipantCommand(actor, new StringStack(input.RemoveFirstWord()));
     private MagicModule()
         : base("Magic")
     {
@@ -184,6 +213,7 @@ The syntax is:
         {
             string powerText = ss.PopSpeech();
             power = powers.FirstOrDefault(x => x.Name.EqualTo(powerText)) ??
+					powers.FirstOrDefault(x => x.Verbs.Any(y => y.EqualTo(powerText))) ??
                     powers.FirstOrDefault(
                         x => x.Name.StartsWith(powerText, StringComparison.InvariantCultureIgnoreCase));
             if (power == null)

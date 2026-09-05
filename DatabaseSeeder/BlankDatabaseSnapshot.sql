@@ -1,5 +1,5 @@
 -- MySqlBackup.NET 2.6.5.0
--- Dump Time: 2026-08-28 00:37:25
+-- Dump Time: 2026-09-05 18:13:26
 -- --------------------------------------
 -- Server version 8.0.45 MySQL Community Server - GPL
 
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `__efmigrationshistory` (
 --
 
 /*!40000 ALTER TABLE `__efmigrationshistory` DISABLE KEYS */;
-INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20200626070704_InitialDatabase','9.0.11'),('20200728125151_MoveChargenToTables','9.0.11'),('20200807044450_EnforcementUpdate','9.0.11'),('20200810141606_ClanVoting','9.0.11'),('20200817061844_Elections','9.0.11'),('20200830233741_TerrainUpdate','9.0.11'),('20200905062837_CurrencyPatternEnhancement','9.0.11'),('20200928025908_KnowledgeBuilding','9.0.11'),('20201013213328_CheckFixing','9.0.11'),('20201014230837_FixingEmailTemplates','9.0.11'),('20201106014706_LineOfCreditAccounts','9.0.11'),('20201106040133_AttributesUpdate','9.0.11'),('20201108122141_EconomicZoneUpdate','9.0.11'),('20201113050353_EconomicZonesTouchup','9.0.11'),('20201120022913_EnforcermentAndMisc','9.0.11'),('20201120045951_MinorFixForCrime','9.0.11'),('20201129225407_SafeQuit','9.0.11'),('20201130014025_JournalUpdates','9.0.11'),('20201130041538_JournalUpdate','9.0.11'),('20201201052916_DrugReform','9.0.11'),('20201217051236_Changes','9.0.11'),('20201217051726_ExtraDescriptions','9.0.11'),('20201218014631_RacialBreathingChange','9.0.11'),('20201221031703_ClanFame','9.0.11'),('20201227120935_CantRemember','9.0.11'),('20210113052107_IndexFixForBodyparts','9.0.11'),('20210114010706_IndexAdditions','9.0.11'),('20210116210204_MagicSpells','9.0.11'),('20210118053537_MoreSpellStuff','9.0.11'),('20210119034150_MoreSpellStuff2','9.0.11'),('20210119035740_MoreSpellStuff3','9.0.11'),('20210120031933_MoreSpellStuff4','9.0.11'),('20210127032929_Jan21EnforcementWorkaround','9.0.11'),('20210202002906_RemovingChildClans','9.0.11'),('20210211035327_GameStatistics','9.0.11'),('20210224105856_NewSun','9.0.11'),('20210302112347_OngoingCheckForCharacteristics','9.0.11'),('20210331025006_BanksV1','9.0.11'),('20210423014825_WeaponAttackAddPositionRequirement','9.0.11'),('20210626110830_AuctionHouses','9.0.11'),('20210810123837_PropertyV1','9.0.11'),('20210902052233_PropertyV2','9.0.11'),('20210914132733_Sep21LawUpdate','9.0.11'),('20211025020630_JusticeOverhaulOct21','9.0.11'),('20211217034326_TerrainMapColourAddition','9.0.11'),('20211220045847_Skins','9.0.11'),('20211222033658_Skins-Pt2','9.0.11'),('20211226134159_ClanBankAccounts','9.0.11'),('20211229004501_PlayerBoards','9.0.11'),('20220104134109_JobsV1','9.0.11'),('20220105004035_ProjectsJobsUpdate','9.0.11'),('20220108004307_BoardBugFix','9.0.11'),('20220117102755_BoardsDescriptions','9.0.11'),('20220210215752_LongerAuthorFullDescs','9.0.11'),('20220225125641_ClanFKFixing','9.0.11'),('20220327052829_NPCSpawners','9.0.11'),('20220421132846_BodyCharacteristicsFix','9.0.11'),('20220625122517_ClanDiscordUpdate','9.0.11'),('20220625125136_ChargenResourcesAsDouble','9.0.11'),('20220718132632_MaterialsRefactor','9.0.11'),('20220731064708_TheoreticalCraftChecks','9.0.11'),('20220807101509_IntToDoubleParryBonus','9.0.11'),('20220814231930_RaceDefaultHwModels','9.0.11'),('20221030044209_ShopBankAccountsAndFinance','9.0.11'),('20221030125929_BankPaymentsAtShops','9.0.11'),('20221031113757_MagicSpellExclusivity','9.0.11'),('20221201081057_NameCulturesGenderExpansion','9.0.11'),('20221201133628_NameCulturesChargenExpansion','9.0.11'),('20230101133831_CurrencyPatternRegexCaseFix','9.0.11'),('20230110120837_RelativeEnthalpyForLiquids','9.0.11'),('20230124124618_SurgicalProcedureCheckTraits','9.0.11'),('20230311060208_SurgeryBodyUpdate','9.0.11'),('20230407151210_OpenAIv1','9.0.11'),('20230428004425_GlobalCurrencyChanges','9.0.11'),('20230603125906_CraftUseToolDuration','9.0.11'),('20230706055610_AuxiliaryMoves','9.0.11'),('20230714035824_AuxiliaryMoves2','9.0.11'),('20230727121209_SeasonsDisplayUpdate','9.0.11'),('20230731055842_SeederChoices','9.0.11'),('20230810071403_CellForeignKeyUpdates','9.0.11'),('20230825052231_NpcSpawnerMulti','9.0.11'),('20230825061651_ShopTypes','9.0.11'),('20230914142042_ScriptedEvents','9.0.11'),('20230917131132_ClanForeignKeyUpdate','9.0.11'),('20231031085439_MagicResourceColours','9.0.11'),('20231102120820_NewPlayerHints','9.0.11'),('20231110224309_HungerThirstRatesForRaces','9.0.11'),('20231125084220_ClimateModelSimplification','9.0.11'),('20231208235024_HeritageChargenCostBugFix','9.0.11'),('20240112055830_ChargenResourcesControlProg','9.0.11'),('20240119120217_CoinsChangeFlag','9.0.11'),('20240129025113_CurrencyForeignKeyUpdateJan24','9.0.11'),('20240305110906_BuyingMerchandise','9.0.11'),('20240325104238_MarketsV1','9.0.11'),('20240418112441_MarketsShopIntegration','9.0.11'),('20240427013621_MarketPopulations','9.0.11'),('20240601141550_DiscordOutputForChannels','9.0.11'),('20240615065145_ShopAutopayTaxes','9.0.11'),('20240730123726_TrackingV1','9.0.11'),('20240804070126_FixDatabaseAutoTrueBug','9.0.11'),('20240808232211_TrackingNameForBodyProtos','9.0.11'),('20240809155707_BMIUnits','9.0.11'),('20240816134208_ArmourPenaltyToDouble','9.0.11'),('20240817112644_HeightWeightModelDirectSetWeights','9.0.11'),('20240828105208_AutoReacquireTargetsSetting','9.0.11'),('20240828124859_CombatSettingsAugust24','9.0.11'),('20240831005804_BodypartGroupDescribersAugust2024','9.0.11'),('20240925062238_CrimesUpdate2024Sep25','9.0.11'),('20241011073405_StockroomNonMorphing','9.0.11'),('20241016054103_ItemProtoIsHiddenFromPlayers','9.0.11'),('20241016123415_BodyOverrideHealthStrategy','9.0.11'),('20241018071518_LiquidLeaveResidueInRooms','9.0.11'),('20241121010653_RemovingBreathableFluidsRaces','9.0.11'),('20241129002416_CriminalDescUpdates','9.0.11'),('20241216062012_RandomNamesBinaryUnicodeSort','9.0.11'),('20241220091815_EthnicitiesNameCultures','9.0.11'),('20241231030836_TagsForTerrains','9.0.11'),('20250101232454_SkewnessForHWModels','9.0.11'),('20250210095915_Shoppers','9.0.11'),('20250210233555_ShopsFeb25','9.0.11'),('20250211100238_ShopsFeb25P2','9.0.11'),('20250304042559_PreserveRegisterVariablesItemFlag','9.0.11'),('20250304104024_CraftPhaseExertionAndStamina','9.0.11'),('20250304114440_MerchandiseTransactionRecordsFix','9.0.11'),('20250424052852_SpellTriggerNullTargets','9.0.11'),('20250628230040_PropertyRekeyOnLeaseEnd','9.0.11'),('20251110082110_CombatArenaSchema','9.0.11'),('20251115120000_ArenaSignupEcho','9.0.11'),('20260211095519_AIStorytellers','9.0.11'),('20260211124139_AIStorytellerEventSubscriptions','9.0.11'),('20260216092441_AIStorytellerTimeSystemPrompt','9.0.11'),('20260216095426_AIStorytellerScopedModelReasoning','9.0.11'),('20260218120142_ArenaAutoScheduling','9.0.11'),('20260221112947_AIStorytellerSituationScopes','9.0.11'),('20260222081900_ArenaEventTypeEliminationModes','9.0.11'),('20260222112522_ArenaNpcCompletionRestore','9.0.11'),('20260225115630_ArenaStageNameProfile','9.0.11'),('20260225233442_ArenaEloStrategyOptions','9.0.11'),('20260226124500_ArenaSideRatingRanges','9.0.11'),('20260227120000_ArenaPhaseProgAppearancePayouts','9.0.11'),('20260308065322_ClimateDescriptions','9.0.11'),('20260309072751_WeatherModelSimplification','9.0.11'),('20260309222608_ReplaceCharacterCaloriesWithSatiationReserve','9.0.11'),('20260309225356_DropObsoleteNutritionCalories','9.0.11'),('20260310122815_InfectionVirulenceMultiplier','9.0.11'),('20260316112529_NaturalRangedAttacksAndElementalContact','9.0.11'),('20260320180000_CombatSettingPriorityAndRaceDefault','9.0.11'),('20260321102002_FutureProgTypeDefinitionsStage1','9.0.11'),('20260321102139_FutureProgTypeDefinitionsStage2','9.0.11'),('20260327103014_ShopDeals','9.0.11'),('20260327124234_EstateProbateAuctionLiquidation','9.0.11'),('20260328123631_EstateProbateMorgueWorkflow','9.0.11'),('20260329110346_EconomicZoneEstatesEnabledToggle','9.0.11'),('20260329223130_EstateWillsPayoutsAndPropertyShares','9.0.11'),('20260331222122_AddSolidMaterialAliases','9.0.11'),('20260402053811_RemoveOldSunCelestialDefault','9.0.11'),('20260415122407_MarketPopulationIncomeAndPricePressure','9.0.11'),('20260415225956_MarketCombinationCategoriesAndStressHysteresisReady','9.0.11'),('20260416225128_AddCharacterComputerWorkspace','9.0.11'),('20260418111319_AddComputerMailService','9.0.11'),('20260420105205_AddBodypartSeverFormula','9.0.11'),('20260421064024_ProjectQueueAndCancellationContinuity','9.0.11'),('20260422035105_Phase1MultiBodyForms','9.0.11'),('20260423090353_Phase15BodyFormProvisioning','9.0.11'),('20260423093000_CharacterBodyTraumaMode','9.0.11'),('20260423114308_Phase15FormTransformationEcho','9.0.11'),('20260424000000_RaceAttributeAlterations','9.0.11'),('20260424035904_RaceSatiationLimits','9.0.11'),('20260424040025_PlanesAndPlanarData','9.0.11'),('20260424044647_PlaneRoomPresentation','9.0.11'),('20260425131140_HotelRoomRentals','9.0.11'),('20260425131520_StableMountStabling','9.0.11'),('20260425132107_AddTerrainGravity','9.0.11'),('20260426114113_DefaultFormTransformationEchoNonSelf','9.0.11'),('20260427110022_RecurringIntervalOrdinalFields','9.0.11'),('20260501090000_PlaneRemoteObservationTag','9.0.11'),('20260501132243_RaceAgeColumnsNoDatabaseDefaults','9.0.11'),('20260506102652_PrintedWritingAuthorNullable','9.0.11'),('20260506103358_ClanBudgetsAndPayrollHistory','9.0.11'),('20260507091523_VirtualCashLedgerAndBanklessSettlement','9.0.11'),('20260507092824_ClanBudgetVirtualTreasuryFallback','9.0.11'),('20260510212610_PatrolRouteStrategyData','9.0.11'),('20260513234412_ManualCombatCommands','9.0.11'),('20260515130602_VehiclesHybridModel','9.0.11'),('20260515232922_VehicleSystemsPhase2','9.0.11'),('20260519132419_VehicleCharacterHitchPullMultiplier','9.0.11'),('20260520000533_VehiclePersistentHitchLinks','9.0.11'),('20260520011927_AgricultureSystem','9.0.11'),('20260523000000_CommoditySpoilageRules','9.0.11'),('20260523125349_ItemProtoUniqueNameBuilderNotes','9.0.11'),('20260523134149_NpcTemplateUniqueNameBuilderNotes','9.0.11'),('20260523205847_ForagableCommodityOutput','9.0.11'),('20260526091744_UnifiedEmploymentPersistence','9.0.11'),('20260526120456_SurfaceLiquidState','9.0.11'),('20260529001356_EmploymentPayrollLiabilities','9.0.11'),('20260529025718_EmploymentActionStepOperationalState','9.0.11'),('20260529230237_MagicPortalTopology','9.0.11'),('20260530235915_EmploymentScheduledRuleStatus','9.0.11'),('20260601012012_AutomaticCrimeContext','9.0.11'),('20260601111355_HotelNormalizedPersistence','9.0.11'),('20260601122909_CommodityMerchandiseWeightedSales','9.0.11'),('20260606072630_RichEmploymentScheduledRuleExpressions','9.0.11'),('20260606103736_OutfitTemplates','9.0.11'),('20260612134150_CharacterInstances','9.0.11'),('20260614233932_CharacterInstanceNpcPatrolStableInstances','9.0.11'),('20260615024353_CharacterInstanceActorReferences','9.0.11'),('20260615120000_CharacterInstanceProjectLabour','9.0.11'),('20260616135417_DrugExpansionDependenceExposures','9.0.11'),('20260620054424_EmploymentApplicationSnapshots','9.0.11'),('20260627000000_VehicleTowStressPolicy','9.0.11'),('20260701121756_AlertEmotes','9.0.11'),('20260701122720_ClanHallCellsForEmploymentHosts','9.0.11'),('20260703095705_WritingCollections','9.0.11'),('20260703125041_HospitalServicesAndEmploymentHosts','9.0.11'),('20260703143217_HospitalAnesthesiaBloodStockPolicies','9.0.11'),('20260703232840_HospitalCannulationAndCombinedServices','9.0.11'),('20260706141430_ActiveProjectPaymentSettings','9.0.11'),('20260708120000_HospitalClinicalPlanning','9.0.11'),('20260719104654_VehicleSurfaceWaterMovementProfiles','9.0.11'),('20260719124626_VehicleSurfaceWaterPropulsion','9.0.11'),('20260720063425_VehicleBoatCombat','9.0.11'),('20260721125028_MultiTargetCombatActions','9.0.11'),('20260722063400_RouteCellSpatialFoundation','9.0.11'),('20260722071041_RoomScaleVehicleInteriors','9.0.11'),('20260722100951_VehicleRoutesAndServices','9.0.11'),('20260726211600_VehicleTerrestrialEnginePower','9.0.11'),('20260726211712_VehicleRiderPoweredPropulsion','9.0.11'),('20260727101435_CombatPositionAttackPreference','9.0.11'),('20260730053720_FirearmAttachmentsAndProjectileAmmunition','9.0.11'),('20260804125523_SeederManagedRecordProvenance','9.0.11'),('20260805124030_ProjectQueueSchedulingAndLaunchEntries','9.0.11'),('20260808112940_AddBodypartLimbSeverDescription','9.0.11'),('20260810130800_AddTrapTemplates','9.0.11'),('20260816012516_HospitalServiceConsentPolicy','9.0.11'),('20260816094719_AddLootTables','9.0.11'),('20260822054945_AddRestaurantServiceSystem','9.0.11'),('20260822233623_AddRestaurantServicePresentation','9.0.11'),('20260823090841_RestaurantServiceWorkflowImprovements','9.0.11'),('20260825022721_AddRacePainToleranceMultiplier','9.0.11'),('20260827113842_AddRangedWeaponMinimumFiringPosition','9.0.11');
+INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20200626070704_InitialDatabase','9.0.11'),('20200728125151_MoveChargenToTables','9.0.11'),('20200807044450_EnforcementUpdate','9.0.11'),('20200810141606_ClanVoting','9.0.11'),('20200817061844_Elections','9.0.11'),('20200830233741_TerrainUpdate','9.0.11'),('20200905062837_CurrencyPatternEnhancement','9.0.11'),('20200928025908_KnowledgeBuilding','9.0.11'),('20201013213328_CheckFixing','9.0.11'),('20201014230837_FixingEmailTemplates','9.0.11'),('20201106014706_LineOfCreditAccounts','9.0.11'),('20201106040133_AttributesUpdate','9.0.11'),('20201108122141_EconomicZoneUpdate','9.0.11'),('20201113050353_EconomicZonesTouchup','9.0.11'),('20201120022913_EnforcermentAndMisc','9.0.11'),('20201120045951_MinorFixForCrime','9.0.11'),('20201129225407_SafeQuit','9.0.11'),('20201130014025_JournalUpdates','9.0.11'),('20201130041538_JournalUpdate','9.0.11'),('20201201052916_DrugReform','9.0.11'),('20201217051236_Changes','9.0.11'),('20201217051726_ExtraDescriptions','9.0.11'),('20201218014631_RacialBreathingChange','9.0.11'),('20201221031703_ClanFame','9.0.11'),('20201227120935_CantRemember','9.0.11'),('20210113052107_IndexFixForBodyparts','9.0.11'),('20210114010706_IndexAdditions','9.0.11'),('20210116210204_MagicSpells','9.0.11'),('20210118053537_MoreSpellStuff','9.0.11'),('20210119034150_MoreSpellStuff2','9.0.11'),('20210119035740_MoreSpellStuff3','9.0.11'),('20210120031933_MoreSpellStuff4','9.0.11'),('20210127032929_Jan21EnforcementWorkaround','9.0.11'),('20210202002906_RemovingChildClans','9.0.11'),('20210211035327_GameStatistics','9.0.11'),('20210224105856_NewSun','9.0.11'),('20210302112347_OngoingCheckForCharacteristics','9.0.11'),('20210331025006_BanksV1','9.0.11'),('20210423014825_WeaponAttackAddPositionRequirement','9.0.11'),('20210626110830_AuctionHouses','9.0.11'),('20210810123837_PropertyV1','9.0.11'),('20210902052233_PropertyV2','9.0.11'),('20210914132733_Sep21LawUpdate','9.0.11'),('20211025020630_JusticeOverhaulOct21','9.0.11'),('20211217034326_TerrainMapColourAddition','9.0.11'),('20211220045847_Skins','9.0.11'),('20211222033658_Skins-Pt2','9.0.11'),('20211226134159_ClanBankAccounts','9.0.11'),('20211229004501_PlayerBoards','9.0.11'),('20220104134109_JobsV1','9.0.11'),('20220105004035_ProjectsJobsUpdate','9.0.11'),('20220108004307_BoardBugFix','9.0.11'),('20220117102755_BoardsDescriptions','9.0.11'),('20220210215752_LongerAuthorFullDescs','9.0.11'),('20220225125641_ClanFKFixing','9.0.11'),('20220327052829_NPCSpawners','9.0.11'),('20220421132846_BodyCharacteristicsFix','9.0.11'),('20220625122517_ClanDiscordUpdate','9.0.11'),('20220625125136_ChargenResourcesAsDouble','9.0.11'),('20220718132632_MaterialsRefactor','9.0.11'),('20220731064708_TheoreticalCraftChecks','9.0.11'),('20220807101509_IntToDoubleParryBonus','9.0.11'),('20220814231930_RaceDefaultHwModels','9.0.11'),('20221030044209_ShopBankAccountsAndFinance','9.0.11'),('20221030125929_BankPaymentsAtShops','9.0.11'),('20221031113757_MagicSpellExclusivity','9.0.11'),('20221201081057_NameCulturesGenderExpansion','9.0.11'),('20221201133628_NameCulturesChargenExpansion','9.0.11'),('20230101133831_CurrencyPatternRegexCaseFix','9.0.11'),('20230110120837_RelativeEnthalpyForLiquids','9.0.11'),('20230124124618_SurgicalProcedureCheckTraits','9.0.11'),('20230311060208_SurgeryBodyUpdate','9.0.11'),('20230407151210_OpenAIv1','9.0.11'),('20230428004425_GlobalCurrencyChanges','9.0.11'),('20230603125906_CraftUseToolDuration','9.0.11'),('20230706055610_AuxiliaryMoves','9.0.11'),('20230714035824_AuxiliaryMoves2','9.0.11'),('20230727121209_SeasonsDisplayUpdate','9.0.11'),('20230731055842_SeederChoices','9.0.11'),('20230810071403_CellForeignKeyUpdates','9.0.11'),('20230825052231_NpcSpawnerMulti','9.0.11'),('20230825061651_ShopTypes','9.0.11'),('20230914142042_ScriptedEvents','9.0.11'),('20230917131132_ClanForeignKeyUpdate','9.0.11'),('20231031085439_MagicResourceColours','9.0.11'),('20231102120820_NewPlayerHints','9.0.11'),('20231110224309_HungerThirstRatesForRaces','9.0.11'),('20231125084220_ClimateModelSimplification','9.0.11'),('20231208235024_HeritageChargenCostBugFix','9.0.11'),('20240112055830_ChargenResourcesControlProg','9.0.11'),('20240119120217_CoinsChangeFlag','9.0.11'),('20240129025113_CurrencyForeignKeyUpdateJan24','9.0.11'),('20240305110906_BuyingMerchandise','9.0.11'),('20240325104238_MarketsV1','9.0.11'),('20240418112441_MarketsShopIntegration','9.0.11'),('20240427013621_MarketPopulations','9.0.11'),('20240601141550_DiscordOutputForChannels','9.0.11'),('20240615065145_ShopAutopayTaxes','9.0.11'),('20240730123726_TrackingV1','9.0.11'),('20240804070126_FixDatabaseAutoTrueBug','9.0.11'),('20240808232211_TrackingNameForBodyProtos','9.0.11'),('20240809155707_BMIUnits','9.0.11'),('20240816134208_ArmourPenaltyToDouble','9.0.11'),('20240817112644_HeightWeightModelDirectSetWeights','9.0.11'),('20240828105208_AutoReacquireTargetsSetting','9.0.11'),('20240828124859_CombatSettingsAugust24','9.0.11'),('20240831005804_BodypartGroupDescribersAugust2024','9.0.11'),('20240925062238_CrimesUpdate2024Sep25','9.0.11'),('20241011073405_StockroomNonMorphing','9.0.11'),('20241016054103_ItemProtoIsHiddenFromPlayers','9.0.11'),('20241016123415_BodyOverrideHealthStrategy','9.0.11'),('20241018071518_LiquidLeaveResidueInRooms','9.0.11'),('20241121010653_RemovingBreathableFluidsRaces','9.0.11'),('20241129002416_CriminalDescUpdates','9.0.11'),('20241216062012_RandomNamesBinaryUnicodeSort','9.0.11'),('20241220091815_EthnicitiesNameCultures','9.0.11'),('20241231030836_TagsForTerrains','9.0.11'),('20250101232454_SkewnessForHWModels','9.0.11'),('20250210095915_Shoppers','9.0.11'),('20250210233555_ShopsFeb25','9.0.11'),('20250211100238_ShopsFeb25P2','9.0.11'),('20250304042559_PreserveRegisterVariablesItemFlag','9.0.11'),('20250304104024_CraftPhaseExertionAndStamina','9.0.11'),('20250304114440_MerchandiseTransactionRecordsFix','9.0.11'),('20250424052852_SpellTriggerNullTargets','9.0.11'),('20250628230040_PropertyRekeyOnLeaseEnd','9.0.11'),('20251110082110_CombatArenaSchema','9.0.11'),('20251115120000_ArenaSignupEcho','9.0.11'),('20260211095519_AIStorytellers','9.0.11'),('20260211124139_AIStorytellerEventSubscriptions','9.0.11'),('20260216092441_AIStorytellerTimeSystemPrompt','9.0.11'),('20260216095426_AIStorytellerScopedModelReasoning','9.0.11'),('20260218120142_ArenaAutoScheduling','9.0.11'),('20260221112947_AIStorytellerSituationScopes','9.0.11'),('20260222081900_ArenaEventTypeEliminationModes','9.0.11'),('20260222112522_ArenaNpcCompletionRestore','9.0.11'),('20260225115630_ArenaStageNameProfile','9.0.11'),('20260225233442_ArenaEloStrategyOptions','9.0.11'),('20260226124500_ArenaSideRatingRanges','9.0.11'),('20260227120000_ArenaPhaseProgAppearancePayouts','9.0.11'),('20260308065322_ClimateDescriptions','9.0.11'),('20260309072751_WeatherModelSimplification','9.0.11'),('20260309222608_ReplaceCharacterCaloriesWithSatiationReserve','9.0.11'),('20260309225356_DropObsoleteNutritionCalories','9.0.11'),('20260310122815_InfectionVirulenceMultiplier','9.0.11'),('20260316112529_NaturalRangedAttacksAndElementalContact','9.0.11'),('20260320180000_CombatSettingPriorityAndRaceDefault','9.0.11'),('20260321102002_FutureProgTypeDefinitionsStage1','9.0.11'),('20260321102139_FutureProgTypeDefinitionsStage2','9.0.11'),('20260327103014_ShopDeals','9.0.11'),('20260327124234_EstateProbateAuctionLiquidation','9.0.11'),('20260328123631_EstateProbateMorgueWorkflow','9.0.11'),('20260329110346_EconomicZoneEstatesEnabledToggle','9.0.11'),('20260329223130_EstateWillsPayoutsAndPropertyShares','9.0.11'),('20260331222122_AddSolidMaterialAliases','9.0.11'),('20260402053811_RemoveOldSunCelestialDefault','9.0.11'),('20260415122407_MarketPopulationIncomeAndPricePressure','9.0.11'),('20260415225956_MarketCombinationCategoriesAndStressHysteresisReady','9.0.11'),('20260416225128_AddCharacterComputerWorkspace','9.0.11'),('20260418111319_AddComputerMailService','9.0.11'),('20260420105205_AddBodypartSeverFormula','9.0.11'),('20260421064024_ProjectQueueAndCancellationContinuity','9.0.11'),('20260422035105_Phase1MultiBodyForms','9.0.11'),('20260423090353_Phase15BodyFormProvisioning','9.0.11'),('20260423093000_CharacterBodyTraumaMode','9.0.11'),('20260423114308_Phase15FormTransformationEcho','9.0.11'),('20260424000000_RaceAttributeAlterations','9.0.11'),('20260424035904_RaceSatiationLimits','9.0.11'),('20260424040025_PlanesAndPlanarData','9.0.11'),('20260424044647_PlaneRoomPresentation','9.0.11'),('20260425131140_HotelRoomRentals','9.0.11'),('20260425131520_StableMountStabling','9.0.11'),('20260425132107_AddTerrainGravity','9.0.11'),('20260426114113_DefaultFormTransformationEchoNonSelf','9.0.11'),('20260427110022_RecurringIntervalOrdinalFields','9.0.11'),('20260501090000_PlaneRemoteObservationTag','9.0.11'),('20260501132243_RaceAgeColumnsNoDatabaseDefaults','9.0.11'),('20260506102652_PrintedWritingAuthorNullable','9.0.11'),('20260506103358_ClanBudgetsAndPayrollHistory','9.0.11'),('20260507091523_VirtualCashLedgerAndBanklessSettlement','9.0.11'),('20260507092824_ClanBudgetVirtualTreasuryFallback','9.0.11'),('20260510212610_PatrolRouteStrategyData','9.0.11'),('20260513234412_ManualCombatCommands','9.0.11'),('20260515130602_VehiclesHybridModel','9.0.11'),('20260515232922_VehicleSystemsPhase2','9.0.11'),('20260519132419_VehicleCharacterHitchPullMultiplier','9.0.11'),('20260520000533_VehiclePersistentHitchLinks','9.0.11'),('20260520011927_AgricultureSystem','9.0.11'),('20260523000000_CommoditySpoilageRules','9.0.11'),('20260523125349_ItemProtoUniqueNameBuilderNotes','9.0.11'),('20260523134149_NpcTemplateUniqueNameBuilderNotes','9.0.11'),('20260523205847_ForagableCommodityOutput','9.0.11'),('20260526091744_UnifiedEmploymentPersistence','9.0.11'),('20260526120456_SurfaceLiquidState','9.0.11'),('20260529001356_EmploymentPayrollLiabilities','9.0.11'),('20260529025718_EmploymentActionStepOperationalState','9.0.11'),('20260529230237_MagicPortalTopology','9.0.11'),('20260530235915_EmploymentScheduledRuleStatus','9.0.11'),('20260601012012_AutomaticCrimeContext','9.0.11'),('20260601111355_HotelNormalizedPersistence','9.0.11'),('20260601122909_CommodityMerchandiseWeightedSales','9.0.11'),('20260606072630_RichEmploymentScheduledRuleExpressions','9.0.11'),('20260606103736_OutfitTemplates','9.0.11'),('20260612134150_CharacterInstances','9.0.11'),('20260614233932_CharacterInstanceNpcPatrolStableInstances','9.0.11'),('20260615024353_CharacterInstanceActorReferences','9.0.11'),('20260615120000_CharacterInstanceProjectLabour','9.0.11'),('20260616135417_DrugExpansionDependenceExposures','9.0.11'),('20260620054424_EmploymentApplicationSnapshots','9.0.11'),('20260627000000_VehicleTowStressPolicy','9.0.11'),('20260701121756_AlertEmotes','9.0.11'),('20260701122720_ClanHallCellsForEmploymentHosts','9.0.11'),('20260703095705_WritingCollections','9.0.11'),('20260703125041_HospitalServicesAndEmploymentHosts','9.0.11'),('20260703143217_HospitalAnesthesiaBloodStockPolicies','9.0.11'),('20260703232840_HospitalCannulationAndCombinedServices','9.0.11'),('20260706141430_ActiveProjectPaymentSettings','9.0.11'),('20260708120000_HospitalClinicalPlanning','9.0.11'),('20260719104654_VehicleSurfaceWaterMovementProfiles','9.0.11'),('20260719124626_VehicleSurfaceWaterPropulsion','9.0.11'),('20260720063425_VehicleBoatCombat','9.0.11'),('20260721125028_MultiTargetCombatActions','9.0.11'),('20260722063400_RouteCellSpatialFoundation','9.0.11'),('20260722071041_RoomScaleVehicleInteriors','9.0.11'),('20260722100951_VehicleRoutesAndServices','9.0.11'),('20260726211600_VehicleTerrestrialEnginePower','9.0.11'),('20260726211712_VehicleRiderPoweredPropulsion','9.0.11'),('20260727101435_CombatPositionAttackPreference','9.0.11'),('20260730053720_FirearmAttachmentsAndProjectileAmmunition','9.0.11'),('20260804125523_SeederManagedRecordProvenance','9.0.11'),('20260805124030_ProjectQueueSchedulingAndLaunchEntries','9.0.11'),('20260808112940_AddBodypartLimbSeverDescription','9.0.11'),('20260810130800_AddTrapTemplates','9.0.11'),('20260816012516_HospitalServiceConsentPolicy','9.0.11'),('20260816094719_AddLootTables','9.0.11'),('20260822054945_AddRestaurantServiceSystem','9.0.11'),('20260822233623_AddRestaurantServicePresentation','9.0.11'),('20260823090841_RestaurantServiceWorkflowImprovements','9.0.11'),('20260825022721_AddRacePainToleranceMultiplier','9.0.11'),('20260827113842_AddRangedWeaponMinimumFiringPosition','9.0.11'),('20260828014622_AddNPCSkillPackages','9.0.11'),('20260829031447_AddSignedLanguageCommunication','9.0.11'),('20260829082253_AddOutfitTemplateItemSkin','9.0.11'),('20260830080041_AddGameItemProtoRefrigerationSensitivity','9.0.11'),('20260830121659_AddMediaRecordingStorage','9.0.11'),('20260904111218_AddEconomyAnalytics','9.0.11'),('20260905072550_PsychicWitnessMemory','9.0.11');
 /*!40000 ALTER TABLE `__efmigrationshistory` ENABLE KEYS */;
 
 --
@@ -4669,6 +4669,7 @@ CREATE TABLE IF NOT EXISTS `gameitemprotos` (
   `PlanarData` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
   `BuilderNotes` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
   `UniqueName` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `RefrigerationSensitive` bit(1) NOT NULL DEFAULT b'0',
   PRIMARY KEY (`Id`,`RevisionNumber`),
   KEY `FK_GameItemProtos_EditableItems` (`EditableItemId`),
   KEY `FK_GameItemProtos_ItemGroups_idx` (`ItemGroupId`),
@@ -5590,6 +5591,132 @@ CREATE TABLE IF NOT EXISTS `materials_aliases` (
 /*!40000 ALTER TABLE `materials_aliases` ENABLE KEYS */;
 
 --
+-- Definition of mediarecordings
+--
+
+DROP TABLE IF EXISTS `mediarecordings`;
+CREATE TABLE IF NOT EXISTS `mediarecordings` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `SchemaVersion` int NOT NULL DEFAULT '1',
+  `Capabilities` int NOT NULL,
+  `Status` int NOT NULL,
+  `Name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `CreatedAtUtc` datetime NOT NULL,
+  `FinalisedAtUtc` datetime DEFAULT NULL,
+  `DurationMilliseconds` bigint NOT NULL,
+  `LogicalSizeInBytes` bigint NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `IX_MediaRecordings_Status_Created` (`Status`,`CreatedAtUtc`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table mediarecordings
+--
+
+/*!40000 ALTER TABLE `mediarecordings` DISABLE KEYS */;
+/*!40000 ALTER TABLE `mediarecordings` ENABLE KEYS */;
+
+--
+-- Definition of mediarecordingchunks
+--
+
+DROP TABLE IF EXISTS `mediarecordingchunks`;
+CREATE TABLE IF NOT EXISTS `mediarecordingchunks` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `MediaRecordingId` bigint NOT NULL,
+  `Sequence` int NOT NULL,
+  `OffsetMilliseconds` bigint NOT NULL,
+  `DurationMilliseconds` bigint NOT NULL,
+  `UncompressedSizeBytes` int NOT NULL,
+  `Payload` longblob NOT NULL,
+  `CreatedAtUtc` datetime NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_MediaRecordingChunks_Recording_Sequence` (`MediaRecordingId`,`Sequence`),
+  CONSTRAINT `FK_MediaRecordingChunks_MediaRecordings` FOREIGN KEY (`MediaRecordingId`) REFERENCES `mediarecordings` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table mediarecordingchunks
+--
+
+/*!40000 ALTER TABLE `mediarecordingchunks` DISABLE KEYS */;
+/*!40000 ALTER TABLE `mediarecordingchunks` ENABLE KEYS */;
+
+--
+-- Definition of mediarecordingreferences
+--
+
+DROP TABLE IF EXISTS `mediarecordingreferences`;
+CREATE TABLE IF NOT EXISTS `mediarecordingreferences` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `GameItemComponentId` bigint NOT NULL,
+  `MediaRecordingId` bigint NOT NULL,
+  `Name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `PubliclyAccessible` bit(1) NOT NULL,
+  `CreatedAtUtc` datetime NOT NULL,
+  `LastModifiedAtUtc` datetime NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_MediaRecordingReferences_Component_Name` (`GameItemComponentId`,`Name`),
+  KEY `FK_MediaRecordingReferences_MediaRecordings_idx` (`MediaRecordingId`),
+  CONSTRAINT `FK_MediaRecordingReferences_GameItemComponents` FOREIGN KEY (`GameItemComponentId`) REFERENCES `gameitemcomponents` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_MediaRecordingReferences_MediaRecordings` FOREIGN KEY (`MediaRecordingId`) REFERENCES `mediarecordings` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table mediarecordingreferences
+--
+
+/*!40000 ALTER TABLE `mediarecordingreferences` DISABLE KEYS */;
+/*!40000 ALTER TABLE `mediarecordingreferences` ENABLE KEYS */;
+
+--
+-- Definition of mediascenesnapshots
+--
+
+DROP TABLE IF EXISTS `mediascenesnapshots`;
+CREATE TABLE IF NOT EXISTS `mediascenesnapshots` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `ContentHash` char(64) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `UncompressedSizeBytes` int NOT NULL,
+  `Payload` longblob NOT NULL,
+  `CreatedAtUtc` datetime NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_MediaSceneSnapshots_ContentHash` (`ContentHash`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table mediascenesnapshots
+--
+
+/*!40000 ALTER TABLE `mediascenesnapshots` DISABLE KEYS */;
+/*!40000 ALTER TABLE `mediascenesnapshots` ENABLE KEYS */;
+
+--
+-- Definition of mediarecordingframes
+--
+
+DROP TABLE IF EXISTS `mediarecordingframes`;
+CREATE TABLE IF NOT EXISTS `mediarecordingframes` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `MediaRecordingId` bigint NOT NULL,
+  `MediaSceneSnapshotId` bigint NOT NULL,
+  `StartOffsetMilliseconds` bigint NOT NULL,
+  `EndOffsetMilliseconds` bigint NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_MediaRecordingFrames_MediaSceneSnapshots_idx` (`MediaSceneSnapshotId`),
+  KEY `IX_MediaRecordingFrames_Recording_Offset` (`MediaRecordingId`,`StartOffsetMilliseconds`),
+  CONSTRAINT `FK_MediaRecordingFrames_MediaRecordings` FOREIGN KEY (`MediaRecordingId`) REFERENCES `mediarecordings` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_MediaRecordingFrames_MediaSceneSnapshots` FOREIGN KEY (`MediaSceneSnapshotId`) REFERENCES `mediascenesnapshots` (`Id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table mediarecordingframes
+--
+
+/*!40000 ALTER TABLE `mediarecordingframes` DISABLE KEYS */;
+/*!40000 ALTER TABLE `mediarecordingframes` ENABLE KEYS */;
+
+--
 -- Definition of merits
 --
 
@@ -5767,6 +5894,25 @@ CREATE TABLE IF NOT EXISTS `noncardinalexittemplates` (
 
 /*!40000 ALTER TABLE `noncardinalexittemplates` DISABLE KEYS */;
 /*!40000 ALTER TABLE `noncardinalexittemplates` ENABLE KEYS */;
+
+--
+-- Definition of npcskillpackages
+--
+
+DROP TABLE IF EXISTS `npcskillpackages`;
+CREATE TABLE IF NOT EXISTS `npcskillpackages` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_NPCSkillPackages_Name` (`Name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table npcskillpackages
+--
+
+/*!40000 ALTER TABLE `npcskillpackages` DISABLE KEYS */;
+/*!40000 ALTER TABLE `npcskillpackages` ENABLE KEYS */;
 
 --
 -- Definition of npcspawners
@@ -6976,6 +7122,27 @@ CREATE TABLE IF NOT EXISTS `races_ediblematerials` (
 /*!40000 ALTER TABLE `races_ediblematerials` ENABLE KEYS */;
 
 --
+-- Definition of races_npcskillpackages
+--
+
+DROP TABLE IF EXISTS `races_npcskillpackages`;
+CREATE TABLE IF NOT EXISTS `races_npcskillpackages` (
+  `RaceId` bigint NOT NULL,
+  `NpcSkillPackageId` bigint NOT NULL,
+  PRIMARY KEY (`RaceId`,`NpcSkillPackageId`),
+  KEY `IX_Races_NPCSkillPackages_NpcSkillPackageId` (`NpcSkillPackageId`),
+  CONSTRAINT `FK_RacesNPCSkillPackages_Packages` FOREIGN KEY (`NpcSkillPackageId`) REFERENCES `npcskillpackages` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_RacesNPCSkillPackages_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table races_npcskillpackages
+--
+
+/*!40000 ALTER TABLE `races_npcskillpackages` DISABLE KEYS */;
+/*!40000 ALTER TABLE `races_npcskillpackages` ENABLE KEYS */;
+
+--
 -- Definition of races_removebreathablegases
 --
 
@@ -7575,6 +7742,8 @@ CREATE TABLE IF NOT EXISTS `characters` (
   `CustomDistantAlertEmote` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `RoutePosition` decimal(18,3) DEFAULT NULL,
   `ProjectLabourQueueLooping` tinyint(1) NOT NULL DEFAULT '0',
+  `CurrentSignedLanguageId` bigint DEFAULT NULL,
+  `CurrentSignedLanguageVarietyId` bigint DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `FK_Characters_Accounts` (`AccountId`),
   KEY `FK_Characters_Bodies` (`BodyId`),
@@ -7589,6 +7758,8 @@ CREATE TABLE IF NOT EXISTS `characters` (
   KEY `FK_Characters_Languages_Written_idx` (`CurrentWritingLanguageId`),
   KEY `FK_Characters_Cells` (`Location`),
   KEY `IX_Characters_Location_Layer_RoutePosition` (`Location`,`RoomLayer`,`RoutePosition`),
+  KEY `FK_Characters_CurrentSignedLanguage_idx` (`CurrentSignedLanguageId`),
+  KEY `FK_Characters_CurrentSignedLanguageVariety_idx` (`CurrentSignedLanguageVarietyId`),
   CONSTRAINT `FK_Characters_Accents` FOREIGN KEY (`CurrentAccentId`) REFERENCES `accents` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Characters_Accounts` FOREIGN KEY (`AccountId`) REFERENCES `accounts` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Characters_ActiveProjects` FOREIGN KEY (`CurrentProjectId`) REFERENCES `activeprojects` (`Id`) ON DELETE SET NULL,
@@ -7597,6 +7768,8 @@ CREATE TABLE IF NOT EXISTS `characters` (
   CONSTRAINT `FK_Characters_Chargens` FOREIGN KEY (`ChargenId`) REFERENCES `chargens` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Characters_Cultures` FOREIGN KEY (`CultureId`) REFERENCES `cultures` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Characters_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_Characters_CurrentSignedLanguage` FOREIGN KEY (`CurrentSignedLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Characters_CurrentSignedLanguageVariety` FOREIGN KEY (`CurrentSignedLanguageVarietyId`) REFERENCES `signedlanguagevarieties` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Characters_Languages_Spoken` FOREIGN KEY (`CurrentLanguageId`) REFERENCES `languages` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Characters_Languages_Written` FOREIGN KEY (`CurrentWritingLanguageId`) REFERENCES `languages` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Characters_ProjectLabourRequirements` FOREIGN KEY (`CurrentProjectLabourId`) REFERENCES `projectlabourrequirements` (`Id`) ON DELETE SET NULL,
@@ -8124,6 +8297,7 @@ CREATE TABLE IF NOT EXISTS `crimes` (
   `GoodBehaviourBond` double NOT NULL DEFAULT '0',
   `SentenceHasBeenServed` bit(1) NOT NULL DEFAULT b'0',
   `AdditionalInformation` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `WitnessMemory` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   PRIMARY KEY (`Id`),
   KEY `FK_Crimes_Accuser_idx` (`AccuserId`),
   KEY `FK_Crimes_Criminal_idx` (`CriminalId`),
@@ -8749,6 +8923,7 @@ CREATE TABLE IF NOT EXISTS `staticconfigurations` (
 --
 
 /*!40000 ALTER TABLE `staticconfigurations` DISABLE KEYS */;
+INSERT INTO `staticconfigurations`(`SettingName`,`Definition`) VALUES('EconomyAnalyticsRolloverSnapshotsEnabled','true'),('EconomyAnalyticsSnapshotIntervalMinutes','1440'),('EconomyAnalyticsSnapshotsEnabled','true');
 /*!40000 ALTER TABLE `staticconfigurations` ENABLE KEYS */;
 
 --
@@ -9408,6 +9583,55 @@ CREATE TABLE IF NOT EXISTS `financialperiods` (
 /*!40000 ALTER TABLE `financialperiods` ENABLE KEYS */;
 
 --
+-- Definition of economicactivityrecords
+--
+
+DROP TABLE IF EXISTS `economicactivityrecords`;
+CREATE TABLE IF NOT EXISTS `economicactivityrecords` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RealDateTime` datetime NOT NULL,
+  `EconomicZoneId` bigint DEFAULT NULL,
+  `CurrencyId` bigint NOT NULL,
+  `FinancialPeriodId` bigint DEFAULT NULL,
+  `MudCalendarId` bigint DEFAULT NULL,
+  `MudYear` int DEFAULT NULL,
+  `MudMonth` int DEFAULT NULL,
+  `MudWeek` int DEFAULT NULL,
+  `MudDay` int DEFAULT NULL,
+  `MudDateTime` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ActivityType` int NOT NULL,
+  `VolumeClassification` int NOT NULL,
+  `Amount` decimal(58,29) NOT NULL,
+  `GlobalBaseValue` decimal(58,29) NOT NULL,
+  `SourceId` bigint DEFAULT NULL,
+  `SourceType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `SourceControlBucket` int NOT NULL,
+  `DestinationId` bigint DEFAULT NULL,
+  `DestinationType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `DestinationControlBucket` int NOT NULL,
+  `ReferenceId` bigint DEFAULT NULL,
+  `ReferenceType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ReferenceText` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_EconomicActivityRecords_Currencies_idx` (`CurrencyId`),
+  KEY `IX_EconomicActivityRecords_FinancialPeriodId` (`FinancialPeriodId`),
+  KEY `IX_EconomicActivityRecords_MudDate` (`MudCalendarId`,`MudYear`,`MudMonth`,`MudDay`),
+  KEY `IX_EconomicActivityRecords_RealDateTime` (`RealDateTime`),
+  KEY `IX_EconomicActivityRecords_Zone_FinancialPeriod` (`EconomicZoneId`,`FinancialPeriodId`),
+  KEY `IX_EconomicActivityRecords_Zone_RealDateTime` (`EconomicZoneId`,`RealDateTime`),
+  CONSTRAINT `FK_EconomicActivityRecords_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_EconomicActivityRecords_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_EconomicActivityRecords_FinancialPeriods` FOREIGN KEY (`FinancialPeriodId`) REFERENCES `financialperiods` (`Id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table economicactivityrecords
+--
+
+/*!40000 ALTER TABLE `economicactivityrecords` DISABLE KEYS */;
+/*!40000 ALTER TABLE `economicactivityrecords` ENABLE KEYS */;
+
+--
 -- Definition of economiczonerevenues
 --
 
@@ -9428,6 +9652,62 @@ CREATE TABLE IF NOT EXISTS `economiczonerevenues` (
 
 /*!40000 ALTER TABLE `economiczonerevenues` DISABLE KEYS */;
 /*!40000 ALTER TABLE `economiczonerevenues` ENABLE KEYS */;
+
+--
+-- Definition of economysnapshots
+--
+
+DROP TABLE IF EXISTS `economysnapshots`;
+CREATE TABLE IF NOT EXISTS `economysnapshots` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RealDateTime` datetime NOT NULL,
+  `EconomicZoneId` bigint DEFAULT NULL,
+  `FinancialPeriodId` bigint DEFAULT NULL,
+  `MudDateTime` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Reason` int NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_EconomySnapshots_Zone_Period_Reason` (`EconomicZoneId`,`FinancialPeriodId`,`Reason`),
+  KEY `IX_EconomySnapshots_FinancialPeriodId` (`FinancialPeriodId`),
+  KEY `IX_EconomySnapshots_RealDateTime` (`RealDateTime`),
+  KEY `IX_EconomySnapshots_Zone_RealDateTime` (`EconomicZoneId`,`RealDateTime`),
+  CONSTRAINT `FK_EconomySnapshots_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_EconomySnapshots_FinancialPeriods` FOREIGN KEY (`FinancialPeriodId`) REFERENCES `financialperiods` (`Id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table economysnapshots
+--
+
+/*!40000 ALTER TABLE `economysnapshots` DISABLE KEYS */;
+/*!40000 ALTER TABLE `economysnapshots` ENABLE KEYS */;
+
+--
+-- Definition of economysnapshotentries
+--
+
+DROP TABLE IF EXISTS `economysnapshotentries`;
+CREATE TABLE IF NOT EXISTS `economysnapshotentries` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `EconomySnapshotId` bigint NOT NULL,
+  `CurrencyId` bigint NOT NULL,
+  `Metric` int NOT NULL,
+  `ControlBucket` int NOT NULL,
+  `Amount` decimal(58,29) NOT NULL,
+  `GlobalBaseValue` decimal(58,29) NOT NULL,
+  `EntityCount` int NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_EconomySnapshotEntries_Snapshots_idx` (`EconomySnapshotId`),
+  KEY `IX_EconomySnapshotEntries_Currency_Metric_Control` (`CurrencyId`,`Metric`,`ControlBucket`),
+  CONSTRAINT `FK_EconomySnapshotEntries_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_EconomySnapshotEntries_Snapshots` FOREIGN KEY (`EconomySnapshotId`) REFERENCES `economysnapshots` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table economysnapshotentries
+--
+
+/*!40000 ALTER TABLE `economysnapshotentries` DISABLE KEYS */;
+/*!40000 ALTER TABLE `economysnapshotentries` ENABLE KEYS */;
 
 --
 -- Definition of hospitals
@@ -10991,6 +11271,31 @@ CREATE TABLE IF NOT EXISTS `mutualintelligabilities` (
 /*!40000 ALTER TABLE `mutualintelligabilities` ENABLE KEYS */;
 
 --
+-- Definition of npcskillpackageskills
+--
+
+DROP TABLE IF EXISTS `npcskillpackageskills`;
+CREATE TABLE IF NOT EXISTS `npcskillpackageskills` (
+  `NpcSkillPackageId` bigint NOT NULL,
+  `TraitDefinitionId` bigint NOT NULL,
+  `Chance` double NOT NULL,
+  `Mean` double NOT NULL,
+  `StandardDeviation` double NOT NULL,
+  `Skewness` double NOT NULL,
+  PRIMARY KEY (`NpcSkillPackageId`,`TraitDefinitionId`),
+  KEY `FK_NPCSkillPackageSkills_Traits_idx` (`TraitDefinitionId`),
+  CONSTRAINT `FK_NPCSkillPackageSkills_Packages` FOREIGN KEY (`NpcSkillPackageId`) REFERENCES `npcskillpackages` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_NPCSkillPackageSkills_Traits` FOREIGN KEY (`TraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table npcskillpackageskills
+--
+
+/*!40000 ALTER TABLE `npcskillpackageskills` DISABLE KEYS */;
+/*!40000 ALTER TABLE `npcskillpackageskills` ENABLE KEYS */;
+
+--
 -- Definition of racebutcheryprofiles_breakdownchecks
 --
 
@@ -11139,6 +11444,170 @@ CREATE TABLE IF NOT EXISTS `shieldtypes` (
 
 /*!40000 ALTER TABLE `shieldtypes` DISABLE KEYS */;
 /*!40000 ALTER TABLE `shieldtypes` ENABLE KEYS */;
+
+--
+-- Definition of signedlanguages
+--
+
+DROP TABLE IF EXISTS `signedlanguages`;
+CREATE TABLE IF NOT EXISTS `signedlanguages` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `DifficultyModelId` bigint NOT NULL,
+  `LinkedTraitId` bigint NOT NULL,
+  `UnknownLanguageDescription` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `LanguageObfuscationFactor` double NOT NULL DEFAULT '0.2',
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_SignedLanguages_Name` (`Name`),
+  KEY `FK_SignedLanguages_DifficultyModels_idx` (`DifficultyModelId`),
+  KEY `FK_SignedLanguages_TraitDefinitions_idx` (`LinkedTraitId`),
+  CONSTRAINT `FK_SignedLanguages_DifficultyModels` FOREIGN KEY (`DifficultyModelId`) REFERENCES `languagedifficultymodels` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_SignedLanguages_TraitDefinitions` FOREIGN KEY (`LinkedTraitId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table signedlanguages
+--
+
+/*!40000 ALTER TABLE `signedlanguages` DISABLE KEYS */;
+/*!40000 ALTER TABLE `signedlanguages` ENABLE KEYS */;
+
+--
+-- Definition of characters_signedlanguages
+--
+
+DROP TABLE IF EXISTS `characters_signedlanguages`;
+CREATE TABLE IF NOT EXISTS `characters_signedlanguages` (
+  `CharacterId` bigint NOT NULL,
+  `SignedLanguageId` bigint NOT NULL,
+  PRIMARY KEY (`CharacterId`,`SignedLanguageId`),
+  KEY `FK_Characters_SignedLanguages_Languages_idx` (`SignedLanguageId`),
+  CONSTRAINT `FK_Characters_SignedLanguages_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Characters_SignedLanguages_Languages` FOREIGN KEY (`SignedLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table characters_signedlanguages
+--
+
+/*!40000 ALTER TABLE `characters_signedlanguages` DISABLE KEYS */;
+/*!40000 ALTER TABLE `characters_signedlanguages` ENABLE KEYS */;
+
+--
+-- Definition of signedlanguagearticulationprofiles
+--
+
+DROP TABLE IF EXISTS `signedlanguagearticulationprofiles`;
+CREATE TABLE IF NOT EXISTS `signedlanguagearticulationprofiles` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `SignedLanguageId` bigint NOT NULL,
+  `BodyPrototypeId` bigint NOT NULL,
+  `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_SignedLanguageArticulationProfiles_Language_Name` (`SignedLanguageId`,`Name`),
+  KEY `FK_SignedLanguageArticulationProfiles_BodyProtos_idx` (`BodyPrototypeId`),
+  CONSTRAINT `FK_SignedLanguageArticulationProfiles_BodyProtos` FOREIGN KEY (`BodyPrototypeId`) REFERENCES `bodyprotos` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_SignedLanguageArticulationProfiles_Languages` FOREIGN KEY (`SignedLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table signedlanguagearticulationprofiles
+--
+
+/*!40000 ALTER TABLE `signedlanguagearticulationprofiles` DISABLE KEYS */;
+/*!40000 ALTER TABLE `signedlanguagearticulationprofiles` ENABLE KEYS */;
+
+--
+-- Definition of signedlanguagearticulationrequirements
+--
+
+DROP TABLE IF EXISTS `signedlanguagearticulationrequirements`;
+CREATE TABLE IF NOT EXISTS `signedlanguagearticulationrequirements` (
+  `ArticulationProfileId` bigint NOT NULL,
+  `BodypartShapeId` bigint NOT NULL,
+  `MinimumCount` int NOT NULL,
+  `PreferredCount` int NOT NULL,
+  PRIMARY KEY (`ArticulationProfileId`,`BodypartShapeId`),
+  KEY `FK_SignedLanguageArticulationRequirements_BodypartShapes_idx` (`BodypartShapeId`),
+  CONSTRAINT `FK_SignedLanguageArticulationRequirements_BodypartShapes` FOREIGN KEY (`BodypartShapeId`) REFERENCES `bodypartshape` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_SignedLanguageArticulationRequirements_Profiles` FOREIGN KEY (`ArticulationProfileId`) REFERENCES `signedlanguagearticulationprofiles` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table signedlanguagearticulationrequirements
+--
+
+/*!40000 ALTER TABLE `signedlanguagearticulationrequirements` DISABLE KEYS */;
+/*!40000 ALTER TABLE `signedlanguagearticulationrequirements` ENABLE KEYS */;
+
+--
+-- Definition of signedlanguagemutualintelligibilities
+--
+
+DROP TABLE IF EXISTS `signedlanguagemutualintelligibilities`;
+CREATE TABLE IF NOT EXISTS `signedlanguagemutualintelligibilities` (
+  `ListenerLanguageId` bigint NOT NULL,
+  `TargetLanguageId` bigint NOT NULL,
+  `IntelligibilityDifficulty` int NOT NULL,
+  PRIMARY KEY (`ListenerLanguageId`,`TargetLanguageId`),
+  KEY `FK_SignedLanguageMutual_Target_idx` (`TargetLanguageId`),
+  CONSTRAINT `FK_SignedLanguageMutual_Listener` FOREIGN KEY (`ListenerLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_SignedLanguageMutual_Target` FOREIGN KEY (`TargetLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table signedlanguagemutualintelligibilities
+--
+
+/*!40000 ALTER TABLE `signedlanguagemutualintelligibilities` DISABLE KEYS */;
+/*!40000 ALTER TABLE `signedlanguagemutualintelligibilities` ENABLE KEYS */;
+
+--
+-- Definition of signedlanguagevarieties
+--
+
+DROP TABLE IF EXISTS `signedlanguagevarieties`;
+CREATE TABLE IF NOT EXISTS `signedlanguagevarieties` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `SignedLanguageId` bigint NOT NULL,
+  `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Description` varchar(2000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Suffix` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `VagueSuffix` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `RecognitionDifficulty` int NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_SignedLanguageVarieties_Language_Name` (`SignedLanguageId`,`Name`),
+  CONSTRAINT `FK_SignedLanguageVarieties_SignedLanguages` FOREIGN KEY (`SignedLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table signedlanguagevarieties
+--
+
+/*!40000 ALTER TABLE `signedlanguagevarieties` DISABLE KEYS */;
+/*!40000 ALTER TABLE `signedlanguagevarieties` ENABLE KEYS */;
+
+--
+-- Definition of characters_signedlanguagevarieties
+--
+
+DROP TABLE IF EXISTS `characters_signedlanguagevarieties`;
+CREATE TABLE IF NOT EXISTS `characters_signedlanguagevarieties` (
+  `CharacterId` bigint NOT NULL,
+  `SignedLanguageVarietyId` bigint NOT NULL,
+  `Familiarity` int NOT NULL,
+  PRIMARY KEY (`CharacterId`,`SignedLanguageVarietyId`),
+  KEY `FK_Characters_SignedLanguageVarieties_Varieties_idx` (`SignedLanguageVarietyId`),
+  CONSTRAINT `FK_Characters_SignedLanguageVarieties_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Characters_SignedLanguageVarieties_Varieties` FOREIGN KEY (`SignedLanguageVarietyId`) REFERENCES `signedlanguagevarieties` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table characters_signedlanguagevarieties
+--
+
+/*!40000 ALTER TABLE `characters_signedlanguagevarieties` DISABLE KEYS */;
+/*!40000 ALTER TABLE `characters_signedlanguagevarieties` ENABLE KEYS */;
 
 --
 -- Definition of surgicalprocedures
@@ -13237,11 +13706,13 @@ CREATE TABLE IF NOT EXISTS `outfittemplateitems` (
   `ContainerKey` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `LoadArguments` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `WearOrder` int NOT NULL,
+  `SkinId` bigint DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `IX_OutfitTemplateItems_Template_Key` (`OutfitTemplateId`,`TemplateKey`),
   KEY `FK_OutfitTemplateItems_OutfitTemplates_idx` (`OutfitTemplateId`),
   KEY `FK_OutfitTemplateItems_WearProfiles_idx` (`WearProfileId`),
   KEY `IX_OutfitTemplateItems_GameItemProtoId` (`GameItemProtoId`),
+  KEY `IX_OutfitTemplateItems_SkinId` (`SkinId`),
   CONSTRAINT `FK_OutfitTemplateItems_OutfitTemplates` FOREIGN KEY (`OutfitTemplateId`) REFERENCES `outfittemplates` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_OutfitTemplateItems_WearProfiles` FOREIGN KEY (`WearProfileId`) REFERENCES `wearprofiles` (`Id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -15192,659 +15663,5 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 
--- Dump completed on 2026-08-28 00:37:26
--- Total time: 0:0:0:1:475 (d:h:m:s:ms)
-
--- EF-generated idempotent delta for 20260828014622_AddNPCSkillPackages
-START TRANSACTION;
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260828014622_AddNPCSkillPackages') THEN
-        CREATE TABLE `npcskillpackages` (
-            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-            `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`)
-        ) CHARACTER SET=utf8mb4;
-
-        CREATE TABLE `npcskillpackageskills` (
-            `NpcSkillPackageId` bigint(20) NOT NULL,
-            `TraitDefinitionId` bigint(20) NOT NULL,
-            `Chance` double NOT NULL,
-            `Mean` double NOT NULL,
-            `StandardDeviation` double NOT NULL,
-            `Skewness` double NOT NULL,
-            CONSTRAINT `PRIMARY` PRIMARY KEY (`NpcSkillPackageId`, `TraitDefinitionId`),
-            CONSTRAINT `FK_NPCSkillPackageSkills_Packages` FOREIGN KEY (`NpcSkillPackageId`) REFERENCES `npcskillpackages` (`Id`) ON DELETE CASCADE,
-            CONSTRAINT `FK_NPCSkillPackageSkills_Traits` FOREIGN KEY (`TraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
-        ) CHARACTER SET=utf8mb4;
-
-        CREATE TABLE `races_npcskillpackages` (
-            `RaceId` bigint(20) NOT NULL,
-            `NpcSkillPackageId` bigint(20) NOT NULL,
-            CONSTRAINT `PRIMARY` PRIMARY KEY (`RaceId`, `NpcSkillPackageId`),
-            CONSTRAINT `FK_RacesNPCSkillPackages_Packages` FOREIGN KEY (`NpcSkillPackageId`) REFERENCES `npcskillpackages` (`Id`) ON DELETE CASCADE,
-            CONSTRAINT `FK_RacesNPCSkillPackages_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE
-        ) CHARACTER SET=utf8mb4;
-
-        CREATE UNIQUE INDEX `UX_NPCSkillPackages_Name` ON `npcskillpackages` (`Name`);
-        CREATE INDEX `FK_NPCSkillPackageSkills_Traits_idx` ON `npcskillpackageskills` (`TraitDefinitionId`);
-        CREATE INDEX `IX_Races_NPCSkillPackages_NpcSkillPackageId` ON `races_npcskillpackages` (`NpcSkillPackageId`);
-
-        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
-        VALUES ('20260828014622_AddNPCSkillPackages', '9.0.11');
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-COMMIT;
-
--- EF-generated idempotent delta for 20260904111218_AddEconomyAnalytics
-START TRANSACTION;
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260904111218_AddEconomyAnalytics') THEN
-        CREATE TABLE `economicactivityrecords` (
-            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-            `RealDateTime` datetime NOT NULL,
-            `EconomicZoneId` bigint(20) NULL,
-            `CurrencyId` bigint(20) NOT NULL,
-            `FinancialPeriodId` bigint(20) NULL,
-            `MudCalendarId` bigint(20) NULL,
-            `MudYear` int(11) NULL,
-            `MudMonth` int(11) NULL,
-            `MudWeek` int(11) NULL,
-            `MudDay` int(11) NULL,
-            `MudDateTime` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
-            `ActivityType` int(11) NOT NULL,
-            `VolumeClassification` int(11) NOT NULL,
-            `Amount` decimal(58,29) NOT NULL,
-            `GlobalBaseValue` decimal(58,29) NOT NULL,
-            `SourceId` bigint(20) NULL,
-            `SourceType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
-            `SourceControlBucket` int(11) NOT NULL,
-            `DestinationId` bigint(20) NULL,
-            `DestinationType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
-            `DestinationControlBucket` int(11) NOT NULL,
-            `ReferenceId` bigint(20) NULL,
-            `ReferenceType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
-            `ReferenceText` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
-            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
-            CONSTRAINT `FK_EconomicActivityRecords_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT,
-            CONSTRAINT `FK_EconomicActivityRecords_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE SET NULL,
-            CONSTRAINT `FK_EconomicActivityRecords_FinancialPeriods` FOREIGN KEY (`FinancialPeriodId`) REFERENCES `financialperiods` (`Id`) ON DELETE SET NULL
-        ) CHARACTER SET=utf8mb4;
-
-        CREATE TABLE `economysnapshots` (
-            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-            `RealDateTime` datetime NOT NULL,
-            `EconomicZoneId` bigint(20) NULL,
-            `FinancialPeriodId` bigint(20) NULL,
-            `MudDateTime` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
-            `Reason` int(11) NOT NULL,
-            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
-            CONSTRAINT `FK_EconomySnapshots_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE SET NULL,
-            CONSTRAINT `FK_EconomySnapshots_FinancialPeriods` FOREIGN KEY (`FinancialPeriodId`) REFERENCES `financialperiods` (`Id`) ON DELETE SET NULL
-        ) CHARACTER SET=utf8mb4;
-
-        CREATE TABLE `economysnapshotentries` (
-            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-            `EconomySnapshotId` bigint(20) NOT NULL,
-            `CurrencyId` bigint(20) NOT NULL,
-            `Metric` int(11) NOT NULL,
-            `ControlBucket` int(11) NOT NULL,
-            `Amount` decimal(58,29) NOT NULL,
-            `GlobalBaseValue` decimal(58,29) NOT NULL,
-            `EntityCount` int(11) NOT NULL,
-            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
-            CONSTRAINT `FK_EconomySnapshotEntries_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT,
-            CONSTRAINT `FK_EconomySnapshotEntries_Snapshots` FOREIGN KEY (`EconomySnapshotId`) REFERENCES `economysnapshots` (`Id`) ON DELETE CASCADE
-        ) CHARACTER SET=utf8mb4;
-
-        CREATE INDEX `FK_EconomicActivityRecords_Currencies_idx` ON `economicactivityrecords` (`CurrencyId`);
-        CREATE INDEX `IX_EconomicActivityRecords_FinancialPeriodId` ON `economicactivityrecords` (`FinancialPeriodId`);
-        CREATE INDEX `IX_EconomicActivityRecords_MudDate` ON `economicactivityrecords` (`MudCalendarId`, `MudYear`, `MudMonth`, `MudDay`);
-        CREATE INDEX `IX_EconomicActivityRecords_RealDateTime` ON `economicactivityrecords` (`RealDateTime`);
-        CREATE INDEX `IX_EconomicActivityRecords_Zone_FinancialPeriod` ON `economicactivityrecords` (`EconomicZoneId`, `FinancialPeriodId`);
-        CREATE INDEX `IX_EconomicActivityRecords_Zone_RealDateTime` ON `economicactivityrecords` (`EconomicZoneId`, `RealDateTime`);
-        CREATE INDEX `FK_EconomySnapshotEntries_Snapshots_idx` ON `economysnapshotentries` (`EconomySnapshotId`);
-        CREATE INDEX `IX_EconomySnapshotEntries_Currency_Metric_Control` ON `economysnapshotentries` (`CurrencyId`, `Metric`, `ControlBucket`);
-        CREATE INDEX `IX_EconomySnapshots_FinancialPeriodId` ON `economysnapshots` (`FinancialPeriodId`);
-        CREATE INDEX `IX_EconomySnapshots_RealDateTime` ON `economysnapshots` (`RealDateTime`);
-        CREATE INDEX `IX_EconomySnapshots_Zone_RealDateTime` ON `economysnapshots` (`EconomicZoneId`, `RealDateTime`);
-        CREATE UNIQUE INDEX `UX_EconomySnapshots_Zone_Period_Reason` ON `economysnapshots` (`EconomicZoneId`, `FinancialPeriodId`, `Reason`);
-
-        INSERT INTO `staticconfigurations` (`SettingName`, `Definition`) VALUES
-            ('EconomyAnalyticsSnapshotsEnabled', 'true'),
-            ('EconomyAnalyticsSnapshotIntervalMinutes', '1440'),
-            ('EconomyAnalyticsRolloverSnapshotsEnabled', 'true');
-
-        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
-        VALUES ('20260904111218_AddEconomyAnalytics', '9.0.11');
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-COMMIT;
-
--- EF-generated idempotent delta: 20260829031447_AddSignedLanguageCommunication
-START TRANSACTION;
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    ALTER TABLE `characters` ADD `CurrentSignedLanguageId` bigint(20) NULL;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    ALTER TABLE `characters` ADD `CurrentSignedLanguageVarietyId` bigint(20) NULL;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE TABLE `signedlanguages` (
-        `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-        `Name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-        `DifficultyModelId` bigint(20) NOT NULL,
-        `LinkedTraitId` bigint(20) NOT NULL,
-        `UnknownLanguageDescription` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-        `LanguageObfuscationFactor` double NOT NULL DEFAULT 0.20000000000000001,
-        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
-        CONSTRAINT `FK_SignedLanguages_DifficultyModels` FOREIGN KEY (`DifficultyModelId`) REFERENCES `languagedifficultymodels` (`Id`) ON DELETE RESTRICT,
-        CONSTRAINT `FK_SignedLanguages_TraitDefinitions` FOREIGN KEY (`LinkedTraitId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE TABLE `characters_signedlanguages` (
-        `CharacterId` bigint(20) NOT NULL,
-        `SignedLanguageId` bigint(20) NOT NULL,
-        CONSTRAINT `PRIMARY` PRIMARY KEY (`CharacterId`, `SignedLanguageId`),
-        CONSTRAINT `FK_Characters_SignedLanguages_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
-        CONSTRAINT `FK_Characters_SignedLanguages_Languages` FOREIGN KEY (`SignedLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE TABLE `signedlanguagearticulationprofiles` (
-        `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-        `SignedLanguageId` bigint(20) NOT NULL,
-        `BodyPrototypeId` bigint(20) NOT NULL,
-        `Name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
-        CONSTRAINT `FK_SignedLanguageArticulationProfiles_BodyProtos` FOREIGN KEY (`BodyPrototypeId`) REFERENCES `bodyprotos` (`Id`) ON DELETE RESTRICT,
-        CONSTRAINT `FK_SignedLanguageArticulationProfiles_Languages` FOREIGN KEY (`SignedLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE TABLE `signedlanguagemutualintelligibilities` (
-        `ListenerLanguageId` bigint(20) NOT NULL,
-        `TargetLanguageId` bigint(20) NOT NULL,
-        `IntelligibilityDifficulty` int NOT NULL,
-        CONSTRAINT `PRIMARY` PRIMARY KEY (`ListenerLanguageId`, `TargetLanguageId`),
-        CONSTRAINT `FK_SignedLanguageMutual_Listener` FOREIGN KEY (`ListenerLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE,
-        CONSTRAINT `FK_SignedLanguageMutual_Target` FOREIGN KEY (`TargetLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE TABLE `signedlanguagevarieties` (
-        `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-        `SignedLanguageId` bigint(20) NOT NULL,
-        `Name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-        `Description` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-        `Suffix` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-        `VagueSuffix` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-        `RecognitionDifficulty` int NOT NULL,
-        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
-        CONSTRAINT `FK_SignedLanguageVarieties_SignedLanguages` FOREIGN KEY (`SignedLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE CASCADE
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE TABLE `signedlanguagearticulationrequirements` (
-        `ArticulationProfileId` bigint(20) NOT NULL,
-        `BodypartShapeId` bigint(20) NOT NULL,
-        `MinimumCount` int NOT NULL,
-        `PreferredCount` int NOT NULL,
-        CONSTRAINT `PRIMARY` PRIMARY KEY (`ArticulationProfileId`, `BodypartShapeId`),
-        CONSTRAINT `FK_SignedLanguageArticulationRequirements_BodypartShapes` FOREIGN KEY (`BodypartShapeId`) REFERENCES `bodypartshape` (`Id`) ON DELETE RESTRICT,
-        CONSTRAINT `FK_SignedLanguageArticulationRequirements_Profiles` FOREIGN KEY (`ArticulationProfileId`) REFERENCES `signedlanguagearticulationprofiles` (`Id`) ON DELETE CASCADE
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE TABLE `characters_signedlanguagevarieties` (
-        `CharacterId` bigint(20) NOT NULL,
-        `SignedLanguageVarietyId` bigint(20) NOT NULL,
-        `Familiarity` int NOT NULL,
-        CONSTRAINT `PRIMARY` PRIMARY KEY (`CharacterId`, `SignedLanguageVarietyId`),
-        CONSTRAINT `FK_Characters_SignedLanguageVarieties_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
-        CONSTRAINT `FK_Characters_SignedLanguageVarieties_Varieties` FOREIGN KEY (`SignedLanguageVarietyId`) REFERENCES `signedlanguagevarieties` (`Id`) ON DELETE CASCADE
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE INDEX `FK_Characters_CurrentSignedLanguage_idx` ON `characters` (`CurrentSignedLanguageId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE INDEX `FK_Characters_CurrentSignedLanguageVariety_idx` ON `characters` (`CurrentSignedLanguageVarietyId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE INDEX `FK_Characters_SignedLanguages_Languages_idx` ON `characters_signedlanguages` (`SignedLanguageId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE INDEX `FK_Characters_SignedLanguageVarieties_Varieties_idx` ON `characters_signedlanguagevarieties` (`SignedLanguageVarietyId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE INDEX `FK_SignedLanguageArticulationProfiles_BodyProtos_idx` ON `signedlanguagearticulationprofiles` (`BodyPrototypeId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE UNIQUE INDEX `UX_SignedLanguageArticulationProfiles_Language_Name` ON `signedlanguagearticulationprofiles` (`SignedLanguageId`, `Name`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE INDEX `FK_SignedLanguageArticulationRequirements_BodypartShapes_idx` ON `signedlanguagearticulationrequirements` (`BodypartShapeId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE INDEX `FK_SignedLanguageMutual_Target_idx` ON `signedlanguagemutualintelligibilities` (`TargetLanguageId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE INDEX `FK_SignedLanguages_DifficultyModels_idx` ON `signedlanguages` (`DifficultyModelId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE INDEX `FK_SignedLanguages_TraitDefinitions_idx` ON `signedlanguages` (`LinkedTraitId`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE UNIQUE INDEX `UX_SignedLanguages_Name` ON `signedlanguages` (`Name`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    CREATE UNIQUE INDEX `UX_SignedLanguageVarieties_Language_Name` ON `signedlanguagevarieties` (`SignedLanguageId`, `Name`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    ALTER TABLE `characters` ADD CONSTRAINT `FK_Characters_CurrentSignedLanguage` FOREIGN KEY (`CurrentSignedLanguageId`) REFERENCES `signedlanguages` (`Id`) ON DELETE SET NULL;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    ALTER TABLE `characters` ADD CONSTRAINT `FK_Characters_CurrentSignedLanguageVariety` FOREIGN KEY (`CurrentSignedLanguageVarietyId`) REFERENCES `signedlanguagevarieties` (`Id`) ON DELETE SET NULL;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829031447_AddSignedLanguageCommunication') THEN
-
-    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
-    VALUES ('20260829031447_AddSignedLanguageCommunication', '9.0.11');
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-COMMIT;
-
--- EF-generated idempotent delta for 20260829082253_AddOutfitTemplateItemSkin
-START TRANSACTION;
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260829082253_AddOutfitTemplateItemSkin') THEN
-        ALTER TABLE `outfittemplateitems` ADD `SkinId` bigint(20) NULL;
-        CREATE INDEX `IX_OutfitTemplateItems_SkinId` ON `outfittemplateitems` (`SkinId`);
-
-        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
-        VALUES ('20260829082253_AddOutfitTemplateItemSkin', '9.0.11');
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-COMMIT;
-
--- EF-generated idempotent delta for 20260830080041_AddGameItemProtoRefrigerationSensitivity
-START TRANSACTION;
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260830080041_AddGameItemProtoRefrigerationSensitivity') THEN
-        ALTER TABLE `gameitemprotos` ADD `RefrigerationSensitive` bit(1) NOT NULL DEFAULT b'0';
-
-        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
-        VALUES ('20260830080041_AddGameItemProtoRefrigerationSensitivity', '9.0.11');
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-COMMIT;
-
--- EF-generated idempotent delta for 20260830121659_AddMediaRecordingStorage
-START TRANSACTION;
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260830121659_AddMediaRecordingStorage') THEN
-        CREATE TABLE `mediarecordings` (
-            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-            `SchemaVersion` int(11) NOT NULL DEFAULT 1,
-            `Capabilities` int(11) NOT NULL,
-            `Status` int(11) NOT NULL,
-            `Name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            `CreatedAtUtc` datetime NOT NULL,
-            `FinalisedAtUtc` datetime NULL,
-            `DurationMilliseconds` bigint(20) NOT NULL,
-            `LogicalSizeInBytes` bigint(20) NOT NULL,
-            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`)
-        ) CHARACTER SET=utf8mb4;
-
-        CREATE TABLE `mediascenesnapshots` (
-            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-            `ContentHash` char(64) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
-            `UncompressedSizeBytes` int(11) NOT NULL,
-            `Payload` longblob NOT NULL,
-            `CreatedAtUtc` datetime NOT NULL,
-            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`)
-        ) CHARACTER SET=utf8mb4;
-
-        CREATE TABLE `mediarecordingchunks` (
-            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-            `MediaRecordingId` bigint(20) NOT NULL,
-            `Sequence` int(11) NOT NULL,
-            `OffsetMilliseconds` bigint(20) NOT NULL,
-            `DurationMilliseconds` bigint(20) NOT NULL,
-            `UncompressedSizeBytes` int(11) NOT NULL,
-            `Payload` longblob NOT NULL,
-            `CreatedAtUtc` datetime NOT NULL,
-            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
-            CONSTRAINT `FK_MediaRecordingChunks_MediaRecordings` FOREIGN KEY (`MediaRecordingId`) REFERENCES `mediarecordings` (`Id`) ON DELETE CASCADE
-        ) CHARACTER SET=utf8mb4;
-
-        CREATE TABLE `mediarecordingreferences` (
-            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-            `GameItemComponentId` bigint(20) NOT NULL,
-            `MediaRecordingId` bigint(20) NOT NULL,
-            `Name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            `PubliclyAccessible` bit(1) NOT NULL,
-            `CreatedAtUtc` datetime NOT NULL,
-            `LastModifiedAtUtc` datetime NOT NULL,
-            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
-            CONSTRAINT `FK_MediaRecordingReferences_GameItemComponents` FOREIGN KEY (`GameItemComponentId`) REFERENCES `gameitemcomponents` (`Id`) ON DELETE CASCADE,
-            CONSTRAINT `FK_MediaRecordingReferences_MediaRecordings` FOREIGN KEY (`MediaRecordingId`) REFERENCES `mediarecordings` (`Id`) ON DELETE CASCADE
-        ) CHARACTER SET=utf8mb4;
-
-        CREATE TABLE `mediarecordingframes` (
-            `Id` bigint(20) NOT NULL AUTO_INCREMENT,
-            `MediaRecordingId` bigint(20) NOT NULL,
-            `MediaSceneSnapshotId` bigint(20) NOT NULL,
-            `StartOffsetMilliseconds` bigint(20) NOT NULL,
-            `EndOffsetMilliseconds` bigint(20) NOT NULL,
-            CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
-            CONSTRAINT `FK_MediaRecordingFrames_MediaRecordings` FOREIGN KEY (`MediaRecordingId`) REFERENCES `mediarecordings` (`Id`) ON DELETE CASCADE,
-            CONSTRAINT `FK_MediaRecordingFrames_MediaSceneSnapshots` FOREIGN KEY (`MediaSceneSnapshotId`) REFERENCES `mediascenesnapshots` (`Id`) ON DELETE RESTRICT
-        ) CHARACTER SET=utf8mb4;
-
-        CREATE UNIQUE INDEX `UX_MediaRecordingChunks_Recording_Sequence` ON `mediarecordingchunks` (`MediaRecordingId`, `Sequence`);
-        CREATE INDEX `FK_MediaRecordingFrames_MediaSceneSnapshots_idx` ON `mediarecordingframes` (`MediaSceneSnapshotId`);
-        CREATE INDEX `IX_MediaRecordingFrames_Recording_Offset` ON `mediarecordingframes` (`MediaRecordingId`, `StartOffsetMilliseconds`);
-        CREATE INDEX `FK_MediaRecordingReferences_MediaRecordings_idx` ON `mediarecordingreferences` (`MediaRecordingId`);
-        CREATE UNIQUE INDEX `UX_MediaRecordingReferences_Component_Name` ON `mediarecordingreferences` (`GameItemComponentId`, `Name`);
-        CREATE INDEX `IX_MediaRecordings_Status_Created` ON `mediarecordings` (`Status`, `CreatedAtUtc`);
-        CREATE UNIQUE INDEX `UX_MediaSceneSnapshots_ContentHash` ON `mediascenesnapshots` (`ContentHash`);
-
-        INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
-        VALUES ('20260830121659_AddMediaRecordingStorage', '9.0.11');
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-COMMIT;
+-- Dump completed on 2026-09-05 18:13:27
+-- Total time: 0:0:0:1:790 (d:h:m:s:ms)

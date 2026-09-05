@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
 using MudSharp.Effects.Concrete;
@@ -690,7 +690,7 @@ public class ChokePower : SustainedMagicPower
             return false;
         }
 
-        if (!double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!double.TryParse(command.SafeRemainingArgument, out double value) || !double.IsFinite(value))
         {
             actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
             return false;
@@ -706,6 +706,11 @@ public class ChokePower : SustainedMagicPower
             return true;
         }
 
+        if (value > MagicBuilderValidation.MaximumResistanceIntervalSeconds)
+        {
+            actor.Send("The resistance interval cannot exceed one day.");
+            return false;
+        }
         ResistCheckInterval = TimeSpan.FromSeconds(value);
 
         TargetGetsResistanceCheck = true;

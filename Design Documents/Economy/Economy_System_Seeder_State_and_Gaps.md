@@ -12,6 +12,8 @@ This document deliberately separates verified current state from recommended fut
 
 ## Current Seeder Reality
 ### Verified current state
+The economy analytics migration supplies three static configuration defaults, which are also included in the blank database snapshot. Core bootstrap preserves existing mandatory settings and adds missing defaults, so these migration-provided rows do not collide with Core installation.
+
 The current repository has two dedicated economy seeders:
 
 - `CurrencySeeder`

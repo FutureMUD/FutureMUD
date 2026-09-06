@@ -1681,7 +1681,7 @@ Among many other small but necessary things, it does the following:
         });
     }
 
-    private static void SeedStaticStringsAndSettings(FuturemudDatabaseContext context, string gameName,
+    internal static void SeedStaticStringsAndSettings(FuturemudDatabaseContext context, string gameName,
         FutureProg cancreateclanprog, FutureProg oncreateclanprog, ItemGroup itemGroup)
     {
         // Add static strings
@@ -2055,9 +2055,19 @@ R) Recover a lost account"
         });
 
 
-        // Add mandatory static configurations
+		// Migrations (and the blank snapshot) may already supply defaults. Preserve those values.
+		var existingSettings = context.StaticConfigurations
+			.Select(x => x.SettingName)
+			.AsEnumerable()
+			.Concat(context.StaticConfigurations.Local.Select(x => x.SettingName))
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (KeyValuePair<string, string> ss in DefaultStaticSettings.DefaultStaticConfigurations)
         {
+			if (!existingSettings.Add(ss.Key))
+			{
+				continue;
+			}
+
             context.StaticConfigurations.Add(new StaticConfiguration { SettingName = ss.Key, Definition = ss.Value });
         }
 

@@ -474,7 +474,7 @@ internal static class DebugSeederReplayProfiles
 				("model", "full"),
 				("random", "static"),
 				("messagestyle", "sparse")),
-			Step<PsionicsSeeder>()
+			Step<PsionicsSeeder>(("install-psionics", "yes"))
 		]);
 	}
 

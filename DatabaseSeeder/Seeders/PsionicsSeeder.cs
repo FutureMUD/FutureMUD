@@ -27,12 +27,14 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 	public IEnumerable<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
 	[
 	];
-	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context) => !context.TraitDefinitions.Any(x => x.Type == 0)
+	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context) => (!context.TraitDefinitions.Any(x => x.Type == 0) || !context.Races.Any(x => x.Name == "Human"))
 		? ShouldSeedResult.PrerequisitesNotMet : context.MagicSchools.Any(x => x.Name == "Basic Psionics")
 			? ShouldSeedResult.MayAlreadyBeInstalled : ShouldSeedResult.ReadyToInstall;
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
+		var human = context.Races.SingleOrDefault(x => x.Name == "Human")
+			?? throw new InvalidOperationException("Psionics requires the organic Human race. Install the Human race foundation first.");
 		using var transaction = context.Database.BeginTransaction();
 		var preserved = new List<string>();
 		FutureProg Prog(string suffix, ProgVariableTypes type, string body)
@@ -100,18 +102,25 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 			var powers = new List<(MagicPower Power, int Band)>();
 			foreach (var stock in PsionicStockContent.Powers.Where(x => !basic || x.Basic))
 			{
-				var powerName = $"{name}: {stock.Verb}";
-				var power = context.MagicPowers.SingleOrDefault(x => x.Name == powerName);
+				var powerName = stock.Name;
+				var legacyName = $"{name}: {stock.Verb}";
+				var power = FindPower(context, school, stock.Verb, powerName, legacyName);
 				if (power is null)
 				{
-					power = new MagicPower { Name = powerName, MagicSchoolId = school.Id, PowerModel = stock.Type, Blurb = stock.Help, ShowHelp = stock.Help,
+					power = new MagicPower { Name = powerName, MagicSchoolId = school.Id, PowerModel = stock.Type, Blurb = stock.Help.Replace("{range}", basic ? "zone" : "shard"), ShowHelp = PsionicPlayerContent.Help(stock.Verb, verb, !basic),
 						Definition = PsionicStockContent.Definition(stock, trait.Id, resource.Id, yes, no, error, normal, identity, eligibility, !basic).ToString() };
 					context.MagicPowers.Add(power); context.SaveChanges();
 				}
 				else
 				{
 					if (power.PowerModel != stock.Type || power.MagicSchoolId != school.Id) throw new InvalidOperationException($"Conflicting power identity: {powerName}.");
+					if (power.Name == legacyName) power.Name = powerName;
+					if (power.Blurb == stock.LegacyHelp || power.Blurb == "Contact a nearby mind; disconnect ends the maintained link.")
+						power.Blurb = stock.Help.Replace("{range}", basic ? "zone" : "shard");
+					if (power.ShowHelp == stock.LegacyHelp || power.ShowHelp == "Contact a nearby mind; disconnect ends the maintained link.")
+						power.ShowHelp = PsionicPlayerContent.Help(stock.Verb, verb, !basic);
 					var definition = XElement.Parse(power.Definition);
+					definition.SetElementValue("SeededIdentity", "psionics:" + stock.Verb);
 					// Repair only known stock placeholders. Independently edited fields remain intact.
 					var desired = PsionicStockContent.Definition(stock, trait.Id, resource.Id, yes, no, error, normal, identity, eligibility, !basic);
 					foreach (var element in definition.Elements().ToList())
@@ -137,7 +146,7 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 				}
 				powers.Add((power, stock.Band));
 			}
-			if (!basic) powers.AddRange(InstallSpellPowers(context, school, trait, resource, yes, no, error));
+			if (!basic) powers.AddRange(InstallSpellPowers(context, school, trait, resource, yes, no, error, human.Id));
 			var capability = context.MagicCapabilities.SingleOrDefault(x => x.Name == name);
 			if (capability is null)
 			{
@@ -150,7 +159,7 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 			else
 			{
 				var definition = XElement.Parse(capability.Definition);
-				foreach (var entry in powers.Where(x => x.Power.Name.EndsWith(": connectback", StringComparison.Ordinal)))
+				foreach (var entry in powers.Where(x => (string?)XElement.Parse(x.Power.Definition).Element("SeededIdentity") == "psionics:connectback"))
 					if (!definition.Elements("Power").Any(x => (long?)x.Attribute("power") == entry.Power.Id))
 						definition.Add(new XElement("Power", new XAttribute("trait", trait.Id), new XAttribute("minvalue", entry.Band), new XAttribute("power", entry.Power.Id)));
 				capability.Definition = definition.ToString();
@@ -160,13 +169,26 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 		return $"Installed missing psionics definitions; preserved {preserved.Count} existing powers. No characters were granted access. Configure school access explicitly. Psychometric impressions and VNPC reporting delay were not enabled.";
 	}
 
+	private static MagicPower? FindPower(FuturemudDatabaseContext context, MagicSchool school, string verb, string name, string legacyName)
+	{
+		var candidates = context.MagicPowers.Where(x => x.MagicSchoolId == school.Id).ToList()
+			.Where(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) || x.Name == legacyName ||
+				(string?)XElement.Parse(x.Definition).Element("SeededIdentity") == "psionics:" + verb).ToList();
+		if (candidates.Count > 1) throw new InvalidOperationException($"Conflicting psionics identities in {school.Name}: {name}.");
+		return candidates.SingleOrDefault();
+	}
+
 	private static IEnumerable<(MagicPower Power, int Band)> InstallSpellPowers(FuturemudDatabaseContext context, MagicSchool school,
-		TraitDefinition trait, MagicResource resource, long yes, long no, long error)
+		TraitDefinition trait, MagicResource resource, long yes, long no, long error, long humanRaceId)
 	{
 		foreach (var (verb, effectType, band, cost, seconds) in PsionicStockContent.SpellPowers)
 		{
 			var name = $"Advanced Psionics: {verb}";
-			var spell = context.MagicSpells.SingleOrDefault(x => x.Name == name);
+			var displayName = PsionicPlayerContent.Powers[verb].Name;
+			var power = FindPower(context, school, verb, displayName, name);
+			var spellId = power is null ? null : (long?)XElement.Parse(power.Definition).Element("Spell");
+			var spell = spellId.HasValue ? context.MagicSpells.SingleOrDefault(x => x.Id == spellId.Value) : context.MagicSpells.SingleOrDefault(x => x.Name == name && x.MagicSchoolId == school.Id);
+			if (spellId.HasValue && spell is null) throw new InvalidOperationException($"Missing backing spell for {displayName}: {spellId.Value}.");
 			var newSpell = spell is null;
 			if (spell is null)
 			{
@@ -183,11 +205,10 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 				var effect = new XElement("Effect", new XAttribute("type", effectType));
 				if (verb == "project")
 				{
-					var race = context.Races.OrderBy(x => x.Id).FirstOrDefault() ?? throw new InvalidOperationException("Projection needs a seeded race.");
-					effect.Add(new XElement("Race", race.Id), new XElement("FormKey", "psionic-astral"));
+					effect.Add(new XElement("Race", humanRaceId), new XElement("FormKey", "psionic-astral"));
 				}
 				if (verb == "illusion") effect.Add(new XElement("Description", "A faint, translucent shimmer veils this figure."), new XElement("AudienceScope", "Caster"), new XElement("OverrideKey", "psionic-example"));
-				spell = new MagicSpell { Name = name, Blurb = $"A finite psychic {verb} example.", Description = "Uses ordinary spell targeting, materials, costs, resistance and cleanup. Power access controls spell knowledge.",
+				spell = new MagicSpell { Name = name, Blurb = PsionicPlayerContent.Powers[verb].Description, Description = PsionicPlayerContent.Help(verb, school.SchoolVerb, true),
 					MagicSchoolId = school.Id, SpellKnownProgId = no, CastingTraitDefinitionId = trait.Id,
 					CastingDifficulty = (int)Difficulty.Normal, MinimumSuccessThreshold = (int)Outcome.MinorPass,
 					ResistingDifficulty = verb == "possess" ? (int)Difficulty.Normal : null, ResistingTraitDefinitionId = verb == "possess" ? trait.Id : null,
@@ -205,16 +226,39 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 				context.MagicSpells.Add(spell); context.SaveChanges();
 			}
 			else if (spell.MagicSchoolId != school.Id) throw new InvalidOperationException($"Conflicting spell identity {name}.");
-			var power = context.MagicPowers.SingleOrDefault(x => x.Name == name);
+			const string oldSpellDescription = "Uses ordinary spell targeting, materials, costs, resistance and cleanup. Power access controls spell knowledge.";
+			if (spell.Description == oldSpellDescription)
+			{
+				if (verb == "project")
+				{
+					var definition = XElement.Parse(spell.Definition);
+					var effect = definition.Element("Effects")?.Elements("Effect").FirstOrDefault(x => (string?)x.Attribute("type") == "astralprojection");
+					if ((long?)effect?.Element("Race") == context.Races.OrderBy(x => x.Id).Select(x => x.Id).First())
+						effect!.SetElementValue("Race", humanRaceId);
+					spell.Definition = definition.ToString();
+				}
+				spell.Description = PsionicPlayerContent.Help(verb, school.SchoolVerb, true);
+			}
+			if (spell.Blurb == $"A finite psychic {verb} example.") spell.Blurb = PsionicPlayerContent.Powers[verb].Description;
 			if (power is null)
 			{
-				power = new MagicPower { Name = name, MagicSchoolId = school.Id, PowerModel = "spellbacked", Blurb = spell.Blurb,
-					ShowHelp = $"Use apsi {verb} insignificant followed by normal spell targeting arguments. The spell pays its own costs and maintains its effects.",
-					Definition = new XElement("Definition", new XElement("Verb", verb), new XElement("Spell", spell.Id), new XElement("IsPsionic", true),
+				power = new MagicPower { Name = displayName, MagicSchoolId = school.Id, PowerModel = "spellbacked", Blurb = PsionicPlayerContent.Powers[verb].Description,
+					ShowHelp = PsionicPlayerContent.Help(verb, school.SchoolVerb, true),
+					Definition = new XElement("Definition", new XElement("SeededIdentity", "psionics:" + verb), new XElement("Verb", verb), new XElement("Spell", spell.Id), new XElement("IsPsionic", true),
 						new XElement("CanInvokePowerProg", yes), new XElement("WhyCantInvokePowerProg", error), new XElement("InvocationCosts")).ToString() };
 				context.MagicPowers.Add(power); context.SaveChanges();
 			}
 			else if (power.PowerModel != "spellbacked" || power.MagicSchoolId != school.Id) throw new InvalidOperationException($"Conflicting power identity {name}.");
+			else
+			{
+				if (power.Name == name) power.Name = displayName;
+				if (power.Blurb == $"A finite psychic {verb} example.") power.Blurb = PsionicPlayerContent.Powers[verb].Description;
+				if (power.ShowHelp == $"Use apsi {verb} insignificant followed by normal spell targeting arguments. The spell pays its own costs and maintains its effects.")
+					power.ShowHelp = PsionicPlayerContent.Help(verb, school.SchoolVerb, true);
+				var definition = XElement.Parse(power.Definition);
+				definition.SetElementValue("SeededIdentity", "psionics:" + verb);
+				power.Definition = definition.ToString();
+			}
 			if (newSpell)
 			{
 				var progName = "PsionicsKnows" + verb;

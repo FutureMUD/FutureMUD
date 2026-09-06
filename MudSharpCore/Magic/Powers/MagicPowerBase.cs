@@ -12,6 +12,7 @@ namespace MudSharp.Magic.Powers;
 
 public abstract class MagicPowerBase : SaveableItem, IMagicPower
 {
+	private readonly string _seededIdentity;
 
     protected MagicPowerBase(Models.MagicPower power, IFuturemud gameworld)
     {
@@ -22,6 +23,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         School = Gameworld.MagicSchools.Get(power.MagicSchoolId);
         _showHelpText = power.ShowHelp;
         XElement root = XElement.Parse(power.Definition);
+		_seededIdentity = (string)root.Element("SeededIdentity");
         XElement psionicElement = root.Element("IsPsionic");
         if (psionicElement != null && bool.TryParse(psionicElement.Value, out bool psi))
         {
@@ -856,6 +858,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 
     protected void AddBaseDefinition(XElement root)
     {
+        if (!string.IsNullOrEmpty(_seededIdentity)) root.Add(new XElement("SeededIdentity", _seededIdentity));
         root.Add(new XElement("IsPsionic", IsPsionic));
         root.Add(new XElement("PsionicTrace",
             new XElement("Enabled", CreatesPsionicTrace),

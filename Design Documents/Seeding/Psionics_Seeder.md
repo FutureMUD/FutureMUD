@@ -1,6 +1,6 @@
 # Optional Psionics Seeder
 
-The optional **Psionics** package installs Basic Psionics and Advanced Psionics after the core and supernatural dependencies. Declining `install-psionics` writes nothing. All Debug replay profiles answer this optional question explicitly.
+The optional **Psionics** package installs Basic Psionics and Advanced Psionics after the core, organic Human race, skill package and supernatural dependencies. Selecting the package installs it without an additional confirmation question. All Debug replay profiles place Human before Psionics.
 
 Basic Psionics supplies contact, directed speech, barrier, self-audit and expulsion. Advanced Psionics includes those foundations, the existing advanced powers, thirteen new technique families, and four ordinary spells exposed through power verbs: projection, live possession, levitation and a caster-scoped description illusion.
 
@@ -92,3 +92,15 @@ The newer psychic techniques load and save their additional named echoes in powe
 Guard and feedback start/end/intrusion echoes now use the power's saved fields; circles likewise use saved invitation/join/leave/speech fields. A legacy technique definition with its formerly unused empty success field receives the appropriate existing success message on load. The `TechniqueEchoesVersion` XML marker distinguishes that upgrade from an explicitly cleared modern field, which remains silent across save/load. Missing additional fields receive canonical defaults; authored values remain unchanged. This is compatible XML evolution and needs no database migration.
 
 Completeness validation: all default suites passed after the final core rerun (4,153 tests total, including 2,715 core tests). Catalogue reflection and XML round-trip tests check field coverage in both directions. Tests also cover custom text, intentional silence, legacy defaults, builder placeholder validation, and spell field parity. A disposable-MUD walkthrough edited feedback EndEcho and verified that exact custom text on effect removal.
+
+
+### Player names, help and projection race
+
+`PsionicPlayerContent` centralises readable power names and player help, including syntax and examples for both school verbs. Power names are unique within a school, so both schools can offer Mind Contact and Connect Back without prefixes. Invocation verbs remain unchanged. Player help describes use and limitations; configuration and installation advice remain in this builder document.
+
+Astral Projection uses the stock organic `Human` race, never whichever race happens to have the lowest ID. Installation requires that race. A rerun repairs the old first-race selection only when the backing spell still has its recognised stock description and first-race setting; other race customisations are preserved.
+
+Reruns upgrade recognised prefixed stock names and old stock help in place, preserving power IDs and capability references. The optional `SeededIdentity` XML marker survives runtime loading and builder saves, allowing subsequently renamed powers to be recognised without overwriting their names or help. Conflicting identities or missing backing spells fail explicitly. Internal backing-spell names remain stable.
+
+
+Player-content validation: all nine default suites passed (4,156 tests), including every Debug replay profile and runtime stock-definition identity round trips. Seeder Debug and Release builds passed. Two disposable-world reruns retained IDs and selected Human for projection; live help checks rendered Mind Contact, Somatic Sense, Astral Projection and Psychic Circle with syntax. LabMUD was only read to compare its first twelve power help entries.

@@ -8,7 +8,11 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic;
 
-public sealed record PsionicStockPower(string Type, string Verb, int Band, bool Basic, double Cost, int Seconds, string Help);
+public sealed record PsionicStockPower(string Type, string Verb, int Band, bool Basic, double Cost, int Seconds, string LegacyHelp)
+{
+	public string Name => PsionicPlayerContent.Powers[Verb].Name;
+	public string Help => PsionicPlayerContent.Powers[Verb].Description;
+}
 
 /// <summary>Canonical finite stock tuning shared by installation and definition-loading tests.</summary>
 public static class PsionicStockContent
@@ -63,7 +67,7 @@ public static class PsionicStockContent
 
 	public static XElement Definition(PsionicStockPower stock, long trait, long resource, long yes, long no, long error, long normal, long? identity = null, long? eligibility = null, bool advanced = false)
 	{
-		var root = new XElement("Definition", new XElement("TechniqueEchoesVersion", 1), new XElement("IsPsionic", true), new XElement("CanInvokePowerProg", yes),
+		var root = new XElement("Definition", new XElement("SeededIdentity", "psionics:" + stock.Verb), new XElement("TechniqueEchoesVersion", 1), new XElement("IsPsionic", true), new XElement("CanInvokePowerProg", yes),
 			new XElement("WhyCantInvokePowerProg", error), new XElement("Verb", stock.Verb),
 			new XElement("PowerDistance", stock.Basic ? (int)MagicPowerDistance.SameLocationOnly : (int)MagicPowerDistance.AnyConnectedMindOrConnectedTo),
 			new XElement("SkillCheckDifficulty", (int)Difficulty.Normal), new XElement("SkillCheckTrait", trait),

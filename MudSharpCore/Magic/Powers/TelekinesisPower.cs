@@ -12,7 +12,7 @@ public sealed class TelekinesisPower : PsychicTechniquePower
 	public static void RegisterLoader() => Register("telekinesis", (m,w) => new TelekinesisPower(m,w), (w,s,n,t) => new TelekinesisPower(w,s,n,t));
 	private TelekinesisPower(Models.MagicPower m, IFuturemud w) : base(m,w) { }
 	private TelekinesisPower(IFuturemud w, IMagicSchool s, string n, ITraitDefinition t) : base(w,s,n,t) => Initialise(TelekineticManipulation.Syntax);
-	public override string ShowHelp(ICharacter voyeur) => base.ShowHelp(voyeur) + $"\nManipulation syntax: {School.SchoolVerb} {Verb} {TelekineticManipulation.Syntax}\nThe builder amount setting is the maximum mass in kilograms. Liquid amounts use the world's volume units. Sources and destinations must be visible, unattended and within the configured mass limit. Closed, locked, anchored and inaccessible objects retain their ordinary restrictions.";
+	public override string ShowHelp(ICharacter voyeur) => base.ShowHelp(voyeur) + $"\nManipulation syntax: {School.SchoolVerb} {Verb} {TelekineticManipulation.Syntax}\nLiquid amounts may include volume units. Sources and destinations must be visible, unattended and light enough for you to manipulate. Closed, locked, anchored and inaccessible objects retain their ordinary restrictions.";
 	public override void UseCommand(ICharacter actor, string verb, StringStack command)
 	{
 		if (!HandleGeneralUseRestrictions(actor) || !CanAffordToInvokePower(actor, Verb).Truth) return;

@@ -267,6 +267,7 @@ public class MagicEngineV4Tests
 				foreach (var field in fields)
 					Assert.IsTrue(PsionicPowerEmotes.All[stock.Type].ContainsKey(field.Name), $"Missing {stock.Type}.{field.Name}");
 				var saved = InvokeSaveDefinition(power);
+				Assert.AreEqual("psionics:" + stock.Verb, saved.Element("SeededIdentity")?.Value);
 				foreach (var (field, text) in PsionicPowerEmotes.All[stock.Type])
 					Assert.AreEqual(text, saved.Element(field)?.Value, $"Unmapped {stock.Type}.{field}");
 			}

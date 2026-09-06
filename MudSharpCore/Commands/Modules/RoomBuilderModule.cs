@@ -2247,13 +2247,17 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        (object result, bool success) = ProgModule.GetArgument(variableType, command.SafeRemainingArgument, 1, actor);
+        (object result, bool success) = ProgModule.GetArgumentFromRemainingInput(variableType, command, 1, actor);
         if (!success)
         {
             return;
         }
 
-        actor.Gameworld.VariableRegister.SetValue(actor.Location, variableName, FutureProg.FutureProg.GetVariable(variableType, result));
+        if (!actor.Gameworld.VariableRegister.SetValue(actor.Location, variableName, FutureProg.FutureProg.GetVariable(variableType, result)))
+        {
+            actor.OutputHandler.Send("Unable to set that register value on this cell.");
+            return;
+        }
         actor.OutputHandler.Send($"You set the register value {variableName.Colour(Telnet.Cyan)} for this cell to {ProgModule.DescribeProgVariable(actor, variableType, result)}.");
     }
 

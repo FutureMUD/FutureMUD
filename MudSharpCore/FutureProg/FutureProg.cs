@@ -897,6 +897,11 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public static IProgVariable GetVariable(ProgVariableTypes type, object value)
 	{
+		if (value is IProgVariable variable && variable.Type.IsExactType && variable.Type.CompatibleWith(type))
+		{
+			return variable;
+		}
+
 		if (value == null)
 		{
 			return new NullVariable(type);
@@ -961,10 +966,7 @@ public class FutureProg : SaveableItem, IFutureProg
 			CollectionDictionary<string, IProgVariable> values = new();
 			foreach (var pair in cdString.KeysAndValues)
 			{
-				foreach (var item in pair.Value)
-				{
-					values.Add(pair.Key, GetVariable(underlyingType, item));
-				}
+				values.AddRange(pair.Key, pair.Value.Select(item => GetVariable(underlyingType, item)));
 			}
 
 			return new CollectionDictionaryVariable(values, underlyingType);
@@ -1014,7 +1016,7 @@ public class FutureProg : SaveableItem, IFutureProg
                 return new BooleanVariable(Convert.ToBoolean(value));
 
             case ProgVariableTypeCode.Gender:
-                return new GenderVariable((Gender)(value as short? ?? 0));
+                return new GenderVariable(value is Gender gender ? gender : (Gender)Convert.ToInt16(value));
 
             case ProgVariableTypeCode.DateTime:
                 return new DateTimeVariable((DateTime)value);

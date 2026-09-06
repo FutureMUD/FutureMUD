@@ -424,3 +424,7 @@ Item characteristic functions accept resolved characteristic definitions alongsi
 ## Telekinetic component manipulation
 
 Telekinesis uses existing switchable, selectable, openable, item-container and liquid-container contracts after checking local reach, planar interaction, custody, access, mass and wards on each endpoint. It supports switch/select, empty, pour/fill and put in addition to get/move/open/close. Closed or locked vessels and component-specific denials remain authoritative. Liquid transfer is bounded by actual contents and destination capacity; item-container overflow follows its normal emptying rules. See [Psychic Powers](../Magic/Psychic_Powers_Impressions_and_Witness_Memory.md) for syntax and limits.
+
+## Manual FutureProg item values
+
+Manual prog and register values use the [shared argument resolver](../Core/FutureProg_Type_System.md#shared-manual-argument-resolution). Item targets keep normal targeting; outfits and outfit items resolve within a specified character, and effects/traps resolve within their owner. Liquid-mixture input creates a standalone measured value without changing an item. Computer execution uses the same balanced argument reader, including empty text and containers. These changes do not alter item or effect persistence.

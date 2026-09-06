@@ -211,6 +211,38 @@ Builder-facing parsing now routes through `ProgVariableTypes.TryParse(...)` rath
 
 Type display and description logic is centralised through the registry-backed `Describe()` behavior. Existing player/builder output continues to use the same symbolic type names where possible.
 
+## Manual Register Assignment
+
+Administrators can use `setregister <type> <target> <variablename> <value>` to assign an existing register variable to an individual target. `<type>` is a concrete FutureProg reference type; `register show <type>` lists its variables. The command shares `ProgModule.GetArgument` with `prog execute` for target and value resolution and infers the value type from the registered definition. It converts the resolved value with `FutureProg.GetVariable` and writes through `IVariableRegister.SetValue`, preserving normal deferred persistence without a migration or recompiling progs. Defaults and other targets are unaffected.
+
+For example, after registering appropriate variables, `setregister location here reputation 25` sets a number, and `setregister location 123 notice The gate is closed.` sets text. Quote target names and variable names containing spaces. Final text can be quoted, including `""` for empty text. Collections accept space-separated elements, optionally enclosed in parentheses; quote each text element containing spaces. Reference values accept `null` using the existing typed-null register semantics. Targets must resolve to a non-null object. Unsupported resolver types, unknown variables, invalid values, and failed writes report an error. Collections, dictionaries and collection dictionaries share the same typed parser. See `prog help arguments` for manual value syntax.
+
+## Shared Manual Argument Resolution
+
+`ProgModule.Arguments.cs` contains the scalar lookups; `ProgModule.ArgumentParsing.cs` handles command argument boundaries, containers and scoped selectors. `prog execute`, `register default`, `setregister`, `cell set register` and computer-program execution all use this infrastructure. `prog help arguments` documents it in-game.
+
+All current concrete value types have explicit resolution paths, including agriculture fields, vehicle routes/services/journeys, NPC skill packages and signed languages/varieties. Void, Error, the Anything/Literal compiler masks, and bare modifier types are not input values. Numbers, datetimes and timespans use the caller's locale. Missing references return `(null, false)`; deliberate `null` returns `(null, true)` only for reference types and personal names. Text `null` is literal text. Empty text and empty containers are valid. Invalid or incomplete arguments never execute the prog or update a register.
+
+| Type or shape | Input |
+| --- | --- |
+| World definitions | ID or name, using the existing type-specific registry |
+| Character / item | Normal target keywords; `self` also selects the caller as a character |
+| Location | `here`, ID or room reference |
+| Signed variety | Global ID, or `(<language> <variety>)` with quoted names as needed |
+| Personal name | `(<nameculture> <complete name>)` |
+| Effect / trap | `(<owner> <index>)`; one-based current index, counting all effects or only traps respectively |
+| Outfit / outfit item | `(<character> <outfit name>)` / `(<character> <outfit name> <item ID>)` |
+| Liquid mixture | `(<liquid> <volume>)`, e.g. `(water 250ml)`, or `empty`; constructs a standalone value without modifying a container |
+| Bank account | Global account ID or `bankcode:accountnumber`, resolved in the caller's gameworld; inactive accounts are valid references too |
+| Union | `(<concrete type> <value>)`, e.g. `(liquid water)` for Material; incompatible types are rejected |
+| Collection | `("first value" "second value")` |
+| Dictionary | `(first 1 second 2)`; alternating keys and typed values |
+| Collection dictionary | `(group ("first value" second) empty ())` |
+
+Perceivable, Perceiver, MagicResourceHaver and Tagged retain compatible local targeting; `here` must be compatible with the requested union. Toon retains character targeting and `*<chargen ID>`. ValueType, ReferenceType and CollectionItem unions require an explicit compatible concrete type rather than guessing. Bank names/IDs and exact bank codes take precedence over unambiguous code prefixes. Shared register parsing preserves internal quotes in personal-name and owner-qualified selectors.
+
+The argument reader preserves quotes inside balanced nested parentheses and rejects malformed boundaries. `""` supplies empty text and `()` supplies an empty container. Dictionary keys are case-sensitive; duplicate keys and missing or invalid values reject the entire argument. Collection-dictionary empty keys survive conversion to prog variables. Gender conversion preserves both resolved enum values and legacy short values. Result display handles typed nulls, container contents and keys, and owner-scoped values. Runtime-scoped types remain prohibited from persistent register storage; these lookup changes require no migration.
+
 ## Runtime Safety Invariants
 
 FutureProg parameter and local-variable references are case-insensitive. Persisted parameter names retain their authored casing for display and integration schemas, while compiler and runtime variable spaces normalise those names for lookup. A prog may not define two parameters whose names differ only by case.

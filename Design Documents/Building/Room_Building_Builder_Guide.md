@@ -1302,3 +1302,7 @@ When assisting a builder:
 - Keep room descriptions readable without colour and without successful markup substitutions.
 
 The best build scripts are readable command histories. A future builder should be able to paste them into a test world, understand the intended topology, and revise the result without knowing C#.
+
+## Manual register values
+
+`cell set register <variable> <value>` shares typed value parsing with `register default`, `setregister` and `prog execute`; see `prog help arguments`. Quoted collection elements and dictionary values retain their boundaries. Missing references and failed writes report errors, while explicit `null` is valid for reference values. `cell set register delete` continues to remove the override and restore the default.

@@ -67,6 +67,13 @@ public class NaturalAttackMove : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
+		using var scope = new MagicDefenseDamageScope(this, defenderMove);
+		return scope.Finish(ResolveAttackWithDefense(defenderMove));
+    }
+
+    private CombatMoveResult ResolveAttackWithDefense(ICombatMove defenderMove)
+    {
 		var boundaryTarget = PrimaryCharacterTarget;
 		if (boundaryTarget is not null &&
 		    !VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, boundaryTarget, false, false,
@@ -101,6 +108,12 @@ public class NaturalAttackMove : WeaponAttackMove
                   .Replace("@hand", Bodypart.Alignment.LeftRightOnly().Describe().ToLowerInvariant());
 
 
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll[CheckDifficulty], out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
+        }
+
         if (defenderMove is HelplessDefenseMove || defenderMove is TooExhaustedMove)
         {
             return ResolveHelplessDefenseMove(defenderMove, attackRoll, defenderHaveWounds, attackEmote);
@@ -127,6 +140,12 @@ public class NaturalAttackMove : WeaponAttackMove
             defenderMove.Assailant.AddEffect(newEffect);
             defenderMove = defenderMove.Assailant.ResponseToMove(this, Assailant);
             defenderMove.Assailant.RemoveEffect(newEffect);
+        }
+
+        if (defenderMove is MagicDefenseMove fallbackMagic)
+        {
+			if (fallbackMagic.TryDefend(this, attackRoll[CheckDifficulty], out var fallbackResult)) return fallbackResult;
+			return ResolveHelplessDefenseMove(new HelplessDefenseMove { Assailant = fallbackMagic.Assailant }, attackRoll, defenderHaveWounds, attackEmote);
         }
 
         if (defenderMove is DodgeMove dodge)

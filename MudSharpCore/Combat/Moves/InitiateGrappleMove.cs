@@ -20,6 +20,7 @@ public class InitiateGrappleMove : NaturalAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		if (!VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, CharacterTarget, false, false,
 			    out var boundaryReason))
 		{
@@ -47,6 +48,12 @@ public class InitiateGrappleMove : NaturalAttackMove
                           BuiltInCombatMoveType.InitiateGrapple, attackRoll[attackerDifficulty], null),
                       Bodypart.FullDescription())
                   .Replace("@hand", Bodypart.Alignment.LeftRightOnly().Describe().ToLowerInvariant());
+
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll[attackerDifficulty], out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
+        }
 
         if (defenderMove is HelplessDefenseMove)
         {

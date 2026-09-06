@@ -99,6 +99,7 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public ILaserPowerPack PowerPack { get; set; }
 
+	public IEnumerable<MudSharp.Health.DamageType> ProjectileDamageTypes => [MudSharp.Health.DamageType.Burning];
     public IEnumerable<IGameItem> MagazineContents => Enumerable.Empty<IGameItem>();
     public IEnumerable<IGameItem> AllContainedItems => new List<IGameItem> { PowerPack?.Parent }.SelectNotNull(x => x);
 

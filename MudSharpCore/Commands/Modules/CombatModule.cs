@@ -2115,7 +2115,8 @@ The syntax to use this command is as follows:
 	#3combat show <id/name>#0 - shows details of a particular combat setting
 	#3combat set <id/name>#0 - adopts a particular combat setting as your current
 	#3combat clone <id/name> <newname>#0 - makes a new combat setting out of an existing one for editing
-	#3combat defense <block/dodge/parry/none>#0 - sets or clears a favoured defense type
+	#3combat defense <block/dodge/parry/magic/none>#0 - sets or clears a favoured defense type
+	#3combat powerdefense [off]#0 - lists or releases maintained combat defenses
 	#3combat targets#0 - shows you whether you would or wouldn't attack people in the room with your current settings
 
 Additionally, there are numerous options for configuring combat settings. See #3combat config help#0 for more information.";
@@ -2164,6 +2165,17 @@ Additionally, there are numerous options for configuring combat settings. See #3
             case "def":
                 CombatPreferredDefense(actor, ss);
                 return;
+            case "powerdefense":
+				if (ss.SafeRemainingArgument.EqualTo("off"))
+				{
+					actor.RemoveAllEffects<MagicDefense>(fireRemovalAction: true);
+					actor.Send("You release all maintained combat defenses.");
+					return;
+				}
+				foreach (var defense in actor.EffectsOfType<MagicDefense>())
+					actor.Send($"{defense.Describe(actor)}; reaction: {defense.Power.ReactionStamina.ToString("N2", actor)} stamina, {defense.Power.InvocationCosts[defense.Power.ReactionVerb].Select(x => $"{x.Cost.ToString("N2", actor)} {x.Resource.Name}").ListToString()}");
+				if (!actor.EffectsOfType<MagicDefense>().Any()) actor.Send("You have no active magical combat defenses.");
+				return;
             case "targets":
                 CombatTargets(actor);
                 return;
@@ -3832,7 +3844,7 @@ The syntax to use this command is as follows:");
         sb.AppendLine(
             $"\t{"combat clone <id/name> <newname>".Colour(Telnet.Yellow)} - makes a new combat setting out of an existing one for editing");
         sb.AppendLine(
-            $"\t{"combat defense <block/dodge/parry/none>".Colour(Telnet.Yellow)} - sets or clears a favoured defense type");
+            $"\t{"combat defense <block/dodge/parry/magic/none>".Colour(Telnet.Yellow)} - sets or clears a favoured defense type");
         sb.AppendLine();
         sb.AppendLine("Additionally, there are numerous options for configuring combat settings.");
         sb.AppendLine($"\tSee {"combat config help".Colour(Telnet.Yellow)} for more information.");

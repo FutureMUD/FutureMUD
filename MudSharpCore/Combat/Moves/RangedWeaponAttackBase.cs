@@ -110,6 +110,7 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
         IPerceiver target = CharacterTargets.FirstOrDefault() ?? _targets.FirstOrDefault();
         if (Weapon.ReadyToFire && !Weapon.CanFire(Assailant, target))
         {
@@ -305,6 +306,17 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
                 AttackerOutcome = results.Item1.Outcome,
                 DefenderOutcome = Outcome.NotTested
             };
+        }
+
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			using var scope = new MagicDefenseDamageScope(this, magicalDefense);
+			var stopped = magicalDefense.TryDefend(this, results.Item1, out var magicResult);
+			Weapon.Fire(Assailant, target, results.Item1, results.Item2,
+				stopped ? new OpposedOutcome(Outcome.Fail, Outcome.Pass) : new OpposedOutcome(results.Item1, Outcome.NotTested),
+				TargetBodypart, null, target);
+			return scope.Finish(stopped ? magicResult : new CombatMoveResult { MoveWasSuccessful = true,
+				RecoveryDifficulty = RecoveryDifficultySuccess, AttackerOutcome = results.Item1.Outcome });
         }
 
         if (defenderMove == null || defenderMove is HelplessDefenseMove || defenderMove is TooExhaustedMove)

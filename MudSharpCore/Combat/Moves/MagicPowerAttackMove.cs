@@ -1,687 +1,138 @@
-﻿using MudSharp.Body;
-using MudSharp.Body.Position;
-using MudSharp.Body.Position.PositionStates;
+#nullable enable
+
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Effects.Concrete;
-using MudSharp.Framework.Scheduling;
 using MudSharp.Health;
 using MudSharp.Magic.Powers;
 using MudSharp.RPG.Checks;
-using Org.BouncyCastle.Asn1.X509;
+using MudSharp.Vehicles;
 
 namespace MudSharp.Combat.Moves;
 
 public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 {
-    public IMagicAttackPower AttackPower { get; }
-    public override BuiltInCombatMoveType MoveType => AttackPower.MoveType;
-    public override int Reach => AttackPower.Reach;
+	public IMagicAttackPower AttackPower { get; }
+	private bool _committed;
+	public override BuiltInCombatMoveType MoveType => AttackPower.MoveType;
+	public override int Reach => AttackPower.Reach;
+	public override double BaseDelay => AttackPower.BaseDelay;
+	public override double StaminaCost => AttackPower.StaminaCost;
+	public override CheckType Check => CheckType.GenericSkillCheck;
+	public override Difficulty CheckDifficulty => Attack.Profile.BaseAttackerDifficulty;
+	public override Difficulty RecoveryDifficultySuccess => Attack.RecoveryDifficultySuccess;
+	public override Difficulty RecoveryDifficultyFailure => Attack.RecoveryDifficultyFailure;
+	public override ExertionLevel AssociatedExertion => AttackPower.ExertionLevel;
+	public override string Description => $"Using the {AttackPower.Name} power";
+	public override bool UsesStaminaWithResult(CombatMoveResult result) => _committed && !ReferenceEquals(result, CombatMoveResult.Irrelevant);
 
-    public MagicPowerAttackMove(ICharacter attacker, IEnumerable<ICharacter> targets, IMagicAttackPower power) : base(
-        power.WeaponAttack)
-    {
-        Assailant = attacker;
-        foreach (ICharacter target in targets)
-        {
-            _characterTargets.Add(target);
-        }
+	public MagicPowerAttackMove(ICharacter attacker, ICharacter target, IMagicAttackPower power) : base(power.WeaponAttack)
+	{
+		Assailant = attacker;
+		_characterTargets.Clear();
+		PrimaryTarget = target;
+		AttackPower = power;
+	}
 
-        AttackPower = power;
-    }
+	public MagicPowerAttackMove(ICharacter attacker, IEnumerable<ICharacter> targets, IMagicAttackPower power)
+		: this(attacker, targets.First(), power) { }
 
-    public MagicPowerAttackMove(ICharacter attacker, ICharacter target, IMagicAttackPower power) : base(
-        power.WeaponAttack)
-    {
-        Assailant = attacker;
-        _characterTargets.Add(target);
-        AttackPower = power;
-    }
+	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
+	{
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
+		var target = PrimaryCharacterTarget;
+		if (_committed || target is null || !AttackPower.CanInvokePower(Assailant, target)) return CombatMoveResult.Irrelevant;
+		_committed = true;
+		AttackPower.UseAttackPower(this);
+		defenderMove ??= new HelplessDefenseMove { Assailant = target };
+		var rolls = Gameworld.GetCheck(Check).CheckAgainstAllDifficulties(Assailant, CheckDifficulty,
+			AttackPower.AttackerTrait, target, Assailant.OffensiveAdvantage);
+		Assailant.OffensiveAdvantage = 0;
+		var attackRoll = rolls[CheckDifficulty];
+		DetermineTargetBodypart(defenderMove, attackRoll);
+		var attackEmote = (AttackPower as MagicAttackPower)?.AttackEmote ?? "@ direct|directs a surge of force at $1.";
+		Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(attackEmote, Assailant, Assailant, target), style: OutputStyle.CombatMessage));
+		if (attackRoll.IsFail()) return Failed(attackRoll.Outcome);
+		if (this is IRangedAttackMove)
+		{
+			var cover = VehicleCombatService.Instance.ResolveEffectiveRangedCover(Assailant, target);
+			var difficulty = cover?.Cover.MinimumRangedDifficulty.Highest(CheckDifficulty) ?? CheckDifficulty;
+			if (cover is not null && rolls[difficulty].IsFail() &&
+			    (cover.Cover.CoverType == CoverType.Hard || attackRoll.Outcome == Outcome.MajorPass || rolls[difficulty].Outcome == Outcome.MinorFail))
+			{
+				target.Send("Your cover intercepts the attack.");
+				return Failed(attackRoll.Outcome);
+			}
+		}
+		if (defenderMove is WardDefenseMove ward)
+		{
+			var result = ResolveWard(ward);
+			if (result.WardSucceeded) { target.Send("Your ward holds the attack at bay."); return Failed(attackRoll.Outcome); }
+			var beaten = new WardBeaten(target, target.Combat);
+			target.AddEffect(beaten);
+			try { defenderMove = target.ResponseToMove(this, Assailant); }
+			finally { target.RemoveEffect(beaten); }
+		}
+		CheckOutcome? defenseRoll = null;
+		switch (defenderMove)
+		{
+			case MagicDefenseMove magic:
+				if (magic.TryDefend(this, attackRoll, out var defenseResult)) return defenseResult;
+				break;
+			case BlockMove block:
+				defenseRoll = Gameworld.GetCheck(block.Check).Check(target,
+					AttackPower.BaseBlockDifficulty.StageUp(block.DifficultStageUps), block.Shield.ShieldType.BlockTrait,
+					Assailant, target.DefensiveAdvantage + block.Shield.ShieldType.BlockBonus);
+				break;
+			case ParryMove parry:
+				defenseRoll = Gameworld.GetCheck(parry.Check).Check(target,
+					AttackPower.BaseParryDifficulty.StageUp(parry.DifficultStageUps), parry.Weapon.WeaponType.ParryTrait,
+					Assailant, target.DefensiveAdvantage);
+				break;
+			case DodgeMove dodge:
+				defenseRoll = Gameworld.GetCheck(dodge.Check).Check(target,
+					AttackPower.BaseDodgeDifficulty.StageUp(dodge.DifficultStageUps), null, Assailant, target.DefensiveAdvantage);
+				break;
+			case DodgeRangeMove dodge:
+				defenseRoll = Gameworld.GetCheck(dodge.Check).Check(target,
+					AttackPower.BaseDodgeDifficulty, null, Assailant, target.DefensiveAdvantage);
+				break;
+		}
+		target.DefensiveAdvantage = 0;
+		var opposed = new OpposedOutcome(attackRoll, defenseRoll?.Outcome ?? Outcome.NotTested);
+		if (defenseRoll is not null && opposed.Outcome != OpposedOutcomeDirection.Proponent)
+		{
+			target.Send("You turn aside the attack.");
+			return Failed(attackRoll.Outcome, defenseRoll.Outcome);
+		}
+		var wounds = new List<IWound>();
+		if (AttackPower.DealsDamage)
+		{
+			IDamage? damage = new Damage
+			{
+				ActorOrigin = Assailant, Bodypart = TargetBodypart, DamageType = Attack.Profile.DamageType,
+				AngleOfIncidentRadians = Attack.Profile.BaseAngleOfIncidence,
+				DamageAmount = Math.Max(0, EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant, TraitBonusContext.ArmedDamageCalculation, (int)opposed.Degree, 5)),
+				PainAmount = Math.Max(0, EvaluateAttackFormula(Attack.Profile.PainExpression, Assailant, TraitBonusContext.ArmedDamageCalculation, (int)opposed.Degree, 5)),
+				StunAmount = Math.Max(0, EvaluateAttackFormula(Attack.Profile.StunExpression, Assailant, TraitBonusContext.ArmedDamageCalculation, (int)opposed.Degree, 5)),
+				PenetrationOutcome = Gameworld.GetCheck(this is IRangedAttackMove ? CheckType.RangedWeaponPenetrateCheck : CheckType.MeleeWeaponPenetrateCheck)
+					.Check(Assailant, Difficulty.Normal, AttackPower.AttackerTrait, target)
+			};
+			if (defenderMove is MagicDefenseMove magic) damage = magic.Absorb(damage);
+			if (damage is null) return Failed(attackRoll.Outcome);
+			wounds.AddRange(target.PassiveSufferDamage(damage));
+			wounds.ProcessPassiveWounds();
+		}
+		MagicAttackEffectResolver.Apply(Assailant, target, AttackPower);
+		AttackPower.ApplyAttackSpell(Assailant, target, attackRoll);
+		return new CombatMoveResult { MoveWasSuccessful = true, AttackerOutcome = attackRoll.Outcome,
+			DefenderOutcome = defenseRoll?.Outcome ?? Outcome.NotTested, WoundsCaused = wounds,
+			RecoveryDifficulty = RecoveryDifficultySuccess };
+	}
 
-    public override string Description =>
-        $"Attacking {CharacterTargets.Select(x => x.HowSeen(x, flags: PerceiveIgnoreFlags.IgnoreSelf)).ListToString()} with the {AttackPower.Name.Colour(AttackPower.School.PowerListColour)} {AttackPower.School.SchoolAdjective} power.";
-
-    public override double BaseDelay => AttackPower.BaseDelay;
-
-    public override ExertionLevel AssociatedExertion => AttackPower.ExertionLevel;
-
-    public override double StaminaCost => AttackPower.StaminaCost;
-
-    public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
-    {
-        if (defenderMove == null)
-        {
-            defenderMove = new HelplessDefenseMove { Assailant = CharacterTargets.First() };
-        }
-
-        WorsenCombatPosition(defenderMove.Assailant, Assailant);
-        CheckOutcome attackRoll = Gameworld.GetCheck(Check)
-                                  .Check(Assailant, CheckDifficulty, AttackPower.AttackerTrait, defenderMove.Assailant,
-                                      Assailant.OffensiveAdvantage);
-        Assailant.OffensiveAdvantage = 0;
-        if (defenderMove.Assailant is not IHaveWounds defenderHaveWounds)
-        {
-            throw new ApplicationException(
-                $"Defender {defenderMove.Assailant.FrameworkItemType} ID {defenderMove.Assailant.Id:N0} did not have wounds in ResolveMove.");
-        }
-
-        DetermineTargetBodypart(defenderMove, attackRoll);
-        AttackPower.UseAttackPower(this);
-
-        string attackEmote =
-            string.Format(
-                Gameworld.CombatMessageManager.GetMessageFor(Assailant, defenderMove.Assailant, null,
-                    AttackPower.WeaponAttack, AttackPower.MoveType, attackRoll.Outcome, null), "",
-                TargetBodypart.FullDescription());
-
-        if (defenderMove is HelplessDefenseMove || defenderMove is TooExhaustedMove)
-        {
-            return ResolveHelplessDefense(defenderMove, attackRoll, defenderHaveWounds, attackEmote);
-        }
-
-        WardDefenseMove ward = defenderMove as WardDefenseMove;
-        WardResult wardResult = null;
-        if (ward != null)
-        {
-            wardResult = ResolveWard(ward);
-            if (wardResult.WardSucceeded)
-            {
-                Assailant.OutputHandler.Handle(
-                    new EmoteOutput(new Emote($"{attackEmote}{wardResult.WardEmotes}".Fullstop(), Assailant,
-                            Assailant, defenderHaveWounds, null, null, wardResult.WardWeapon?.Parent),
-                        style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-                return new CombatMoveResult { RecoveryDifficulty = RecoveryDifficultyFailure };
-            }
-
-            WardBeaten newEffect = new(defenderMove.Assailant, defenderMove.Assailant.Combat);
-            defenderMove.Assailant.AddEffect(newEffect);
-            defenderMove = defenderMove.Assailant.ResponseToMove(this, Assailant);
-            defenderMove.Assailant.RemoveEffect(newEffect);
-        }
-
-        if (defenderMove is HelplessDefenseMove || defenderMove is TooExhaustedMove)
-        {
-            return ResolveHelplessDefense(defenderMove, attackRoll, defenderHaveWounds, attackEmote);
-        }
-
-        if (defenderMove is DodgeMove dodge)
-        {
-            return ResolveDodge(defenderMove, attackRoll, defenderHaveWounds, attackEmote, dodge, wardResult);
-        }
-
-        if (defenderMove is ParryMove parry)
-        {
-            return ResolveParry(defenderMove, attackRoll, defenderHaveWounds, attackEmote, parry);
-        }
-
-        if (defenderMove is BlockMove block)
-        {
-            return ResolveBlock(block, attackRoll, defenderHaveWounds, attackEmote, wardResult);
-        }
-
-        throw new NotImplementedException(
-            $"Unknown defenderMove in MagicPowerAttackMove.ResolveMove: {defenderMove.Description}");
-    }
-
-    private CombatMoveResult ResolveBlock(BlockMove defenderMove, CheckOutcome attackRoll,
-        IHaveWounds defenderHaveWounds,
-        string attackEmote, WardResult wardResult)
-    {
-        double blockBonus = BlockMove.GetBlockBonus(this, defenderMove.Alignment, defenderMove.Shield);
-        double targetBonus = Assailant.GetBonusForDefendersFromTargeting();
-        CheckOutcome blockCheck = Gameworld.GetCheck(defenderMove.Check)
-                                  .Check(defenderMove.Assailant,
-                                      Attack.Profile.BaseBlockDifficulty.StageUp(defenderMove.DifficultStageUps),
-                                      defenderMove.Shield.ShieldType.BlockTrait, Assailant,
-                                      blockBonus + defenderMove.Shield.ShieldType.BlockBonus + targetBonus +
-                                                  defenderMove.Assailant.DefensiveAdvantage -
-                                                  GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
-        defenderMove.Assailant.DefensiveAdvantage = 0;
-        int bsuccess = blockCheck.SuccessDegrees();
-        if (bsuccess > 0)
-        {
-            double adv = bsuccess switch
-            {
-                1 => Gameworld.GetStaticDouble("BlockDefensiveAdvantageMinorPass"),
-                2 => Gameworld.GetStaticDouble("BlockDefensiveAdvantagePass"),
-                _ => Gameworld.GetStaticDouble("BlockDefensiveAdvantageMajorPass")
-            };
-            defenderMove.Assailant.DefensiveAdvantage += adv;
-        }
-        if (blockCheck.FailureDegrees() >= 2)
-        {
-            defenderMove.Assailant.SpendStamina(Gameworld.GetStaticDouble("BlockFailureAdditionalStamina"));
-        }
-        OpposedOutcome result = new(attackRoll, blockCheck);
-#if DEBUG
-        Console.WriteLine(
-            $"MeleeWeaponAttack Block Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");
-#endif
-
-        List<IWound> wounds = new();
-        List<IWound> wardWounds = new();
-
-        if (result.Outcome == OpposedOutcomeDirection.Proponent)
-        {
-            Damage finalDamage = new()
-            {
-                ActorOrigin = Assailant,
-                LodgableItem = null,
-                ToolOrigin = null,
-                AngleOfIncidentRadians = Attack.Profile.BaseAngleOfIncidence,
-                Bodypart = TargetBodypart,
-                DamageAmount =
-                    EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
-                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 *
-                    Attack.Profile.BaseAngleOfIncidence /
-                    Math.PI,
-                DamageType = Attack.Profile.DamageType,
-                PainAmount =
-                    EvaluateAttackFormula(Attack.Profile.PainExpression, Assailant,
-                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 *
-                    Attack.Profile.BaseAngleOfIncidence /
-                    Math.PI,
-                PenetrationOutcome =
-                    Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
-                             .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType),
-                                 defenderMove.Assailant,
-                                 Weapon),
-                ShockAmount = 0,
-                StunAmount =
-                    EvaluateAttackFormula(Attack.Profile.StunExpression, Assailant,
-                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 *
-                    Attack.Profile.BaseAngleOfIncidence /
-                    Math.PI
-            };
-
-            string blockEmote = Gameworld.CombatMessageManager.GetFailMessageFor(defenderMove.Assailant, Assailant,
-                defenderMove.Shield.Parent, Attack, defenderMove.MoveType, blockCheck.Outcome, null);
-            Assailant.OutputHandler.Handle(
-                new EmoteOutput(
-                    new Emote(
-                        $"{attackEmote}{wardResult?.WardEmotes ?? ""}{string.Format(blockEmote, "", TargetBodypart.FullDescription())}"
-                            .Fullstop(), Assailant, Assailant, defenderMove.Assailant, null,
-                        defenderMove.Shield.Parent, wardResult?.WardWeapon?.Parent),
-                    style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            wardWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
-            wounds.AddRange(defenderHaveWounds.PassiveSufferDamage(finalDamage));
-            wounds.AddRange(defenderMove.Shield.Parent.PassiveSufferDamage(finalDamage));
-            CheckLodged(wounds);
-            wardWounds.ProcessPassiveWounds();
-            wounds.ProcessPassiveWounds();
-        }
-        else
-        {
-            string blockEmote = Gameworld.CombatMessageManager.GetMessageFor(defenderMove.Assailant, Assailant,
-                defenderMove.Shield.Parent, Attack, defenderMove.MoveType, blockCheck.Outcome, null);
-            Assailant.OutputHandler.Handle(
-                new EmoteOutput(
-                    new Emote(
-                        $"{attackEmote}{wardResult?.WardEmotes ?? ""}{string.Format(blockEmote, "", TargetBodypart.FullDescription())}"
-                            .Fullstop(), Assailant, Assailant, defenderMove.Assailant, null,
-                        defenderMove.Shield.Parent, wardResult?.WardWeapon?.Parent),
-                    style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-
-            // The shield itself will still suffer damage
-            double angleMultiplier = 0.0;
-            switch (result.Degree)
-            {
-                case OpposedOutcomeDegree.None:
-                    angleMultiplier = 0.9;
-                    break;
-                case OpposedOutcomeDegree.Marginal:
-                    angleMultiplier = 0.8;
-                    break;
-                case OpposedOutcomeDegree.Minor:
-                    angleMultiplier = 0.7;
-                    break;
-                case OpposedOutcomeDegree.Moderate:
-                    angleMultiplier = 0.6;
-                    break;
-                case OpposedOutcomeDegree.Major:
-                    angleMultiplier = 0.5;
-                    break;
-                case OpposedOutcomeDegree.Total:
-                    angleMultiplier = 0.4;
-                    break;
-            }
-
-            double finalAngle = Attack.Profile.BaseAngleOfIncidence * angleMultiplier;
-
-            Damage finalDamage = new()
-            {
-                ActorOrigin = Assailant,
-                LodgableItem = null,
-                ToolOrigin = null,
-                AngleOfIncidentRadians = finalAngle,
-                Bodypart = null,
-                DamageAmount =
-                    EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
-                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 * finalAngle / Math.PI,
-                DamageType = Attack.Profile.DamageType,
-                PainAmount = 0,
-                PenetrationOutcome = Outcome.MajorFail,
-                ShockAmount = 0,
-                StunAmount = 0
-            };
-            wounds.AddRange(defenderMove.Shield.Parent.PassiveSufferDamage(finalDamage));
-            CheckLodged(wounds);
-            wounds.ProcessPassiveWounds();
-        }
-
-        Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
-        defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
-        Difficulty recovery = attackRoll.IsPass() ? RecoveryDifficultySuccess : RecoveryDifficultyFailure;
-        if (blockCheck.FailureDegrees() == 2)
-        {
-            recovery = recovery.StageUp(1);
-        }
-        else if (blockCheck.FailureDegrees() >= 3)
-        {
-            recovery = recovery.StageUp(2);
-        }
-        (defenderMove.Shield as IConditionDegradingComponent)?.UseCondition(
-            new ItemConditionUseContext(ItemConditionUseKind.ShieldBlock, blockCheck, (int)result.Degree));
-        return new CombatMoveResult
-        {
-            MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
-            AttackerOutcome = attackRoll,
-            DefenderOutcome = blockCheck,
-            RecoveryDifficulty = recovery,
-            WoundsCaused = wounds,
-            SelfWoundsCaused = wardWounds
-        };
-    }
-
-    private CombatMoveResult ResolveParry(ICombatMove defenderMove, CheckOutcome attackRoll,
-        IHaveWounds defenderHaveWounds, string attackEmote, ParryMove parry)
-    {
-        double targetBonus = Assailant.GetBonusForDefendersFromTargeting();
-        CheckOutcome parryCheck = Gameworld.GetCheck(defenderMove.Check)
-                                  .Check(defenderMove.Assailant,
-                                      Attack.Profile.BaseParryDifficulty.StageUp(parry.DifficultStageUps),
-                                      parry.Weapon.WeaponType.ParryTrait,
-                                      Assailant,
-                                      parry.Weapon.WeaponType.ParryBonus + targetBonus +
-                                                  parry.Assailant.DefensiveAdvantage -
-                                                  GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
-        parry.Assailant.DefensiveAdvantage = 0;
-        double parryDelay = Gameworld.GetStaticDouble("ParryDelaySeconds") *
-                           (1.0 - parryCheck.CheckDegrees() / 6.0);
-        Gameworld.Scheduler.DelayScheduleType(defenderMove.Assailant, ScheduleType.Combat,
-                TimeSpan.FromSeconds(parryDelay));
-        int advantageLoss = parryCheck.CheckDegrees() - attackRoll.CheckDegrees();
-        if (advantageLoss > 0)
-        {
-            Assailant.DefensiveAdvantage -=
-                    advantageLoss * Gameworld.GetStaticDouble("ParryAdvantagePenaltyPerDegree");
-        }
-        OpposedOutcome result = new(attackRoll, parryCheck);
-#if DEBUG
-        Console.WriteLine(
-            $"MeleeWeaponAttack Parry Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");
-#endif
-
-        List<IWound> wounds = new();
-        List<IWound> wardWounds = new();
-
-        if (result.Outcome == OpposedOutcomeDirection.Proponent)
-        {
-            // Parry is a little more forgiving if you fail than dodge
-            double angleMultiplier = 1.0;
-            switch (result.Degree)
-            {
-                case OpposedOutcomeDegree.None:
-                    angleMultiplier = 0.25;
-                    break;
-                case OpposedOutcomeDegree.Marginal:
-                    angleMultiplier = 0.4;
-                    break;
-                case OpposedOutcomeDegree.Minor:
-                    angleMultiplier = 0.55;
-                    break;
-                case OpposedOutcomeDegree.Moderate:
-                    angleMultiplier = 0.7;
-                    break;
-                case OpposedOutcomeDegree.Major:
-                    angleMultiplier = 0.85;
-                    break;
-                case OpposedOutcomeDegree.Total:
-                    angleMultiplier = 1.0;
-                    break;
-            }
-
-            double finalAngle = Attack.Profile.BaseAngleOfIncidence * angleMultiplier;
-            Damage finalDamage = new()
-            {
-                ActorOrigin = Assailant,
-                LodgableItem = null,
-                ToolOrigin = null,
-                AngleOfIncidentRadians = finalAngle,
-                Bodypart = TargetBodypart,
-                DamageAmount =
-                    EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
-                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 * finalAngle / Math.PI,
-                DamageType = Attack.Profile.DamageType,
-                PainAmount =
-                    EvaluateAttackFormula(Attack.Profile.PainExpression, Assailant,
-                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 * finalAngle / Math.PI,
-                PenetrationOutcome =
-                    Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
-                             .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType),
-                                 defenderMove.Assailant,
-                                 Weapon),
-                ShockAmount = 0,
-                StunAmount =
-                    EvaluateAttackFormula(Attack.Profile.StunExpression, Assailant,
-                        TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0) * 2 * finalAngle / Math.PI
-            };
-
-            string parryEmote = Gameworld.CombatMessageManager.GetFailMessageFor(defenderMove.Assailant, Assailant,
-                parry.Weapon.Parent, Attack, parry.MoveType, parryCheck.Outcome, null);
-            Assailant.OutputHandler.Handle(
-                new EmoteOutput(
-                    new Emote(
-                        $"{attackEmote}{string.Format(parryEmote, "", TargetBodypart.FullDescription())}".Fullstop(),
-                        Assailant, Assailant, defenderMove.Assailant, null, parry.Weapon.Parent, null),
-                    style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            wounds.AddRange(defenderHaveWounds.PassiveSufferDamage(finalDamage));
-            CheckLodged(wounds);
-            wardWounds.AddRange(parry.Weapon.Parent.PassiveSufferDamage(finalDamage));
-            CheckLodged(wardWounds);
-            wounds.ProcessPassiveWounds();
-            wardWounds.ProcessPassiveWounds();
-        }
-        else
-        {
-            string parryEmote = Gameworld.CombatMessageManager.GetMessageFor(defenderMove.Assailant, Assailant,
-                parry.Weapon.Parent, Attack, parry.MoveType, parryCheck.Outcome, null);
-            Assailant.OutputHandler.Handle(
-                new EmoteOutput(
-                    new Emote($"{attackEmote}{parryEmote}".Fullstop(), Assailant, Assailant, defenderMove.Assailant,
-                        null, parry.Weapon.Parent, null), style: OutputStyle.CombatMessage,
-                    flags: OutputFlags.InnerWrap));
-
-            // The parrying weapon itself may still suffer damage
-            double angleMultiplier = 0.0;
-            switch (result.Degree)
-            {
-                case OpposedOutcomeDegree.None:
-                    angleMultiplier = 0.25;
-                    break;
-                case OpposedOutcomeDegree.Marginal:
-                    angleMultiplier = 0.175;
-                    break;
-                case OpposedOutcomeDegree.Minor:
-                    angleMultiplier = 0.1;
-                    break;
-                case OpposedOutcomeDegree.Moderate:
-                    angleMultiplier = 0.05;
-                    break;
-                case OpposedOutcomeDegree.Major:
-                    angleMultiplier = 0;
-                    break;
-                case OpposedOutcomeDegree.Total:
-                    angleMultiplier = 0;
-                    break;
-            }
-
-            double finalAngle = Attack.Profile.BaseAngleOfIncidence * angleMultiplier;
-
-            Damage finalDamage = new()
-            {
-                ActorOrigin = Assailant,
-                LodgableItem = null,
-                ToolOrigin = null,
-                AngleOfIncidentRadians = finalAngle,
-                Bodypart = null,
-                DamageAmount = EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
-                    TraitBonusContext.None, (int)result.Degree, 0) * 2 * finalAngle / Math.PI,
-                DamageType = Attack.Profile.DamageType,
-                PainAmount = 0,
-                PenetrationOutcome = Outcome.MajorFail,
-                ShockAmount = 0,
-                StunAmount = 0
-            };
-            wardWounds.AddRange(parry.Weapon.Parent.PassiveSufferDamage(finalDamage));
-            CheckLodged(wardWounds);
-            wardWounds.ProcessPassiveWounds();
-
-            if (!parry.Weapon.Parent.Destroyed && result.Degree == OpposedOutcomeDegree.Total)
-            {
-                if (!defenderMove.Assailant.CombatSettings.ForbiddenIntentions.HasFlag(
-                        CombatMoveIntentions.Advantage))
-                {
-                    //If our parry was a total success, give defense penalty to target that got parried
-                    //based on outcome of a second parry check.
-                    Assailant.DefensiveAdvantage -= (int)Gameworld.GetCheck(defenderMove.Check)
-                                                                  .Check(defenderMove.Assailant,
-                                                                      defenderMove.CheckDifficulty,
-                                                                      parry.Weapon.WeaponType.AttackTrait,
-                                                                      Assailant,
-                                                                      parry.Weapon.WeaponType.ParryBonus).Outcome - 1.0;
-                    defenderMove.Assailant.OutputHandler.Handle(
-                        new EmoteOutput(
-                            new Emote(
-                                "@'s highly successful defense puts $1 into a position open to counterattack!",
-                                defenderMove.Assailant, defenderMove.Assailant, Assailant),
-                            style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-                }
-            }
-        }
-
-        Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
-        defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
-        (parry.Weapon as IConditionDegradingComponent)?.UseCondition(
-            new ItemConditionUseContext(ItemConditionUseKind.Parry, parryCheck, (int)result.Degree));
-        return new CombatMoveResult
-        {
-            MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
-            AttackerOutcome = attackRoll,
-            DefenderOutcome = parryCheck,
-            RecoveryDifficulty = attackRoll.IsPass() ? RecoveryDifficultySuccess : RecoveryDifficultyFailure,
-            WoundsCaused = wounds,
-            SelfWoundsCaused = wardWounds
-        };
-    }
-
-    private CombatMoveResult ResolveDodge(ICombatMove defenderMove, CheckOutcome attackRoll,
-        IHaveWounds defenderHaveWounds, string attackEmote, DodgeMove dodge, WardResult wardResult)
-    {
-        bool echoSlipped = false;
-        double targetBonus = Assailant.GetBonusForDefendersFromTargeting();
-        CheckOutcome dodgeCheck = Gameworld.GetCheck(defenderMove.Check)
-                                  .Check(defenderMove.Assailant,
-                                      Attack.Profile.BaseDodgeDifficulty.StageUp(dodge.DifficultStageUps),
-                                      Assailant, null,
-                                                  targetBonus + dodge.Assailant.DefensiveAdvantage -
-                                                  GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
-        dodge.Assailant.DefensiveAdvantage = 0;
-        double dodgeDelay = Gameworld.GetStaticDouble("DodgeDelaySeconds") *
-                           (1.0 - dodgeCheck.CheckDegrees() / 6.0);
-        Gameworld.Scheduler.DelayScheduleType(defenderMove.Assailant, ScheduleType.Combat,
-                TimeSpan.FromSeconds(dodgeDelay));
-        int dsuccess = dodgeCheck.SuccessDegrees();
-        if (dsuccess > 0)
-        {
-            double adv = dsuccess switch
-            {
-                1 => Gameworld.GetStaticDouble("DodgeDefensiveAdvantageMinorPass"),
-                2 => Gameworld.GetStaticDouble("DodgeDefensiveAdvantagePass"),
-                _ => Gameworld.GetStaticDouble("DodgeDefensiveAdvantageMajorPass")
-            };
-            defenderMove.Assailant.DefensiveAdvantage += adv;
-        }
-
-        if (dodgeCheck.Outcome == Outcome.MajorFail &&
-            RandomUtilities.DoubleRandom(0.0, 1.0) < Gameworld.GetStaticDouble("DodgeMajorFailFallChance") &&
-            defenderMove.Assailant.PositionState.Upright)
-        {
-            echoSlipped = true;
-            defenderMove.Assailant.DoCombatKnockdown();
-        }
-
-        OpposedOutcome result = new(attackRoll, dodgeCheck);
-#if DEBUG
-        Console.WriteLine(
-            $"MeleeWeaponAttack Dodge Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");
-#endif
-
-        List<IWound> wounds = new();
-        List<IWound> selfWounds = new();
-
-        if (result.Outcome == OpposedOutcomeDirection.Proponent ||
-            result.Outcome == OpposedOutcomeDirection.Stalemate)
-        {
-            // Dodge is unforgiving if you lose the check
-            double angleMultiplier = 1.0;
-            switch (result.Degree)
-            {
-                case OpposedOutcomeDegree.None:
-                    angleMultiplier = 0.5;
-                    break;
-                case OpposedOutcomeDegree.Marginal:
-                    angleMultiplier = 0.6;
-                    break;
-                case OpposedOutcomeDegree.Minor:
-                    angleMultiplier = 0.7;
-                    break;
-                case OpposedOutcomeDegree.Moderate:
-                    angleMultiplier = 0.8;
-                    break;
-                case OpposedOutcomeDegree.Major:
-                    angleMultiplier = 0.9;
-                    break;
-                case OpposedOutcomeDegree.Total:
-                    angleMultiplier = 1.0;
-                    break;
-            }
-
-            double finalAngle = Attack.Profile.BaseAngleOfIncidence * angleMultiplier;
-
-            double damageResult =
-                EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
-                    TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0);
-            double stunResult =
-                EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
-                    TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0);
-            double painResult =
-                EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant,
-                    TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, 0);
-
-            Damage damage = new()
-            {
-                ActorOrigin = Assailant,
-                LodgableItem = null,
-                ToolOrigin = null,
-                AngleOfIncidentRadians = finalAngle,
-                Bodypart = TargetBodypart,
-                DamageAmount = damageResult * 2.0 * finalAngle / Math.PI,
-                DamageType = Attack.Profile.DamageType,
-                PainAmount = painResult * 2.0 * finalAngle / Math.PI,
-                PenetrationOutcome =
-                    Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
-                             .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType),
-                                 _characterTargets.First()),
-                ShockAmount = 0,
-                StunAmount = stunResult * 2.0 * finalAngle / Math.PI
-            };
-
-            string dodgeEmote = Gameworld.CombatMessageManager.GetFailMessageFor(defenderMove.Assailant, Assailant,
-                null, Attack, dodge.MoveType, dodgeCheck.Outcome, null);
-            Assailant.OutputHandler.Handle(
-                new EmoteOutput(
-                    new Emote(
-                        $"{attackEmote}{wardResult?.WardEmotes ?? ""}{string.Format(dodgeEmote, "", TargetBodypart.FullDescription())}"
-                            .Fullstop(), Assailant, Assailant, defenderMove.Assailant, null, null,
-                        wardResult?.WardWeapon?.Parent), style: OutputStyle.CombatMessage,
-                    flags: OutputFlags.InnerWrap));
-            if (echoSlipped)
-            {
-                defenderMove.Assailant.OutputHandler.Handle(new EmoteOutput(new Emote("@ slip|slips and fall|falls to the ground while dodging!", defenderMove.Assailant)));
-            }
-            selfWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
-            wounds.AddRange(defenderHaveWounds.PassiveSufferDamage(damage));
-            CheckLodged(wounds);
-            CheckLodged(selfWounds);
-            wounds.ProcessPassiveWounds();
-            selfWounds.ProcessPassiveWounds();
-        }
-        else
-        {
-            string dodgeEmote = Gameworld.CombatMessageManager.GetMessageFor(defenderMove.Assailant, Assailant,
-                null, Attack, dodge.MoveType, dodgeCheck.Outcome, null);
-            Assailant.OutputHandler.Handle(
-                new EmoteOutput(
-                    new Emote($"{attackEmote}{wardResult?.WardEmotes ?? ""}{dodgeEmote}".Fullstop(), Assailant,
-                        Assailant, defenderMove.Assailant, null, null, wardResult?.WardWeapon?.Parent),
-                    style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            selfWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
-            selfWounds.ProcessPassiveWounds();
-            CheckLodged(selfWounds);
-            if (Assailant.State != CharacterState.Dead && result.Degree == OpposedOutcomeDegree.Total)
-            {
-                if (!defenderMove.Assailant.CombatSettings.ForbiddenIntentions.HasFlag(CombatMoveIntentions.Flank))
-                {
-                    Facing previousFacing = defenderMove.Assailant.GetFacingFor(Assailant);
-                    ImproveCombatPosition(defenderMove.Assailant, Assailant);
-                    Facing newFacing = defenderMove.Assailant.GetFacingFor(Assailant);
-
-                    defenderMove.Assailant.OffensiveAdvantage += Gameworld.GetStaticDouble("PerfectDodgeAdvantage");
-
-                    if (previousFacing != newFacing)
-                    {
-                        defenderMove.Assailant.OutputHandler.Handle(
-                            new EmoteOutput(
-                                new Emote(
-                                    $"@'s masterful dodge puts &0 into a perfect position to counterattack!",
-                                    defenderMove.Assailant, defenderMove.Assailant, Assailant),
-                                flags: OutputFlags.InnerWrap));
-                    }
-                }
-            }
-        }
-
-        Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
-        defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
-        return new CombatMoveResult
-        {
-            MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
-            AttackerOutcome = attackRoll,
-            DefenderOutcome = dodgeCheck,
-            RecoveryDifficulty = attackRoll.IsPass() ? RecoveryDifficultySuccess : RecoveryDifficultyFailure,
-            WoundsCaused = wounds,
-            SelfWoundsCaused = selfWounds
-        };
-    }
-
-    private CombatMoveResult ResolveHelplessDefense(ICombatMove defenderMove, CheckOutcome attackRoll,
-        IHaveWounds defenderHaveWounds, string attackEmote)
-    {
-        WorsenCombatPosition(defenderMove.Assailant, Assailant);
-        OpposedOutcome result = new(attackRoll, Outcome.NotTested);
-#if DEBUG
-        Console.WriteLine(
-            $"MagicPowerAttack HelplessDefenseMove Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");
-#endif
-        (IDamage damage, IDamage selfDamage) = GetDamagePlusSelfDamageForWeapon(Weapon, attackRoll, result.Degree,
-            defenderHaveWounds, TargetBodypart, Attack.Profile.BaseAngleOfIncidence);
-
-        Assailant.OutputHandler.Handle(
-            new EmoteOutput(
-                new Emote($"{attackEmote}, and #1 %1|are|is struck on &1's {TargetBodypart.FullDescription()}!",
-                    Assailant, Assailant, defenderMove.Assailant, null, null, null), style: OutputStyle.CombatMessage,
-                flags: OutputFlags.InnerWrap));
-        List<IWound> wounds = defenderHaveWounds.PassiveSufferDamage(damage).ToList();
-        CheckLodged(wounds);
-        wounds.ProcessPassiveWounds();
-        Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
-        defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
-        return new CombatMoveResult
-        {
-            MoveWasSuccessful = true,
-            AttackerOutcome = attackRoll,
-            RecoveryDifficulty = attackRoll.IsPass() ? RecoveryDifficultySuccess : RecoveryDifficultyFailure,
-            WoundsCaused = wounds
-        };
-    }
+	private CombatMoveResult Failed(Outcome attack, Outcome defense = Outcome.NotTested) => new()
+	{ AttackerOutcome = attack, DefenderOutcome = defense, RecoveryDifficulty = RecoveryDifficultyFailure };
 }
+
+public sealed class RangedMagicPowerAttackMove(ICharacter attacker, ICharacter target, IMagicAttackPower power)
+	: MagicPowerAttackMove(attacker, target, power), IRangedAttackMove;

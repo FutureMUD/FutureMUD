@@ -141,7 +141,7 @@ public partial class Character
 
     public override ICombatMove ResponseToMove(ICombatMove move, IPerceiver assailant)
     {
-        return CombatStrategyFactory.GetStrategy(CombatStrategyMode).ResponseToMove(move, this, assailant);
+        return MagicDefenseMove.Select(this, move, CombatStrategyFactory.GetStrategy(CombatStrategyMode).ResponseToMove(move, this, assailant));
     }
 
     public override ICombatMove ChooseMove()

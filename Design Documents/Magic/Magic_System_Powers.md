@@ -1,5 +1,7 @@
 # FutureMUD Magic System: Powers
 
+See [Magical and Psychic Combat Powers](./Magic_Combat_Powers.md) for ranged attacks, resisted control riders and sustained combat defenses.
+
 ## Purpose
 This document explains how magic `powers` work in FutureMUD.
 
@@ -167,11 +169,11 @@ Builders should usually choose a `spell` when:
 - the desired behavior is closer to "data-defined magical effect" than to "new command mechanic"
 
 ## Seeder and Data Author Workflow
-There is no dedicated magic power seeder in `DatabaseSeeder`.
+`PsionicsSeeder` and `SupernaturalSeeder` install optional power content; custom schools can still be authored manually.
 
 Current seeder implications:
 
-- powers must currently be seeded manually into `MagicPowers`
+- optional packages seed stock powers; custom data authors can insert definitions into `MagicPowers`
 - the school must already exist
 - any referenced resources, progs, and other content must already exist
 - the `PowerModel` token and `Definition` XML must match the concrete runtime class
@@ -235,7 +237,9 @@ These are the currently builder-creatable power tokens registered through `Magic
 | `hear` | `HearPower` | Sustained listener for psionic thought and feeling traffic |
 | `hex` | `HexPower` | Timed hostile check penalty across configured check categories |
 | `invisibility` | `InvisibilityPower` | Applies invisibility behavior |
-| `magicattack` | `MagicAttackPower` | Direct magical attack action |
+| `magicattack` | `MagicAttackPower` | Melee/ranged magical attack with optional resisted control riders |
+| `magicdefense` | `MagicDefensePower` | Sustained opposed, charged or absorption defense |
+| `magicsmash` | `MagicSmashPower` | Magical item damage with an optional item-context spell payload |
 | `magicksense` | `MagicksensePower` | Sustained magical-aura perception grant |
 | `mindaudit` | `MindAuditPower` | Mind-reading or auditing style power |
 | `mindbarrier` | `MindBarrierPower` | Mental barrier or protection effect |

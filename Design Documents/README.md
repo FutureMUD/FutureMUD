@@ -151,6 +151,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [ItemSeeder AddCraft Authoring Guide](./Items/ItemSeeder_AddCraft_Guide.md)
 
 ## Magic
+- [Magical and Psychic Combat Powers](./Magic/Magic_Combat_Powers.md)
 
 - [Psychic Powers, Impressions and Witness Memory](./Magic/Psychic_Powers_Impressions_and_Witness_Memory.md)
 - [Magic System Overview](./Magic/Magic_System_Overview.md)

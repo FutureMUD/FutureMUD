@@ -1,5 +1,9 @@
 # Combat Strategy Runtime
 
+Magical defense selection runs after the ordinary strategy response. Active eligible powers compete with mundane choices; preference takes priority and mundane defense wins ties. Dedicated ranged magic uses ranged defense selection, while melee magic retains melee defense selection. Manual powers queue selected combat actions and both manual and automatic attacks revalidate before charging. See [Magical and Psychic Combat Powers](../Magic/Magic_Combat_Powers.md) for reaction modes, targeting and player controls.
+
+Successful magic attacks can deliver a separately configured attack-context spell, including caster effects. Full magical interception prevents that payload. Magical item smashes use selected combat actions without introducing a character defensive response for the item; their costs, target validity and payload compatibility are checked again at resolution.
+
 ## Scope
 
 This document describes the current runtime behaviour of the built-in `ICombatStrategy` implementations. It is intended as a practical reference for maintainers and AI agents auditing combat behaviour, especially around cases where a strategy may otherwise choose no move.
@@ -59,7 +63,7 @@ the escape when its existing posture, stamina, mounting, consciousness, and bloc
 The contest continues to use the normal `ResistBreakClinch` check, so a low or zero defensive trait makes the
 holder weak without being an absolute substitute for the standard strategy's helpless response.
 
-`RangeBaseStrategy` handles ranged defenses, receive-charge opportunities, and ranged-natural defenses. It delegates magic power attack defense to `StandardMeleeStrategy` so ranged-mode combatants still use ordinary ward/block/parry/dodge coverage against magic. Ranged strategies normally rely on the melee-range setter to switch them to their preferred melee strategy once melee range is established.
+`RangeBaseStrategy` handles ranged defenses, receive-charge opportunities, and ranged-natural defenses. It delegates melee magic power attack defense to `StandardMeleeStrategy`; ranged magic uses ranged block/dodge coverage. Ranged strategies normally rely on the melee-range setter to switch them to their preferred melee strategy once melee range is established.
 
 `WardStrategy` extends melee defense by trying a ward defense before falling back to standard defense. Wards are available against start-clinch, weapon attacks, and magic attack powers when the defender is not ward-beaten, has stamina, the assailant is upright, and the defender has a usable warding weapon or unarmed ward attack. The Combat Seeder supplies unfiltered `WardDefense` and `WardCounter` fallback messages; attack-specific messages remain eligible only for their linked attack.
 
@@ -291,7 +295,7 @@ The current effect types are:
 - `positionchange`: changes combat position. The stock default uses the existing combat knockdown flow and delays the target by 1.5 seconds plus 0.5 seconds per opposed success degree, capped at 5 seconds.
 - `disarm`: knocks a wielded item from the target's hands. The stock default chooses the best disarmable wielded weapon and applies the existing `CombatNoGetEffect` / `CombatGetItemEffect` recovery flow for 90 seconds.
 
-The new state-changing effect types share an opposed-resolution configuration: defense trait, defense difficulty, minimum opposed outcome degree, flat amount, per-degree amount, maximum cap, and optional success/failure echoes. Builders can inspect effect syntax with `auxiliary set typehelp <effect>` and edit individual effects from the auxiliary action builder with commands such as `trait`, `difficulty`, `minimum`, `amount`, `perdegree`, `max`, `successecho`, `failureecho`, and `clearecho`. Effect-specific commands add the remaining knobs, for example `facing subject`, `facing direction`, `positionchange knockdown`, `positionchange position`, and `disarm selection`. The auxiliary action builder is an Admin-level combat builder command because these actions can be attached to races and can persistently alter global combat behaviour. Numeric opposed-effect amount fields reject non-finite values and values outside ±86,400 to keep configured delays, stamina drains, and similar calculated effect amounts in a bounded runtime range. Legacy XML values outside that range are sanitised when loaded rather than propagated into combat scheduling.
+The new state-changing effect types share an opposed-resolution configuration: defense trait, defense difficulty, minimum opposed outcome degree, flat amount, per-degree amount, maximum cap, and optional success/failure echoes. Builders can inspect effect syntax with `auxiliary set typehelp <effect>` and edit individual effects from the auxiliary action builder with commands such as `trait`, `difficulty`, `minimum`, `amount`, `perdegree`, `max`, `successecho`, `failureecho`, and `clearecho`. Effect-specific commands add the remaining knobs, for example `facing subject`, `facing direction`, `positionchange knockdown`, `positionchange position`, and `disarm selection`. The auxiliary action builder is an Admin-level combat builder command because these actions can be attached to races and can persistently alter global combat behaviour. Numeric opposed-effect amount fields reject non-finite values and values outside Â±86,400 to keep configured delays, stamina drains, and similar calculated effect amounts in a bounded runtime range. Legacy XML values outside that range are sanitised when loaded rather than propagated into combat scheduling.
 
 State-changing auxiliary effects apply only when the move has a character target. Item or other perceivable targets are safely ignored by these effects rather than trying to mutate character-only combat state.
 
@@ -309,7 +313,7 @@ Implemented fixes from this pass:
 
 - `StandardMeleeStrategy` now dodges start-clinch attempts when standing and able to afford the stamina, rather than treating that viable state as helpless.
 - `StandardMeleeStrategy` now applies the same "cannot dodge while mounted" predicate to magic power attacks that it already applies to ordinary weapon attacks.
-- `RangeBaseStrategy` now delegates magic power attack defenses to the standard melee defense implementation instead of returning `null`.
+- `RangeBaseStrategy` delegates melee magic power defenses to the standard melee implementation, while ranged magic follows ranged defenses.
 - `RangeBaseStrategy` now immediately asks `FullAdvance` for a move after switching to it because no ranged attack is possible.
 - `RangeBaseStrategy.GetPathFunction` now correctly rejects swim-only paths for abject swim failures and rejects fly-only paths for non-flying characters who cannot fly.
 - `CombatStrategyMode.Swooper` is now described and classified as both a valid melee-mode and ranged-mode strategy, preserving persisted preferred strategy settings.

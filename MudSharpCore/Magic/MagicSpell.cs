@@ -1352,6 +1352,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
     public bool CharacterKnowsSpell(ICharacter magician)
     {
+		if (Trigger is SpellTriggers.AttackHitTrigger) return false;
         if (magician is null || SpellKnownProg is null)
         {
             return false;
@@ -1672,6 +1673,16 @@ public class MagicSpell : SaveableItem, IMagicSpell
 	/// spell's normal effects, target resistance, duration expression and persistent parent-effect model.
 	/// </summary>
 	public void ResolveTriggeredSpell(ICharacter magician, IPerceivable target, SpellPower power)
+		=> ResolvePreparedSpell(magician, target, power, CheckOutcome.SimpleOutcome(CheckType.CastSpellCheck, Outcome.Pass));
+
+	public void ResolveAttackSpell(ICharacter magician, IPerceivable target, SpellPower power, CheckOutcome attackOutcome)
+	{
+		if (!attackOutcome.IsPass() || Trigger is not SpellTriggers.AttackHitTrigger trigger ||
+		    (trigger.TargetsItems ? target is not GameItems.IGameItem : target is not ICharacter)) return;
+		ResolvePreparedSpell(magician, target, power, attackOutcome, true);
+	}
+
+	private void ResolvePreparedSpell(ICharacter magician, IPerceivable target, SpellPower power, CheckOutcome attackOutcome, bool attackPayload = false)
 	{
 		if (target is null && _spellEffects.Any(x => x.RequiresTarget))
 		{
@@ -1683,15 +1694,15 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		{
 			duration = TimeSpan.FromSeconds(
 				EffectDurationExpression.EvaluateWith(magician, CastingTrait, TraitBonusContext.SpellDuration,
-					("degrees", 1), ("success", 1), ("power", (int)power)));
+					("degrees", attackPayload ? Math.Max(1, attackOutcome.SuccessDegrees()) : 1), ("success", 1), ("power", (int)power)));
 		}
 
-		var effectOutcome = OpposedOutcomeDegree.None;
+		var effectOutcome = attackPayload ? new OpposedOutcome(attackOutcome, Outcome.NotTested).Degree : OpposedOutcomeDegree.None;
 		if (OpposedTrait is not null && target is ICharacter targetCharacter && targetCharacter != magician)
 		{
 			var resistance = Gameworld.GetCheck(CheckType.ResistMagicSpellCheck)
 				.CheckAgainstAllDifficulties(targetCharacter, OpposedDifficulty ?? Difficulty.Normal, OpposedTrait, magician);
-			var opposed = new OpposedOutcome(Outcome.Pass, resistance[OpposedDifficulty ?? Difficulty.Normal].Outcome);
+			var opposed = new OpposedOutcome(attackOutcome, resistance[OpposedDifficulty ?? Difficulty.Normal].Outcome);
 			if (opposed.Outcome == OpposedOutcomeDirection.Opponent)
 			{
 				if (!string.IsNullOrEmpty(TargetResistedEmote))
@@ -1743,10 +1754,11 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			return;
 		}
 
-		var casterHead = new MagicSpellParent(magician, this, magician, power, OpposedOutcomeDegree.None);
+		var casterOutcome = attackPayload ? new OpposedOutcome(attackOutcome, Outcome.NotTested).Degree : OpposedOutcomeDegree.None;
+		var casterHead = new MagicSpellParent(magician, this, magician, power, casterOutcome);
 		foreach (var effect in _casterSpellEffects)
 		{
-			var child = effect.GetOrApplyEffect(magician, magician, OpposedOutcomeDegree.None, power, casterHead, []);
+			var child = effect.GetOrApplyEffect(magician, magician, casterOutcome, power, casterHead, []);
 			if (child is null)
 			{
 				continue;
@@ -1764,10 +1776,10 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
     public bool ReadyForGame =>
         Trigger != null &&
-        !string.IsNullOrEmpty(CastingEmote) &&
+        (Trigger is SpellTriggers.AttackHitTrigger || !string.IsNullOrEmpty(CastingEmote)) &&
         (Trigger.TriggerYieldsTarget || _spellEffects.All(x => !x.RequiresTarget)) &&
         (!Trigger.TriggerMayFailToYieldTarget || !string.IsNullOrEmpty(TargetNullEmote)) &&
-        (EffectDurationExpression != null || _spellEffects.All(x => x.IsInstantaneous)) &&
+        (EffectDurationExpression != null || _spellEffects.Concat(_casterSpellEffects).All(x => x.IsInstantaneous)) &&
         _spellEffects.All(x => x.IsCompatibleWithTrigger(Trigger)) &&
         CastingTrait != null;
 
@@ -1779,7 +1791,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
             return "every spell much have a trigger set.";
         }
 
-        if (string.IsNullOrEmpty(CastingEmote))
+        if (Trigger is not SpellTriggers.AttackHitTrigger && string.IsNullOrEmpty(CastingEmote))
         {
             return "every spell must have a casting emote.";
         }
@@ -1790,12 +1802,12 @@ public class MagicSpell : SaveableItem, IMagicSpell
                 "at least one of the spell effects requires a target, but the spell trigger does not supply one.";
         }
 
-        if (Trigger.TriggerMayFailToYieldTarget || !string.IsNullOrEmpty(TargetNullEmote))
+        if (Trigger.TriggerMayFailToYieldTarget && string.IsNullOrEmpty(TargetNullEmote))
         {
             return "the trigger may fail to yield a target, and you have no target null emote set.";
         }
 
-        if (EffectDurationExpression == null && _spellEffects.Any(x => !x.IsInstantaneous))
+        if (EffectDurationExpression == null && _spellEffects.Concat(_casterSpellEffects).Any(x => !x.IsInstantaneous))
         {
             return
                 "there is no effect duration expression set, and at least one of the spell effects is not instantaneous.";

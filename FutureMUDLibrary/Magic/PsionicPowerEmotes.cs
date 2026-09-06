@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace MudSharp.Magic;
 
 /// <summary>Authored stock echoes shared by seed XML and newly built powers. Persisted custom text is not replaced.</summary>
-public static class PsionicPowerEmotes
+public static partial class PsionicPowerEmotes
 {
 	public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> All { get; } =
 		new Dictionary<string, IReadOnlyDictionary<string, string>>

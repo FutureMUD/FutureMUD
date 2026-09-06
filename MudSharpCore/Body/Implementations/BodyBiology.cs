@@ -906,6 +906,7 @@ public partial class Body
 
     public IEnumerable<IWound> PassiveSufferDamage(IDamage damage, StringBuilder sb)
     {
+		if (damage is not null) damage = MudSharp.Combat.Moves.MagicDefenseDamageScope.Filter(Actor, damage);
         if (damage == null)
         {
             return Enumerable.Empty<IWound>();

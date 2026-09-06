@@ -21,9 +21,15 @@ public class WrenchingAttack : NaturalAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
         CheckOutcome attackRoll = Gameworld.GetCheck(Check)
                                   .Check(Assailant, CheckDifficulty, CharacterTarget, null,
                                       Assailant.OffensiveAdvantage);
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll, out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
+        }
         OpposedOutcome outcome = new(attackRoll, Outcome.NotTested);
         OpposedOutcomeDegree degree = outcome.Degree;
         string attackEmote =

@@ -11,6 +11,24 @@ namespace MudSharp.Effects.Concrete;
 
 public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 {
+	internal class MagicSmashAction : CombatActionType
+	{
+		public required Magic.Powers.IMagicSmashPower Power { get; init; }
+		public required IGameItem Target { get; init; }
+		public override ICombatMove GetCombatMove(ICharacter actor) => new MagicPowerSmashItemMove(actor, Target, Power);
+		public override string Describe(IPerceiver voyeur) => $"smashing {Target.HowSeen(voyeur)} with {Power.Name}";
+	}
+	public static SelectedCombatAction GetEffectMagicSmash(ICharacter actor, IGameItem target, Magic.Powers.IMagicSmashPower power)
+		=> new(actor, new MagicSmashAction { Power = power, Target = target });
+	internal class MagicAttackAction : CombatActionType
+	{
+		public required Magic.Powers.MagicAttackPower Power { get; init; }
+		public required ICharacter Target { get; init; }
+		public override ICombatMove GetCombatMove(ICharacter actor) => Power.CreateMove(actor, Target);
+		public override string Describe(IPerceiver voyeur) => $"using {Power.Name} against {Target.HowSeen(voyeur)}";
+	}
+	public static SelectedCombatAction GetEffectMagicAttack(ICharacter actor, ICharacter target, Magic.Powers.MagicAttackPower power)
+		=> new(actor, new MagicAttackAction { Power = power, Target = target });
     internal abstract class CombatActionType
     {
         public abstract ICombatMove GetCombatMove(ICharacter actor);

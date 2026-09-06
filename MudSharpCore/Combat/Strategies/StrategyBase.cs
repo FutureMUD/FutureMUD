@@ -912,15 +912,23 @@ public abstract class StrategyBase : ICombatStrategy
 
     protected virtual ICombatMove AttemptUseMagic(ICharacter combatant)
     {
-        // TODO
-        return null;
+        return SelectMagicAttack(combatant, false);
     }
 
-    protected virtual ICombatMove AttemptUsePsychicAbility(ICharacter combatant)
-    {
-        // TODO
-        return null;
-    }
+    protected virtual ICombatMove AttemptUsePsychicAbility(ICharacter combatant) => SelectMagicAttack(combatant, true);
+
+	protected ICombatMove SelectMagicAttack(ICharacter actor, bool psychic)
+	{
+		if (actor.CombatTarget is not ICharacter target) return null;
+		var powers = actor.Powers.OfType<MudSharp.Magic.Powers.MagicAttackPower>()
+			.Where(x => x.IsPsionic == psychic && !actor.CombatSettings.ForbiddenSchools.Contains(x.School))
+			.Where(x => (x.PowerIntentions & actor.CombatSettings.ForbiddenIntentions) == 0 && x.PowerIntentions.HasFlag(actor.CombatSettings.RequiredIntentions))
+			.Where(x => x.CanInvokePower(actor, target)).ToList();
+		if (powers.Count == 0) return null;
+		var preferred = powers.Where(x => x.PowerIntentions.HasFlag(actor.CombatSettings.PreferredIntentions)).ToList();
+		var power = (preferred.Count > 0 && Dice.Roll(1, 2) == 1 ? preferred : powers).GetWeightedRandom(x => x.Weighting);
+		return power?.CreateMove(actor, target);
+	}
 
     protected virtual ICombatMove AttemptUseAuxilliaryAction(ICharacter combatant)
     {

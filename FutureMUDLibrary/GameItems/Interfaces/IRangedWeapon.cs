@@ -8,6 +8,7 @@ using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.GameItems.Interfaces;
 
@@ -29,6 +30,10 @@ public enum LoadMode
 /// </remarks>
 public interface IRangedWeaponPlatform : IGameItemComponent, IUseTrait
 {
+	/// <summary>Known damage types of loaded projectiles. Unknown payloads do not qualify for type-limited magical defenses.</summary>
+	IEnumerable<DamageType> ProjectileDamageTypes => AllContainedItems
+		.Select(x => x.GetItemType<IAmmo>()).Where(x => x is not null)
+		.Select(x => x.AmmoType.DamageProfile.DamageType).Distinct();
 	/// <summary>Metadata used by the common aim and firing calculations.</summary>
 	IRangedWeaponType WeaponType => (this as IRangedWeapon)?.WeaponType ??
 		throw new InvalidOperationException("A non-wieldable ranged platform must expose its ranged weapon type.");

@@ -12,7 +12,7 @@ using MudSharp.RPG.Checks;
 
 namespace DatabaseSeeder.Seeders;
 
-public sealed class PsionicsSeeder : IDatabaseSeeder
+public sealed partial class PsionicsSeeder : IDatabaseSeeder
 {
 	public string Name => "Psionics";
 	public string Tagline => "Optional Basic and Advanced Psionics, with unassigned capabilities.";
@@ -26,6 +26,10 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 	public bool SafeToRunMoreThanOnce => true;
 	public IEnumerable<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
 	[
+		("install-psionics", "Install the optional Basic and Advanced Psionics schools? (yes/no)",
+			(_, _) => true,
+			(answer, _) => answer.Equals("yes", StringComparison.OrdinalIgnoreCase) || answer.Equals("no", StringComparison.OrdinalIgnoreCase)
+				? (true, string.Empty) : (false, "Please answer yes or no."))
 	];
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context) => !context.TraitDefinitions.Any(x => x.Type == 0)
 		? ShouldSeedResult.PrerequisitesNotMet : context.MagicSchools.Any(x => x.Name == "Basic Psionics")
@@ -33,6 +37,8 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
+		if (questionAnswers.TryGetValue("install-psionics", out var install) && install.Equals("no", StringComparison.OrdinalIgnoreCase))
+			return "Psionics installation declined; no content was changed.";
 		using var transaction = context.Database.BeginTransaction();
 		var preserved = new List<string>();
 		FutureProg Prog(string suffix, ProgVariableTypes type, string body)
@@ -138,6 +144,7 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 				powers.Add((power, stock.Band));
 			}
 			if (!basic) powers.AddRange(InstallSpellPowers(context, school, trait, resource, yes, no, error));
+			if (!basic) powers.AddRange(InstallCombatPowers(context, school, trait, resource, yes, error));
 			var capability = context.MagicCapabilities.SingleOrDefault(x => x.Name == name);
 			if (capability is null)
 			{
@@ -150,7 +157,8 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 			else
 			{
 				var definition = XElement.Parse(capability.Definition);
-				foreach (var entry in powers.Where(x => x.Power.Name.EndsWith(": connectback", StringComparison.Ordinal)))
+				foreach (var entry in powers.Where(x => x.Power.Name.EndsWith(": connectback", StringComparison.Ordinal) ||
+					PsionicStockContent.CombatPowers.Any(stock => x.Power.Name == $"{name}: {stock.Name}")))
 					if (!definition.Elements("Power").Any(x => (long?)x.Attribute("power") == entry.Power.Id))
 						definition.Add(new XElement("Power", new XAttribute("trait", trait.Id), new XAttribute("minvalue", entry.Band), new XAttribute("power", entry.Power.Id)));
 				capability.Definition = definition.ToString();

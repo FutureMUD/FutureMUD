@@ -59,6 +59,13 @@ public class ClinchNaturalAttackMove : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
+		using var scope = new MagicDefenseDamageScope(this, defenderMove);
+		return scope.Finish(ResolveAttackWithDefense(defenderMove));
+    }
+
+    private CombatMoveResult ResolveAttackWithDefense(ICombatMove defenderMove)
+    {
         if (defenderMove == null)
         {
             defenderMove = new HelplessDefenseMove { Assailant = CharacterTarget };
@@ -84,6 +91,12 @@ public class ClinchNaturalAttackMove : WeaponAttackMove
                           MoveType, attackRoll.Outcome, null), Bodypart.FullDescription(),
                       TargetBodypart.FullDescription())
                   .Replace("@hand", Bodypart.Alignment.LeftRightOnly().Describe().ToLowerInvariant());
+
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll, out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
+        }
 
         if (defenderMove is HelplessDefenseMove || defenderMove is TooExhaustedMove)
         {

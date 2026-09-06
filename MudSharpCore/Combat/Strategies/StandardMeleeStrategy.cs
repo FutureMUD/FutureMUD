@@ -284,6 +284,10 @@ public class StandardMeleeStrategy : StrategyBase
     protected virtual ICombatMove ResponseToMagicPowerAttackMove(MagicPowerAttackMove move, ICharacter defender,
         IPerceiver assailant)
     {
+        if (move is RangedMagicPowerAttackMove rangedMagic)
+        {
+			return StandardRangeStrategy.Instance.ResponseToMove(rangedMagic, defender, assailant);
+        }
         bool desperate = !defender.PositionState.Upright;
         bool clinching = defender.EffectsOfType<ClinchEffect>()
                                 .Any(x => x.Clincher == defender.CombatTarget && x.Target == assailant);

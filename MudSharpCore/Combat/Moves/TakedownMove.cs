@@ -74,6 +74,7 @@ public class TakedownMove : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
         CheckOutcome attackRoll = Gameworld.GetCheck(Check)
                                   .Check(Assailant, CheckDifficulty, defenderMove.Assailant, null,
                                       Assailant.OffensiveAdvantage);
@@ -84,6 +85,11 @@ public class TakedownMove : WeaponAttackMove
                 $"Defender {defenderMove.Assailant.FrameworkItemType} ID {defenderMove.Assailant.Id:N0} did not have wounds in ResolveMove.");
         }
 
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll, out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
+        }
         DetermineTargetBodypart(defenderMove, attackRoll);
 
         string attackEmote =

@@ -1,5 +1,7 @@
 # Optional Psionics Seeder
 
+Advanced Psionics includes eleven [combat powers](../Magic/Magic_Combat_Powers.md): two damage attacks, six control techniques and three finite/resource-consuming defenses. The canonical combat definitions and echo catalogue are separate from the existing psychicbolt. Reruns add missing definitions and capability entries without replacing authored content or granting characters access.
+
 The optional **Psionics** package installs Basic Psionics and Advanced Psionics after the core and supernatural dependencies. Declining `install-psionics` writes nothing. All Debug replay profiles answer this optional question explicitly.
 
 Basic Psionics supplies contact, directed speech, barrier, self-audit and expulsion. Advanced Psionics includes those foundations, the existing advanced powers, thirteen new technique families, and four ordinary spells exposed through power verbs: projection, live possession, levitation and a caster-scoped description illusion.
@@ -92,3 +94,5 @@ The newer psychic techniques load and save their additional named echoes in powe
 Guard and feedback start/end/intrusion echoes now use the power's saved fields; circles likewise use saved invitation/join/leave/speech fields. A legacy technique definition with its formerly unused empty success field receives the appropriate existing success message on load. The `TechniqueEchoesVersion` XML marker distinguishes that upgrade from an explicitly cleared modern field, which remains silent across save/load. Missing additional fields receive canonical defaults; authored values remain unchanged. This is compatible XML evolution and needs no database migration.
 
 Completeness validation: all default suites passed after the final core rerun (4,153 tests total, including 2,715 core tests). Catalogue reflection and XML round-trip tests check field coverage in both directions. Tests also cover custom text, intentional silence, legacy defaults, builder placeholder validation, and spell field parity. A disposable-MUD walkthrough edited feedback EndEcho and verified that exact custom text on effect removal.
+
+The declared `install-psionics` yes/no question matches the Debug replay profiles. Answering no returns before any content mutation.

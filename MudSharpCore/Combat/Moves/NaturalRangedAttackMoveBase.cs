@@ -183,7 +183,14 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
         };
     }
 
-	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
+    public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
+    {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
+		using var scope = new MagicDefenseDamageScope(this, defenderMove);
+		return scope.Finish(ResolveAttackWithDefense(defenderMove));
+    }
+
+    private CombatMoveResult ResolveAttackWithDefense(ICombatMove defenderMove)
 	{
 		IPerceiver target = Targets.FirstOrDefault();
 		if (target is null || !TargetIsInRange(Assailant, target, RangedAttack.RangeInRooms))
@@ -259,6 +266,12 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
 				DefenderOutcome = attackRoll[coverDifficulty].Outcome
 			};
 		}
+
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll[CheckDifficulty], out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
+        }
 
         switch (defenderMove)
         {

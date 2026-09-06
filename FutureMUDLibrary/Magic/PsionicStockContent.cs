@@ -11,7 +11,7 @@ namespace MudSharp.Magic;
 public sealed record PsionicStockPower(string Type, string Verb, int Band, bool Basic, double Cost, int Seconds, string Help);
 
 /// <summary>Canonical finite stock tuning shared by installation and definition-loading tests.</summary>
-public static class PsionicStockContent
+public static partial class PsionicStockContent
 {
 	public const double FocusCap = 100;
 	public const double FocusPerMinute = 5;

@@ -64,6 +64,7 @@ public class ForcedMovementMove : CombatMoveBase
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		if (defenderMove is null)
 		{
 			defenderMove = new HelplessDefenseMove { Assailant = CharacterTarget, PrimaryTarget = Assailant };
@@ -85,6 +86,11 @@ public class ForcedMovementMove : CombatMoveBase
 			                          Weapon?.WeaponType.AttackTrait, defenderMove.Assailant,
 			                          Assailant.OffensiveAdvantage);
 		Assailant.OffensiveAdvantage = 0;
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll[CheckDifficulty], out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
+        }
 		var displacementSuccessDegrees = Math.Max(1, attackRoll[CheckDifficulty].Outcome.SuccessDegrees());
 
 		var attackEmote = GetAttackEmote(attackRoll[CheckDifficulty]);

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using MudSharp.Body;
 using MudSharp.Combat;
 using MudSharp.Database;
@@ -28,10 +29,23 @@ public sealed partial class PsionicsSeeder
 		{
 			var name = $"{school.Name}: {stock.Name}";
 			var model = stock.Defense.HasValue ? "magicdefense" : "magicattack";
-			var power = context.MagicPowers.SingleOrDefault(x => x.Name == name);
+			var legacyHelp = stock.Defense.HasValue
+				? $"Use {stock.Verb} to maintain {stock.Name}; end{stock.Verb} releases it. combat powerdefense lists remaining protection; combat powerdefense off releases all defenses."
+				: $"Use {stock.Verb} <visible target> to queue {stock.Name}. Automatic use follows the psychic combat channel.";
+			var help = stock.Defense.HasValue
+				? $"Syntax: {school.SchoolVerb} {stock.Verb}\n{school.SchoolVerb} end{stock.Verb}\nMaintain {stock.Name} until cancelled or depleted. Use combat powerdefense to inspect remaining protection and combat powerdefense off to release all defences."
+				: $"Syntax: {school.SchoolVerb} {stock.Verb} <visible target>\nQueue {stock.Name} against a target within the power's range. Automatic use follows your psychic combat settings.";
+			var power = FindPower(context, school, stock.Verb, stock.Name, name);
 			if (power is not null)
 			{
 				if (power.PowerModel != model || power.MagicSchoolId != school.Id) throw new InvalidOperationException($"Conflicting power identity: {name}.");
+				if (power.Name == name) power.Name = stock.Name;
+				if (power.ShowHelp == legacyHelp) power.ShowHelp = help;
+				if (power.Blurb == legacyHelp) power.Blurb = help;
+				var definition = XElement.Parse(power.Definition);
+				definition.SetElementValue("SeededIdentity", "psionics:" + stock.Verb);
+				power.Definition = definition.ToString();
+				context.SaveChanges();
 				yield return (power, stock.Band);
 				continue;
 			}
@@ -63,11 +77,10 @@ public sealed partial class PsionicsSeeder
 				}
 				attackId = attack.Id;
 			}
-			var help = stock.Defense.HasValue
-				? $"Use {stock.Verb} to maintain {stock.Name}; end{stock.Verb} releases it. combat powerdefense lists remaining protection; combat powerdefense off releases all defenses."
-				: $"Use {stock.Verb} <visible target> to queue {stock.Name}. Automatic use follows the psychic combat channel.";
-			power = new MagicPower { Name = name, MagicSchoolId = school.Id, PowerModel = model, Blurb = help, ShowHelp = help,
-				Definition = PsionicStockContent.CombatDefinition(stock, trait.Id, resource.Id, allowed, error, attackId).ToString() };
+			var newDefinition = PsionicStockContent.CombatDefinition(stock, trait.Id, resource.Id, allowed, error, attackId);
+			newDefinition.SetElementValue("SeededIdentity", "psionics:" + stock.Verb);
+			power = new MagicPower { Name = stock.Name, MagicSchoolId = school.Id, PowerModel = model, Blurb = help, ShowHelp = help,
+				Definition = newDefinition.ToString() };
 			context.MagicPowers.Add(power); context.SaveChanges();
 			yield return (power, stock.Band);
 		}

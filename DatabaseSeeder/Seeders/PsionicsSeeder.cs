@@ -169,7 +169,8 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 				foreach (var entry in powers.Where(x =>
 					(string?)XElement.Parse(x.Power.Definition).Element("SeededIdentity") == "psionics:connectback" ||
 					x.Power.Name.EndsWith(": connectback", StringComparison.Ordinal) ||
-					PsionicStockContent.CombatPowers.Any(stock => x.Power.Name == $"{name}: {stock.Name}")))
+					PsionicStockContent.CombatPowers.Any(stock =>
+						(string?)XElement.Parse(x.Power.Definition).Element("SeededIdentity") == "psionics:" + stock.Verb)))
 					if (!definition.Elements("Power").Any(x => (long?)x.Attribute("power") == entry.Power.Id))
 						definition.Add(new XElement("Power", new XAttribute("trait", trait.Id), new XAttribute("minvalue", entry.Band), new XAttribute("power", entry.Power.Id)));
 				capability.Definition = definition.ToString();

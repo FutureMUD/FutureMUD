@@ -845,7 +845,8 @@ The syntax is:
 
         string exitText = ss.SafeRemainingArgument;
         ICellExit exit = actor.Location.GetExitKeyword(exitText, actor) ??
-                         actor.Location.ExitsFor(actor, true).GetFromItemListByKeyword(exitText, actor);
+                         actor.Location.ExitsFor(actor, true)
+                             .FirstOrDefault(x => x.IsExitKeyword(exitText) && actor.CanSee(x.Exit));
         if (exit is null)
         {
             actor.Send("You don't see any exit like that.");
@@ -988,7 +989,7 @@ The syntax for the smash command is as follows:
         StringStack ss = new(command.RemoveFirstWord());
 
         string target = ss.PopSpeech();
-        ICellExit targetExit = actor.Location.ExitsFor(actor).GetFromItemListByKeyword(target, actor);
+        ICellExit targetExit = actor.Location.GetExitKeyword(target, actor);
         IGameItem targetItem = targetExit?.Exit.Door?.Parent;
         if (targetItem == null && targetExit != null)
         {

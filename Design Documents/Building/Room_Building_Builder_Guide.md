@@ -1,5 +1,7 @@
 # Room Building Builder Guide
 
+Gameplay commands that target exits use the shared `ICell.GetExitKeyword` resolver, including door and lock manipulation, door smashing/destruction, directional socials, tollkeeper mode, and exit-targeted spell casting. Cardinal aliases resolve exactly (`n`/`north`, `ne`/`northeast`/`north-east`, `nw`/`northwest`/`north-west`), independently of exit ordering. Non-cardinal exits retain their configured keyword matching. Forced movement also uses exit-specific keyword matching when considering exits across layers. Builder exit editing retains its separate exact-direction, exit-ID, and exact named-keyword lookup. These lookup changes require no database migration or world-data repair.
+
 This guide explains the FutureMUD room-building model for engine users, world builders, and AI agents helping them. It focuses on the builder-facing workflow and command surface rather than the internal persistence model.
 
 In this document, **room** and **cell** mean the same thing.

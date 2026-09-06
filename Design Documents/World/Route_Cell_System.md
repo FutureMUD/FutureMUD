@@ -2,6 +2,8 @@
 
 ## Purpose
 
+On-foot and vehicle travel toward an exit anchor uses `ICellExit.IsExitKeyword`: cardinal aliases select the exact direction, so `n` cannot select north-west and `nw` is recognised. Named exits retain their authored keyword matching. Anchor lookup retains its route-specific visibility and distance rules, allowing travel toward a visible exit before it is within interaction reach. This does not change route geometry or persistence.
+
 A `RouteCell` represents a long, essentially linear part of the world without requiring a builder to create thousands of ordinary cells. A route cell is still an `ICell` for ownership, terrain, weather, overlays, and compatibility, but physical entities in it also have an exact longitudinal coordinate:
 
 ```text

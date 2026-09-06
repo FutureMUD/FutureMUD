@@ -175,8 +175,7 @@ internal static class VehicleRouteMovementCommand
 
 		var anchor = route.ExitAnchors
 			.Where(x => vehicle.Location.IsExitVisible(actor, x.Exit, PerceptionTypes.DirectVisual))
-			.FirstOrDefault(x => x.Exit.HasKeyword(text, actor, abbreviated: true) ||
-			                     x.Exit.OutboundDirection.Describe().EqualTo(text));
+			.FirstOrDefault(x => x.Exit.IsExitKeyword(text));
 		if (anchor is not null)
 		{
 			destination = Math.Clamp(origin.RoutePositionMetres!.Value,

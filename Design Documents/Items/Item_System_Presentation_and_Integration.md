@@ -25,6 +25,10 @@ The focus is on:
 - item groups and skins
 - cross-system integration points such as health and magic
 
+## Exit targeting for doors and locks
+
+`install`, `remove`, `knock`, `open`, `close`, `lock`, and `unlock` resolve exit arguments through `ICell.GetExitKeyword`. Cardinal names and aliases select their exact direction: `install door n` targets north, while `install door nw`, `install door northwest`, and `install door north-west` target north-west. A missing north exit does not fall through to north-west. Named exits retain their authored keyword matching, and physical item targets retain ordinary item-keyword lookup. The shared cell resolver applies the viewer's overlay, visibility, viable layer transition, and spatial access checks. Installation timing, door compatibility, and persistence are unchanged.
+
 ## Description Model
 
 ## Media presentation and integration

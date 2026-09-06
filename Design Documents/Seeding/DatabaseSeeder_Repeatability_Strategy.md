@@ -159,11 +159,15 @@ Replay runs require a freshly migrated, unseeded database. The runner refuses a 
 
 The profiles use the Debug-only bootstrap credential `DebugReplayOnly!2026`. The UI warns that this credential and workflow must never be used for a reachable or production database.
 
+All three profiles explicitly answer `install-psionics=yes` to exercise the optional Psionics package; interactive installation retains its yes/no choice.
+
 ### Replay-profile maintenance
 
 Treat a replay-profile failure as deliberate configuration drift, not a reason to silently fall back to defaults. Review and update all three profiles whenever any enabled seeder, dependency/order metadata, question ID, filter, validator, default, or recommended answer changes. In particular, a new enabled seeder must be placed in dependency order, a removed or disabled one must be removed from the inventory, and a changed conditional question must still have a complete inventoried answer even if it is inactive in a profile today.
 
-`SeederReplayTests` is the required fast gate for this contract. It verifies the full profile inventories, exact order, question coverage, the deliberate Skill Examples exclusion, connection construction, conditional answers, blocked prerequisites, persistence, and stop-on-failure behavior. Run the full `DatabaseSeeder Unit Tests` suite after any DatabaseSeeder workflow or profile change.
+`SeederReplayTests` is the required fast gate for this contract. It verifies the full profile inventories, exact order, question coverage, the deliberate Skill Examples exclusion, connection construction, conditional answers, blocked prerequisites, persistence, and stop-on-failure behavior. These tests use in-memory fixtures and test seeders for execution control; they do not execute the complete stock profiles against MySQL. Run the full `DatabaseSeeder Unit Tests` suite after any DatabaseSeeder workflow or profile change, and use a disposable freshly migrated MySQL database for end-to-end profile verification.
+
+Core bootstrap installs only missing mandatory static configurations, preserving settings already supplied by migrations or the blank snapshot. Bootstrap-specific board, prog, and expression references are still assigned to the newly created records. `CoreDataSeederStaticSettingsTests` executes the real static-string/settings phase with empty settings and with persisted economy analytics settings, both tracked and untracked, and verifies that existing values survive and missing defaults and bootstrap references are installed. This guards the migration/Core duplicate-key regression without claiming full MySQL replay coverage.
 
 ## System-Level Findings
 

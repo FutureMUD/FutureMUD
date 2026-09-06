@@ -173,6 +173,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Signed Language Communication System](./Communication/Sign_Language_System.md)
 
 ## Seeding
+- [Attribute Describer Ranges](./Seeding/Attribute_Describer_Ranges.md)
 - [DatabaseSeeder Repeatability Strategy](./Seeding/DatabaseSeeder_Repeatability_Strategy.md)
 - [DatabaseSeeder System Gap Audit](./Seeding/DatabaseSeeder_System_Gap_Audit.md)
 - [Stock Terrain Catalogue](./Seeding/Stock_Terrain_Catalogue.md)

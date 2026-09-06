@@ -5,6 +5,8 @@
 ## What changed
 This pass focused specifically on seeded animal and mythical race attribute scaling.
 
+For the expanded player-facing descriptions of these larger values, see [Attribute Describer Ranges](../Seeding/Attribute_Describer_Ranges.md). That presentation update changes no attribute values or balance formulas and does not automatically replace installed world describers.
+
 ### Animals
 - Ordinary animals now seed row-backed racial attribute bonuses and per-attribute roll overrides instead of an all-zero creation-time bonus prog.
 - `AnimalSeeder` now builds racial physical, mental, sensory, and spiritual modifiers from:

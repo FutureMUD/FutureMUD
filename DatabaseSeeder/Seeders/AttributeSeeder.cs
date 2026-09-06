@@ -51,8 +51,8 @@ What is your selection? ", (context, answers) => !HasAttributeFoundation(context
             ("decorator",
                 @"You can choose from the following decorators (how stat scores are described):
 
-#BRPI#F    - Range-based descriptions such as Average, Good, Great, Excellent, Super etc. Stat scale 3-25.
-#BLabMUD#F - Range-based descriptions similar to RPI but customised per attribute. Stat scale 3-25.
+#BRPI#F    - Traditional descriptions through 25, with extended ranges into the hundreds and beyond.
+#BLabMUD#F - Attribute-specific descriptions. The LabMUD attribute package has extended ranges; other packages retain the traditional 3-25 scale.
 #BModern#F - Range-based descriptions with 0-100 stat scale.
 #BRaw#F    - Show the raw value for the attribute
 
@@ -188,7 +188,7 @@ Keep in mind that you can always change the names or details of any of these att
                         Name = "Attribute",
                         Type = "Range",
                         Contents =
-                            @"<ranges name=""General Attribute Range"" prefix="""" suffix="""" colour_default=""true"" colour_buffed=""true"" colour_capped=""false""><range low=""-25"" high=""0"" text=""Abysmal""/><range low=""0"" high=""3"" text=""Terrible""/><range low=""3"" high=""6"" text=""Bad""/><range low=""6"" high=""9"" text=""Poor""/><range low=""9"" high=""11"" text=""Average""/><range low=""11"" high=""13"" text=""Good""/><range low=""13"" high=""15"" text=""Great""/><range low=""15"" high=""17"" text=""Excellent""/><range low=""17"" high=""20"" text=""Super""/><range low=""20"" high=""23"" text=""Epic""/><range low=""23"" high=""25"" text=""Legendary""/><range low=""25"" high=""30"" text=""Godlike""/></ranges>"
+                            AttributeDescriberDefinitions.General()
                     }
                 );
                 break;
@@ -324,7 +324,7 @@ Keep in mind that you can always change the names or details of any of these att
                                 Name = "Strength Attribute",
                                 Type = "Range",
                                 Contents =
-                                    @"<ranges name=""Strength Attribute Range"" prefix="""" suffix="""" colour_capped=""false""><range low=""-25"" high=""0"" text=""Abysmal""/><range low=""0"" high=""3"" text=""Terrible""/><range low=""3"" high=""6"" text=""Bad""/><range low=""6"" high=""9"" text=""Poor""/><range low=""9"" high=""11"" text=""Average""/><range low=""11"" high=""13"" text=""Good""/><range low=""13"" high=""15"" text=""Great""/><range low=""15"" high=""17"" text=""Excellent""/><range low=""17"" high=""20"" text=""Super""/><range low=""20"" high=""23"" text=""Epic""/><range low=""23"" high=""25"" text=""Legendary""/><range low=""25"" high=""30"" text=""Herculean""/></ranges>"
+                                    AttributeDescriberDefinitions.LabMud("Strength")
                             }
                         );
                         context.TraitDecorators.Add(
@@ -333,7 +333,7 @@ Keep in mind that you can always change the names or details of any of these att
                                 Name = "Dexterity Attribute",
                                 Type = "Range",
                                 Contents =
-                                    @"<ranges name=""Dexterity Attribute Range"" prefix="""" suffix="""" colour_capped=""false""><range low=""-25"" high=""0"" text=""Abysmal""/><range low=""0"" high=""3"" text=""Terrible""/><range low=""3"" high=""6"" text=""Bad""/><range low=""6"" high=""9"" text=""Poor""/><range low=""9"" high=""11"" text=""Average""/><range low=""11"" high=""13"" text=""Good""/><range low=""13"" high=""15"" text=""Great""/><range low=""15"" high=""17"" text=""Excellent""/><range low=""17"" high=""20"" text=""Super""/><range low=""20"" high=""23"" text=""Epic""/><range low=""23"" high=""25"" text=""Legendary""/><range low=""25"" high=""30"" text=""Achillean""/></ranges>"
+                                    AttributeDescriberDefinitions.LabMud("Dexterity")
                             }
                         );
                         context.TraitDecorators.Add(
@@ -342,7 +342,7 @@ Keep in mind that you can always change the names or details of any of these att
                                 Name = "Constitution Attribute",
                                 Type = "Range",
                                 Contents =
-                                    @"<ranges name=""Constitution Attribute Range"" prefix="""" suffix="""" colour_capped=""false""><range low=""-25"" high=""0"" text=""Abysmal""/><range low=""0"" high=""3"" text=""Terrible""/><range low=""3"" high=""6"" text=""Bad""/><range low=""6"" high=""9"" text=""Poor""/><range low=""9"" high=""11"" text=""Average""/><range low=""11"" high=""13"" text=""Good""/><range low=""13"" high=""15"" text=""Great""/><range low=""15"" high=""17"" text=""Excellent""/><range low=""17"" high=""20"" text=""Super""/><range low=""20"" high=""23"" text=""Epic""/><range low=""23"" high=""25"" text=""Legendary""/><range low=""25"" high=""30"" text=""Atlassian""/></ranges>"
+                                    AttributeDescriberDefinitions.LabMud("Constitution")
                             }
                         );
                         context.TraitDecorators.Add(
@@ -351,7 +351,7 @@ Keep in mind that you can always change the names or details of any of these att
                                 Name = "Intelligence Attribute",
                                 Type = "Range",
                                 Contents =
-                                    @"<ranges name=""Intelligence Attribute Range"" prefix="""" suffix="""" colour_capped=""false""><range low=""-25"" high=""0"" text=""Abysmal""/><range low=""0"" high=""3"" text=""Terrible""/><range low=""3"" high=""6"" text=""Bad""/><range low=""6"" high=""9"" text=""Poor""/><range low=""9"" high=""11"" text=""Average""/><range low=""11"" high=""13"" text=""Good""/><range low=""13"" high=""15"" text=""Great""/><range low=""15"" high=""17"" text=""Excellent""/><range low=""17"" high=""20"" text=""Super""/><range low=""20"" high=""23"" text=""Epic""/><range low=""23"" high=""25"" text=""Legendary""/><range low=""25"" high=""30"" text=""Odyssian""/></ranges>"
+                                    AttributeDescriberDefinitions.LabMud("Intelligence")
                             }
                         );
                         context.TraitDecorators.Add(
@@ -360,7 +360,7 @@ Keep in mind that you can always change the names or details of any of these att
                                 Name = "Willpower Attribute",
                                 Type = "Range",
                                 Contents =
-                                    @"<ranges name=""Willpower Attribute Range"" prefix="""" suffix="""" colour_capped=""false""><range low=""-25"" high=""0"" text=""Abysmal""/><range low=""0"" high=""3"" text=""Terrible""/><range low=""3"" high=""6"" text=""Bad""/><range low=""6"" high=""9"" text=""Poor""/><range low=""9"" high=""11"" text=""Average""/><range low=""11"" high=""13"" text=""Good""/><range low=""13"" high=""15"" text=""Great""/><range low=""15"" high=""17"" text=""Excellent""/><range low=""17"" high=""20"" text=""Super""/><range low=""20"" high=""23"" text=""Epic""/><range low=""23"" high=""25"" text=""Legendary""/><range low=""25"" high=""30"" text=""Promethean""/></ranges>"
+                                    AttributeDescriberDefinitions.LabMud("Willpower")
                             }
                         );
                         context.TraitDecorators.Add(
@@ -369,7 +369,7 @@ Keep in mind that you can always change the names or details of any of these att
                                 Name = "Perception Attribute",
                                 Type = "Range",
                                 Contents =
-                                    @"<ranges name=""Perception Attribute Range"" prefix="""" suffix="""" colour_capped=""false""><range low=""-25"" high=""0"" text=""Abysmal""/><range low=""0"" high=""3"" text=""Terrible""/><range low=""3"" high=""6"" text=""Bad""/><range low=""6"" high=""9"" text=""Poor""/><range low=""9"" high=""11"" text=""Average""/><range low=""11"" high=""13"" text=""Good""/><range low=""13"" high=""15"" text=""Great""/><range low=""15"" high=""17"" text=""Excellent""/><range low=""17"" high=""20"" text=""Super""/><range low=""20"" high=""23"" text=""Epic""/><range low=""23"" high=""25"" text=""Legendary""/><range low=""25"" high=""30"" text=""Epicurean""/></ranges>"
+                                    AttributeDescriberDefinitions.LabMud("Perception")
                             }
                         );
                         break;

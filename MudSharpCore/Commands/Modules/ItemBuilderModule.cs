@@ -221,38 +221,14 @@ The valid sub-commands and their syntaxes are as follows:
                     return false;
                 }
 
-                if (HasItemCloneNameConflict(actor, validation.Name))
-                {
-                    actor.Send($"The name {validation.Name.ColourCommand()} is already used by an active item prototype.");
-                    return false;
-                }
-
                 name = validation.Name;
                 return true;
             }
 
-            var rootName = $"{prototype.Name} copy";
-            for (var suffix = 1; suffix <= 1000; suffix++)
-            {
-                var candidate = suffix == 1 ? rootName : $"{rootName} {suffix}";
-                var validation = helper.TryNormaliseNameForBulkRename(prototype, candidate);
-                if (validation.IsValid && validation.Name is not null && !HasItemCloneNameConflict(actor, validation.Name))
-                {
-                    name = validation.Name;
-                    return true;
-                }
-            }
-
-            actor.Send("Unable to generate a unique name for the cloned item prototype. Specify a new name explicitly.");
-            return false;
+            name = $"{prototype.Name} copy";
+            return true;
         }
 
-        private static bool HasItemCloneNameConflict(ICharacter actor, string name)
-        {
-            return EditableRevisableItemHelper.GameItemHelper.GetAllEditableItems(actor)
-                .Where(x => x.Status is RevisionStatus.Current or RevisionStatus.PendingRevision or RevisionStatus.UnderDesign)
-                .Any(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
-        }
         #endregion
 
         #region Outfit Templates

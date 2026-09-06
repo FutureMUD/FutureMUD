@@ -172,6 +172,8 @@ internal class EditableRevisableItemHelper
             ItemNamePlural = "Item Prototypes",
             CommandName = "item",
             NameSetCommandAliases = new[] { "noun" },
+			// Nouns are shared vocabulary, not catalogue identifiers.
+			NameScopeKeyFunc = item => item.Id,
             DeleteEditableItemAction = item =>
             {
                 using (new FMDB())

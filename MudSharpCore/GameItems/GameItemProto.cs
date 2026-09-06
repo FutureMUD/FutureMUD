@@ -2303,12 +2303,6 @@ writing{{{exampleLanguage.Name},{exampleScript.Name},style=childish,minskill=30}
             return false;
         }
 
-        if (normalisedName.All(char.IsDigit))
-        {
-            error = "Item prototype nouns cannot be entirely numeric, because numeric input is reserved for IDs.";
-            return false;
-        }
-
         error = string.Empty;
         return true;
     }

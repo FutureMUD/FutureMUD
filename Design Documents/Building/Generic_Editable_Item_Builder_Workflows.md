@@ -15,3 +15,5 @@ The validator compares the complete virtual final state, including untouched rec
 For revisable content, `Current`, `PendingRevision`, and `UnderDesign` revisions participate. Active revisions of the same logical ID may share a name; `Rejected`, `Revised`, and `Obsolete` history does not block the operation.
 
 `set name <name>` follows the same validator for helper types whose name-setting command is `name`. A helper whose `Name` is represented by another command key uses that key instead; for example, timezone `Name` tracks its alias, so `set alias <alias>` is validated while `set name <display name>` continues to edit its display description.
+
+Item prototype names are an exception: they represent shared nouns rather than unique identifiers. Noun edits, clones, and bulk noun renames permit duplicate and numeric nouns, while rejecting blank text. Item `UniqueName` retains its separate uniqueness and non-numeric rules.

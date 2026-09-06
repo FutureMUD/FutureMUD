@@ -140,16 +140,16 @@ Use:
 
 Item prototype lookup prefers numeric ids, then exact `UniqueName`, then the legacy noun/name matching that older builder commands expect. Unique names are optional, case-insensitively unique among active revisions, and cannot be entirely numeric.
 
-Cloning without a final argument creates a valid numbered `copy` noun; supplying `<new name>` validates the same trimmed, non-numeric, active-name namespace used by `item rename` before a clone is persisted.
+Cloning without a final argument appends `copy` to the source noun. An explicit `<new name>` is trimmed and must not be blank. Nouns may be shared by any number of prototypes.
 
 ### Bulk rename item prototype names
 Use:
 - `item rename <match regex> <replacement text>`
 - `item rename "^old_(?<name>.+)$" "new_${name}"`
 
-The match expression is case-sensitive by default and operates on the prototype `Name` (its noun), for `Current`, `PendingRevision`, and `UnderDesign` revisions. Standard .NET numbered and named replacement groups are supported; inline regex options such as `(?i)` can opt into case-insensitive matching. Quote either argument when it contains spaces. Names are trimmed and cannot be blank or entirely numeric.
+The match expression is case-sensitive by default and operates on the prototype `Name` (its noun), for `Current`, `PendingRevision`, and `UnderDesign` revisions. Standard .NET numbered and named replacement groups are supported; inline regex options such as `(?i)` can opt into case-insensitive matching. Quote either argument when it contains spaces. Nouns are trimmed and cannot be blank. Shared and numeric nouns are allowed; use IDs or `UniqueName` for unambiguous builder lookup.
 
-The command first displays the complete proposed old-to-new map. It checks the virtual final state against untouched active prototypes as well as other entries in the batch, so swaps and rename chains are safe. If the expression is invalid or times out, a result is blank or entirely numeric, or distinct prototype IDs would share a case-insensitive name, no prototype is changed. A successful preflight applies all actual changes immediately and marks those revisions for normal persistence.
+The command first displays the complete proposed old-to-new map. Invalid expressions, regex timeouts, or blank results reject the whole batch. Multiple prototypes may receive the same noun, including nouns already used by untouched prototypes. A successful preflight applies all actual changes immediately and marks those revisions for normal persistence. `item set noun <noun>` and its `name` alias follow the same rules.
 
 ### Bulk rename item unique names
 Use `item renameunique <match regex> <replacement text>` for the optional stable `UniqueName` lookup key. Its case-sensitive matching, active-revision scope, empty-replacement clearing, and final-state collision validation remain unchanged.

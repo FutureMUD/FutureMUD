@@ -3917,16 +3917,9 @@ If more than one terminal could be used, specify one explicitly or connect first
 		for (var i = 0; i < executable.Parameters.Count; i++)
 		{
 			var parameter = executable.Parameters.ElementAt(i);
-			var raw = ss.PopParentheses();
-			if (string.IsNullOrEmpty(raw))
+			if (!ProgModule.TryPopArgument(ref ss, out var raw, out var argumentError))
 			{
-				raw = ss.PopSpeech();
-			}
-
-			if (string.IsNullOrEmpty(raw))
-			{
-				actor.Send(
-					$"You must supply a value for parameter {parameter.Name.ColourCommand()} of type {parameter.Type.Describe().ColourValue()}.");
+				actor.Send($"Parameter {parameter.Name.ColourCommand()}: {argumentError}");
 				return;
 			}
 

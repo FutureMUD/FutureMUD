@@ -39,7 +39,7 @@ using System.Numerics;
 
 namespace MudSharp.Commands.Modules;
 
-internal class ProgModule : Module<ICharacter>
+internal partial class ProgModule : Module<ICharacter>
 {
     private ProgModule()
         : base("Prog")
@@ -94,6 +94,7 @@ The following commands are used to edit a prog:
 There are also a few commands relating to prog help:
 
 	#3prog help types#0 - shows all the variable types
+	#3prog help arguments#0 - shows manual argument syntax, containers, scoped lookups and null values
 	#3prog help type <type>#0 - shows detailed information about a variable type
 	#3prog help functions#0 - shows a (very very long) list of all the in-built functions
 	#3prog help function <which>#0 - shows detailed help about a particular function
@@ -157,6 +158,9 @@ See also the closely related #6hook#0 and #6events#0 areas for some further supp
     {
         switch (ss.PopSpeech().ToLowerInvariant())
         {
+			case "arguments":
+				actor.OutputHandler.Send(ProgArgumentHelp.SubstituteANSIColour());
+				return;
             case "types":
                 ProgHelpTypes(actor);
                 return;
@@ -558,7 +562,16 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
         if (result is IProgVariable progVariable)
         {
+            if (progVariable.Type.IsExactType && progVariable.Type.CompatibleWith(returnType))
+            {
+                returnType = progVariable.Type;
+            }
             result = progVariable.GetObject;
+        }
+
+        if (result is null)
+        {
+            return "null";
         }
 
         if (returnType.IsCollection)
@@ -583,9 +596,9 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
             ProgVariableTypes baseType = returnType.WithoutContainerModifiers();
             sb.AppendLine($"a dictionary of type {baseType.Describe().Colour(Telnet.VariableGreen)}");
             sb.AppendLine("[");
-            Dictionary<string, object> collection = result as Dictionary<string, object> ?? new Dictionary<string, object>();
+            IDictionary collection = result as IDictionary ?? new Dictionary<string, object>();
 
-            foreach (KeyValuePair<string, object> item in collection)
+            foreach (DictionaryEntry item in collection)
             {
                 sb.AppendLine($"\t{item.Key}: {DescribeProgVariable(actor, baseType, item.Value)}");
             }
@@ -599,10 +612,10 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
             ProgVariableTypes baseType = returnType.WithoutContainerModifiers();
             sb.AppendLine($"a collection dictionary of type {baseType.Describe().Colour(Telnet.VariableGreen)}");
             sb.AppendLine("[");
-            CollectionDictionary<string, object> collections = result as CollectionDictionary<string, object> ?? new CollectionDictionary<string, object>();
-            foreach (KeyValuePair<string, List<object>> collection in collections)
+            var collections = result as ICollectionDictionaryWithKey<string> ?? new CollectionDictionary<string, object>();
+            foreach (var collection in collections.KeysAndValues)
             {
-                sb.AppendLine($"\t{collection.Value}:");
+                sb.AppendLine($"\t{collection.Key}:");
                 foreach (object item in collection.Value)
                 {
                     sb.AppendLine($"\t{DescribeProgVariable(actor, baseType, item)}");
@@ -615,6 +628,26 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
         if (returnType == ProgVariableTypes.LegalClass)
         {
             return $"the {((IFrameworkItem)result).Name.ColourValue()} legal class";
+        }
+
+        if (result is IPersonalName personalName)
+        {
+            return personalName.GetName(NameStyle.FullName).ColourName();
+        }
+
+        if (result is MudSharp.Effects.IEffect effect)
+        {
+            return effect.Describe(actor);
+        }
+
+        if (result is IOutfit outfit)
+        {
+            return outfit.Name.ColourName();
+        }
+
+        if (result is IOutfitItem outfitItem)
+        {
+            return $"{outfitItem.ItemDescription.ColourName()} (#{outfitItem.Id.ToString("N0", actor)})";
         }
 
         if (returnType.IsExactType && returnType.LegacyCode == ProgVariableTypeCode.Unknown &&
@@ -668,7 +701,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
             case ProgVariableTypeCode.TimeSpan:
                 return ((TimeSpan)result).Describe(actor).ColourValue();
             case ProgVariableTypeCode.DateTime:
-                return ((DateTime)result).ToString("G").ColourValue();
+                return ((DateTime)result).ToString("G", actor).ColourValue();
             case ProgVariableTypeCode.MudDateTime:
                 return ((MudDateTime)result).ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue();
             case ProgVariableTypeCode.Toon:
@@ -706,7 +739,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
             case ProgVariableTypeCode.Currency:
                 return $"the {((IFrameworkItem)result).Name.ColourValue()} currency";
             case ProgVariableTypeCode.Exit:
-                break;
+                return ((ICellExit)result).OutboundDirectionDescription.ColourName();
             case ProgVariableTypeCode.Language:
                 return $"the {((IFrameworkItem)result).Name.ColourValue()} language";
             case ProgVariableTypeCode.Accent:
@@ -787,6 +820,11 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
                 goto case ProgVariableTypeCode.Perceivable;
         }
 
+        if (result is IFrameworkItem fallbackItem)
+        {
+            return $"the {fallbackItem.Name.ColourName()} {returnType.Describe().ColourValue()} (#{fallbackItem.Id.ToString("N0", actor)})";
+        }
+
         return "an undisplayable result";
     }
 
@@ -805,25 +843,25 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
         for (int i = 0; i < prog.NamedParameters.Count; i++)
         {
             (ProgVariableTypes arg, string paramName) = prog.NamedParameters[i];
-            cmd = ss.PopParentheses();
-            if (string.IsNullOrEmpty(cmd))
+            if (!TryPopArgument(ref ss, out cmd, out var argumentError))
             {
-                cmd = ss.PopSpeech();
-            }
-
-            if (string.IsNullOrEmpty(cmd))
-            {
-                actor.OutputHandler.Send($"You must supply a value for the parameter at position {i.ToString("N0", actor).ColourValue()} - {arg.Describe().Colour(Telnet.VariableCyan)} {paramName.Colour(Telnet.VariableGreen)}.");
+                actor.OutputHandler.Send($"Parameter {(i + 1).ToString("N0", actor).ColourValue()} ({arg.Describe().ColourName()} {paramName.ColourCommand()}): {argumentError}");
                 return;
             }
 
-            (object parResult, bool success) = GetArgument(arg, cmd, i, actor);
+            (object parResult, bool success) = GetArgument(arg, cmd, i + 1, actor);
             if (!success)
             {
                 return;
             }
 
             parArray.Add(parResult);
+        }
+
+        if (!ss.IsFinished && !prog.AcceptsAnyParameters)
+        {
+            actor.OutputHandler.Send("You supplied more arguments than this prog accepts.");
+            return;
         }
 
         StringBuilder sb = new();
@@ -845,815 +883,6 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
         sb.AppendLine($"It returned {DescribeProgVariable(actor, prog.ReturnType, result)}.");
         sb.AppendLine($"It took approximately {(sw.ElapsedTicks * 100).ToString("N0", actor)} nanoseconds to execute.".Colour(Telnet.Yellow));
         actor.OutputHandler.Send(sb.ToString());
-    }
-
-    public static (object result, bool success) GetArgument(ProgVariableTypes type, string parText,
-        int parNumber, ICharacter actor)
-    {
-        if (type.HasFlag(ProgVariableTypes.Collection))
-        {
-            StringStack sss = new(parText);
-            List<object> collection = new();
-            while (!sss.IsFinished)
-            {
-                (object result, bool success) outcome = GetArgument(type ^ ProgVariableTypes.Collection, sss.PopSpeech(), parNumber, actor);
-                if (!outcome.success)
-                {
-                    return (null, false);
-                }
-
-                collection.Add(outcome.result);
-            }
-
-            return (collection, true);
-        }
-
-        if (ProgVariableTypes.ReferenceType.HasFlag(type) && parText.EqualTo("null"))
-        {
-            return (null, true);
-        }
-
-        string parameterArgument = parNumber > 0 ? $" at parameter {parNumber.ToString("N0", actor)}" : "";
-
-        if (type == ProgVariableTypes.Tag)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.Tags.GetByIdOrName(parText), "tag",
-                parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.ItemPrototype)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.ItemProtos.GetByIdOrName(parText),
-                "item prototype", parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.NPCTemplate)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.NpcTemplates.GetByIdOrName(parText), "NPC template",
-                parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.OutfitTemplate)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.OutfitTemplates.GetByIdOrName(parText),
-                "outfit template", parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.Vehicle)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.Vehicles.GetByIdOrName(parText), "vehicle",
-                parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.CelestialObject)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.CelestialObjects.GetByIdOrName(parText),
-                "celestial object", parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.Grid)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.Grids.GetByIdOrName(parText), "grid",
-                parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.CharacteristicDefinition)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.Characteristics.GetByIdOrName(parText),
-                "characteristic definition", parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.CharacteristicValue)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.CharacteristicValues.GetByIdOrName(parText),
-                "characteristic value", parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.AgricultureFieldProfile)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.AgricultureFieldProfiles.GetByIdOrName(parText),
-                "agriculture field profile", parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.AgricultureCropDefinition)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.AgricultureCropDefinitions.GetByIdOrName(parText),
-                "agriculture crop definition", parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.AgricultureHerdDefinition)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.AgricultureHerdDefinitions.GetByIdOrName(parText),
-                "agriculture herd definition", parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.AgricultureWoodlandDefinition)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.AgricultureWoodlandDefinitions.GetByIdOrName(parText),
-                "agriculture woodland definition", parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.AgricultureOperation)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.AgricultureOperations.GetByIdOrName(parText),
-                "agriculture operation", parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.Property)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.Properties.GetByIdOrName(parText), "property",
-                parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.PropertyKey)
-        {
-            return ResolvePropertyChildArgument(actor, parText, parameterArgument, "property key",
-                PropertyReferenceLookup.GetPropertyKey);
-        }
-
-        if (type == ProgVariableTypes.PropertyLease)
-        {
-            return ResolvePropertyChildArgument(actor, parText, parameterArgument, "property lease",
-                PropertyReferenceLookup.GetPropertyLease);
-        }
-
-        if (type == ProgVariableTypes.PropertyLeaseOrder)
-        {
-            return ResolvePropertyChildArgument(actor, parText, parameterArgument, "property lease order",
-                PropertyReferenceLookup.GetPropertyLeaseOrder);
-        }
-
-        if (type == ProgVariableTypes.PropertySaleOrder)
-        {
-            return ResolvePropertyChildArgument(actor, parText, parameterArgument, "property sale order",
-                PropertyReferenceLookup.GetPropertySaleOrder);
-        }
-
-        if (type == ProgVariableTypes.EconomicZone)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.EconomicZones.GetByIdOrName(parText),
-                "economic zone", parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.Channel)
-        {
-            return ResolveFrameworkItemArgument(actor, actor.Gameworld.Channels.GetByIdOrName(parText), "channel",
-                parameterArgument);
-        }
-
-        if (type == ProgVariableTypes.NameCulture)
-        {
-            INameCulture nameCulture = actor.Gameworld.NameCultures.GetByIdOrName(parText);
-            if (nameCulture is null)
-            {
-                actor.OutputHandler.Send($"There is no such name culture{parameterArgument}.");
-                return (null, false);
-            }
-
-            return (nameCulture, true);
-        }
-
-        if (type == ProgVariableTypes.RandomNameProfile)
-        {
-            IRandomNameProfile randomNameProfile = actor.Gameworld.RandomNameProfiles.GetByIdOrName(parText);
-            if (randomNameProfile is null)
-            {
-                actor.OutputHandler.Send($"There is no such random name profile{parameterArgument}.");
-                return (null, false);
-            }
-
-            return (randomNameProfile, true);
-        }
-
-        if (type == ProgVariableTypes.PersonalName)
-        {
-            if (parText.EqualTo("null"))
-            {
-                return (null, true);
-            }
-
-            StringStack nameStack = new(parText);
-            if (nameStack.IsFinished)
-            {
-                actor.OutputHandler.Send(
-                    $"You must specify a name culture followed by a complete name{parameterArgument}.");
-                return (null, false);
-            }
-
-            INameCulture nameCulture = actor.Gameworld.NameCultures.GetByIdOrName(nameStack.PopSpeech());
-            if (nameCulture is null)
-            {
-                actor.OutputHandler.Send($"There is no such name culture{parameterArgument}.");
-                return (null, false);
-            }
-
-            if (nameStack.IsFinished)
-            {
-                actor.OutputHandler.Send(
-                    $"You must specify a complete name after the name culture{parameterArgument}.");
-                return (null, false);
-            }
-
-            IPersonalName personalName = nameCulture.GetPersonalName(nameStack.SafeRemainingArgument, true);
-            if (personalName is null)
-            {
-                actor.OutputHandler.Send($"That is not a valid name for the {nameCulture.Name.ColourName()} name culture{parameterArgument}.");
-                return (null, false);
-            }
-
-            return (personalName, true);
-        }
-
-        if (type == ProgVariableTypes.LegalClass)
-        {
-            ILegalClass legalClass = actor.Gameworld.LegalClasses.GetByIdOrName(parText);
-            if (legalClass is null)
-            {
-                actor.OutputHandler.Send($"There is no such legal class{parameterArgument}");
-                return (null, false);
-            }
-
-            return (legalClass, true);
-        }
-
-        switch (type.LegacyCode)
-        {
-            case ProgVariableTypeCode.Boolean:
-                if (bool.TryParse(parText, out bool bValue))
-                {
-                    return (bValue, true);
-                }
-
-                actor.OutputHandler.Send($"That is not a valid boolean argument to use {parameterArgument}.");
-                return (null, false);
-            case ProgVariableTypeCode.Chargen:
-                if (!long.TryParse(parText, out long id))
-                {
-                    actor.OutputHandler.Send($"You must supply an ID number for the chargen you wish to use.");
-                    return (null, false);
-                }
-
-                using (new FMDB())
-                {
-                    Models.Chargen dbitem = FMDB.Context.Chargens.Find(id);
-                    if (dbitem is null)
-                    {
-                        actor.OutputHandler.Send("There is no such chargen.");
-                        return (null, false);
-                    }
-
-                    return (new CharacterCreation.Chargen(dbitem, actor.Gameworld, dbitem.Account), true);
-                }
-            case ProgVariableTypeCode.Toon:
-                if (parText[0] == '*')
-                {
-                    parText = parText[1..];
-                    goto case ProgVariableTypeCode.Chargen;
-                }
-
-                goto case ProgVariableTypeCode.Character;
-            case ProgVariableTypeCode.Character:
-                ICharacter targetActor = actor.TargetActor(parText);
-                if (targetActor == null)
-                {
-                    actor.OutputHandler.Send($"You do not see anybody like that here to target{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (targetActor, true);
-            case ProgVariableTypeCode.Gender:
-                switch (parText.ToLowerInvariant())
-                {
-                    case "male":
-                        return (Gender.Male, true);
-                    case "female":
-                        return (Gender.Female, true);
-                    case "neuter":
-                        return (Gender.Neuter, true);
-                    case "non-binary":
-                    case "nb":
-                    case "nonbinary":
-                        return (Gender.NonBinary, true);
-                    case "indeterminate":
-                        return (Gender.Indeterminate, true);
-                    default:
-                        actor.OutputHandler.Send($"That is not a valid gender to use{parameterArgument}.");
-                        return (null, false);
-                }
-            case ProgVariableTypeCode.TimeSpan:
-                if (!TimeSpan.TryParse(parText, out TimeSpan tsValue))
-                {
-                    actor.OutputHandler.Send($"That is not a valid timespan to use{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (tsValue, true);
-            case ProgVariableTypeCode.DateTime:
-                if (!DateTime.TryParse(parText, out DateTime dtValue))
-                {
-                    actor.OutputHandler.Send($"That is not a valid datetime to use{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (dtValue, true);
-            case ProgVariableTypeCode.MudDateTime:
-                if (!MudDateTime.TryParse(parText, actor.Gameworld, out MudDateTime mdtValue))
-                {
-                    actor.OutputHandler.Send($"That is not a valid mud datetime to use{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (mdtValue, true);
-            case ProgVariableTypeCode.Item:
-                IGameItem targetItem = actor.TargetItem(parText);
-                if (targetItem == null)
-                {
-                    actor.OutputHandler.Send($"You do not see any item like that to use{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (targetItem, true);
-            case ProgVariableTypeCode.Location:
-                if (parText.Equals("here", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return (actor.Location, true);
-                }
-
-                if (long.TryParse(parText, out long iValue))
-                {
-                    ICell targetCell = actor.Gameworld.Cells.Get(iValue);
-                    return (targetCell, true);
-                }
-                else
-                {
-                    ICell targetCell = RoomBuilderModule.LookupCell(actor.Gameworld, parText);
-                    if (targetCell == null)
-                    {
-                        actor.OutputHandler.Send(
-                            $"You must specify the ID number of the location to use at parameter{parameterArgument}.");
-                        return (null, false);
-                    }
-
-                    return (targetCell, true);
-                }
-
-            case ProgVariableTypeCode.Number:
-                if (decimal.TryParse(parText, out decimal dValue))
-                {
-                    return (dValue, true);
-                }
-
-                actor.OutputHandler.Send($"That is not a valid number argument to use{parameterArgument}.");
-                return (null, false);
-            case ProgVariableTypeCode.Shard:
-                if (long.TryParse(parText, out iValue))
-                {
-                    IShard targetShard = actor.Gameworld.Shards.Get(iValue);
-                    return (targetShard, true);
-                }
-
-                actor.OutputHandler.Send($"You must specify the ID number of the shard to use{parameterArgument}.");
-                return (null, false);
-            case ProgVariableTypeCode.Text:
-                return (parText, true);
-            case ProgVariableTypeCode.Zone:
-                if (long.TryParse(parText, out iValue))
-                {
-                    IZone targetZone = actor.Gameworld.Zones.Get(iValue);
-                    return (targetZone, true);
-                }
-
-                actor.OutputHandler.Send($"You must specify the ID number of the zone to use{parameterArgument}.");
-                return (null, false);
-            case ProgVariableTypeCode.Clan:
-                IClan targetClan = long.TryParse(parText, out iValue)
-                    ? actor.Gameworld.Clans.Get(iValue)
-                    : actor.Gameworld.Clans.FirstOrDefault(
-                          x => x.FullName.Equals(parText, StringComparison.InvariantCultureIgnoreCase)) ??
-                      actor.Gameworld.Clans.FirstOrDefault(
-                          x => x.Alias.Equals(parText, StringComparison.InvariantCultureIgnoreCase));
-                if (targetClan == null)
-                {
-                    actor.Send($"There is no such clan{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (targetClan, true);
-            case ProgVariableTypeCode.ClanRank:
-                IRank rank = actor.Gameworld.Clans.SelectMany(x => x.Ranks).GetByIdOrName(parText);
-                if (rank is null)
-                {
-                    actor.OutputHandler.Send($"There is no such rank{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (rank, true);
-            case ProgVariableTypeCode.ClanPaygrade:
-                IPaygrade paygrade = actor.Gameworld.Clans.SelectMany(x => x.Paygrades).GetByIdOrName(parText);
-                if (paygrade is null)
-                {
-                    actor.OutputHandler.Send($"There is no such paygrade{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (paygrade, true);
-            case ProgVariableTypeCode.ClanAppointment:
-                IAppointment appointment = actor.Gameworld.Clans.SelectMany(x => x.Appointments).GetByIdOrName(parText);
-                if (appointment is null)
-                {
-                    actor.OutputHandler.Send($"There is no such appointment{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (appointment, true);
-            case ProgVariableTypeCode.Currency:
-                ICurrency targetCurrency = long.TryParse(parText, out iValue)
-                    ? actor.Gameworld.Currencies.Get(iValue)
-                    : actor.Gameworld.Currencies.FirstOrDefault(
-                        x => x.Name.Equals(parText, StringComparison.InvariantCultureIgnoreCase));
-                if (targetCurrency == null)
-                {
-                    actor.Send($"There is no such currency{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (targetCurrency, true);
-            case ProgVariableTypeCode.Language:
-                ILanguage targetLanguages = long.TryParse(parText, out iValue)
-                    ? actor.Gameworld.Languages.Get(iValue)
-                    : actor.Gameworld.Languages.GetByName(parText);
-                if (targetLanguages == null)
-                {
-                    actor.Send($"There is no such language{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (targetLanguages, true);
-            case ProgVariableTypeCode.Script:
-                IScript targetScripts = actor.Gameworld.Scripts.GetByIdOrName(parText);
-                if (targetScripts is null)
-                {
-                    actor.OutputHandler.Send($"There is no such script{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (targetScripts, true);
-            case ProgVariableTypeCode.Accent:
-                IAccent targetAccent = long.TryParse(parText, out iValue)
-                    ? actor.Gameworld.Accents.Get(iValue)
-                    : actor.Gameworld.Accents.GetByName(parText);
-                if (targetAccent == null)
-                {
-                    actor.Send($"There is no such accent{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (targetAccent, true);
-            case ProgVariableTypeCode.Perceiver:
-            case ProgVariableTypeCode.Perceivable:
-                IPerceivable targetPerceiver = actor.Target(parText);
-                if (targetPerceiver == null)
-                {
-                    actor.Send($"There is nothing or no-one like that for you to use{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (targetPerceiver, true);
-            case ProgVariableTypeCode.Exit:
-                ICellExit exit = actor.Location.GetExitKeyword(parText, actor);
-                if (exit == null)
-                {
-                    actor.OutputHandler.Send($"There is no such exit here{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (exit, true);
-            case ProgVariableTypeCode.Trait:
-                ITraitDefinition trait = actor.Gameworld.Traits.GetByIdOrName(parText);
-                if (trait is null)
-                {
-                    actor.OutputHandler.Send($"There is no such trait{parameterArgument}.");
-                    return (null, false);
-                }
-
-                return (trait, true);
-            case ProgVariableTypeCode.Race:
-                IRace race = actor.Gameworld.Races.GetByIdOrName(parText);
-                if (race is null)
-                {
-                    actor.OutputHandler.Send($"There is no such race{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (race, true);
-            case ProgVariableTypeCode.Culture:
-                ICulture culture = actor.Gameworld.Cultures.GetByIdOrName(parText);
-                if (culture is null)
-                {
-                    actor.OutputHandler.Send($"There is no such culture{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (culture, true);
-            case ProgVariableTypeCode.Ethnicity:
-                IEthnicity ethnicity = actor.Gameworld.Ethnicities.GetByIdOrName(parText);
-                if (ethnicity is null)
-                {
-                    actor.OutputHandler.Send($"There is no such ethnicity{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (ethnicity, true);
-            case ProgVariableTypeCode.Merit:
-                IMerit merit = actor.Gameworld.Merits.GetByIdOrName(parText);
-                if (merit is null)
-                {
-                    actor.OutputHandler.Send($"There is no such merit{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (merit, true);
-            case ProgVariableTypeCode.Calendar:
-                ICalendar calendar = actor.Gameworld.Calendars.GetByIdOrNames(parText);
-                if (calendar is null)
-                {
-                    actor.OutputHandler.Send($"There is no such calendar{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (calendar, true);
-            case ProgVariableTypeCode.Clock:
-                IClock clock = actor.Gameworld.Clocks.GetByIdOrNames(parText);
-                if (clock is null)
-                {
-                    actor.OutputHandler.Send($"There is no such clock{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (clock, true);
-            case ProgVariableTypeCode.Knowledge:
-                IKnowledge knowledge = actor.Gameworld.Knowledges.GetByIdOrName(parText);
-                if (knowledge is null)
-                {
-                    actor.OutputHandler.Send($"There is no such knowledge{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (knowledge, true);
-            case ProgVariableTypeCode.Role:
-                IChargenRole role = actor.Gameworld.Roles.GetByIdOrName(parText);
-                if (role is null)
-                {
-                    actor.OutputHandler.Send($"There is no such role{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (role, true);
-            case ProgVariableTypeCode.Drug:
-                Health.IDrug drug = actor.Gameworld.Drugs.GetByIdOrName(parText);
-                if (drug is null)
-                {
-                    actor.OutputHandler.Send($"There is no such drug{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (drug, true);
-            case ProgVariableTypeCode.WeatherEvent:
-                Climate.IWeatherEvent weather = actor.Gameworld.WeatherEvents.GetByIdOrName(parText);
-                if (weather is null)
-                {
-                    actor.OutputHandler.Send($"There is no such weather event{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (weather, true);
-            case ProgVariableTypeCode.Shop:
-                IShop shop = actor.Gameworld.Shops.GetByIdOrName(parText);
-                if (shop is null)
-                {
-                    actor.OutputHandler.Send($"There is no such shop{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (shop, true);
-            case ProgVariableTypeCode.Merchandise:
-                IMerchandise merch = actor.Gameworld.Shops.SelectMany(x => x.Merchandises).GetByIdOrName(parText);
-                if (merch is null)
-                {
-                    actor.OutputHandler.Send($"There is no such merchandise{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (merch, true);
-            case ProgVariableTypeCode.OverlayPackage:
-                ICellOverlayPackage overlay = actor.Gameworld.CellOverlayPackages.GetByIdOrName(parText);
-                if (overlay is null)
-                {
-                    actor.OutputHandler.Send($"There is no such overlay package{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (overlay, true);
-            case ProgVariableTypeCode.Terrain:
-                ITerrain terrain = actor.Gameworld.Terrains.GetByIdOrName(parText);
-                if (terrain is null)
-                {
-                    actor.OutputHandler.Send($"There is no such terrain{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (terrain, true);
-            case ProgVariableTypeCode.Solid:
-                ISolid material = actor.Gameworld.Materials.GetByIdOrName(parText);
-                if (material is null)
-                {
-                    actor.OutputHandler.Send($"There is no such material{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (material, true);
-            case ProgVariableTypeCode.Liquid:
-                ILiquid liquid = actor.Gameworld.Liquids.GetByIdOrName(parText);
-                if (liquid is null)
-                {
-                    actor.OutputHandler.Send($"There is no such liquid{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (liquid, true);
-            case ProgVariableTypeCode.Gas:
-                IGas gas = actor.Gameworld.Gases.GetByIdOrName(parText);
-                if (gas is null)
-                {
-                    actor.OutputHandler.Send($"There is no such gas{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (gas, true);
-            case ProgVariableTypeCode.LegalAuthority:
-                ILegalAuthority legal = actor.Gameworld.LegalAuthorities.GetByIdOrName(parText);
-                if (legal is null)
-                {
-                    actor.OutputHandler.Send($"There is no such legal authority{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (legal, true);
-            case ProgVariableTypeCode.MagicCapability:
-                IMagicCapability capability = actor.Gameworld.MagicCapabilities.GetByIdOrName(parText);
-                if (capability is null)
-                {
-                    actor.OutputHandler.Send($"There is no such magic capability{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (capability, true);
-            case ProgVariableTypeCode.MagicSchool:
-                IMagicSchool school = actor.Gameworld.MagicSchools.GetByIdOrName(parText);
-                if (school is null)
-                {
-                    actor.OutputHandler.Send($"There is no such magic school{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (school, true);
-            case ProgVariableTypeCode.MagicSpell:
-                IMagicSpell spell = actor.Gameworld.MagicSpells.GetByIdOrName(parText);
-                if (spell is null)
-                {
-                    actor.OutputHandler.Send($"There is no such magic spell{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (spell, true);
-            case ProgVariableTypeCode.Bank:
-                IBank bank = actor.Gameworld.Banks.GetByIdOrName(parText);
-                if (bank is null)
-                {
-                    actor.OutputHandler.Send($"There is no such bank{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (bank, true);
-            case ProgVariableTypeCode.BankAccountType:
-                IBankAccountType accountType = actor.Gameworld.BankAccountTypes.GetByIdOrName(parText);
-                if (accountType is null)
-                {
-                    actor.OutputHandler.Send($"There is no such bank account type{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (accountType, true);
-            case ProgVariableTypeCode.BankAccount:
-                (IBankAccount account, string error) = Economy.Banking.Bank.FindBankAccount(parText, null, actor);
-                if (account is null)
-                {
-                    actor.OutputHandler.Send($"{error}{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (account, true);
-            case ProgVariableTypeCode.Project:
-                IActiveProject project = actor.Gameworld.ActiveProjects.GetByIdOrName(parText);
-                if (project is null)
-                {
-                    actor.OutputHandler.Send($"There is no such project{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (project, true);
-            case ProgVariableTypeCode.Law:
-                ILaw law = actor.Gameworld.Laws.GetByIdOrName(parText);
-                if (law is null)
-                {
-                    actor.OutputHandler.Send($"There is no such law{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (law, true);
-            case ProgVariableTypeCode.Market:
-                IMarket market = actor.Gameworld.Markets.GetByIdOrName(parText);
-                if (market is null)
-                {
-                    actor.OutputHandler.Send($"There is no such market{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (market, true);
-            case ProgVariableTypeCode.MarketCategory:
-                IMarketCategory category = actor.Gameworld.MarketCategories.GetByIdOrName(parText);
-                if (category is null)
-                {
-                    actor.OutputHandler.Send($"There is no such market category{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (category, true);
-            case ProgVariableTypeCode.Crime:
-                ICrime crime = actor.Gameworld.Crimes.GetByIdOrName(parText);
-                if (crime is null)
-                {
-                    actor.OutputHandler.Send($"There is no such crime{parameterArgument}");
-                    return (null, false);
-                }
-                return (crime, true);
-            case ProgVariableTypeCode.Area:
-                IArea area = actor.Gameworld.Areas.GetByIdOrName(parText);
-                if (area is null)
-                {
-                    actor.OutputHandler.Send($"There is no such area{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (area, true);
-            case ProgVariableTypeCode.Writing:
-                if (!long.TryParse(parText, out iValue))
-                {
-                    actor.OutputHandler.Send($"The text is not a valid id{parameterArgument}");
-                    return (null, false);
-                }
-
-                IWriting writing = actor.Gameworld.Writings.Get(iValue);
-                if (writing is null)
-                {
-                    actor.OutputHandler.Send($"There is no such writing{parameterArgument}");
-                    return (null, false);
-                }
-
-                return (writing, true);
-            case ProgVariableTypeCode.Effect:
-            case ProgVariableTypeCode.Outfit:
-            case ProgVariableTypeCode.OutfitItem:
-            case ProgVariableTypeCode.Material:
-            default:
-                actor.Send(
-                    $"The variable type {type.Describe().Colour(Telnet.VariableCyan)} is not yet supported in this command. Sorry.");
-                return (null, false);
-        }
-    }
-
-    private static (object result, bool success) ResolvePropertyChildArgument(ICharacter actor, string text,
-        string parameterArgument, string typeName, Func<IFuturemud, long, IFrameworkItem> resolver)
-    {
-        if (!long.TryParse(text, out long id))
-        {
-            actor.OutputHandler.Send($"You must enter a numeric ID for the {typeName}{parameterArgument}.");
-            return (null, false);
-        }
-
-        return ResolveFrameworkItemArgument(actor, resolver(actor.Gameworld, id), typeName, parameterArgument);
-    }
-
-    private static (object result, bool success) ResolveFrameworkItemArgument(ICharacter actor, IFrameworkItem item,
-        string typeName, string parameterArgument)
-    {
-        if (item is not null)
-        {
-            return (item, true);
-        }
-
-        actor.OutputHandler.Send($"There is no such {typeName}{parameterArgument}.");
-        return (null, false);
     }
 
     private static void ProgSetText(ICharacter actor, IFutureProg prog, StringStack command, bool append)
@@ -2348,6 +1577,81 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
     #endregion Prog Sub Commands
 
+	private const string SetRegisterHelp = @"Sets an existing register variable on one target without executing a prog.
+
+	#3setregister <type> <target> <variablename> <value>#0
+
+The type is the target's FutureProg type. The variable must already exist (see #3register show <type>#0). Its declared type determines how the value is parsed. Targets and values use the same resolver as #3prog execute#0: for example, location targets accept #3here#0 or a room ID, and durable world references accept the IDs or names supported by that type. Quote targets or variable names containing spaces. Text values may contain spaces or be quoted; use #3""""#0 for empty text. Reference values accept #3null#0, but the target cannot be null. Collections use space-separated elements, optionally enclosed in parentheses, with quotes around individual text elements.
+
+Examples (assuming these variables have been registered):
+	#3setregister location here reputation 25#0
+	#3setregister location 123 notice The gate is closed.#0
+	#3setregister location here owner null#0
+
+This sets only the target's stored value; it does not change the variable's default. Use #3sniff#0 to inspect register values on rooms, items and characters.";
+
+	[PlayerCommand("SetRegister", "setregister")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("setregister", SetRegisterHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void SetRegister(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		var type = FutureProg.FutureProg.GetTypeByName(ss.PopSpeech());
+		if (!type.IsExactType || type != type.WithoutContainerModifiers() ||
+		    !type.CompatibleWith(ProgVariableTypes.ReferenceType))
+		{
+			actor.OutputHandler.Send("You must specify a concrete reference type. See prog help types.");
+			return;
+		}
+
+		if (!TryPopArgument(ref ss, out var targetText, out var targetError))
+		{
+			actor.OutputHandler.Send(targetError);
+			return;
+		}
+		var variableName = ss.PopSpeech().ToLowerInvariant();
+		if (string.IsNullOrEmpty(targetText) || string.IsNullOrEmpty(variableName) || ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Syntax: setregister <type> <target> <variablename> <value>");
+			return;
+		}
+
+		var register = actor.Gameworld.VariableRegister;
+		if (!register.IsRegistered(type, variableName))
+		{
+			actor.OutputHandler.Send($"The {type.Describe().ColourName()} type does not have a variable called {variableName.ColourCommand()}.");
+			return;
+		}
+
+		var (targetObject, targetSuccess) = GetArgument(type, targetText, 0, actor);
+		if (!targetSuccess)
+		{
+			return;
+		}
+
+		if (targetObject is not IProgVariable target || target.GetObject is null)
+		{
+			actor.OutputHandler.Send("You must specify an existing, non-null target.");
+			return;
+		}
+
+		var valueType = register.GetType(type, variableName);
+		var (valueObject, valueSuccess) = GetArgumentFromRemainingInput(valueType, ss, 0, actor);
+		if (!valueSuccess)
+		{
+			return;
+		}
+
+		var value = FutureProg.FutureProg.GetVariable(valueType, valueObject);
+		if (!register.SetValue(target, variableName, value))
+		{
+			actor.OutputHandler.Send("Unable to set that register value on the target.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You set {variableName.ColourCommand()} on {DescribeProgVariable(actor, type, targetObject)} to {FutureProg.FutureProg.VariableValueToText(value, actor).ColourIncludingReset(Telnet.Green)}.");
+	}
+
     private const string RegisterHelp =
         @"The register command is used to view and edit the 'register variables' that are associated with any prog type.
 
@@ -2361,6 +1665,7 @@ The syntax for setting up register variables is as follows:
 	#3register remove <type> <variable name>#0 - removes a variable from a type. Causes irreversible data loss.
 	#3register <type> <name> <variable type>#0 - creates a new variable for a type
 	#3register default <type> <name> <value>#0 - sets the default value for a register variable if none is otherwise set
+	#3setregister <type> <target> <variablename> <value>#0 - sets an existing variable on one target without a prog
 
 To use these variables in your progs, you can use the following two snippets:
 
@@ -2563,7 +1868,7 @@ To see what register values a room, item or character has use the #3sniff#0 comm
         }
 
         ProgVariableTypes varType = actor.Gameworld.VariableRegister.GetType(type, variableName);
-        (object item, bool success) = GetArgument(varType, input.SafeRemainingArgument, 0, actor);
+        (object item, bool success) = GetArgumentFromRemainingInput(varType, input, 0, actor);
         if (!success)
         {
             return;

@@ -578,3 +578,7 @@ Business operations should call `IEconomyAnalyticsService.RecordActivity` once a
 Builders can resolve shops, markets, market categories, properties and economic zones using `toshop`, `tomarket`, `tomarketcategory`, `toproperty` and `toeconomiczone` with an ID or name. `tobankaccounttype` accepts a global ID or a bank followed by an ID/name; `tomerchandise` similarly takes a shop for scoped lookup. Property keys, leases, lease orders and sale orders have numeric-only `To` aliases. Missing lookups return null of the declared type. These are read-only reference lookups with no persistence or transaction changes.
 
 See [Reference Conversion Functions](../Core/FutureProg_Type_System.md#reference-conversion-functions) for the complete conversion audit and characteristic overload contracts.
+
+## Manual FutureProg economy values
+
+The [shared argument resolver](../Core/FutureProg_Type_System.md#shared-manual-argument-resolution) resolves bank accounts in the caller's gameworld by global account ID or bank name/code plus account number. Bank-code prefixes must be unambiguous; inactive accounts remain valid references for inspection and scripting. Explicit `null` is distinct from a failed lookup. This performs no banking transaction and changes no banking persistence.

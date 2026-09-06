@@ -13,6 +13,7 @@ This document is aimed at:
 - seeder authors planning manual spell data
 
 ## Quick Map
+- [Magical and Psychic Combat Powers](./Magic_Combat_Powers.md) documents the non-castable `attackcharacter` and `attackitem` triggers and attached target/caster effects. These prepared payloads are hidden from player spell lists and do not pay separate spell casting costs.
 - Read the runtime lifecycle section if you are debugging spell behavior.
 - Read the builder workflow section if you are authoring content with `magic spell`.
 - Read the developer extension section if you are adding a new trigger or effect type.

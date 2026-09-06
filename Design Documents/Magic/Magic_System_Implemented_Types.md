@@ -1,5 +1,7 @@
 # FutureMUD Magic System: Implemented Types
 
+`magicattack` supports melee/ranged attacks, control riders and character-context spell payloads. `magicsmash` targets items with an optional item-context payload. `magicdefense` adds opposed, charged and absorption reactions. The `attackcharacter` and `attackitem` spell triggers are prepared contexts with no casting command. See [Magical and Psychic Combat Powers](./Magic_Combat_Powers.md).
+
 ## Purpose
 This document is the compact inventory of the currently implemented magic type surface.
 
@@ -72,7 +74,9 @@ Current count: 32 documented power tokens, including 31 builder-creatable tokens
 | `hear` | `HearPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/HearPower.cs` via `MagicPowerFactory` | Yes | Sustains a listener for psionic thought and feeling traffic |
 | `hex` | `HexPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/HexPower.cs` via `MagicPowerFactory` | Yes | Applies a timed hostile check penalty over selected check categories |
 | `invisibility` | `InvisibilityPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/InvisibilityPower.cs` via `MagicPowerFactory` | Yes | Applies invisibility behavior |
-| `magicattack` | `MagicAttackPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicAttackPower.cs` via `MagicPowerFactory` | Yes | Executes a direct magical attack |
+| `magicattack` | `MagicAttackPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicAttackPower.cs` via `MagicPowerFactory` | Yes | Melee/ranged attack with optional control riders |
+| `magicdefense` | `MagicDefensePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicDefensePower.cs` via `MagicPowerFactory` | Yes | Sustained opposed, charged or absorption defense |
+| `magicsmash` | `MagicSmashPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicSmashPower.cs` via `MagicPowerFactory` | Yes | Magical item smash with an optional item-context spell payload |
 | `magicksense` | `MagicksensePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicksensePower.cs` via `MagicPowerFactory` | Yes | Sustains `SenseMagical` perception and uses the existing magical aura display |
 | `mindaudit` | `MindAuditPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindAuditPower.cs` via `MagicPowerFactory` | Yes | Audits or inspects a mind |
 | `mindbarrier` | `MindBarrierPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindBarrierPower.cs` via `MagicPowerFactory` | Yes | Creates a mental barrier |
@@ -100,6 +104,8 @@ Compatibility load aliases are registered for older persisted rows and display-n
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |
 | --- | --- | --- | --- | --- | --- |
 | `character` | `CastingTriggerCharacter` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacter.cs` via `SpellTriggerFactory` | Yes | Casts at a character target in the same room |
+| `attackcharacter` | `AttackHitTrigger` | Spell trigger | Static `RegisterFactory` via `SpellTriggerFactory` | Yes | Hidden prepared payload for one character struck by a magic attack |
+| `attackitem` | `AttackHitTrigger` | Spell trigger | Static `RegisterFactory` via `SpellTriggerFactory` | Yes | Hidden prepared payload for one magically smashed item |
 | `characterexit` | `CastingTriggerCharacterExit` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacterExit.cs` via `SpellTriggerFactory` | Yes | Casts at a same-room character plus a local exit, exposing the chosen `ICellExit` as an additional `exit` parameter |
 | `characterprogroom` | `CastingTriggerCharacterProgRoom` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacterProgRoom.cs` via `SpellTriggerFactory` | Yes | Casts at a character with prog-driven room targeting |
 | `charactervicinity` | `CastingTriggerCharacterVicinity` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacterVicinity.cs` via `SpellTriggerFactory` | Yes | Casts at characters in a character's vicinity |

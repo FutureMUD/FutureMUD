@@ -1,6 +1,8 @@
 # Optional Psionics Seeder
 
-The optional **Psionics** package installs Basic Psionics and Advanced Psionics after the core, organic Human race, skill package and supernatural dependencies. Selecting the package installs it without an additional confirmation question. All Debug replay profiles place Human before Psionics.
+Advanced Psionics includes eleven [combat powers](../Magic/Magic_Combat_Powers.md): two damage attacks, six control techniques and three finite/resource-consuming defenses. The canonical combat definitions and echo catalogue are separate from the existing psychicbolt. Reruns add missing definitions and capability entries without replacing authored content or granting characters access.
+
+The optional **Psionics** package installs Basic Psionics and Advanced Psionics after the core, organic Human race, skill package and supernatural dependencies. The `install-psionics` yes/no question is explicit; declining it writes nothing. All Debug replay profiles place Human before Psionics and answer this optional question explicitly.
 
 Basic Psionics supplies contact, directed speech, barrier, self-audit and expulsion. Advanced Psionics includes those foundations, the existing advanced powers, thirteen new technique families, and four ordinary spells exposed through power verbs: projection, live possession, levitation and a caster-scoped description illusion.
 
@@ -93,6 +95,7 @@ Guard and feedback start/end/intrusion echoes now use the power's saved fields; 
 
 Completeness validation: all default suites passed after the final core rerun (4,153 tests total, including 2,715 core tests). Catalogue reflection and XML round-trip tests check field coverage in both directions. Tests also cover custom text, intentional silence, legacy defaults, builder placeholder validation, and spell field parity. A disposable-MUD walkthrough edited feedback EndEcho and verified that exact custom text on effect removal.
 
+The declared `install-psionics` yes/no question matches the Debug replay profiles. Answering no returns before any content mutation.
 
 ### Player names, help and projection race
 

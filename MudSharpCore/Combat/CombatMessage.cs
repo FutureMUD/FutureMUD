@@ -504,6 +504,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
             case BuiltInCombatMoveType.PushbackClinch:
             case BuiltInCombatMoveType.DownedAttackUnarmed:
             case BuiltInCombatMoveType.MagicPowerAttack:
+			case BuiltInCombatMoveType.MagicPowerSmashItem:
                 return
                     @"Valid tokens for this message: 
 
@@ -686,6 +687,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
             case BuiltInCombatMoveType.UnbalancingBlowClinch:
             case BuiltInCombatMoveType.DownedAttackUnarmed:
             case BuiltInCombatMoveType.MagicPowerAttack:
+			case BuiltInCombatMoveType.MagicPowerSmashItem:
             case BuiltInCombatMoveType.ChargeToMelee:
             case BuiltInCombatMoveType.MoveToMelee:
             case BuiltInCombatMoveType.WardCounter:

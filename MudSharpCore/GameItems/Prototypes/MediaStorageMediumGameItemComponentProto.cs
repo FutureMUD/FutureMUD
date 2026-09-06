@@ -39,7 +39,8 @@ public class MediaStorageMediumGameItemComponentProto : GameItemComponentProto, 
 
 	protected override void LoadFromXml(XElement root)
 	{
-		FormatKey = root.Element("FormatKey")?.Value?.Trim() ?? "generic";
+		FormatKey = root.Element("FormatKey")?.Value?.Trim() ??
+			(root.Element("CapacityMs") is not null ? (Name.Contains("Microcassette", StringComparison.OrdinalIgnoreCase) ? "microcassette" : "compact-cassette") : "generic");
 		if (string.IsNullOrWhiteSpace(FormatKey))
 		{
 			FormatKey = "generic";
@@ -50,7 +51,7 @@ public class MediaStorageMediumGameItemComponentProto : GameItemComponentProto, 
 			? capabilities
 			: MediaCapabilities.Audio;
 		Capacity = TimeSpan.FromMilliseconds(Math.Max(1L,
-			long.TryParse(root.Element("CapacityMilliseconds")?.Value, out var milliseconds)
+			long.TryParse((root.Element("CapacityMilliseconds") ?? root.Element("CapacityMs"))?.Value, out var milliseconds)
 				? milliseconds
 				: (long)TimeSpan.FromMinutes(30).TotalMilliseconds));
 	}
@@ -134,6 +135,9 @@ public class MediaStorageMediumGameItemComponentProto : GameItemComponentProto, 
 		manager.AddBuilderLoader("medium", false,
 			(gameworld, account) => new MediaStorageMediumGameItemComponentProto(gameworld, account));
 		manager.AddDatabaseLoader("Media Storage Medium",
+			(proto, gameworld) => new MediaStorageMediumGameItemComponentProto(proto, gameworld));
+		// Older UsefulSeeder worlds used Tape with CapacityMs. Keep those identities loadable.
+		manager.AddDatabaseLoader("Tape",
 			(proto, gameworld) => new MediaStorageMediumGameItemComponentProto(proto, gameworld));
 		manager.AddModernTypeHelpInfo("Media Storage Medium",
 			$"Makes an item a reusable {"[physical media medium]".Colour(Telnet.BoldGreen)} for a compatible media deck",

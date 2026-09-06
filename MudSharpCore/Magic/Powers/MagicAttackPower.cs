@@ -8,7 +8,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.Powers;
 
-public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
+public partial class MagicAttackPower : MagicPowerBase, IMagicAttackPower
 {
     public override string PowerType => "Magic Attack";
 
@@ -70,15 +70,16 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
                 new XElement("MoveType", (int)MoveType)
         );
         AddBaseDefinition(definition);
+		SaveCombatDefinition(definition);
         return definition;
     }
 
-    private MagicAttackPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait, IWeaponAttack wa) : base(gameworld, school, name)
+    protected MagicAttackPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait, IWeaponAttack wa) : base(gameworld, school, name)
     {
         Blurb = "Use a magical attack on others";
-        _showHelpText = @$"This is a magical attack. You cannot use this attack manually but to make it happen in combat you must choose a combat setting with the ""Melee Magic"" melee strategy and COMBAT CONFIG MAGIC set to a value greater than 0%."; ;
+        _showHelpText = "Use this power's verb and a visible target to queue a combat attack. Automatic use follows your combat settings' magic or psychic channel.";
         _verb = "blast";
-        _validDefenseTypes.AddRange([DefenseType.Block, DefenseType.Parry, DefenseType.Dodge]);
+        _validDefenseTypes.AddRange([DefenseType.Block, DefenseType.Parry, DefenseType.Dodge, DefenseType.Magic]);
         PowerIntentions = CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill;
         AttackerTrait = trait;
         WeaponAttack = wa;
@@ -89,6 +90,7 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
     protected MagicAttackPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
     {
         XElement root = XElement.Parse(power.Definition);
+		LoadCombatDefinition(root);
         XElement element = root.Element("Verb");
         if (element == null)
         {
@@ -145,6 +147,7 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
             _validDefenseTypes.Add(defense);
         }
 
+        if (root.Element("CombatVersion") is null && !_validDefenseTypes.Contains(DefenseType.Magic)) _validDefenseTypes.Add(DefenseType.Magic);
         element = root.Element("WeaponAttack");
         if (element == null)
         {
@@ -192,11 +195,12 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
 
     public override void UseCommand(ICharacter actor, string verb, StringStack command)
     {
-        actor.OutputHandler.Send("Directly invoking the power is coming soon.");
+		UseCombatCommand(actor, command);
     }
 
-    public bool CanInvokePower(ICharacter invoker, ICharacter target)
+    public virtual bool CanInvokePower(ICharacter invoker, ICharacter target)
     {
+		if (!CanAttackTarget(invoker, target)) return false;
         if (CanInvokePowerProg?.Execute<bool?>(invoker, target) == false)
         {
             return false;
@@ -218,6 +222,7 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
     public void UseAttackPower(IMagicPowerAttackMove move)
     {
         ConsumePowerCosts(move.Assailant, _verb);
+		PsionicActivityNotifier.Notify(move.Assailant, this, $"used {Name}", move.CharacterTargets);
     }
 
     private string _verb;
@@ -229,11 +234,15 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
     public ITraitDefinition AttackerTrait { get; private set; }
     public IWeaponAttack WeaponAttack { get; private set; }
     public int Reach { get; private set; }
-    public BuiltInCombatMoveType MoveType => WeaponAttack.MoveType;
+    public virtual BuiltInCombatMoveType MoveType => WeaponAttack.MoveType;
 
     /// <inheritdoc />
     protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
     {
+		sb.AppendLine($"Range: {AttackRange.DescribeEnum()}, {RangeInRooms.ToString("N0", actor)} rooms | Damage: {DealsDamage.ToColouredString()}");
+		sb.AppendLine($"Attack echo: {AttackEmote}");
+		sb.AppendLine($"Spell payload: {(AttackSpell?.Name ?? (_attackSpellId == 0 ? "None" : "Missing spell")).ColourName()} ({AttackSpellPower.DescribeEnum()})");
+		foreach (var rider in AttackEffects) sb.AppendLine($"{rider.Type.DescribeEnum()}: {rider.Resistance.DescribeEnum()}, strength {rider.Strength.ToString("N2", actor)}, duration {rider.DurationSeconds.ToString("N2", actor)}s\n  Success: {rider.SuccessEmote}\n  Resisted: {rider.ResistEmote}");
         sb.AppendLine($"Power Verb: {_verb.ColourCommand()}");
         sb.AppendLine($"AttackerTrait Trait: {AttackerTrait.Name.ColourValue()}");
         sb.AppendLine($"Weapon Attack: {WeaponAttack.Name.MXPSend($"wa show {WeaponAttack.Id}", $"wa show {WeaponAttack.Id}")}");
@@ -254,7 +263,15 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
     public Difficulty BaseDodgeDifficulty => WeaponAttack.Profile.BaseDodgeDifficulty;
 
     #region Building Commands
-    protected override string SubtypeHelpText => @"	#3verb <verb>#0 - sets the verb to manually activate this power
+    protected override string SubtypeHelpText => @"
+	#3range melee|ranged <rooms>#0 - attack targeting mode
+	#3damage <true|false>#0 - enable or disable wounds
+	#3spell <spell|none>#0 - attach a matching attack-trigger spell, including caster effects
+	#3spellpower <level>#0 - set the attached payload's power level
+	#3attackemote <text>#0 - attack echo
+	#3rider <BreakClinch|Disarm|Stagger|Knockdown|Pushback|Pull> <difficulty> <strength> <seconds>#0
+	#3rider <type> remove|success <text>|resist <text>#0 - edit a rider
+	#3verb <verb>#0 - sets the verb to manually activate this power
 	#3attack <which>#0 - sets the weapon attack associated with this power
 	#3reach <##>#0 - sets the reach of this attack
 	#3trait <which>#0 - sets the attack trait used with this power
@@ -264,8 +281,19 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
     /// <inheritdoc />
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
+		if (IsCombatBuildingCommand(command.PeekSpeech())) return BuildingCommandCombat(actor, command);
         switch (command.PopForSwitch())
         {
+			case "verb":
+				var verb = command.PopSpeech().ToLowerInvariant();
+				if (string.IsNullOrWhiteSpace(verb) || verb.Any(char.IsWhiteSpace) || !command.IsFinished)
+				{ actor.Send("Specify a single word for the attack verb."); return false; }
+				if (verb.EqualTo(_verb)) return true;
+				InvocationCosts[verb] = InvocationCosts[_verb].ToList();
+				InvocationCosts.Remove(_verb);
+				_verb = verb; Changed = true;
+				actor.Send($"Use {verb.ColourCommand()} to invoke this attack. Its invocation costs are preserved.");
+				return true;
             case "skill":
             case "trait":
                 return BuildingCommandTrait(actor, command);

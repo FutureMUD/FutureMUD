@@ -13,6 +13,8 @@ namespace MudSharp.GameItems.Components;
 
 public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, IMeleeWeapon, IConditionDegradingComponent
 {
+	public IEnumerable<DamageType> ProjectileDamageTypes => _prototype.MeleeWeaponType.Attacks
+		.OrderByDescending(x => x.Weighting).Take(1).Select(x => x.Profile.DamageType);
     protected ThrownWeaponGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
     public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;

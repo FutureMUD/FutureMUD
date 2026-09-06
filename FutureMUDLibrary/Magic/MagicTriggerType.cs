@@ -4,6 +4,7 @@
     {
         CastKeyword,
         SpeakPhrase,
-        Check5Seconds
+        Check5Seconds,
+		AttackHit
     }
 }

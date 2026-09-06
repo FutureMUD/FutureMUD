@@ -1063,6 +1063,7 @@ public static class CombatExtensions
         switch (type)
         {
             case BuiltInCombatMoveType.MagicPowerAttack:
+			case BuiltInCombatMoveType.MagicPowerSmashItem:
                 return true;
         }
         return false;
@@ -1095,6 +1096,7 @@ public static class CombatExtensions
             case BuiltInCombatMoveType.DownedAttack:
             case BuiltInCombatMoveType.DownedAttackUnarmed:
             case BuiltInCombatMoveType.MagicPowerAttack:
+			case BuiltInCombatMoveType.MagicPowerSmashItem:
             case BuiltInCombatMoveType.InitiateGrapple:
             case BuiltInCombatMoveType.ExtendGrapple:
             case BuiltInCombatMoveType.StrangleAttackExtendGrapple:
@@ -1293,6 +1295,8 @@ public static class CombatExtensions
                 return "Unarmed Downed Attack";
             case BuiltInCombatMoveType.MagicPowerAttack:
                 return "Magic Power Attack";
+			case BuiltInCombatMoveType.MagicPowerSmashItem:
+				return "Magic Power Smash Item";
             case BuiltInCombatMoveType.TakedownMove:
                 return "Takedown";
             case BuiltInCombatMoveType.Breakout:

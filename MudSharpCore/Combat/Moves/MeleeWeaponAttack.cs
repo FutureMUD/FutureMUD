@@ -78,6 +78,13 @@ public class MeleeWeaponAttack : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
+		using var scope = new MagicDefenseDamageScope(this, defenderMove);
+		return scope.Finish(ResolveAttackWithDefense(defenderMove));
+    }
+
+    private CombatMoveResult ResolveAttackWithDefense(ICombatMove defenderMove)
+    {
 		var boundaryTarget = PrimaryCharacterTarget;
 		if (boundaryTarget is not null &&
 		    !VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, boundaryTarget, false, false,
@@ -115,6 +122,12 @@ public class MeleeWeaponAttack : WeaponAttackMove
                     Attack, MoveType, attackRoll[CheckDifficulty], null), "",
                 TargetBodypart.FullDescription());
 
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll[CheckDifficulty], out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
+        }
+
         if (defenderMove is HelplessDefenseMove || defenderMove is TooExhaustedMove)
         {
             return ResolveHelplessDefense(defenderMove, attackRoll, defenderHaveWounds, attackEmote);
@@ -140,6 +153,12 @@ public class MeleeWeaponAttack : WeaponAttackMove
             defenderMove.Assailant.AddEffect(newEffect);
             defenderMove = defenderMove.Assailant.ResponseToMove(this, Assailant);
             defenderMove.Assailant.RemoveEffect(newEffect);
+        }
+
+        if (defenderMove is MagicDefenseMove fallbackMagic)
+        {
+			if (fallbackMagic.TryDefend(this, attackRoll[CheckDifficulty], out var fallbackResult)) return fallbackResult;
+			defenderMove = new HelplessDefenseMove { Assailant = fallbackMagic.Assailant };
         }
 
         if (defenderMove is HelplessDefenseMove || defenderMove is TooExhaustedMove)

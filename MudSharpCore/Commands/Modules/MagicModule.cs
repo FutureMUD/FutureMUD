@@ -146,7 +146,7 @@ The syntax is:
             sb.AppendLine(
                 $"You have the following {schools.Select(x => x.SchoolAdjective).Distinct().ListToString()} spells:");
             sb.Append(StringUtilities.GetTextTable(
-                from item in actor.Gameworld.MagicSpells.Where(x => schools.Contains(x.School) && x.ReadyForGame)
+                from item in actor.Gameworld.MagicSpells.Where(x => schools.Contains(x.School) && x.ReadyForGame && x.Trigger.TriggerType != MagicTriggerType.AttackHit)
                 select new[] { item.Name, item.Blurb },
                 new[] { "Name", "Blurb" },
                 actor.LineFormatLength,

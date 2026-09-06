@@ -157,6 +157,13 @@ public abstract class RangeBaseStrategy : StrategyBase
                        weaponMove.Attack.Profile.BaseDodgeDifficulty != Difficulty.Impossible &&
                        defender.CanSpendStamina(DodgeRangeMove.MoveStaminaCost(defender));
 
+        if (weaponMove is IMagicPowerAttackMove magic)
+        {
+			canBlock &= magic.AttackPower.ValidDefenseTypes.Contains(DefenseType.Block);
+			canDodge &= magic.AttackPower.ValidDefenseTypes.Contains(DefenseType.Dodge);
+			if (canBlock && defender.PreferredDefenseType == DefenseType.Block) return new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
+			if (canDodge && defender.PreferredDefenseType == DefenseType.Dodge) return new DodgeRangeMove { Assailant = defender };
+        }
         if (!canBlock && !canDodge)
         {
             return new HelplessDefenseMove { Assailant = defender };
@@ -195,6 +202,11 @@ public abstract class RangeBaseStrategy : StrategyBase
             return moveAsWeaponAttack != null || moveAsRangedAttack != null
                 ? new HelplessDefenseMove { Assailant = defenseCharacter }
                 : null;
+        }
+
+        if (move is RangedMagicPowerAttackMove rangedMagic)
+        {
+			return ResponseToRangedNaturalAttack(rangedMagic, rangedMagic, defenseCharacter);
         }
 
         if (move is MagicPowerAttackMove)

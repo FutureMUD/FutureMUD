@@ -79,6 +79,7 @@ public class StartClinchMove : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		if (!VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, CharacterTarget, false, false,
 			    out var boundaryReason))
 		{
@@ -132,6 +133,12 @@ public class StartClinchMove : WeaponAttackMove
             defenderMove.Assailant.AddEffect(newEffect);
             defenderMove = defenderMove.Assailant.ResponseToMove(this, Assailant);
             defenderMove.Assailant.RemoveEffect(newEffect);
+        }
+
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll[CheckDifficulty], out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
         }
 
         if (defenderMove is HelplessDefenseMove || ward != null)

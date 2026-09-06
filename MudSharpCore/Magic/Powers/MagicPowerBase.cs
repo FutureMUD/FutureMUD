@@ -442,6 +442,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
     public string Blurb { get; protected set; }
     public abstract IEnumerable<string> Verbs { get; }
     public IFutureProg CanInvokePowerProg { get; private set; }
+	protected virtual ProgVariableTypes InvocationTargetType => ProgVariableTypes.Character;
     public IFutureProg WhyCantInvokePowerProg { get; private set; }
 
     public CollectionDictionary<string, (IMagicResource Resource, double Cost)> InvocationCosts { get; } = new(StringComparer.InvariantCultureIgnoreCase);
@@ -657,7 +658,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         }
 
         string verb = command.PopSpeech();
-        if (Verbs.All(x => !x.EqualTo(verb)))
+        if (Verbs.All(x => !x.EqualTo(verb)) && !(this is MagicDefensePower defense && verb.EqualTo(defense.ReactionVerb)))
         {
             actor.OutputHandler.Send($"There is no such verb for this power. The available verbs are {Verbs.Select(x => x.ColourName()).ListToString()}.");
             return false;
@@ -751,7 +752,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         IFutureProg prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Text,
             [
                 [ProgVariableTypes.Character],
-                [ProgVariableTypes.Character, ProgVariableTypes.Character],
+                [ProgVariableTypes.Character, InvocationTargetType],
             ]
         ).LookupProg();
         if (prog is null)
@@ -776,7 +777,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         IFutureProg prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
             [
                 [ProgVariableTypes.Character],
-                [ProgVariableTypes.Character, ProgVariableTypes.Character],
+                [ProgVariableTypes.Character, InvocationTargetType],
             ]
         ).LookupProg();
         if (prog is null)

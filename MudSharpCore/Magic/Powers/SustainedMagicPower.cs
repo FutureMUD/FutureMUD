@@ -159,7 +159,7 @@ public abstract class SustainedMagicPower : MagicPowerBase
     {
         root.Add(new XElement("ConcentrationPointsToSustain", ConcentrationPointsToSustain));
         root.Add(new XElement("SustainPenalty", SustainPenalty));
-        root.Add(new XElement("DetectableWithDetectMagic", DetectableWithDetectMagic));
+        root.Add(new XElement("DetectableWithDetectMagic", (int)DetectableWithDetectMagic));
         if (HasDuration)
         {
             root.Add(new XElement("Duration", DurationExpression.OriginalExpression));

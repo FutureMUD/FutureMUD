@@ -416,7 +416,7 @@ public abstract class CombatBase : ICombat
         (move as WeaponAttackMove)?.ResolveBloodSpray(result);
 
         Difficulty recovery = result.RecoveryDifficulty;
-        if (perceiver is ICharacter character && character.Race.RaceUsesStamina)
+        if (perceiver is ICharacter character && character.Race.RaceUsesStamina && move.UsesStaminaWithResult(result))
         {
 #if DEBUG
             Console.WriteLine(
@@ -425,7 +425,7 @@ public abstract class CombatBase : ICombat
             character.SpendStamina(move.StaminaCost);
         }
 
-        if (perceiver.CombatTarget is ICharacter tcharacter && tcharacter.Race.RaceUsesStamina &&
+        if (targetResponse?.Assailant is ICharacter tcharacter && tcharacter.Race.RaceUsesStamina &&
             (targetResponse?.UsesStaminaWithResult(result) ?? false))
         {
 #if DEBUG

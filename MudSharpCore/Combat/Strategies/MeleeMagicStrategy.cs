@@ -13,59 +13,6 @@ public class MeleeMagicStrategy : StandardMeleeStrategy
 
     public override CombatStrategyMode Mode => CombatStrategyMode.MeleeMagic;
 
-    protected override ICombatMove AttemptUseMagic(ICharacter combatant)
-    {
-        List<IMagicAttackPower> possiblePowers = combatant.Powers
-                                      .OfType<IMagicAttackPower>()
-                                      .Where(x =>
-                                          !combatant.CombatSettings.ForbiddenSchools.Contains(x.School) &&
-                                          (x.PowerIntentions & combatant.CombatSettings.ForbiddenIntentions) == 0 &&
-                                          x.PowerIntentions.HasFlag(combatant.CombatSettings.RequiredIntentions) &&
-                                          x.CanInvokePower(combatant, combatant.CombatTarget as ICharacter))
-                                      .ToList();
-        List<IMagicAttackPower> preferredPowers = possiblePowers
-                              .Where(x => x.PowerIntentions.HasFlag(combatant.CombatSettings.PreferredIntentions))
-                              .ToList();
-        if (possiblePowers.Any())
-        {
-            if (preferredPowers.Any() && Dice.Roll(1, 2) == 1)
-            {
-                return new MagicPowerAttackMove(combatant, combatant.CombatTarget as ICharacter,
-                    preferredPowers.GetWeightedRandom(x => x.Weighting));
-            }
-
-            return new MagicPowerAttackMove(combatant, combatant.CombatTarget as ICharacter,
-                possiblePowers.GetWeightedRandom(x => x.Weighting));
-        }
-
-        return HandleWeaponAttackRolled(combatant);
-    }
-
-    protected override ICombatMove AttemptUsePsychicAbility(ICharacter combatant)
-    {
-        List<IMagicAttackPower> possiblePowers = combatant.Powers
-                                      .OfType<IMagicAttackPower>()
-                                      .Where(x =>
-                                          !combatant.CombatSettings.ForbiddenSchools.Contains(x.School) &&
-                                          (x.PowerIntentions & combatant.CombatSettings.ForbiddenIntentions) == 0 &&
-                                          x.PowerIntentions.HasFlag(combatant.CombatSettings.RequiredIntentions) &&
-                                          x.CanInvokePower(combatant, combatant.CombatTarget as ICharacter))
-                                      .ToList();
-        List<IMagicAttackPower> preferredPowers = possiblePowers
-                              .Where(x => x.PowerIntentions.HasFlag(combatant.CombatSettings.PreferredIntentions))
-                              .ToList();
-        if (possiblePowers.Any())
-        {
-            if (preferredPowers.Any() && Dice.Roll(1, 2) == 1)
-            {
-                return new MagicPowerAttackMove(combatant, combatant.CombatTarget as ICharacter,
-                    preferredPowers.GetWeightedRandom(x => x.Weighting));
-            }
-
-            return new MagicPowerAttackMove(combatant, combatant.CombatTarget as ICharacter,
-                possiblePowers.GetWeightedRandom(x => x.Weighting));
-        }
-
-        return HandleWeaponAttackRolled(combatant);
-    }
+    protected override ICombatMove AttemptUseMagic(ICharacter combatant) => base.AttemptUseMagic(combatant) ?? HandleWeaponAttackRolled(combatant);
+    protected override ICombatMove AttemptUsePsychicAbility(ICharacter combatant) => base.AttemptUsePsychicAbility(combatant) ?? HandleWeaponAttackRolled(combatant);
 }

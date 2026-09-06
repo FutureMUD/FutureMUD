@@ -1,6 +1,7 @@
 ﻿using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
+using MudSharp.Framework;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
 using MudSharp.RPG.Checks;
@@ -14,6 +15,11 @@ namespace MudSharp.Magic.Powers
 {
     public interface IMagicAttackPower : IMagicPower
     {
+		MagicAttackRange AttackRange { get; }
+		int RangeInRooms { get; }
+		bool DealsDamage { get; }
+		IReadOnlyList<MagicAttackEffect> AttackEffects { get; }
+		void ApplyAttackSpell(ICharacter actor, IPerceivable target, CheckOutcome outcome);
         BuiltInCombatMoveType MoveType { get; }
         CombatMoveIntentions PowerIntentions { get; }
         bool CanInvokePower(ICharacter invoker, ICharacter target);

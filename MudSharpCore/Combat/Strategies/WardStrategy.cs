@@ -51,6 +51,8 @@ public class WardStrategy : StandardMeleeStrategy
     protected override ICombatMove ResponseToMagicPowerAttackMove(MagicPowerAttackMove move, ICharacter defender,
         IPerceiver assailant)
     {
+		if (move is RangedMagicPowerAttackMove) return base.ResponseToMagicPowerAttackMove(move, defender, assailant);
+
         if (!defender.EffectsOfType<IWardBeatenEffect>().Any() &&
             defender.CanSpendStamina(WardDefenseMove.MoveStaminaCost(defender)) &&
             assailant.PositionState.Upright

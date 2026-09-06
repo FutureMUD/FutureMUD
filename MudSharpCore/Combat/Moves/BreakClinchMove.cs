@@ -55,6 +55,7 @@ public class BreakClinchMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
         if (defenderMove == null)
         {
             defenderMove = new HelplessDefenseMove { Assailant = CharacterTarget };
@@ -73,6 +74,12 @@ public class BreakClinchMove : CombatMoveBase
 
         string attackEmote = Gameworld.CombatMessageManager.GetMessageFor(Assailant, defenderMove.Assailant, null, null,
             BuiltInCombatMoveType.BreakClinch, attackRoll[CheckDifficulty], null);
+
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll[CheckDifficulty], out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
+        }
 
         if (defenderMove is HelplessDefenseMove)
         {

@@ -26,6 +26,7 @@ public class StrangleAttack : NaturalAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
         // Find a target limb which contains breathing organs
         ILimb targetLimb = CharacterTarget.Body.Limbs
                                         .Select(x => (Limb: x, Parts: CharacterTarget.Body.BodypartsForLimb(x)))
@@ -40,7 +41,7 @@ public class StrangleAttack : NaturalAttackMove
         if (CharacterTarget.EffectsOfType<ILimbIneffectiveEffect>().Any(x =>
                 x.Reason == LimbIneffectiveReason.Grappling && x.AppliesToLimb(targetLimb)))
         {
-            return ResolveMoveChoke(targetLimb);
+            return ResolveMoveChoke(targetLimb, defenderMove);
         }
 
         return ResolveMoveExtendGrapple(targetLimb);
@@ -60,6 +61,11 @@ public class StrangleAttack : NaturalAttackMove
                       Bodypart.FullDescription(), targetLimb.Name.ToLowerInvariant())
                   .Replace("@hand", Bodypart.Alignment.LeftRightOnly().Describe().ToLowerInvariant());
 
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll, out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
+        }
         if (defenderMove is HelplessDefenseMove)
         {
             return ResolveMoveExtendGrappleHelplessResponse(defenderMove, attackRoll, attackEmote, targetLimb);
@@ -78,13 +84,14 @@ public class StrangleAttack : NaturalAttackMove
         throw new NotImplementedException();
     }
 
-    private CombatMoveResult ResolveMoveChoke(ILimb targetLimb)
+    private CombatMoveResult ResolveMoveChoke(ILimb targetLimb, ICombatMove defenderMove)
     {
         IBodypart targetBodypart = CharacterTarget.Body.BodypartsForLimb(targetLimb)
                                             .Where(x => x.Organs.Any(y => y is TracheaProto)).GetRandomElement();
         CheckOutcome attackRoll = Gameworld.GetCheck(Check)
                                   .Check(Assailant, CheckDifficulty, CharacterTarget, null,
                                       Assailant.OffensiveAdvantage);
+        if (defenderMove is MagicDefenseMove magicalDefense && magicalDefense.TryDefend(this, attackRoll, out var magicResult)) return magicResult;
         OpposedOutcome outcome = new(attackRoll, Outcome.NotTested);
         OpposedOutcomeDegree degree = outcome.Degree;
         string attackEmote =

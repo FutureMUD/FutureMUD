@@ -1,5 +1,11 @@
 # FutureMUD Item System Presentation and Integration
 
+Legacy `Tape` component definitions remain loadable through the modern media storage implementation. `CapacityMs` preserves the original duration; cassette stock names map to `compact-cassette`, and microcassette stock names map to `microcassette`. New content continues to use `Media Storage Medium` and `CapacityMilliseconds`. This compatibility mapping fixes old-world startup without deleting prototype identities or changing current seeder output.
+
+Magical item smashing uses the ordinary item damage pipeline and vandalism handling, with a casting trait in place of a physical weapon. Optional `attackitem` spells supply item effects and character-compatible caster effects. See [Magical and Psychic Combat Powers](../Magic/Magic_Combat_Powers.md).
+
+Ranged weapons expose projectile damage types for magical defense eligibility. Ammunition supplies ordinary projectile types; thrown weapons report their selected melee attack profile, and lasers report burning. This metadata does not change firing or ammunition consumption.
+
 Ranged weapon, artillery, impact-detonator, cover, and trap presentation seams are exercised together in [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
 
 Firearm attachments appear through the host item's attached-item aggregation and inherit the host's effective location. They may be targeted as `attachment@firearm`; attached ranged weapons are also considered by manual ranged commands and combat strategies while the host is wielded. Installation and removal use the existing `attach` and `detach` verbs with firearm-specific compatibility validation. See [Modern Firearms, Attachments, and Alternate Fire Modes](../Combat/Modern_Firearms_and_Attachments.md).

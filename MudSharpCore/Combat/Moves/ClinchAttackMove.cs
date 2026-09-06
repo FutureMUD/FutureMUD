@@ -64,6 +64,13 @@ public class ClinchAttackMove : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
+		using var scope = new MagicDefenseDamageScope(this, defenderMove);
+		return scope.Finish(ResolveAttackWithDefense(defenderMove));
+    }
+
+    private CombatMoveResult ResolveAttackWithDefense(ICombatMove defenderMove)
+    {
         if (defenderMove == null)
         {
             defenderMove = new HelplessDefenseMove { Assailant = CharacterTarget };
@@ -89,6 +96,12 @@ public class ClinchAttackMove : WeaponAttackMove
                 Gameworld.CombatMessageManager.GetMessageFor(Assailant, defenderMove.Assailant, Weapon.Parent,
                     Attack, BuiltInCombatMoveType.ClinchAttack, attackRoll.Outcome, null), "",
                 TargetBodypart.FullDescription());
+
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll, out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
+        }
 
         if (defenderMove is HelplessDefenseMove || defenderMove is TooExhaustedMove)
         {

@@ -20,6 +20,7 @@ public class ExtendGrappleMove : NaturalAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
         if (defenderMove == null)
         {
             defenderMove = new HelplessDefenseMove { Assailant = CharacterTarget };
@@ -57,6 +58,12 @@ public class ExtendGrappleMove : NaturalAttackMove
                           BuiltInCombatMoveType.ExtendGrapple, attackRoll[baseDifficulty], null),
                       Bodypart.FullDescription(), targetLimb.Name.ToLowerInvariant())
                   .Replace("@hand", Bodypart.Alignment.LeftRightOnly().Describe().ToLowerInvariant());
+
+        if (defenderMove is MagicDefenseMove magicalDefense)
+        {
+			if (magicalDefense.TryDefend(this, attackRoll[baseDifficulty], out var magicResult)) return magicResult;
+			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
+        }
 
         if (defenderMove is HelplessDefenseMove)
         {

@@ -8,7 +8,8 @@ namespace MudSharp.Combat
         None = 0,
         Dodge = 1 << 0,
         Block = 1 << 1,
-        Parry = 1 << 2
+        Parry = 1 << 2,
+		Magic = 1 << 3
     }
 
     public enum AttackHandednessOptions
@@ -150,6 +151,7 @@ namespace MudSharp.Combat
 		AquaticMountedCharge,
 		VehicleCharge,
 		AquaticVehicleCharge,
+		MagicPowerSmashItem,
 	}
 
     [Flags]

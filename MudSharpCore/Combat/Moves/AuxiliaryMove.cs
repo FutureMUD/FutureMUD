@@ -45,6 +45,7 @@ internal class AuxiliaryMove : CombatMoveBase
     /// <inheritdoc />
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		if (!VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, _target, false, false,
 			    out var boundaryReason))
 		{
@@ -66,6 +67,8 @@ internal class AuxiliaryMove : CombatMoveBase
             Gameworld.CombatMessageManager.GetMessageFor(Assailant, defenderMove.Assailant, _action, attackRoll.Outcome) :
             Gameworld.CombatMessageManager.GetFailMessageFor(Assailant, defenderMove.Assailant, _action, attackRoll.Outcome);
         Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(emote, Assailant, Assailant, _target)));
+        if (defenderMove is MagicDefenseMove magicalDefense && magicalDefense.TryDefend(this, attackRoll, out var magicResult)) return magicResult;
+
         foreach (IAuxiliaryEffect effect in _action.AuxiliaryEffects)
         {
             effect.ApplyEffect(Assailant, _target, attackRoll);

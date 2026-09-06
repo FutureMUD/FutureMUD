@@ -161,8 +161,7 @@ Passing an exit does not use it. Travelling to an exit stops at the nearest poin
 				actor,
 				x.Exit,
 				maximumVisibleDistance))
-			.FirstOrDefault(x => x.Exit.HasKeyword(text, actor, abbreviated: true) ||
-			                     x.Exit.OutboundDirection.Describe().EqualTo(text));
+			.FirstOrDefault(x => x.Exit.IsExitKeyword(text));
 		if (anchor is not null)
 		{
 			destination = Math.Clamp(

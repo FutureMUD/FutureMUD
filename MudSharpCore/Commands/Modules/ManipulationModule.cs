@@ -4443,11 +4443,9 @@ The syntax is:
             return;
         }
 
-        IEnumerable<ICellExit> exits = character.Location.ExitsFor(character);
-
         IDoor openable = null;
 
-        ICellExit targetExit = exits.GetFromItemListByKeyword(ss.PopSpeech(), character);
+        ICellExit targetExit = character.Location.GetExitKeyword(ss.PopSpeech(), character);
         if (targetExit != null)
         {
             if (targetExit.Exit.Door == null)
@@ -4461,7 +4459,7 @@ The syntax is:
         else
         {
             IGameItem doorItem =
-                exits.SelectNotNull(x => x.Exit.Door)
+                character.Location.ExitsFor(character).SelectNotNull(x => x.Exit.Door)
                      .Select(x => x.Parent)
                      .GetFromItemListByKeyword(ss.Last, character);
             if (doorItem != null)
@@ -4707,7 +4705,7 @@ The syntax is as follows:
         string targetText = ss.PopSpeech();
         IGameItem targetItem = null;
 
-        ICellExit exit = character.Location.ExitsFor(character).GetFromItemListByKeyword(targetText, character);
+        ICellExit exit = character.Location.GetExitKeyword(targetText, character);
         if (exit == null)
         {
             targetItem = character.TargetItem(targetText);
@@ -4807,7 +4805,7 @@ The syntax is as follows:
 
         string exitText = ss.PopSpeech();
 
-        ICellExit exit = character.Location.ExitsFor(character).GetFromItemListByKeyword(exitText, character);
+        ICellExit exit = character.Location.GetExitKeyword(exitText, character);
         if (exit == null)
         {
             character.Send("There is no exit in that direction.");
@@ -4935,7 +4933,7 @@ The syntax is as follows:
 
         string targetText = ss.PopSpeech();
         IGameItem targetItem = null;
-        ICellExit exit = character.Location.ExitsFor(character).GetFromItemListByKeyword(targetText, character);
+        ICellExit exit = character.Location.GetExitKeyword(targetText, character);
         if (exit == null)
         {
             targetItem = character.TargetItem(targetText);
@@ -5424,7 +5422,7 @@ The common syntax is:
         IOpenable openable = null;
         ICharacter openableOwner = null;
         ICellExit[] cellExits = exits as ICellExit[] ?? exits.ToArray();
-        ICellExit targetExit = cellExits.GetFromItemListByKeyword(cmd, actor);
+        ICellExit targetExit = actor.Location.GetExitKeyword(cmd, actor);
         if (targetExit != null)
         {
             if (targetExit.Exit.Door == null)
@@ -5450,7 +5448,7 @@ The common syntax is:
         }
         else if (!string.IsNullOrEmpty(cmd2))
         {
-            if ((targetExit = cellExits.GetFromItemListByKeyword(cmd2, actor)) != null)
+            if ((targetExit = actor.Location.GetExitKeyword(cmd2, actor)) != null)
             {
                 if (targetExit.Exit.Door == null)
                 {
@@ -6442,7 +6440,7 @@ The common syntax is:
         IOpenable openable = null;
         ICharacter openableOwner = null;
         ICellExit[] cellExits = exits as ICellExit[] ?? exits.ToArray();
-        ICellExit targetExit = cellExits.GetFromItemListByKeyword(cmd, actor.Body);
+        ICellExit targetExit = actor.Body.Location.GetExitKeyword(cmd, actor.Body);
         if (targetExit != null)
         {
             if (targetExit.Exit.Door == null)
@@ -6468,7 +6466,7 @@ The common syntax is:
         }
         else if (!string.IsNullOrEmpty(cmd2))
         {
-            if ((targetExit = cellExits.GetFromItemListByKeyword(cmd2, actor)) != null)
+            if ((targetExit = actor.Location.GetExitKeyword(cmd2, actor)) != null)
             {
                 if (targetExit.Exit.Door == null)
                 {
@@ -6661,12 +6659,10 @@ The syntax is as follows:
         string cmd = ss.PopSafe();
         string cmd2 = ss.PopSafe();
 
-        IEnumerable<ICellExit> exits = actor.Location.ExitsFor(actor);
         IGameItem targetItem = null;
         ILockable lockable = null;
         ILock theLock = null;
-        ICellExit[] cellExits = exits as ICellExit[] ?? exits.ToArray();
-        ICellExit targetExit = cellExits.GetFromItemListByKeyword(cmd, actor);
+        ICellExit targetExit = actor.Location.GetExitKeyword(cmd, actor);
         if (targetExit != null)
         {
             if (targetExit.Exit.Door == null)
@@ -6833,12 +6829,10 @@ The syntax is as follows:
         string cmd = ss.PopSafe();
         string cmd2 = ss.PopSafe();
 
-        IEnumerable<ICellExit> exits = actor.Location.ExitsFor(actor);
         IGameItem targetItem = null;
         ILockable lockable = null;
         ILock theLock = null;
-        ICellExit[] cellExits = exits as ICellExit[] ?? exits.ToArray();
-        ICellExit targetExit = cellExits.GetFromItemListByKeyword(cmd, actor);
+        ICellExit targetExit = actor.Location.GetExitKeyword(cmd, actor);
         if (targetExit != null)
         {
             if (targetExit.Exit.Door == null)

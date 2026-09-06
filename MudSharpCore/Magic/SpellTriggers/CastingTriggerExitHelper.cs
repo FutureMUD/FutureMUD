@@ -8,6 +8,6 @@ internal static class CastingTriggerExitHelper
 {
 	public static ICellExit? ResolveExit(ICharacter actor, string text)
 	{
-		return actor.Location.ExitsFor(actor).GetFromItemListByKeyword(text, actor);
+		return actor.Location.GetExitKeyword(text, actor);
 	}
 }

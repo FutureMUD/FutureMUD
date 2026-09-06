@@ -112,8 +112,7 @@ public class Social : ISocial
         string direction = string.IsNullOrEmpty(ss.PeekParentheses()) ? ss.Peek() : null;
         if (!string.IsNullOrEmpty(DirectionTargetEcho) && !string.IsNullOrEmpty(direction))
         {
-            IEnumerable<ICellExit> exits = actor.Location.ExitsFor(actor);
-            targetExit = exits.GetFromItemListByKeyword(direction, actor);
+            targetExit = actor.Location.GetExitKeyword(direction, actor);
             if (targetExit == null &&
                 Constants.DirectionStrings.Any(x => x.Equals(direction, StringComparison.InvariantCultureIgnoreCase)))
             {

@@ -69,7 +69,7 @@ public class MagicPhase2Tests
 		exit.SetupGet(x => x.Exit).Returns(sharedExit.Object);
 
 		Mock<ICell> location = new();
-		location.Setup(x => x.ExitsFor(actor.Object, It.IsAny<bool>())).Returns([exit.Object]);
+		location.Setup(x => x.GetExitKeyword("north", actor.Object)).Returns(exit.Object);
 		actor.SetupGet(x => x.Location).Returns(location.Object);
 
 		Mock<IMagicSpell> spell = CreateSpellMock();
@@ -97,7 +97,7 @@ public class MagicPhase2Tests
 		Mock<ICellExit> exit = CreateExit("north");
 
 		Mock<ICell> location = new();
-		location.Setup(x => x.ExitsFor(actor.Object, It.IsAny<bool>())).Returns([exit.Object]);
+		location.Setup(x => x.GetExitKeyword("north", actor.Object)).Returns(exit.Object);
 		actor.SetupGet(x => x.Location).Returns(location.Object);
 		actor.Setup(x => x.TargetActorOrCorpse("bob")).Returns(targetCharacter.Object);
 

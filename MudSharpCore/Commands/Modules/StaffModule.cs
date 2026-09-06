@@ -1020,7 +1020,7 @@ The syntax is:
         }
 
         string target = ss.PopSpeech();
-        ICellExit targetExit = actor.Location.ExitsFor(actor).GetFromItemListByKeyword(target, actor);
+        ICellExit targetExit = actor.Location.GetExitKeyword(target, actor);
         IGameItem targetItem = targetExit?.Exit.Door?.Parent;
         if (targetItem == null && targetExit != null)
         {

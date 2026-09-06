@@ -119,7 +119,7 @@ The syntax is:
 			return;
 		}
 
-		var exit = actor.Location.ExitsFor(actor, true).GetFromItemListByKeyword(ss.SafeRemainingArgument, actor);
+		var exit = actor.Location.GetExitKeyword(ss.SafeRemainingArgument, actor);
 		if (exit is null)
 		{
 			actor.OutputHandler.Send("There is no such exit from your current location.");

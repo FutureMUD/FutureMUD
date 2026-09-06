@@ -2,6 +2,8 @@
 
 Advanced Psionics includes eleven [combat powers](../Magic/Magic_Combat_Powers.md): two damage attacks, six control techniques and three finite/resource-consuming defenses. The canonical combat definitions and echo catalogue are separate from the existing psychicbolt. Reruns add missing definitions and capability entries without replacing authored content or granting characters access.
 
+Combat powers use school-scoped display names and player help with complete school-command syntax. Reruns repair recognised prefixed names and original generic help, preserving customised text and power IDs. Their saved psionics identity marker also recognises renamed powers; internal weapon-attack names remain stable.
+
 The optional **Psionics** package installs Basic Psionics and Advanced Psionics after the core, organic Human race, skill package and supernatural dependencies. The `install-psionics` yes/no question is explicit; declining it writes nothing. All Debug replay profiles place Human before Psionics and answer this optional question explicitly.
 
 Basic Psionics supplies contact, directed speech, barrier, self-audit and expulsion. Advanced Psionics includes those foundations, the existing advanced powers, thirteen new technique families, and four ordinary spells exposed through power verbs: projection, live possession, levitation and a caster-scoped description illusion.

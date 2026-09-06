@@ -24,7 +24,9 @@ public class PsionicCombatSeederTests
 			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false))
 			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options);
 		context.TraitDefinitions.Add(new TraitDefinition { Name = "Example Skill", Type = 0, DecoratorId = 1, ImproverId = 1 });
-		context.Races.Add(new Race { Name = "Example Race" }); context.SaveChanges(); return context;
+		context.Races.Add(new Race { Name = "Human" });
+		context.SaveChanges();
+		return context;
 	}
 
 	[TestMethod]
@@ -33,7 +35,7 @@ public class PsionicCombatSeederTests
 		using var context = Context(); new PsionicsSeeder().SeedData(context, new Dictionary<string, string> { ["install-psionics"] = "yes" });
 		foreach (var stock in PsionicStockContent.CombatPowers)
 		{
-			var power = context.MagicPowers.Single(x => x.Name == "Advanced Psionics: " + stock.Name);
+			var power = context.MagicPowers.Single(x => x.Name == stock.Name);
 			var xml = XElement.Parse(power.Definition);
 			Assert.AreEqual(stock.Defense.HasValue ? "magicdefense" : "magicattack", power.PowerModel);
 			var entry = XElement.Parse(context.MagicCapabilities.Single(x => x.Name == "Advanced Psionics").Definition)
@@ -55,12 +57,12 @@ public class PsionicCombatSeederTests
 	{
 		using var context = Context(); var seeder = new PsionicsSeeder(); var answers = new Dictionary<string, string> { ["install-psionics"] = "yes" };
 		seeder.SeedData(context, answers);
-		var power = context.MagicPowers.Single(x => x.Name == "Advanced Psionics: Force Lance");
+		var power = context.MagicPowers.Single(x => x.Name == "Force Lance");
 		var definition = XElement.Parse(power.Definition); definition.SetElementValue("RangeInRooms", 7); power.Definition = definition.ToString();
 		var attack = context.WeaponAttacks.Find((long)definition.Element("WeaponAttack")!)!; attack.BaseDelay = 17;
 		var capability = context.MagicCapabilities.Single(x => x.Name == "Advanced Psionics");
 		var cap = XElement.Parse(capability.Definition); cap.Elements("Power").Single(x => (long?)x.Attribute("power") == power.Id).SetAttributeValue("minvalue", 73);
-		var removed = context.MagicPowers.Single(x => x.Name == "Advanced Psionics: Kinetic Parry");
+		var removed = context.MagicPowers.Single(x => x.Name == "Kinetic Parry");
 		cap.Elements("Power").Single(x => (long?)x.Attribute("power") == removed.Id).Remove(); capability.Definition = cap.ToString();
 		context.MagicPowers.Remove(removed); context.SaveChanges();
 		var count = context.MagicPowers.Count(); seeder.SeedData(context, answers); seeder.SeedData(context, answers);
@@ -76,8 +78,37 @@ public class PsionicCombatSeederTests
 	{
 		using var context = Context(); var seeder = new PsionicsSeeder(); var answers = new Dictionary<string, string> { ["install-psionics"] = "yes" };
 		seeder.SeedData(context, answers);
-		var power = context.MagicPowers.Single(x => x.Name == "Advanced Psionics: Kinetic Barrier"); power.PowerModel = "mindbarrier"; context.SaveChanges();
+		var power = context.MagicPowers.Single(x => x.Name == "Kinetic Barrier"); power.PowerModel = "mindbarrier"; context.SaveChanges();
 		Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedData(context, answers)); Assert.AreEqual("mindbarrier", power.PowerModel);
+	}
+
+	[TestMethod]
+	public void Rerun_RepairsLegacyPresentationAndPreservesRenamedCombatPower()
+	{
+		using var context = Context();
+		var seeder = new PsionicsSeeder();
+		var answers = new Dictionary<string, string> { ["install-psionics"] = "yes" };
+		seeder.SeedData(context, answers);
+		var power = context.MagicPowers.Single(x => x.Name == "Force Lance");
+		var id = power.Id;
+		var count = context.MagicPowers.Count();
+		power.Name = "Advanced Psionics: Force Lance";
+		power.ShowHelp = "Use forcelance <visible target> to queue Force Lance. Automatic use follows the psychic combat channel.";
+		var definition = XElement.Parse(power.Definition);
+		definition.Element("SeededIdentity")!.Remove();
+		power.Definition = definition.ToString();
+		context.SaveChanges();
+		seeder.SeedData(context, answers);
+		Assert.AreEqual("Force Lance", power.Name);
+		StringAssert.Contains(power.ShowHelp, "Syntax: apsi forcelance");
+		power.Name = "Custom Lance";
+		power.ShowHelp = "Custom instructions";
+		context.SaveChanges();
+		seeder.SeedData(context, answers);
+		Assert.AreEqual(count, context.MagicPowers.Count());
+		Assert.AreEqual(id, power.Id);
+		Assert.AreEqual("Custom Lance", power.Name);
+		Assert.AreEqual("Custom instructions", power.ShowHelp);
 	}
 
 	[TestMethod]

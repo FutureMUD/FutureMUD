@@ -330,3 +330,8 @@ These matter to developers extending the subsystem, but they are not standalone 
 Seeded and builder-default psionic echoes share `PsionicPowerEmotes`; see the [per-power content review](../Seeding/Psionics_Seeder.md#authored-power-defaults-and-contact-variants) for contact ranges, connect-back syntax, identity progs and rerun semantics.
 
 The [echo catalogue completeness contract](../Seeding/Psionics_Seeder.md#echo-catalogue-completeness) covers every saved power echo, shared traffic and backing-spell defaults, plus named technique echo editing and legacy XML defaults.
+
+
+### Seeded psionic player help
+
+The optional psionic package uses school-local display names such as **Somatic Sense** and **Astral Projection**, while retaining compact invocation verbs (`apsi somaticsense <person>`, `apsi project insignificant`). `PsionicPlayerContent` contains the player-facing descriptions, syntax and examples; installation advice stays in the [Psionics seeder guide](../Seeding/Psionics_Seeder.md). Seeded identity metadata is optional XML and survives builder saves so reruns can preserve renamed content. No database migration is required.

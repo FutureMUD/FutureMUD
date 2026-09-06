@@ -16,13 +16,16 @@ public sealed class PsionicsSeeder : IDatabaseSeeder
 {
 	public string Name => "Psionics";
 	public string Tagline => "Optional Basic and Advanced Psionics, with unassigned capabilities.";
-	public string FullDescription => "Installs finite examples without granting any character access. Builders assign capabilities themselves. Item/cell psychometry remains disabled until EnablePsychometricImpressions is enabled. VNPCWitnessReportDelaySeconds remains zero; 120 seconds allows time for witness forgetting before reports arrive.";
+	public string FullDescription => @"Installs two psionic schools for basic and advanced psionics, reminiscent of Armageddon's distinction between universal psionics and psionic class. 
+
+Although this sets up a fully usable suite of powers, regenerators, and capabilities it does not make them accessible. You will need to decide how this applies in your world and wire them in.
+
+Item/cell psychometry remains disabled until static configurable #3EnablePsychometricImpressions#0 is enabled. 
+Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 120 seconds allows time for witness forgetting before reports arrive.";
 	public int SortOrder => 304;
 	public bool SafeToRunMoreThanOnce => true;
 	public IEnumerable<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
 	[
-		("install-psionics", "Install the optional Basic and Advanced Psionics schools? (yes/no)", (_, _) => true,
-			(answer, _) => (answer.Equals("yes", StringComparison.OrdinalIgnoreCase) || answer.Equals("no", StringComparison.OrdinalIgnoreCase), "Answer yes or no."))
 	];
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context) => !context.TraitDefinitions.Any(x => x.Type == 0)
 		? ShouldSeedResult.PrerequisitesNotMet : context.MagicSchools.Any(x => x.Name == "Basic Psionics")
@@ -30,7 +33,6 @@ public sealed class PsionicsSeeder : IDatabaseSeeder
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
-		if (!questionAnswers.TryGetValue("install-psionics", out var answer) || !answer.Equals("yes", StringComparison.OrdinalIgnoreCase)) return "Psionics installation skipped.";
 		using var transaction = context.Database.BeginTransaction();
 		var preserved = new List<string>();
 		FutureProg Prog(string suffix, ProgVariableTypes type, string body)

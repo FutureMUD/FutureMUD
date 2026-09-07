@@ -1,0 +1,227 @@
+name: Publish CultureSeeder handoff
+on:
+  push:
+    branches: [docs/culture-seeder-enhancement-handoff]
+    paths: [.github/workflows/publish-culture-handoff.yml]
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: publish-culture-seeder-handoff
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Restore, verify, and publish original handoff
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          TARGET_BRANCH: docs/culture-seeder-enhancement-handoff-complete
+        shell: python
+        run: |
+          import base64, hashlib, io, json, lzma, os, pathlib, shutil, subprocess, tarfile, tempfile, urllib.request, urllib.error, zipfile
+          repo = os.environ['REPOSITORY']
+          token = os.environ['GH_TOKEN']
+          branch = os.environ['TARGET_BRANCH']
+          api = 'https://api.github.com/repos/' + repo
+          def request(path, payload=None, method=None):
+              data = None if payload is None else json.dumps(payload).encode()
+              req = urllib.request.Request(api + path, data=data, method=method, headers={
+                  'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28', 'Content-Type': 'application/json',
+                  'User-Agent': 'FutureMUD-handoff-publication'})
+              with urllib.request.urlopen(req, timeout=90) as response:
+                  body = response.read()
+                  return json.loads(body) if body else None
+          shas = [
+              'c7971b829d6f7ba881cfcce1f3913109cb562aae',
+              'eaf541bd0080af97b102c01dd732709de5cee88a',
+              '020be23ec11453922a9bc8a92df90839776999d4',
+              '216fb7f1ba381b8edd341060b1e88e26f43f3b0b',
+              '8c232345ccf834635bb8c6ca2d84341a30142ee0',
+              '7a24093ea8be27966eeb3a5ed981cba1c0121037',
+              '17817cb1edfff23a343575c3fe7316564e14c80a',
+              'e67e6eeec6d5370e3ea8d5832b2359fb0ca7fa7e',
+              'f97720dd18ae07387a0fe4e64451d44645468ca5',
+              '431d821f86adc9a8cf6834ca641966d516c4c5e8',
+              'e68693149e7a2bb83325279e5e1c6c3be257e80d',
+              '623f07e0c43ab85c392efebe5f5df5d49fb05928',
+              'c80933ef3877d3aaf797b0d4e4a2e9f69a7a964f',
+              '43a1de0442c4545d55e815998c48878219499704',
+              '0984fd4bab68f763cd3d079705b6a6bd93c752db',
+              'abec3e818a7414f43170d7e7b0f9ff543777c7eb',
+              'a3114f5eef245cea4384cd67263b3926b89001c8',
+              'b8082b5cd666705b4d8f015020ce1aaed798582e',
+              '78d79f86792510e03cb466ac55fdb0f4df51c0ad']
+          parts = []
+          for index, sha in enumerate(shas):
+              try:
+                  blob = request('/git/blobs/' + sha)
+              except urllib.error.HTTPError as exc:
+                  if index == len(shas) - 1 and exc.code == 404:
+                      print('Final transport chunk unavailable; attempting checksum-verified report reconstruction.')
+                      break
+                  raise
+              assert blob['encoding'] == 'base64', 'Unexpected Git blob encoding'
+              raw = base64.b64decode(blob['content'])
+              actual = hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()
+              assert actual == sha, 'Transport chunk checksum mismatch: ' + str(index)
+              parts.append(raw)
+              print('Verified transport chunk', index)
+          transport = b''.join(parts)
+          if len(parts) == len(shas):
+              assert hashlib.sha256(transport).hexdigest() == 'e1e5eac1e96d35f36cf4b035f53688c25022d31939126892c188ee26f1f16659', 'Transport archive checksum mismatch'
+          decoder = lzma.LZMADecompressor()
+          tar_bytes = decoder.decompress(transport)
+          workspace = pathlib.Path(tempfile.mkdtemp(prefix='culture-handoff-'))
+          source = workspace / 'handoff'
+          source.mkdir()
+          offset = 0
+          restored = []
+          while offset + 512 <= len(tar_bytes):
+              header = tar_bytes[offset:offset+512]
+              if not any(header):
+                  break
+              info = tarfile.TarInfo.frombuf(header, 'utf-8', 'strict')
+              start = offset + 512
+              end = start + info.size
+              if end > len(tar_bytes):
+                  break
+              relative = pathlib.PurePosixPath(info.name)
+              assert not relative.is_absolute() and '..' not in relative.parts, 'Unsafe archive path'
+              if info.isfile():
+                  target = source.joinpath(*relative.parts)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_bytes(tar_bytes[start:end])
+                  restored.append(info.name)
+              elif not info.isdir() and info.type not in (tarfile.XHDTYPE, tarfile.XGLTYPE):
+                  raise RuntimeError('Unexpected archive member type: ' + info.name)
+              offset = start + ((info.size + 511) // 512) * 512
+          manifest = source / 'SHA256SUMS.txt'
+          assert manifest.is_file(), 'Original checksum manifest not restored'
+          expected = {}
+          for line in manifest.read_text(encoding='utf-8-sig').splitlines():
+              if not line.strip():
+                  continue
+              digest, relative = line.split(None, 1)
+              relative = relative.lstrip('*').strip()
+              if relative.startswith('./'):
+                  relative = relative[2:]
+              assert len(digest) == 64
+              expected[relative] = digest
+          def check_hashes(directory, allow_missing_report=False):
+              for relative, digest in expected.items():
+                  path = directory / relative
+                  if allow_missing_report and relative == 'validation_report.json' and not path.exists():
+                      continue
+                  assert path.is_file(), 'Missing original input: ' + relative
+                  assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, 'Original file checksum mismatch: ' + relative
+          check_hashes(source, allow_missing_report=True)
+          validation = workspace / 'validation'
+          shutil.copytree(source, validation)
+          result = subprocess.run(['python3', str(validation / 'tools/validate_catalogue.py')], cwd=validation, text=True, capture_output=True)
+          print(result.stdout)
+          print(result.stderr)
+          assert result.returncode == 0, 'Original catalogue validator failed'
+          if not (source / 'validation_report.json').exists():
+              shutil.copy2(validation / 'validation_report.json', source / 'validation_report.json')
+          check_hashes(source)
+          files = sorted(path for path in source.rglob('*') if path.is_file())
+          assert len(files) == 37, 'Unexpected original handoff file count: ' + str(len(files))
+          assert len(list((source / 'data').glob('*.json'))) == 22
+          assert len(list((source / 'research').glob('*.json'))) == 4
+          for path in (source / 'data').glob('*.json'):
+              json.loads(path.read_text(encoding='utf-8'))
+          for path in (source / 'research').glob('*.json'):
+              json.loads(path.read_text(encoding='utf-8'))
+          archive_name = 'FutureMUD_CultureSeeder_Redesign_Handoff_v1.zip'
+          archive_path = workspace / archive_name
+          with zipfile.ZipFile(archive_path, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+              for path in files:
+                  info = zipfile.ZipInfo('FutureMUD_CultureSeeder_Redesign_Handoff_v1/' + path.relative_to(source).as_posix(), date_time=(2026, 9, 7, 11, 26, 38))
+                  info.create_system = 3
+                  info.external_attr = 0o100644 << 16
+                  archive.writestr(info, path.read_bytes(), compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
+          with zipfile.ZipFile(archive_path) as archive:
+              assert archive.testzip() is None
+              for path in files:
+                  relative = path.relative_to(source).as_posix()
+                  assert archive.read('FutureMUD_CultureSeeder_Redesign_Handoff_v1/' + relative) == path.read_bytes()
+          destination = 'Design Documents/Culture Seeder Enhancement/'
+          readme = '''# CultureSeeder implementation handoff in the repository
+
+Read `AGENT_TASK.md` in this directory, then the numbered Markdown documents. All `data/`, `research/` and `tools/` inputs are committed alongside the documents; no chat attachments are required.
+
+This publication preserves all 37 original handoff files byte-for-byte, checked against their original `SHA256SUMS.txt`. The same-name ZIP is repacked for repository delivery; its ZIP timestamps/container bytes can differ, but every extracted file is identical to the committed originals.
+
+From this directory, run `python tools/validate_catalogue.py`. This rewrites `validation_report.json`; use a temporary copy to preserve the original published report. These checks validate the handoff data, not C# implementation or live database behaviour.
+
+PR #730 supplies the generic chargen skill-selection-group dependency. Follow the final decisions and integration instructions here rather than rebuilding that subsystem. Preserve the explicit research limitations, including the inactive replacement feminine Old Prussian name pool.
+
+This pull request publishes source material only; it does not implement the CultureSeeder redesign.
+'''
+          base = request('/git/ref/heads/master')['object']['sha']
+          base_commit = request('/git/commits/' + base)
+          tree = []
+          def put_blob(content):
+              sha = hashlib.sha1(b'blob ' + str(len(content)).encode() + b'\0' + content).hexdigest()
+              uploaded = request('/git/blobs', {'content': base64.b64encode(content).decode(), 'encoding': 'base64'})
+              assert uploaded['sha'] == sha
+              return sha
+          for path in files:
+              relative = path.relative_to(source).as_posix()
+              tree.append({'path': destination + relative, 'mode': '100644', 'type': 'blob', 'sha': put_blob(path.read_bytes())})
+          tree.append({'path': destination + archive_name, 'mode': '100644', 'type': 'blob', 'sha': put_blob(archive_path.read_bytes())})
+          tree.append({'path': destination + 'REPOSITORY_README.md', 'mode': '100644', 'type': 'blob', 'sha': put_blob(readme.encode())})
+          new_tree = request('/git/trees', {'base_tree': base_commit['tree']['sha'], 'tree': tree})['sha']
+          commit = request('/git/commits', {'message': 'docs: publish complete CultureSeeder enhancement handoff', 'tree': new_tree, 'parents': [base]})['sha']
+          try:
+              existing = request('/git/ref/heads/' + branch)
+          except urllib.error.HTTPError as exc:
+              if exc.code != 404:
+                  raise
+              request('/git/refs', {'ref': 'refs/heads/' + branch, 'sha': commit})
+          else:
+              previous = request('/git/commits/' + existing['object']['sha'])
+              assert previous['tree']['sha'] == new_tree, 'Publication branch already exists with different content; refusing overwrite'
+              commit = existing['object']['sha']
+          published = request('/git/trees/' + new_tree + '?recursive=1')
+          assert not published.get('truncated'), 'Cannot verify truncated repository tree'
+          actual = {entry['path']: entry['sha'] for entry in published['tree'] if entry['type'] == 'blob'}
+          for entry in tree:
+              assert actual.get(entry['path']) == entry['sha'], 'Published Git tree mismatch: ' + entry['path']
+          print('PUBLISHED_BRANCH=' + branch)
+          print('PUBLISHED_COMMIT=' + commit)
+          print('Verified 37 original files, all 26 JSON inputs, archive contents, and repository blob identities.')
+          title = 'docs: add complete CultureSeeder enhancement handoff and data'
+          body = '''## Summary
+- Publish the complete handoff under `Design Documents/Culture Seeder Enhancement/` with original filenames and folder structure.
+- Include all 37 original files: implementation documents, 22 data JSON files, four research JSON files, source/checksum records, validator and original report.
+- Add the same-name ZIP (repacked, with identical extracted contents) and `REPOSITORY_README.md` so Codex can work entirely from the repository.
+- No engine/seeder implementation changes. The existing skill-group feature from PR #730 remains a dependency, not work to repeat.
+
+## Verification
+- All original files match the original SHA-256 manifest.
+- Original catalogue validator completed successfully in a separate copy.
+- All 26 input JSON files parse; ZIP integrity and extracted bytes verified.
+- Published Git blob identities verified.
+- C# tests and live database validation were not run for this documentation/data-only publication.
+
+## Notes
+Research limitations are preserved, including the inactive replacement feminine Old Prussian name pool. This PR is left open for Luke to review and merge.
+'''
+          pulls = request('/pulls?state=open&head=FutureMUD:' + branch + '&base=master')
+          if pulls:
+              pr = pulls[0]
+          else:
+              try:
+                  pr = request('/pulls', {'title': title, 'body': body, 'head': branch, 'base': 'master', 'draft': False, 'maintainer_can_modify': True})
+              except urllib.error.HTTPError as exc:
+                  print('Files are published; connector must open the pull request if Actions creation is restricted. HTTP', exc.code)
+                  raise
+          assert pr['state'] == 'open' and not pr['draft']
+          print('OPEN_PULL_REQUEST=' + pr['html_url'])
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('## CultureSeeder handoff published\n\n' + pr['html_url'] + '\n\nAll 37 original files and all 26 JSON inputs verified. The PR is open and unmerged.\n')

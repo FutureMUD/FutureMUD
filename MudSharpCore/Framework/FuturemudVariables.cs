@@ -369,6 +369,7 @@ public sealed partial class Futuremud : IDisposable
     public IUneditableAll<ICharacteristicValue> CharacteristicValues => _characteristicValues;
 
     public IUneditableAll<IChargenAdvice> ChargenAdvices => _chargenAdvices;
+	public IList<IChargenSkillSelectionGroup> ChargenSkillSelectionGroups { get; } = new List<IChargenSkillSelectionGroup>();
 
     public IUneditableRevisableAll<ICraft> Crafts => _crafts;
 

@@ -15665,3 +15665,131 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 
 -- Dump completed on 2026-09-05 18:13:27
 -- Total time: 0:0:0:1:790 (d:h:m:s:ms)
+
+-- Reviewed EF migration delta: generic chargen skill-selection groups
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260907085537_ChargenSkillSelectionGroups') THEN
+
+    CREATE TABLE `chargenskillselectiongroups` (
+        `Id` bigint NOT NULL AUTO_INCREMENT,
+        `StableKey` varchar(191) CHARACTER SET utf8mb4 NOT NULL,
+        `Name` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
+        `Description` text CHARACTER SET utf8mb4 NOT NULL,
+        `DisplayOrder` int NOT NULL,
+        `Enabled` tinyint(1) NOT NULL,
+        `Retired` tinyint(1) NOT NULL,
+        `MinimumPicks` int NOT NULL,
+        `MaximumPicks` int NOT NULL,
+        `Revision` int NOT NULL,
+        `ExistingSkillPolicy` int NOT NULL,
+        `EligibilityProgId` bigint(20) NULL,
+        `MemberEligibilityProgId` bigint(20) NULL,
+        `SeedBaseline` longtext CHARACTER SET utf8mb4 NULL,
+        CONSTRAINT `PK_ChargenSkillSelectionGroups` PRIMARY KEY (`Id`),
+        CONSTRAINT `FK_ChargenSkillSelectionGroups_FutureProgs_EligibilityProgId` FOREIGN KEY (`EligibilityProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
+        CONSTRAINT `FK_ChargenSkillSelectionGroups_FutureProgs_MemberEligibilityPro~` FOREIGN KEY (`MemberEligibilityProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260907085537_ChargenSkillSelectionGroups') THEN
+
+    CREATE TABLE `chargenskillselectiongroupmembers` (
+        `GroupId` bigint NOT NULL,
+        `TraitDefinitionId` bigint(20) NOT NULL,
+        `DisplayOrder` int NOT NULL,
+        CONSTRAINT `PK_ChargenSkillSelectionGroupMembers` PRIMARY KEY (`GroupId`, `TraitDefinitionId`),
+        CONSTRAINT `FK_ChargenSkillSelectionGroupMembers_ChargenSkillSelectionGroup~` FOREIGN KEY (`GroupId`) REFERENCES `chargenskillselectiongroups` (`Id`) ON DELETE RESTRICT,
+        CONSTRAINT `FK_ChargenSkillSelectionGroupMembers_TraitDefinitions_TraitDefi~` FOREIGN KEY (`TraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260907085537_ChargenSkillSelectionGroups') THEN
+
+    CREATE INDEX `IX_ChargenSkillSelectionGroupMembers_TraitDefinitionId` ON `chargenskillselectiongroupmembers` (`TraitDefinitionId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260907085537_ChargenSkillSelectionGroups') THEN
+
+    CREATE INDEX `IX_ChargenSkillSelectionGroups_EligibilityProgId` ON `chargenskillselectiongroups` (`EligibilityProgId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260907085537_ChargenSkillSelectionGroups') THEN
+
+    CREATE INDEX `IX_ChargenSkillSelectionGroups_MemberEligibilityProgId` ON `chargenskillselectiongroups` (`MemberEligibilityProgId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260907085537_ChargenSkillSelectionGroups') THEN
+
+    CREATE UNIQUE INDEX `IX_ChargenSkillSelectionGroups_StableKey` ON `chargenskillselectiongroups` (`StableKey`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260907085537_ChargenSkillSelectionGroups') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20260907085537_ChargenSkillSelectionGroups', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;

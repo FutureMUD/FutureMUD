@@ -10,6 +10,7 @@ namespace MudSharp.Database
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+			ConfigureSkillSelectionGroups(modelBuilder);
             // Split the OnModelCreating into multiple functions for editor performance reasons
             OnModelCreatingOne(modelBuilder);
             OnModelCreatingTwo(modelBuilder);

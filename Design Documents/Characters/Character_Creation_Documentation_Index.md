@@ -3,6 +3,7 @@
 This is the entry point for the chargen documentation suite.
 
 ## Documents
+- [Chargen Skill Selection Groups](./Chargen_Skill_Selection_Groups.md)
 - [Character Creation Runtime](./Character_Creation_Runtime.md)
 - [Character Creation Builder Workflows](./Character_Creation_Builder_Workflows.md)
 - [Character Creation Seeder](./Character_Creation_Seeder.md)

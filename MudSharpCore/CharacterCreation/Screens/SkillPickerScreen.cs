@@ -128,7 +128,7 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
 
     public override IChargenScreen GetScreen(IChargen chargen)
     {
-        return new SkillPickerScreen(chargen, this);
+        return SkillGroupScreen.Wrap(chargen, FreeSkillsProg, () => new SkillPickerScreen(chargen, this));
     }
 
     public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)
@@ -157,17 +157,18 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
             : base(chargen, storyboard)
         {
             Storyboard = storyboard;
-            Chargen.SelectedSkills.Clear();
-            FreeSkills = storyboard.FreeSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? new List<ITraitDefinition>();
+            if (Chargen.SkillClaims?.Initialised != true) Chargen.SelectedSkills.Clear();
+            FreeSkills = SkillGroupResolver.MandatorySkills(chargen, storyboard.FreeSkillsProg);
+            FreeSkills = SkillGroupResolver.FreeSkills(chargen, FreeSkills).ToList();
             RoleSkills = chargen.SelectedRoles
                                 .SelectMany(x => x.TraitAdjustments.Where(y => y.Value.giveIfMissing && y.Key is ISkillDefinition)).Select(x => x.Key)
                                 .Distinct()
                                 .Where(x => !FreeSkills.Contains(x))
                                 .Where(x => !x.Hidden)
                                 .ToList();
-            Chargen.SelectedSkills.AddRange(FreeSkills);
+            Chargen.SelectedSkills = Chargen.SelectedSkills.Union(FreeSkills).ToList();
             SetCurrentSelectables();
-            foreach (ITraitDefinition skill in storyboard.SuggestedSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? [])
+            foreach (ITraitDefinition skill in (chargen.SkillClaims?.SuggestionsApplied == true ? [] : storyboard.SuggestedSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? []))
             {
                 if (!CanSelectSuggestedSkill(skill, FreeSkills, CurrentSelectables, Chargen.SelectedSkills,
                         () => Convert.ToDouble(storyboard.NumberOfSkillPicksProg.Execute(chargen))))
@@ -179,6 +180,7 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
                 SetCurrentSelectables();
             }
 
+            if (chargen.SkillClaims?.Initialised == true) chargen.SkillClaims.SuggestionsApplied = true;
             LastCurrentSelectables = CurrentSelectables;
         }
 
@@ -272,13 +274,14 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
             LastCurrentSelectables = CurrentSelectables;
             CurrentSelectables =
                 Storyboard.Gameworld.Traits
-                          .Where(x => x.TraitType == TraitType.Skill && x.ChargenAvailable(Chargen))
+                          .Where(x => x.TraitType == TraitType.Skill && (x.ChargenAvailable(Chargen) || (Chargen.SkillClaims?.Initialised == true && Chargen.SelectedSkills.Contains(x))))
                           .Where(x => !FreeSkills.Contains(x))
                           .OrderBy(x => x.Name).ToList();
         }
 
         private bool CanProgress()
         {
+            if (SkillGroupResolver.UnavailableOrdinarySkills(Chargen).Any()) return false;
             return DoesNotExceedSkillPickLimit(
                        FreeSkills,
                        Chargen.SelectedSkills,
@@ -290,6 +293,8 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
 
         private string WhyCannotProgress()
         {
+            var unavailable = SkillGroupResolver.UnavailableOrdinarySkills(Chargen).ToList();
+            if (unavailable.Count > 0) return $"These ordinary choices are no longer available: {unavailable.Select(x => x.Name).ListToString()}. Type their names to remove them before continuing.";
             if (!DoesNotExceedSkillPickLimit(
                     FreeSkills,
                     Chargen.SelectedSkills,
@@ -375,7 +380,7 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
             if (Chargen.SelectedSkills.Contains(skill))
             {
                 Chargen.SelectedSkills.Remove(skill);
-                Chargen.SelectedSkills.RemoveAll(x => !FreeSkills.Contains(x) && !x.ChargenAvailable(Chargen));
+                if (Chargen.SkillClaims?.Initialised != true) Chargen.SelectedSkills.RemoveAll(x => !FreeSkills.Contains(x) && !x.ChargenAvailable(Chargen));
                 SetCurrentSelectables();
             }
             else
@@ -391,6 +396,7 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
                 SetCurrentSelectables();
             }
 
+			SkillGroupResolver.CaptureOrdinaryClaims(Chargen);
             Chargen.RecalculateCurrentCosts();
             return Display();
         }

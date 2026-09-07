@@ -12,7 +12,7 @@ using System.Text.Encodings.Web;
 
 namespace MudSharp.Commands.Modules;
 
-internal class ChargenModule : Module<ICharacter>
+internal partial class ChargenModule : Module<ICharacter>
 {
     private ChargenModule()
         : base("Chargen")

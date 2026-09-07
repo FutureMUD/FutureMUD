@@ -190,7 +190,7 @@ public partial class Chargen : FrameworkItem, IChargen
         chargen.RejectApplication(null, reviewerAccount, message, null);
     }
 
-    public bool CanSubmit => !string.IsNullOrEmpty(SelectedSdesc) &&
+    public bool CanSubmit => RevalidateSkillGroups() && !string.IsNullOrEmpty(SelectedSdesc) &&
                              !string.IsNullOrEmpty(SelectedFullDesc) &&
                              SelectedRace != null &&
                              SelectedCulture != null &&
@@ -260,6 +260,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
     public void RecalculateCurrentCosts()
     {
+		if (SkillClaims.Initialised && !_skillEvaluationContext) RevalidateSkillGroups();
         ApplicationCosts.Clear();
         foreach (IChargenScreenStoryboard screen in _completedStages.Plus(Stage).Distinct()
                                                .Where(x => Gameworld.ChargenStoryboard.StageScreenMap.ContainsKey(x))
@@ -309,6 +310,7 @@ public partial class Chargen : FrameworkItem, IChargen
     public List<IBodypart> MissingBodyparts { get; set; } = [];
 
     public List<ITraitDefinition> SelectedSkills { get; set; }
+	public ChargenSkillClaims SkillClaims { get; private set; } = new();
 
     public Dictionary<ITraitDefinition, int> SelectedSkillBoosts { get; set; }
 
@@ -451,7 +453,7 @@ public partial class Chargen : FrameworkItem, IChargen
         sb.Append($"**Skills:** ");
         sb.AppendLine(SelectedSkills
                       .Select(x =>
-                          $"{x.Name}{(SelectedSkillBoosts.ContainsKey(x) && SelectedSkillBoosts[x] > 0 ? $" [{new string('+', SelectedSkillBoosts[x])}]" : "")}")
+                          $"{x.Name}{SkillClaimDescription(x)}{(SelectedSkillBoosts.ContainsKey(x) && SelectedSkillBoosts[x] > 0 ? $" [{new string('+', SelectedSkillBoosts[x])}]" : "")}")
                       .ListToString(conjunction: ""));
         sb.AppendLine();
         sb.AppendLine("**Languages:** " +
@@ -616,7 +618,7 @@ public partial class Chargen : FrameworkItem, IChargen
         sb.AppendLine("Skills:");
         sb.AppendLine();
         sb.Append(SelectedSkills.Select(x =>
-                                    $"\t{x.Name}{(SelectedSkillBoosts.ContainsKey(x) && SelectedSkillBoosts[x] > 0 ? $" [{new string('+', SelectedSkillBoosts[x]).ColourValue()}]" : "")}")
+                                    $"\t{x.Name}{SkillClaimDescription(x)}{(SelectedSkillBoosts.ContainsKey(x) && SelectedSkillBoosts[x] > 0 ? $" [{new string('+', SelectedSkillBoosts[x]).ColourValue()}]" : "")}")
                                 .ArrangeStringsOntoLines(5, (uint)character.LineFormatLength));
         sb.AppendLine();
         sb.AppendLine(
@@ -681,6 +683,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
     public long ApproveApplicationExternal()
     {
+		if (!RevalidateSkillGroups()) return 0;
         PerformPostCreationProcessing();
         RecalculateCurrentCosts();
         ReleaseApplication();
@@ -756,6 +759,11 @@ public partial class Chargen : FrameworkItem, IChargen
     public long ApproveApplication(ICharacter approver, IAccount approverAccount, string comment,
         IOutputHandler handler)
     {
+		if (!RevalidateSkillGroups())
+		{
+			handler?.Send("The application must resolve its skill-selection groups before approval.");
+			return 0;
+		}
         PerformPostCreationProcessing();
         RecalculateCurrentCosts();
         ReleaseApplication();
@@ -1005,6 +1013,7 @@ public partial class Chargen : FrameworkItem, IChargen
                 break;
 
             case ChargenStage.SelectSkills:
+				if (SkillClaims.Initialised) break;
                 SelectedSkills.Clear();
                 SelectedSkillBoostCosts.Clear();
                 SelectedSkillBoosts.Clear();
@@ -1093,12 +1102,22 @@ public partial class Chargen : FrameworkItem, IChargen
 
     private void PerformPostCreationProcessing()
     {
-        SkillValues.Clear();
-        foreach (ITraitDefinition skill in SelectedSkills.Distinct())
-        {
-            AddTrait(skill, Convert.ToDouble(SelectedCulture.SkillStartingValueProg.Execute(this, skill,
-                SelectedSkillBoosts.GetValueOrDefault(skill, 0))));
-        }
+		_finalisingSkillValues = true;
+		try
+		{
+			var independentValues = SkillClaims.Initialised ? SkillClaims.IndependentValues : new Dictionary<long, double>();
+			SkillValues.Clear();
+			foreach (var skill in SelectedSkills.Distinct())
+			{
+				var startingValue = Convert.ToDouble(SelectedCulture.SkillStartingValueProg.Execute(this, skill,
+					SelectedSkillBoosts.GetValueOrDefault(skill, 0)));
+				AddTrait(skill, Math.Max(independentValues.GetValueOrDefault(skill.Id), startingValue));
+			}
+		}
+		finally
+		{
+			_finalisingSkillValues = false;
+		}
     }
 
     private void FinishCurrentStage()
@@ -1168,6 +1187,8 @@ public partial class Chargen : FrameworkItem, IChargen
 
     private void LoadFromXml(XElement root)
     {
+		_hydratingSkillValues = true;
+		SkillClaims = ChargenSkillClaims.Load(root.Element("SkillClaims"));
         using (new FMDB())
         {
             Stage = (ChargenStage)Convert.ToInt32(root.Element("CurrentStage").Value);
@@ -1425,6 +1446,7 @@ public partial class Chargen : FrameworkItem, IChargen
             }
         }
 
+		_hydratingSkillValues = false;
         RecalculateCurrentCosts();
     }
 
@@ -1503,7 +1525,7 @@ public partial class Chargen : FrameworkItem, IChargen
                     new XElement("Attribute",
                         new XAttribute("Id", attribute.Definition.Id),
                         new XAttribute("Value", attribute.Value))
-            ), new XElement("SelectedSkills",
+            ), SkillClaims.Save(), new XElement("SelectedSkills",
                 from skill in SelectedSkills select new XElement("Skill", skill.Id)
             ), new XElement("SelectedBoosts",
                 from boost in SelectedSkillBoosts
@@ -1573,6 +1595,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
     public bool AddMerit(IMerit merit)
     {
+		if (_skillEvaluationContext) throw new InvalidOperationException("Skill eligibility contexts are read-only.");
         if (merit is not ICharacterMerit chargenMerit ||
             SelectedMerits.Any(x => x == chargenMerit || x.Id == chargenMerit.Id))
         {
@@ -1585,6 +1608,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
     public bool RemoveMerit(IMerit merit)
     {
+		if (_skillEvaluationContext) throw new InvalidOperationException("Skill eligibility contexts are read-only.");
         if (merit is not ICharacterMerit chargenMerit)
         {
             return false;
@@ -1664,6 +1688,12 @@ public partial class Chargen : FrameworkItem, IChargen
 
     public bool AddTrait(ITraitDefinition trait, double value)
     {
+		if (_skillEvaluationContext) throw new InvalidOperationException("Skill eligibility contexts are read-only.");
+		if (trait is ISkillDefinition && !_hydratingSkillValues && !_finalisingSkillValues)
+		{
+			SkillClaims.Independent.Add(trait.Id);
+			SkillClaims.IndependentValues[trait.Id] = value;
+		}
         if (trait is ISkillDefinition)
         {
             if (SelectedSkills.Contains(trait))
@@ -1690,6 +1720,9 @@ public partial class Chargen : FrameworkItem, IChargen
 
     public bool RemoveTrait(ITraitDefinition trait)
     {
+		if (_skillEvaluationContext) throw new InvalidOperationException("Skill eligibility contexts are read-only.");
+		SkillClaims.Independent.Remove(trait.Id);
+		SkillClaims.IndependentValues.Remove(trait.Id);
         if (trait is ISkillDefinition)
         {
             if (!SelectedSkills.Contains(trait))
@@ -1713,6 +1746,12 @@ public partial class Chargen : FrameworkItem, IChargen
 
     public bool SetTraitValue(ITraitDefinition trait, double value)
     {
+		if (_skillEvaluationContext) throw new InvalidOperationException("Skill eligibility contexts are read-only.");
+		if (trait is ISkillDefinition && !_hydratingSkillValues && !_finalisingSkillValues)
+		{
+			SkillClaims.Independent.Add(trait.Id);
+			SkillClaims.IndependentValues[trait.Id] = value;
+		}
         if (trait is ISkillDefinition)
         {
             if (!SelectedSkills.Contains(trait))

@@ -24,6 +24,25 @@ namespace MudSharp.NPC.Templates;
 
 public class VariableNPCTemplate : NPCTemplateBase
 {
+	private int? _skillGroupSeed;
+	private GeneratedOptionalSkillPolicy _optionalSkillGroupPolicy;
+	private ChargenSkillClaims _savedSkillGroupClaims = new();
+
+	public void ConfigureSkillGroups(int? seed, GeneratedOptionalSkillPolicy optionalPolicy)
+	{
+		_skillGroupSeed = seed;
+		_optionalSkillGroupPolicy = optionalPolicy;
+		_savedSkillGroupClaims = new();
+		Changed = true;
+	}
+
+	internal void ApplySkillGroupsToGeneratedTemplate(SimpleCharacterTemplate template)
+	{
+		if (!_skillGroupSeed.HasValue) return;
+		var claims = GeneratedSkillGroupAdapter.Apply(template, _skillGroupSeed.Value, _optionalSkillGroupPolicy, _savedSkillGroupClaims);
+		if (!XNode.DeepEquals(claims.Save(), _savedSkillGroupClaims.Save())) Changed = true;
+		_savedSkillGroupClaims = claims;
+	}
     private readonly List<(Gender Value, int Weight)> _genderChances = new();
 
     private readonly Dictionary<Gender, IHeightWeightModel> _heightWeightModels =
@@ -155,6 +174,9 @@ public class VariableNPCTemplate : NPCTemplateBase
 
     private void LoadFromXml(XElement root)
     {
+		_skillGroupSeed = (int?)root.Element("SkillGroupSeed");
+		_optionalSkillGroupPolicy = (GeneratedOptionalSkillPolicy)((int?)root.Element("OptionalSkillGroupPolicy") ?? 0);
+		_savedSkillGroupClaims = ChargenSkillClaims.Load(root.Element("SkillClaims"));
         XElement element = root.Element("GenderChances");
         foreach (XElement sub in element.Elements("GenderChance"))
         {
@@ -309,6 +331,9 @@ public class VariableNPCTemplate : NPCTemplateBase
                     from item in _priorityAttributeDefinitions
                     select new XElement("Attribute", item.Id)
                 }),
+				_skillGroupSeed.HasValue ? new XElement("SkillGroupSeed", _skillGroupSeed.Value) : null,
+				new XElement("OptionalSkillGroupPolicy", (int)_optionalSkillGroupPolicy),
+				_savedSkillGroupClaims.Save(),
                 new XElement("Skills", new object[]
                 {
                     from item in _skillTemplates
@@ -509,6 +534,8 @@ public class VariableNPCTemplate : NPCTemplateBase
             Gameworld = Gameworld
         };
 
+
+		ApplySkillGroupsToGeneratedTemplate(template);
 
         IEntityDescriptionPattern sdescTemplate = _sdescPattern ?? Gameworld.EntityDescriptionPatterns.Where(
                                                           x =>
@@ -817,6 +844,8 @@ public class VariableNPCTemplate : NPCTemplateBase
     public override string HelpText => @"You can use the following options with this command:
 
 	#3name <name>#0 - renames the template
+	#3skillgroups <seed> <decline|fill>#0 - opts into deterministic skill groups, choosing optional-group policy
+	#3skillgroups off#0 - disables skill groups without changing hand-authored skills
 	#3race <race>#0 - sets the race of the NPC
 	#3culture <culture>#0 - sets the culture of the NPC
 	#3ethnicity <ethnicity>#0 - sets the ethnicity of the NPC
@@ -860,6 +889,14 @@ public class VariableNPCTemplate : NPCTemplateBase
     {
         switch (command.PopForSwitch())
         {
+			case "skillgroups":
+				var seedText = command.PopSpeech();
+				if (seedText.EqualTo("off")) { ConfigureSkillGroups(null, GeneratedOptionalSkillPolicy.Decline); actor.OutputHandler.Send("Skill groups disabled for this template."); return true; }
+				if (!int.TryParse(seedText, out var seed) || !Enum.TryParse<GeneratedOptionalSkillPolicy>(command.PopSpeech(), true, out var policy) || !Enum.IsDefined(policy))
+				{ actor.OutputHandler.Send("Use skillgroups <integer seed> <decline|fill>, or skillgroups off."); return false; }
+				ConfigureSkillGroups(seed, policy);
+				actor.OutputHandler.Send("Generated skill groups enabled with saved deterministic choices.");
+				return true;
             case "accent":
                 return BuildingCommandAccent(actor, command);
             case "gender":

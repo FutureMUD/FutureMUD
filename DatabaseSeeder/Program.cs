@@ -18,7 +18,7 @@ internal class Program
 {
     private static readonly IDatabaseUpgradeCoordinator UpgradeCoordinator = new DatabaseUpgradeCoordinator();
     private static string? ConnectionString { get; set; }
-    private static bool IsInteractiveConsole => !(Console.IsInputRedirected || Console.IsOutputRedirected || Console.IsErrorRedirected);
+    private static bool IsInteractiveConsole => !(Console.IsInputRedirected || Console.IsOutputRedirected);
 
     private static void SafeClear()
     {
@@ -29,7 +29,13 @@ internal class Program
 
         try
         {
+            Console.ResetColor();
             Console.Clear();
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WT_SESSION")) ||
+                Environment.GetEnvironmentVariable("TERM") is { Length: > 0 } term && term != "dumb")
+            {
+                Console.Write("\u001b[3J\u001b[H");
+            }
         }
         catch
         {
@@ -41,7 +47,7 @@ internal class Program
     {
         if (IsInteractiveConsole)
         {
-            Console.ReadKey();
+            Console.ReadKey(intercept: true);
             return;
         }
 
@@ -520,13 +526,6 @@ The exception details were as follows:
                 .Select((seeder, index) => new { SeederType = seeder.GetType(), Index = index })
                 .ToDictionary(x => x.SeederType, x => x.Index);
 
-            if (!string.IsNullOrEmpty(errorMessage))
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                ConsoleLayoutHelper.WriteWrapped(errorMessage);
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-
             int i = 1;
             List<(IDatabaseSeeder Seeder, SeederAssessment Assessment)> assessedSeeders;
             List<(IDatabaseSeeder Seeder, SeederAssessment Assessment)> visibleSeeders;
@@ -545,6 +544,12 @@ The exception details were as follows:
                 blockedSeederCount = assessedSeeders.Count(x => x.Assessment.Status == SeederAssessmentStatus.Blocked);
 
                 SafeClear();
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    ConsoleLayoutHelper.WriteWrapped(errorMessage);
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
                 string prompt = blockedSeederCount switch
                 {
                     <= 0 => "Please enter the number of the package you wish to import, or QUIT to exit: ",
@@ -764,8 +769,8 @@ The exception details were as follows:
         using FuturemudDatabaseContext context = CreateContext(useLazyLoading: true);
         SeederAssessment assessment = seeder.AssessSeedData(context);
         SafeClear();
-        $"Package: #A{seeder.Name}#F\nTagline: #A{seeder.Tagline}\n\n#3{seeder.FullDescription.Wrap(90, "\t")}#F\n"
-            .WriteLineConsole();
+        ConsoleLayoutHelper.WritePrompt(
+            $"Package: #A{seeder.Name}#F\nTagline: #A{seeder.Tagline}#F\n\n#3{seeder.FullDescription}#F");
 
         Console.ForegroundColor = GetAssessmentColour(assessment.Status);
         Console.WriteLine($"Status: {GetAssessmentLabel(assessment.Status)}");
@@ -853,8 +858,7 @@ The exception details were as follows:
         DictionaryWithDefault<string, string> answers = new();
         List<SeederQuestion> questions = seeder.Questions.ToList();
         string banner = $"Initial Setup questions for the {seeder.Name} seeder";
-        string topline =
-            $"╔{new string('═', banner.Length + 2)}╗\n║ {banner} ║\n╚{new string('═', banner.Length + 2)}╝\n";
+        string topline = banner;
         foreach (SeederQuestion? question in questions)
         {
             if (!SeederQuestionWorkflow.IsActive(question, context, answers))
@@ -876,7 +880,7 @@ The exception details were as follows:
                         answers[question.Id] = rememberedAnswer;
                         SafeClear();
                         Console.ForegroundColor = ConsoleColor.Cyan;
-                        topline.WriteLineConsole();
+                        ConsoleLayoutHelper.WriteWrapped(topline);
                         Console.ForegroundColor = ConsoleColor.White;
                         ConsoleLayoutHelper.WriteWrapped($"Reusing previous answer for {question.Id}: {rememberedAnswer}");
                         Thread.Sleep(1000);
@@ -896,7 +900,7 @@ The exception details were as follows:
             {
                 SafeClear();
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                topline.WriteLineConsole();
+                ConsoleLayoutHelper.WriteWrapped(topline);
                 Console.ForegroundColor = ConsoleColor.White;
                 if (!string.IsNullOrEmpty(errorText))
                 {
@@ -925,7 +929,7 @@ The exception details were as follows:
                     }
                 }
 
-                display.Prompt.Wrap(90).WriteLineConsole();
+                ConsoleLayoutHelper.WritePrompt(display.Prompt);
                 if (!string.IsNullOrWhiteSpace(resolvedDefaultAnswer))
                 {
                     Console.WriteLine();
@@ -972,7 +976,7 @@ The exception details were as follows:
             Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0));
         if (execution.Success)
         {
-            Console.WriteLine(execution.Message);
+            ConsoleLayoutHelper.WriteWrapped(execution.Message ?? string.Empty);
             return;
         }
 

@@ -61,34 +61,34 @@ What whole number of in-game seconds should be added for every 1 real second tha
                     if (!uint.TryParse(answer, out uint value) || value <= 0) { return (false, "You must supply a valid positive integer."); } return (true, string.Empty);
                 }),
             ("mode",
-                @"There are several pre-made calendars that you can choose to use. If you are using a calendar that is not listed here, you can choose one of these and then later edit it yourself in game.
+                @"Choose a stock calendar. You can customise it later in game.
+Read down each column; enter the option name.
 
-The specific available calendars are as follows:
+	#Bgregorian-us#F: Gregorian, MM/DD/YYYY (AD)
+	#Bgregorian-uk#F: Gregorian, DD/MM/YYYY (AD)
+	#Bgregorian-us-ce#F: Gregorian, MM/DD/YYYY (CE)
+	#Bgregorian-uk-ce#F: Gregorian, DD/MM/YYYY (CE)
+	#Bjulian#F: Julian, 46 BC to 16th century
+	#Blatin-7day#F: Latin Julian, Rome epoch, 7-day week
+	#Blatin-8day#F: Latin Julian, Rome epoch, 8-day week
+	#Blatin-ancient#F: Pre-reform Roman, Latin names
+	#Bmiddle-earth#F: Multiple Middle-earth calendars
+	#Btranquility#F: 13 x 28 days; Moon Landing epoch
+	#Brepublicain#F: French Revolution; decimal clock
+	#Bmission#F: Ship: 360-day year, 36-day month, 6-day week
+	#Bseasonal-360#F: 360 days; Early/Mid/Late seasons; 6-day week
+	#Bislamic-hijri#F: Crescent approximation; sunset days
+	#Bhebrew#F: Calculated; postponements/leap months
+	#Bold-persian#F: Solar, with epagomenal days
+	#Bbabylonian#F: Regulated lunisolar approximation
+	#Bchinese-minguo#F: Gregorian-derived civil calendar
+	#Bchinese-lunisolar#F: Lunisolar approximation
+	#Bkorean-dangi#F: Gregorian-derived civil calendar
+	#Bkorean-lunisolar#F: Lunisolar approximation
+	#Bjapanese-koki#F: Gregorian-derived civil calendar
+	#Bjapanese-lunisolar#F: Lunisolar approximation
 
-	#Bgregorian-us#F: Gregorian with US-style dates (e.g. month/day/year)
-	#Bgregorian-uk#F: Gregorian with UK-style dates (e.g. day/month/year)
-	#Bgregorian-us-ce#F: Gregorian with ""CE"" rather than ""AD"" styling and US-style dates (e.g. month/day/year)
-	#Bgregorian-uk-ce#F: Gregorian with ""CE"" rather than ""AD"" styling and UK-style dates (e.g. day/month/year)
-	#Bjulian#F: Julian (used from 46BC until the 16th Century)
-	#Blatin-7day#F: Julian with Latin day and month names, year from Rome's founding, and a 7 day week
-	#Blatin-8day#F: Julian with Latin day and month names, year from Rome's founding, and an 8 day week
-	#Blatin-ancient#F: The pre-reform Roman calendar with all names in Latin
-	#Bmiddle-earth#F: Includes various middle-earth calendars
-	#Btranquility#F: The 13-month, 28 day Tranquility calendar, commencing at the Moon Landing
-	#Brepublicain#F: The French Republican calendar (including decimal clock) from the French Revolution
-	#Bmission#F: A sci-fi generation ship calendar with 360 day years, 36 day months and 6 day weeks
-	#Bseasonal-360#F: A simple 360 day fantasy calendar with Early/Mid/Late seasons and First Day through Sixth Day weekdays
-	#Bislamic-hijri#F: Deterministic visible-crescent Hijri approximation with sunset day boundaries
-	#Bhebrew#F: Calculated Hebrew calendar with deterministic postponement/leap-month rules
-	#Bold-persian#F: Old Persian/Zoroastrian-style solar calendar with epagomenal days
-	#Bbabylonian#F: Regulated deterministic Babylonian lunisolar approximation
-	#Bchinese-minguo#F: Gregorian-derived Chinese Minguo civil calendar
-	#Bchinese-lunisolar#F: Deterministic Chinese lunisolar approximation
-	#Bkorean-dangi#F: Gregorian-derived Korean Dangi civil calendar
-	#Bkorean-lunisolar#F: Deterministic Korean lunisolar approximation
-	#Bjapanese-koki#F: Gregorian-derived Japanese Koki civil calendar
-	#Bjapanese-lunisolar#F: Deterministic Japanese lunisolar approximation
-", (context, answers) => true, (answer, context) =>
+Lunisolar and crescent approximations use deterministic rules.", (context, answers) => true, (answer, context) =>
                 {
                     switch (answer.ToLowerInvariant())
                     {

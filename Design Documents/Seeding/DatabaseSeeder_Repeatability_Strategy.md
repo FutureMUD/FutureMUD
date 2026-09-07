@@ -21,6 +21,14 @@ This document is based on verified code behavior in the current stock repo, not 
 - Keep prerequisites explicit. A blocked seeder should explain what is missing instead of relying only on broad boolean probes.
 - Treat the seeder framework as shared infrastructure. Foundational seeders should not solve repeatability in isolation.
 
+## Interactive Console Presentation
+
+Menu, package, question, and execution transitions reset the interactive screen and colours. Windows Terminal and TERM-based terminals also receive a scrollback-clear sequence so previous seeder runs do not remain above the new screen. Redirecting only stderr does not disable screen clearing; redirected input or output retains a continuous transcript without clearing or paging keystrokes. Menu validation messages are rendered after the clear.
+
+Package descriptions and question prompts use the terminal width instead of a fixed 90-column layout. Long prompts pause for a key between screen-sized chunks. Question headings occupy one wrapped line instead of a decorative box. Runs retain their output until the user returns to the menu.
+
+Contiguous lists of four or more `#Boption#F: description` entries use two columns at widths of 120 or more when this reduces their height, read down the left column then the right. Narrow terminals retain a wrapped single column. Calendar descriptions are compact enough to make this useful at ordinary desktop terminal widths. Colour markup does not count towards column widths. These are presentation changes only: question IDs, validators, defaults, remembered answers, replay profiles, and database persistence are unchanged.
+
 ## Base Install Truth
 Stock seed definitions are the canonical output of a clean install. When stock content is wrong, incomplete, poorly named, or inconsistent with the authoring rules, fix the definition that creates it so a new database receives the corrected data immediately.
 

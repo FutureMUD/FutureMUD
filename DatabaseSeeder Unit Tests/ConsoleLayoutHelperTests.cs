@@ -4,12 +4,41 @@ using DatabaseSeeder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+using DatabaseSeeder.Seeders;
 
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
 public class ConsoleLayoutHelperTests
 {
+	[TestMethod]
+	public void FormatPrompt_CalendarUsesWidthAndPreservesEveryOption()
+	{
+		var prompt = new TimeSeeder().SeederQuestions.Single(x => x.Id == "mode").Question;
+		var narrow = ConsoleLayoutHelper.FormatPrompt(prompt, 80).ToList();
+		var wide = ConsoleLayoutHelper.FormatPrompt(prompt, 160).ToList();
+		Assert.IsTrue(wide.Count < narrow.Count);
+		Assert.IsTrue(wide.Count <= 20, $"Calendar took {wide.Count} lines.");
+		foreach (var width in new[] { 30, 80, 120, 160 })
+		{
+			var lines = ConsoleLayoutHelper.FormatPrompt(prompt, width).ToList();
+			Assert.IsTrue(lines.All(x => Regex.Replace(x, @"#[a-fA-F0-9]", "").Length < width));
+			CollectionAssert.AreEquivalent(
+				Regex.Matches(prompt, @"#B([^#]+)#F:").Select(x => x.Value).ToList(),
+				Regex.Matches(string.Join("\n", lines), @"#B([^#]+)#F:").Select(x => x.Value).ToList());
+		}
+	}
+
+	[TestMethod]
+	public void FormatPrompt_WrapsMarkupAndUnbrokenTextWithoutLosingContent()
+	{
+		var text = "#B" + new string('x', 100) + "#F";
+		var lines = ConsoleLayoutHelper.FormatPrompt(text, 30).ToList();
+		Assert.AreEqual(text, string.Concat(lines));
+		Assert.IsTrue(lines.All(x => Regex.Replace(x, @"#[a-fA-F0-9]", "").Length < 30));
+	}
+
     [TestMethod]
     public void FormatMenuEntry_WrapsLongTaglinesWithoutOverflow()
     {

@@ -149,6 +149,7 @@ namespace MudSharp.Framework
         IUneditableAll<ICharacteristicDefinition> Characteristics { get; }
         IUneditableAll<ICharacteristicValue> CharacteristicValues { get; }
         IUneditableAll<IChargenAdvice> ChargenAdvices { get; }
+		IList<IChargenSkillSelectionGroup> ChargenSkillSelectionGroups { get; }
         IUneditableAll<ICoin> Coins { get; }
         IUneditableRevisableAll<ICraft> Crafts { get; }
         IUneditableAll<IDrug> Drugs { get; }

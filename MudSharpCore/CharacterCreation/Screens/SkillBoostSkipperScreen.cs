@@ -134,7 +134,7 @@ internal class SkillBoostSkipperScreenStoryboard : ChargenScreenStoryboard
 
     public override IChargenScreen GetScreen(IChargen chargen)
     {
-        return new SkillBoostSkipperScreen(chargen, this);
+        return SkillGroupScreen.Wrap(chargen, FreeSkillsProg, () => new SkillBoostSkipperScreen(chargen, this));
     }
 
     public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)
@@ -144,7 +144,7 @@ internal class SkillBoostSkipperScreenStoryboard : ChargenScreenStoryboard
             int sum = 0;
             if (resource == BoostResource)
             {
-                sum += chargen.SelectedSkillBoosts.Sum(x => BoostCostForSkill(x.Key, chargen, x.Value));
+                sum += chargen.SelectedSkillBoosts.Where(x => chargen.SelectedSkills.Contains(x.Key)).Sum(x => BoostCostForSkill(x.Key, chargen, x.Value));
             }
 
             yield return (resource, sum);
@@ -169,13 +169,18 @@ internal class SkillBoostSkipperScreenStoryboard : ChargenScreenStoryboard
             : base(chargen, storyboard)
         {
             Storyboard = storyboard;
-            Chargen.SelectedSkills.Clear();
-            Chargen.SelectedSkillBoostCosts.Clear();
-            Chargen.SelectedSkillBoosts.Clear();
-            IEnumerable<ITraitDefinition> freeSkills = storyboard.FreeSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? new List<ITraitDefinition>();
-            Chargen.SelectedSkills.AddRange(freeSkills);
+            if (Chargen.SkillClaims?.Initialised != true) Chargen.SelectedSkills.Clear();
+            if (Chargen.SkillClaims?.Initialised != true) Chargen.SelectedSkillBoostCosts.Clear();
+            if (Chargen.SkillClaims?.Initialised != true) Chargen.SelectedSkillBoosts.Clear();
+            IEnumerable<ITraitDefinition> freeSkills = SkillGroupResolver.MandatorySkills(chargen, storyboard.FreeSkillsProg);
+            Chargen.SelectedSkills = Chargen.SelectedSkills.Union(SkillGroupResolver.FreeSkills(chargen, freeSkills)).ToList();
             SelectedBoosts = new Dictionary<ITraitDefinition, int>();
             SelectedBoostCosts = new Dictionary<ITraitDefinition, int>();
+            foreach (var skill in Chargen.SelectedSkills)
+            {
+                SelectedBoosts[skill] = Chargen.SelectedSkillBoosts.GetValueOrDefault(skill);
+                SelectedBoostCosts[skill] = BoostCostForSkill(skill);
+            }
         }
 
         private int BoostCostForSkill(ITraitDefinition skill)

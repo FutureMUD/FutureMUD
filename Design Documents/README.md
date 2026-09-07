@@ -24,6 +24,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Terrain Planner and Engine API](./Building/Terrain_Planner_and_Engine_API.md)
 
 ## Characters
+- [Chargen Skill Selection Groups](./Characters/Chargen_Skill_Selection_Groups.md)
 - [Character Creation Documentation Index](./Characters/Character_Creation_Documentation_Index.md)
 - [Character Creation Runtime](./Characters/Character_Creation_Runtime.md)
 - [Character Creation Builder Workflows](./Characters/Character_Creation_Builder_Workflows.md)

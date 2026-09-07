@@ -9,6 +9,9 @@ It does three broad jobs:
 - seeds the canonical storyboard graph and default starting-location role
 
 ## Prerequisites
+
+Generic skill-selection groups may be installed before or after this seeder. Their stable-key helper accepts already-resolved skills and compiled progs; it installs no default entitlement or culture content. See [Chargen Skill Selection Groups](./Chargen_Skill_Selection_Groups.md) for the future content integration boundary and preservation rules.
+
 The stock chargen seeder expects:
 - at least one account
 - the `Human` race

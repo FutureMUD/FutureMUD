@@ -16,6 +16,9 @@ Builders are expected to customise:
 - application gating FutureProgs
 
 ## Working With Storyboards
+
+Use `chargenskillgroup` to author generic bounded skill entitlements separately from storyboards. See [Chargen Skill Selection Groups](./Chargen_Skill_Selection_Groups.md) for the complete command reference and a non-language exactly-two example.
+
 Use the `chargen` command family.
 
 The normal workflow is:

@@ -42,6 +42,7 @@ namespace MudSharp.CharacterCreation
 
     public interface IChargen : IFrameworkItem, IHaveFuturemud, ICharacterTemplate, IHaveMerits, IHaveAccount
     {
+		ChargenSkillClaims SkillClaims { get; }
         ApplicationType ApplicationType { get; set; }
         bool IsSpecialApplication { get; set; }
         bool CanSubmit { get; }

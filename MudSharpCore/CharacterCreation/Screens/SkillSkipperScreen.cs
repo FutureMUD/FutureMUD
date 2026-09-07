@@ -67,7 +67,7 @@ public class SkillSkipperScreenStoryboard : ChargenScreenStoryboard
 
     public override IChargenScreen GetScreen(IChargen chargen)
     {
-        return new SkillSkipperScreen(chargen, this);
+        return SkillGroupScreen.Wrap(chargen, FreeSkillsProg, () => new SkillSkipperScreen(chargen, this));
     }
 
     public override string Show(ICharacter voyeur)
@@ -138,11 +138,11 @@ public class SkillSkipperScreenStoryboard : ChargenScreenStoryboard
         internal SkillSkipperScreen(IChargen chargen, SkillSkipperScreenStoryboard storyboard)
             : base(chargen, storyboard)
         {
-            Chargen.SelectedSkills.Clear();
-            Chargen.SelectedSkillBoostCosts.Clear();
-            Chargen.SelectedSkillBoosts.Clear();
-            IEnumerable<ITraitDefinition> freeSkills = storyboard.FreeSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? new List<ITraitDefinition>();
-            Chargen.SelectedSkills.AddRange(freeSkills);
+            if (Chargen.SkillClaims?.Initialised != true) Chargen.SelectedSkills.Clear();
+            if (Chargen.SkillClaims?.Initialised != true) Chargen.SelectedSkillBoostCosts.Clear();
+            if (Chargen.SkillClaims?.Initialised != true) Chargen.SelectedSkillBoosts.Clear();
+            IEnumerable<ITraitDefinition> freeSkills = SkillGroupResolver.MandatorySkills(chargen, storyboard.FreeSkillsProg);
+            Chargen.SelectedSkills = Chargen.SelectedSkills.Union(SkillGroupResolver.FreeSkills(chargen, freeSkills)).ToList();
             State = ChargenScreenState.Complete;
         }
 

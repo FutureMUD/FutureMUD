@@ -6,6 +6,9 @@ The character creation runtime is the staged application pipeline that players u
 It lives primarily in `MudSharpCore/CharacterCreation` and is assembled around a single `Chargen` object plus one storyboard screen per `ChargenStage`.
 
 ## Core Runtime Model
+
+Generic skill-selection groups add a shared mandatory/group/open phase to all four skill screens. See [Chargen Skill Selection Groups](./Chargen_Skill_Selection_Groups.md) for claims, eligibility, allocation, resume, pricing and generated-template contracts.
+
 ### `Chargen`
 - `Chargen` is the mutable application state.
 - It stores the current stage, completed stages, selected race/culture/ethnicity, notes, roles, traits, merits, skill boosts, disfigurements, descriptions, and starting location.

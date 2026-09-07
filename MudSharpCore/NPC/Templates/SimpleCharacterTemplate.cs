@@ -26,12 +26,14 @@ namespace MudSharp.NPC.Templates;
 
 public record SimpleCharacterTemplate : ICharacterTemplate
 {
+	public ChargenSkillClaims? SkillGroupClaims { get; set; }
     public SimpleCharacterTemplate()
     {
     }
 
     public SimpleCharacterTemplate(XElement definition, IFuturemud gameworld)
     {
+		SkillGroupClaims = definition.Element("SkillClaims") is { } claims ? ChargenSkillClaims.Load(claims) : null;
         Gameworld = gameworld;
         SelectedAccents = new List<IAccent>(
             definition
@@ -144,6 +146,7 @@ public record SimpleCharacterTemplate : ICharacterTemplate
     public XElement SaveToXml()
     {
         return new XElement("Character",
+			SkillGroupClaims?.Save(),
             new XElement("SelectedAccents",
                 from accent in SelectedAccents
                 select new XElement("Accent", accent.Id)

@@ -3175,6 +3175,10 @@ For information on the syntax to use in emotes (such as those included in bracke
         sw.Start();
 #endif
         ChargenStoryboard = new ChargenStoryboard(this);
+		foreach (var group in FMDB.Context.ChargenSkillSelectionGroups.Include(x => x.Members).AsNoTracking())
+		{
+			ChargenSkillSelectionGroups.Add(new MudSharp.CharacterCreation.ChargenSkillSelectionGroup(group, this));
+		}
 #if DEBUG
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");

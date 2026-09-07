@@ -190,13 +190,14 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 
     public override IChargenScreen GetScreen(IChargen chargen)
     {
-        return new SkillCostPickerScreen(chargen, this);
+        return SkillGroupScreen.Wrap(chargen, FreeSkillsProg, () => new SkillCostPickerScreen(chargen, this));
     }
 
     public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)
     {
-        IEnumerable<ITraitDefinition> freeSkills = FreeSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? new List<ITraitDefinition>();
+        IEnumerable<ITraitDefinition> freeSkills = SkillGroupResolver.MandatorySkills(chargen, FreeSkillsProg);
         List<ITraitDefinition> nonFreeSkills = chargen.SelectedSkills.Except(freeSkills).ToList();
+        var basePurchases = nonFreeSkills.Except(SkillGroupResolver.FreeSkills(chargen, freeSkills)).ToList();
         foreach (IChargenResource resource in Gameworld.ChargenResources)
         {
             int sum = 0;
@@ -209,13 +210,13 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
             if (resource == BoostResource)
             {
                 int freePicks = (int)Convert.ToDouble(NumberOfFreeSkillPicksProg.Execute(chargen));
-                if (nonFreeSkills.Count > freePicks)
+                if (basePurchases.Count > freePicks)
                 {
                     sum += Convert.ToInt32(AdditionalSkillsCostExpression.EvaluateWith(
-                        ("picks", nonFreeSkills.Count - freePicks)));
+                        ("picks", basePurchases.Count - freePicks)));
                 }
 
-                sum += chargen.SelectedSkillBoosts.Sum(x => BoostCostForSkill(x.Key, chargen, x.Value));
+                sum += chargen.SelectedSkillBoosts.Where(x => chargen.SelectedSkills.Contains(x.Key)).Sum(x => BoostCostForSkill(x.Key, chargen, x.Value));
             }
 
             yield return (resource, sum);
@@ -244,18 +245,19 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
             : base(chargen, storyboard)
         {
             Storyboard = storyboard;
-            Chargen.SelectedSkills.Clear();
-            Chargen.SelectedSkillBoostCosts.Clear();
-            Chargen.SelectedSkillBoosts.Clear();
+            if (Chargen.SkillClaims?.Initialised != true) Chargen.SelectedSkills.Clear();
+            if (Chargen.SkillClaims?.Initialised != true) Chargen.SelectedSkillBoostCosts.Clear();
+            if (Chargen.SkillClaims?.Initialised != true) Chargen.SelectedSkillBoosts.Clear();
             FreeSkills =
-                ((IList<IProgVariable>)Storyboard.FreeSkillsProg.Execute(chargen)).Cast<ITraitDefinition>();
+                SkillGroupResolver.MandatorySkills(chargen, Storyboard.FreeSkillsProg);
+            FreeSkills = SkillGroupResolver.FreeSkills(chargen, FreeSkills).ToList();
             RoleSkills = chargen.SelectedRoles
                                 .SelectMany(x => x.TraitAdjustments.Where(y => y.Value.giveIfMissing && y.Key is ISkillDefinition)).Select(x => x.Key)
                                 .Distinct()
                                 .Where(x => !FreeSkills.Contains(x))
                                 .Where(x => !x.Hidden)
                                 .ToList();
-            Chargen.SelectedSkills.AddRange(FreeSkills);
+            Chargen.SelectedSkills = Chargen.SelectedSkills.Union(FreeSkills).ToList();
             SetCurrentSelectables();
             LastCurrentSelectables = CurrentSelectables;
             SelectedBoosts = new Dictionary<ITraitDefinition, int>();
@@ -390,7 +392,7 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
             LastCurrentSelectables = CurrentSelectables;
             CurrentSelectables =
                 Storyboard.Gameworld.Traits.Where(
-                              x => x.TraitType == TraitType.Skill && x.ChargenAvailable(Chargen))
+                              x => x.TraitType == TraitType.Skill && (x.ChargenAvailable(Chargen) || (Chargen.SkillClaims?.Initialised == true && Chargen.SelectedSkills.Contains(x))))
                           .Where(
                               x =>
                                   !FreeSkills.Contains(x)).OrderBy(x => x.Name).ToList();
@@ -398,6 +400,7 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
 
         private bool CanProgress()
         {
+            if (SkillGroupResolver.UnavailableOrdinarySkills(Chargen).Any()) return false;
             if (SkillBoostStage)
             {
                 return true;
@@ -410,6 +413,8 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
 
         private string WhyCannotProgress()
         {
+            var unavailable = SkillGroupResolver.UnavailableOrdinarySkills(Chargen).ToList();
+            if (unavailable.Count > 0) return $"These ordinary choices are no longer available: {unavailable.Select(x => x.Name).ListToString()}. Type their names to remove them before continuing.";
             if (Chargen.SelectedSkills.All(x => Chargen.Gameworld.Languages.All(y => y.LinkedTrait != x)))
             {
                 return
@@ -635,8 +640,8 @@ The following arguments can all accept an option number of times to do the actio
                 SelectedBoostCosts = new Dictionary<ITraitDefinition, int>();
                 foreach (ITraitDefinition trait in Chargen.SelectedSkills)
                 {
-                    SelectedBoosts[trait] = 0;
-                    SelectedBoostCosts[trait] = 0;
+                    SelectedBoosts[trait] = Chargen.SelectedSkillBoosts.GetValueOrDefault(trait);
+                    SelectedBoostCosts[trait] = BoostCostForSkill(trait);
                 }
 
                 return Display();
@@ -684,7 +689,7 @@ The following arguments can all accept an option number of times to do the actio
             if (Chargen.SelectedSkills.Contains(skill))
             {
                 Chargen.SelectedSkills.Remove(skill);
-                Chargen.SelectedSkills.RemoveAll(x => !FreeSkills.Contains(x) && !x.ChargenAvailable(Chargen));
+                if (Chargen.SkillClaims?.Initialised != true) Chargen.SelectedSkills.RemoveAll(x => !FreeSkills.Contains(x) && !x.ChargenAvailable(Chargen));
                 SetCurrentSelectables();
             }
             else
@@ -693,6 +698,7 @@ The following arguments can all accept an option number of times to do the actio
                 SetCurrentSelectables();
             }
 
+			SkillGroupResolver.CaptureOrdinaryClaims(Chargen);
             Chargen.RecalculateCurrentCosts();
             return Display();
         }

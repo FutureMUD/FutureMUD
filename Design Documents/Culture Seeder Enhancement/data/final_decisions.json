@@ -1,0 +1,38 @@
+{
+  "schema_version": 3,
+  "revision": "2026-09-07-final-decisions",
+  "dependency_commit": "961efca81da0d788bbfb86ccf55fea313c9bf065",
+  "D1": {
+    "status": "approved",
+    "policy": "Ethnicity determines the native language(s) through fixed era-specific bindings. No upbringing override, home-language chooser or additional bilingual selector."
+  },
+  "D2": {
+    "status": "approved-with-minimal-engine-change",
+    "native_base": 200,
+    "tiers": {
+      "native": 200,
+      "fluent": 180,
+      "educated": 150,
+      "conversational": 100,
+      "elementary": 50
+    },
+    "configuration": "Existing in-game FutureProg editing; no new seeder configuration questions, tier tables or proficiency UI. Tier labels are content metadata, not new persisted skill levels."
+  },
+  "D3": {
+    "status": "delegated-authoring",
+    "policy": "Broad educational/contact electives; optional 0..1 choices by default. Ethnic/native grants and explicit learned-background grants remain mandatory. Existing generic skill groups are reused."
+  },
+  "D4": {
+    "status": "approved",
+    "policy": "Explicit learned backgrounds receive Literacy; ordinary language ownership does not imply literacy. Script knowledge follows specified writing traditions, not all scripts associated with a language."
+  },
+  "D5": {
+    "status": "approved",
+    "policy": "Keep existing ethnicity-first naming. Do not implement adopted-name choices, profile-switching screens or multiple-name identities."
+  },
+  "D6": {
+    "status": "bounded-research-delivered-with-explicit-residual-gap",
+    "policy": "Deliver researched name entries, source scope, dates or date limitations, variant grouping and explicit exceptions. Do not make Codex invent names or hide an unverified pool behind a generic fallback.",
+    "residual_gap": "No defensible new Old Prussian feminine pool retrieved; preserve legacy and do not activate a fictitious replacement. Small local feminine samples are disclosed, not padded."
+  }
+}

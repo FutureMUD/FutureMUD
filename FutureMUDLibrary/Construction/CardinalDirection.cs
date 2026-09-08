@@ -325,6 +325,9 @@ namespace MudSharp.Construction
                         downness += 1;
                         upness -= 1;
                         break;
+                    case CardinalDirection.Unknown:
+                        unknownness += 1;
+                        break;
                 }
             }
             return (northness, southness, westness, eastness, upness, downness, unknownness);
@@ -362,18 +365,16 @@ namespace MudSharp.Construction
         public static int DistanceAsCrowFlies<T>(this T directions) where T : IEnumerable<CardinalDirection>
         {
             (int Northness, int Southness, int Westness, int Eastness, int Upness, int Downness, int Unknownness) counts = directions.CountDirections();
-            return (int)Math.Round(Math.Sqrt(Math.Pow(Math.Sqrt(Math.Pow(counts.Northness - counts.Southness, 2) +
-                                                                 Math.Pow(counts.Eastness - counts.Westness, 2)), 2) +
-                                              Math.Pow(counts.Upness - counts.Downness, 2)), 0) + counts.Unknownness;
+            return (int)Math.Round(Math.Sqrt(Math.Pow(counts.Northness, 2) + Math.Pow(counts.Eastness, 2) +
+                                              Math.Pow(counts.Upness, 2)), 0) + counts.Unknownness;
         }
 
         public static int PythagoreanDistance<T>(this T exits, RoundingMode rounding = RoundingMode.Truncate) where T : IEnumerable<ICellExit>
         {
             IEnumerable<CardinalDirection> directions = exits.Select(x => x.OutboundDirection);
             (int Northness, int Southness, int Westness, int Eastness, int Upness, int Downness, int Unknownness) counts = directions.CountDirections();
-            double distance = Math.Sqrt(Math.Pow(Math.Sqrt(Math.Pow(counts.Northness - counts.Southness, 2) +
-                                                        Math.Pow(counts.Eastness - counts.Westness, 2)), 2) +
-                                     Math.Pow(counts.Upness - counts.Downness, 2)) + counts.Unknownness;
+            double distance = Math.Sqrt(Math.Pow(counts.Northness, 2) + Math.Pow(counts.Eastness, 2) +
+                                        Math.Pow(counts.Upness, 2)) + counts.Unknownness;
             switch (rounding)
             {
                 case RoundingMode.NoRounding:
@@ -389,12 +390,10 @@ namespace MudSharp.Construction
         {
             IEnumerable<CardinalDirection> directions = exits.Select(x => x.OutboundDirection);
             (int Northness, int Southness, int Westness, int Eastness, int Upness, int Downness, int Unknownness) counts = directions.CountDirections();
-            int yaxis = Math.Abs(counts.Northness - counts.Southness);
-            int xaxis = Math.Abs(counts.Eastness - counts.Westness);
-            int zaxis = Math.Abs(counts.Upness - counts.Downness);
-            List<int> values = new()
-            { xaxis, yaxis, zaxis };
-            return values.Max() + counts.Unknownness;
+            int yaxis = Math.Abs(counts.Northness);
+            int xaxis = Math.Abs(counts.Eastness);
+            int zaxis = Math.Abs(counts.Upness);
+            return Math.Max(Math.Max(xaxis, yaxis), zaxis) + counts.Unknownness;
         }
 
         public static string DescribeBrief(this CardinalDirection direction)

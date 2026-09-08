@@ -238,7 +238,7 @@ public record SimpleCharacterTemplate : ICharacterTemplate
 
     #region ICharacterTemplate Members
 
-    public List<IAccent> SelectedAccents { get; init; }
+    public List<IAccent> SelectedAccents { get; init; } = [];
 
     public List<ITrait> SelectedAttributes { get; init; }
 

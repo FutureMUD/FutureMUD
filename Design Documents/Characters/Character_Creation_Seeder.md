@@ -157,6 +157,10 @@ If a stage already has storyboard XML, the seeder preserves that existing defini
 
 That is intentional so builders do not lose their chargen copy and tuning just because they reran the package.
 
+The seeder also preserves an existing `ChargenFreeSkills` body on rerun. When a managed CultureSeeder fixed-skill helper is installed, it reconciles the actual configured `FreeSkillsProg` references after the storyboards exist. A recognized stock body receives an owned `Culture Fixed Skills` marker block that unions mandatory grants without duplicate traits. Baseline comparison protects edits inside the block; surrounding independent grants remain unchanged. Unrecognized custom bodies or incompatible signatures produce a report instead of being overwritten. The same reconciliation can run when cultures are seeded after character creation.
+
+The CultureSeeder redesign is still being integrated; see [its implementation record](../Verification/CultureSeeder_Redesign_Implementation.md) for completed component checks and remaining activation work.
+
 ## Builder Follow-Up Checklist
 After seeding, builders should usually:
 1. Replace placeholder blurbs on the welcome, role, description, and note screens.

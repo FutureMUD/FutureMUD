@@ -8,16 +8,21 @@ The stock goal is coverage rather than a claim that every historical speech comm
 
 ## Seeder Behaviour
 
+The final-decision CultureSeeder redesign inputs and its current implementation/verification state are tracked in [CultureSeeder Redesign Implementation](../Verification/CultureSeeder_Redesign_Implementation.md). The original generated corpus is retained separately for source-qualified reconciliation. The five historical choices now call the toolkit installer; integrated verification is still in progress.
+
 The language question is offered for:
 
 - `Earth-Modern`
-- `Earth-Antiquity`
-- `Earth-DarkAgesAndMedieval`
-- `Earth-RenaissanceEurope`
-- `Earth-RenaissanceWorldExpansion`
+- `Antiquity`
+- `Dark Ages`
+- `Medieval`
+- `Renaissance`
+- `Early Modern`
 - `Middle-Earth`
 
-`Earth-DarkAgesAndMedieval` and `Earth-RenaissanceWorldExpansion` are complete standalone language packs. They do not require the Renaissance-Europe or Modern pack to have been run first.
+Each historical toolkit is self-contained and uses shared source-qualified identities. Saved Antiquity and Renaissance-Europe answers select their corresponding toolkit; the former combined Dark-Ages/Medieval and Medieval-Europe answers select Medieval. The old Renaissance-World-Expansion answer retains its original legacy path. Modern and Middle-Earth retain their existing behavior.
+
+Toolkit imports run inside a rollback-capable transaction, reconcile unchanged stock fields against stored baselines, and preserve builder overrides. Fixed ethnic skills, optional contact/education groups, native base 200, starting-value wrappers and narrow writing grants use existing FutureProg and chargen infrastructure. Native speakers have a retained native/regional accent set; foreign accent eligibility is narrowed only for stock unrestricted accents, without replacing learner defaults or custom conditions.
 
 Earth-Modern also offers a separate `seedsignedlanguages` choice. It is independent from `seedlanguages` because natural signed languages are not visual encodings of the surrounding spoken language. The stock catalogue contains 24 signed languages, eight BSL regional varieties based on the BSL Corpus cities, humanoid hand articulation profiles, and conservative bidirectional BANZSL links among BSL, Auslan and NZSL.
 

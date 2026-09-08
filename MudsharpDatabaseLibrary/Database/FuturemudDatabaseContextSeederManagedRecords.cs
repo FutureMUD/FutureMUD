@@ -22,6 +22,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(x => x.LogicalId).HasColumnType("bigint(20)");
 			entity.Property(x => x.RevisionNumber).HasColumnType("int(11)");
 			entity.Property(x => x.AppliedFingerprint).IsRequired().HasMaxLength(64);
+			entity.Property(x => x.SeedBaseline).HasColumnType("longtext");
 			entity.Property(x => x.ManifestVersion).IsRequired().HasMaxLength(50);
 			entity.Property(x => x.AppliedAt).HasColumnType("datetime");
 			entity.Property(x => x.Retired).HasColumnType("bit(1)");

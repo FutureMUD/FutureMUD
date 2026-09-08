@@ -1,0 +1,3135 @@
+[
+  {
+    "SourcePack": "earthantiquity",
+    "Status": "staged",
+    "NameCultures": 27,
+    "Profiles": 51,
+    "NameElements": 10064,
+    "Accents": 411,
+    "Languages": [
+      "Latin",
+      "Koine Greek",
+      "Attic Greek",
+      "Ionic Greek",
+      "Doric Greek",
+      "Aeolic Greek",
+      "Etruscan",
+      "Oscan",
+      "Umbrian",
+      "Venetic",
+      "Illyrian",
+      "Thracian",
+      "Dacian",
+      "Phoenician",
+      "Gaulish",
+      "Ligurian",
+      "Raetic",
+      "Brittonic",
+      "Goidelic",
+      "Pictish",
+      "Celtiberian",
+      "Gallaecian",
+      "Galatian",
+      "Iberian",
+      "Tartessian",
+      "Aquitanian",
+      "Nuragic",
+      "Corsican",
+      "Coptic",
+      "Demotic",
+      "Aramaic",
+      "Numidian",
+      "Phrygian",
+      "Anatolian",
+      "Arabic",
+      "Hebrew",
+      "Parthian",
+      "Belgic",
+      "Germanic",
+      "Ariya",
+      "Classical Egyptian",
+      "Scythian",
+      "Sarmatian",
+      "Meroitic"
+    ],
+    "Ethnicities": [
+      {
+        "Name": "Roman",
+        "ChargenBlurb": "This ethnicity is for people born in the city of Rome itself; true born children of the eternal city. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Etruscan",
+        "ChargenBlurb": "The Etruscans are a people in north western Italia just north of Rome, with a proud history and unique language and culture. Etruscans are citizens of Rome. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Sabine",
+        "ChargenBlurb": "The Sabines are an Italic people who live in the Mountains to the east and north of Rome. They have long been citizens of Rome. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Oscan",
+        "ChargenBlurb": "The Oscans are an Italic people who live in the southeastern portion of mainland Italia. Their culture is known for lascivious festivals, games and plays. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Umbrian",
+        "ChargenBlurb": "The Umbrians are an Italic people in the central portion of Italia, south of Rome. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Samnite",
+        "ChargenBlurb": "The Samnites are a tribal, pastoral people who long resisted the Romans until conquered by Sulla. They have a distinctive culture, and are known to be very superstituous. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Latin",
+        "ChargenBlurb": "The Latins are of broadly the same tribal origins as the Romans, but lacking the prestige of being born in the eternal city. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Sardinian",
+        "ChargenBlurb": "The Sardinians are a largely rural people that live on the island of Sardinia. They have at various times been part of Carthaginian and now Roman empires. They have a distinctive culture and language but are thought of as quite rustic. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Corsican",
+        "ChargenBlurb": "The Corsicans are a largely rural people that live on the island of Corsica. They have at various times been part of Carthaginian and now Roman empires. They have a distinctive culture and language but are thought of as quite rustic. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Sicilian",
+        "ChargenBlurb": "The Sicilians are the inhabitants of the province of Sicily. This island has long been a melting pot of Greek, Italian and Carthaginian peoples and cultures and is rich, fertile and very prosperous. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Cisalpine Gaul",
+        "ChargenBlurb": "The Cisalpine gauls are gauls that live on the Italian side of the Alps. They include tribes such as the Ligones, Senones, Boii, Cenomani, Insubres, Lepontii, Taurini and Salassi. Most of these peoples are thoroughly romanised with few living in traditional Celtic manner. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Cisalpine Gaul",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Alpine Gaul",
+        "ChargenBlurb": "The Alpine gauls live in the Alps, between Italia and Gaul. They include tribes such as the Helvetii and Alobroges. They are a fierce people with a history of rebellion and defiance. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Cisalpine Gaul",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Aquitaine Gaul",
+        "ChargenBlurb": "The Aquitanian Gauls are Transalpine gauls from Southwestern Gaul, bordering Iberia. Their lands are not especially fertile but productive silver and gold mines have driven urbanisation and trade in this area. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Transalpine Gaul",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Celtic Gaul",
+        "ChargenBlurb": "The Celtic Gauls live in the province of Gallia Lugdunensis, also known as Celtica, in central Gaul. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Transalpine Gaul",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Belgican Gaul",
+        "ChargenBlurb": "The Belgica Gauls live in Belgica, in Northern Gaul. They include tribes like the Treveri, Mediomatrici, Leuci, Sequani and the eponymous Belgae. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Transalpine Gaul",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Narbonese Gaul",
+        "ChargenBlurb": "The Narbonese Gauls live in Gallia Narbonensis, the original province of Roman Transalpine Gaul. It had strong influence from a Greek colony Massalia and has been under Roman rule long enough to become fairly romanised. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Transalpine Gaul",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Iberian",
+        "ChargenBlurb": "The Iberians are a celtic people who live in the east of Iberia. They have long lived alongside Phoenicians, Greeks, Carthaginians and now Romans in their coastal cities. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Iberian",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Lusitanian",
+        "ChargenBlurb": "The Lusitanians are a celtic people who live in the far west of the Iberian peninusla. Their lands are rich in gold and silver but this has been more of a curse than a blessing to their people, as they have fallen under the rule of successive empires who rule them brutally and export their wealth elsewhere. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Iberian",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Gallaecian",
+        "ChargenBlurb": "The Gallacians are a celtic people who live in the northwest of the Iberian peninsular. They were a wealthy tribe and fierce allies of Carthage, but have been much reduced in both wealth and prestige under Roman rule. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Iberian",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Turdetanian",
+        "ChargenBlurb": "The Turdetanians are a celtic people who live in the far south of the Iberian peninsular in the province of Hispania Baetica. Roman historian Strabo described them as the most civilised of all the peoples of Iberia, and they had long lived in an ordered society governed by written laws, with much cultural contact with the Greeks and Carthaginians. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Iberian",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Brittanic",
+        "ChargenBlurb": "The Brittanians are a celtic people who live in the province of Brittania. They are culturally close to to the Gauls but have a distinct language and religious structure. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Insular",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Hibernian",
+        "ChargenBlurb": "The Hibernians are a celtic people who live on the island of Hibernia, to the west of Brittania. While they have contact with the Romans, they are beyond their Imperium. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Insular",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Caledonian",
+        "ChargenBlurb": "The Caledonians are a celtic people who belong to a tribal confederation north of Brittania that has come together to resist Roman expansion. They are a fierce and proud people and are considered by the Romans to be too warlike to occupy directly, so far from Rome. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Insular",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Ingvaeon",
+        "ChargenBlurb": "The Ingvaeones are a West Germanic cultural group living in the Northern Germania along the North Sea coast in the areas of Jutland, Holstein, and Frisia. Tribes in this area include the Angles, Frisii, Chauci, Saxons, and Jutes. They are typically characteristised by fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Istvaeon",
+        "ChargenBlurb": "The Istvaeones are a West Germanic cultural group that is defined more by what they are not than what they are - generally speaking they are any group that is not Ingvaeones or Irminon. They occupy the eastern bank of the Rhine river in the more northerly parts of Germania. They are typically characteristised by fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Irminon",
+        "ChargenBlurb": "The Irminon are a West Germanic cultural group that lives in the interior of Germania, around the Elbe river. Notable tribes include the Chatti, Cherusci and Hermunduri They are typically characteristised by fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Suebi",
+        "ChargenBlurb": "The Suebi are a West Germanic cultural group that lives on the farthest side of Germania from the Rhine, and included such tribes as the Marcomanni, Semnones, Langobards and Angles. They are typically characteristised by fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Illyrian",
+        "ChargenBlurb": "The Illyrians are a broad group of many different tribes in the province of Illyricum. They generally identify as their particular tribal grouping, but the Greeks and Romans both refer to them all by the grouping of Illyrian. They have been under Roman rule for a long time, but prior to Roman subjugation they had a reputation as excellent pirates and mercenaries. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Illyrian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Pannonian",
+        "ChargenBlurb": "The Pannonians are an admixture of Illyrians and Celts, forming a distinct tribal identity. Pannonia is north of Dalmatia and borders the Danube, and so is an important frontier of the Roman empire. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Illyrian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Liburnian",
+        "ChargenBlurb": "The Liburnians occupy a small portion of the northwestern coast of Illyrium in the Adriatic sea. They are a strong seafaring peoples and maintain large fleets of fishing and trading vessels, as well as being major contributors to Roman naval efforts. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Illyrian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Venetian",
+        "ChargenBlurb": "The Venetians are an Illyrian-related tribe that occupy the western and northern coasts of the Adriatic north of Italia. They have been under Roman rule for a long time and are mostly latinised in the urban areas, but are still most famous for their fabulous horses. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Illyrian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Dacian",
+        "ChargenBlurb": "The Dacians, also called the Getae by the Greeks, are a barbarian people that live in and around the Carpathain mountains. In recent memory they had a kingdom that occupied most of Illyricum, but it has long since fallen. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Thracian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Thracian",
+        "ChargenBlurb": "The Thracians are a warlike barbarian people found both to the North of Greece and Macedon and on Anatolia as well. Their culture has a strong tradition of tattooing amongst both men and women. They are also known for being unsophisticated but having excellent music. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Thracian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Scythian",
+        "ChargenBlurb": "The Scythians are a renowned equestrian people originally from central asia who migrated into the Pontic Steppes and all around the Black Sea. They are divided into both sedentary populations of hellenised settlements, mostly along the silk road, and the larger bulk of patriarchal, nomadic pastoralists. The Scythians ride horses without saddles or stirrups. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Scythian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Sarmatian",
+        "ChargenBlurb": "The Sarmatians are a large confederation of broadly Scythian tribes that nonetheless have a distinct cultural identity and exist in conflict with the traditional Scythian rulers. The Sarmatians are a more egalitarian society on gender grounds than the Scythians in general and women have more freedom and rights. The Sarmatians also ride horses with a saddle and stirrups. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Scythian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Achaean",
+        "ChargenBlurb": "The Achaeans were one of the four major tribes into which the Greeks divided themselves (along with the Aeolians, Ionians and Dorians). According to the foundation myth formalized by Hesiod, their name comes from Achaeus, the mythical founder of the Achaean tribe, who was supposedly one of the sons of Xuthus, and brother of Ion, the founder of the Ionian tribe. Xuthus was in turn the son of Hellen, the mythical patriarch of the Greek (Hellenic) nation.\n\nHistorically, the members of the Achaean tribe inhabited the region of Achaea in the northern Peloponnese. The Achaeans played an active role in the Greek colonization of southern Italy, founding the city of Kroton in 710 BC. The city was to gain fame later as the place where the Pythagorean School was founded. Unlike the other major tribes (Ionians, Dorians and Aeolians), the Achaeans did not have a separate dialect in the Classical period, instead using a form of Doric.\n\nThey are typically characterised by fair to olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Hellenic",
+        "EthnicSubgroup": "Central Greek",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Aeolian",
+        "ChargenBlurb": "The Aeolians were one of the four major tribes in which Greeks divided themselves in the ancient period (along with the Achaeans, Dorians and Ionians). Their name mythologically derives from Aeolus, the mythical ancestor of the Aeolians and son of Hellen, the mythical patriarch of the Greek nation. The dialect of ancient Greek they spoke is referred to as Aeolic.\n\nOriginating in Thessaly, a part of which was called Aeolis, the Aeolians often appear as the most numerous amongst the other Hellenic tribes of early times. The Boeotians, a subgroup of the Aeolians, were driven from Thessaly by the Thessalians and moved their location to Boeotia. Aeolian peoples were spread in many other parts of Greece such as Aetolia, Locris, Corinth, Elis and Messinia. During the Dorian invasion, Aeolians from Thessaly fled across the Aegean Sea to the island of Lesbos and the region of Aeolis, called as such after them, in Asia Minor.\n\nThey are typically characterised by fair to olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Hellenic",
+        "EthnicSubgroup": "Central Greek",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Ionian",
+        "ChargenBlurb": "The Ionians were one of the four major tribes that the Greeks considered themselves to be divided into during the ancient period; the other three being the Dorians, Aeolians, and Achaeans. The Ionian dialect was one of the three major linguistic divisions of the Hellenic world, together with the Dorian and Aeolian dialects.\n\nAccording to the foundation myth the Ionians were named after Ion, son of Xuthus, who lived in the north Peloponnesian region of Aigialeia. When the Dorians invaded the Peloponnese they expelled the Achaeans from the Argolid and Lacedaemonia. The displaced Achaeans moved into Aigialeia (thereafter known as Achaea), in turn expelling the Ionians from Aigialeia. The Ionians moved to Attica and mingled with the local population of Attica, and many later emigrated to the coast of Asia Minor founding the historical region of Ionia.\n\nUnlike the austere and militaristic Dorians, the Ionians are renowned for their love of philosophy, art, democracy, and pleasure \u2013 Ionian traits that were most famously expressed by the Athenians.\n\nThey are typically characterised by fair to olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Hellenic",
+        "EthnicSubgroup": "Eastern Greek",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Dorian",
+        "ChargenBlurb": "The Dorians were one of the four major ethnic groups into which the Hellenes (or Greeks) of Classical Greece divided themselves (along with the Aeolians, Achaeans, and Ionians). They are almost always referred to as just \u0022the Dorians\u0022, as they are called in the earliest literary mention of them in the Odyssey, where they already can be found inhabiting the island of Crete.\\n\\nThey were diverse in way of life and social organization, varying from the populous trade center of the city of Corinth, known for its ornate style in art and architecture, to the isolationist, military state of Sparta. And yet, all Hellenes knew which localities were Dorian, and which were not. Dorian states at war could more likely, but not always, count on the assistance of other Dorian states. Dorians were distinguished by the Doric Greek dialect and by characteristic social and historical traditions.\\n\\nThey are typically characterised by fair to olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Hellenic",
+        "EthnicSubgroup": "Western Greek",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Italiote",
+        "ChargenBlurb": "Italiote Greeks are those who live in the Greek-ethnicity city states in former Magna Graecia, Sicilia, and northern Italia. Once powerful city states in their own right, they have long since been subsumed into the Roman Imperium but they do retain a distinct cultural identity. They are mostly of Dorian Greek descent. They are typically characterised by fair to olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Hellenic",
+        "EthnicSubgroup": "Italian",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Cypriot",
+        "ChargenBlurb": "Cypriots are natives of the island of Cyprus. They are descended from an Achaean diaspora. They are typically characterised by fair to olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Hellenic",
+        "EthnicSubgroup": "Aegean Greek",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Cretan",
+        "ChargenBlurb": "Cretans are natives of the island of Crete. They are a mixture of a pre-hellenic Minoan culture as well as later Greek immigrants to the island. They are a proud people with the cultural memory of two great empires - the Minoans and the Mycenaens. Now subjects of the Roman empire, they have nonetheless flourished as a centre of eastern Mediterranean commerce. They are typically characterised by fair to olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Hellenic",
+        "EthnicSubgroup": "Aegean Greek",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Macedonian",
+        "ChargenBlurb": "The Macedonians are a branch of Dorian Greeks that nonetheless have a distinct cultural identity, most notably because of their association with Alexander the Great. They are typically characterised by fair to olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Hellenic",
+        "EthnicSubgroup": "Western Greek",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Phrygian",
+        "ChargenBlurb": "The Phrygians are Hellenised peoples who live in central Anatolia, east of Greece proper. The Trojans were a tribe of Phrygians. These people spent a long period of time under Persian rule, before being conquered by Alexander the Great, then the Seleucids, then most recently Rome. They are typically characterised by fair to olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Hellenic",
+        "EthnicSubgroup": "Asian",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Anatolian",
+        "ChargenBlurb": "The Anatolians are a broad grouping of Hellenised peoples in coastal and eastern Anatolia. They descend from a variety of ancient kingdoms but now mostly draw their identity from the city states to which they belong. They are typically characterised by fair to olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Hellenic",
+        "EthnicSubgroup": "Asian",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Punic",
+        "ChargenBlurb": "The term Punic is used to refer to those Phoenician people of the western Mediterranean who descend from Carthage proper, Roman Provincia Africanus. Until recently, their people were the preeminent empire in the Mediterranean and an ancient enemy of Rome. Now, though much reduced, they still play a prominent role in the empire as traders and sailors. They are characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "Punic",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Libyan",
+        "ChargenBlurb": "The Libyans are a Punic people in the regions of North Africa to the Southeast of Carthage, including Tripolitania and Cyrenaica. They are used to intermixing with Greek city states, although they maintain a seperate Punic identity. They are characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "Punic",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Mauretanian",
+        "ChargenBlurb": "The Mauretanians are a Punic people in most of the western parts of North Africa, to the west of Numidia, and sometimes including the southern parts of Hispania. They have a great deal of cultural contact with their nomadic cousins in the more southerly regions and less contact with Greek city states. They are characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "Punic",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Numidian",
+        "ChargenBlurb": "The Numidians are a people in North Africa to the west of Carthage. They were a client state and ally of Carthage but during the Second Punic War they managed to unify into an independent Kingdom. They then became a client state of Rome until they were later annexed. They are characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "Punic",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Egyptian",
+        "ChargenBlurb": "The Egyptians are the native peoples of the land of Egypt; once a powerful empire that was one of the world\u0027s pre-eminent empires for thousands of years but now ruled by a Hellenised ruling class called the Ptolemaics. They are characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "Egyptian",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Berber",
+        "ChargenBlurb": "The Berbers are the tribal, nomadic peoples of the interior of the province of Mauretania. They are related to most of the more civilised, sedentary Punic peoples on the coast but maintain a distinct cultural identity, even under Roman rule. They are characterised by olive or light brown skin, dark hair and light eyes.",
+        "EthnicGroup": "North African",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Arabian",
+        "ChargenBlurb": "The Arabians are a broad grouping of both settled and nomadic peoples that live on the Arabian peninsular and in the Kingdom of Nabatea. Their peninsular is the gateway to the Indes and an enormous volume of trade passes through their lands, which are exceptionally wealthy on account of the commerce. They are typically characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "Levantine",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Syrian",
+        "ChargenBlurb": "The Syrians are the Phoenician inhabitants of the Roman province of Syria, which sits south and east of Asia Minor and north and east of Egypt. The province is fabulously wealthy, with the trade of east and west coming through here. The Syrians are only recently additions to the Roman Empire, conquered by Pompey Magnus. The Syrian people are known for (to the Romans) exotic religious and cultural practices, and there is a great deal of fascination with the \u0027oriental\u0027. They are typically characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "Levantine",
+        "EthnicSubgroup": "",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Judean",
+        "ChargenBlurb": "The Judeans are a broad ethnic group including Judeans and Israelites. They have a strong sense of distinct cultural identity from their neighbours and follow a monotheistic god called Yahweh. They are typically characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "Levantine",
+        "EthnicSubgroup": "Semitic",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Samaritan",
+        "ChargenBlurb": "The Samaritans are the people of the Kingdom of Samaria, akin to the Judeans but distinct from them. Unlike their neighbours they had gone through a period of Hellenisation after being Seleucid clients, though they retained their monotheistic religion. They are typically characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "Levantine",
+        "EthnicSubgroup": "Semitic",
+        "NamingStructures": []
+      },
+      {
+        "Name": "Gallilean",
+        "ChargenBlurb": "The Gallileans are a Semitic people to the north of the Israelites. Of the various Semitic tribes, they are the most influenced by the Phoenician culture and also tend to be the most tolerant of other religions. They are typically characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "Levantine",
+        "EthnicSubgroup": "Semitic",
+        "NamingStructures": []
+      }
+    ],
+    "Cultures": [
+      "Roman",
+      "Patrician",
+      "Latin Italic",
+      "Provincial Roman",
+      "Romanised Barbarian",
+      "Freed Slave",
+      "Slave",
+      "Etruscan",
+      "Hellenic",
+      "Anatolian",
+      "Punic",
+      "Numidian-Mauretanian",
+      "Egyptian",
+      "Kushite",
+      "Persian",
+      "Scythian-Sarmatian",
+      "Celtic",
+      "Gaulish",
+      "Iberian Celtic",
+      "Insular Celtic",
+      "Germanic",
+      "Illyrian-Pannonian",
+      "Thracian-Dacian",
+      "Levantine",
+      "Judean"
+    ]
+  },
+  {
+    "SourcePack": "earthdarkagesandmedieval",
+    "Status": "staged",
+    "NameCultures": 29,
+    "Profiles": 60,
+    "NameElements": 8657,
+    "Accents": 183,
+    "Languages": [
+      "Latin",
+      "Old English",
+      "Old Norse",
+      "Old Norman",
+      "Anglo-Norman",
+      "Old French",
+      "Middle English",
+      "Medieval Gaelic",
+      "Old High German",
+      "Old Low Franconian",
+      "Middle High German",
+      "Middle Low German",
+      "Old Castilian",
+      "Old Leonese",
+      "Old Aragonese",
+      "Galician-Portuguese",
+      "Old Catalan",
+      "Andalusi Arabic",
+      "Quranic Arabic",
+      "Medieval Greek",
+      "Koine Greek",
+      "Mashriqi Arabic",
+      "Persian",
+      "Oghuz Turkic",
+      "Old Hungarian",
+      "Old East Slavic",
+      "Church Slavonic",
+      "Cuman-Kipchak",
+      "Middle Mongol",
+      "Western Apabhramsha",
+      "Sanskrit",
+      "Medieval Tamil",
+      "Late Middle Chinese",
+      "Literary Chinese",
+      "Early Middle Korean",
+      "Medieval Japanese"
+    ],
+    "Ethnicities": [
+      {
+        "Name": "Early Anglo-Saxon",
+        "ChargenBlurb": "The Anglo-Saxons are the Old English-speaking people of lowland England, descended from the settlers and kingdoms established after Roman rule. They recognise kin, kingdom, local district and lordship, while common law, compensation customs and the Christian Church bind communities from Wessex and Mercia to Northumbria and Kent. Speech, inherited land and descent from a known kindred are the clearest marks of belonging.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "Early Anglo-Saxon England",
+        "NamingStructures": [
+          "Medieval Early Anglo-Saxon"
+        ]
+      },
+      {
+        "Name": "Anglo-Danish English",
+        "ChargenBlurb": "The Anglo-Danish English are the people of the Danelaw and neighbouring English lands where Old English and Old Norse settlers have become neighbours, kin and fellow Christians. They define themselves through local law, town or wapentake, family descent and allegiance to English or Scandinavian lords. Mixed speech, naming and custom distinguish them from both earlier Anglo-Saxons and newcomers from overseas.",
+        "EthnicGroup": "North Sea Germanic",
+        "EthnicSubgroup": "Anglo-Danish England",
+        "NamingStructures": [
+          "Medieval Anglo-Danish"
+        ]
+      },
+      {
+        "Name": "Viking-Age Norse",
+        "ChargenBlurb": "The Norse are the Old Norse-speaking people of Scandinavia and its overseas settlements. They place themselves through farm and district, paternal and maternal kin, legal assembly, cult or church, and allegiance to a chieftain or king. Seafaring, fosterage, feud settlement, gift exchange and remembered genealogy are central signs of Norse belonging.",
+        "EthnicGroup": "Nordic",
+        "EthnicSubgroup": "Viking-Age Scandinavia",
+        "NamingStructures": [
+          "Medieval Norse"
+        ]
+      },
+      {
+        "Name": "Conquest-Era Norman",
+        "ChargenBlurb": "The Normans are the French-speaking people of Normandy, shaped by Frankish society and the descendants of Scandinavian settlers. They define themselves through the duchy, local lordship, parish and monastery, and descent from houses whose lands spread across the Channel and Mediterranean. Military reputation, ducal loyalty and a distinct Norman form of French mark them among neighbouring peoples.",
+        "EthnicGroup": "Western European",
+        "EthnicSubgroup": "Ducal Normandy",
+        "NamingStructures": [
+          "Medieval Norman"
+        ]
+      },
+      {
+        "Name": "Anglo-Norman",
+        "ChargenBlurb": "The Anglo-Normans are the French-speaking and bilingual descendants of the conquest aristocracy and the households attached to them in England and the neighbouring lordships. They identify with inherited continental houses, English estates, royal and ecclesiastical service and the law and manners of the post-Conquest elite. Marriage and local settlement steadily bind them to the lands they rule.",
+        "EthnicGroup": "Western European",
+        "EthnicSubgroup": "Post-Conquest Britain",
+        "NamingStructures": [
+          "Medieval Anglo-Norman"
+        ]
+      },
+      {
+        "Name": "High Medieval English",
+        "ChargenBlurb": "The English are the English-speaking people of the kingdom of England, increasingly conscious of a shared realm while retaining strong county, town and regional identities. Common law, parish, lordship and inherited land define belonging, and English speech distinguishes them from Welsh, Gaelic and French-speaking neighbours. In the Marches, mixed ancestry and bilingual households are common without erasing an English identity.",
+        "EthnicGroup": "Western European",
+        "EthnicSubgroup": "High Medieval Britain",
+        "NamingStructures": [
+          "Medieval High English British"
+        ]
+      },
+      {
+        "Name": "Medieval Irish Gael",
+        "ChargenBlurb": "The Irish Gaels are the Gaelic-speaking people of Ireland, organised through dynastic kindreds, local kingdoms and client relationships. Genealogy, fosterage, cattle wealth, learned tradition and allegiance to a ruling lineage define who belongs to a community. Monasteries and Norse-Gaelic ports add new institutions without displacing the authority of kin and tuath.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Gaelic Ireland",
+        "NamingStructures": [
+          "Medieval Irish Gaelic"
+        ]
+      },
+      {
+        "Name": "High Medieval Scottish Gael",
+        "ChargenBlurb": "The Scottish Gaels are the Gaelic-speaking people of the Highlands, western mainland and many islands of the kingdom of Scotland. They define themselves through kindred, lordship, district and inherited genealogy, with fosterage, cattle and military following reinforcing clan bonds. Contact with Norse islanders and French- or Scots-speaking Lowlanders gives border regions a mixed character.",
+        "EthnicGroup": "Celtic and Western European",
+        "EthnicSubgroup": "Medieval Scotland",
+        "NamingStructures": [
+          "Medieval Scottish Gaelic Lowland"
+        ]
+      },
+      {
+        "Name": "Carolingian Frank",
+        "ChargenBlurb": "The Franks are the ruling people whose kingdoms dominate much of western and central Europe under the Carolingians. Frankish identity rests on descent, military and political allegiance, law and participation in royal and ecclesiastical institutions, even where Romance or Germanic local speech differs. Aristocratic kindreds and royal service carry the name most strongly, while subject populations may adopt Frankish custom.",
+        "EthnicGroup": "Germanic and Romance",
+        "EthnicSubgroup": "Carolingian Realm",
+        "NamingStructures": [
+          "Medieval Carolingian Frankish"
+        ]
+      },
+      {
+        "Name": "High Medieval French",
+        "ChargenBlurb": "The French are the Romance-speaking people of the royal domain and neighbouring principalities of northern and central France. They share related langue d\u0027oil speech, Christian institutions and the political prestige of the Capetian kings, while province, lordship and town remain powerful identities. Courtly custom and expanding royal justice gradually give the name French a wider reach.",
+        "EthnicGroup": "Western European",
+        "EthnicSubgroup": "Capetian France",
+        "NamingStructures": [
+          "Medieval Capetian French"
+        ]
+      },
+      {
+        "Name": "High Medieval German",
+        "ChargenBlurb": "The Germans are the German-speaking people of the duchies, bishoprics, lordships and towns of the Holy Roman Empire. Dialect and regional identity distinguish Saxon, Franconian, Swabian, Bavarian, Rhineland and Alpine communities, but shared speech, law and imperial-Christian institutions mark them from Romance and Slavic neighbours. Town citizenship, lordship and native district are often as important as wider German identity.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "Holy Roman Empire",
+        "NamingStructures": [
+          "Medieval Imperial German"
+        ]
+      },
+      {
+        "Name": "High Medieval Castilian",
+        "ChargenBlurb": "Castilians belong to the expanding central Iberian kingdoms and frontier communities of Castile.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "Castile",
+        "NamingStructures": [
+          "Medieval Christian Iberian"
+        ]
+      },
+      {
+        "Name": "High Medieval Andalusi",
+        "ChargenBlurb": "The Andalusis are the Arabic-speaking people of al-Andalus, descended from Iberian converts and from Arab, Amazigh and other Muslim settlers. They recognise a shared Andalusi manner of speech, learning, urbanity, agriculture and music while retaining family memories of tribe, city and ancestry. Attachment to a town such as Cordoba, Seville or Granada is one of the strongest marks of identity.",
+        "EthnicGroup": "Iberian and Middle Eastern",
+        "EthnicSubgroup": "al-Andalus",
+        "NamingStructures": [
+          "Medieval Andalusian Arabic"
+        ]
+      },
+      {
+        "Name": "Middle Byzantine Roman",
+        "ChargenBlurb": "The Byzantine Romans, or Rhomaioi, are the Greek-speaking Christian people who regard the empire as the continuing Roman state. Orthodox faith, Roman law, imperial allegiance and Greek education are the principal signs of Roman identity, though many Armenian, Slavic and other families enter it through service, marriage and language. City, province and household remain important beneath the wider Roman name.",
+        "EthnicGroup": "Greek and Eastern Roman",
+        "EthnicSubgroup": "Byzantine Empire",
+        "NamingStructures": [
+          "Medieval Byzantine Greek"
+        ]
+      },
+      {
+        "Name": "Abbasid-Era Iraqi Arab",
+        "ChargenBlurb": "Iraqi Arabs belong to the urban and tribal Arabic-speaking communities of lower and central Mesopotamia.",
+        "EthnicGroup": "Middle Eastern",
+        "EthnicSubgroup": "Iraqi Arab",
+        "NamingStructures": [
+          "Medieval Abbasid Arabic"
+        ]
+      },
+      {
+        "Name": "Fatimid-Era Egyptian Arab",
+        "ChargenBlurb": "Egyptian Arabs belong to Arabic-speaking urban, village and tribal communities of the Fatimid realm.",
+        "EthnicGroup": "North African and Middle Eastern",
+        "EthnicSubgroup": "Egyptian Arab",
+        "NamingStructures": [
+          "Medieval Fatimid Arabic"
+        ]
+      },
+      {
+        "Name": "High Medieval Oghuz Turk",
+        "ChargenBlurb": "Oghuz Turks belong to the pastoral, military and settled Turkic communities of the Seljuk and successor realms.",
+        "EthnicGroup": "Turkic and Middle Eastern",
+        "EthnicSubgroup": "Oghuz Turk",
+        "NamingStructures": [
+          "Medieval Seljuk Ayyubid Mamluk"
+        ]
+      },
+      {
+        "Name": "Conquest-Period Magyar",
+        "ChargenBlurb": "The Magyars are a Ugric-speaking people of the Carpathian Basin, organised through kindreds, tribal memory and the military followings of chiefs. Horse-breeding, mobile warfare, household descent and the distribution of pasture and tribute distinguish them from neighbouring Slavic, German and steppe peoples. Conversion and territorial kingship are beginning to alter older forms of identity.",
+        "EthnicGroup": "Magyar",
+        "EthnicSubgroup": "Carpathian Basin",
+        "NamingStructures": [
+          "Medieval Magyar"
+        ]
+      },
+      {
+        "Name": "High Medieval Rus",
+        "ChargenBlurb": "The Rus are the East Slavic-speaking Christian people of the river principalities from Kyiv to Novgorod. They define belonging through paternal descent, town and land, princely dynasty, parish and service relationship, while Orthodox worship and the shared written tradition of Rus join distant regions. Norse, Finnic, Baltic and steppe ancestry is absorbed into a recognisable Rus identity.",
+        "EthnicGroup": "Eastern Slavic",
+        "EthnicSubgroup": "Rus Lands",
+        "NamingStructures": [
+          "Medieval Rus Novgorod"
+        ]
+      },
+      {
+        "Name": "High Medieval Kipchak Turk",
+        "ChargenBlurb": "The Kipchaks are a Turkic-speaking confederational people of the western Eurasian steppe. They define themselves through clan and tribal descent, pasture and migration routes, mounted military following and relationships of alliance or subordination with neighbouring peoples. Household herds, remembered genealogy and freedom of movement are central to Kipchak identity.",
+        "EthnicGroup": "Central Asian",
+        "EthnicSubgroup": "Turkic-Mongol Steppe",
+        "NamingStructures": [
+          "Medieval Steppe Turkic Mongol"
+        ]
+      },
+      {
+        "Name": "Early Medieval Rajput",
+        "ChargenBlurb": "The Rajputs are warrior and landholding lineages of northern and north-western India who claim descent from royal, heroic or sacred ancestors. Clan, branch, marriage alliance, fort and estate, temple patronage and bardic genealogy define their collective honour. Their identity is maintained through remembered service and descent rather than residence in any single kingdom.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "North Indian Rajput Polities",
+        "NamingStructures": [
+          "Medieval North Indian Rajput"
+        ]
+      },
+      {
+        "Name": "Chola-Era Tamil",
+        "ChargenBlurb": "Tamils belong to the core agrarian, temple, mercantile and military communities of the Chola realm.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Tamil Country",
+        "NamingStructures": [
+          "Medieval South Indian Chola"
+        ]
+      },
+      {
+        "Name": "Song Han Chinese",
+        "ChargenBlurb": "The Han Chinese are the majority people of the Song realm, bound by written Chinese, patrilineal ancestry and shared classical and ritual traditions. Native county, lineage, household genealogy and local speech remain powerful markers within the wider Han identity. Farming, urban commerce and examination culture connect regions of great linguistic diversity.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Song China",
+        "NamingStructures": [
+          "Medieval Song Chinese"
+        ]
+      },
+      {
+        "Name": "Goryeo Korean",
+        "ChargenBlurb": "The Koreans are the Korean-speaking people of the Goryeo kingdom. Patrilineal clan, family name and ancestral seat place a person within a remembered genealogy, while province, village, rank and occupation shape local belonging. Court tradition, Buddhism and a shared written culture distinguish them from neighbouring Jurchen, Khitan, Chinese and Japanese peoples.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Goryeo Korea",
+        "NamingStructures": [
+          "Medieval Goryeo Korean"
+        ]
+      },
+      {
+        "Name": "Heian-Kamakura Japanese",
+        "ChargenBlurb": "The Japanese are the Japanese-speaking people of the islands under imperial, court, temple and emerging warrior authority. Clan descent, house and estate, province and religious institution define belonging, with court aristocrats, warriors, townspeople and villagers expressing status in different ways. Shared shrine, Buddhist and courtly traditions bind these local identities.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Heian and Kamakura Japan",
+        "NamingStructures": [
+          "Medieval Heian Kamakura Japanese"
+        ]
+      },
+      {
+        "Name": "Medieval West Saxon",
+        "ChargenBlurb": "West Saxons belong to the southern English communities centred on Wessex, with strong royal, monastic and shire identities.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "West Saxon Kingdom",
+        "NamingStructures": [
+          "Medieval Early Anglo-Saxon"
+        ]
+      },
+      {
+        "Name": "Medieval Mercian",
+        "ChargenBlurb": "Mercians belong to the English-speaking peoples of the Midlands and the former Mercian sphere.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "Mercian Midlands",
+        "NamingStructures": [
+          "Medieval Early Anglo-Saxon"
+        ]
+      },
+      {
+        "Name": "Medieval Northumbrian",
+        "ChargenBlurb": "Northumbrians belong to the northern English communities shaped by Bernician, Deiran and monastic traditions.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "Northumbrian Kingdoms",
+        "NamingStructures": [
+          "Medieval Early Anglo-Saxon"
+        ]
+      },
+      {
+        "Name": "Danelaw English",
+        "ChargenBlurb": "Danelaw English descend from English-speaking communities living under long Scandinavian settlement and law.",
+        "EthnicGroup": "North Sea Germanic",
+        "EthnicSubgroup": "Danelaw English",
+        "NamingStructures": [
+          "Medieval Anglo-Danish"
+        ]
+      },
+      {
+        "Name": "Anglo-Dane",
+        "ChargenBlurb": "Anglo-Danes belong to families formed within the mixed English and Scandinavian communities of the Danelaw.",
+        "EthnicGroup": "North Sea Germanic",
+        "EthnicSubgroup": "Mixed Anglo-Scandinavian",
+        "NamingStructures": [
+          "Medieval Anglo-Danish"
+        ]
+      },
+      {
+        "Name": "Viking-Age Norwegian",
+        "ChargenBlurb": "Norwegian Norse belong to the coastal, valley and island communities of western Scandinavia.",
+        "EthnicGroup": "Nordic",
+        "EthnicSubgroup": "Norwegian Norse",
+        "NamingStructures": [
+          "Medieval Norse"
+        ]
+      },
+      {
+        "Name": "Viking-Age Dane",
+        "ChargenBlurb": "Danish Norse belong to the communities of Jutland, Zealand and the Danish islands.",
+        "EthnicGroup": "Nordic",
+        "EthnicSubgroup": "Danish Norse",
+        "NamingStructures": [
+          "Medieval Norse"
+        ]
+      },
+      {
+        "Name": "Viking-Age Swede",
+        "ChargenBlurb": "Swedish Norse belong to the communities around Svealand, Gotaland and the Baltic-facing trade routes.",
+        "EthnicGroup": "Nordic",
+        "EthnicSubgroup": "Swedish Norse",
+        "NamingStructures": [
+          "Medieval Norse"
+        ]
+      },
+      {
+        "Name": "Cotentin Norman",
+        "ChargenBlurb": "Cotentin Normans belong to the western Norman peninsula, where seafaring and ducal military service are prominent.",
+        "EthnicGroup": "Western European",
+        "EthnicSubgroup": "Cotentin Normandy",
+        "NamingStructures": [
+          "Medieval Norman"
+        ]
+      },
+      {
+        "Name": "Marcher Anglo-Norman",
+        "ChargenBlurb": "Marcher Anglo-Normans belong to settler and military families established along the contested western and northern frontiers.",
+        "EthnicGroup": "Western European",
+        "EthnicSubgroup": "Welsh and Scottish Marches",
+        "NamingStructures": [
+          "Medieval Anglo-Norman"
+        ]
+      },
+      {
+        "Name": "High Medieval Northern English",
+        "ChargenBlurb": "Northern English communities retain strong regional customs shaped by Northumbria, Scandinavian settlement and the borderlands.",
+        "EthnicGroup": "Western European",
+        "EthnicSubgroup": "Northern England",
+        "NamingStructures": [
+          "Medieval High English British"
+        ]
+      },
+      {
+        "Name": "High Medieval Midland English",
+        "ChargenBlurb": "Midland English communities belong to the market towns, villages and shires of central England.",
+        "EthnicGroup": "Western European",
+        "EthnicSubgroup": "English Midlands",
+        "NamingStructures": [
+          "Medieval High English British"
+        ]
+      },
+      {
+        "Name": "Medieval Connacht Gael",
+        "ChargenBlurb": "Connacht Gaels belong to the western Irish kingdoms and kin groups associated with Connacht.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Connacht",
+        "NamingStructures": [
+          "Medieval Irish Gaelic"
+        ]
+      },
+      {
+        "Name": "Medieval Munster Gael",
+        "ChargenBlurb": "Munster Gaels belong to the southern Irish kingdoms and kin groups associated with Munster.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "Munster",
+        "NamingStructures": [
+          "Medieval Irish Gaelic"
+        ]
+      },
+      {
+        "Name": "Medieval Highland Gael",
+        "ChargenBlurb": "Highland Gaels belong to the Gaelic-speaking kindreds of the Highlands and western seaboard.",
+        "EthnicGroup": "Celtic and Western European",
+        "EthnicSubgroup": "Scottish Highlands",
+        "NamingStructures": [
+          "Medieval Scottish Gaelic Lowland"
+        ]
+      },
+      {
+        "Name": "Medieval Gall-Gaidheal",
+        "ChargenBlurb": "The Gall-Gaidheil belong to mixed Norse-Gaelic communities of the Hebrides, western coasts and Galloway.",
+        "EthnicGroup": "Celtic and Nordic",
+        "EthnicSubgroup": "Hebrides and Galloway",
+        "NamingStructures": [
+          "Medieval Scottish Gaelic Lowland"
+        ]
+      },
+      {
+        "Name": "Carolingian Austrasian Frank",
+        "ChargenBlurb": "Austrasian Franks belong to the eastern Frankish heartlands along the Rhine and Meuse.",
+        "EthnicGroup": "Germanic and Romance",
+        "EthnicSubgroup": "Austrasia",
+        "NamingStructures": [
+          "Medieval Carolingian Frankish"
+        ]
+      },
+      {
+        "Name": "Carolingian Neustrian Frank",
+        "ChargenBlurb": "Neustrian Franks belong to the western Frankish lands where Romance speech and Frankish political identity intermingled.",
+        "EthnicGroup": "Germanic and Romance",
+        "EthnicSubgroup": "Neustria",
+        "NamingStructures": [
+          "Medieval Carolingian Frankish"
+        ]
+      },
+      {
+        "Name": "Capetian Francien",
+        "ChargenBlurb": "Franciens belong to the central royal lands around Paris and Orleans that increasingly shaped Capetian institutions.",
+        "EthnicGroup": "Western European",
+        "EthnicSubgroup": "Ile-de-France",
+        "NamingStructures": [
+          "Medieval Capetian French"
+        ]
+      },
+      {
+        "Name": "Capetian Picard",
+        "ChargenBlurb": "Picards belong to the northern French towns and lordships of Picardy and neighbouring Artois.",
+        "EthnicGroup": "Western European",
+        "EthnicSubgroup": "Picardy and Artois",
+        "NamingStructures": [
+          "Medieval Capetian French"
+        ]
+      },
+      {
+        "Name": "High Medieval Bavarian",
+        "ChargenBlurb": "Bavarians belong to the southern German duchy and its Alpine, Danubian and ecclesiastical communities.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "Bavaria",
+        "NamingStructures": [
+          "Medieval Imperial German"
+        ]
+      },
+      {
+        "Name": "High Medieval Swabian",
+        "ChargenBlurb": "Swabians belong to the Alemannic southwest of the Empire, including its towns, lordships and old ducal lands.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "Swabia",
+        "NamingStructures": [
+          "Medieval Imperial German"
+        ]
+      },
+      {
+        "Name": "High Medieval Franconian",
+        "ChargenBlurb": "Franconians belong to the Main and middle Rhine regions associated with the old Frankish stem duchy.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "Franconia",
+        "NamingStructures": [
+          "Medieval Imperial German"
+        ]
+      },
+      {
+        "Name": "High Medieval Saxon",
+        "ChargenBlurb": "Saxons belong to the northern and eastern German lands shaped by the old Saxon duchy and later territorial lordships.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "Saxony",
+        "NamingStructures": [
+          "Medieval Imperial German"
+        ]
+      },
+      {
+        "Name": "High Medieval Thuringian",
+        "ChargenBlurb": "Thuringians belong to the central uplands and towns of Thuringia between Saxon and Franconian spheres.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "Thuringia",
+        "NamingStructures": [
+          "Medieval Imperial German"
+        ]
+      },
+      {
+        "Name": "High Medieval Frisian",
+        "ChargenBlurb": "Frisians belong to the autonomous coastal communities along the North Sea, organised around maritime trade and local law.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "Frisian Coast",
+        "NamingStructures": [
+          "Medieval Imperial German"
+        ]
+      },
+      {
+        "Name": "High Medieval Low German",
+        "ChargenBlurb": "Low Germans belong to the northern towns and rural communities whose speech and commerce face the North and Baltic seas.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "Low German North",
+        "NamingStructures": [
+          "Medieval Imperial German"
+        ]
+      },
+      {
+        "Name": "High Medieval Leonese",
+        "ChargenBlurb": "Leonese belong to the western kingdom of Leon and its Asturian and Duero valley communities.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "Leon",
+        "NamingStructures": [
+          "Medieval Christian Iberian"
+        ]
+      },
+      {
+        "Name": "High Medieval Aragonese",
+        "ChargenBlurb": "Aragonese belong to the Pyrenean and Ebro communities of the Crown of Aragon.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "Aragon",
+        "NamingStructures": [
+          "Medieval Christian Iberian"
+        ]
+      },
+      {
+        "Name": "High Medieval Catalan",
+        "ChargenBlurb": "Catalans belong to the counties and maritime towns of Catalonia within the Crown of Aragon.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "Catalonia",
+        "NamingStructures": [
+          "Medieval Christian Iberian"
+        ]
+      },
+      {
+        "Name": "High Medieval Galician",
+        "ChargenBlurb": "Galicians belong to the northwestern Iberian communities of Galicia, with close ties to Leon and Portugal.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "Galicia",
+        "NamingStructures": [
+          "Medieval Christian Iberian"
+        ]
+      },
+      {
+        "Name": "High Medieval Portuguese",
+        "ChargenBlurb": "Portuguese belong to the Atlantic kingdom and frontier communities that emerged from the county of Portugal.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "Portugal",
+        "NamingStructures": [
+          "Medieval Christian Iberian"
+        ]
+      },
+      {
+        "Name": "High Medieval Basque",
+        "ChargenBlurb": "Basques belong to the western Pyrenean communities of Navarre and the neighbouring Basque-speaking valleys.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "Basque Country and Navarre",
+        "NamingStructures": [
+          "Medieval Christian Iberian"
+        ]
+      },
+      {
+        "Name": "High Medieval Andalusi Arab",
+        "ChargenBlurb": "Andalusi Arabs belong to Arabic-speaking urban, landed and scholarly families of al-Andalus.",
+        "EthnicGroup": "Iberian and Middle Eastern",
+        "EthnicSubgroup": "Andalusi Arab",
+        "NamingStructures": [
+          "Medieval Andalusian Arabic"
+        ]
+      },
+      {
+        "Name": "High Medieval Andalusi Berber",
+        "ChargenBlurb": "Andalusi Berbers descend from Amazigh settlers and military communities established throughout al-Andalus.",
+        "EthnicGroup": "Iberian and North African",
+        "EthnicSubgroup": "Andalusi Amazigh",
+        "NamingStructures": [
+          "Medieval Andalusian Arabic"
+        ]
+      },
+      {
+        "Name": "High Medieval Muladi",
+        "ChargenBlurb": "Muladis descend from local Iberian families incorporated into the Arabic-speaking Muslim society of al-Andalus.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "Muladi",
+        "NamingStructures": [
+          "Medieval Andalusian Arabic"
+        ]
+      },
+      {
+        "Name": "High Medieval Mozarab",
+        "ChargenBlurb": "Mozarabs belong to Christian communities living within or shaped by the Arabic-speaking society of al-Andalus.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "Mozarab",
+        "NamingStructures": [
+          "Medieval Andalusian Arabic"
+        ]
+      },
+      {
+        "Name": "Middle Byzantine Constantinopolitan",
+        "ChargenBlurb": "Constantinopolitans belong to the cosmopolitan capital and its court, guild, clerical and maritime communities.",
+        "EthnicGroup": "Greek and Eastern Roman",
+        "EthnicSubgroup": "Constantinople",
+        "NamingStructures": [
+          "Medieval Byzantine Greek"
+        ]
+      },
+      {
+        "Name": "Middle Byzantine Anatolian Greek",
+        "ChargenBlurb": "Anatolian Greeks belong to the towns, villages and military districts of Byzantine Asia Minor.",
+        "EthnicGroup": "Greek and Eastern Roman",
+        "EthnicSubgroup": "Anatolia",
+        "NamingStructures": [
+          "Medieval Byzantine Greek"
+        ]
+      },
+      {
+        "Name": "Abbasid-Era Persian",
+        "ChargenBlurb": "Abbasid-era Persians belong to Iranian families active in the caliphate\u0027s administration, scholarship, towns and eastern provinces.",
+        "EthnicGroup": "Iranian",
+        "EthnicSubgroup": "Abbasid Persian",
+        "NamingStructures": [
+          "Medieval Abbasid Arabic"
+        ]
+      },
+      {
+        "Name": "Abbasid-Era Syriac",
+        "ChargenBlurb": "Syriac communities preserve Aramaic-speaking Christian traditions across Mesopotamia and the eastern provinces.",
+        "EthnicGroup": "Aramaean",
+        "EthnicSubgroup": "Syriac Christian",
+        "NamingStructures": [
+          "Medieval Abbasid Arabic"
+        ]
+      },
+      {
+        "Name": "Fatimid-Era Copt",
+        "ChargenBlurb": "Copts belong to Egypt\u0027s indigenous Christian communities, with strong village, clerical and administrative traditions.",
+        "EthnicGroup": "Egyptian",
+        "EthnicSubgroup": "Coptic Egyptian",
+        "NamingStructures": [
+          "Medieval Fatimid Arabic"
+        ]
+      },
+      {
+        "Name": "Fatimid-Era Kutama",
+        "ChargenBlurb": "The Kutama belong to the Amazigh communities whose military support was central to the early Fatimid state.",
+        "EthnicGroup": "North African",
+        "EthnicSubgroup": "Kutama Amazigh",
+        "NamingStructures": [
+          "Medieval Fatimid Arabic"
+        ]
+      },
+      {
+        "Name": "High Medieval Kurdish",
+        "ChargenBlurb": "Kurds belong to the highland tribes, towns and military households spanning northern Mesopotamia, Syria and western Iran.",
+        "EthnicGroup": "Iranian",
+        "EthnicSubgroup": "Kurdish Principalities",
+        "NamingStructures": [
+          "Medieval Seljuk Ayyubid Mamluk"
+        ]
+      },
+      {
+        "Name": "High Medieval Syrian Arab",
+        "ChargenBlurb": "Syrian Arabs belong to the Arabic-speaking urban, village and tribal communities of Syria and the Jazira.",
+        "EthnicGroup": "Middle Eastern",
+        "EthnicSubgroup": "Syrian Arab",
+        "NamingStructures": [
+          "Medieval Seljuk Ayyubid Mamluk"
+        ]
+      },
+      {
+        "Name": "High Medieval Kipchak Mamluk",
+        "ChargenBlurb": "Kipchak Mamluks belong to military households recruited from the Eurasian steppe and trained within Islamic courts.",
+        "EthnicGroup": "Central Asian",
+        "EthnicSubgroup": "Kipchak Military Household",
+        "NamingStructures": [
+          "Medieval Seljuk Ayyubid Mamluk"
+        ]
+      },
+      {
+        "Name": "Conquest-Period Szekely",
+        "ChargenBlurb": "Szekelys belong to Hungarian-speaking frontier communities organised around military service in the eastern Carpathians.",
+        "EthnicGroup": "Magyar",
+        "EthnicSubgroup": "Szekely Frontier",
+        "NamingStructures": [
+          "Medieval Magyar"
+        ]
+      },
+      {
+        "Name": "Conquest-Period Pecheneg",
+        "ChargenBlurb": "Pechenegs belong to Turkic steppe communities incorporated into the Hungarian kingdom as settlers and frontier soldiers.",
+        "EthnicGroup": "Turkic",
+        "EthnicSubgroup": "Pecheneg Settlers",
+        "NamingStructures": [
+          "Medieval Magyar"
+        ]
+      },
+      {
+        "Name": "High Medieval Novgorodian Rus",
+        "ChargenBlurb": "Novgorodians belong to the northern Rus trading republic and its Slavic, Finnic and Norse-connected hinterland.",
+        "EthnicGroup": "Eastern Slavic",
+        "EthnicSubgroup": "Novgorod Land",
+        "NamingStructures": [
+          "Medieval Rus Novgorod"
+        ]
+      },
+      {
+        "Name": "High Medieval Kievan Rus",
+        "ChargenBlurb": "Kievan Rus belong to the southern principalities and river communities centred on Kyiv and the middle Dnieper.",
+        "EthnicGroup": "Eastern Slavic",
+        "EthnicSubgroup": "Kievan Lands",
+        "NamingStructures": [
+          "Medieval Rus Novgorod"
+        ]
+      },
+      {
+        "Name": "High Medieval Cuman",
+        "ChargenBlurb": "Cumans belong to the western Kipchak confederations of the Pontic and Caspian steppes.",
+        "EthnicGroup": "Central Asian",
+        "EthnicSubgroup": "Cuman-Kipchak Steppe",
+        "NamingStructures": [
+          "Medieval Steppe Turkic Mongol"
+        ]
+      },
+      {
+        "Name": "High Medieval Mongol",
+        "ChargenBlurb": "Mongols belong to the eastern steppe clans and confederations united through pastoral mobility and military households.",
+        "EthnicGroup": "Central Asian",
+        "EthnicSubgroup": "Mongol Confederations",
+        "NamingStructures": [
+          "Medieval Steppe Turkic Mongol"
+        ]
+      },
+      {
+        "Name": "High Medieval Alan",
+        "ChargenBlurb": "Alans belong to Iranian-speaking mounted communities of the northern Caucasus and western steppe.",
+        "EthnicGroup": "Iranian",
+        "EthnicSubgroup": "Alan Steppe and Caucasus",
+        "NamingStructures": [
+          "Medieval Steppe Turkic Mongol"
+        ]
+      },
+      {
+        "Name": "Early Medieval Chauhan Rajput",
+        "ChargenBlurb": "Chauhans belong to a prominent Rajput lineage associated with Ajmer, Sambhar and later Delhi.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Chauhan Clan",
+        "NamingStructures": [
+          "Medieval North Indian Rajput"
+        ]
+      },
+      {
+        "Name": "Early Medieval Paramara Rajput",
+        "ChargenBlurb": "Paramaras belong to a Rajput lineage associated with Malwa and neighbouring central Indian courts.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Paramara Clan",
+        "NamingStructures": [
+          "Medieval North Indian Rajput"
+        ]
+      },
+      {
+        "Name": "Chola-Era Telugu",
+        "ChargenBlurb": "Telugus belong to eastern Deccan communities linked to the Chola sphere through war, marriage, trade and administration.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Telugu Country",
+        "NamingStructures": [
+          "Medieval South Indian Chola"
+        ]
+      },
+      {
+        "Name": "Song Northern Han",
+        "ChargenBlurb": "Northern Han communities belong to the Yellow River plains and northern prefectures shaped by migration and frontier rule.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "North China",
+        "NamingStructures": [
+          "Medieval Song Chinese"
+        ]
+      },
+      {
+        "Name": "Song Jiangnan Han",
+        "ChargenBlurb": "Jiangnan Han communities belong to the prosperous lower Yangtze cities, market towns and rice-growing countryside.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Jiangnan",
+        "NamingStructures": [
+          "Medieval Song Chinese"
+        ]
+      },
+      {
+        "Name": "Song Wu-Speaking Han",
+        "ChargenBlurb": "Wu-speaking Han communities belong to the lower Yangtze and Taihu regions with strong urban and mercantile traditions.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Wu Region",
+        "NamingStructures": [
+          "Medieval Song Chinese"
+        ]
+      },
+      {
+        "Name": "Song Min-Speaking Han",
+        "ChargenBlurb": "Min-speaking Han communities belong to Fujian\u0027s coastal, river-valley and mountain settlements.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Fujian",
+        "NamingStructures": [
+          "Medieval Song Chinese"
+        ]
+      },
+      {
+        "Name": "Goryeo Gyeonggi Korean",
+        "ChargenBlurb": "Gyeonggi Koreans belong to communities around the Goryeo capital and the central court region.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Gyeonggi",
+        "NamingStructures": [
+          "Medieval Goryeo Korean"
+        ]
+      },
+      {
+        "Name": "Goryeo Gyeongsang Korean",
+        "ChargenBlurb": "Gyeongsang Koreans belong to the southeastern communities descended from the former Silla heartland.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Gyeongsang",
+        "NamingStructures": [
+          "Medieval Goryeo Korean"
+        ]
+      },
+      {
+        "Name": "Heian-Kamakura Kinai Japanese",
+        "ChargenBlurb": "Kinai Japanese belong to the courtly, temple and provincial communities around Kyoto, Nara and the central home provinces.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Kinai",
+        "NamingStructures": [
+          "Medieval Heian Kamakura Japanese"
+        ]
+      },
+      {
+        "Name": "Heian-Kamakura Kanto Japanese",
+        "ChargenBlurb": "Kanto Japanese belong to the eastern warrior, estate and village communities associated with Kamakura rule.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Kanto",
+        "NamingStructures": [
+          "Medieval Heian Kamakura Japanese"
+        ]
+      }
+    ],
+    "Cultures": [
+      "Medieval Early Anglo-Saxon (c. 800)",
+      "Medieval Anglo-Danish (c. 950)",
+      "Medieval Norse (c. 950)",
+      "Medieval Norman (c. 1066)",
+      "Medieval Anglo-Norman (c. 1150)",
+      "Medieval High English British (c. 1250)",
+      "Medieval Irish Gaelic (c. 1100)",
+      "Medieval Scottish Gaelic Lowland (c. 1250)",
+      "Medieval Carolingian Frankish (c. 800)",
+      "Medieval Capetian French (c. 1200)",
+      "Medieval Imperial German (c. 1200)",
+      "Medieval Christian Iberian (c. 1200)",
+      "Medieval Andalusian Arabic (c. 1100)",
+      "Medieval Byzantine Greek (c. 1000)",
+      "Medieval Abbasid Arabic (c. 850)",
+      "Medieval Fatimid Arabic (c. 1050)",
+      "Medieval Seljuk Ayyubid Mamluk (c. 1200)",
+      "Medieval Magyar (c. 950)",
+      "Medieval Rus Novgorod (c. 1100)",
+      "Medieval Steppe Turkic Mongol (c. 1200)",
+      "Medieval North Indian Rajput (c. 1100)",
+      "Medieval South Indian Chola (c. 1050)",
+      "Medieval Song Chinese (c. 1100)",
+      "Medieval Goryeo Korean (c. 1150)",
+      "Medieval Heian Kamakura Japanese (c. 1200)"
+    ]
+  },
+  {
+    "SourcePack": "earthrenaissanceeurope",
+    "Status": "staged",
+    "NameCultures": 32,
+    "Profiles": 65,
+    "NameElements": 11376,
+    "Accents": 740,
+    "Languages": [
+      "Latin",
+      "French",
+      "Occitan",
+      "Italian",
+      "Lombard",
+      "Venetian",
+      "Neapolitan",
+      "Sicilian",
+      "Castilian",
+      "Aragonese",
+      "Leonese",
+      "Galician",
+      "Wallachian",
+      "English",
+      "High German",
+      "Low German",
+      "Dutch",
+      "Frisian",
+      "Yiddish",
+      "Swedish",
+      "Norwegian",
+      "Icelandic",
+      "Danish",
+      "Russian",
+      "Ruthenian",
+      "Church Slavonic",
+      "Polish",
+      "Slovak",
+      "Wendish",
+      "Czech",
+      "Prussian",
+      "Lithuanian",
+      "Latvian",
+      "Serbo-Croatian",
+      "Slovenian",
+      "Bulgarian",
+      "Quranic Arabic",
+      "Mahgrebi Arabic",
+      "Mashriqi Arabic",
+      "Aramaic",
+      "Berber",
+      "Hebrew",
+      "Greek",
+      "Koine Greek",
+      "Persian",
+      "Armenian",
+      "Coptic",
+      "Irish Gaelic",
+      "Scottish Gaelic",
+      "Welsh",
+      "Manx",
+      "Breton",
+      "Cornish",
+      "Turkish",
+      "Finnish",
+      "Hungarian",
+      "Estonian",
+      "Karelian",
+      "Romani",
+      "Basque",
+      "Albanian"
+    ],
+    "Ethnicities": [
+      {
+        "Name": "German",
+        "ChargenBlurb": "The German peoples are a people found in many parts of Central Europe. They are typically characteristised by fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "German"
+        ]
+      },
+      {
+        "Name": "Austrian",
+        "ChargenBlurb": "The Austrian peoples are a Germanic people found all over the Holy Roman Empire, starting to emerge as a distinct identity from other Germans. They are typically characteristised by fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "German"
+        ]
+      },
+      {
+        "Name": "Dutch",
+        "ChargenBlurb": "The Dutch peoples are a people found in the low countries of the northern coast of Central Europe. They are typically characteristised by fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Dutch"
+        ]
+      },
+      {
+        "Name": "French",
+        "ChargenBlurb": "The French peoples are a people found in many areas of France and surrounding Central and Western Europe. They are typically characteristised by fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "French"
+        ]
+      },
+      {
+        "Name": "Occitan",
+        "ChargenBlurb": "The Occitan peoples are a people found in the Southern parts of the Kingdom of France. They are typically characteristised by fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "French"
+        ]
+      },
+      {
+        "Name": "English",
+        "ChargenBlurb": "The English peoples are the majority population of the southern and central parts of Britain. They are typically characteristised by fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Germanic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "English"
+        ]
+      },
+      {
+        "Name": "Venetian",
+        "ChargenBlurb": "The Venetian peoples are a group of Italian peoples from Northeast of the Italian peninsula. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Italian"
+        ]
+      },
+      {
+        "Name": "Florentine",
+        "ChargenBlurb": "The Florentine peoples are a group of Italian peoples from North of the Italian peninsula. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Italian"
+        ]
+      },
+      {
+        "Name": "Neapolitan",
+        "ChargenBlurb": "The Neapolitan peoples are a group of Italian peoples from south of the Italian peninsula. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Italian"
+        ]
+      },
+      {
+        "Name": "Milanese",
+        "ChargenBlurb": "The Milanese (or sometimes Lombard) peoples are a group of Italian peoples from Northwest of the Italian peninsula. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Italian"
+        ]
+      },
+      {
+        "Name": "Sicilian",
+        "ChargenBlurb": "The Sicilian peoples are a group of Italian peoples from the island of Sicily. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Italian"
+        ]
+      },
+      {
+        "Name": "Corsican",
+        "ChargenBlurb": "The Corsican peoples are a group of Italian peoples from the island of Corsica. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Italian"
+        ]
+      },
+      {
+        "Name": "Sardinian",
+        "ChargenBlurb": "The SiciSardinianlian peoples are a group of Italian peoples from the island of Sardinia. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Italic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Italian"
+        ]
+      },
+      {
+        "Name": "Castilian",
+        "ChargenBlurb": "The Castilian peoples are an Iberian people from the Kingdom of Castille in central Iberia. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Iberian"
+        ]
+      },
+      {
+        "Name": "Catalan",
+        "ChargenBlurb": "The Catalan peoples are an Iberian people from the Kingdom of Aragon in eastern Iberia. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Iberian"
+        ]
+      },
+      {
+        "Name": "Galicians",
+        "ChargenBlurb": "The Galicians peoples are an Iberian people from the Kingdom of Galicia, in northwest Iberia. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Iberian"
+        ]
+      },
+      {
+        "Name": "Portugese",
+        "ChargenBlurb": "The Portugese peoples are an Iberian people from the Kingdom of Portugal, in western Iberia. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Iberian"
+        ]
+      },
+      {
+        "Name": "Basque",
+        "ChargenBlurb": "The Basque peoples are a unique ethno-linguistic group in northern Iberia and southern France. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Iberian",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Basque"
+        ]
+      },
+      {
+        "Name": "Ashkenazi Jewish",
+        "ChargenBlurb": "The Ashkenazi Jewish peoples are a diaspora of Jewish people into Europe, especially Central Europe. They are typically characterised by light or olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Jewish",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Jewish Male",
+          "Jewish Female"
+        ]
+      },
+      {
+        "Name": "Mizrahi Jewish",
+        "ChargenBlurb": "The Mizrahi Jewish peoples are a diaspora of Jewish people into Persia, Mesopotamia and the Levant. They are typically characterised by light or olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Jewish",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Jewish Male",
+          "Jewish Female"
+        ]
+      },
+      {
+        "Name": "Sephardic Jewish",
+        "ChargenBlurb": "The Sephardic Jewish peoples are a diaspora of Jewish people into Iberia and Portugal. They are typically characterised by light or olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Jewish",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Jewish Male",
+          "Jewish Female"
+        ]
+      },
+      {
+        "Name": "Gaelic",
+        "ChargenBlurb": "The Gaelic peoples are a Celtic people found in Scotland and Ireland. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Irish"
+        ]
+      },
+      {
+        "Name": "Welsh",
+        "ChargenBlurb": "The Welsh peoples are a Celtic people found in Wales. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Welsh"
+        ]
+      },
+      {
+        "Name": "Breton",
+        "ChargenBlurb": "The Breton peoples are a Celtic people found in Northwestern France. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.",
+        "EthnicGroup": "Celtic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Breton"
+        ]
+      },
+      {
+        "Name": "Polish",
+        "ChargenBlurb": "The Polish peoples are a Slavic people found in Central and Eastern Europe. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Slavic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Polish"
+        ]
+      },
+      {
+        "Name": "Czech",
+        "ChargenBlurb": "The Czech peoples are a the people of Bohemia and many surrounding areas. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Slavic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Western Slavic"
+        ]
+      },
+      {
+        "Name": "Slovak",
+        "ChargenBlurb": "The Slovak peoples are a Slavic people found mostly in Moravia, under the rule of Hungary. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Slavic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Western Slavic"
+        ]
+      },
+      {
+        "Name": "Ruthenian",
+        "ChargenBlurb": "The Ruthenian peoples are a Slavic people of Eastern Europe, in the Grand Duchy of Lithuania. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Slavic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Eastern Slavic"
+        ]
+      },
+      {
+        "Name": "Ukrainian",
+        "ChargenBlurb": "The Ukrainian peoples are a Slavic people of Eastern Europe, primarily in the Grand Duchy of Lithuania. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Slavic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Eastern Slavic"
+        ]
+      },
+      {
+        "Name": "Russian",
+        "ChargenBlurb": "The Russian peoples are a Slavic people of Eastern Europe, primarily in the Grand Duchy of Moscow. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Slavic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Eastern Slavic"
+        ]
+      },
+      {
+        "Name": "Croat",
+        "ChargenBlurb": "The Croat peoples are a Slavic people of Eastern Europe, subjects of the Hungarian Empire. They are typically characterised by fair skin, dark hair and either light or dark eyes.",
+        "EthnicGroup": "Slavic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Western Slavic"
+        ]
+      },
+      {
+        "Name": "Serb",
+        "ChargenBlurb": "The Serb peoples are a Slavic people of Eastern Europe, subjects of the Hungarian Empire. They are typically characterised by fair skin, dark hair and either light or dark eyes.",
+        "EthnicGroup": "Slavic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Western Slavic"
+        ]
+      },
+      {
+        "Name": "Bosniak",
+        "ChargenBlurb": "The Bosniak peoples are a Slavic people of Eastern Europe, closely related to Serbians and characterised by their Muslim faith. They are subjects of the Hungarian Empire. They are typically characterised by fair skin, dark hair and either light or dark eyes.",
+        "EthnicGroup": "Slavic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Western Slavic"
+        ]
+      },
+      {
+        "Name": "Vlach",
+        "ChargenBlurb": "The Vlach peoples are a Slavic people of Eastern Europe, largely subjects of the Ottoman Empire. They are typically characterised by fair skin, dark hair and either light or dark eyes.",
+        "EthnicGroup": "Slavic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Western Slavic"
+        ]
+      },
+      {
+        "Name": "Lithuanian",
+        "ChargenBlurb": "The Lithuanian peoples are a Baltic people of Eastern Europe. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Baltic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Finno-Ugric"
+        ]
+      },
+      {
+        "Name": "Estonian",
+        "ChargenBlurb": "The Estonian peoples are a Baltic people of Eastern Europe. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Baltic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Finno-Ugric"
+        ]
+      },
+      {
+        "Name": "Latvian",
+        "ChargenBlurb": "The Latvian peoples are a Baltic people of Eastern Europe. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Baltic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Finno-Ugric"
+        ]
+      },
+      {
+        "Name": "Prussian",
+        "ChargenBlurb": "The Prussian peoples are a Baltic people of Eastern Europe, subjects of the Teutonic Order. They are typically characterised by fair skin, fair hair and either light or dark eyes.",
+        "EthnicGroup": "Baltic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Finno-Ugric"
+        ]
+      },
+      {
+        "Name": "Hungarian",
+        "ChargenBlurb": "The Hungarian (or Magyar) peoples are a people who live in Hungary, allegedly descended from Atilla the Hun. They are typically characterised by fair skin, dark hair and either light or dark eyes.",
+        "EthnicGroup": "Magyar",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Hungarian"
+        ]
+      },
+      {
+        "Name": "Norse",
+        "ChargenBlurb": "The Norse peoples are the Nordic peoples of Norway in Scandanavia. They are typically characterised by very fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Nordic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Danish"
+        ]
+      },
+      {
+        "Name": "Danish",
+        "ChargenBlurb": "The Danish peoples are the Nordic peoples of Denmark in Northern Central Europe. They are typically characterised by very fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Nordic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Danish"
+        ]
+      },
+      {
+        "Name": "Swedish",
+        "ChargenBlurb": "The Swedish peoples are the Nordic peoples of Sweden, in Scandanavia. They are typically characterised by very fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Nordic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Swedish"
+        ]
+      },
+      {
+        "Name": "Icelandic",
+        "ChargenBlurb": "The Icelandic peoples are the Nordic peoples of Iceland, in the North Atlantic Sea. They are typically characterised by very fair skin, fair hair and light eyes.",
+        "EthnicGroup": "Nordic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Danish"
+        ]
+      },
+      {
+        "Name": "Roman",
+        "ChargenBlurb": "The Roman peoples are a grouping of many different peoples, ethnic Christians who lived under the Eastern Roman rule. Most of the original ethnic group distinctions were lost and people simply identified themselves as Christian Romans. They are typically characterised by fair to olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Greek",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Hellenic"
+        ]
+      },
+      {
+        "Name": "Ottoman",
+        "ChargenBlurb": "The Ottoman peoples are a turkic people who live in the Ottoman Empire. They are typically characterised by dark olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Turkic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Turkish"
+        ]
+      },
+      {
+        "Name": "Cossack",
+        "ChargenBlurb": "The Cossack peoples are a turkic people who live in the Pontian-Caspian Steppes. They are typically characterised by dark olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Turkic",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Turkish"
+        ]
+      },
+      {
+        "Name": "Arabic",
+        "ChargenBlurb": "The Arabic peoples are an Indo-European ethno-linguistic group found predominantly in the Arabian Peninsula, North Africa and the Horn of Africa. They are typically characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "Middle Eastern",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Levantine"
+        ]
+      },
+      {
+        "Name": "Persian",
+        "ChargenBlurb": "The Persian peoples are an Indo-European ethno-linguistic group found in Central Asia and the Middle East. They are typically characterised by olive skin, dark hair and dark eyes.",
+        "EthnicGroup": "Middle Eastern",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Persian"
+        ]
+      },
+      {
+        "Name": "Moorish",
+        "ChargenBlurb": "The Moorish peoples are a fusion of Afro-Asiatic, Hispanic and Arabic ethno-linguistic group found in Southern Iberia. They are characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "African",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Morrocan"
+        ]
+      },
+      {
+        "Name": "North African",
+        "ChargenBlurb": "The North African peoples are an Afro-Asiatic ethno-linguistic group found in North Africa. They are characterised by olive or light brown skin, dark hair and dark eyes.",
+        "EthnicGroup": "African",
+        "EthnicSubgroup": "",
+        "NamingStructures": [
+          "Morrocan"
+        ]
+      },
+      {
+        "Name": "Albanian",
+        "ChargenBlurb": "Albanians belong to northern and southern Albanian-speaking clans, towns and lordships across the Adriatic and Balkan borderlands.",
+        "EthnicGroup": "Balkan",
+        "EthnicSubgroup": "Albanian-Speaking Communities",
+        "NamingStructures": [
+          "Albanian"
+        ]
+      }
+    ],
+    "Cultures": [
+      "Renaissance German Imperial",
+      "Renaissance Low Countries",
+      "Renaissance French",
+      "Renaissance English",
+      "Renaissance Northern Italian",
+      "Renaissance Southern Italian",
+      "Renaissance Iberian",
+      "Renaissance Basque",
+      "Renaissance Jewish",
+      "Renaissance Gaelic",
+      "Renaissance Welsh",
+      "Renaissance Breton",
+      "Renaissance Polish",
+      "Renaissance West Slavic",
+      "Renaissance East Slavic",
+      "Renaissance South Slavic",
+      "Renaissance Baltic",
+      "Renaissance Estonian",
+      "Renaissance Hungarian",
+      "Renaissance Danish",
+      "Renaissance Swedish",
+      "Renaissance Icelandic",
+      "Renaissance Byzantine Roman",
+      "Renaissance Ottoman",
+      "Renaissance Cossack Borderland",
+      "Renaissance Arabic",
+      "Renaissance Persian",
+      "Renaissance Maghrebi",
+      "Renaissance Albanian"
+    ]
+  },
+  {
+    "SourcePack": "earthrenaissanceworldexpansion",
+    "Status": "staged",
+    "NameCultures": 29,
+    "Profiles": 60,
+    "NameElements": 6127,
+    "Accents": 253,
+    "Languages": [
+      "Armenian",
+      "Georgian",
+      "Kurmanji Kurdish",
+      "Gorani",
+      "Mashriqi Arabic",
+      "Quranic Arabic",
+      "Coptic",
+      "Persian",
+      "Chagatai",
+      "Hindavi",
+      "Pashto",
+      "Old Rajasthani",
+      "Sanskrit",
+      "Middle Bengali",
+      "Kannada",
+      "Telugu",
+      "Tamil",
+      "Ming Guanhua",
+      "Wu Chinese",
+      "Yue",
+      "Southern Min",
+      "Eastern Min",
+      "Northern Min",
+      "Classical Chinese",
+      "Middle Korean",
+      "Late Middle Japanese",
+      "Central Tibetan",
+      "Khams Tibetan",
+      "Amdo Tibetan",
+      "Classical Tibetan",
+      "Middle Vietnamese",
+      "Ayutthaya Thai",
+      "Middle Javanese",
+      "Classical Malay",
+      "Amharic",
+      "Ge\u0027ez",
+      "Somali",
+      "Maay",
+      "Swahili",
+      "Manding",
+      "Songhay",
+      "Hausa",
+      "Kikongo",
+      "Karanga",
+      "Korekore",
+      "Zezuru",
+      "Tashelhit",
+      "Central Atlas Tamazight",
+      "Tarifit",
+      "Kabyle",
+      "Nafusi",
+      "Mahgrebi Arabic"
+    ],
+    "Ethnicities": [
+      {
+        "Name": "Late Medieval Armenian",
+        "ChargenBlurb": "The Armenians are a Christian people of the Armenian Highlands and the merchant and ecclesiastical communities that reach from Cilicia and the Caucasus into the great trading cities. They recognise one another through the Armenian language, the rites and calendar of the Armenian Church, memory of ancestral districts and noble houses, and kinship sustained by monasteries, manuscripts and commerce. In the middle of the fifteenth century political division has scattered their loyalties without weakening a strong shared sense of peoplehood.",
+        "EthnicGroup": "Caucasian",
+        "EthnicSubgroup": "Armenian Highlands",
+        "NamingStructures": [
+          "Renaissance Armenian"
+        ]
+      },
+      {
+        "Name": "Late Medieval Georgian",
+        "ChargenBlurb": "The Georgians are a Kartvelian-speaking Christian people of the eastern and western Georgian lands. Their identity rests on the Georgian language and script, the Orthodox Church, descent from a recognised house or district, and loyalty to the kingdoms and principalities of Kartli, Kakheti, Imereti, Samtskhe and the western coast. Noble genealogies, monasteries and the memory of a united Georgian monarchy bind together communities divided by rival rulers.",
+        "EthnicGroup": "Caucasian",
+        "EthnicSubgroup": "Georgian Kingdoms",
+        "NamingStructures": [
+          "Renaissance Georgian"
+        ]
+      },
+      {
+        "Name": "Late Medieval Kurd",
+        "ChargenBlurb": "The Kurds are an Iranian-speaking people of the Taurus and Zagros highlands and the plains that lie between them. They define themselves through dialect, mountain homeland, tribal and dynastic descent, customary obligation and allegiance to a local emir or confederation. Sunni Islam is widespread, but saintly lineages, local religious traditions and the authority of clan elders give each district its own character.",
+        "EthnicGroup": "Iranian",
+        "EthnicSubgroup": "Kurdish Principalities",
+        "NamingStructures": [
+          "Renaissance Kurdish"
+        ]
+      },
+      {
+        "Name": "Mamluk-Era Egyptian Arab",
+        "ChargenBlurb": "The Egyptian Arabs are the Arabic-speaking people of the Nile valley, Delta and the towns that bind Egypt to Syria and the Red Sea. They distinguish themselves by attachment to Egypt, family and neighbourhood, village or urban quarter, and the local forms of Arabic through which ancestry and reputation are remembered. Muslim, Christian and Jewish communities preserve different religious laws and institutions, but all share the markets, waterways and settled life of the country.",
+        "EthnicGroup": "Middle Eastern",
+        "EthnicSubgroup": "Mamluk Sultanate",
+        "NamingStructures": [
+          "Renaissance Mamluk Arabic"
+        ]
+      },
+      {
+        "Name": "Late Medieval Chagatai Turk",
+        "ChargenBlurb": "The Chagatai Turks are a Turkic-speaking people of Transoxiana, the steppe margins and the military households of the Timurid lands. They trace belonging through clan and lineage, remembered descent from steppe confederations, and service to a ruler or princely house. Islam and Persian literary culture are deeply rooted among the settled elite, while Turkic speech, horse-breeding traditions and kinship remain strong marks of identity.",
+        "EthnicGroup": "Central Asian",
+        "EthnicSubgroup": "Timurid Realm",
+        "NamingStructures": [
+          "Renaissance Timurid Persianate"
+        ]
+      },
+      {
+        "Name": "Late Medieval Afghan",
+        "ChargenBlurb": "The Afghans are a Pashto-speaking people of the mountain country between Khurasan and the Indus and of the military colonies established farther into northern India. They define themselves through patrilineal tribe, clan genealogy, homeland and the obligations of hospitality, protection and feud. Service in the sultanates brings many Afghan houses into Persianate court life without erasing the authority of lineage.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "North Indian Sultanates",
+        "NamingStructures": [
+          "Renaissance Delhi Sultanate"
+        ]
+      },
+      {
+        "Name": "Late Medieval Rajput",
+        "ChargenBlurb": "The Rajputs are warrior and landholding lineages of northern and western India who claim descent from remembered royal, heroic or sacred ancestors. Clan genealogy, marriage alliance, possession of forts and estates, patronage of temples and bards, and the defence of family honour are the principal signs of Rajput identity. A person\u0027s standing depends as much on the reputation of the clan and its branch as on service to any one ruler.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Rajputana",
+        "NamingStructures": [
+          "Renaissance Rajput"
+        ]
+      },
+      {
+        "Name": "Late Medieval Bengali",
+        "ChargenBlurb": "The Bengalis are the people of the Ganges-Brahmaputra delta, joined by the Bengali language and by life among its rivers, rice lands, forests and trading towns. Local lineage, village and district remain powerful identities, while Muslim, Hindu and Buddhist traditions give different communities their own institutions and genealogies. Poetic speech, riverine commerce and attachment to the fertile delta distinguish Bengalis from neighbouring peoples.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Bengal Delta",
+        "NamingStructures": [
+          "Renaissance Bengali"
+        ]
+      },
+      {
+        "Name": "Late Medieval Kannadiga",
+        "ChargenBlurb": "The Kannadigas are a Kannada-speaking people of the southern Deccan, tied to the plateau\u0027s towns, temple lands, farming districts and warrior houses. They recognise kin and status through locality, caste and occupational community, lineage deity and service to a chief, temple or king. Kannada literary and inscriptional traditions give a shared language to communities whose customs vary between court, market and village.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Southern Deccan",
+        "NamingStructures": [
+          "Renaissance Vijayanagara"
+        ]
+      },
+      {
+        "Name": "Ming Han Chinese",
+        "ChargenBlurb": "The Han Chinese are the majority people of the Ming realm, bound by written Chinese, ancestral rites, patrilineal family and a long memory of regional states and dynasties. County and native-place identity, lineage hall, household genealogy and local speech distinguish one community from another, while the classical tradition supplies a common language of education and government.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Ming China",
+        "NamingStructures": [
+          "Renaissance Ming Chinese"
+        ]
+      },
+      {
+        "Name": "Joseon Korean",
+        "ChargenBlurb": "The Koreans are the Korean-speaking people of the peninsula, sharing ancestral rites, a courtly literary tradition and a strong memory of descent. Family name and bon-gwan, the ancestral seat of a patrilineal clan, place each person within a wider genealogy, while province, village and status group shape daily custom.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Joseon Korea",
+        "NamingStructures": [
+          "Renaissance Joseon Korean"
+        ]
+      },
+      {
+        "Name": "Muromachi Japanese",
+        "ChargenBlurb": "The Japanese are the Japanese-speaking people of the islands ruled in name by the emperor and governed through court, shogunate, temples and provincial houses. Descent from a recognised clan or local house, attachment to an estate or province, and participation in shrine and Buddhist institutions define belonging. Court rank, warrior service and village community create sharply different ways of expressing the same broader identity.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Muromachi Japan",
+        "NamingStructures": [
+          "Renaissance Muromachi Japanese"
+        ]
+      },
+      {
+        "Name": "Late Medieval Tibetan",
+        "ChargenBlurb": "The Tibetans are a Tibetan-speaking people of the plateau and the high Himalayan valleys. They recognise belonging through language, valley or pastoral district, clan and estate, monastery or religious school, and devotion to local protectors and Buddhist lineages. Aristocratic, monastic, farming and nomadic communities differ in rank and custom but share a distinct plateau civilisation.",
+        "EthnicGroup": "Tibeto-Burman",
+        "EthnicSubgroup": "Tibetan Plateau",
+        "NamingStructures": [
+          "Renaissance Tibetan"
+        ]
+      },
+      {
+        "Name": "Late Medieval Viet",
+        "ChargenBlurb": "The Viet are the Vietnamese-speaking lowland people of the Red River delta and the cultivated valleys extending southward. Patrilineal family, ancestral village, local cults and the written traditions of court and examination learning define their common identity. Frontier settlement and contact with Cham and upland peoples give strong regional differences without obscuring a shared Viet language and political memory.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Dai Viet",
+        "NamingStructures": [
+          "Renaissance Dai Viet"
+        ]
+      },
+      {
+        "Name": "Late Medieval Tai",
+        "ChargenBlurb": "The Tai are a Tai-speaking people of the Chao Phraya basin and neighbouring river valleys. They define belonging through language, settlement and irrigation community, kin and patronage, Buddhist monastery, and service to a local lord or the Ayutthaya court. Court titles and status groups are important, but ordinary people are chiefly known by personal name and home community.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Ayutthaya Kingdom",
+        "NamingStructures": [
+          "Renaissance Ayutthaya Thai"
+        ]
+      },
+      {
+        "Name": "Late Majapahit Javanese",
+        "ChargenBlurb": "The Javanese are the Javanese-speaking people of the fertile interior and the ports of Java. Village and irrigation community, kin group, court allegiance, religious foundation and the layered etiquette of rank are central to their identity. Old Javanese literary culture and the prestige of Majapahit link farmers, artisans, priests, merchants and nobles across the island.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Majapahit Java",
+        "NamingStructures": [
+          "Renaissance Majapahit Javanese"
+        ]
+      },
+      {
+        "Name": "Late Medieval Malay",
+        "ChargenBlurb": "The Malays are a Malay-speaking maritime people of the Straits and the river-mouth settlements of the peninsula and Sumatra. They recognise one another through language, kin and village, allegiance to a ruler, seafaring and trading custom, and increasingly through Islam and the institutions of the sultanates. Older Indic court traditions remain visible in titles and ceremony.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Malay Sultanates",
+        "NamingStructures": [
+          "Renaissance Malay"
+        ]
+      },
+      {
+        "Name": "Late Medieval Amhara",
+        "ChargenBlurb": "The Amhara are a Christian highland people of the Solomonic realm, speaking Amharic and sharing the liturgical world of Ge\u0027ez and the Ethiopian Orthodox Church. They define belonging through paternal descent, parish and monastery, district and noble allegiance, and the memory of a sacred monarchy descended from ancient kings. Farming estates, military service and church festivals bind household life to the wider kingdom.",
+        "EthnicGroup": "Horn of Africa",
+        "EthnicSubgroup": "Ethiopian Highlands",
+        "NamingStructures": [
+          "Renaissance Ethiopian Highland"
+        ]
+      },
+      {
+        "Name": "Late Medieval Somali",
+        "ChargenBlurb": "The Somalis are a Cushitic-speaking people of the Horn, joined by language, pastoral and mercantile custom, and long genealogies that place every household within clan and sub-clan. Lineage determines alliance, compensation and protection, while Islam, saintly centres and the ports and towns of Adal connect pastoral communities to the Red Sea world.",
+        "EthnicGroup": "Horn of Africa",
+        "EthnicSubgroup": "Somali and Adal Sultanates",
+        "NamingStructures": [
+          "Renaissance Somali"
+        ]
+      },
+      {
+        "Name": "Late Medieval Swahili",
+        "ChargenBlurb": "The Swahili are a Kiswahili-speaking Muslim people of the East African coast and islands. They define themselves through coastal town and neighbourhood, local lineage, Islam, maritime trade and a shared urban tradition expressed in coral houses, mosques and poetry. Ancestry from inland communities and generations of Indian Ocean contact are woven into a distinctly local peoplehood.",
+        "EthnicGroup": "East African",
+        "EthnicSubgroup": "Swahili Coast",
+        "NamingStructures": [
+          "Renaissance Swahili"
+        ]
+      },
+      {
+        "Name": "Late Medieval Manding",
+        "ChargenBlurb": "The Manding are a Mande-speaking people of the upper Niger and the lands shaped by Mali\u0027s royal and trading networks. They recognise descent through clan names and remembered founders, while specialist lineages of smiths, leatherworkers, praise-singers and other professions hold inherited social roles. Islam, royal allegiance and older ritual traditions coexist within a strong oral memory of kin and place.",
+        "EthnicGroup": "West African",
+        "EthnicSubgroup": "Western Sahel",
+        "NamingStructures": [
+          "Renaissance Mande Sahelian"
+        ]
+      },
+      {
+        "Name": "Late Medieval Hausa",
+        "ChargenBlurb": "The Hausa are a Chadic-speaking people of the walled cities and farming country of the central Sahel. They share the Hausa language, traditions of city kingship, market and craft organisation, and ties to ancestral towns such as Kano, Katsina, Zazzau, Gobir and Daura. Islam and older religious institutions both shape lineage, office and neighbourhood identity.",
+        "EthnicGroup": "West African",
+        "EthnicSubgroup": "Central Sahel",
+        "NamingStructures": [
+          "Renaissance Hausa"
+        ]
+      },
+      {
+        "Name": "Late Medieval Bakongo",
+        "ChargenBlurb": "The Bakongo are a Kikongo-speaking people of the lower Congo region and the provinces gathered into the kingdom of Kongo. Matrilineal descent, clan membership, village and provincial affiliation, and loyalty to rulers and office-holders define belonging. Shared language, markets and sacred authority connect communities spread across river, forest and savanna.",
+        "EthnicGroup": "Central African",
+        "EthnicSubgroup": "Kingdom of Kongo",
+        "NamingStructures": [
+          "Renaissance Kongo"
+        ]
+      },
+      {
+        "Name": "Late Medieval Shona",
+        "ChargenBlurb": "The Shona are a related group of Shona-speaking peoples of the Zimbabwe plateau, joined by clan and totem traditions, cattle and farming life, sacred landscapes and long-distance gold trade. Clan praise, ancestral spirit, local chief and rainmaking authority tell a person who they are and where their obligations lie. Stone-built centres and dispersed homesteads belong to the same broad plateau civilisation.",
+        "EthnicGroup": "Southern African",
+        "EthnicSubgroup": "Zimbabwe Plateau",
+        "NamingStructures": [
+          "Renaissance Shona"
+        ]
+      },
+      {
+        "Name": "Late Medieval Amazigh",
+        "ChargenBlurb": "The Amazigh are the indigenous Berber-speaking peoples of the Maghreb\u0027s mountains, plains, oases and desert margins. They define themselves through language and dialect, tribe and confederation, locality, customary law and descent from remembered ancestors or saintly houses. Islam is deeply rooted, while councils, pastoral routes and regional dynasties give each community its own political character.",
+        "EthnicGroup": "North African",
+        "EthnicSubgroup": "Maghreb",
+        "NamingStructures": [
+          "Renaissance Amazigh"
+        ]
+      },
+      {
+        "Name": "Renaissance Eastern Armenian",
+        "ChargenBlurb": "Eastern Armenians belong to the highland towns, villages, monasteries and merchant networks east of the Euphrates.",
+        "EthnicGroup": "Caucasian",
+        "EthnicSubgroup": "Eastern Armenian Highlands",
+        "NamingStructures": [
+          "Renaissance Armenian"
+        ]
+      },
+      {
+        "Name": "Renaissance Cilician Armenian",
+        "ChargenBlurb": "Cilician Armenians belong to southern and diasporic communities shaped by the former Cilician kingdom and Mediterranean trade.",
+        "EthnicGroup": "Caucasian",
+        "EthnicSubgroup": "Cilicia and Mediterranean Diaspora",
+        "NamingStructures": [
+          "Renaissance Armenian"
+        ]
+      },
+      {
+        "Name": "Renaissance Kartlian Georgian",
+        "ChargenBlurb": "Kartlians belong to the eastern Georgian heartland around Tbilisi and the central Kura valley.",
+        "EthnicGroup": "Caucasian",
+        "EthnicSubgroup": "Kartli",
+        "NamingStructures": [
+          "Renaissance Georgian"
+        ]
+      },
+      {
+        "Name": "Renaissance Imeretian Georgian",
+        "ChargenBlurb": "Imeretians belong to the western Georgian kingdom and its river valleys, towns and noble houses.",
+        "EthnicGroup": "Caucasian",
+        "EthnicSubgroup": "Imereti",
+        "NamingStructures": [
+          "Renaissance Georgian"
+        ]
+      },
+      {
+        "Name": "Renaissance Kakhetian Georgian",
+        "ChargenBlurb": "Kakhetians belong to the eastern Georgian wine-growing valleys and frontier lordships.",
+        "EthnicGroup": "Caucasian",
+        "EthnicSubgroup": "Kakheti",
+        "NamingStructures": [
+          "Renaissance Georgian"
+        ]
+      },
+      {
+        "Name": "Renaissance Mingrelian",
+        "ChargenBlurb": "Mingrelians belong to the western Caucasian communities of Samegrelo, with their own Kartvelian speech and princely traditions.",
+        "EthnicGroup": "Caucasian",
+        "EthnicSubgroup": "Samegrelo",
+        "NamingStructures": [
+          "Renaissance Georgian"
+        ]
+      },
+      {
+        "Name": "Renaissance Kurmanji Kurd",
+        "ChargenBlurb": "Kurmanji Kurds belong to northern Kurdish-speaking tribal, village and emirate communities.",
+        "EthnicGroup": "Iranian",
+        "EthnicSubgroup": "Kurmanji Principalities",
+        "NamingStructures": [
+          "Renaissance Kurdish"
+        ]
+      },
+      {
+        "Name": "Renaissance Gorani Kurd",
+        "ChargenBlurb": "Gorani communities belong to the central Zagros principalities and learned traditions associated with Gorani speech.",
+        "EthnicGroup": "Iranian",
+        "EthnicSubgroup": "Gorani Principalities",
+        "NamingStructures": [
+          "Renaissance Kurdish"
+        ]
+      },
+      {
+        "Name": "Renaissance Egyptian Arab",
+        "ChargenBlurb": "Egyptian Arabs belong to the Arabic-speaking towns, villages and tribal communities of the Nile valley and delta.",
+        "EthnicGroup": "Middle Eastern",
+        "EthnicSubgroup": "Mamluk Egypt",
+        "NamingStructures": [
+          "Renaissance Mamluk Arabic"
+        ]
+      },
+      {
+        "Name": "Renaissance Syrian Arab",
+        "ChargenBlurb": "Syrian Arabs belong to the cities, villages and pastoral communities of the Mamluk Levant.",
+        "EthnicGroup": "Middle Eastern",
+        "EthnicSubgroup": "Mamluk Syria",
+        "NamingStructures": [
+          "Renaissance Mamluk Arabic"
+        ]
+      },
+      {
+        "Name": "Renaissance Egyptian Copt",
+        "ChargenBlurb": "Copts belong to Egypt\u0027s indigenous Christian communities, maintaining strong village, clerical and scribal networks.",
+        "EthnicGroup": "Egyptian",
+        "EthnicSubgroup": "Coptic Egyptian",
+        "NamingStructures": [
+          "Renaissance Mamluk Arabic"
+        ]
+      },
+      {
+        "Name": "Renaissance Circassian Mamluk",
+        "ChargenBlurb": "Circassian Mamluks belong to the military households that dominated the late Mamluk ruling elite after the Burji transition.",
+        "EthnicGroup": "Caucasian",
+        "EthnicSubgroup": "Burji Military Household",
+        "NamingStructures": [
+          "Renaissance Mamluk Arabic"
+        ]
+      },
+      {
+        "Name": "Renaissance Turkic Mamluk",
+        "ChargenBlurb": "Turkic Mamluks belong to military households descended from or recruited through the Kipchak and wider Turkic steppe world.",
+        "EthnicGroup": "Central Asian",
+        "EthnicSubgroup": "Mamluk Military Household",
+        "NamingStructures": [
+          "Renaissance Mamluk Arabic"
+        ]
+      },
+      {
+        "Name": "Renaissance Levantine Bedouin",
+        "ChargenBlurb": "Levantine Bedouins belong to mobile and settled Arab tribal confederations across Syria, Palestine and the desert margins.",
+        "EthnicGroup": "Middle Eastern",
+        "EthnicSubgroup": "Levantine Bedouin",
+        "NamingStructures": [
+          "Renaissance Mamluk Arabic"
+        ]
+      },
+      {
+        "Name": "Renaissance Chagatai Turk",
+        "ChargenBlurb": "Chagatai Turks belong to Turkic military, pastoral and settled communities within the Timurid realms.",
+        "EthnicGroup": "Central Asian",
+        "EthnicSubgroup": "Chagatai Turk",
+        "NamingStructures": [
+          "Renaissance Timurid Persianate"
+        ]
+      },
+      {
+        "Name": "Renaissance Tajik Persian",
+        "ChargenBlurb": "Tajik Persians belong to Persian-speaking urban, agricultural, scholarly and administrative communities of Central Asia.",
+        "EthnicGroup": "Iranian",
+        "EthnicSubgroup": "Tajik Persian",
+        "NamingStructures": [
+          "Renaissance Timurid Persianate"
+        ]
+      },
+      {
+        "Name": "Renaissance Khorasani Persian",
+        "ChargenBlurb": "Khorasani Persians belong to the cities, oases and estates of Herat, Mashhad and the wider northeastern Iranian world.",
+        "EthnicGroup": "Iranian",
+        "EthnicSubgroup": "Khorasan",
+        "NamingStructures": [
+          "Renaissance Timurid Persianate"
+        ]
+      },
+      {
+        "Name": "Renaissance Timurid Mongol",
+        "ChargenBlurb": "Timurid Mongols belong to clans retaining Mongol lineage identities within an increasingly Turkic and Persianate political world.",
+        "EthnicGroup": "Central Asian",
+        "EthnicSubgroup": "Timurid Mongol Lineages",
+        "NamingStructures": [
+          "Renaissance Timurid Persianate"
+        ]
+      },
+      {
+        "Name": "Renaissance Hindustani",
+        "ChargenBlurb": "Hindustanis belong to the Indo-Aryan-speaking urban and rural communities of the Delhi Sultanate\u0027s north Indian heartland.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Hindustan",
+        "NamingStructures": [
+          "Renaissance Delhi Sultanate"
+        ]
+      },
+      {
+        "Name": "Renaissance Afghan Pashtun",
+        "ChargenBlurb": "Afghan Pashtuns belong to highland and frontier lineages increasingly prominent in north Indian military and political service.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Afghan Pashtun",
+        "NamingStructures": [
+          "Renaissance Delhi Sultanate"
+        ]
+      },
+      {
+        "Name": "Renaissance Punjabi",
+        "ChargenBlurb": "Punjabis belong to the agrarian, mercantile and military communities of the five-river country.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Punjab",
+        "NamingStructures": [
+          "Renaissance Delhi Sultanate"
+        ]
+      },
+      {
+        "Name": "Renaissance Delhi Turk",
+        "ChargenBlurb": "Delhi Turks belong to Turkic-descended military and court households established in northern India.",
+        "EthnicGroup": "Central Asian",
+        "EthnicSubgroup": "Sultanate Military Households",
+        "NamingStructures": [
+          "Renaissance Delhi Sultanate"
+        ]
+      },
+      {
+        "Name": "Renaissance Indo-Persian",
+        "ChargenBlurb": "Indo-Persians belong to migrant and locally rooted families serving the sultanate through scholarship, administration and commerce.",
+        "EthnicGroup": "Iranian and South Asian",
+        "EthnicSubgroup": "Persianate Diaspora",
+        "NamingStructures": [
+          "Renaissance Delhi Sultanate"
+        ]
+      },
+      {
+        "Name": "Renaissance Mewar Rajput",
+        "ChargenBlurb": "Mewar Rajputs belong to Sisodia-led communities of the Aravalli country and the kingdom of Mewar.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Sisodia of Mewar",
+        "NamingStructures": [
+          "Renaissance Rajput"
+        ]
+      },
+      {
+        "Name": "Renaissance Marwar Rajput",
+        "ChargenBlurb": "Marwar Rajputs belong to Rathore-led communities of the western Rajasthan desert and the kingdom of Marwar.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Rathore of Marwar",
+        "NamingStructures": [
+          "Renaissance Rajput"
+        ]
+      },
+      {
+        "Name": "Renaissance Amber Rajput",
+        "ChargenBlurb": "Amber Rajputs belong to Kachwaha-led communities around Dhundhar and the fortress of Amber.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Kachwaha of Amber",
+        "NamingStructures": [
+          "Renaissance Rajput"
+        ]
+      },
+      {
+        "Name": "Renaissance Eastern Bengali",
+        "ChargenBlurb": "Eastern Bengalis belong to the deltaic communities east of the main Ganges channels, shaped by river settlement and frontier cultivation.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Eastern Bengal",
+        "NamingStructures": [
+          "Renaissance Bengali"
+        ]
+      },
+      {
+        "Name": "Renaissance Western Bengali",
+        "ChargenBlurb": "Western Bengalis belong to the older towns, temple lands and agrarian districts of western Bengal.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Western Bengal",
+        "NamingStructures": [
+          "Renaissance Bengali"
+        ]
+      },
+      {
+        "Name": "Renaissance Sylheti",
+        "ChargenBlurb": "Sylhetis belong to the northeastern valley communities around Sylhet and its expanding agrarian frontier.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Sylhet",
+        "NamingStructures": [
+          "Renaissance Bengali"
+        ]
+      },
+      {
+        "Name": "Renaissance Kannadiga",
+        "ChargenBlurb": "Kannadigas belong to the Kannada-speaking heartlands, towns and military estates of the Vijayanagara sphere.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Kannada Country",
+        "NamingStructures": [
+          "Renaissance Vijayanagara"
+        ]
+      },
+      {
+        "Name": "Renaissance Telugu",
+        "ChargenBlurb": "Telugus belong to the eastern Deccan communities prominent in Vijayanagara warfare, administration and literature.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Telugu Country",
+        "NamingStructures": [
+          "Renaissance Vijayanagara"
+        ]
+      },
+      {
+        "Name": "Renaissance Tamil",
+        "ChargenBlurb": "Tamils belong to the southern temple, agrarian and mercantile communities within and alongside the empire.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Tamil Country",
+        "NamingStructures": [
+          "Renaissance Vijayanagara"
+        ]
+      },
+      {
+        "Name": "Renaissance Tuluva",
+        "ChargenBlurb": "Tuluvas belong to the southwestern coastal communities whose military and merchant networks reached deep into the empire.",
+        "EthnicGroup": "South Asian",
+        "EthnicSubgroup": "Tulu Coast",
+        "NamingStructures": [
+          "Renaissance Vijayanagara"
+        ]
+      },
+      {
+        "Name": "Renaissance Northern Han",
+        "ChargenBlurb": "Northern Han communities belong to the capital regions, Yellow River plains and northern military-agricultural settlements.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "North China",
+        "NamingStructures": [
+          "Renaissance Ming Chinese"
+        ]
+      },
+      {
+        "Name": "Renaissance Jiangnan Han",
+        "ChargenBlurb": "Jiangnan Han communities belong to the densely urbanised and commercially rich lower Yangtze region.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Jiangnan",
+        "NamingStructures": [
+          "Renaissance Ming Chinese"
+        ]
+      },
+      {
+        "Name": "Renaissance Wu-Speaking Han",
+        "ChargenBlurb": "Wu-speaking Han communities belong to the lower Yangtze and Taihu cities and countryside.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Wu Region",
+        "NamingStructures": [
+          "Renaissance Ming Chinese"
+        ]
+      },
+      {
+        "Name": "Renaissance Gan-Speaking Han",
+        "ChargenBlurb": "Gan-speaking Han communities belong principally to Jiangxi and neighbouring inland river valleys.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Jiangxi",
+        "NamingStructures": [
+          "Renaissance Ming Chinese"
+        ]
+      },
+      {
+        "Name": "Renaissance Hakka Han",
+        "ChargenBlurb": "Hakka communities belong to mobile Han lineages established across the uplands of Jiangxi, Fujian and Guangdong.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Hakka Communities",
+        "NamingStructures": [
+          "Renaissance Ming Chinese"
+        ]
+      },
+      {
+        "Name": "Renaissance Yue-Speaking Han",
+        "ChargenBlurb": "Yue-speaking Han communities belong to the Pearl River basin and the wider Lingnan south.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Lingnan Yue Region",
+        "NamingStructures": [
+          "Renaissance Ming Chinese"
+        ]
+      },
+      {
+        "Name": "Renaissance Southern Min Han",
+        "ChargenBlurb": "Southern Min communities belong to the ports, valleys and maritime networks of southern Fujian.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Southern Fujian",
+        "NamingStructures": [
+          "Renaissance Ming Chinese"
+        ]
+      },
+      {
+        "Name": "Renaissance Eastern Min Han",
+        "ChargenBlurb": "Eastern Min communities belong to the lower Min River, Fuzhou region and adjacent coast.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Eastern Fujian",
+        "NamingStructures": [
+          "Renaissance Ming Chinese"
+        ]
+      },
+      {
+        "Name": "Renaissance Northern Min Han",
+        "ChargenBlurb": "Northern Min communities belong to the mountain basins and river corridors of northern Fujian.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Northern Fujian",
+        "NamingStructures": [
+          "Renaissance Ming Chinese"
+        ]
+      },
+      {
+        "Name": "Renaissance Gyeonggi Korean",
+        "ChargenBlurb": "Gyeonggi Koreans belong to communities around the Joseon capital and its central administrative region.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Gyeonggi",
+        "NamingStructures": [
+          "Renaissance Joseon Korean"
+        ]
+      },
+      {
+        "Name": "Renaissance Gyeongsang Korean",
+        "ChargenBlurb": "Gyeongsang Koreans belong to southeastern communities shaped by former Silla lands, ports and provincial elites.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Gyeongsang",
+        "NamingStructures": [
+          "Renaissance Joseon Korean"
+        ]
+      },
+      {
+        "Name": "Renaissance Jeolla Korean",
+        "ChargenBlurb": "Jeolla Koreans belong to the southwestern rice-growing plains, towns and coastal communities.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Jeolla",
+        "NamingStructures": [
+          "Renaissance Joseon Korean"
+        ]
+      },
+      {
+        "Name": "Renaissance Hamgyong Korean",
+        "ChargenBlurb": "Hamgyong Koreans belong to northeastern frontier communities shaped by resettlement, defence and exchange with Jurchen neighbours.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Hamgyong Frontier",
+        "NamingStructures": [
+          "Renaissance Joseon Korean"
+        ]
+      },
+      {
+        "Name": "Renaissance Jeju Islander",
+        "ChargenBlurb": "Jeju islanders belong to a distinctive maritime and pastoral community with its own regional speech and former kingdom traditions.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Jeju",
+        "NamingStructures": [
+          "Renaissance Joseon Korean"
+        ]
+      },
+      {
+        "Name": "Renaissance Kinai Japanese",
+        "ChargenBlurb": "Kinai Japanese belong to the capital, temple and commercial communities around Kyoto, Nara and the central provinces.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Kinai",
+        "NamingStructures": [
+          "Renaissance Muromachi Japanese"
+        ]
+      },
+      {
+        "Name": "Renaissance Kanto Japanese",
+        "ChargenBlurb": "Kanto Japanese belong to eastern warrior houses, towns and villages shaped by Kamakura and later regional powers.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Kanto",
+        "NamingStructures": [
+          "Renaissance Muromachi Japanese"
+        ]
+      },
+      {
+        "Name": "Renaissance Tohoku Japanese",
+        "ChargenBlurb": "Tohoku Japanese belong to northern Honshu communities formed through frontier settlement and exchange.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Tohoku",
+        "NamingStructures": [
+          "Renaissance Muromachi Japanese"
+        ]
+      },
+      {
+        "Name": "Renaissance Kyushu Japanese",
+        "ChargenBlurb": "Kyushu Japanese belong to southern island communities closely connected to continental and maritime trade.",
+        "EthnicGroup": "East Asian",
+        "EthnicSubgroup": "Kyushu",
+        "NamingStructures": [
+          "Renaissance Muromachi Japanese"
+        ]
+      },
+      {
+        "Name": "Renaissance U-Tsang Tibetan",
+        "ChargenBlurb": "U-Tsang Tibetans belong to the central plateau communities around Lhasa, Shigatse, monasteries and landed estates.",
+        "EthnicGroup": "Tibeto-Burman",
+        "EthnicSubgroup": "U-Tsang",
+        "NamingStructures": [
+          "Renaissance Tibetan"
+        ]
+      },
+      {
+        "Name": "Renaissance Khampa",
+        "ChargenBlurb": "Khampas belong to the eastern plateau\u0027s highland valleys, pastoral districts and locally powerful lineages.",
+        "EthnicGroup": "Tibeto-Burman",
+        "EthnicSubgroup": "Kham",
+        "NamingStructures": [
+          "Renaissance Tibetan"
+        ]
+      },
+      {
+        "Name": "Renaissance Amdo Tibetan",
+        "ChargenBlurb": "Amdo Tibetans belong to northeastern plateau communities tied to monasteries, pastoralism and frontier exchange.",
+        "EthnicGroup": "Tibeto-Burman",
+        "EthnicSubgroup": "Amdo",
+        "NamingStructures": [
+          "Renaissance Tibetan"
+        ]
+      },
+      {
+        "Name": "Renaissance Red River Kinh",
+        "ChargenBlurb": "Red River Kinh belong to the densely settled villages, towns and court districts of the Dai Viet heartland.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Red River Delta",
+        "NamingStructures": [
+          "Renaissance Dai Viet"
+        ]
+      },
+      {
+        "Name": "Renaissance Thanh-Nghe Kinh",
+        "ChargenBlurb": "Thanh-Nghe Kinh belong to the south-central Vietnamese provinces noted for military households and frontier settlement.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Thanh-Nghe",
+        "NamingStructures": [
+          "Renaissance Dai Viet"
+        ]
+      },
+      {
+        "Name": "Renaissance Ayutthaya Central Tai",
+        "ChargenBlurb": "Central Tai belong to the riverine towns, rice villages and courtly networks of the Ayutthaya heartland.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Chao Phraya Plain",
+        "NamingStructures": [
+          "Renaissance Ayutthaya Thai"
+        ]
+      },
+      {
+        "Name": "Renaissance Northern Tai",
+        "ChargenBlurb": "Northern Tai belong to the upland and valley principalities north of the Chao Phraya basin.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Northern Tai Principalities",
+        "NamingStructures": [
+          "Renaissance Ayutthaya Thai"
+        ]
+      },
+      {
+        "Name": "Renaissance Lao Tai",
+        "ChargenBlurb": "Lao Tai belong to Mekong valley communities linked to Lan Xang and neighbouring Tai polities.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Lao Mekong",
+        "NamingStructures": [
+          "Renaissance Ayutthaya Thai"
+        ]
+      },
+      {
+        "Name": "Renaissance Central Javanese",
+        "ChargenBlurb": "Central Javanese belong to the agrarian, court and temple communities of Java\u0027s central interior.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Central Java",
+        "NamingStructures": [
+          "Renaissance Majapahit Javanese"
+        ]
+      },
+      {
+        "Name": "Renaissance Eastern Javanese",
+        "ChargenBlurb": "Eastern Javanese belong to the Majapahit heartland, Brantas basin and ports of eastern Java.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Eastern Java",
+        "NamingStructures": [
+          "Renaissance Majapahit Javanese"
+        ]
+      },
+      {
+        "Name": "Renaissance Sundanese",
+        "ChargenBlurb": "Sundanese belong to the western Javanese highlands and the independent Sunda realm.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Sunda",
+        "NamingStructures": [
+          "Renaissance Majapahit Javanese"
+        ]
+      },
+      {
+        "Name": "Renaissance Madurese",
+        "ChargenBlurb": "Madurese belong to the island and coastal communities of Madura, closely tied to eastern Java.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Madura",
+        "NamingStructures": [
+          "Renaissance Majapahit Javanese"
+        ]
+      },
+      {
+        "Name": "Renaissance Malaccan Malay",
+        "ChargenBlurb": "Malaccan Malays belong to the entrepot, court and coastal communities of the Malacca Sultanate.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Malacca",
+        "NamingStructures": [
+          "Renaissance Malay"
+        ]
+      },
+      {
+        "Name": "Renaissance Sumatran Malay",
+        "ChargenBlurb": "Sumatran Malays belong to the riverine and coastal communities of eastern Sumatra.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Eastern Sumatra",
+        "NamingStructures": [
+          "Renaissance Malay"
+        ]
+      },
+      {
+        "Name": "Renaissance Bornean Malay",
+        "ChargenBlurb": "Bornean Malays belong to coastal sultanates and trading settlements around Borneo.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Coastal Borneo",
+        "NamingStructures": [
+          "Renaissance Malay"
+        ]
+      },
+      {
+        "Name": "Renaissance Acehnese",
+        "ChargenBlurb": "Acehnese belong to northern Sumatra\u0027s port, farming and emerging sultanate communities.",
+        "EthnicGroup": "Southeast Asian",
+        "EthnicSubgroup": "Aceh",
+        "NamingStructures": [
+          "Renaissance Malay"
+        ]
+      },
+      {
+        "Name": "Renaissance Amhara",
+        "ChargenBlurb": "Amhara belong to the central highland communities closely associated with Solomonic court, church and landed institutions.",
+        "EthnicGroup": "Horn of Africa",
+        "EthnicSubgroup": "Amhara Highlands",
+        "NamingStructures": [
+          "Renaissance Ethiopian Highland"
+        ]
+      },
+      {
+        "Name": "Renaissance Tigrayan",
+        "ChargenBlurb": "Tigrayans belong to the northern highland communities preserving strong Aksumite, monastic and regional traditions.",
+        "EthnicGroup": "Horn of Africa",
+        "EthnicSubgroup": "Tigray",
+        "NamingStructures": [
+          "Renaissance Ethiopian Highland"
+        ]
+      },
+      {
+        "Name": "Renaissance Agaw",
+        "ChargenBlurb": "Agaw peoples belong to Cushitic-speaking highland communities incorporated into and neighbouring the Solomonic realm.",
+        "EthnicGroup": "Horn of Africa",
+        "EthnicSubgroup": "Agaw Highlands",
+        "NamingStructures": [
+          "Renaissance Ethiopian Highland"
+        ]
+      },
+      {
+        "Name": "Renaissance Darod Somali",
+        "ChargenBlurb": "Darod Somalis belong to wide-ranging pastoral, coastal and sultanate communities across the Horn.",
+        "EthnicGroup": "Horn of Africa",
+        "EthnicSubgroup": "Darod Clan Families",
+        "NamingStructures": [
+          "Renaissance Somali"
+        ]
+      },
+      {
+        "Name": "Renaissance Hawiye Somali",
+        "ChargenBlurb": "Hawiye Somalis belong to pastoral and riverine communities of central and southern Somalia.",
+        "EthnicGroup": "Horn of Africa",
+        "EthnicSubgroup": "Hawiye Clan Families",
+        "NamingStructures": [
+          "Renaissance Somali"
+        ]
+      },
+      {
+        "Name": "Renaissance Isaaq Somali",
+        "ChargenBlurb": "Isaaq Somalis belong to northern pastoral and trading communities connected to Red Sea ports.",
+        "EthnicGroup": "Horn of Africa",
+        "EthnicSubgroup": "Isaaq Clan Families",
+        "NamingStructures": [
+          "Renaissance Somali"
+        ]
+      },
+      {
+        "Name": "Renaissance Dir Somali",
+        "ChargenBlurb": "Dir Somalis belong to northern and coastal clan communities spanning the Gulf of Aden and adjacent interior.",
+        "EthnicGroup": "Horn of Africa",
+        "EthnicSubgroup": "Dir Clan Families",
+        "NamingStructures": [
+          "Renaissance Somali"
+        ]
+      },
+      {
+        "Name": "Renaissance Digil-Mirifle Somali",
+        "ChargenBlurb": "Digil-Mirifle communities belong to the inter-riverine south, combining agro-pastoral lifeways with distinctive Maay speech.",
+        "EthnicGroup": "Horn of Africa",
+        "EthnicSubgroup": "Digil-Mirifle Communities",
+        "NamingStructures": [
+          "Renaissance Somali"
+        ]
+      },
+      {
+        "Name": "Renaissance Lamu Swahili",
+        "ChargenBlurb": "Lamu Swahili belong to the northern coastal towns and island communities of Lamu and Pate.",
+        "EthnicGroup": "East African",
+        "EthnicSubgroup": "Lamu Archipelago",
+        "NamingStructures": [
+          "Renaissance Swahili"
+        ]
+      },
+      {
+        "Name": "Renaissance Mombasa Swahili",
+        "ChargenBlurb": "Mombasa Swahili belong to the port city and its mainland trading hinterland.",
+        "EthnicGroup": "East African",
+        "EthnicSubgroup": "Mombasa",
+        "NamingStructures": [
+          "Renaissance Swahili"
+        ]
+      },
+      {
+        "Name": "Renaissance Zanzibar Swahili",
+        "ChargenBlurb": "Zanzibar Swahili belong to the island farming, fishing and mercantile communities of Zanzibar and Pemba.",
+        "EthnicGroup": "East African",
+        "EthnicSubgroup": "Zanzibar and Pemba",
+        "NamingStructures": [
+          "Renaissance Swahili"
+        ]
+      },
+      {
+        "Name": "Renaissance Kilwa Swahili",
+        "ChargenBlurb": "Kilwa Swahili belong to the southern coastal city-state network enriched by Indian Ocean gold trade.",
+        "EthnicGroup": "East African",
+        "EthnicSubgroup": "Kilwa Coast",
+        "NamingStructures": [
+          "Renaissance Swahili"
+        ]
+      },
+      {
+        "Name": "Renaissance Mandinka",
+        "ChargenBlurb": "Mandinka belong to Mande-speaking farming, trading and ruling communities across the western Sahel.",
+        "EthnicGroup": "West African",
+        "EthnicSubgroup": "Mandinka Communities",
+        "NamingStructures": [
+          "Renaissance Mande Sahelian"
+        ]
+      },
+      {
+        "Name": "Renaissance Soninke",
+        "ChargenBlurb": "Soninke belong to old Sahelian merchant and farming communities linked to Ghana, Mali and trans-Saharan trade.",
+        "EthnicGroup": "West African",
+        "EthnicSubgroup": "Soninke Communities",
+        "NamingStructures": [
+          "Renaissance Mande Sahelian"
+        ]
+      },
+      {
+        "Name": "Renaissance Bambara",
+        "ChargenBlurb": "Bambara belong to Manding-speaking agrarian and warrior communities along the upper and middle Niger.",
+        "EthnicGroup": "West African",
+        "EthnicSubgroup": "Bambara Communities",
+        "NamingStructures": [
+          "Renaissance Mande Sahelian"
+        ]
+      },
+      {
+        "Name": "Renaissance Songhay",
+        "ChargenBlurb": "Songhay belong to riverine, urban and imperial communities along the middle Niger around Gao and Timbuktu.",
+        "EthnicGroup": "West African",
+        "EthnicSubgroup": "Songhay Communities",
+        "NamingStructures": [
+          "Renaissance Mande Sahelian"
+        ]
+      },
+      {
+        "Name": "Renaissance Kano Hausa",
+        "ChargenBlurb": "Kano Hausa belong to the densely settled craft, farming and merchant communities centred on Kano.",
+        "EthnicGroup": "West African",
+        "EthnicSubgroup": "Kano",
+        "NamingStructures": [
+          "Renaissance Hausa"
+        ]
+      },
+      {
+        "Name": "Renaissance Katsina Hausa",
+        "ChargenBlurb": "Katsina Hausa belong to the northwestern city-state and its trans-Saharan trading hinterland.",
+        "EthnicGroup": "West African",
+        "EthnicSubgroup": "Katsina",
+        "NamingStructures": [
+          "Renaissance Hausa"
+        ]
+      },
+      {
+        "Name": "Renaissance Gobir Hausa",
+        "ChargenBlurb": "Gobir Hausa belong to the western Hausa frontier, known for fortified settlements and military traditions.",
+        "EthnicGroup": "West African",
+        "EthnicSubgroup": "Gobir",
+        "NamingStructures": [
+          "Renaissance Hausa"
+        ]
+      },
+      {
+        "Name": "Renaissance Zazzau Hausa",
+        "ChargenBlurb": "Zazzau Hausa belong to the southern Hausa city-state and its mixed farming and trading frontier.",
+        "EthnicGroup": "West African",
+        "EthnicSubgroup": "Zazzau",
+        "NamingStructures": [
+          "Renaissance Hausa"
+        ]
+      },
+      {
+        "Name": "Renaissance Mpemba Bakongo",
+        "ChargenBlurb": "Mpemba Bakongo belong to the central royal province and communities surrounding the Kongo capital.",
+        "EthnicGroup": "Central African",
+        "EthnicSubgroup": "Mpemba Province",
+        "NamingStructures": [
+          "Renaissance Kongo"
+        ]
+      },
+      {
+        "Name": "Renaissance Mbata Bakongo",
+        "ChargenBlurb": "Mbata Bakongo belong to the important eastern province and its linked noble houses and trade routes.",
+        "EthnicGroup": "Central African",
+        "EthnicSubgroup": "Mbata Province",
+        "NamingStructures": [
+          "Renaissance Kongo"
+        ]
+      },
+      {
+        "Name": "Renaissance Soyo Bakongo",
+        "ChargenBlurb": "Soyo Bakongo belong to the Atlantic coastal province controlling river mouths, salt and maritime exchange.",
+        "EthnicGroup": "Central African",
+        "EthnicSubgroup": "Soyo Province",
+        "NamingStructures": [
+          "Renaissance Kongo"
+        ]
+      },
+      {
+        "Name": "Renaissance Karanga",
+        "ChargenBlurb": "Karanga belong to southern Shona-speaking communities associated with Great Zimbabwe and the emerging Mutapa sphere.",
+        "EthnicGroup": "Southern African",
+        "EthnicSubgroup": "Karanga Communities",
+        "NamingStructures": [
+          "Renaissance Shona"
+        ]
+      },
+      {
+        "Name": "Renaissance Zezuru",
+        "ChargenBlurb": "Zezuru belong to central plateau communities north and east of the older Zimbabwe heartlands.",
+        "EthnicGroup": "Southern African",
+        "EthnicSubgroup": "Zezuru Communities",
+        "NamingStructures": [
+          "Renaissance Shona"
+        ]
+      },
+      {
+        "Name": "Renaissance Korekore",
+        "ChargenBlurb": "Korekore belong to northern plateau and Zambezi-facing communities within the wider Shona world.",
+        "EthnicGroup": "Southern African",
+        "EthnicSubgroup": "Korekore Communities",
+        "NamingStructures": [
+          "Renaissance Shona"
+        ]
+      },
+      {
+        "Name": "Renaissance Manyika",
+        "ChargenBlurb": "Manyika belong to eastern highland communities tied to goldfields and routes toward the Indian Ocean coast.",
+        "EthnicGroup": "Southern African",
+        "EthnicSubgroup": "Manyika Communities",
+        "NamingStructures": [
+          "Renaissance Shona"
+        ]
+      },
+      {
+        "Name": "Renaissance Tashelhit Amazigh",
+        "ChargenBlurb": "Tashelhit-speaking Amazigh belong to the Sous valley, Anti-Atlas and southwestern Moroccan communities.",
+        "EthnicGroup": "North African",
+        "EthnicSubgroup": "Sous and Anti-Atlas",
+        "NamingStructures": [
+          "Renaissance Amazigh"
+        ]
+      },
+      {
+        "Name": "Renaissance Central Atlas Amazigh",
+        "ChargenBlurb": "Central Atlas Amazigh belong to the mountain and plateau communities of the Middle and eastern High Atlas.",
+        "EthnicGroup": "North African",
+        "EthnicSubgroup": "Central Atlas",
+        "NamingStructures": [
+          "Renaissance Amazigh"
+        ]
+      },
+      {
+        "Name": "Renaissance Riffian Amazigh",
+        "ChargenBlurb": "Riffian Amazigh belong to the northern Moroccan mountain and Mediterranean coastal communities.",
+        "EthnicGroup": "North African",
+        "EthnicSubgroup": "Rif",
+        "NamingStructures": [
+          "Renaissance Amazigh"
+        ]
+      },
+      {
+        "Name": "Renaissance Kabyle Amazigh",
+        "ChargenBlurb": "Kabyle Amazigh belong to the mountain villages and confederations of northern Algeria.",
+        "EthnicGroup": "North African",
+        "EthnicSubgroup": "Kabylia",
+        "NamingStructures": [
+          "Renaissance Amazigh"
+        ]
+      },
+      {
+        "Name": "Renaissance Nafusi Amazigh",
+        "ChargenBlurb": "Nafusi Amazigh belong to the mountain and oasis communities of the Nafusa range and neighbouring Tripolitania.",
+        "EthnicGroup": "North African",
+        "EthnicSubgroup": "Nafusa Mountains",
+        "NamingStructures": [
+          "Renaissance Amazigh"
+        ]
+      },
+      {
+        "Name": "Renaissance Maghrebi Arab",
+        "ChargenBlurb": "Maghrebi Arabs belong to Arabic-speaking urban, rural and tribal communities across the western Islamic lands.",
+        "EthnicGroup": "North African and Middle Eastern",
+        "EthnicSubgroup": "Maghrebi Arab",
+        "NamingStructures": [
+          "Renaissance Amazigh"
+        ]
+      }
+    ],
+    "Cultures": [
+      "Armenian Highland (c. 1450)",
+      "Georgian Court and Highland (c. 1450)",
+      "Kurdish Emirate and Highland (c. 1450)",
+      "Mamluk Egyptian-Syrian (c. 1450)",
+      "Timurid Persianate Court (c. 1450)",
+      "Delhi Sultanate (c. 1450)",
+      "Rajput Court and Estate (c. 1450)",
+      "Bengal Sultanate (c. 1450)",
+      "Vijayanagara Imperial (c. 1450)",
+      "Ming Chinese (c. 1450)",
+      "Joseon Korean (c. 1450)",
+      "Muromachi Japanese (c. 1450)",
+      "Tibetan Monastic and Estate (c. 1450)",
+      "Dai Viet (c. 1450)",
+      "Ayutthaya Tai (c. 1450)",
+      "Majapahit Javanese (c. 1450)",
+      "Malay Sultanate (c. 1450)",
+      "Solomonic Ethiopian Highland (c. 1450)",
+      "Somali-Adal (c. 1450)",
+      "Swahili City-State (c. 1450)",
+      "Mande-Songhai Sahelian (c. 1450)",
+      "Hausa City-State (c. 1450)",
+      "Kongo Kingdom (c. 1450)",
+      "Mutapa-Shona Plateau (c. 1450)",
+      "Amazigh Maghrebi (c. 1450)"
+    ]
+  }
+]

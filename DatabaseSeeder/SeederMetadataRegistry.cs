@@ -186,6 +186,8 @@ public static class SeederMetadataRegistry
                     Requirement("A skill decorator must already exist.", context => context.TraitDecorators.Any(x => x.Name.Contains("Skill"))),
                     Requirement("Chargen height filtering progs must already exist.", context => context.FutureProgs.Any(x => x.FunctionName == "MaximumHeightChargen"))
                 ],
+				RerunSummary: "Historical toolkits reconcile unchanged stock fields by source identity and preserve builder edits. Existing Modern, Middle-Earth and legacy world-pack workflows retain their prior behavior.",
+				UpdateSummary: "One historical era is installed; changing an installed toolkit's era requires an explicit migration. Unresolved native bindings remain inactive and original source material remains recoverable.",
                 DependencySeederTypes: [typeof(HumanSeeder), typeof(ChargenSeeder)]
             ),
             nameof(ArenaSeeder) => new SeederMetadata(

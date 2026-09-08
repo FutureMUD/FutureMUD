@@ -1,0 +1,1457 @@
+[
+  {
+    "key": "culture-language.western-trade",
+    "label": "Languages of Western Trade",
+    "description": "Trading households maintain dealings beyond their own towns. Familiarity with the speech of distant partners supports correspondence, bargaining and travel.",
+    "enabled_on_seed": true,
+    "display_order": 100,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.western-european-merchant-class": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "western-trade",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.baltic-trade",
+    "label": "Languages of Baltic Trade",
+    "description": "Merchants and travellers carry several tongues between the towns of the northern seas. Households with contacts in these ports learn the words of their associates.",
+    "enabled_on_seed": true,
+    "display_order": 101,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.hanseatic-mercantile-households": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ],
+        "culture.rus-trading-households": [
+          "darkages",
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {
+        "ethnicity.estonian": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ],
+        "ethnicity.finnish": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ],
+        "ethnicity.latvian": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ],
+        "ethnicity.lithuanian": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required. The ethnic binding represents a general regional contact opportunity, not universal historical bilingualism."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "baltic-trade",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.central-european-trade",
+    "label": "Languages of Inland Trade",
+    "description": "The markets of central Europe bring together traders from neighbouring lands. Commercial households cultivate the speech useful along their accustomed routes.",
+    "enabled_on_seed": true,
+    "display_order": 102,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.central-european-burgher-households": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {
+        "ethnicity.czech": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ],
+        "ethnicity.slovak": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required. The ethnic binding represents a general regional contact opportunity, not universal historical bilingualism."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "central-european-trade",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.levantine-trade",
+    "label": "Languages of Levantine Trade",
+    "description": "The ports and markets of the Levant receive merchants from many lands. Their households value the tongues used among trusted partners and customers.",
+    "enabled_on_seed": true,
+    "display_order": 103,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.levantine-mercantile-households": [
+          "antiquity",
+          "darkages",
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ],
+        "culture.ottoman-mercantile-households": [
+          "renaissance",
+          "earlymodern"
+        ],
+        "culture.persian-bazaar-households": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ],
+        "culture.armenian-mercantile-networks": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "levantine-trade",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.steppe-contact",
+    "label": "Languages of the Frontier",
+    "description": "Pastoral routes, markets and military service bring steppe communities into regular dealings with neighbouring peoples. Their tongues accompany travel, exchange and negotiation.",
+    "enabled_on_seed": true,
+    "display_order": 104,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.steppe-aristocratic-households": [
+          "antiquity",
+          "darkages",
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ],
+        "culture.cossack-frontier-communities": [
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "steppe-contact",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.frankish-vernacular",
+    "label": "Tongues of the Frankish Lands",
+    "description": "Several tongues are heard across the Frankish realms. Household connections and travel bring familiarity with the speech of neighbouring regions.",
+    "enabled_on_seed": true,
+    "display_order": 105,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.frankish-aristocracy": [
+          "darkages"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "frankish-vernacular",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.latin-learning",
+    "label": "Latin Learning",
+    "description": "Latin instruction opens the words of learned books, correspondence and public records. Teachers and readers preserve its use in schools and households.",
+    "enabled_on_seed": true,
+    "display_order": 106,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.insular-learned-families": [
+          "darkages",
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "latin-learning",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "educated",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.french-court-learning",
+    "label": "French Letters and Conversation",
+    "description": "French is cultivated in courtly conversation and correspondence. Instruction prepares members of a household to conduct themselves among French-speaking associates.",
+    "enabled_on_seed": true,
+    "display_order": 107,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.english-nobility": [
+          "renaissance",
+          "earlymodern"
+        ],
+        "culture.western-european-court-and-office-households": [
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "french-court-learning",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "educated",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.western-court-contact",
+    "label": "Languages of Courtly Company",
+    "description": "Courts and noble households receive visitors and correspondents from other lands. Familiarity with their tongues supports service, friendship and negotiation.",
+    "enabled_on_seed": true,
+    "display_order": 108,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.western-european-noble-households": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "western-court-contact",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.british-court-contact",
+    "label": "Languages of Household and Court",
+    "description": "Several tongues are heard in the households and public affairs of Britain. Education and personal connections extend a family's speech beyond its own community.",
+    "enabled_on_seed": true,
+    "display_order": 109,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.welsh-and-brittonic-noble-households": [
+          "darkages",
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "british-court-contact",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.orthodox-learning",
+    "label": "Languages of Sacred Reading",
+    "description": "The sacred books of the Orthodox churches are kept through careful reading and recitation. Teachers instruct their pupils in the language of their community's inherited texts.",
+    "enabled_on_seed": true,
+    "display_order": 110,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.orthodox-learned-communities": [
+          "darkages",
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "orthodox-learning",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "educated",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.andalusi-contact",
+    "label": "Languages of Iberian Neighbours",
+    "description": "Communities across Iberia meet in markets, households and local affairs. Contact with neighbouring towns and families brings knowledge of their speech.",
+    "enabled_on_seed": true,
+    "display_order": 111,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.mozarabic-christian-communities": [
+          "darkages",
+          "medieval",
+          "renaissance"
+        ],
+        "culture.mudejar-communities": [
+          "medieval",
+          "renaissance"
+        ],
+        "culture.morisco-communities": [
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "andalusi-contact",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.balkan-court-contact",
+    "label": "Languages of Neighbouring Courts",
+    "description": "The courts and great households of the Balkan lands maintain connections across nearby realms. Their service and correspondence call for familiarity with other tongues.",
+    "enabled_on_seed": true,
+    "display_order": 112,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.balkan-noble-households": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "balkan-court-contact",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.mamluk-origin-language",
+    "label": "Languages of Military Companions",
+    "description": "Military households gather companions from distant lands. Shared service and household life preserve connections with the tongues of their places of origin.",
+    "enabled_on_seed": true,
+    "display_order": 113,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.mamluk-military-households": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "mamluk-origin-language",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.ottoman-learned",
+    "label": "Persian Letters",
+    "description": "Persian books and correspondence are cultivated among learned households. Teachers introduce their pupils to the language of poetry and refined written affairs.",
+    "enabled_on_seed": true,
+    "display_order": 114,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.ottoman-service-households": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "ottoman-learned",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "educated",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.persian-learning",
+    "label": "Persian Learning",
+    "description": "Persian instruction offers access to letters, poetry and the written affairs of courts and towns. Learned readers carry its words between households and institutions.",
+    "enabled_on_seed": true,
+    "display_order": 115,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.ottoman-learned-households": [
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "persian-learning",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "educated",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.ottoman-contact",
+    "label": "Turkish Conversation",
+    "description": "Turkish is heard in Ottoman towns and imperial service. Familiarity with it supports dealings with officials, traders and neighbouring households.",
+    "enabled_on_seed": true,
+    "display_order": 116,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.ottoman-provincial-commoners": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "ottoman-contact",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.caucasian-court-contact",
+    "label": "Languages Beyond the Mountains",
+    "description": "The great households of the Caucasus maintain connections with neighbouring courts and towns. Travel, service and correspondence bring other tongues into their affairs.",
+    "enabled_on_seed": true,
+    "display_order": 117,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.caucasian-noble-households": [
+          "darkages",
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ],
+        "culture.kurdish-tribal-and-town-households": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "caucasian-court-contact",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.syriac-learning",
+    "label": "Syriac Reading",
+    "description": "Syriac books carry sacred texts and learned correspondence. Churches and teachers preserve their words through instruction, reading and recitation.",
+    "enabled_on_seed": true,
+    "display_order": 118,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.syriac-christian-communities": [
+          "darkages",
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "syriac-learning",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "educated",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.coptic-learning",
+    "label": "Coptic Reading",
+    "description": "Coptic books preserve the words of Egypt's Christian worship and religious learning. Teachers and readers maintain their use in churches and monasteries.",
+    "enabled_on_seed": true,
+    "display_order": 119,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.coptic-christian-communities": [
+          "darkages",
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "coptic-learning",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "educated",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.jewish-learning",
+    "label": "Hebrew Study",
+    "description": "Hebrew study brings familiarity with the words of prayer, scripture and communal learning. Teachers pass these readings between generations of households.",
+    "enabled_on_seed": true,
+    "display_order": 120,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.jewish-communal-households": [
+          "antiquity",
+          "darkages",
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "jewish-learning",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "elementary",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.maghrebi-contact",
+    "label": "Languages of Maghrebi Neighbours",
+    "description": "Trade, travel and household connections bring neighbouring communities of the Maghreb together. Their speech accompanies dealings in town and countryside.",
+    "enabled_on_seed": true,
+    "display_order": 121,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.amazigh-rural-and-tribal-households": [
+          "darkages",
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {
+        "ethnicity.amazigh": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required. The ethnic binding represents a general regional contact opportunity, not universal historical bilingualism."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "maghrebi-contact",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.biblical-learning",
+    "label": "Languages of Scripture",
+    "description": "Learned readers study scripture in its inherited tongues. Schools and teachers preserve these words through careful instruction and comparison of texts.",
+    "enabled_on_seed": true,
+    "display_order": 122,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.protestant-ministerial-households": [
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "biblical-learning",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "educated",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.safavid-service",
+    "label": "Languages of Service and Company",
+    "description": "Service to the Safavid court brings together households and companions from several lands. Their tongues are heard alongside Persian in personal and public affairs.",
+    "enabled_on_seed": true,
+    "display_order": 123,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.persianate-safavid-service-households": [
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "safavid-service",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.zoroastrian-learning",
+    "label": "Sacred Recitations",
+    "description": "The inherited words of Zoroastrian worship are preserved through careful teaching and recitation. Learned households pass these readings from teacher to pupil.",
+    "enabled_on_seed": true,
+    "display_order": 124,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.zoroastrian-learned-communities": [
+          "antiquity",
+          "darkages",
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "zoroastrian-learning",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "educated",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.egyptian-scribal",
+    "label": "Languages of Egyptian Records",
+    "description": "The records and books of Egypt preserve several traditions of written affairs. Scribes and teachers maintain the words needed for their institutions' work.",
+    "enabled_on_seed": true,
+    "display_order": 125,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.egyptian-temple-and-scribal-households": [
+          "antiquity"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "egyptian-scribal",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "educated",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.commonwealth-political-language",
+    "label": "Languages of Public Affairs",
+    "description": "The noble households of Poland and Lithuania conduct business among communities of several tongues. Correspondence and service bring familiarity with the speech used beyond the home district.",
+    "enabled_on_seed": true,
+    "display_order": 126,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.polish-lithuanian-noble-households": [
+          "medieval",
+          "renaissance",
+          "earlymodern"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "commonwealth-political-language",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "fluent",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  },
+  {
+    "key": "culture-language.italic-latin-contact",
+    "label": "Latin Conversation",
+    "description": "Dealings with Roman towns and institutions bring Latin into the affairs of neighbouring households. Markets, service and personal connections sustain its practical use.",
+    "enabled_on_seed": true,
+    "display_order": 127,
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "eligibility": {
+      "kind": "generated-editable-boolean-prog",
+      "parameter": "chargen",
+      "return_type": "Boolean",
+      "culture_packs": {
+        "culture.italic-smallholders": [
+          "antiquity"
+        ]
+      },
+      "ethnicity_packs": {},
+      "logic": "An explicit culture/era OR ethnicity/era binding matches. Evaluate against PR #730 protected mandatory baseline; no pending group choice is required."
+    },
+    "membership_recipe": {
+      "source_file": "data/language_choice_groups.json",
+      "source_key": "italic-latin-contact",
+      "resolve": "Resolve selectors, era overrides and approved retained candidates to distinct linked skill traits before persistence. Do not register selectors or aliases as skill entities."
+    },
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "insufficient_candidates": "BlockRequired; optional empty groups may be skipped without reward.",
+    "award": {
+      "skill_pick_cost": 0,
+      "base_skill_point_cost": 0,
+      "proficiency_tier": "conversational",
+      "language_starting_value_policy": "Editable existing culture starting-value prog; strongest qualifying background base, existing boost delta once.",
+      "other_resource_requirements": "Existing skill/role/account prerequisites still apply."
+    },
+    "sources": [
+      "U01",
+      "R15"
+    ],
+    "member_eligibility": {
+      "contract": "Optional Boolean(chargen, trait)",
+      "candidate_filters": {
+        "exclude_ethnic_native_language": false
+      }
+    },
+    "implementation_status": "Use ChargenSkillSelectionGroupSeeder.Upsert from PR #730."
+  }
+]

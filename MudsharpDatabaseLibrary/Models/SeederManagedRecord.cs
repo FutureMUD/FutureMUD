@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 
 namespace MudSharp.Models;
@@ -12,6 +14,7 @@ public class SeederManagedRecord
 	public long? LogicalId { get; set; }
 	public int? RevisionNumber { get; set; }
 	public string AppliedFingerprint { get; set; } = string.Empty;
+	public string? SeedBaseline { get; set; }
 	public string ManifestVersion { get; set; } = string.Empty;
 	public DateTime AppliedAt { get; set; }
 	public bool Retired { get; set; }

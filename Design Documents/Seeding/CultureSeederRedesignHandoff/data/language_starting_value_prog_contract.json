@@ -1,0 +1,73 @@
+{
+  "status": "minimal-existing-hook",
+  "native_base": 200,
+  "tiers": {
+    "native": 200,
+    "fluent": 180,
+    "educated": 150,
+    "conversational": 100,
+    "elementary": 50
+  },
+  "entry_hook": "Culture.SkillStartingValueProg (existing Number(Toon ch, Trait trait, Number boosts) convention; verify actual installed signature before wiring)",
+  "helper_contracts": [
+    {
+      "name": "CultureLanguageNativeBase",
+      "returns": "Number",
+      "parameters": [],
+      "default_body": "return 200"
+    },
+    {
+      "name": "CultureLanguageBackgroundFactor",
+      "returns": "Number",
+      "parameters": [
+        "Toon ch",
+        "Trait trait"
+      ],
+      "algorithm": "Native ethnic binding => 1.0; specific cultural vernacular => 0.90; qualifying learned/contact definition => its factor. Take maximum. No qualifying language background => 0; a zero delegates to original starting prog."
+    }
+  ],
+  "wrapper_pseudocode": [
+    "For non-language traits, call the preserved original prog unchanged.",
+    "backgroundBase = CultureLanguageNativeBase() * maximumQualifyingFactor(ch, trait).",
+    "If factor=0: call original(ch,trait,boosts) unchanged.",
+    "boostDelta = original(ch,trait,boosts) - original(ch,trait,0).",
+    "Return backgroundBase + boostDelta to the existing cap/independent-value pipeline."
+  ],
+  "guardrails": [
+    "Do not call a wrapper recursively after rewiring the culture.",
+    "Do not reapply a boost after the engine has already applied it. Verify the caller and write regression tests.",
+    "Do not use current SkillValues to qualify native status; use ethnicity/culture/trait IDs.",
+    "The eligibility map is content data; the helper body is an in-game editable prog, not hard-coded immutable C# factors.",
+    "Do not replace an existing custom starting prog without preserving/wrapping it and reporting its identity.",
+    "Stronger independent values remain under PR #730 ownership/value rules.",
+    "New or verified unchanged seed-owned stock caps must accommodate the 200 base; lower custom caps remain authoritative and are reported. Baseline comparison is required before editing an existing cap."
+  ],
+  "editable_in_game": true,
+  "new_seeder_questions": false,
+  "new_proficiency_database_entities": false,
+  "fallback_if_existing_hook_cannot_support_it": "Report the precise blocker. A small guarded prog integration/compilation helper is allowed. Do not implement a general proficiency-level subsystem or resurrect selector stages.",
+  "example_cases": [
+    {
+      "ethnicity": "Welsh",
+      "culture": "English Nobility",
+      "era": "medieval",
+      "base_values": {
+        "welsh": 200,
+        "english.middle": 180,
+        "french.anglonorman": 150,
+        "latin": 50
+      }
+    },
+    {
+      "ethnicity": "Polish",
+      "culture": "Western European Merchant Class",
+      "era": "renaissance",
+      "native": {
+        "polish": 200
+      },
+      "optional_trade_language_base": 100,
+      "automatic_latin": false
+    }
+  ],
+  "source_basis": "User balance decision and existing prog hook; values are not historical measurements."
+}

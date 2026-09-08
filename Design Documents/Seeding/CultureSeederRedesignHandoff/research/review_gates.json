@@ -1,0 +1,126 @@
+[
+  {
+    "id": "NG01",
+    "scope": "Baltic and Finnic production repertoires",
+    "status": "bounded-inventories-delivered-with-old-prussian-female-hold",
+    "finding": "The existing shared Finno-Ugric naming key does not validate Lithuanian, Latvian, Prussian, Estonian and Finnish inventories.",
+    "decision": "Use targeted_name_corpora.json. Finnish/Lithuanian pools and bounded Latvian/Estonian female selections are supplied. Old Prussian masculine core is supplied; no new feminine default is authorised. Do not delegate invention or silently use a neighbouring pool.",
+    "sources": [
+      "N01",
+      "N02",
+      "N03",
+      "H22",
+      "N04",
+      "N05",
+      "N06",
+      "N07"
+    ]
+  },
+  {
+    "id": "NG02",
+    "scope": "Romanian/Vlach names",
+    "status": "bounded-inventory-delivered",
+    "finding": "A Western Slavic fallback is not an adequate Romanian repertoire.",
+    "decision": "Use 28 masculine and 17 feminine groups with per-entry era scope; dynastic and inscription provenance is explicit. Equal gameplay weights, no claim of representative commoner frequencies.",
+    "sources": [
+      "N08",
+      "N09",
+      "N10",
+      "N11",
+      "N12",
+      "N13"
+    ]
+  },
+  {
+    "id": "NG03",
+    "scope": "Coptic and Syriac Christian name profiles",
+    "status": "bounded-documentary-and-devotional-inventories-delivered",
+    "finding": "Arabic political-template profiles can contain an inappropriate religious repertoire.",
+    "decision": "Use separate Coptic and Syriac pools. Preserve the distinction between documentary names and devotional/literary repertoire. No claim that a saint floruit dates a vernacular spelling or represents ordinary-name frequencies.",
+    "sources": [
+      "N14",
+      "N15",
+      "N16",
+      "N17"
+    ]
+  },
+  {
+    "id": "NG04",
+    "scope": "Gender-sensitive and optional name grammar",
+    "status": "authored-pattern-fixtures-delivered-engine-tests-required",
+    "finding": "Existing morphology must survive consolidation; a surname ending is not a universally productive rule.",
+    "decision": "No new productive gender morphology. Reuse reviewed atomic names, optional bynames and existing proven forms. Run naming_pattern_tests.json through actual parser/renderer. No adopted-name selector.",
+    "sources": [
+      "U02",
+      "R04",
+      "R06",
+      "N01",
+      "N05"
+    ]
+  },
+  {
+    "id": "LG01",
+    "scope": "Ambiguous legacy language labels",
+    "status": "required-binding-check",
+    "finding": "Greek, English and Persian may denote different stages in different source modules.",
+    "decision": "Bind by source context and canonical stage. Do not upsert based on label equality alone.",
+    "sources": [
+      "R03",
+      "R12",
+      "R13",
+      "R17",
+      "R18"
+    ]
+  },
+  {
+    "id": "LG02",
+    "scope": "Circassian, Avestan and ancient Egyptian elective dependencies",
+    "status": "required-before-showing-option",
+    "finding": "Those retained-catalogue candidate names are not newly specified language records here.",
+    "decision": "Resolve an actual suitable record or leave the optional candidate visibly unimplemented; never pretend an unrelated language is equivalent.",
+    "sources": [
+      "R18",
+      "H08",
+      "H11",
+      "H24"
+    ]
+  },
+  {
+    "id": "CG01",
+    "scope": "Regional chronology and social labels",
+    "status": "builder-guidance-not-a-global-blocker",
+    "finding": "Era toolkits deliberately overlap and contain material from different centuries.",
+    "decision": "Retain applicability notes, regional variants and title changes; do not invent a single date of peoplehood emergence.",
+    "sources": [
+      "H08",
+      "H10",
+      "H13",
+      "H16"
+    ]
+  },
+  {
+    "id": "EG01",
+    "scope": "Latin-1 fallback and name entry",
+    "status": "required-engine-tests",
+    "finding": "Unsupported non-decomposing letters become question marks, and the fallback buffer is shared.",
+    "decision": "Implement the supplied map/NFC/isolation policy; verify the actual .NET encoder and chargen round-trip before enabling new unsupported source spellings.",
+    "sources": [
+      "R14",
+      "R16",
+      "T01",
+      "T02"
+    ]
+  },
+  {
+    "id": "EG02",
+    "scope": "Generic skill-group dependency and profile preservation",
+    "status": "generic-feature-merged-preservation-still-in-scope",
+    "finding": "PR730 implements the generic feature. Original profile upserts still need non-destructive reconciliation in this CultureSeeder work.",
+    "decision": "Use ChargenSkillSelectionGroupSeeder.Upsert; do not rebuild groups, screens or allocator. Preserve names and builder edits through the separately specified source/baseline ledger.",
+    "sources": [
+      "R730A",
+      "R730B",
+      "R03"
+    ]
+  }
+]

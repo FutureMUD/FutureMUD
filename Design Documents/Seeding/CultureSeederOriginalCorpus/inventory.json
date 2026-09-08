@@ -1,0 +1,149 @@
+{
+  "sourceCommit": "420fa26a7cb2be11fbb7b973e7e5270976e95067",
+  "generatedPacks": [
+    {
+      "pack": "earthantiquity",
+      "sha256": "a31db90265a815d634d8ef4fa6fc24ca8246c4a1854ef2f0c66e63622101f1ea",
+      "tables": {
+        "Accent": 411,
+        "FutureProg": 26,
+        "FutureProgsParameter": 49,
+        "Knowledge": 23,
+        "Language": 44,
+        "MutualIntelligability": 128,
+        "NameCulture": 27,
+        "RandomNameProfile": 51,
+        "RandomNameProfilesDiceExpressions": 100,
+        "RandomNameProfilesElements": 10064,
+        "Script": 23,
+        "ScriptsDesignedLanguage": 79,
+        "TraitDefinition": 45,
+        "TraitExpression": 44
+      }
+    },
+    {
+      "pack": "earthdarkagesandmedieval",
+      "sha256": "4ff7503ded44452cf3edc066cb8bd97b2d59e3ba552e038d2d047db7cd38eac8",
+      "tables": {
+        "Accent": 183,
+        "FutureProg": 18,
+        "FutureProgsParameter": 33,
+        "Knowledge": 15,
+        "Language": 36,
+        "MutualIntelligability": 46,
+        "NameCulture": 29,
+        "RandomNameProfile": 60,
+        "RandomNameProfilesDiceExpressions": 121,
+        "RandomNameProfilesElements": 8657,
+        "Script": 15,
+        "ScriptsDesignedLanguage": 43,
+        "TraitDefinition": 37,
+        "TraitExpression": 36
+      }
+    },
+    {
+      "pack": "earthmodern",
+      "sha256": "104ee3fe5335b8114de3401e66818b0523c0be9afbcd49d5c1e6a1f377eb316f",
+      "tables": {
+        "Accent": 610,
+        "FutureProg": 21,
+        "FutureProgsParameter": 39,
+        "Knowledge": 18,
+        "Language": 72,
+        "MutualIntelligability": 38,
+        "NameCulture": 32,
+        "RandomNameProfile": 74,
+        "RandomNameProfilesDiceExpressions": 143,
+        "RandomNameProfilesElements": 11495,
+        "Script": 18,
+        "ScriptsDesignedLanguage": 74,
+        "SignedLanguage": 24,
+        "SignedLanguageArticulationProfile": 24,
+        "SignedLanguageArticulationRequirement": 24,
+        "SignedLanguageVariety": 8,
+        "TraitDefinition": 97,
+        "TraitExpression": 96
+      }
+    },
+    {
+      "pack": "earthrenaissanceeurope",
+      "sha256": "2876cba20d028daadac76b7d2025a8cf44d612d1a6ba2f90516db2b167317578",
+      "tables": {
+        "Accent": 740,
+        "FutureProg": 12,
+        "FutureProgsParameter": 21,
+        "Knowledge": 9,
+        "Language": 61,
+        "MutualIntelligability": 182,
+        "NameCulture": 32,
+        "RandomNameProfile": 65,
+        "RandomNameProfilesDiceExpressions": 133,
+        "RandomNameProfilesElements": 11376,
+        "Script": 9,
+        "ScriptsDesignedLanguage": 62,
+        "TraitDefinition": 62,
+        "TraitExpression": 61
+      }
+    },
+    {
+      "pack": "earthrenaissanceworldexpansion",
+      "sha256": "c4f28b9ce4361cc7e2c53d7dc2eb4840b51d95ca77cc82529873a9faefc70629",
+      "tables": {
+        "Accent": 253,
+        "FutureProg": 22,
+        "FutureProgsParameter": 41,
+        "Knowledge": 19,
+        "Language": 52,
+        "MutualIntelligability": 34,
+        "NameCulture": 29,
+        "RandomNameProfile": 60,
+        "RandomNameProfilesDiceExpressions": 117,
+        "RandomNameProfilesElements": 6127,
+        "Script": 19,
+        "ScriptsDesignedLanguage": 58,
+        "TraitDefinition": 53,
+        "TraitExpression": 52
+      }
+    },
+    {
+      "pack": "middleearth",
+      "sha256": "2120be8979cfa59559e9a85a15b920229e82ca08d58051dc6e61a47ee91e8103",
+      "tables": {
+        "Accent": 116,
+        "FutureProg": 21,
+        "FutureProgsParameter": 13,
+        "Knowledge": 4,
+        "Language": 32,
+        "MutualIntelligability": 58,
+        "NameCulture": 17,
+        "RandomNameProfile": 42,
+        "RandomNameProfilesDiceExpressions": 86,
+        "RandomNameProfilesElements": 5260,
+        "Script": 4,
+        "ScriptsDesignedLanguage": 29,
+        "TraitDefinition": 33,
+        "TraitExpression": 32
+      }
+    },
+    {
+      "pack": "none",
+      "sha256": "f8a5c94a339f8fc04365f96740308441a6cb9f336587a350ab9153f718ad1cce",
+      "tables": {
+        "FutureProg": 2,
+        "NameCulture": 4,
+        "RandomNameProfile": 10,
+        "RandomNameProfilesDiceExpressions": 13,
+        "RandomNameProfilesElements": 237,
+        "TraitDefinition": 1
+      }
+    }
+  ],
+  "sourceFiles": 28,
+  "originalSourcesSha256": "9f9a1c19ea703002cf77ecffcf879fadfe43afea1140ffd7bf161c77f9280c28",
+  "limitations": [
+    "In-memory generation, not MySQL import.",
+    "Heritage execution excluded; original heritage code preserved byte-for-byte.",
+    "Middle-Earth heritage predicate references are symbolic fixture bindings, not compiled original progs.",
+    "Pack-local IDs are qualified by source pack and entity type; no cross-pack identity merge is inferred."
+  ]
+}

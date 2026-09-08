@@ -1,0 +1,40 @@
+{
+  "schema_version": 3,
+  "proficiency_scale": {
+    "native": 1.0,
+    "fluent": 0.9,
+    "educated": 0.75,
+    "conversational": 0.5,
+    "elementary": 0.25
+  },
+  "native_base": 200,
+  "proficiency_defaults": {
+    "native": 200,
+    "fluent": 180,
+    "educated": 150,
+    "conversational": 100,
+    "elementary": 50
+  },
+  "scale_meaning": "Authored skill values scaled from Native=200, not percentages of human fluency. Fluent=180 is the retained 0.90 tier, close to the requested approximately-200 balance point.",
+  "native_language_policy": "Automatic ethnic-language binding for the selected era. No home-language or upbringing selection. The fixed manifest can specify more than one mandatory language where intentional; this is not a player-selectable bilingual option.",
+  "cultural_vernacular": "A specific culture adds its fixed era-appropriate vernacular at Fluent. A home selector retains the ethnic native language. Shared regional selectors first prefer the fixed ethnic language when it belongs to that regional family; otherwise use the documented default. No additional screen.",
+  "learned_languages": "Only explicitly authored mandatory education or eligible optional groups. Merely retaining an old language in the pack does not grant it.",
+  "literacy": "Explicit learned-background policy; separate Literacy skill. Script grants use fixed background/ethnicity writing-tradition bindings, never the union of all scripts linked to every language.",
+  "configuration": "Seed initial editable FutureProgs and wire the existing Culture.SkillStartingValueProg. Builders change them in game. Do not add seeder tier questions or immutable C# tier constants.",
+  "implementation": "Consume PR #730. Implement only content composition, prog generation/reconciliation and the existing-hook starting-value wrapper. Do not rebuild the generic resolver, groups, UI, accounting, migration or NPC adapter.",
+  "value_resolution": "For a selected language compute the highest eligible background base, then add the existing underlying prog boost delta once; preserve stronger independent values and the existing final cap/value pipeline. Non-languages delegate unchanged.",
+  "eligibility_not_provenance": "The simple tier prog uses ethnicity, culture and the requested trait. Educational preparedness also applies if that eligible language was bought in open selection instead of claimed through its elective. No new group-provenance FutureProg property is required.",
+  "caps": "Test the 200 native base through the actual installed value/cap pipeline. New or verified unchanged seed-owned stock cap definitions must accommodate 200; a minimum floor of 200 is permitted. Preserve builder-modified caps and report a lower effective cap rather than silently overriding it.",
+  "already_known_policy": "CountKnown for these language groups. Known languages require an explicit credited choice, not automatic completion. They do not improve above the strongest qualifying base or create another skill.",
+  "choice_resolution": "PR #730 Mandatory Free -> Groups -> Open. Optional curricula have minimum=0 maximum=1. No reserved home or working-language group stage.",
+  "candidate_filter_policy": "Use installed era-appropriate language traits. Do not exclude the native language merely because it is native when CountKnown is selected; explicit credit remains possible.",
+  "no_deletion": "Approved characters and independent/ordinary skills are not stripped by re-seeding or background reconciliation.",
+  "sources": [
+    "U02",
+    "R730A",
+    "R730B",
+    "R02",
+    "R03",
+    "R15"
+  ]
+}

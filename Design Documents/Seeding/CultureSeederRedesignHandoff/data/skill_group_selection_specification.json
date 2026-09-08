@@ -1,0 +1,104 @@
+{
+  "schema_version": 3,
+  "status": "implemented-dependency-consumer-only",
+  "entity_name": "ChargenSkillSelectionGroup",
+  "dependency": {
+    "pull_request": 730,
+    "commit": "961efca81da0d788bbfb86ccf55fea313c9bf065",
+    "guide": "Design Documents/Characters/Chargen_Skill_Selection_Groups.md",
+    "verification": "Design Documents/Verification/Chargen_Skill_Selection_Groups_Verification.md"
+  },
+  "do_not_reimplement": [
+    "Group entities and membership migration",
+    "chargenskillgroup builder commands",
+    "SkillGroupResolver and global allocator",
+    "SkillGroupScreen wrappers for all four screens",
+    "Claims persistence and base/boost accounting",
+    "GeneratedSkillGroupAdapter"
+  ],
+  "phase_order": [
+    "mandatory-free-skills",
+    "eligible-skill-group-selections",
+    "open-skill-selection"
+  ],
+  "seeder_type": "DatabaseSeeder.Seeders.Utilities.Chargen.ChargenSkillSelectionGroupSeeder",
+  "upsert_signature": "Upsert(FuturemudDatabaseContext context, SkillGroupSeedDefinition definition, ICollection<string> conflicts)",
+  "definition_fields": [
+    "StableKey",
+    "Name",
+    "Description",
+    "MinimumPicks",
+    "MaximumPicks",
+    "DisplayOrder",
+    "ExistingSkillPolicy",
+    "Enabled",
+    "Members",
+    "EligibilityProg",
+    "MemberEligibilityProg"
+  ],
+  "progs": {
+    "eligibility": "Exactly Boolean(chargen), AcceptsAnyParameters=false, compiled and installed",
+    "member": "Optional exactly Boolean(chargen, trait), compiled and installed",
+    "bridge": "Existing helper accepts runtime IFutureProg, not just a database model. Reuse the test/loader construction path with resolved dependency IDs; a small seeder compilation adapter is in scope, not a replacement helper."
+  },
+  "eligibility_baseline": "Fixed ethnicity, culture and mandatory grants only. Pending group/open picks must remain excluded.",
+  "counting": {
+    "existing": "CountKnown",
+    "bounds": [
+      0,
+      1
+    ],
+    "unique_trait_slot": true,
+    "base_open_pick_cost": 0,
+    "base_skill_point_cost": 0,
+    "other_resource_rules": "unchanged",
+    "boost_rules": "unchanged"
+  },
+  "home_and_cultural_languages": {
+    "home_chooser": false,
+    "upbringing_override": false,
+    "working_language_chooser": false,
+    "method": "Fixed era/ethnicity/culture bindings, determined before groups."
+  },
+  "language_seed_conversion": "Compile the 28 supplied elective recipes to distinct installed skill IDs and compatible progs; keep optional 0..1 bounds. Do not infer historical language learning from an intelligibility edge.",
+  "builder_configuration": "Use the existing chargenskillgroup commands and FutureProg editor. Do not add seeder questions.",
+  "npc_policy": "Existing templates stay opted out; explicit template opt-in uses the merged adapter. Language tier defaults must not overwrite stronger hand-authored skill values.",
+  "acceptance_test_ids": [
+    "SG01",
+    "SG02",
+    "SG03",
+    "SG04",
+    "SG05",
+    "SG06",
+    "SG07",
+    "SG08",
+    "SG09",
+    "SG10",
+    "SG11",
+    "SG12",
+    "SG13",
+    "SG14",
+    "SG15",
+    "SG16",
+    "SG17",
+    "SG18",
+    "SG19",
+    "SG20"
+  ],
+  "regression_tests_status": "Existing SG tests are dependency regressions, not a requirement to author another general group implementation.",
+  "derived_group_recipes": [],
+  "remaining_consumer_tests": [
+    "All five era manifests compile their group references",
+    "Seed before/after ChargenSeeder",
+    "Preserve edited prog and group fields",
+    "Every ethnicity produces its fixed mandatory native language",
+    "Native=200 defaults and one boost application",
+    "Learned literacy and selected script traditions",
+    "No new home-language or adopted-name stage"
+  ],
+  "sources": [
+    "U02",
+    "R730A",
+    "R730B"
+  ]
+}

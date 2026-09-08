@@ -1,0 +1,973 @@
+[
+  {
+    "key": "names.roman",
+    "label": "Roman civic and Latin",
+    "legacy_name_cultures": [
+      "Latin",
+      " use actual gender-specific stock keys"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "antiquity"
+    ],
+    "structure_and_usage": "Preserve the existing Roman citizen structures, sex-specific patterns and status distinctions. Reuse the current assigned name culture. Do not add an adopted-name selector or impose three names on every bearer.",
+    "action": "preserve-existing-status-structures-without-new-choice-ui",
+    "review_gate": null,
+    "sources": [
+      "R04",
+      "R08",
+      "H07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false
+  },
+  {
+    "key": "names.ancient-regional",
+    "label": "Antiquity regional inventories",
+    "legacy_name_cultures": [
+      "Antiquity regional name cultures"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs",
+      "CultureSeeder.Heritage.Antiquity.cs"
+    ],
+    "packs": [
+      "antiquity"
+    ],
+    "structure_and_usage": "Reuse each existing regional structure; preserve dated scope. Ancient Veneti are not Renaissance Venetians; city-Roman and eastern Greek-Roman are not the same canonical identity.",
+    "action": "preserve-entire-source-catalogue",
+    "review_gate": "Ancient Egyptian, poorly recorded tribal and geographically broad inventories need per-record checks before new defaults are asserted.",
+    "sources": [
+      "R04",
+      "R08",
+      "H17",
+      "H18",
+      "H24"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.english.preconquest",
+    "label": "Early English and Anglo-Danish",
+    "legacy_name_cultures": [
+      "Medieval Early Anglo-Saxon",
+      "Medieval Anglo-Danish"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval"
+    ],
+    "structure_and_usage": "Given name plus optional patronymic, byname or locality, following the existing patterns. Preserve native compound names and supported thorn, eth and ash; do not carry the whole pre-Conquest frequency distribution into Renaissance defaults.",
+    "action": "reuse-existing-distinct-profiles",
+    "review_gate": null,
+    "sources": [
+      "R06",
+      "H02",
+      "H03"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false
+  },
+  {
+    "key": "names.norman",
+    "label": "Norman and Anglo-Norman",
+    "legacy_name_cultures": [
+      "Medieval Norman",
+      "Medieval Anglo-Norman"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval"
+    ],
+    "structure_and_usage": "Reuse continental and insular inventories. Retain inherited versus literal locative particles. A regional Norman or marcher byname is not proof of noble rank.",
+    "action": "reuse-existing-distinct-profiles",
+    "review_gate": null,
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false
+  },
+  {
+    "key": "names.english.later",
+    "label": "Later English",
+    "legacy_name_cultures": [
+      "Medieval High English British",
+      "English"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Reuse later medieval given names and byname/surname stock. Use a transitional profile for non-hereditary bynames, and the same hereditary-family form for Renaissance and Early Modern unless a specific additional repertoire is justified.",
+    "action": "share-Renaissance-and-EarlyModern-baseline",
+    "review_gate": "Separate demonstrably later additions or specialised religious naming fashions; do not replace the entire list.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.french",
+    "label": "French",
+    "legacy_name_cultures": [
+      "Medieval Capetian French",
+      "French"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Reuse given-plus-byname/family structure as appropriate. Retain local forms and particles without automatic English title casing.",
+    "action": "shared-inventory-period-profile",
+    "review_gate": null,
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false
+  },
+  {
+    "key": "names.occitan",
+    "label": "Occitan",
+    "legacy_name_cultures": [
+      "French"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "A structurally compatible French name culture can be reused; do not silently replace an Occitan given-name repertoire with exclusively northern French forms.",
+    "action": "reuse-structure-not-assume-inventory-equivalence",
+    "review_gate": "Identify local attested forms in the existing corpus; a new Occitan-specific profile remains review-gated.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.frankish",
+    "label": "Frankish",
+    "legacy_name_cultures": [
+      "Medieval Carolingian Frankish"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs"
+    ],
+    "packs": [
+      "darkages"
+    ],
+    "structure_and_usage": "Keep existing early continental names and patronymic/byname structures; a single political Frankish label does not mandate a single vernacular.",
+    "action": "reuse",
+    "review_gate": null,
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false
+  },
+  {
+    "key": "names.german",
+    "label": "German regional traditions",
+    "legacy_name_cultures": [
+      "Medieval Imperial German",
+      "German"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Reuse most inventory; distinguish a literal patronymic or occupational byname from an inherited surname when profiles differ. Multiple regional ethnicities may reference the same name culture.",
+    "action": "reuse-common-catalogue",
+    "review_gate": "Frisian-specific naming should not be certified by the generic Imperial German assignment alone.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.lowcountries",
+    "label": "Low Countries",
+    "legacy_name_cultures": [
+      "Dutch"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Preserve patronymic and family/byname alternatives and particles. Do not require a fixed modern hereditary surname for all rural households.",
+    "action": "reuse-structure-and-inventory-with-optional-elements",
+    "review_gate": null,
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false
+  },
+  {
+    "key": "names.italian",
+    "label": "Italian regional traditions",
+    "legacy_name_cultures": [
+      "Italian"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Shared name culture with existing regional random profiles; retain patronymics, localities and family labels. Do not make every household bear a famous patrician family name.",
+    "action": "reuse",
+    "review_gate": "Sardinian and other clearly distinct local repertoires require an explicit profile rather than proof by political geography.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.iberian",
+    "label": "Christian Iberian traditions",
+    "legacy_name_cultures": [
+      "Medieval Christian Iberian",
+      "Iberian"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Share structural templates, not one compulsory Castilian lexicon. Preserve given, patronymic and family/locative elements; two modern legal surnames are not a universal requirement.",
+    "action": "regional-profile-overlay",
+    "review_gate": "Catalan, Portuguese, Galician and Aragonese inventories must be individually identifiable before replacing their defaults.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.basque",
+    "label": "Basque",
+    "legacy_name_cultures": [
+      "Basque"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Reuse existing given and family/locality names, retaining native and contact-language forms in appropriately marked profiles.",
+    "action": "reuse",
+    "review_gate": null,
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false
+  },
+  {
+    "key": "names.gaelic",
+    "label": "Irish and Scottish Gaelic",
+    "legacy_name_cultures": [
+      "Medieval Irish Gaelic",
+      "Medieval Scottish Gaelic Lowland",
+      "Irish"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Keep given names, patronymics and lineage names distinct; retain gender-conditioned grammar from existing profiles. Shared underlying roots need not mean one identical Irish/Scottish orthographic inventory.",
+    "action": "reuse-and-select-local-profile",
+    "review_gate": "Do not invent regular female surnames by mechanically appending an English suffix.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.welsh",
+    "label": "Welsh",
+    "legacy_name_cultures": [
+      "Welsh"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Provide a patronymic-chain profile and a later inherited-surname profile drawing on retained inventory. Change is overlapping and household-dependent; ap/ab/ferch are components, not mandatory hyphenation.",
+    "action": "genuine-structure-variant",
+    "review_gate": "Any new surname morphology needs attestation; this recipe does not impose one universal date of adoption.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.breton-cornish",
+    "label": "Breton and Cornish",
+    "legacy_name_cultures": [
+      "Breton"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Retain Breton material as Breton. A related language is not permission to relabel that whole inventory as Cornish.",
+    "action": "reuse-Breton; retain-Cornish-if-already-authored",
+    "review_gate": "New Cornish profile is a separate evidence gate if the retained corpus does not provide it.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.norse",
+    "label": "Norse and Scandinavian",
+    "legacy_name_cultures": [
+      "Medieval Norse",
+      "Danish",
+      "Swedish"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Patronymics remain the baseline where appropriate, with gendered forms and local spelling. Preserve elite family names as optional special profiles rather than imposing them on all Scandinavians.",
+    "action": "share-roots-with-genuine-local-profiles",
+    "review_gate": "Icelandic and Norwegian must not be assumed identical to Danish solely because the old mapping says so.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.polish",
+    "label": "Polish",
+    "legacy_name_cultures": [
+      "Polish"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Retain given names and existing gender-sensitive family forms. Noble house/heraldic association is not automatically a surname, and Polish noble culture does not force a non-Polish ethnicity to change its name.",
+    "action": "reuse",
+    "review_gate": "Validate particles and adjective agreement on any newly added forms.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.westslavic",
+    "label": "Czech and Slovak",
+    "legacy_name_cultures": [
+      "Western Slavic"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Share compatible structural templates while keeping Czech and Slovak lexical forms distinct in profiles. Preserve attested bynames rather than requiring a modern civil surname system everywhere.",
+    "action": "retain-source-and-split-profile-only-as-needed",
+    "review_gate": "Existing umbrella inventory must be partitioned or reviewed; do not certify all elements for both communities.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.eastslavic",
+    "label": "Rus, Ruthenian and Russian",
+    "legacy_name_cultures": [
+      "Medieval Rus Novgorod",
+      "Eastern Slavic"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Given name plus patronymic and optional byname/family. Use appropriate local forms; do not require universal modern three-part official naming. Cossack culture uses the selected heritage repertoire, often an East Slavic one.",
+    "action": "reuse-and-correct-Cossack-default",
+    "review_gate": null,
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false
+  },
+  {
+    "key": "names.southslavic",
+    "label": "South Slavic regional traditions",
+    "legacy_name_cultures": [
+      "Western Slavic"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "A compatible template may be shared, but Serbian, Croatian and other local inventories are not simply Czech names. Keep local patronymic morphology and religiously conditioned repertoire options.",
+    "action": "retain-template; review-lexical-defaults",
+    "review_gate": "New production profile must not be generated by blindly swapping suffixes on a northern Slavic list.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.hungarian",
+    "label": "Hungarian",
+    "legacy_name_cultures": [
+      "Medieval Magyar",
+      "Hungarian"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Keep given/family ordering and patronymic/byname alternatives from the appropriate source; preserve early Magyar repertoire separately from later Christian defaults.",
+    "action": "reuse-existing-genuine-variants",
+    "review_gate": null,
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false
+  },
+  {
+    "key": "names.baltic",
+    "label": "Baltic corrections",
+    "legacy_name_cultures": [
+      "Finno-Ugric"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Do not use the legacy label as an inventory claim. Lithuanian, Latvian and Old Prussian need distinct given-name evidence and byname grammar; compatible structural patterns can still be shared.",
+    "action": "use-bounded-local-inventories-and-preserve-originals",
+    "review_gate": "Old Prussian feminine replacement remains inactive. Latvian 14-form female pool is a disclosed bounded sample; do not pad spelling variants.",
+    "sources": [
+      "R04",
+      "R05",
+      "H21",
+      "H22"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "targeted_pools": [
+      "names.target.lithuanian",
+      "names.target.latvian",
+      "names.target.old-prussian"
+    ]
+  },
+  {
+    "key": "names.finnic",
+    "label": "Finnic corrections",
+    "legacy_name_cultures": [
+      "Finno-Ugric"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Estonian and Finnish are not interchangeable simply because they are Finnic. Retain actual existing local names, distinguish documentary German/Latin spellings from vernacular reconstructions.",
+    "action": "use-separate-local-documentary-inventories",
+    "review_gate": "Respect per-entry era scope and the bounded Estonian female sample; no universal Finno-Ugric pool.",
+    "sources": [
+      "R04",
+      "R05",
+      "H21"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "targeted_pools": [
+      "names.target.finnish",
+      "names.target.estonian"
+    ]
+  },
+  {
+    "key": "names.romanian",
+    "label": "Vlach and Romanian correction",
+    "legacy_name_cultures": [
+      "Western Slavic"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Given name plus appropriate byname, parentage or family, with Romanian forms. Monastic names are an adopted-name option. Do not manufacture all bynames using a modern -escu rule.",
+    "action": "use-bounded-local-repertoire",
+    "review_gate": "28 masculine/17 feminine groups; elite-biased provenance, no unsupported frequency claims or productive surname generation.",
+    "sources": [
+      "R05",
+      "H23",
+      "H25"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "targeted_pools": [
+      "names.target.romanian"
+    ]
+  },
+  {
+    "key": "names.greek",
+    "label": "Greek and eastern Roman",
+    "legacy_name_cultures": [
+      "Medieval Byzantine Greek",
+      "Hellenic"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Retain given and family/byname forms with their actual gender and grammar. Ancient and later Christian repertoires are not interchangeable, even when the pattern is compatible.",
+    "action": "reuse-existing-later-profiles",
+    "review_gate": null,
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false
+  },
+  {
+    "key": "names.turkish",
+    "label": "Oghuz, Turkish and Ottoman",
+    "legacy_name_cultures": [
+      "Medieval Seljuk Ayyubid Mamluk",
+      "Turkish"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Use personal name plus optional parentage, locality or established family/byname as appropriate. Avoid universal modern Turkish hereditary surnames. Ottoman culture alone does not force Turkish names.",
+    "action": "reuse-and-correct-status-mapping",
+    "review_gate": "Keep Circassian, Kurdish and Arab repertoires distinct; do not inherit a Turkish pool merely from a shared Mamluk political template.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.arabic",
+    "label": "Arabic regional traditions",
+    "legacy_name_cultures": [
+      "Medieval Abbasid Arabic",
+      "Medieval Fatimid Arabic",
+      "Medieval Andalusian Arabic",
+      "Renaissance Mamluk Arabic",
+      "Levantine",
+      "Morrocan"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "CultureSeeder.Packs.RenaissanceWorld.cs",
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Reuse ism, nasab and nisba structures. Kunya and laqab are optional use-context elements, not obligatory birth names. Separate gender-sensitive parentage forms and preserve local repertoire variants.",
+    "action": "share-structures-and-most-inventory",
+    "review_gate": "A Christian Arabic repertoire must be intentional, not a random subset of an exclusively Muslim generated list.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.persian",
+    "label": "Iranian and Persianate",
+    "legacy_name_cultures": [
+      "Persian",
+      "Renaissance Timurid Persianate"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs",
+      "CultureSeeder.Packs.RenaissanceWorld.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Reuse New Persian and Persianate structures across medieval-to-early-modern packs when appropriate; personal name plus parentage/locality/affiliation, not a mandatory modern legal surname.",
+    "action": "reuse-New-Persian-baseline",
+    "review_gate": "Pre-Islamic Iranian repertoire remains separate; a Timurid court inventory does not make every bearer ethnically Persian.",
+    "sources": [
+      "R04",
+      "R07",
+      "H08",
+      "H15"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.caucasus",
+    "label": "Armenian, Georgian and Kurdish",
+    "legacy_name_cultures": [
+      "Renaissance Armenian",
+      "Renaissance Georgian",
+      "Renaissance Kurdish"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.RenaissanceWorld.cs"
+    ],
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Reuse the existing distinct name cultures and their substantial pools. Adjust period guidance and optional affiliations; do not duplicate a whole inventory solely for Early Modern.",
+    "action": "reuse-existing-distinct-catalogues",
+    "review_gate": null,
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false
+  },
+  {
+    "key": "names.jewish",
+    "label": "Jewish regional and religious naming",
+    "legacy_name_cultures": [
+      "Jewish Male",
+      "Jewish Female"
+    ],
+    "source_modules": [
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Keep Hebrew religious names and local everyday names as legitimate distinct use profiles. Retain attested inherited Sephardi family names; do not impose universal fixed Ashkenazi surnames before 1750.",
+    "action": "reuse-with-region-and-use-profile",
+    "review_gate": "Do not let one communal culture force all Jewish characters to share a home vernacular or one naming inventory.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  },
+  {
+    "key": "names.coptic-syriac",
+    "label": "Coptic and Syriac Christian corrections",
+    "legacy_name_cultures": [
+      "Renaissance Mamluk Arabic",
+      "Medieval Abbasid Arabic"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.RenaissanceWorld.cs",
+      "CultureSeeder.Packs.DarkAgesAndMedieval.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Choose a reviewed Coptic/Syriac or local Christian Arabic repertoire; preserve parentage/locality structure. Greek-looking names need local attestations, not automatic import of a whole ancient Greek pool.",
+    "action": "use-separate-traditional-and-documentary-pools",
+    "review_gate": "Entry evidence classes must remain visible in research. Do not claim each liturgical name has a contemporary birth-record attestation.",
+    "sources": [
+      "R06",
+      "R07",
+      "H18",
+      "H24"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "targeted_pools": [
+      "names.target.coptic-christian",
+      "names.target.syriac-christian"
+    ]
+  },
+  {
+    "key": "names.amazigh",
+    "label": "Amazigh and Maghrebi regional traditions",
+    "legacy_name_cultures": [
+      "Renaissance Amazigh",
+      "Morrocan"
+    ],
+    "source_modules": [
+      "CultureSeeder.Packs.RenaissanceWorld.cs",
+      "CultureSeeder.Names.cs"
+    ],
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "structure_and_usage": "Keep separate local and Arabic-contact repertoire choices. Shared Islamic names do not justify deleting Amazigh names or assuming all regional languages have the same morphology.",
+    "action": "reuse-by-local-profile",
+    "review_gate": "Do not infer a uniform pre-Islamic inventory from the later Maghrebi pool.",
+    "sources": [
+      "R04",
+      "R05",
+      "R06",
+      "R07"
+    ],
+    "inventory_policy": "Retain every original spelling, weight, gender/profile association and name-element usage in the source inventory. Filter or alias by recipe without deleting source rows.",
+    "minimum_names_policy": "No artificial target. Count distinct name lemmas, not aliases; record a named bounded exception below 20. Never invent forms to satisfy a test.",
+    "player_adopted_name_choice": false,
+    "review_gate_scope": "Existing corpus is retained, not newly certified. This caution only blocks an unsupported NEW replacement or morphology rule; it does not authorise deleting the existing profile."
+  }
+]

@@ -316,7 +316,7 @@ internal static class DebugSeederReplayProfiles
 			"Medieval Age",
 			"medieval",
 			"medieval",
-			"earthdarkagesandmedieval"),
+			"medieval"),
 		CreateProfile(
 			"renaissance-standard",
 			"Renaissance Standard",
@@ -326,7 +326,7 @@ internal static class DebugSeederReplayProfiles
 			"Medieval Age",
 			"renaissance",
 			"medieval renaissance",
-			"earthrenaissanceeurope"),
+			"renaissance"),
 		CreateProfile(
 			"early-modern-standard",
 			"Early Modern Standard",
@@ -336,7 +336,7 @@ internal static class DebugSeederReplayProfiles
 			"Early Modern Age",
 			"earlymodern",
 			"medieval renaissance earlymodern",
-			"earthrenaissanceeurope")
+			"earlymodern")
 	];
 
 	private static SeederReplayProfile CreateProfile(

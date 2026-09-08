@@ -1029,10 +1029,18 @@ public class FutureProg : SaveableItem, IFutureProg
         }
     }
 
-    public static void Initialise()
-    {
-        InitialiseCompilers();
-    }
+	private static readonly object CompilerInitialisationLock = new();
+	private static bool _compilersInitialised;
+
+	public static void Initialise()
+	{
+		lock (CompilerInitialisationLock)
+		{
+			if (_compilersInitialised) return;
+			InitialiseCompilers();
+			_compilersInitialised = true;
+		}
+	}
 
     public static void RegisterBuiltInFunctionCompiler(FunctionCompilerInformation information)
     {

@@ -1,0 +1,37 @@
+[
+  {
+    "key": "antiquity",
+    "label": "Earth-Antiquity",
+    "reference_span": "Classical antiquity to approximately 500 CE",
+    "item_era": "Antiquity",
+    "policy": "Period-wide toolkit; retain original late-Republic material and mark early/late applicability rather than implying universal simultaneity."
+  },
+  {
+    "key": "darkages",
+    "label": "Earth-DarkAges",
+    "reference_span": "Approximately 500-1100 CE",
+    "item_era": "Medieval",
+    "policy": "Distinct culture selection. Overlap with Medieval is intentional. Does not imply a separate implemented Dark Ages item manifest."
+  },
+  {
+    "key": "medieval",
+    "label": "Earth-Medieval",
+    "reference_span": "Approximately 1000-1400 CE",
+    "item_era": "Medieval",
+    "policy": "High/late medieval emphasis; retain transitional material and the original combined pack as a compatibility path."
+  },
+  {
+    "key": "renaissance",
+    "label": "Earth-Renaissance",
+    "reference_span": "Approximately 1400-1600 CE",
+    "item_era": "Renaissance",
+    "policy": "One complete Europe/Near East pack, internally including required world-expansion content."
+  },
+  {
+    "key": "earlymodern",
+    "label": "Earth-EarlyModern",
+    "reference_span": "Approximately 1600-1750 CE",
+    "item_era": "EarlyModern",
+    "policy": "Reuse earlier shared entities; introduce genuinely distinct classes, naming changes and language stages only."
+  }
+]

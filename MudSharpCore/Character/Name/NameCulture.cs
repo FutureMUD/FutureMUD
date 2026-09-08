@@ -94,6 +94,7 @@ public class NameCulture : SaveableItem, INameCulture
 
     public IEnumerable<NameCultureElement> NameCultureElements => _nameCultureElements;
     public IEnumerable<IRandomNameProfile> RandomNameProfiles => _randomNameProfiles;
+	public bool PreserveNameCase { get; private set; }
 
     public IProgVariable GetProperty(string property)
     {
@@ -141,6 +142,7 @@ public class NameCulture : SaveableItem, INameCulture
 
     protected void LoadFromXml(XElement root)
     {
+		PreserveNameCase = bool.TryParse(root.Element("PreserveNameCase")?.Value, out var preserveCase) && preserveCase;
         XElement element = root.Element("Patterns");
         if (element != null)
         {
@@ -181,7 +183,7 @@ public class NameCulture : SaveableItem, INameCulture
                 return null;
             }
 
-            Match match = _nameEntryRegex.Match(pattern);
+            Match match = _nameEntryRegex.Match(pattern.Normalize(System.Text.NormalizationForm.FormC));
             if (!match.Success)
             {
                 return null;
@@ -215,6 +217,7 @@ public class NameCulture : SaveableItem, INameCulture
     public XElement SaveToXml()
     {
         return new XElement("NameCulture",
+			PreserveNameCase ? new XElement("PreserveNameCase", true) : null,
             new XElement("Patterns",
                 from pattern in _styles
                 select new XElement("Pattern", new XAttribute("Style", (int)pattern.Key),

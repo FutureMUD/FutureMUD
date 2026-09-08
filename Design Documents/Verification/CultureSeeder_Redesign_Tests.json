@@ -1,0 +1,92 @@
+{
+  "RecordedUtc": "2026-09-08T05:06:44.160038+00:00",
+  "Scope": "Executed checks; overlapping focused runs are not added to the full-suite count.",
+  "FullFastCommand": "scripts/test-unit.ps1",
+  "FullFastSuites": [
+    {
+      "Suite": "FutureMUDLibrary Unit Tests",
+      "Passed": 488,
+      "Failed": 0,
+      "Skipped": 0,
+      "Total": 488
+    },
+    {
+      "Suite": "ExpressionEngine Unit Tests",
+      "Passed": 23,
+      "Failed": 0,
+      "Skipped": 0,
+      "Total": 23
+    },
+    {
+      "Suite": "DatabaseSeeder Unit Tests",
+      "Passed": 836,
+      "Failed": 0,
+      "Skipped": 0,
+      "Total": 836
+    },
+    {
+      "Suite": "MudSharpCore Unit Tests",
+      "Passed": 3055,
+      "Failed": 0,
+      "Skipped": 0,
+      "Total": 3055
+    },
+    {
+      "Suite": "MudsharpDatabaseLibrary Unit Tests",
+      "Passed": 43,
+      "Failed": 0,
+      "Skipped": 0,
+      "Total": 43
+    },
+    {
+      "Suite": "DiscordBotCore Unit Tests",
+      "Passed": 22,
+      "Failed": 0,
+      "Skipped": 0,
+      "Total": 22
+    },
+    {
+      "Suite": "RPI Engine Worldfile Converter Tests",
+      "Passed": 43,
+      "Failed": 0,
+      "Skipped": 0,
+      "Total": 43
+    },
+    {
+      "Suite": "FutureMUD.Web.Tests",
+      "Passed": 54,
+      "Failed": 0,
+      "Skipped": 0,
+      "Total": 54
+    },
+    {
+      "Suite": "TerrainPlanner.Tests",
+      "Passed": 34,
+      "Failed": 0,
+      "Skipped": 0,
+      "Total": 34
+    }
+  ],
+  "FullFastPassed": 4598,
+  "FinalSeederCommand": "dotnet test \"DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj\" -c Debug --no-restore -m:1 -p:UseSharedCompilation=false -p:NoWarn=NU1902%3BNU1510",
+  "FinalSeederPassed": 836,
+  "DebugBuild": "passed",
+  "ReleaseBuild": "passed",
+  "BuildSeparation": "Actual PE metadata: DebugSeederReplayProfiles present in Debug, absent in Release.",
+  "InputJsonChecks": 26,
+  "HandoffCatalogueChecks": 3810,
+  "FullEraOrderFixtures": 10,
+  "OptionalFixtures": 35,
+  "LegacyUpgrade": "passed with seven protected absent-edge ambiguities",
+  "LiveMysqlDatabase": "futuremud_culture_live_2145_m01",
+  "LiveMysql": "fresh migrations and selected stock seeder import; committed stable reruns",
+  "LiveTelnet": "Group inspection, prog editing/execution, opt-in NPC generation, persisted native 200 and eligible accents verified.",
+  "NotExecuted": [
+    "Five-era live MySQL sweep",
+    "Separate SQL blank snapshot import",
+    "Complete all-seeder Debug replay",
+    "Full player chargen telnet walkthrough",
+    "Climate suite",
+    "Production deployment"
+  ]
+}

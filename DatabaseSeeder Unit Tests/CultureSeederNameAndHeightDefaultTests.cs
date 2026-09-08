@@ -29,9 +29,12 @@ public class CultureSeederNameAndHeightDefaultTests
 		CultureSeeder seeder = new();
 		var question = seeder.SeederQuestions.Single(x => x.Id == "culturepacks");
 
-		StringAssert.Contains(question.Question, "#BEarth-DarkAgesAndMedieval#F");
-		StringAssert.Contains(question.Question, "#BEarth-RenaissanceEurope#F");
-		StringAssert.Contains(question.Question, "#BEarth-RenaissanceWorldExpansion#F");
+		foreach (var era in new[] { "Antiquity", "Dark Ages", "Medieval", "Renaissance", "Early Modern" })
+		{
+			StringAssert.Contains(question.Question, $"#B{era}#F");
+			Assert.IsTrue(question.Validator(era, context).Success);
+			Assert.IsNotNull(CultureSeeder.ToolkitEra(era));
+		}
 		Assert.IsFalse(question.Question.Contains("#BEarth-MedievalEurope#F", StringComparison.Ordinal));
 
 		Assert.IsTrue(question.Validator("earth-darkagesandmedieval", context).Success);

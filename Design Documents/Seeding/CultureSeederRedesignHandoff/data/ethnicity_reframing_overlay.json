@@ -1,0 +1,2784 @@
+[
+  {
+    "key": "ethnicity.german",
+    "label": "German",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Germanic",
+    "home_language_selector": "german",
+    "name_culture_reuse": "German",
+    "legacy_aliases": [
+      "High Medieval German"
+    ],
+    "notes": "Do not use as the umbrella ethnicity for all Dark Ages continental Germanic communities; keep existing regional identities.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Germans belong to the German-speaking lands of central Europe. Their towns, lordships and rural communities preserve strong local identities, while related speech and the affairs of the Empire connect families across the region.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "german.middle-high"
+      ],
+      "renaissance": [
+        "german.early-new-high"
+      ],
+      "earlymodern": [
+        "german.early-new-high"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.austrian",
+    "label": "Austrian",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Germanic",
+    "home_language_selector": "german",
+    "name_culture_reuse": "German",
+    "legacy_aliases": [],
+    "notes": "Late medieval and later regional identity within wider German-speaking society; not a separate biological population template.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Austrians belong to the German-speaking communities of the Danube lands and the neighbouring Alpine valleys. Towns, estates and mountain settlements sustain their regional customs and their ties to the wider Empire.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "german.middle-high"
+      ],
+      "renaissance": [
+        "german.early-new-high"
+      ],
+      "earlymodern": [
+        "german.early-new-high"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.dutch",
+    "label": "Dutch",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Germanic",
+    "home_language_selector": "dutch",
+    "name_culture_reuse": "Dutch",
+    "legacy_aliases": [],
+    "notes": "Use earlier Low Countries/Frisian/Frankish identities in Dark Ages, rather than projecting a modern nationality backwards.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Dutch inhabit the towns, lowlands and waterways near the mouths of the Rhine and Meuse. Their speech and local customs unite busy trading communities with the farms and villages of the surrounding countryside.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "dutch.middle"
+      ],
+      "renaissance": [
+        "dutch"
+      ],
+      "earlymodern": [
+        "dutch"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.french",
+    "label": "French",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Romance",
+    "home_language_selector": "french",
+    "name_culture_reuse": "French",
+    "legacy_aliases": [
+      "High Medieval French"
+    ],
+    "notes": "Correct the inherited Germanic grouping. Political descent from Franks does not make French a Germanic language.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The French belong to the French-speaking communities of the kingdom and its neighbouring lands. Royal towns, provincial lordships and village communities preserve their own customs within a wider world of related speech and allegiance.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "french.old"
+      ],
+      "renaissance": [
+        "french.middle"
+      ],
+      "earlymodern": [
+        "french.earlymodern"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.occitan",
+    "label": "Occitan",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Romance",
+    "home_language_selector": "language:occitan",
+    "name_culture_reuse": "French [legacy; reviewed Occitan profile required]",
+    "legacy_aliases": [],
+    "notes": "Do not present French-name reuse as complete Occitan coverage; retain the French pool while a distinct regional profile is reviewed.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Occitans belong to the southern lands where the tongue of oc is spoken. Their towns and rural communities preserve local customs and a rich tradition of verse, with connections across the mountains and shores of the western Mediterranean.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "occitan"
+      ],
+      "renaissance": [
+        "occitan"
+      ],
+      "earlymodern": [
+        "occitan"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.english",
+    "label": "English",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Germanic",
+    "home_language_selector": "english",
+    "name_culture_reuse": "English",
+    "legacy_aliases": [
+      "High Medieval English"
+    ],
+    "notes": "Reuse the identity across later eras; retain early Anglo-Saxon/Anglo-Danish and Anglo-Norman distinctions when applicable.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The English inhabit the shires, towns and villages of England. Shared speech and the institutions of the kingdom connect communities whose local customs and family loyalties remain strong.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "english.middle"
+      ],
+      "renaissance": [
+        "english.middle"
+      ],
+      "earlymodern": [
+        "english.earlymodern"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.venetian",
+    "label": "Venetian",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Romance",
+    "home_language_selector": "language:venetian",
+    "name_culture_reuse": "Italian",
+    "legacy_aliases": [],
+    "notes": "Not the ancient Veneti: identical-looking labels do not justify merging distinct historical entities.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Venetians belong to Venice, its lagoon and the neighbouring communities of the northern Adriatic. Their speech, civic loyalties and family connections join the city to its surrounding lands and maritime settlements.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "venetian"
+      ],
+      "renaissance": [
+        "venetian"
+      ],
+      "earlymodern": [
+        "venetian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.florentine",
+    "label": "Florentine",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Romance",
+    "home_language_selector": "language:italian",
+    "name_culture_reuse": "Italian",
+    "legacy_aliases": [],
+    "notes": "Keep at the existing catalogue level of regional detail.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Florentines belong to Florence and its surrounding Tuscan country. Their families carry the speech and customs of a city whose workshops, commerce and public affairs reach deeply into neighbouring towns and villages.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "italian"
+      ],
+      "renaissance": [
+        "italian"
+      ],
+      "earlymodern": [
+        "italian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.milanese",
+    "label": "Milanese",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Romance",
+    "home_language_selector": "language:italian",
+    "name_culture_reuse": "Italian",
+    "legacy_aliases": [],
+    "notes": "Preserve regional language profiles if available; Italian is a broad fallback, not automatic Tuscan vernacular identity.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Milanese belong to Milan and the neighbouring Lombard communities of the Po valley. Their speech and local traditions connect a powerful urban centre with the estates, villages and market towns of its surrounding lands.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "legacy:Lombard"
+      ],
+      "renaissance": [
+        "legacy:Lombard"
+      ],
+      "earlymodern": [
+        "legacy:Lombard"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.neapolitan",
+    "label": "Neapolitan",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Romance",
+    "home_language_selector": "language:italian",
+    "name_culture_reuse": "Italian",
+    "legacy_aliases": [],
+    "notes": "Preserve authored southern varieties.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Neapolitans belong to Naples and the neighbouring communities of southern Italy. Local speech, family ties and the affairs of the kingdom connect the great city with towns and villages throughout its surrounding country.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "legacy:Neapolitan"
+      ],
+      "renaissance": [
+        "legacy:Neapolitan"
+      ],
+      "earlymodern": [
+        "legacy:Neapolitan"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.sicilian",
+    "label": "Sicilian",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Romance",
+    "home_language_selector": "language:sicilian",
+    "name_culture_reuse": "Italian",
+    "legacy_aliases": [],
+    "notes": "Do not treat all ancient inhabitants of Sicily as the same later Romance ethnicity.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Sicilians belong to the towns and countryside of Sicily. Their speech and family traditions reflect the island's close connections with the Italian mainland and the many ports of the Mediterranean.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "sicilian"
+      ],
+      "renaissance": [
+        "sicilian"
+      ],
+      "earlymodern": [
+        "sicilian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.corsican",
+    "label": "Corsican",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Romance",
+    "home_language_selector": "language:italian",
+    "name_culture_reuse": "Italian",
+    "legacy_aliases": [],
+    "notes": "Retain regional naming and speech where present.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Corsicans inhabit the mountains, villages and coastal towns of Corsica. Strong family and local ties sustain their communities, while maritime connections bring them into frequent dealings with the neighbouring islands and Italian ports.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "italian"
+      ],
+      "renaissance": [
+        "italian"
+      ],
+      "earlymodern": [
+        "italian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.sardinian",
+    "label": "Sardinian",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Romance",
+    "home_language_selector": "language:sardinian",
+    "name_culture_reuse": "Italian",
+    "legacy_aliases": [],
+    "notes": "Ancient island populations and later Sardinian Romance society need contextual separation.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Sardinians belong to the towns, farming districts and pastoral communities of Sardinia. Their language and local customs give the island a distinct character, maintained through family connections and the affairs of its villages.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "sardinian"
+      ],
+      "renaissance": [
+        "sardinian"
+      ],
+      "earlymodern": [
+        "sardinian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.castilian",
+    "label": "Castilian",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Iberian Romance",
+    "home_language_selector": "castilian",
+    "name_culture_reuse": "Iberian",
+    "legacy_aliases": [
+      "High Medieval Castilian"
+    ],
+    "notes": "Preserve broad shared name structure, but do not force Castilian personal forms onto Catalan or Portuguese profiles.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Castilians belong to Castile's towns, estates and village communities. Their speech and regional traditions connect the northern uplands with the expanding settlements and cultivated lands farther south.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "castilian.old"
+      ],
+      "renaissance": [
+        "castilian"
+      ],
+      "earlymodern": [
+        "castilian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.catalan",
+    "label": "Catalan",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Iberian Romance",
+    "home_language_selector": "language:catalan",
+    "name_culture_reuse": "Iberian",
+    "legacy_aliases": [
+      "High Medieval Catalan"
+    ],
+    "notes": "Shared structure does not require a shared Castilian name inventory.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Catalans belong to the Catalan-speaking towns and countryside of the eastern Iberian lands. Family connections and local institutions link their inland communities to ports and settlements across the western Mediterranean.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "catalan"
+      ],
+      "renaissance": [
+        "catalan"
+      ],
+      "earlymodern": [
+        "catalan"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.galician",
+    "label": "Galician",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Iberian Romance",
+    "home_language_selector": "language:galician-portuguese",
+    "name_culture_reuse": "Iberian",
+    "legacy_aliases": [
+      "Galicians",
+      "High Medieval Galician"
+    ],
+    "notes": "Use Galician/Portuguese stages by era; fix singular label without deleting legacy references.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Galicians inhabit the valleys, villages and coastal communities of northwestern Iberia. Their speech and local traditions connect the Atlantic shore with the neighbouring lands of León and Portugal.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "galician-portuguese"
+      ],
+      "renaissance": [
+        "galician"
+      ],
+      "earlymodern": [
+        "galician"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.portuguese",
+    "label": "Portuguese",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Iberian Romance",
+    "home_language_selector": "language:galician-portuguese",
+    "name_culture_reuse": "Iberian",
+    "legacy_aliases": [
+      "Portugese",
+      "High Medieval Portuguese"
+    ],
+    "notes": "Use Portuguese for R/E; historical Galician-Portuguese can remain a separate earlier competency.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Portuguese belong to the towns, villages and coastal communities of Portugal. Their speech and family traditions follow the Atlantic-facing lands from the northern valleys to the settlements and ports farther south.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "galician-portuguese"
+      ],
+      "renaissance": [
+        "portuguese"
+      ],
+      "earlymodern": [
+        "portuguese"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.basque",
+    "label": "Basque",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Basque",
+    "home_language_selector": "language:basque",
+    "name_culture_reuse": "Basque",
+    "legacy_aliases": [
+      "High Medieval Basque"
+    ],
+    "notes": "Ancient Aquitanian links require context rather than automatic modern identity projection.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Basques inhabit the valleys and coastal lands on both sides of the western Pyrenees. Their distinctive language and local customs endure among communities bound by family ties, neighbouring settlements and the affairs of their valleys.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "basque"
+      ],
+      "renaissance": [
+        "basque"
+      ],
+      "earlymodern": [
+        "basque"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.welsh",
+    "label": "Welsh",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Brittonic",
+    "home_language_selector": "language:welsh",
+    "name_culture_reuse": "Welsh",
+    "legacy_aliases": [],
+    "notes": "Keep Welsh available independently of English culture; later bilingualism is a background choice.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Welsh belong to the Welsh-speaking communities of Wales and its borderlands. Kinship, local custom and a strong tradition of poetry sustain their identity among the hills, farms and towns of their country.",
+    "home_language_alternatives_by_era": {
+      "darkages": [
+        "english.old"
+      ],
+      "medieval": [
+        "english.middle",
+        "english.old"
+      ],
+      "renaissance": [
+        "english.middle",
+        "english.earlymodern"
+      ],
+      "earlymodern": [
+        "english.earlymodern"
+      ]
+    },
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "welsh"
+      ],
+      "medieval": [
+        "welsh"
+      ],
+      "renaissance": [
+        "welsh"
+      ],
+      "earlymodern": [
+        "welsh"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.breton",
+    "label": "Breton",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Brittonic",
+    "home_language_selector": "language:breton",
+    "name_culture_reuse": "Breton",
+    "legacy_aliases": [],
+    "notes": "Keep Gallo-speaking and Breton-speaking home choices where represented; Breton culture is not mandatory Breton fluency.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Bretons belong to the Breton-speaking communities of Brittany. Their local traditions, family ties and maritime connections join villages and coastal towns to the wider affairs of the peninsula.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "breton"
+      ],
+      "medieval": [
+        "breton"
+      ],
+      "renaissance": [
+        "breton"
+      ],
+      "earlymodern": [
+        "breton"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.irish-gael",
+    "label": "Irish Gael",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Goidelic",
+    "home_language_selector": "gaelic",
+    "name_culture_reuse": "Irish",
+    "legacy_aliases": [
+      "Gaelic",
+      "Medieval Irish Gael"
+    ],
+    "notes": "Shared Gaelic heritage can supply Irish and Scottish naming variants without creating duplicates for every era.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Irish Gaels belong to the Gaelic-speaking kindreds and communities of Ireland. Lineage, local custom and the learning of poets and genealogists bind families to their lands and neighbouring lordships.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "gaelic.medieval"
+      ],
+      "medieval": [
+        "gaelic.medieval"
+      ],
+      "renaissance": [
+        "irish"
+      ],
+      "earlymodern": [
+        "irish"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.scottish-gael",
+    "label": "Scottish Gael",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Goidelic",
+    "home_language_selector": "gaelic",
+    "name_culture_reuse": "Medieval Scottish Gaelic Lowland",
+    "legacy_aliases": [
+      "High Medieval Scottish Gael"
+    ],
+    "notes": "Correct the misleading legacy Lowland naming label where its actual content is Gaelic; preserve original arrays.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Scottish Gaels belong to the Gaelic-speaking communities of the Highlands and western islands of Scotland. Kindred, lordship and sea routes connect their households, while learned families preserve the words and histories of their people.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "gaelic.medieval"
+      ],
+      "medieval": [
+        "gaelic.medieval"
+      ],
+      "renaissance": [
+        "scottish-gaelic"
+      ],
+      "earlymodern": [
+        "scottish-gaelic"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.lowland-scot",
+    "label": "Lowland Scot",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Germanic",
+    "home_language_selector": "language:scots",
+    "name_culture_reuse": "English [legacy structure; Scots profile]",
+    "legacy_aliases": [],
+    "notes": "Separate from Gaelic ancestry by community identity, not a compulsory language test.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Lowland Scots belong to the burghs, farming districts and border communities of Scotland's lowlands. Their speech and local institutions link neighbouring families to the affairs of the Scottish crown.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "scots"
+      ],
+      "renaissance": [
+        "scots"
+      ],
+      "earlymodern": [
+        "scots"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.polish",
+    "label": "Polish",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "West Slavic",
+    "home_language_selector": "language:polish",
+    "name_culture_reuse": "Polish",
+    "legacy_aliases": [],
+    "notes": "Do not convert the Sarmatian ideology of nobles into Scythian/Sarmatian ethnicity.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Poles belong to the Polish-speaking communities of Poland and the neighbouring lands. Towns, noble estates and villages preserve their regional traditions within a wider world of related speech and shared institutions.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "polish"
+      ],
+      "renaissance": [
+        "polish"
+      ],
+      "earlymodern": [
+        "polish"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.czech",
+    "label": "Czech",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "West Slavic",
+    "home_language_selector": "language:czech",
+    "name_culture_reuse": "Western Slavic",
+    "legacy_aliases": [],
+    "notes": "Preserve structure; use a Czech-compatible profile rather than a generic all-Slavic inventory.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Czechs belong to the Czech-speaking communities of Bohemia and Moravia. Their families maintain local traditions in towns, estates and villages whose affairs are closely connected to the lands of the Bohemian crown.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "czech"
+      ],
+      "renaissance": [
+        "czech"
+      ],
+      "earlymodern": [
+        "czech"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.slovak",
+    "label": "Slovak",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "West Slavic",
+    "home_language_selector": "language:slovak",
+    "name_culture_reuse": "Western Slavic",
+    "legacy_aliases": [],
+    "notes": "Correct the inherited description that places Slovaks chiefly in Moravia; avoid a modern state boundary definition.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Slovaks belong to the Slavic-speaking communities of the northern Hungarian lands. Mountain valleys, market towns and farming settlements preserve their local speech and family traditions alongside their dealings with neighbouring peoples.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "slovak"
+      ],
+      "renaissance": [
+        "slovak"
+      ],
+      "earlymodern": [
+        "slovak"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.ruthenian",
+    "label": "Ruthenian",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "East Slavic",
+    "home_language_selector": "east-slavic",
+    "name_culture_reuse": "Eastern Slavic",
+    "legacy_aliases": [],
+    "notes": "Do not duplicate every household as both Ruthenian and Ukrainian by default. Later regional labels can be retained as options with context.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Ruthenians belong to the Rus communities of the western and southern lands. Related speech, churches and family traditions connect their towns and villages across the territories of local princes and the Polish and Lithuanian rulers.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "slavic.old-east"
+      ],
+      "renaissance": [
+        "ruthenian"
+      ],
+      "earlymodern": [
+        "ruthenian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.russian",
+    "label": "Russian",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "East Slavic",
+    "home_language_selector": "east-slavic",
+    "name_culture_reuse": "Eastern Slavic",
+    "legacy_aliases": [],
+    "notes": "Use Rus identities for earlier contexts and Russian/Muscovite labels where appropriate in later packs.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Russians belong to the Rus communities centred upon Muscovy and the northeastern lands. Shared speech, religious institutions and family connections join their towns and villages to the affairs of the Muscovite rulers.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "slavic.old-east"
+      ],
+      "renaissance": [
+        "russian"
+      ],
+      "earlymodern": [
+        "russian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.croat",
+    "label": "Croat",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "South Slavic",
+    "home_language_selector": "south-slavic",
+    "name_culture_reuse": "Western Slavic",
+    "legacy_aliases": [],
+    "notes": "Correct the naming-family description; preserve inventories without claiming South Slavic is West Slavic.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Croats belong to the Croatian lands and their neighbouring Adriatic and inland communities. Local speech, family tradition and the affairs of towns and lordships sustain their identity across coast and countryside.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "legacy:Serbo-Croatian"
+      ],
+      "renaissance": [
+        "legacy:Serbo-Croatian"
+      ],
+      "earlymodern": [
+        "legacy:Serbo-Croatian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.serb",
+    "label": "Serb",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "South Slavic",
+    "home_language_selector": "south-slavic",
+    "name_culture_reuse": "Western Slavic",
+    "legacy_aliases": [],
+    "notes": "Do not describe all Serbs as subjects of Hungary throughout the era.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Serbs belong to the Serbian lands and neighbouring communities of the Balkan interior. Their speech, family traditions and churches connect towns and villages across the territories of local rulers and lords.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "legacy:Serbo-Croatian"
+      ],
+      "renaissance": [
+        "legacy:Serbo-Croatian"
+      ],
+      "earlymodern": [
+        "legacy:Serbo-Croatian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.bosnian",
+    "label": "Bosnian",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "South Slavic",
+    "home_language_selector": "south-slavic",
+    "name_culture_reuse": "Western Slavic",
+    "legacy_aliases": [
+      "Bosniak"
+    ],
+    "notes": "Medieval Bosnian community is not universally defined by Islam. Preserve later Bosniak content with its appropriate scope.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Bosnians belong to the towns, valleys and upland communities of Bosnia. Local speech, family connections and the affairs of neighbouring lordships sustain their regional identity among the peoples of the Balkan lands.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "legacy:Serbo-Croatian"
+      ],
+      "renaissance": [
+        "legacy:Serbo-Croatian"
+      ],
+      "earlymodern": [
+        "legacy:Serbo-Croatian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.vlach",
+    "label": "Vlach",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Eastern Romance",
+    "home_language_selector": "language:romanian",
+    "name_culture_reuse": "Western Slavic [legacy; correction required]",
+    "legacy_aliases": [],
+    "notes": "Correct Slavic classification and naming association; preserve separate regional Vlach/Aromanian identities when present.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Vlachs are a Romance-speaking people of the Danube lands and the Balkan mountains. Their communities include farmers, herdsmen and townspeople, joined by local speech, kinship and routes between upland and lowland settlements.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "romanian"
+      ],
+      "renaissance": [
+        "romanian"
+      ],
+      "earlymodern": [
+        "romanian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.lithuanian",
+    "label": "Lithuanian",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Baltic",
+    "home_language_selector": "language:lithuanian",
+    "name_culture_reuse": "Finno-Ugric [legacy; correction required]",
+    "legacy_aliases": [],
+    "notes": "Baltic, not Finnic. Pagan and Christian naming contexts need separate profile eligibility, not invented universal surnames.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Lithuanians belong to the Lithuanian-speaking communities of the eastern Baltic lands. Family and regional traditions connect the countryside with towns and noble households across the grand duchy's territories.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "lithuanian"
+      ],
+      "renaissance": [
+        "lithuanian"
+      ],
+      "earlymodern": [
+        "lithuanian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.latvian",
+    "label": "Latvian",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Baltic",
+    "home_language_selector": "language:latvian",
+    "name_culture_reuse": "Finno-Ugric [legacy; correction required]",
+    "legacy_aliases": [],
+    "notes": "Preserve earlier Latgalian, Curonian and other regional identities where present; Latvian umbrella belongs to a broader later context.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Latvians belong to the Latvian-speaking communities of the eastern Baltic coast and its inland districts. Local customs and family connections link their farms, villages and market settlements along rivers and trading routes.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "latvian"
+      ],
+      "renaissance": [
+        "latvian"
+      ],
+      "earlymodern": [
+        "latvian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.old-prussian",
+    "label": "Old Prussian",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Baltic",
+    "home_language_selector": "language:old-prussian",
+    "name_culture_reuse": "Finno-Ugric [legacy; correction required]",
+    "legacy_aliases": [
+      "Prussian"
+    ],
+    "notes": "Not the later German political identity Prussian. Female-name attestation is an explicit review gate, not a licence to invent a large corpus.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Prussians belong to the Baltic-speaking communities of Prussia. Their inherited speech and local traditions persist among the settlements and countryside beside the towns and institutions of German-speaking neighbours and rulers.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "old-prussian"
+      ],
+      "medieval": [
+        "old-prussian"
+      ],
+      "renaissance": [
+        "old-prussian"
+      ],
+      "earlymodern": [
+        "old-prussian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.estonian",
+    "label": "Estonian",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Finnic",
+    "home_language_selector": "language:estonian",
+    "name_culture_reuse": "Finno-Ugric [inspect actual contents]",
+    "legacy_aliases": [],
+    "notes": "Finnic, not linguistically Baltic. Retain a broad Estonia community label as a game abstraction with early local variation noted.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Estonians belong to the Finnic-speaking communities of the eastern Baltic coast and nearby islands. Village ties, regional speech and family traditions connect their farms and settlements to neighbouring towns and ports.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "estonian"
+      ],
+      "medieval": [
+        "estonian"
+      ],
+      "renaissance": [
+        "estonian"
+      ],
+      "earlymodern": [
+        "estonian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.finnish",
+    "label": "Finnish",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Finnic",
+    "home_language_selector": "language:finnish",
+    "name_culture_reuse": "Finno-Ugric [inspect actual contents]",
+    "legacy_aliases": [],
+    "notes": "Do not use this as the name inventory for all Baltic-speaking peoples.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Finns belong to the Finnic-speaking communities of the northern forests, lake districts and Baltic shores. Local speech, farming, fishing and family connections sustain settlements linked by waterways and seasonal routes.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "finnish"
+      ],
+      "medieval": [
+        "finnish"
+      ],
+      "renaissance": [
+        "finnish"
+      ],
+      "earlymodern": [
+        "finnish"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.hungarian",
+    "label": "Hungarian",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Ugric",
+    "home_language_selector": "language:hungarian",
+    "name_culture_reuse": "Hungarian",
+    "legacy_aliases": [
+      "Conquest-Period Magyar"
+    ],
+    "notes": "Remove literal descent-from-Attila assertion. Retain Magyar terminology as a historical label, not a new ethnic entity per pack.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Hungarians, also called Magyars, belong to the Hungarian-speaking communities of the Carpathian basin. Their speech and regional traditions connect noble households, market towns and villages across the lands of Hungary.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "hungarian"
+      ],
+      "medieval": [
+        "hungarian"
+      ],
+      "renaissance": [
+        "hungarian"
+      ],
+      "earlymodern": [
+        "hungarian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.danish",
+    "label": "Danish",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "North Germanic",
+    "home_language_selector": "language:danish",
+    "name_culture_reuse": "Danish",
+    "legacy_aliases": [
+      "Viking-Age Dane"
+    ],
+    "notes": "Norse parentage is not a reason to erase Danish community identity.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Danes inhabit Jutland and the Danish islands. Their language and family traditions connect farms, towns and coastal settlements whose affairs are closely bound to the seas and the Danish crown.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "danish"
+      ],
+      "renaissance": [
+        "danish"
+      ],
+      "earlymodern": [
+        "danish"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.swedish",
+    "label": "Swedish",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "North Germanic",
+    "home_language_selector": "language:swedish",
+    "name_culture_reuse": "Swedish",
+    "legacy_aliases": [
+      "Viking-Age Swede"
+    ],
+    "notes": "Retain regional Norse and Swedish contexts.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Swedes belong to the Swedish-speaking communities of the northern kingdom. Farming districts, woodland settlements, mines and ports are joined by local customs, family connections and the affairs of the crown.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "swedish"
+      ],
+      "renaissance": [
+        "swedish"
+      ],
+      "earlymodern": [
+        "swedish"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.norwegian",
+    "label": "Norwegian",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "North Germanic",
+    "home_language_selector": "language:norwegian",
+    "name_culture_reuse": "Danish [legacy; regional profile]",
+    "legacy_aliases": [
+      "Norse",
+      "Viking-Age Norwegian"
+    ],
+    "notes": "Do not silently treat Norse as a timeless synonym for Norwegian in all contexts.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Norwegians belong to the fjords, valleys and coastal communities of Norway. Their speech and regional customs follow the routes between mountain farms, fishing settlements and towns facing the northern seas.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "norwegian"
+      ],
+      "renaissance": [
+        "norwegian"
+      ],
+      "earlymodern": [
+        "norwegian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.icelandic",
+    "label": "Icelandic",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "North Germanic",
+    "home_language_selector": "language:icelandic",
+    "name_culture_reuse": "Danish [legacy; patronymic correction]",
+    "legacy_aliases": [],
+    "notes": "Retain living patronymics rather than impose universal inherited Danish family names.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Icelanders belong to the farming households and coastal communities of Iceland. Family connections, assemblies and a strong tradition of remembered and written accounts sustain their society across widely separated settlements.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "icelandic"
+      ],
+      "renaissance": [
+        "icelandic"
+      ],
+      "earlymodern": [
+        "icelandic"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.greek-roman",
+    "label": "Greek Roman",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Greek and Eastern Roman",
+    "home_language_selector": "greek",
+    "name_culture_reuse": "Hellenic",
+    "legacy_aliases": [
+      "Roman",
+      "Middle Byzantine Roman"
+    ],
+    "notes": "Use a distinct canonical key from Roman/Latin in Antiquity. Label may be Roman, Greek or Greek Roman by era; preserve Eastern Roman self-identification.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Greek-speaking Romans belong to the towns and countryside of the eastern Roman world. Roman identity, Greek speech and the traditions of their churches connect families across the Aegean, Anatolia and neighbouring Mediterranean lands.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "greek.medieval"
+      ],
+      "medieval": [
+        "greek.medieval"
+      ],
+      "renaissance": [
+        "greek.medieval"
+      ],
+      "earlymodern": [
+        "greek.medieval"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.turkish",
+    "label": "Turkish",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Turkic",
+    "home_language_selector": "turkic",
+    "name_culture_reuse": "Turkish",
+    "legacy_aliases": [
+      "Ottoman",
+      "High Medieval Oghuz Turk"
+    ],
+    "notes": "Ottoman is primarily the adopted imperial/service culture here; use Turkish/Turkmen/Oghuz heritage with period context.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Turks belong to Turkish-speaking communities of Anatolia and neighbouring lands. Their settled towns, farming villages and pastoral households maintain related speech and family traditions alongside their ties to rulers and local lords.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "turkic.oghuz"
+      ],
+      "renaissance": [
+        "turkish.ottoman"
+      ],
+      "earlymodern": [
+        "turkish.ottoman"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.persian",
+    "label": "Persian",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Iranian",
+    "home_language_selector": "persian",
+    "name_culture_reuse": "Persian",
+    "legacy_aliases": [
+      "Abbasid-Era Persian"
+    ],
+    "notes": "Shared New Persian naming need not extend unchanged into pre-Islamic Middle Persian contexts.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Persians belong to the Persian-speaking communities of Iran and neighbouring lands. Their towns, villages and learned households share a language of daily life, letters and public affairs that travels far beyond their home districts.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "persian.new"
+      ],
+      "medieval": [
+        "persian.new"
+      ],
+      "renaissance": [
+        "persian.new"
+      ],
+      "earlymodern": [
+        "persian.new"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.arab",
+    "label": "Arab",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Semitic-speaking historical community",
+    "home_language_selector": "arabic-east",
+    "name_culture_reuse": "Levantine",
+    "legacy_aliases": [
+      "Arabic"
+    ],
+    "notes": "Correct the inherited Indo-European description; distinguish ethnicity from the name of the language.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Arabs belong to communities linked by Arabic speech, family descent and local traditions. Their households are found in towns, villages and tribal lands, joined through kinship, trade and dealings among neighbouring peoples.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "arabic.mashriqi"
+      ],
+      "medieval": [
+        "arabic.mashriqi"
+      ],
+      "renaissance": [
+        "arabic.mashriqi"
+      ],
+      "earlymodern": [
+        "arabic.mashriqi"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.egyptian-arab",
+    "label": "Egyptian Arab",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Arabic-speaking Egyptian",
+    "home_language_selector": "arabic-east",
+    "name_culture_reuse": "Renaissance Mamluk Arabic",
+    "legacy_aliases": [
+      "Fatimid-Era Egyptian Arab"
+    ],
+    "notes": "Shared local culture and language do not make Mamluk military status an ethnicity.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Egyptian Arabs belong to Egypt's Arabic-speaking towns, villages and tribal communities. Their families share the life of the Nile lands and maintain connections through local custom, commerce and the speech of daily affairs.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "arabic.mashriqi"
+      ],
+      "medieval": [
+        "arabic.mashriqi"
+      ],
+      "renaissance": [
+        "arabic.mashriqi"
+      ],
+      "earlymodern": [
+        "arabic.mashriqi"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.copt",
+    "label": "Copt",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Egyptian Christian community",
+    "home_language_selector": "language:coptic",
+    "name_culture_reuse": "Renaissance Mamluk Arabic [Christian profile required]",
+    "legacy_aliases": [
+      "Fatimid-Era Copt"
+    ],
+    "notes": "Later home-language default is Egyptian/Mashriqi Arabic, not automatically Coptic; keep liturgical Coptic as learned option.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Copts belong to Egypt's Christian communities. Family ties, village life, churches and monasteries sustain their people, while Coptic readings and worship preserve a cherished religious inheritance alongside the tongues of daily life.",
+    "home_language_alternatives_by_era": {
+      "darkages": [
+        "arabic.mashriqi"
+      ],
+      "medieval": [
+        "coptic"
+      ],
+      "renaissance": [],
+      "earlymodern": []
+    },
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "coptic"
+      ],
+      "medieval": [
+        "arabic.mashriqi"
+      ],
+      "renaissance": [
+        "arabic.mashriqi"
+      ],
+      "earlymodern": [
+        "arabic.mashriqi"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.syriac",
+    "label": "Syriac",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Aramaic-speaking historical community",
+    "home_language_selector": "language:syriac",
+    "name_culture_reuse": "Medieval Abbasid Arabic [Christian profile required]",
+    "legacy_aliases": [
+      "Abbasid-Era Syriac"
+    ],
+    "notes": "Arabic cultural education may coexist with Syriac/Aramaic home or community identity.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Syriac Christians belong to communities across Mesopotamia and neighbouring lands. Churches, monasteries and family connections sustain their traditions, while Syriac books and worship join towns and villages whose everyday speech includes Aramaic and Arabic.",
+    "home_language_alternatives_by_era": {
+      "darkages": [
+        "aramaic",
+        "arabic.mashriqi"
+      ],
+      "medieval": [
+        "aramaic",
+        "arabic.mashriqi"
+      ],
+      "renaissance": [
+        "aramaic",
+        "arabic.mashriqi"
+      ],
+      "earlymodern": [
+        "aramaic",
+        "arabic.mashriqi"
+      ]
+    },
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "syriac"
+      ],
+      "medieval": [
+        "syriac"
+      ],
+      "renaissance": [
+        "syriac"
+      ],
+      "earlymodern": [
+        "syriac"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.armenian",
+    "label": "Armenian",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Armenian",
+    "home_language_selector": "language:armenian",
+    "name_culture_reuse": "Renaissance Armenian",
+    "legacy_aliases": [
+      "Late Medieval Armenian"
+    ],
+    "notes": "Reuse across later eras; do not impose eighteenth/nineteenth-century universal surname expectations on earlier periods.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Armenians belong to the Armenian-speaking towns, villages and highland communities of Armenia and their settlements abroad. Family connections, churches and a shared written tradition sustain their people across the lands between neighbouring empires.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "armenian"
+      ],
+      "medieval": [
+        "armenian"
+      ],
+      "renaissance": [
+        "armenian"
+      ],
+      "earlymodern": [
+        "armenian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.georgian",
+    "label": "Georgian",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Kartvelian",
+    "home_language_selector": "language:georgian",
+    "name_culture_reuse": "Renaissance Georgian",
+    "legacy_aliases": [],
+    "notes": "Preserve community and local lineage distinctions without equating culture to state membership.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Georgians belong to the Georgian-speaking towns and countryside south of the Caucasus. Family traditions, local lordships and the institutions of their churches connect mountain valleys with fertile lowlands and market towns.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "georgian"
+      ],
+      "medieval": [
+        "georgian"
+      ],
+      "renaissance": [
+        "georgian"
+      ],
+      "earlymodern": [
+        "georgian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.kurdish",
+    "label": "Kurdish",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Iranian",
+    "home_language_selector": "language:kurdish.kurmanji",
+    "name_culture_reuse": "Renaissance Kurdish",
+    "legacy_aliases": [
+      "High Medieval Kurdish"
+    ],
+    "notes": "Allow Gorani or other retained local language choices; not automatically Turkish or Persian naming.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Kurds belong to the highland towns, villages and tribal communities between the Anatolian, Mesopotamian and Iranian lands. Local speech, kindred and the affairs of neighbouring lordships sustain their communities across mountain routes and cultivated valleys.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "kurdish.kurmanji"
+      ],
+      "renaissance": [
+        "kurdish.kurmanji"
+      ],
+      "earlymodern": [
+        "kurdish.kurmanji"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.ashkenazi-jewish",
+    "label": "Ashkenazi Jewish",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Jewish diaspora",
+    "home_language_selector": "language:yiddish",
+    "name_culture_reuse": "Jewish Male / Jewish Female",
+    "legacy_aliases": [],
+    "notes": "Earlier daily vernacular is context-dependent. Hebrew is not an automatic native language, and fixed hereditary surnames must not be universal before 1750.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Ashkenazi Jews belong to the Jewish communities of the German lands and their settlements farther east. Family networks, congregations and learned traditions join them across towns and regions, alongside the tongues used in daily life and trade.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "german.old-high"
+      ],
+      "medieval": [
+        "yiddish"
+      ],
+      "renaissance": [
+        "yiddish"
+      ],
+      "earlymodern": [
+        "yiddish"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.sephardic-jewish",
+    "label": "Sephardic Jewish",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Jewish diaspora",
+    "home_language_selector": "language:judeo-spanish",
+    "name_culture_reuse": "Jewish Male / Jewish Female",
+    "legacy_aliases": [
+      "Sephardic"
+    ],
+    "notes": "Medieval Iberian vernaculars precede diasporic Judeo-Spanish. Keep genuine inherited family names where attested.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Sephardic Jews belong to the Jewish communities of Sepharad and to families who carry its traditions abroad. Congregations, household customs and learned connections sustain their identity among the towns and ports of Iberia and the Mediterranean.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "arabic.andalusi"
+      ],
+      "medieval": [
+        "castilian.old"
+      ],
+      "renaissance": [
+        "judeo-spanish"
+      ],
+      "earlymodern": [
+        "judeo-spanish"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.near-eastern-jewish",
+    "label": "Near Eastern Jewish",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Jewish diaspora",
+    "home_language_selector": "home",
+    "name_culture_reuse": "Jewish Male / Jewish Female",
+    "legacy_aliases": [
+      "Mizrahi Jewish"
+    ],
+    "notes": "Mizrahi is a convenient later umbrella, not a mandatory contemporary self-label. Offer Iraqi, Persian, Syrian or other community context.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Jewish communities of Syria, Mesopotamia and Iran maintain their congregations, family traditions and centres of learning. Local languages accompany daily affairs, while sacred texts and correspondence connect them with other Jewish communities across distant lands.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "aramaic"
+      ],
+      "medieval": [
+        "aramaic"
+      ],
+      "renaissance": [
+        "aramaic"
+      ],
+      "earlymodern": [
+        "aramaic"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.maghrebi-arab",
+    "label": "Maghrebi Arab",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Arabic-speaking Maghrebi",
+    "home_language_selector": "arabic-west",
+    "name_culture_reuse": "Morrocan",
+    "legacy_aliases": [
+      "North African"
+    ],
+    "notes": "North African is not a single ethnicity; preserve the umbrella as a compatibility/background option, not a replacement for specific peoples.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Maghrebi Arabs belong to Arabic-speaking towns, villages and tribal communities of the western lands. Family connections and local customs join coastal ports, cultivated plains and inland settlements to wider networks of trade and kinship.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "arabic.maghrebi"
+      ],
+      "medieval": [
+        "arabic.maghrebi"
+      ],
+      "renaissance": [
+        "arabic.maghrebi"
+      ],
+      "earlymodern": [
+        "arabic.maghrebi"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.andalusi-arab",
+    "label": "Andalusi Arab",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Arabic-speaking Andalusi",
+    "home_language_selector": "language:arabic.andalusi",
+    "name_culture_reuse": "Medieval Andalusian Arabic",
+    "legacy_aliases": [
+      "High Medieval Andalusi Arab",
+      "Moorish"
+    ],
+    "notes": "Moorish is an imprecise legacy umbrella. Preserve Arab, Amazigh and local Andalusi community distinctions.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Andalusi Arabs belong to the Arabic-speaking communities of al-Andalus and families established abroad from those lands. Urban, rural and learned traditions sustain their households, alongside ties to neighbouring Iberian and Maghrebi communities.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "arabic.andalusi"
+      ],
+      "medieval": [
+        "arabic.andalusi"
+      ],
+      "renaissance": [
+        "arabic.andalusi"
+      ],
+      "earlymodern": [
+        "arabic.andalusi"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.amazigh",
+    "label": "Amazigh",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Amazigh",
+    "home_language_selector": "home",
+    "name_culture_reuse": "Renaissance Amazigh",
+    "legacy_aliases": [
+      "High Medieval Andalusi Berber"
+    ],
+    "notes": "Keep the existing Tashelhit, Kabyle, Riffian and other regional variants. Do not invent one uniform spoken Berber language.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Amazigh belong to the mountain, valley and rural communities of the Maghreb. Their local tongues, kindreds and customary institutions maintain distinct traditions across districts linked by pastoral routes, cultivation and trade.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "amazigh.tashelhit"
+      ],
+      "medieval": [
+        "amazigh.tashelhit"
+      ],
+      "renaissance": [
+        "amazigh.tashelhit"
+      ],
+      "earlymodern": [
+        "amazigh.tashelhit"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.anglo-saxon",
+    "label": "Anglo-Saxon",
+    "packs": [
+      "darkages",
+      "medieval"
+    ],
+    "group": "Historical regional community",
+    "home_language_selector": "language:english.old",
+    "name_culture_reuse": "Medieval Early Anglo-Saxon",
+    "legacy_aliases": [
+      "Early Anglo-Saxon"
+    ],
+    "notes": "Preserve existing regional variants as selectable options; do not duplicate the same people solely because the selected era changes.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Anglo-Saxons belong to the English-speaking communities of Britain's southern and eastern lands. Kingdom, shire, kindred and local custom shape the affairs of their towns, estates and villages.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "english.old"
+      ],
+      "medieval": [
+        "english.old"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.anglo-danish-english",
+    "label": "Anglo-Danish English",
+    "packs": [
+      "darkages",
+      "medieval"
+    ],
+    "group": "Historical regional community",
+    "home_language_selector": "language:english.old",
+    "name_culture_reuse": "Medieval Anglo-Danish",
+    "legacy_aliases": [
+      "Danelaw English",
+      "Anglo-Dane"
+    ],
+    "notes": "Preserve existing regional variants as selectable options; do not duplicate the same people solely because the selected era changes.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Anglo-Danish English belong to communities shaped by the settlement of Danes among the English. Family connections, local law and the speech of both peoples give their towns and countryside a distinctive character.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "english.old"
+      ],
+      "medieval": [
+        "english.old"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.frank",
+    "label": "Frank",
+    "packs": [
+      "darkages",
+      "medieval"
+    ],
+    "group": "Historical regional community",
+    "home_language_selector": "home",
+    "name_culture_reuse": "Medieval Carolingian Frankish",
+    "legacy_aliases": [
+      "Carolingian Frank"
+    ],
+    "notes": "Preserve existing regional variants as selectable options; do not duplicate the same people solely because the selected era changes.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Franks belong to the peoples of the Frankish realms, whose royal houses and great families command lands on either side of the Rhine. Regional speech and local traditions accompany a wider identity sustained through service, lordship and allegiance.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "german.old-high"
+      ],
+      "medieval": [
+        "german.middle-high"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.continental-saxon",
+    "label": "Continental Saxon",
+    "packs": [
+      "darkages",
+      "medieval"
+    ],
+    "group": "Historical regional community",
+    "home_language_selector": "language:german.old-saxon",
+    "name_culture_reuse": "Medieval Carolingian Frankish",
+    "legacy_aliases": [],
+    "notes": "Preserve existing regional variants as selectable options; do not duplicate the same people solely because the selected era changes.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The continental Saxons belong to the Saxon lands of northern Germany. Their local speech, family traditions and communities distinguish them from neighbouring peoples along the coasts, plains and river valleys.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "german.old-saxon"
+      ],
+      "medieval": [
+        "german.middle-low"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.bavarian",
+    "label": "Bavarian",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Historical regional community",
+    "home_language_selector": "german",
+    "name_culture_reuse": "German",
+    "legacy_aliases": [
+      "High Medieval Bavarian"
+    ],
+    "notes": "Preserve existing regional variants as selectable options; do not duplicate the same people solely because the selected era changes.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Bavarians belong to the German-speaking communities of Bavaria and the neighbouring Alpine and Danubian lands. Regional speech and local traditions connect their towns, estates and valley settlements.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "german.old-high"
+      ],
+      "medieval": [
+        "german.middle-high"
+      ],
+      "renaissance": [
+        "german.early-new-high"
+      ],
+      "earlymodern": [
+        "german.early-new-high"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.alemannic-swabian",
+    "label": "Alemannic Swabian",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Historical regional community",
+    "home_language_selector": "german",
+    "name_culture_reuse": "German",
+    "legacy_aliases": [
+      "High Medieval Swabian"
+    ],
+    "notes": "Preserve existing regional variants as selectable options; do not duplicate the same people solely because the selected era changes.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Alemannic and Swabian peoples belong to the southwestern German lands. Related speech, family connections and local traditions join communities along the upper rivers, wooded hills and approaches to the Alps.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "german.old-high"
+      ],
+      "medieval": [
+        "german.middle-high"
+      ],
+      "renaissance": [
+        "german.early-new-high"
+      ],
+      "earlymodern": [
+        "german.early-new-high"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.frisian",
+    "label": "Frisian",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "group": "Historical regional community",
+    "home_language_selector": "language:frisian",
+    "name_culture_reuse": "Medieval Imperial German",
+    "legacy_aliases": [
+      "High Medieval Frisian"
+    ],
+    "notes": "Preserve existing regional variants as selectable options; do not duplicate the same people solely because the selected era changes.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Frisians belong to the coastal communities of the North Sea. Their distinctive speech and local customs join farming settlements, islands and trading places through kinship and maritime connections.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "frisian"
+      ],
+      "medieval": [
+        "frisian"
+      ],
+      "renaissance": [
+        "frisian"
+      ],
+      "earlymodern": [
+        "frisian"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.norman",
+    "label": "Norman",
+    "packs": [
+      "darkages",
+      "medieval"
+    ],
+    "group": "Historical regional community",
+    "home_language_selector": "language:norman.old",
+    "name_culture_reuse": "Medieval Norman",
+    "legacy_aliases": [
+      "Conquest-Era Norman"
+    ],
+    "notes": "Preserve existing regional variants as selectable options; do not duplicate the same people solely because the selected era changes.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Normans belong to the towns, estates and countryside of Normandy and their settlements abroad. Ducal allegiance, family connections and local speech bind their communities to the affairs of lords, ports and neighbouring lands.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "norman.old"
+      ],
+      "medieval": [
+        "norman.old"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.anglo-norman",
+    "label": "Anglo-Norman",
+    "packs": [
+      "medieval"
+    ],
+    "group": "Historical regional community",
+    "home_language_selector": "language:french.anglonorman",
+    "name_culture_reuse": "Medieval Anglo-Norman",
+    "legacy_aliases": [
+      "Marcher Anglo-Norman"
+    ],
+    "notes": "Preserve existing regional variants as selectable options; do not duplicate the same people solely because the selected era changes.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Anglo-Normans belong to families established in England and neighbouring lordships from Norman and French origins. Household traditions and French speech connect them across the Channel, alongside growing ties to the lands in which they live.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "medieval": [
+        "french.anglonorman"
+      ]
+    }
+  },
+  {
+    "key": "ethnicity.norse-gael",
+    "label": "Norse-Gael",
+    "packs": [
+      "darkages",
+      "medieval"
+    ],
+    "group": "Historical regional community",
+    "home_language_selector": "gaelic",
+    "name_culture_reuse": "Medieval Scottish Gaelic Lowland",
+    "legacy_aliases": [
+      "Medieval Gall-Gaidheal"
+    ],
+    "notes": "Preserve existing regional variants as selectable options; do not duplicate the same people solely because the selected era changes.",
+    "phenotype_policy": "Retain existing profile links; new identities may share reviewed broad existing defaults. Do not fabricate period blood-frequency or behavioural differences.",
+    "sources": [
+      "R05",
+      "R09",
+      "R10",
+      "R19"
+    ],
+    "status": "Preservation/reframing overlay; retain additional legacy regional variants rather than deleting them.",
+    "home_language_choice_policy": "Automatic fixed ethnic-language grant; no player-selected upbringing or adopted-language override.",
+    "binding_status": "Editorial overlay. Match by source module and original record, not by label alone; preserve unlisted legacy ethnicities.",
+    "description_mode": "Contemporary player-facing replacement supplied. Retain fuller compliant legacy detail where available; archive the original and keep editorial notes outside player-facing fields.",
+    "replacement_description": "The Norse-Gaels belong to communities formed where Norse settlers and Gaelic kindreds meet around the western seas. Family alliances, local speech and maritime connections join their households across islands, coasts and neighbouring lordships.",
+    "native_language_policy": "fixed-by-ethnicity-and-era",
+    "native_languages_by_era": {
+      "darkages": [
+        "gaelic.medieval"
+      ],
+      "medieval": [
+        "gaelic.medieval"
+      ]
+    }
+  }
+]

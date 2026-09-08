@@ -1,0 +1,622 @@
+[
+  {
+    "Module": "earthantiquity",
+    "Entity": "NameCulture",
+    "Identity": "Gaulish Female",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?:(?<birthname>[\\w'-]+))\\s+(?<matronym>[\\w'-]+)\\s*(?<patronym>[\\w'-]+)*$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Your given name is a name given to you by your mother eight days after you are born. Your given name is usually unique amongst your sisters, but deceased older siblings' names are often reused.\r\n\r\nThe Gauls have a long history of contact with both Greek and Latin speaking peoples, and some of their names are influenced by or corrupted forms of names from Hellenistic or Latin sources.\r\n\r\nYou can use the following generator if you are unsure: https://www.fantasynamegenerators.com/celtic-gaul-names.php\r\n#1Note: names that end in \"o\" or \"u\" in this generator should be read as ending in \"on\" and \"a\" respectively#0]]></Element>\r\n    <Element Name=\"Matronym\" Usage=\"8\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Your matronym derives from your mother, and is simply a modified version of her name. It is used primarily prior to marriage, after which it is more common to use your husband's patronym instead.\r\n\r\nIn Gaulish names, the matronym is formed by taking the genitive case of the mother's given name. A simplified version of these rules is as follows:\r\n\r\n1) If the mother's name ends in #6a#0, add an #6s#0 (e.g. #BVerica#0 -> #BVericas#0)\r\n2) If the mother's name ends in #6us/os#0, drop the #6us#0 or #6os#0 and add #6i#0 (e.g. #BMattus#0 -> #BMatti#0)\r\n3) If the mother's name ends in #6is#0, drop the #6is#0 and add #6eis#0 (e.g. #BVocagnis#0 -> #BVocagneis#0)]]></Element>\r\n    <Element Name=\"Patronym\" Usage=\"7\" MinimumCount=\"0\" MaximumCount=\"1\"><![CDATA[Your patronym is a modified version of your husband's given name, and is adopted as your primary surname after you are married. If you are unmarried, you should not select one.\r\n\r\nIn Gaulish names, the patronym is formed by taking the genitive case of your husband's given name. A simplified version of these rules is as follows:\r\n\r\n1) If the husband's name ends in #6ir#0, drop the #6ir#0 and add an #6ros#0 (e.g. #BDattovir#0 -> #BDattovros#0)\r\n2) If the husband's name ends in #6us/os#0, drop the #6us#0 or #6os#0 and add #6i#0 (e.g. #BAlpus#0 -> #BAlpi#0)\r\n3) If the husband's name ends in #6is#0, drop the #6is#0 and add #6eis#0 (e.g. #BLitavis#0 -> #BLitaveis#0)\r\n4) If the husband's name otherwise ends in a consonant, simply add #6i#0 (e.g. #BCaticorix#0 -> #BCaticorixi#0)]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"2\" Params=\"0,7,8\" Text=\"{0} ?1[{1}][{2}]\" />\r\n    <Pattern Style=\"5\" Params=\"0,7,8\" Text=\"{0} ?1[{1} nata {2}][{2}]\" />\r\n    <Pattern Style=\"1\" Params=\"0,7,8\" Text=\"{0} ?1[{1}][{2}]\" />\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"7,8\" Text=\"?0[{0}][{1}]\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?:(?<birthname>[\\w'-]+))\\s+(?<matronym>[\\w'-]+)\\s*(?<patronym>[\\w'-]+)*$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Your given name is a name given to you by your mother eight days after you are born. Your given name is usually unique amongst your sisters, but deceased older siblings' names are often reused.\r\n\r\nThe Gauls have a long history of contact with both Greek and Latin speaking peoples, and some of their names are influenced by or corrupted forms of names from Hellenistic or Latin sources.]]></Element>\r\n    <Element Name=\"Matronym\" Usage=\"8\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Your matronym derives from your mother, and is simply a modified version of her name. It is used primarily prior to marriage, after which it is more common to use your husband's patronym instead.\r\n\r\nIn Gaulish names, the matronym is formed by taking the genitive case of the mother's given name. A simplified version of these rules is as follows:\r\n\r\n1) If the mother's name ends in #6a#0, add an #6s#0 (e.g. #BVerica#0 -> #BVericas#0)\r\n2) If the mother's name ends in #6us/os#0, drop the #6us#0 or #6os#0 and add #6i#0 (e.g. #BMattus#0 -> #BMatti#0)\r\n3) If the mother's name ends in #6is#0, drop the #6is#0 and add #6eis#0 (e.g. #BVocagnis#0 -> #BVocagneis#0)]]></Element>\r\n    <Element Name=\"Patronym\" Usage=\"7\" MinimumCount=\"0\" MaximumCount=\"1\"><![CDATA[Your patronym is a modified version of your husband's given name, and is adopted as your primary surname after you are married. If you are unmarried, you should not select one.\r\n\r\nIn Gaulish names, the patronym is formed by taking the genitive case of your husband's given name. A simplified version of these rules is as follows:\r\n\r\n1) If the husband's name ends in #6ir#0, drop the #6ir#0 and add an #6ros#0 (e.g. #BDattovir#0 -> #BDattovros#0)\r\n2) If the husband's name ends in #6us/os#0, drop the #6us#0 or #6os#0 and add #6i#0 (e.g. #BAlpus#0 -> #BAlpi#0)\r\n3) If the husband's name ends in #6is#0, drop the #6is#0 and add #6eis#0 (e.g. #BLitavis#0 -> #BLitaveis#0)\r\n4) If the husband's name otherwise ends in a consonant, simply add #6i#0 (e.g. #BCaticorix#0 -> #BCaticorixi#0)]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"2\" Params=\"0,7,8\" Text=\"{0} ?1[{1}][{2}]\" />\r\n    <Pattern Style=\"5\" Params=\"0,7,8\" Text=\"{0} ?1[{1} nata {2}][{2}]\" />\r\n    <Pattern Style=\"1\" Params=\"0,7,8\" Text=\"{0} ?1[{1}][{2}]\" />\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"7,8\" Text=\"?0[{0}][{1}]\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "NameCulture",
+    "Identity": "Gaulish Male",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?:(?<birthname>[\\w'-]+))\\s+(?<patronym>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Your given name is a name given to you by your father eight days after you are born. Your given name is usually unique amongst your brothers, but deceased older siblings' names are often reused.\r\n\r\nThe Gauls have a long history of contact with both Greek and Latin speaking peoples, and some of their names are influenced by or corrupted forms of names from Hellenistic or Latin sources.\r\n\r\nYou can use the following generator if you are unsure: https://www.fantasynamegenerators.com/celtic-gaul-names.php\r\n#1Note: names that end in \"o\" in this generator should be read as ending in \"on\"#0]]></Element>\r\n    <Element Name=\"Patronym\" Usage=\"7\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Your Patronym is simply a modified version of your father's name, it can be thought of as being \"son of <x>\". \r\n\r\nIn Gaulish names, the patronym is formed by taking the genitive case of the father's given name. A simplified version of these rules is as follows:\r\n\r\n1) If the father's name ends in #6ir#0, drop the #6ir#0 and add an #6ros#0 (e.g. #BDattovir#0 -> #BDattovros#0)\r\n2) If the father's name ends in #6us/os#0, drop the #6us#0 or #6os#0 and add #6i#0 (e.g. #BAlpus#0 -> #BAlpi#0)\r\n3) If the father's name ends in #6is#0, drop the #6is#0 and add #6eis#0 (e.g. #BLitavis#0 -> #BLitaveis#0)\r\n4) If the father's name otherwise ends in a consonant, simply add #6i#0 (e.g. #BCaticorix#0 -> #BCaticorixi#0)]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"2\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"5\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"1\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"7\" Text=\"{0}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?:(?<birthname>[\\w'-]+))\\s+(?<patronym>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Your given name is a name given to you by your father eight days after you are born. Your given name is usually unique amongst your brothers, but deceased older siblings' names are often reused.\r\n\r\nThe Gauls have a long history of contact with both Greek and Latin speaking peoples, and some of their names are influenced by or corrupted forms of names from Hellenistic or Latin sources.]]></Element>\r\n    <Element Name=\"Patronym\" Usage=\"7\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Your Patronym is simply a modified version of your father's name, it can be thought of as being \"son of <x>\". \r\n\r\nIn Gaulish names, the patronym is formed by taking the genitive case of the father's given name. A simplified version of these rules is as follows:\r\n\r\n1) If the father's name ends in #6ir#0, drop the #6ir#0 and add an #6ros#0 (e.g. #BDattovir#0 -> #BDattovros#0)\r\n2) If the father's name ends in #6us/os#0, drop the #6us#0 or #6os#0 and add #6i#0 (e.g. #BAlpus#0 -> #BAlpi#0)\r\n3) If the father's name ends in #6is#0, drop the #6is#0 and add #6eis#0 (e.g. #BLitavis#0 -> #BLitaveis#0)\r\n4) If the father's name otherwise ends in a consonant, simply add #6i#0 (e.g. #BCaticorix#0 -> #BCaticorixi#0)]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"2\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"5\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"1\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"7\" Text=\"{0}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "NameCulture",
+    "Identity": "Egyptian",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Ancient Egyptian personal names are seeded as single names, many of them theophoric or royal-administrative names known from Egyptian and Graeco-Roman sources.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"2\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0\" Text=\"{0}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a single personal name. Names may honour a deity or reflect royal and administrative traditions.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"2\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0\" Text=\"{0}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "NameCulture",
+    "Identity": "Kushite",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Kushite names are seeded as single Meroitic and Napatan-style personal names, drawing heavily from royal names because those are the best-attested stock source.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"2\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0\" Text=\"{0}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a single Kushite personal name in a Meroitic or Napatan tradition.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"2\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0\" Text=\"{0}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "NameCulture",
+    "Identity": "Celtic Female",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<matronym>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Celtic personal names are usually single given names, often compound names known through Gaulish, Brittonic, Celtiberian, and Roman-era inscriptions.]]></Element>\r\n    <Element Name=\"Matronym\" Usage=\"8\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The matronym is a genitive form of the mother's personal name, included so female stock profiles do not draw lineage names from the male pool.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,8\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,8\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"8\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,8\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<matronym>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Celtic personal names are usually single given names, often compound names known through Gaulish, Brittonic, Celtiberian, and Roman-era inscriptions.]]></Element>\r\n    <Element Name=\"Matronym\" Usage=\"8\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The matronym identifies your mother through a genitive form of her personal name.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,8\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,8\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"8\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,8\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "NameCulture",
+    "Identity": "Punic",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<patronym>Ben-[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Punic given names draw from the western Phoenician and Carthaginian naming pool, with many theophoric names invoking Baal, Melqart, Eshmun, Tanit, or Astarte.]]></Element>\r\n    <Element Name=\"Patronym\" Usage=\"7\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Punic inscriptions commonly identify people by filiation. The seeded patronyms use the readable Ben- prefix as a stock 'child of' form.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"7\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<patronym>Ben-[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Punic given names draw from the western Phoenician and Carthaginian naming pool, with many theophoric names invoking Baal, Melqart, Eshmun, Tanit, or Astarte.]]></Element>\r\n    <Element Name=\"Patronym\" Usage=\"7\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Your patronym identifies your parent.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"7\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "NameCulture",
+    "Identity": "Ancient Persian",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<patronym>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Ancient Persian personal names here use the familiar Greek and Latin transliterations of Achaemenid and early Iranian names.]]></Element>\r\n    <Element Name=\"Patronym\" Usage=\"7\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The patronym is the father's personal name, reflecting the common royal and aristocratic formula 'X son of Y' without forcing a translated particle into the name.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"7\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<patronym>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a Persian personal name, using the spelling you want other people to use.]]></Element>\r\n    <Element Name=\"Patronym\" Usage=\"7\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The patronym is the father's personal name, reflecting the common royal and aristocratic formula 'X son of Y' without forcing a translated particle into the name.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"7\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "NameCulture",
+    "Identity": "Celtic Male",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<patronym>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Celtic personal names are usually single given names, often compound names known through Gaulish, Brittonic, Celtiberian, and Roman-era inscriptions.]]></Element>\r\n    <Element Name=\"Patronym\" Usage=\"7\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The patronym is a genitive form of the father's personal name, used here as a compact stock approximation of the attested Celtic patronymic formulas.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"7\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<patronym>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Celtic personal names are usually single given names, often compound names known through Gaulish, Brittonic, Celtiberian, and Roman-era inscriptions.]]></Element>\r\n    <Element Name=\"Patronym\" Usage=\"7\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The patronym identifies your father through a genitive form of his personal name.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"7\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,7\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "NameCulture",
+    "Identity": "Etruscan",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<surname>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Etruscan personal names use a praenomen-style given name; unlike Roman women, Etruscan women also regularly retained personal names in inscriptions.]]></Element>\r\n    <Element Name=\"Family Name\" Usage=\"6\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The family name is the gentilicium or clan name. Full Etruscan inscriptions may add patronymics, matronymics, or marriage identifiers, but this stock profile keeps the reusable core two-name form.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"6\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<surname>[\\w'-]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Etruscan personal names use a praenomen-style given name; unlike Roman women, Etruscan women also regularly retained personal names in inscriptions.]]></Element>\r\n    <Element Name=\"Family Name\" Usage=\"6\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The family name is the gentilicium or clan name.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"6\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "NameCulture",
+    "Identity": "Anatolian",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<toponym>[\\w' -]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Anatolian names cover Lydian, Phrygian, Carian, Lycian, Cappadocian, and Hellenistic Anatolian stock names used by the antiquity item cultures.]]></Element>\r\n    <Element Name=\"Toponym\" Usage=\"13\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The toponym records the city, district, or royal centre most useful for distinguishing people across the many Anatolian naming traditions.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,13\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,13\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"13\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,13\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<toponym>[\\w' -]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a personal name from the Lydian, Phrygian, Carian, Lycian, Cappadocian or Hellenistic communities of Anatolia.]]></Element>\r\n    <Element Name=\"Toponym\" Usage=\"13\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The toponym records the city, district, or royal centre most useful for distinguishing people across the many Anatolian naming traditions.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,13\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,13\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"13\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,13\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "NameCulture",
+    "Identity": "Scythian-Sarmatian",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<toponym>[\\w' -]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Scythian and Sarmatian names use Greek and Latin source forms for Iranic steppe peoples around the Black Sea and Pontic-Caspian frontier.]]></Element>\r\n    <Element Name=\"Tribal Identifier\" Usage=\"13\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The tribal identifier distinguishes the broad nomadic, royal, and client groupings that Roman and Greek observers used for steppe peoples.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,13\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,13\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"13\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,13\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]+)\\s+(?<toponym>[\\w' -]+)$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Given Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a personal name from a Scythian or Sarmatian household of the Black Sea or Pontic-Caspian steppe.]]></Element>\r\n    <Element Name=\"Tribal Identifier\" Usage=\"13\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The tribal identifier distinguishes the broad nomadic, royal, and client groupings that Roman and Greek observers used for steppe peoples.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,13\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,13\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"13\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,13\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "NameCulture",
+    "Identity": "Numidian-Mauretanian",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]{2,}) (?<familygroupname>[\\w'-]{2,})$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Personal Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Numidian and Mauretanian names are drawn from the Libyco-Berber and North African royal and tribal naming horizon as it appears in Punic, Greek and Latin sources. Common masculine examples include Masinissa, Micipsa, Jugurtha, Adherbal, Hiempsal and Bocchus; feminine examples are necessarily broader and include Sophonisba, Eunoe, Masinissa-derived and tribal feminine forms suitable for the same setting.]]></Element>\r\n    <Element Name=\"Tribe, House or People Name\" Usage=\"9\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The second element represents a tribe, royal house, regional people or broad kin affiliation rather than a fixed hereditary surname. Examples include Massylii, Masaesyli, Gaetuli, Mauri, Musulamii and Cirta.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"9\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]{2,}) (?<familygroupname>[\\w'-]{2,})$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Personal Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a personal name from a Numidian or Mauretanian household.]]></Element>\r\n    <Element Name=\"Tribe, House or People Name\" Usage=\"9\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[The second element represents a tribe, royal house, regional people or broad kin affiliation rather than a fixed hereditary surname. Examples include Massylii, Masaesyli, Gaetuli, Mauri, Musulamii and Cirta.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"9\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Gaelic:Crude",
+    "Field": "Description",
+    "Original": "A crude accent typical of someone who has only recently learned Medieval Gaelic.",
+    "Replacement": "A crude accent typical of someone who has only recently learned Gaelic.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Greek:Crude",
+    "Field": "Description",
+    "Original": "A crude accent typical of someone who has only recently learned Medieval Greek.",
+    "Replacement": "A crude accent typical of someone who has only recently learned Greek.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Japanese:Crude",
+    "Field": "Description",
+    "Original": "A crude accent typical of someone who has only recently learned Medieval Japanese.",
+    "Replacement": "A crude accent typical of someone who has only recently learned Japanese.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Tamil:Crude",
+    "Field": "Description",
+    "Original": "A crude accent typical of someone who has only recently learned Medieval Tamil.",
+    "Replacement": "A crude accent typical of someone who has only recently learned Tamil.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Greek:Anatolian",
+    "Field": "Description",
+    "Original": "A medieval Greek variety of Byzantine Anatolia.",
+    "Replacement": "A Greek variety of Byzantine Anatolia.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Greek:Aegean",
+    "Field": "Description",
+    "Original": "A medieval Greek variety of the Aegean islands and coasts.",
+    "Replacement": "A Greek variety of the Aegean islands and coasts.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Tamil:Lankan",
+    "Field": "Description",
+    "Original": "A medieval Tamil variety of northern Sri Lanka.",
+    "Replacement": "A Tamil variety of northern Sri Lanka.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Mashriqi Arabic:Levantine",
+    "Field": "Description",
+    "Original": "A medieval eastern Arabic variety of Syria and the Levant.",
+    "Replacement": "A eastern Arabic variety of Syria and the Levant.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Mashriqi Arabic:Levantine",
+    "Field": "VagueSuffix",
+    "Original": "in a Medieval Mashriqi variety",
+    "Replacement": "in a Mashriqi variety",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Japanese:Kyushu",
+    "Field": "Description",
+    "Original": "A southwestern medieval Japanese variety of Kyushu.",
+    "Replacement": "A southwestern Japanese variety of Kyushu.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Quranic Arabic:Mashriqi Recitation",
+    "Field": "Description",
+    "Original": "An eastern learned recitation tradition of the medieval Islamic world.",
+    "Replacement": "An eastern learned recitation tradition of the Islamic world.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Mashriqi Arabic:Fatimid Egyptian",
+    "Field": "VagueSuffix",
+    "Original": "in a Medieval Mashriqi variety",
+    "Replacement": "in a Mashriqi variety",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Latin:Insular",
+    "Field": "VagueSuffix",
+    "Original": "in a Medieval Latin variety",
+    "Replacement": "in a Latin variety",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Latin:Iberian Medieval",
+    "Field": "Description",
+    "Original": "The Latin pronunciation tradition of the medieval Iberian kingdoms.",
+    "Replacement": "The Latin pronunciation tradition of the Iberian kingdoms.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Latin:Iberian Medieval",
+    "Field": "Suffix",
+    "Original": "in the Iberian Medieval variety",
+    "Replacement": "in the Iberian variety",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Latin:Iberian Medieval",
+    "Field": "VagueSuffix",
+    "Original": "in a Medieval Latin variety",
+    "Replacement": "in a Latin variety",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Latin:Carolingian",
+    "Field": "VagueSuffix",
+    "Original": "in a Medieval Latin variety",
+    "Replacement": "in a Latin variety",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Gaelic:Foreign",
+    "Field": "Description",
+    "Original": "The heavily-foreign accent of a non-native learner of the Medieval Gaelic language",
+    "Replacement": "The heavily-foreign accent of a non-native learner of the Gaelic language",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Greek:Foreign",
+    "Field": "Description",
+    "Original": "The heavily-foreign accent of a non-native learner of the Medieval Greek language",
+    "Replacement": "The heavily-foreign accent of a non-native learner of the Greek language",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Japanese:Foreign",
+    "Field": "Description",
+    "Original": "The heavily-foreign accent of a non-native learner of the Medieval Japanese language",
+    "Replacement": "The heavily-foreign accent of a non-native learner of the Japanese language",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Tamil:Foreign",
+    "Field": "Description",
+    "Original": "The heavily-foreign accent of a non-native learner of the Medieval Tamil language",
+    "Replacement": "The heavily-foreign accent of a non-native learner of the Tamil language",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Church Slavonic:Rus Recension",
+    "Field": "Description",
+    "Original": "The learned Church Slavonic recension of medieval Rus.",
+    "Replacement": "The learned Church Slavonic recension of Rus.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Gaelic:Scottish",
+    "Field": "Description",
+    "Original": "The medieval Gaelic continuum as spoken in Alba and the western seaboard.",
+    "Replacement": "The Gaelic continuum as spoken in Alba and the western seaboard.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Gaelic:Scottish",
+    "Field": "VagueSuffix",
+    "Original": "in a Medieval Gaelic variety",
+    "Replacement": "in a Gaelic variety",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Gaelic:Irish",
+    "Field": "Description",
+    "Original": "The medieval Gaelic continuum as spoken in Ireland.",
+    "Replacement": "The Gaelic continuum as spoken in Ireland.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Gaelic:Irish",
+    "Field": "VagueSuffix",
+    "Original": "in a Medieval Gaelic variety",
+    "Replacement": "in a Gaelic variety",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Medieval Tamil:Chola Heartland",
+    "Field": "Description",
+    "Original": "The medieval Tamil variety of the Kaveri basin and Chola heartland.",
+    "Replacement": "The Tamil variety of the Kaveri basin and Chola heartland.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Middle English:Lowland Scots",
+    "Field": "Description",
+    "Original": "The northern British variety developing in the burghs and Lowlands of medieval Scotland.",
+    "Replacement": "The northern British variety developing in the burghs and Lowlands of Scotland.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "Accent",
+    "Identity": "Mashriqi Arabic:Abbasid Iraqi",
+    "Field": "VagueSuffix",
+    "Original": "in a Medieval Mashriqi variety",
+    "Replacement": "in a Mashriqi variety",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "NameCulture",
+    "Identity": "Medieval Magyar",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]{2,}) (?<familygroupname>[\\w'-]{2,})$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Personal Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a Magyar personal name suitable to the tenth-century Carpathian Basin. Steppe, Turkic and Ugric forms are common, while Christian baptismal names become more prominent in later generations. Common masculine examples include Almos, Arpad, Bese, Bogat, Botond, Bulcsu; common feminine examples include Sarolt, Karold, Emese, Eniko, Reka, Tunde.]]></Element>\r\n    <Element Name=\"Clan, House or Corporate Affiliation\" Usage=\"9\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose the clan, kindred or dynastic group through which descent and political allegiance are claimed. It is not an occupational surname. Examples include Aba, Arpad, Becse-Gergely, Csak, Gyula-Zombor, Hont-Pazmany, Kalocsa, Kaplon.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"9\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]{2,}) (?<familygroupname>[\\w'-]{2,})$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Personal Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a Magyar personal name suitable to the Carpathian Basin. Steppe, Turkic and Ugric forms are common, and Christian baptismal names are also used. Common masculine examples include Almos, Arpad, Bese, Bogat, Botond, Bulcsu; common feminine examples include Sarolt, Karold, Emese, Eniko, Reka, Tunde.]]></Element>\r\n    <Element Name=\"Clan, House or Corporate Affiliation\" Usage=\"9\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose the clan, kindred or dynastic group through which descent and political allegiance are claimed. It is not an occupational surname. Examples include Aba, Arpad, Becse-Gergely, Csak, Gyula-Zombor, Hont-Pazmany, Kalocsa, Kaplon.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"9\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "NameCulture",
+    "Identity": "Medieval Steppe Turkic Mongol",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]{2,}) (?<familygroupname>[\\w'-]{2,})$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Personal Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a Turkic or Mongolic personal name. Animal, quality, celestial and auspicious compounds are common, and many forms are not rigidly sex-exclusive. Common masculine examples include Abaqa, Alchi, Altan, Arghun, Baraq, Batu; common feminine examples include Alakhai, Altani, Alun, Beki, Borte, Bulughan.]]></Element>\r\n    <Element Name=\"Clan, House or Corporate Affiliation\" Usage=\"9\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose the clan, tribe or confederational affiliation. It places the character within a political and genealogical network rather than a fixed modern surname. Examples include Borjigin, Tayichiud, Kereit, Naiman, Merkit, Onggirat, Oirat, Jalair.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"9\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]{2,}) (?<familygroupname>[\\w'-]{2,})$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Personal Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a Turkic or Mongolic personal name. Animal, quality, celestial and auspicious compounds are common, and many forms are not rigidly sex-exclusive. Common masculine examples include Abaqa, Alchi, Altan, Arghun, Baraq, Batu; common feminine examples include Alakhai, Altani, Alun, Beki, Borte, Bulughan.]]></Element>\r\n    <Element Name=\"Clan, House or Corporate Affiliation\" Usage=\"9\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose the clan, tribe or confederational affiliation. It places the character within a political and genealogical network rather than a fixed family name. Examples include Borjigin, Tayichiud, Kereit, Naiman, Merkit, Onggirat, Oirat, Jalair.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"9\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthdarkagesandmedieval",
+    "Entity": "NameCulture",
+    "Identity": "Medieval Anglo-Norman",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]{2,}) (?<surname>(?:(?:de|du|des|de-la|Fitz)-[\\w'-]{2,}|[\\w'-]{2,}))$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Personal Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a French, biblical or Germanic baptismal name used in Anglo-Norman households. The same stock is shared by nobles, clergy, townspeople and many tenants. Common masculine examples include Adam, Alan, Alexander, Andrew, Anselm, Baldwin; common feminine examples include Adela, Adelina, Agnes, Alice, Amabel, Avice.]]></Element>\r\n    <Element Name=\"Family or Affiliation Name\" Usage=\"6\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a hereditary or documentary identifier: a de- locative, a Fitz- patronym, a house name or an office-derived surname. Enter compounds with hyphens, such as de-Clare or Fitz-William. Examples include de-Bayeux, de-Caen, de-Falaise, de-Rouen, de-Dieppe, de-Evreux, de-Lisieux, de-Coutances.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"6\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]{2,}) (?<surname>(?:(?:de|du|des|de-la|Fitz)-[\\w'-]{2,}|[\\w'-]{2,}))$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Personal Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a French, biblical or Germanic baptismal name used in Anglo-Norman households. These names are used by nobles, clergy, townspeople and many tenants. Common masculine examples include Adam, Alan, Alexander, Andrew, Anselm, Baldwin; common feminine examples include Adela, Adelina, Agnes, Alice, Amabel, Avice.]]></Element>\r\n    <Element Name=\"Family or Affiliation Name\" Usage=\"6\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a hereditary or documentary identifier: a de- locative, a Fitz- patronym, a house name or an office-derived surname. Enter compounds with hyphens, such as de-Clare or Fitz-William. Examples include de-Bayeux, de-Caen, de-Falaise, de-Rouen, de-Dieppe, de-Evreux, de-Lisieux, de-Coutances.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"6\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceeurope",
+    "Entity": "Accent",
+    "Identity": "Dutch:Italian",
+    "Field": "Description",
+    "Original": "An Italian speaker's rendition of the Dutch language, influenced by Mediterranean trade and Renaissance cultural exchange",
+    "Replacement": "An Italian speaker's rendition of the Dutch language, influenced by Mediterranean trade and cultural exchange",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceeurope",
+    "Entity": "Accent",
+    "Identity": "Czech:Italian",
+    "Field": "Description",
+    "Original": "An Italian speaker’s rendition of the Czech language, reflecting Renaissance-era cultural exchanges",
+    "Replacement": "An Italian speaker’s rendition of the Czech language, reflecting cultural exchanges",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceeurope",
+    "Entity": "Accent",
+    "Identity": "Polish:Italian",
+    "Field": "Description",
+    "Original": "An Italian speaker’s rendition of the Polish language, introduced through cultural exchange and Renaissance influence",
+    "Replacement": "An Italian speaker’s rendition of the Polish language, introduced through cultural exchange",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceeurope",
+    "Entity": "Accent",
+    "Identity": "Wendish:Italian",
+    "Field": "Description",
+    "Original": "An Italian speaker’s rendition of the Wendish language, indicative of long-range cultural exchanges in Renaissance Europe",
+    "Replacement": "An Italian speaker’s rendition of the Wendish language, indicative of long-range cultural exchanges in Europe",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceeurope",
+    "Entity": "Accent",
+    "Identity": "Albanian:Arberesh",
+    "Field": "Description",
+    "Original": "The Albanian variety carried to southern Italy by late-medieval migrants.",
+    "Replacement": "The Albanian variety carried to southern Italy by late-migrants.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceeurope",
+    "Entity": "Accent",
+    "Identity": "Prussian:Bartian",
+    "Field": "Description",
+    "Original": "The Bartian dialect, one of the Western Baltic dialects of the Old Prussian language, spoken in the region historically associated with the Bartians",
+    "Replacement": "The Bartian dialect, one of the Western Baltic dialects of the Prussian language, spoken in the lands of the Bartians",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceeurope",
+    "Entity": "Accent",
+    "Identity": "Armenian:Cilician",
+    "Field": "Description",
+    "Original": "The Cilician dialect, a Western variety historically associated with the Armenian Kingdom of Cilicia",
+    "Replacement": "The Cilician dialect, a western Armenian variety associated with Cilicia",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceeurope",
+    "Entity": "Accent",
+    "Identity": "Coptic:Sahidic",
+    "Field": "Description",
+    "Original": "The Sahidic dialect, historically spoken in Upper Egypt, once a literary standard before Bohairic",
+    "Replacement": "The Sahidic dialect of Upper Egypt, with an established literary tradition",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceeurope",
+    "Entity": "Accent",
+    "Identity": "Danish:Scanian",
+    "Field": "Description",
+    "Original": "The Scanian dialect, historically Danish, though spoken in what is now southern Sweden, bridging Nordic varieties",
+    "Replacement": "The Scanian dialect of the southern Scandinavian lands, bridging neighbouring Nordic varieties",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceeurope",
+    "Entity": "Accent",
+    "Identity": "Slovenian:Upper-carniolan",
+    "Field": "Description",
+    "Original": "The Upper Carniolan dialect, centered around the area north of Ljubljana, historically influential in later literary tradition",
+    "Replacement": "The Upper Carniolan dialect, centred around the area north of Ljubljana",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceeurope",
+    "Entity": "Accent",
+    "Identity": "Aramaic:Western-aramaic",
+    "Field": "Description",
+    "Original": "The Western Aramaic dialect, once widespread in the Levant but greatly diminished by the 16th century, still surviving in a few isolated communities",
+    "Replacement": "The Western Aramaic dialect spoken in communities of the Levant",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceeurope",
+    "Entity": "Accent",
+    "Identity": "Berber:Zenaga",
+    "Field": "Description",
+    "Original": "The Zenaga dialect, spoken historically in parts of Mauritania and the southern Sahara",
+    "Replacement": "The Zenaga dialect spoken in parts of the southern Sahara",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceworldexpansion",
+    "Entity": "NameCulture",
+    "Identity": "Renaissance Timurid Persianate",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]{2,}) (?<familygroupname>[\\w'-]{2,})$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Personal Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a personal name drawn from Turkic, Persian and Arabic usage. Courtly compounds and titles used as names are kept as one hyphenated token. Common masculine examples include Abdallah, Abd-al-Razzaq, Abu-Said, Ahmad, Ali, Alisher; common feminine examples include Agha-Begim, Aisha, Anis, Badi-al-Jamal, Bibi-Khanum, Dilshad.]]></Element>\r\n    <Element Name=\"Clan, House or Corporate Affiliation\" Usage=\"9\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a clan, lineage, service household or recognised regional affiliation. Names such as Barlas, Dughlat and Jalayir indicate inherited or political belonging rather than a modern surname. Examples include Barlas, Chaghatai, Dughlat, Arlat, Jalayir, Qarluq, Qipchaq, Qongirat.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"9\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]{2,}) (?<familygroupname>[\\w'-]{2,})$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Personal Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a personal name drawn from Turkic, Persian and Arabic usage. Courtly compounds and titles used as names are kept as one hyphenated token. Common masculine examples include Abdallah, Abd-al-Razzaq, Abu-Said, Ahmad, Ali, Alisher; common feminine examples include Agha-Begim, Aisha, Anis, Badi-al-Jamal, Bibi-Khanum, Dilshad.]]></Element>\r\n    <Element Name=\"Clan, House or Corporate Affiliation\" Usage=\"9\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a clan, lineage, service household or recognised regional affiliation. Names such as Barlas, Dughlat and Jalayir indicate inherited or political belonging rather than a family name. Examples include Barlas, Chaghatai, Dughlat, Arlat, Jalayir, Qarluq, Qipchaq, Qongirat.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"9\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,9\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthrenaissanceworldexpansion",
+    "Entity": "NameCulture",
+    "Identity": "Renaissance Georgian",
+    "Field": "Definition",
+    "Original": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]{2,}) (?<surname>[\\w'-]+(?:shvili|dze|iani|ani|eli|uri|vari|i))$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Personal Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a Georgian personal name. Biblical and saintly forms stand beside older Kartvelian and royal names, and the same name may appear in several transliterations. Common masculine examples include Giorgi, Davit, Bagrat, Aleksandre, Vakhtang, Konstantine; common feminine examples include Tamar, Rusudan, Ketevan, Nino, Mariam, Elene.]]></Element>\r\n    <Element Name=\"Family or Affiliation Name\" Usage=\"6\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a hereditary house or family name. Georgian surnames commonly end in forms such as -shvili, -dze, -iani or -eli, which may recall descent, locality or a founding ancestor. Examples include Bagrationi, Dadiani, Jaqeli, Orbeliani, Vardanisdze, Amilakhvari, Abashidze, Chikovani.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"6\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Replacement": "<Definition>\r\n  <NameEntryRegex><![CDATA[^(?<birthname>[\\w'-]{2,}) (?<surname>[\\w'-]+(?:shvili|dze|iani|ani|eli|uri|vari|i))$]]></NameEntryRegex>\r\n  <Elements>\r\n    <Element Name=\"Personal Name\" Usage=\"0\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a Georgian personal name. Biblical and saintly forms stand beside older Kartvelian and royal names, and the same name may have several spellings. Common masculine examples include Giorgi, Davit, Bagrat, Aleksandre, Vakhtang, Konstantine; common feminine examples include Tamar, Rusudan, Ketevan, Nino, Mariam, Elene.]]></Element>\r\n    <Element Name=\"Family or Affiliation Name\" Usage=\"6\" MinimumCount=\"1\" MaximumCount=\"1\"><![CDATA[Choose a hereditary house or family name. Georgian surnames commonly end in forms such as -shvili, -dze, -iani or -eli, which may recall descent, locality or a founding ancestor. Examples include Bagrationi, Dadiani, Jaqeli, Orbeliani, Vardanisdze, Amilakhvari, Abashidze, Chikovani.]]></Element>\r\n  </Elements>\r\n  <Patterns>\r\n    <Pattern Style=\"0\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"1\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"2\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n    <Pattern Style=\"3\" Params=\"0\" Text=\"{0}\" />\r\n    <Pattern Style=\"4\" Params=\"6\" Text=\"{0}\" />\r\n    <Pattern Style=\"5\" Params=\"0,6\" Text=\"{0} {1}\" />\r\n  </Patterns>\r\n</Definition>",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "Ethnicity",
+    "Identity": "Achaean",
+    "Field": "ChargenBlurb",
+    "Original": "The Achaeans were one of the four major tribes into which the Greeks divided themselves (along with the Aeolians, Ionians and Dorians). According to the foundation myth formalized by Hesiod, their name comes from Achaeus, the mythical founder of the Achaean tribe, who was supposedly one of the sons of Xuthus, and brother of Ion, the founder of the Ionian tribe. Xuthus was in turn the son of Hellen, the mythical patriarch of the Greek (Hellenic) nation.\n\nHistorically, the members of the Achaean tribe inhabited the region of Achaea in the northern Peloponnese. The Achaeans played an active role in the Greek colonization of southern Italy, founding the city of Kroton in 710 BC. The city was to gain fame later as the place where the Pythagorean School was founded. Unlike the other major tribes (Ionians, Dorians and Aeolians), the Achaeans did not have a separate dialect in the Classical period, instead using a form of Doric.\n\nThey are typically characterised by fair to olive skin, dark hair and dark eyes.",
+    "Replacement": "The Achaeans are one of the four major Greek peoples, alongside the Aeolians, Ionians and Dorians. Their foundation myth, told by Hesiod, traces their name to Achaeus, son of Xuthus and brother of Ion. Xuthus is a son of Hellen, the mythical patriarch of the Hellenes.\n\nAchaean communities inhabit Achaea in the northern Peloponnese and maintain ties with settlements in southern Italy, including Kroton. They use a form of Doric speech.\n\nThey are typically characterised by fair to olive skin, dark hair and dark eyes.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "Ethnicity",
+    "Identity": "Aeolian",
+    "Field": "ChargenBlurb",
+    "Original": "The Aeolians were one of the four major tribes in which Greeks divided themselves in the ancient period (along with the Achaeans, Dorians and Ionians). Their name mythologically derives from Aeolus, the mythical ancestor of the Aeolians and son of Hellen, the mythical patriarch of the Greek nation. The dialect of ancient Greek they spoke is referred to as Aeolic.\n\nOriginating in Thessaly, a part of which was called Aeolis, the Aeolians often appear as the most numerous amongst the other Hellenic tribes of early times. The Boeotians, a subgroup of the Aeolians, were driven from Thessaly by the Thessalians and moved their location to Boeotia. Aeolian peoples were spread in many other parts of Greece such as Aetolia, Locris, Corinth, Elis and Messinia. During the Dorian invasion, Aeolians from Thessaly fled across the Aegean Sea to the island of Lesbos and the region of Aeolis, called as such after them, in Asia Minor.\n\nThey are typically characterised by fair to olive skin, dark hair and dark eyes.",
+    "Replacement": "The Aeolians are one of the four major Greek peoples, alongside the Achaeans, Dorians and Ionians. They trace their name to Aeolus, a son of Hellen, and speak Aeolic Greek.\n\nTheir communities have roots in Thessaly and extend through Boeotia and other Greek lands, including Aetolia, Locris, Corinth, Elis and Messinia. Traditions of migration connect them with Lesbos and the coast of Aeolis across the Aegean.\n\nThey are typically characterised by fair to olive skin, dark hair and dark eyes.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "Ethnicity",
+    "Identity": "Ionian",
+    "Field": "ChargenBlurb",
+    "Original": "The Ionians were one of the four major tribes that the Greeks considered themselves to be divided into during the ancient period; the other three being the Dorians, Aeolians, and Achaeans. The Ionian dialect was one of the three major linguistic divisions of the Hellenic world, together with the Dorian and Aeolian dialects.\n\nAccording to the foundation myth the Ionians were named after Ion, son of Xuthus, who lived in the north Peloponnesian region of Aigialeia. When the Dorians invaded the Peloponnese they expelled the Achaeans from the Argolid and Lacedaemonia. The displaced Achaeans moved into Aigialeia (thereafter known as Achaea), in turn expelling the Ionians from Aigialeia. The Ionians moved to Attica and mingled with the local population of Attica, and many later emigrated to the coast of Asia Minor founding the historical region of Ionia.\n\nUnlike the austere and militaristic Dorians, the Ionians are renowned for their love of philosophy, art, democracy, and pleasure – Ionian traits that were most famously expressed by the Athenians.\n\nThey are typically characterised by fair to olive skin, dark hair and dark eyes.",
+    "Replacement": "The Ionians are one of the four major Greek peoples, alongside the Dorians, Aeolians and Achaeans. Ionian speech forms one of the major linguistic divisions of the Hellenic world.\n\nTheir foundation myth names Ion, son of Xuthus, as their ancestor. Traditions of displacement from Aigialeia connect them with Attica and with the Ionian towns on the coast of Asia Minor. Their towns, including Athens, are renowned for philosophy, art and public debate.\n\nThey are typically characterised by fair to olive skin, dark hair and dark eyes.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  },
+  {
+    "Module": "earthantiquity",
+    "Entity": "Ethnicity",
+    "Identity": "Dorian",
+    "Field": "ChargenBlurb",
+    "Original": "The Dorians were one of the four major ethnic groups into which the Hellenes (or Greeks) of Classical Greece divided themselves (along with the Aeolians, Achaeans, and Ionians). They are almost always referred to as just \"the Dorians\", as they are called in the earliest literary mention of them in the Odyssey, where they already can be found inhabiting the island of Crete.\\n\\nThey were diverse in way of life and social organization, varying from the populous trade center of the city of Corinth, known for its ornate style in art and architecture, to the isolationist, military state of Sparta. And yet, all Hellenes knew which localities were Dorian, and which were not. Dorian states at war could more likely, but not always, count on the assistance of other Dorian states. Dorians were distinguished by the Doric Greek dialect and by characteristic social and historical traditions.\\n\\nThey are typically characterised by fair to olive skin, dark hair and dark eyes.",
+    "Replacement": "The Dorians are one of the four major Greek peoples, alongside the Aeolians, Achaeans and Ionians. The Odyssey speaks of Dorians in Crete.\n\nDorian communities vary greatly in their way of life, from the populous trading city of Corinth, known for ornate art and architecture, to the military institutions of Sparta. Doric speech and shared traditions connect them, though common identity does not guarantee common allegiance in war.\n\nThey are typically characterised by fair to olive skin, dark hair and dark eyes.",
+    "Action": "correct",
+    "Reason": "Contemporary voice; original retained in source corpus. No new historical attestation."
+  }
+]

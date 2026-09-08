@@ -3,6 +3,14 @@
 ###############################################################################
 * text=auto
 
+# Authored handoff and preservation checksums cover exact file bytes.
+"Design Documents/Seeding/CultureSeederRedesignHandoff/data/*.json" -text
+"Design Documents/Seeding/CultureSeederRedesignHandoff/research/*.json" -text
+"Design Documents/Seeding/CultureSeederOriginalCorpus/*.json" -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Imported specifications and captured terminal output retain their authored whitespace.
+"Design Documents/Seeding/CultureSeederRedesignHandoff/**" -whitespace
+"Design Documents/Verification/CultureSeeder_Redesign_*Telnet.txt" -whitespace
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #

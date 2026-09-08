@@ -393,6 +393,7 @@ Please answer #3yes#f or #3no#f: ",
         #endregion
 
         #region Progs
+		var existingFreeSkillsText = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "ChargenFreeSkills")?.FunctionText;
 
 		string? existingFreeKnowledgesText = context.FutureProgs
 			.AsEnumerable()
@@ -502,7 +503,7 @@ switch (@ch.Race)
 end switch
 return (((@ch.Height / 100) ^ 2) * @bmi) * 1000",
             (ProgVariableTypes.Toon, "ch"));
-        EnsureChargenProg(
+        FutureProg freeSkillsProg = EnsureChargenProg(
             "ChargenFreeSkills",
             "Skills",
             ProgVariableTypes.Trait | ProgVariableTypes.Collection,
@@ -524,6 +525,7 @@ end switch
 
 return @skills",
             (ProgVariableTypes.Toon, "ch"));
+		if (existingFreeSkillsText is not null) freeSkillsProg.FunctionText = existingFreeSkillsText;
         EnsureChargenProg(
             "ChargenNumberOfSkillPicks",
             "Skills",
@@ -915,6 +917,7 @@ return 10"
 
         #endregion
 
+		CultureToolkit.CultureToolkitFreeSkills.Reconcile(context, completionNotes);
         context.Database.CommitTransaction();
         return completionNotes.Count > 0
             ? $"Character creation has been successfully set up. {completionNotes.ListToString(separator: " ", conjunction: " ")}"

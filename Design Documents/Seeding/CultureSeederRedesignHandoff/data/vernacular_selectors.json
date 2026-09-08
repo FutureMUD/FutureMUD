@@ -1,0 +1,256 @@
+{
+  "home": {
+    "mode": "fixed-ethnicity-native",
+    "fallback": null,
+    "player_choice": false
+  },
+  "english": {
+    "mode": "era-stage",
+    "by_era": {
+      "darkages": "english.old",
+      "medieval": "english.middle",
+      "renaissance": "english.middle",
+      "earlymodern": "english.earlymodern"
+    },
+    "player_choice": false,
+    "builder_reference_alternatives_by_era": {
+      "medieval": [
+        "english.old"
+      ],
+      "renaissance": [
+        "english.earlymodern"
+      ]
+    },
+    "alternatives_use": "Reference for builder customisation or explicitly defined regional identities; not another player selection."
+  },
+  "french": {
+    "mode": "era-stage",
+    "by_era": {
+      "darkages": "french.old",
+      "medieval": "french.old",
+      "renaissance": "french.middle",
+      "earlymodern": "french.earlymodern"
+    },
+    "player_choice": false
+  },
+  "german": {
+    "mode": "era-stage",
+    "by_era": {
+      "darkages": "german.old-high",
+      "medieval": "german.middle-high",
+      "renaissance": "german.early-new-high",
+      "earlymodern": "german.early-new-high"
+    },
+    "player_choice": false
+  },
+  "low-german": {
+    "mode": "era-stage",
+    "by_era": {
+      "darkages": "german.old-saxon",
+      "medieval": "german.middle-low",
+      "renaissance": "german.middle-low",
+      "earlymodern": "german.middle-low"
+    },
+    "player_choice": false
+  },
+  "dutch": {
+    "mode": "era-stage",
+    "by_era": {
+      "darkages": "franconian.old-low",
+      "medieval": "dutch.middle",
+      "renaissance": "dutch",
+      "earlymodern": "dutch"
+    },
+    "player_choice": false
+  },
+  "norse": {
+    "mode": "era-stage",
+    "by_era": {
+      "darkages": "norse.old",
+      "medieval": "norse.old",
+      "renaissance": "norwegian",
+      "earlymodern": "norwegian"
+    },
+    "player_choice": false,
+    "builder_reference_alternatives_by_era": {
+      "medieval": [
+        "danish",
+        "swedish",
+        "norwegian",
+        "icelandic"
+      ],
+      "renaissance": [
+        "danish",
+        "swedish",
+        "icelandic"
+      ],
+      "earlymodern": [
+        "danish",
+        "swedish",
+        "icelandic"
+      ]
+    },
+    "alternatives_use": "Reference for builder customisation or explicitly defined regional identities; not another player selection."
+  },
+  "gaelic": {
+    "mode": "era-stage",
+    "by_era": {
+      "darkages": "gaelic.medieval",
+      "medieval": "gaelic.medieval",
+      "renaissance": "irish",
+      "earlymodern": "irish"
+    },
+    "player_choice": false,
+    "builder_reference_alternatives_by_era": {
+      "darkages": [
+        "gaelic.old"
+      ],
+      "renaissance": [
+        "scottish-gaelic",
+        "gaelic.medieval"
+      ],
+      "earlymodern": [
+        "scottish-gaelic"
+      ]
+    },
+    "alternatives_use": "Reference for builder customisation or explicitly defined regional identities; not another player selection."
+  },
+  "castilian": {
+    "mode": "era-stage",
+    "by_era": {
+      "darkages": "castilian.old",
+      "medieval": "castilian.old",
+      "renaissance": "castilian",
+      "earlymodern": "castilian"
+    },
+    "player_choice": false
+  },
+  "east-slavic": {
+    "mode": "era-stage",
+    "by_era": {
+      "darkages": "slavic.old-east",
+      "medieval": "slavic.old-east",
+      "renaissance": "ruthenian",
+      "earlymodern": "ruthenian"
+    },
+    "player_choice": false,
+    "builder_reference_alternatives_by_era": {
+      "medieval": [
+        "ruthenian"
+      ],
+      "renaissance": [
+        "russian"
+      ],
+      "earlymodern": [
+        "russian"
+      ]
+    },
+    "alternatives_use": "Reference for builder customisation or explicitly defined regional identities; not another player selection."
+  },
+  "persian": {
+    "mode": "era-stage",
+    "by_era": {
+      "antiquity": "persian.middle",
+      "darkages": "persian.new",
+      "medieval": "persian.new",
+      "renaissance": "persian.new",
+      "earlymodern": "persian.new"
+    },
+    "player_choice": false,
+    "builder_reference_alternatives_by_era": {
+      "darkages": [
+        "persian.middle"
+      ]
+    },
+    "alternatives_use": "Reference for builder customisation or explicitly defined regional identities; not another player selection."
+  },
+  "greek": {
+    "mode": "era-stage",
+    "by_era": {
+      "antiquity": "greek.koine",
+      "darkages": "greek.medieval",
+      "medieval": "greek.medieval",
+      "renaissance": "greek.medieval",
+      "earlymodern": "greek.medieval"
+    },
+    "player_choice": false,
+    "builder_reference_alternatives_by_era": {
+      "antiquity": [
+        "greek.ancient"
+      ]
+    },
+    "alternatives_use": "Reference for builder customisation or explicitly defined regional identities; not another player selection."
+  },
+  "arabic-east": {
+    "mode": "era-stage",
+    "by_era": {
+      "antiquity": "arabic.old",
+      "darkages": "arabic.mashriqi",
+      "medieval": "arabic.mashriqi",
+      "renaissance": "arabic.mashriqi",
+      "earlymodern": "arabic.mashriqi"
+    },
+    "player_choice": false
+  },
+  "arabic-west": {
+    "mode": "era-stage",
+    "by_era": {
+      "darkages": "arabic.maghrebi",
+      "medieval": "arabic.maghrebi",
+      "renaissance": "arabic.maghrebi",
+      "earlymodern": "arabic.maghrebi"
+    },
+    "player_choice": false
+  },
+  "turkic": {
+    "mode": "era-stage",
+    "by_era": {
+      "darkages": "turkic.oghuz",
+      "medieval": "turkic.oghuz",
+      "renaissance": "turkish.ottoman",
+      "earlymodern": "turkish.ottoman"
+    },
+    "player_choice": false,
+    "builder_reference_alternatives_by_era": {
+      "medieval": [
+        "turkic.kipchak",
+        "turkish.ottoman"
+      ],
+      "renaissance": [
+        "turkic.oghuz",
+        "turkic.kipchak",
+        "turkic.crimean"
+      ],
+      "earlymodern": [
+        "turkic.oghuz",
+        "turkic.kipchak",
+        "turkic.crimean"
+      ]
+    },
+    "alternatives_use": "Reference for builder customisation or explicitly defined regional identities; not another player selection."
+  },
+  "south-slavic": {
+    "mode": "exact-community-legacy-binding",
+    "family_key": "south-slavic",
+    "by_community": {
+      "Serb": [
+        "Serbian",
+        "Serbo-Croatian"
+      ],
+      "Croat": [
+        "Croatian",
+        "Serbo-Croatian"
+      ],
+      "Bosnian": [
+        "Bosnian",
+        "Serbo-Croatian"
+      ],
+      "Bosniak": [
+        "Bosnian",
+        "Serbo-Croatian"
+      ]
+    },
+    "notes": "Bind one actual retained language for the named community; prefer its exact Serbian/Croatian/Bosnian entry and otherwise the retained Serbo-Croatian record. Do not create a generic family skill or grant every candidate.",
+    "player_choice": false
+  }
+}

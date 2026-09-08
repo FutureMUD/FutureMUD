@@ -1,0 +1,634 @@
+[
+  {
+    "id": "R01",
+    "title": "DatabaseSeeder/Seeders/ItemSeeder.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/ItemSeeder.cs",
+    "scope": "Current selectable item eras; Dark Ages is within Medieval, not a separate menu option.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R02",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Packs.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Packs.cs",
+    "scope": "Pack dispatch, legacy MedievalEurope alias, independent optional content.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R03",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Shared.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Shared.cs",
+    "scope": "Name-based upserts, destructive replacement of existing profile elements, language traits, skill caps, culture naming links.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R04",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Names.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Names.cs",
+    "scope": "Existing name cultures, inventories, weights and name patterns: preserve by reference, not reproduced in this handoff.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R05",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.NameDefaults.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.NameDefaults.cs",
+    "scope": "Current ethnicity/name mappings and generic fallback inventories.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R06",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+    "scope": "Existing medieval naming and heritage bundles; preserve inventories and reference dates.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R07",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Packs.RenaissanceWorld.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Packs.RenaissanceWorld.cs",
+    "scope": "Existing Near Eastern naming content within the wider world catalogue.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R08",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.Antiquity.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Heritage.Antiquity.cs",
+    "scope": "Existing antiquity ethnicity and culture catalogue; retained, with targeted corrections.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R09",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.MedievalEurope.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Heritage.MedievalEurope.cs",
+    "scope": "Legacy Renaissance ethnicity granularity and regional cultures.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R10",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.DarkAges.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Heritage.DarkAges.cs",
+    "scope": "Existing regional medieval variants; reuse rather than rebuilding peoplehood for each era.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R11",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Languages.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Languages.cs",
+    "scope": "Script acquisition progs currently compare skill display names; language and accent helpers.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R12",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Languages.DarkAges.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Languages.DarkAges.cs",
+    "scope": "Preserve medieval languages and all authored accent descriptions.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R13",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Languages.RenaissanceWorld.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Languages.RenaissanceWorld.cs",
+    "scope": "Preserve Near Eastern language and accent content in the world expansion.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R14",
+    "title": "MudSharpCore/CharacterCreation/Screens/NamePickerScreen.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/MudSharpCore/CharacterCreation/Screens/NamePickerScreen.cs",
+    "scope": "Ethnicity-first naming selection, Latin-1 input restriction, name validation, name construction.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R15",
+    "title": "MudSharpCore/CharacterCreation/Screens/SkillPickerScreen.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/MudSharpCore/CharacterCreation/Screens/SkillPickerScreen.cs",
+    "scope": "Automatic free skills cannot be toggled; free-skills and suggested-skills FutureProg hooks.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R16",
+    "title": "FutureMUDLibrary/Framework/StringExtensions.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/FutureMUDLibrary/Framework/StringExtensions.cs",
+    "scope": "Latin1EncoderFallback: FormD, mark stripping, shared fallback buffer, unmapped letters become question marks.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R17",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Languages.MedievalEurope.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Languages.MedievalEurope.cs",
+    "scope": "Existing Renaissance-era European languages and accents: preserve source material.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R18",
+    "title": "DatabaseSeeder/Seeders/CultureSeeder.Languages.Antiquity.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/CultureSeeder.Languages.Antiquity.cs",
+    "scope": "Existing ancient languages, accents and scripts: preserve source material.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R19",
+    "title": "Design Documents/Seeding/Culture_Seeder_Heritage_Pack_Reference.md",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/Design%20Documents/Seeding/Culture_Seeder_Heritage_Pack_Reference.md",
+    "scope": "Existing conceptual separation of ethnicity and culture; existing global content is not to be deleted.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R20",
+    "title": "Design Documents/Seeding/Culture_Seeder_Language_Pack_Reference.md",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/Design%20Documents/Seeding/Culture_Seeder_Language_Pack_Reference.md",
+    "scope": "Existing script/knowledge reconciliation and naming/language coverage policy.",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H01",
+    "title": "Dictionary of Medieval Names from European Sources: project scope",
+    "url": "https://dmnes.org/about",
+    "scope": "Given-name attestation methodology, period 500-1600; not blanket validation of every legacy name.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H02",
+    "title": "PASE: database selectors and examples",
+    "url": "https://pase.ac.uk/help/pase-database/",
+    "scope": "Primary-record prosopography; names, status, office and occupation are separate but overlapping descriptors.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H03",
+    "title": "PASE: database statistics",
+    "url": "https://pase.ac.uk/about/database-statistics/",
+    "scope": "Unequal survival of evidence, including substantially fewer recorded women; do not infer lack of actual names.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H04",
+    "title": "University of Nottingham: languages used in medieval documents",
+    "url": "https://www.nottingham.ac.uk/manuscriptsandspecialcollections/researchguidance/medievaldocuments/languages.aspx",
+    "scope": "English, French and Latin differentiated by education and social context; Law French survives beyond everyday Anglo-Norman.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H05",
+    "title": "Australian National Maritime Museum: Vikings and the Viking Age",
+    "url": "https://www.sea.museum/en/learn/resource/vikings",
+    "scope": "Norse household, landholding, free and unfree status distinctions.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H06",
+    "title": "British Museum: slavery in ancient Rome",
+    "url": "https://www.britishmuseum.org/exhibitions/nero-man-behind-myth/slavery-ancient-rome",
+    "scope": "Enslaved and freed status, variation in experience, and continuing patronal obligations.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H07",
+    "title": "British Museum: Roman Republican freed couple, 1867,0508.55",
+    "url": "https://www.britishmuseum.org/collection/object/G_1867-0508-55",
+    "scope": "Greek origin and Roman civic naming can coexist; a specific example, not a universal naming formula.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H08",
+    "title": "Encyclopaedia Iranica: Class System iii",
+    "url": "https://www.iranicaonline.org/articles/class-system-iii/",
+    "scope": "Parthian and Sasanian social differentiation; regional variation and documentary limits.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H09",
+    "title": "Encyclopaedia Iranica: Class System iv",
+    "url": "https://www.iranicaonline.org/articles/class-system-iv/",
+    "scope": "Medieval Islamic Persian social strata; not an interchangeable copy of European estates.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H10",
+    "title": "Encyclopaedia Iranica: Dehqan",
+    "url": "https://www.iranicaonline.org/articles/dehqan/",
+    "scope": "Landed dehqan identity and its changing meaning over time.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H11",
+    "title": "Metropolitan Museum: The Art of the Mamluk Period",
+    "url": "https://www.metmuseum.org/de/essays/the-art-of-the-mamluk-period-1250-1517",
+    "scope": "Mamluk military institution, Turkic and Circassian recruitment, acquired Arabic instruction.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H12",
+    "title": "Metropolitan Museum: The Greater Ottoman Empire, 1600-1800",
+    "url": "https://www.metmuseum.org/ko/essays/the-greater-ottoman-empire-1600-1800",
+    "scope": "Imperial institutions, urban commerce and continuing local/ethnic cultural life.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H13",
+    "title": "Wilanow Palace Museum: Sarmatism",
+    "url": "https://wilanow-palac.pl/en/knowledge/sarmatism",
+    "scope": "Polish-Lithuanian noble cultural formation; claimed Sarmatian descent is ideology, not an ethnicity assignment.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H14",
+    "title": "Wilanow Palace Museum: Sarmatism and European culture",
+    "url": "https://wilanow-palac.pl/en/knowledge/sarmatism-and-european-culture",
+    "scope": "Noble political ideals and cultural borrowing; use of the modern scholarly label must be explained.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H15",
+    "title": "Encyclopaedia Iranica: Early New Persian",
+    "url": "https://www.iranicaonline.org/articles/persian-language-1-early-new-persian/",
+    "scope": "Middle/New Persian distinction; continued variation, learned use and multiple writing traditions.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H16",
+    "title": "Len Scales, The Shaping of German Identity: publisher description",
+    "url": "https://www.cambridge.org/core/books/shaping-of-german-identity/C6134B0992E7162F0636841FE9EC6CE2",
+    "scope": "Supports a late-medieval broad German identity; not evidence for a single precise ethnogenesis date.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H17",
+    "title": "Oxford: Lexicon of Greek Personal Names",
+    "url": "https://lgpn.web.ox.ac.uk/",
+    "scope": "Ancient naming evidence and regional coverage; use for individual checks, not automatic modern-Greek back-projection.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H18",
+    "title": "Oxford: LGPN Egypt",
+    "url": "https://lgpn.web.ox.ac.uk/search-lgpn-egypt-online",
+    "scope": "Greek/Egyptian personal names with individual provenance and dating.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H19",
+    "title": "Merchant Adventurers Hall, York: institutional history",
+    "url": "https://merchantshallyork.org/the-hall/",
+    "scope": "Merchant guild and civic institutional setting; not proof that all merchants knew Latin.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H20",
+    "title": "University course resource: English language timeline",
+    "url": "https://www.csun.edu/~sk36711/WWW/medlit/english_lang_timeline.html",
+    "scope": "Approximate Old/Middle English chronological distinction; era labels in this handoff are gameplay labels.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "T01",
+    "title": "Unicode: Latin-1 Supplement names list",
+    "url": "https://www.unicode.org/charts/nameslist/c_0080.html",
+    "scope": "ISO-8859-1 repertoire is not Windows-1252; supported versus unsupported name characters.",
+    "kind": "technical",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "T02",
+    "title": "Unicode: block ranges",
+    "url": "https://unicode.org/charts/nameslist/mainList.html",
+    "scope": "Latin Extended letters and combining marks are outside Latin-1.",
+    "kind": "technical",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H21",
+    "title": "Medieval Names Archive: Baltic bibliography",
+    "url": "https://s-gabriel.org/names/baltic.shtml",
+    "scope": "Research leads for distinct Baltic and Finnic naming; linked individual sources need their own review.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H22",
+    "title": "Rebecca Lucas: Some names from 15-17th century Latvia",
+    "url": "https://www.s-gabriel.org/names/ffride/latvian_bynames.html",
+    "scope": "Dated forms in German-language records, distinguished from modern Latvian headings; a small feminine inventory is not proof that the culture is poorly documented.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H23",
+    "title": "Liviu Marius Ilie: Nunnery Life in 16th Century Wallachia",
+    "url": "https://www.czasopisma.uni.lodz.pl/sceranea/article/view/17567",
+    "scope": "Musa/Magdalina illustrates a change of name on entering monastic life; abstract and references consulted, not the full paper.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H24",
+    "title": "Trismegistos: People and Names",
+    "url": "https://www.trismegistos.org/ref/index.php/",
+    "scope": "Primary-record naming resource for Egypt; public results are restricted, so this handoff does not claim a complete Coptic extraction.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "H25",
+    "title": "Romanian Names from the Basarab Line",
+    "url": "https://www.s-gabriel.org/names/arina/basarab.html",
+    "scope": "Dated elite Romanian naming leads, not a representative all-class name-frequency dataset.",
+    "kind": "research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "U01",
+    "title": "Luke: requested handoff revisions, 7 September 2026",
+    "url": null,
+    "scope": "Authority for VeryHard through Insane calibration; contemporary in-world descriptions; generic skill-group picks after free skills and before open selection. Not an external historical source.",
+    "kind": "user-design-requirement",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R21",
+    "title": "FutureMUDLibrary/RPG/Checks/ICheck.cs",
+    "scope": "Verified difficulty enum: VeryHard=7, ExtremelyHard=8, Insane=9, Impossible=10.",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/FutureMUDLibrary/RPG/Checks/ICheck.cs",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R22",
+    "title": "MudSharpCore/Communication/Language/Language.cs",
+    "scope": "Verified listener-owned directed links and absent-link Impossible result.",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/MudSharpCore/Communication/Language/Language.cs",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R23",
+    "title": "FutureMUDLibrary/Communication/Language/LanguageInfo.cs",
+    "scope": "Repository excerpt verifies listening difficulty uses max(accent, utterance, intelligibility) and the known-language linked trait.",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/FutureMUDLibrary/Communication/Language/LanguageInfo.cs",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R24",
+    "title": "MudSharpCore/Character/CharacterCommunication.cs",
+    "scope": "Repository excerpt identifies writing/reading use of directed language intelligibility; literacy/script checks must remain intact.",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/MudSharpCore/Character/CharacterCommunication.cs",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R25",
+    "title": "MudSharpCore/CharacterCreation/Screens/SkillCostPickerScreen.cs",
+    "scope": "Existing point-based screen identified as an integration target; new group-stage behaviour is a requirement, not an implemented feature.",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/MudSharpCore/CharacterCreation/Screens/SkillCostPickerScreen.cs",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R26",
+    "title": "MudSharpCore/CharacterCreation/Screens/SkillSkipperScreen.cs",
+    "scope": "Existing skip-open-selection screen and FreeSkillsProg integration target; must not bypass required group choices.",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/MudSharpCore/CharacterCreation/Screens/SkillSkipperScreen.cs",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R27",
+    "title": "MudSharpCore/CharacterCreation/Screens/SkillBoostSkipperScreen.cs",
+    "scope": "Existing boost-screen integration target; preserve paid-boost semantics after group selections.",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/MudSharpCore/CharacterCreation/Screens/SkillBoostSkipperScreen.cs",
+    "kind": "repository",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "MI01",
+    "title": "Gooskens et al. (2018), Mutual intelligibility between closely related languages in Europe",
+    "url": "https://www.tandfonline.com/doi/full/10.1080/14790718.2017.1350185",
+    "scope": "Primary research on spoken comprehension, exposure and asymmetry in modern European languages. Supports methodological caution, not any historical engine score.",
+    "kind": "primary-research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "MI02",
+    "title": "Gooskens and Swarte (2017), Linguistic and extra-linguistic predictors of mutual intelligibility between Germanic languages",
+    "url": "https://www.cambridge.org/core/journals/nordic-journal-of-linguistics/article/linguistic-and-extralinguistic-predictors-of-mutual-intelligibility-between-germanic-languages/65851C6257507D865362296D0FCFE02C",
+    "scope": "Primary research separates exposure and linguistic distance, spoken and written tests. Historical scores in this packet remain authored approximations.",
+    "kind": "primary-research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "MI03",
+    "title": "Golubovic and Gooskens (2015), Mutual intelligibility between West and South Slavic languages",
+    "url": "https://link.springer.com/article/10.1007/s11185-015-9150-9",
+    "scope": "Primary research concerns modern West/South Slavic test languages, not an empirical reconstruction of medieval Slavic comprehension or Russian-Ukrainian engine scores.",
+    "kind": "primary-research",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "U02",
+    "title": "Final D1-D6 decisions",
+    "url": "conversation:final-decisions",
+    "scope": "Ethnic native grants; 200-based minimal-code proficiency; delegated general electives; learned literacy; no adopted names; finish targeted research.",
+    "kind": "user decision",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R730A",
+    "title": "Merged generic group seeder helper",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/961efca81da0d788bbfb86ccf55fea313c9bf065/DatabaseSeeder/Seeders/Utilities/Chargen/ChargenSkillSelectionGroupSeeder.cs",
+    "scope": "Exact Upsert boundary and compiled prog contracts.",
+    "kind": "repository implementation",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "R730B",
+    "title": "Skill selection groups completion guide",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/961efca81da0d788bbfb86ccf55fea313c9bf065/Design%20Documents/Characters/Chargen_Skill_Selection_Groups.md",
+    "scope": "Already implemented PR730 dependency; no new chooser infrastructure.",
+    "kind": "repository implementation guide",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N01",
+    "title": "Finnish names in historical records — Lea Viljanen",
+    "url": "https://heraldry.sca.org/names/FinnishNamesArticle.htm",
+    "scope": "Individual dated forms transcribed from Finnish medieval/early modern records, including Latin and Swedish documentary spellings. Not a census of ethnic Finns.",
+    "kind": "original research / edited historical evidence",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N02",
+    "title": "Kaunas names, 1522–1591 — Rebecca Lucas after Alma Ragauskaite",
+    "url": "https://www.s-gabriel.org/names/ffride/kaunaslocnam.html",
+    "scope": "Multilingual town records. Keep recorded nominative spellings and distinguish reconstructed nominatives.",
+    "kind": "original research / edited historical evidence",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N03",
+    "title": "Women in Grand Duchy of Lithuania registers — after Jurate Cirunaite",
+    "url": "https://www.s-gabriel.org/names/ffride/lithuanianwomenasmenv.html",
+    "scope": "Registers of 1528, 1565, 1567 and 1631; Christian and Muslim repertoires distinguished. Political geography is not proof of Lithuanian vernacular ethnicity.",
+    "kind": "original research / edited historical evidence",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N04",
+    "title": "Estonian names from trade and tax records — after Juri Kivimae",
+    "url": "https://s-gabriel.org/names/ffride/kivimae-names.html",
+    "scope": "Documentary spellings, chiefly sixteenth century; mixed Finnic and Low German recording traditions.",
+    "kind": "original research / edited historical evidence",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N05",
+    "title": "Estonian naming patterns — Aryanhwy merch Catmael",
+    "url": "https://heraldry.sca.org/names/eepatterns.html",
+    "scope": "Local records, particles and byname examples; editorially reconstructed examples are not individual attestations.",
+    "kind": "original research / edited historical evidence",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N06",
+    "title": "Ernst Lewy, Die altpreussischen Personennamen (1904)",
+    "url": "https://archive.org/stream/diealtpreussisch00lewy/diealtpreussisch00lewy_djvu.txt",
+    "scope": "Public-domain personal-name corpus. Selected forms from sections 63–67; individual documentary dates not independently extracted.",
+    "kind": "historical linguistic monograph, public domain",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N07",
+    "title": "Ivoska, Social Status and Identification of Prussian Women (2023)",
+    "url": "https://journals.lki.lt/actalinguisticalithuanica/article/view/2237",
+    "scope": "Abstract inspected; full article could not be retrieved. It supplies NO name entries in this handoff.",
+    "kind": "research lead, abstract only",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N08",
+    "title": "Romanian names — Sara L. Uckelman",
+    "url": "https://www.ellipsis.cx/~liana/names/other/romanian.html",
+    "scope": "Dated ruler-name compilation; explicitly elite-biased, not a representative commoner frequency list.",
+    "kind": "original research / edited historical evidence",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N09",
+    "title": "Names from the family of Basarab — Jennifer Edwards",
+    "url": "https://www.s-gabriel.org/names/arina/basarab.html",
+    "scope": "Dynastic family-name compilation; dates and vernacular normalisations are not manuscript diplomatic transcriptions.",
+    "kind": "historical-name compilation",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N10",
+    "title": "Neagoe Basarab and his family — National History Museum portrait catalogue",
+    "url": "https://galeriaportretelor.ro/item/neagoe-basarab-si-familia-sa/",
+    "scope": "Museum identification of sixteenth-century family portrait; Milita, Anghelina, Ruxandra and Stanca. Milita is a Serbian-origin court member.",
+    "kind": "museum collection catalogue",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N11",
+    "title": "Three Hierarchs monastery foundation inscription",
+    "url": "https://doxologia.ro/pisania-manastirii-sfintii-trei-ierarhi",
+    "scope": "Published inscription text naming Tudosca, Maria and Rucsandra, 1639.",
+    "kind": "institutional transcription of historical inscription",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N12",
+    "title": "Domnita Balasa church",
+    "url": "https://doxologia.ro/biserica-domnita-balasa",
+    "scope": "Institutional history of Balasa (1693–1752), foundation of 1743–44; no nineteenth-century donors imported.",
+    "kind": "institutional historical account",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N13",
+    "title": "Matei Basarab and Elina — National History Museum",
+    "url": "https://galeriaportretelor.ro/item/matei-basarab-si-doamna-elina-2/",
+    "scope": "Museum portrait identification: Elina (c.1598–1653), seventeenth-century fresco.",
+    "kind": "museum collection catalogue",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N14",
+    "title": "Coptic Church Synaxarion — annual calendar",
+    "url": "https://www.copticchurch.net/synaxarium/all/en",
+    "scope": "Names in the Coptic commemorative tradition. This is evidence for devotional repertoire, not birth frequencies, ethnic origin or a dated vernacular manuscript spelling.",
+    "kind": "primary evidence of a living liturgical tradition",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N15",
+    "title": "Syriaca.org — Syriac Reference Portal",
+    "url": "https://syriaca.org/",
+    "scope": "Individual records identify Syriac literary/hagiographic names and primary editions. Saint floruit is NOT the date of the surviving text or the name spelling.",
+    "kind": "scholarly reference database",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N16",
+    "title": "Trismegistos Names — public metadata",
+    "url": "https://www.trismegistos.org/name/",
+    "scope": "Specific publicly indexed name records only. No restricted dataset was downloaded. Egyptian documentary location/language does not alone prove religion or ethnicity.",
+    "kind": "documentary name database",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N17",
+    "title": "Marana and Cyra — Monastic Matrix",
+    "url": "https://arts.st-andrews.ac.uk/monasticmatrix/vitae/cyra",
+    "scope": "Theodoret-related record of two women ascetics; literary personal names, not population frequencies.",
+    "kind": "research database drawing on primary hagiography",
+    "accessed": "2026-09-07"
+  },
+  {
+    "id": "N18",
+    "title": "Eugenio Lujan — Language and writing among the Lusitanians",
+    "url": "https://www.researchgate.net/publication/332491879_Language_and_writing_among_the_Lusitanians",
+    "scope": "Author chapter abstract: Lusitanian inscriptions, Latin alphabet and distinct language treatment. No phonetic reconstruction or intelligibility rate taken from the abstract.",
+    "kind": "author research chapter abstract",
+    "accessed": "2026-09-07"
+  }
+]

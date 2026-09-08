@@ -20850,6 +20850,9 @@ namespace MudSharp.Migrations
                     b.Property<int?>("RevisionNumber")
                         .HasColumnType("int(11)");
 
+                    b.Property<string>("SeedBaseline")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Seeder")
                         .IsRequired()
                         .HasMaxLength(100)

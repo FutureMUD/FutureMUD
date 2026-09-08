@@ -1,0 +1,115 @@
+{
+  "target_encoding": "ISO-8859-1",
+  "storage_policy": "Preserve original Unicode/NFC in research metadata; seeded game-facing form is Latin-1-compatible unless a documented Unicode opt-in is chosen.",
+  "normalisation": "NFC at the whole-string boundary before validation and encoding; do not globally decompose supported Latin-1 characters.",
+  "explicit_mappings": {
+    "Ł": "L",
+    "ł": "l",
+    "Œ": "OE",
+    "œ": "oe",
+    "Đ": "D",
+    "đ": "d",
+    "Ħ": "H",
+    "ħ": "h",
+    "Ŋ": "N",
+    "ŋ": "n",
+    "ı": "i",
+    "ſ": "s",
+    "Ə": "E",
+    "ə": "e",
+    "ƿ": "w",
+    "Ƿ": "W",
+    "Ȝ": "Y",
+    "ȝ": "y",
+    "ʼ": "'",
+    "ʻ": "'",
+    "ʿ": "'",
+    "ʾ": "'",
+    "’": "'",
+    "‘": "'",
+    "“": "\"",
+    "”": "\"",
+    "–": "-",
+    "—": "-",
+    "…": "..."
+  },
+  "contextual_exceptions": {
+    "ȝ": "The generic display mapping y is only a last-resort display approximation. A name-specific reviewed form may require g, gh or z instead; never use this lossy conversion as a canonical key.",
+    "ə": "The display fallback e is not a phonetic assertion. Retain the canonical source spelling separately."
+  },
+  "algorithm": [
+    "NFC-normalise the complete input.",
+    "Retain supported Latin-1 characters unchanged.",
+    "For unsupported scalars, use an approved explicit mapping when available.",
+    "Otherwise canonically decompose that scalar, remove nonspacing marks, then NFC-compose the remainder and encode if supported.",
+    "Flag unhandled printable characters in catalogue validation; do not silently introduce question marks into seeded names.",
+    "Use a fresh fallback buffer per encoder operation; do not reuse one mutable buffer across independently active encoders."
+  ],
+  "tests": [
+    {
+      "input": "François",
+      "expected": "François"
+    },
+    {
+      "input": "Þórðr",
+      "expected": "Þórðr"
+    },
+    {
+      "input": "Æthelred",
+      "expected": "Æthelred"
+    },
+    {
+      "input": "Łódź",
+      "expected": "Lódz"
+    },
+    {
+      "input": "Dvořák",
+      "expected": "Dvorák"
+    },
+    {
+      "input": "İbrahim",
+      "expected": "Ibrahim"
+    },
+    {
+      "input": "Şahin",
+      "expected": "Sahin"
+    },
+    {
+      "input": "Œuvre",
+      "expected": "OEuvre"
+    },
+    {
+      "input": "é",
+      "expected": "é"
+    },
+    {
+      "input": "Ƿulf",
+      "expected": "Wulf"
+    },
+    {
+      "input": "Mușa",
+      "expected": "Musa"
+    },
+    {
+      "input": "Ŋala",
+      "expected": "Nala"
+    },
+    {
+      "input": "François d’Avila",
+      "expected": "François d'Avila"
+    }
+  ],
+  "sources": [
+    "R14",
+    "R16",
+    "T01",
+    "T02"
+  ],
+  "engineering_notes": [
+    "The existing fallback has a shared mutable buffer and no usable surrogate-pair replacement. Specify behaviour for unsupported supplementary characters and test it separately.",
+    "MaxCharCount must cover the longest replacement actually emitted.",
+    "Keep ANSI/MXP protocol handling separate from text transliteration; do not strip protocol bytes or apply name validation to control sequences.",
+    "Prefer a precise authored Latin-1 display form over automated linguistic transliteration.",
+    "Lossy display forms must not be used to merge people, profile elements or canonical entity keys."
+  ]
+}

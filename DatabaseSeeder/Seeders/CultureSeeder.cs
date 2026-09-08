@@ -1,8 +1,11 @@
+#nullable enable
+
 using MudSharp.Database;
 using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DatabaseSeeder.Seeders.CultureToolkit;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -19,11 +22,14 @@ public partial class CultureSeeder : IDatabaseSeeder
 The FutureMUD Database Seeder currently has the following culture packs, which include full suites of naming conventions, languages and dialects and sometimes more for various real world or fictional settings.
 
 #BEarth-Modern#F: This culture pack includes ethnicities, cultures, languages, scripts and accents from the modern Earth
-#BEarth-Antiquity#F: This culture pack includes names, languages, scripts and accents from Mediterranean antiquity and neighbouring regions at roughly the time of the late republic
-#BEarth-DarkAgesAndMedieval#F: This culture pack includes ethnicities, names, cultures, languages, scripts and accents from the Dark Ages and Medieval period, roughly 500-1400
-#BEarth-RenaissanceEurope#F: This culture pack includes ethnicities, names, languages, scripts and accents from Renaissance Europe (and surrounds), roughly 15th century
-#BEarth-RenaissanceWorldExpansion#F: This companion pack adds late-fifteenth-century ethnicities, cultures, names, languages, scripts and accents from the Middle East, Asia and Africa
+#BAntiquity#F: Classical antiquity to about 500
+#BDark Ages#F: About 500-1100
+#BMedieval#F: About 1000-1400
+#BRenaissance#F: About 1400-1600
+#BEarly Modern#F: About 1600-1750
 #BMiddle-Earth#F: This culture pack includes races, ethnicities, cultures, languages, scripts and dialects from J.R.R. Tolkien's Middle-Earth
+
+Each historical era is a self-contained toolkit of social backgrounds, ethnicities, names, languages, scripts and accents for Europe and the neighbouring Near Eastern, North African and Black Sea regions. These overlapping toolkits do not require every entry to coexist in one year. Select one era.
 
 #1Note: Even if you choose none of the above, some useful culture-related defaults will be installed to make things easier for you#F
 
@@ -34,7 +40,7 @@ You can either use 'none' to select none of the above, or use one of the pack na
                             "earthantiquity" or "antiquity" or "earthdarkagesandmedieval" or
                             "darkagesandmedieval" or "earthrenaissanceeurope" or "renaissanceeurope" or
                             "earthmedievaleurope" or "medievaleurope" or "earthrenaissanceworldexpansion" or
-                            "renaissanceworldexpansion" or "middleearth"))
+                            "renaissanceworldexpansion" or "middleearth" or "darkages" or "medieval" or "renaissance" or "earlymodern"))
                     {
                         return (false, "You must select one of the pack names, or use 'none' to select none of them.");
                     }
@@ -106,7 +112,7 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOpt
             "darkagesandmedieval" or "earthrenaissanceeurope" or
             "renaissanceeurope" or "earthmedievaleurope" or "medievaleurope" or
             "earthrenaissanceworldexpansion" or "renaissanceworldexpansion" or
-            "middleearth";
+            "middleearth" or "darkages" or "medieval" or "renaissance" or "earlymodern";
     }
 
 	private static bool CulturePackSupportsModernSignedLanguages(IReadOnlyDictionary<string, string> answers)
@@ -117,7 +123,18 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOpt
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
-		context.Database.BeginTransaction();
+		using var transaction = context.Database.BeginTransaction();
+		var era = ToolkitEra(questionAnswers["culturepacks"]);
+		if (era is not null)
+		{
+			bool Requested(string key) => !questionAnswers.TryGetValue(key, out var answer) || answer.EqualToAny("yes", "y");
+			var report = CultureToolkitInstaller.Install(context, era, Requested("seednames"), Requested("seedlanguages"), Requested("seedheritage"));
+			transaction.Commit();
+			var unresolvedNatives = report.NativeBindings.SelectMany(x => x.Unresolved).ToArray();
+			return $"Installed {era}: {report.CultureIds.Count:N0} social backgrounds, {report.EthnicityIds.Count:N0} retained/overlay identities and {report.Groups.Count:N0} optional language groups." +
+				(unresolvedNatives.Length == 0 ? "" : "\nRetained source bindings not activated by this run:\n" + string.Join("\n", unresolvedNatives)) +
+				(report.Conflicts.Count == 0 ? "" : "\nPreserved overrides or unresolved bindings:\n" + string.Join("\n", report.Conflicts));
+		}
 		_context = context;
 		SeedSimple(context);
 		if (!questionAnswers["culturepacks"].EqualToAny("none"))
@@ -131,11 +148,21 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOpt
 			ChargenFreeKnowledgeProgReconciler.Reconcile(context);
 		context.SaveChanges();
 
-		context.Database.CommitTransaction();
+		transaction.Commit();
 		return string.IsNullOrWhiteSpace(freeKnowledgeResult.Message)
 			? "Completed successfully."
 			: $"Completed successfully. {freeKnowledgeResult.Message}";
 	}
+
+	internal static string? ToolkitEra(string answer) => NormalizeCulturePackAnswer(answer) switch
+	{
+		"antiquity" or "earthantiquity" => "antiquity",
+		"darkages" => "darkages",
+		"medieval" or "earthdarkagesandmedieval" or "darkagesandmedieval" or "earthmedievaleurope" or "medievaleurope" => "medieval",
+		"renaissance" or "earthrenaissanceeurope" or "renaissanceeurope" => "renaissance",
+		"earlymodern" => "earlymodern",
+		_ => null
+	};
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
     {

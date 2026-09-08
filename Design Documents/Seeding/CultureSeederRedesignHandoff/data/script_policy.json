@@ -1,0 +1,344 @@
+[
+  {
+    "key": "arabic",
+    "label": "Arabic",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "arabic.classical",
+      "arabic.mashriqi",
+      "arabic.maghrebi",
+      "arabic.andalusi",
+      "arabic.old",
+      "persian.new",
+      "turkic.oghuz",
+      "turkish.ottoman",
+      "turkic.kipchak",
+      "turkic.crimean",
+      "kurdish.kurmanji",
+      "kurdish.gorani",
+      "amazigh.tashelhit",
+      "amazigh.kabyle",
+      "amazigh.tarifit"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Arabic script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Arabic letters carry scripture, correspondence and the records of courts and merchants. Scribes and readers preserve their forms in books and documents throughout the lands where these letters are used."
+  },
+  {
+    "key": "aramaic",
+    "label": "Aramaic",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "arabic.old",
+      "aramaic"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Aramaic script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Aramaic letters are used in correspondence, records and learned writings. Their forms are kept by scribes and readers whose work joins local communities to wider traditions of written affairs."
+  },
+  {
+    "key": "armenian",
+    "label": "Armenian",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "armenian",
+      "armenian.classical"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Armenian script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Armenian letters preserve the words of books, worship and correspondence. Churches, learned households and copyists maintain their forms across Armenian communities."
+  },
+  {
+    "key": "coptic",
+    "label": "Coptic",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "coptic"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Coptic script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Coptic letters preserve Egypt's Christian books, readings and correspondence. Teachers and copyists keep them familiar through the study and copying of manuscripts."
+  },
+  {
+    "key": "cyrillic",
+    "label": "Cyrillic",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "slavic.old-east",
+      "ruthenian",
+      "russian",
+      "church-slavonic",
+      "bulgarian",
+      "romanian"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Cyrillic script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Cyrillic letters carry sacred books, correspondence and public records among the communities that use them. Clergy, scribes and learned readers preserve their forms through instruction and written work."
+  },
+  {
+    "key": "georgian",
+    "label": "Georgian",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "georgian"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "Retain genuinely distinct historical Georgian alphabets, but do not create separate skills for mere calligraphic styles.",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Georgian script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Georgian letters serve sacred books, correspondence and the affairs of court and household. Scribes and readers maintain their written traditions in churches and learned communities."
+  },
+  {
+    "key": "glagolitic",
+    "label": "Glagolitic",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "church-slavonic"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Glagolitic script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Glagolitic letters preserve Slavic sacred writings and the words of worship. Clergy and copyists keep their forms through reading, instruction and the making of manuscripts."
+  },
+  {
+    "key": "greek",
+    "label": "Greek",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "greek.ancient",
+      "greek.koine",
+      "greek.medieval",
+      "albanian"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Greek script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Greek letters are used in books, correspondence and public records. Their familiar forms carry the words of learning, worship and everyday written affairs."
+  },
+  {
+    "key": "hebrew",
+    "label": "Hebrew",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "persian.new",
+      "aramaic",
+      "hebrew",
+      "yiddish",
+      "judeo-spanish"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Hebrew script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Hebrew letters carry sacred texts, prayer books and the correspondence of Jewish communities. Teachers and scribes preserve their forms wherever these communities maintain their learning."
+  },
+  {
+    "key": "latin",
+    "label": "Latin",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "latin",
+      "english.old",
+      "english.middle",
+      "english.earlymodern",
+      "norman.old",
+      "french.anglonorman",
+      "french.old",
+      "french.middle",
+      "french.earlymodern",
+      "occitan",
+      "welsh",
+      "breton",
+      "cornish",
+      "gaelic.old",
+      "gaelic.medieval",
+      "irish",
+      "scottish-gaelic",
+      "scots",
+      "norse.old",
+      "danish",
+      "swedish",
+      "norwegian",
+      "icelandic",
+      "german.old-high",
+      "german.middle-high",
+      "german.early-new-high",
+      "german.old-saxon",
+      "german.middle-low",
+      "franconian.old-low",
+      "dutch.middle",
+      "dutch",
+      "frisian",
+      "italian",
+      "venetian",
+      "sicilian",
+      "sardinian",
+      "castilian.old",
+      "castilian",
+      "leonese",
+      "aragonese",
+      "catalan",
+      "galician-portuguese",
+      "galician",
+      "portuguese",
+      "basque",
+      "polish",
+      "czech",
+      "slovak",
+      "slovene",
+      "romanian",
+      "albanian",
+      "hungarian",
+      "lithuanian",
+      "latvian",
+      "old-prussian",
+      "estonian",
+      "finnish",
+      "turkic.kipchak",
+      "lusitanian"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Latin script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Latin letters are used in books, records and correspondence. Readers and scribes carry their written forms between courts, towns, religious houses and centres of learning."
+  },
+  {
+    "key": "ogham",
+    "label": "Ogham",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "gaelic.old"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Ogham script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "Ogham letters are formed from ordered groups of strokes, familiar from inscribed names and remembered accounts of the letters. Learned readers preserve their forms and their place in written tradition."
+  },
+  {
+    "key": "old-hungarian",
+    "label": "Old Hungarian",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "hungarian"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Old Hungarian script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Hungarian runic letters preserve words in a distinctive set of signs. Those instructed in their forms use and remember them alongside the other letters encountered in written affairs."
+  },
+  {
+    "key": "pahlavi",
+    "label": "Pahlavi",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "persian.middle"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Pahlavi script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Pahlavi letters preserve Persian records and books of inherited learning. Scribes and religious readers study their forms and the written conventions carried in the manuscripts."
+  },
+  {
+    "key": "runic",
+    "label": "Runic",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "english.old",
+      "norse.old"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "Runic is a family selector where Futhorc, Younger Futhark and other genuinely distinct alphabets already exist; choose the correct retained record, never erase those distinctions.",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Runic script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "Runes carry names, messages and remembered words in distinctive cut or written signs. Their forms are learned within the communities that use them and preserved in inscriptions and accounts of the letters."
+  },
+  {
+    "key": "syriac",
+    "label": "Syriac",
+    "policy": "Reuse existing broad script and its authored descriptions. No subdivision for handwriting, typeface or calligraphic hand alone.",
+    "languages": [
+      "syriac"
+    ],
+    "default_length_and_ink": "Preserve existing values; neutral 1.0 only for a truly new broad script without an authored modifier.",
+    "exception": "",
+    "sources": [
+      "R11",
+      "R20"
+    ],
+    "known_description": "Syriac script",
+    "unknown_description": "an unfamiliar writing system",
+    "description": "The Syriac letters carry scripture, worship and learned correspondence among Syriac Christian communities. Monasteries, churches and teachers preserve their forms through reading and the copying of books."
+  }
+]

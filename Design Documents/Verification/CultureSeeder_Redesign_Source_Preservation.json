@@ -1,0 +1,224 @@
+{
+  "scope": "Archived source bytes and generated source-pack-local tables; shared defaults are counted in each source pack. No proof of active database reconciliation.",
+  "source_commit": "420fa26a7cb2be11fbb7b973e7e5270976e95067",
+  "original_source_files_recoverable": 28,
+  "generated_source_packs": 7,
+  "source_file_changes": [
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "522ccdcbe3abbc9637807309f9c5a4d78c09c9f947ea7d4563f4bfcce06efe78",
+      "current_sha256": "9f4ac4dccb76124e5b4f2743ec09c8c3ada078b0cbcb2389c5817c3d2868de4c",
+      "source_file_changed": true
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.Antiquity.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "98159d105cf65c3cab4715e06550ecbc233ff6d8e4f67bd4fc2a05125ef4f86b",
+      "current_sha256": "98159d105cf65c3cab4715e06550ecbc233ff6d8e4f67bd4fc2a05125ef4f86b",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "dd628ec9e73a4aa7bdfdb6e2e11f49857f22b1ca9e55e17922bf8663fc9349fd",
+      "current_sha256": "dd628ec9e73a4aa7bdfdb6e2e11f49857f22b1ca9e55e17922bf8663fc9349fd",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.DarkAges.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "65d327cbefac9576b07d5c5fab16187c91121f322a38e451a9c637fc0583c1d6",
+      "current_sha256": "65d327cbefac9576b07d5c5fab16187c91121f322a38e451a9c637fc0583c1d6",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.Historical.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "3f2f11ec1b94a9108c253e5a91d5198385803a99fd2319cd5d6241da580d1e31",
+      "current_sha256": "3f2f11ec1b94a9108c253e5a91d5198385803a99fd2319cd5d6241da580d1e31",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.MedievalEurope.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "54b33325439fe5a99b2dfb15ac30f29445a8002dc6c6c1e6bd5d9c7ec295062e",
+      "current_sha256": "54b33325439fe5a99b2dfb15ac30f29445a8002dc6c6c1e6bd5d9c7ec295062e",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.MiddleEarth.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "55f3ced27abd41dc65729f8b716c88b2fed2f28d5b3cfb99571d8f45018e0a26",
+      "current_sha256": "55f3ced27abd41dc65729f8b716c88b2fed2f28d5b3cfb99571d8f45018e0a26",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.Modern.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "5c8efd067b500a12b303a6cf0fbfe2ddd9c08a52aa83668a8bf8c1dd45c266e7",
+      "current_sha256": "5c8efd067b500a12b303a6cf0fbfe2ddd9c08a52aa83668a8bf8c1dd45c266e7",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.RenaissanceWorld.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "1428544f761d1f1d91e8943a509bae86b449b4d089ecb196a42545f70326b5bd",
+      "current_sha256": "1428544f761d1f1d91e8943a509bae86b449b4d089ecb196a42545f70326b5bd",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.Antiquity.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "61b0628c520269094b4b276aa4c91cf9ac4820010e88acb5fe1f99cc7945b37b",
+      "current_sha256": "61b0628c520269094b4b276aa4c91cf9ac4820010e88acb5fe1f99cc7945b37b",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "f8a02fe53dfa68ec2592a47601b47328d72d7f55fbf9eaaba96b465fa45850c8",
+      "current_sha256": "f8a02fe53dfa68ec2592a47601b47328d72d7f55fbf9eaaba96b465fa45850c8",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.DarkAges.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "14f7a3b6c28bf5354101ca8b9b1b1b8e7c4975e1f14d67332922312541374e15",
+      "current_sha256": "14f7a3b6c28bf5354101ca8b9b1b1b8e7c4975e1f14d67332922312541374e15",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.Historical.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "519c114ad6458edc5aedc3f47d7cf51d951e5688e782a7ca65410c0b725757aa",
+      "current_sha256": "519c114ad6458edc5aedc3f47d7cf51d951e5688e782a7ca65410c0b725757aa",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.MedievalEurope.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "7e9bf7bf85c3c48900bb10e0c66a435db6e79bc0dbc7891a05b3ed24062242c1",
+      "current_sha256": "7e9bf7bf85c3c48900bb10e0c66a435db6e79bc0dbc7891a05b3ed24062242c1",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.MiddleEarth.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "572c7ab31909b119bfc3d69054a60f1356f94e3cd8ef6faee841e9cbe43db71c",
+      "current_sha256": "572c7ab31909b119bfc3d69054a60f1356f94e3cd8ef6faee841e9cbe43db71c",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.Modern.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "01919e8368d9c1dd7b098bdb9cca065a554b9ae6e244ae889141de044a793106",
+      "current_sha256": "01919e8368d9c1dd7b098bdb9cca065a554b9ae6e244ae889141de044a793106",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.RenaissanceWorld.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "6414bd81cccca29d9efb91666b916014679a4bca5ee2318801ca84287b94146f",
+      "current_sha256": "6414bd81cccca29d9efb91666b916014679a4bca5ee2318801ca84287b94146f",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.NameDefaults.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "7a6998b0c2618c0c7c0d2d18aa71fe0c724a244785952676edabca3bb3f9d9dd",
+      "current_sha256": "7a6998b0c2618c0c7c0d2d18aa71fe0c724a244785952676edabca3bb3f9d9dd",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Names.Antiquity.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "ef6371aa89fc1010c606693b39365df5d95e5f3b247e8ff4a3173c21308465dc",
+      "current_sha256": "ef6371aa89fc1010c606693b39365df5d95e5f3b247e8ff4a3173c21308465dc",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Names.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "d8b920e31216763fd27c1f5674f0d8931a2c6757dc316d41ccf6bf484d64bec3",
+      "current_sha256": "d8b920e31216763fd27c1f5674f0d8931a2c6757dc316d41ccf6bf484d64bec3",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Names.MedievalEurope.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "43d8a158c1756675c3166c5683681b23715b03cf523a32d9fd9528a6484aa8f6",
+      "current_sha256": "43d8a158c1756675c3166c5683681b23715b03cf523a32d9fd9528a6484aa8f6",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Names.MiddleEarth.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "3a7d1c5b987299544ce7ded1bec3caa5d2446813720cb8b042c7639000dc3afa",
+      "current_sha256": "3a7d1c5b987299544ce7ded1bec3caa5d2446813720cb8b042c7639000dc3afa",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Names.Modern.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "7861e5317142e461ba021b0f2029fe4634be4740d1ad0edda444f6cbd1fa8236",
+      "current_sha256": "7861e5317142e461ba021b0f2029fe4634be4740d1ad0edda444f6cbd1fa8236",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Packs.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "fff25e369bd56f183f1a92740fcc5a34308d5367020af63f3ff7a21b76b1b6ad",
+      "current_sha256": "fff25e369bd56f183f1a92740fcc5a34308d5367020af63f3ff7a21b76b1b6ad",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "5e4e2105f37e2769374d7eac8233e96a9693a6da7146c19ddfadcbb284a46a53",
+      "current_sha256": "5e4e2105f37e2769374d7eac8233e96a9693a6da7146c19ddfadcbb284a46a53",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Packs.RenaissanceWorld.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "37b0b5d257ff558430c44ce9d1a340cc3fce841b05df581e34086b46606e5a4f",
+      "current_sha256": "37b0b5d257ff558430c44ce9d1a340cc3fce841b05df581e34086b46606e5a4f",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Shared.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "ff65d0858e38bc8b9b67381e95bf9c0be6a80a936575a727dc983e5b4764cd08",
+      "current_sha256": "ff65d0858e38bc8b9b67381e95bf9c0be6a80a936575a727dc983e5b4764cd08",
+      "source_file_changed": false
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.SignedLanguages.Modern.cs",
+      "original_bytes_recoverable": true,
+      "original_sha256": "b33af29264482bc87103b06ec772837141edad39dfc691d891a420c5828ec576",
+      "current_sha256": "b33af29264482bc87103b06ec772837141edad39dfc691d891a420c5828ec576",
+      "source_file_changed": false
+    }
+  ],
+  "source_pack_local_totals": {
+    "Accent": 2313,
+    "FutureProg": 122,
+    "FutureProgsParameter": 196,
+    "Knowledge": 88,
+    "Language": 297,
+    "MutualIntelligability": 486,
+    "NameCulture": 170,
+    "RandomNameProfile": 362,
+    "RandomNameProfilesDiceExpressions": 713,
+    "RandomNameProfilesElements": 53216,
+    "Script": 88,
+    "ScriptsDesignedLanguage": 345,
+    "TraitDefinition": 328,
+    "TraitExpression": 321,
+    "SignedLanguage": 24,
+    "SignedLanguageArticulationProfile": 24,
+    "SignedLanguageArticulationRequirement": 24,
+    "SignedLanguageVariety": 8
+  }
+}

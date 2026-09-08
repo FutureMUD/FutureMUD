@@ -1,0 +1,843 @@
+{
+  "western-trade": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [
+      "french",
+      "german",
+      "low-german",
+      "dutch"
+    ],
+    "languages": [
+      "italian",
+      "latin"
+    ],
+    "notes": "Pick one route/contact language. No blanket Latin grant.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.western-trade",
+    "label": "Languages of Western Trade",
+    "description": "Trading households maintain dealings beyond their own towns. Familiarity with the speech of distant partners supports correspondence, bargaining and travel.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "baltic-trade": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [
+      "low-german",
+      "norse",
+      "east-slavic"
+    ],
+    "languages": [
+      "polish"
+    ],
+    "notes": "Filter to languages installed and relevant to the selected community.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.baltic-trade",
+    "label": "Languages of Baltic Trade",
+    "description": "Merchants and travellers carry several tongues between the towns of the northern seas. Households with contacts in these ports learn the words of their associates.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "central-european-trade": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [
+      "german"
+    ],
+    "languages": [
+      "polish",
+      "czech",
+      "hungarian"
+    ],
+    "notes": "Local context determines the useful additional language.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.central-european-trade",
+    "label": "Languages of Inland Trade",
+    "description": "The markets of central Europe bring together traders from neighbouring lands. Commercial households cultivate the speech useful along their accustomed routes.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "levantine-trade": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [
+      "arabic-east",
+      "persian",
+      "greek"
+    ],
+    "languages": [
+      "italian",
+      "armenian",
+      "turkish.ottoman"
+    ],
+    "notes": "Ottoman only in its applicable periods; choose a route, do not add all options.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.levantine-trade",
+    "label": "Languages of Levantine Trade",
+    "description": "The ports and markets of the Levant receive merchants from many lands. Their households value the tongues used among trusted partners and customers.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "steppe-contact": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [
+      "east-slavic",
+      "persian",
+      "turkic"
+    ],
+    "languages": [],
+    "notes": "Antiquity resolves against retained Scythian/Sarmatian/Greek contact data; later languages do not backfill an ancient entitlement.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "selectors_by_era": {
+      "antiquity": [
+        "greek",
+        "persian"
+      ],
+      "darkages": [
+        "east-slavic",
+        "persian",
+        "turkic"
+      ],
+      "medieval": [
+        "east-slavic",
+        "persian",
+        "turkic"
+      ],
+      "renaissance": [
+        "east-slavic",
+        "persian",
+        "turkic"
+      ],
+      "earlymodern": [
+        "east-slavic",
+        "persian",
+        "turkic"
+      ]
+    },
+    "skill_group_key": "culture-language.steppe-contact",
+    "label": "Languages of the Frontier",
+    "description": "Pastoral routes, markets and military service bring steppe communities into regular dealings with neighbouring peoples. Their tongues accompany travel, exchange and negotiation.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "frankish-vernacular": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [
+      "french",
+      "german",
+      "dutch"
+    ],
+    "languages": [],
+    "notes": "The home vernacular stays native. This option supplies one other contact language.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.frankish-vernacular",
+    "label": "Tongues of the Frankish Lands",
+    "description": "Several tongues are heard across the Frankish realms. Household connections and travel bring familiarity with the speech of neighbouring regions.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "latin-learning": {
+    "count": 1,
+    "proficiency": "educated",
+    "selectors": [],
+    "languages": [
+      "latin"
+    ],
+    "notes": "Elective formal education; the institution is not proof of universal Latin proficiency.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.latin-learning",
+    "label": "Latin Learning",
+    "description": "Latin instruction opens the words of learned books, correspondence and public records. Teachers and readers preserve its use in schools and households.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "french-court-learning": {
+    "count": 1,
+    "proficiency": "educated",
+    "selectors": [
+      "french"
+    ],
+    "languages": [],
+    "notes": "Use the appropriate continental stage; not automatic Law French.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.french-court-learning",
+    "label": "French Letters and Conversation",
+    "description": "French is cultivated in courtly conversation and correspondence. Instruction prepares members of a household to conduct themselves among French-speaking associates.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "western-court-contact": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [
+      "french",
+      "german"
+    ],
+    "languages": [
+      "italian"
+    ],
+    "notes": "Optional, not a grant of every prestige language.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.western-court-contact",
+    "label": "Languages of Courtly Company",
+    "description": "Courts and noble households receive visitors and correspondents from other lands. Familiarity with their tongues supports service, friendship and negotiation.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "british-court-contact": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [
+      "english"
+    ],
+    "languages": [
+      "french.anglonorman",
+      "latin"
+    ],
+    "notes": "Filter Anglo-Norman to Medieval/Renaissance applicability.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.british-court-contact",
+    "label": "Languages of Household and Court",
+    "description": "Several tongues are heard in the households and public affairs of Britain. Education and personal connections extend a family's speech beyond its own community.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "orthodox-learning": {
+    "count": 1,
+    "proficiency": "educated",
+    "selectors": [],
+    "languages": [
+      "greek.koine",
+      "church-slavonic"
+    ],
+    "notes": "Choose by educational tradition, not ethnicity alone; never award both automatically.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.orthodox-learning",
+    "label": "Languages of Sacred Reading",
+    "description": "The sacred books of the Orthodox churches are kept through careful reading and recitation. Teachers instruct their pupils in the language of their community's inherited texts.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "andalusi-contact": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [
+      "castilian"
+    ],
+    "languages": [
+      "arabic.andalusi",
+      "catalan",
+      "portuguese"
+    ],
+    "notes": "The selected period and community determine the relevant choice; later Ladino is not the default speech of medieval Iberian Jews.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.andalusi-contact",
+    "label": "Languages of Iberian Neighbours",
+    "description": "Communities across Iberia meet in markets, households and local affairs. Contact with neighbouring towns and families brings knowledge of their speech.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "balkan-court-contact": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [
+      "greek"
+    ],
+    "languages": [
+      "latin",
+      "hungarian",
+      "turkish.ottoman",
+      "church-slavonic"
+    ],
+    "notes": "Choose one contemporary court/administrative context.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.balkan-court-contact",
+    "label": "Languages of Neighbouring Courts",
+    "description": "The courts and great households of the Balkan lands maintain connections across nearby realms. Their service and correspondence call for familiarity with other tongues.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "mamluk-origin-language": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [],
+    "languages": [
+      "turkic.kipchak",
+      "turkic.oghuz"
+    ],
+    "retained_catalogue_options": [
+      "Circassian"
+    ],
+    "notes": "Circassian is not Turkic; retain or add an appropriate distinct language before offering it. The home-language entitlement may already supply it.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "unresolved_candidate_policy": "Do not display unbound retained_catalogue_options. Raise a content-review warning; never substitute an unrelated language.",
+    "skill_group_key": "culture-language.mamluk-origin-language",
+    "label": "Languages of Military Companions",
+    "description": "Military households gather companions from distant lands. Shared service and household life preserve connections with the tongues of their places of origin.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "ottoman-learned": {
+    "count": 1,
+    "proficiency": "educated",
+    "selectors": [],
+    "languages": [
+      "persian.new"
+    ],
+    "notes": "Persian is acquired literary/court learning, not automatic native speech.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.ottoman-learned",
+    "label": "Persian Letters",
+    "description": "Persian books and correspondence are cultivated among learned households. Teachers introduce their pupils to the language of poetry and refined written affairs.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "persian-learning": {
+    "count": 1,
+    "proficiency": "educated",
+    "selectors": [],
+    "languages": [
+      "persian.new"
+    ],
+    "notes": "Acquired educational competency.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.persian-learning",
+    "label": "Persian Learning",
+    "description": "Persian instruction offers access to letters, poetry and the written affairs of courts and towns. Learned readers carry its words between households and institutions.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "ottoman-contact": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [],
+    "languages": [
+      "turkish.ottoman"
+    ],
+    "notes": "Do not force this on every provincial household; it is a free background option.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.ottoman-contact",
+    "label": "Turkish Conversation",
+    "description": "Turkish is heard in Ottoman towns and imperial service. Familiarity with it supports dealings with officials, traders and neighbouring households.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "caucasian-court-contact": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [
+      "persian",
+      "greek"
+    ],
+    "languages": [
+      "turkish.ottoman",
+      "arabic.mashriqi"
+    ],
+    "notes": "Choose the actual regional political/educational context.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.caucasian-court-contact",
+    "label": "Languages Beyond the Mountains",
+    "description": "The great households of the Caucasus maintain connections with neighbouring courts and towns. Travel, service and correspondence bring other tongues into their affairs.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "syriac-learning": {
+    "count": 1,
+    "proficiency": "educated",
+    "selectors": [],
+    "languages": [
+      "syriac"
+    ],
+    "notes": "Liturgical/learned use distinct from native Aramaic or Arabic.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.syriac-learning",
+    "label": "Syriac Reading",
+    "description": "Syriac books carry sacred texts and learned correspondence. Churches and teachers preserve their words through instruction, reading and recitation.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "coptic-learning": {
+    "count": 1,
+    "proficiency": "educated",
+    "selectors": [],
+    "languages": [
+      "coptic"
+    ],
+    "notes": "Do not infer native Coptic from Coptic identity in the later periods.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.coptic-learning",
+    "label": "Coptic Reading",
+    "description": "Coptic books preserve the words of Egypt's Christian worship and religious learning. Teachers and readers maintain their use in churches and monasteries.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "jewish-learning": {
+    "count": 1,
+    "proficiency": "elementary",
+    "selectors": [],
+    "languages": [
+      "hebrew"
+    ],
+    "notes": "Optional study; rote familiarity with worship is not fluent language skill.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.jewish-learning",
+    "label": "Hebrew Study",
+    "description": "Hebrew study brings familiarity with the words of prayer, scripture and communal learning. Teachers pass these readings between generations of households.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "maghrebi-contact": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [
+      "arabic-west"
+    ],
+    "languages": [],
+    "notes": "Amazigh home language remains separate.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.maghrebi-contact",
+    "label": "Languages of Maghrebi Neighbours",
+    "description": "Trade, travel and household connections bring neighbouring communities of the Maghreb together. Their speech accompanies dealings in town and countryside.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "biblical-learning": {
+    "count": 1,
+    "proficiency": "educated",
+    "selectors": [],
+    "languages": [
+      "hebrew",
+      "greek.koine"
+    ],
+    "notes": "Choose one educational specialism; not both automatically.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.biblical-learning",
+    "label": "Languages of Scripture",
+    "description": "Learned readers study scripture in its inherited tongues. Schools and teachers preserve these words through careful instruction and comparison of texts.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "safavid-service": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [],
+    "languages": [
+      "turkic.oghuz",
+      "arabic.classical"
+    ],
+    "notes": "Oghuz here is a conservative broad resolver; retain distinct Azerbaijani/Turkic speech profiles when already authored.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.safavid-service",
+    "label": "Languages of Service and Company",
+    "description": "Service to the Safavid court brings together households and companions from several lands. Their tongues are heard alongside Persian in personal and public affairs.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "zoroastrian-learning": {
+    "count": 1,
+    "proficiency": "educated",
+    "selectors": [],
+    "languages": [],
+    "retained_catalogue_options": [
+      "Avestan"
+    ],
+    "notes": "Only offer when the retained or newly specified Avestan record exists; do not silently substitute Persian.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "unresolved_candidate_policy": "Do not display unbound retained_catalogue_options. Raise a content-review warning; never substitute an unrelated language.",
+    "skill_group_key": "culture-language.zoroastrian-learning",
+    "label": "Sacred Recitations",
+    "description": "The inherited words of Zoroastrian worship are preserved through careful teaching and recitation. Learned households pass these readings from teacher to pupil.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "egyptian-scribal": {
+    "count": 1,
+    "proficiency": "educated",
+    "selectors": [
+      "greek"
+    ],
+    "languages": [],
+    "retained_catalogue_options": [
+      "Egyptian",
+      "Demotic Egyptian"
+    ],
+    "notes": "Ancient Egyptian stage and script names must resolve from the retained Antiquity source. This handoff does not re-author the ancient Egyptian language catalogue.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "unresolved_candidate_policy": "Do not display unbound retained_catalogue_options. Raise a content-review warning; never substitute an unrelated language.",
+    "skill_group_key": "culture-language.egyptian-scribal",
+    "label": "Languages of Egyptian Records",
+    "description": "The records and books of Egypt preserve several traditions of written affairs. Scribes and teachers maintain the words needed for their institutions' work.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "commonwealth-political-language": {
+    "count": 1,
+    "proficiency": "fluent",
+    "selectors": [],
+    "languages": [
+      "polish",
+      "ruthenian"
+    ],
+    "notes": "Choose the political and household setting; the Medieval option is not an assertion that a united Commonwealth already exists. Do not replace Lithuanian ancestry or home language.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.commonwealth-political-language",
+    "label": "Languages of Public Affairs",
+    "description": "The noble households of Poland and Lithuania conduct business among communities of several tongues. Correspondence and service bring familiarity with the speech used beyond the home district.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  },
+  "italic-latin-contact": {
+    "count": 1,
+    "proficiency": "conversational",
+    "selectors": [],
+    "languages": [
+      "latin"
+    ],
+    "notes": "Optional acquired Latin for an Italic household whose chosen home vernacular is another language. No forced shift of home language or naming convention.",
+    "minimum_picks": 0,
+    "maximum_picks": 1,
+    "grant_kind": "free-background-elective",
+    "eligibility_policy": "Only installed languages appropriate to this pack and the specified educational/contact context. Historical retention alone does not qualify a dead stage as a trade or home language.",
+    "duplicate_policy": "A known eligible language can be explicitly credited under CountKnown; it is not automatically selected or replaced with an unrelated bonus. One trait occupies at most one group slot.",
+    "skill_group_key": "culture-language.italic-latin-contact",
+    "label": "Latin Conversation",
+    "description": "Dealings with Roman towns and institutions bring Latin into the affairs of neighbouring households. Markets, service and personal connections sustain its practical use.",
+    "selection_phase": "group-skills-after-free-before-open",
+    "existing_skill_policy": "CountKnown",
+    "overlap_policy": "UniqueAcrossGroups",
+    "open_pick_cost": 0,
+    "skill_point_base_cost": 0,
+    "eligibility_prog_contract": "Exact Boolean(chargen); generated from fixed ethnicity/culture and selected-pack bindings; edit with existing builder tools.",
+    "candidate_filters": {
+      "exclude_ethnic_native_language": false
+    },
+    "implementation_status": "Data consumer of merged PR #730; no generic engine feature work."
+  }
+}

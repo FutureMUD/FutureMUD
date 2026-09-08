@@ -130,6 +130,13 @@ public static class CultureToolkitInstaller
 					var native = Native(item, installedLanguages?.Languages ?? semanticLanguages);
 					var desired = CultureToolkitEntityWriter.CopyScalars(context, item.Template);
 					desired.ChargenBlurb = CultureToolkitProse.Display(CultureToolkitProse.Rewrite(item.Module, "Ethnicity", item.Template.Name, "ChargenBlurb", item.Template.ChargenBlurb));
+					if (CultureToolkitNativeBindings.ExactSource(catalogue, era, item.Module, item.Template.Name) is JsonElement exact)
+					{
+						if (exact.GetProperty("description_override").ValueKind == JsonValueKind.String)
+							desired.ChargenBlurb = CultureToolkitCatalogue.Text(exact, "description_override");
+						if (exact.GetProperty("group_override").ValueKind == JsonValueKind.String)
+							desired.EthnicGroup = CultureToolkitCatalogue.Text(exact, "group_override");
+					}
 					if (item.Overlay is JsonElement overlay)
 					{
 						desired.Name = CultureToolkitCatalogue.Text(overlay, "label");
@@ -162,9 +169,12 @@ public static class CultureToolkitInstaller
 				var active = heritage.Where(x => ethnicities.NativeBindings.Single(y => y.SourceIdentity == (x.Overlay.HasValue ? x.Key : $"source.{x.Module}.ethnicity.{x.Template.Name}")).IsResolved)
 					.ToDictionary(x => x.Key, x => ethnicities.Ethnicities[x.Key]);
 				var natives = heritage.Where(x => active.ContainsKey(x.Key)).ToDictionary(x => x.Key, x => Native(x, installedLanguages.Languages).References);
-				accents = CultureToolkitAccents.Upsert(context, era, active.SelectMany(x => natives[x.Key]
-					.Select(reference => (LanguageId: installedLanguages.Languages[reference].Id, EthnicityId: x.Value.Id)))
-					.GroupBy(x => x.LanguageId).ToDictionary(x => x.Key, x => (IReadOnlyList<long>)x.Select(y => y.EthnicityId).Distinct().ToArray()), conflicts);
+				var nativeByLanguage = installedLanguages.Languages.Values.Select(x => x.Id).Distinct()
+					.ToDictionary(x => x, _ => (IReadOnlyList<long>)Array.Empty<long>());
+				foreach (var group in active.SelectMany(x => natives[x.Key]
+					.Select(reference => (LanguageId: installedLanguages.Languages[reference].Id, EthnicityId: x.Value.Id))).GroupBy(x => x.LanguageId))
+					nativeByLanguage[group.Key] = group.Select(x => x.EthnicityId).Distinct().ToArray();
+				accents = CultureToolkitAccents.Upsert(context, era, nativeByLanguage, conflicts, catalogue, stages, installedLanguages.Languages);
 				starting = CultureToolkitStartingProgs.Upsert(context, catalogue, pack, cultures, active, installedLanguages.Traits, literacy, conflicts, natives);
 				progress?.Invoke("Native accents and starting-value progs compiled.");
 				groups = CultureToolkitGroupSeeder.Upsert(context, catalogue, pack, cultures, active, installedLanguages.Traits, conflicts);
@@ -174,6 +184,8 @@ public static class CultureToolkitInstaller
 				if (knowledgeResult.Status == ChargenFreeKnowledgeProgReconcileStatus.Unsafe || knowledgeResult.Message.Contains(" Skipped "))
 					conflicts.Add(knowledgeResult.Message);
 			}
+			if (installedLanguages is not null && ethnicities is null)
+				accents = CultureToolkitAccents.Upsert(context, era, new Dictionary<long, IReadOnlyList<long>>(), conflicts, catalogue, stages, installedLanguages.Languages);
 			if (seedNames) CultureToolkitSourceNames.Upsert(context, era, naming, existing.NameCultures, existing.Profiles, suggestions, true, conflicts);
 			progress?.Invoke("Retained naming profiles reconciled.");
 			if (installedPack is null) context.SeederManagedRecords.Add(new SeederManagedRecord

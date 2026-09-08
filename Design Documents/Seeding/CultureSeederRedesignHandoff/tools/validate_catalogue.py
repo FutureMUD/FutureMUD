@@ -141,17 +141,22 @@ def main(root: Path) -> int:
         prose(pool['key'],pool['description'])
         counts={}
         for gender in ['male','female']:
-            entries=pool['given_'+gender];counts[gender]=len({x['lemma'].casefold()for x in entries})
+            entries=pool['given_'+gender];counts[gender]=len({x['lemma'].casefold()for x in entries if x.get('playable_packs',x['packs'])})
             check('Pool unique entries '+pool['key']+'/'+gender,len({x['key']for x in entries})==len(entries))
-            check('Pool recipe '+pool['key']+'/'+gender,pool['production_recipe']['profiles'][gender]['given_pool']==[x['key']for x in entries])
+            check('Pool recipe '+pool['key']+'/'+gender,pool['production_recipe']['profiles'][gender]['given_pool']==[x['key']for x in entries if x.get('playable_packs',x['packs'])])
             for entry in entries:
                 all_entries.append(entry)
-                check('Name '+entry['key'],entry['source_id']in src and bool(entry['source_form'])and bool(entry['locator'])and entry['display']==unicodedata.normalize('NFC',entry['display'])and all(ord(c)<=255 for c in entry['display'])and '?'not in entry['display']and set(entry['packs'])<=set(pool['packs'])and entry['weight']>0)
+                check('Name '+entry['key'],entry['source_id']in src and (bool(entry['source_form']) or (entry.get('evidence_type') in ('editorial-reconstruction','regional-borrowing') and entry['date'] is None and bool(entry.get('editorial_basis'))))and bool(entry['locator'])and entry['display']==unicodedata.normalize('NFC',entry['display'])and all(ord(c)<=255 for c in entry['display'])and '?'not in entry['display']and set(entry['packs'])<=set(pool['packs'])and entry['weight']>0)
             if counts[gender]<20:warnings.append(f"{pool['label']}: {counts[gender]} {gender} groups; bounded evidence, no quota padding.")
         check('Pool stated counts '+pool['key'],counts==pool['lemma_counts'])
     check('Name global keys unique',len({x['key']for x in all_entries})==len(all_entries))
     pr=next(x for x in corpus['pools']if x['key']=='names.target.old-prussian')
-    check('Old Prussian female gap not hidden',not pr['given_female']and not pr['production_recipe']['profiles']['female']['enabled']and 'inactive' in (root/'README.md').read_text())
+    check('Old Prussian female playable',bool(pr['given_female']) and pr['production_recipe']['profiles']['female']['enabled'])
+    for requirement in load('data/name_playability_policy.json')['requirements']:
+        pool=next(p for p in corpus['pools'] if p['key']==requirement['pool'])
+        era=requirement['pack']; gender=requirement['gender']
+        active=[e for e in pool['given_'+gender] if era in e.get('playable_packs',e['packs'])]
+        check('Playable families '+pool['key']+'/'+era+'/'+gender, era in pool['packs'] and len({e['family_key'].casefold() for e in active})>=requirement['minimum_distinct_families'] and len({e['display'].casefold() for e in active})==len(active) and all(e.get('weight_by_era',{}).get(era,e['weight'])>0 for e in active))
     fixtures=load('data/naming_pattern_tests.json')
     check('No adopted name selector',fixtures['no_adopted_name_screen'] is True and all(x['player_adopted_name_choice']is False for x in plans))
     for f in fixtures['fixtures']:check('Name rendering fixture '+f['birth'],' '.join(x for x in [f['birth'],f['byname']]if x)==f['expected_full'])
@@ -166,7 +171,7 @@ def main(root: Path) -> int:
         for target in re.findall(r'`((?:data|research|tools)/[^`]+\.(?:json|py))`',text):check('Document file ref '+target,(root/target).is_file())
     text=(root/'02_IMPLEMENTATION_BRIEF.md').read_text()
     check('Obsolete builder implementation removed','### 2.10.1 Scope and schema'not in text and 'home-language selection, persisted'not in text)
-    warnings+=['No new feminine Old Prussian pool is established. Its replacement remains inactive.','Dates and sources are research metadata; this validator does not establish historical attestation or demographics.','C# tests, generated FutureProg compilation, live MySQL and telnet/editor execution were not run by this validator.','Source-qualified legacy references must be resolved against the actual repository/database during implementation.']
+    warnings+=['Old Prussian feminine forms are approved playable reconstructions, not newly attested names.','Dates and sources are research metadata; this validator does not establish historical attestation or demographics.','C# tests, generated FutureProg compilation, live MySQL and telnet/editor execution were not run by this validator.','Source-qualified legacy references must be resolved against the actual repository/database during implementation.']
     report={'revision':'2026-09-07-final-decisions','status':'passed-with-disclosed-evidence-limitations'if not errors else 'failed','check_count':len(checks),'passed':sum(x['passed']for x in checks),'failed':len(errors),'errors':errors,'warnings':warnings,'counts':stats,'scope':'Handoff data/reference/policy checks, not engine or historical-attestation verification.','checks':checks}
     (root/'validation_report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps({k:report[k]for k in ['status','check_count','passed','failed','errors','warnings']},ensure_ascii=False,indent=2))

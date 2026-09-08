@@ -2,9 +2,9 @@
   {
     "id": "NG01",
     "scope": "Baltic and Finnic production repertoires",
-    "status": "bounded-inventories-delivered-with-old-prussian-female-hold",
+    "status": "resolved-by-approved-playable-reconstruction",
     "finding": "The existing shared Finno-Ugric naming key does not validate Lithuanian, Latvian, Prussian, Estonian and Finnish inventories.",
-    "decision": "Use targeted_name_corpora.json. Finnish/Lithuanian pools and bounded Latvian/Estonian female selections are supplied. Old Prussian masculine core is supplied; no new feminine default is authorised. Do not delegate invention or silently use a neighbouring pool.",
+    "decision": "Use the round-two delivered playable_packs, weight_by_era and name_playability_policy. All 58 gender/era cells meet the authored 20-family minimum; Old Prussian feminine forms are enabled. Original evidence remains unchanged and reconstruction is not attestation.",
     "sources": [
       "N01",
       "N02",
@@ -14,14 +14,15 @@
       "N05",
       "N06",
       "N07"
-    ]
+    ],
+    "historical_evidence_limitations": "Use targeted_name_corpora.json. Finnish/Lithuanian pools and bounded Latvian/Estonian female selections are supplied. Old Prussian masculine core is supplied; no new feminine default is authorised. Do not delegate invention or silently use a neighbouring pool."
   },
   {
     "id": "NG02",
     "scope": "Romanian/Vlach names",
-    "status": "bounded-inventory-delivered",
+    "status": "resolved-by-approved-playable-reconstruction",
     "finding": "A Western Slavic fallback is not an adequate Romanian repertoire.",
-    "decision": "Use 28 masculine and 17 feminine groups with per-entry era scope; dynastic and inscription provenance is explicit. Equal gameplay weights, no claim of representative commoner frequencies.",
+    "decision": "Use the round-two delivered playable_packs, weight_by_era and name_playability_policy. All 58 gender/era cells meet the authored 20-family minimum; Old Prussian feminine forms are enabled. Original evidence remains unchanged and reconstruction is not attestation.",
     "sources": [
       "N08",
       "N09",
@@ -29,20 +30,22 @@
       "N11",
       "N12",
       "N13"
-    ]
+    ],
+    "historical_evidence_limitations": "Use 28 masculine and 17 feminine groups with per-entry era scope; dynastic and inscription provenance is explicit. Equal gameplay weights, no claim of representative commoner frequencies."
   },
   {
     "id": "NG03",
     "scope": "Coptic and Syriac Christian name profiles",
-    "status": "bounded-documentary-and-devotional-inventories-delivered",
+    "status": "resolved-by-approved-playable-reconstruction",
     "finding": "Arabic political-template profiles can contain an inappropriate religious repertoire.",
-    "decision": "Use separate Coptic and Syriac pools. Preserve the distinction between documentary names and devotional/literary repertoire. No claim that a saint floruit dates a vernacular spelling or represents ordinary-name frequencies.",
+    "decision": "Use the round-two delivered playable_packs, weight_by_era and name_playability_policy. All 58 gender/era cells meet the authored 20-family minimum; Old Prussian feminine forms are enabled. Original evidence remains unchanged and reconstruction is not attestation.",
     "sources": [
       "N14",
       "N15",
       "N16",
       "N17"
-    ]
+    ],
+    "historical_evidence_limitations": "Use separate Coptic and Syriac pools. Preserve the distinction between documentary names and devotional/literary repertoire. No claim that a saint floruit dates a vernacular spelling or represents ordinary-name frequencies."
   },
   {
     "id": "NG04",

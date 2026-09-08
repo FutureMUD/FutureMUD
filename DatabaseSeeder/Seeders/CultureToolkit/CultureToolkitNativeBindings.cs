@@ -29,6 +29,15 @@ public static class CultureToolkitNativeBindings
 		var overlayKey = overlays.Length == 1 ? CultureToolkitCatalogue.Text(overlays[0], "key") : null;
 		IReadOnlyList<string> references = [];
 		var rule = "unresolved-source-crosswalk";
+		var exact = ExactSource(catalogue, era, module, ethnicity.Name);
+		if (exact.HasValue)
+		{
+			references = CultureToolkitCatalogue.Strings(exact.Value.GetProperty("languages")).ToArray();
+			rule = CultureToolkitCatalogue.Text(exact.Value, "key");
+			var resolved = Resolve(identity, overlayKey, rule, references, languages);
+			if (!resolved.HasResolvedReferences) throw new InvalidOperationException(string.Join("\n", resolved.Unresolved));
+			return resolved;
+		}
 		if (module == "earthantiquity" && legacy.GetProperty("antiquity_ethnicity_bindings").TryGetProperty(ethnicity.Name, out var ancient))
 		{
 			references = [ancient.GetString()!];
@@ -56,6 +65,18 @@ public static class CultureToolkitNativeBindings
 		return Resolve(identity, overlayKey, rule, references, languages);
 	}
 
+	public static JsonElement? ExactSource(CultureToolkitCatalogue catalogue, string era, string module, string ethnicity)
+		=> ExactSource(catalogue.Document("data.legacy_native_language_rules.json").GetProperty("exact_source_bindings").EnumerateArray(), era, module, ethnicity);
+
+	internal static JsonElement? ExactSource(IEnumerable<JsonElement> rules, string era, string module, string ethnicity)
+	{
+		var matches = rules.Where(x => CultureToolkitCatalogue.Text(x, "source_pack") == module &&
+				CultureToolkitCatalogue.Text(x, "source_ethnicity") == ethnicity &&
+				CultureToolkitCatalogue.Strings(x.GetProperty("packs")).Contains(era)).ToArray();
+		if (matches.Length > 1) throw new InvalidOperationException($"Duplicate exact native bindings: {module}:{ethnicity}:{era}");
+		return matches.Length == 1 ? matches[0] : null;
+	}
+
 	public static CultureNativeBinding Canonical(CultureToolkitCatalogue catalogue, string era, string ethnicityKey,
 		IReadOnlyDictionary<string, Language> languages) => Resolve(ethnicityKey, ethnicityKey, "canonical-ethnicity-default",
 		DefaultReferences(catalogue, era, ethnicityKey), languages);
@@ -68,7 +89,7 @@ public static class CultureToolkitNativeBindings
 			? CultureToolkitCatalogue.Strings(value).ToArray() : [];
 	}
 
-	private static CultureNativeBinding Resolve(string identity, string? overlay, string rule, IReadOnlyList<string> references,
+	internal static CultureNativeBinding Resolve(string identity, string? overlay, string rule, IReadOnlyList<string> references,
 		IReadOnlyDictionary<string, Language> languages)
 	{
 		var missing = references.Where(x => !languages.ContainsKey(x)).Select(x => $"{identity}: unresolved supplied native language {x}").ToList();

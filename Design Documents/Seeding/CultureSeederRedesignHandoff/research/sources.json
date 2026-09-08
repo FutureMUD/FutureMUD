@@ -630,5 +630,84 @@
     "scope": "Author chapter abstract: Lusitanian inscriptions, Latin alphabet and distinct language treatment. No phonetic reconstruction or intelligibility rate taken from the abstract.",
     "kind": "author research chapter abstract",
     "accessed": "2026-09-07"
+  },
+  {
+    "id": "R2N01",
+    "title": "Antanas Pakerys, Dvikamienių lietuvių moterų vardų kirčiavimas",
+    "url": "https://vardai.vlkk.lt/dvikamieniu-lietuviu-moteru-vardu-kirciavimas/",
+    "kind": "linguistic study published by State Commission of the Lithuanian Language",
+    "scope": "Supports parallel/analogical reconstruction of Lithuanian feminine names. Cross-Baltic use for Prussian fiction is an editorial analogy, not direct Prussian evidence.",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "R2N02",
+    "title": "Vardai VLKK, Moterų vardų kirčiavimo kraipymai",
+    "url": "https://vardai.vlkk.lt/moteru-vardu-kirciavimo-kraipymai/",
+    "kind": "official linguistic commentary",
+    "scope": "Native compound-name layer and male/female parallel forms; distinguishes historical names from later revival. Does not attest the supplied list of reconstructed female bearers.",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE01",
+    "title": "CultureToolkitInstaller.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitInstaller.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE02",
+    "title": "CultureToolkitLanguageSeeder.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitLanguageSeeder.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE03",
+    "title": "CultureToolkitAccents.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitAccents.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE04",
+    "title": "CultureToolkitScriptSeeder.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitScriptSeeder.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE05",
+    "title": "CultureToolkitNativeBindings.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitNativeBindings.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE06",
+    "title": "CultureToolkitNameCatalogue.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitNameCatalogue.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE07",
+    "title": "CultureToolkitNameSeeder.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitNameSeeder.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE08",
+    "title": "CultureToolkitLanguageBindings.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitLanguageBindings.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE09",
+    "title": "CultureToolkitCatalogue.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitCatalogue.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
   }
 ]

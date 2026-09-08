@@ -8,6 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using MudSharp.Models;
+using MudSharp.Framework;
+using MudSharp.FutureProg.Variables;
+using MudSharp.FutureProg;
+using ITraitDefinition = MudSharp.Body.Traits.ITraitDefinition;
+using Moq;
+using FutureProg = MudSharp.Models.FutureProg;
 
 namespace MudSharp_Unit_Tests;
 
@@ -47,5 +53,28 @@ public class CultureToolkitScriptSeederTests
 		Assert.IsNull(context.ScriptsDesignedLanguages.Find(latin.Id, english.Id));
 		Assert.IsNotNull(context.ScriptsDesignedLanguages.Find(latin.Id, builderLanguage.Id));
 		Assert.IsTrue(conflicts.Any(x => x.Contains("builder edit")));
+		var managedProg = context.FutureProgs.Single(x => x.FunctionName.StartsWith("CultureScript"));
+		using var compiler = new OfflineProgCompilation(context.FutureProgs.Include(x => x.FutureProgsParameters).ToArray());
+		var executable = compiler.Compile(managedProg.Id);
+		var trait = new Mock<ITraitDefinition>();
+		trait.SetupGet(x => x.Type).Returns(ProgVariableTypes.Trait);
+		trait.SetupGet(x => x.GetObject).Returns(trait.Object);
+		trait.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(english.LinkedTraitId));
+		Assert.IsFalse(executable.ExecuteBool(null, trait.Object), "Deleted English membership must not authorize acquisition.");
+		trait.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(builderLanguage.LinkedTraitId));
+		Assert.IsTrue(executable.ExecuteBool(null, trait.Object), "Actual custom-language trait must authorize acquisition.");
+		context.Remove(context.ScriptsDesignedLanguages.Find(latin.Id, builderLanguage.Id)!);
+		context.SaveChanges();
+		CultureToolkitScriptSeeder.Upsert(context, catalogue, pack, new Dictionary<string, FuturemudDatabaseContext>(), languages,
+			new Dictionary<string, Script>(), conflicts);
+		using var emptyCompiler = new OfflineProgCompilation(context.FutureProgs.Include(x => x.FutureProgsParameters).ToArray());
+		Assert.IsFalse(emptyCompiler.Compile(managedProg.Id).ExecuteBool(null, trait.Object));
+		Assert.AreEqual("return false", managedProg.FunctionText);
+		managedProg.FunctionText = "return true";
+		context.SaveChanges();
+		CultureToolkitScriptSeeder.Upsert(context, catalogue, pack, new Dictionary<string, FuturemudDatabaseContext>(), languages,
+			new Dictionary<string, Script>(), conflicts);
+		Assert.AreEqual("return true", managedProg.FunctionText, "A custom stock-prog body is independent of the effective empty graph.");
+		Assert.AreEqual(alwaysTrue.Id, latin.Knowledge.CanAcquireProgId);
 	}
 }

@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "destination": "Design Documents/Seeding/CultureSeederRedesignHandoff/data/legacy_native_language_rules.json",
+  "operation": "add-or-upsert exact_source_bindings; resolver uses exact source+name+era before older fallbacks",
+  "exact_source_bindings": [
+    {
+      "key": "native.earthantiquity.achaean",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Achaean",
+      "source_identity": "source.earthantiquity.ethnicity.Achaean",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "greek.koine"
+      ],
+      "proficiency": "native",
+      "group_override": "Hellenic",
+      "description_override": "The Achaeans are Greek-speaking people of the towns and farms of Achaea. Their households share the speech of the markets and assemblies while preserving the customs of their own cities.",
+      "author_rationale": "The shared Koine is the toolkit default for this broad Achaean identity; no separate Achaean language entity is invented.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthantiquity.aeolian",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Aeolian",
+      "source_identity": "source.earthantiquity.ethnicity.Aeolian",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "source.earthantiquity.language.Aeolic Greek"
+      ],
+      "proficiency": "native",
+      "group_override": "Hellenic",
+      "description_override": "The Aeolians are Greek people of Lesbos, the Aeolian coast and kindred communities. Their speech and songs preserve the traditions of their cities and ancestral households.",
+      "author_rationale": "Reuse the retained Aeolic Greek entity.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthantiquity.ionian",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Ionian",
+      "source_identity": "source.earthantiquity.ethnicity.Ionian",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "source.earthantiquity.language.Ionic Greek"
+      ],
+      "proficiency": "native",
+      "group_override": "Hellenic",
+      "description_override": "The Ionians are Greek people of the Aegean islands and the Ionian coast. Their towns are bound together by sea travel, trade, shared sanctuaries and the Ionian tongue.",
+      "author_rationale": "Reuse the retained Ionic Greek entity.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthantiquity.dorian",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Dorian",
+      "source_identity": "source.earthantiquity.ethnicity.Dorian",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "source.earthantiquity.language.Doric Greek"
+      ],
+      "proficiency": "native",
+      "group_override": "Hellenic",
+      "description_override": "The Dorians are Greek people whose communities stretch across the Peloponnese, the islands and the western colonies. Their households preserve the Doric tongue and the customs of their cities.",
+      "author_rationale": "Reuse the retained Doric Greek entity.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthantiquity.italiote",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Italiote",
+      "source_identity": "source.earthantiquity.ethnicity.Italiote",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "greek.koine"
+      ],
+      "proficiency": "native",
+      "group_override": "Hellenic",
+      "description_override": "The Italiotes are Greek-speaking people of the cities of southern Italia. Their families maintain Greek speech, festivals and learning amid close dealings with their Italic neighbours.",
+      "author_rationale": "Koine is a deliberate broad default for a mixed colonial identity, not a claim that every colonial dialect was identical.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthantiquity.cypriot",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Cypriot",
+      "source_identity": "source.earthantiquity.ethnicity.Cypriot",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "greek.koine"
+      ],
+      "proficiency": "native",
+      "group_override": "Hellenic",
+      "description_override": "The Cypriots are people of Cyprus, where Greek-speaking towns and farming households prosper beside the sea. Their island connects the ports of the Aegean with the coasts of Syria and Egypt.",
+      "author_rationale": "Use Koine for the retained Greek Cypriot identity; do not invent an Arcado-Cypriot stage without a separate design.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthantiquity.cretan",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Cretan",
+      "source_identity": "source.earthantiquity.ethnicity.Cretan",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "source.earthantiquity.language.Doric Greek"
+      ],
+      "proficiency": "native",
+      "group_override": "Hellenic",
+      "description_override": "The Cretans are Greek people of the cities, uplands and coastal settlements of Crete. Their Doric speech and island customs distinguish them among the peoples of the Aegean.",
+      "author_rationale": "Reuse retained Doric Greek; this is the explicit broad-era Cretan default.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthantiquity.anatolian",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Anatolian",
+      "source_identity": "source.earthantiquity.ethnicity.Anatolian",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "greek.koine"
+      ],
+      "proficiency": "native",
+      "group_override": "Hellenic",
+      "description_override": "The Anatolians of the Greek-speaking cities of Asia Minor draw their public identity from their towns and civic traditions. Greek connects their households, markets and assemblies across the region.",
+      "author_rationale": "This exact source ethnicity describes Hellenised civic communities, not all Anatolian-language speakers. Do not map it to the unrelated broad language label Anatolian.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthantiquity.punic",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Punic",
+      "source_identity": "source.earthantiquity.ethnicity.Punic",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "source.earthantiquity.language.Phoenician"
+      ],
+      "proficiency": "native",
+      "group_override": "Punic",
+      "description_override": "The Punic people are the western Phoenician communities of Carthage and the surrounding coasts. Their households preserve the Punic tongue and traditions of seafaring, trade and cultivation.",
+      "author_rationale": "Punic uses the retained Phoenician skill as an explicit language-level abstraction; no new synonym language.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthantiquity.libyan",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Libyan",
+      "source_identity": "source.earthantiquity.ethnicity.Libyan",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "source.earthantiquity.language.Phoenician"
+      ],
+      "proficiency": "native",
+      "group_override": "Punic",
+      "description_override": "The Libyans of the Punic coast belong to the settled communities around the trading towns east of Carthage. Punic speech binds their households to the ports, while inland kin and neighbours follow their own tongues and customs.",
+      "author_rationale": "Keeps the exact source record's Punic coastal meaning; does not identify every indigenous Libyan as Phoenician-speaking.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthantiquity.mauretanian",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Mauretanian",
+      "source_identity": "source.earthantiquity.ethnicity.Mauretanian",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "source.earthantiquity.language.Numidian"
+      ],
+      "proficiency": "native",
+      "group_override": "North African",
+      "description_override": "The Mauretanians are the peoples of the western North African kingdoms, from cultivated valleys to the mountain country. Their households preserve local speech and kinship ties while trading with the towns of the coast.",
+      "author_rationale": "Use retained Numidian as a broad ancient Libyco-Berber gameplay skill. This is not modern Tashelhit and not a demonstrated uniform ancient vernacular.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthantiquity.berber",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Berber",
+      "source_identity": "source.earthantiquity.ethnicity.Berber",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "source.earthantiquity.language.Numidian"
+      ],
+      "proficiency": "native",
+      "group_override": "North African",
+      "description_override": "The Berber peoples live among the mountains, plains and oases of North Africa. Their clans and settled households preserve local tongues and customs alongside the coastal cities.",
+      "author_rationale": "Same explicit ancient Libyco-Berber skill abstraction; do not default to a later Arabic or modern Amazigh stage.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthantiquity.arabian",
+      "source_pack": "earthantiquity",
+      "source_ethnicity": "Arabian",
+      "source_identity": "source.earthantiquity.ethnicity.Arabian",
+      "packs": [
+        "antiquity"
+      ],
+      "languages": [
+        "arabic.old"
+      ],
+      "proficiency": "native",
+      "group_override": "Arabian",
+      "description_override": "The Arabians are the settled and pastoral peoples of Arabia and the lands around Nabatea. Their households and clans share Arabic speech along the caravan roads, oases and grazing country.",
+      "author_rationale": "Reuse canonical Old Arabic; political language Aramaic is not an automatic ethnic native grant.",
+      "classification": "authored broad-toolkit mapping based on exact retained community meaning"
+    },
+    {
+      "key": "native.earthrenaissanceeurope.albanian",
+      "source_pack": "earthrenaissanceeurope",
+      "source_ethnicity": "Albanian",
+      "source_identity": "source.earthrenaissanceeurope.ethnicity.Albanian",
+      "packs": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "languages": [
+        "albanian"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "The retained Albanian ethnicity has a corresponding canonical Albanian language. Supply the missing exact source crosswalk.",
+      "classification": "exact existing language binding"
+    }
+  ],
+  "unmapped_policy": "Do not blanket-enable unknown identities; retain intentional out-of-scope exclusions and report exact missing references.",
+  "field_policy": "Apply description/group overrides only to the corresponding managed toolkit ethnicity; use normal same-era builder-preserving reconciliation."
+}

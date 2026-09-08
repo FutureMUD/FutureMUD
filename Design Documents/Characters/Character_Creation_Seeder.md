@@ -159,7 +159,15 @@ That is intentional so builders do not lose their chargen copy and tuning just b
 
 The seeder also preserves an existing `ChargenFreeSkills` body on rerun. When a managed CultureSeeder fixed-skill helper is installed, it reconciles the actual configured `FreeSkillsProg` references after the storyboards exist. A recognized stock body receives an owned `Culture Fixed Skills` marker block that unions mandatory grants without duplicate traits. Baseline comparison protects edits inside the block; surrounding independent grants remain unchanged. Unrecognized custom bodies or incompatible signatures produce a report instead of being overwritten. The same reconciliation can run when cultures are seeded after character creation.
 
-The CultureSeeder redesign is still being integrated; see [its implementation record](../Verification/CultureSeeder_Redesign_Implementation.md) for completed component checks and remaining activation work.
+The historical CultureSeeder toolkit uses five overlapping eras, fixed ethnic native languages and independent social cultures. Round-two native crosswalks match exact source pack, source ethnicity and era before legacy fallback rules. Managed live description/group overrides leave the retained source corpus unchanged.
+
+Script knowledge acquisition is generated after three-way script-language membership reconciliation and uses only the effective installed graph, including builder-added languages. An empty graph denies acquisition. Edited acquisition bodies and knowledge pointers remain authoritative. These changes occur in the caller transaction and the generated progs are compiled before success.
+
+All installed toolkit languages receive combined accent availability: selected era, original source predicate, and native/non-native role. Exact source-accent rules take priority over source-language/module rules and late-tradition markers. The single `AccentAvailability` record owns this field; other scalar passes exclude it. Synthetic learner defaults use the managed role predicate. Language-only reruns recover established native bindings. Preserved out-of-era source traditions remain installed but unavailable under stock rules.
+
+Generated NPC skill groups preserve saved/manual accents. A fixed ethnic native language chooses a deterministic eligible native/regional accent; an acquired language requires an eligible learner default or another configured learner/foreign candidate. Missing valid candidates produce a diagnostic rather than silently selecting a regional pronunciation.
+
+Targeted naming uses `playable_packs` and `weight_by_era` when supplied, with original evidence dates and era lists retained separately. The authored stock floor is 20 distinct families per required gender/era, including Old Prussian female profiles. Per-element reconciliation preserves builder deletions, weights and additions; it does not enforce the stock floor against builder customization. No migration or additional chargen screen is introduced. See [the round-two implementation record](../Verification/CultureSeeder_Round2_Implementation.md) for verification and evidence limits.
 
 ## Builder Follow-Up Checklist
 After seeding, builders should usually:

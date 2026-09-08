@@ -32,7 +32,9 @@ public static class CultureToolkitScriptSeeder
 			.Where(x => x.Script.ScriptsDesignedLanguages.Any(y => languages.ContainsKey(CultureToolkitLanguageBindings.Key(x.Module, y.Language.Name))))
 			.GroupBy(x => x.Key).ToDictionary(x => x.Key, x => x.ToArray());
 		var keys = policy.Where(x => CultureToolkitCatalogue.Strings(x.Value.GetProperty("languages")).Any(languages.ContainsKey))
-			.Select(x => x.Key).Union(sources.Keys).ToArray();
+			.Select(x => x.Key).Union(sources.Keys)
+			.Union(context.SeederManagedRecords.Where(x => x.Seeder == "CultureSeeder" && x.EntityType == "Script")
+				.Select(x => x.StableKey).AsEnumerable().Where(policy.ContainsKey)).ToArray();
 		// Reject unresolved labels before any script, knowledge or acquisition prog is written.
 		foreach (var key in keys)
 		{
@@ -61,13 +63,12 @@ public static class CultureToolkitScriptSeeder
 				.SelectMany(x => x.Script.ScriptsDesignedLanguages.Select(y => CultureToolkitLanguageBindings.Key(x.Module, y.Language.Name))).Distinct().ToArray();
 			var members = sourceMembers.Concat(hasPolicy ? CultureToolkitCatalogue.Strings(row.GetProperty("languages")).Where(languages.ContainsKey) : [])
 				.Distinct().ToArray();
-			var allLanguageIds = members.Select(x => languages[x].Id).Concat(bound is null ? [] : context.ScriptsDesignedLanguages
-				.Where(x => x.ScriptId == bound.Id).Select(x => x.LanguageId)).Distinct().ToList();
-			var traitIds = context.Languages.Where(x => allLanguageIds.Contains(x.Id)).Select(x => x.LinkedTraitId).Distinct().ToArray();
-			var body = string.Concat(traitIds.Order().Chunk(8).Select(ids => $"if ({string.Join(" or ", ids.Select(id => $"@skill.id == {id}"))})\n  return true\nend if\n")) + "return false";
 			var suffix = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(key)))[..16];
-			var acquire = CultureToolkitProgSeeder.Upsert(context, pack.Era, key + ".script-acquisition", $"CultureScript{suffix}CanPick", body,
-				ProgVariableTypes.Boolean, [(ProgVariableTypes.Chargen, "ch"), (ProgVariableTypes.Trait, "skill")], conflicts);
+			var acquireRecord = CultureToolkitManagedEntities.Find(context, "FutureProg", key + ".script-acquisition");
+			var acquire = acquireRecord is null
+				? CultureToolkitProgSeeder.Upsert(context, pack.Era, key + ".script-acquisition", $"CultureScript{suffix}CanPick", "return false",
+					ProgVariableTypes.Boolean, [(ProgVariableTypes.Chargen, "ch"), (ProgVariableTypes.Trait, "skill")], conflicts)
+				: context.FutureProgs.Include(x => x.FutureProgsParameters).Single(x => x.Id == acquireRecord.LogicalId);
 			generated.Add(acquire.Id);
 			var knowledge = source is null ? new Knowledge { Name = $"{label} Script", Type = "Script", Subtype = "Writing",
 				LearnableType = (int)(MudSharp.RPG.Knowledge.LearnableType.LearnableAtChargen | MudSharp.RPG.Knowledge.LearnableType.LearnableFromTeacher),
@@ -116,7 +117,28 @@ public static class CultureToolkitScriptSeeder
 					new Dictionary<string, string> { ["present"] = "true" }, conflicts);
 				if (merged["present"] == "true" && link is null) context.ScriptsDesignedLanguages.Add(new ScriptsDesignedLanguage { ScriptId = installed.Id, LanguageId = languages[member].Id });
 			}
+			var prefix = key + ".language.";
+			var memberKeys = members.Select(x => prefix + x).ToHashSet(StringComparer.Ordinal);
+			var retired = context.SeederManagedRecords.Where(x => x.Seeder == "CultureSeeder" && x.EntityType == "ScriptLanguage" &&
+				x.StableKey.StartsWith(prefix)).AsEnumerable().Where(x => !memberKeys.Contains(x.StableKey)).ToArray();
+			foreach (var member in retired)
+			{
+				var languageRecord = CultureToolkitManagedEntities.Find(context, "Language", member.StableKey[prefix.Length..]);
+				if (languageRecord is null) throw new InvalidOperationException($"Cannot resolve retired managed script membership {member.StableKey}.");
+				var link = context.ScriptsDesignedLanguages.Find(installed.Id, languageRecord.LogicalId);
+				var merged = SeederManagedRecordReconciler.Reconcile(member,
+					new Dictionary<string, string> { ["present"] = link is null ? "false" : "true" },
+					new Dictionary<string, string> { ["present"] = "false" }, false, conflicts);
+				if (merged["present"] == "false" && link is not null) context.ScriptsDesignedLanguages.Remove(link);
+			}
 			context.SaveChanges();
+			var effectiveIds = context.ScriptsDesignedLanguages.Where(x => x.ScriptId == installed.Id)
+				.Select(x => x.LanguageId).ToArray();
+			var traitIds = context.Languages.Where(x => effectiveIds.Contains(x.Id)).Select(x => x.LinkedTraitId)
+				.Distinct().OrderBy(x => x).ToArray();
+			var body = string.Concat(traitIds.Chunk(8).Select(ids => $"if ({string.Join(" or ", ids.Select(id => $"@skill.id == {id}"))})\n  return true\nend if\n")) + "return false";
+			CultureToolkitProgSeeder.Upsert(context, pack.Era, key + ".script-acquisition", $"CultureScript{suffix}CanPick", body,
+				ProgVariableTypes.Boolean, [(ProgVariableTypes.Chargen, "ch"), (ProgVariableTypes.Trait, "skill")], conflicts);
 		}
 		using var compiler = new OfflineProgCompilation(context.FutureProgs.Include(x => x.FutureProgsParameters).ToArray());
 		foreach (var id in generated) compiler.Compile(id);

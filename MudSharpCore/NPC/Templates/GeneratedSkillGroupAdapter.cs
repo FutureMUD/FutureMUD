@@ -45,13 +45,25 @@ public static class GeneratedSkillGroupAdapter
 		{
 			var value = Convert.ToDouble(template.SelectedCulture.SkillStartingValueProg.Execute(chargen, skill, 0));
 			template.SkillValues.Add((skill, Math.Min(value, chargen.TraitMaxValue(skill))));
+		}
+		foreach (var skill in chargen.SelectedSkills)
+		{
 			foreach (var language in template.Gameworld.Languages?.Where(x => x.LinkedTrait == skill) ?? [])
 			{
 				if (template.SelectedAccents.Any(x => x.Language == language)) continue;
-				var accent = language.DefaultLearnerAccent;
-				if (accent is null || !accent.IsAvailableInChargen(chargen))
-					accent = language.Accents.Where(x => x.IsAvailableInChargen(chargen)).OrderBy(x => x.Id).FirstOrDefault();
-				if (accent is not null) template.SelectedAccents.Add(accent);
+				var nonNative = template.Gameworld.FutureProgs?.FirstOrDefault(x =>
+					x.FunctionName.Equals($"CultureNonNativeAccent{language.Id}", StringComparison.OrdinalIgnoreCase));
+				var isNative = nonNative is not null && !nonNative.ExecuteBool(chargen);
+				bool Learner(MudSharp.Communication.Language.IAccent candidate) => candidate == language.DefaultLearnerAccent ||
+					new[] { "learner", "foreign", "crude" }.Contains(candidate.Group, StringComparer.OrdinalIgnoreCase) ||
+					new[] { "learner", "foreign", "crude" }.Contains(candidate.Name, StringComparer.OrdinalIgnoreCase);
+				var accent = isNative
+					? language.Accents.Where(x => !Learner(x) && x.IsAvailableInChargen(chargen)).OrderBy(x => x.Id).FirstOrDefault()
+					: language.DefaultLearnerAccent is { } learner && learner.IsAvailableInChargen(chargen) ? learner
+					: language.Accents.Where(x => Learner(x) && x.IsAvailableInChargen(chargen)).OrderBy(x => x.Id).FirstOrDefault();
+				if (accent is null)
+					throw new InvalidOperationException($"Language {language.Name} ({language.Id}) has no eligible {(isNative ? "native/regional" : "learner/foreign")} accent for ethnicity {template.SelectedEthnicity?.Id}; learner pointer {language.DefaultLearnerAccent?.Id}. Check accent availability restrictions.");
+				template.SelectedAccents.Add(accent);
 			}
 		}
 		template.SkillGroupClaims = chargen.SkillClaims;

@@ -42,6 +42,9 @@ public partial class CultureSeeder
 	{
 		var stage = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase($"culture-source-{Guid.NewGuid():N}", new InMemoryDatabaseRoot(), x => x.EnableNullChecks(false))
+			// Each source stage has an isolated, short-lived root. Caching its provider retains
+			// the complete source corpus and eventually trips EF's provider-count guard on reruns.
+			.EnableServiceProviderCaching(false)
 			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options);
 		try
 		{

@@ -1,5 +1,8 @@
 # FutureMUD CultureSeeder redesign handoff
 
+> Round-two update: the corrective brief in [CultureSeederRound2Handoff](../CultureSeederRound2Handoff/AGENT_TASK.md) supersedes earlier naming activation gates and resource totals below. The runtime catalogue now has 28 required inputs and 585 name entries, including 389 unchanged evidence entries and 196 approved fictional profile entries. All 58 playable gender/era cells meet the 20-family floor; Old Prussian feminine profiles are enabled. Earlier evidence limitations remain historical notes, not activation blockers.
+
+
 Revision: final D1–D6 decisions, 7 September 2026. Existing filenames are retained.
 
 ## Start here
@@ -20,9 +23,9 @@ Ethnicity grants its fixed native language automatically. No upbringing/home-lan
 
 ## Name research delivered and its boundary
 
-`data/targeted_name_corpora.json` contains 389 given-name entries in eight separate bounded repertoires. Each entry identifies its source, evidence class, original form, Latin-1 display form and date or explicit date limitation. Documentary, editorially normalised, dynastic, literary and devotional evidence are not interchangeable.
+`data/targeted_name_corpora.json` contains 585 given-name entries (389 original evidence entries plus 196 approved fictional additions) in eight separate bounded repertoires. Each entry identifies its source, evidence class, original form, Latin-1 display form and date or explicit date limitation. Documentary, editorially normalised, dynastic, literary and devotional evidence are not interchangeable.
 
-**Residual gap:** no defensible new feminine Old Prussian pool was retrieved. That replacement is inactive, not filled with German/Lithuanian names or invented suffixes. Latvian, Estonian and Romanian feminine selections are smaller bounded samples. They are not claims that those cultures lack larger corpora. See document 6 for exact counts and implementation treatment.
+The supplied round-two reconstructions resolve the playable naming gaps, including Old Prussian feminine profiles. All 58 required cells meet the 20-family floor. Original evidence limitations remain explicit: these additions do not establish attestation or a proven historical suffix rule. See document 6 and the round-two content receipt for counts and evidence boundaries.
 
 ## Files
 

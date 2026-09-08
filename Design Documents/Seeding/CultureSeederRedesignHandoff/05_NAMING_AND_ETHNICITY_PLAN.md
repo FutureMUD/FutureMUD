@@ -1,5 +1,8 @@
 # 5. Naming and ethnicity plan
 
+> Round-two update: the corrective brief in [CultureSeederRound2Handoff](../CultureSeederRound2Handoff/AGENT_TASK.md) supersedes earlier naming activation gates and resource totals below. The runtime catalogue now has 28 required inputs and 585 name entries, including 389 unchanged evidence entries and 196 approved fictional profile entries. All 58 playable gender/era cells meet the 20-family floor; Old Prussian feminine profiles are enabled. Earlier evidence limitations remain historical notes, not activation blockers.
+
+
 ## 5.1 Fixed interface and preservation
 
 Names remain ethnicity-first. This tranche adds no adopted-name chooser, new name-profile selection screen or extra name-identity system. A dedicated local NameCulture may reuse a common structural template without sharing all its random profiles. This avoids suggestions leaking across unrelated peoples.
@@ -8,32 +11,30 @@ Original name strings, weights, genders, usages, regexes, styles and accents rem
 
 ## 5.2 Targeted repertoires delivered
 
-Full entries and profile recipes are in `data/targeted_name_corpora.json`. Dates denote individual records only where marked; otherwise they are source-wide ranges or expressly unknown. Liturgical and literary entries are named as such, not passed off as ordinary birth records. All shown display forms are Latin-1; the original source form is stored separately.
+The current corpus contains 585 entries: 389 unchanged original evidence entries and 196 explicitly authored reconstructions or regional borrowings. Full entries and profile recipes are in `data/targeted_name_corpora.json`. The following totals include evidence-only entries; the [round-two content receipt](../../Verification/CultureSeeder_Round2_Content_Receipt.md) gives the 58 post-filtered playable cells.
 
-| Repertoire | Masculine entries | Feminine entries | Boundary |
-|---|---:|---:|---|
-| Finnish Documentary Names | 30 | 31 | Bounded source/era scope; see metadata. |
-| Lithuanian Register Names | 26 | 39 | Bounded source/era scope; see metadata. |
-| Latvian Documentary Names | 30 | 14 | Fourteen feminine name groups in the inspected selection. This is not a finding that the language has only fourteen attested female names. Use this bounded repertoire without padding variants. |
-| Estonian Documentary Names | 20 | 10 | Ten feminine groups in the inspected material. Some belong to the multilingual urban record environment rather than securely identified ethnic Estonian women. No artificial feminine derivation or modern-name padding. |
-| Old Prussian Personal Names | 30 | 0 | No defensible new feminine pool was extracted. The specific 2023 women-identification study was accessible only as an abstract. Do not invent feminine suffixes, borrow neighbouring female pools, or advertise a complete replacement. Preserve the prior profile as legacy, without claiming new validation; no automatic activation of a replacement across all genders. |
-| Romanian Household Names | 28 | 17 | Seventeen feminine groups, varying by era. Dynastic sources do not establish a commoner distribution. Use equal provisional weights and retain the source bias in research metadata, not in player prose. |
-| Coptic Christian Names | 34 | 40 | Bounded source/era scope; see metadata. |
-| Syriac Christian Names | 20 | 20 | Bounded source/era scope; see metadata. |
+| Repertoire | Masculine entries | Feminine entries |
+|---|---:|---:|
+| Finnish Household Names | 58 | 51 |
+| Lithuanian Household Names | 46 | 59 |
+| Latvian Household Names | 30 | 20 |
+| Estonian Household Names | 40 | 40 |
+| Old Prussian Personal Names | 30 | 26 |
+| Romanian Household Names | 34 | 37 |
+| Coptic Christian Names | 34 | 40 |
+| Syriac Christian Names | 20 | 20 |
 
-The 389 entries are not 389 independently verified modern-language lemmas or proof of historical frequency. Lemma grouping is provisional where the source gives only documentary forms. Orthographic aliases must not be counted as extra independent names.
+Original dates, packs, weights and evidence classifications remain unchanged. `playable_packs` and `weight_by_era` record separate gameplay decisions. Botezata remains in the evidence file but is not an active BirthName. Added fictional full forms claim no historical attestation; the Old Prussian scholarly lead remains an unresolved source lead rather than proof of a suffix rule.
 
-**Old Prussian feminine replacement remains incomplete and inactive.** Preserve the existing female profile as legacy without certifying it; do not fill the replacement from German, Lithuanian or other neighbouring inventories. This is the one wholly missing gendered replacement, not an instruction for Codex to invent one.
+Old Prussian female replacement is enabled with the supplied 20 Dark Ages forms and 26 later forms. All required cells meet the 20-family stock floor. No productive gender morphology or neighbouring-pool fallback is introduced. Builder deletions remain authoritative even when an edited live profile falls below that stock floor.
 
-Smaller Latvian, Estonian and Romanian feminine sets are usable bounded selections within their source scope, but not comprehensive regional inventories. Some register evidence is multilingual and cannot prove a bearer’s ethnicity. Do not push the sixteenth-century Christian repertoires back into early pagan defaults.
-
-Coptic and Syriac pools separate documentary atoms from devotional/literary names. Names appearing in a church calendar are evidence of that tradition, not of a particular ethnic bearer or frequency. Current romanisation may be used as presentation without claiming it was the spelling of a medieval manuscript.
+Documentary, dynastic, devotional and literary evidence remains distinct. Era additions and editorial weights do not certify historical frequency or the ethnicity of every recorded bearer. Research limitations belong in metadata, not in player prose.
 
 ## 5.3 Structure and generation
 
 For each new local pool: one BirthName element; optional byname only where a supplied local recipe supports it. Default new byname random count is zero rather than inventing surnames. Existing valid byname inventories are preserved. Multiword names can be one element. No automatic title, saint prefix, regnal ordinal or universal hereditary surname requirement.
 
-New morphology is deliberately avoided. Use the supplied atomic forms and existing proven gender-aware structures. Keep nonbinary/indeterminate fallback within the same local repertoire. An empty required repertoire must not pull random English names from the generic fallback. The inactive Old Prussian female replacement is explicitly exempted from activation, not from disclosure.
+New morphology is deliberately avoided. Use the supplied atomic forms and existing proven gender-aware structures. Keep nonbinary/indeterminate fallback within the same local repertoire. An empty required repertoire must not pull random English names from the generic fallback. The supplied Old Prussian female replacement follows the same explicit playable-era filtering as the other targeted profiles.
 
 `data/naming_pattern_tests.json` supplies constructed test fixtures. They test parsing/rendering, not attestation of a full historical person. Test all existing NameStyles, optional-element spacing, compound values, case preservation and Latin-1 input/output.
 

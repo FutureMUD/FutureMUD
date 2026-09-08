@@ -1,0 +1,422 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    {
+      "pool": "names.target.finnish",
+      "ethnicity": "ethnicity.finnish",
+      "pack": "darkages",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.finnish",
+      "ethnicity": "ethnicity.finnish",
+      "pack": "darkages",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.finnish",
+      "ethnicity": "ethnicity.finnish",
+      "pack": "medieval",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.finnish",
+      "ethnicity": "ethnicity.finnish",
+      "pack": "medieval",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.finnish",
+      "ethnicity": "ethnicity.finnish",
+      "pack": "renaissance",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.finnish",
+      "ethnicity": "ethnicity.finnish",
+      "pack": "renaissance",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.finnish",
+      "ethnicity": "ethnicity.finnish",
+      "pack": "earlymodern",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.finnish",
+      "ethnicity": "ethnicity.finnish",
+      "pack": "earlymodern",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "ethnicity": "ethnicity.lithuanian",
+      "pack": "medieval",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "ethnicity": "ethnicity.lithuanian",
+      "pack": "medieval",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "ethnicity": "ethnicity.lithuanian",
+      "pack": "renaissance",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "ethnicity": "ethnicity.lithuanian",
+      "pack": "renaissance",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "ethnicity": "ethnicity.lithuanian",
+      "pack": "earlymodern",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "ethnicity": "ethnicity.lithuanian",
+      "pack": "earlymodern",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.latvian",
+      "ethnicity": "ethnicity.latvian",
+      "pack": "medieval",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.latvian",
+      "ethnicity": "ethnicity.latvian",
+      "pack": "medieval",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.latvian",
+      "ethnicity": "ethnicity.latvian",
+      "pack": "renaissance",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.latvian",
+      "ethnicity": "ethnicity.latvian",
+      "pack": "renaissance",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.latvian",
+      "ethnicity": "ethnicity.latvian",
+      "pack": "earlymodern",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.latvian",
+      "ethnicity": "ethnicity.latvian",
+      "pack": "earlymodern",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "ethnicity": "ethnicity.estonian",
+      "pack": "darkages",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "ethnicity": "ethnicity.estonian",
+      "pack": "darkages",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "ethnicity": "ethnicity.estonian",
+      "pack": "medieval",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "ethnicity": "ethnicity.estonian",
+      "pack": "medieval",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "ethnicity": "ethnicity.estonian",
+      "pack": "renaissance",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "ethnicity": "ethnicity.estonian",
+      "pack": "renaissance",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "ethnicity": "ethnicity.estonian",
+      "pack": "earlymodern",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "ethnicity": "ethnicity.estonian",
+      "pack": "earlymodern",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "ethnicity": "ethnicity.old-prussian",
+      "pack": "darkages",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "ethnicity": "ethnicity.old-prussian",
+      "pack": "darkages",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "ethnicity": "ethnicity.old-prussian",
+      "pack": "medieval",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "ethnicity": "ethnicity.old-prussian",
+      "pack": "medieval",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "ethnicity": "ethnicity.old-prussian",
+      "pack": "renaissance",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "ethnicity": "ethnicity.old-prussian",
+      "pack": "renaissance",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "ethnicity": "ethnicity.old-prussian",
+      "pack": "earlymodern",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "ethnicity": "ethnicity.old-prussian",
+      "pack": "earlymodern",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.romanian",
+      "ethnicity": "ethnicity.vlach",
+      "pack": "medieval",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.romanian",
+      "ethnicity": "ethnicity.vlach",
+      "pack": "medieval",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.romanian",
+      "ethnicity": "ethnicity.vlach",
+      "pack": "renaissance",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.romanian",
+      "ethnicity": "ethnicity.vlach",
+      "pack": "renaissance",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.romanian",
+      "ethnicity": "ethnicity.vlach",
+      "pack": "earlymodern",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.romanian",
+      "ethnicity": "ethnicity.vlach",
+      "pack": "earlymodern",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "ethnicity": "ethnicity.copt",
+      "pack": "darkages",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "ethnicity": "ethnicity.copt",
+      "pack": "darkages",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "ethnicity": "ethnicity.copt",
+      "pack": "medieval",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "ethnicity": "ethnicity.copt",
+      "pack": "medieval",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "ethnicity": "ethnicity.copt",
+      "pack": "renaissance",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "ethnicity": "ethnicity.copt",
+      "pack": "renaissance",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "ethnicity": "ethnicity.copt",
+      "pack": "earlymodern",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "ethnicity": "ethnicity.copt",
+      "pack": "earlymodern",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "ethnicity": "ethnicity.syriac",
+      "pack": "darkages",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "ethnicity": "ethnicity.syriac",
+      "pack": "darkages",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "ethnicity": "ethnicity.syriac",
+      "pack": "medieval",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "ethnicity": "ethnicity.syriac",
+      "pack": "medieval",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "ethnicity": "ethnicity.syriac",
+      "pack": "renaissance",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "ethnicity": "ethnicity.syriac",
+      "pack": "renaissance",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "ethnicity": "ethnicity.syriac",
+      "pack": "earlymodern",
+      "gender": "male",
+      "minimum_distinct_families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "ethnicity": "ethnicity.syriac",
+      "pack": "earlymodern",
+      "gender": "female",
+      "minimum_distinct_families": 20
+    }
+  ],
+  "entry_eligibility": "Use playable_packs when present, otherwise packs. packs and date retain source evidence; never derive gameplay eligibility solely from the documentary date.",
+  "entry_weight": "Use weight_by_era[era] when present, otherwise weight. Omitted/inactive entries are not selected.",
+  "family_count": "Count distinct casefolded family_key, falling back to lemma; spelling variants alone cannot meet a floor.",
+  "pristine_scope": "The floor validates authored stock input and fresh installed stock profiles, not a demand to undo builder deletions.",
+  "same_era_upgrade": "Upsert by existing pool/profile stable keys and per-element baselines. Preserve actual field/element customizations.",
+  "birthname_exclusion": [
+    "names.target.romanian.f.010"
+  ],
+  "no_runtime_morphology": "Use the exact supplied full forms. No productive Prussian/Lithuanian feminine suffix generator.",
+  "byname_policy": "Optional 0..1; random byname count0 remains valid. Do not invent surname floors or automatic hereditary surnames.",
+  "small_pool_gates": "Remove obsolete activation blockers for these supplied pools, including Old Prussian female. Retain evidence limitations as nonblocking author notes."
+}

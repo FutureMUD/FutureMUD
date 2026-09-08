@@ -39,6 +39,16 @@ if (args is ["--archived-languages", var languageCorpus, var languageReport])
 // isolated InMemory context; the source connection never receives SaveChanges or SQL writes.
 var connection = Environment.GetEnvironmentVariable("FUTUREMUD_SOURCE_PROBE_CONNECTION")
 	?? throw new InvalidOperationException("Supply FUTUREMUD_SOURCE_PROBE_CONNECTION in the process environment.");
+if (args is ["--round2-live-graphs", var graphSource, var graphOutput])
+{
+	VerifyRound2BuilderRerun.ReadGraphs(connection, graphSource, graphOutput);
+	return;
+}
+if (args is ["--round2-builder-rerun", var priorReceipt, var builderReceipt])
+{
+	VerifyRound2BuilderRerun.Run(connection, priorReceipt, builderReceipt);
+	return;
+}
 if (args is ["--live-receipt", var receiptDatabase, var receiptOutput])
 {
 	VerifyLiveReceipt.Run(connection, receiptDatabase, receiptOutput);
@@ -61,6 +71,11 @@ if (args is ["--live-rerun", var rerunDatabase, var rerunEra, var rerunReport])
 }
 using var installed = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 	.UseMySql(connection, ServerVersion.AutoDetect(connection)).Options);
+if (args is ["--round2-optional", var round2OptionalReport])
+{
+	VerifyToolkitInstall.Run(installed, round2OptionalReport, optional: true, round2: true);
+	return;
+}
 if (args is ["--install-fixtures", var fixtureReport])
 {
 	VerifyToolkitInstall.Run(installed, fixtureReport);

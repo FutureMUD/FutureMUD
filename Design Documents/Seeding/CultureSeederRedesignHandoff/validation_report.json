@@ -1,16 +1,12 @@
 {
   "revision": "2026-09-07-final-decisions",
   "status": "passed-with-disclosed-evidence-limitations",
-  "check_count": 3810,
-  "passed": 3810,
+  "check_count": 4066,
+  "passed": 4066,
   "failed": 0,
   "errors": [],
   "warnings": [
-    "Latvian Documentary Names: 14 female groups; bounded evidence, no quota padding.",
-    "Estonian Documentary Names: 10 female groups; bounded evidence, no quota padding.",
-    "Old Prussian Personal Names: 0 female groups; bounded evidence, no quota padding.",
-    "Romanian Household Names: 17 female groups; bounded evidence, no quota padding.",
-    "No new feminine Old Prussian pool is established. Its replacement remains inactive.",
+    "Old Prussian feminine forms are approved playable reconstructions, not newly attested names.",
     "Dates and sources are research metadata; this validator does not establish historical attestation or demographics.",
     "C# tests, generated FutureProg compilation, live MySQL and telnet/editor execution were not run by this validator.",
     "Source-qualified legacy references must be resolved against the actual repository/database during implementation."
@@ -32,20 +28,25 @@
     "script_family_count": 15,
     "name_family_reuse_plans": 33,
     "language_choice_group_count": 28,
-    "source_count": 79,
+    "source_count": 90,
     "mutual_intelligibility_pair_count": 177,
     "mutual_intelligibility_directed_edge_count": 354,
     "conditional_legacy_intelligibility_pair_count": 16,
     "generic_skill_group_seed_count": 28,
     "generic_derived_group_recipe_count": 0,
     "targeted_name_repertoire_count": 8,
-    "targeted_given_name_entry_count": 389,
+    "targeted_given_name_entry_count": 585,
     "targeted_profile_scope": "Bounded documentary or traditional repertoire; one incomplete Old Prussian feminine replacement is explicitly inactive.",
     "automatic_literacy_background_count": 13,
     "implemented_dependency_pr": 730
   },
   "scope": "Handoff data/reference/policy checks, not engine or historical-attestation verification.",
   "checks": [
+    {
+      "check": "JSON data\\accent_era_policy.json",
+      "passed": true,
+      "detail": ""
+    },
     {
       "check": "JSON data\\catalogue_statistics.json",
       "passed": true,
@@ -108,6 +109,11 @@
     },
     {
       "check": "JSON data\\mutual_intelligibility.json",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "JSON data\\name_playability_policy.json",
       "passed": true,
       "detail": ""
     },
@@ -16672,6 +16678,146 @@
       "detail": ""
     },
     {
+      "check": "Name names.target.finnish.m.r2.001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.003",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.006",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.007",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.008",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.009",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.010",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.011",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.012",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.013",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.014",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.015",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.016",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.017",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.018",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.019",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.020",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.021",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.022",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.023",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.024",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.025",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.026",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.027",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.m.r2.028",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "Pool unique entries names.target.finnish/female",
       "passed": true,
       "detail": ""
@@ -16837,6 +16983,106 @@
       "detail": ""
     },
     {
+      "check": "Name names.target.finnish.f.r2.001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.003",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.006",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.007",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.008",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.009",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.010",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.011",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.012",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.013",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.014",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.015",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.016",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.017",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.018",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.019",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.finnish.f.r2.020",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "Pool stated counts names.target.finnish",
       "passed": true,
       "detail": ""
@@ -16988,6 +17234,106 @@
     },
     {
       "check": "Name names.target.lithuanian.m.026",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.003",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.006",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.007",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.008",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.009",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.010",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.011",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.012",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.013",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.014",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.015",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.016",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.017",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.018",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.019",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.m.r2.020",
       "passed": true,
       "detail": ""
     },
@@ -17193,6 +17539,106 @@
     },
     {
       "check": "Name names.target.lithuanian.f.039",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.003",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.006",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.007",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.008",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.009",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.010",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.011",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.012",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.013",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.014",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.015",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.016",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.017",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.018",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.019",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.lithuanian.f.r2.020",
       "passed": true,
       "detail": ""
     },
@@ -17452,6 +17898,36 @@
       "detail": ""
     },
     {
+      "check": "Name names.target.latvian.f.r2.001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.latvian.f.r2.002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.latvian.f.r2.003",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.latvian.f.r2.004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.latvian.f.r2.005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.latvian.f.r2.006",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "Pool stated counts names.target.latvian",
       "passed": true,
       "detail": ""
@@ -17577,6 +18053,106 @@
       "detail": ""
     },
     {
+      "check": "Name names.target.estonian.m.r2.001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.003",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.006",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.007",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.008",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.009",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.010",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.011",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.012",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.013",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.014",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.015",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.016",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.017",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.018",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.019",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.m.r2.020",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "Pool unique entries names.target.estonian/female",
       "passed": true,
       "detail": ""
@@ -17633,6 +18209,156 @@
     },
     {
       "check": "Name names.target.estonian.f.010",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.003",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.006",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.007",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.008",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.009",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.010",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.011",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.012",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.013",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.014",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.015",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.016",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.017",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.018",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.019",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.020",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.021",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.022",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.023",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.024",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.025",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.026",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.027",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.028",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.029",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.estonian.f.r2.030",
       "passed": true,
       "detail": ""
     },
@@ -17822,6 +18548,136 @@
       "detail": ""
     },
     {
+      "check": "Name names.target.old-prussian.f.r2.001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.003",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.006",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.007",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.008",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.009",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.010",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.011",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.012",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.013",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.014",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.015",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.016",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.017",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.018",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.019",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.020",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.021",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.022",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.023",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.024",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.025",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.old-prussian.f.r2.026",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "Pool stated counts names.target.old-prussian",
       "passed": true,
       "detail": ""
@@ -17987,6 +18843,36 @@
       "detail": ""
     },
     {
+      "check": "Name names.target.romanian.m.r2.001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.m.r2.002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.m.r2.003",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.m.r2.004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.m.r2.005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.m.r2.006",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "Pool unique entries names.target.romanian/female",
       "passed": true,
       "detail": ""
@@ -18078,6 +18964,106 @@
     },
     {
       "check": "Name names.target.romanian.f.017",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.003",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.006",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.007",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.008",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.009",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.010",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.011",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.012",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.013",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.014",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.015",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.016",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.017",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.018",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.019",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Name names.target.romanian.f.r2.020",
       "passed": true,
       "detail": ""
     },
@@ -18732,7 +19718,297 @@
       "detail": ""
     },
     {
-      "check": "Old Prussian female gap not hidden",
+      "check": "Old Prussian female playable",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.finnish/darkages/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.finnish/darkages/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.finnish/medieval/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.finnish/medieval/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.finnish/renaissance/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.finnish/renaissance/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.finnish/earlymodern/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.finnish/earlymodern/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.lithuanian/medieval/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.lithuanian/medieval/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.lithuanian/renaissance/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.lithuanian/renaissance/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.lithuanian/earlymodern/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.lithuanian/earlymodern/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.latvian/medieval/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.latvian/medieval/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.latvian/renaissance/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.latvian/renaissance/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.latvian/earlymodern/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.latvian/earlymodern/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.estonian/darkages/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.estonian/darkages/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.estonian/medieval/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.estonian/medieval/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.estonian/renaissance/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.estonian/renaissance/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.estonian/earlymodern/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.estonian/earlymodern/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.old-prussian/darkages/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.old-prussian/darkages/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.old-prussian/medieval/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.old-prussian/medieval/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.old-prussian/renaissance/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.old-prussian/renaissance/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.old-prussian/earlymodern/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.old-prussian/earlymodern/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.romanian/medieval/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.romanian/medieval/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.romanian/renaissance/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.romanian/renaissance/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.romanian/earlymodern/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.romanian/earlymodern/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.coptic-christian/darkages/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.coptic-christian/darkages/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.coptic-christian/medieval/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.coptic-christian/medieval/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.coptic-christian/renaissance/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.coptic-christian/renaissance/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.coptic-christian/earlymodern/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.coptic-christian/earlymodern/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.syriac-christian/darkages/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.syriac-christian/darkages/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.syriac-christian/medieval/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.syriac-christian/medieval/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.syriac-christian/renaissance/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.syriac-christian/renaissance/female",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.syriac-christian/earlymodern/male",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Playable families names.target.syriac-christian/earlymodern/female",
       "passed": true,
       "detail": ""
     },

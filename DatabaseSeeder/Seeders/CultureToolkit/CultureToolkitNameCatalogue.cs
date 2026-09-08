@@ -35,7 +35,14 @@ public static class CultureToolkitNameCatalogue
 			{
 				var recipe = pool.GetProperty("production_recipe").GetProperty("profiles").GetProperty(genderKey);
 				var entries = pool.GetProperty($"given_{genderKey}").EnumerateArray()
-					.Where(x => CultureToolkitCatalogue.Strings(x.GetProperty("packs")).Contains(era)).ToArray();
+					.Where(x => CultureToolkitCatalogue.Strings(x.TryGetProperty("playable_packs", out var playable) ? playable : x.GetProperty("packs")).Contains(era)).ToArray();
+				var requirement = catalogue.Document("data.name_playability_policy.json").GetProperty("requirements")
+					.EnumerateArray().SingleOrDefault(x => CultureToolkitCatalogue.Text(x, "pool") == key &&
+						CultureToolkitCatalogue.Text(x, "pack") == era && CultureToolkitCatalogue.Text(x, "gender") == genderKey);
+				if (requirement.ValueKind != JsonValueKind.Undefined &&
+					(!recipe.GetProperty("enabled").GetBoolean() || entries.Select(x => CultureToolkitCatalogue.Text(x, "family_key"))
+						.Distinct(StringComparer.OrdinalIgnoreCase).Count() < requirement.GetProperty("minimum_distinct_families").GetInt32()))
+					throw new InvalidOperationException($"Insufficient playable name families: {key}:{genderKey}:{era}");
 				if (!recipe.GetProperty("enabled").GetBoolean() || entries.Length == 0)
 				{
 					exclusions.Add($"{key}:{genderKey}:{era}: no active replacement; retain source-specific legacy profile.");
@@ -43,7 +50,8 @@ public static class CultureToolkitNameCatalogue
 				}
 				// The supplied delivery contains one reviewed display per lemma. Do not quietly
 				// turn future aliases into extra chances in the existing weighted-name table.
-				if (entries.Select(x => CultureToolkitCatalogue.Text(x, "lemma")).Distinct(StringComparer.Ordinal).Count() != entries.Length)
+				if (entries.Select(x => CultureToolkitCatalogue.Text(x, "lemma")).Distinct(StringComparer.OrdinalIgnoreCase).Count() != entries.Length ||
+					entries.Select(x => CultureToolkitCatalogue.Text(x, "display")).Distinct(StringComparer.OrdinalIgnoreCase).Count() != entries.Length)
 					throw new InvalidOperationException($"Multiple spelling variants require explicit lemma-first selection: {key}:{genderKey}");
 				var profile = new RandomNameProfile
 				{
@@ -60,9 +68,12 @@ public static class CultureToolkitNameCatalogue
 				foreach (var entry in entries)
 				{
 					var display = ValidateDisplay(CultureToolkitCatalogue.Text(entry, "display"), key);
+					var weight = entry.TryGetProperty("weight_by_era", out var weights)
+						? weights.GetProperty(era).GetInt32() : entry.GetProperty("weight").GetInt32();
+					if (weight <= 0) throw new InvalidOperationException($"Non-positive playable name weight: {key}:{display}:{era}");
 					profile.RandomNameProfilesElements.Add(new RandomNameProfilesElements
 					{
-						NameUsage = (int)NameUsage.BirthName, Name = display, Weighting = entry.GetProperty("weight").GetInt32()
+						NameUsage = (int)NameUsage.BirthName, Name = display, Weighting = weight
 					});
 					allGiven.Add(display);
 					evidence.Add(entry);
@@ -80,6 +91,12 @@ public static class CultureToolkitNameCatalogue
 			}
 			model.Definition = Definition(CultureToolkitCatalogue.Text(pool, "description"), allGiven);
 			results.Add(new CultureNameRepertoire(key, era, model, evidence, exclusions));
+		}
+		foreach (var requirement in catalogue.Document("data.name_playability_policy.json").GetProperty("requirements").EnumerateArray()
+			.Where(x => CultureToolkitCatalogue.Text(x, "pack") == era))
+		{
+			var key = CultureToolkitCatalogue.Text(requirement, "pool");
+			if (results.All(x => x.StableKey != key)) throw new InvalidOperationException($"Missing required playable name pool: {key}:{era}");
 		}
 		return results;
 	}

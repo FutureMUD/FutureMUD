@@ -1,0 +1,420 @@
+{
+  "passed": true,
+  "scope": "Authoring data and optional transport checksums only; no C# or database execution.",
+  "data_checks": 6951,
+  "original_entries_preserved": 389,
+  "new_authored_profile_entries": 196,
+  "total_entries": 585,
+  "playable_cells": 58,
+  "native_binding_rows": 14,
+  "active_counts": [
+    {
+      "pool": "names.target.finnish",
+      "era": "darkages",
+      "gender": "male",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.finnish",
+      "era": "medieval",
+      "gender": "male",
+      "entries": 32,
+      "families": 32
+    },
+    {
+      "pool": "names.target.finnish",
+      "era": "renaissance",
+      "gender": "male",
+      "entries": 38,
+      "families": 38
+    },
+    {
+      "pool": "names.target.finnish",
+      "era": "earlymodern",
+      "gender": "male",
+      "entries": 38,
+      "families": 38
+    },
+    {
+      "pool": "names.target.finnish",
+      "era": "darkages",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.finnish",
+      "era": "medieval",
+      "gender": "female",
+      "entries": 28,
+      "families": 28
+    },
+    {
+      "pool": "names.target.finnish",
+      "era": "renaissance",
+      "gender": "female",
+      "entries": 31,
+      "families": 31
+    },
+    {
+      "pool": "names.target.finnish",
+      "era": "earlymodern",
+      "gender": "female",
+      "entries": 31,
+      "families": 31
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "era": "medieval",
+      "gender": "male",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "era": "renaissance",
+      "gender": "male",
+      "entries": 46,
+      "families": 46
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "era": "earlymodern",
+      "gender": "male",
+      "entries": 46,
+      "families": 46
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "era": "medieval",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "era": "renaissance",
+      "gender": "female",
+      "entries": 59,
+      "families": 59
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "era": "earlymodern",
+      "gender": "female",
+      "entries": 59,
+      "families": 59
+    },
+    {
+      "pool": "names.target.latvian",
+      "era": "medieval",
+      "gender": "male",
+      "entries": 29,
+      "families": 29
+    },
+    {
+      "pool": "names.target.latvian",
+      "era": "renaissance",
+      "gender": "male",
+      "entries": 30,
+      "families": 30
+    },
+    {
+      "pool": "names.target.latvian",
+      "era": "earlymodern",
+      "gender": "male",
+      "entries": 30,
+      "families": 30
+    },
+    {
+      "pool": "names.target.latvian",
+      "era": "medieval",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.latvian",
+      "era": "renaissance",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.latvian",
+      "era": "earlymodern",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "era": "darkages",
+      "gender": "male",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "era": "medieval",
+      "gender": "male",
+      "entries": 40,
+      "families": 40
+    },
+    {
+      "pool": "names.target.estonian",
+      "era": "renaissance",
+      "gender": "male",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "era": "earlymodern",
+      "gender": "male",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "era": "darkages",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "era": "medieval",
+      "gender": "female",
+      "entries": 40,
+      "families": 40
+    },
+    {
+      "pool": "names.target.estonian",
+      "era": "renaissance",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.estonian",
+      "era": "earlymodern",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "era": "darkages",
+      "gender": "male",
+      "entries": 30,
+      "families": 30
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "era": "medieval",
+      "gender": "male",
+      "entries": 30,
+      "families": 30
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "era": "renaissance",
+      "gender": "male",
+      "entries": 30,
+      "families": 30
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "era": "earlymodern",
+      "gender": "male",
+      "entries": 30,
+      "families": 30
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "era": "darkages",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "era": "medieval",
+      "gender": "female",
+      "entries": 26,
+      "families": 26
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "era": "renaissance",
+      "gender": "female",
+      "entries": 26,
+      "families": 26
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "era": "earlymodern",
+      "gender": "female",
+      "entries": 26,
+      "families": 26
+    },
+    {
+      "pool": "names.target.romanian",
+      "era": "medieval",
+      "gender": "male",
+      "entries": 22,
+      "families": 22
+    },
+    {
+      "pool": "names.target.romanian",
+      "era": "renaissance",
+      "gender": "male",
+      "entries": 34,
+      "families": 34
+    },
+    {
+      "pool": "names.target.romanian",
+      "era": "earlymodern",
+      "gender": "male",
+      "entries": 34,
+      "families": 34
+    },
+    {
+      "pool": "names.target.romanian",
+      "era": "medieval",
+      "gender": "female",
+      "entries": 22,
+      "families": 22
+    },
+    {
+      "pool": "names.target.romanian",
+      "era": "renaissance",
+      "gender": "female",
+      "entries": 32,
+      "families": 32
+    },
+    {
+      "pool": "names.target.romanian",
+      "era": "earlymodern",
+      "gender": "female",
+      "entries": 36,
+      "families": 36
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "era": "darkages",
+      "gender": "male",
+      "entries": 34,
+      "families": 34
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "era": "medieval",
+      "gender": "male",
+      "entries": 34,
+      "families": 34
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "era": "renaissance",
+      "gender": "male",
+      "entries": 34,
+      "families": 34
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "era": "earlymodern",
+      "gender": "male",
+      "entries": 34,
+      "families": 34
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "era": "darkages",
+      "gender": "female",
+      "entries": 40,
+      "families": 40
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "era": "medieval",
+      "gender": "female",
+      "entries": 40,
+      "families": 40
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "era": "renaissance",
+      "gender": "female",
+      "entries": 40,
+      "families": 40
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "era": "earlymodern",
+      "gender": "female",
+      "entries": 40,
+      "families": 40
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "era": "darkages",
+      "gender": "male",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "era": "medieval",
+      "gender": "male",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "era": "renaissance",
+      "gender": "male",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "era": "earlymodern",
+      "gender": "male",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "era": "darkages",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "era": "medieval",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "era": "renaissance",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "era": "earlymodern",
+      "gender": "female",
+      "entries": 20,
+      "families": 20
+    }
+  ],
+  "failures": [],
+  "transport_note": "The separate MANIFEST.sha256 covers every package file other than itself, including this report. The validator checks that manifest whenever present."
+}

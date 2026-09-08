@@ -9,6 +9,8 @@
 "Design Documents/Seeding/CultureSeederOriginalCorpus/*.json" -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 # Imported specifications and captured terminal output retain their authored whitespace.
 "Design Documents/Seeding/CultureSeederRedesignHandoff/**" -whitespace
+# Round-two source archive includes a byte-exact manifest and authored whitespace.
+"Design Documents/Seeding/CultureSeederRound2Handoff/**" -text -whitespace
 "Design Documents/Verification/CultureSeeder_Redesign_*Telnet.txt" -whitespace
 
 ###############################################################################

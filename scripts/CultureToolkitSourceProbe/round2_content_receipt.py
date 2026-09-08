@@ -86,8 +86,27 @@ def main():
     lines += ["", "## Builder deviations and script graph", "",
               "The [MySQL builder-rerun receipt](CultureSeederRound2/builder-rerun.json) records the deleted/added script language IDs, "
               "actual custom linked trait, surviving graph, deleted/edited/custom names, overridden accent and both full installer reports. "
-              "Edits are rolled back after verification. Runtime script eligibility is separately executed in `CultureToolkitScriptSeederTests`.", "",
-              "## Runtime input hashes", "", "| Input | SHA-256 |", "|---|---|"]
+              "Edits are rolled back after verification. Runtime script eligibility is separately executed in `CultureToolkitScriptSeederTests`.", ""]
+    builder_path = EVIDENCE / "builder-rerun.json"
+    if builder_path.exists():
+        builder = load(builder_path)
+        assert builder["Status"] == "passed" and builder["AtomicCompilationRollback"]
+        target = next(x for x in builder["Reports"][-1]["TargetedNames"] if builder["ProfileId"] in x["ProfileIds"])
+        lines += [f"Builder fixture: profile {builder['ProfileId']} retains `{builder['EditedName']}` at weight 7, "
+                  f"deletes `{builder['DeletedName']}` and adds `BuilderExample` at weight 3. "
+                  f"The effective `{target['SourceKey']}` counts by engine gender value are `{target['GivenCounts']}`. "
+                  "This fixture changes membership and weights but does not fall below the stock minimum; edited forms are not asserted as authored historical evidence.", ""]
+    lines += ["| Era | Actual script graphs | Generated membership check |", "|---|---:|---|"]
+    for era in ERAS:
+        path = EVIDENCE / f"{era}-graphs.json"
+        if not path.exists():
+            lines.append(f"| {era} | — | not run |")
+            continue
+        graph = load(path)
+        assert graph["Status"] == "passed" and all(x["MatchesStockGraph"] for x in graph["ScriptGraphs"])
+        lines.append(f"| [{era}](CultureSeederRound2/{era}-graphs.json) | {len(graph['ScriptGraphs'])} | "
+                     "Actual membership trait IDs equal generated acquisition predicates; full member IDs and body in linked receipt. |")
+    lines += ["", "## Runtime input hashes", "", "| Input | SHA-256 |", "|---|---|"]
     for folder in ("data", "research"):
         for path in sorted((INPUT / folder).glob("*.json")):
             lines.append(f"| {path.relative_to(INPUT).as_posix()} | `{hashlib.sha256(path.read_bytes()).hexdigest()}` |")

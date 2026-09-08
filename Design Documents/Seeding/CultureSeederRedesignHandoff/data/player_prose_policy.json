@@ -1,0 +1,64 @@
+{
+  "authority": "U01 and U02",
+  "point_of_view": "Contemporary in-world observer; present-tense peoples, institutions and languages. An in-world reader may refer to an older book or former ruler, but never to modern geography or future historical classifications.",
+  "player_fields": {
+    "data/social_cultures.json": [
+      "label",
+      "description"
+    ],
+    "data/ethnicity_reframing_overlay.json": [
+      "label",
+      "replacement_description"
+    ],
+    "data/language_identity_and_labels.json": [
+      "labels.*",
+      "description",
+      "descriptions_by_era.*",
+      "unknown_description_template",
+      "fallback_accent_if_no_legacy_accent.description",
+      "fallback_accent_if_no_legacy_accent.suffix",
+      "fallback_accent_if_no_legacy_accent.vague_suffix"
+    ],
+    "data/script_policy.json": [
+      "label",
+      "known_description",
+      "unknown_description",
+      "description"
+    ],
+    "data/language_choice_groups.json": [
+      "*.label",
+      "*.description"
+    ],
+    "data/skill_groups.json": [
+      "label",
+      "description"
+    ],
+    "data/targeted_name_corpora.json": [
+      "pools.*.label",
+      "pools.*.description",
+      "pools.*.given_male.*.display",
+      "pools.*.given_female.*.display"
+    ]
+  },
+  "not_player_fields": [
+    "notes",
+    "designer_rationale",
+    "sources",
+    "evidence",
+    "status",
+    "policy",
+    "description_mode",
+    "description_usage",
+    "prose_status",
+    "eligibility",
+    "scope",
+    "previous_text",
+    "replacement_explanation"
+  ],
+  "legacy_merge": "Apply the same prose review to ALL retained culture, ethnicity, language, accent, script, naming-element guidance and new group descriptions when materialising the seeder. Preserve the authored geographic, social, phonetic and appearance detail wherever applicable; move caveats to developer notes rather than appending them to Description.",
+  "source_preservation": "Archive the original wording separately. Non-destructive preservation does not require old administrative or retrospective wording to remain the active player-facing text.",
+  "appearance": "Retain grounded existing appearance descriptions in contemporary voice where supplied; this revision does not invent new demographic or physiological claims.",
+  "lookup_labels": "Canonical labels and era menu labels can contain historical stage terms for usability; do not derive the player description from those labels or seed the canonical label over the selected era presentation.",
+  "ui_instructions": "Keep pick counts, costs, validity messages and builder instructions in dedicated UI text, outside the setting Description fields.",
+  "encoding": "NFC and Latin-1 for all supplied game-facing text; research metadata and source spellings remain Unicode."
+}

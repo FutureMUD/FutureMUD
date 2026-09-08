@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "no_adopted_name_screen": true,
+  "rules": [
+    "NFC before validation",
+    "A multiword name can occupy one named element; never split every space into another required name",
+    "Optional byname blank must render without trailing/double spaces",
+    "Retain provided case; do not run English AP-title-case over stored name elements",
+    "Do not derive female surnames or married names from generic suffix rules",
+    "Honorifics, regnal numerals and saint prefixes are not random given-name elements",
+    "Keep all six existing NameStyle renderings and regex round-trip; use structured input if one free-text string is ambiguous"
+  ],
+  "fixtures": [
+    {
+      "pool": "names.target.finnish",
+      "gender": "male",
+      "birth": "Abiörn",
+      "byname": "",
+      "expected_full": "Abiörn",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.finnish",
+      "gender": "male",
+      "birth": "Abram",
+      "byname": "",
+      "expected_full": "Abram",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.finnish",
+      "gender": "female",
+      "birth": "Abble",
+      "byname": "",
+      "expected_full": "Abble",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.finnish",
+      "gender": "female",
+      "birth": "Adheliza",
+      "byname": "",
+      "expected_full": "Adheliza",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "gender": "male",
+      "birth": "Andrzei",
+      "byname": "",
+      "expected_full": "Andrzei",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "gender": "male",
+      "birth": "Baltromei",
+      "byname": "",
+      "expected_full": "Baltromei",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "gender": "female",
+      "birth": "Nastasia",
+      "byname": "",
+      "expected_full": "Nastasia",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.lithuanian",
+      "gender": "female",
+      "birth": "Poloneia",
+      "byname": "",
+      "expected_full": "Poloneia",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.latvian",
+      "gender": "male",
+      "birth": "Albert",
+      "byname": "",
+      "expected_full": "Albert",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.latvian",
+      "gender": "male",
+      "birth": "Andreas",
+      "byname": "",
+      "expected_full": "Andreas",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.latvian",
+      "gender": "female",
+      "birth": "Allheyt",
+      "byname": "",
+      "expected_full": "Allheyt",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.latvian",
+      "gender": "female",
+      "birth": "Angneta",
+      "byname": "",
+      "expected_full": "Angneta",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.estonian",
+      "gender": "male",
+      "birth": "Andreß",
+      "byname": "",
+      "expected_full": "Andreß",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.estonian",
+      "gender": "male",
+      "birth": "Antonys",
+      "byname": "",
+      "expected_full": "Antonys",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.estonian",
+      "gender": "female",
+      "birth": "Greteke",
+      "byname": "",
+      "expected_full": "Greteke",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.estonian",
+      "gender": "female",
+      "birth": "Leneke",
+      "byname": "",
+      "expected_full": "Leneke",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "gender": "male",
+      "birth": "Bayone",
+      "byname": "",
+      "expected_full": "Bayone",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.old-prussian",
+      "gender": "male",
+      "birth": "Baise",
+      "byname": "",
+      "expected_full": "Baise",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.romanian",
+      "gender": "male",
+      "birth": "Petru",
+      "byname": "",
+      "expected_full": "Petru",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.romanian",
+      "gender": "male",
+      "birth": "Radu",
+      "byname": "",
+      "expected_full": "Radu",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.romanian",
+      "gender": "female",
+      "birth": "Margareta",
+      "byname": "",
+      "expected_full": "Margareta",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.romanian",
+      "gender": "female",
+      "birth": "Musa",
+      "byname": "",
+      "expected_full": "Musa",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "gender": "male",
+      "birth": "John",
+      "byname": "",
+      "expected_full": "John",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "gender": "male",
+      "birth": "Dioscorus",
+      "byname": "",
+      "expected_full": "Dioscorus",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "gender": "female",
+      "birth": "Sophia",
+      "byname": "",
+      "expected_full": "Sophia",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.coptic-christian",
+      "gender": "female",
+      "birth": "Basilissa",
+      "byname": "",
+      "expected_full": "Basilissa",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "gender": "male",
+      "birth": "Ephrem",
+      "byname": "",
+      "expected_full": "Ephrem",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "gender": "male",
+      "birth": "Narsai",
+      "byname": "",
+      "expected_full": "Narsai",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "gender": "female",
+      "birth": "Maryam",
+      "byname": "",
+      "expected_full": "Maryam",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "gender": "female",
+      "birth": "Teqla",
+      "byname": "",
+      "expected_full": "Teqla",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.finnish",
+      "gender": "female",
+      "birth": "Abble",
+      "byname": "Pedersdotter",
+      "expected_full": "Abble Pedersdotter",
+      "type": "constructed-rendering-test-not-attested-full-person"
+    },
+    {
+      "pool": "names.target.syriac-christian",
+      "gender": "male",
+      "birth": "Bar Sauma",
+      "byname": "",
+      "expected_full": "Bar Sauma",
+      "type": "compound-single-element-test"
+    }
+  ],
+  "engine_acceptance": "Agent must run actual NameCulture/PersonalName parser and renderer tests; these data fixtures are not a substitute for a C# test."
+}

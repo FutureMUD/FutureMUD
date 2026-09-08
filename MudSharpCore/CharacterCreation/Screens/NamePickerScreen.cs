@@ -148,6 +148,7 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
                                          x.GetRandomNameElement(Enumerator.Current.Usage)
                                      }
                                  )
+								 .Where(x => !string.IsNullOrWhiteSpace(x))
                                  .Distinct()
                                  .PickUpToRandom(5)
                                  .ToArray();
@@ -178,22 +179,22 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
 
             NameCultureElement nce = Enumerator.Current!;
 
-            StringStack ss = new(command);
+            StringStack ss = new(command.Normalize(NormalizationForm.FormC));
             if (ss.IsFinished && nce.MinimumCount > 0)
             {
                 return Display();
             }
 
-            List<string> names = nce.MaximumCount == 1 ?
-                [ss.SafeRemainingArgument.ToTitleCaseAP()] :
-                ss.PopSpeechAll().Select(x => x.ToLowerInvariant()).ToList();
+			List<string> names = ss.IsFinished ? [] : nce.MaximumCount == 1 ?
+				[NameCulture.PreserveNameCase ? ss.SafeRemainingArgument : ss.SafeRemainingArgument.ToTitleCaseAP()] :
+				ss.PopSpeechAll().Select(x => NameCulture.PreserveNameCase ? x : x.ToLowerInvariant()).ToList();
             if (names.Count > nce.MaximumCount || names.Count < nce.MinimumCount)
             {
                 return
                     $"You must select {(nce.MinimumCount == nce.MaximumCount ? $"exactly {nce.MinimumCount}" : $"between {Enumerator.Current.MinimumCount} and {Enumerator.Current.MaximumCount}")} {(nce.MaximumCount > 1 ? nce.Name.Pluralise() : nce.Name)}.";
             }
 
-            if (names.Distinct().Count() != names.Count)
+            if (names.Distinct(StringComparer.OrdinalIgnoreCase).Count() != names.Count)
             {
                 return "Your names must not contain any duplicates.";
             }

@@ -1,0 +1,202 @@
+{
+  "status": "inputs-verified",
+  "baselineCommit": "420fa26a7cb2be11fbb7b973e7e5270976e95067",
+  "requiredAncestor": "961efca81da0d788bbfb86ccf55fea313c9bf065",
+  "requiredAncestorVerified": true,
+  "scope": "Pre-implementation source hash inventory and handoff availability. This is not the lossless generated-data export required by CF02 and establishes no runtime or historical-content acceptance.",
+  "availableHandoffDocuments": [
+    {
+      "name": "01_DESIGN_DECISIONS.md",
+      "sha256": "446dee4cca8ea1fb143961081be656f729d6615eeca4511a50fe1c26d53fdc0d"
+    },
+    {
+      "name": "02_IMPLEMENTATION_BRIEF.md",
+      "sha256": "2b1763f28e69cc01c7271d5297a593ee6abf66dbc98cb5e4faf39b77b451a021"
+    },
+    {
+      "name": "03_SOCIAL_CULTURE_CATALOGUE.md",
+      "sha256": "dc1301d17dd756bc4c82ae910b37f9b268864688a9bdf27ddf866f5c5f800af4"
+    },
+    {
+      "name": "04_LANGUAGE_AND_SCRIPT_CATALOGUE.md",
+      "sha256": "f2fb70309c5fb5cd27028791f2b8b7dcd461ae6c998973e0546e5c4194a3aca0"
+    },
+    {
+      "name": "05_NAMING_AND_ETHNICITY_PLAN.md",
+      "sha256": "b7c467fa96c0d42e5c1b65860f8347ecfda70998d81a7092fb058ffd75a417c5"
+    },
+    {
+      "name": "06_RESEARCH_AND_REVIEW_REGISTER.md",
+      "sha256": "62743e31e2a77bc153b16ce815ae86a77d4cc75f3dbedb8762a121eb712f4ae0"
+    }
+  ],
+  "requiredJsonReferences": [
+    "data/ethnicity_language_defaults.json",
+    "data/language_choice_groups.json",
+    "data/language_starting_value_prog_contract.json",
+    "data/latin1_fallback_specification.json",
+    "data/legacy_native_language_rules.json",
+    "data/literacy_script_grants.json",
+    "data/mutual_intelligibility.json",
+    "data/naming_pattern_tests.json",
+    "data/player_prose_policy.json",
+    "data/skill_groups.json",
+    "data/targeted_name_corpora.json"
+  ],
+  "jsonAvailability": "All 26 original JSON inputs restored under Design Documents/Seeding/CultureSeederRedesignHandoff; checksums verified.",
+  "sourceFiles": [
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.cs",
+      "bytes": 9957,
+      "sha256": "522ccdcbe3abbc9637807309f9c5a4d78c09c9f947ea7d4563f4bfcce06efe78"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.Antiquity.cs",
+      "bytes": 101711,
+      "sha256": "98159d105cf65c3cab4715e06550ecbc233ff6d8e4f67bd4fc2a05125ef4f86b"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.cs",
+      "bytes": 8533,
+      "sha256": "dd628ec9e73a4aa7bdfdb6e2e11f49857f22b1ca9e55e17922bf8663fc9349fd"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.DarkAges.cs",
+      "bytes": 16527,
+      "sha256": "65d327cbefac9576b07d5c5fab16187c91121f322a38e451a9c637fc0583c1d6"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.Historical.cs",
+      "bytes": 9979,
+      "sha256": "3f2f11ec1b94a9108c253e5a91d5198385803a99fd2319cd5d6241da580d1e31"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.MedievalEurope.cs",
+      "bytes": 66049,
+      "sha256": "54b33325439fe5a99b2dfb15ac30f29445a8002dc6c6c1e6bd5d9c7ec295062e"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.MiddleEarth.cs",
+      "bytes": 147237,
+      "sha256": "55f3ced27abd41dc65729f8b716c88b2fed2f28d5b3cfb99571d8f45018e0a26"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.Modern.cs",
+      "bytes": 60957,
+      "sha256": "5c8efd067b500a12b303a6cf0fbfe2ddd9c08a52aa83668a8bf8c1dd45c266e7"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Heritage.RenaissanceWorld.cs",
+      "bytes": 23748,
+      "sha256": "1428544f761d1f1d91e8943a509bae86b449b4d089ecb196a42545f70326b5bd"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.Antiquity.cs",
+      "bytes": 98608,
+      "sha256": "61b0628c520269094b4b276aa4c91cf9ac4820010e88acb5fe1f99cc7945b37b"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.cs",
+      "bytes": 4555,
+      "sha256": "f8a02fe53dfa68ec2592a47601b47328d72d7f55fbf9eaaba96b465fa45850c8"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.DarkAges.cs",
+      "bytes": 25701,
+      "sha256": "14f7a3b6c28bf5354101ca8b9b1b1b8e7c4975e1f14d67332922312541374e15"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.Historical.cs",
+      "bytes": 7945,
+      "sha256": "519c114ad6458edc5aedc3f47d7cf51d951e5688e782a7ca65410c0b725757aa"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.MedievalEurope.cs",
+      "bytes": 181444,
+      "sha256": "7e9bf7bf85c3c48900bb10e0c66a435db6e79bc0dbc7891a05b3ed24062242c1"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.MiddleEarth.cs",
+      "bytes": 33404,
+      "sha256": "572c7ab31909b119bfc3d69054a60f1356f94e3cd8ef6faee841e9cbe43db71c"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.Modern.cs",
+      "bytes": 111088,
+      "sha256": "01919e8368d9c1dd7b098bdb9cca065a554b9ae6e244ae889141de044a793106"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Languages.RenaissanceWorld.cs",
+      "bytes": 29957,
+      "sha256": "6414bd81cccca29d9efb91666b916014679a4bca5ee2318801ca84287b94146f"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.NameDefaults.cs",
+      "bytes": 7673,
+      "sha256": "7a6998b0c2618c0c7c0d2d18aa71fe0c724a244785952676edabca3bb3f9d9dd"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Names.Antiquity.cs",
+      "bytes": 928654,
+      "sha256": "ef6371aa89fc1010c606693b39365df5d95e5f3b247e8ff4a3173c21308465dc"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Names.cs",
+      "bytes": 25008,
+      "sha256": "d8b920e31216763fd27c1f5674f0d8931a2c6757dc316d41ccf6bf484d64bec3"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Names.MedievalEurope.cs",
+      "bytes": 902339,
+      "sha256": "43d8a158c1756675c3166c5683681b23715b03cf523a32d9fd9528a6484aa8f6"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Names.MiddleEarth.cs",
+      "bytes": 466441,
+      "sha256": "3a7d1c5b987299544ce7ded1bec3caa5d2446813720cb8b042c7639000dc3afa"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Names.Modern.cs",
+      "bytes": 289137,
+      "sha256": "7861e5317142e461ba021b0f2029fe4634be4740d1ad0edda444f6cbd1fa8236"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Packs.cs",
+      "bytes": 7717,
+      "sha256": "fff25e369bd56f183f1a92740fcc5a34308d5367020af63f3ff7a21b76b1b6ad"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Packs.DarkAgesAndMedieval.cs",
+      "bytes": 148964,
+      "sha256": "5e4e2105f37e2769374d7eac8233e96a9693a6da7146c19ddfadcbb284a46a53"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Packs.RenaissanceWorld.cs",
+      "bytes": 133577,
+      "sha256": "37b0b5d257ff558430c44ce9d1a340cc3fce841b05df581e34086b46606e5a4f"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.Shared.cs",
+      "bytes": 15914,
+      "sha256": "ff65d0858e38bc8b9b67381e95bf9c0be6a80a936575a727dc983e5b4764cd08"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/CultureSeeder.SignedLanguages.Modern.cs",
+      "bytes": 4698,
+      "sha256": "b33af29264482bc87103b06ec772837141edad39dfc691d891a420c5828ec576"
+    }
+  ],
+  "superseded_by": [
+    "CultureSeeder_Redesign_Implementation.md",
+    "CultureSeeder_Redesign_Installer_Fixtures.json",
+    "CultureSeeder_Redesign_Live_MySQL.json"
+  ],
+  "verificationAtPreflight": {
+    "csharpTests": "not run",
+    "liveMysqlMigrationOrImport": "not run",
+    "telnetOrEditor": "not run",
+    "generatedProgCompilation": "not run",
+    "handoffDataValidation": "26/26 JSON inputs checksum-matched; 3810/3810 catalogue checks passed with disclosed evidence limitations.",
+    "sourcePreservationDiff": "Original generated corpus and byte-for-byte source snapshot exported under Design Documents/Seeding/CultureSeederOriginalCorpus. Post-refactor comparison pending."
+  }
+}

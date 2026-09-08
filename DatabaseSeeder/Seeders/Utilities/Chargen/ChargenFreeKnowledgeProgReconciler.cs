@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using DatabaseSeeder.Seeders.CultureToolkit;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -26,6 +27,19 @@ internal readonly record struct ChargenFreeKnowledgeProgReconcileResult(
 
 internal static partial class ChargenFreeKnowledgeProgReconciler
 {
+	internal static CultureWritingLegacyBlock? CaptureVerifiedCultureBlock(FuturemudDatabaseContext context)
+	{
+		var target = FindTargetProg(context);
+		if (target is null || !TryValidateTargetContract(target, out _, out _)) return null;
+		var existing = TryGetManagedBlock(target.FunctionText, CultureStartMarker, CultureEndMarker);
+		if (existing is null) return null;
+		var issues = new List<string>();
+		var rules = GetCultureRules(context, issues);
+		var newline = target.FunctionText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+		var stock = BuildBlock(CultureStartMarker, CultureEndMarker, rules, newline);
+		return issues.Count == 0 && existing == stock ? new(target.Id, stock) : null;
+	}
+
 	internal const string ProgName = "ChargenFreeKnowledges";
 	internal const string HealthStartMarker = "// <FutureMUD Seeder: Health Free Knowledges>";
 	internal const string HealthEndMarker = "// </FutureMUD Seeder: Health Free Knowledges>";
@@ -60,7 +74,7 @@ internal static partial class ChargenFreeKnowledgeProgReconciler
 		List<string> issues = [];
 		List<GrantRule> healthRules = GetHealthRules(context, issues);
 		List<GrantRule> cultureRules = GetCultureRules(context, issues);
-		if (!TryBuildReconciledText(target.FunctionText, healthRules, cultureRules, out string reconciledText,
+		if (!TryBuildReconciledText(context, target, healthRules, cultureRules, true, issues, out string reconciledText,
 			    out string textError))
 		{
 			return Unsafe(textError);
@@ -116,12 +130,12 @@ internal static partial class ChargenFreeKnowledgeProgReconciler
 		List<GrantRule> healthRules = GetHealthRules(context, issues);
 		List<GrantRule> cultureRules = GetCultureRules(context, issues);
 		List<GrantRule> targetRules = health ? healthRules : cultureRules;
-		if (targetRules.Count == 0)
+		if (targetRules.Count == 0 && (health || !CultureToolkitKnowledgeIntegration.IsInstalled(context)))
 		{
 			return false;
 		}
 
-		if (!TryBuildReconciledText(target.FunctionText, healthRules, cultureRules, out string reconciledText, out _))
+		if (!TryBuildReconciledText(context, target, healthRules, cultureRules, false, issues, out string reconciledText, out _))
 		{
 			return false;
 		}
@@ -266,9 +280,10 @@ internal static partial class ChargenFreeKnowledgeProgReconciler
 		return $"CanPick{scriptName.Replace("-", string.Empty).Replace(" ", string.Empty)}ScriptKnowledge";
 	}
 
-	private static bool TryBuildReconciledText(string functionText, IReadOnlyCollection<GrantRule> healthRules,
-		IReadOnlyCollection<GrantRule> cultureRules, out string reconciledText, out string error)
+	private static bool TryBuildReconciledText(FuturemudDatabaseContext context, FutureProg target, IReadOnlyCollection<GrantRule> healthRules,
+		IReadOnlyCollection<GrantRule> cultureRules, bool persist, ICollection<string> issues, out string reconciledText, out string error)
 	{
+		var functionText = target.FunctionText;
 		string newline = functionText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
 		if (!TryStripManagedBlock(functionText, HealthStartMarker, HealthEndMarker, out string withoutHealth,
 			    out error) ||
@@ -301,10 +316,10 @@ internal static partial class ChargenFreeKnowledgeProgReconciler
 			blocks.Add(BuildBlock(HealthStartMarker, HealthEndMarker, healthRules, newline));
 		}
 
-		if (cultureRules.Count > 0)
-		{
-			blocks.Add(BuildBlock(CultureStartMarker, CultureEndMarker, cultureRules, newline));
-		}
+		var broad = cultureRules.Count > 0 ? BuildBlock(CultureStartMarker, CultureEndMarker, cultureRules, newline) : "";
+		var cultureBlock = CultureToolkitKnowledgeIntegration.Block(context, target,
+			TryGetManagedBlock(functionText, CultureStartMarker, CultureEndMarker), broad, newline, persist, issues);
+		if (cultureBlock.Length > 0) blocks.Add(cultureBlock);
 
 		string prefix = stripped[..anchor.Index].TrimEnd(' ', '\t', '\r', '\n');
 		string suffix = stripped[anchor.Index..].TrimStart(' ', '\t', '\r', '\n');
@@ -388,7 +403,7 @@ internal static partial class ChargenFreeKnowledgeProgReconciler
 			return null;
 		}
 
-		return text[start.Index..(end.Index + end.Length)];
+		return text[start.Index..(end.Index + end.Length)].TrimEnd('\r');
 	}
 
 	private static Regex MarkerRegex(string marker)

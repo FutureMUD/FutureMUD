@@ -12,7 +12,19 @@ The stock catalogue separates three concepts:
 
 This permits, for example, Bavarian, Swabian, Franconian, Saxon, Thuringian, Frisian and Low German ethnicities to use the same broad `Medieval Imperial German (c. 1200)` culture without claiming that those ethnic identities are interchangeable. The culture and ethnicity records do not impose a hard compatibility relationship: builders may restrict combinations with availability FutureProgs if a particular game requires it.
 
-## Pack Coverage
+## Current historical toolkit installation
+
+The historical menu now offers five self-contained choices: Antiquity, Dark Ages, Medieval, Renaissance and Early Modern. They compose the approved **110 unique social-background cultures and 68 ethnicity overlays**, with era eligibility, from the [final handoff](./CultureSeederRedesignHandoff/01_DESIGN_DECISIONS.md). The former combined historical choices remain saved-answer aliases. Modern and Middle-Earth retain their original workflows. Installing a different toolkit era into an already selected world is not an automatic migration.
+
+Fixed ethnic native languages come from the configured mandatory free-skill prog. Specific backgrounds add their supplied vernacular or education; broad backgrounds offer optional contact/educational curricula through the existing skill-selection groups. There is no home-language, upbringing, bilingual or adopted-name chooser. Native base 200 and scaled backgrounds use editable FutureProgs and the original skill boost/cap pipeline. Thirteen learned backgrounds grant Literacy; writing knowledge also requires a selected language and an authorised tradition.
+
+The original procedural source runs only in isolated staging contexts for toolkit imports. Source-qualified identities and field baselines reconcile unchanged stock data while retaining builder changes. Unresolved retained native bindings stay unavailable and are enumerated in the verification receipts. The Finnish generic Human phenotype default, continental Saxon broad Frankish phenotype, Lowland Scot broad Gaelic phenotype and Georgian source composition are explicit reuse of existing defaults, not new historical certification or inherited language mappings.
+
+Targeted naming uses dedicated local profile identities where needed, with the existing ethnicity-first gender resolution. Unsupported early-era replacements and feminine Old Prussian remain inactive. The complete archived naming/accent source, including out-of-scope profiles, remains recoverable. See the [implementation record](../Verification/CultureSeeder_Redesign_Implementation.md) for the distinction between C#, MySQL, telnet and handoff checks.
+
+## Retained procedural source coverage
+
+The following tables describe the preserved source modules used for staging and the unchanged legacy workflows. They are not the active five-toolkit social-background catalogue; the final handoff and executed receipts define that catalogue.
 
 | Pack | Specific ethnicities | Broader cultures | Heritage status |
 | --- | ---: | ---: | --- |

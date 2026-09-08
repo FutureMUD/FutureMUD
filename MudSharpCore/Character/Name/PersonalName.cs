@@ -89,7 +89,7 @@ public class PersonalName : FrameworkItem, IPersonalName
                 }
             }
 
-            if (NameElements.Any(x => x.Usage == usage))
+            if (NameElements.Any(x => x.Usage == usage && !string.IsNullOrWhiteSpace(x.Text)))
             {
                 return match.Groups["true"].Value;
             }
@@ -100,7 +100,7 @@ public class PersonalName : FrameworkItem, IPersonalName
             usages.Select(
                 x =>
                     NameElements.Where(y => y.Usage == x)
-                                .Select(y => y.Text.Proper())
+                                .Select(y => Culture.PreserveNameCase ? y.Text : y.Text.Proper())
                                 .ListToString(separator: " ", conjunction: "")).ToArray<object>()
         ).Replace("\"\"", "").NormaliseSpacing().Trim();
     }
@@ -115,7 +115,7 @@ public class PersonalName : FrameworkItem, IPersonalName
     private string GetElements(NameUsage usage)
     {
         return ElementsByUsage(usage)
-            .Select(x => x.Text.Proper())
+            .Select(x => Culture.PreserveNameCase ? x.Text : x.Text.Proper())
             .ListToString(separator: " ", conjunction: "");
     }
 
@@ -172,7 +172,7 @@ public class PersonalName : FrameworkItem, IPersonalName
             "surname" => new TextVariable(GetName(NameStyle.SurnameOnly)),
             "surnameelement" or "rawsurname" => new TextVariable(GetElements(NameUsage.Surname)),
             "withnickname" or "fullwithnickname" => new TextVariable(GetName(NameStyle.FullWithNickname)),
-            "elements" => new CollectionVariable(NameElements.Select(x => x.Text.Proper()).ToList(), ProgVariableTypes.Text),
+            "elements" => new CollectionVariable(NameElements.Select(x => Culture.PreserveNameCase ? x.Text : x.Text.Proper()).ToList(), ProgVariableTypes.Text),
             "birthname" => new TextVariable(GetElements(NameUsage.BirthName)),
             "diminutive" or "dimunative" => new TextVariable(GetElements(NameUsage.Dimunative)),
             "nickname" => new TextVariable(GetElements(NameUsage.Nickname)),

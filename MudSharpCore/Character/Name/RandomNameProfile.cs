@@ -200,7 +200,9 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
         return Gender == gender;
     }
 
-    public bool IsReady => _nameUsageDiceExpressionsDictionary.All(x => _randomNamesDictionary.ContainsKey(x.Key));
+    public bool IsReady => _nameUsageDiceExpressionsDictionary.All(x =>
+		int.TryParse(x.Value, out var count) && count <= 0 ||
+		_randomNamesDictionary.ContainsKey(x.Key) && _randomNamesDictionary[x.Key].Any());
 
     private IFutureProg _useForChargenSuggestionsProg;
 
@@ -224,13 +226,17 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
         foreach (KeyValuePair<NameUsage, string> element in _nameUsageDiceExpressionsDictionary)
         {
             resultsDictionary.Add(element.Key, new List<string>());
+			int number = Dice.Roll(element.Value);
+			if (number <= 0)
+			{
+				continue;
+			}
             if (!_randomNamesDictionary[element.Key].Any())
             {
                 resultsDictionary[element.Key].Add("Unnamed");
                 allResults.Add("Unnamed");
             }
 
-            int number = Dice.Roll(element.Value);
             List<(string Value, int Weight)> availableNames = _randomNamesDictionary[element.Key]
                 .Where(x => !allResults.Contains(x.Value))
                 .ToList();

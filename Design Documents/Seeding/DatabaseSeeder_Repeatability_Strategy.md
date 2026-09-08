@@ -44,6 +44,9 @@ Any repair-capable or compatibility update path must be:
 For source-only catalogue fixes, prefer invariant tests that scan the seed definitions or generated specs so regressions fail before they become seeded data.
 
 ## Taxonomy
+
+`SeederManagedRecords` has an optional `SeedBaseline` longtext field for field-level three-way reconciliation. A null baseline denotes an existing record without established field ownership. Consumers using `SeederManagedRecordReconciler` preserve those fields, preserve builder additions/removals/edits on later runs, and keep the proposed stock baseline separate from the live overridden values. The helper requires identities to be resolved before use; a matching display name does not establish ownership. Existing fingerprint-only consumers retain their current behavior.
+
 ### Repeatability mode
 - `OneShot`: not currently intended to be rerun safely.
 - `Additive`: reruns are intended to add more stock content, not reconcile earlier stock records.

@@ -1221,11 +1221,10 @@ namespace MudSharp.Framework
 
         class Latin1EncoderFallback : EncoderFallback
         {
-            public override int MaxCharCount => 11;
-            private EncoderFallbackBuffer _buffer = new Latin1EncoderFallbackBuffer();
+            public override int MaxCharCount => 10;
             public override EncoderFallbackBuffer CreateFallbackBuffer()
             {
-                return _buffer;
+                return new Latin1EncoderFallbackBuffer();
             }
         }
 
@@ -1244,6 +1243,25 @@ namespace MudSharp.Framework
 
             public override bool Fallback(char unknownChar, int index)
             {
+                if (Remaining > 0) throw new ArgumentException("Recursive Latin-1 fallback.");
+                var mapped = unknownChar switch
+                {
+                    'Ł' => "L", 'ł' => "l", 'Œ' => "OE", 'œ' => "oe",
+                    'Đ' => "D", 'đ' => "d", 'Ħ' => "H", 'ħ' => "h",
+                    'Ŋ' => "N", 'ŋ' => "n", 'ı' => "i", 'ſ' => "s",
+                    'Ə' => "E", 'ə' => "e", 'ƿ' => "w", 'Ƿ' => "W",
+                    'Ȝ' => "Y", 'ȝ' => "y",
+                    'ʼ' or 'ʻ' or 'ʿ' or 'ʾ' or '’' or '‘' => "'",
+                    '“' or '”' => "\"", '–' or '—' => "-", '…' => "...",
+                    _ => null
+                };
+                if (mapped is not null)
+                {
+                    _encoded.Clear();
+                    _encoded.AddRange(mapped);
+                    _nextIndex = 0;
+                    return true;
+                }
                 string normalizedString = unknownChar.ToString().Normalize(NormalizationForm.FormD);
                 _encoded.Clear();
 
@@ -1281,7 +1299,9 @@ namespace MudSharp.Framework
                     // This filters out diacritic marks
                     if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
                     {
-                        _encoded.Add('?');
+                        _encoded.Clear();
+                        _encoded.AddRange($"[U+{(int)unknownChar:X4}]");
+                        break;
                     }
                 }
 
@@ -1291,7 +1311,11 @@ namespace MudSharp.Framework
 
             public override bool Fallback(char charUnknownHigh, char charUnknownLow, int index)
             {
-                return false;
+                if (Remaining > 0) throw new ArgumentException("Recursive Latin-1 fallback.");
+                _encoded.Clear();
+                _encoded.AddRange($"[U+{char.ConvertToUtf32(charUnknownHigh, charUnknownLow):X4}]");
+                _nextIndex = 0;
+                return true;
             }
 
             public override char GetNextChar()
@@ -1338,7 +1362,7 @@ namespace MudSharp.Framework
 
         public static string ConvertToLatin1(this string input)
         {
-            return Latin1Encoder.GetString(Latin1Encoder.GetBytes(input));
+            return Latin1Encoder.GetString(Latin1Encoder.GetBytes(input.Normalize(NormalizationForm.FormC)));
         }
 
         public static string ConvertToAscii(this string input)

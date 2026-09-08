@@ -855,6 +855,11 @@ public class PlayerConnection : IPlayerConnection, IAsyncPlayerConnection
 			return;
 		}
 
+		if (encoding.CodePage == Latin1Encoding.CodePage)
+		{
+			text = text.Normalize(NormalizationForm.FormC);
+		}
+
 		var byteCount = encoding.GetByteCount(text);
 		if (byteCount > MaximumPooledOutputBytes)
 		{

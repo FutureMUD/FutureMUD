@@ -1,0 +1,1598 @@
+{
+  "schema_version": 1,
+  "policy": "Every selected ethnicity resolves to fixed native trait IDs; no new chooser. Detailed overlay defaults are explicit below. Non-overlay stock identities must have a source-context binding before activation. Unknown records never inherit English merely to make validation pass.",
+  "defaults": [
+    {
+      "ethnicity": "ethnicity.german",
+      "label": "German",
+      "by_era": {
+        "medieval": [
+          "german.middle-high"
+        ],
+        "renaissance": [
+          "german.early-new-high"
+        ],
+        "earlymodern": [
+          "german.early-new-high"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "High Medieval German"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.austrian",
+      "label": "Austrian",
+      "by_era": {
+        "medieval": [
+          "german.middle-high"
+        ],
+        "renaissance": [
+          "german.early-new-high"
+        ],
+        "earlymodern": [
+          "german.early-new-high"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.dutch",
+      "label": "Dutch",
+      "by_era": {
+        "medieval": [
+          "dutch.middle"
+        ],
+        "renaissance": [
+          "dutch"
+        ],
+        "earlymodern": [
+          "dutch"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.french",
+      "label": "French",
+      "by_era": {
+        "medieval": [
+          "french.old"
+        ],
+        "renaissance": [
+          "french.middle"
+        ],
+        "earlymodern": [
+          "french.earlymodern"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "High Medieval French"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.occitan",
+      "label": "Occitan",
+      "by_era": {
+        "medieval": [
+          "occitan"
+        ],
+        "renaissance": [
+          "occitan"
+        ],
+        "earlymodern": [
+          "occitan"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.english",
+      "label": "English",
+      "by_era": {
+        "medieval": [
+          "english.middle"
+        ],
+        "renaissance": [
+          "english.middle"
+        ],
+        "earlymodern": [
+          "english.earlymodern"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "High Medieval English"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.venetian",
+      "label": "Venetian",
+      "by_era": {
+        "medieval": [
+          "venetian"
+        ],
+        "renaissance": [
+          "venetian"
+        ],
+        "earlymodern": [
+          "venetian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.florentine",
+      "label": "Florentine",
+      "by_era": {
+        "medieval": [
+          "italian"
+        ],
+        "renaissance": [
+          "italian"
+        ],
+        "earlymodern": [
+          "italian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.milanese",
+      "label": "Milanese",
+      "by_era": {
+        "medieval": [
+          "legacy:Lombard"
+        ],
+        "renaissance": [
+          "legacy:Lombard"
+        ],
+        "earlymodern": [
+          "legacy:Lombard"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.neapolitan",
+      "label": "Neapolitan",
+      "by_era": {
+        "medieval": [
+          "legacy:Neapolitan"
+        ],
+        "renaissance": [
+          "legacy:Neapolitan"
+        ],
+        "earlymodern": [
+          "legacy:Neapolitan"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.sicilian",
+      "label": "Sicilian",
+      "by_era": {
+        "medieval": [
+          "sicilian"
+        ],
+        "renaissance": [
+          "sicilian"
+        ],
+        "earlymodern": [
+          "sicilian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.corsican",
+      "label": "Corsican",
+      "by_era": {
+        "medieval": [
+          "italian"
+        ],
+        "renaissance": [
+          "italian"
+        ],
+        "earlymodern": [
+          "italian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.sardinian",
+      "label": "Sardinian",
+      "by_era": {
+        "medieval": [
+          "sardinian"
+        ],
+        "renaissance": [
+          "sardinian"
+        ],
+        "earlymodern": [
+          "sardinian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.castilian",
+      "label": "Castilian",
+      "by_era": {
+        "medieval": [
+          "castilian.old"
+        ],
+        "renaissance": [
+          "castilian"
+        ],
+        "earlymodern": [
+          "castilian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "High Medieval Castilian"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.catalan",
+      "label": "Catalan",
+      "by_era": {
+        "medieval": [
+          "catalan"
+        ],
+        "renaissance": [
+          "catalan"
+        ],
+        "earlymodern": [
+          "catalan"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "High Medieval Catalan"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.galician",
+      "label": "Galician",
+      "by_era": {
+        "medieval": [
+          "galician-portuguese"
+        ],
+        "renaissance": [
+          "galician"
+        ],
+        "earlymodern": [
+          "galician"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Galicians",
+        "High Medieval Galician"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.portuguese",
+      "label": "Portuguese",
+      "by_era": {
+        "medieval": [
+          "galician-portuguese"
+        ],
+        "renaissance": [
+          "portuguese"
+        ],
+        "earlymodern": [
+          "portuguese"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Portugese",
+        "High Medieval Portuguese"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.basque",
+      "label": "Basque",
+      "by_era": {
+        "medieval": [
+          "basque"
+        ],
+        "renaissance": [
+          "basque"
+        ],
+        "earlymodern": [
+          "basque"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "High Medieval Basque"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.welsh",
+      "label": "Welsh",
+      "by_era": {
+        "darkages": [
+          "welsh"
+        ],
+        "medieval": [
+          "welsh"
+        ],
+        "renaissance": [
+          "welsh"
+        ],
+        "earlymodern": [
+          "welsh"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.breton",
+      "label": "Breton",
+      "by_era": {
+        "darkages": [
+          "breton"
+        ],
+        "medieval": [
+          "breton"
+        ],
+        "renaissance": [
+          "breton"
+        ],
+        "earlymodern": [
+          "breton"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.irish-gael",
+      "label": "Irish Gael",
+      "by_era": {
+        "darkages": [
+          "gaelic.medieval"
+        ],
+        "medieval": [
+          "gaelic.medieval"
+        ],
+        "renaissance": [
+          "irish"
+        ],
+        "earlymodern": [
+          "irish"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Gaelic",
+        "Medieval Irish Gael"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.scottish-gael",
+      "label": "Scottish Gael",
+      "by_era": {
+        "darkages": [
+          "gaelic.medieval"
+        ],
+        "medieval": [
+          "gaelic.medieval"
+        ],
+        "renaissance": [
+          "scottish-gaelic"
+        ],
+        "earlymodern": [
+          "scottish-gaelic"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "High Medieval Scottish Gael"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.lowland-scot",
+      "label": "Lowland Scot",
+      "by_era": {
+        "medieval": [
+          "scots"
+        ],
+        "renaissance": [
+          "scots"
+        ],
+        "earlymodern": [
+          "scots"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.polish",
+      "label": "Polish",
+      "by_era": {
+        "medieval": [
+          "polish"
+        ],
+        "renaissance": [
+          "polish"
+        ],
+        "earlymodern": [
+          "polish"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.czech",
+      "label": "Czech",
+      "by_era": {
+        "medieval": [
+          "czech"
+        ],
+        "renaissance": [
+          "czech"
+        ],
+        "earlymodern": [
+          "czech"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.slovak",
+      "label": "Slovak",
+      "by_era": {
+        "medieval": [
+          "slovak"
+        ],
+        "renaissance": [
+          "slovak"
+        ],
+        "earlymodern": [
+          "slovak"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.ruthenian",
+      "label": "Ruthenian",
+      "by_era": {
+        "medieval": [
+          "slavic.old-east"
+        ],
+        "renaissance": [
+          "ruthenian"
+        ],
+        "earlymodern": [
+          "ruthenian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.russian",
+      "label": "Russian",
+      "by_era": {
+        "medieval": [
+          "slavic.old-east"
+        ],
+        "renaissance": [
+          "russian"
+        ],
+        "earlymodern": [
+          "russian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.croat",
+      "label": "Croat",
+      "by_era": {
+        "medieval": [
+          "legacy:Serbo-Croatian"
+        ],
+        "renaissance": [
+          "legacy:Serbo-Croatian"
+        ],
+        "earlymodern": [
+          "legacy:Serbo-Croatian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.serb",
+      "label": "Serb",
+      "by_era": {
+        "medieval": [
+          "legacy:Serbo-Croatian"
+        ],
+        "renaissance": [
+          "legacy:Serbo-Croatian"
+        ],
+        "earlymodern": [
+          "legacy:Serbo-Croatian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.bosnian",
+      "label": "Bosnian",
+      "by_era": {
+        "medieval": [
+          "legacy:Serbo-Croatian"
+        ],
+        "renaissance": [
+          "legacy:Serbo-Croatian"
+        ],
+        "earlymodern": [
+          "legacy:Serbo-Croatian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Bosniak"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.vlach",
+      "label": "Vlach",
+      "by_era": {
+        "medieval": [
+          "romanian"
+        ],
+        "renaissance": [
+          "romanian"
+        ],
+        "earlymodern": [
+          "romanian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.lithuanian",
+      "label": "Lithuanian",
+      "by_era": {
+        "medieval": [
+          "lithuanian"
+        ],
+        "renaissance": [
+          "lithuanian"
+        ],
+        "earlymodern": [
+          "lithuanian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.latvian",
+      "label": "Latvian",
+      "by_era": {
+        "medieval": [
+          "latvian"
+        ],
+        "renaissance": [
+          "latvian"
+        ],
+        "earlymodern": [
+          "latvian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.old-prussian",
+      "label": "Old Prussian",
+      "by_era": {
+        "darkages": [
+          "old-prussian"
+        ],
+        "medieval": [
+          "old-prussian"
+        ],
+        "renaissance": [
+          "old-prussian"
+        ],
+        "earlymodern": [
+          "old-prussian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Prussian"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.estonian",
+      "label": "Estonian",
+      "by_era": {
+        "darkages": [
+          "estonian"
+        ],
+        "medieval": [
+          "estonian"
+        ],
+        "renaissance": [
+          "estonian"
+        ],
+        "earlymodern": [
+          "estonian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.finnish",
+      "label": "Finnish",
+      "by_era": {
+        "darkages": [
+          "finnish"
+        ],
+        "medieval": [
+          "finnish"
+        ],
+        "renaissance": [
+          "finnish"
+        ],
+        "earlymodern": [
+          "finnish"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.hungarian",
+      "label": "Hungarian",
+      "by_era": {
+        "darkages": [
+          "hungarian"
+        ],
+        "medieval": [
+          "hungarian"
+        ],
+        "renaissance": [
+          "hungarian"
+        ],
+        "earlymodern": [
+          "hungarian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Conquest-Period Magyar"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.danish",
+      "label": "Danish",
+      "by_era": {
+        "medieval": [
+          "danish"
+        ],
+        "renaissance": [
+          "danish"
+        ],
+        "earlymodern": [
+          "danish"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Viking-Age Dane"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.swedish",
+      "label": "Swedish",
+      "by_era": {
+        "medieval": [
+          "swedish"
+        ],
+        "renaissance": [
+          "swedish"
+        ],
+        "earlymodern": [
+          "swedish"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Viking-Age Swede"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.norwegian",
+      "label": "Norwegian",
+      "by_era": {
+        "medieval": [
+          "norwegian"
+        ],
+        "renaissance": [
+          "norwegian"
+        ],
+        "earlymodern": [
+          "norwegian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Norse",
+        "Viking-Age Norwegian"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.icelandic",
+      "label": "Icelandic",
+      "by_era": {
+        "medieval": [
+          "icelandic"
+        ],
+        "renaissance": [
+          "icelandic"
+        ],
+        "earlymodern": [
+          "icelandic"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.greek-roman",
+      "label": "Greek Roman",
+      "by_era": {
+        "darkages": [
+          "greek.medieval"
+        ],
+        "medieval": [
+          "greek.medieval"
+        ],
+        "renaissance": [
+          "greek.medieval"
+        ],
+        "earlymodern": [
+          "greek.medieval"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Roman",
+        "Middle Byzantine Roman"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.turkish",
+      "label": "Turkish",
+      "by_era": {
+        "medieval": [
+          "turkic.oghuz"
+        ],
+        "renaissance": [
+          "turkish.ottoman"
+        ],
+        "earlymodern": [
+          "turkish.ottoman"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Ottoman",
+        "High Medieval Oghuz Turk"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.persian",
+      "label": "Persian",
+      "by_era": {
+        "darkages": [
+          "persian.new"
+        ],
+        "medieval": [
+          "persian.new"
+        ],
+        "renaissance": [
+          "persian.new"
+        ],
+        "earlymodern": [
+          "persian.new"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Abbasid-Era Persian"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.arab",
+      "label": "Arab",
+      "by_era": {
+        "darkages": [
+          "arabic.mashriqi"
+        ],
+        "medieval": [
+          "arabic.mashriqi"
+        ],
+        "renaissance": [
+          "arabic.mashriqi"
+        ],
+        "earlymodern": [
+          "arabic.mashriqi"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Arabic"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.egyptian-arab",
+      "label": "Egyptian Arab",
+      "by_era": {
+        "darkages": [
+          "arabic.mashriqi"
+        ],
+        "medieval": [
+          "arabic.mashriqi"
+        ],
+        "renaissance": [
+          "arabic.mashriqi"
+        ],
+        "earlymodern": [
+          "arabic.mashriqi"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Fatimid-Era Egyptian Arab"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.copt",
+      "label": "Copt",
+      "by_era": {
+        "darkages": [
+          "coptic"
+        ],
+        "medieval": [
+          "arabic.mashriqi"
+        ],
+        "renaissance": [
+          "arabic.mashriqi"
+        ],
+        "earlymodern": [
+          "arabic.mashriqi"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language. The later stock default is spoken Egyptian Arabic; Coptic remains available to explicit learned/church education and is not conferred as a native language solely by the ethnic label.",
+      "legacy_aliases": [
+        "Fatimid-Era Copt"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.syriac",
+      "label": "Syriac",
+      "by_era": {
+        "darkages": [
+          "syriac"
+        ],
+        "medieval": [
+          "syriac"
+        ],
+        "renaissance": [
+          "syriac"
+        ],
+        "earlymodern": [
+          "syriac"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Abbasid-Era Syriac"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.armenian",
+      "label": "Armenian",
+      "by_era": {
+        "darkages": [
+          "armenian"
+        ],
+        "medieval": [
+          "armenian"
+        ],
+        "renaissance": [
+          "armenian"
+        ],
+        "earlymodern": [
+          "armenian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Late Medieval Armenian"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.georgian",
+      "label": "Georgian",
+      "by_era": {
+        "darkages": [
+          "georgian"
+        ],
+        "medieval": [
+          "georgian"
+        ],
+        "renaissance": [
+          "georgian"
+        ],
+        "earlymodern": [
+          "georgian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.kurdish",
+      "label": "Kurdish",
+      "by_era": {
+        "medieval": [
+          "kurdish.kurmanji"
+        ],
+        "renaissance": [
+          "kurdish.kurmanji"
+        ],
+        "earlymodern": [
+          "kurdish.kurmanji"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "High Medieval Kurdish"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.ashkenazi-jewish",
+      "label": "Ashkenazi Jewish",
+      "by_era": {
+        "darkages": [
+          "german.old-high"
+        ],
+        "medieval": [
+          "yiddish"
+        ],
+        "renaissance": [
+          "yiddish"
+        ],
+        "earlymodern": [
+          "yiddish"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.sephardic-jewish",
+      "label": "Sephardic Jewish",
+      "by_era": {
+        "darkages": [
+          "arabic.andalusi"
+        ],
+        "medieval": [
+          "castilian.old"
+        ],
+        "renaissance": [
+          "judeo-spanish"
+        ],
+        "earlymodern": [
+          "judeo-spanish"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Sephardic"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.near-eastern-jewish",
+      "label": "Near Eastern Jewish",
+      "by_era": {
+        "darkages": [
+          "aramaic"
+        ],
+        "medieval": [
+          "aramaic"
+        ],
+        "renaissance": [
+          "aramaic"
+        ],
+        "earlymodern": [
+          "aramaic"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language. This broad compatibility identity has a declared fallback; specific retained regional variants use the explicit regional overrides below rather than inheriting a geographically inappropriate default.",
+      "legacy_aliases": [
+        "Mizrahi Jewish"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.maghrebi-arab",
+      "label": "Maghrebi Arab",
+      "by_era": {
+        "darkages": [
+          "arabic.maghrebi"
+        ],
+        "medieval": [
+          "arabic.maghrebi"
+        ],
+        "renaissance": [
+          "arabic.maghrebi"
+        ],
+        "earlymodern": [
+          "arabic.maghrebi"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "North African"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.andalusi-arab",
+      "label": "Andalusi Arab",
+      "by_era": {
+        "darkages": [
+          "arabic.andalusi"
+        ],
+        "medieval": [
+          "arabic.andalusi"
+        ],
+        "renaissance": [
+          "arabic.andalusi"
+        ],
+        "earlymodern": [
+          "arabic.andalusi"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "High Medieval Andalusi Arab",
+        "Moorish"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.amazigh",
+      "label": "Amazigh",
+      "by_era": {
+        "darkages": [
+          "amazigh.tashelhit"
+        ],
+        "medieval": [
+          "amazigh.tashelhit"
+        ],
+        "renaissance": [
+          "amazigh.tashelhit"
+        ],
+        "earlymodern": [
+          "amazigh.tashelhit"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language. This broad compatibility identity has a declared fallback; specific retained regional variants use the explicit regional overrides below rather than inheriting a geographically inappropriate default.",
+      "legacy_aliases": [
+        "High Medieval Andalusi Berber"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.anglo-saxon",
+      "label": "Anglo-Saxon",
+      "by_era": {
+        "darkages": [
+          "english.old"
+        ],
+        "medieval": [
+          "english.old"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Early Anglo-Saxon"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.anglo-danish-english",
+      "label": "Anglo-Danish English",
+      "by_era": {
+        "darkages": [
+          "english.old"
+        ],
+        "medieval": [
+          "english.old"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Danelaw English",
+        "Anglo-Dane"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.frank",
+      "label": "Frank",
+      "by_era": {
+        "darkages": [
+          "german.old-high"
+        ],
+        "medieval": [
+          "german.middle-high"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language. This broad compatibility identity has a declared fallback; specific retained regional variants use the explicit regional overrides below rather than inheriting a geographically inappropriate default.",
+      "legacy_aliases": [
+        "Carolingian Frank"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.continental-saxon",
+      "label": "Continental Saxon",
+      "by_era": {
+        "darkages": [
+          "german.old-saxon"
+        ],
+        "medieval": [
+          "german.middle-low"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": []
+    },
+    {
+      "ethnicity": "ethnicity.bavarian",
+      "label": "Bavarian",
+      "by_era": {
+        "darkages": [
+          "german.old-high"
+        ],
+        "medieval": [
+          "german.middle-high"
+        ],
+        "renaissance": [
+          "german.early-new-high"
+        ],
+        "earlymodern": [
+          "german.early-new-high"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "High Medieval Bavarian"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.alemannic-swabian",
+      "label": "Alemannic Swabian",
+      "by_era": {
+        "darkages": [
+          "german.old-high"
+        ],
+        "medieval": [
+          "german.middle-high"
+        ],
+        "renaissance": [
+          "german.early-new-high"
+        ],
+        "earlymodern": [
+          "german.early-new-high"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "High Medieval Swabian"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.frisian",
+      "label": "Frisian",
+      "by_era": {
+        "darkages": [
+          "frisian"
+        ],
+        "medieval": [
+          "frisian"
+        ],
+        "renaissance": [
+          "frisian"
+        ],
+        "earlymodern": [
+          "frisian"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "High Medieval Frisian"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.norman",
+      "label": "Norman",
+      "by_era": {
+        "darkages": [
+          "norman.old"
+        ],
+        "medieval": [
+          "norman.old"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Conquest-Era Norman"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.anglo-norman",
+      "label": "Anglo-Norman",
+      "by_era": {
+        "medieval": [
+          "french.anglonorman"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Marcher Anglo-Norman"
+      ]
+    },
+    {
+      "ethnicity": "ethnicity.norse-gael",
+      "label": "Norse-Gael",
+      "by_era": {
+        "darkages": [
+          "gaelic.medieval"
+        ],
+        "medieval": [
+          "gaelic.medieval"
+        ]
+      },
+      "proficiency": "native",
+      "player_choice": false,
+      "notes": "Fixed seed default; this is an entitlement rule, not a claim that every historical individual used the same language.",
+      "legacy_aliases": [
+        "Medieval Gall-Gaidheal"
+      ]
+    }
+  ],
+  "retained_regional_overrides": [
+    {
+      "match_names": [
+        "Riffian",
+        "Renaissance Riffian Amazigh"
+      ],
+      "language": "amazigh.tarifit"
+    },
+    {
+      "match_names": [
+        "Kabyle",
+        "Renaissance Kabyle Amazigh"
+      ],
+      "language": "amazigh.kabyle"
+    },
+    {
+      "match_names": [
+        "Tashelhit",
+        "Renaissance Tashelhit Amazigh"
+      ],
+      "language": "amazigh.tashelhit"
+    },
+    {
+      "match_names": [
+        "Abbasid-Era Persian",
+        "Khorasani Persian",
+        "Tajik Persian"
+      ],
+      "selector": "persian"
+    },
+    {
+      "match_names": [
+        "Fatimid-Era Copt",
+        "Egyptian Copt"
+      ],
+      "ethnicity_default": "ethnicity.copt"
+    },
+    {
+      "match_names": [
+        "Abbasid-Era Syriac"
+      ],
+      "language": "syriac"
+    },
+    {
+      "match_names": [
+        "Carolingian Neustrian Frank"
+      ],
+      "selector": "french"
+    },
+    {
+      "match_names": [
+        "Carolingian Austrasian Frank"
+      ],
+      "selector": "german"
+    },
+    {
+      "match_names": [
+        "High Medieval Kurdish"
+      ],
+      "language": "kurdish.kurmanji"
+    },
+    {
+      "match_names": [
+        "High Medieval Syrian Arab",
+        "Abbasid-Era Iraqi Arab",
+        "Fatimid-Era Egyptian Arab"
+      ],
+      "selector": "arabic-east"
+    },
+    {
+      "match_names": [
+        "Viking-Age Norwegian",
+        "Viking-Age Dane",
+        "Viking-Age Swede",
+        "Viking-Age Norse"
+      ],
+      "language": "norse.old"
+    },
+    {
+      "match_names": [
+        "High Medieval Kipchak Turk",
+        "High Medieval Cuman",
+        "High Medieval Kipchak Mamluk"
+      ],
+      "language": "turkic.kipchak"
+    },
+    {
+      "match_names": [
+        "Medieval Gall-Gaidheal"
+      ],
+      "selector": "gaelic"
+    },
+    {
+      "match_names": [
+        "High Medieval Catalan"
+      ],
+      "language": "catalan"
+    },
+    {
+      "match_names": [
+        "High Medieval Basque"
+      ],
+      "language": "basque"
+    },
+    {
+      "match_names": [
+        "High Medieval Leonese"
+      ],
+      "language": "leonese"
+    },
+    {
+      "match_names": [
+        "High Medieval Aragonese"
+      ],
+      "language": "aragonese"
+    },
+    {
+      "match_names": [
+        "High Medieval Portuguese",
+        "High Medieval Galician"
+      ],
+      "language": "galician-portuguese"
+    },
+    {
+      "match_names": [
+        "High Medieval Frisian"
+      ],
+      "language": "frisian"
+    },
+    {
+      "match_names": [
+        "High Medieval Low German"
+      ],
+      "language": "german.middle-low"
+    },
+    {
+      "match_names": [
+        "High Medieval Mongol"
+      ],
+      "language": "legacy:Middle Mongol"
+    },
+    {
+      "match_names": [
+        "Renaissance Central Atlas Amazigh"
+      ],
+      "language": "legacy:Central Atlas Tamazight"
+    },
+    {
+      "match_names": [
+        "Renaissance Nafusi Amazigh"
+      ],
+      "language": "legacy:Nafusi"
+    }
+  ],
+  "legacy_integration": "Enumerate every retained ethnicity during manifest compilation. Reuse its existing language associations where present, or bind by its named source family. Resolve ambiguities before enabling that identity. The 68 rows below are overlays, not the entire retained heritage catalogue.",
+  "broad_compatibility_notes": "A generic Amazigh or Near Eastern Jewish compatibility record is not a substitute for the existing regional variants. No list of alternatives is presented to the applicant.",
+  "sources": [
+    "U02",
+    "R05",
+    "R09",
+    "R10",
+    "R19"
+  ]
+}

@@ -23,7 +23,8 @@ public static class GeneratedSkillGroupAdapter
 		chargen.SkillClaims.IndependentValues.Clear();
 		foreach (var value in template.SkillValues.Where(x => independent.Contains(x.Item1.Id)))
 			chargen.SkillClaims.IndependentValues[value.Item1.Id] = value.Item2;
-		var resolver = new SkillGroupResolver(chargen, null, independent);
+		var storyboard = template.Gameworld.ChargenStoryboard?.StageScreenMap.GetValueOrDefault(ChargenStage.SelectSkills);
+		var resolver = new SkillGroupResolver(chargen, Chargen.FreeSkillsProgForStoryboard(storyboard), independent);
 		if (resolver.Errors.Count > 0) throw new InvalidOperationException(string.Join(" ", resolver.Errors));
 		foreach (var group in resolver.Groups)
 		{
@@ -44,6 +45,14 @@ public static class GeneratedSkillGroupAdapter
 		{
 			var value = Convert.ToDouble(template.SelectedCulture.SkillStartingValueProg.Execute(chargen, skill, 0));
 			template.SkillValues.Add((skill, Math.Min(value, chargen.TraitMaxValue(skill))));
+			foreach (var language in template.Gameworld.Languages?.Where(x => x.LinkedTrait == skill) ?? [])
+			{
+				if (template.SelectedAccents.Any(x => x.Language == language)) continue;
+				var accent = language.DefaultLearnerAccent;
+				if (accent is null || !accent.IsAvailableInChargen(chargen))
+					accent = language.Accents.Where(x => x.IsAvailableInChargen(chargen)).OrderBy(x => x.Id).FirstOrDefault();
+				if (accent is not null) template.SelectedAccents.Add(accent);
+			}
 		}
 		template.SkillGroupClaims = chargen.SkillClaims;
 		return chargen.SkillClaims;

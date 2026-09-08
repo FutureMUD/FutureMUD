@@ -62,11 +62,13 @@ Migration `20260907085537_ChargenSkillSelectionGroups` adds definitions and orde
 
 `DatabaseSeeder.Seeders.Utilities.Chargen.ChargenSkillSelectionGroupSeeder.Upsert` accepts `SkillGroupSeedDefinition`, installed trait models and already-resolved compiled prog references. It checks references and bounds. A stable key owns only its managed group; a matching display name confers no ownership. `SeedBaseline` stores the preceding seeded fields and per-member order so three-way reconciliation preserves builder prose, counts, progs, additions, removals and ordering, reporting conflicts.
 
-The future CultureSeeder consumer resolves its own content references and calls this helper. No historical curricula, language-stage registry, home/working-language recipes or new culture pack are required here. Seed and runtime fixtures use non-language household crafts and opt-in definitions.
+`CultureToolkitGroupSeeder` resolves the CultureSeeder handoff's selected-era identities, compiles its eligibility progs and calls this helper for the 28 optional educational/contact recipes. That consumer does not replace the resolver, screens, claims, cost accounting or NPC adapter described here. Its implementation and verification are tracked in [CultureSeeder Redesign Implementation](../Verification/CultureSeeder_Redesign_Implementation.md). The dependency's own seed/runtime fixtures continue to use non-language household crafts and opt-in definitions.
 
 ## Generated templates
 
 Variable NPC templates can explicitly use `npc set skillgroups <integer seed> <decline|fill>` (within the normal template editing workflow); `skillgroups off` disables this path. Existing templates default off. `GeneratedSkillGroupAdapter.Apply` uses the same resolver, ownership rules and feasibility checks, with a seed-based deterministic candidate order and explicit optional policy. Choices are retained in template XML. Hand-authored skill values remain authoritative; display does not generate new choices. Invalid required allocations fail rather than silently granting alternatives.
+
+Opt-in generation also invokes the mandatory free-skill prog configured on the current skill storyboard, using the same four-screen lookup as chargen revalidation. Newly granted skills run through the culture's starting-value prog and stock cap. Newly granted languages receive the existing learner accent when eligible, otherwise the first eligible accent by stable ID; explicitly selected accents are retained. This permits a seeded native-language policy to exclude foreign/learner accents without adding an NPC-only culture rule.
 
 ## Verification
 

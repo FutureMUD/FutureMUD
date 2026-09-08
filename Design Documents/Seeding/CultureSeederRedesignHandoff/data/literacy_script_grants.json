@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "literacy_skill": "Resolve the installed Literacy skill through existing stock aliases; do not create a second skill if equivalent stock content exists.",
+  "automatic_backgrounds": [
+    {
+      "culture": "culture.roman-senatorial-households",
+      "grant_literacy": true,
+      "fixed_script_keys": [
+        "latin",
+        "greek"
+      ],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": null
+    },
+    {
+      "culture": "culture.latin-monastic-communities",
+      "grant_literacy": true,
+      "fixed_script_keys": [
+        "latin"
+      ],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": null
+    },
+    {
+      "culture": "culture.latin-clerical-households",
+      "grant_literacy": true,
+      "fixed_script_keys": [
+        "latin"
+      ],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": null
+    },
+    {
+      "culture": "culture.orthodox-learned-communities",
+      "grant_literacy": true,
+      "fixed_script_keys": [],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": "For Orthodox learned communities, choose the fixed ethnic primary tradition (Greek/Cyrillic/Georgian/Armenian/Syriac/Coptic as applicable), not every eastern script."
+    },
+    {
+      "culture": "culture.zoroastrian-learned-communities",
+      "grant_literacy": true,
+      "fixed_script_keys": [
+        "pahlavi"
+      ],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": null
+    },
+    {
+      "culture": "culture.andalusi-learned-households",
+      "grant_literacy": true,
+      "fixed_script_keys": [
+        "arabic"
+      ],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": null
+    },
+    {
+      "culture": "culture.islamic-urban-learned-households",
+      "grant_literacy": true,
+      "fixed_script_keys": [
+        "arabic"
+      ],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": null
+    },
+    {
+      "culture": "culture.ottoman-learned-households",
+      "grant_literacy": true,
+      "fixed_script_keys": [
+        "arabic"
+      ],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": null
+    },
+    {
+      "culture": "culture.persianate-scribal-households",
+      "grant_literacy": true,
+      "fixed_script_keys": [
+        "arabic"
+      ],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": null
+    },
+    {
+      "culture": "culture.armenian-learned-communities",
+      "grant_literacy": true,
+      "fixed_script_keys": [
+        "armenian"
+      ],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": null
+    },
+    {
+      "culture": "culture.jewish-learned-households",
+      "grant_literacy": true,
+      "fixed_script_keys": [
+        "hebrew"
+      ],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": null
+    },
+    {
+      "culture": "culture.maghrebi-learned-households",
+      "grant_literacy": true,
+      "fixed_script_keys": [
+        "arabic"
+      ],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": null
+    },
+    {
+      "culture": "culture.protestant-ministerial-households",
+      "grant_literacy": true,
+      "fixed_script_keys": [
+        "latin"
+      ],
+      "native_script_policy": "Add the ethnicity-specific primary writing tradition only when an actual associated selected language and Literacy qualify.",
+      "special_rule": null
+    }
+  ],
+  "primary_script_by_language": {
+    "latin": "latin",
+    "greek.ancient": "greek",
+    "greek.koine": "greek",
+    "greek.medieval": "greek",
+    "english.old": "latin",
+    "english.middle": "latin",
+    "english.earlymodern": "latin",
+    "norman.old": "latin",
+    "french.anglonorman": "latin",
+    "french.old": "latin",
+    "french.middle": "latin",
+    "french.earlymodern": "latin",
+    "occitan": "latin",
+    "welsh": "latin",
+    "breton": "latin",
+    "cornish": "latin",
+    "gaelic.old": "latin",
+    "gaelic.medieval": "latin",
+    "irish": "latin",
+    "scottish-gaelic": "latin",
+    "scots": "latin",
+    "norse.old": "latin",
+    "danish": "latin",
+    "swedish": "latin",
+    "norwegian": "latin",
+    "icelandic": "latin",
+    "german.old-high": "latin",
+    "german.middle-high": "latin",
+    "german.early-new-high": "latin",
+    "german.old-saxon": "latin",
+    "german.middle-low": "latin",
+    "franconian.old-low": "latin",
+    "dutch.middle": "latin",
+    "dutch": "latin",
+    "frisian": "latin",
+    "italian": "latin",
+    "venetian": "latin",
+    "sicilian": "latin",
+    "sardinian": "latin",
+    "castilian.old": "latin",
+    "castilian": "latin",
+    "leonese": "latin",
+    "aragonese": "latin",
+    "catalan": "latin",
+    "galician-portuguese": "latin",
+    "galician": "latin",
+    "portuguese": "latin",
+    "basque": "latin",
+    "polish": "latin",
+    "czech": "latin",
+    "slovak": "latin",
+    "slavic.old-east": "cyrillic",
+    "ruthenian": "cyrillic",
+    "russian": "cyrillic",
+    "church-slavonic": "cyrillic",
+    "south-slavic": "latin",
+    "bulgarian": "cyrillic",
+    "slovene": "latin",
+    "romanian": "cyrillic",
+    "albanian": "latin",
+    "hungarian": "latin",
+    "lithuanian": "latin",
+    "latvian": "latin",
+    "old-prussian": "latin",
+    "estonian": "latin",
+    "finnish": "latin",
+    "arabic.classical": "arabic",
+    "arabic.mashriqi": "arabic",
+    "arabic.maghrebi": "arabic",
+    "arabic.andalusi": "arabic",
+    "arabic.old": "arabic",
+    "persian.middle": "pahlavi",
+    "persian.new": "arabic",
+    "turkic.oghuz": "arabic",
+    "turkish.ottoman": "arabic",
+    "turkic.kipchak": "arabic",
+    "turkic.crimean": "arabic",
+    "armenian": "armenian",
+    "armenian.classical": "armenian",
+    "georgian": "georgian",
+    "kurdish.kurmanji": "arabic",
+    "kurdish.gorani": "arabic",
+    "aramaic": "aramaic",
+    "syriac": "syriac",
+    "coptic": "coptic",
+    "hebrew": "hebrew",
+    "yiddish": "hebrew",
+    "judeo-spanish": "hebrew",
+    "amazigh.tashelhit": "arabic",
+    "amazigh.kabyle": "arabic",
+    "amazigh.tarifit": "arabic",
+    "legacy:Lombard": "latin",
+    "legacy:Neapolitan": "latin",
+    "legacy:Serbo-Croatian": "cyrillic",
+    "lusitanian": "latin"
+  },
+  "community_overrides": [
+    {
+      "ethnicity": "ethnicity.croat",
+      "script": "latin"
+    },
+    {
+      "ethnicity": "ethnicity.serb",
+      "script": "cyrillic"
+    },
+    {
+      "ethnicity": "ethnicity.bosnian",
+      "script": "cyrillic"
+    },
+    {
+      "ethnicity": "ethnicity.near-eastern-jewish",
+      "script": "hebrew"
+    },
+    {
+      "ethnicity": "ethnicity.ashkenazi-jewish",
+      "script": "hebrew"
+    },
+    {
+      "ethnicity": "ethnicity.sephardic-jewish",
+      "script": "hebrew"
+    }
+  ],
+  "knowledge_award_rule": "Require Literacy plus a selected language and a specifically permitted writing-tradition entry. Learned fixed scripts must still have an appropriate selected language. Script acquisition is not a skill-group pick.",
+  "existing_reconciler_warning": "The old stock ChargenFreeKnowledges script block grants every compatible script. The culture-pack-owned block must apply this narrower tradition policy; do not leave both blocks awarding their union. Preserve builder text and unrelated packs.",
+  "new_seeder_questions": false,
+  "builder_configuration": "Existing in-game FutureProg and knowledge tools."
+}

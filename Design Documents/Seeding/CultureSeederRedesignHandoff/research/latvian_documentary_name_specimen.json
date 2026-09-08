@@ -1,0 +1,238 @@
+{
+  "key": "names.latvian.documentary.1450-1650",
+  "status": "Research specimen, not a complete production replacement; feminine shortfall requires review.",
+  "packs": [
+    "renaissance",
+    "earlymodern"
+  ],
+  "name_form": "given + optional local byname; inherited surname status must not be assumed",
+  "orthography": "Recorded documentary spellings; these are not asserted to be modern Latvian vernacular spellings.",
+  "given_male": [
+    [
+      "Albert",
+      1500
+    ],
+    [
+      "Andreas",
+      1450
+    ],
+    [
+      "Tonis",
+      1534
+    ],
+    [
+      "Bartholomeus",
+      1547
+    ],
+    [
+      "Bernd",
+      1545
+    ],
+    [
+      "Bertold",
+      1459
+    ],
+    [
+      "Daniel",
+      1607
+    ],
+    [
+      "Dirick",
+      1534
+    ],
+    [
+      "Engel",
+      1511
+    ],
+    [
+      "Frederich",
+      1565
+    ],
+    [
+      "Jürgen",
+      1519
+    ],
+    [
+      "Gerde",
+      1507
+    ],
+    [
+      "Gosschalk",
+      1461
+    ],
+    [
+      "Hinrick",
+      1450
+    ],
+    [
+      "Herman",
+      1487
+    ],
+    [
+      "Jacob",
+      1454
+    ],
+    [
+      "Hans",
+      1450
+    ],
+    [
+      "Casper",
+      1638
+    ],
+    [
+      "Kersten",
+      1450
+    ],
+    [
+      "Laurens",
+      1493
+    ],
+    [
+      "Lucas",
+      1515
+    ],
+    [
+      "Marten",
+      1466
+    ],
+    [
+      "Mathias",
+      1465
+    ],
+    [
+      "Michel",
+      1534
+    ],
+    [
+      "Clas",
+      1461
+    ],
+    [
+      "Peter",
+      1450
+    ],
+    [
+      "Symon",
+      1512
+    ],
+    [
+      "Thomas",
+      1435
+    ],
+    [
+      "Uldis",
+      1601
+    ],
+    [
+      "Willem",
+      1504
+    ]
+  ],
+  "given_female": [
+    [
+      "Allheyt",
+      1485
+    ],
+    [
+      "Angneta",
+      1507
+    ],
+    [
+      "Anna",
+      1495
+    ],
+    [
+      "Apollonia",
+      1505
+    ],
+    [
+      "Barbara",
+      1507
+    ],
+    [
+      "Byrgitta",
+      1507
+    ],
+    [
+      "Dorothea",
+      1517
+    ],
+    [
+      "Ilsebe",
+      1461
+    ],
+    [
+      "Gerdrut",
+      1461
+    ],
+    [
+      "Katerina",
+      1506
+    ],
+    [
+      "Christiana",
+      1503
+    ],
+    [
+      "Magdalena",
+      1509
+    ],
+    [
+      "Margareta",
+      1474
+    ],
+    [
+      "Maye",
+      1506
+    ]
+  ],
+  "recorded_bynames": [
+    {
+      "text": "Beber",
+      "bearer": "male",
+      "year": 1522
+    },
+    {
+      "text": "Kackis",
+      "bearer": "male",
+      "year": 1435
+    },
+    {
+      "text": "Cirmes",
+      "bearer": "male",
+      "year": 1475
+    },
+    {
+      "text": "Kapurs",
+      "bearer": "male",
+      "year": 1565
+    },
+    {
+      "text": "Esselen",
+      "bearer": "female",
+      "year": 1520
+    },
+    {
+      "text": "Blussen",
+      "bearer": "female",
+      "year": 1520
+    },
+    {
+      "text": "Sack",
+      "bearer": "male",
+      "year": 1533
+    },
+    {
+      "text": "Suke",
+      "bearer": "female",
+      "year": 1522
+    }
+  ],
+  "weights": "Equal provisional weights; the compilation does not support demographic frequencies.",
+  "sources": [
+    "H22"
+  ],
+  "source_role": "Dated facts selected from a scholarly-source compilation; not a complete manuscript extraction.",
+  "review": "14 feminine lemmas here is not an upper bound on the available corpus. Preserve existing material pending broader attestation; do not pad with spelling variants and report them as independent names."
+}

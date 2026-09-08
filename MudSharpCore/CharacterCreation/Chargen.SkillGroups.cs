@@ -23,14 +23,7 @@ public partial class Chargen
 		if (_skillEvaluationContext || State == ChargenState.Approved) return true;
 		if (!SkillClaims.Initialised && !(Gameworld.ChargenSkillSelectionGroups?.Any(x => x.Enabled && !x.Retired) ?? false)) return true;
 		var storyboard = Gameworld.ChargenStoryboard.StageScreenMap[ChargenStage.SelectSkills];
-		var prog = storyboard switch
-		{
-			Screens.SkillPickerScreenStoryboard x => x.FreeSkillsProg,
-			Screens.SkillCostPickerScreenStoryboard x => x.FreeSkillsProg,
-			Screens.SkillSkipperScreenStoryboard x => x.FreeSkillsProg,
-			Screens.SkillBoostSkipperScreenStoryboard x => x.FreeSkillsProg,
-			_ => null
-		};
+		var prog = FreeSkillsProgForStoryboard(storyboard);
 		var complete = new SkillGroupResolver(this, prog).Complete;
 		if (storyboard is Screens.SkillPickerScreenStoryboard or Screens.SkillCostPickerScreenStoryboard)
 			complete &= !SkillGroupResolver.UnavailableOrdinarySkills(this).Any();
@@ -41,6 +34,15 @@ public partial class Chargen
 		if (!complete) _completedStages.Remove(ChargenStage.SelectSkills);
 		return complete;
 	}
+
+	internal static IFutureProg? FreeSkillsProgForStoryboard(IChargenScreenStoryboard? storyboard) => storyboard switch
+		{
+			Screens.SkillPickerScreenStoryboard x => x.FreeSkillsProg,
+			Screens.SkillCostPickerScreenStoryboard x => x.FreeSkillsProg,
+			Screens.SkillSkipperScreenStoryboard x => x.FreeSkillsProg,
+			Screens.SkillBoostSkipperScreenStoryboard x => x.FreeSkillsProg,
+			_ => null
+		};
 
 	/// <summary>A detached evaluation context. Provisional acquisitions never enter this baseline.</summary>
 	public static IChargen CreateSkillEvaluationContext(ICharacterTemplate source, IEnumerable<long> baseline)

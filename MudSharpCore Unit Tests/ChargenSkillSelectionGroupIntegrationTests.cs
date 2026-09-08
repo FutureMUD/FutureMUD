@@ -14,6 +14,7 @@ using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.CharacterCreation.Screens;
+using MudSharp.Communication.Language;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -125,6 +126,50 @@ public class ChargenSkillSelectionGroupIntegrationTests
 		var saved = claims.Save().ToString();
 		variable.ApplySkillGroupsToGeneratedTemplate(template);
 		Assert.AreEqual(saved, template.SkillGroupClaims!.Save().ToString()); Assert.AreEqual(3, template.SkillValues.Count);
+	}
+
+	[TestMethod]
+	[DataRow(typeof(SkillPickerScreenStoryboard))]
+	[DataRow(typeof(SkillCostPickerScreenStoryboard))]
+	[DataRow(typeof(SkillSkipperScreenStoryboard))]
+	[DataRow(typeof(SkillBoostSkipperScreenStoryboard))]
+	public void GeneratedAdapter_UsesConfiguredMandatoryProgAndPreservesIndependentValues(Type screenType)
+	{
+		var f = new F();
+		f.Mandatory.AddRange([f.Skills[0], f.Skills[1]]);
+		var screen = (IChargenScreenStoryboard)Activator.CreateInstance(screenType, true)!;
+		Set(screen, "FreeSkillsProg", f.Free.Object);
+		var storyboard = new Mock<IChargenStoryboard>();
+		storyboard.SetupGet(x => x.StageScreenMap).Returns(new Dictionary<ChargenStage, IChargenScreenStoryboard> { [ChargenStage.SelectSkills] = screen });
+		f.World.SetupGet(x => x.ChargenStoryboard).Returns(storyboard.Object);
+		var culture = new Mock<ICulture>();
+		var start = new Mock<IFutureProg>();
+		start.Setup(x => x.Execute(It.IsAny<object[]>())).Returns(200.0);
+		culture.SetupGet(x => x.SkillStartingValueProg).Returns(start.Object);
+		foreach (var skill in f.Skills)
+		{
+			var cap = new Mock<ITraitExpression>();
+			cap.Setup(x => x.Evaluate(It.IsAny<IHaveTraits>(), null, TraitBonusContext.None)).Returns(200.0);
+			Mock.Get((MudSharp.Body.Traits.Subtypes.ISkillDefinition)skill).SetupGet(x => x.Cap).Returns(cap.Object);
+		}
+		var template = new SimpleCharacterTemplate { Gameworld = f.World.Object, SelectedCulture = culture.Object,
+			SkillValues = [(f.Skills[1], 350.0)], SelectedAttributes = [], SelectedRoles = [] };
+		var language = new Mock<ILanguage>();
+		var native = new Mock<IAccent>();
+		var learner = new Mock<IAccent>();
+		native.SetupGet(x => x.Language).Returns(language.Object);
+		native.Setup(x => x.IsAvailableInChargen(It.IsAny<ICharacterTemplate>())).Returns(true);
+		language.SetupGet(x => x.LinkedTrait).Returns(f.Skills[0]);
+		language.SetupGet(x => x.DefaultLearnerAccent).Returns(learner.Object);
+		language.SetupGet(x => x.Accents).Returns([learner.Object, native.Object]);
+		f.World.SetupGet(x => x.Languages).Returns(F.Repository<ILanguage>([language.Object]));
+		GeneratedSkillGroupAdapter.Apply(template, 730, GeneratedOptionalSkillPolicy.Decline);
+		Assert.AreEqual(200.0, template.SkillValues.Single(x => x.Item1 == f.Skills[0]).Item2);
+		Assert.AreEqual(350.0, template.SkillValues.Single(x => x.Item1 == f.Skills[1]).Item2);
+		Assert.AreEqual(2, template.SkillValues.Count);
+		Assert.AreSame(native.Object, template.SelectedAccents.Single());
+		GeneratedSkillGroupAdapter.Apply(template, 730, GeneratedOptionalSkillPolicy.Decline);
+		Assert.AreEqual(2, template.SkillValues.Count);
 	}
 
 	[TestMethod]

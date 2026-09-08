@@ -2789,6 +2789,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     private void Dispose(bool disposed)
     {
         _allgames.Remove(this);
+		ExpressionEngine.Expression.ExpressionError -= Expression_ExpressionError;
 		// A constructor failure can still run the finalizer before field initialisers have completed.
 		if (_connections is null)
 		{

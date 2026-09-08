@@ -310,6 +310,20 @@ public class NetworkWorkflowTests
 	}
 
 	[TestMethod]
+	public async Task CF16_PlayerConnection_NormalizesCompleteLatin1TextBeforeEncoding()
+	{
+		var transport = new TestConnectionTransport(maximumWriteSize: 2);
+		using var connection = new PlayerConnection(transport, TimeProvider.System, new TestNetworkTelemetry());
+		connection.Bind(CreateControlContext(new List<string>()).Object);
+		connection.StartTransport();
+		connection.AddOutgoing("\u001b[32me\u0301 Łódź Œuvre\u001b[0m");
+		connection.SendOutgoing();
+		connection.RequestClose(ConnectionCloseMode.Drain);
+		await connection.TransportCompletion.WaitAsync(TimeSpan.FromSeconds(2));
+		StringAssert.Contains(Encoding.Latin1.GetString(transport.Output), "\u001b[32mé Lódz OEuvre\u001b[0m");
+	}
+
+	[TestMethod]
 	public async Task PlayerConnection_PartialWritesDrainInOrderBeforeGracefulClose()
 	{
 		var transport = new TestConnectionTransport(maximumWriteSize: 2);

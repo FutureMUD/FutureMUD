@@ -202,3 +202,11 @@ Important commands include:
 - Treat storyboard XML as builder-owned once it has been customised for a real game.
 - Prefer changing screen type in game with `chargen changetype` rather than rerunning the seeder to force a type conversion.
 - Lock chargen before large graph changes so players do not sit inside screens that are being rebuilt.
+
+## Structured Naming and Encoding
+
+NamePicker resolves the selected ethnicity's name culture for the selected gender first, then the selected culture's fallback. It does not add a naming-convention or adopted-name question. An element with a maximum count of one may contain a multiword name. An optional element accepts an empty answer and contributes no extra spaces to the rendered name.
+
+Name-culture XML may opt into `<PreserveNameCase>true</PreserveNameCase>`. This preserves reviewed element casing in NamePicker and PersonalName rendering; existing definitions retain their previous casing behavior when the element is absent. All existing name styles and personal-name XML remain supported. Random-name dice set to zero require no pool and emit no placeholder element.
+
+Input is normalized to NFC before NamePicker validates letters and its existing Unicode-off setting. Latin-1 output also normalizes the complete string before encoding, uses reviewed fallback mappings and independent encoder buffers, and emits a visible diagnostic for unsupported scalars. Output fallback does not relax the input policy.

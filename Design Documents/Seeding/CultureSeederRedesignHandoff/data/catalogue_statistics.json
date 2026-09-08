@@ -1,0 +1,29 @@
+{
+  "revision": "2026-09-07-final-decisions",
+  "era_count": 5,
+  "social_culture_count": 110,
+  "cultures_by_era": {
+    "antiquity": 24,
+    "darkages": 54,
+    "medieval": 79,
+    "renaissance": 81,
+    "earlymodern": 76
+  },
+  "ethnicity_overlay_count": 68,
+  "language_specification_count": 91,
+  "language_family_resolver_count": 1,
+  "script_family_count": 15,
+  "name_family_reuse_plans": 33,
+  "language_choice_group_count": 28,
+  "source_count": 79,
+  "mutual_intelligibility_pair_count": 177,
+  "mutual_intelligibility_directed_edge_count": 354,
+  "conditional_legacy_intelligibility_pair_count": 16,
+  "generic_skill_group_seed_count": 28,
+  "generic_derived_group_recipe_count": 0,
+  "targeted_name_repertoire_count": 8,
+  "targeted_given_name_entry_count": 389,
+  "targeted_profile_scope": "Bounded documentary or traditional repertoire; one incomplete Old Prussian feminine replacement is explicitly inactive.",
+  "automatic_literacy_background_count": 13,
+  "implemented_dependency_pr": 730
+}

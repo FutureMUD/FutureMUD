@@ -17,7 +17,8 @@
 	<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
 
-  <ItemGroup>
+    <ItemGroup>
+	<EmbeddedResource Include="Seeders\CultureToolkit\ReviewedSourceProse.json" LogicalName="CultureReviewedProse" />
 	<PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.11" />
 	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
@@ -27,6 +28,7 @@
   <ItemGroup>
 	<ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
 	<ProjectReference Include="..\MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj" />
+	<ProjectReference Include="..\MudSharpCore\MudSharpCore.csproj" Aliases="EngineCompiler" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +43,12 @@
 	</Content>
 	<EmbeddedResource Include="Seeders\FoodCatalogue\**\*.tsv" />
 	<EmbeddedResource Include="Seeders\MedicalRepairCatalogue\**\*.tsv" />
+	<EmbeddedResource Include="..\Design Documents\Seeding\CultureSeederRedesignHandoff\data\*.json">
+		<LogicalName>CultureToolkit.data.%(Filename)%(Extension)</LogicalName>
+	</EmbeddedResource>
+	<EmbeddedResource Include="..\Design Documents\Seeding\CultureSeederRedesignHandoff\research\*.json">
+		<LogicalName>CultureToolkit.research.%(Filename)%(Extension)</LogicalName>
+	</EmbeddedResource>
   </ItemGroup>
 
 </Project>

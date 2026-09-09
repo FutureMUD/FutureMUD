@@ -13,12 +13,56 @@ namespace MudSharp_Unit_Tests;
 public class CultureToolkitCatalogueTests
 {
 	[TestMethod]
+	public void UnrelatedResourcesCannotHideMissingRequiredInputs()
+	{
+		foreach (var missing in CultureToolkitCatalogue.RequiredDocuments)
+		{
+			var names = CultureToolkitCatalogue.RequiredDocuments.Where(x => x != missing).Append("data.unrelated.json");
+			StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() => CultureToolkitCatalogue.ValidateRequiredDocuments(names)).Message, missing);
+		}
+	}
+
+	[TestMethod]
+	public void EveryAuthoredPlayableCellHasTwentyDistinctFamiliesAndDisplays()
+	{
+		var catalogue = new CultureToolkitCatalogue();
+		var requirements = catalogue.Document("data.name_playability_policy.json").GetProperty("requirements").EnumerateArray().ToArray();
+		Assert.AreEqual(58, requirements.Length);
+		foreach (var requirement in requirements)
+		{
+			var era = CultureToolkitCatalogue.Text(requirement, "pack");
+			var key = CultureToolkitCatalogue.Text(requirement, "pool");
+			var gender = CultureToolkitCatalogue.Text(requirement, "gender") == "male" ? (int)MudSharp.Form.Shape.Gender.Male : (int)MudSharp.Form.Shape.Gender.Female;
+			var repertoire = CultureToolkitNameCatalogue.Build(catalogue, era).Single(x => x.StableKey == key);
+			var profile = repertoire.Culture.RandomNameProfiles.Single(x => x.Gender == gender);
+			var elements = profile.RandomNameProfilesElements.Where(x => x.NameUsage == 0).ToArray();
+			Assert.IsTrue(elements.Length >= 20, $"{key}:{era}:{gender}");
+			Assert.AreEqual(elements.Length, elements.Select(x => x.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
+			Assert.IsTrue(elements.All(x => x.Weighting > 0));
+			Assert.IsFalse(elements.Any(x => x.Name == "Botezata"));
+		}
+	}
+
+	[DataTestMethod]
+	[DataRow("classical", "antiquity", true)]
+	[DataRow("liturgical", "antiquity", false)]
+	[DataRow("liturgical", "darkages", true)]
+	[DataRow("neo-classical", "medieval", false)]
+	[DataRow("neo-classical", "renaissance", true)]
+	public void ExplicitLatinAccentRulesOverrideSourceModuleDates(string name, string era, bool allowed)
+	{
+		var policy = CultureToolkitAccentPolicy.Resolve(new CultureToolkitCatalogue(), "earthrenaissanceeurope", "Latin", name, "native", false);
+		Assert.AreEqual(allowed, policy.AllowedPacks.Contains(era));
+		Assert.AreEqual("native-tradition", policy.Role);
+	}
+
+	[TestMethod]
 	public void EmbeddedDeliveryMatchesAllOriginalChecksums()
 	{
 		var root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..",
 			"Design Documents", "Seeding", "CultureSeederRedesignHandoff"));
 		var lines = File.ReadAllLines(Path.Combine(root, "JSON_SHA256SUMS.txt"));
-		Assert.AreEqual(26, lines.Length);
+		Assert.AreEqual(28, lines.Length);
 		foreach (var line in lines)
 		{
 			var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);

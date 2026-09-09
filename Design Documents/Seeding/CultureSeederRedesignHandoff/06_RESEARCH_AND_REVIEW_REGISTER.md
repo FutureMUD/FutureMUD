@@ -1,49 +1,48 @@
 # 6. Research and review register
 
+> Round-two update: the corrective brief in [CultureSeederRound2Handoff](../CultureSeederRound2Handoff/AGENT_TASK.md) supersedes earlier naming activation gates and resource totals below. The runtime catalogue now has 28 required inputs and 585 name entries, including 389 unchanged evidence entries and 196 approved fictional profile entries. All 58 playable gender/era cells meet the 20-family floor; Old Prussian feminine profiles are enabled. Earlier evidence limitations remain historical notes, not activation blockers.
+
+
 ## 6.1 What is evidence and what is authored
 
 Source observations, modelling decisions and implementation requirements are separate. Era envelopes, skill values, equal random weights and mutual-intelligibility difficulties are authored game defaults. They are not empirical historical measurements. Contemporary player prose must not incorporate this administrative qualification.
 
-The original corpus is retained by reference; it is not newly certified wholesale. The new target file supplies 389 entries across eight bounded repertoires. A documentary date, a saint’s reputed lifetime and the date of an edited text are different data. A modern transliteration is not a diplomatic manuscript spelling. Multilingual regional registers do not by themselves prove ethnic membership.
+The original corpus is retained without new historical certification. All 389 original entries preserve their evidence fields. Round two adds 196 explicitly reconstructed or borrowed profile entries; none is claimed as an attested full form. A documentary date, saint's lifetime and editorial gameplay-era selection are distinct facts.
 
-## 6.2 Targeted research outcome
+## 6.2 Current delivered entry totals
 
-Finnish and Lithuanian record-based pools are supplied, with source-wide limitations. Latvian and Estonian local feminine samples remain small. Romanian names draw heavily on elite families, museum identifications and inscriptions. Coptic combines publicly available documentary name metadata and devotional repertoire; Syriac uses named literary/commemorative records. No restricted database was downloaded.
+| Repertoire | Masculine entries | Feminine entries |
+|---|---:|---:|
+| Finnish Household Names | 58 | 51 |
+| Lithuanian Household Names | 46 | 59 |
+| Latvian Household Names | 30 | 20 |
+| Estonian Household Names | 40 | 40 |
+| Old Prussian Personal Names | 30 | 26 |
+| Romanian Household Names | 34 | 37 |
+| Coptic Christian Names | 34 | 40 |
+| Syriac Christian Names | 20 | 20 |
 
-**Unfinished content:** a new Old Prussian feminine pool was not established. Lewy supplies the masculine core; the specifically relevant Ivoska article was accessible only as an abstract, so no names are attributed to its unread full text. Its feminine replacement stays inactive. That limitation must not be concealed behind a “complete” validation result.
-
-| Repertoire | Male | Female | Source classification |
-|---|---:|---:|---|
-| Finnish Documentary Names | 30 | 31 | documentary-form |
-| Lithuanian Register Names | 26 | 39 | documentary-form, editorial-nominative, register-compilation-form |
-| Latvian Documentary Names | 30 | 14 | documentary-form |
-| Estonian Documentary Names | 20 | 10 | documentary-form |
-| Old Prussian Personal Names | 30 | 0 | historical-name-corpus-form |
-| Romanian Household Names | 28 | 17 | documentary-form, dynastic-compilation-form, editorial-nominative, inscription-transcription, institutional-bearer-identification, museum-bearer-identification |
-| Coptic Christian Names | 34 | 40 | devotional-repertoire, public-documentary-name-metadata |
-| Syriac Christian Names | 20 | 20 | commemorative-literary-name, edited-literary-name, literary-bearer-name, named-author-in-bibliographic-record |
-
-These counts are entries/name groups in this delivery, not proven exhaustive independent lemma counts. Do not create artificial spelling variants or religious/royal titles to satisfy a numerical target. The profile-generation recipes and parser fixtures are implementation-ready within the stated boundaries; the gap above is real.
+Totals include evidence-only entries and do not establish exhaustive independent historical lemma counts. The [content receipt](../../Verification/CultureSeeder_Round2_Content_Receipt.md) gives active family/display counts and evidence-class totals per gender/era. The supplied finite forms resolve the gameplay gaps without productive morphology or spelling-variant inflation.
 
 ## 6.3 Review outcomes
 
 ### NG01 — Baltic and Finnic production repertoires
 
-Status: **bounded-inventories-delivered-with-old-prussian-female-hold**.
+Status: **resolved-by-approved-playable-reconstruction**.
 The existing shared Finno-Ugric naming key does not validate Lithuanian, Latvian, Prussian, Estonian and Finnish inventories.
-Use targeted_name_corpora.json. Finnish/Lithuanian pools and bounded Latvian/Estonian female selections are supplied. Old Prussian masculine core is supplied; no new feminine default is authorised. Do not delegate invention or silently use a neighbouring pool.
+Use targeted_name_corpora.json and name_playability_policy.json. The approved finite reconstructed forms enable Old Prussian feminine profiles and complete all required Baltic/Finnic cells. Historical-evidence limitations remain nonblocking research notes; do not infer productive suffix rules.
 Sources: N01, N02, N03, H22, N04, N05, N06, N07.
 
 ### NG02 — Romanian/Vlach names
 
-Status: **bounded-inventory-delivered**.
+Status: **resolved-by-approved-playable-reconstruction**.
 A Western Slavic fallback is not an adequate Romanian repertoire.
-Use 28 masculine and 17 feminine groups with per-entry era scope; dynastic and inscription provenance is explicit. Equal gameplay weights, no claim of representative commoner frequencies.
+Use the delivered expanded household repertoire with explicit playable eras and editorial weights. Original dynastic and inscription provenance remains unchanged; no claim of representative commoner frequencies.
 Sources: N08, N09, N10, N11, N12, N13.
 
 ### NG03 — Coptic and Syriac Christian name profiles
 
-Status: **bounded-documentary-and-devotional-inventories-delivered**.
+Status: **resolved-by-approved-playable-reconstruction**.
 Arabic political-template profiles can contain an inappropriate religious repertoire.
 Use separate Coptic and Syriac pools. Preserve the distinction between documentary names and devotional/literary repertoire. No claim that a saint floruit dates a vernacular spelling or represents ordinary-name frequencies.
 Sources: N14, N15, N16, N17.

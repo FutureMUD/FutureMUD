@@ -14,6 +14,22 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CultureToolkitBindingPreflightTests
 {
+	[TestMethod]
+	public void ExactSourceCrosswalkRejectsDuplicatesAndReportsInvalidReferencesWithoutEnablingUnrelatedRows()
+	{
+		var catalogue = new CultureToolkitCatalogue();
+		var row = CultureToolkitNativeBindings.ExactSource(catalogue, "antiquity", "earthantiquity", "Achaean")!.Value;
+		var duplicate = Assert.ThrowsException<InvalidOperationException>(() =>
+			CultureToolkitNativeBindings.ExactSource([row, row], "antiquity", "earthantiquity", "Achaean"));
+		StringAssert.Contains(duplicate.Message, "earthantiquity:Achaean:antiquity");
+		var invalid = CultureToolkitNativeBindings.Resolve("source.earthantiquity.ethnicity.Achaean", null, "fixture", ["greeek"], new Dictionary<string, Language>());
+		Assert.IsFalse(invalid.IsResolved);
+		StringAssert.Contains(invalid.Unresolved.Single(), "source.earthantiquity.ethnicity.Achaean: unresolved supplied native language greeek");
+		var unrelated = CultureToolkitNativeBindings.Source(catalogue, "antiquity", "earthantiquity", new Ethnicity { Name = "Unrelated fixture" }, new Dictionary<string, Language>());
+		Assert.IsFalse(unrelated.IsResolved);
+		Assert.AreEqual(0, unrelated.LanguageIds.Count);
+	}
+
 	[DataTestMethod]
 	[DataRow(false)]
 	[DataRow(true)]

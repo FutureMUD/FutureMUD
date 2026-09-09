@@ -1,0 +1,809 @@
+{
+  "Status": "passed",
+  "Database": "futuremud_culture_live_2145_r2a0909",
+  "Scope": "Read-only actual MySQL graph/prog receipt after committed rerun. Exact generated trait predicates match effective membership; runtime execution is separately covered by tests.",
+  "ScriptGraphs": [
+    {
+      "StableKey": "arabic",
+      "ScriptId": 1,
+      "Members": [
+        {
+          "LanguageId": 6,
+          "Name": "Old Arabic",
+          "LinkedTraitId": 137
+        },
+        {
+          "LanguageId": 8,
+          "Name": "Aramaic",
+          "LinkedTraitId": 139
+        }
+      ],
+      "AcquisitionProgId": 65,
+      "GeneratedEligibleTraitIds": [
+        137,
+        139
+      ],
+      "FunctionText": "if (@skill.id == 137 or @skill.id == 139)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "aramaic",
+      "ScriptId": 2,
+      "Members": [
+        {
+          "LanguageId": 6,
+          "Name": "Old Arabic",
+          "LinkedTraitId": 137
+        },
+        {
+          "LanguageId": 8,
+          "Name": "Aramaic",
+          "LinkedTraitId": 139
+        },
+        {
+          "LanguageId": 9,
+          "Name": "Coptic",
+          "LinkedTraitId": 140
+        },
+        {
+          "LanguageId": 10,
+          "Name": "Hebrew",
+          "LinkedTraitId": 141
+        },
+        {
+          "LanguageId": 41,
+          "Name": "Parthian",
+          "LinkedTraitId": 172
+        },
+        {
+          "LanguageId": 44,
+          "Name": "Ariya",
+          "LinkedTraitId": 175
+        }
+      ],
+      "AcquisitionProgId": 66,
+      "GeneratedEligibleTraitIds": [
+        137,
+        139,
+        140,
+        141,
+        172,
+        175
+      ],
+      "FunctionText": "if (@skill.id == 137 or @skill.id == 139 or @skill.id == 140 or @skill.id == 141 or @skill.id == 172 or @skill.id == 175)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "coptic",
+      "ScriptId": 3,
+      "Members": [
+        {
+          "LanguageId": 9,
+          "Name": "Coptic",
+          "LinkedTraitId": 140
+        }
+      ],
+      "AcquisitionProgId": 67,
+      "GeneratedEligibleTraitIds": [
+        140
+      ],
+      "FunctionText": "if (@skill.id == 140)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "greek",
+      "ScriptId": 4,
+      "Members": [
+        {
+          "LanguageId": 3,
+          "Name": "Ancient Greek",
+          "LinkedTraitId": 134
+        },
+        {
+          "LanguageId": 4,
+          "Name": "Koine Greek",
+          "LinkedTraitId": 135
+        },
+        {
+          "LanguageId": 9,
+          "Name": "Coptic",
+          "LinkedTraitId": 140
+        },
+        {
+          "LanguageId": 12,
+          "Name": "Ionic Greek",
+          "LinkedTraitId": 143
+        },
+        {
+          "LanguageId": 13,
+          "Name": "Doric Greek",
+          "LinkedTraitId": 144
+        },
+        {
+          "LanguageId": 14,
+          "Name": "Aeolic Greek",
+          "LinkedTraitId": 145
+        },
+        {
+          "LanguageId": 19,
+          "Name": "Illyrian",
+          "LinkedTraitId": 150
+        },
+        {
+          "LanguageId": 20,
+          "Name": "Thracian",
+          "LinkedTraitId": 151
+        },
+        {
+          "LanguageId": 21,
+          "Name": "Dacian",
+          "LinkedTraitId": 152
+        },
+        {
+          "LanguageId": 31,
+          "Name": "Galatian",
+          "LinkedTraitId": 162
+        },
+        {
+          "LanguageId": 39,
+          "Name": "Phrygian",
+          "LinkedTraitId": 170
+        },
+        {
+          "LanguageId": 40,
+          "Name": "Anatolian",
+          "LinkedTraitId": 171
+        },
+        {
+          "LanguageId": 46,
+          "Name": "Scythian",
+          "LinkedTraitId": 177
+        },
+        {
+          "LanguageId": 47,
+          "Name": "Sarmatian",
+          "LinkedTraitId": 178
+        }
+      ],
+      "AcquisitionProgId": 68,
+      "GeneratedEligibleTraitIds": [
+        134,
+        135,
+        140,
+        143,
+        144,
+        145,
+        150,
+        151,
+        152,
+        162,
+        170,
+        171,
+        177,
+        178
+      ],
+      "FunctionText": "if (@skill.id == 134 or @skill.id == 135 or @skill.id == 140 or @skill.id == 143 or @skill.id == 144 or @skill.id == 145 or @skill.id == 150 or @skill.id == 151)\n  return true\nend if\nif (@skill.id == 152 or @skill.id == 162 or @skill.id == 170 or @skill.id == 171 or @skill.id == 177 or @skill.id == 178)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "hebrew",
+      "ScriptId": 5,
+      "Members": [
+        {
+          "LanguageId": 8,
+          "Name": "Aramaic",
+          "LinkedTraitId": 139
+        },
+        {
+          "LanguageId": 10,
+          "Name": "Hebrew",
+          "LinkedTraitId": 141
+        }
+      ],
+      "AcquisitionProgId": 69,
+      "GeneratedEligibleTraitIds": [
+        139,
+        141
+      ],
+      "FunctionText": "if (@skill.id == 139 or @skill.id == 141)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "latin",
+      "ScriptId": 6,
+      "Members": [
+        {
+          "LanguageId": 2,
+          "Name": "Latin",
+          "LinkedTraitId": 133
+        },
+        {
+          "LanguageId": 5,
+          "Name": "Basque",
+          "LinkedTraitId": 136
+        },
+        {
+          "LanguageId": 11,
+          "Name": "Lusitanian",
+          "LinkedTraitId": 142
+        },
+        {
+          "LanguageId": 15,
+          "Name": "Etruscan",
+          "LinkedTraitId": 146
+        },
+        {
+          "LanguageId": 16,
+          "Name": "Oscan",
+          "LinkedTraitId": 147
+        },
+        {
+          "LanguageId": 17,
+          "Name": "Umbrian",
+          "LinkedTraitId": 148
+        },
+        {
+          "LanguageId": 18,
+          "Name": "Venetic",
+          "LinkedTraitId": 149
+        },
+        {
+          "LanguageId": 19,
+          "Name": "Illyrian",
+          "LinkedTraitId": 150
+        },
+        {
+          "LanguageId": 20,
+          "Name": "Thracian",
+          "LinkedTraitId": 151
+        },
+        {
+          "LanguageId": 21,
+          "Name": "Dacian",
+          "LinkedTraitId": 152
+        },
+        {
+          "LanguageId": 22,
+          "Name": "Phoenician",
+          "LinkedTraitId": 153
+        },
+        {
+          "LanguageId": 23,
+          "Name": "Gaulish",
+          "LinkedTraitId": 154
+        },
+        {
+          "LanguageId": 24,
+          "Name": "Ligurian",
+          "LinkedTraitId": 155
+        },
+        {
+          "LanguageId": 25,
+          "Name": "Raetic",
+          "LinkedTraitId": 156
+        },
+        {
+          "LanguageId": 26,
+          "Name": "Brittonic",
+          "LinkedTraitId": 157
+        },
+        {
+          "LanguageId": 27,
+          "Name": "Goidelic",
+          "LinkedTraitId": 158
+        },
+        {
+          "LanguageId": 28,
+          "Name": "Pictish",
+          "LinkedTraitId": 159
+        },
+        {
+          "LanguageId": 29,
+          "Name": "Celtiberian",
+          "LinkedTraitId": 160
+        },
+        {
+          "LanguageId": 30,
+          "Name": "Gallaecian",
+          "LinkedTraitId": 161
+        },
+        {
+          "LanguageId": 31,
+          "Name": "Galatian",
+          "LinkedTraitId": 162
+        },
+        {
+          "LanguageId": 32,
+          "Name": "Iberian",
+          "LinkedTraitId": 163
+        },
+        {
+          "LanguageId": 33,
+          "Name": "Tartessian",
+          "LinkedTraitId": 164
+        },
+        {
+          "LanguageId": 34,
+          "Name": "Aquitanian",
+          "LinkedTraitId": 165
+        },
+        {
+          "LanguageId": 35,
+          "Name": "Nuragic",
+          "LinkedTraitId": 166
+        },
+        {
+          "LanguageId": 36,
+          "Name": "Corsican",
+          "LinkedTraitId": 167
+        },
+        {
+          "LanguageId": 42,
+          "Name": "Belgic",
+          "LinkedTraitId": 173
+        },
+        {
+          "LanguageId": 43,
+          "Name": "Germanic",
+          "LinkedTraitId": 174
+        }
+      ],
+      "AcquisitionProgId": 70,
+      "GeneratedEligibleTraitIds": [
+        133,
+        136,
+        142,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        173,
+        174
+      ],
+      "FunctionText": "if (@skill.id == 133 or @skill.id == 136 or @skill.id == 142 or @skill.id == 146 or @skill.id == 147 or @skill.id == 148 or @skill.id == 149 or @skill.id == 150)\n  return true\nend if\nif (@skill.id == 151 or @skill.id == 152 or @skill.id == 153 or @skill.id == 154 or @skill.id == 155 or @skill.id == 156 or @skill.id == 157 or @skill.id == 158)\n  return true\nend if\nif (@skill.id == 159 or @skill.id == 160 or @skill.id == 161 or @skill.id == 162 or @skill.id == 163 or @skill.id == 164 or @skill.id == 165 or @skill.id == 166)\n  return true\nend if\nif (@skill.id == 167 or @skill.id == 173 or @skill.id == 174)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "pahlavi",
+      "ScriptId": 7,
+      "Members": [
+        {
+          "LanguageId": 7,
+          "Name": "Persian",
+          "LinkedTraitId": 138
+        }
+      ],
+      "AcquisitionProgId": 71,
+      "GeneratedEligibleTraitIds": [
+        138
+      ],
+      "FunctionText": "if (@skill.id == 138)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Ashurit",
+      "ScriptId": 16,
+      "Members": [
+        {
+          "LanguageId": 10,
+          "Name": "Hebrew",
+          "LinkedTraitId": 141
+        }
+      ],
+      "AcquisitionProgId": 80,
+      "GeneratedEligibleTraitIds": [
+        141
+      ],
+      "FunctionText": "if (@skill.id == 141)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Carian",
+      "ScriptId": 10,
+      "Members": [
+        {
+          "LanguageId": 40,
+          "Name": "Anatolian",
+          "LinkedTraitId": 171
+        }
+      ],
+      "AcquisitionProgId": 74,
+      "GeneratedEligibleTraitIds": [
+        171
+      ],
+      "FunctionText": "if (@skill.id == 171)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Demotic",
+      "ScriptId": 25,
+      "Members": [
+        {
+          "LanguageId": 9,
+          "Name": "Coptic",
+          "LinkedTraitId": 140
+        },
+        {
+          "LanguageId": 37,
+          "Name": "Demotic",
+          "LinkedTraitId": 168
+        },
+        {
+          "LanguageId": 45,
+          "Name": "Classical Egyptian",
+          "LinkedTraitId": 176
+        }
+      ],
+      "AcquisitionProgId": 89,
+      "GeneratedEligibleTraitIds": [
+        140,
+        168,
+        176
+      ],
+      "FunctionText": "if (@skill.id == 140 or @skill.id == 168 or @skill.id == 176)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Egyptian Hieroglyhpic",
+      "ScriptId": 23,
+      "Members": [
+        {
+          "LanguageId": 45,
+          "Name": "Classical Egyptian",
+          "LinkedTraitId": 176
+        }
+      ],
+      "AcquisitionProgId": 87,
+      "GeneratedEligibleTraitIds": [
+        176
+      ],
+      "FunctionText": "if (@skill.id == 176)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Etruscan",
+      "ScriptId": 12,
+      "Members": [
+        {
+          "LanguageId": 15,
+          "Name": "Etruscan",
+          "LinkedTraitId": 146
+        },
+        {
+          "LanguageId": 16,
+          "Name": "Oscan",
+          "LinkedTraitId": 147
+        },
+        {
+          "LanguageId": 17,
+          "Name": "Umbrian",
+          "LinkedTraitId": 148
+        },
+        {
+          "LanguageId": 25,
+          "Name": "Raetic",
+          "LinkedTraitId": 156
+        }
+      ],
+      "AcquisitionProgId": 76,
+      "GeneratedEligibleTraitIds": [
+        146,
+        147,
+        148,
+        156
+      ],
+      "FunctionText": "if (@skill.id == 146 or @skill.id == 147 or @skill.id == 148 or @skill.id == 156)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Greco-Iberian",
+      "ScriptId": 20,
+      "Members": [
+        {
+          "LanguageId": 32,
+          "Name": "Iberian",
+          "LinkedTraitId": 163
+        }
+      ],
+      "AcquisitionProgId": 84,
+      "GeneratedEligibleTraitIds": [
+        163
+      ],
+      "FunctionText": "if (@skill.id == 163)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Hieratic",
+      "ScriptId": 24,
+      "Members": [
+        {
+          "LanguageId": 45,
+          "Name": "Classical Egyptian",
+          "LinkedTraitId": 176
+        }
+      ],
+      "AcquisitionProgId": 88,
+      "GeneratedEligibleTraitIds": [
+        176
+      ],
+      "FunctionText": "if (@skill.id == 176)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Levantine Iberian",
+      "ScriptId": 19,
+      "Members": [
+        {
+          "LanguageId": 29,
+          "Name": "Celtiberian",
+          "LinkedTraitId": 160
+        },
+        {
+          "LanguageId": 32,
+          "Name": "Iberian",
+          "LinkedTraitId": 163
+        }
+      ],
+      "AcquisitionProgId": 83,
+      "GeneratedEligibleTraitIds": [
+        160,
+        163
+      ],
+      "FunctionText": "if (@skill.id == 160 or @skill.id == 163)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Lydian",
+      "ScriptId": 9,
+      "Members": [
+        {
+          "LanguageId": 40,
+          "Name": "Anatolian",
+          "LinkedTraitId": 171
+        }
+      ],
+      "AcquisitionProgId": 73,
+      "GeneratedEligibleTraitIds": [
+        171
+      ],
+      "FunctionText": "if (@skill.id == 171)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Meridional",
+      "ScriptId": 18,
+      "Members": [
+        {
+          "LanguageId": 32,
+          "Name": "Iberian",
+          "LinkedTraitId": 163
+        }
+      ],
+      "AcquisitionProgId": 82,
+      "GeneratedEligibleTraitIds": [
+        163
+      ],
+      "FunctionText": "if (@skill.id == 163)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Meroitic",
+      "ScriptId": 26,
+      "Members": [
+        {
+          "LanguageId": 48,
+          "Name": "Meroitic",
+          "LinkedTraitId": 179
+        }
+      ],
+      "AcquisitionProgId": 90,
+      "GeneratedEligibleTraitIds": [
+        179
+      ],
+      "FunctionText": "if (@skill.id == 179)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Nabatean",
+      "ScriptId": 14,
+      "Members": [
+        {
+          "LanguageId": 6,
+          "Name": "Old Arabic",
+          "LinkedTraitId": 137
+        }
+      ],
+      "AcquisitionProgId": 78,
+      "GeneratedEligibleTraitIds": [
+        137
+      ],
+      "FunctionText": "if (@skill.id == 137)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Neo-Assyrian Cuneiform",
+      "ScriptId": 21,
+      "Members": [
+        {
+          "LanguageId": 41,
+          "Name": "Parthian",
+          "LinkedTraitId": 172
+        },
+        {
+          "LanguageId": 44,
+          "Name": "Ariya",
+          "LinkedTraitId": 175
+        }
+      ],
+      "AcquisitionProgId": 85,
+      "GeneratedEligibleTraitIds": [
+        172,
+        175
+      ],
+      "FunctionText": "if (@skill.id == 172 or @skill.id == 175)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Persian Cuneiform",
+      "ScriptId": 22,
+      "Members": [
+        {
+          "LanguageId": 41,
+          "Name": "Parthian",
+          "LinkedTraitId": 172
+        },
+        {
+          "LanguageId": 44,
+          "Name": "Ariya",
+          "LinkedTraitId": 175
+        }
+      ],
+      "AcquisitionProgId": 86,
+      "GeneratedEligibleTraitIds": [
+        172,
+        175
+      ],
+      "FunctionText": "if (@skill.id == 172 or @skill.id == 175)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Phoenician",
+      "ScriptId": 15,
+      "Members": [
+        {
+          "LanguageId": 8,
+          "Name": "Aramaic",
+          "LinkedTraitId": 139
+        },
+        {
+          "LanguageId": 10,
+          "Name": "Hebrew",
+          "LinkedTraitId": 141
+        },
+        {
+          "LanguageId": 22,
+          "Name": "Phoenician",
+          "LinkedTraitId": 153
+        }
+      ],
+      "AcquisitionProgId": 79,
+      "GeneratedEligibleTraitIds": [
+        139,
+        141,
+        153
+      ],
+      "FunctionText": "if (@skill.id == 139 or @skill.id == 141 or @skill.id == 153)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Phrygian",
+      "ScriptId": 8,
+      "Members": [
+        {
+          "LanguageId": 39,
+          "Name": "Phrygian",
+          "LinkedTraitId": 170
+        }
+      ],
+      "AcquisitionProgId": 72,
+      "GeneratedEligibleTraitIds": [
+        170
+      ],
+      "FunctionText": "if (@skill.id == 170)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Sidetic",
+      "ScriptId": 11,
+      "Members": [
+        {
+          "LanguageId": 40,
+          "Name": "Anatolian",
+          "LinkedTraitId": 171
+        }
+      ],
+      "AcquisitionProgId": 75,
+      "GeneratedEligibleTraitIds": [
+        171
+      ],
+      "FunctionText": "if (@skill.id == 171)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "source.earthantiquity.script.Tartesian",
+      "ScriptId": 17,
+      "Members": [
+        {
+          "LanguageId": 33,
+          "Name": "Tartessian",
+          "LinkedTraitId": 164
+        }
+      ],
+      "AcquisitionProgId": 81,
+      "GeneratedEligibleTraitIds": [
+        164
+      ],
+      "FunctionText": "if (@skill.id == 164)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    },
+    {
+      "StableKey": "syriac",
+      "ScriptId": 13,
+      "Members": [
+        {
+          "LanguageId": 6,
+          "Name": "Old Arabic",
+          "LinkedTraitId": 137
+        },
+        {
+          "LanguageId": 8,
+          "Name": "Aramaic",
+          "LinkedTraitId": 139
+        },
+        {
+          "LanguageId": 10,
+          "Name": "Hebrew",
+          "LinkedTraitId": 141
+        },
+        {
+          "LanguageId": 41,
+          "Name": "Parthian",
+          "LinkedTraitId": 172
+        },
+        {
+          "LanguageId": 44,
+          "Name": "Ariya",
+          "LinkedTraitId": 175
+        }
+      ],
+      "AcquisitionProgId": 77,
+      "GeneratedEligibleTraitIds": [
+        137,
+        139,
+        141,
+        172,
+        175
+      ],
+      "FunctionText": "if (@skill.id == 137 or @skill.id == 139 or @skill.id == 141 or @skill.id == 172 or @skill.id == 175)\n  return true\nend if\nreturn false",
+      "MatchesStockGraph": true
+    }
+  ]
+}

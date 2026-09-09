@@ -1,0 +1,2906 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86",
+  "method": "Explicitly authored forms and temporal eligibility; no fabricated historical attestations.",
+  "actions": [
+    {
+      "entry": "names.target.finnish.m.r2.001",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.002",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.003",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.004",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.005",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.006",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.007",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.008",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.009",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.010",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.011",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.012",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.013",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.014",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.015",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.016",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.017",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.018",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.019",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.020",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.001",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.002",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.003",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.004",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.005",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.006",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.007",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.008",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.009",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.010",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.011",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.012",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.013",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.014",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.015",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.016",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.017",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.018",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.019",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.f.r2.020",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.021",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.022",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.023",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.024",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.025",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.026",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.027",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.finnish.m.r2.028",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.001",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.002",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.003",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.004",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.005",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.006",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.007",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.008",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.009",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.010",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.011",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.012",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.013",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.014",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.015",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.016",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.017",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.018",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.019",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.m.r2.020",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.001",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.002",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.003",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.004",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.005",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.006",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.007",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.008",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.009",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.010",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.011",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.012",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.013",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.014",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.015",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.016",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.017",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.018",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.019",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.lithuanian.f.r2.020",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.latvian.m.001",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.002",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.003",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.004",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.005",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.006",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.007",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.008",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.009",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.010",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.011",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.012",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.013",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.014",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.015",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.016",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.017",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.018",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.019",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.020",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.021",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.022",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.023",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.024",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.025",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.026",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.027",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.028",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.m.030",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.001",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.002",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.003",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.004",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.005",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.006",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.007",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.008",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.009",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.010",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.011",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.012",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.013",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.014",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.latvian.f.r2.001",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.latvian.f.r2.002",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.latvian.f.r2.003",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.latvian.f.r2.004",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.latvian.f.r2.005",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.latvian.f.r2.006",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.001",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.002",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.003",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.004",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.005",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.006",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.007",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.008",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.009",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.010",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.011",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.012",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.013",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.014",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.015",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.016",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.017",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.018",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.019",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.r2.020",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.001",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.002",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.003",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.004",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.005",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.006",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.007",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.008",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.009",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.010",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.011",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.012",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.013",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.014",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.015",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.016",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.017",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.018",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.019",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.020",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.m.001",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.002",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.003",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.004",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.005",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.006",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.007",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.008",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.009",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.010",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.011",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.012",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.013",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.014",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.015",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.016",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.017",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.018",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.019",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.m.020",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.f.005",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.f.009",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.f.010",
+      "action": "temporal-extension",
+      "eras": [
+        "medieval"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.estonian.f.r2.021",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.022",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.023",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.024",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.025",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.026",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.027",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.028",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.029",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.estonian.f.r2.030",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.m.001",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.002",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.003",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.004",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.005",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.006",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.007",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.008",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.009",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.010",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.011",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.012",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.013",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.014",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.015",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.016",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.017",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.018",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.019",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.020",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.021",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.022",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.023",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.024",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.025",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.026",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.027",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.028",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.029",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.m.030",
+      "action": "temporal-extension",
+      "eras": [
+        "darkages",
+        "earlymodern"
+      ],
+      "original_evidence_unchanged": true
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.001",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.002",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.003",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.004",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.005",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.006",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.007",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.008",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.009",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.010",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.011",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.012",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.013",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.014",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.015",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.016",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.017",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.018",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.019",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.020",
+      "action": "addition",
+      "classification": "editorial-reconstruction",
+      "eras": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.021",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.022",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.023",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.024",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.025",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.old-prussian.f.r2.026",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.m.r2.001",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.m.r2.002",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.m.r2.003",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.m.r2.004",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.m.r2.005",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.m.r2.006",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.001",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.002",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.003",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.004",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.005",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.006",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.007",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.008",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.009",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.010",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.011",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.012",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.013",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.014",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.015",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.016",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.017",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.018",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.019",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.r2.020",
+      "action": "addition",
+      "classification": "regional-borrowing",
+      "eras": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "source_claim": "model only; full form and gender not asserted as attested"
+    },
+    {
+      "entry": "names.target.romanian.f.010",
+      "action": "deactivate-birthname",
+      "reason": "Source labels it as a byname; raw evidence preserved."
+    }
+  ]
+}

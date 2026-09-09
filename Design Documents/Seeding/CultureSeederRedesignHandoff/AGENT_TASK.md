@@ -1,5 +1,8 @@
 # Codex task: implement the complete CultureSeeder redesign
 
+> Round-two update: the corrective brief in [CultureSeederRound2Handoff](../CultureSeederRound2Handoff/AGENT_TASK.md) supersedes earlier naming activation gates and resource totals below. The runtime catalogue now has 28 required inputs and 585 name entries, including 389 unchanged evidence entries and 196 approved fictional profile entries. All 58 playable gender/era cells meet the 20-family floor; Old Prussian feminine profiles are enabled. Earlier evidence limitations remain historical notes, not activation blockers.
+
+
 Use this archive as the content and implementation specification. Begin with `01_DESIGN_DECISIONS.md` and `02_IMPLEMENTATION_BRIEF.md`. Existing filenames are intentional; this is the final-decision revision of the earlier handoff.
 
 ## Baseline

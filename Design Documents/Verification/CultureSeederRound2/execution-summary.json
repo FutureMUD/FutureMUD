@@ -1,0 +1,33 @@
+{
+  "ImplementationCommit": "e052681cf6efd6170c3d776afd9ff8b45474fec1",
+  "FinalCommandSummaries": {
+    "round2-seeder-complete.log": [
+      "Passed!  - Failed:     0, Passed:   853, Skipped:     0, Total:   853, Duration: 2 m 57 s - DatabaseSeeder Unit Tests.dll (net10.0)"
+    ],
+    "round2-core-complete.log": [
+      "Passed!  - Failed:     0, Passed:  3060, Skipped:     0, Total:  3060, Duration: 46 s - MudSharpCore Unit Tests.dll (net10.0)"
+    ],
+    "round2-seeder-focused-final.log": [
+      "Passed!  - Failed:     0, Passed:    65, Skipped:     0, Total:    65, Duration: 17 s - DatabaseSeeder Unit Tests.dll (net10.0)"
+    ],
+    "round2-core-focused-final.log": [
+      "Passed!  - Failed:     0, Passed:    25, Skipped:     0, Total:    25, Duration: 11 s - MudSharpCore Unit Tests.dll (net10.0)"
+    ],
+    "round2-release-complete.log": [
+      "Build succeeded.",
+      "0 Warning(s)",
+      "0 Error(s)",
+      "Time Elapsed 00:00:13.87"
+    ],
+    "round2-receipts-build.log": [
+      "Build succeeded.",
+      "3 Warning(s)",
+      "0 Error(s)",
+      "Time Elapsed 00:00:36.58"
+    ]
+  },
+  "HandoffZipSha256": "406c69dc36a0452b4869e48240b303f6ad3994fddd20a48263767ca70b4a218f",
+  "CommittedHandoffByteHashesVerified": 20,
+  "CommittedRuntimeByteHashesVerified": 28,
+  "InteractiveRoundTwoTelnet": "not run"
+}

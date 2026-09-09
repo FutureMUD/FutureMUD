@@ -21,6 +21,38 @@ public sealed record CultureLanguageCandidates(IReadOnlyList<string> CanonicalKe
 /// </summary>
 public sealed class CultureToolkitCatalogue
 {
+	public static IReadOnlyList<string> RequiredDocuments { get; } = Array.AsReadOnly(new[]
+	{
+		"data.accent_era_policy.json",
+		"data.catalogue_statistics.json",
+		"data.eras.json",
+		"data.ethnicity_language_defaults.json",
+		"data.ethnicity_reframing_overlay.json",
+		"data.final_decisions.json",
+		"data.language_choice_groups.json",
+		"data.language_grant_policy.json",
+		"data.language_identity_and_labels.json",
+		"data.language_starting_value_prog_contract.json",
+		"data.latin1_fallback_specification.json",
+		"data.legacy_native_language_rules.json",
+		"data.literacy_script_grants.json",
+		"data.mutual_intelligibility.json",
+		"data.name_playability_policy.json",
+		"data.naming_pattern_tests.json",
+		"data.naming_reuse_ledger.json",
+		"data.player_prose_policy.json",
+		"data.script_policy.json",
+		"data.skill_group_selection_specification.json",
+		"data.skill_groups.json",
+		"data.social_cultures.json",
+		"data.targeted_name_corpora.json",
+		"data.vernacular_selectors.json",
+		"research.latvian_documentary_name_specimen.json",
+		"research.prose_revision_ledger.json",
+		"research.review_gates.json",
+		"research.sources.json",
+	});
+
 	private readonly Dictionary<string, JsonElement> _documents = new(StringComparer.Ordinal);
 	private static readonly IReadOnlyDictionary<string, double> Factors = new Dictionary<string, double>
 	{
@@ -36,12 +68,39 @@ public sealed class CultureToolkitCatalogue
 		{
 			using var stream = assembly.GetManifestResourceStream(resource)!;
 			using var document = JsonDocument.Parse(stream);
+			ValidateJson(document.RootElement, resource);
 			_documents.Add(resource["CultureToolkit.".Length..], document.RootElement.Clone());
 		}
-		if (_documents.Count != 26)
+		ValidateRequiredDocuments(_documents.Keys);
+	}
+
+	private static void ValidateJson(JsonElement value, string path)
+	{
+		if (value.ValueKind == JsonValueKind.Object)
 		{
-			throw new InvalidDataException("Culture toolkit requires the complete 22 data and 4 research documents.");
+			var names = new HashSet<string>(StringComparer.Ordinal);
+			foreach (var property in value.EnumerateObject())
+			{
+				if (!names.Add(property.Name)) throw new InvalidDataException($"Duplicate JSON property: {path}.{property.Name}");
+				ValidateJson(property.Value, $"{path}.{property.Name}");
+			}
 		}
+		else if (value.ValueKind == JsonValueKind.Array)
+		{
+			var keys = new HashSet<string>(StringComparer.Ordinal);
+			foreach (var element in value.EnumerateArray())
+			{
+				if (element.ValueKind == JsonValueKind.Object && element.TryGetProperty("key", out var key) &&
+					!keys.Add(key.GetString()!)) throw new InvalidDataException($"Duplicate JSON key: {path}:{key}");
+				ValidateJson(element, path);
+			}
+		}
+	}
+
+	public static void ValidateRequiredDocuments(IEnumerable<string> names)
+	{
+		var missing = RequiredDocuments.Except(names, StringComparer.Ordinal).ToArray();
+		if (missing.Length > 0) throw new InvalidDataException("Missing culture toolkit documents: " + string.Join(", ", missing));
 	}
 
 	public JsonElement Document(string name) => _documents.TryGetValue(name, out var value)

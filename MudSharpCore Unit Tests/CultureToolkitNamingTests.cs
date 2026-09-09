@@ -78,6 +78,7 @@ public class CultureToolkitNamingTests
 		foreach (var era in new[] { "darkages", "medieval", "renaissance", "earlymodern" })
 		foreach (var repertoire in CultureToolkitNameCatalogue.Build(catalogue, era))
 		{
+			repertoire.Culture.Id = 1;
 			var culture = new NameCulture(repertoire.Culture, World().Object);
 			foreach (var profile in culture.RandomNameProfiles)
 			{
@@ -85,6 +86,13 @@ public class CultureToolkitNamingTests
 				var source = repertoire.Culture.RandomNameProfiles.Single(x => x.Name == profile.Name)
 					.RandomNameProfilesElements.Where(x => x.NameUsage == (int)NameUsage.BirthName)
 					.Select(x => x.Name).ToHashSet();
+				foreach (var fullForm in source)
+				{
+					var parsed = culture.GetPersonalName(fullForm, true);
+					Assert.IsNotNull(parsed, $"{era}:{profile.Name}:{fullForm}");
+					Assert.AreEqual(fullForm, parsed.GetName(NameStyle.FullName));
+					Assert.AreEqual(fullForm, new PersonalName(culture, parsed.SaveToXml()).GetName(NameStyle.FullName));
+				}
 				for (var i = 0; i < 20; i++)
 				{
 					var name = profile.GetRandomPersonalName(true).GetName(NameStyle.FullName);
@@ -93,8 +101,8 @@ public class CultureToolkitNamingTests
 			}
 			if (repertoire.StableKey == "names.target.old-prussian")
 			{
-				Assert.IsFalse(culture.RandomNameProfiles.Any(x => x.Gender == Gender.Female));
-				Assert.IsTrue(repertoire.Exclusions.Any(x => x.Contains(":female:")));
+				Assert.IsTrue(culture.RandomNameProfiles.Any(x => x.Gender == Gender.Female));
+				Assert.IsFalse(repertoire.Exclusions.Any(x => x.Contains(":female:")));
 			}
 		}
 	}

@@ -1,0 +1,514 @@
+{
+  "schema_version": 1,
+  "scope": "Toolkit-owned accent creation, availability and default selection; not global language evolution.",
+  "source_module_defaults": {
+    "earthantiquity": [
+      "antiquity",
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "earthdarkagesandmedieval": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "earthrenaissanceeurope": [
+      "medieval",
+      "renaissance",
+      "earlymodern"
+    ],
+    "earthrenaissanceworldexpansion": [
+      "renaissance",
+      "earlymodern"
+    ]
+  },
+  "source_language_overrides": [
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Welsh",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Breton",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Cornish",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Basque",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Finnish",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Estonian",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Prussian",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Lithuanian",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Latvian",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Aramaic",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Hebrew",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Coptic",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Armenian",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Persian",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Irish Gaelic",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Scottish Gaelic",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_language": "Armenian",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_language": "Georgian",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_language": "Kurmanji Kurdish",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_language": "Gorani",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_language": "Tashelhit",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_language": "Tarifit",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_language": "Kabyle",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_language": "Coptic",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_language": "Persian",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "author_reason": "Retain reusable regional traditions for an earlier installed canonical language. Named late political/reading traditions are still restricted by marker rules."
+    }
+  ],
+  "exact_accent_overrides": [
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Latin",
+      "accent_name": "classical",
+      "allowed_packs": [
+        "antiquity",
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "role": "native-tradition",
+      "author_reason": "Classical Latin pronunciation may be reused before the module that stores it."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Latin",
+      "accent_name": "liturgical",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ],
+      "role": "native-tradition",
+      "author_reason": "The supplied liturgical reading tradition is kept from Dark Ages onward, not made the default for republican Latin."
+    },
+    {
+      "source_pack": "earthrenaissanceeurope",
+      "source_language": "Latin",
+      "accent_name": "neo-classical",
+      "allowed_packs": [
+        "renaissance",
+        "earlymodern"
+      ],
+      "role": "native-tradition",
+      "author_reason": "Humanist reading tradition belongs to Renaissance and Early Modern, although its source record is preserved in other installations."
+    }
+  ],
+  "late_tradition_markers": [
+    {
+      "marker": "carolingian",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "byzantine",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "abbasid",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "fatimid",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "seljuk",
+      "allowed_packs": [
+        "darkages",
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "anglo-norman",
+      "allowed_packs": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "capetian",
+      "allowed_packs": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "ayyubid",
+      "allowed_packs": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "mamluk",
+      "allowed_packs": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "ottoman",
+      "allowed_packs": [
+        "medieval",
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "timurid",
+      "allowed_packs": [
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "safavid",
+      "allowed_packs": [
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "renaissance",
+      "allowed_packs": [
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "humanist",
+      "allowed_packs": [
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "neo-classical",
+      "allowed_packs": [
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "neo classical",
+      "allowed_packs": [
+        "renaissance",
+        "earlymodern"
+      ]
+    },
+    {
+      "marker": "phanariot",
+      "allowed_packs": [
+        "earlymodern"
+      ]
+    }
+  ],
+  "matching": {
+    "case": "OrdinalIgnoreCase",
+    "exact_fields": [
+      "source_pack",
+      "source_language",
+      "accent_name"
+    ],
+    "marker_fields": [
+      "source_accent_name",
+      "source_accent_group"
+    ],
+    "marker_mode": "case-insensitive substring; markers only narrow, never widen",
+    "precedence": [
+      "exact_accent_overrides",
+      "source_language_overrides then intersect matching markers",
+      "source_module_defaults then intersect matching markers"
+    ],
+    "never_match": "player descriptions, display-era language aliases, generated numeric IDs"
+  },
+  "roles": {
+    "learner_or_foreign": "source DefaultLearnerAccent pointer OR group foreign/crude/learner (case-insensitive); explicit source accent names Foreign/Crude/Learner also qualify",
+    "native-tradition": "all other source accents, unless an exact override sets a role; native-tradition does not mean learners can never select it"
+  },
+  "generated_fallback": {
+    "local": "available only for installed canonical language and allowed language era; generated when no era-valid native-tradition candidate exists, even if preserved out-of-era accents exist",
+    "learner": "available for non-native applicants when language is installed; empty native ethnicity set means not-native is true",
+    "stock_learner_role_repair": "replace the unchanged PR732-owned AlwaysFalse pointer by managed role/era eligibility; do not alter independent or builder-edited restrictions"
+  },
+  "availability_rule": "effective era eligibility AND source-specific original predicate AND role predicate; native-tradition role predicate is true; learner/foreign/crude role predicate is NOT ethnic native. No first-eligible fallback may silently grant a native accent to an acquired language.",
+  "original_predicate_policy": "Null source predicate means true. Preserve genuine custom predicates. The documented unchanged PR732-owned synthetic learner AlwaysFalse is a seed defect, not a genuine original restriction.",
+  "state_owner": "One managed AccentAvailability record owns the combined pointer; other scalar passes exclude that field. Preserve edited combined progs and edited pointers using three-way reconciliation.",
+  "no_native_binding_languages": "Evaluate all installed language IDs, not only keys present in the native-ethnicity dictionary.",
+  "partial_seed_policy": "Apply era policy on language-only installs. If heritage has never been installed use an empty native set for role evaluation; a later full run rebuilds it. If heritage already exists preserve/recover its current fixed native bindings on language-only rerun.",
+  "audit_required": "Emit one row per imported/generated accent with source identity, canonical language, role, selected rule, allowed packs, source predicate, effective pointer, builder override and default status. The policy is deliberately broad, not a census of dialect history."
+}

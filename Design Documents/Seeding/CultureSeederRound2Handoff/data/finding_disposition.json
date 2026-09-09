@@ -1,0 +1,49 @@
+{
+  "baseline_commit": "2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86",
+  "pre_redesign_compatibility": "No migration or behavioral compatibility is required for culture-pack installations before PR732. This is a scope rule only; do not add runtime version enforcement.",
+  "findings": [
+    {
+      "id": "R1",
+      "disposition": "waived",
+      "required": "Leave present legacy alias semantics alone; test/document canonical five era choices. No alias migration."
+    },
+    {
+      "id": "R2",
+      "disposition": "legacy-upgrade-case-waived; fresh-install invariant retained",
+      "required": "Do not wrap old external cultures. Verify every active toolkit-created social culture uses the correct native-200 wrapper on a clean full install."
+    },
+    {
+      "id": "R3",
+      "disposition": "fix",
+      "required": "Build script acquisition eligibility from reconciled effective memberships, preserving builder additions/deletions and custom progs."
+    },
+    {
+      "id": "R4",
+      "disposition": "fix; reproducible from fresh source-less stage",
+      "required": "Repair synthetic learner availability, explicit native/acquired default selection, and all-installed-language coverage."
+    },
+    {
+      "id": "R5",
+      "disposition": "fix",
+      "required": "Apply explicit era availability to preserved accents and deterministic fallback/default handling."
+    },
+    {
+      "id": "C1",
+      "disposition": "complete supplied content",
+      "required": "Apply all 14 exact source-native crosswalk rows; 13 Antiquity and retained Albanian."
+    },
+    {
+      "id": "C2",
+      "disposition": "complete supplied speculative content",
+      "required": "Use supplied revised eight-pool repertoire with minimum20 distinct families per gender and active era; Old Prussian female is active."
+    }
+  ],
+  "still_required": [
+    "Preserve original authored source corpus.",
+    "Preserve post-PR732 same-era builder edits and stable IDs.",
+    "Do not rewrite approved characters.",
+    "No new adopted-name or home-language chooser.",
+    "Do not rebuild generic skill groups.",
+    "No global permission to delete or reset live content."
+  ]
+}

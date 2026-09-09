@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86",
+  "cases": [
+    {
+      "id": "R2-01",
+      "topic": "Canonical menu and compatibility scope",
+      "setup": "Clean prerequisites; no pre-PR732 historical entities.",
+      "action": "Resolve each of antiquity, darkages, medieval, renaissance, earlymodern and show their installer choices.",
+      "expected": "All five canonical choices resolve correctly. No legacy migration/version-block feature is added. An old-alias compatibility test is not an acceptance blocker.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-02",
+      "topic": "Fresh native-200 invariant",
+      "setup": "Clean full toolkit for each era, stock original starting prog/caps, each toolkit-created culture and a resolved native ethnicity.",
+      "action": "Execute the actual culture starting prog and capped creation path for native, acquired and non-language skills; add one paid-boost case and a stronger independent value.",
+      "expected": "Unboosted native 200; existing 180/150/100/50 tiers when applicable; original non-language result; original boost delta once; stronger independent value retained. No blanket wrapper for unrelated custom cultures.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-03",
+      "topic": "Deleted script member",
+      "setup": "Full current toolkit; Latin script with English member and unchanged generated acquisition prog.",
+      "action": "Delete only the membership, rerun twice, compile/execute the actual prog for English.",
+      "expected": "Membership stays absent and English is false. Default prog generation must not use desired members before reconciliation.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-04",
+      "topic": "Builder-added script member",
+      "setup": "R2-03 plus a custom language/skill not in toolkit canonical data.",
+      "action": "Add that actual language to the script, rerun, execute acquisition for its linked trait.",
+      "expected": "Custom membership survives and generated prog returns true for its real linked trait. No canonical-key requirement for a builder-added language.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-05",
+      "topic": "Empty script graph",
+      "setup": "A managed script after builder deletes all of its memberships; default prog remains unedited.",
+      "action": "Rerun and evaluate unrelated sample traits.",
+      "expected": "Empty effective graph generates false, with no hidden desired-language fallback.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-06",
+      "topic": "Custom script acquisition",
+      "setup": "Separate fixtures: custom knowledge acquisition pointer; edited body of the stock generated prog.",
+      "action": "Rerun with desired graph changes.",
+      "expected": "Pointer/body edits survive, appear as overrides and are not claimed as stock graph equivalence.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-07",
+      "topic": "Atomic script failure",
+      "setup": "Relational caller-owned transaction and a deliberately invalid generated-reference/compile fixture.",
+      "action": "Fail after membership reconciliation but before successful completion.",
+      "expected": "Transaction rolls back script, knowledge, membership and prog changes together. No partly active graph survives.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-08",
+      "topic": "Fresh synthetic learner",
+      "setup": "Fresh Early Modern pack creating english.earlymodern without a retained source language row.",
+      "action": "Inspect DefaultLearnerAccent and execute its actual availability for Welsh non-native and English-native applicants; inspect eligible native candidates.",
+      "expected": "Welsh non-native has a usable learner default; native applicant has an eligible native/regional candidate and is not offered the stock learner role. Never left at unchanged AlwaysFalse.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-09",
+      "topic": "NPC accent provenance",
+      "setup": "R2-08 with opt-in generated templates, fixed generation seed and no manual accent.",
+      "action": "Generate one ethnic native and one acquired-language speaker, then repeat with saved manual accents.",
+      "expected": "Native picks eligible native/regional; acquired picks learner path. Manual/saved accents remain authoritative. No fallback to arbitrary native accent because learner is blocked.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-10",
+      "topic": "No-native-ethnicity language",
+      "setup": "Installed learned-only fixture language with no native mapping rows.",
+      "action": "Seed policies and generate a non-native learner.",
+      "expected": "Empty native set is supported; learner/default policy is still created and evaluated. The accent pass does not skip this language.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-11",
+      "topic": "Current stock repair versus custom false",
+      "setup": "A PR732-owned synthetic learner still at its unchanged AlwaysFalse baseline; separate fixture with edited/custom predicate.",
+      "action": "Apply round-two rerun.",
+      "expected": "Unchanged stock false is repaired. Genuine custom pointer/body and unowned accents are preserved and reported, not globally cleared.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-12",
+      "topic": "Optional installation ordering",
+      "setup": "Clean prerequisites for one source-less-stage pack.",
+      "action": "Languages-only -> full -> languages-only -> full; capture accent IDs, predicates and native maps at each step.",
+      "expected": "Era eligibility applies from first installation; after heritage exists later language-only runs do not erase native restrictions; stable IDs, no duplicate predicates, final graph equals direct full installation apart from audit timestamps.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-13",
+      "topic": "Explicit Latin era rules",
+      "setup": "Import retained source Latin traditions into separate fresh Antiquity, Dark Ages, Renaissance and Early Modern worlds.",
+      "action": "Evaluate retained RenaissanceEurope Classical/Liturgical/Neo-Classical accents and DarkAges Carolingian with unmodified predicates.",
+      "expected": "Classical allowed in Antiquity; Liturgical/Carolingian absent from stock Antiquity choices but allowed from Dark Ages; Neo-Classical unavailable until Renaissance. Source definitions remain retained.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-14",
+      "topic": "Fallback with preserved ineligible natives",
+      "setup": "A canonical language with preserved native-tradition rows but none era-eligible in a fixture.",
+      "action": "Seed the selected era.",
+      "expected": "Create/reuse canonical local fallback despite presence of ineligible source rows. Keep old rows unavailable. A builder-disabled fallback is not silently revived.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-15",
+      "topic": "Single accent-field owner",
+      "setup": "Full pack with combined managed era/role predicates and one edited combined predicate/default pointer.",
+      "action": "Run twice, comparing stable IDs, unedited predicate bodies and edited values.",
+      "expected": "No competing writers or recursive wrappers; untouched results stable, custom changes retained and reported.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-16",
+      "topic": "All Antiquity native bindings",
+      "setup": "Fresh full Antiquity, all 56 exact source ethnicity identities.",
+      "action": "Resolve/activate all and execute free-skill and starting-value progs for each of the 13 new rows.",
+      "expected": "56 of 56 source identities have resolved native references. Each new mapping grants its exact supplied installed language at 200; no synonym duplicate language is created.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-17",
+      "topic": "Retained Albanian",
+      "setup": "Fresh Medieval, Renaissance and Early Modern worlds.",
+      "action": "Resolve source.earthrenaissanceeurope.ethnicity.Albanian.",
+      "expected": "All three use canonical albanian, not a name-culture guess or a ruler language. Ethnicity is not left disabled solely for missing mapping.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-18",
+      "topic": "Crosswalk failure handling",
+      "setup": "Fixtures with duplicate same source/name/era rules, misspelled language key and unrelated out-of-scope ethnicity.",
+      "action": "Preflight and attempt install.",
+      "expected": "Invalid applicable rules fail before activation/commit; unrelated unresolved identities are not blanket enabled. Exact source identities are included in diagnostics.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-19",
+      "topic": "All 58 playable name cells",
+      "setup": "Load revised source definitions before DB writes.",
+      "action": "Compose each required pool/era/gender from name_playability_policy.json.",
+      "expected": "At least 20 distinct family keys and displays per cell after playable filtering; positive effective weights; no inflation by orthographic variants; exact delivered count receipt.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-20",
+      "topic": "Old Prussian feminine activation",
+      "setup": "All four eras supporting ethnicity.old-prussian.",
+      "action": "Build/persist male, female and shared profiles; exercise female suggestions and generated names.",
+      "expected": "Female profile enabled with supplied reconstructed core (20 in Dark Ages;26 in later packs), correct gender link and no fallback to unrelated names. Male remains populated.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-21",
+      "topic": "Evidence not rewritten",
+      "setup": "Read the original389-entry evidence snapshot plus revised corpus.",
+      "action": "Compare every original field; inspect added forms and deactivated Botezata entry.",
+      "expected": "Original evidence/date/packs/weights unchanged. Added full forms claim no attestation. Botezata remains in evidence but is not selected as BirthName. No false source citation.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-22",
+      "topic": "Playable weights and builder edits",
+      "setup": "An unchanged PR732 targeted profile; a separate copy with deleted original element, altered weight and custom added element.",
+      "action": "Apply revised catalogue twice, then compute effective counts and weights.",
+      "expected": "New stock forms installed by stable keys; original applicable weights retained; specified editorial weights used by era. Custom deletion/weight/addition persist; floor does not undo builder customizations.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-23",
+      "topic": "Actual name rendering",
+      "setup": "All active full forms including Bar Sauma, apostrophes and Latin-1 names, with optional byname zero/one.",
+      "action": "Parse and render through actual NameCulture, NamePicker/PersonalName and random generator; reload database name/profile records.",
+      "expected": "No forced surname, spurious space, duplicate suggestion from wrong gender, case damage, non-Latin-1 game display or compound truncation. Neutral repertoire remains separate.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-24",
+      "topic": "Five-era install and rerun",
+      "setup": "Five independent clean prerequisite databases/fixtures.",
+      "action": "Full install then same-era rerun for each; compare counts and keys; also test names-only and heritage/no-language option paths.",
+      "expected": "No new hard-coded missing-resource failures, missing target source dependencies, duplicate IDs or unexpected activation losses. Optional paths are explicitly verified, not assumed.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-25",
+      "topic": "Resource receipt and negative test",
+      "setup": "The existing26 runtime resources plus2 new required inputs.",
+      "action": "Validate all28; remove each new one in a fixture; add an irrelevant extra JSON; corrupt a reference.",
+      "expected": "Exactly identified missing/invalid resources fail; extra count cannot conceal missing input. Documentation and checksum receipts match committed content.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    },
+    {
+      "id": "R2-26",
+      "topic": "Interactive completion check",
+      "setup": "Disposable game seeded with round-two content; ordinary chargen and an educated character fixture.",
+      "action": "Use builder/prog editor, edit one script association, reopen a pending application, choose group/open skills and accents, create a named character, reconnect.",
+      "expected": "No new choice screens, no regressions to group/open selection or boosts, actual final language/accents/names match receipts. Record a transcript or explicitly disclose that this live check was not executed.",
+      "evidence_required": "Run the named C# integration/unit fixture; list command, result and relevant values in the verification report."
+    }
+  ]
+}

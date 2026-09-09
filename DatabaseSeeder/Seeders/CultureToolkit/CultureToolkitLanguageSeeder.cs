@@ -155,16 +155,16 @@ public static class CultureToolkitLanguageSeeder
 					Group = CultureToolkitCatalogue.Text(fallback, "group"), Suffix = CultureToolkitCatalogue.Text(fallback, "suffix"),
 					VagueSuffix = CultureToolkitCatalogue.Text(fallback, "vague_suffix"), Description = CultureToolkitCatalogue.Text(fallback, "description"),
 					Difficulty = (int)Enum.Parse<MudSharp.RPG.Checks.Difficulty>(CultureToolkitCatalogue.Text(fallback, "difficulty"))
-				});
+				}, independentlyManagedFields: new HashSet<string> { nameof(Accent.ChargenAvailabilityProgId) });
 			}
 			if (hasSpecification && sourceRows is not { Length: > 0 })
 			{
-				var learner = writer.Upsert(key + ".accent.learner", new Accent
+				var learnerRecord = CultureToolkitManagedEntities.Find(context, "Accent", key + ".accent.learner");
+				var learner = learnerRecord is not null ? context.Accents.Find(learnerRecord.LogicalId)! : writer.Upsert(key + ".accent.learner", new Accent
 				{
 					LanguageId = language.Id, Name = "Learner", Group = "learner", Suffix = "with a learner's accent",
-					VagueSuffix = "with an unfamiliar accent", Description = "The hesitant pronunciation of someone learning the language.", Difficulty = 6,
-					ChargenAvailabilityProgId = prerequisites.AlwaysFalse.Id
-				});
+					VagueSuffix = "with an unfamiliar accent", Description = "The hesitant pronunciation of someone learning the language.", Difficulty = 6
+				}, independentlyManagedFields: new HashSet<string> { nameof(Accent.ChargenAvailabilityProgId) });
 				if (existing is null && language.DefaultLearnerAccentId is null) language.DefaultLearnerAccentId = learner.Id;
 			}
 			context.SaveChanges();

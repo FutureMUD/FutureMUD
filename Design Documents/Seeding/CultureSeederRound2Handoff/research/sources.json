@@ -1,0 +1,252 @@
+[
+  {
+    "id": "H22",
+    "title": "Rebecca Lucas: Some names from 15-17th century Latvia",
+    "url": "https://www.s-gabriel.org/names/ffride/latvian_bynames.html",
+    "scope": "Dated forms in German-language records, distinguished from modern Latvian headings; a small feminine inventory is not proof that the culture is poorly documented.",
+    "kind": "research",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N01",
+    "title": "Finnish names in historical records — Lea Viljanen",
+    "url": "https://heraldry.sca.org/names/FinnishNamesArticle.htm",
+    "scope": "Individual dated forms transcribed from Finnish medieval/early modern records, including Latin and Swedish documentary spellings. Not a census of ethnic Finns.",
+    "kind": "original research / edited historical evidence",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N02",
+    "title": "Kaunas names, 1522–1591 — Rebecca Lucas after Alma Ragauskaite",
+    "url": "https://www.s-gabriel.org/names/ffride/kaunaslocnam.html",
+    "scope": "Multilingual town records. Keep recorded nominative spellings and distinguish reconstructed nominatives.",
+    "kind": "original research / edited historical evidence",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N03",
+    "title": "Women in Grand Duchy of Lithuania registers — after Jurate Cirunaite",
+    "url": "https://www.s-gabriel.org/names/ffride/lithuanianwomenasmenv.html",
+    "scope": "Registers of 1528, 1565, 1567 and 1631; Christian and Muslim repertoires distinguished. Political geography is not proof of Lithuanian vernacular ethnicity.",
+    "kind": "original research / edited historical evidence",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N04",
+    "title": "Estonian names from trade and tax records — after Juri Kivimae",
+    "url": "https://s-gabriel.org/names/ffride/kivimae-names.html",
+    "scope": "Documentary spellings, chiefly sixteenth century; mixed Finnic and Low German recording traditions.",
+    "kind": "original research / edited historical evidence",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N05",
+    "title": "Estonian naming patterns — Aryanhwy merch Catmael",
+    "url": "https://heraldry.sca.org/names/eepatterns.html",
+    "scope": "Local records, particles and byname examples; editorially reconstructed examples are not individual attestations.",
+    "kind": "original research / edited historical evidence",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N06",
+    "title": "Ernst Lewy, Die altpreussischen Personennamen (1904)",
+    "url": "https://archive.org/stream/diealtpreussisch00lewy/diealtpreussisch00lewy_djvu.txt",
+    "scope": "Public-domain personal-name corpus. Selected forms from sections 63–67; individual documentary dates not independently extracted.",
+    "kind": "historical linguistic monograph, public domain",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N07",
+    "title": "Ivoska, Social Status and Identification of Prussian Women (2023)",
+    "url": "https://journals.lki.lt/actalinguisticalithuanica/article/view/2237",
+    "scope": "Abstract inspected; full article could not be retrieved. It supplies NO name entries in this handoff.",
+    "kind": "research lead, abstract only",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N08",
+    "title": "Romanian names — Sara L. Uckelman",
+    "url": "https://www.ellipsis.cx/~liana/names/other/romanian.html",
+    "scope": "Dated ruler-name compilation; explicitly elite-biased, not a representative commoner frequency list.",
+    "kind": "original research / edited historical evidence",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N09",
+    "title": "Names from the family of Basarab — Jennifer Edwards",
+    "url": "https://www.s-gabriel.org/names/arina/basarab.html",
+    "scope": "Dynastic family-name compilation; dates and vernacular normalisations are not manuscript diplomatic transcriptions.",
+    "kind": "historical-name compilation",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N10",
+    "title": "Neagoe Basarab and his family — National History Museum portrait catalogue",
+    "url": "https://galeriaportretelor.ro/item/neagoe-basarab-si-familia-sa/",
+    "scope": "Museum identification of sixteenth-century family portrait; Milita, Anghelina, Ruxandra and Stanca. Milita is a Serbian-origin court member.",
+    "kind": "museum collection catalogue",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N11",
+    "title": "Three Hierarchs monastery foundation inscription",
+    "url": "https://doxologia.ro/pisania-manastirii-sfintii-trei-ierarhi",
+    "scope": "Published inscription text naming Tudosca, Maria and Rucsandra, 1639.",
+    "kind": "institutional transcription of historical inscription",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N12",
+    "title": "Domnita Balasa church",
+    "url": "https://doxologia.ro/biserica-domnita-balasa",
+    "scope": "Institutional history of Balasa (1693–1752), foundation of 1743–44; no nineteenth-century donors imported.",
+    "kind": "institutional historical account",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N13",
+    "title": "Matei Basarab and Elina — National History Museum",
+    "url": "https://galeriaportretelor.ro/item/matei-basarab-si-doamna-elina-2/",
+    "scope": "Museum portrait identification: Elina (c.1598–1653), seventeenth-century fresco.",
+    "kind": "museum collection catalogue",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N14",
+    "title": "Coptic Church Synaxarion — annual calendar",
+    "url": "https://www.copticchurch.net/synaxarium/all/en",
+    "scope": "Names in the Coptic commemorative tradition. This is evidence for devotional repertoire, not birth frequencies, ethnic origin or a dated vernacular manuscript spelling.",
+    "kind": "primary evidence of a living liturgical tradition",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N15",
+    "title": "Syriaca.org — Syriac Reference Portal",
+    "url": "https://syriaca.org/",
+    "scope": "Individual records identify Syriac literary/hagiographic names and primary editions. Saint floruit is NOT the date of the surviving text or the name spelling.",
+    "kind": "scholarly reference database",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N16",
+    "title": "Trismegistos Names — public metadata",
+    "url": "https://www.trismegistos.org/name/",
+    "scope": "Specific publicly indexed name records only. No restricted dataset was downloaded. Egyptian documentary location/language does not alone prove religion or ethnicity.",
+    "kind": "documentary name database",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N17",
+    "title": "Marana and Cyra — Monastic Matrix",
+    "url": "https://arts.st-andrews.ac.uk/monasticmatrix/vitae/cyra",
+    "scope": "Theodoret-related record of two women ascetics; literary personal names, not population frequencies.",
+    "kind": "research database drawing on primary hagiography",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "N18",
+    "title": "Eugenio Lujan — Language and writing among the Lusitanians",
+    "url": "https://www.researchgate.net/publication/332491879_Language_and_writing_among_the_Lusitanians",
+    "scope": "Author chapter abstract: Lusitanian inscriptions, Latin alphabet and distinct language treatment. No phonetic reconstruction or intelligibility rate taken from the abstract.",
+    "kind": "author research chapter abstract",
+    "accessed": "2026-09-07",
+    "record_origin": "retained bibliography; individual name evidence is not newly independently revalidated by this handoff"
+  },
+  {
+    "id": "R2N01",
+    "title": "Antanas Pakerys, Dvikamienių lietuvių moterų vardų kirčiavimas",
+    "url": "https://vardai.vlkk.lt/dvikamieniu-lietuviu-moteru-vardu-kirciavimas/",
+    "kind": "linguistic study published by State Commission of the Lithuanian Language",
+    "scope": "Supports parallel/analogical reconstruction of Lithuanian feminine names. Cross-Baltic use for Prussian fiction is an editorial analogy, not direct Prussian evidence.",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "R2N02",
+    "title": "Vardai VLKK, Moterų vardų kirčiavimo kraipymai",
+    "url": "https://vardai.vlkk.lt/moteru-vardu-kirciavimo-kraipymai/",
+    "kind": "official linguistic commentary",
+    "scope": "Native compound-name layer and male/female parallel forms; distinguishes historical names from later revival. Does not attest the supplied list of reconstructed female bearers.",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE01",
+    "title": "CultureToolkitInstaller.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitInstaller.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE02",
+    "title": "CultureToolkitLanguageSeeder.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitLanguageSeeder.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE03",
+    "title": "CultureToolkitAccents.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitAccents.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE04",
+    "title": "CultureToolkitScriptSeeder.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitScriptSeeder.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE05",
+    "title": "CultureToolkitNativeBindings.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitNativeBindings.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE06",
+    "title": "CultureToolkitNameCatalogue.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitNameCatalogue.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE07",
+    "title": "CultureToolkitNameSeeder.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitNameSeeder.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE08",
+    "title": "CultureToolkitLanguageBindings.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitLanguageBindings.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  },
+  {
+    "id": "CODE09",
+    "title": "CultureToolkitCatalogue.cs",
+    "url": "https://github.com/FutureMUD/FutureMUD/blob/2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86/DatabaseSeeder/Seeders/CultureToolkit/CultureToolkitCatalogue.cs",
+    "kind": "reviewed implementation",
+    "accessed": "2026-09-08"
+  }
+]

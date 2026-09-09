@@ -15,6 +15,9 @@ Invoke the resulting DLL with one of the following modes. Paths are relative to 
 | `<report>` | Read-only installed prerequisites; evaluate the four retained source modules in isolated InMemory contexts. |
 | `--install-fixtures <report>` | Five eras in both Culture/Chargen orders; full-content entrypoint followed by rerun. |
 | `--optional-fixtures <report>` | Five eras times seven partial names/languages/heritage combinations. |
+| `--round2-optional <report>` | Five eras with names-only, languages-only and heritage-without-languages, each followed by a rerun. |
+| `--round2-live-graphs <successful-live-receipt> <report>` | Read-only actual MySQL script membership and generated acquisition trait predicates; verifies their equality after a clean committed rerun. |
+| `--round2-builder-rerun <successful-live-receipt> <report>` | Two full reruns with builder script, name and accent edits in the named round-two disposable MySQL database; rollback afterward. Also verifies caller-transaction rollback after an intentional prog compilation failure. |
 | `--upgrade-fixture <report>` | Retained combined Dark Ages/Medieval source, then Medieval toolkit upgrade and rerun; report preserved baseline ambiguities. |
 | `--live-import <database> <era> <report>` | Create a verified-absent local disposable database, apply migrations, execute stock prerequisite and Culture seeders, then commit a stable Culture rerun. |
 | `--live-resume <database> <era> <report>` | Resume only a failed Culture import whose exact receipt proves the stock prerequisites completed. No reset. |

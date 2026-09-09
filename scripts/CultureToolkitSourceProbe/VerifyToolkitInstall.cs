@@ -10,14 +10,14 @@ using MudSharp.Models;
 
 internal static class VerifyToolkitInstall
 {
-	public static void Run(FuturemudDatabaseContext installed, string reportPath, bool optional = false, bool upgrade = false)
+	public static void Run(FuturemudDatabaseContext installed, string reportPath, bool optional = false, bool upgrade = false, bool round2 = false)
 	{
 		var results = new List<object>();
 		var eras = new[] { "antiquity", "darkages", "medieval", "renaissance", "earlymodern" };
 		var scenarios = upgrade
 			? new[] { (Era: "medieval", CultureFirst: false, Flags: 7) }
 			: optional
-			? eras.SelectMany(era => Enumerable.Range(0, 7).Select(flags => (Era: era, CultureFirst: false, Flags: flags)))
+			? eras.SelectMany(era => (round2 ? new[] { 1, 2, 4 } : Enumerable.Range(0, 7)).Select(flags => (Era: era, CultureFirst: false, Flags: flags)))
 			: eras.SelectMany(era => new[] { false, true }.Select(first => (Era: era, CultureFirst: first, Flags: 7)));
 		foreach (var scenario in scenarios)
 		{

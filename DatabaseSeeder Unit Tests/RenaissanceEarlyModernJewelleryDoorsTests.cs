@@ -134,7 +134,7 @@ public class RenaissanceEarlyModernJewelleryDoorsTests
 	[TestMethod]
 	public void CraftLayerCoversSharedAndEraOwnedRowsWithProductFocusedWorkshopRoutes()
 	{
-		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.RenaissanceEarlyModernJewelleryDoors.cs");
+		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.RenaissanceEarlyModernJewelleryDoors.cs");
 		foreach (var prefix in new[]
 		         {
 				 "preindustrial_jewellery_", "preindustrial_door_", "renaissance_jewellery_", "renaissance_door_",
@@ -184,9 +184,9 @@ public class RenaissanceEarlyModernJewelleryDoorsTests
 
 	private static IEnumerable<string> GeneratedSeederFiles()
 	{
-		return Directory.GetFiles(SourcePath("DatabaseSeeder", "Seeders"),
+		return Directory.GetFiles(SourcePath("DatabaseSeeder", "Seeders", "ItemSeeder"),
 			"ItemSeeder.*Jewellery*Generated.cs")
-			.Concat(Directory.GetFiles(SourcePath("DatabaseSeeder", "Seeders"),
+			.Concat(Directory.GetFiles(SourcePath("DatabaseSeeder", "Seeders", "ItemSeeder"),
 				"ItemSeeder.*Doors*Generated.cs"))
 			.Distinct(StringComparer.OrdinalIgnoreCase);
 	}

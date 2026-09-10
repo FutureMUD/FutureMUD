@@ -3,7 +3,7 @@
 **Status:** tool-chain foundation and food/beverage/preservation extension implemented; retained as the dependency-closure roadmap for later Medieval craft passes.
 **Date:** 30 July 2026.
 **Scope:** identifies which newly seeded tools and workshop apparatus must themselves become craft outputs before the medieval finished-good craft pass can safely proceed.  
-**Primary implementation target:** `DatabaseSeeder/Seeders/ItemSeeder.Crafting.Medieval.cs`, beginning with `SeedMedievalProductionChainCrafts` and only then moving to the category-specific medieval craft launchers.
+**Primary implementation target:** `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs`, beginning with `SeedMedievalProductionChainCrafts` and only then moving to the category-specific medieval craft launchers.
 
 This document records the required dependency closure for the tools and stock present in `SeedMedievalHouseholdCraftTools` and `SeedMedievalComponentGapItems`. Its recommended foundation slice is now implemented in `SeedMedievalProductionChainCrafts`; the larger family tables remain the roadmap for later closure.
 

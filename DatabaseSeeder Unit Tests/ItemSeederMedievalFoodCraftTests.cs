@@ -155,7 +155,7 @@ public class ItemSeederMedievalFoodCraftTests
 		Assert.IsTrue(specs.All(x => x.Difficulty is Difficulty.Easy or Difficulty.Normal or Difficulty.Hard));
 		Assert.IsTrue(specs.Where(x => x.MinimumTraitValue == 25).All(x => x.Difficulty == Difficulty.Hard));
 
-		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.MedievalFood.cs");
+		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.MedievalFood.cs");
 		Assert.IsTrue(source.Contains("Outcome.MinorFail", StringComparison.Ordinal));
 		Assert.IsTrue(Regex.IsMatch(
 			source,
@@ -176,7 +176,7 @@ public class ItemSeederMedievalFoodCraftTests
 				.Distinct(StringComparer.OrdinalIgnoreCase)
 				.Count());
 
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalFoodProduction.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.MedievalFoodProduction.cs");
 		foreach (var component in new[]
 		{
 			"PreparedFood_Medieval_Bread",
@@ -289,7 +289,7 @@ public class ItemSeederMedievalFoodCraftTests
 			liquidProducts);
 
 		var componentSource = ReadSource(
-			"DatabaseSeeder", "Seeders", "UsefulSeeder.ItemComponents.ContainersAndWriting.cs");
+			"DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.ItemComponents.ContainersAndWriting.cs");
 		Assert.IsTrue(componentSource.Contains(
 			"CreateLiquidContainer(\"LContainer_GallonCask\", \"A liquid container for a non-see through gallon-sized cask\", 3.7",
 			StringComparison.Ordinal));

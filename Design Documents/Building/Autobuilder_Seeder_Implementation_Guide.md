@@ -13,9 +13,9 @@ This guide covers the Useful side only.
 
 The Useful autobuilder architecture lives in:
 
-- `DatabaseSeeder/Seeders/UsefulSeeder.cs`
-- `DatabaseSeeder/Seeders/UsefulSeeder.Autobuilder.cs`
-- `DatabaseSeeder/Seeders/UsefulSeeder.Autobuilder.WildernessGroupedTerrain.cs`
+- `DatabaseSeeder/Seeders/UsefulSeeder/UsefulSeeder.cs`
+- `DatabaseSeeder/Seeders/UsefulSeeder/UsefulSeeder.Autobuilder.cs`
+- `DatabaseSeeder/Seeders/UsefulSeeder/UsefulSeeder.Autobuilder.WildernessGroupedTerrain.cs`
 
 `UsefulSeeder.cs` handles package exposure and installer flow.
 

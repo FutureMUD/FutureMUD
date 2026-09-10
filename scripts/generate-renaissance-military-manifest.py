@@ -21,7 +21,7 @@ SOURCE = ROOT / "Design Documents/Seeding/FutureMUD_Renaissance_Military_Firearm
 MATERIALS = ROOT / "Design Documents/Data/Seeded_Materials.json"
 COMPONENTS = ROOT / "Design Documents/Data/Seeded_Item_Components.json"
 TAGS = ROOT / "Design Documents/Data/SeededTagHierarchy.csv"
-OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder.Renaissance.MilitaryManifestData.Generated.cs"
+OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Renaissance.MilitaryManifestData.Generated.cs"
 
 START = "<!-- RENAISSANCE MILITARY CATALOGUE START -->"
 END = "<!-- RENAISSANCE MILITARY CATALOGUE END -->"

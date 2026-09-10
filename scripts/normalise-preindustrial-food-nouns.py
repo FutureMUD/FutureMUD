@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CATALOGUE_ROOT = ROOT / "DatabaseSeeder/Seeders/FoodCatalogue"
+CATALOGUE_ROOT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder/FoodCatalogue"
 EXPECTED_HEADER = (
 	"stable_reference\tscope\tkind\tfamily\tnoun\tshort_description\tfull_description\ttaste\tmaterial\t"
 	"nutrition\tfreshness\tquality\tweight_grams\tcost\tadmission_profile"

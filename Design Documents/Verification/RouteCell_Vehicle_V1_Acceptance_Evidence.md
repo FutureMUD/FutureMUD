@@ -59,7 +59,7 @@ The EF migration chain ends with:
 2. `20260722071041_RoomScaleVehicleInteriors`
 3. `20260722100951_VehicleRoutesAndServices`
 
-`DatabaseSeeder/BlankDatabaseSnapshot.manifest.json` names `20260722100951_VehicleRoutesAndServices` as its latest migration, and the unfiltered 545-test DatabaseSeeder suite passed against the refreshed SQL and manifest.
+`DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.manifest.json` names `20260722100951_VehicleRoutesAndServices` as its latest migration, and the unfiltered 545-test DatabaseSeeder suite passed against the refreshed SQL and manifest.
 
 ## V1.0 Boundary
 

@@ -8,11 +8,11 @@ Current item definitions are seeded from:
 
 | Source | Current Item Definitions |
 | --- | ---: |
-| `DatabaseSeeder/Seeders/ItemSeeder.Antiquity.cs` | 1034 |
-| `DatabaseSeeder/Seeders/ItemSeeder.AntiquityFood.cs` | 167 |
-| `DatabaseSeeder/Seeders/ItemSeeder.AntiquityHouseholdTools.cs` | 65 |
-| `DatabaseSeeder/Seeders/ItemSeeder.AntiquityMedical.cs` | 41 |
-| `DatabaseSeeder/Seeders/ItemSeeder.AntiquityWriting.cs` | 33 |
+| `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Antiquity.cs` | 1034 |
+| `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.AntiquityFood.cs` | 167 |
+| `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.AntiquityHouseholdTools.cs` | 65 |
+| `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.AntiquityMedical.cs` | 41 |
+| `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.AntiquityWriting.cs` | 33 |
 | Total | 1340 |
 
 Cross-era foundation note: `ItemSeeder.HistoricFoundation.cs` and `ItemSeeder.Crafting.HistoricFoundation.cs` own the shared `historic_*` workshop apparatus that is seeded when either `antiquity` or `medieval` is selected. Antiquity-specific garment, weapon, jewellery, and foodway stable references remain unchanged; the shared items are additions rather than renames.

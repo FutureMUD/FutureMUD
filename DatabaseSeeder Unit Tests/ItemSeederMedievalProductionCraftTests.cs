@@ -173,7 +173,7 @@ public class ItemSeederMedievalProductionCraftTests
 		Assert.IsTrue(specs.Where(x => x.Phase == 4).All(x =>
 			x.MinimumTraitValue == 10 && x.Difficulty == Difficulty.Easy));
 
-		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Medieval.cs");
+		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Medieval.cs");
 		StringAssert.Contains(source, "Outcome.MinorFail");
 		StringAssert.Contains(source, "5,");
 		StringAssert.Contains(source, "3,");
@@ -184,11 +184,11 @@ public class ItemSeederMedievalProductionCraftTests
 	public void MedievalProductionCrafts_ExactReferencesAndFunctionalToolTagsResolveToSeededSources()
 	{
 		var specs = ItemSeeder.MedievalProductionCraftSpecsForTesting.ToArray();
-		var medievalItems = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalComponentGaps.cs") +
-		                    ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalHouseholdTools.cs");
+		var medievalItems = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.MedievalComponentGaps.cs") +
+		                    ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.MedievalHouseholdTools.cs");
 		var toolSources = medievalItems +
-		                  ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.HistoricFoundation.cs") +
-		                  ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PrimaryProductionTools.cs");
+		                  ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.HistoricFoundation.cs") +
+		                  ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.PrimaryProductionTools.cs");
 
 		foreach (var stableReference in specs
 			         .SelectMany(x => x.Products)

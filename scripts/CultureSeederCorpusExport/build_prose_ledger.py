@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 CORPUS = ROOT / 'Design Documents/Seeding/CultureSeederOriginalCorpus'
 STAGING = ROOT / 'Design Documents/Verification/CultureSeeder_Redesign_Source_Staging.json'
-OUTPUT = ROOT / 'DatabaseSeeder/Seeders/CultureToolkit/ReviewedSourceProse.json'
+OUTPUT = ROOT / 'DatabaseSeeder/Seeders/CultureSeeder/CultureToolkit/ReviewedSourceProse.json'
 modules = ['earthantiquity', 'earthdarkagesandmedieval', 'earthrenaissanceeurope', 'earthrenaissanceworldexpansion']
 rows = []
 

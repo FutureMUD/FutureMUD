@@ -33,10 +33,10 @@ The current medieval rebuild is direct-call item seeding with active craft launc
 
 | Area | Current implementation or target file |
 |---|---|
-| Craft entry points | `DatabaseSeeder/Seeders/ItemSeeder.Crafting.Medieval.cs` |
-| Shared craft helpers | `DatabaseSeeder/Seeders/ItemSeeder.Crafting.cs` |
-| Shared historic foundation items | `DatabaseSeeder/Seeders/ItemSeeder.HistoricFoundation.cs` |
-| Clothing item source | `DatabaseSeeder/Seeders/ItemSeeder.MedievalClothing.cs` |
+| Craft entry points | `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs` |
+| Shared craft helpers | `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs` |
+| Shared historic foundation items | `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.HistoricFoundation.cs` |
+| Clothing item source | `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalClothing.cs` |
 | Household/container/furniture item sources | `ItemSeeder.MedievalContainers.cs`, `ItemSeeder.MedievalDoorsLocksStrongboxes.cs`, `ItemSeeder.MedievalFood.cs`, `ItemSeeder.MedievalFurniture.cs`, `ItemSeeder.MedievalJewellery.cs` |
 | Military item sources | `ItemSeeder.MedievalWeapons.cs`, `ItemSeeder.MedievalArmour.cs` |
 | Writing/document item source | `ItemSeeder.MedievalWriting.cs` |
@@ -46,10 +46,10 @@ The current medieval rebuild is direct-call item seeding with active craft launc
 Recommended implementation files for this workstream:
 
 ```text
-DatabaseSeeder/Seeders/ItemSeeder.MedievalIndustryTools.cs
-DatabaseSeeder/Seeders/ItemSeeder.MedievalIndustryStock.cs
-DatabaseSeeder/Seeders/ItemSeeder.Crafting.MedievalProduction.cs
-DatabaseSeeder/Seeders/ItemSeeder.Crafting.MedievalFinishedGoods.cs
+DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalIndustryTools.cs
+DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalIndustryStock.cs
+DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.MedievalProduction.cs
+DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.MedievalFinishedGoods.cs
 DatabaseSeeder Unit Tests/ItemSeederMedievalCraftingTests.cs
 ```
 

@@ -4,7 +4,7 @@ Post-implementation edition of `Medieval Military Seeder Design Reference.md` af
 
 This document consolidates the medieval weapons, ammunition, armour, shields, horse armour, barding, and directly related military gear guidance for the FutureMUD Item Seeder. It covers selected European, Mediterranean, Near Eastern, North African, Indian, Central Asian, and East Asian military material culture families during the period roughly 500AD to 1300AD, presenting shared rules, historical assumptions, component/material/tag grounding, loadout-manifest policy, and the implemented first-wave item catalogue in one stable reference.
 
-The item catalogue sections below are now filled out with the completed first-wave catalogue. The live implementation is split between `DatabaseSeeder/Seeders/ItemSeeder.MedievalWeapons.cs` and `DatabaseSeeder/Seeders/ItemSeeder.MedievalArmour.cs`.
+The item catalogue sections below are now filled out with the completed first-wave catalogue. The live implementation is split between `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalWeapons.cs` and `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalArmour.cs`.
 
 Dependency completion update: the existing 381 prototype identities are unchanged, but documented conservative combat fallbacks now use the newly seeded lance, poleblade, hooked-polearm, composite-bow, sabre, padded-armour, rigid-metal, coat-of-plates, and splinted-armour profiles. Mounted/couched charge and hook/pull/trip/anti-rider mechanics remain engine work in the [consolidated dependency ledger](./FutureMUD_Item_Content_Engine_Dependency_Ledger.md).
 
@@ -1983,7 +1983,7 @@ The implemented catalogue was authored and checked against these validation rule
 - `Seeded_Materials.json` — used for exact solid material names.
 - `SeededTagHierarchy.csv` — used for exact hierarchical tags. The file is tab-separated despite its `.csv` extension.
 - `Medieval_Clothing_Seeder_Design_Reference.md` and `FutureMUD Antiquity Clothing Seeder Design Reference.md` — used as structural precedent for scope, culture-neutral public text, shared-item policy, skin policy, and validation format.
-- `DatabaseSeeder/Seeders/ItemSeeder.MedievalWeapons.cs` and `DatabaseSeeder/Seeders/ItemSeeder.MedievalArmour.cs` — live implementation of all completed first-wave catalogue passes.
+- `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalWeapons.cs` and `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalArmour.cs` — live implementation of all completed first-wave catalogue passes.
 - Completed pass files: `medieval_military_melee_weapons_pass_1.cs`, `medieval_military_armour_sets_pass_1.cs`, `medieval_military_shields_pass_1.cs`, `medieval_military_ranged_ammunition_thrown_pass_1.cs`, and `medieval_military_carrying_storage_support_pass_1.cs`.
 
 ### Historical reference sources used for design principles

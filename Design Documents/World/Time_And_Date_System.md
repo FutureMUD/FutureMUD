@@ -35,7 +35,7 @@ The subsystem is split between shared contracts/value objects and concrete runti
 | Runtime implementations | `Calendar`, `Clock`, `MudTimeZone`, listeners, interval listener adapters, builder editing | `MudSharpCore/TimeAndDate` |
 | Persistence | EF models for calendars, clocks, time zones, shard links, zone time zones, and scheduled FutureProgs | `MudsharpDatabaseLibrary/Models` |
 | Builder/player commands | `time`, `calendar`, `clock`, `timezone`, shard/zone clock and calendar assignment | `MudSharpCore/Commands/Modules` and `MudSharpCore/Commands/Helpers` |
-| Seeding | stock clocks, time zones, and calendar definitions | `DatabaseSeeder/Seeders/TimeSeeder.cs` |
+| Seeding | stock clocks, time zones, and calendar definitions | `DatabaseSeeder/Seeders/TimeSeeder/TimeSeeder.cs` |
 | Automation | temporal listeners, recurring intervals, and FutureProg schedules | `MudSharpCore/TimeAndDate/Listeners`, `MudSharpCore/TimeAndDate/Intervals`, `MudSharpCore/FutureProg/ProgSchedule.cs` |
 
 ## Boot And Runtime Advancement

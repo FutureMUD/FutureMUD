@@ -13,8 +13,8 @@ import argparse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT_R = ROOT / 'DatabaseSeeder/Seeders/MedicalRepairCatalogue/Renaissance/renaissance.medical-repair.tsv'
-OUT_E = ROOT / 'DatabaseSeeder/Seeders/MedicalRepairCatalogue/EarlyModern/earlymodern.medical-repair.tsv'
+OUT_R = ROOT / 'DatabaseSeeder/Seeders/ItemSeeder/MedicalRepairCatalogue/Renaissance/renaissance.medical-repair.tsv'
+OUT_E = ROOT / 'DatabaseSeeder/Seeders/ItemSeeder/MedicalRepairCatalogue/EarlyModern/earlymodern.medical-repair.tsv'
 
 # Forms are deliberately listed once.  A different delivery component, repair
 # grade, or physically distinct regional medicine is a valid separate row;

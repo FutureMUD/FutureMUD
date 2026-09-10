@@ -14,7 +14,7 @@ public class RenaissanceEarlyModernMedicalFoundationTests
 	[TestMethod]
 	public void HealthSeeder_ExposesHistoricalTiersAndFumigationPrerequisite()
 	{
-		var source = Read("DatabaseSeeder", "Seeders", "HealthSeeder.cs");
+		var source = Read("DatabaseSeeder", "Seeders", "HealthSeeder", "HealthSeeder.cs");
 		StringAssert.Contains(source, "\"renaissance\" or \"earlymodern\" when TagPathExists");
 		StringAssert.Contains(source, "\"renaissance\" when !context.Gases.Any");
 		StringAssert.Contains(source, "ExpectedMedicalGasBindingsForTier");
@@ -27,8 +27,8 @@ public class RenaissanceEarlyModernMedicalFoundationTests
 	[TestMethod]
 	public void ItemSeeder_PreflightsHistoricalMedicalHealthComponents()
 	{
-		var dispatcher = Read("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
-		var support = Read("DatabaseSeeder", "Seeders", "ItemSeeder.EraCatalogueSupport.cs");
+		var dispatcher = Read("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.cs");
+		var support = Read("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.EraCatalogueSupport.cs");
 		StringAssert.Contains(dispatcher, "Validating historical medical prerequisites");
 		StringAssert.Contains(support, "ValidateHistoricalMedicalPrerequisites");
 		StringAssert.Contains(support, "Run the Health Seeder with the {requiredHealthTier} option before Items.");

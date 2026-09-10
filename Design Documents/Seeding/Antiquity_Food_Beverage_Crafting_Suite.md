@@ -6,11 +6,11 @@ The antiquity food and beverage pass lives in `ItemSeeder` partials and runs in 
 
 The implementation files are:
 
-- `DatabaseSeeder/Seeders/ItemSeeder.AntiquityFood.cs`
-- `DatabaseSeeder/Seeders/ItemSeeder.AntiquityApiary.cs`
-- `DatabaseSeeder/Seeders/ItemSeeder.Crafting.AntiquityFood.cs`
-- `DatabaseSeeder/Seeders/ItemSeeder.Crafting.AntiquityApiary.cs`
-- `DatabaseSeeder/Seeders/ItemSeeder.Crafting.AntiquityAgriculture.cs`
+- `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.AntiquityFood.cs`
+- `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.AntiquityApiary.cs`
+- `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs`
+- `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityApiary.cs`
+- `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityAgriculture.cs`
 
 ## Processing Chains
 

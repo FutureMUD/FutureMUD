@@ -98,7 +98,7 @@ public class CultureSeederLanguageCoverageTests
 	[TestMethod]
 	public void SharedScriptUpsert_PreservesPriorPackLanguageMemberships()
 	{
-		string sharedSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "CultureSeeder.Shared.cs"));
+		string sharedSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "CultureSeeder", "CultureSeeder.Shared.cs"));
 		string languageSource = SeederSourceTestHelper.ReadPartialFamily("CultureSeeder.Languages");
 
 		Assert.IsFalse(

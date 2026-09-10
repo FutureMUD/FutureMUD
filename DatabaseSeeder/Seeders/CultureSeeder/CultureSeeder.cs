@@ -5,6 +5,7 @@ using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using DatabaseSeeder.Seeders.CultureToolkit;
 
 namespace DatabaseSeeder.Seeders;
@@ -128,11 +129,13 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOpt
 		if (era is not null)
 		{
 			bool Requested(string key) => !questionAnswers.TryGetValue(key, out var answer) || answer.EqualToAny("yes", "y");
-			var report = CultureToolkitInstaller.Install(context, era, Requested("seednames"), Requested("seedlanguages"), Requested("seedheritage"));
+			var elapsed = Stopwatch.StartNew();
+			var report = CultureToolkitInstaller.Install(context, era, Requested("seednames"), Requested("seedlanguages"), Requested("seedheritage"),
+				message => ConsoleUtilities.WriteLineConsole($"[{elapsed.Elapsed.TotalSeconds:N1}s] {message}"));
 			transaction.Commit();
 			var unresolvedNatives = report.NativeBindings.SelectMany(x => x.Unresolved).ToArray();
 			return $"Installed {era}: {report.CultureIds.Count:N0} social backgrounds, {report.EthnicityIds.Count:N0} retained/overlay identities and {report.Groups.Count:N0} optional language groups." +
-				(unresolvedNatives.Length == 0 ? "" : "\nRetained source bindings not activated by this run:\n" + string.Join("\n", unresolvedNatives)) +
+				(unresolvedNatives.Length == 0 ? "" : "\nUnresolved native-language bindings (identities without authored crosswalks are gated from chargen; rerunning cannot supply missing crosswalks):\n" + string.Join("\n", unresolvedNatives)) +
 				(report.Conflicts.Count == 0 ? "" : "\nPreserved overrides or unresolved bindings:\n" + string.Join("\n", report.Conflicts));
 		}
 		_context = context;

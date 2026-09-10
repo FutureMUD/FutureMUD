@@ -74,7 +74,16 @@ public static class CultureStockAccentRoles
 		return group.Equals("foreign", StringComparison.OrdinalIgnoreCase) ? AccentRole.Foreign : AccentRole.Native;
 	}
 
-	public static IReadOnlyList<string> Associations(string language, string accent) =>
-		language.Equals("English", StringComparison.OrdinalIgnoreCase) && EnglishForeign.TryGetValue(accent, out var sources)
-			? sources : [];
+	public static IReadOnlyList<string> Associations(string language, string accent, string? sourceModule = null)
+	{
+		if (!language.Equals("English", StringComparison.OrdinalIgnoreCase)) return [];
+		// The historical generator names these languages explicitly; modern display labels
+		// must not be used as historical source identities.
+		if (sourceModule == "earthrenaissanceeurope")
+		{
+			if (accent.Equals("german", StringComparison.OrdinalIgnoreCase)) return ["High German", "Low German"];
+			if (accent.Equals("spanish", StringComparison.OrdinalIgnoreCase)) return ["Castilian"];
+		}
+		return EnglishForeign.TryGetValue(accent, out var sources) ? sources : [];
+	}
 }

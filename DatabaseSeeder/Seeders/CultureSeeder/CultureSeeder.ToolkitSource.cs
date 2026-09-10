@@ -25,12 +25,17 @@ public partial class CultureSeeder
 		var stage = CreateToolkitPrerequisiteContext(installed);
 		try
 		{
-			var seeder = new CultureSeeder { _context = stage };
+			// Name leaves are not consumed until fallback validation. Keep them outside EF's
+			// graph while the procedural source performs its many scalar identity saves.
+			var seeder = new CultureSeeder { _context = stage, _deferredToolkitNameElements = [] };
 			seeder.SeedSimple(stage);
 			seeder.SeedCulturePacks(stage, new Dictionary<string, string>
 			{
 				["culturepacks"] = sourcePack, ["seednames"] = "yes", ["seedlanguages"] = "yes", ["seedheritage"] = "yes"
 			});
+			stage.RandomNameProfilesElements.AddRange(seeder._deferredToolkitNameElements.Values.SelectMany(x => x));
+			seeder._deferredToolkitNameElements = null;
+			stage.SaveChanges();
 			seeder.EnsureFallbackRandomNameProfiles();
 			stage.SaveChanges();
 			return stage;

@@ -15,6 +15,34 @@ namespace MudSharp_Unit_Tests;
 public class CultureToolkitSourceNameTests
 {
 	[TestMethod]
+	public void DeferredProfileElementsPersistWithWeightsAndBuilderDeletionOnRerun()
+	{
+		using var context = Context();
+		var culture = new NameCulture { Name = "Batch", Definition = "<Definition />" };
+		context.Add(culture);
+		context.SaveChanges();
+		var desired = new RandomNameProfile { Name = "Batch profile", Gender = 2 };
+		desired.RandomNameProfilesElements.Add(new RandomNameProfilesElements { Name = "Retained", NameUsage = 0, Weighting = 17 });
+		desired.RandomNameProfilesDiceExpressions.Add(new RandomNameProfilesDiceExpressions { NameUsage = 0, DiceExpression = "1" });
+		var conflicts = new List<string>();
+		var pending = new List<RandomNameProfilesElements>();
+		var profile = CultureToolkitNameSeeder.UpsertProfile(context, "renaissance", "batch.profile", culture,
+			desired, null, conflicts, deferredElements: pending);
+		Assert.AreEqual(0, context.RandomNameProfilesElements.Count());
+		Assert.AreEqual(profile.Id, pending.Single().RandomNameProfileId);
+		context.RandomNameProfilesElements.AddRange(pending);
+		context.SaveChanges();
+		Assert.AreEqual(17, profile.RandomNameProfilesElements.Single().Weighting);
+		context.Remove(profile.RandomNameProfilesElements.Single());
+		context.SaveChanges();
+		pending.Clear();
+		CultureToolkitNameSeeder.UpsertProfile(context, "renaissance", "batch.profile", culture,
+			desired, null, conflicts, deferredElements: pending);
+		Assert.AreEqual(0, pending.Count);
+		Assert.IsTrue(conflicts.Any(x => x.Contains("builder")));
+	}
+
+	[TestMethod]
 	public void IdenticalSourceAliasesShareRowsAndDivergentProfilesPreserveTheirOwnElementsOnRerun()
 	{
 		using var first = Context();

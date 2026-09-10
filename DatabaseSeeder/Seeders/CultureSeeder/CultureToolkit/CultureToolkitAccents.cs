@@ -29,7 +29,7 @@ public static class CultureToolkitAccents
 	public static IReadOnlyList<CultureAccentResolution> Upsert(FuturemudDatabaseContext context, string era,
 		IReadOnlyDictionary<long, IReadOnlyList<long>> nativeEthnicities, ICollection<string> conflicts,
 		CultureToolkitCatalogue? catalogue = null, IReadOnlyDictionary<string, FuturemudDatabaseContext>? stages = null,
-		IReadOnlyDictionary<string, Language>? installedLanguages = null)
+		IReadOnlyDictionary<string, Language>? installedLanguages = null, Action<string>? progress = null)
 	{
 		catalogue ??= new CultureToolkitCatalogue();
 		var pack = catalogue.Compose(era);
@@ -41,6 +41,11 @@ public static class CultureToolkitAccents
 		var result = new List<CultureAccentResolution>();
 		var generated = new HashSet<long>();
 		var languageIds = installedLanguages?.Values.Select(x => x.Id).Distinct().ToArray() ?? nativeEthnicities.Keys.ToArray();
+		context.Accents.Load();
+		var ownedByLanguage = context.SeederManagedRecords
+			.Where(x => x.Seeder == "CultureSeeder" && x.EntityType == "Accent").ToArray()
+			.Select(x => (Record: x, Accent: context.Accents.Find(x.LogicalId)!))
+			.Where(x => x.Accent is not null).ToLookup(x => x.Accent.LanguageId);
 		foreach (var languageId in languageIds)
 		{
 			var language = context.Languages.Find(languageId)!;
@@ -65,8 +70,7 @@ public static class CultureToolkitAccents
 			CultureAccentPolicyResult Policy(SeederManagedRecord record, Accent accent) => sourceInfo.TryGetValue(record.StableKey, out var source)
 				? source.Policy : new("canonical-installed-era", specification.ValueKind != JsonValueKind.Undefined
 					? specification.GetProperty("labels").EnumerateObject().Select(x => x.Name).ToArray() : [era], accent.Role != 0 ? "learner_or_foreign" : "native-tradition");
-			var owned = context.SeederManagedRecords.Where(x => x.Seeder == "CultureSeeder" && x.EntityType == "Accent").ToArray()
-				.Select(x => (Record: x, Accent: context.Accents.Find(x.LogicalId)!)).Where(x => x.Accent?.LanguageId == languageId).ToList();
+			var owned = ownedByLanguage[languageId].ToList();
 			var writer = new CultureToolkitEntityWriter(context, era, conflicts);
 			if (specification.ValueKind != JsonValueKind.Undefined && !owned.Any(x => Policy(x.Record, x.Accent).Role == "native-tradition" && Policy(x.Record, x.Accent).AllowedPacks.Contains(era)))
 			{
@@ -88,6 +92,8 @@ public static class CultureToolkitAccents
 				owned.Add((CultureToolkitManagedEntities.Find(context, "Accent", languageKey + ".accent.learner")!, learner));
 			}
 			var details = new List<CultureAccentReceipt>();
+			var combinedDefinitions = new List<CultureProgDefinition>();
+			var applyCombined = new List<(string Key, Action<FutureProg> Apply)>();
 			foreach (var (record, accent) in owned.DistinctBy(x => x.Accent.Id))
 			{
 				var policy = Policy(record, accent);
@@ -108,7 +114,6 @@ public static class CultureToolkitAccents
 						Module = era, LogicalId = accent.Id, ManifestVersion = "2026-09-09", AppliedAt = DateTime.UtcNow,
 						SeedBaseline = JsonSerializer.Serialize(new Dictionary<string, string> { ["prog"] = baselinePointer, ["source"] = JsonSerializer.Serialize(original) }) };
 					context.SeederManagedRecords.Add(owner);
-					context.SaveChanges();
 				}
 				var predicate = allowed ? "" : "return false\n";
 				if (original is long originalId)
@@ -121,23 +126,30 @@ public static class CultureToolkitAccents
 				predicate += accent.Role != 0 ? $"return @{roleProg.FunctionName}(@ch)" : "return true";
 				// An unconditional early return would leave unreachable statements in the prog compiler.
 				if (!allowed) predicate = "return false";
-				var combined = CultureToolkitProgSeeder.Upsert(context, era, key + ".combined", $"CultureAccentAvailable{accent.Id}", predicate,
-					ProgVariableTypes.Boolean, [(ProgVariableTypes.Chargen, "ch")], conflicts);
-				generated.Add(combined.Id);
-				var merged = SeederManagedRecordReconciler.Reconcile(owner,
-					new Dictionary<string, string> { ["prog"] = JsonSerializer.Serialize(accent.ChargenAvailabilityProgId), ["source"] = JsonSerializer.Serialize(original) },
-					new Dictionary<string, string> { ["prog"] = JsonSerializer.Serialize(combined.Id), ["source"] = JsonSerializer.Serialize(original) }, false, conflicts);
-				accent.ChargenAvailabilityProgId = JsonSerializer.Deserialize<long?>(merged["prog"]);
-				sourceBaseline.Remove(nameof(Accent.ChargenAvailabilityProgId));
-				record.SeedBaseline = JsonSerializer.Serialize(sourceBaseline);
-				details.Add(new(accent.Id, record.StableKey, languageKey, policy.Rule, policy.AllowedPacks, policy.Role, original,
-					accent.ChargenAvailabilityProgId, accent.Role == 2,
-					accent.ChargenAvailabilityProgId != combined.Id || combined.FunctionText != predicate, allowed));
+				combinedDefinitions.Add(new(key + ".combined", $"CultureAccentAvailable{accent.Id}", predicate,
+					ProgVariableTypes.Boolean, [(ProgVariableTypes.Chargen, "ch")]));
+				applyCombined.Add((key + ".combined", combined =>
+				{
+					generated.Add(combined.Id);
+					var merged = SeederManagedRecordReconciler.Reconcile(owner,
+						new Dictionary<string, string> { ["prog"] = JsonSerializer.Serialize(accent.ChargenAvailabilityProgId), ["source"] = JsonSerializer.Serialize(original) },
+						new Dictionary<string, string> { ["prog"] = JsonSerializer.Serialize(combined.Id), ["source"] = JsonSerializer.Serialize(original) }, false, conflicts);
+					accent.ChargenAvailabilityProgId = JsonSerializer.Deserialize<long?>(merged["prog"]);
+					sourceBaseline.Remove(nameof(Accent.ChargenAvailabilityProgId));
+					record.SeedBaseline = JsonSerializer.Serialize(sourceBaseline);
+					details.Add(new(accent.Id, record.StableKey, languageKey, policy.Rule, policy.AllowedPacks, policy.Role, original,
+						accent.ChargenAvailabilityProgId, accent.Role == 2,
+							accent.ChargenAvailabilityProgId != combined.Id || combined.FunctionText != predicate, allowed));
+				}));
 			}
+			var combinedProgs = CultureToolkitProgSeeder.UpsertMany(context, era, combinedDefinitions, conflicts);
+			foreach (var (key, apply) in applyCombined) apply(combinedProgs[key]);
 			context.SaveChanges();
 			result.Add(new(languageId, details.Where(x => x.EraEligible && x.Role == "native-tradition").Select(x => x.AccentId).ToArray(),
 				details.Where(x => x.Role == "learner_or_foreign").Select(x => x.AccentId).ToArray(), roleProg.Id)
 				{ Details = details.Select(x => x with { IsFallback = context.Accents.Find(x.AccentId)!.Role == 2 }).ToArray() });
+			if (result.Count % 10 == 0 || result.Count == languageIds.Length)
+				progress?.Invoke($"Accent availability: {result.Count}/{languageIds.Length} languages.");
 		}
 		using var compiler = new OfflineProgCompilation(context.FutureProgs.Include(x => x.FutureProgsParameters).ToArray());
 		foreach (var id in generated) compiler.Compile(id);

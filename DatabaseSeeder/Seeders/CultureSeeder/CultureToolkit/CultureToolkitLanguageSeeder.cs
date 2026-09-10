@@ -21,7 +21,7 @@ public static class CultureToolkitLanguageSeeder
 	public static CultureLanguageInstallResult Upsert(FuturemudDatabaseContext context, CultureToolkitCatalogue catalogue,
 		CultureToolkitPack pack, IReadOnlyDictionary<string, FuturemudDatabaseContext> sourceStages,
 		IReadOnlyDictionary<string, Language> preflightedBindings, CultureLanguagePrerequisites prerequisites, ICollection<string> conflicts,
-		IReadOnlySet<string>? activeRetainedLanguageKeys = null)
+		IReadOnlySet<string>? activeRetainedLanguageKeys = null, Action<string>? progress = null)
 	{
 		var writer = new CultureToolkitEntityWriter(context, pack.Era, conflicts);
 		var eras = catalogue.Document("data.eras.json").EnumerateArray().Select(x => CultureToolkitCatalogue.Text(x, "key")).ToList();
@@ -101,7 +101,7 @@ public static class CultureToolkitLanguageSeeder
 			}
 			var language = writer.Upsert(key, desired, existing, original);
 			installed[key] = language;
-			var importedAccents = new Dictionary<(string Module, long Id), Accent>();
+			var newAccents = new Dictionary<string, Accent>();
 			foreach (var row in sourceRows ?? [])
 			foreach (var accent in row.Language.Accents)
 			{
@@ -113,6 +113,11 @@ public static class CultureToolkitLanguageSeeder
 				desiredAccent.Suffix = CultureToolkitProse.Display(CultureToolkitProse.Rewrite(row.Module, "Accent", row.Language.Name + ":" + accent.Name, "Suffix", accent.Suffix));
 				desiredAccent.VagueSuffix = CultureToolkitProse.Display(CultureToolkitProse.Rewrite(row.Module, "Accent", row.Language.Name + ":" + accent.Name, "VagueSuffix", accent.VagueSuffix));
 				var accentRecord = CultureToolkitManagedEntities.Find(context, "Accent", accentKey);
+				if (existing is null && accentRecord is null)
+				{
+					newAccents.Add(accentKey, desiredAccent);
+					continue;
+				}
 				Accent? boundAccent = null;
 				if (accentRecord is null && existing is not null)
 				{
@@ -130,9 +135,10 @@ public static class CultureToolkitLanguageSeeder
 						throw new InvalidOperationException($"Accent {accentKey} needs an explicit source binding; existing content was not replaced.");
 				}
 				var ownsAvailability = accentRecord is not null && CultureToolkitManagedEntities.Find(context, "AccentAvailability", $"accent.availability.{accentRecord.LogicalId}") is not null;
-				importedAccents[(row.Module, accent.Id)] = writer.Upsert(accentKey, desiredAccent, boundAccent, originalAccent,
+				writer.Upsert(accentKey, desiredAccent, boundAccent, originalAccent,
 					ownsAvailability ? new HashSet<string> { nameof(Accent.ChargenAvailabilityProgId) } : null);
 			}
+			writer.InsertNewAccents(newAccents);
 			if (hasSpecification && (CultureToolkitManagedEntities.Find(context, "Accent", key + ".accent.local") is not null ||
 				!context.Accents.Where(x => x.LanguageId == language.Id).AsEnumerable().Any(x =>
 					x.Role == 0)))
@@ -156,6 +162,8 @@ public static class CultureToolkitLanguageSeeder
 				}, independentlyManagedFields: new HashSet<string> { nameof(Accent.ChargenAvailabilityProgId) });
 			}
 			context.SaveChanges();
+			if (installed.Count % 10 == 0 || installed.Count == keys.Length)
+				progress?.Invoke($"Languages and source accents: {installed.Count}/{keys.Length}.");
 		}
 		// Legacy references resolve only to actual retained source rows, never newly invented labels.
 		foreach (var sourceName in sources.Values.SelectMany(x => x).GroupBy(x => x.Language.Name))
@@ -183,7 +191,7 @@ public static class CultureToolkitLanguageSeeder
 			if (record is null) continue;
 			var accent = context.Accents.Find(record.LogicalId)!;
 			var desiredIds = new List<long>();
-			foreach (var sourceLanguage in CultureStockAccentRoles.Associations(row.Language.Name, sourceAccent.Name))
+			foreach (var sourceLanguage in CultureStockAccentRoles.Associations(row.Language.Name, sourceAccent.Name, row.Module))
 			{
 				var binding = CultureToolkitLanguageBindings.Key(row.Module, sourceLanguage);
 				if (installed.TryGetValue(binding, out var associated) || installed.TryGetValue("legacy:" + sourceLanguage, out associated))

@@ -66,6 +66,7 @@ public static class CultureToolkitSourceNames
 			return writer.Upsert(x.Key, desired, cultureBindings.GetValueOrDefault(x.Key), x.Definition);
 		});
 		var profiles = new Dictionary<string, RandomNameProfile>();
+		var deferredElements = new List<RandomNameProfilesElements>();
 		if (includeProfiles)
 		foreach (var item in plan.Profiles)
 		{
@@ -78,8 +79,9 @@ public static class CultureToolkitSourceNames
 			var suggestions = item.SuggestionProgName is null ? null : suggestionProgs[item.SuggestionProgName];
 			desired.UseForChargenSuggestionsProgId = suggestions?.Id;
 			profiles[item.Key] = CultureToolkitNameSeeder.UpsertProfile(context, era, item.Key, cultures[item.CultureKey], desired,
-				suggestions, conflicts, profileBindings.GetValueOrDefault(item.Key), desired);
+				suggestions, conflicts, profileBindings.GetValueOrDefault(item.Key), desired, deferredElements);
 		}
+		context.RandomNameProfilesElements.AddRange(deferredElements);
 		context.SaveChanges();
 		return new(cultures, profiles, plan.Cultures.SelectMany(x => x.Sources.Select(y => (Source: y, Culture: cultures[x.Key])))
 			.ToDictionary(x => x.Source, x => x.Culture));

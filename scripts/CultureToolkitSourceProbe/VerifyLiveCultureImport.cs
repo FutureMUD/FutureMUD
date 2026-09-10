@@ -27,8 +27,8 @@ internal static class VerifyLiveCultureImport
 			if (receipt.RootElement.GetProperty("Database").GetString() != database || receipt.RootElement.GetProperty("Status").GetString() != (verifyExisting ? "passed" : "failed"))
 				throw new InvalidOperationException("The matching prior import receipt is required for this exact disposable database and operation.");
 			completed.AddRange(receipt.RootElement.GetProperty("Completed").EnumerateArray().Select(x => x.GetString()!));
-			if (!completed.Contains(nameof(ChargenSeeder)) || completed.Contains(nameof(CultureSeeder)) != verifyExisting)
-				throw new InvalidOperationException("Resume is limited to a failed CultureSeeder import after completed stock prerequisites.");
+			if (!completed.Contains("EF migrations") || completed.Contains(nameof(CultureSeeder)) != verifyExisting)
+				throw new InvalidOperationException("Resume requires this disposable fixture's migration receipt and an incomplete import.");
 		}
 		using (var server = new MySqlConnection(builder.ConnectionString))
 		{
@@ -49,6 +49,7 @@ internal static class VerifyLiveCultureImport
 		try
 		{
 			using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+				.UseLazyLoadingProxies()
 				.UseMySql(builder.ConnectionString, ServerVersion.AutoDetect(builder.ConnectionString)).Options);
 			if (!resume && !verifyExisting)
 			{
@@ -67,6 +68,9 @@ internal static class VerifyLiveCultureImport
 			{
 				var type = (Type)step.GetType().GetProperty("SeederType")!.GetValue(step)!;
 				if (!selected.Contains(type) || completed.Contains(type.Name)) continue;
+				// Match the installer's per-seeder context lifetime, excluding unchanged
+				// prerequisite graphs from subsequent seeder change-detection scans.
+				if (type == typeof(CultureSeeder)) context.ChangeTracker.Clear();
 				var answers = ((IEnumerable)step.GetType().GetProperty("Answers")!.GetValue(step)!).Cast<object>()
 					.ToDictionary(x => (string)x.GetType().GetProperty("Id")!.GetValue(x)!, x => (string)x.GetType().GetProperty("Answer")!.GetValue(x)!);
 				if (type == typeof(CultureSeeder)) answers["culturepacks"] = era;
@@ -83,8 +87,11 @@ internal static class VerifyLiveCultureImport
 				completed.Add(type.Name);
 			}
 			var before = Counts(context);
+			context.ChangeTracker.Clear();
 			using var transaction = context.Database.BeginTransaction();
-			var report = CultureToolkitInstaller.Install(context, era, true, true, true, Console.WriteLine);
+			var elapsed = System.Diagnostics.Stopwatch.StartNew();
+			var report = CultureToolkitInstaller.Install(context, era, true, true, true,
+				message => Console.WriteLine($"[rerun {elapsed.Elapsed.TotalSeconds:N1}s] {message}"));
 			if (!before.SequenceEqual(Counts(context))) throw new InvalidOperationException("The live second pass changed entity counts.");
 			if (report.Conflicts.Count != 0) throw new InvalidOperationException("Live fixture conflicts: " + string.Join("\n", report.Conflicts));
 			transaction.Commit();

@@ -84,7 +84,8 @@ public static class CultureToolkitNameSeeder
 
 	internal static RandomNameProfile UpsertProfile(FuturemudDatabaseContext context, string era, string key, NameCulture culture,
 		RandomNameProfile desired, FutureProg? suggestionsProg, ICollection<string> conflicts,
-		RandomNameProfile? bound = null, RandomNameProfile? verifiedSourceBaseline = null)
+		RandomNameProfile? bound = null, RandomNameProfile? verifiedSourceBaseline = null,
+		ICollection<RandomNameProfilesElements>? deferredElements = null)
 	{
 		var record = CultureToolkitManagedEntities.Find(context, "RandomNameProfile", key);
 		var fresh = record is null && bound is null;
@@ -127,10 +128,13 @@ public static class CultureToolkitNameSeeder
 		{
 			if (!existingElements.Add(field.Key)) continue;
 			var parts = JsonSerializer.Deserialize<string[]>(field.Key[8..])!;
-			model.RandomNameProfilesElements.Add(new RandomNameProfilesElements
+			var added = new RandomNameProfilesElements
 			{
+				RandomNameProfileId = model.Id,
 				NameUsage = int.Parse(parts[0], CultureInfo.InvariantCulture), Name = parts[1], Weighting = int.Parse(field.Value, CultureInfo.InvariantCulture)
-			});
+			};
+			if (deferredElements is not null) deferredElements.Add(added);
+			else model.RandomNameProfilesElements.Add(added);
 		}
 		foreach (var row in model.RandomNameProfilesDiceExpressions.ToArray())
 		{

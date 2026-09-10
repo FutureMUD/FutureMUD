@@ -16,6 +16,25 @@ namespace DatabaseSeeder.Seeders.CultureToolkit;
 /// </summary>
 internal sealed class CultureToolkitEntityWriter(FuturemudDatabaseContext context, string era, ICollection<string> conflicts)
 {
+	/// <summary>Batch identities proven new by the caller's source preflight.</summary>
+	public void InsertNewAccents(IReadOnlyDictionary<string, Accent> definitions)
+	{
+		if (definitions.Count == 0) return;
+		foreach (var key in definitions.Keys)
+			if (CultureToolkitManagedEntities.Find(context, nameof(Accent), key) is not null)
+				throw new InvalidOperationException($"Accent {key} already has an owner; it requires reconciliation.");
+		context.Accents.AddRange(definitions.Values);
+		context.SaveChanges();
+		var fields = context.Model.FindEntityType(typeof(Accent))!.GetProperties()
+			.Where(x => x.PropertyInfo is not null && !x.IsPrimaryKey()).Select(x => x.PropertyInfo!).ToArray();
+		foreach (var (key, accent) in definitions)
+		{
+			var values = fields.ToDictionary(x => x.Name, x => JsonSerializer.Serialize(x.GetValue(accent), x.PropertyType));
+			CultureToolkitManagedEntities.Reconcile(context, era, nameof(Accent), key, accent.Id, true, values, values, conflicts);
+		}
+		context.SaveChanges();
+	}
+
 	public static T CopyScalars<T>(FuturemudDatabaseContext context, T source) where T : class, new()
 	{
 		var result = new T();

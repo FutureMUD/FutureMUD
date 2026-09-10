@@ -7,7 +7,7 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $seedingDirectory = Join-Path $repoRoot "Design Documents\Seeding"
 $aliasCataloguePath = Join-Path $seedingDirectory "PreIndustrial_Item_Seeder_Alias_Catalogue.md"
-$sharedSourcePath = Join-Path $repoRoot "DatabaseSeeder\Seeders\ItemSeeder.PreIndustrialBaseline.cs"
+$sharedSourcePath = Join-Path $repoRoot "DatabaseSeeder\Seeders\ItemSeeder\ItemSeeder.PreIndustrialBaseline.cs"
 
 function Get-Family {
 	param([string]$StableReference)

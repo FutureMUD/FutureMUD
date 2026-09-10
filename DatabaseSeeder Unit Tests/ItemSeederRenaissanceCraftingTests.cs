@@ -16,8 +16,8 @@ public class ItemSeederRenaissanceCraftingTests
 	[TestMethod]
 	public void RenaissanceFinishedItemCrafts_AreWiredAndDoNotDuplicateSpecialistJewelleryOrDoorRoutes()
 	{
-		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Renaissance.cs");
-		var dispatcher = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Renaissance.cs");
+		var dispatcher = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
 
 		StringAssert.Contains(dispatcher, "SeedRenaissanceFinishedItemCrafts();");
 		StringAssert.Contains(source, "renaissance_jewellery_");
@@ -39,8 +39,8 @@ public class ItemSeederRenaissanceCraftingTests
 		var sharedItems = manifest.Entries
 			.Where(x => x.EntityType.Equals("item", StringComparison.OrdinalIgnoreCase))
 			.ToDictionary(x => x.StableKey, StringComparer.OrdinalIgnoreCase);
-		var historicSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.HistoricFoundation.cs");
-		var aliasSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.Aliases.cs");
+		var historicSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.HistoricFoundation.cs");
+		var aliasSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.PreIndustrialBaseline.Aliases.cs");
 
 		foreach (var requirement in ItemSeeder.RenaissanceCraftToolRequirementsForTesting)
 		{

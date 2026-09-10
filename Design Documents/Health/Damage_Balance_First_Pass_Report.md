@@ -3,9 +3,9 @@
 ## Scope
 This report covers the April 2026 first-pass stock-human damage rebalance. The work stays primarily in seeder and static data:
 
-- `DatabaseSeeder/Seeders/HumanSeeder.Bodyparts.cs`
-- `DatabaseSeeder/Seeders/HumanSeeder.cs`
-- `DatabaseSeeder/Seeders/CombatSeeder.cs`
+- `DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.Bodyparts.cs`
+- `DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.cs`
+- `DatabaseSeeder/Seeders/CombatSeeder/CombatSeeder.cs`
 - `scripts/damage-balance-first-pass.ps1`
 
 No weapon damage formulas, bone HP, organ HP, organ cover, bone cover, or core routing architecture were changed.

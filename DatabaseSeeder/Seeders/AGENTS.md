@@ -15,7 +15,7 @@ It inherits from:
 - `Election`: Appointment-driven office turnover. Elections live on appointments, not on clans or ranks.
 
 ## Code Hotspots
-- `DatabaseSeeder/Seeders/ClanSeeder.cs`
+- `DatabaseSeeder/Seeders/ClanSeeder/ClanSeeder.cs`
   Creates stock clan templates and any supporting FutureProgs required by seeded templates.
 - `MudSharpCore/Commands/Modules/ClanModule.cs`
   Handles cloning template clans into live clans. Any template feature that depends on copied appointments, paygrades, or election metadata must be reflected here.

@@ -139,11 +139,11 @@ Recommended file layout:
 
 ```text
 Design Documents/Seeding/Primary_Production_Seeder_Design_Reference.md
-DatabaseSeeder/Seeders/ItemSeeder.PrimaryProductionTools.cs
-DatabaseSeeder/Seeders/ItemSeeder.Crafting.PrimaryProduction.cs
-DatabaseSeeder/Seeders/PrimaryProductionSeeder.cs
-DatabaseSeeder/Seeders/PrimaryProductionSeeder.Projects.cs
-DatabaseSeeder/Seeders/PrimaryProductionSeeder.Progs.cs
+DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.PrimaryProductionTools.cs
+DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.PrimaryProduction.cs
+DatabaseSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.cs
+DatabaseSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.Projects.cs
+DatabaseSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.Progs.cs
 DatabaseSeeder Unit Tests/PrimaryProductionSeederTests.cs
 DatabaseSeeder Unit Tests/ItemSeederPrimaryProductionCraftingTests.cs
 MudSharpCore/Work/Projects/Actions/CommodityOutputAction.cs
@@ -152,7 +152,7 @@ MudSharpCore/Work/Projects/Actions/CommodityOutputAction.cs
 If a future world starter package is added:
 
 ```text
-DatabaseSeeder/Seeders/WorldStarterSeeder.PrimaryProductionSites.cs
+DatabaseSeeder/Seeders/WorldStarterSeeder/WorldStarterSeeder.PrimaryProductionSites.cs
 Design Documents/Seeding/World_Starter_Primary_Production_Sites.md
 ```
 

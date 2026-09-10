@@ -5,9 +5,9 @@ This document describes the current stock damage pipeline after the April 2026 c
 
 Primary source files:
 
-- `DatabaseSeeder/Seeders/CombatSeeder.cs`
-- `DatabaseSeeder/Seeders/HumanSeeder.cs`
-- `DatabaseSeeder/Seeders/HumanSeeder.Bodyparts.cs`
+- `DatabaseSeeder/Seeders/CombatSeeder/CombatSeeder.cs`
+- `DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.cs`
+- `DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.Bodyparts.cs`
 - `MudSharpCore/Body/Implementations/BodyBiology.cs`
 - `MudSharpCore/Combat/ArmourType.cs`
 - `MudSharpCore/Health/Strategies/BaseHealthStrategy.cs`

@@ -16,7 +16,7 @@ INDEX = ROOT / "Design Documents/Seeding/FutureMUD_EarlyModern_Household_Furnitu
 FURNITURE_CATALOGUE = ROOT / "Design Documents/Seeding/FutureMUD_EarlyModern_Household_Furniture_Catalogue.md"
 SERVICE_CATALOGUE = ROOT / "Design Documents/Seeding/FutureMUD_EarlyModern_Household_Container_Service_Catalogue.md"
 AUDIT = ROOT / "Design Documents/Seeding/FutureMUD_Household_Seeder_Coverage_Audit.md"
-OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder.EarlyModern.HouseholdCoffeehouseTavernTradeManifestData.Generated.cs"
+OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.EarlyModern.HouseholdCoffeehouseTavernTradeManifestData.Generated.cs"
 
 QUALITY_TARGET = {
 	"Poor": 15,

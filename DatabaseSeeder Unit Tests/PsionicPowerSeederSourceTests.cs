@@ -25,8 +25,8 @@ public class PsionicPowerSeederSourceTests
 	[TestMethod]
 	public void SkillSeeders_RegisterOldSoiPsionicChecksAsVariableChecks()
 	{
-		var skillSeeder = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "SkillSeeder.cs"));
-		var packageSeeder = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "SkillPackageSeeder.cs"));
+		var skillSeeder = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "SkillSeeder", "SkillSeeder.cs"));
+		var packageSeeder = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "SkillPackageSeeder", "SkillPackageSeeder.cs"));
 
 		foreach (var check in NewPsionicChecks.Select(x => $"CheckType.{x}"))
 		{

@@ -14,7 +14,9 @@ Interactive installer that seeds initial database data and configuration for a n
 * Seeders should be idempotent so they can be safely rerun.
 * Use `FuturemudDatabaseContext` for data access and dispose contexts with `using`.
 * Interactions occur via the console; keep prompts and output clear for users.
-* Register new seeders in `Program` so they are included in the workflow.
+* Seeder discovery reflects over concrete `IDatabaseSeeder` implementations in the assembly; no registration in `Program` or filesystem scan is required.
+* Keep each seeder and its partial classes/private helpers in `Seeders/<SeederClassName>/`; retain shared helpers in `Seeders/Utilities/`. Preserve existing namespaces when relocating files.
+* Installer-wide assets live under `Assets/Database/` and `Assets/Manifests/`, with the same layout in build and publish output.
 
 ## Seeder Policy
 - Treat repeatability as a first-class design concern. New or modified seeders should declare honest repeatability and update semantics through the seeder metadata, not only through prose or warning colors.

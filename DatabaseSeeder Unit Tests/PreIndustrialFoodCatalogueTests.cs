@@ -210,27 +210,27 @@ public class PreIndustrialFoodCatalogueTests
 	[TestMethod]
 	public void ItemSeeder_DispatchesSharedAndEraSpecificFoodCatalogues()
 	{
-		var dispatcher = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
+		var dispatcher = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.cs");
 		StringAssert.Contains(dispatcher, "SeedSharedPreIndustrialFoodCatalogue();");
 		StringAssert.Contains(dispatcher, "SeedMedievalFoodCatalogue();");
 
 		var renaissance = ReadSource(
 			"DatabaseSeeder",
 			"Seeders",
-			"ItemSeeder.Renaissance.AgricultureFoodDrinkCommodities.cs");
+			"ItemSeeder", "ItemSeeder.Renaissance.AgricultureFoodDrinkCommodities.cs");
 		StringAssert.Contains(renaissance, "SeedRenaissanceFoodCatalogue();");
 
 		var earlyModern = ReadSource(
 			"DatabaseSeeder",
 			"Seeders",
-			"ItemSeeder.EarlyModern.AgricultureFoodDrinkCommodities.cs");
+			"ItemSeeder", "ItemSeeder.EarlyModern.AgricultureFoodDrinkCommodities.cs");
 		StringAssert.Contains(earlyModern, "SeedEarlyModernFoodCatalogue();");
 	}
 
 	[TestMethod]
 	public void ExistingStockFoodLiquids_AreReusedWithoutTakingOwnership()
 	{
-		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialFoodCatalogue.cs");
+		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.PreIndustrialFoodCatalogue.cs");
 		StringAssert.Contains(source, "var hasExistingLiquid = _liquids.TryGetValue(entry.Name, out var existingLiquid);");
 		StringAssert.Contains(source, "if (hasExistingLiquid)");
 		StringAssert.Contains(source,

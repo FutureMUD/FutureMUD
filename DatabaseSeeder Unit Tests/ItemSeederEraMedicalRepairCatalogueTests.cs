@@ -108,7 +108,7 @@ public class ItemSeederEraMedicalRepairCatalogueTests
 	public void MedicalRepairReferenceAndDispatch_AreKeptInSync()
 	{
 		var root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
-		var dispatcher = File.ReadAllText(Path.Combine(root, "DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.cs"));
+		var dispatcher = File.ReadAllText(Path.Combine(root, "DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.PreIndustrialBaseline.cs"));
 		var reference = Path.Combine(root, "Design Documents", "Seeding", "FutureMUD_Renaissance_EarlyModern_Medical_Repair_Design_Reference.md");
 		Assert.IsTrue(File.Exists(reference));
 		StringAssert.Contains(dispatcher, "SeedRenaissanceMedicalAndRepair();");

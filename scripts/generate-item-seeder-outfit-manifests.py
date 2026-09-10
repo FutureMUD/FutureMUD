@@ -23,8 +23,8 @@ RENAISSANCE_DOCS = (
 	RENAISSANCE_ASIA_DOC,
 	RENAISSANCE_AFRICA_AMERICAS_DOC,
 )
-MEDIEVAL_SOURCE = ROOT / "DatabaseSeeder/Seeders/ItemSeeder.MedievalClothing.cs"
-OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder.ClothingOutfitManifestData.Generated.cs"
+MEDIEVAL_SOURCE = ROOT / "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalClothing.cs"
+OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.ClothingOutfitManifestData.Generated.cs"
 
 
 @dataclass(frozen=True)
@@ -1133,7 +1133,7 @@ def generate() -> str:
 				f"Renaissance outfit {outfit.key} repeats default wearable components: {unexpected_duplicates}"
 			)
 
-	antiquity_live_items = extract_create_item_calls(ROOT / "DatabaseSeeder/Seeders/ItemSeeder.Antiquity.cs")
+	antiquity_live_items = extract_create_item_calls(ROOT / "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Antiquity.cs")
 	skin_by_stable_reference = {skin.stable_reference: skin for skin in skins}
 	known_skin_base_items = {
 		*antiquity_live_items,

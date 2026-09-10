@@ -120,7 +120,7 @@ public class BlankDatabaseSnapshotTests
             "..",
             "..",
             "..",
-            "DatabaseSeeder"));
+            "DatabaseSeeder", "Assets", "Database"));
     }
 
     private static string GetLatestMigrationIdFromSource()

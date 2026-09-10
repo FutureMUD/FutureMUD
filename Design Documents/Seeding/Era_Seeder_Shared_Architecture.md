@@ -2,9 +2,15 @@
 
 This document describes the shared era item/craft records used by rework seeders. Antiquity and Medieval both have live seeded catalogues. The shared pre-industrial baseline now supplies stable cross-era workshop, production, writing, trade, civic, and military-support stock to Antiquity, Medieval, Renaissance, and Early Modern selections without renaming either era's source rows.
 
+## Source and Asset Layout
+
+Each seeder lives in `DatabaseSeeder/Seeders/<SeederClassName>/`, together with its partial classes and private helpers. ItemSeeder owns its food and medical-repair catalogue folders; CultureSeeder owns CultureToolkit. Shared helpers remain in `Seeders/Utilities/`. Existing namespaces are unchanged. Seeder discovery uses assembly reflection over concrete `IDatabaseSeeder` implementations, so folders require no registration changes.
+
+Installer-wide SQL and snapshot metadata live in `DatabaseSeeder/Assets/Database/`. The authoritative item manifest remains in `Design Documents/Seeding/Seeded_Item_Manifest.json` and is packaged as `Assets/Manifests/Seeded_Item_Manifest.json`. Build and publish output preserve these asset directories; runtime paths are relative to the executable, and snapshot refresh resolves the project asset directory. Item manifest fingerprints include the relocated ItemSeeder source paths. Historical culture handoff files retain their original paths and checksums as provenance records. This organisation changes no database schema or seeded content.
+
 ## Shared Records
 
-`DatabaseSeeder/Seeders/ItemSeeder.EraDefinitions.cs` owns the reusable records:
+`DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.EraDefinitions.cs` owns the reusable records:
 
 - `EraItemSpec` for seeded item prototypes.
 - `EraClothingPieceSpec` for clothing entries that also know outfit usage and craft data.

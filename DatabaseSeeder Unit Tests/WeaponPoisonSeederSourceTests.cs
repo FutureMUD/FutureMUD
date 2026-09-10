@@ -14,8 +14,8 @@ public class WeaponPoisonSeederSourceTests
 	[TestMethod]
 	public void SkillSeeders_RegisterApplyPoisonCheck()
 	{
-		var skillSeeder = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "SkillSeeder.cs"));
-		var packageSeeder = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "SkillPackageSeeder.cs"));
+		var skillSeeder = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "SkillSeeder", "SkillSeeder.cs"));
+		var packageSeeder = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "SkillPackageSeeder", "SkillPackageSeeder.cs"));
 		var checkName = $"CheckType.{CheckType.ApplyPoisonToWeapon}";
 
 		StringAssert.Contains(skillSeeder, checkName);

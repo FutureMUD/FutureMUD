@@ -174,7 +174,7 @@ public class MedievalIndustryPrerequisiteAddendumTests
 	[TestMethod]
 	public void SkillPackageSeeder_IncludesRepeatedMedievalIndustryPrerequisiteSkills()
 	{
-		var skillSource = ReadSource("DatabaseSeeder", "Seeders", "SkillPackageSeeder.cs");
+		var skillSource = ReadSource("DatabaseSeeder", "Seeders", "SkillPackageSeeder", "SkillPackageSeeder.cs");
 
 		foreach (string skill in RequiredSkillPackageEntries)
 		{

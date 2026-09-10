@@ -5,7 +5,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$catalogueRoot = Join-Path $repoRoot "DatabaseSeeder\Seeders\FoodCatalogue"
+$catalogueRoot = Join-Path $repoRoot "DatabaseSeeder\Seeders\ItemSeeder\FoodCatalogue"
 $seedingRoot = Join-Path $repoRoot "Design Documents\Seeding"
 
 function Get-AdmissionDecision {

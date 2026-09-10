@@ -37,7 +37,7 @@ public class RenaissanceEarlyModernDependencyFoundationTests
 	[TestMethod]
 	public void SkillPackageSeeder_ProvidesEraSpecialistSkillsInBothNamingModes()
 	{
-		var source = ReadSource("DatabaseSeeder", "Seeders", "SkillPackageSeeder.cs");
+		var source = ReadSource("DatabaseSeeder", "Seeders", "SkillPackageSeeder", "SkillPackageSeeder.cs");
 		var nonGerundNames = new SkillPackageSeeder().ComplexNonGerundSkillNamesForTesting;
 
 		foreach (var (gerund, imperative) in SpecialistSkills)

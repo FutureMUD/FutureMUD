@@ -38,7 +38,7 @@ public class PrimaryProductionSeederTests
 	[TestMethod]
 	public void PrimaryProductionSeeder_DefinesResourceTagsDepositsProjectsAndGatedExtraction()
 	{
-		string tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
+		string tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
 		var itemSpecs = ItemSeeder.PrimaryProductionItemSpecsForTesting.ToArray();
 		var projectSpecs = PrimaryProductionSeeder.PrimaryProductionProjectSpecsForTesting.ToArray();
 
@@ -211,7 +211,7 @@ public class PrimaryProductionSeederTests
 	[TestMethod]
 	public void PrimaryProductionProjectPhases_SetDescriptionBeforeFirstSave()
 	{
-		string source = ReadSource("DatabaseSeeder", "Seeders", "PrimaryProductionSeeder.cs");
+		string source = ReadSource("DatabaseSeeder", "Seeders", "PrimaryProductionSeeder", "PrimaryProductionSeeder.cs");
 		string ensurePhase = SliceFrom(source, "private static ProjectPhase EnsurePhase", "private static void EnsurePrimaryLabour");
 
 		int descriptionIndex = ensurePhase.IndexOf("Description = seed.Description", StringComparison.Ordinal);

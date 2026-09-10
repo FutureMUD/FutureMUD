@@ -329,7 +329,7 @@ The exception details were as follows:
         DatabaseBackupSettings.Load(AppContext.BaseDirectory);
         bool databaseLooksBlank = UpgradeCoordinator.DatabaseLooksBlank(ConnectionString!);
         string? latestMigrationId = UpgradeCoordinator.GetLatestMigrationId(ConnectionString!);
-        BlankDatabaseSnapshotAssessment snapshotAssessment = BlankDatabaseSnapshotManager.Assess(AppContext.BaseDirectory, latestMigrationId);
+        BlankDatabaseSnapshotAssessment snapshotAssessment = BlankDatabaseSnapshotManager.Assess(Path.Combine(AppContext.BaseDirectory, "Assets", "Database"), latestMigrationId);
         DatabaseBootstrapMode bootstrapMode = BlankDatabaseSnapshotManager.SelectBootstrapMode(databaseLooksBlank, snapshotAssessment);
 
         switch (bootstrapMode)

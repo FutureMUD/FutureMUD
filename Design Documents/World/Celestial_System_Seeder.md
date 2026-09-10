@@ -1,7 +1,7 @@
 # FutureMUD Celestial System Seeder
 
 ## Purpose
-`DatabaseSeeder/Seeders/CelestialSeeder.cs` ships the stock celestial packages used by new installs and test fixtures. Its goal is not to be a generic astronomy authoring system. Its goal is to create coherent, repeatable modern packages that match the runtime loader and linked observer-frame math.
+`DatabaseSeeder/Seeders/CelestialSeeder/CelestialSeeder.cs` ships the stock celestial packages used by new installs and test fixtures. Its goal is not to be a generic astronomy authoring system. Its goal is to create coherent, repeatable modern packages that match the runtime loader and linked observer-frame math.
 
 ## Stock Packages
 

@@ -1,6 +1,6 @@
 # ItemSeeder AddCraft Authoring Guide
 
-This guide documents the craft-authoring slice in `DatabaseSeeder/Seeders/ItemSeeder.Crafting.cs`.
+This guide documents the craft-authoring slice in `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs`.
 
 `AddCraft` now uses a typed seeder API internally. The compact spreadsheet-style strings are still supported, but they are treated as an import layer: strings are parsed into typed phase, input, tool, and product specs, validated as a group, and then inserted through one implementation path.
 
@@ -32,7 +32,7 @@ The active item sdesc is a short description, not a sentence. New stock calls sh
 
 ## Where To Invoke It
 
-Stock craft definitions live in `SeedCrafts()` in `DatabaseSeeder/Seeders/ItemSeeder.Crafting.cs`.
+Stock craft definitions live in `SeedCrafts()` in `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs`.
 
 Add new calls after `_nextId` has been reset and after the item prototypes, tags, materials, liquids, traits, and FutureProgs they reference have already been seeded into the lookup dictionaries. In normal `ItemSeeder` flow, `CreateProgs()` and `SeedItems()` run before `SeedCrafts()`, so stock craft calls can use:
 

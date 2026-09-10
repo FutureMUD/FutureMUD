@@ -217,7 +217,7 @@ internal static class ItemSeederManifestCatalogue
 
 	public static ItemSeederManifestDocument LoadForRuntime()
 	{
-		var packagedPath = Path.Combine(AppContext.BaseDirectory, "Seeded_Item_Manifest.json");
+		var packagedPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Manifests", "Seeded_Item_Manifest.json");
 		if (File.Exists(packagedPath))
 		{
 			return Load(packagedPath);
@@ -257,7 +257,7 @@ internal static class ItemSeederManifestCatalogue
 
 	public static string ComputeSourceFingerprint(string repositoryRoot)
 	{
-		var sourceDirectory = Path.Combine(repositoryRoot, "DatabaseSeeder", "Seeders");
+		var sourceDirectory = Path.Combine(repositoryRoot, "DatabaseSeeder", "Seeders", "ItemSeeder");
 		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 		foreach (var path in Directory
 		         .EnumerateFiles(sourceDirectory, "ItemSeeder*.cs", SearchOption.TopDirectoryOnly)

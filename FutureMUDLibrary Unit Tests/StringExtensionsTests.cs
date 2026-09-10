@@ -146,6 +146,8 @@ public class StringExtensionsTests
     public void TitleCase_CapitalisesWords()
     {
         Assert.AreEqual("Hello World", "hello world".TitleCase());
+        Assert.AreEqual("Hello-World Two", "hello-world two".TitleCase());
+        Assert.AreEqual("Hello Two (World Time) Blah", "hello two (world time) blah".TitleCase());
     }
 
     [TestMethod]

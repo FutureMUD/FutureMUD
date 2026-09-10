@@ -15,7 +15,7 @@ namespace MudSharp.Framework
 
         private static readonly Regex ProperCaseRegex = new("(?<=\x1B\\[[^m]+m|^)([a-z])");
 
-        private static readonly Regex TitleCaseRegex = new("(?<=\x1B\\[[^m]+m|[ ]|^)([a-z])");
+        private static readonly Regex TitleCaseRegex = new("(?<=\x1B\\[[^m]+m|[^a-z0-9]|^)([a-z])");
 
         private static readonly Regex NormaliseSpacingRegex1St = new(@"[ \t]{2,}", RegexOptions.Compiled);
         private static readonly Regex NormaliseSpacingRegex2Nd = new(@"[ \t]+([.,;:!?])", RegexOptions.Compiled);

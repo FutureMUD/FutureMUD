@@ -166,7 +166,7 @@ public sealed class FutureMudNpcBaselineCatalog
 				x.Id,
 				x.Name,
 				x.LinkedTraitId,
-				x.DefaultLearnerAccentId
+				DefaultAccentId = x.Accents.Where(a => a.Role == 2).OrderBy(a => a.Id).Select(a => (long?)a.Id).FirstOrDefault()
 			})
 			.ToList();
 		var fallbackAccentsByLanguageId = context.Accents
@@ -244,7 +244,7 @@ public sealed class FutureMudNpcBaselineCatalog
 						x.Id,
 						x.Name,
 						x.LinkedTraitId,
-						x.DefaultLearnerAccentId,
+						x.DefaultAccentId,
 						fallbackAccentsByLanguageId.GetValueOrDefault(x.Id)),
 					EqualityComparer<long>.Default),
 			ArtificialIntelligenceIds = context.ArtificialIntelligences

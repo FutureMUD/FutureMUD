@@ -1,3 +1,4 @@
+#nullable enable annotations
 ﻿using Dapper;
 using MudSharp.Accounts;
 using MudSharp.Body;
@@ -202,7 +203,7 @@ public partial class Chargen : FrameworkItem, IChargen
                              SelectedWeight > 0.0 &&
                              SelectedAttributes.Any() &&
                              SelectedSkills.Any() &&
-                             SelectedAccents.Any() &&
+							 (SelectedAccents.Any() || !Gameworld.Languages.Any(x => SelectedSkills.Contains(x.LinkedTrait) && x.Accents.Any())) &&
                              SelectedCharacteristics.Any() &&
                              SelectedNotes.Any() &&
                              SelectedStartingLocation != null &&
@@ -319,6 +320,8 @@ public partial class Chargen : FrameworkItem, IChargen
     public List<(ITraitDefinition, double)> SkillValues { get; set; }
 
     public double SelectedWeight { get; set; }
+
+	public ILanguage? SelectedNativeLanguage { get; set; }
 
     public List<IAccent> SelectedAccents { get; set; }
 
@@ -622,7 +625,7 @@ public partial class Chargen : FrameworkItem, IChargen
                                 .ArrangeStringsOntoLines(5, (uint)character.LineFormatLength));
         sb.AppendLine();
         sb.AppendLine(
-            $"Languages and Accents:\n\n{SelectedSkills.SelectNotNull(x => Gameworld.Languages.FirstOrDefault(y => y.LinkedTrait == x)).Select(x => $"{x.Name.Proper()} ({SelectedAccents.Where(y => y.Language == x).Select(y => y.Name.Proper()).ListToString()})".Colour(Telnet.Green)).ListToLines(true)}");
+			$"Native Language: {((ILanguage)GetProperty("nativelanguage"))?.Name ?? "None"}\n\nLanguages and Accents:\n\n{SelectedSkills.SelectNotNull(x => Gameworld.Languages.FirstOrDefault(y => y.LinkedTrait == x)).Select(x => $"{x.Name.Proper()} ({SelectedAccents.Where(y => y.Language == x).Select(y => y.Name.Proper()).ListToString()})".Colour(Telnet.Green)).ListToLines(true)}");
         if (SelectedKnowledges.Any())
         {
             sb.AppendLine();
@@ -1285,6 +1288,7 @@ public partial class Chargen : FrameworkItem, IChargen
                 }
             }
 
+			SelectedNativeLanguage = Gameworld.Languages.Get((long?)root.Element("SelectedNativeLanguage") ?? 0);
             foreach (XElement item in root.Element("SelectedAccents").Elements("Accent"))
             {
                 IAccent accent = Gameworld.Accents.Get(long.Parse(item.Value));
@@ -1538,7 +1542,7 @@ public partial class Chargen : FrameworkItem, IChargen
                 select
                     new XElement("Skill", new XAttribute("ID", value.Item1.Id),
                         new XAttribute("Value", value.Item2))
-            ), new XElement("SelectedAccents",
+			), new XElement("SelectedNativeLanguage", SelectedNativeLanguage?.Id ?? 0), new XElement("SelectedAccents",
                 from accent in SelectedAccents select new XElement("Accent", accent.Id)
             ), new XElement("SelectedNotes",
                 from note in SelectedNotes

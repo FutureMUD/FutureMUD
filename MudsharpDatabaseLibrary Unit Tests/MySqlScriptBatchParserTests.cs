@@ -54,8 +54,10 @@ public class MySqlScriptBatchParserTests
 		Assert.IsTrue(batches.All(x => !string.IsNullOrWhiteSpace(x.Script)));
 		Assert.IsTrue(batches.All(x => x.Delimiter is ";" or "//"));
 		Assert.IsFalse(batches.Any(x => x.Script.Contains("DELIMITER", StringComparison.OrdinalIgnoreCase)));
-		Assert.IsTrue(batches.Any(x =>
-			x.Script.Contains("20260829082253_AddOutfitTemplateItemSkin", StringComparison.Ordinal)));
+		using var manifest = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(
+			Path.GetDirectoryName(snapshotPath)!, "BlankDatabaseSnapshot.manifest.json")));
+		var latest = manifest.RootElement.GetProperty("LatestMigrationId").GetString()!;
+		Assert.IsTrue(batches.Any(x => x.Script.Contains(latest, StringComparison.Ordinal)));
 	}
 
 	private static string GetCommittedSnapshotPath([CallerFilePath] string sourceFilePath = "")
@@ -64,6 +66,8 @@ public class MySqlScriptBatchParserTests
 			Path.GetDirectoryName(sourceFilePath)!,
 			"..",
 			"DatabaseSeeder",
+			"Assets",
+			"Database",
 			"BlankDatabaseSnapshot.sql"));
 	}
 }

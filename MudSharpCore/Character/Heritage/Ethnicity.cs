@@ -1,3 +1,4 @@
+using MudSharp.Communication.Language;
 ﻿using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
@@ -15,11 +16,15 @@ namespace MudSharp.Character.Heritage;
 
 public class Ethnicity : SaveableItem, IEthnicity
 {
+	private long? _nativeLanguageId;
+	public ILanguage NativeLanguage => Gameworld.Languages.Get(_nativeLanguageId ?? 0);
+
     public Ethnicity(MudSharp.Models.Ethnicity ethnicity, IFuturemud gameworld)
     {
         Gameworld = gameworld;
         _id = ethnicity.Id;
         _name = ethnicity.Name;
+		_nativeLanguageId = ethnicity.NativeLanguageId;
         ChargenBlurb = ethnicity.ChargenBlurb;
         CharacteristicChoices = new Dictionary<ICharacteristicDefinition, ICharacteristicProfile>();
         AvailabilityProg = gameworld.FutureProgs.Get(ethnicity.AvailabilityProgId ?? 0);
@@ -146,6 +151,7 @@ public class Ethnicity : SaveableItem, IEthnicity
     public Ethnicity(IEthnicity rhs, string newName)
     {
         Gameworld = rhs.Gameworld;
+		_nativeLanguageId = rhs.NativeLanguage?.Id;
         ParentRace = rhs.ParentRace;
         _name = newName;
         TolerableTemperatureCeilingEffect = rhs.TolerableTemperatureCeilingEffect;
@@ -186,6 +192,7 @@ public class Ethnicity : SaveableItem, IEthnicity
             Models.Ethnicity dbitem = new()
             {
                 Name = Name,
+				NativeLanguageId = _nativeLanguageId,
                 TolerableTemperatureCeilingEffect = TolerableTemperatureCeilingEffect,
                 TolerableTemperatureFloorEffect = TolerableTemperatureFloorEffect,
                 ParentRaceId = ParentRace.Id,
@@ -336,6 +343,7 @@ public class Ethnicity : SaveableItem, IEthnicity
         return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
         {
             { "id", ProgVariableTypes.Number },
+			{ "nativelanguage", ProgVariableTypes.Language },
             { "name", ProgVariableTypes.Text },
             { "group", ProgVariableTypes.Text },
             { "subgroup", ProgVariableTypes.Text },
@@ -359,6 +367,7 @@ public class Ethnicity : SaveableItem, IEthnicity
         return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
         {
             { "id", "The Id of the ethnicity" },
+			{ "nativelanguage", "The optional native language default" },
             { "name", "The name of the ethnicity" },
             { "group", "The ethnic group to which this ethnicity belongs" },
             { "subgroup", "The ethnic sub group to which this ethnicity belongs" },
@@ -391,6 +400,8 @@ public class Ethnicity : SaveableItem, IEthnicity
             case "id":
                 returnVar = new NumberVariable(Id);
                 break;
+			case "nativelanguage":
+				return NativeLanguage;
             case "name":
                 returnVar = new TextVariable(Name);
                 break;
@@ -445,6 +456,7 @@ public class Ethnicity : SaveableItem, IEthnicity
     {
         Models.Ethnicity dbitem = FMDB.Context.Ethnicities.Find(Id);
         dbitem.Name = Name;
+		dbitem.NativeLanguageId = _nativeLanguageId;
         dbitem.ChargenBlurb = ChargenBlurb;
         dbitem.EthnicGroup = EthnicGroup;
         dbitem.EthnicSubgroup = EthnicSubgroup;
@@ -507,6 +519,7 @@ public class Ethnicity : SaveableItem, IEthnicity
 
     private const string HelpText = @"You can use the following options with this command:
 
+	#3native <language|none>#0 - sets the optional native-language default
 	#3name <name>#0 - renames this ethnicity
 	#3group <group>#0 - sets an ethnic group
 	#3group clear#0 - clears an ethnic group
@@ -529,6 +542,19 @@ public class Ethnicity : SaveableItem, IEthnicity
     {
         switch (command.PopForSwitch())
         {
+			case "native":
+			case "nativelanguage":
+				var text = command.SafeRemainingArgument;
+				var language = Gameworld.Languages.GetByIdOrName(text);
+				if (!text.EqualTo("none") && language is null)
+				{
+					actor.OutputHandler.Send("Specify a language or none.");
+					return false;
+				}
+				_nativeLanguageId = language?.Id;
+				Changed = true;
+				actor.OutputHandler.Send($"Native language default: {NativeLanguage?.Name.ColourName() ?? "None"}.");
+				return true;
             case "name":
                 return BuildingCommandName(actor, command);
             case "group":
@@ -1032,6 +1058,7 @@ public class Ethnicity : SaveableItem, IEthnicity
     public string Show(ICharacter actor)
     {
         StringBuilder sb = new();
+		sb.AppendLine($"Native Language: {NativeLanguage?.Name.ColourName() ?? "None"}");
         sb.AppendLine($"Ethnicity #{Id.ToString("N0", actor)} - {Name.ColourName()}");
         sb.AppendLine($"Race: {ParentRace.Name.ColourValue()}");
         sb.AppendLine($"Group: {EthnicGroup?.ColourValue() ?? ""}");

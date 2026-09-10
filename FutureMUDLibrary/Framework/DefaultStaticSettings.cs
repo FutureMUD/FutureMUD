@@ -779,6 +779,7 @@ public static class DefaultStaticSettings
             { "DefaultMinimumJailDays", "1" },
             { "DefaultMaximumJailDays", "14" },
             { "TrialDelaySeconds", "20" },
+			{ "NativeAccentFamiliarityFloor", "Easy" },
             { "AllowAccentsToGetToAutomatic", "true" },
             { "AutomaticHoldableItemProtos", "true" },
             { "OngoingJobPerformanceDecayPerHour", "10.0" },

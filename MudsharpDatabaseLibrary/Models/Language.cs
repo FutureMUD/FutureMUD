@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace MudSharp.Models
@@ -23,9 +23,7 @@ namespace MudSharp.Models
         public string UnknownLanguageDescription { get; set; }
         public double LanguageObfuscationFactor { get; set; }
         public string Name { get; set; }
-        public long? DefaultLearnerAccentId { get; set; }
 
-        public virtual Accent DefaultLearnerAccent { get; set; }
         public virtual LanguageDifficultyModels DifficultyModelNavigation { get; set; }
         public virtual TraitDefinition LinkedTrait { get; set; }
         public virtual ICollection<Accent> Accents { get; set; }

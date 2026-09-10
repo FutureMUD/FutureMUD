@@ -77,7 +77,7 @@ internal static class VerifyToolkitInstall
 					if (fixture.NameCultures.Find(link.NameCultureId) is null || fixture.Ethnicities.Find(link.EthnicityId) is null)
 						throw new InvalidOperationException("Dangling ethnicity/name-culture link.");
 				foreach (var language in fixture.Languages)
-					if (fixture.TraitDefinitions.Find(language.LinkedTraitId) is null || language.DefaultLearnerAccentId is long accentId && fixture.Accents.Find(accentId) is null)
+					if (fixture.TraitDefinitions.Find(language.LinkedTraitId) is null || language.Accents.Any(accent => !Enum.IsDefined(typeof(MudSharp.Communication.Language.AccentRole), accent.Role)))
 						throw new InvalidOperationException("Dangling language/trait/learner link.");
 				if (heritage)
 				foreach (var overlay in new CultureToolkitCatalogue().Compose(era).Ethnicities)

@@ -1,4 +1,4 @@
-﻿using MudSharp.CharacterCreation;
+using MudSharp.CharacterCreation;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
@@ -31,6 +31,8 @@ namespace MudSharp.Communication.Language
         string Group { get; }
 
         ILanguage Language { get; }
+		AccentRole Role { get; }
+		IEnumerable<ILanguage> AssociatedLanguages { get; }
 
         /// <summary>
         ///     The difficulty of understanding this accent if it is one with which you are unfamiliar

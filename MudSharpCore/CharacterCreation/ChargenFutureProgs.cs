@@ -1,4 +1,4 @@
-﻿using MudSharp.Character.Name;
+using MudSharp.Character.Name;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.FutureProg.Variables;
 
@@ -90,6 +90,8 @@ public partial class Chargen
                 returnVar = new CollectionVariable(SelectedSkills, ProgVariableTypes.Trait);
                 break;
 
+			case "nativelanguage":
+				return MudSharp.Communication.Language.LanguageAcquisition.ResolveNative(Gameworld.Languages.Where(x => SelectedSkills.Contains(x.LinkedTrait)), x => SkillValues.FirstOrDefault(v => v.Item1 == x.LinkedTrait).Item2, SelectedNativeLanguage, SelectedEthnicity?.NativeLanguage, SelectedCulture?.NativeLanguage);
             case "accents":
                 returnVar = new CollectionVariable(SelectedAccents, ProgVariableTypes.Accent);
                 break;
@@ -161,6 +163,7 @@ public partial class Chargen
             { "weight", ProgVariableTypes.Number },
             { "gender", ProgVariableTypes.Gender },
             { "skills", ProgVariableTypes.Trait | ProgVariableTypes.Collection },
+			{ "nativelanguage", ProgVariableTypes.Language },
             { "accents", ProgVariableTypes.Accent | ProgVariableTypes.Collection },
             { "class", ProgVariableTypes.Text },
             { "subclass", ProgVariableTypes.Text },
@@ -194,6 +197,7 @@ public partial class Chargen
             { "weight", "" },
             { "gender", "" },
             { "skills", "" },
+			{ "nativelanguage", "The native language" },
             { "accents", "" },
             { "class", "" },
             { "subclass", "" },
@@ -227,6 +231,7 @@ public partial class Chargen
             { "weight", ProgVariableTypes.Number },
             { "gender", ProgVariableTypes.Gender },
             { "skills", ProgVariableTypes.Trait | ProgVariableTypes.Collection },
+			{ "nativelanguage", ProgVariableTypes.Language },
             { "accents", ProgVariableTypes.Accent | ProgVariableTypes.Collection },
             { "class", ProgVariableTypes.Text },
             { "subclass", ProgVariableTypes.Text },
@@ -260,6 +265,7 @@ public partial class Chargen
             { "weight", "" },
             { "gender", "" },
             { "skills", "" },
+			{ "nativelanguage", "The native language" },
             { "accents", "" },
             { "class", "" },
             { "subclass", "" },

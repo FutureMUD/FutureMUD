@@ -1,3 +1,4 @@
+#nullable enable annotations
 ﻿using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
@@ -57,6 +58,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
         _name = string.IsNullOrEmpty(name) ? template.SelectedName.GetName(NameStyle.FullName) : name;
         BuilderNotes = string.IsNullOrWhiteSpace(builderNotes) ? null : builderNotes;
         SelectedGender = template.SelectedGender;
+		SelectedNativeLanguage = template.SelectedNativeLanguage;
         SelectedAccents = template.SelectedAccents.ToList();
         SelectedBirthday = template.SelectedBirthday;
         SelectedAttributes = template.SelectedAttributes.ToList();
@@ -131,6 +133,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
         return new SimpleCharacterTemplate
         {
             SelectedName = SelectedName,
+			SelectedNativeLanguage = SelectedNativeLanguage,
             SelectedAccents = SelectedAccents,
             SelectedAttributes = SelectedAttributes,
             SelectedBirthday = SelectedBirthday,
@@ -160,6 +163,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
     public override string HelpText => @"You can use the following options with this command:
 
 	#3race <race>#0 - sets the race of this NPC
+	#3native <language|none>#0 - sets an optional native-language override
 	#3culture <culture>#0 - sets the culture of this NPC
 	#3ethnicity <ethnicity>#0 - sets the ethnicity of this NPC
 	#3gender <gender>#0 - sets the gender of this NPC
@@ -199,6 +203,19 @@ public class SimpleNPCTemplate : NPCTemplateBase
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+			case "native":
+			case "nativelanguage":
+				var languageText = command.SafeRemainingArgument;
+				var language = Gameworld.Languages.GetByIdOrName(languageText);
+				if (!languageText.EqualTo("none") && (language is null || !SelectedSkills.Contains(language.LinkedTrait)))
+				{
+					actor.OutputHandler.Send("Specify a known language or none for automatic inference.");
+					return false;
+				}
+				SelectedNativeLanguage = language;
+				Changed = true;
+				actor.OutputHandler.Send($"Native language: {language?.Name.ColourName() ?? "Automatic"}.");
+				return true;
             case "accent":
                 return BuildingCommandAccent(actor, command);
             case "attribute":
@@ -264,6 +281,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
         using (new FMDB())
         {
             StringBuilder sb = new();
+		sb.AppendLine($"Native Language: {(SelectedNativeLanguage)?.Name.ColourName() ?? "Automatic"}");
 
             sb.AppendLine(($"Simple NPC #{Id.ToStringN0(actor)}r{RevisionNumber.ToStringN0(actor)} - {Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite)).Colour(Telnet.Cyan));
             sb.AppendLine();
@@ -657,6 +675,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
                 SkillValues.Add((trait, double.Parse(item.Attribute("Value").Value)));
             }
 
+			SelectedNativeLanguage = Gameworld.Languages.Get((long?)root.Element("SelectedNativeLanguage") ?? 0);
             foreach (XElement item in root.Element("SelectedAccents").Elements("Accent"))
             {
                 IAccent accent = Gameworld.Accents.Get(long.Parse(item.Value));
@@ -785,7 +804,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
                 {
                     from skill in SkillValues
                     select new XElement("Skill", new XAttribute("Value", skill.Item2), skill.Item1.Id)
-                }), new XElement("SelectedAccents", new object[]
+				}), new XElement("SelectedNativeLanguage", SelectedNativeLanguage?.Id ?? 0), new XElement("SelectedAccents", new object[]
                 {
                     from accent in SelectedAccents select new XElement("Accent", accent.Id)
                 }), new XElement("SelectedCharacteristics", from characteristic in SelectedCharacteristics
@@ -1877,6 +1896,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
     #region ICharacterTemplate Members
 
+	public ILanguage? SelectedNativeLanguage { get; set; }
     public List<IAccent> SelectedAccents { get; set; }
 
     public List<ITrait> SelectedAttributes { get; set; }

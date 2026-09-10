@@ -15723,3 +15723,294 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 
 -- Dump completed on 2026-09-08 09:58:35
 -- Total time: 0:0:0:1:652 (d:h:m:s:ms)
+
+-- EF-generated idempotent delta: NativeLanguagesAndAccentRoles
+﻿START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    ALTER TABLE `accents` ADD `Role` int NOT NULL DEFAULT 0;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    UPDATE accents a INNER JOIN languages l ON l.DefaultLearnerAccentId = a.Id SET a.Role = 2;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    ALTER TABLE `languages` DROP FOREIGN KEY `FK_Languages_Accents`;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    ALTER TABLE `languages` DROP INDEX `FK_Languages_Accents_idx`;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    ALTER TABLE `languages` DROP COLUMN `DefaultLearnerAccentId`;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    ALTER TABLE `ethnicities` ADD `NativeLanguageId` bigint(20) NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    ALTER TABLE `cultures` ADD `NativeLanguageId` bigint(20) NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    ALTER TABLE `characters_languages` ADD `AcquisitionAccentId` bigint(20) NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    ALTER TABLE `characters` ADD `NativeLanguageId` bigint(20) NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    CREATE TABLE `accentsassociatedlanguages` (
+        `AccentId` bigint(20) NOT NULL,
+        `LanguageId` bigint(20) NOT NULL,
+        CONSTRAINT `PK_AccentsAssociatedLanguages` PRIMARY KEY (`AccentId`, `LanguageId`),
+        CONSTRAINT `FK_AccentsAssociatedLanguages_Accents_AccentId` FOREIGN KEY (`AccentId`) REFERENCES `accents` (`Id`) ON DELETE CASCADE,
+        CONSTRAINT `FK_AccentsAssociatedLanguages_Languages_LanguageId` FOREIGN KEY (`LanguageId`) REFERENCES `languages` (`Id`) ON DELETE CASCADE
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    CREATE INDEX `IX_Ethnicities_NativeLanguageId` ON `ethnicities` (`NativeLanguageId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    CREATE INDEX `IX_Cultures_NativeLanguageId` ON `cultures` (`NativeLanguageId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    CREATE INDEX `IX_Characters_Languages_AcquisitionAccentId` ON `characters_languages` (`AcquisitionAccentId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    CREATE INDEX `IX_Characters_NativeLanguageId` ON `characters` (`NativeLanguageId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    CREATE INDEX `IX_AccentsAssociatedLanguages_LanguageId` ON `accentsassociatedlanguages` (`LanguageId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    ALTER TABLE `characters` ADD CONSTRAINT `FK_Characters_Languages_NativeLanguageId` FOREIGN KEY (`NativeLanguageId`) REFERENCES `languages` (`Id`) ON DELETE SET NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    ALTER TABLE `characters_languages` ADD CONSTRAINT `FK_Characters_Languages_Accents_AcquisitionAccentId` FOREIGN KEY (`AcquisitionAccentId`) REFERENCES `accents` (`Id`) ON DELETE SET NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    ALTER TABLE `cultures` ADD CONSTRAINT `FK_Cultures_Languages_NativeLanguageId` FOREIGN KEY (`NativeLanguageId`) REFERENCES `languages` (`Id`) ON DELETE SET NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    ALTER TABLE `ethnicities` ADD CONSTRAINT `FK_Ethnicities_Languages_NativeLanguageId` FOREIGN KEY (`NativeLanguageId`) REFERENCES `languages` (`Id`) ON DELETE SET NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260910112225_NativeLanguagesAndAccentRoles') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20260910112225_NativeLanguagesAndAccentRoles', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;

@@ -1,3 +1,4 @@
+#nullable enable annotations
 ﻿using JetBrains.Annotations;
 using MudSharp.Accounts;
 using MudSharp.Body;
@@ -33,6 +34,7 @@ namespace MudSharp.CharacterCreation
     public interface ICharacterTemplate : IProgVariable, IHaveFuturemud, IHaveTraits, IHaveCharacteristics
     {
         List<IAccent> SelectedAccents { get; }
+		ILanguage? SelectedNativeLanguage { get; set; }
         List<ITrait> SelectedAttributes { get; }
         MudDate SelectedBirthday { get; }
         List<(ICharacteristicDefinition, ICharacteristicValue)> SelectedCharacteristics { get; }

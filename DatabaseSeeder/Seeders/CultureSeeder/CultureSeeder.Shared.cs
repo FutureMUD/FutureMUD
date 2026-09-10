@@ -215,15 +215,18 @@ public partial class CultureSeeder
                 return created;
             });
 
+		var freshAccent = accent.Id == 0;
         accent.Name = name.TitleCase();
         accent.Suffix = suffix;
         accent.VagueSuffix = vague;
         accent.Difficulty = difficulty;
         accent.Description = description;
         accent.Group = group;
+		if (freshAccent) accent.Role = (int)CultureToolkit.CultureStockAccentRoles.Role(language.Name, name, group);
         accent.Language = language;
         accent.ChargenAvailabilityProgId = prog?.Id;
         _context.SaveChanges();
+		_accentMetadata.Add((accent, freshAccent));
         return accent;
     }
 

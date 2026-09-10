@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
@@ -4240,8 +4240,6 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<Language>(entity =>
             {
-                entity.HasIndex(e => e.DefaultLearnerAccentId)
-                    .HasDatabaseName("FK_Languages_Accents_idx");
 
                 entity.HasIndex(e => e.DifficultyModel)
                     .HasDatabaseName("FK_Languages_LanguageDifficultyModels");
@@ -4251,7 +4249,6 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.DefaultLearnerAccentId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.DifficultyModel).HasColumnType("bigint(20)");
 
@@ -4269,10 +4266,6 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
-                entity.HasOne(d => d.DefaultLearnerAccent)
-                    .WithMany(p => p.Languages)
-                    .HasForeignKey(d => d.DefaultLearnerAccentId)
-                    .HasConstraintName("FK_Languages_Accents");
 
                 entity.HasOne(d => d.DifficultyModelNavigation)
                     .WithMany(p => p.Languages)

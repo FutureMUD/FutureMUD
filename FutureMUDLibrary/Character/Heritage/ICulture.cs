@@ -1,3 +1,4 @@
+#nullable enable annotations
 ﻿using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
@@ -12,6 +13,7 @@ namespace MudSharp.Character.Heritage
 {
     public interface ICulture : IEditableItem, IProgVariable
     {
+		MudSharp.Communication.Language.ILanguage? NativeLanguage { get; }
         string Description { get; }
         IEnumerable<INameCulture> NameCultures { get; }
         INameCulture NameCultureForGender(Gender gender);

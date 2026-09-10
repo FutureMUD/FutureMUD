@@ -1,4 +1,5 @@
-﻿using MudSharp.Body.Traits;
+#nullable enable annotations
+using MudSharp.Body.Traits;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 using System.Collections.Generic;
@@ -9,6 +10,8 @@ namespace MudSharp.Communication.Language
     {
         IEnumerable<ILanguage> Languages { get; }
         ILanguage CurrentLanguage { get; set; }
+		ILanguage? NativeLanguage { get; set; }
+		IAccent? AcquisitionAccent(ILanguage language);
         ILanguage CurrentWritingLanguage { get; set; }
 
         IEnumerable<IAccent> Accents { get; }

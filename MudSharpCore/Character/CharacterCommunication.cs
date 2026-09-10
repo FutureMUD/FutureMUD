@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Traits;
+using MudSharp.Body.Traits;
 using MudSharp.Communication.Language;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
@@ -27,6 +27,59 @@ public partial class Character
 
     protected List<ILanguage> _languages = new();
     public IEnumerable<ILanguage> Languages => _languages;
+
+	private ILanguage _nativeLanguage;
+	private readonly Dictionary<ILanguage, IAccent> _acquisitionAccents = new();
+	public ILanguage NativeLanguage
+	{
+		get => _nativeLanguage;
+		set
+		{
+			if (value is not null && !_languages.Contains(value)) throw new ArgumentException("Native language must be known.", nameof(value));
+			_nativeLanguage = value;
+			if (value is null) ResolveNativeLanguage();
+			LanguagesChanged = true;
+		}
+	}
+
+	private void ResolveNativeLanguage(params ILanguage[] preferences)
+	{
+		_nativeLanguage = LanguageAcquisition.ResolveNative(_languages,
+			language => GetTrait(language.LinkedTrait)?.RawValue ?? 0.0, preferences);
+		LanguagesChanged = true;
+	}
+
+	public IAccent AcquisitionAccent(ILanguage language) => language is null ? null : _acquisitionAccents.GetValueOrDefault(language);
+
+	private void EnsureAcquisitionAccent(ILanguage language, IAccent heard = null, IEnumerable<IAccent> available = null, bool inferFromKnown = true)
+	{
+		if (_acquisitionAccents.ContainsKey(language)) return;
+		var accent = inferFromKnown ? PreferredAccent(language) ?? _accents.Where(x => x.Key.Language == language)
+			.OrderBy(x => x.Value).ThenBy(x => x.Key.Id).Select(x => x.Key).FirstOrDefault() : null;
+		accent ??= LanguageAcquisition.ResolveAccent(language, NativeLanguage, heard, available);
+		if (accent is null) return;
+		_acquisitionAccents[language] = accent;
+		if (!_accents.ContainsKey(accent)) LearnAccent(accent, Difficulty.Normal);
+		if (inferFromKnown) _preferredAccents.TryAdd(language, accent);
+		else _preferredAccents[language] = accent;
+		if (CurrentLanguage == language && CurrentAccent is null) CurrentAccent = accent;
+		LanguagesChanged = true;
+	}
+
+	private Difficulty AccentFamiliarityFloor(IAccent accent)
+	{
+		if (accent.Role != AccentRole.Native || accent.Language == NativeLanguage) return Difficulty.Automatic;
+		var trait = GetTrait(accent.Language.LinkedTrait);
+		var capped = trait is not null && trait.RawValue >= trait.MaxValue;
+		var acquisition = AcquisitionAccent(accent.Language);
+		var mastery = Gameworld.GetStaticBool("AllowAccentsToGetToAutomatic") ? Difficulty.Automatic : Difficulty.Trivial;
+		if (capped && (acquisition == accent || acquisition is not null &&
+			_accents.GetValueOrDefault(acquisition, Difficulty.Impossible) <= mastery)) return Difficulty.Automatic;
+		var configured = Gameworld.GetStaticConfiguration("NativeAccentFamiliarityFloor");
+		var floor = Enum.TryParse<Difficulty>(configured, true, out var parsed) && Enum.IsDefined(parsed) ? parsed : Difficulty.Easy;
+		// Never worsen familiarity already earned or loaded from an older game.
+		return (Difficulty)Math.Min((int)floor, (int)_accents.GetValueOrDefault(accent, Difficulty.Impossible));
+	}
 
     private ILanguage _currentLanguage;
 
@@ -108,7 +161,7 @@ public partial class Character
 
     public IAccent PreferredAccent(ILanguage language)
     {
-        return _preferredAccents.ValueOrDefault(language, null);
+		return language is null ? null : _preferredAccents.ValueOrDefault(language, null);
     }
 
     private readonly List<IScript> _scripts = new();
@@ -140,7 +193,12 @@ public partial class Character
 
     public void LearnLanguage(ILanguage language)
     {
+		if (_languages.Contains(language)) return;
+		if (_nativeLanguage is null && _languages.Count > 0) ResolveNativeLanguage();
         _languages.Add(language);
+		_nativeLanguage ??= language;
+		CurrentLanguage ??= language;
+		EnsureAcquisitionAccent(language, LanguageAcquisitionContext.HeardBy(this) ?? LanguageAcquisitionContext.HeardBy(Body), inferFromKnown: false);
         LanguagesChanged = true;
     }
 
@@ -190,7 +248,9 @@ public partial class Character
 
     public void LearnAccent(IAccent accent, Difficulty difficulty)
     {
-        _accents[accent] = difficulty;
+		if (accent is null) return;
+		var floor = AccentFamiliarityFloor(accent);
+		_accents[accent] = (Difficulty)Math.Max((int)difficulty, (int)floor);
         LanguagesChanged = true;
     }
 
@@ -206,6 +266,12 @@ public partial class Character
     public void ForgetLanguage(ILanguage language)
     {
         _languages.Remove(language);
+		_acquisitionAccents.Remove(language);
+		_preferredAccents.Remove(language);
+		if (_nativeLanguage == language) ResolveNativeLanguage();
+		if (CurrentLanguage == language) CurrentLanguage = _nativeLanguage;
+		if (CurrentWritingLanguage == language) CurrentWritingLanguage = _nativeLanguage;
+		if (CurrentAccent?.Language == language) CurrentAccent = PreferredAccent(CurrentLanguage);
         foreach (IAccent accent in _accents.Keys.Where(x => x.Language == language).ToList())
         {
             _accents.Remove(accent);
@@ -217,6 +283,9 @@ public partial class Character
     public void ForgetAccent(IAccent accent)
     {
         _accents.Remove(accent);
+		if (_preferredAccents.GetValueOrDefault(accent.Language) == accent) _preferredAccents.Remove(accent.Language);
+		if (CurrentAccent == accent) CurrentAccent = _accents.Keys.Where(x => x.Language == CurrentLanguage).OrderBy(x => x.Id).FirstOrDefault();
+		// Keep the acquisition identity: forgetting it must not bypass its mastery requirement.
         LanguagesChanged = true;
     }
 
@@ -234,6 +303,7 @@ public partial class Character
 
     protected void SaveLanguages(MudSharp.Models.Character dbchar)
     {
+		dbchar.NativeLanguageId = NativeLanguage?.Id;
         dbchar.CurrentLanguageId = CurrentLanguage?.Id;
         dbchar.CurrentAccentId = CurrentAccent?.Id;
         dbchar.CurrentWritingLanguageId = CurrentWritingLanguage?.Id;
@@ -258,7 +328,7 @@ public partial class Character
         FMDB.Context.CharactersLanguages.RemoveRange(dbchar.CharactersLanguages);
         foreach (ILanguage language in _languages)
         {
-            dbchar.CharactersLanguages.Add(new CharactersLanguages { Character = dbchar, LanguageId = language.Id });
+			dbchar.CharactersLanguages.Add(new CharactersLanguages { Character = dbchar, LanguageId = language.Id, AcquisitionAccentId = AcquisitionAccent(language)?.Id });
         }
 
 		FMDB.Context.CharactersSignedLanguages.RemoveRange(dbchar.CharactersSignedLanguages);
@@ -293,6 +363,11 @@ public partial class Character
 
     public Difficulty AccentDifficulty(IAccent accent, bool canImprove = true)
     {
+		if (accent is null)
+		{
+			return Difficulty.Automatic;
+		}
+
         if (canImprove && !AffectedBy<INoAccentGainEffect>(accent))
         {
             NoAccentGain effect = EffectHandler.EffectsOfType<NoAccentGain>().FirstOrDefault();
@@ -316,7 +391,7 @@ public partial class Character
                     if (Gameworld.GetStaticBool("AllowAccentsToGetToAutomatic") ||
                         _accents[accent] > Difficulty.Trivial)
                     {
-                        _accents[accent] = _accents[accent].StageDown(1);
+						_accents[accent] = (Difficulty)Math.Max((int)_accents[accent].StageDown(1), (int)AccentFamiliarityFloor(accent));
                         LanguagesChanged = true;
                     }
                 }
@@ -327,7 +402,7 @@ public partial class Character
                 {
                     if (Gameworld.GetCheck(CheckType.AccentAcquireCheck).Check(this, accent.Difficulty).IsPass())
                     {
-                        _accents[accent] = accent.Difficulty;
+						_accents[accent] = (Difficulty)Math.Max((int)accent.Difficulty, (int)AccentFamiliarityFloor(accent));
                         LanguagesChanged = true;
                     }
                 }
@@ -348,7 +423,7 @@ public partial class Character
             difficulty = difficulty.StageDown(1);
         }
 
-        return difficulty;
+		return (Difficulty)Math.Max((int)difficulty, (int)AccentFamiliarityFloor(accent));
     }
 
     public bool IsLiterate

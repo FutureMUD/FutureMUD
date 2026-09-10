@@ -174,6 +174,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 ## Communication
 
+- [Native Languages and Accents](./Communication/Native_Languages_and_Accents.md)
+- [Native Languages and Accents](./Communication/Native_Languages_and_Accents.md)
 - [Signed Language Communication System](./Communication/Sign_Language_System.md)
 
 ## Seeding

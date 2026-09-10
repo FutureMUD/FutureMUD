@@ -73,6 +73,7 @@ public partial class Chargen
 			SelectedMerits = source.SelectedMerits?.ToList() ?? [],
 			SelectedKnowledges = source.SelectedKnowledges?.ToList() ?? [],
 			SelectedNotes = (source as IChargen)?.SelectedNotes.ToList() ?? [],
+			SelectedNativeLanguage = source.SelectedNativeLanguage,
 			SelectedAccents = source.SelectedAccents?.ToList() ?? [],
 			SelectedCharacteristics = source.SelectedCharacteristics?.ToList() ?? [],
 			SelectedEntityDescriptionPatterns = source.SelectedEntityDescriptionPatterns?.ToList() ?? [],

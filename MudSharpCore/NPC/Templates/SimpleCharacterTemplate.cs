@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Body.Traits;
@@ -35,6 +35,7 @@ public record SimpleCharacterTemplate : ICharacterTemplate
     {
 		SkillGroupClaims = definition.Element("SkillClaims") is { } claims ? ChargenSkillClaims.Load(claims) : null;
         Gameworld = gameworld;
+		SelectedNativeLanguage = gameworld.Languages.Get((long?)definition.Element("SelectedNativeLanguage") ?? 0);
         SelectedAccents = new List<IAccent>(
             definition
                 .Element("SelectedAccents")
@@ -147,6 +148,7 @@ public record SimpleCharacterTemplate : ICharacterTemplate
     {
         return new XElement("Character",
 			SkillGroupClaims?.Save(),
+			new XElement("SelectedNativeLanguage", SelectedNativeLanguage?.Id ?? 0),
             new XElement("SelectedAccents",
                 from accent in SelectedAccents
                 select new XElement("Accent", accent.Id)
@@ -237,6 +239,8 @@ public record SimpleCharacterTemplate : ICharacterTemplate
     }
 
     #region ICharacterTemplate Members
+
+	public ILanguage? SelectedNativeLanguage { get; set; }
 
     public List<IAccent> SelectedAccents { get; init; } = [];
 
@@ -355,6 +359,9 @@ public record SimpleCharacterTemplate : ICharacterTemplate
                 returnVar = new CollectionVariable(SelectedSkills, ProgVariableTypes.Trait);
                 break;
 
+			case "nativelanguage":
+				returnVar = LanguageAcquisition.ResolveNative(Gameworld.Languages.Where(x => SelectedSkills.Contains(x.LinkedTrait)), x => SkillValues.FirstOrDefault(v => v.Item1 == x.LinkedTrait).Item2, SelectedNativeLanguage, SelectedEthnicity?.NativeLanguage, SelectedCulture?.NativeLanguage);
+				break;
             case "accents":
                 returnVar = new CollectionVariable(SelectedAccents, ProgVariableTypes.Accent);
                 break;

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Body.Traits;
 using MudSharp.Communication.Language.DifficultyModels;
 using MudSharp.Database;
@@ -11,7 +11,6 @@ namespace MudSharp.Communication.Language;
 
 public class Language : SaveableItem, ILanguage
 {
-    private readonly List<IAccent> _accents = new();
     private readonly Dictionary<long, Difficulty> _mutuallyIntelligableLanguages = new();
 
     public Language(MudSharp.Models.Language language, IFuturemud game)
@@ -26,11 +25,9 @@ public class Language : SaveableItem, ILanguage
         foreach (Models.Accent accent in language.Accents)
         {
             Accent newAccent = new(accent, this, game);
-            _accents.Add(newAccent);
             game.Add(newAccent);
         }
 
-        DefaultLearnerAccent = _accents.FirstOrDefault(x => x.Id == language.DefaultLearnerAccentId);
         foreach (MutualIntelligability item in language.MutualIntelligabilitiesListenerLanguage)
         {
             _mutuallyIntelligableLanguages[item.TargetLanguageId] = (Difficulty)item.IntelligabilityDifficulty;
@@ -60,6 +57,7 @@ public class Language : SaveableItem, ILanguage
             Models.Accent dbaccent = new()
             {
                 Name = "foreign",
+				Role = (int)AccentRole.Fallback,
                 Suffix = "with a Foreign accent",
                 VagueSuffix = "with a Foreign accent",
                 Difficulty = (int)Difficulty.Normal,
@@ -70,23 +68,19 @@ public class Language : SaveableItem, ILanguage
             FMDB.Context.Accents.Add(dbaccent);
             FMDB.Context.SaveChanges();
 
-            dbitem.DefaultLearnerAccent = dbaccent;
             _id = dbitem.Id;
             FMDB.Context.SaveChanges();
 
             Accent accent = new(dbaccent, this, Gameworld);
-            _accents.Add(accent);
             Gameworld.Add(accent);
-            DefaultLearnerAccent = accent;
         }
     }
 
     public override string FrameworkItemType => "Language";
-    public IEnumerable<IAccent> Accents => _accents;
+    public IEnumerable<IAccent> Accents => Gameworld.Accents.Where(x => x.Language == this);
     public ILanguageDifficultyModel Model { get; protected set; }
     public ITraitDefinition LinkedTrait { get; protected set; }
 
-    public IAccent DefaultLearnerAccent { get; set; }
 
     #region IEditableItem Implementation
 
@@ -98,8 +92,6 @@ public class Language : SaveableItem, ILanguage
         sb.AppendLine($"Difficulty Model: {Model.Name.ColourValue()}");
         sb.AppendLine($"Unknown Description: {UnknownLanguageSpokenDescription.ColourValue()}");
         sb.AppendLine($"Obfuscation Factor: {LanguageObfuscationFactor.ToString("P2", actor).ColourValue()}");
-        sb.AppendLine(
-            $"Default Learned Accent: {DefaultLearnerAccent.Name.ColourValue()} (#{DefaultLearnerAccent.Id.ToString("N0", actor)})");
         sb.AppendLine();
         sb.AppendLine("Mutually Intelligible Languages:");
         if (!_mutuallyIntelligableLanguages.Any())
@@ -116,7 +108,7 @@ public class Language : SaveableItem, ILanguage
         }
 
         sb.AppendLine($"Accents:");
-        foreach (IAccent accent in _accents.OrderBy(x => x.Difficulty))
+        foreach (IAccent accent in Accents.OrderBy(x => x.Difficulty))
         {
             sb.AppendLine(
                 $"\t{accent.Name} (#{accent.Id.ToString("N0", actor)}) - {accent.Difficulty.Describe().ColourValue()}");
@@ -148,16 +140,13 @@ public class Language : SaveableItem, ILanguage
                 return BuildingCommandObfuscation(actor, command);
             case "model":
                 return BuildingCommandModel(actor, command);
-            case "default":
-            case "accent":
-                return BuildingCommandDefaultAccent(actor, command);
             case "mutual":
                 return BuildingCommandMutual(actor, command);
             case "remove":
                 return BuildingCommandRemove(actor, command);
             default:
                 actor.OutputHandler.Send(
-                    "You can use the following options with this command:\n\n\tname <name> - sets the name\n\tunknown <text> - sets the \"unknown language description\"\n\ttrait <trait> - sets the skill associated with this language\n\tobfuscation <%> - sets the percentage of words that are obfuscated for each failure degree\n\tmodel <which> - sets a language sentence difficulty model\n\tdefault <accent> - sets a default learner accent\n\tmutual <language> <difficulty> - sets the other language as mutually intelligible to this language at specified minimum difficulty\n\tremove <language> - removes a mutual intelligibility");
+					"You can use the following options with this command:\n\n\tname <name> - sets the name\n\tunknown <text> - sets the \"unknown language description\"\n\ttrait <trait> - sets the skill associated with this language\n\tobfuscation <%> - sets the percentage of words that are obfuscated for each failure degree\n\tmodel <which> - sets a language sentence difficulty model\n\tmutual <language> <difficulty> - sets the other language as mutually intelligible to this language at specified minimum difficulty\n\tremove <language> - removes a mutual intelligibility");
                 return false;
         }
     }
@@ -269,31 +258,6 @@ public class Language : SaveableItem, ILanguage
         return true;
     }
 
-    private bool BuildingCommandDefaultAccent(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send(
-                "Which accent do you want to set as the default one which people who learn this language acquire?");
-            return false;
-        }
-
-        string targetText = command.SafeRemainingArgument;
-        IAccent accent = long.TryParse(targetText, out long value)
-            ? _accents.FirstOrDefault(x => x.Id == value)
-            : _accents.FirstOrDefault(x => x.Name.EqualTo(targetText));
-        if (accent == null)
-        {
-            actor.OutputHandler.Send("That language has no such accent.");
-            return false;
-        }
-
-        DefaultLearnerAccent = accent;
-        Changed = true;
-        actor.OutputHandler.Send(
-            $"When characters learn this language in game they will now be given the {DefaultLearnerAccent.Name.ColourName()} accent.");
-        return true;
-    }
 
     private bool BuildingCommandMutual(ICharacter actor, StringStack command)
     {
@@ -408,8 +372,6 @@ public class Language : SaveableItem, ILanguage
                 return LinkedTrait;
             case "accents":
                 return new CollectionVariable(Accents.ToList(), ProgVariableTypes.Accent);
-            case "defaultaccent":
-                return DefaultLearnerAccent;
             case "unknown":
                 return new TextVariable(UnknownLanguageSpokenDescription);
             case "scripts":
@@ -431,7 +393,6 @@ public class Language : SaveableItem, ILanguage
             { "name", ProgVariableTypes.Text },
             { "trait", ProgVariableTypes.Trait },
             { "accents", ProgVariableTypes.Accent | ProgVariableTypes.Collection },
-            { "defaultaccent", ProgVariableTypes.Accent },
             { "unknown", ProgVariableTypes.Text }
         };
     }
@@ -444,7 +405,6 @@ public class Language : SaveableItem, ILanguage
             { "name", "The name of the language" },
             { "trait", "The trait linked to the language" },
             { "accents", "A list of accents associated with the language" },
-            { "defaultaccent", "The default learner accent for the language" },
             { "unknown", "The unknown description string" }
         };
     }
@@ -463,7 +423,6 @@ public class Language : SaveableItem, ILanguage
     {
         Models.Language dbitem = FMDB.Context.Languages.Find(Id);
         dbitem.Name = Name;
-        dbitem.DefaultLearnerAccentId = DefaultLearnerAccent?.Id;
         dbitem.LanguageObfuscationFactor = LanguageObfuscationFactor;
         dbitem.DifficultyModel = Model.Id;
         dbitem.UnknownLanguageDescription = UnknownLanguageSpokenDescription;

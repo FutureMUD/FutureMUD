@@ -14,6 +14,7 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class CultureSeeder
 {
+	private readonly List<(Accent Accent, bool Fresh)> _accentMetadata = [];
     private readonly Dictionary<string, Language> _languages = new(StringComparer.OrdinalIgnoreCase);
     internal static IReadOnlyCollection<string> RpiLegacyMiddleEarthLanguageNamesForTesting =>
     [
@@ -57,7 +58,6 @@ public partial class CultureSeeder
             (int)Difficulty.Normal,
             $"The heavily-foreign accent of a non-native learner of the {name} language",
             "Foreign");
-        language.DefaultLearnerAccent = accent;
         _context.SaveChanges();
     }
 

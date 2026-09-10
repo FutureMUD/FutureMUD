@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
@@ -118,15 +118,16 @@ public partial class Character
 			if (accents.All(x => x.Language != language))
 			{
 				accents.Add(_accents.Where(x => x.Key.Language == language).FirstMin(x => x.Value).Key ??
-				            language.DefaultLearnerAccent);
+				            LanguageAcquisition.ResolveAccent(language, NativeLanguage));
 			}
 		}
 
 		return new SimpleCharacterTemplate
 		{
+			SelectedNativeLanguage = NativeLanguage,
 			Handedness = body.Handedness,
 			MissingBodyparts = body.SeveredRoots.ToList(),
-			SelectedAccents = accents,
+			SelectedAccents = accents.Where(x => x is not null).ToList(),
 			SelectedKnowledges = Knowledges.ToList(),
 			SelectedCharacteristics = body.CharacteristicDefinitions
 			                             .Select(x => (x, body.GetCharacteristic(x, this))).ToList(),

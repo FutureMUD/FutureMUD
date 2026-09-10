@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace MudSharp.Models
@@ -9,7 +9,7 @@ namespace MudSharp.Models
         {
             Characters = new HashSet<Character>();
             CharactersAccents = new HashSet<CharacterAccent>();
-            Languages = new HashSet<Language>();
+			AssociatedLanguages = new HashSet<Language>();
         }
 
         public long Id { get; set; }
@@ -25,6 +25,7 @@ namespace MudSharp.Models
         public virtual Language Language { get; set; }
         public virtual ICollection<Character> Characters { get; set; }
         public virtual ICollection<CharacterAccent> CharactersAccents { get; set; }
-        public virtual ICollection<Language> Languages { get; set; }
+		public int Role { get; set; }
+		public virtual ICollection<Language> AssociatedLanguages { get; set; }
     }
 }

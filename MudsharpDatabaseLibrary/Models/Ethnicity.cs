@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace MudSharp.Models
@@ -15,6 +15,8 @@ namespace MudSharp.Models
         }
 
         public long Id { get; set; }
+	public long? NativeLanguageId { get; set; }
+	public virtual Language NativeLanguage { get; set; }
         public string Name { get; set; }
         public string ChargenBlurb { get; set; }
         public long? AvailabilityProgId { get; set; }

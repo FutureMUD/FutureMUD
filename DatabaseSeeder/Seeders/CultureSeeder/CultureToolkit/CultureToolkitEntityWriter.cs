@@ -65,6 +65,18 @@ internal sealed class CultureToolkitEntityWriter(FuturemudDatabaseContext contex
 			});
 			context.SaveChanges();
 		}
+		// These columns did not exist in older baselines. Their migration defaults
+		// are known, so adopt only unchanged defaults rather than current builder values.
+		record = CultureToolkitManagedEntities.Find(context, type, key);
+		if (record?.SeedBaseline is not null)
+		{
+			var baseline = JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline)!;
+			if (actual is Accent && !baseline.ContainsKey(nameof(Accent.Role)))
+				baseline[nameof(Accent.Role)] = desired is Accent { Role: 2 } ? "2" : "0";
+			if ((actual is Culture || actual is Ethnicity) && !baseline.ContainsKey("NativeLanguageId"))
+				baseline["NativeLanguageId"] = "null";
+			record.SeedBaseline = JsonSerializer.Serialize(baseline);
+		}
 		var merged = CultureToolkitManagedEntities.Reconcile(context, era, type, key, id, fresh, Values(actual), Values(desired), conflicts);
 		foreach (var field in fields)
 			if (merged.TryGetValue(field.Name, out var value)) field.SetValue(actual, JsonSerializer.Deserialize(value, field.PropertyType));

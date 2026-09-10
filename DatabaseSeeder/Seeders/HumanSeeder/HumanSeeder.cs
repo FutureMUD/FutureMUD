@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Database;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
@@ -818,17 +818,19 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 			}
 		}
 
+		var nativeAccent = language.Accents.OrderBy(x => x.Role == 0 ? 0 : 1).ThenBy(x => x.Id).FirstOrDefault();
+		character.NativeLanguage = language;
 		character.CharactersLanguages.Add(
-			new CharactersLanguages { Character = character, Language = language });
-		character.CharactersAccents.Add(new CharacterAccent
+			new CharactersLanguages { Character = character, Language = language, AcquisitionAccent = nativeAccent });
+		if (nativeAccent is not null) character.CharactersAccents.Add(new CharacterAccent
 		{
 			Character = character,
-			Accent = language.DefaultLearnerAccent,
+			Accent = nativeAccent,
 			Familiarity = 0,
 			IsPreferred = true
 		});
 		character.CurrentLanguage = language;
-		character.CurrentAccent = language.DefaultLearnerAccent;
+		character.CurrentAccent = nativeAccent;
 	}
 
 	private bool RefreshExistingAdminAvatarLanguageTraits()

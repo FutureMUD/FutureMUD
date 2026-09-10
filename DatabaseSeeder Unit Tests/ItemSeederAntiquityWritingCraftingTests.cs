@@ -51,9 +51,9 @@ public class ItemSeederAntiquityWritingCraftingTests
 	[TestMethod]
 	public void AntiquityWritingItems_AreSeededWithFunctionalComponentAndTagCoverage()
 	{
-		var rootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
-		var reworkRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityWriting.cs");
+		var rootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.cs");
+		var reworkRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.AntiquityWriting.cs");
 
 		AssertContains(rootSource, "SeedReworkItems();");
 		AssertContains(reworkRootSource, "SeedAntiquityWritingImplementsAndDocuments();");
@@ -101,9 +101,9 @@ public class ItemSeederAntiquityWritingCraftingTests
 	[TestMethod]
 	public void AntiquityWritingCrafts_RegisterKnowledgeGatedSuiteAndNoLegacyLiteracyProgs()
 	{
-		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityWriting.cs");
-		var householdCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityHousehold.cs");
+		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityWriting.cs");
+		var householdCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityHousehold.cs");
 
 		AssertContains(craftRoot, "SeedAntiquityWritingCrafts();");
 		AssertContains(householdCraftSource, "IsAntiquityWritingSuiteStableReference");
@@ -136,8 +136,8 @@ public class ItemSeederAntiquityWritingCraftingTests
 	[TestMethod]
 	public void AntiquityWritingCrafts_AddUpstreamCommodityAndTagSurface()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityWriting.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityWriting.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
 		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 
 		foreach (var expected in ExpectedWritingStockTags())
@@ -172,7 +172,7 @@ public class ItemSeederAntiquityWritingCraftingTests
 	[TestMethod]
 	public void AntiquityWritingCrafts_CoverEveryWritingPrototypeAndVisibleTextIsCultureNeutral()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityWriting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityWriting.cs");
 
 		foreach (var stableReference in ExpectedWritingStableReferences)
 		{

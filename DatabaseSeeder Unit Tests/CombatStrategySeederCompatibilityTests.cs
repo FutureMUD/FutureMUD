@@ -236,8 +236,8 @@ public class CombatStrategySeederCompatibilityTests
     public void SeederSources_DependentSeeders_EnsureStrategiesByNameBeforeApplyingRaceDefaults()
     {
 		string animalSource = SeederSourceTestHelper.ReadPartialFamily("AnimalSeeder");
-        string mythicalSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "MythicalAnimalSeeder.cs"));
-        string robotSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "RobotSeeder.Races.cs"));
+        string mythicalSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "MythicalAnimalSeeder", "MythicalAnimalSeeder.cs"));
+        string robotSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "RobotSeeder", "RobotSeeder.Races.cs"));
 
         StringAssert.Contains(animalSource, "CombatStrategySeederHelper.EnsureCombatStrategy(_context, template.CombatStrategyKey)");
         StringAssert.Contains(mythicalSource, "CombatStrategySeederHelper.EnsureCombatStrategy(_context, template.CombatStrategyKey)");

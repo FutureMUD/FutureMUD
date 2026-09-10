@@ -17,7 +17,7 @@ Existing jewellery, culture-specific textile clothing, leather clothing, leather
 
 ## Implementation
 
-The implementation lives primarily in `DatabaseSeeder/Seeders/ItemSeeder.Crafting.AntiquityEquipment.cs` and is registered from `SeedCrafts()` through `SeedAntiquityEquipmentCrafts()`. Portable repair kits live in `ItemSeeder.Crafting.AntiquityRepairKits.cs` and are registered through `SeedAntiquityRepairKitCrafts()`.
+The implementation lives primarily in `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityEquipment.cs` and is registered from `SeedCrafts()` through `SeedAntiquityEquipmentCrafts()`. Portable repair kits live in `ItemSeeder.Crafting.AntiquityRepairKits.cs` and are registered through `SeedAntiquityRepairKitCrafts()`.
 
 The suite follows the same stock pattern as the textile, leather, jewellery, and household work:
 

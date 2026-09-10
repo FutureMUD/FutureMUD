@@ -798,7 +798,7 @@ public class HealthSeederTests
     [TestMethod]
     public void SeededItemComponentCatalogue_IncludesHealthDrugDeliveryComponents()
     {
-        var healthSource = ReadSource("DatabaseSeeder", "Seeders", "HealthSeeder.cs");
+        var healthSource = ReadSource("DatabaseSeeder", "Seeders", "HealthSeeder", "HealthSeeder.cs");
         var componentCatalogue = ReadSource("Design Documents", "Data", "Seeded_Item_Components.json");
 
         using var document = JsonDocument.Parse(componentCatalogue);

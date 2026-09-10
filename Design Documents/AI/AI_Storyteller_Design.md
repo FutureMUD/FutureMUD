@@ -239,7 +239,7 @@ Situation policy:
 
 ## Seeder Support
 
-`DatabaseSeeder/Seeders/AIStorytellerSeeder.cs` provides an installable starter pack with:
+`DatabaseSeeder/Seeders/AIStorytellerSeeder/AIStorytellerSeeder.cs` provides an installable starter pack with:
 
 - one complete sample storyteller
 - sample 5m and 1h heartbeat status progs

@@ -14,6 +14,38 @@ namespace MudSharp_Unit_Tests;
 public class ItemSeederManifestTests
 {
 	[TestMethod]
+	public void SourceFingerprint_TracksRelocatedPartialContents()
+	{
+		var root = Path.Combine(Path.GetTempPath(), $"seeder-fingerprint-{Guid.NewGuid():N}");
+		var sourceDirectory = Path.Combine(root, "DatabaseSeeder", "Seeders", "ItemSeeder");
+		Directory.CreateDirectory(sourceDirectory);
+		try
+		{
+			File.WriteAllText(Path.Combine(sourceDirectory, "ItemSeeder.cs"), "root");
+			var partialPath = Path.Combine(sourceDirectory, "ItemSeeder.Crafting.cs");
+			File.WriteAllText(partialPath, "first");
+			var original = ItemSeederManifestCatalogue.ComputeSourceFingerprint(root);
+			File.WriteAllText(partialPath, "second");
+			Assert.AreNotEqual(original, ItemSeederManifestCatalogue.ComputeSourceFingerprint(root));
+		}
+		finally
+		{
+			Directory.Delete(root, true);
+		}
+	}
+
+	[TestMethod]
+	public void PackagedManifest_LoadsFromAssetsDirectory()
+	{
+		var packagedPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Manifests", "Seeded_Item_Manifest.json");
+		Assert.IsTrue(File.Exists(packagedPath));
+		var expected = ItemSeederManifestCatalogue.Load(packagedPath);
+		var actual = ItemSeederManifestCatalogue.LoadForRuntime();
+		Assert.AreEqual(expected.SourceFingerprint, actual.SourceFingerprint);
+		Assert.AreEqual(expected.Entries.Count, actual.Entries.Count);
+	}
+
+	[TestMethod]
 	public void ModuleGraph_HasUniqueKeysAndResolvableDependencies()
 	{
 		var modules = ItemSeederManifestCatalogue.Modules;
@@ -58,7 +90,7 @@ public class ItemSeederManifestTests
 	public void PersistenceWrites_AreConfinedToManifestAppliers()
 	{
 		var root = ItemSeederManifestCatalogue.FindRepositoryRoot();
-		var seederPath = Path.Combine(root, "DatabaseSeeder", "Seeders");
+		var seederPath = Path.Combine(root, "DatabaseSeeder", "Seeders", "ItemSeeder");
 		var allowed = new[]
 		{
 			"ItemSeeder.cs",

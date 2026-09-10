@@ -9,7 +9,7 @@ The current target inventory is:
 - `SeedAntiquityHouseholdFurniture`: 89 final item prototypes.
 - Total coverage target: 398 final item crafts, plus the shared tools and commodity/intermediate crafts required to support them.
 
-The implementation lives in `DatabaseSeeder/Seeders/ItemSeeder.Crafting.AntiquityHousehold.cs`, with supporting stock tools in `ItemSeeder.AntiquityHouseholdTools.cs`, new commodity/tool tags in `UsefulSeeder.Tags.cs`, new skills in `SkillPackageSeeder.cs`, and shared construction hardware stock supplied by `ItemSeeder.Crafting.AntiquityEquipment.cs`.
+The implementation lives in `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityHousehold.cs`, with supporting stock tools in `ItemSeeder.AntiquityHouseholdTools.cs`, new commodity/tool tags in `UsefulSeeder.Tags.cs`, new skills in `SkillPackageSeeder.cs`, and shared construction hardware stock supplied by `ItemSeeder.Crafting.AntiquityEquipment.cs`.
 
 ## Design Goals
 

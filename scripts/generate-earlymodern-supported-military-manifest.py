@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "Design Documents/Seeding/FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md"
 COMPONENTS = ROOT / "Design Documents/Data/Seeded_Item_Components.json"
-OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder.EarlyModern.MilitaryManifestData.Generated.cs"
+OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.EarlyModern.MilitaryManifestData.Generated.cs"
 
 
 def read(path: Path) -> list[str]:

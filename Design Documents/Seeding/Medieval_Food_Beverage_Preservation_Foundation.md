@@ -3,9 +3,9 @@
 **Status:** implemented current source of truth.
 **Date:** 30 July 2026.
 **Era:** Medieval.
-**Item source:** `DatabaseSeeder/Seeders/ItemSeeder.MedievalFoodProduction.cs`.
-**Craft source:** `DatabaseSeeder/Seeders/ItemSeeder.Crafting.MedievalFood.cs`.
-**Shared source:** `DatabaseSeeder/Seeders/ItemSeeder.PreIndustrialFoodFoundation.cs`.
+**Item source:** `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalFoodProduction.cs`.
+**Craft source:** `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.MedievalFood.cs`.
+**Shared source:** `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.PreIndustrialFoodFoundation.cs`.
 
 This slice activates `SeedMedievalFoodBeverageCrafts` as the second Medieval craft launcher. Together with `SeedMedievalProductionChainCrafts`, it supplies the first complete dependency path from shared agricultural, butchery, primary-production, and workshop foundations to Medieval staple food, preserved provisions, ale, wine, and cooking oil.
 

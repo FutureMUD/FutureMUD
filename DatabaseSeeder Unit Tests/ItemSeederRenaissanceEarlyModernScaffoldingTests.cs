@@ -50,7 +50,7 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 	[TestMethod]
 	public void RecommendedBranchReferences_HaveMatchingInvokedItemSeederStubs()
 	{
-		var dispatcher = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.cs");
+		var dispatcher = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.PreIndustrialBaseline.cs");
 		AssertBranches(RenaissanceBranches, dispatcher);
 		AssertBranches(EarlyModernBranches, dispatcher);
 	}
@@ -129,7 +129,7 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 	public void EraItemStableReferencesAvoidProcessProvenanceAndRepeatedSegments()
 	{
 		var stableReferences = Directory
-			.GetFiles(SourcePath("DatabaseSeeder", "Seeders"), "ItemSeeder*.cs")
+			.GetFiles(SourcePath("DatabaseSeeder", "Seeders", "ItemSeeder"), "ItemSeeder*.cs")
 			.SelectMany(File.ReadLines)
 			.SelectMany(line => Regex.Matches(line, "\"((?:antiquity|medieval|renaissance|earlymodern)_[a-z0-9_]+)\"", RegexOptions.IgnoreCase)
 				.Select(match => match.Groups[1].Value))
@@ -172,7 +172,7 @@ public class ItemSeederRenaissanceEarlyModernScaffoldingTests
 
 	private static string? FindSeederFileContaining(string method)
 	{
-		foreach (var file in Directory.GetFiles(SourcePath("DatabaseSeeder", "Seeders"), "ItemSeeder.*.cs"))
+		foreach (var file in Directory.GetFiles(SourcePath("DatabaseSeeder", "Seeders", "ItemSeeder"), "ItemSeeder.*.cs"))
 		{
 			if (File.ReadAllText(file).Contains($"private void {method}()", StringComparison.Ordinal))
 			{

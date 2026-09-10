@@ -175,7 +175,7 @@ public class VehicleSeederTests
 	[TestMethod]
 	public void VehicleSeeder_IsWiredIntoTheItemSeederHostPipeline()
 	{
-		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
+		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.cs");
 		StringAssert.Contains(source, "public string SeedData(");
 		Assert.AreEqual(1, Regex.Matches(source, @"\bSeedVehicleItemsAndPrototypes\(eras\);").Count,
 			"The public and interface host path should invoke the vehicle subcomponent exactly once.");
@@ -184,7 +184,7 @@ public class VehicleSeederTests
 	[TestMethod]
 	public void VehicleSeeder_SeedsRequiredSupportEquipmentPatterns()
 	{
-		var seederPath = Path.Combine(SourceRoot(), "DatabaseSeeder", "Seeders");
+		var seederPath = Path.Combine(SourceRoot(), "DatabaseSeeder", "Seeders", "ItemSeeder");
 		var source = string.Join("\n", Directory.GetFiles(seederPath, "ItemSeeder.Vehicles*.cs")
 			.Select(File.ReadAllText));
 		string[] requiredStableReferences =

@@ -56,8 +56,8 @@ public class ItemSeederAntiquityMedicalCraftingTests
 	[TestMethod]
 	public void AntiquityMedicalItems_AreSeededWithFunctionalComponentAndTagCoverage()
 	{
-		var reworkRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.AntiquityMedical.cs");
+		var reworkRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.AntiquityMedical.cs");
 
 		AssertContains(reworkRootSource, "SeedAntiquityMedicalItems();");
 
@@ -107,8 +107,8 @@ public class ItemSeederAntiquityMedicalCraftingTests
 	[TestMethod]
 	public void AntiquityMedicalCrafts_RegisterKnowledgeGatedSuite()
 	{
-		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityMedical.cs");
+		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityMedical.cs");
 
 		AssertContains(craftRoot, "SeedAntiquityMedicalCrafts();");
 
@@ -132,8 +132,8 @@ public class ItemSeederAntiquityMedicalCraftingTests
 	[TestMethod]
 	public void AntiquityMedicalCrafts_AddUpstreamCommodityAndTagSurface()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityMedical.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityMedical.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
 		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 
 		foreach (var expected in ExpectedMedicalStockTags())
@@ -170,7 +170,7 @@ public class ItemSeederAntiquityMedicalCraftingTests
 	[TestMethod]
 	public void AntiquityMedicalCrafts_CoverEveryMedicalPrototypeAndVisibleTextIsCultureNeutral()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.AntiquityMedical.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityMedical.cs");
 
 		foreach (var stableReference in ExpectedMedicalStableReferences)
 		{
@@ -191,9 +191,9 @@ public class ItemSeederAntiquityMedicalCraftingTests
 	[TestMethod]
 	public void HealthAndTerrainSeeders_AddAntiquityMedicalRemediesAndForageYieldTieIns()
 	{
-		var healthSource = ReadSource("DatabaseSeeder", "Seeders", "HealthSeeder.cs");
-		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
-		var terrainSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Terrain.cs");
+		var healthSource = ReadSource("DatabaseSeeder", "Seeders", "HealthSeeder", "HealthSeeder.cs");
+		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs");
+		var terrainSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Terrain.cs");
 
 		foreach (var expected in new[]
 		         {

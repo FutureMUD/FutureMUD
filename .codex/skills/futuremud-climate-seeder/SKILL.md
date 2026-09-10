@@ -31,7 +31,7 @@ Follow the current multi-template pattern instead of bolting bespoke logic strai
 
 - Keep orchestration in `WeatherSeeder.cs`: `SeedData` should iterate `GetClimateProfiles()` and seed one shared northern-hemisphere baseline regional climate from each profile.
 - Treat `WeatherSeederClimateProfile` as the template contract. A template should declare the climate model name, regional climate prefix, seasonal temperature ranges, transition-chance delegates, stability settings, Koppen/reference metadata, and description text inputs.
-- Define climate templates in `DatabaseSeeder/Seeders/WeatherSeeder.ClimateTemplates.cs`. Current examples are `CreateTemperateOceanicProfile()`, `CreateHumidSubtropicalProfile()`, and `CreateMediterraneanProfile()`.
+- Define climate templates in `DatabaseSeeder/Seeders/WeatherSeeder/WeatherSeeder.ClimateTemplates.cs`. Current examples are `CreateTemperateOceanicProfile()`, `CreateHumidSubtropicalProfile()`, and `CreateMediterraneanProfile()`.
 - Prefer `CreateDerivedClimateModel()` when the new climate is mostly a retuned version of the seeded oceanic model. Add a climate-specific transition adjuster and fallback adjuster instead of cloning the whole base transition graph.
 - Keep the oceanic template as the reference baseline unless the new climate truly needs a fundamentally different event graph.
 - Seed a single canonical weather-event catalog. Do not add hot/cold weather-event variants; temperature day-to-day variation now belongs in `RegionalClimate`.
@@ -49,7 +49,7 @@ Current seeded pattern:
 
 Understand these files before making seeder changes:
 
-- `C:/Users/Luke/source/repos/FutureMUD/DatabaseSeeder/Seeders/WeatherSeeder.cs`
+- `C:/Users/Luke/source/repos/FutureMUD/DatabaseSeeder/Seeders/WeatherSeeder/WeatherSeeder.cs`
 - `C:/Users/Luke/source/repos/FutureMUD/MudSharpCore/Climate/ClimateModels/TerrestrialClimateModel.cs`
 - `C:/Users/Luke/source/repos/FutureMUD/MudSharpCore/Climate/RegionalClimate.cs`
 - `C:/Users/Luke/source/repos/FutureMUD/MudSharpCore/Climate/WeatherController.cs`

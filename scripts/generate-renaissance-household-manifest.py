@@ -20,7 +20,7 @@ EXPANSION_SOURCES = (
 	*sorted((ROOT / "Design Documents/Seeding").glob("FutureMUD_Renaissance_Household_Furniture_Expansion_Catalogue_II_*.md")),
 	*sorted((ROOT / "Design Documents/Seeding").glob("FutureMUD_Renaissance_Container_Service_Expansion_Catalogue_*.md")),
 )
-OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder.Renaissance.HouseholdUrbanTradeManifestData.Generated.cs"
+OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Renaissance.HouseholdUrbanTradeManifestData.Generated.cs"
 DESCRIPTION_OVERLAY = ROOT / "Design Documents/Seeding/FutureMUD_Renaissance_Household_Description_Overlay.tsv"
 
 SIZE = {"T": "Tiny", "VS": "VerySmall", "S": "Small", "N": "Normal", "L": "Large", "VL": "VeryLarge", "H": "Huge", "EN": "Enormous"}

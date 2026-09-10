@@ -38,7 +38,7 @@ The 2,100 shared item rows are kept in review-sized culinary files:
 
 ## Source and packaging
 
-Authored catalogue rows live under `DatabaseSeeder/Seeders/FoodCatalogue` as tab-separated source files embedded into `DatabaseSeeder.dll`. `PreIndustrialFoodCatalogue` parses those resources through a typed schema. Embedding keeps deployment self-contained while preserving compact, diffable source data.
+Authored catalogue rows live under `DatabaseSeeder/Seeders/ItemSeeder/FoodCatalogue` as tab-separated source files embedded into `DatabaseSeeder.dll`. `PreIndustrialFoodCatalogue` parses those resources through a typed schema. Embedding keeps deployment self-contained while preserving compact, diffable source data.
 
 The item schema records:
 

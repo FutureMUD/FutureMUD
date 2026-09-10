@@ -72,9 +72,9 @@ public class ItemSeederNorthernAndKushiteClothingCraftingTests
 	[TestMethod]
 	public void NorthernAndKushiteClothingCrafts_ProduceEveryCurrentGarmentPrototype()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Antiquity.cs");
-		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
+		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
 
 		foreach (var stableReference in CelticClothingStableReferences)
 		{
@@ -102,7 +102,7 @@ public class ItemSeederNorthernAndKushiteClothingCraftingTests
 	[TestMethod]
 	public void FinishedGarmentCrafts_UseCultureKnowledgeGates()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{
@@ -121,8 +121,8 @@ public class ItemSeederNorthernAndKushiteClothingCraftingTests
 	[TestMethod]
 	public void SharedUpstreamTextileCrafts_AddCottonCommodityPath()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
-		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
+		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs");
 
 		foreach (var expected in new[]
 		{
@@ -148,8 +148,8 @@ public class ItemSeederNorthernAndKushiteClothingCraftingTests
 	[TestMethod]
 	public void SpecialNorthernGarments_UseCommodityInputsAndStableSimpleProducts()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
-		var helperSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
+		var helperSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
 
 		AssertContains(helperSource, "private string StableSimpleProduct(string stableReference)");
 		AssertContains(craftSource, "StableSimpleProduct(garment.StableReference)");

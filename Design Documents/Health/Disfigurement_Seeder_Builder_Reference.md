@@ -18,7 +18,7 @@ This document intentionally does not try to cover builder-owned world decisions 
 - world-specific chargen resource policy
 
 ## Current Seeded Status
-At the moment, the stock disfigurement seeder scaffolding ships with no built-in human, animal, or mythical scar/tattoo templates. The current human lists are empty in `DatabaseSeeder/Seeders/HumanSeeder.Disfigurements.cs`.
+At the moment, the stock disfigurement seeder scaffolding ships with no built-in human, animal, or mythical scar/tattoo templates. The current human lists are empty in `DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.Disfigurements.cs`.
 
 That means this handoff is about the values the seeder helper can resolve and the defaults it applies when a builder starts adding new definitions.
 
@@ -373,10 +373,10 @@ For first-pass human tattoo seeding:
 ## Source Of Truth
 This document is derived from the currently seeded and coded values in:
 
-- `DatabaseSeeder/Seeders/HumanSeeder.Disfigurements.cs`
+- `DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.Disfigurements.cs`
 - `DatabaseSeeder/Seeders/Utilities/Characters/SeederDisfigurementTemplateUtilities.cs`
-- `DatabaseSeeder/Seeders/HumanSeeder.Bodyparts.cs`
-- `DatabaseSeeder/Seeders/CoreDataSeeder.cs`
+- `DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.Bodyparts.cs`
+- `DatabaseSeeder/Seeders/CoreDataSeeder/CoreDataSeeder.cs`
 - `MudSharpCore/Body/Disfigurements/ScarTemplate.cs`
 - `MudSharpCore/Body/Disfigurements/TattooTemplate.cs`
 - `FutureMUDLibrary/Form/Characteristics/IHaveCharacteristics.cs`

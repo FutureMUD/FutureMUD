@@ -91,7 +91,7 @@ public sealed class BlankDatabaseSnapshotManifest
         {
             if (directory.GetFiles("DatabaseSeeder.csproj").Any())
             {
-                return directory.FullName;
+                return Path.Combine(directory.FullName, "Assets", "Database");
             }
 
             directory = directory.Parent;

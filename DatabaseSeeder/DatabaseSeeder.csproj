@@ -18,7 +18,7 @@
   </PropertyGroup>
 
     <ItemGroup>
-	<EmbeddedResource Include="Seeders\CultureToolkit\ReviewedSourceProse.json" LogicalName="CultureReviewedProse" />
+	<EmbeddedResource Include="Seeders\CultureSeeder\CultureToolkit\ReviewedSourceProse.json" LogicalName="CultureReviewedProse" />
 	<PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.11" />
 	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
@@ -32,17 +32,24 @@
   </ItemGroup>
 
   <ItemGroup>
-	<Content Include="BlankDatabaseSnapshot.sql">
+	<Content Include="Assets\Database\BlankDatabaseSnapshot.sql">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 	</Content>
-	<Content Include="BlankDatabaseSnapshot.manifest.json">
+	<Content Include="Assets\Database\BlankDatabaseSnapshot.manifest.json">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 	</Content>
-	<Content Include="..\Design Documents\Seeding\Seeded_Item_Manifest.json" Link="Seeded_Item_Manifest.json">
+	<Content Include="..\Design Documents\Seeding\Seeded_Item_Manifest.json" Link="Assets\Manifests\Seeded_Item_Manifest.json">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 	</Content>
-	<EmbeddedResource Include="Seeders\FoodCatalogue\**\*.tsv" />
-	<EmbeddedResource Include="Seeders\MedicalRepairCatalogue\**\*.tsv" />
+	<EmbeddedResource Include="Seeders\ItemSeeder\FoodCatalogue\**\*.tsv">
+		<LogicalName>DatabaseSeeder.Seeders.FoodCatalogue.$([System.String]::Copy('%(RecursiveDir)').Replace('\', '.').Replace('/', '.'))%(Filename)%(Extension)</LogicalName>
+	</EmbeddedResource>
+	<EmbeddedResource Include="Seeders\ItemSeeder\MedicalRepairCatalogue\**\*.tsv">
+		<LogicalName>DatabaseSeeder.Seeders.MedicalRepairCatalogue.$([System.String]::Copy('%(RecursiveDir)').Replace('\', '.').Replace('/', '.'))%(Filename)%(Extension)</LogicalName>
+	</EmbeddedResource>
 	<EmbeddedResource Include="..\Design Documents\Seeding\CultureSeederRedesignHandoff\data\*.json">
 		<LogicalName>CultureToolkit.data.%(Filename)%(Extension)</LogicalName>
 	</EmbeddedResource>

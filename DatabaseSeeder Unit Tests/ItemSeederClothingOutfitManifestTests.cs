@@ -16,6 +16,42 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ItemSeederClothingOutfitManifestTests
 {
+	[DataTestMethod]
+	[DataRow("medieval")]
+	[DataRow("renaissance")]
+	[DataRow("earlymodern")]
+	[DataRow("medieval renaissance")]
+	public void SelectedEra_OutfitReferencesAreActuallySeeded(string eras)
+	{
+		using var context = BuildContext();
+		context.Accounts.Add(new Account
+		{
+			Id = 1, Name = "Manifest test", CultureName = "en-AU", TimeZoneId = "UTC", UnitPreference = "Metric"
+		});
+		context.TraitDefinitions.Add(new TraitDefinition
+		{
+			Id = 1, Name = "Crafting", Type = 0, OwnerScope = 0, TraitGroup = "Crafting",
+			ChargenBlurb = string.Empty, ValueExpression = string.Empty
+		});
+		context.SaveChanges();
+		var document = new ItemSeeder().CaptureManifest(context,
+			DatabaseSeeder.ItemSeederManifestCatalogue.FindRepositoryRoot(), eras);
+		var items = document.Entries.Where(x => x.EntityType == "item")
+			.Select(x => x.StableKey).ToHashSet(StringComparer.OrdinalIgnoreCase);
+		var outfits = new Dictionary<string, IReadOnlyList<ItemSeeder.ClothingOutfitManifestTestData>>
+		{
+			["antiquity"] = ItemSeeder.AntiquityOutfitManifestSpecsForTesting,
+			["medieval"] = ItemSeeder.MedievalOutfitManifestSpecsForTesting,
+			["renaissance"] = ItemSeeder.RenaissanceOutfitManifestSpecsForTesting,
+			["earlymodern"] = ItemSeeder.EarlyModernOutfitManifestSpecsForTesting
+		};
+		var missing = eras.Split(' ').SelectMany(era => outfits[era])
+			.SelectMany(outfit => outfit.ItemStableReferences.Where(item => !items.Contains(item))
+				.Select(item => $"{outfit.StableKey}: {item}"))
+			.ToArray();
+		Assert.AreEqual(0, missing.Length, string.Join(Environment.NewLine, missing));
+	}
+
 	private static FuturemudDatabaseContext BuildContext()
 	{
 		DbContextOptions<FuturemudDatabaseContext> options =

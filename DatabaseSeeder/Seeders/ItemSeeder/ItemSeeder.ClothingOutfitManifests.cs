@@ -241,6 +241,12 @@ public partial class ItemSeeder
 
 		if (HasAnyEra(eras, "renaissance"))
 		{
+			// Reuse the canonical religious clothing and footwear without requiring the entire Medieval era.
+			if (!HasAnyEra(eras, "medieval"))
+			{
+				SeedMedievalItemsReusedByRenaissanceOutfits();
+			}
+
 			SeedDocumentedClothingItems(RenaissanceClothingItemSpecs);
 			manifests.AddRange(RenaissanceOutfitManifestSpecs);
 		}

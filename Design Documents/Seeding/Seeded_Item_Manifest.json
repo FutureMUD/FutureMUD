@@ -1,7 +1,7 @@
 {
   "manifestVersion": "1",
-  "sourceFingerprint": "37b0bea996ddc2c642fac22428d3e157a736ab7b4a7e71e5296fa5da2248217e",
-  "generatedAtUtc": "2026-08-29T08:42:46.106369Z",
+  "sourceFingerprint": "e9f82787de17eff41ca192a3c8ee2a2ff80859ee8cd884865557905bfd1b656e",
+  "generatedAtUtc": "2026-09-10T12:56:05.8574452Z",
   "entries": [
     {
       "entityType": "commodity-spoilage",
@@ -120744,7 +120744,7 @@
         "item:medieval_goryeo_baji"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "6a17dd037419bbd467aa0b296d0bfb0fe84fb309076a90365c8330903e0bb92e"
+      "fingerprint": "ddca4b499b7f9975acd85ec524f538644cade4533d143c6a8ff6b6081ac78d62"
     },
     {
       "entityType": "craft",
@@ -120759,7 +120759,7 @@
         "item:medieval_magyar_riding_coat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "58a4e8d65c393625376dbe0a82921cee837ca976d5e3a89e80d5178ce726ded6"
+      "fingerprint": "b1ffb6312a6802f32173d92666beedb7351151e35ac16c1d5b55e3e55302d24e"
     },
     {
       "entityType": "craft",
@@ -120774,7 +120774,7 @@
         "item:medieval_wool_deel"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5efa8f3dee1f8fcb69193ce937629a13f755aee6405b4ca349753b9dfde728ba"
+      "fingerprint": "5eb3f37fdba6f335d55aa3dd7fb375226b21a02e43486112dc385fd8c8c1638f"
     },
     {
       "entityType": "craft",
@@ -120789,7 +120789,7 @@
         "item:medieval_brooched_wool_mantle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b86596c4b670fff00e98db210d363c91068249139957aa01bce90890a831764a"
+      "fingerprint": "d9c4acb8f9b8dfe8bd58812661ed9aa0ef7390d6389c9ea48c8b7e21cf7805e4"
     },
     {
       "entityType": "craft",
@@ -120804,7 +120804,7 @@
         "item:medieval_canvas_work_tabard"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e56790af550b3cbc6cfa1346a1263bb28f5f48bf3817df927f0cb980a863840d"
+      "fingerprint": "08da224470728ebbf3ac475c55aa9c375eb2721babfe0837da4cfa2e1086fdc0"
     },
     {
       "entityType": "craft",
@@ -120819,7 +120819,7 @@
         "item:medieval_goryeo_chima"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c1bcb429ea9a9b5f59bf934c925d791e7f2efcab5c30f2ef0f12cfa7e65c8a14"
+      "fingerprint": "25622aee50b30ad1fbf36f9262106e4c0c9fe34c80f42106c5f1a0788b1af032"
     },
     {
       "entityType": "craft",
@@ -120834,7 +120834,7 @@
         "item:medieval_goryeo_headcloth"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "52dc2036b839b1e24fde54b4f944e8dcd754608370741a3db7c6e3f7a7cf9e80"
+      "fingerprint": "23abf99075cdee4c6cf434dac7563a84f0bdfd6a07fef7fdeed49280868c1eef"
     },
     {
       "entityType": "craft",
@@ -120849,7 +120849,7 @@
         "item:medieval_song_headscarf"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d7f2a47109cab13a2112735b4c0b09c37018203d1115a42ed80cd9b6aee61a2d"
+      "fingerprint": "ccb5f744ff4fece5a4a119cb99a4247ad2686a9f6084cf31ccbbb1def0ea4887"
     },
     {
       "entityType": "craft",
@@ -120864,7 +120864,7 @@
         "item:medieval_song_trousers"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "6bc8e95ed55403e45ea79035a311b4914c55e735175260ad307b7f35864d8b51"
+      "fingerprint": "7885e0ff2ef45f5d48b9b19a2da857418eba9ddd2afa60ce213a9db22bfe0175"
     },
     {
       "entityType": "craft",
@@ -120879,7 +120879,7 @@
         "item:medieval_south_indian_angavastram"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c980a2cb25f2004997ea9b522e5768e07559d7239ab69a17c425e685870b2679"
+      "fingerprint": "e2547a420f79820616b7ff0806f9d0566871344b316459ee19e375ca9e2f344b"
     },
     {
       "entityType": "craft",
@@ -120894,7 +120894,7 @@
         "item:medieval_cotton_dhoti"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "38e7a1bc595893c44aa3112680acb2e646825fb9f59db0037a58621cb1ed8be3"
+      "fingerprint": "d4cf9eab121e9fcfbbc0f199b94bfe7e35cdc12a37a52bfdde2d5c8e0af8a44c"
     },
     {
       "entityType": "craft",
@@ -120909,7 +120909,7 @@
         "item:medieval_cotton_head_veil"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e5d28d18b905ef9d590865b70dfbdf687b3249b7ac479c0f25adeb17f3ccd815"
+      "fingerprint": "5d6978909feaff4ff7c658472516ec293204d4422ba9ce2e7229c547b584a4c3"
     },
     {
       "entityType": "craft",
@@ -120924,7 +120924,7 @@
         "item:medieval_cotton_lower_cloth"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "64f7c6c05ab60999525866d03f86be141bc3b11d484148723cf48b9ecb2748d3"
+      "fingerprint": "8c0b1a0db3f9b1ce06c274a51366c7adc21d25886ee8b54dbb8f7190ce18d6c6"
     },
     {
       "entityType": "craft",
@@ -120939,7 +120939,7 @@
         "item:medieval_cotton_market_toca"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1c90993eaad6aa78f537f3d3c1c2719075199e04bc057b8ed6198d734530349f"
+      "fingerprint": "20aac0df3c4502ff1eda89193c2864d15cee67b7c20ef22a95a23b272ac9dd1a"
     },
     {
       "entityType": "craft",
@@ -120954,7 +120954,7 @@
         "item:medieval_cotton_qamis"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "dd663cdffe2c257a201ca2bee8c0d999b19f7807d7a1f0593bd4b4ea749307c1"
+      "fingerprint": "b696b2b7aedad18007f89cf6e6c8c35965226da0b62bfcfc11d9060e0ccf9484"
     },
     {
       "entityType": "craft",
@@ -120969,7 +120969,7 @@
         "item:medieval_cotton_sari"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "55d9f0b6047b3b43f1b57110419e775944cb453452f49a73f3f8f7e20c20fbb0"
+      "fingerprint": "f1572427f4849faca2591127e07a2af1a68d964075b152698b664bf04f663e2e"
     },
     {
       "entityType": "craft",
@@ -120984,7 +120984,7 @@
         "item:medieval_cotton_sirwal"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "85aa244597b4dc38cadba7f1030b5544a546fe156fe807a718145ffb8820568e"
+      "fingerprint": "a23d5dd8efbabcc465864ea64a673f2106a00714dae051aceb0a4fc15e61de07"
     },
     {
       "entityType": "craft",
@@ -120999,7 +120999,7 @@
         "item:medieval_cotton_turban"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "93ccd7c25677bb1abf0a4e72e77d50440d1058d418ec79c6e4d7550b3c4de207"
+      "fingerprint": "020d03720e9484ff7d3496b60f331288921817ce28287d54f5bf7943978e66b0"
     },
     {
       "entityType": "craft",
@@ -121014,7 +121014,7 @@
         "item:medieval_wrapped_cotton_turban"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c759e76fd9196436484278020572547300ca099d8a8335c8c44018b9c12cb7bc"
+      "fingerprint": "2948431b5ebb16324b69438e0e4a5aa642ca49f9eb66235f25e65b88ab76db2c"
     },
     {
       "entityType": "craft",
@@ -121029,7 +121029,7 @@
         "item:medieval_cotton_uttariya"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a05e9542e9772fafa66854381ec03939fe6f9c357da78bc9155f9ccf66865373"
+      "fingerprint": "6d0b9c780b0ae26aa54a7e01b6082cde84f4ac6d0e80d16dd44ccde569f64f16"
     },
     {
       "entityType": "craft",
@@ -121044,7 +121044,7 @@
         "item:medieval_south_indian_veshti"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "20ff099e81daa50e13a84393e37ae949f441deb40585f6fb46e1d8584d240074"
+      "fingerprint": "899ac882e553147710b6ebb0d4854c2e21d67213ad3283af0a9d232497cdef95"
     },
     {
       "entityType": "craft",
@@ -121059,7 +121059,7 @@
         "item:medieval_cotton_waist_apron"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "edfb8c3723c10251ca10d0c464b123430ffaf671ff1bd69efaae7476aa482a61"
+      "fingerprint": "7b907db038ab3c09cb270103ed9e06d38c517b434f21be43e4a6febb2eeec716"
     },
     {
       "entityType": "craft",
@@ -121074,7 +121074,7 @@
         "item:medieval_song_cotton_work_apron"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3bf86593f88508db05e2a7b57ac5ae7d11fdcd94140a44732f2606dc912813d7"
+      "fingerprint": "a88cb62a6db921679322a5b18ae7882374da50b206b6c47cbca5fe73c6a16388"
     },
     {
       "entityType": "craft",
@@ -121089,7 +121089,7 @@
         "item:medieval_cotton_work_waistcloth"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a412f7885dafeed8005d974358b419f071ceec81d1da01c0735b6d0a387b6656"
+      "fingerprint": "203fdf50c272dc41eb931d58b97bca4009fa9ea2adff03180a0ad0c76cbd9ee4"
     },
     {
       "entityType": "craft",
@@ -121104,7 +121104,7 @@
         "item:medieval_cotton_wrap_skirt"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "80fa160c462bebb6a7266a33219a87375372395fd57c002ae317c446434b48e9"
+      "fingerprint": "44d950c92b78ab27ca972185c1537461ce9ce806ed1e8f5f363d4860e6a0c378"
     },
     {
       "entityType": "craft",
@@ -121119,7 +121119,7 @@
         "item:medieval_goryeo_cross_collar_jacket"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "7d00acf8c0108255449b33a8b902e61b77315182f5a1f035e9eaec2e17420e00"
+      "fingerprint": "8dc7e0ed327a8d700274951351abdcaa60a8aa21369411f3ee09bcbf2fcfd97c"
     },
     {
       "entityType": "craft",
@@ -121134,7 +121134,7 @@
         "item:medieval_song_ru_jacket"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d612aa151da79cfd8fb31223e2bba060e486891163978b4b65a9baca3407bdc6"
+      "fingerprint": "3e72f9c267d401b0455504325cea01345effb0842521531581c62b75e34a606c"
     },
     {
       "entityType": "craft",
@@ -121149,7 +121149,7 @@
         "item:medieval_song_cross_collar_robe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e7dc2ccb4d52afa15000250213c499947cee6d6c4f50c0819ee86023320f02cb"
+      "fingerprint": "6547f466153da244527a78d07ccc04e5ea1a3b00749e175493f408b1dd705af4"
     },
     {
       "entityType": "craft",
@@ -121164,7 +121164,7 @@
         "item:medieval_felt_cap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f5108c95874dccd7f8786556eb9ce52fdd68d6db50f8f6e1590660f91f7023cd"
+      "fingerprint": "850105aee3e15a374d7c1b3a6154ae77aee8ea3d8d6dd0729b7ed3cdc4e42405"
     },
     {
       "entityType": "craft",
@@ -121179,7 +121179,7 @@
         "item:medieval_goryeo_felt_hat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "94e9670cb855e1e2aaf6eab6b703027b25bfc9acb1595c0f8d8e803032b7f70a"
+      "fingerprint": "ea5e66238ecd26b4801653502a1a8eb5ad1863f94a6e6fb69cf98fa6bf392bfe"
     },
     {
       "entityType": "craft",
@@ -121194,7 +121194,7 @@
         "item:medieval_felt_winter_deel"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "877458a50551afb61c0628b7dea598e079f23556f4ba4feb2eb32a7ab88ec625"
+      "fingerprint": "afceec2ec863b3b1e0e3518fd3c965dab10d706f3640f80b7850b3fe6fdd03ed"
     },
     {
       "entityType": "craft",
@@ -121224,7 +121224,7 @@
         "item:medieval_seljuk_caftan"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a12376d471414d51e2051f26d4a653afba4e84cc30ea65814aaa7ca73fc27398"
+      "fingerprint": "e89508569ed573a5392a8b414840e6088e60b6d571c74b89996b8f00793791a0"
     },
     {
       "entityType": "craft",
@@ -121239,7 +121239,7 @@
         "item:medieval_fur_lined_cloak"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "23b077e8369aa49096ef8de7d4df95202be343df731d21e732fb03e476f23352"
+      "fingerprint": "485ebe5a33c4f049ba1321b90bdacb6023d22d669533bafbd12d947210937250"
     },
     {
       "entityType": "craft",
@@ -121254,7 +121254,7 @@
         "item:medieval_rus_shuba"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "372aa9934c474c742e667c957d3050131ef70ee2d12e91f4e1ca6b6312a17caa"
+      "fingerprint": "617400987d051de44ac80b57e200ddd6980573585199f555146a8cc60cd6fe5a"
     },
     {
       "entityType": "craft",
@@ -121269,7 +121269,7 @@
         "item:medieval_fur_trimmed_mantle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "36e94e6a3a65f50f541e1558bb15aacd9e23b86521be742e6ab2b5f58a6f0294"
+      "fingerprint": "d906e652d47b2652774e42bf67a0708b1f63e8b3c3e95b410c755cd656d476b5"
     },
     {
       "entityType": "craft",
@@ -121284,7 +121284,7 @@
         "item:medieval_japanese_hakama"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d4259ec4cc3a729e79caa1cab93a913ec26a933c8d22a1029e02b7debd47c54b"
+      "fingerprint": "1177365f2919dae116ebe67f74f86f430ef2a7b51fe5615968609e433aecd06a"
     },
     {
       "entityType": "craft",
@@ -121299,7 +121299,7 @@
         "item:medieval_half_circle_mantle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "fb3f310bf38423d6c01cca7d70befc5fc5da7290e386048862092cf2bafb825b"
+      "fingerprint": "c3441e4a86b1b08d92168f8bdc21976b1d060af433e2868e672ebb14cd51c9f3"
     },
     {
       "entityType": "craft",
@@ -121314,7 +121314,7 @@
         "item:medieval_japanese_hitatare"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "eb90ccd4ab772f04681ed6f12f50db719373867c858942a6757c33f54aabb7aa"
+      "fingerprint": "a8e53ab008a051101a869b5013818a40ca7d6a0d71ab06675bcc121a6a635216"
     },
     {
       "entityType": "craft",
@@ -121374,7 +121374,7 @@
         "item:medieval_japanese_kosode"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "11291786abfc2b1f0588de80f62ad31c02092a7f9af7cfaf5cf8dbf48a21ce6e"
+      "fingerprint": "08be86dc2e21d10fcb5dc366629d440d4f501df22b1c66117dc7df726e1d0ec4"
     },
     {
       "entityType": "craft",
@@ -121404,7 +121404,7 @@
         "item:medieval_linen_baker_cap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8fbd2a3740608b5429d65ddb4bb7d2481f9f865da06cc80a937ba7e44c9aebcb"
+      "fingerprint": "fc921cc8c1ee879b1ca41ca5a5784c30aecffb39f4d6eb63993246bdf8af6d23"
     },
     {
       "entityType": "craft",
@@ -121419,7 +121419,7 @@
         "item:medieval_barbette_veil"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "639dd20ce49e7aa76d0acc74a2f6cb0cff11dbda75060093a1dad6c9bfabee70"
+      "fingerprint": "ce160813ceccc508d64a4a2eac7808229f11fd1fc140c24dc585ca95f1d44b87"
     },
     {
       "entityType": "craft",
@@ -121434,7 +121434,7 @@
         "item:medieval_linen_breastband"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5c1a23797c4fd7315d2ddd977b7b61fcb2c5e80d98423f68428787560eaa8ce5"
+      "fingerprint": "6ad594faa5cdacdc97c81f00da41974a9559af0190044d9e4d0c553771e71580"
     },
     {
       "entityType": "craft",
@@ -121449,7 +121449,7 @@
         "item:medieval_christian_iberian_camisa"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9ec6c1266d2535c209f68b797d2fe32ed9366a7f60cc8360c8826f38bb473a8e"
+      "fingerprint": "d59c0aeb7dfc14bb01d048f2c16772437f26332ed07838271cbda703b51dbb4e"
     },
     {
       "entityType": "craft",
@@ -121464,7 +121464,7 @@
         "item:medieval_linen_chainse"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "41c0b86403d82ae68dd0ff1b26d22f3f66b088d1eea727a1bc3cae0392466e3d"
+      "fingerprint": "144757b14b4aa1a8872697c0e01ce63d8abcfc9a9b5bf9766719b1f9b4c3ab2f"
     },
     {
       "entityType": "craft",
@@ -121479,7 +121479,7 @@
         "item:medieval_linen_chemise"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3e6c8e693b9c25c3b8513471799aebaad27576e5b7feae81600efda9d09304db"
+      "fingerprint": "7e4fcc657479c7652e13f8fa380b836e0ad544cd3c4335551054d1aca5940cab"
     },
     {
       "entityType": "craft",
@@ -121494,7 +121494,7 @@
         "item:medieval_linen_coif"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a3f4075e7de11d282d5d0cc0318f98b1f7141b39eda9c56fc3fad6743e8ad293"
+      "fingerprint": "3cfa568f59c53fe0ab53912f894e532191c15badc2b37de83ccc398659ddf567"
     },
     {
       "entityType": "craft",
@@ -121524,7 +121524,7 @@
         "item:medieval_japanese_headcloth"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "62061476f794082c4bf20c394a1e440cae0cd3b7a05462ecd0250f63a1daeb87"
+      "fingerprint": "5fdd5b047f8fb10ccfbae76b2e2b9f3e21933a8efda21c4a0ef8aa54e1674f88"
     },
     {
       "entityType": "craft",
@@ -121539,7 +121539,7 @@
         "item:medieval_linen_izar"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "24b3dc4158e7cecf2eb2e9d67bf25850c870242f4657fa3222cecb88f2ebb740"
+      "fingerprint": "53eb1e2350d957584a3f2274c69995f34a7d67f9097e5bce29f44c4c22079865"
     },
     {
       "entityType": "craft",
@@ -121554,7 +121554,7 @@
         "item:medieval_linen_kamision"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f45faf2599b32ce13d6644902e3cfed6635372a84f2bbe69706bbbe3922c743f"
+      "fingerprint": "7a2e602e9744ceddcd6c981fd5e037241ee92dee49b703f423aea1d57c1ef5e0"
     },
     {
       "entityType": "craft",
@@ -121569,7 +121569,7 @@
         "item:medieval_linen_qamis"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d211f9ea50d295c5a38d36361f58bc0b94c797264aaafe1ee258cccfb3eda51a"
+      "fingerprint": "de75ca0ceee39ff8a076dda0759217197c0ef5987a01e414600203f4211a5691"
     },
     {
       "entityType": "craft",
@@ -121584,7 +121584,7 @@
         "item:medieval_rus_linen_rubakha"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "349540249c3ad9976c924f4770d3018466b2d9341acd042da4354ab1f29313fa"
+      "fingerprint": "a73fdbce7ba5454c26f8014057c75939a13f595af4218cf49c47b6db4adac3ad"
     },
     {
       "entityType": "craft",
@@ -121599,7 +121599,7 @@
         "item:medieval_scribe_linen_sleeves"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "77fcd1b77f86e03ba7fab557cb1ce50cbb14aee3bda424ad92e4cfaa7ae0d4a9"
+      "fingerprint": "79c62a0d745f72cfac22af8f73a435a6cad168468ca3c6fcbe0bf50f770389c3"
     },
     {
       "entityType": "craft",
@@ -121614,7 +121614,7 @@
         "item:medieval_linen_sleeve_guards"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "dfd89b3054d2806fd1ea55ee21b490035e2eafcd331a684fb4aef9aa9c71462c"
+      "fingerprint": "6bcd38227605c644c33d739a7c3f64a434806a9a5c5d760b35e575a29b6d30a7"
     },
     {
       "entityType": "craft",
@@ -121629,7 +121629,7 @@
         "item:medieval_linen_saerk"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "7e75d83110e1bddaab8b56147b11fdf3608a28ebfa01fe8b049bdc75ddfdbb0e"
+      "fingerprint": "021540d48dcd3343f5ad4d4c0bd59f81faf43aec3b5fc3019f509e0e89debe7d"
     },
     {
       "entityType": "craft",
@@ -121644,7 +121644,7 @@
         "item:medieval_linen_toca"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "4a652a1cf415bef78da921c195a6588faebe313cf926dd3edf95577249ed01b3"
+      "fingerprint": "dad7891ec64022d9929ccbf9e40f1bcf682434a80be924f69e3700e793efe80a"
     },
     {
       "entityType": "craft",
@@ -121659,7 +121659,7 @@
         "item:medieval_linen_undertunic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a826d769e8395be2ae65871bac7e2ebc26f42963417a42a7505cc1de617b21b0"
+      "fingerprint": "045eafa71da2cea5e2ed90a5d98cba940df3d97755371675bebe13e68df552f4"
     },
     {
       "entityType": "craft",
@@ -121674,7 +121674,7 @@
         "item:medieval_linen_veil"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b7ed92ae5dddbd959577e83c85d834eb30eeb4fc3f474179142aaa5963a3abfe"
+      "fingerprint": "31fac83744456aeea7291cfc40719b8f873fd86bdf30a33b44fd7b4deea4054b"
     },
     {
       "entityType": "craft",
@@ -121689,7 +121689,7 @@
         "item:medieval_linen_wimple"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "aefbdb39c6980f3383475deac9a598e6959e99f211f0955ff8378d92a7d13885"
+      "fingerprint": "f95497594dd27bc1dfb597a9a91eb7102f5fe7206a64183a1579c1c9f8fef533"
     },
     {
       "entityType": "craft",
@@ -121704,7 +121704,7 @@
         "item:medieval_linen_work_apron"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "4541949acc69d2497a47a0668b60010278b899f8373a3ded3c8bf679cf40f1c9"
+      "fingerprint": "6884db479ce8798ac19be2922d771c54664f833d7f4493132bf56794af84f1cf"
     },
     {
       "entityType": "craft",
@@ -121719,7 +121719,7 @@
         "item:medieval_linen_work_cap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "272ff89e6d206ed17b7b483373cd6ca8a53254171e1aee9a0716242fbbbca2c3"
+      "fingerprint": "72274b55edb40cf7bfde6cf7de398220bd810da574b63f1f8083554f24ac26fa"
     },
     {
       "entityType": "craft",
@@ -121734,7 +121734,7 @@
         "item:medieval_linen_work_sirwal"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d3c2c57979b2fa1c709dbf19a0bd40f017b4cdfd5c0f89b37c47ec4a112c7962"
+      "fingerprint": "303452dd8f054ae6d836094461d1e99c437f643149ee63431e18d1298d2a7138"
     },
     {
       "entityType": "craft",
@@ -121749,7 +121749,7 @@
         "item:medieval_song_changqun_skirt"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c41a870fd8218adc472789386119d723d04c1502b94b8d79603ebfd145b7c5a3"
+      "fingerprint": "44776f0e421fa12af2c71b7e2599e1f294add08c26ed8e199846398984866b1e"
     },
     {
       "entityType": "craft",
@@ -121764,7 +121764,7 @@
         "item:medieval_maforion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3bb188600822c2f85eeb51e84eafc9cf1ccefafb1932cf91704b91b7d3bac2b8"
+      "fingerprint": "d7f399086e9b9d26198a353dd405d91ab438488a8cab49a16e11f932fa8d9d8f"
     },
     {
       "entityType": "craft",
@@ -121779,7 +121779,7 @@
         "item:medieval_market_izar_wrap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "6be2115ea5ca7ccd0d5bd2fcaaa83dc3ad5cc105a37dd1bd47f17cf9309d4aee"
+      "fingerprint": "53c842d6ae2716d02134239caa3e066ffd533fdb51b604f1136115b93c5721c8"
     },
     {
       "entityType": "craft",
@@ -121794,7 +121794,7 @@
         "item:medieval_rus_onuchi"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f9fad1cb0427ae97d1b3193c043ad1a0e86dbf897d8564961a78d611828919bd"
+      "fingerprint": "287a5214fd3dcfac8cfd392e6031e972cb087bfb4f2624a608e13a5546983f11"
     },
     {
       "entityType": "craft",
@@ -121809,7 +121809,7 @@
         "item:medieval_linen_braies"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "fd8732e6b47c4889118226ad7d0c699aab61812813761844636bec806552e267"
+      "fingerprint": "b2ceecf71f3eea8943f2c0b110d04d1d2edddacba069b8ce43252b37003604aa"
     },
     {
       "entityType": "craft",
@@ -121824,7 +121824,7 @@
         "item:medieval_goryeo_po_robe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "6a6ae52bb776f66aaef11b67125383ab07e2d413ff67e44dbd1f4eef1baa3ef9"
+      "fingerprint": "bb506e1aae1ef2a724692c890a19162139ef6e030caa313a12a97f752191b5f9"
     },
     {
       "entityType": "craft",
@@ -121839,7 +121839,7 @@
         "item:medieval_felt_turkic_cap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1ea0ecc85018ae92d375ff3d5bed384866e42f9041c08b236226ed3c910f3b23"
+      "fingerprint": "d22e3145e98097348148e1e5237acb6426ac2d1eaa3483f11174c2bcddce4951"
     },
     {
       "entityType": "craft",
@@ -121854,7 +121854,7 @@
         "item:medieval_rectangular_wool_cloak"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "820f6c0b4a78359d315b465d33adfdba171826549550fd9966dd3e686eacfd25"
+      "fingerprint": "3e82848ec0bc120a308a071e97df2f52c71cc5c528f9f1979f131781b07f017c"
     },
     {
       "entityType": "craft",
@@ -121869,7 +121869,7 @@
         "item:medieval_steppe_riding_caftan"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9eb3640747b0e75dfdc34c9ac5a6cc81b0bf41c58326322cd755cd57f3dc3458"
+      "fingerprint": "d3eb3978bfe9c01cb20db88d92706ad94fc7f65458429069aa90def159f04f1a"
     },
     {
       "entityType": "craft",
@@ -121884,7 +121884,7 @@
         "item:medieval_song_round_collar_robe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "4da8dee8dc548cd5f94a6d9aa8ad8143aea62d162e5df0476cfdb3c906770417"
+      "fingerprint": "62ea47f3fcb840538c5bdf22d88c000249c02795efe4bddae8befe8057f7fa94"
     },
     {
       "entityType": "craft",
@@ -121899,7 +121899,7 @@
         "item:medieval_sagion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ad633028ffd7ce95417a48ca55bdd0d1224ebeb0d557248723cbc3abb153e749"
+      "fingerprint": "f51201736779b668a6e0090aa9a2ce7c20e4b3f1cbdf5c447a4bb4cd2f392583"
     },
     {
       "entityType": "craft",
@@ -121929,7 +121929,7 @@
         "item:medieval_carolingian_cloak"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d3e51c3ac81e3d3a9a82d5b06d34cec6cff774f66a1d6438bf86d633023864e3"
+      "fingerprint": "77183a54e8bad0ec3990a7d328afe5f5a44db1df99c8f4cfa4012d346e60a73b"
     },
     {
       "entityType": "craft",
@@ -121944,7 +121944,7 @@
         "item:medieval_eastern_epimanikia"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "01c9af8a4e43cd935ab828864ecb0bc68594cb2445f3727cffef4af4c0e55cda"
+      "fingerprint": "16f64f47eeda1dffcde7a6bff409d9f22a5966abb76d8a8ca0cdeac78b989a92"
     },
     {
       "entityType": "craft",
@@ -121959,7 +121959,7 @@
         "item:medieval_eastern_epitrachelion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a6a562752cfed6307225e915774501c109d1a1de43805b973c26de8e6a08dce3"
+      "fingerprint": "d1dd645a815be3c3a110e0975ecf446449bb14d894a8f6d0dded992813ce1b90"
     },
     {
       "entityType": "craft",
@@ -121974,7 +121974,7 @@
         "item:medieval_latin_maniple"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b1e31c67ef4bc6c3d939107c56771f7177f2958a1824202b3b0563a57ab37259"
+      "fingerprint": "55af1c094cd7913182455d274c58053c5c7866a444b030e28e980a5900ca2b28"
     },
     {
       "entityType": "craft",
@@ -121989,7 +121989,7 @@
         "item:medieval_eastern_orarion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a38a8e5d23d5982ac6afa202fad5716464be41cee074f979bfc7f11168561f48"
+      "fingerprint": "f274f9add94d7904cade85ef23697f4cb902364ff64293029be82faa22c70a68"
     },
     {
       "entityType": "craft",
@@ -122004,7 +122004,7 @@
         "item:medieval_latin_stole"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a626f5b6b906b1b236f64381cc7984f399ded52247cb10edff589face4bcb962"
+      "fingerprint": "1155636440676e1a4d2249ae655a1fcef1209570b9b1eb29c020b6e7fccf65cb"
     },
     {
       "entityType": "craft",
@@ -122019,7 +122019,7 @@
         "item:medieval_skaramangion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "06a4c3456b53495b91843391853450535ada86f9dd25fd93d7db0866726f6fd2"
+      "fingerprint": "11efe273b7bb2a7202f63d32a5cced5579b9e935aed6b93252b18a3f7f6c515c"
     },
     {
       "entityType": "craft",
@@ -122034,7 +122034,7 @@
         "item:medieval_rus_sleeveless_overgown"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1171ae8e98355b0fd223af00f4910ae222752c87dfd45052fab5ad0f22d79e10"
+      "fingerprint": "444077b55f87c289d55c4674b0b75f7102490ddd561ed60a1ffa21aedb458545"
     },
     {
       "entityType": "craft",
@@ -122064,7 +122064,7 @@
         "item:medieval_steppe_felt_cap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "69a8affe73c94ae6162dee25071ccb6708a63f6a7a7896842eafa44deefd5f28"
+      "fingerprint": "3ca81f7eac0bc843b218622bdaa1057cb8d1c46c1e6bd3dbef95fa95e4b6aa66"
     },
     {
       "entityType": "craft",
@@ -122079,7 +122079,7 @@
         "item:medieval_japanese_suikan"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f8ffac14a5134a240aba19d5703cb718e48e29727d833130c4733056331f74f4"
+      "fingerprint": "b2598e067ee039077af234fa62fc5e48954b8ca66e0f1e81d960266831465d3a"
     },
     {
       "entityType": "craft",
@@ -122094,7 +122094,7 @@
         "item:medieval_tablet_banded_wool_tunic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a1188ebd9ea908b10d427dbe1455e280b1c74903b313c4935d0f06cb1c462d4b"
+      "fingerprint": "6e0d5f265e80a5c2015a9a3c11a4d6bc67ee6111284d775d70b7449acc7b48d8"
     },
     {
       "entityType": "craft",
@@ -122139,7 +122139,7 @@
         "item:medieval_tablion_cloak"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "bd7e59966717616c1964ecd0a6ad85dbc4dffc8a7348206965fb461857e9e65a"
+      "fingerprint": "1b9b576dca5254c2729638297e7d289b5d24c459d603ff81e9530dab3c3fb43e"
     },
     {
       "entityType": "craft",
@@ -122154,7 +122154,7 @@
         "item:medieval_trade_bordered_uttariya"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a5f9014c3d03b987d39f0fa21540329ca50a15d58340e67dee9c6a8d78c90af0"
+      "fingerprint": "74fcd52688ec6d0bf1ed335f205caf6f06aa5f75e8b98881aeccbf397b6398c4"
     },
     {
       "entityType": "craft",
@@ -122169,7 +122169,7 @@
         "item:medieval_weavers_cotton_shouldercloth"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ba0f1baf8ab09a8dc487dc1fdbd86ddf0ce751411ec2d68c5bad84d40251040f"
+      "fingerprint": "35cd087568e2a8a71240b046d5c08a2c36725c0d023b394f99a88123e7077ea6"
     },
     {
       "entityType": "craft",
@@ -122184,7 +122184,7 @@
         "item:medieval_wool_brat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e85ef1ed03ada30208b73f8de78af78648e90f6f3aa0176cb52e2b7755ee47e5"
+      "fingerprint": "22282ea74985dda4876b217a487f8d5c6c0d5c8acf09edb6381f6b9a71f2ebdf"
     },
     {
       "entityType": "craft",
@@ -122199,7 +122199,7 @@
         "item:medieval_wool_burnous"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b17973a4a5970398ffb1e9867a8d0b2d42a79c01d00834f07f79239771fc6d02"
+      "fingerprint": "e5a6c28b33267fd5b31fb461143ee7bc9a3c3d7e04e76558274e8b23d5b789ac"
     },
     {
       "entityType": "craft",
@@ -122214,7 +122214,7 @@
         "item:medieval_wool_chausses"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "adda7c94b642bfe60cc2aa30832146fb028a72d7437272525be40414b83a622f"
+      "fingerprint": "0ded9408c1f9160f4475db2e489e6ec5e0a61fbf5fe293ad767419de22792662"
     },
     {
       "entityType": "craft",
@@ -122229,7 +122229,7 @@
         "item:medieval_capetian_cotte"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a0896395cbd8f9102f3ae8d9934ad9b51878ca3bd6351c501d3e867faf644307"
+      "fingerprint": "8e6711775ba18f933157e79df29b36f84bf8675a87db57e1ef5da879b7555529"
     },
     {
       "entityType": "craft",
@@ -122244,7 +122244,7 @@
         "item:medieval_wool_cowl_hood"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "516a91c3ddd23a75c25f1359698b1488637c5685842dffea0b792d66cb0ae446"
+      "fingerprint": "f1b659282bb014df1fa9d50c56293e22a55763e373067214d7ad828b3fe66c20"
     },
     {
       "entityType": "craft",
@@ -122259,7 +122259,7 @@
         "item:medieval_wool_dalmatic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "2e12a6dd2624b7f12a0ab8d013fe4fc941a9514acda4eb6582295b152f19042c"
+      "fingerprint": "4187259f3d4456fd31d9b1bd7190bb3e46ac0e67c067ab90b3ce4c02466106e9"
     },
     {
       "entityType": "craft",
@@ -122274,7 +122274,7 @@
         "item:medieval_gugel_hood"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "757ba5abae9c235cb316288a36d9e43aa78d350cb1426f1f1203c1b052018448"
+      "fingerprint": "efa9158d1029dfe6ffdab240d8f200e274df85c52e9c072a419a7d7af56a2497"
     },
     {
       "entityType": "craft",
@@ -122289,7 +122289,7 @@
         "item:medieval_wool_hangerok"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "27e45017eb2b9dee88efa4e78a95a7bbafee8cdbccd7da638043407ec86dfc76"
+      "fingerprint": "3bcfe5b0878283a9221ec9f23017b49fcd1a16fd8d5c9b7a66a7b45c39a6ffb3"
     },
     {
       "entityType": "craft",
@@ -122304,7 +122304,7 @@
         "item:medieval_wool_hood"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "cf24f3f5bc7b5715114a0216799fd1c589378c818ad3a344373cd0325d523da0"
+      "fingerprint": "4a2943e7247f8687621f7a458bd1898b1027b86224ab482263dae521c5518530"
     },
     {
       "entityType": "craft",
@@ -122319,7 +122319,7 @@
         "item:medieval_wool_hose"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "36649512f99c84fb9958f7c97be95125fa0476d1d94ee0a3d737e8283bda1814"
+      "fingerprint": "11a1b9f98f8ca22338041eb4b0bf17cfcee296a6e5466db99fb67c8fe6d827cb"
     },
     {
       "entityType": "craft",
@@ -122334,7 +122334,7 @@
         "item:medieval_wool_jubba"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ac823946dda512f38437e032d8c88bc245eec2c6642f4334fce0de1ebc27a5ad"
+      "fingerprint": "ccc342bb58f410c571a360cb474154ac35707900700b1a60ee353d83e6120bc2"
     },
     {
       "entityType": "craft",
@@ -122349,7 +122349,7 @@
         "item:medieval_wool_kirtle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f0ef597f99c91f77c2e0fcc39a09f22e123c08ebdfe4996d17d3b0f2c2aaecab"
+      "fingerprint": "2711c0c76fbeb2985a054a209558cdc844a59010e6c6dca55367da1083c55a45"
     },
     {
       "entityType": "craft",
@@ -122379,7 +122379,7 @@
         "item:medieval_wool_leg_wraps"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3e98ba07e66ce40836c87569e3bdfaf5bee2b2838d478c5a16ad9153a34adadf"
+      "fingerprint": "51396a01c08197b6000537c96e1b3eb9e48382a8c66595849d0b0c8a7646d7c5"
     },
     {
       "entityType": "craft",
@@ -122394,7 +122394,7 @@
         "item:medieval_simple_wool_mantle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a37ae090873ccbf653b7b9b6de6f9ad7e8abcb55651d233ed9b880db8d0f8780"
+      "fingerprint": "b4e43582c83fddc649fe252287f71528ede737d0a9736488f4eb3f17819396d6"
     },
     {
       "entityType": "craft",
@@ -122409,7 +122409,7 @@
         "item:medieval_iberian_manto"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "24bc059ed85a4eba3a6bc21a485ce67fdf04ac8c9097c7a7d030e5e59257528b"
+      "fingerprint": "73d25270f06ed2b9cae6efa2a3a815f4588febbfb9538f8b47ff8b376798ccea"
     },
     {
       "entityType": "craft",
@@ -122424,7 +122424,7 @@
         "item:medieval_wool_market_headcloth"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "fd17519b874646a692855d6888e3f876f4c656b616498a6ed1fe2fbdd0e799b2"
+      "fingerprint": "6492823272412d4c8b127d131219c22ccf8588daecc446aa83773ec091e23fa1"
     },
     {
       "entityType": "craft",
@@ -122439,7 +122439,7 @@
         "item:medieval_wool_mittens"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d98d74a889cc6d6abf444e610502a83c7b43603b9a48cd81a9fab24f7e7e923b"
+      "fingerprint": "81503703fc89f859ae495c95a0294181e73e4bb6d3400b7f3597e003aef7e3c9"
     },
     {
       "entityType": "craft",
@@ -122454,7 +122454,7 @@
         "item:medieval_rus_wool_porty"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a414844c06a9d12dc2729d6a2d5375d678832993492c2958a3a275eb329b25bf"
+      "fingerprint": "01291b64c529f13a46a058bc1b406f4289e0867198fc399438ca4908dea7a05c"
     },
     {
       "entityType": "craft",
@@ -122469,7 +122469,7 @@
         "item:medieval_wool_saya"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "86ce6ffd6de6d7d7288d3fd2a8b924ab356e7d2b30006c9f91c2f800c4997f88"
+      "fingerprint": "23fa96553464b55e74302ab3c821778831a7a065db80fe05b6ec3448d7a38016"
     },
     {
       "entityType": "craft",
@@ -122499,7 +122499,7 @@
         "item:medieval_wool_trews"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "75e7c4b0170f882c1f42a74a0f3dd894eecfdf4eb141dc0bd240c7ce3b5409c1"
+      "fingerprint": "dc10df811d1be97e26bce2d8a632b7cb8174ddc95b29aab6186176201802f721"
     },
     {
       "entityType": "craft",
@@ -122514,7 +122514,7 @@
         "item:medieval_wool_tunic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "fd9f5e8ea077a05710ca739b170df3dd0d26d3f90373a430e032621a781d0120"
+      "fingerprint": "1f72dbe50d04e16d2d37b6eb6945d9005a91faf3c7e9fcdb4061a3495eff90bd"
     },
     {
       "entityType": "craft",
@@ -122529,7 +122529,7 @@
         "item:medieval_goryeo_work_baji"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a933cae33dfc1dd789ac18dcd63c35ec7562c55d96af640f75a939ae27c4d310"
+      "fingerprint": "c8812bdda2d80531ae062429dd17a3b72d4a2b6372b3f97ab84701835c25b370"
     },
     {
       "entityType": "craft",
@@ -122544,7 +122544,7 @@
         "item:medieval_japanese_work_hakama"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "09ec079d5b29452c130e8b7bd81d0b261543dae17c7b2c55087e076098d0926e"
+      "fingerprint": "9e8fe16441ffe9116ac58ac8f779dc3c7cfa985aeb6a6181e2f1ad620d158c54"
     },
     {
       "entityType": "craft",
@@ -122574,7 +122574,7 @@
         "item:medieval_simple_woven_sash"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "10af7a651cc08c1597f9d5fec7577f45f0a40c05fcc92af63134b8d9fa66ac13"
+      "fingerprint": "fbbf5593ab3753a8807fc9c97c30dd2372b06ee7c38329b808c286c88fd958e7"
     },
     {
       "entityType": "craft",
@@ -122589,7 +122589,7 @@
         "item:medieval_japanese_yumaki_wrap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d90cc3f7d12a3e024f9c974578aee55ddd5f0661646f1596ab61ee41d4f2d654"
+      "fingerprint": "ad4e46a8067743d82cab8699673cd767fa9f9d869b3723266513dadd32233f06"
     },
     {
       "entityType": "craft",
@@ -122604,7 +122604,7 @@
         "item:medieval_checked_wool_mantle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5b52a76c5d8eaabe48cf0d8de28cb2976866b8ee141dd4d346b7a29d5c4f88b7"
+      "fingerprint": "8a842475d98caa48e95dedc1f226dead4518d73bbdfbe4c494ab0f7d1b0eb193"
     },
     {
       "entityType": "craft",
@@ -122619,7 +122619,7 @@
         "item:medieval_rus_poneva"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "43c3ca78641ca1903bb0ee6424204a78368d161d1d4d7fb2eb089f7434fc45fe"
+      "fingerprint": "66703011a35a4a1dd6b82341cc1510136849b6d8bbeb2515837a49eb714c62ed"
     },
     {
       "entityType": "craft",
@@ -123789,7 +123789,7 @@
         "item:medieval_ankle_leather_boots"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a7594d93df3b0e0f16bb38e4925e4fccabd57df14e2b58d1b637a6fc43b3e27d"
+      "fingerprint": "ef436b3b464a71ba0fe244ce149c8def2c5263ab2a90729af74b67fb35dba9f3"
     },
     {
       "entityType": "craft",
@@ -125079,7 +125079,7 @@
         "item:medieval_japanese_eboshi"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "45aa5ce83ce4398cdd29e24bffac266ed516025ff386b29c9484b1e7af91161b"
+      "fingerprint": "02f356f8b6d0c1e5495f634e537d43ba6569f66cb9d84eba25b4157f5adff266"
     },
     {
       "entityType": "craft",
@@ -125094,7 +125094,7 @@
         "item:medieval_eastern_kamilavkion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "4e14fe6cd336ba5b8210b838703a5c42ad04f90ac1df49dc60a831f737ea9f44"
+      "fingerprint": "818701ee21fae6b2cb750bed468b707bd2f5d0de9b85c78644d47332b7a59e37"
     },
     {
       "entityType": "craft",
@@ -125154,7 +125154,7 @@
         "item:medieval_eastern_womens_monastic_veil"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f1e65d441a4350d130bc50312a8a7fe59e6e84934fda68801c6a5ecb231aa108"
+      "fingerprint": "383cf38e58d36f41ed21cc5fc1e65d2163475eb0e661afa9beffb7662d241576"
     },
     {
       "entityType": "craft",
@@ -125169,7 +125169,7 @@
         "item:medieval_song_official_cap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ee79460d773560c94f3b48ea4ed78f8098d58a00d3ff2d4d9fac6f4795f3b3b6"
+      "fingerprint": "f25c2459e7c1c67f4c4573f5cf8b5583852bdad18b13764f518a6af51f2e699f"
     },
     {
       "entityType": "craft",
@@ -125184,7 +125184,7 @@
         "item:medieval_eastern_black_klobuk"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "946e3f0b0b40bae664aa3f96c74ecadb4f0a5c49c49f244b83f792dec3968f50"
+      "fingerprint": "875281942e3b54347485b81f156fb5df79f034f932f59611284bf1e3523c31f2"
     },
     {
       "entityType": "craft",
@@ -125199,7 +125199,7 @@
         "item:medieval_latin_canon_black_habit"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "312f907ff9ac63cee5db385bc83620b50d1e4888c6da7324a9cc40ad8ab1976f"
+      "fingerprint": "28c1444d1e8cb73b611d5404957f0d8fbbf9a65533c813f79a0a6767f5b9af41"
     },
     {
       "entityType": "craft",
@@ -125214,7 +125214,7 @@
         "item:medieval_latin_black_clerical_gown"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a6941bcc9bafdd05268c788f789c4b219b2a1a957c24fb047d0fcecbc44a97af"
+      "fingerprint": "60054a428b9e5d683d471991aa7f563e8b7a0553afdee2bb2996cb2a606e75d6"
     },
     {
       "entityType": "craft",
@@ -125229,7 +125229,7 @@
         "item:medieval_latin_black_cowl"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "19b4a25939e544827ff847c56c5cad739dd0c34dbbfde22ba0bac70963285e14"
+      "fingerprint": "158730e2168d1c0e89c0d89c6d60101d64e5199d38929f7827b98e6f6be04bb9"
     },
     {
       "entityType": "craft",
@@ -125244,7 +125244,7 @@
         "item:medieval_latin_black_friar_cappa"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "10fb5c32f0fd950edf9b9f1378ce369f12166be147b6526045a40d12d970d23a"
+      "fingerprint": "f8c54c5d6668505dd779134a76c205410c7527a37828158b60638f2cf8037355"
     },
     {
       "entityType": "craft",
@@ -125259,7 +125259,7 @@
         "item:medieval_latin_black_monastic_habit"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a1471c2a60b0b57daca70bf86292fcba879f4e752c601bc0c7b3474299240d7a"
+      "fingerprint": "90ff2a908fd2c45bf2479236bda1b000086373852f200c8c4a5bbeb3717f4801"
     },
     {
       "entityType": "craft",
@@ -125274,7 +125274,7 @@
         "item:medieval_eastern_monastic_mantle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "322bb504ecde594bb23c114422baeaa8b804aec23ec8a24c2fe4da75d9df9fc7"
+      "fingerprint": "06995e78c14e0443847c2116cd62bb804a87ef5dcb0a62ccd2f8058d1ba021db"
     },
     {
       "entityType": "craft",
@@ -125289,7 +125289,7 @@
         "item:medieval_latin_black_over_scapular"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a00e4526bca79430d5ae8bda2f4de8dc636a2b783cb9816dced06e0b1f7dac9c"
+      "fingerprint": "f09d996e284f4cd96d81e2d540ade9b791d6f095e05f64aa7b84c4b52b30fdbd"
     },
     {
       "entityType": "craft",
@@ -125304,7 +125304,7 @@
         "item:medieval_eastern_black_riassa"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3f62fb1c13cab28ca0fe5e25d33a9204baf212549394ccb12126a050cf538142"
+      "fingerprint": "41dec4b75d0bdb3ffecc16d9495b923c3fa8cb6004c5f3da90d1f64df9b5f071"
     },
     {
       "entityType": "craft",
@@ -125319,7 +125319,7 @@
         "item:medieval_latin_black_scapular"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "4086c79dfcad0e56125a43378ffc7886cac7fc19acc8d995f4fb81aad923f0c4"
+      "fingerprint": "0d3f9f26a7b21cc0632da1d247df58340445092dab49a952a012380cfcaeee3b"
     },
     {
       "entityType": "craft",
@@ -126684,7 +126684,7 @@
         "item:medieval_leather_trader_belt"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "76e484cc1c48433071ea92057ad42d1787efeb59d3fe742a9022809e9494c555"
+      "fingerprint": "272d7a06cf942a496d92f8646516a3aaddfb47df151eabc3a1ad8a3d50ea83e5"
     },
     {
       "entityType": "craft",
@@ -127644,7 +127644,7 @@
         "item:medieval_latin_brown_friar_habit"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b74fb32d98235659401aaf96c9f8c0bffbc2c0907970fab7bca83fa798ec7f60"
+      "fingerprint": "719077124a84ffbab61b93dae888c9524bdc3c77fd7bf8664babcf72cd27ecca"
     },
     {
       "entityType": "craft",
@@ -129369,7 +129369,7 @@
         "item:medieval_clean_linen_coif"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "470f4ecc6168a790d7c4a972e61fc3d608a9e2a2fde54543a4ffcbc6085bfed6"
+      "fingerprint": "b3c301ffaec08d0d8d379266aa83275455a2eef7152391b15145e609077f722f"
     },
     {
       "entityType": "craft",
@@ -129384,7 +129384,7 @@
         "item:medieval_linen_shop_turban"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "07243b7fe0dc422eddd0a75cda49ffb5999c5af43093091f78fb11b41ce2a540"
+      "fingerprint": "d556330a75c22ce841a63afe63877afbabbb2eed07e69297fa4e6da4356afe29"
     },
     {
       "entityType": "craft",
@@ -129399,7 +129399,7 @@
         "item:medieval_market_cotton_turban"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "06ee0548f4684b6486c303038aa256b57ae18d13f60c26383573a0f0fa6e1f82"
+      "fingerprint": "20e0b10a8af89c6dcc4ea50cab1ad69384be46ad840bc86955d216762c0710c1"
     },
     {
       "entityType": "craft",
@@ -129414,7 +129414,7 @@
         "item:medieval_linen_shop_wimple"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9afc0cea584e97045f9b0a36aa5c944fbe3186e8f02a19d1a82a195a93a29295"
+      "fingerprint": "5c4dab763f8415ac510c6f4e01e81149a5eba9ac17ec2288e7e6fbd17131c3c4"
     },
     {
       "entityType": "craft",
@@ -129429,7 +129429,7 @@
         "item:medieval_town_leine"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5f35378fbab6339df43add708c4a891b0b03fe1811383dac657e9f4251961afd"
+      "fingerprint": "f30fd585de105b30d4eeeffa3da08f1433074b9781b7caf6fcb8027ad3ee4b0a"
     },
     {
       "entityType": "craft",
@@ -129504,7 +129504,7 @@
         "item:medieval_song_cloth_shoes"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0f5913d12ec8aa00839d46875ed307189467ef6319feaebe80622990d1496d24"
+      "fingerprint": "6695926801e01d4d088e702f665f0e56f9fa15179cac74f503b6c83c9036347e"
     },
     {
       "entityType": "craft",
@@ -129594,7 +129594,7 @@
         "item:medieval_hemp_work_apron"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d1ecbb340f0ecba5ea88974df434c7bab25e8c048d01cd523227fc0a438180c9"
+      "fingerprint": "cc2768664506aeb56ef8579e5796af60910c709a5601ffbf9339206281f119cf"
     },
     {
       "entityType": "craft",
@@ -129609,7 +129609,7 @@
         "item:medieval_sufi_coarse_wool_cloak"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "19e4f5515a682168ea2ae3ff8fb0d65e46af16c67944d6ba17dd11245d3843a3"
+      "fingerprint": "2c84915008eac2fbdd850c9acf56cce646beaad1372ca5b20aa0e4f426850453"
     },
     {
       "entityType": "craft",
@@ -129624,7 +129624,7 @@
         "item:medieval_sufi_wool_sash"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e02bb6ff79aa22a8ec17eaba121bf72870144bbe428c74f057ee5ee6fd51d51e"
+      "fingerprint": "5c3db535118f0fb59495a77a93d20b7863df7febe2815129d4ea1b42cf006134"
     },
     {
       "entityType": "craft",
@@ -130689,7 +130689,7 @@
         "item:medieval_buddhist_nun_robe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "046b8a79d1762bea3cf9b4d83e4675932f6621eba336d9e74155413133b7fae2"
+      "fingerprint": "64e81a2b9208a6baafc51686f60d2042041f6be011f741c2ec4ee7d907fe01ab"
     },
     {
       "entityType": "craft",
@@ -130749,7 +130749,7 @@
         "item:medieval_buddhist_travelling_mantle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d5c3adb29aff1f254327cc753c29b622e2762b818c8e86113d5c484ad212497c"
+      "fingerprint": "bef6bb8fdbb97d0195b0d8a9010335baa396a4f62b0b775f59614fa041c1e026"
     },
     {
       "entityType": "craft",
@@ -130764,7 +130764,7 @@
         "item:medieval_latin_simple_nun_habit"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9e79241b936d281d3e25d2acdebef5327b8362f5d84583f88bf9c39331897e47"
+      "fingerprint": "5bf7e72b097c173e29ae446113397bc4a45414083df565edb53fcc9721acf94e"
     },
     {
       "entityType": "craft",
@@ -130779,7 +130779,7 @@
         "item:medieval_islamic_scholars_jubba"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f09ee4af8ccafce299fb082126325b776454a039f51de72b6b4943f64f7111eb"
+      "fingerprint": "3a7ea9ec64257c7abbc794595d604233187452d6a40a2d7182787b7d0dce1482"
     },
     {
       "entityType": "craft",
@@ -130794,7 +130794,7 @@
         "item:medieval_jewish_scholars_robe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1743543b40c653b9cbee9b11e0e0b6e41789f097163fa08978c5c0f06453c98d"
+      "fingerprint": "fb1e34d399a5c28606ebb0e5dd685473fa2780d5f622fc48b89fabdd6a75e441"
     },
     {
       "entityType": "craft",
@@ -130809,7 +130809,7 @@
         "item:medieval_islamic_taylasan"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "839bf3421130ed8b15a6e2d30d64827208ba4c88bf938ceb63de1045ec516d19"
+      "fingerprint": "29fbcb5fa0509852c2cdb9f20708853485d867fc40d9a6fbb9c2f9deab4059ac"
     },
     {
       "entityType": "craft",
@@ -131769,7 +131769,7 @@
         "item:medieval_steppe_felt_boots"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "37d3e28496a7f1a6ee7e580243949e660e91926bcd3a362a5cb15206b29c23db"
+      "fingerprint": "ee5c7194ae39688c7c8568d0137ae071264d4348a8197e671f6f485da6ccf7e5"
     },
     {
       "entityType": "craft",
@@ -131994,7 +131994,7 @@
         "item:medieval_fine_bliaut"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b2568d07604f51e3b1c4c12ddb81add7c08cc3659aa0dd325ddf6e789d637aff"
+      "fingerprint": "ed3af7dc1f6159c15686da109f1867f89f028dcc321ca1788b97a437286c3d48"
     },
     {
       "entityType": "craft",
@@ -132009,7 +132009,7 @@
         "item:medieval_fine_bordered_brat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "053acffac17dc1b699e3fce8633dcb808ecf0ca7bd5d07c68da918e4252d5aac"
+      "fingerprint": "48a80e1debb2ff511b708d78add0e477d4d15a9876d40d323cd8fdf452cd8ecd"
     },
     {
       "entityType": "craft",
@@ -132024,7 +132024,7 @@
         "item:medieval_fine_bordered_wool_gown"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "cefcb5bb1758cbe121c4b6c699eb3bd5575f61d808b9d57ee3c40958b9973398"
+      "fingerprint": "3e2cc25e5ef8d21abd17f9c691b5c5c6341ea9548cdade0e8a571597280b5ffe"
     },
     {
       "entityType": "craft",
@@ -132039,7 +132039,7 @@
         "item:medieval_fine_bordered_leine"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "dd02088ecc598cf7cb716872d7b9d8c2921635ccc596b4375edf846f4cdd225e"
+      "fingerprint": "90a28e4f7d1fa0d898e17c73ab76e1369d460980e92526d06a118c39b3361b7f"
     },
     {
       "entityType": "craft",
@@ -132054,7 +132054,7 @@
         "item:medieval_fine_frankish_tunic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e40a565cb485dc60810d74a181229216c7dfb9a3471f7c312b3ecf78c3237b13"
+      "fingerprint": "a3ad4cf848d7c7cc08ae753680d751798c5a548982cabef4ecd00645e3e8279f"
     },
     {
       "entityType": "craft",
@@ -132084,7 +132084,7 @@
         "item:medieval_fine_cotton_dhoti"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "cb00c3f86cc9da73eb0c0ae17e8ea755f765be3027fb65a445d05698bd9ef7ef"
+      "fingerprint": "2185d8970ad83226cf69f705ca601edd5cb1e0f1b2a31842dc379f2b709b7406"
     },
     {
       "entityType": "craft",
@@ -132099,7 +132099,7 @@
         "item:medieval_fine_rus_rubakha"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9b9861d574108020613d2bb452aaaa842d0ee89e29083e1227f32b384109e797"
+      "fingerprint": "d22885ff055021097b68dfd964cc39a7d61274b83403aa8bc9998c87df01be4c"
     },
     {
       "entityType": "craft",
@@ -132114,7 +132114,7 @@
         "item:medieval_fur_faced_winter_cloak"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "41af5dee4e389612307b5771bc571ba34fe6ce45c7a1c17ea788e4a14a07187b"
+      "fingerprint": "86638f17c48df30950f267ff08da30fa4e6641a25ca802f62f0bf4d3f0b990ce"
     },
     {
       "entityType": "craft",
@@ -132129,7 +132129,7 @@
         "item:medieval_fur_lined_caftan"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "bdf040ea025acf78dad1ccb7a742e6951c3e126a65b988fc8771d314c53a98a1"
+      "fingerprint": "ccfbebbfafecd44b9a5a482c4ac96da13f449c657f962a28eff6866dd82d7d2d"
     },
     {
       "entityType": "craft",
@@ -132144,7 +132144,7 @@
         "item:medieval_fur_trimmed_brat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "912820e6d6f6799ecf6289be164509b11312d9029feb5bbc8a35600a918622c4"
+      "fingerprint": "383cab0c91e98f0366e2a1d940aae2114ea403f68626bc1337001c14a562fa56"
     },
     {
       "entityType": "craft",
@@ -132159,7 +132159,7 @@
         "item:medieval_fine_magyar_coat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "aa8ecc9e4a6c245d6cd7fd8372bf186fac8367ef660a67c34c44d4c9b47d1461"
+      "fingerprint": "18228b55f6213435e94f4f9634273a86b0fa65d82b2632ec2fb2a23e1561e8f9"
     },
     {
       "entityType": "craft",
@@ -132174,7 +132174,7 @@
         "item:medieval_fine_goat_hair_shawl"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "cfbbb369a863de0ac7bb08c905d2ea29a7a6eee5e32c7a6c76f7b208633f5859"
+      "fingerprint": "d9b3127138e052c39c126ab7c560cc94a9f1645cea3a459a5b7375b61fe1468d"
     },
     {
       "entityType": "craft",
@@ -132189,7 +132189,7 @@
         "item:medieval_japanese_kariginu"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d6659fabc5b1429472e0084a12aeffb86f93fbd34e0d7c4b20fa92d7df89b7d4"
+      "fingerprint": "766e797a887cfb8d887f4eed19d0610b706566d2d827095f3c32ee57dd0c24be"
     },
     {
       "entityType": "craft",
@@ -132204,7 +132204,7 @@
         "item:medieval_fine_linen_veil"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "7a63bc8497a6b8325c82ab770e6d72d27a2bd3866357eae1080f4f9f55359e05"
+      "fingerprint": "42621473f3c7078df6509ab4f761c2b75da41a4e5d6c954c5530a41a0741e786"
     },
     {
       "entityType": "craft",
@@ -132219,7 +132219,7 @@
         "item:medieval_loros_sash"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "fafba67c7adc158c25d64c92895602e7a202566074c215c703d18ec5c4962aea"
+      "fingerprint": "3f68590d5e52b9b63844f49782eef5cc6c579edeba45d2952fdb06be873113b1"
     },
     {
       "entityType": "craft",
@@ -132234,7 +132234,7 @@
         "item:medieval_fine_maforion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "612d0cad9ec87b38d7974f6ce8d5f663c36d94f2b21b95deb71697840d8b4557"
+      "fingerprint": "5a21bee2f27d82534afc1da155143ee30b8e0399842bd9c488491cee5218ce1c"
     },
     {
       "entityType": "craft",
@@ -132249,7 +132249,7 @@
         "item:medieval_merchants_wool_hood"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "47b31a9228fb6ad5e93c35b3a45e526508c5a0bcdf3ec71a94d54271c4b430ea"
+      "fingerprint": "64107dfddacf811658958071327bc257c19f6dea3067247b9b673a7d09729806"
     },
     {
       "entityType": "craft",
@@ -132279,7 +132279,7 @@
         "item:medieval_fine_angavastram"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a311a5e1f65b7754037a230849c8c319ebe04236bd9bb51dfd04eeb32304e6a8"
+      "fingerprint": "04411232fb841728bced19530a48de5f7bcc033e87e702b59476f1967f9b4389"
     },
     {
       "entityType": "craft",
@@ -132294,7 +132294,7 @@
         "item:medieval_steppe_silk_belt"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1b726d02eef48384058e7db08dc8477ba2f729d7ea4a8be43dde605c9ce5cd83"
+      "fingerprint": "2f049b32832916ac4b22033ad5526c11e2ffffd8607cac009b9bc9a1387e773e"
     },
     {
       "entityType": "craft",
@@ -132309,7 +132309,7 @@
         "item:medieval_fine_silk_bodice"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8de5859f1b1c9dab4d8a2ad1e1f7e3566b16f801e122b3b6fb5c5166eb303905"
+      "fingerprint": "643bd186fc7f7b89725beed77bf786aceedaa9380fcc111965bce6f85b3102fd"
     },
     {
       "entityType": "craft",
@@ -132324,7 +132324,7 @@
         "item:medieval_fine_seljuk_caftan"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "60b5aea1c68cdf1d79cd6138237a30e73d7a332c84ad5407f92614122948f5f4"
+      "fingerprint": "5e9996bf637483f4e866e559afc976110bb33a4c1b10ca553aabe6f383829c04"
     },
     {
       "entityType": "craft",
@@ -132339,7 +132339,7 @@
         "item:medieval_latin_chasuble"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "43e4c006280dc751f926c31f6b037e96de091d8a8407c6b32d95b39676196e90"
+      "fingerprint": "75ec1fad97b6dcba302fb85cbcc25307980e1dab11d0a7e9cc9d40bb0f6f0b66"
     },
     {
       "entityType": "craft",
@@ -132354,7 +132354,7 @@
         "item:medieval_latin_processional_cope"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "fb753e7bf45e26c4ce39f4f364d01f86713c628574905006e1180e0fbc41387a"
+      "fingerprint": "baa6f053d549848fca12e61802cf11fe93ac481bdcf8951b68530b230feae58e"
     },
     {
       "entityType": "craft",
@@ -132369,7 +132369,7 @@
         "item:medieval_latin_dalmatic_vestment"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "12ace9ff6e1f139a89b8c87b688dd75425aaf0014e441d8178b0f4f27a10f806"
+      "fingerprint": "08da10a23587ec6018fe9d96cd4dc1e26508f2523c6a5445b63427da724e7805"
     },
     {
       "entityType": "craft",
@@ -132384,7 +132384,7 @@
         "item:medieval_silk_dalmatic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "117d677792e3ed92ef84bde3fa1094e2db66db55bf5e26a772d0ef99303f30b1"
+      "fingerprint": "9562fd5e78b781a7c01639fa4882651619edcf2c5e629c1f03de38cbfcfa7369"
     },
     {
       "entityType": "craft",
@@ -132414,7 +132414,7 @@
         "item:medieval_goryeo_silk_overrobe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "bfa89ad58d841805dc725b9f114a567c181d29ced87317fe32ede385c7f367e4"
+      "fingerprint": "38a4d6a9057cbc91d89af1d7e5841bb6cc435e03aacf89aa50f154ef0c9785a5"
     },
     {
       "entityType": "craft",
@@ -132429,7 +132429,7 @@
         "item:medieval_fine_silk_pellote"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e397d7a2a6032c846583de27c2afe00edda5a41808e5fbc6e3a0d6a49acbca21"
+      "fingerprint": "dfa4b5774b6b2be550dd16336205b2d596bcc1fbc6828737be86c139de04800e"
     },
     {
       "entityType": "craft",
@@ -132444,7 +132444,7 @@
         "item:medieval_eastern_phelonion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "93f12726e42de2ec68b6e7e3b15ed32a31f2076e7259ab4839e99946720ac893"
+      "fingerprint": "49a0a0556d976162d66f0fbef6dbe32a568d2b427d74e871fdb805b143d8756c"
     },
     {
       "entityType": "craft",
@@ -132459,7 +132459,7 @@
         "item:medieval_fine_silk_qamis"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9880443f8e8117cf20f32b0c89d88066697793cc9497a930c18f2a3540f8a59e"
+      "fingerprint": "98f858ad4ee20767dff7dad0586260b1571e420d76317d33bd33f3da8e6abc6e"
     },
     {
       "entityType": "craft",
@@ -132489,7 +132489,7 @@
         "item:medieval_eastern_sakkos"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "49d1249d0302ff20d7133d1c525e6d904a3af88451e265d5e768541df6c468c7"
+      "fingerprint": "ecbeaeec7bec0eb74b581bc884b48f5e0e43699ec4765ad1e1a43ffd675fc3e9"
     },
     {
       "entityType": "craft",
@@ -132504,7 +132504,7 @@
         "item:medieval_fine_silk_sari"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "60098b38fb49bb02f43681d154939bdea8026b5c32c72fe184e83184afe7c282"
+      "fingerprint": "06c989aebe1caa111258381cd890e6fd2401c8a5d4cfe9d9ceee0e2b2bed8f03"
     },
     {
       "entityType": "craft",
@@ -132519,7 +132519,7 @@
         "item:medieval_fine_silk_sirwal"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "90d64a2b22889ca95c866fe8a82331428e14328548e52fb246ddb27e4a462941"
+      "fingerprint": "cd68973bf0c73808e18ba5fdf8096e815280d9b9ee62dbc565f3f926f48b92fa"
     },
     {
       "entityType": "craft",
@@ -132534,7 +132534,7 @@
         "item:medieval_fine_silk_deel"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "7b21de577348d18a9cec274396405f34d30dbba7072303081efce6027d18af52"
+      "fingerprint": "4cb54a03a32bf2d3a47b7c6b5ecb1e2cd3f3596eb8da302ccdce5174c081b893"
     },
     {
       "entityType": "craft",
@@ -132549,7 +132549,7 @@
         "item:medieval_fine_silk_surcoat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "39a72c09bf5964b2e0960fdeb1f3fdc3ee467ff79ca9a1d0ce1547f55bc5d6c1"
+      "fingerprint": "100c64117188444fd8f3f382b56f4dc845a1aab25ef566e00bf41cef59e7a012"
     },
     {
       "entityType": "craft",
@@ -132564,7 +132564,7 @@
         "item:medieval_fine_silk_turban"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "75be03ba234713c93a2027cd0333254bb282d6d85452dcadd6cafefdda9c8f38"
+      "fingerprint": "bc061fee9cced21581a3ff9fb1821406b6cb35a2157ad5705da498f392fb85b7"
     },
     {
       "entityType": "craft",
@@ -132579,7 +132579,7 @@
         "item:medieval_fine_silk_turban_indian"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "28fa5ee5683f4ae4ddfb23651e2e5b634973b3c0c466d98117920623d73f4b32"
+      "fingerprint": "443d00baf3f9c64de8c1629c4e32d63cf1b2270a2edb937f0223e558bea6747c"
     },
     {
       "entityType": "craft",
@@ -132594,7 +132594,7 @@
         "item:medieval_fine_silk_uttariya"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8c9ff58486cddc0d6c9ddb282ae92808fc1b3d4a0a9e28fa26198b049c3c27e1"
+      "fingerprint": "985b086259041f6493f24b32375bfa0dd57d65abad6a473ae4b1f1aba6913c85"
     },
     {
       "entityType": "craft",
@@ -132609,7 +132609,7 @@
         "item:medieval_fine_silk_veil"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "329034a9bb07ba067d4a1022dfc998cbfbea16c28a1b7924c619449cd38ff227"
+      "fingerprint": "36553786219dedd8a02d7ded0b1e6932d91affa187106a63cd88d260f85ead9f"
     },
     {
       "entityType": "craft",
@@ -132624,7 +132624,7 @@
         "item:medieval_fine_silk_wrap_skirt"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ad495710937075b49900592eb54ecfff3019651e258ac67687c0631e8270bdee"
+      "fingerprint": "8e63e094002aa2e5d4cd99bc51dc298abf7935202b70ad4f717453bb923c249c"
     },
     {
       "entityType": "craft",
@@ -132639,7 +132639,7 @@
         "item:medieval_fine_steppe_caftan"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5653898f423db530dede0b8ef12919bd1c7e021ff230ebe11c8a6dbae3cfbed0"
+      "fingerprint": "880b87f5dd2befacd491c005c282d0abc7e35ca4dee69f3c361f97ba15a1dd39"
     },
     {
       "entityType": "craft",
@@ -132654,7 +132654,7 @@
         "item:medieval_silk_bordered_veshti"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f89cb45820cff6a2cb57ea37a1ac4ab479b23b1bf14aa17207548b81d8075822"
+      "fingerprint": "491f249c1ac2b517f9badddcde5eb405d5ed590b62c562e9266c60d5c9fe8a6e"
     },
     {
       "entityType": "craft",
@@ -132669,7 +132669,7 @@
         "item:medieval_fine_iberian_manto"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d9a4692e25126a0ca1dfd2fccbdc4fc15bb68c3bab00f4794204377029e451cd"
+      "fingerprint": "5df86fbc0d8a91460884462aaf751bc6b6f2afdcf0b6387b07b2f6d4f394c203"
     },
     {
       "entityType": "craft",
@@ -132684,7 +132684,7 @@
         "item:medieval_fine_tiraz_robe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "94b44755163b4c89438b9c091c3106c50794c89592a238e0aebf27172186aaeb"
+      "fingerprint": "4ad73ddf7f5da6df73cf0e22b69ac0579a5e6770a173c3a8ff271dd32af9bcdb"
     },
     {
       "entityType": "craft",
@@ -132699,7 +132699,7 @@
         "item:medieval_japanese_uchigi"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "15f3500b6904a32fde20a0307b52358f97f1a8d8afd54a72820fb8a552157e01"
+      "fingerprint": "27a392cc3415949f11870c48887d603140f2eec5847d92a67d7a43ea1fbefe01"
     },
     {
       "entityType": "craft",
@@ -132714,7 +132714,7 @@
         "item:medieval_fine_burnous"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "2d24c388a5b49e34e0a87a624fd4e3ae5fb5641fe949f96f889b31564e7d57fe"
+      "fingerprint": "fea4faae04c10bec92f2073a05d087d9786353e0cafc4407eb2deacbe98e738a"
     },
     {
       "entityType": "craft",
@@ -132729,7 +132729,7 @@
         "item:medieval_fine_wool_cotte"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c08df7b74dfcd3fc1bc0384dea77f819188146ec9eac470b0aef30042c0c1557"
+      "fingerprint": "77e51d4efe8d8b7e97a4cfa285d31cbec269102e11f06b8175f6099750d1545c"
     },
     {
       "entityType": "craft",
@@ -132744,7 +132744,7 @@
         "item:medieval_fine_wool_hangerok"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e92773430d805df3cc904b59bea4a5a7bca07f5f6b52eeb914d36861f3a3eb68"
+      "fingerprint": "a7f2383e1c374633df393a9df20ae072ef0de5f93e9ed53b647c38e701403913"
     },
     {
       "entityType": "craft",
@@ -132759,7 +132759,7 @@
         "item:medieval_fine_wool_kirtle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "294a7e523a0052a6c7445df67235fa2e118fe904620f014c12785f96e4620603"
+      "fingerprint": "f35b73ca394e2327fca5bd8c5d52c09eb108beb61cf330abfdcf8b15af891b3d"
     },
     {
       "entityType": "craft",
@@ -132774,7 +132774,7 @@
         "item:medieval_fine_wool_saya"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e4368fd29483026bd852ffe06f68d69fcff656392791fabf9797657587b25763"
+      "fingerprint": "aafec4e6d12ea506eada4eb8230e486f1c7114ad4c9e93f27058aad4edd5430c"
     },
     {
       "entityType": "craft",
@@ -132789,7 +132789,7 @@
         "item:medieval_fine_woven_girdle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "fa74e4e9d83e807ad263f7fd01f8afdc1b78905dcfe0a357adcfad82fa49be18"
+      "fingerprint": "6108678284b1f7a459a72d587d7954fc8d79ab07f2dd3aa4d0d5846593df0309"
     },
     {
       "entityType": "craft",
@@ -132804,7 +132804,7 @@
         "item:medieval_fine_checked_wool_mantle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "488cae6ff8622ae0591d5a2f2772b27cbbdf1b9c7f71842038afddf0915b15ea"
+      "fingerprint": "dc1c31ba216dfa08b3b57739e2a24902efd032e0c557fcbb4d308979e930fcaa"
     },
     {
       "entityType": "craft",
@@ -132924,7 +132924,7 @@
         "item:medieval_fine_leather_shoes"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "12543327d22ea3a7ee4da03b272aeb7906ab6c8061bbb84f230527b0bb19cdde"
+      "fingerprint": "e1ee27935e7adceea10a59fe3c166c259d896b5afd0dfeb106195e453f06b6bc"
     },
     {
       "entityType": "craft",
@@ -132954,7 +132954,7 @@
         "item:medieval_buddhist_formal_kesa"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f9a55c9cb422ea5eca94bb24881ca1c4054d17cec7a7915d2c23722118aac268"
+      "fingerprint": "2ca5e2c39bdf610532afbb08524d035ac1689a56844185ccce43a6ede9b36d7b"
     },
     {
       "entityType": "craft",
@@ -133029,7 +133029,7 @@
         "item:medieval_fine_split_riding_tunic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "75e05c5c00574387f6bb611472acc1776d6c3cf07300ec5d90cb6d3bf71dba7b"
+      "fingerprint": "473d179cddd48247c46961e956b9ae852977841c08bf14b5169c237c28f5445a"
     },
     {
       "entityType": "craft",
@@ -133089,7 +133089,7 @@
         "item:medieval_latin_bishop_gloves"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1ffdfab709da63b107ecb8ae2f011f22006a67812a9b2ac04f732c5029419247"
+      "fingerprint": "fdab24d7ebf21c54ed65d35cdb008aafc6c2ec02d427598ca744a31854c05476"
     },
     {
       "entityType": "craft",
@@ -133104,7 +133104,7 @@
         "item:medieval_islamic_qadi_turban"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f3458a67c15650ecd8dc34d6aef74c16ec28e432fa9ffc6cdd949e18f01a37ed"
+      "fingerprint": "2e7b3ae715f4ce1890edae0ca615f10b8219df5069264d35588d841f8c8393c8"
     },
     {
       "entityType": "craft",
@@ -133119,7 +133119,7 @@
         "item:medieval_latin_bishop_mitre"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c2a7c4af604502841874a7b4ecee99288eda26386dedd6f9dfedaa5dba1d9ede"
+      "fingerprint": "c0451f620ca5d323481a14a0c3a1a28b1701cac4d183d4fae591de5d93b16329"
     },
     {
       "entityType": "craft",
@@ -133134,7 +133134,7 @@
         "item:medieval_eastern_omophorion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "bd9daca525abf74a73a1a26ab3bb4cac19de1c419806b988bd76b824e70ce863"
+      "fingerprint": "53c65736b79101e3bf6415b60bbd90cc35e810d8d20c4256bb80c1692d608a00"
     },
     {
       "entityType": "craft",
@@ -133674,7 +133674,7 @@
         "item:medieval_fur_earflap_hat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5d672285bd173ab24ebdbe9fedc10342ee0b6aaf4378ef5aac2936f52aa60e07"
+      "fingerprint": "9cd78188040f3a9dd65d56c30244ca49ef2b4d95e6994d16d811415bb5bcd934"
     },
     {
       "entityType": "craft",
@@ -133749,7 +133749,7 @@
         "item:medieval_leather_winter_mittens"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "99c6cc2341efefdfb86e83be3e0fe9e1a9286c75708321466349ff6b9acd1803"
+      "fingerprint": "2f458deb87bbe2664b875ebdff53543a14aa75d9b2873134708ccccf12215daf"
     },
     {
       "entityType": "craft",
@@ -133824,7 +133824,7 @@
         "item:medieval_rus_fur_hat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0d42758a6c99973df305dafa4f3ae13326432003d2451855f7d37ab226056145"
+      "fingerprint": "91d086816131fb723fa4b5c739c2e38b5b63188986fdc324dfcc8ee855adfbdd"
     },
     {
       "entityType": "craft",
@@ -134469,7 +134469,7 @@
         "item:medieval_latin_friar_grey_habit"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "afcc2ef792d65ede9ee5223f11d824514190ea5da63023c41724bdd8cc12c18f"
+      "fingerprint": "a8754beaf6db298eab0394ecbd910959bdda40d9a119a62f0d5114946eed7356"
     },
     {
       "entityType": "craft",
@@ -134484,7 +134484,7 @@
         "item:medieval_latin_poor_clare_grey_habit"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8a99fc832e01127d9d61d104988189d07b7529227bd46ebf698046902ded1f04"
+      "fingerprint": "8e75d343a6f874383bb7cb29f8d80925ce234cc1ac9a15822a929ba40bac51fa"
     },
     {
       "entityType": "craft",
@@ -134904,7 +134904,7 @@
         "item:medieval_heavy_beizi_overrobe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0b154047801aba823d74d48df9deaff9ed2e4848f37e6c741aacacbc5d348801"
+      "fingerprint": "795d59cfc8284fb19211cd04bad12046e225f67802c3a54c65a416ddc485682f"
     },
     {
       "entityType": "craft",
@@ -134919,7 +134919,7 @@
         "item:medieval_heavy_hooded_wool_cloak"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "981cfbddd269244ee92055df7cf606ae344df12eb149d208b8519ceed8a22085"
+      "fingerprint": "df8218b3c2694053fc7a4a18594d0857f5b3a6a0842b4e269103adf440a81cc5"
     },
     {
       "entityType": "craft",
@@ -134934,7 +134934,7 @@
         "item:medieval_heavy_sagion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "39734b8ffca568e46416c578d095906023b9b7047c0b9c39465801322fcdf72a"
+      "fingerprint": "fcc1313e1d1c6578a7d10cff5132bf4f452a77b7a84b54726e3ec8f9a1234663"
     },
     {
       "entityType": "craft",
@@ -134949,7 +134949,7 @@
         "item:medieval_heavy_wool_brat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8901323ba629d24fce270e579a3d11895815785f104f138a4a2b4b75d7ac0cbd"
+      "fingerprint": "2e7b3c9c40dcbf7ef6df7d75b3233ac7070d845c7797fb5c94b0939d104c47f6"
     },
     {
       "entityType": "craft",
@@ -134964,7 +134964,7 @@
         "item:medieval_heavy_wool_burnous"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "546ca6e6e9bbededcbee1b9709048b2a0481189ab805944368f6b5ee6206cd00"
+      "fingerprint": "503529e8dda5f269606d1a1adf9d500fd6872e83abd438b46f20a192c374a82d"
     },
     {
       "entityType": "craft",
@@ -134979,7 +134979,7 @@
         "item:medieval_heavy_wool_cloak"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "26035dff3198a9b31898988105144772fc03995446c1f2369e57a765f00c089c"
+      "fingerprint": "7088c44e148bca15bfac397fe4129bf62a1d1cd5ef9c064de6ed48f7f7bb2f61"
     },
     {
       "entityType": "craft",
@@ -134994,7 +134994,7 @@
         "item:medieval_wool_over_tunic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "62fdcd3a470441e22c866b6521ed36e7ef6b62f18b35105d74432373fca8b867"
+      "fingerprint": "06e39cb65cb85e3ea5ccd7ad93d1a399c72292ab64e8661feefb48a2b4d169b2"
     },
     {
       "entityType": "craft",
@@ -135009,7 +135009,7 @@
         "item:medieval_heavy_wool_surcoat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d7fefe5639cc53707997d2c9ae63809139a635f55b209f6a29cf4f6b8cf51d23"
+      "fingerprint": "8a66fae842c1e2cf9651cb18a55d0b232dcddf94ebd564ccb7bebdb3244131ff"
     },
     {
       "entityType": "craft",
@@ -135024,7 +135024,7 @@
         "item:medieval_heavy_checked_wool_mantle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "2b2d45703892ab9c0cd17efdbf4a02d7edefb61ee9f6ae1f94f13313d53b0da2"
+      "fingerprint": "03008ded92a2309fba1577149a48323bf91fa529beef8e882b4b9f799dcac1e7"
     },
     {
       "entityType": "craft",
@@ -135249,7 +135249,7 @@
         "item:medieval_japanese_hemp_sandals"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c1c159aa8367c1e7aa75b38f3554412158ef2441bfb3ddc0a56246b6bbc9750c"
+      "fingerprint": "f4b434e88db62ef872d150b4d545c6835038972589a5b0a557200e26feb2846b"
     },
     {
       "entityType": "craft",
@@ -135264,7 +135264,7 @@
         "item:medieval_japanese_hemp_work_apron"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "36a7261272c11fb853b73b3624c5e232cb90a4a831f18fd9c1c537a5783e2600"
+      "fingerprint": "2d83f2200fe5f154a004c732299e6dd10a744dceddf067cb902fb7f5af77d29e"
     },
     {
       "entityType": "craft",
@@ -135564,7 +135564,7 @@
         "item:medieval_high_leather_boots"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "27dbd9dd155bb7d6cb812bec12aa3e786347415f3a666a43582d2a1a686f0151"
+      "fingerprint": "36d11971beca074489c2a6c8ec35979d6f5814bfec65676710a8e686f39d5111"
     },
     {
       "entityType": "craft",
@@ -135669,7 +135669,7 @@
         "item:medieval_wool_paenula"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "566f4b506d9a050fa0400bebd01d8c4083e64cac97b6e657ba1bc6fdf169c64f"
+      "fingerprint": "30a2ea9d77a481239063a03a4222dfd5a7a218ac4aa9e970c437ab6193f0bb91"
     },
     {
       "entityType": "craft",
@@ -137034,7 +137034,7 @@
         "item:medieval_iron_buckled_leather_belt"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b2dd7832c101b1dbe861ba4c2a5e811d31dad6c7d2a49283d42c463c9b738ef4"
+      "fingerprint": "dd1d7d160c05e63bed1daad08bf87e3e477b033d15dc2814deb6b1533ff3df42"
     },
     {
       "entityType": "craft",
@@ -137394,7 +137394,7 @@
         "item:medieval_frankish_knee_tunic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f5ec524abbc4793c3e19379e53a5ad1c78f368f2b93a465eca89a4cd1d1bca99"
+      "fingerprint": "8aa154568e121be2f1e25a54c5deb769fb89a92e65df65839ed5380ee640d140"
     },
     {
       "entityType": "craft",
@@ -137409,7 +137409,7 @@
         "item:medieval_latin_rope_cincture"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "62326341785477e38eefbfcfc872dbf3c771fc9faec858f6fe39caa070bb0e6f"
+      "fingerprint": "f00a5acae5c5125c84f27e91e0985e5b530da92d20803b5020b7bff7826d62ac"
     },
     {
       "entityType": "craft",
@@ -137979,7 +137979,7 @@
         "item:medieval_layered_uchigi_set"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c21fb8f654cd145d2facb014705996a4e0f4abe3fbd790eb0338fb1676b107a9"
+      "fingerprint": "f02bf5e0e497c99c289d1b8ed7572f29dc225849351be955f9bb4a30f0a31eb4"
     },
     {
       "entityType": "craft",
@@ -138174,7 +138174,7 @@
         "item:medieval_furriers_leather_apron"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "2e1e7f5badba4492acfc435e7a5960d0670243c3038190f3900d559e434760e6"
+      "fingerprint": "5c38f883b88fe7468351a12cd6908b6ac9260dfc30bf8a5279140588d005dfdd"
     },
     {
       "entityType": "craft",
@@ -138279,7 +138279,7 @@
         "item:medieval_leather_smith_apron"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "cd2233004173bb4e4142116f2b7e62dd1845a7be0030d15e36498d214e7fd13d"
+      "fingerprint": "86e7d4e358b2a948dd25f2f39ccb06a858304e684d25a8db493e31a926aa663c"
     },
     {
       "entityType": "craft",
@@ -138399,7 +138399,7 @@
         "item:medieval_leather_work_gloves"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "33d946bb301ba4895327312ddf6050c9a3a4b924a8277aba7ce009e471486760"
+      "fingerprint": "87250ab403af303754bddb8be6c8410f42889888fc19dcec65f80a09483e1a95"
     },
     {
       "entityType": "craft",
@@ -138504,7 +138504,7 @@
         "item:medieval_light_linen_work_camisa"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3eff43775b8e7d8f5d4af78ad3797de5229cf3e3e350bb26a9c5db8d2d1b5515"
+      "fingerprint": "1f538bbf5318dadf41a6e9826320d4eca7eb866f331fb74f28025edd22113117"
     },
     {
       "entityType": "craft",
@@ -138564,7 +138564,7 @@
         "item:medieval_lined_kosode"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f135a751d47ed5db7a1b4b79cd6d9708cb2cb280d557b1a161c58f2d3b177d68"
+      "fingerprint": "60f4f221211110a4df2edf198e83a5b9f9189d584190d2dca325ea57a1aebc72"
     },
     {
       "entityType": "craft",
@@ -138594,7 +138594,7 @@
         "item:medieval_lined_wool_manto"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c382dccc92e5f6f9ebc34365c444ea2191374d181b86fa707267d67859e6a100"
+      "fingerprint": "d7d04daeeb779d244fff138bbdad4bf4075c7485aff7690262bf19af263b8843"
     },
     {
       "entityType": "craft",
@@ -138609,7 +138609,7 @@
         "item:medieval_lined_leather_boots"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "2e038dc5ebf984a7f558f8df19383147b85cf72a6f3ec13fec62a51891783ab1"
+      "fingerprint": "2dec0687fab070ee4197302ec124a40808aed9da24d2ff4f166b3f5dee443797"
     },
     {
       "entityType": "craft",
@@ -139209,7 +139209,7 @@
         "item:medieval_song_beizi"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "eed7b206fa3a9e361f2c2e7f1a0d7a298c92331104cedfed7586bfce17ac3221"
+      "fingerprint": "9a09dcf816deee64c7d149289e4772f7f5071aa0df90c8ecb221e7dc98e34fd4"
     },
     {
       "entityType": "craft",
@@ -139224,7 +139224,7 @@
         "item:medieval_gaelic_leine"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "646db72a9c1f1f0223f5da61cc1032128df061448b357205329e6771fb854548"
+      "fingerprint": "2257accd26f1637c97d862b5f20264a40526eef0977a84c806f5ace1c30d871f"
     },
     {
       "entityType": "craft",
@@ -139254,7 +139254,7 @@
         "item:medieval_long_wool_tunic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "bc44f76c1c59afcfc5409df67220a70c2d0e422de5f65084efbc803f462fe153"
+      "fingerprint": "3d138e5ad21fe002dd696e83d21a3bd6c6169915f0173eecd09767bcf133a09a"
     },
     {
       "entityType": "craft",
@@ -140709,7 +140709,7 @@
         "item:medieval_narrow_wool_trousers"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "200b534fe065ab63edfcefb05b21b7fd02c193802a02c34ee0af3e2d72fb5cd3"
+      "fingerprint": "605440f975132d124c7844224a66bc31be469a7f4c2239266f092cf067cee98f"
     },
     {
       "entityType": "craft",
@@ -140979,7 +140979,7 @@
         "item:medieval_bazaar_merchant_jubba"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3b7de92c1be79095fe73370a1c9da905534e628531fc620cef82821b0b48b6eb"
+      "fingerprint": "10c3dc998ed06996c00f94e55736e31041ad8c4a0c0c88ceeda94e9a110675b3"
     },
     {
       "entityType": "craft",
@@ -140994,7 +140994,7 @@
         "item:medieval_brooched_market_mantle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5ed008b9c843e98ecf1d8f174c0c9b19ce5ea29a7ccb454961736fe1040e068b"
+      "fingerprint": "1e2dde4fc5717f83cb52108d83b6204f5abf65ddad40865642c6423d671a5298"
     },
     {
       "entityType": "craft",
@@ -141009,7 +141009,7 @@
         "item:medieval_felt_market_cap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "7f8ec96bddaea8e53def34d34d1b392ca66615634968985181c6ec940e6da696"
+      "fingerprint": "a93fbed1470210726f420dd1050ab804d19a95637cd0e03f6f82d3a102183eb1"
     },
     {
       "entityType": "craft",
@@ -141024,7 +141024,7 @@
         "item:medieval_song_merchant_headscarf"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8ceff28a0fc5500db84537db92d42724559a07ab97c88854f9f0d4ebd310b082"
+      "fingerprint": "99c65bfea461d2b3b052fa9f411d204a4b8140751f4813c616d8cd9e88b516df"
     },
     {
       "entityType": "craft",
@@ -141039,7 +141039,7 @@
         "item:medieval_mounted_trader_coat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d1235f600a5c892007a229ca0dfb758a88e733c5197c5260ec5bee6be0dd3399"
+      "fingerprint": "fcf8153df01288c3323cd5ddd45f2223f81882b5786f5c00d54dfe1d0a068586"
     },
     {
       "entityType": "craft",
@@ -141069,7 +141069,7 @@
         "item:medieval_goryeo_shop_po"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "761332f6f5b1649cc27d33be27a64d3b15950c736d8a3c7bc3dce5ab5b34e152"
+      "fingerprint": "6973424a2e1cb6783e9fddb64eefb1b64601f896ed3dab3917d7db6d8a617789"
     },
     {
       "entityType": "craft",
@@ -141084,7 +141084,7 @@
         "item:medieval_song_shopkeeper_robe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "06f1671986b6823c058c5a9948d3417055c161491c29ffb3c42cb3016eb34590"
+      "fingerprint": "f9b0815359b53eb6286836aaf76df462e1cc98844485492feaf2f80af2fe98cc"
     },
     {
       "entityType": "craft",
@@ -141099,7 +141099,7 @@
         "item:medieval_rus_town_rubakha"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d3d5fee15a99363e64fa47d45827958e0adf4896ee698a9c64a91ef98a83dfb2"
+      "fingerprint": "c3ae4ad9ccb65fd6fc72be33d1cab0f181815bf003b6b8119f46f1e66fae453b"
     },
     {
       "entityType": "craft",
@@ -141114,7 +141114,7 @@
         "item:medieval_clean_town_wool_tunic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "6f38d09c7fab3dba6da743b9ec3dc2f0707ea7d8cd1c24c866dcea91e964da72"
+      "fingerprint": "5e0b0140fc77fbfa2db34256346e42d5b4707435041c41a2121bed9cf2c040c3"
     },
     {
       "entityType": "craft",
@@ -141129,7 +141129,7 @@
         "item:medieval_plain_wool_shop_gown"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "cf9ca203c5928f6b410cf1f75fc280623412287ec333f3560c9d0499a7f6ed9f"
+      "fingerprint": "a1520475213bf50c7682099ef62c0d2be9cd62504fe53dad1daef0c450c7faf6"
     },
     {
       "entityType": "craft",
@@ -141144,7 +141144,7 @@
         "item:medieval_neat_wool_town_hood"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ddd3bf99a6fe6f3d6a0f98dc51491852c78c55b00ed509cb06c34a21b97bddb7"
+      "fingerprint": "3c78d492c1bd7526956d3ca7610cf9fae8c20d7a6d73eb4c15f0cf0d33d8eee0"
     },
     {
       "entityType": "craft",
@@ -141774,7 +141774,7 @@
         "item:medieval_hindu_ochre_ascetic_wrap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8ad67445555abb4d57345470580b4bf63c9ed339173d44c313913dae4934a6e9"
+      "fingerprint": "e65a65172a7d429bce74acce473dd3e1dcf71580ebce80b249dd8d4eaf68df89"
     },
     {
       "entityType": "craft",
@@ -141789,7 +141789,7 @@
         "item:medieval_hindu_ochre_shoulder_cloth"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "06d0dd52b69c584619e678da294f01cb4db65ef33b667f9fe1f135511e27305f"
+      "fingerprint": "0060ac1a3f39b5ffb3d4cc12ff3fad54b63fa2d39101d729e0c2be8a5c7a8a55"
     },
     {
       "entityType": "craft",
@@ -142239,7 +142239,7 @@
         "item:medieval_padded_po_robe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f3adf243e476b350e3d9acea7c38b1da81514b11c65a76bc393a967370c7d3a1"
+      "fingerprint": "2d721ca9b0c3a75f2d1b2733cb1712357b0abd82f7c14d46f7dba69cc4227f87"
     },
     {
       "entityType": "craft",
@@ -142254,7 +142254,7 @@
         "item:medieval_padded_silk_overrobe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1c6bea448114c25981773af208a954169dd6166fc949a852815b55ee2031aa77"
+      "fingerprint": "5470c6b8a275310ad3d20ff4c432cbc35659a21db36f1f2ff32fad72bb2b5782"
     },
     {
       "entityType": "craft",
@@ -142269,7 +142269,7 @@
         "item:medieval_padded_wool_jubba"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "fb2365919825cf7f031ffd303a912a95c43851b775339895e1bc3ce13c0bc6e7"
+      "fingerprint": "fbbd75d782101e1f05404ee21217974f8f470a54c44a1d694315dc051d87205f"
     },
     {
       "entityType": "craft",
@@ -142959,7 +142959,7 @@
         "item:medieval_buddhist_patched_kasaya"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a34e5386b89d990211c0de69dbe7264c182681ab6f02497d07510dc3d1bd2b6a"
+      "fingerprint": "95047e816c4814cbe73a43eb4610b3e28df02561af544b9a2f9027433d97e877"
     },
     {
       "entityType": "craft",
@@ -142974,7 +142974,7 @@
         "item:medieval_sufi_patched_khirqa"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a621d2cc72edc30fb197bc5bd0d5e2726626b19e3a7682e02c7a46269c55c34d"
+      "fingerprint": "e63a8eb428b571208f0d78f2d13afa7068fb498e1d9af937d44d3422084b64c7"
     },
     {
       "entityType": "craft",
@@ -143424,7 +143424,7 @@
         "item:medieval_pinned_wool_gown"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e7e79b6fa2da9bc62696c9fc084d16555216f22b5ddef5603049bdb3d30be575"
+      "fingerprint": "c63072a65fc9f3273aabea3d5c79f772083a72d07f848a544100f0b081606e6a"
     },
     {
       "entityType": "craft",
@@ -143454,7 +143454,7 @@
         "item:medieval_clerk_wool_gown"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "084be482e8d347c821d96a4390f98e5e11f449e1a5dc33d8e35164a3a7320d71"
+      "fingerprint": "a9bb9a2f26b6b02ec395b3d436e52d246409c8b08276e482408a87d4f157ad4f"
     },
     {
       "entityType": "craft",
@@ -143469,7 +143469,7 @@
         "item:medieval_goryeo_market_chima"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c7abaed34d08c09732de960c46ea05a081ad751b81aaefafd9e87bb716a211d3"
+      "fingerprint": "54a410bd7fea50495a4bf99e6b76eb5f3c5176024d0843dd28ba1515045fa892"
     },
     {
       "entityType": "craft",
@@ -143484,7 +143484,7 @@
         "item:medieval_linen_market_veil"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "30c41a1eaa1f883cb12d091e4270ab96edf9dc8f1a89a046b91d909bcdf649e2"
+      "fingerprint": "231146d634f8a269477eb30f4510b7ae0aca6258c5c9bd4442e6f96b850e2448"
     },
     {
       "entityType": "craft",
@@ -143514,7 +143514,7 @@
         "item:medieval_linen_shop_maforion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e583e2f27d0c6502e9358f18770f0735a3685ea3895cf1778d92dacf1e018e00"
+      "fingerprint": "e5903b66db843f53ba6e20ec7a6c88cd61f64e6a755bc9a310d3e358b56c8db3"
     },
     {
       "entityType": "craft",
@@ -143529,7 +143529,7 @@
         "item:medieval_sleeveless_work_surcoat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d424d8eda00947679ba8aa111af34d3d1ba6bf774404ba83884ebb6b58c02b03"
+      "fingerprint": "bc8cac208b0eca8e21c7b6f3e430dec3583d0707f2a1e207caf60a21f7a514f4"
     },
     {
       "entityType": "craft",
@@ -143559,7 +143559,7 @@
         "item:medieval_work_wool_cotte"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "dbf86cf91533d2af25285c90edd247402cdb70fde107e076c77e123b0124f216"
+      "fingerprint": "dca49cff82f2e2c0d9dfd4fc975dcae66cf475be49f39f2a85e632c324b29c34"
     },
     {
       "entityType": "craft",
@@ -143574,7 +143574,7 @@
         "item:medieval_wool_work_pellote"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1b5126ba3d4452ebc7ae5535c1329ffcc6b9dc78bced06ced14c1484f8d11fbc"
+      "fingerprint": "bf97cfdcec7b318ff520276e0991786086959450340c1408d995a65b2c4696db"
     },
     {
       "entityType": "craft",
@@ -143589,7 +143589,7 @@
         "item:medieval_plain_work_dalmatic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "00d91e1ed88d6e5ef5edb3b45bf4b5db74cad9cabe07b823404d4ae270fce728"
+      "fingerprint": "d521732728e5b92b03b2c009405eb2b5043428efdb59ea9a5dfdafe9c00dadea"
     },
     {
       "entityType": "craft",
@@ -143604,7 +143604,7 @@
         "item:medieval_goryeo_work_jeogori"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a897c831f6ecfb2a8d48212d9d13ae7d4d1eb64a9f5795cde176b7c31c771b47"
+      "fingerprint": "4573917966abaced511cc5724352632e1eed5896cddcf6d9635741e1fb15e2cc"
     },
     {
       "entityType": "craft",
@@ -143619,7 +143619,7 @@
         "item:medieval_japanese_work_kosode"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ceb7b168700d3d45111f367c10e39017a884eea4637990415b5a51f9c17d70a7"
+      "fingerprint": "cf7b50579cac13a9831fb39755c5b6fa5111091bbc4d50b8f0823c11aed9b9ea"
     },
     {
       "entityType": "craft",
@@ -143634,7 +143634,7 @@
         "item:medieval_song_work_shan_jacket"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5c3a6a28f424aa86a7d1d8443a55f1ec78a1c97b6d3578a688a97713490fa6b9"
+      "fingerprint": "5ec6356ccddf5c4fce2145b5801816cb5c3cd3382d3fb0a902bb933c9dbc4165"
     },
     {
       "entityType": "craft",
@@ -143724,7 +143724,7 @@
         "item:medieval_hindu_kaupina"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "85504afc0bb5f8ee95882151c1ef4a5a29e0a91614255ff3fefc9fad1ecae48d"
+      "fingerprint": "5fcd7756e0231d45f3dc8823c13caf73f9c3f0049e1d7e1586cfc630de984bc2"
     },
     {
       "entityType": "craft",
@@ -143784,7 +143784,7 @@
         "item:medieval_sufi_felt_cap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b32fc7a1be9a77100f9b7bdc49f20dd4450658295b8ae67ab56e429af3a6c3a9"
+      "fingerprint": "630bec4306cdba763b0dffee404be3787a472391a8fd3dad1bcabb7835857507"
     },
     {
       "entityType": "craft",
@@ -143814,7 +143814,7 @@
         "item:medieval_buddhist_plain_underrobe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e287a43da296f3b66b314dabe1d7c717dcfa6b7137865b697028e18b034d6708"
+      "fingerprint": "eb367adab46828374dfd5c8b8fffa294e95c90534f8e7a458e20fea317b53a77"
     },
     {
       "entityType": "craft",
@@ -143859,7 +143859,7 @@
         "item:medieval_plain_leather_belt"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b1bd056b3df6ac25fc94cafc56ea69cc162fe56cc783e35a00030204e8e63ae9"
+      "fingerprint": "b310eea5047f939c7688df0a8892ffd58cb00ee01fed6c54635baff3e8ae4146"
     },
     {
       "entityType": "craft",
@@ -143874,7 +143874,7 @@
         "item:medieval_plain_leather_sandals"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3bd3d6a32f5308276fe5512d1de54d3ff0f10c85d6b1f2ced7b92899718dc0a1"
+      "fingerprint": "d357d9c7364ad19697ba8883fc25eac8bf15f94a6e5d5140c6eced3819c7814b"
     },
     {
       "entityType": "craft",
@@ -143904,7 +143904,7 @@
         "item:medieval_latin_poor_clare_veil"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "306774622a7dafafa54824d5d209953856570b1f2670eccdb16f60b02114dfc9"
+      "fingerprint": "c8d3433e90222616a29a8b3ffc234ff020781a28414247449863afa7bc0e4e09"
     },
     {
       "entityType": "craft",
@@ -144129,7 +144129,7 @@
         "item:medieval_islamic_plain_imam_qamis"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "dd0134902f209b14e1f9a5667e62a7a9732dc40fd45fcd9046affe64b0175350"
+      "fingerprint": "ea2eff2025ee9ad4d398eba79d1b163f832ba200d8e851246679676bf66a5670"
     },
     {
       "entityType": "craft",
@@ -144144,7 +144144,7 @@
         "item:medieval_islamic_plain_imam_turban"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "21622d862532f1d0e3d85d1c173cdfa84cb884940c5fdc7a05eee90eb66652f8"
+      "fingerprint": "44b30d3a1c555a6071e35e36e453286cdf305dafcaf52ae5fa09822c9b5ef136"
     },
     {
       "entityType": "craft",
@@ -144174,7 +144174,7 @@
         "item:medieval_jewish_skullcap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c6ce09a2d920a745de04fc1524a4cf98cce400eafac15b8581dc63b06bf4db8a"
+      "fingerprint": "c3ab1d252ece262147c001646a8305be4f3811c522135b69a8e895f400e134b8"
     },
     {
       "entityType": "craft",
@@ -145059,7 +145059,7 @@
         "item:medieval_quilted_winter_trousers"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d87304899e147c2e4d4de48b4d08b6c3bd95632d20f61e0ad6aa38bca3b3e374"
+      "fingerprint": "ab23e2e98e9f4a1f94ee631ef655d1fc33cd37a01627bd30559a0e2892b25439"
     },
     {
       "entityType": "craft",
@@ -147399,7 +147399,7 @@
         "item:medieval_short_cotton_bodice"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e500cd2af3df1621409070fefa1e58562645536f4547918cd9a2ae5933334dc2"
+      "fingerprint": "1dac8a0b85e94276ad62d1081f8624e1acac7939a0820f5729e4b59ed4511688"
     },
     {
       "entityType": "craft",
@@ -147414,7 +147414,7 @@
         "item:medieval_short_cotton_work_dhoti"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b9c327de6cef5d2b3fffa4f2c1625a48368705eead06e954f19633e9e0dc5741"
+      "fingerprint": "ea8d1fb1f79991aeca12e7e7fd6f3d4ac8086d539d8dfe13d5c92b3932c81e2b"
     },
     {
       "entityType": "craft",
@@ -147429,7 +147429,7 @@
         "item:medieval_short_cotton_work_qamis"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "312d20729ee0b4a81b5b84bdab53629c7618f90d2fd44ea01b0956bb4399afb0"
+      "fingerprint": "972b70bb98f97b73615c16f89af3f9899abe37a1c4a5b54a463ad33155e0309a"
     },
     {
       "entityType": "craft",
@@ -147459,7 +147459,7 @@
         "item:medieval_short_wool_work_tunic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "af62fe905b0368d534cf9dc0453bb4035b9587186b1353b61ec0b5f1ef19f7a5"
+      "fingerprint": "498c4c65ba65bfa977eb781c3737a8a2a51f1077348381eb3b04b461415f2f75"
     },
     {
       "entityType": "craft",
@@ -147474,7 +147474,7 @@
         "item:medieval_short_work_caftan"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "eee7be37604a803d5132191132cd1d267f1e763125d663b60d86dbfe16985a12"
+      "fingerprint": "0b0a314dc8b47d9afd5ac7bbc65cdf04a89a688f9a09d29dc1ba8c62353cf0bb"
     },
     {
       "entityType": "craft",
@@ -147489,7 +147489,7 @@
         "item:medieval_short_work_sagion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ca896aebd68bc32b26dc8bba5cab63642768627d4848d2838eb8acaa91ca015b"
+      "fingerprint": "65840443e6f3e37ec458d678ad0dd2d35b3bd6131dfdd573ecbba02c2593c400"
     },
     {
       "entityType": "craft",
@@ -147504,7 +147504,7 @@
         "item:medieval_song_short_work_trousers"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "418e21e147962bf7dee2cd8538c4f33df3ba84d1dd6d7b40035f297e7a6af06a"
+      "fingerprint": "d30b78ac85b89b7b2d117d022ed2565ab41cb3e61955880ddf5d0905859ad898"
     },
     {
       "entityType": "craft",
@@ -147894,7 +147894,7 @@
         "item:medieval_iberian_pellote"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ce9442d66492b8ee8b6dd1a6acd9d0fbc54198327c130da6ac2ffceb85acdc42"
+      "fingerprint": "0d6b6e15b47322188e5d5c0ce9c40c5488e2dfb02d9b360d08cdfef482b4bdda"
     },
     {
       "entityType": "craft",
@@ -147909,7 +147909,7 @@
         "item:medieval_simple_surcoat"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "809a64faa1df390fa93a124034b7a115dd2503961ee9a07d52ec25f8318a4a99"
+      "fingerprint": "af1af8f76245e7573aea3bc9181979abfc4cebf7163380344f6e38d07fcb4ca1"
     },
     {
       "entityType": "craft",
@@ -147924,7 +147924,7 @@
         "item:medieval_sleeveless_work_jubba"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "759fa528529f6358e305a2e5486a7868d045d528f9d469fa6e2d68c59e688d1d"
+      "fingerprint": "607756071a67aeb57b3beb221a842123ab33a65dcdb950b24458065705cc144a"
     },
     {
       "entityType": "craft",
@@ -149334,7 +149334,7 @@
         "item:medieval_soft_campagi_shoes"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "4ebb0e74231f54610af21b1af515e09a38ec9ea65daaff5da6ac1ee58bf43915"
+      "fingerprint": "67942d685f6f11dba8c88e93b9d749fa01c773c259c12de560d3c48282b466da"
     },
     {
       "entityType": "craft",
@@ -149349,7 +149349,7 @@
         "item:medieval_soft_leather_shoes"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0d5831d56e893b01c088c2525308478a39b3197a8747feb5c18e93e19f1642ad"
+      "fingerprint": "5080f3041fe46a2c2367d1826ac68db4c5b918e6ef4b0cf5fe9694df25d8a148"
     },
     {
       "entityType": "craft",
@@ -149364,7 +149364,7 @@
         "item:medieval_soft_leather_slippers"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "39e683ff18387f8d1176b525288a0504154fa5fd295488dc45d00f16fc4cc3b5"
+      "fingerprint": "bbd92da20a0f2a955278d007460325507ad72c111545680bd5f13a3bea50538f"
     },
     {
       "entityType": "craft",
@@ -149664,7 +149664,7 @@
         "item:medieval_norman_split_tunic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "269b9ce57c9d73b877c00c78269e548cd62f74396b37381a6d69261fa6a10405"
+      "fingerprint": "88a4ded463b295b31d5700b1eb1cd96f7624af9e6638b9f001ea075d2755b69b"
     },
     {
       "entityType": "craft",
@@ -149769,7 +149769,7 @@
         "item:medieval_drab_dyers_apron"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "6ac12e16c729652e9df08485977774a7b5cce22be5b008fe912bf4917131f8f0"
+      "fingerprint": "dd5572376d08991558552de5f431df1a12fd2347bc98dca546540b6387a0e33b"
     },
     {
       "entityType": "craft",
@@ -150549,7 +150549,7 @@
         "item:medieval_straight_wool_gown"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "4f1f807cb10d2c6f80c01a915e1aad4b845e3bd6f496b5a1840f733305337bab"
+      "fingerprint": "4cff71e22d3263774b8e99a827eb885ddd84f0f7674aa66ef0ae2d0d858f5c99"
     },
     {
       "entityType": "craft",
@@ -151539,7 +151539,7 @@
         "item:medieval_heavy_cotton_angavastram"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "baee8910811264a16a8d39048abeb1922b0085bb254f53622183b3d900cf854c"
+      "fingerprint": "e87eb10ff39a2fbf48a2aee3396186e616a6860329c216f3467b2951adc97325"
     },
     {
       "entityType": "craft",
@@ -151554,7 +151554,7 @@
         "item:medieval_thick_cotton_shawl"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c461f94d6ed83ac2080992fed347b41eba6a70fb88eadb01c04ecbe0543293fb"
+      "fingerprint": "f70a798ca2cb559ec1134949290324950896acfd55c8299bf9e9084cc28c0488"
     },
     {
       "entityType": "craft",
@@ -151569,7 +151569,7 @@
         "item:medieval_wool_footwraps"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d8f65e1730ff0e4ad14a399e8a630e4a90f833ff9b169a0fea695efce9a6581e"
+      "fingerprint": "2b19b9b624a2c699bc875b3bcf020a0ba5fdac93d831d3e9d17d805e965541b5"
     },
     {
       "entityType": "craft",
@@ -151584,7 +151584,7 @@
         "item:medieval_lined_wool_hose"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "55fc1ee9865f411f21f15b68772b642b18a1013ef4acc85deea6c39125749181"
+      "fingerprint": "be89e30177025097b33144dc820c4c0f0e7a2cde7eca05db8909267da14dbe80"
     },
     {
       "entityType": "craft",
@@ -151599,7 +151599,7 @@
         "item:medieval_wool_izar_wrap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5a892f63b109323871c7860b09b305800e573d7a40269435691fb2b94245ac28"
+      "fingerprint": "c29b99c6c076233a2a957ee2c398249d95ba3513f8ecc4ab53c86dbadb2ea5c5"
     },
     {
       "entityType": "craft",
@@ -151614,7 +151614,7 @@
         "item:medieval_wool_shawl"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "422f574ced18478890597e4bc0f18a42950932144f961c938492ec551b75ed0a"
+      "fingerprint": "e3bfa9a0fb67638495ceaa55a191138a739ca264e7944ab0a8a42c7102c9cccc"
     },
     {
       "entityType": "craft",
@@ -151674,7 +151674,7 @@
         "item:medieval_felt_stockings"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f52bd9a471928d9fa05f9266d236df6d095343a5e2a5f59d6561efe723a0ed14"
+      "fingerprint": "6dfdb8510ccbc6e7574291e9887d5571f620b38bb35133025b8f12863f8b3274"
     },
     {
       "entityType": "craft",
@@ -152154,7 +152154,7 @@
         "item:medieval_cotton_bazaar_sari"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "2963747b38d147e30f77944937683bc1da6d4bb96613b450c26769383f293f4f"
+      "fingerprint": "7fae8fb172d1488e9211b9916f6e29352d6db0227a783960b75ab4af8e0ae3f4"
     },
     {
       "entityType": "craft",
@@ -152169,7 +152169,7 @@
         "item:medieval_south_indian_work_veshti"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "6165b9019968f7db26e2daf3385b36a18ed83e1dfbb51cddab78ddbdbec325ea"
+      "fingerprint": "ebeb6a95458c10373580de0ebeb80a285c02bda4bdfb2c874c674943cbce87e6"
     },
     {
       "entityType": "craft",
@@ -152184,7 +152184,7 @@
         "item:medieval_tucked_poneva_work_skirt"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "15327c10e0c5e4362711c52c780e142a20795af81fc5cfc7889729f476256650"
+      "fingerprint": "79aa67c883a43f532ef08f102cebfbb50de0af41bdf4c2c304b45b5fccc87798"
     },
     {
       "entityType": "craft",
@@ -152199,7 +152199,7 @@
         "item:medieval_tucked_wool_work_gown"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "442ab35d1404d0b5d1b0c711ac20af25a354643f5fa20e2b7e46c66e33c4733a"
+      "fingerprint": "218ca9391c3e532e1e6334c85bd81ed581ad8d25ea74d997b4bbe672bf6d2d3e"
     },
     {
       "entityType": "craft",
@@ -152214,7 +152214,7 @@
         "item:medieval_town_work_kirtle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d00a960404d1e7cadf66e76cd590b9e71a257c4d7ca6f480c6c6ee4b971f605f"
+      "fingerprint": "d70ee26e8c6b3836e446228fa9b46093fed656863560e85061426f77caa52412"
     },
     {
       "entityType": "craft",
@@ -152439,7 +152439,7 @@
         "item:medieval_latin_white_monastic_tunic"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c8c6855233b4e71e4d4950df11ad11c83e028937cbb014d52aa7a88e525aae0f"
+      "fingerprint": "a4fa6012849ccc48f86737fbd501dee260f4fecb1e7aec5f6a77f68926f8cb99"
     },
     {
       "entityType": "craft",
@@ -153114,7 +153114,7 @@
         "item:medieval_waxed_skin_cape"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "83d5a636b66c1ac5a298816c4b2c0db86eb51d540c10016767f723351eb766da"
+      "fingerprint": "862dc635bbde6b21fde1d8d0320de3c9ecdc6e63cfa7e38b5cf88f33093068b9"
     },
     {
       "entityType": "craft",
@@ -153204,7 +153204,7 @@
         "item:medieval_jain_white_ascetic_robe"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "52fde8f833d333d45a59cf375b7555063f64798765acedec018e707962a93bc8"
+      "fingerprint": "6ef61a282fd48c22ad8e64b509b60232e2139a96673edeb31cc9422cbf06a782"
     },
     {
       "entityType": "craft",
@@ -153219,7 +153219,7 @@
         "item:medieval_hindu_white_priest_dhoti"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ed504121cd01fe211899292d949bb5714d9ef04b390f2f087f919e88aaed64a1"
+      "fingerprint": "f002d7dcc34334b5bfc68e4cda5127689bf2185962f5e90176f0ea41cad2e23b"
     },
     {
       "entityType": "craft",
@@ -153234,7 +153234,7 @@
         "item:medieval_jain_white_shoulder_wrap"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "50e39f64eff65787d2ffb894ddd25fdcaec8720cd82a5258b3350063e57a425a"
+      "fingerprint": "e6c8bbcfedb1f695e8104d06cd3009d8c7fae4600cfea8d68a28b93d5f48a87c"
     },
     {
       "entityType": "craft",
@@ -153249,7 +153249,7 @@
         "item:medieval_hindu_white_uttariya"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5f88367aeb5672705fb1af9f2841861b1701fc9f53f06e7dfbe99232a607de98"
+      "fingerprint": "330dbe3d3fa57a7a7e8f2aaefd3ac2767f838e064863bfd738ab6c8727e4b9bf"
     },
     {
       "entityType": "craft",
@@ -153324,7 +153324,7 @@
         "item:medieval_latin_white_alb"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ddde8b6620941518ce5f8f47f0d5ccc48fac3639820a178455c4bcc185e93d32"
+      "fingerprint": "c8ca3f81421900c2aa5dfe24c5347954545d44bb070f2e2d5607c257cf10a74e"
     },
     {
       "entityType": "craft",
@@ -153339,7 +153339,7 @@
         "item:medieval_latin_amice"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "51bc20729e455de48dcbe4632109c3c0da1e9480fdb22981e0ca32a44f561d94"
+      "fingerprint": "8ae8d5f2046fa0a5788ca4f7d6f78687bb308e634e43b33a14ae9826e645e1e1"
     },
     {
       "entityType": "craft",
@@ -153354,7 +153354,7 @@
         "item:medieval_latin_linen_cincture"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ef8c9e18e3da686730a6b9c52dde8dc5b0095fbc7f2ffe14e34659fa92b2a192"
+      "fingerprint": "6c1aeb123c2ec6e63c0d1063915c2ade8b8d225d813d11c0fb8d78914ef72422"
     },
     {
       "entityType": "craft",
@@ -153369,7 +153369,7 @@
         "item:medieval_latin_white_rochet"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c4470285acc17ed0fed9baada43cdab300c10e4e24af448e768d15d7cd9b162c"
+      "fingerprint": "58d3b06036882a3d798b121bb1252da29435e617f0754e52eb08698a694cf249"
     },
     {
       "entityType": "craft",
@@ -153384,7 +153384,7 @@
         "item:medieval_eastern_sticharion"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "695245f571aafdd1e5d16a48fad8f333df5a2753e7954ba524eb4ecf34934057"
+      "fingerprint": "04bea7aeee07cdf073dbc38ed88cbd4dbec780df6bc9ae69b0f396396c54651b"
     },
     {
       "entityType": "craft",
@@ -153399,7 +153399,7 @@
         "item:medieval_latin_nun_wimple_veil"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "479ed84a9a70c369b22f36302acffff88011b9947635324b5399fe8c89bf7573"
+      "fingerprint": "97e6d18ac88fa3a2a87cf087899a0340f8d23423c30ca27d908e5633311e486e"
     },
     {
       "entityType": "craft",
@@ -153429,7 +153429,7 @@
         "item:medieval_latin_white_friar_habit"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "2540799dcf01421553a5377f3b0e33bae1f119bd0d56f52a0c13e37576511306"
+      "fingerprint": "58ef92b61cd7b2d8ff31de731cb30426e868d0f7c2ad04388eb4743ffbc8799b"
     },
     {
       "entityType": "craft",
@@ -153444,7 +153444,7 @@
         "item:medieval_latin_white_friar_mantle"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "70e704516a33b715bf64e3afe8fa010798d58a5b73b63c3e8d7d6209e9c825de"
+      "fingerprint": "2043c19729a42227a79353ddef48ee5bf33f890c0b02ac020e5bb6c8cb046a16"
     },
     {
       "entityType": "craft",
@@ -153459,7 +153459,7 @@
         "item:medieval_latin_white_carthusian_habit"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b0e0ce5cba09ebc96f8a2938d99ed08b10c7c8ee1962e3ccc85fca681efcfcfd"
+      "fingerprint": "a605cac01d828f39b4568dc2cd8c722c63f28a8b3353d98b8104ca07df96921e"
     },
     {
       "entityType": "craft",
@@ -153474,7 +153474,7 @@
         "item:medieval_latin_archbishop_pallium"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a8ebddab0c32d2d1ece97ac37f6e6f4a8d56d31d1698d3d6098812b5a6247836"
+      "fingerprint": "14ede928bfea7612f65b62ea6daa2fd644796296b62cea41c9a4f56b75361fdd"
     },
     {
       "entityType": "craft",
@@ -153489,7 +153489,7 @@
         "item:medieval_jewish_tallit_gadol"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "46f53a330b3e36c641adcc88de8df2cd6ac23a38e608b2c3cec857dc08f2ce65"
+      "fingerprint": "858a491e9d55620a264180fb8b7e0467daccd2815a15795ba6a400ebdb311f12"
     },
     {
       "entityType": "craft",
@@ -153504,7 +153504,7 @@
         "item:medieval_jewish_tallit_katan"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9a6140d2cc8d8da8012643cd4380325be2c5fbd9ebbc4bb2825374ddf166305d"
+      "fingerprint": "e2e71b6ae113f3c06e0d00d8c275f9d3e0b5abc3f915fbcad8ace1f5b77e85dd"
     },
     {
       "entityType": "craft",
@@ -153564,7 +153564,7 @@
         "item:medieval_wide_work_sash"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "56b379e129ee82f463de3a716caab19aa7d38a100bd4c9de403c061c6a7bc1c1"
+      "fingerprint": "189bf40b0876d7d991588a242c5588a86cc274a5062b9c1176b0d5136ecd5dd3"
     },
     {
       "entityType": "craft",
@@ -153594,7 +153594,7 @@
         "item:medieval_wide_leather_work_belt"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f628298daf6bdc15b8dd810db7775724229744e63ab445359e20504d2eb6e438"
+      "fingerprint": "07b440effdae4ee9754ef6705f20a539331b9f98eec64893ec25102adf768619"
     },
     {
       "entityType": "craft",
@@ -154479,7 +154479,7 @@
         "item:medieval_hemp_sandals"
       ],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "afe28446beb4f618ca5338bd1205f859add76c4ac72f70b53921ff0d953a275f"
+      "fingerprint": "7962ed0e52775d433958a9a7791ca3847bc7269d29f7434325de8b67bef1c9ee"
     },
     {
       "entityType": "craft",

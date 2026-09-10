@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation.Roles;
@@ -141,6 +141,8 @@ public partial class Character
                 returnVar = new CollectionVariable(
                     TraitsOfType(TraitType.Skill).Select(x => x.Definition).ToList(), ProgVariableTypes.Trait);
                 break;
+			case "nativelanguage":
+				return NativeLanguage;
             case "accents":
                 returnVar = new CollectionVariable(Accents.ToList(), ProgVariableTypes.Accent);
                 break;
@@ -341,6 +343,7 @@ public partial class Character
             { "groupmembers", ProgVariableTypes.Collection | ProgVariableTypes.Character },
             { "npc", ProgVariableTypes.Boolean },
             { "pc", ProgVariableTypes.Boolean },
+			{ "nativelanguage", ProgVariableTypes.Language },
             { "accents", ProgVariableTypes.Accent | ProgVariableTypes.Collection },
             { "languages", ProgVariableTypes.Language | ProgVariableTypes.Collection },
 			{ "signedlanguages", ProgVariableTypes.SignedLanguage | ProgVariableTypes.Collection },
@@ -432,6 +435,7 @@ public partial class Character
             { "groupmembers", "A collection of all the member of their group" },
             { "npc", "True if they are an NPC" },
             { "pc", "True if they are a PC" },
+			{ "nativelanguage", "The native language" },
             { "accents", "A collection of all of the assets that they have familiarity with" },
             { "languages", "A collection of all the languages that they know" },
 			{ "signedlanguages", "A collection of all the signed languages that they know" },

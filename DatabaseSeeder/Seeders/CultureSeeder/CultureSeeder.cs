@@ -142,6 +142,10 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOpt
 			SeedCulturePacks(context, questionAnswers);
 		}
 
+		var accentConflicts = new List<string>();
+		foreach (var group in _accentMetadata.GroupBy(x => x.Accent.Id))
+			CultureStockAccentRoles.ApplyLegacy(context, group.First().Accent, group.Any(x => x.Fresh), accentConflicts);
+		_accentMetadata.Clear();
 		RefreshExistingCultureRaceSatiationLimits();
 		EnsureFallbackRandomNameProfiles();
 		ChargenFreeKnowledgeProgReconcileResult freeKnowledgeResult =
@@ -149,9 +153,9 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOpt
 		context.SaveChanges();
 
 		transaction.Commit();
-		return string.IsNullOrWhiteSpace(freeKnowledgeResult.Message)
-			? "Completed successfully."
-			: $"Completed successfully. {freeKnowledgeResult.Message}";
+		var message = string.IsNullOrWhiteSpace(freeKnowledgeResult.Message)
+			? "Completed successfully." : $"Completed successfully. {freeKnowledgeResult.Message}";
+		return accentConflicts.Count == 0 ? message : message + "\n" + string.Join("\n", accentConflicts);
 	}
 
 	internal static string? ToolkitEra(string answer) => NormalizeCulturePackAnswer(answer) switch

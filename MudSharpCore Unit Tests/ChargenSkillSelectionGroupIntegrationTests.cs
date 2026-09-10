@@ -162,9 +162,13 @@ public class ChargenSkillSelectionGroupIntegrationTests
 		language.SetupGet(x => x.LinkedTrait).Returns(f.Skills[0]);
 		learner.SetupGet(x => x.Language).Returns(language.Object);
 		learner.Setup(x => x.IsAvailableInChargen(It.IsAny<ICharacterTemplate>())).Returns(true);
-		language.SetupGet(x => x.DefaultLearnerAccent).Returns(learner.Object);
+		learner.SetupGet(x => x.Role).Returns(AccentRole.Fallback);
 		language.SetupGet(x => x.Accents).Returns([learner.Object, native.Object]);
-		f.World.SetupGet(x => x.Languages).Returns(F.Repository<ILanguage>([language.Object]));
+		var home = new Mock<ILanguage>();
+		home.SetupGet(x => x.Id).Returns(10);
+		home.SetupGet(x => x.LinkedTrait).Returns(f.Skills[1]);
+		home.SetupGet(x => x.Accents).Returns([]);
+		f.World.SetupGet(x => x.Languages).Returns(F.Repository<ILanguage>([language.Object, home.Object]));
 		GeneratedSkillGroupAdapter.Apply(template, 730, GeneratedOptionalSkillPolicy.Decline);
 		Assert.AreEqual(200.0, template.SkillValues.Single(x => x.Item1 == f.Skills[0]).Item2);
 		Assert.AreEqual(350.0, template.SkillValues.Single(x => x.Item1 == f.Skills[1]).Item2);
@@ -172,7 +176,9 @@ public class ChargenSkillSelectionGroupIntegrationTests
 		Assert.AreSame(learner.Object, template.SelectedAccents.Single());
 		template.SelectedAccents.Clear();
 		learner.Setup(x => x.IsAvailableInChargen(It.IsAny<ICharacterTemplate>())).Returns(false);
-		StringAssert.Contains(Assert.ThrowsException<InvalidOperationException>(() => GeneratedSkillGroupAdapter.Apply(template, 730, GeneratedOptionalSkillPolicy.Decline)).Message, "learner/foreign");
+		GeneratedSkillGroupAdapter.Apply(template, 730, GeneratedOptionalSkillPolicy.Decline);
+		Assert.AreSame(native.Object, template.SelectedAccents.Single());
+		template.SelectedNativeLanguage = language.Object;
 		var nativeRole = new Mock<IFutureProg>();
 		nativeRole.SetupGet(x => x.FunctionName).Returns("CultureNonNativeAccent0");
 		nativeRole.Setup(x => x.ExecuteBool(It.IsAny<object[]>())).Returns(false);

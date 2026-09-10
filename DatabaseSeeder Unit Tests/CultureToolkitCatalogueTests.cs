@@ -51,7 +51,7 @@ public class CultureToolkitCatalogueTests
 	[DataRow("neo-classical", "renaissance", true)]
 	public void ExplicitLatinAccentRulesOverrideSourceModuleDates(string name, string era, bool allowed)
 	{
-		var policy = CultureToolkitAccentPolicy.Resolve(new CultureToolkitCatalogue(), "earthrenaissanceeurope", "Latin", name, "native", false);
+		var policy = CultureToolkitAccentPolicy.Resolve(new CultureToolkitCatalogue(), "earthrenaissanceeurope", "Latin", name, "native", MudSharp.Communication.Language.AccentRole.Native);
 		Assert.AreEqual(allowed, policy.AllowedPacks.Contains(era));
 		Assert.AreEqual("native-tradition", policy.Role);
 	}

@@ -1,4 +1,4 @@
-﻿using MoreLinq;
+using MoreLinq;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
@@ -24,6 +24,7 @@ namespace MudSharp.NPC.Templates;
 
 public class VariableNPCTemplate : NPCTemplateBase
 {
+	private long? _nativeLanguageId;
 	private int? _skillGroupSeed;
 	private GeneratedOptionalSkillPolicy _optionalSkillGroupPolicy;
 	private ChargenSkillClaims _savedSkillGroupClaims = new();
@@ -174,6 +175,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 
     private void LoadFromXml(XElement root)
     {
+		_nativeLanguageId = (long?)root.Element("NativeLanguage");
 		_skillGroupSeed = (int?)root.Element("SkillGroupSeed");
 		_optionalSkillGroupPolicy = (GeneratedOptionalSkillPolicy)((int?)root.Element("OptionalSkillGroupPolicy") ?? 0);
 		_savedSkillGroupClaims = ChargenSkillClaims.Load(root.Element("SkillClaims"));
@@ -295,7 +297,7 @@ public class VariableNPCTemplate : NPCTemplateBase
     private string SaveDefinition()
     {
         return
-            new XElement("Definition",
+			new XElement("Definition", new XElement("NativeLanguage", _nativeLanguageId ?? 0),
                 new XElement("OnLoadProg", OnLoadProg?.Id ?? 0),
                 new XElement("HealthStrategy", HealthStrategy?.Id ?? 0L),
                 new XElement("DefaultCombatSetting", DefaultCombatSetting?.Id ?? 0L),
@@ -458,7 +460,6 @@ public class VariableNPCTemplate : NPCTemplateBase
             List<IAccent> languageAccents = _validAccents.Where(x => x.Language == language).ToList();
             if (languageAccents.Count == 0)
             {
-                accents.Add(language.Accents.GetRandomElement());
                 continue;
             }
 
@@ -512,6 +513,7 @@ public class VariableNPCTemplate : NPCTemplateBase
         SimpleCharacterTemplate template = new()
         {
             SelectedGender = rolledGender,
+			SelectedNativeLanguage = Gameworld.Languages.Get(_nativeLanguageId ?? 0),
             SelectedCulture = _culture,
             SelectedRace = _race,
             SelectedEthnicity = ethnicity,
@@ -534,6 +536,17 @@ public class VariableNPCTemplate : NPCTemplateBase
             Gameworld = Gameworld
         };
 
+
+		template.SelectedAccents.RemoveAll(x => x is null || !x.IsAvailableInChargen(template));
+		var nativeLanguage = LanguageAcquisition.ResolveNative(languages,
+			x => rolledSkills.FirstOrDefault(y => y.Trait == x.LinkedTrait).Item2,
+			template.SelectedNativeLanguage, ethnicity?.NativeLanguage, _culture?.NativeLanguage);
+		foreach (var language in languages.Where(x => template.SelectedAccents.All(a => a.Language != x)))
+		{
+			var accent = LanguageAcquisition.ResolveAccent(language, nativeLanguage,
+				available: language.Accents.Where(x => x.IsAvailableInChargen(template)));
+			if (accent is not null) template.SelectedAccents.Add(accent);
+		}
 
 		ApplySkillGroupsToGeneratedTemplate(template);
 
@@ -571,6 +584,7 @@ public class VariableNPCTemplate : NPCTemplateBase
     public override string Show(ICharacter actor)
     {
         StringBuilder sb = new();
+		sb.AppendLine($"Native Language: {(Gameworld.Languages.Get(_nativeLanguageId ?? 0))?.Name.ColourName() ?? "Automatic"}");
         sb.AppendLine(
             $"Variable NPC #{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
         sb.AppendLine();
@@ -847,6 +861,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 	#3skillgroups <seed> <decline|fill>#0 - opts into deterministic skill groups, choosing optional-group policy
 	#3skillgroups off#0 - disables skill groups without changing hand-authored skills
 	#3race <race>#0 - sets the race of the NPC
+	#3native <language|none>#0 - sets an optional native-language override
 	#3culture <culture>#0 - sets the culture of the NPC
 	#3ethnicity <ethnicity>#0 - sets the ethnicity of the NPC
 	#3gender <gender> <weight>|0#0 - sets or removes the chance of selecting a particular gender
@@ -896,6 +911,19 @@ public class VariableNPCTemplate : NPCTemplateBase
 				{ actor.OutputHandler.Send("Use skillgroups <integer seed> <decline|fill>, or skillgroups off."); return false; }
 				ConfigureSkillGroups(seed, policy);
 				actor.OutputHandler.Send("Generated skill groups enabled with saved deterministic choices.");
+				return true;
+			case "native":
+			case "nativelanguage":
+				var text = command.SafeRemainingArgument;
+				var language = Gameworld.Languages.GetByIdOrName(text);
+				if (language is null && !text.EqualTo("none"))
+				{
+					actor.OutputHandler.Send("Specify a language or none for automatic inference.");
+					return false;
+				}
+				_nativeLanguageId = language?.Id;
+				Changed = true;
+				actor.OutputHandler.Send($"Native language override: {language?.Name.ColourName() ?? "Automatic"}.");
 				return true;
             case "accent":
                 return BuildingCommandAccent(actor, command);

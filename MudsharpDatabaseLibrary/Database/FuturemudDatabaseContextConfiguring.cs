@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
@@ -21,6 +21,7 @@ namespace MudSharp.Database
 			OnModelCreatingSeven(modelBuilder);
 			OnModelCreatingEight(modelBuilder);
 
+			ConfigureNativeLanguages(modelBuilder);
             OnModelCreatingPartial(modelBuilder);
         }
     }

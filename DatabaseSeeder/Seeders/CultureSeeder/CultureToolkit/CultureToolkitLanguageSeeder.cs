@@ -90,7 +90,6 @@ public static class CultureToolkitLanguageSeeder
 			desired.Name = label;
 			desired.DifficultyModel = prerequisites.DifficultyModel.Id;
 			desired.LinkedTraitId = installedTrait.Id;
-			desired.DefaultLearnerAccentId = existing?.DefaultLearnerAccentId;
 			if (hasSpecification) desired.UnknownLanguageDescription = CultureToolkitCatalogue.Text(specification, "unknown_description_template");
 			Language? original = source is null ? null : CultureToolkitEntityWriter.CopyScalars(context, source);
 			if (original is not null)
@@ -99,9 +98,8 @@ public static class CultureToolkitLanguageSeeder
 					original.UnknownLanguageDescription = existing.UnknownLanguageDescription;
 				original.LinkedTraitId = installedTrait.Id;
 				original.DifficultyModel = prerequisites.DifficultyModel.Id;
-				original.DefaultLearnerAccentId = existing?.DefaultLearnerAccentId;
 			}
-			var language = writer.Upsert(key, desired, existing, original, new HashSet<string> { nameof(Language.DefaultLearnerAccentId) });
+			var language = writer.Upsert(key, desired, existing, original);
 			installed[key] = language;
 			var importedAccents = new Dictionary<(string Module, long Id), Accent>();
 			foreach (var row in sourceRows ?? [])
@@ -135,18 +133,9 @@ public static class CultureToolkitLanguageSeeder
 				importedAccents[(row.Module, accent.Id)] = writer.Upsert(accentKey, desiredAccent, boundAccent, originalAccent,
 					ownsAvailability ? new HashSet<string> { nameof(Accent.ChargenAvailabilityProgId) } : null);
 			}
-			if (sourceRows is { Length: > 0 })
-			{
-				var preferred = sourceRows[0];
-				if (preferred.Language.DefaultLearnerAccentId is long learnerId && importedAccents.TryGetValue((preferred.Module, learnerId), out var learner))
-				{
-					if (existing is null && language.DefaultLearnerAccentId is null) language.DefaultLearnerAccentId = learner.Id;
-					// An existing pointer remains authoritative; there is no global learner-accent replacement.
-				}
-			}
 			if (hasSpecification && (CultureToolkitManagedEntities.Find(context, "Accent", key + ".accent.local") is not null ||
 				!context.Accents.Where(x => x.LanguageId == language.Id).AsEnumerable().Any(x =>
-					!new[] { "foreign", "crude", "learner" }.Contains(x.Group.ToLowerInvariant()))))
+					x.Role == 0)))
 			{
 				var fallback = specification.GetProperty("fallback_accent_if_no_legacy_accent");
 				writer.Upsert(key + ".accent.local", new Accent
@@ -162,10 +151,9 @@ public static class CultureToolkitLanguageSeeder
 				var learnerRecord = CultureToolkitManagedEntities.Find(context, "Accent", key + ".accent.learner");
 				var learner = learnerRecord is not null ? context.Accents.Find(learnerRecord.LogicalId)! : writer.Upsert(key + ".accent.learner", new Accent
 				{
-					LanguageId = language.Id, Name = "Learner", Group = "learner", Suffix = "with a learner's accent",
+					Role = 2, LanguageId = language.Id, Name = "Learner", Group = "learner", Suffix = "with a learner's accent",
 					VagueSuffix = "with an unfamiliar accent", Description = "The hesitant pronunciation of someone learning the language.", Difficulty = 6
 				}, independentlyManagedFields: new HashSet<string> { nameof(Accent.ChargenAvailabilityProgId) });
-				if (existing is null && language.DefaultLearnerAccentId is null) language.DefaultLearnerAccentId = learner.Id;
 			}
 			context.SaveChanges();
 		}
@@ -187,6 +175,39 @@ public static class CultureToolkitLanguageSeeder
 				.Where(x => installed.ContainsKey("legacy:" + x)).Select(x => installed["legacy:" + x]).Distinct().ToArray();
 			if (matches.Length == 1) installed[CultureToolkitCatalogue.Text(binding, "key")] = matches[0];
 		}
+		foreach (var row in sources.Values.SelectMany(x => x))
+		foreach (var sourceAccent in row.Language.Accents)
+		{
+			var key = $"{row.Key}.accent.{row.Module}.{sourceAccent.Name}";
+			var record = CultureToolkitManagedEntities.Find(context, "Accent", key);
+			if (record is null) continue;
+			var accent = context.Accents.Find(record.LogicalId)!;
+			var desiredIds = new List<long>();
+			foreach (var sourceLanguage in CultureStockAccentRoles.Associations(row.Language.Name, sourceAccent.Name))
+			{
+				var binding = CultureToolkitLanguageBindings.Key(row.Module, sourceLanguage);
+				if (installed.TryGetValue(binding, out var associated) || installed.TryGetValue("legacy:" + sourceLanguage, out associated))
+					desiredIds.Add(associated.Id);
+				else conflicts.Add($"Accent {key}: associated source language {sourceLanguage} is not installed.");
+			}
+			var associationKey = key + ".associated-languages";
+			var owner = CultureToolkitManagedEntities.Find(context, "AccentAssociations", associationKey);
+			if (owner is null)
+			{
+				owner = new SeederManagedRecord { Seeder = "CultureSeeder", EntityType = "AccentAssociations",
+					StableKey = associationKey, Module = pack.Era, LogicalId = accent.Id,
+					ManifestVersion = "2026-09-10", AppliedAt = DateTime.UtcNow,
+					SeedBaseline = JsonSerializer.Serialize(new Dictionary<string, string> { ["languages"] = "[]" }) };
+				context.SeederManagedRecords.Add(owner);
+			}
+			var merged = SeederManagedRecordReconciler.Reconcile(owner,
+				new Dictionary<string, string> { ["languages"] = JsonSerializer.Serialize(accent.AssociatedLanguages.Select(x => x.Id).Order().ToArray()) },
+				new Dictionary<string, string> { ["languages"] = JsonSerializer.Serialize(desiredIds.Distinct().Order().ToArray()) }, false, conflicts);
+			accent.AssociatedLanguages.Clear();
+			foreach (var id in JsonSerializer.Deserialize<long[]>(merged["languages"])!)
+				accent.AssociatedLanguages.Add(context.Languages.Find(id)!);
+		}
+		context.SaveChanges();
 		return new CultureLanguageInstallResult(installed, installed.ToDictionary(x => x.Key,
 			x => context.TraitDefinitions.Find(x.Value.LinkedTraitId)!), caps);
 	}

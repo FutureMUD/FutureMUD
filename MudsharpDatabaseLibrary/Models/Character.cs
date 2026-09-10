@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace MudSharp.Models;
@@ -53,6 +53,8 @@ public partial class Character
 
     public string Name { get; set; }
     public long Id { get; set; }
+	public long? NativeLanguageId { get; set; }
+	public virtual Language NativeLanguage { get; set; }
     public long? AccountId { get; set; }
     public DateTime CreationTime { get; set; }
     public DateTime? DeathTime { get; set; }

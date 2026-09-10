@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using MudSharp.CharacterCreation;
 using MudSharp.Commands;
 using MudSharp.Database;
@@ -22,6 +22,8 @@ public class Accent : SaveableItem, IAccent
         Description = accent.Description;
         Language = language;
         Group = accent.Group;
+		Role = (AccentRole)accent.Role;
+		_associatedLanguageIds.UnionWith(accent.AssociatedLanguages.Select(x => x.Id));
         ChargenAvailabilityProg = gameworld.FutureProgs.Get(accent.ChargenAvailabilityProgId ?? 0);
     }
 
@@ -76,6 +78,9 @@ public class Accent : SaveableItem, IAccent
     public string Group { get; protected set; }
 
     public ILanguage Language { get; protected set; }
+	public AccentRole Role { get; protected set; }
+	private readonly HashSet<long> _associatedLanguageIds = new();
+	public IEnumerable<ILanguage> AssociatedLanguages => _associatedLanguageIds.Select(x => Gameworld.Languages.Get(x)).Where(x => x is not null);
 
     /// <summary>
     ///     The difficulty of understanding this accent if it is one with which you are unfamiliar
@@ -95,6 +100,10 @@ public class Accent : SaveableItem, IAccent
     {
         switch (property.ToLowerInvariant())
         {
+			case "role":
+				return new TextVariable(Role.DescribeEnum());
+			case "associatedlanguages":
+				return new CollectionVariable(AssociatedLanguages.ToList(), ProgVariableTypes.Language);
             case "id":
                 return new NumberVariable(Id);
             case "name":
@@ -160,6 +169,8 @@ public class Accent : SaveableItem, IAccent
     {
         return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
         {
+			{ "role", ProgVariableTypes.Text },
+			{ "associatedlanguages", ProgVariableTypes.Collection | ProgVariableTypes.Language },
             { "id", ProgVariableTypes.Number },
             { "name", ProgVariableTypes.Text },
             { "language", ProgVariableTypes.Language },
@@ -175,6 +186,8 @@ public class Accent : SaveableItem, IAccent
     {
         return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
         {
+			{ "role", "Native, Foreign or Fallback" },
+			{ "associatedlanguages", "Source languages associated with this accent" },
             { "id", "" },
             { "name", "" },
             { "language", "" },
@@ -205,6 +218,10 @@ public class Accent : SaveableItem, IAccent
         dbitem.Difficulty = (int)Difficulty;
         dbitem.Description = Description;
         dbitem.Group = Group;
+		dbitem.ChargenAvailabilityProgId = ChargenAvailabilityProg?.Id;
+		dbitem.Role = (int)Role;
+		dbitem.AssociatedLanguages.Clear();
+		foreach (var id in _associatedLanguageIds) dbitem.AssociatedLanguages.Add(FMDB.Context.Languages.Find(id));
         Changed = false;
     }
 
@@ -216,6 +233,10 @@ public class Accent : SaveableItem, IAccent
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+			case "role":
+				return BuildingCommandRole(actor, command);
+			case "associated":
+				return BuildingCommandAssociated(actor, command);
             case "name":
                 return BuildingCommandName(actor, command);
             case "desc":
@@ -235,6 +256,8 @@ public class Accent : SaveableItem, IAccent
             default:
                 actor.OutputHandler.Send(@"The valid options for this command are:
 
+	role <Native|Foreign|Fallback>
+	associated <language> - toggles an associated source language
     name <name>
     description <description>
     suffix <suffix>
@@ -244,6 +267,34 @@ public class Accent : SaveableItem, IAccent
     chargen <prog>");
                 return false;
         }
+	}
+
+	private bool BuildingCommandRole(ICharacter actor, StringStack command)
+	{
+		if (!Enum.TryParse<AccentRole>(command.SafeRemainingArgument, true, out var role) || !Enum.IsDefined(role))
+		{
+			actor.OutputHandler.Send("Specify Native, Foreign or Fallback.");
+			return false;
+		}
+		Role = role;
+		Changed = true;
+		actor.OutputHandler.Send($"This accent now has the {Role.DescribeEnum().ColourName()} role.");
+		return true;
+	}
+
+	private bool BuildingCommandAssociated(ICharacter actor, StringStack command)
+	{
+		var language = Gameworld.Languages.GetByIdOrName(command.SafeRemainingArgument);
+		if (language is null)
+		{
+			actor.OutputHandler.Send("There is no such language.");
+			return false;
+		}
+		var added = _associatedLanguageIds.Add(language.Id);
+		if (!added) _associatedLanguageIds.Remove(language.Id);
+		Changed = true;
+		actor.OutputHandler.Send($"{language.Name.ColourName()} is {(added ? "now" : "no longer")} associated with this accent.");
+		return true;
     }
 
     private bool BuildingCommandName(ICharacter actor, StringStack command)
@@ -393,6 +444,8 @@ public class Accent : SaveableItem, IAccent
     public string Show(ICharacter actor)
     {
         StringBuilder sb = new();
+		sb.AppendLine($"Role: {Role.DescribeEnum().ColourName()}");
+		sb.AppendLine($"Associated Languages: {AssociatedLanguages.Select(x => x.Name.ColourName()).ListToString()}");
         sb.AppendLine($"Accent #{Id.ToString("N0", actor)} - {Name.TitleCase().ColourName()}");
         sb.AppendLine($"Language: {Language.Name.TitleCase().ColourName()}");
         sb.AppendLine($"Group: {Group.TitleCase().ColourValue()}");

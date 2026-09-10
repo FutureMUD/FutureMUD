@@ -1,3 +1,4 @@
+#nullable enable annotations
 ﻿using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
@@ -13,6 +14,7 @@ namespace MudSharp.Character.Heritage
 {
     public interface IEthnicity : IEditableItem, IProgVariable
     {
+		MudSharp.Communication.Language.ILanguage? NativeLanguage { get; }
         string ChargenBlurb { get; }
         IDictionary<ICharacteristicDefinition, ICharacteristicProfile> CharacteristicChoices { get; }
         IRace ParentRace { get; }

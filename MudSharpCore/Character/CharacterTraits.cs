@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character.Heritage;
@@ -243,7 +243,6 @@ public partial class Character
 		foreach (ILanguage language in Gameworld.Languages.Where(x => x.LinkedTrait == trait))
 		{
 			LearnLanguage(language);
-			LearnAccent(language.DefaultLearnerAccent, Difficulty.Automatic);
 		}
 		foreach (var language in Gameworld.SignedLanguages.Where(x => x.LinkedTrait == trait))
 		{

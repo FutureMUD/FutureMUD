@@ -64,7 +64,6 @@ internal static class VerifyRound2BuilderRerun
 		var language = Copy(context, context.Languages.Find(removedLanguageId)!);
 		language.Name = trait.Name;
 		language.LinkedTraitId = trait.Id;
-		language.DefaultLearnerAccentId = null;
 		context.Languages.Add(language);
 		context.SaveChanges();
 		context.ScriptsDesignedLanguages.Add(new ScriptsDesignedLanguage { ScriptId = latin.Id, LanguageId = language.Id });

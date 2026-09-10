@@ -1,5 +1,9 @@
 # Culture Seeder Heritage Pack Reference
 
+Native-language identity, optional heritage defaults, accent roles, acquisition selection, and mastery rules are documented in [Native Languages and Accents](../Communication/Native_Languages_and_Accents.md). The language learner-accent pointer and `language.defaultaccent` FutureProg property have been removed; seeded content uses accent roles and source-language associations. Existing skill grants remain unchanged.
+
+Native-language identity, optional heritage defaults, accent roles, acquisition selection, and mastery rules are documented in [Native Languages and Accents](../Communication/Native_Languages_and_Accents.md). The language learner-accent pointer and `language.defaultaccent` FutureProg property have been removed; seeded content uses accent roles and source-language associations. Existing skill grants remain unchanged.
+
 ## Purpose
 
 This document is the maintainer reference for real-world `CultureSeeder` ethnicity and culture content. It is the heritage companion to the [Culture Seeder Language Pack Reference](./Culture_Seeder_Language_Pack_Reference.md).

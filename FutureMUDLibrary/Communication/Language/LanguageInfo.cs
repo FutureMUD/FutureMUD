@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Interfaces;
@@ -159,6 +159,7 @@ namespace MudSharp.Communication.Language
                 accentDifficulty = accentDifficulty.StageUp(1);
             }
 
+			using var acquisitionContext = new LanguageAcquisitionContext(perceiver, Accent);
             CheckOutcome hearCheckResult = perceiver.Gameworld.GetCheck(CheckType.SpokenLanguageHearCheck)
                 .Check(perceiver, (Difficulty)Math.Min((int)accentDifficulty, (int)_ratedDifficulty),
                     Language.LinkedTrait, Origin);
@@ -225,17 +226,17 @@ namespace MudSharp.Communication.Language
                     return $" something in {Language.UnknownLanguageSpokenDescription}.";
                 case LanguagePerceptionResult.HearFailure:
                     return
-                        $" something in {Language.Name.TitleCase()} {(perceiver.Accents.Contains(Accent) || ((perceiver as ICharacter)?.IsAdministrator() ?? false) ? Accent.AccentSuffix : Accent.VagueSuffix)}, but you cannot understand {Origin.ApparentGender(perceiver).Objective()}.";
+                        $" something in {Language.Name.TitleCase()} {(perceiver.Accents.Contains(Accent) || ((perceiver as ICharacter)?.IsAdministrator() ?? false) ? Accent?.AccentSuffix : Accent?.VagueSuffix)}, but you cannot understand {Origin.ApparentGender(perceiver).Objective()}.";
                 case LanguagePerceptionResult.ListenFailure:
                     return " something that you cannot make out.";
                 case LanguagePerceptionResult.MutuallyIntelligableLanguage:
                     return $", in {Language.Name.TitleCase()}, \n{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText), Math.Min(result.ListenObfuscation, 1.0), Math.Min(result.LanguageObfuscation, 1.0)).Fullstop().DoubleQuotes().Wrap(perceiver.InnerLineFormatLength, "   ")}";
                 case LanguagePerceptionResult.PartialSuccess:
                     return
-                        $", in {Language.Name.TitleCase()} {(perceiver.Accents.Contains(Accent) || ((perceiver as ICharacter)?.IsAdministrator() ?? false) ? Accent.AccentSuffix : Accent.VagueSuffix)}, \n{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText), Math.Min(result.ListenObfuscation, 1.0), Math.Min(result.LanguageObfuscation, 1.0)).Fullstop().DoubleQuotes().Wrap(perceiver.InnerLineFormatLength, "   ")}";
+                        $", in {Language.Name.TitleCase()} {(perceiver.Accents.Contains(Accent) || ((perceiver as ICharacter)?.IsAdministrator() ?? false) ? Accent?.AccentSuffix : Accent?.VagueSuffix)}, \n{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText), Math.Min(result.ListenObfuscation, 1.0), Math.Min(result.LanguageObfuscation, 1.0)).Fullstop().DoubleQuotes().Wrap(perceiver.InnerLineFormatLength, "   ")}";
                 case LanguagePerceptionResult.Success:
                     return
-                        $", in {Language.Name.TitleCase()} {(perceiver.Accents.Contains(Accent) || ((perceiver as ICharacter)?.IsAdministrator() ?? false) ? Accent.AccentSuffix : Accent.VagueSuffix)}, \n{_rawText.Fullstop().DoubleQuotes().Wrap(perceiver.InnerLineFormatLength, "   ")}";
+                        $", in {Language.Name.TitleCase()} {(perceiver.Accents.Contains(Accent) || ((perceiver as ICharacter)?.IsAdministrator() ?? false) ? Accent?.AccentSuffix : Accent?.VagueSuffix)}, \n{_rawText.Fullstop().DoubleQuotes().Wrap(perceiver.InnerLineFormatLength, "   ")}";
                 default:
                     throw new ApplicationException("Unknown LanguagePerceptionResult in SpokenLanguageInfo.ParseFor");
             }
@@ -260,7 +261,7 @@ namespace MudSharp.Communication.Language
                 case LanguagePerceptionResult.HearFailure:
                     return "*** something that you don't quite understand ***"
                         .FluentTagMXP("send",
-                            $"href='look' hint='Language: {Language.Name.TitleCase()}, Accent: {(perceiver.Accents.Contains(Accent) ? Accent.AccentSuffix : Accent.VagueSuffix)}'");
+                            $"href='look' hint='Language: {Language.Name.TitleCase()}, Accent: {(perceiver.Accents.Contains(Accent) ? Accent?.AccentSuffix : Accent?.VagueSuffix)}'");
                 case LanguagePerceptionResult.ListenFailure:
                     return "*** something that you cannot make out ***".ColourBold(Telnet.Cyan);
                 case LanguagePerceptionResult.UnknownLanguage:
@@ -274,12 +275,12 @@ namespace MudSharp.Communication.Language
                     return
                         $"\"{perceiver.Gameworld.LanguageScrambler.Scramble(new ExplodedString(_rawText.ProperSentences()), Math.Min(result.Item2, 1.0)).Fullstop()}\""
                             .FluentTagMXP("send",
-                                $"href='look' hint='Spoken, Language: {Language.Name.TitleCase()}, Accent: {(perceiver.Accents.Contains(Accent) ? Accent.AccentSuffix : Accent.VagueSuffix)}'");
+                                $"href='look' hint='Spoken, Language: {Language.Name.TitleCase()}, Accent: {(perceiver.Accents.Contains(Accent) ? Accent?.AccentSuffix : Accent?.VagueSuffix)}'");
 
                 case LanguagePerceptionResult.Success:
                     return $"\"{_rawText.ProperSentences()}\""
                         .FluentTagMXP("send",
-                            $"href='look' hint='Spoken, Language: {Language.Name.TitleCase()}, Accent: {(perceiver.Accents.Contains(Accent) ? Accent.AccentSuffix : Accent.VagueSuffix)}'");
+                            $"href='look' hint='Spoken, Language: {Language.Name.TitleCase()}, Accent: {(perceiver.Accents.Contains(Accent) ? Accent?.AccentSuffix : Accent?.VagueSuffix)}'");
                 default:
                     throw new ApplicationException(
                         "Unknown LanguagePerceptionResult in EmoteSpokenLanguageInfo.ParseFor");
@@ -306,7 +307,7 @@ namespace MudSharp.Communication.Language
         {
             (LanguagePerceptionResult Result, double LanguageObfuscation) result = GetPerceptionResult(perceiver);
             double ratio = Math.Max(SenderScramble, result.LanguageObfuscation);
-            string accentPortion = Accent == null ? "" : $" {(perceiver.Accents.Contains(Accent) || ((perceiver as ICharacter)?.IsAdministrator() ?? false) ? Accent.AccentSuffix : Accent.VagueSuffix)}";
+            string accentPortion = Accent == null ? "" : $" {(perceiver.Accents.Contains(Accent) || ((perceiver as ICharacter)?.IsAdministrator() ?? false) ? Accent?.AccentSuffix : Accent?.VagueSuffix)}";
             switch (result.Result)
             {
                 case LanguagePerceptionResult.UnknownLanguage:
@@ -346,6 +347,7 @@ namespace MudSharp.Communication.Language
                 accentDifficulty = accentDifficulty.StageUp(1);
             }
 
+			using var acquisitionContext = new LanguageAcquisitionContext(perceiver, Accent);
             CheckOutcome hearCheckResult = perceiver.Gameworld.GetCheck(CheckType.PsychicLanguageHearCheck)
                 .Check(perceiver, accentDifficulty,
                     Language.LinkedTrait, Origin);

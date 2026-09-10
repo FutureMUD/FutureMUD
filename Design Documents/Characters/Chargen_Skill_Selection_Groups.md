@@ -1,5 +1,7 @@
 # Chargen Skill Selection Groups
 
+Native-language identity, optional heritage defaults, accent roles, acquisition selection, and mastery rules are documented in [Native Languages and Accents](../Communication/Native_Languages_and_Accents.md). The language learner-accent pointer and `language.defaultaccent` FutureProg property have been removed; seeded content uses accent roles and source-language associations. Existing skill grants remain unchanged.
+
 Groups are generic entitlements to choose real installed skill traits. They are independent of trait categories, languages, cultures and storyboard installation order. No groups are installed or enabled automatically.
 
 ## Builder workflow

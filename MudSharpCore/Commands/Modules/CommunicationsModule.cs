@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character.Name;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
@@ -165,6 +165,7 @@ The syntax is:
 	#3languages#0", AutoHelp.HelpArg)]
     protected static void Languages(ICharacter actor, string input)
     {
+		actor.OutputHandler.Send($"Native Language: {actor.NativeLanguage?.Name.ColourName() ?? "None"}");
         StringBuilder sb = new();
         sb.AppendLine("You know the following languages:");
         sb.AppendLine();
@@ -353,7 +354,7 @@ The syntax is:
             foreach (IAccent accent in language.OrderBy(x => actor.Body.AccentDifficulty(x, false)).ThenBy(x => x.Name))
             {
                 sb.AppendLine(
-                    $"{$"{accent.Name.Proper()} \"{accent.AccentSuffix}\"".FluentColour(Telnet.BoldWhite, preferred == accent)} {actor.Body.AccentDifficulty(accent, false).Describe().Colour(Telnet.Green).Parentheses()}{(preferred == accent ? " [Preferred]" : "")}");
+					$"{$"{accent.Name.Proper()} \"{accent.AccentSuffix}\"".FluentColour(Telnet.BoldWhite, preferred == accent)} {actor.Body.AccentDifficulty(accent, false).Describe().Colour(Telnet.Green).Parentheses()}{(preferred == accent ? " [Preferred]" : "")}{(actor.AcquisitionAccent(language.Key) == accent ? " [Acquisition]" : "")}");
             }
 
             sb.AppendLine();
@@ -393,8 +394,9 @@ The syntax is as follows:
                 actor.CurrentAccent = actor.Accents.Where(x => x.Language == actor.CurrentLanguage).FirstMin(x => actor.AccentDifficulty(x, false));
                 if (actor.CurrentAccent is null)
                 {
-                    actor.LearnAccent(actor.CurrentLanguage.DefaultLearnerAccent, Difficulty.Automatic);
-                    actor.CurrentAccent = actor.CurrentLanguage.DefaultLearnerAccent;
+					var acquired = actor.AcquisitionAccent(actor.CurrentLanguage) ?? LanguageAcquisition.ResolveAccent(actor.CurrentLanguage, actor.NativeLanguage);
+					if (acquired is not null) actor.LearnAccent(acquired, Difficulty.Normal);
+					actor.CurrentAccent = acquired;
                 }
             }
             actor.OutputHandler.Send($"You are currently speaking {actor.CurrentLanguage.Name.Proper().ColourValue()} {actor.CurrentAccent.AccentSuffix}.");

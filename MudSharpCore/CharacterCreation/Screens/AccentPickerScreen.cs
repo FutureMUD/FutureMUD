@@ -1,4 +1,4 @@
-﻿using MudSharp.CharacterCreation.Resources;
+using MudSharp.CharacterCreation.Resources;
 using MudSharp.Communication.Language;
 using MudSharp.Editor;
 using MudSharp.RPG.Checks;
@@ -17,6 +17,7 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
     {
         XElement definition = XElement.Parse(dbitem.StageDefinition);
         Blurb = definition.Element("Blurb").Value;
+		SelectNativeLanguage = (bool?)definition.Element("SelectNativeLanguage") ?? false;
         XElement element = definition.Element("NumberOfPicks");
         NumberOfAccentsPerLanguage = element != null ? int.Parse(element.Value) : 1;
         element = definition.Element("AdditionalPicks");
@@ -29,6 +30,7 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
 
     protected override string StoryboardName => "AccentPicker";
 
+	public bool SelectNativeLanguage { get; protected set; }
     public string Blurb { get; protected set; }
     public int NumberOfAccentsPerLanguage { get; protected set; }
 
@@ -38,6 +40,7 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
     public override ChargenStage Stage => ChargenStage.SelectAccents;
 
     public override string HelpText => $@"{BaseHelpText}
+	#3native#0 - toggles optional native-language selection
 	#3picks <#>#0 - sets the number of picks per language
 	#3extras none#0 - disables selecting extra picks
 	#3extras <amount> <resource>#0 - sets the price for extra picks";
@@ -49,6 +52,7 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
     {
         XElement definition = new("Definition",
             new XElement("Blurb", new XCData(Blurb)),
+			new XElement("SelectNativeLanguage", SelectNativeLanguage),
             new XElement("NumberOfPicks", NumberOfAccentsPerLanguage)
         );
 
@@ -69,6 +73,7 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
     {
         StringBuilder sb = new();
         sb.Append(ShowHeader(voyeur));
+		sb.AppendLine($"Native-language selection: {SelectNativeLanguage.ToColouredString()}");
         sb.AppendLine();
         sb.AppendLine(
             "This screen allows a player to select their native accents or dialects of the languages that they have."
@@ -118,6 +123,7 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
 
     internal class AccentPickerScreen : ChargenScreen
     {
+		private bool _choosingNative;
         protected bool GroupedAccentMode;
         protected IEnumerator<ILanguage> LanguageEnumerator;
         protected List<ILanguage> Languages;
@@ -128,6 +134,9 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
             : base(chargen, storyboard)
         {
             Storyboard = storyboard;
+			var known = KnownLanguages();
+			_choosingNative = storyboard.SelectNativeLanguage && known.Count > 1;
+			if (_choosingNative) return;
             DoInitialAccentSetup();
             if (State == ChargenScreenState.Complete)
             {
@@ -146,12 +155,17 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
 
         public override ChargenStage AssociatedStage => ChargenStage.SelectAccents;
 
+		private List<ILanguage> KnownLanguages() => Storyboard.Gameworld.Languages
+			.Where(x => Chargen.SelectedSkills.Contains(x.LinkedTrait)).OrderBy(x => x.Id).ToList();
+
         protected void DoInitialAccentSetup()
         {
             Languages = Chargen.SelectedSkills
                                .SelectNotNull(x =>
                                    Storyboard.Gameworld.Languages.FirstOrDefault(y => y.LinkedTrait == x))
                                .ToList();
+			if (Chargen.SelectedNativeLanguage is not null && !KnownLanguages().Contains(Chargen.SelectedNativeLanguage))
+				Chargen.SelectedNativeLanguage = null;
             Chargen.SelectedAccents.Clear();
             foreach (ILanguage language in Languages.ToList())
             {
@@ -159,14 +173,7 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
                                         .Where(x => x.Language == language && x.IsAvailableInChargen(Chargen)).ToList();
                 if (accents.Count < 1)
                 {
-                    IAccent accent = Storyboard.Gameworld.Accents.Where(x => x.Language == language).GetRandomElement();
-                    if (accent is null)
-                    {
-                        Languages.Remove(language);
-                        continue;
-                    }
-
-                    Chargen.SelectedAccents.Add(accent);
+					Languages.Remove(language);
                     continue;
                 }
 
@@ -185,6 +192,7 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
 
         public override string Display()
         {
+			if (_choosingNative) return $"Choose your native language, or type default to use your heritage and skills:\n{KnownLanguages().Select(x => x.Name.ColourName()).ListToLines()}";
             if (!ShownIntroduction)
             {
                 return
@@ -270,6 +278,20 @@ Type {"continue".Colour(Telnet.Yellow)} to begin, or {"reset".Colour(Telnet.Yell
 
         public override string HandleCommand(string command)
         {
+			if (_choosingNative)
+			{
+				var selected = Storyboard.Gameworld.Languages.GetByIdOrName(command.Trim());
+				if (!command.EqualTo("default") && (selected is null || !KnownLanguages().Contains(selected)))
+					return "Choose one of your known languages, or default.";
+				Chargen.SelectedNativeLanguage = selected;
+				_choosingNative = false;
+				DoInitialAccentSetup();
+				if (State == ChargenScreenState.Complete) return "Your native language and accents have been selected.";
+				LanguageEnumerator = Languages.GetEnumerator();
+				LanguageEnumerator.MoveNext();
+				GroupedAccentMode = CurrentSelections.Count() > 15;
+				return Display();
+			}
             if (string.IsNullOrEmpty(command))
             {
                 return Display();
@@ -374,6 +396,11 @@ Type {"continue".Colour(Telnet.Yellow)} to begin, or {"reset".Colour(Telnet.Yell
     {
         switch (command.PopForSwitch())
         {
+			case "native":
+				SelectNativeLanguage = !SelectNativeLanguage;
+				Changed = true;
+				actor.OutputHandler.Send($"Native-language selection is {SelectNativeLanguage.ToColouredString()}.");
+				return true;
             case "blurb":
                 return BuildingCommandBlurb(actor, command);
             case "picks":

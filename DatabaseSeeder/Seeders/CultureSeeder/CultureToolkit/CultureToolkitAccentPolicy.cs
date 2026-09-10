@@ -12,17 +12,17 @@ public sealed record CultureAccentPolicyResult(string Rule, IReadOnlyList<string
 public static class CultureToolkitAccentPolicy
 {
 	public static CultureAccentPolicyResult Resolve(CultureToolkitCatalogue catalogue, string module,
-		string language, string name, string group, bool sourceDefault)
+		string language, string name, string group, MudSharp.Communication.Language.AccentRole accentRole)
 	{
 		var policy = catalogue.Document("data.accent_era_policy.json");
 		bool Same(JsonElement row) => string.Equals(CultureToolkitCatalogue.Text(row, "source_pack"), module, StringComparison.OrdinalIgnoreCase) &&
 			string.Equals(CultureToolkitCatalogue.Text(row, "source_language"), language, StringComparison.OrdinalIgnoreCase);
 		var exact = policy.GetProperty("exact_accent_overrides").EnumerateArray().SingleOrDefault(x => Same(x) &&
 			string.Equals(CultureToolkitCatalogue.Text(x, "accent_name"), name, StringComparison.OrdinalIgnoreCase));
-		var role = sourceDefault || IsLearner(name) || IsLearner(group) ? "learner_or_foreign" : "native-tradition";
+		var role = accentRole != MudSharp.Communication.Language.AccentRole.Native ? "learner_or_foreign" : "native-tradition";
 		if (exact.ValueKind != JsonValueKind.Undefined)
 			return new($"exact:{module}:{language}:{name}", CultureToolkitCatalogue.Strings(exact.GetProperty("allowed_packs")).ToArray(),
-				exact.TryGetProperty("role", out var overrideRole) ? overrideRole.GetString()! : role);
+				role);
 		var source = policy.GetProperty("source_language_overrides").EnumerateArray().SingleOrDefault(Same);
 		var allowed = CultureToolkitCatalogue.Strings(source.ValueKind != JsonValueKind.Undefined
 			? source.GetProperty("allowed_packs") : policy.GetProperty("source_module_defaults").GetProperty(module)).ToArray();
@@ -37,5 +37,4 @@ public static class CultureToolkitAccentPolicy
 		return new(rule, allowed, role);
 	}
 
-	public static bool IsLearner(string value) => new[] { "foreign", "crude", "learner" }.Contains(value, StringComparer.OrdinalIgnoreCase);
 }

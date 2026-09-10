@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Traits;
+using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Communication.Language;
 using MudSharp.Database;
@@ -72,7 +72,6 @@ public partial class Body
         foreach (ILanguage language in Gameworld.Languages.Where(x => x.LinkedTrait == trait))
         {
             Actor.LearnLanguage(language);
-            Actor.LearnAccent(language.DefaultLearnerAccent);
         }
 		foreach (var language in Gameworld.SignedLanguages.Where(x => x.LinkedTrait == trait))
 		{
@@ -212,6 +211,9 @@ public partial class Body
     {
         return Actor.PreferredAccent(language);
     }
+
+	public ILanguage NativeLanguage { get => Actor.NativeLanguage; set => Actor.NativeLanguage = value; }
+	public IAccent AcquisitionAccent(ILanguage language) => Actor.AcquisitionAccent(language);
 
     public Difficulty AccentDifficulty(IAccent accent, bool canImprove = true)
     {

@@ -39,13 +39,13 @@ public class CultureToolkitAccentTests
 		var original = new Language { Name = "Latin", Accents = [new Accent { Name = name, Group = "native" }, new Accent { Name = "foreign", Group = "foreign" }] };
 		source.Add(original);
 		source.SaveChanges();
-		original.DefaultLearnerAccentId = original.Accents.Single(x => x.Group == "foreign").Id;
+		original.Accents.Single(x => x.Group == "foreign").Role = 2;
 		source.SaveChanges();
 		var language = new Language { Name = "Latin", Accents = [new Accent { Name = name, Group = "native" }, new Accent { Name = "foreign", Group = "foreign" }] };
 		var no = new MudSharp.Models.FutureProg { FunctionName = "AlwaysFalse", FunctionText = "return false", ReturnType = (long)ProgVariableTypes.Boolean };
 		context.AddRange(language, no);
 		context.SaveChanges();
-		language.DefaultLearnerAccentId = language.Accents.Single(x => x.Group == "foreign").Id;
+		language.Accents.Single(x => x.Group == "foreign").Role = 2;
 		void Manage(string type, string key, long id) => context.SeederManagedRecords.Add(new SeederManagedRecord
 		{
 			Seeder = "CultureSeeder", EntityType = type, StableKey = key, Module = era, LogicalId = id,
@@ -99,7 +99,7 @@ public class CultureToolkitAccentTests
 		var conflicts = new List<string>();
 		var languages = CultureToolkitLanguageSeeder.Upsert(context, catalogue, pack, stages, new Dictionary<string, Language>(), prerequisites, conflicts).Languages;
 		var language = languages["english.earlymodern"];
-		var learnerId = language.DefaultLearnerAccentId!.Value;
+		var learnerId = language.Accents.Single(x => x.Role == 2).Id;
 		if (repairStockFalse)
 		{
 			context.Accents.Find(learnerId)!.ChargenAvailabilityProgId = no.Id;
@@ -111,6 +111,9 @@ public class CultureToolkitAccentTests
 		}
 		var ch = new Mock<IChargen>();
 		var ethnicity = new Mock<IEthnicity>();
+		var nativeLanguage = new Mock<MudSharp.Communication.Language.ILanguage>();
+		ch.Setup(x => x.GetProperty("nativelanguage")).Returns(nativeLanguage.Object);
+		nativeLanguage.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(-1));
 		ch.SetupGet(x => x.Type).Returns(ProgVariableTypes.Chargen);
 		ch.SetupGet(x => x.GetObject).Returns(ch.Object);
 		ch.Setup(x => x.GetProperty("ethnicity")).Returns(ethnicity.Object);
@@ -119,14 +122,16 @@ public class CultureToolkitAccentTests
 			CultureToolkitLanguageSeeder.Upsert(context, catalogue, pack, stages, new Dictionary<string, Language>(), prerequisites, conflicts);
 			var natives = phase is 1 or 3 ? new Dictionary<long, IReadOnlyList<long>> { [language.Id] = [42] } : new();
 			var resolution = CultureToolkitAccents.Upsert(context, pack.Era, natives, conflicts, catalogue, stages, languages).Single();
-			Assert.AreEqual(learnerId, language.DefaultLearnerAccentId);
+			Assert.AreEqual(learnerId, language.Accents.Single(x => x.Role == 2).Id);
 			using var compiler = new OfflineProgCompilation(context.FutureProgs.Include(x => x.FutureProgsParameters).ToArray());
 			compiler.Compile(resolution.EligibilityProgId);
 			var learner = compiler.Compile(context.Accents.Find(learnerId)!.ChargenAvailabilityProgId!.Value);
 			ethnicity.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(43));
+		nativeLanguage.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(-1));
 			Assert.IsTrue(learner.ExecuteBool(ch.Object));
 			ethnicity.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(42));
-			Assert.AreEqual(phase == 0, learner.ExecuteBool(ch.Object));
+		nativeLanguage.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(language.Id));
+			Assert.IsFalse(learner.ExecuteBool(ch.Object));
 			Assert.IsTrue(compiler.Compile(context.Accents.Find(resolution.NativeAccentIds.Single())!.ChargenAvailabilityProgId!.Value).ExecuteBool(ch.Object));
 		}
 		Assert.AreEqual(2, context.Accents.Count());
@@ -149,13 +154,11 @@ public class CultureToolkitAccentTests
 		}
 		var combined = context.FutureProgs.Find(context.Accents.Find(learnerId)!.ChargenAvailabilityProgId)!;
 		combined.FunctionText = "return false";
-		language.DefaultLearnerAccentId = null;
-		// A PR732 install has no round-two default owner. Its deliberate null pointer
-		// must not become a fresh default just because the new owner is absent.
-		context.SeederManagedRecords.Remove(context.SeederManagedRecords.Single(x => x.Seeder == "CultureSeeder" && x.EntityType == "LanguageLearnerDefault"));
+		language.Accents.Single(x => x.Role == 2).Role = 1;
+		// Role and predicate overrides remain authoritative on rerun.
 		context.SaveChanges();
 		CultureToolkitAccents.Upsert(context, pack.Era, new Dictionary<long, IReadOnlyList<long>>(), conflicts, catalogue, stages, languages);
-		Assert.IsNull(language.DefaultLearnerAccentId);
+		Assert.IsFalse(language.Accents.Any(x => x.Role == 2));
 		Assert.AreEqual("return false", combined.FunctionText);
 		Assert.IsTrue(conflicts.Any(x => x.Contains("builder edit")));
 	}
@@ -170,10 +173,10 @@ public class CultureToolkitAccentTests
 		context.SaveChanges();
 		var local = new Accent { Name = "Regional", Group = "Native", LanguageId = language.Id };
 		var foreign = new Accent { Name = "Foreign", Group = "foreign", LanguageId = language.Id };
-		var custom = new Accent { Name = "Custom", Group = "foreign", LanguageId = language.Id, ChargenAvailabilityProgId = 999 };
+		var custom = new Accent { Role = 1, Name = "Custom", Group = "foreign", LanguageId = language.Id, ChargenAvailabilityProgId = 999 };
 		context.AddRange(local, foreign, custom);
 		context.SaveChanges();
-		language.DefaultLearnerAccentId = foreign.Id;
+		foreign.Role = 2;
 		foreach (var accent in new[] { local, foreign, custom })
 			context.SeederManagedRecords.Add(new SeederManagedRecord
 			{
@@ -189,16 +192,21 @@ public class CultureToolkitAccentTests
 		var prog = compiler.Compile(first.EligibilityProgId);
 		var ch = new Mock<IChargen>();
 		var ethnicity = new Mock<IEthnicity>();
+		var nativeLanguage = new Mock<MudSharp.Communication.Language.ILanguage>();
+		ch.Setup(x => x.GetProperty("nativelanguage")).Returns(nativeLanguage.Object);
+		nativeLanguage.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(-1));
 		ch.SetupGet(x => x.Type).Returns(ProgVariableTypes.Chargen);
 		ch.SetupGet(x => x.GetObject).Returns(ch.Object);
 		ch.Setup(x => x.GetProperty("ethnicity")).Returns(ethnicity.Object);
 		ethnicity.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(42));
+		nativeLanguage.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(language.Id));
 		Assert.IsFalse(prog.ExecuteBool(ch.Object));
 		ethnicity.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(43));
+		nativeLanguage.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(-1));
 		Assert.IsTrue(prog.ExecuteBool(ch.Object));
 		Assert.IsTrue(compiler.Compile(local.ChargenAvailabilityProgId!.Value).ExecuteBool(ch.Object));
 		Assert.AreEqual(999L, custom.ChargenAvailabilityProgId);
-		Assert.AreEqual(foreign.Id, language.DefaultLearnerAccentId);
+		Assert.AreEqual(2, foreign.Role);
 		CultureToolkitAccents.Upsert(context, "medieval", bindings, conflicts);
 		Assert.IsTrue(conflicts.All(x => x.Contains($"accent.availability.{custom.Id}")));
 		foreign.ChargenAvailabilityProgId = 998;

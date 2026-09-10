@@ -1,3 +1,4 @@
+using MudSharp.Communication.Language;
 ﻿using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
@@ -11,6 +12,9 @@ namespace MudSharp.Character.Heritage;
 
 public class Culture : SaveableItem, ICulture
 {
+	private long? _nativeLanguageId;
+	public ILanguage NativeLanguage => Gameworld.Languages.Get(_nativeLanguageId ?? 0);
+
     private readonly Dictionary<Gender, string> _personWord = new();
 
     public Culture(MudSharp.Models.Culture culture, IFuturemud gameworld)
@@ -18,6 +22,7 @@ public class Culture : SaveableItem, ICulture
         Gameworld = gameworld;
         _id = culture.Id;
         _name = culture.Name;
+		_nativeLanguageId = culture.NativeLanguageId;
         Description = culture.Description;
         foreach (CulturesNameCultures nc in culture.CulturesNameCultures)
         {
@@ -138,11 +143,13 @@ public class Culture : SaveableItem, ICulture
     public Culture(ICulture rhs, string newName)
     {
         Gameworld = rhs.Gameworld;
+		_nativeLanguageId = rhs.NativeLanguage?.Id;
         using (new FMDB())
         {
             Models.Culture dbitem = new()
             {
                 Name = newName,
+				NativeLanguageId = rhs.NativeLanguage?.Id,
                 AvailabilityProgId = rhs.AvailabilityProg?.Id,
                 Description = rhs.Description,
                 PersonWordMale = rhs.PersonWord(Gender.Male),
@@ -257,6 +264,7 @@ public class Culture : SaveableItem, ICulture
         return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
         {
             { "id", ProgVariableTypes.Number },
+			{ "nativelanguage", ProgVariableTypes.Language },
             { "name", ProgVariableTypes.Text },
             { "namecultures", ProgVariableTypes.Text | ProgVariableTypes.Collection},
             { "namecultureobjects", ProgVariableTypes.NameCulture | ProgVariableTypes.Collection},
@@ -275,6 +283,7 @@ public class Culture : SaveableItem, ICulture
         return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
         {
             { "id", "The ID of the culture" },
+			{ "nativelanguage", "The optional native language default" },
             { "name", "The name of the culture" },
             { "namecultures", "A collection of the name cultures for this culture, if present"},
             { "namecultureobjects", "The configured name-culture objects for this culture"},
@@ -300,6 +309,8 @@ public class Culture : SaveableItem, ICulture
         {
             case "id":
                 return new NumberVariable(Id);
+			case "nativelanguage":
+				return NativeLanguage;
             case "name":
                 return new TextVariable(Name);
             case "namecultures":
@@ -359,6 +370,7 @@ public class Culture : SaveableItem, ICulture
 
     private const string HelpInfo = @"You can use the following options with this subcommand:
 
+	#3native <language|none>#0 - sets the optional native-language default
 	#3name <name>#0 - renames this culture
 	#3calendar <which>#0 - changes the calender used by this culture
 	#3nameculture <which> [all|male|female|neuter|nb|indeterminate]#0 - changes the name culture used by this culture
@@ -377,6 +389,19 @@ public class Culture : SaveableItem, ICulture
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+			case "native":
+			case "nativelanguage":
+				var text = command.SafeRemainingArgument;
+				var language = Gameworld.Languages.GetByIdOrName(text);
+				if (!text.EqualTo("none") && language is null)
+				{
+					actor.OutputHandler.Send("Specify a language or none.");
+					return false;
+				}
+				_nativeLanguageId = language?.Id;
+				Changed = true;
+				actor.OutputHandler.Send($"Native language default: {NativeLanguage?.Name.ColourName() ?? "None"}.");
+				return true;
             case "name":
                 return BuildingCommandName(actor, command);
             case "calendar":
@@ -829,6 +854,7 @@ public class Culture : SaveableItem, ICulture
     public string Show(ICharacter actor)
     {
         StringBuilder sb = new();
+		sb.AppendLine($"Native Language: {NativeLanguage?.Name.ColourName() ?? "None"}");
         sb.AppendLine($"Culture #{Id.ToString("N0", actor)} - {Name.ColourName()}");
         sb.AppendLine($"Calendar: {PrimaryCalendar.ShortName.ColourValue()}");
         sb.AppendLine($"Name Culture Male: {NameCultureForGender(Gender.Male).Name.ColourValue()}");
@@ -885,6 +911,7 @@ public class Culture : SaveableItem, ICulture
     {
         Models.Culture dbitem = FMDB.Context.Cultures.Find(Id);
         dbitem.Name = Name;
+		dbitem.NativeLanguageId = _nativeLanguageId;
         FMDB.Context.CulturesNameCultures.RemoveRange(dbitem.CulturesNameCultures);
         foreach (KeyValuePair<Gender, INameCulture> nc in _genderNameCultures)
         {

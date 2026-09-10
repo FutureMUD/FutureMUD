@@ -15,7 +15,8 @@ public static class CultureToolkitSocialCultures
 {
 	public static IReadOnlyDictionary<string, Culture> Upsert(FuturemudDatabaseContext context, CultureToolkitPack pack,
 		IReadOnlyDictionary<string, NameCulture> fallbackStructures, Calendar calendar, FutureProg originalStartingValue,
-		FutureProg availability, ICollection<string> conflicts)
+		FutureProg availability, ICollection<string> conflicts,
+		CultureToolkitCatalogue? catalogue = null, IReadOnlyDictionary<string, Language>? languages = null)
 	{
 		CultureToolkitProgSeeder.Validate(originalStartingValue, MudSharp.FutureProg.ProgVariableTypes.Number,
 			MudSharp.FutureProg.ProgVariableTypes.Toon, MudSharp.FutureProg.ProgVariableTypes.Trait, MudSharp.FutureProg.ProgVariableTypes.Number);
@@ -35,10 +36,14 @@ public static class CultureToolkitSocialCultures
 			var key = CultureToolkitCatalogue.Text(row, "key");
 			var culture = writer.Upsert(key, new Culture
 			{
+				NativeLanguageId = catalogue is not null && languages is not null
+					? catalogue.ResolveSelector(CultureToolkitCatalogue.Text(row, "vernacular_selector"), pack.Era, [])
+						.Where(languages.ContainsKey).Select(x => (long?)languages[x].Id).FirstOrDefault() : null,
 				Name = CultureToolkitCatalogue.Text(row, "label"), Description = CultureToolkitCatalogue.Text(row, "description"),
 				PersonWordMale = "man", PersonWordFemale = "woman", PersonWordNeuter = "person", PersonWordIndeterminate = "person",
 				PrimaryCalendarId = calendar.Id, SkillStartingValueProgId = originalStartingValue.Id, AvailabilityProgId = availability.Id
-			}, independentlyManagedFields: new HashSet<string> { nameof(Culture.SkillStartingValueProgId) });
+			}, independentlyManagedFields: languages is not null ? new HashSet<string> { nameof(Culture.SkillStartingValueProgId) } :
+				new HashSet<string> { nameof(Culture.SkillStartingValueProgId), nameof(Culture.NativeLanguageId) });
 			result[key] = culture;
 			var fallback = fallbackStructures[CultureToolkitCatalogue.Text(row, "naming_fallback")];
 			context.Entry(culture).Collection(x => x.CulturesNameCultures).Load();

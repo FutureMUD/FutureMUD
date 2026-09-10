@@ -106,8 +106,8 @@ public class HumanSeederAdminAvatarLanguageTests
 			Language = language,
 			LanguageId = language.Id
 		};
-		language.DefaultLearnerAccent = accent;
-		language.DefaultLearnerAccentId = accent.Id;
+		accent.Role = 2;
+		language.Accents.Add(accent);
 		Body body = new();
 		Character character = new()
 		{

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Body;
@@ -292,8 +292,6 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             }
         }
 
-        _currentAccent = _accents.Select(x => x.Key).FirstOrDefault(x => x.Language == _currentLanguage);
-
         // Initialise Traits
         foreach (ITrait trait in Body.Traits.Where(x => x.Definition.OwnerScope == TraitOwnerScope.Body))
         {
@@ -304,6 +302,16 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         {
             trait.Initialise(this);
         }
+
+		ResolveNativeLanguage(template.SelectedNativeLanguage, template.SelectedEthnicity?.NativeLanguage, template.SelectedCulture?.NativeLanguage);
+		var selectedNativeAccent = template.SelectedAccents.Where(x => x.Language == NativeLanguage && x.Role == AccentRole.Native).OrderBy(x => x.Id).FirstOrDefault();
+		if (selectedNativeAccent is not null) _preferredAccents[NativeLanguage] = selectedNativeAccent;
+		foreach (var language in _languages) EnsureAcquisitionAccent(language, available: language.Accents.Where(x => x.IsAvailableInChargen(template)));
+		// Apply the floor to new starting familiarity; existing character loads bypass this path.
+		var startingAccents = _accents.ToList();
+		_accents.Clear();
+		foreach (var entry in startingAccents) LearnAccent(entry.Key, entry.Value);
+		_currentAccent = PreferredAccent(_currentLanguage);
 
         Body.RecalculatePartsAndOrgans(); // Sometimes character merits can change these after the body already sets them
         Body.RecalculateItemHelpers();
@@ -1538,7 +1546,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
         foreach (ILanguage language in Languages)
         {
-            dbitem.CharactersLanguages.Add(new CharactersLanguages { Character = dbitem, LanguageId = language.Id });
+			dbitem.CharactersLanguages.Add(new CharactersLanguages { Character = dbitem, LanguageId = language.Id, AcquisitionAccentId = AcquisitionAccent(language)?.Id });
         }
 
 		foreach (var language in SignedLanguages)
@@ -1567,6 +1575,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
         dbitem.CurrentScriptId = CurrentScript?.Id;
         dbitem.CurrentWritingLanguageId = CurrentWritingLanguage?.Id;
+		dbitem.NativeLanguageId = NativeLanguage?.Id;
         dbitem.CurrentLanguageId = CurrentLanguage?.Id;
         dbitem.CurrentAccentId = CurrentAccent?.Id;
 		dbitem.CurrentSignedLanguageId = CurrentSignedLanguage?.Id;
@@ -1706,9 +1715,14 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             _characterKnowledges.Add(new RPG.Knowledge.CharacterKnowledge(knowledge, this));
         }
 
+		_nativeLanguage = Gameworld.Languages.Get(character.NativeLanguageId ?? 0);
         foreach (CharactersLanguages language in character.CharactersLanguages)
         {
-            _languages.Add(Gameworld.Languages.Get(language.LanguageId));
+			var knownLanguage = Gameworld.Languages.Get(language.LanguageId);
+			if (knownLanguage is null) continue;
+			_languages.Add(knownLanguage);
+			var acquisition = Gameworld.Accents.Get(language.AcquisitionAccentId ?? 0);
+			if (acquisition?.Language == knownLanguage) _acquisitionAccents[knownLanguage] = acquisition;
         }
 
 		foreach (var language in character.CharactersSignedLanguages)
@@ -1759,10 +1773,6 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                      x => Traits.Any(y => y.Definition == x.LinkedTrait) && !_languages.Contains(x)))
         {
             _languages.Add(language);
-            if (_accents.All(x => x.Key.Language != language))
-            {
-                _accents.Add(language.DefaultLearnerAccent, Difficulty.Automatic);
-            }
 
             LanguagesChanged = true;
         }
@@ -1796,14 +1806,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             : _scripts.FirstOrDefault();
 
         WritingStyle = (WritingStyleDescriptors)character.WritingStyle;
-        foreach (ILanguage language in _languages.Where(x => _accents.All(y => y.Key.Language != x)))
-        {
-            _accents.Add(language.DefaultLearnerAccent, Difficulty.Trivial);
-            if (CurrentLanguage == language)
-            {
-                CurrentAccent = CurrentLanguage.DefaultLearnerAccent;
-            }
-        }
+		if (_nativeLanguage is null || !_languages.Contains(_nativeLanguage)) ResolveNativeLanguage();
+		foreach (var language in _languages) EnsureAcquisitionAccent(language);
+		if (CurrentAccent is null) CurrentAccent = PreferredAccent(CurrentLanguage);
 
         foreach (Ally ally in character.AlliesCharacter.ToList())
         {

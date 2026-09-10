@@ -28,12 +28,12 @@ public class CultureToolkitLanguageSeederTests
 		var first = CultureToolkitLanguageSeeder.Upsert(context, catalogue, pack,
 			new Dictionary<string, FuturemudDatabaseContext>(), new Dictionary<string, Language>(), prerequisites, conflicts);
 		var language = first.Languages[key];
-		Assert.IsNotNull(language.DefaultLearnerAccentId);
+		Assert.IsTrue(language.Accents.Any(x => x.Role == 2));
 		var cap = context.TraitExpressions.Find(first.Traits[key].ExpressionId)!;
 		StringAssert.StartsWith(cap.Expression, "max(200,");
 		cap.Expression = "175";
 		language.Name = "Builder English";
-		language.DefaultLearnerAccentId = null;
+		language.Accents.Single(x => x.Role == 2).Role = 1;
 		context.SaveChanges();
 		for (var i = 0; i < 2; i++) CultureToolkitLanguageSeeder.Upsert(context, catalogue, pack,
 			new Dictionary<string, FuturemudDatabaseContext>(), new Dictionary<string, Language>(), prerequisites, conflicts);
@@ -41,7 +41,7 @@ public class CultureToolkitLanguageSeederTests
 		Assert.AreEqual(2, context.Accents.Count());
 		Assert.AreEqual("175", cap.Expression);
 		Assert.AreEqual("Builder English", language.Name);
-		Assert.IsNull(language.DefaultLearnerAccentId);
+		Assert.IsFalse(language.Accents.Any(x => x.Role == 2));
 		Assert.IsTrue(conflicts.Any(x => x.Contains("builder edit")));
 	}
 
@@ -63,15 +63,15 @@ public class CultureToolkitLanguageSeederTests
 		var foreign = new Accent { Name = "Foreign", Group = "Foreign", Description = "Retained learner", LanguageId = welsh.Id };
 		source.Add(foreign);
 		source.SaveChanges();
-		welsh.DefaultLearnerAccentId = foreign.Id;
+		foreign.Role = 2;
 		source.SaveChanges();
 		var stages = new Dictionary<string, FuturemudDatabaseContext> { ["earthrenaissanceeurope"] = source };
 		var conflicts = new List<string>();
 		var first = CultureToolkitLanguageSeeder.Upsert(context, catalogue, pack, stages, new Dictionary<string, Language>(), prerequisites, conflicts);
-		var learner = first.Languages["welsh"].DefaultLearnerAccentId;
+		var learner = first.Languages["welsh"].Accents.Single(x => x.Role == 2).Id;
 		CultureToolkitLanguageSeeder.Upsert(context, catalogue, pack, stages, new Dictionary<string, Language>(), prerequisites, conflicts);
 		Assert.AreEqual(2, context.Accents.Count());
-		Assert.AreEqual(learner, first.Languages["welsh"].DefaultLearnerAccentId);
+		Assert.AreEqual(learner, first.Languages["welsh"].Accents.Single(x => x.Role == 2).Id);
 		Assert.AreEqual("Retained learner", context.Accents.Find(learner)!.Description);
 		Assert.AreEqual(0, conflicts.Count);
 		Assert.IsTrue(context.Accents.Any(x => x.Group != "Foreign"));

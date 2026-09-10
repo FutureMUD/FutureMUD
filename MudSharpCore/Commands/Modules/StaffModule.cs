@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using MudSharp.Accounts;
@@ -319,6 +319,25 @@ The syntax is:
         target.SetCharacteristic(definition, cvalue);
         actor.Send(
             $"You set the {definition.Name.Colour(Telnet.Green)} characteristic for {target.HowSeen(actor)} to have a value of {cvalue.Name.Colour(Telnet.Green)}.");
+	}
+
+	[PlayerCommand("SetNativeLanguage", "setnativelanguage")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("setnativelanguage", "Syntax: setnativelanguage <target> <known language|auto>", AutoHelp.HelpArgOrNoArg)]
+	protected static void SetNativeLanguage(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		var target = actor.TargetActor(ss.PopSpeech());
+		if (target is null) { actor.Send("There is no such character here."); return; }
+		var text = ss.SafeRemainingArgument;
+		var language = actor.Gameworld.Languages.GetByIdOrName(text);
+		if (!text.EqualTo("auto") && (language is null || !target.Languages.Contains(language)))
+		{
+			actor.Send("Specify one of the character's known languages, or auto.");
+			return;
+		}
+		target.NativeLanguage = language;
+		actor.Send($"{target.HowSeen(actor)} now has native language {target.NativeLanguage?.Name.ColourName() ?? "None"}.");
     }
 
     [PlayerCommand("GiveAccent", "giveaccent")]

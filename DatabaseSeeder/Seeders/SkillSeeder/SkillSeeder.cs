@@ -1,4 +1,4 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
@@ -619,8 +619,7 @@ Again, the choices you make here can be fixed later so don't stress it too great
                 current.Description = "This is the accent of a non-native speaker who is just beginning to learn the language";
                 current.Group = "foreign";
             });
-            language.DefaultLearnerAccent = accent;
-            language.DefaultLearnerAccentId = accent.Id;
+			accent.Role = (int)MudSharp.Communication.Language.AccentRole.Fallback;
             context.SaveChanges();
         }
     }

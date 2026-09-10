@@ -147,6 +147,7 @@ public static class CultureToolkitInstaller
 					}
 					if (!native.HasResolvedReferences) desired.AvailabilityProgId = alwaysFalse.Id;
 					if (!seedLanguages) native = native with { LanguageIds = [], Unresolved = native.Unresolved.Append("Optional language installation skipped; fixed grants were not wired by this run.").ToArray() };
+					desired.NativeLanguageId = native.LanguageIds.Select(x => (long?)x).FirstOrDefault();
 					var links = item.NamingStructureOverride is not null
 						? Enum.GetValues<Gender>().ToDictionary(x => (short)x, _ => installedNames.Cultures[naming.Cultures.Single(x => x.Definition.Name == item.NamingStructureOverride).Key].Id)
 						: item.Template.EthnicitiesNameCultures.ToDictionary(x => x.Gender, x => installedNames.SourceCultures[(item.Module, x.NameCultureId)].Id);
@@ -155,7 +156,7 @@ public static class CultureToolkitInstaller
 				ethnicities = CultureToolkitEthnicities.Upsert(context, era, definitions, existing.Ethnicities, conflicts);
 				var fallbacks = pack.Cultures.Select(x => CultureToolkitCatalogue.Text(x, "naming_fallback")).Distinct().ToDictionary(x => x,
 					x => installedNames.Cultures[naming.Cultures.Single(y => y.Definition.Name == x).Key]);
-				cultures = CultureToolkitSocialCultures.Upsert(context, pack, fallbacks, calendar, originalStarting!, alwaysTrue, conflicts);
+				cultures = CultureToolkitSocialCultures.Upsert(context, pack, fallbacks, calendar, originalStarting!, alwaysTrue, conflicts, catalogue, installedLanguages?.Languages);
 			}
 			var targeted = seedNames ? CultureToolkitNameSeeder.Upsert(context, catalogue, era, ethnicities?.Ethnicities ?? new Dictionary<string, Ethnicity>(),
 				alwaysTrue, conflicts, ethnicities?.OriginalNameCultures) : [];

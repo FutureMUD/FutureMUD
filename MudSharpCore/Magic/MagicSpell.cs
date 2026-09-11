@@ -1599,7 +1599,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			return true;
 		}
 
-		bool ProcessSpellTarget(IPerceivable originalTarget, bool mayReflect)
+		bool TargetWasRejected(IPerceivable originalTarget, bool mayReflect)
 		{
 			MagicInterdictionResult? interdiction =
 				MagicInterdictionHelper.GetInterdiction(magician, originalTarget, School, mayReflect,
@@ -1637,24 +1637,30 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
 		if (target is PerceivableGroup pg)
 		{
+			var groupHasMembers = false;
+			var groupHasResolvedTarget = false;
 			foreach (IPerceivable individual in pg.Members)
 			{
-				if (ProcessSpellTarget(individual, false))
-				{
-					return;
-				}
+				groupHasMembers = true;
+				var targetWasRejected = TargetWasRejected(individual, false);
+				groupHasResolvedTarget |= !targetWasRejected;
+			}
+
+			if (groupHasMembers && !groupHasResolvedTarget)
+			{
+				return;
 			}
 		}
 		else if (target is ICharacter tch && tch != magician)
 		{
-			if (ProcessSpellTarget(tch, allowReflection))
+			if (TargetWasRejected(tch, allowReflection))
 			{
 				return;
 			}
 		}
 		else if (target is not null)
 		{
-			if (ProcessSpellTarget(target, false))
+			if (TargetWasRejected(target, false))
 			{
 				return;
 			}

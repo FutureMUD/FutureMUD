@@ -12,9 +12,17 @@ namespace DatabaseSeeder.Seeders.CultureToolkit;
 /// <summary>Explicit classifications of existing stock content, not a runtime name heuristic.</summary>
 public static class CultureStockAccentRoles
 {
+	private static readonly JsonElement[] Reviewed = new CultureToolkitCatalogue()
+		.Document("data.stock_accent_roles.json").EnumerateArray().ToArray();
+
+	private static IEnumerable<JsonElement> Entries(string language, string accent, string? module = null) => Reviewed.Where(x =>
+		CultureToolkitCatalogue.Text(x, "language").Equals(language, StringComparison.OrdinalIgnoreCase) &&
+		CultureToolkitCatalogue.Text(x, "accent").Equals(accent, StringComparison.OrdinalIgnoreCase) &&
+		(module is null || CultureToolkitCatalogue.Text(x, "module") == module));
 	public static void ApplyLegacy(FuturemudDatabaseContext context, Accent accent, bool fresh,
 		ICollection<string> conflicts)
 	{
+		context.Entry(accent).Collection(x => x.AssociatedLanguages).Load();
 		var key = $"legacy.accent-metadata.{accent.Id}";
 		var record = CultureToolkitManagedEntities.Find(context, "AccentMetadata", key);
 		var role = Role(accent.Language.Name, accent.Name, accent.Group);
@@ -69,6 +77,9 @@ public static class CultureStockAccentRoles
 		if (accent.Equals("Foreign", StringComparison.OrdinalIgnoreCase) ||
 			accent.Equals("Learner", StringComparison.OrdinalIgnoreCase) ||
 			accent.Equals("Crude", StringComparison.OrdinalIgnoreCase)) return AccentRole.Fallback;
+		var reviewed = Entries(language, accent).FirstOrDefault();
+		if (reviewed.ValueKind != JsonValueKind.Undefined)
+			return Enum.Parse<AccentRole>(CultureToolkitCatalogue.Text(reviewed, "role"));
 		if (language.Equals("English", StringComparison.OrdinalIgnoreCase) && EnglishForeign.ContainsKey(accent))
 			return AccentRole.Foreign;
 		return group.Equals("foreign", StringComparison.OrdinalIgnoreCase) ? AccentRole.Foreign : AccentRole.Native;
@@ -76,14 +87,17 @@ public static class CultureStockAccentRoles
 
 	public static IReadOnlyList<string> Associations(string language, string accent, string? sourceModule = null)
 	{
-		if (!language.Equals("English", StringComparison.OrdinalIgnoreCase)) return [];
-		// The historical generator names these languages explicitly; modern display labels
-		// must not be used as historical source identities.
-		if (sourceModule == "earthrenaissanceeurope")
+		if (language.Equals("English", StringComparison.OrdinalIgnoreCase))
 		{
-			if (accent.Equals("german", StringComparison.OrdinalIgnoreCase)) return ["High German", "Low German"];
-			if (accent.Equals("spanish", StringComparison.OrdinalIgnoreCase)) return ["Castilian"];
+			if (sourceModule == "earthrenaissanceeurope")
+			{
+				if (accent.Equals("german", StringComparison.OrdinalIgnoreCase)) return ["High German", "Low German"];
+				if (accent.Equals("spanish", StringComparison.OrdinalIgnoreCase)) return ["Castilian"];
+			}
+			if (sourceModule is null && EnglishForeign.TryGetValue(accent, out var modernSources)) return modernSources;
 		}
-		return EnglishForeign.TryGetValue(accent, out var sources) ? sources : [];
+		var reviewed = Entries(language, accent, sourceModule).ToArray();
+		if (reviewed.Length > 0) return reviewed.SelectMany(x => CultureToolkitCatalogue.Strings(x.GetProperty("sources"))).Distinct().ToArray();
+		return [];
 	}
 }

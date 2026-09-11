@@ -18,6 +18,8 @@ This permits, for example, Bavarian, Swabian, Franconian, Saxon, Thuringian, Fri
 
 ## Current historical toolkit installation
 
+See the [native-language and accent review](./Culture_Seeder_Native_Language_Accent_Review.md) for source-by-era coverage through Renaissance, exact mapping additions, culture fallbacks and the complete deferred-language list.
+
 The historical menu now offers five self-contained choices: Antiquity, Dark Ages, Medieval, Renaissance and Early Modern. They compose the approved **110 unique social-background cultures and 68 ethnicity overlays**, with era eligibility, from the [final handoff](./CultureSeederRedesignHandoff/01_DESIGN_DECISIONS.md). The former combined historical choices remain saved-answer aliases. Modern and Middle-Earth retain their original workflows. Installing a different toolkit era into an already selected world is not an automatic migration.
 
 Fixed ethnic native languages come from the configured mandatory free-skill prog. Specific backgrounds add their supplied vernacular or education; broad backgrounds offer optional contact/educational curricula through the existing skill-selection groups. There is no home-language, upbringing, bilingual or adopted-name chooser. Native base 200 and scaled backgrounds use editable FutureProgs and the original skill boost/cap pipeline. Thirteen learned backgrounds grant Literacy; writing knowledge also requires a selected language and an authorised tradition.

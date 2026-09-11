@@ -26,14 +26,13 @@ public class CultureToolkitNativeBindingTests
 	}
 
 	[TestMethod]
-	public void UnresolvedCossackDoesNotInheritLanguageFromTurkishNamingStructure()
+	public void CossackUsesRuthenianRatherThanTurkishNamingStructure()
 	{
 		var source = new Ethnicity { Name = "Cossack", EthnicGroup = "Turkic" };
 		source.EthnicitiesNameCultures.Add(new EthnicitiesNameCultures { NameCulture = new NameCulture { Name = "Turkish" } });
 		var binding = CultureToolkitNativeBindings.Source(new CultureToolkitCatalogue(), "renaissance", "earthrenaissanceeurope", source,
-			new Dictionary<string, Language> { ["turkish.ottoman"] = new() { Id = 10 } });
-		Assert.IsFalse(binding.IsResolved);
-		Assert.AreEqual(0, binding.References.Count);
-		StringAssert.Contains(binding.Unresolved[0], "source.earthrenaissanceeurope.ethnicity.Cossack");
+			new Dictionary<string, Language> { ["turkish.ottoman"] = new() { Id = 10 }, ["ruthenian"] = new() { Id = 20 } });
+		Assert.IsTrue(binding.IsResolved);
+		Assert.AreEqual(20L, binding.LanguageIds[0]);
 	}
 }

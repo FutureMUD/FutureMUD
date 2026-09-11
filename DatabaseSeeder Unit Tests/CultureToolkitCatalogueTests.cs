@@ -57,12 +57,12 @@ public class CultureToolkitCatalogueTests
 	}
 
 	[TestMethod]
-	public void EmbeddedDeliveryMatchesAllOriginalChecksums()
+	public void EmbeddedDeliveryMatchesMaintainedCatalogueChecksums()
 	{
 		var root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..",
 			"Design Documents", "Seeding", "CultureSeederRedesignHandoff"));
 		var lines = File.ReadAllLines(Path.Combine(root, "JSON_SHA256SUMS.txt"));
-		Assert.AreEqual(28, lines.Length);
+		Assert.AreEqual(CultureToolkitCatalogue.RequiredDocuments.Count, lines.Length);
 		foreach (var line in lines)
 		{
 			var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);

@@ -24,6 +24,8 @@ public sealed class CultureToolkitCatalogue
 	public static IReadOnlyList<string> RequiredDocuments { get; } = Array.AsReadOnly(new[]
 	{
 		"data.accent_era_policy.json",
+		"data.stock_accent_roles.json",
+		"data.historical_foreign_accents.json",
 		"data.catalogue_statistics.json",
 		"data.eras.json",
 		"data.ethnicity_language_defaults.json",

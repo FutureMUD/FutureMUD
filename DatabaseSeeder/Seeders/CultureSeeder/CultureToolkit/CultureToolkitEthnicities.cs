@@ -43,7 +43,8 @@ public static class CultureToolkitEthnicities
 			var key = definition.Key;
 			var wasInstalled = CultureToolkitManagedEntities.Find(context, "Ethnicity", key) is not null || sourceBindings.ContainsKey(key);
 			var ethnicity = writer.Upsert(key, definition.Desired, sourceBindings.GetValueOrDefault(key), definition.Source,
-				definition.NativeBinding.IsResolved ? null : new HashSet<string> { nameof(Ethnicity.NativeLanguageId) });
+				definition.NativeBinding.IsResolved || definition.NativeBinding.Rule == "reviewed-missing-language"
+					? null : new HashSet<string> { nameof(Ethnicity.NativeLanguageId) });
 			result[key] = ethnicity;
 			context.Entry(ethnicity).Collection(x => x.EthnicitiesNameCultures).Load();
 			context.Entry(ethnicity).Collection(x => x.EthnicitiesCharacteristics).Load();

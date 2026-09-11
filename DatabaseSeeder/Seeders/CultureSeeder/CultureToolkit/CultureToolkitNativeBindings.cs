@@ -24,6 +24,13 @@ public static class CultureToolkitNativeBindings
 		var identity = $"source.{module}.ethnicity.{ethnicity.Name}";
 		var defaults = catalogue.Document("data.ethnicity_language_defaults.json");
 		var legacy = catalogue.Document("data.legacy_native_language_rules.json");
+		var deferred = legacy.GetProperty("deferred_source_bindings").EnumerateArray().SingleOrDefault(x =>
+			CultureToolkitCatalogue.Text(x, "source_pack") == module &&
+			CultureToolkitCatalogue.Text(x, "source_ethnicity") == ethnicity.Name &&
+			CultureToolkitCatalogue.Strings(x.GetProperty("packs")).Contains(era));
+		if (deferred.ValueKind != JsonValueKind.Undefined)
+			return new(identity, null, "reviewed-missing-language", [], [],
+				[$"{identity}: deferred missing {CultureToolkitCatalogue.Text(deferred, "missing_language")} language in {era}."]);
 		var overlays = catalogue.Compose(era).Ethnicities.Where(x => CultureToolkitCatalogue.Text(x, "label") == ethnicity.Name ||
 			CultureToolkitCatalogue.Strings(x.GetProperty("legacy_aliases")).Contains(ethnicity.Name, StringComparer.Ordinal)).ToArray();
 		var overlayKey = overlays.Length == 1 ? CultureToolkitCatalogue.Text(overlays[0], "key") : null;

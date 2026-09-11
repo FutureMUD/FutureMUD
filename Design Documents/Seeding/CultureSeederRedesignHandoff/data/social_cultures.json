@@ -140,7 +140,11 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "antiquity": "latin"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.roman-freed-households",
@@ -243,7 +247,11 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "antiquity": "latin"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.roman-military-households",
@@ -281,7 +289,11 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "antiquity": "latin"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.hellenic-civic-households",
@@ -514,7 +526,14 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "antiquity": "aramaic",
+      "darkages": "arabic.mashriqi",
+      "medieval": "arabic.mashriqi",
+      "renaissance": "arabic.mashriqi"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.egyptian-temple-and-scribal-households",
@@ -549,7 +568,11 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "antiquity": "source.earthantiquity.language.Demotic"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.egyptian-village-households",
@@ -586,7 +609,14 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "antiquity": "source.earthantiquity.language.Demotic",
+      "darkages": "coptic",
+      "medieval": "arabic.mashriqi",
+      "renaissance": "arabic.mashriqi"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.iranian-landed-aristocracy",
@@ -656,7 +686,14 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "antiquity": "persian.middle",
+      "darkages": "persian.new",
+      "medieval": "persian.new",
+      "renaissance": "persian.new"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.steppe-aristocratic-households",
@@ -878,7 +915,11 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "darkages": "german.old-high"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.frankish-free-peasantry",
@@ -910,7 +951,11 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "darkages": "german.old-high"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.frankish-estate-dependants",
@@ -942,7 +987,11 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "darkages": "german.old-high"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.norse-jarl-households",
@@ -1575,7 +1624,14 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": true
+    "automatic_literacy": true,
+    "native_default_by_era": {
+      "antiquity": "persian.middle",
+      "darkages": "persian.new",
+      "medieval": "persian.new",
+      "renaissance": "persian.new"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.western-european-noble-households",
@@ -2051,7 +2107,12 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "medieval": "german.middle-low",
+      "renaissance": "german.middle-low"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.low-countries-burgher-households",
@@ -2308,7 +2369,12 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "medieval": "italian",
+      "renaissance": "italian"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.iberian-hidalgo-households",
@@ -2349,7 +2415,12 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "medieval": "castilian.old",
+      "renaissance": "castilian"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.iberian-urban-households",
@@ -2384,7 +2455,12 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "medieval": "castilian.old",
+      "renaissance": "castilian"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.iberian-rural-households",
@@ -2419,7 +2495,12 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "medieval": "castilian.old",
+      "renaissance": "castilian"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.andalusi-urban-households",
@@ -2566,7 +2647,12 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "medieval": "arabic.andalusi",
+      "renaissance": "arabic.andalusi"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.morisco-communities",
@@ -2601,7 +2687,11 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "renaissance": "castilian"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.polish-lithuanian-noble-households",
@@ -2649,7 +2739,12 @@
       "earlymodern": "Polish-Lithuanian Noble Households"
     },
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "medieval": "polish",
+      "renaissance": "polish"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.central-european-burgher-households",
@@ -2763,7 +2858,12 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "medieval": "german.middle-low",
+      "renaissance": "german.middle-low"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.baltic-and-finnic-rural-households",
@@ -3340,7 +3440,11 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "renaissance": "turkish.ottoman"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.ottoman-provincial-commoners",
@@ -3377,7 +3481,12 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "medieval": "turkic.oghuz",
+      "renaissance": "turkish.ottoman"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.persianate-courtly-households",
@@ -3688,7 +3797,13 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "darkages": "syriac",
+      "medieval": "syriac",
+      "renaissance": "syriac"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.coptic-christian-communities",
@@ -3726,7 +3841,13 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "darkages": "coptic",
+      "medieval": "arabic.mashriqi",
+      "renaissance": "arabic.mashriqi"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.jewish-communal-households",
@@ -3931,7 +4052,13 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "darkages": "amazigh.tashelhit",
+      "medieval": "amazigh.tashelhit",
+      "renaissance": "amazigh.tashelhit"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.kurdish-tribal-and-town-households",
@@ -3968,7 +4095,12 @@
     "language_choices_optional": true,
     "grants_apply_to": "A character who selects this background, not every historical member of the named group.",
     "starting_value_configuration": "Existing culture starting-value FutureProg with seed defaults; editable in game, no seeder questions.",
-    "automatic_literacy": false
+    "automatic_literacy": false,
+    "native_default_by_era": {
+      "medieval": "kurdish.kurmanji",
+      "renaissance": "kurdish.kurmanji"
+    },
+    "native_default_note": "Representative fallback only when ethnicity has no native default; home-based grants remain tied to ethnicity."
   },
   {
     "key": "culture.western-european-court-and-office-households",

@@ -8,6 +8,8 @@ public partial class ItemSeeder
 {
 	private void SeedMedievalClothing()
 	{
+		SeedMedievalItemsReusedByRenaissanceOutfits();
+
 		CreateItem(
 			"medieval_linen_braies",
 			"braies",
@@ -255,36 +257,6 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_soft_leather_shoes",
-			"shoes",
-			"a pair of soft leather shoes",
-			null,
-			"These soft leather shoes are low, flexible footwear with rounded toes and simple stitched uppers. The soles are sturdy enough for regular use without making the shoes stiff or high. Natural variations in the leather show along the seams, toe creases, and cut edges.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			420.0,
-			18.0m,
-			true,
-			false,
-			"leather",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Footwear"
-			],
-			[
-				"Holdable",
-				"Wear_Shoes",
-				"Destroyable_Clothing",
-				"Insulation_Minor",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
-
-		CreateItem(
 			"medieval_fine_leather_shoes",
 			"shoes",
 			"a pair of fine leather shoes",
@@ -387,36 +359,6 @@ public partial class ItemSeeder
 			true,
 			false,
 			"leather",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Footwear"
-			],
-			[
-				"Holdable",
-				"Wear_Sandals",
-				"Destroyable_Clothing",
-				"Insulation_Minor",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
-
-		CreateItem(
-			"medieval_hemp_sandals",
-			"sandals",
-			"a pair of woven hemp sandals",
-			null,
-			"These woven hemp sandals are light, open footwear made from braided plant-fibre straps and simple flat soles. The weave is coarse but regular, leaving the toes and much of the foot exposed. The natural hemp surface is plainly visible, with small slubs and a practical, unpolished finish.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			220.0,
-			6.0m,
-			true,
-			false,
-			"hemp",
 			[
 				"Market / Clothing / Standard Clothing",
 				"Functions / Worn Items / Footwear"
@@ -8580,189 +8522,6 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_latin_white_alb",
-			"alb",
-			"a white linen alb",
-			null,
-			"This white linen alb is a long liturgical robe with narrow sleeves and a full, clean fall to the feet. The linen is light but well finished, showing broad pale folds where it gathers at the waist. Its edges are plain and carefully hemmed so that brighter vestments can sit clearly over it.",
-			SizeCategory.Normal,
-			ItemQuality.Good,
-			460.0,
-			36.0m,
-			true,
-			false,
-			"linen",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
-
-		CreateItem(
-			"medieval_latin_amice",
-			"amice",
-			"a white linen amice",
-			null,
-			"This white linen amice is a rectangular cloth sized to sit around the neck and shoulders beneath other vestments. Its edges are neatly folded, and small ties are worked into the corners to keep the cloth close. The linen is plain, pale, and smooth, serving as a clean visible layer at the collar.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			120.0,
-			10.0m,
-			true,
-			false,
-			"linen",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Scarf",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
-
-		CreateItem(
-			"medieval_latin_linen_cincture",
-			"cincture",
-			"a white linen cincture",
-			null,
-			"This white linen cincture is a narrow corded sash for drawing in a loose robe at the waist. It is braided from pale linen with a simple hand and modest hanging ends. The surface is clean and undecorated, giving it the appearance of an ordered working tie rather than a rich belt.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			80.0,
-			6.0m,
-			true,
-			false,
-			"linen",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Belts"
-			],
-			[
-				"Holdable",
-				"Wear_Sash",
-				"Destroyable_Clothing",
-				"Insulation_Minor",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
-
-		CreateItem(
-			"medieval_latin_stole",
-			"stole",
-			"a $colour silk stole",
-			null,
-			"This $colour silk stole is a long, narrow band of cloth with neatly weighted ends and a smooth lustre. The silk catches light along its length, making the $colour tone appear richer where the fabric bends. Its construction is formal and restrained, with straight edges and a clearly ceremonial fall.",
-			SizeCategory.Small,
-			ItemQuality.Good,
-			110.0,
-			50.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Scarf",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_FineColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
-
-		CreateItem(
-			"medieval_latin_maniple",
-			"maniple",
-			"a $colour silk maniple",
-			null,
-			"This $colour silk maniple is a short band of fine cloth made to hang from the forearm. The silk is light and smooth, with the $colour shade most visible across the folded central panel. Its ends are carefully squared, giving the small vestment a deliberate and formal outline.",
-			SizeCategory.Small,
-			ItemQuality.Good,
-			60.0,
-			30.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Bracer",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_FineColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
-
-		CreateItem(
-			"medieval_latin_chasuble",
-			"chasuble",
-			"a fine $colour silk chasuble",
-			null,
-			"This fine $colour silk chasuble is cut as a broad outer vestment with a head opening and a sweeping fall over the torso. The silk lies in rounded folds, its $colour surface broken by the shadow of the shoulders and the heavy lower edge. It is visibly more formal than ordinary clothing, relying on rich cloth, breadth, and clean ceremonial shape.",
-			SizeCategory.Normal,
-			ItemQuality.Good,
-			720.0,
-			160.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Poncho",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing",
-				"Variable_FineColour"
-			],
-			null,
-			null,
-			null,
-			null
-		);
-
-		CreateItem(
 			"medieval_latin_dalmatic_vestment",
 			"dalmatic",
 			"a fine $colour silk dalmatic",
@@ -9880,36 +9639,6 @@ public partial class ItemSeeder
 		);
 
 		CreateItem(
-			"medieval_buddhist_plain_underrobe",
-			"underrobe",
-			"a plain hemp monastic underrobe",
-			null,
-			"This plain hemp monastic underrobe is a straight, cross-wrapped robe with close sleeves and a practical hem. The hemp is sturdy, dull, and lightly textured, giving the garment a subdued working surface. It is meant to sit beneath a kasaya or mantle, with no decoration competing with the outer cloth.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			520.0,
-			16.0m,
-			true,
-			false,
-			"hemp",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Robe",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
-
-		CreateItem(
 			"medieval_buddhist_patched_kasaya",
 			"kasaya",
 			"a patched cotton kasaya",
@@ -9962,66 +9691,6 @@ public partial class ItemSeeder
 				"Destroyable_Clothing",
 				"Insulation_Moderate",
 				"Armour_LightClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
-
-		CreateItem(
-			"medieval_buddhist_formal_kesa",
-			"kesa",
-			"a fine silk kesa mantle",
-			null,
-			"This fine silk kesa mantle is a rectangular patchwork garment made from smooth, carefully joined panels. The silk has a muted ceremonial sheen, and the panel layout gives the cloth a measured, gridded order. It is worn as an outer mantle, more formal than a common kasaya but still defined by patchwork construction.",
-			SizeCategory.Normal,
-			ItemQuality.Good,
-			360.0,
-			110.0m,
-			true,
-			false,
-			"silk",
-			[
-				"Market / Clothing / Luxury Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Mantle",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_HeavyClothing"
-			],
-			null,
-			null,
-			null,
-			null
-		);
-
-		CreateItem(
-			"medieval_buddhist_travelling_mantle",
-			"mantle",
-			"a dark wool monastic travelling mantle",
-			null,
-			"This dark wool monastic travelling mantle is a broad outer cloth for sheltering a robe on the road. The wool is plain and serviceable, falling in wide folds over the shoulders and down the back. Its shape is practical and unornamented, closer to a traveller’s wrap than a formal temple mantle.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			760.0,
-			24.0m,
-			true,
-			false,
-			"wool",
-			[
-				"Market / Clothing / Standard Clothing",
-				"Functions / Worn Items / Bodywear"
-			],
-			[
-				"Holdable",
-				"Wear_Cloak_(Open)",
-				"Destroyable_Clothing",
-				"Insulation_Moderate",
-				"Armour_HeavyClothing"
 			],
 			null,
 			null,
@@ -12518,6 +12187,341 @@ public partial class ItemSeeder
 				"Insulation_Minor",
 				"Armour_LightClothing",
 				"Variable_BasicColour"
+			],
+			null,
+			null,
+			null,
+			null
+		);
+	}
+	private void SeedMedievalItemsReusedByRenaissanceOutfits()
+	{
+		CreateItem(
+			"medieval_soft_leather_shoes",
+			"shoes",
+			"a pair of soft leather shoes",
+			null,
+			"These soft leather shoes are low, flexible footwear with rounded toes and simple stitched uppers. The soles are sturdy enough for regular use without making the shoes stiff or high. Natural variations in the leather show along the seams, toe creases, and cut edges.",
+			SizeCategory.Small,
+			ItemQuality.Standard,
+			420.0,
+			18.0m,
+			true,
+			false,
+			"leather",
+			[
+				"Market / Clothing / Standard Clothing",
+				"Functions / Worn Items / Footwear"
+			],
+			[
+				"Holdable",
+				"Wear_Shoes",
+				"Destroyable_Clothing",
+				"Insulation_Minor",
+				"Armour_LightClothing"
+			],
+			null,
+			null,
+			null,
+			null
+		);
+
+		CreateItem(
+			"medieval_latin_white_alb",
+			"alb",
+			"a white linen alb",
+			null,
+			"This white linen alb is a long liturgical robe with narrow sleeves and a full, clean fall to the feet. The linen is light but well finished, showing broad pale folds where it gathers at the waist. Its edges are plain and carefully hemmed so that brighter vestments can sit clearly over it.",
+			SizeCategory.Normal,
+			ItemQuality.Good,
+			460.0,
+			36.0m,
+			true,
+			false,
+			"linen",
+			[
+				"Market / Clothing / Luxury Clothing",
+				"Functions / Worn Items / Bodywear"
+			],
+			[
+				"Holdable",
+				"Wear_Robe",
+				"Destroyable_Clothing",
+				"Insulation_Moderate",
+				"Armour_LightClothing"
+			],
+			null,
+			null,
+			null,
+			null
+		);
+
+		CreateItem(
+			"medieval_latin_amice",
+			"amice",
+			"a white linen amice",
+			null,
+			"This white linen amice is a rectangular cloth sized to sit around the neck and shoulders beneath other vestments. Its edges are neatly folded, and small ties are worked into the corners to keep the cloth close. The linen is plain, pale, and smooth, serving as a clean visible layer at the collar.",
+			SizeCategory.Small,
+			ItemQuality.Standard,
+			120.0,
+			10.0m,
+			true,
+			false,
+			"linen",
+			[
+				"Market / Clothing / Standard Clothing",
+				"Functions / Worn Items / Bodywear"
+			],
+			[
+				"Holdable",
+				"Wear_Scarf",
+				"Destroyable_Clothing",
+				"Insulation_Moderate",
+				"Armour_LightClothing"
+			],
+			null,
+			null,
+			null,
+			null
+		);
+
+		CreateItem(
+			"medieval_latin_linen_cincture",
+			"cincture",
+			"a white linen cincture",
+			null,
+			"This white linen cincture is a narrow corded sash for drawing in a loose robe at the waist. It is braided from pale linen with a simple hand and modest hanging ends. The surface is clean and undecorated, giving it the appearance of an ordered working tie rather than a rich belt.",
+			SizeCategory.Small,
+			ItemQuality.Standard,
+			80.0,
+			6.0m,
+			true,
+			false,
+			"linen",
+			[
+				"Market / Clothing / Standard Clothing",
+				"Functions / Worn Items / Belts"
+			],
+			[
+				"Holdable",
+				"Wear_Sash",
+				"Destroyable_Clothing",
+				"Insulation_Minor",
+				"Armour_LightClothing"
+			],
+			null,
+			null,
+			null,
+			null
+		);
+
+		CreateItem(
+			"medieval_latin_stole",
+			"stole",
+			"a $colour silk stole",
+			null,
+			"This $colour silk stole is a long, narrow band of cloth with neatly weighted ends and a smooth lustre. The silk catches light along its length, making the $colour tone appear richer where the fabric bends. Its construction is formal and restrained, with straight edges and a clearly ceremonial fall.",
+			SizeCategory.Small,
+			ItemQuality.Good,
+			110.0,
+			50.0m,
+			true,
+			false,
+			"silk",
+			[
+				"Market / Clothing / Luxury Clothing",
+				"Functions / Worn Items / Bodywear"
+			],
+			[
+				"Holdable",
+				"Wear_Scarf",
+				"Destroyable_Clothing",
+				"Insulation_Moderate",
+				"Armour_LightClothing",
+				"Variable_FineColour"
+			],
+			null,
+			null,
+			null,
+			null
+		);
+
+		CreateItem(
+			"medieval_latin_maniple",
+			"maniple",
+			"a $colour silk maniple",
+			null,
+			"This $colour silk maniple is a short band of fine cloth made to hang from the forearm. The silk is light and smooth, with the $colour shade most visible across the folded central panel. Its ends are carefully squared, giving the small vestment a deliberate and formal outline.",
+			SizeCategory.Small,
+			ItemQuality.Good,
+			60.0,
+			30.0m,
+			true,
+			false,
+			"silk",
+			[
+				"Market / Clothing / Luxury Clothing",
+				"Functions / Worn Items / Bodywear"
+			],
+			[
+				"Holdable",
+				"Wear_Bracer",
+				"Destroyable_Clothing",
+				"Insulation_Moderate",
+				"Armour_LightClothing",
+				"Variable_FineColour"
+			],
+			null,
+			null,
+			null,
+			null
+		);
+
+		CreateItem(
+			"medieval_latin_chasuble",
+			"chasuble",
+			"a fine $colour silk chasuble",
+			null,
+			"This fine $colour silk chasuble is cut as a broad outer vestment with a head opening and a sweeping fall over the torso. The silk lies in rounded folds, its $colour surface broken by the shadow of the shoulders and the heavy lower edge. It is visibly more formal than ordinary clothing, relying on rich cloth, breadth, and clean ceremonial shape.",
+			SizeCategory.Normal,
+			ItemQuality.Good,
+			720.0,
+			160.0m,
+			true,
+			false,
+			"silk",
+			[
+				"Market / Clothing / Luxury Clothing",
+				"Functions / Worn Items / Bodywear"
+			],
+			[
+				"Holdable",
+				"Wear_Poncho",
+				"Destroyable_Clothing",
+				"Insulation_Moderate",
+				"Armour_LightClothing",
+				"Variable_FineColour"
+			],
+			null,
+			null,
+			null,
+			null
+		);
+
+		CreateItem(
+			"medieval_buddhist_formal_kesa",
+			"kesa",
+			"a fine silk kesa mantle",
+			null,
+			"This fine silk kesa mantle is a rectangular patchwork garment made from smooth, carefully joined panels. The silk has a muted ceremonial sheen, and the panel layout gives the cloth a measured, gridded order. It is worn as an outer mantle, more formal than a common kasaya but still defined by patchwork construction.",
+			SizeCategory.Normal,
+			ItemQuality.Good,
+			360.0,
+			110.0m,
+			true,
+			false,
+			"silk",
+			[
+				"Market / Clothing / Luxury Clothing",
+				"Functions / Worn Items / Bodywear"
+			],
+			[
+				"Holdable",
+				"Wear_Mantle",
+				"Destroyable_Clothing",
+				"Insulation_Moderate",
+				"Armour_HeavyClothing"
+			],
+			null,
+			null,
+			null,
+			null
+		);
+
+		CreateItem(
+			"medieval_buddhist_plain_underrobe",
+			"underrobe",
+			"a plain hemp monastic underrobe",
+			null,
+			"This plain hemp monastic underrobe is a straight, cross-wrapped robe with close sleeves and a practical hem. The hemp is sturdy, dull, and lightly textured, giving the garment a subdued working surface. It is meant to sit beneath a kasaya or mantle, with no decoration competing with the outer cloth.",
+			SizeCategory.Normal,
+			ItemQuality.Standard,
+			520.0,
+			16.0m,
+			true,
+			false,
+			"hemp",
+			[
+				"Market / Clothing / Standard Clothing",
+				"Functions / Worn Items / Bodywear"
+			],
+			[
+				"Holdable",
+				"Wear_Robe",
+				"Destroyable_Clothing",
+				"Insulation_Moderate",
+				"Armour_LightClothing"
+			],
+			null,
+			null,
+			null,
+			null
+		);
+
+		CreateItem(
+			"medieval_buddhist_travelling_mantle",
+			"mantle",
+			"a dark wool monastic travelling mantle",
+			null,
+			"This dark wool monastic travelling mantle is a broad outer cloth for sheltering a robe on the road. The wool is plain and serviceable, falling in wide folds over the shoulders and down the back. Its shape is practical and unornamented, closer to a traveller’s wrap than a formal temple mantle.",
+			SizeCategory.Normal,
+			ItemQuality.Standard,
+			760.0,
+			24.0m,
+			true,
+			false,
+			"wool",
+			[
+				"Market / Clothing / Standard Clothing",
+				"Functions / Worn Items / Bodywear"
+			],
+			[
+				"Holdable",
+				"Wear_Cloak_(Open)",
+				"Destroyable_Clothing",
+				"Insulation_Moderate",
+				"Armour_HeavyClothing"
+			],
+			null,
+			null,
+			null,
+			null
+		);
+
+		CreateItem(
+			"medieval_hemp_sandals",
+			"sandals",
+			"a pair of woven hemp sandals",
+			null,
+			"These woven hemp sandals are light, open footwear made from braided plant-fibre straps and simple flat soles. The weave is coarse but regular, leaving the toes and much of the foot exposed. The natural hemp surface is plainly visible, with small slubs and a practical, unpolished finish.",
+			SizeCategory.Small,
+			ItemQuality.Standard,
+			220.0,
+			6.0m,
+			true,
+			false,
+			"hemp",
+			[
+				"Market / Clothing / Standard Clothing",
+				"Functions / Worn Items / Footwear"
+			],
+			[
+				"Holdable",
+				"Wear_Sandals",
+				"Destroyable_Clothing",
+				"Insulation_Minor",
+				"Armour_LightClothing"
 			],
 			null,
 			null,

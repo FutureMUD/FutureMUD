@@ -30,6 +30,18 @@ Targeted naming uses dedicated local profile identities where needed, with the e
 
 ## Retained procedural source coverage
 
+### Installation performance and diagnostics
+
+Historical installations print elapsed-time progress before each retained source module and at reconciliation boundaries. Source generation queues random-name elements outside the EF graph until scalar source writes finish, then persists them before fallback-profile validation. Repeated source profile definitions discard their earlier queued elements, preserving the procedural replacement semantics. Case-insensitive duplicate-name checks use hash sets.
+
+Combined accent availability progs are also allocated and baselined per language rather than saved individually. The installer still checks signatures, preserves edited prog bodies and availability pointers, and compiles the effective progs before committing.
+
+The destination installs targeted names after language, accent and chargen-prog generation. Retained profile additions are collected and inserted together after profile identities and baselines are saved. Existing profile edits and deletions still use the same three-way reconciliation. Fresh source accents are inserted and baselined in batches per language; existing accents still follow source-qualified reconciliation. Accent ownership is indexed once by language rather than reloading the whole accent registry for each language. An installation-scoped ownership-key index tracks additions and removals, avoiding repeated metadata queries and discarding its cache after the run. No schema changes or transaction-boundary changes are involved.
+
+An unresolved retained source crosswalk is a content-coverage limitation: that source ethnicity is retained but gated from character creation. It is not a failed transaction and rerunning cannot invent the missing authored mapping. The final output retains the individual identities for diagnosis. In the reported Renaissance all-options install, the 97 missing mappings comprise Ukrainian, Cossack and 95 world-expansion identities. They must be addressed through explicitly authored source mappings, rather than guessed from naming cultures or broad regional labels.
+
+Renaissance English foreign-accent associations use the source module's High German/Low German and Castilian identities; modern English retains German and Spanish. These links inform foreign-accent selection and therefore must resolve to installed historical languages. Existing builder overrides are preserved by the association baseline reconciliation.
+
 The following tables describe the preserved source modules used for staging and the unchanged legacy workflows. They are not the active five-toolkit social-background catalogue; the final handoff and executed receipts define that catalogue.
 
 | Pack | Specific ethnicities | Broader cultures | Heritage status |

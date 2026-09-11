@@ -405,8 +405,8 @@ public class ItemSeederMedievalCraftingTests
 		Assert.AreEqual(408, designReferences.Length, "The design reference should contain the full 408-garment catalogue.");
 		CollectionAssert.AreEqual(designReferences, csvReferences,
 			"The fdesc catalogue should stay in the same order as the design reference.");
-		CollectionAssert.AreEqual(designReferences, sourceReferences,
-			"SeedMedievalClothing should contain exactly one direct CreateItem call for each clothing reference.");
+		CollectionAssert.AreEquivalent(designReferences, sourceReferences,
+			"The medieval clothing source, including shared outfit helpers, should contain exactly one direct CreateItem call for each clothing reference.");
 		Assert.AreEqual(sourceReferences.Length, sourceReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
 			"Each medieval clothing item should be created exactly once.");
 

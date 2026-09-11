@@ -32,6 +32,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [CultureSeeder Round-Two Implementation](./Verification/CultureSeeder_Round2_Implementation.md)
 - [CultureSeeder Round-Two Content Receipt](./Verification/CultureSeeder_Round2_Content_Receipt.md)
 - [CultureSeeder Round-Two Verification](./Verification/CultureSeeder_Round2_Verification.md)
+- [CultureSeeder Performance and Warnings](./Verification/CultureSeeder_Performance_and_Warnings.md)
 - [Multiple Body Form System](./Characters/Multiple_Body_Form_System.md)
 - [Multiple Body Forms and Instances Builder Guide](./Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md)
 - [Multiple Simultaneous Body Instances Design](./Characters/Multiple_Simultaneous_Body_Instances_Design.md)

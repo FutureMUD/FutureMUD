@@ -12,27 +12,36 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class CultureSeeder
 {
-    private readonly Dictionary<string, NameCulture> _nameCultures = new();
-    private CollectionDictionary<(string, NameUsage), string> _addedNames = new();
-    private int _duplicateNameElementEntryCount;
+	private readonly Dictionary<string, NameCulture> _nameCultures = new();
+	private Dictionary<(string, NameUsage), HashSet<string>> _addedNames = new();
+	private Dictionary<RandomNameProfile, List<RandomNameProfilesElements>>? _deferredToolkitNameElements;
+	private int _duplicateNameElementEntryCount;
 
-    internal int DuplicateNameElementEntryCountForTesting => _duplicateNameElementEntryCount;
+	internal int DuplicateNameElementEntryCountForTesting => _duplicateNameElementEntryCount;
 
-    private void AddRandomNameElement(RandomNameProfile profile, NameUsage usage, string name, int weight)
-    {
-        if (_addedNames[(profile.Name, usage)].Contains(name, StringComparer.OrdinalIgnoreCase))
-        {
-            _duplicateNameElementEntryCount++;
+	private void AddRandomNameElement(RandomNameProfile profile, NameUsage usage, string name, int weight)
+	{
+		if (!_addedNames.TryGetValue((profile.Name, usage), out var names))
+			_addedNames[(profile.Name, usage)] = names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		if (!names.Add(name))
+		{
+			_duplicateNameElementEntryCount++;
 #if DEBUG
-            ConsoleUtilities.WriteLineConsole($"Duplicate name element entry: #3{profile.Name}#0 - #2{usage.DescribeEnum()}#0 - #6{name}#0");
+			ConsoleUtilities.WriteLineConsole($"Duplicate name element entry: #3{profile.Name}#0 - #2{usage.DescribeEnum()}#0 - #6{name}#0");
 #else
 #endif
-            return;
-        }
+			return;
+		}
 
-        _addedNames.Add((profile.Name, usage), name);
-        _context.RandomNameProfilesElements.Add(new RandomNameProfilesElements { RandomNameProfile = profile, NameUsage = (int)usage, Name = name, Weighting = weight });
-    }
+		var element = new RandomNameProfilesElements { RandomNameProfile = profile, NameUsage = (int)usage, Name = name, Weighting = weight };
+		if (_deferredToolkitNameElements is not null)
+		{
+			if (!_deferredToolkitNameElements.TryGetValue(profile, out var elements))
+				_deferredToolkitNameElements[profile] = elements = [];
+			elements.Add(element);
+		}
+		else _context.RandomNameProfilesElements.Add(element);
+	}
 
     private void AddRandomNameDice(RandomNameProfile profile, NameUsage usage, string dice)
     {

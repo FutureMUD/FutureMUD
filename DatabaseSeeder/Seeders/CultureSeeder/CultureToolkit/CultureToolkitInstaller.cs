@@ -31,6 +31,7 @@ public static class CultureToolkitInstaller
 		var pack = catalogue.Compose(era);
 		if (!seedNames && !seedLanguages && !seedHeritage)
 			return new(era, [], new Dictionary<string, long>(), new Dictionary<string, long>(), new Dictionary<string, long>(), [], [], null, null, [], [], [], []);
+		using var ownershipLookup = CultureToolkitManagedEntities.BeginLookupScope(context);
 		var literacy = seedLanguages && seedHeritage
 			? context.TraitDefinitions.SingleOrDefault(x => x.Name == "Literacy" && (x.Type == 0 || x.Type == 2)) : null;
 		if (seedLanguages && seedHeritage && literacy is null)
@@ -43,7 +44,10 @@ public static class CultureToolkitInstaller
 		try
 		{
 			foreach (var module in new[] { "earthantiquity", "earthdarkagesandmedieval", "earthrenaissanceeurope", "earthrenaissanceworldexpansion" })
+			{
+				progress?.Invoke($"Building retained source: {module}...");
 				stages[module] = CultureSeeder.BuildToolkitSource(context, module);
+			}
 			progress?.Invoke("Retained source stages built.");
 			var genericHuman = seedHeritage ? context.Ethnicities.Include(x => x.EthnicitiesCharacteristics).SingleOrDefault(x => x.Name == "Admin" && x.ParentRace.Name == "Human")
 				?? throw new InvalidOperationException("The installed Human Admin ethnicity is required for explicit generic Human defaults; no unrelated phenotype will be substituted.") : null;
@@ -110,7 +114,7 @@ public static class CultureToolkitInstaller
 					.Concat(pack.Groups.SelectMany(x => catalogue.Candidates(CultureToolkitCatalogue.Text(x.GetProperty("membership_recipe"), "source_key"), pack).RetainedSourceReferences))
 					.Where(referenceKeys.ContainsKey).Select(x => referenceKeys[x]).ToHashSet();
 				var beforeIds = context.Languages.Select(x => x.Id).ToHashSet();
-				installedLanguages = CultureToolkitLanguageSeeder.Upsert(context, catalogue, pack, stages, existing.Languages, prerequisites, conflicts, activeLegacy);
+				installedLanguages = CultureToolkitLanguageSeeder.Upsert(context, catalogue, pack, stages, existing.Languages, prerequisites, conflicts, activeLegacy, progress);
 				CultureToolkitForeignAccents.Upsert(context, catalogue, era, installedLanguages.Languages, conflicts);
 				scripts = CultureToolkitScriptSeeder.Upsert(context, catalogue, pack, stages, installedLanguages.Languages, existing.Scripts, conflicts);
 				var sourceEdges = stages.SelectMany(stage => stage.Value.MutualIntelligabilities.AsEnumerable().Select(edge =>
@@ -159,9 +163,7 @@ public static class CultureToolkitInstaller
 					x => installedNames.Cultures[naming.Cultures.Single(y => y.Definition.Name == x).Key]);
 				cultures = CultureToolkitSocialCultures.Upsert(context, pack, fallbacks, calendar, originalStarting!, alwaysTrue, conflicts, catalogue, installedLanguages?.Languages);
 			}
-			var targeted = seedNames ? CultureToolkitNameSeeder.Upsert(context, catalogue, era, ethnicities?.Ethnicities ?? new Dictionary<string, Ethnicity>(),
-				alwaysTrue, conflicts, ethnicities?.OriginalNameCultures) : [];
-			progress?.Invoke("Heritage and targeted names reconciled.");
+			progress?.Invoke("Heritage reconciled.");
 			CultureStartingProgResolution? starting = null;
 			CultureWritingGrantResolution? writing = null;
 			IReadOnlyList<CultureGroupResolution> groups = [];
@@ -176,7 +178,7 @@ public static class CultureToolkitInstaller
 				foreach (var group in active.SelectMany(x => natives[x.Key]
 					.Select(reference => (LanguageId: installedLanguages.Languages[reference].Id, EthnicityId: x.Value.Id))).GroupBy(x => x.LanguageId))
 					nativeByLanguage[group.Key] = group.Select(x => x.EthnicityId).Distinct().ToArray();
-				accents = CultureToolkitAccents.Upsert(context, era, nativeByLanguage, conflicts, catalogue, stages, installedLanguages.Languages);
+				accents = CultureToolkitAccents.Upsert(context, era, nativeByLanguage, conflicts, catalogue, stages, installedLanguages.Languages, progress);
 				starting = CultureToolkitStartingProgs.Upsert(context, catalogue, pack, cultures, active, installedLanguages.Traits, literacy, conflicts, natives);
 				progress?.Invoke("Native accents and starting-value progs compiled.");
 				groups = CultureToolkitGroupSeeder.Upsert(context, catalogue, pack, cultures, active, installedLanguages.Traits, conflicts);
@@ -187,7 +189,10 @@ public static class CultureToolkitInstaller
 					conflicts.Add(knowledgeResult.Message);
 			}
 			if (installedLanguages is not null && ethnicities is null)
-				accents = CultureToolkitAccents.Upsert(context, era, new Dictionary<long, IReadOnlyList<long>>(), conflicts, catalogue, stages, installedLanguages.Languages);
+				accents = CultureToolkitAccents.Upsert(context, era, new Dictionary<long, IReadOnlyList<long>>(), conflicts, catalogue, stages, installedLanguages.Languages, progress);
+			progress?.Invoke("Reconciling targeted and retained naming profiles...");
+			var targeted = seedNames ? CultureToolkitNameSeeder.Upsert(context, catalogue, era, ethnicities?.Ethnicities ?? new Dictionary<string, Ethnicity>(),
+				alwaysTrue, conflicts, ethnicities?.OriginalNameCultures) : [];
 			if (seedNames) CultureToolkitSourceNames.Upsert(context, era, naming, existing.NameCultures, existing.Profiles, suggestions, true, conflicts);
 			progress?.Invoke("Retained naming profiles reconciled.");
 			if (installedPack is null) context.SeederManagedRecords.Add(new SeederManagedRecord

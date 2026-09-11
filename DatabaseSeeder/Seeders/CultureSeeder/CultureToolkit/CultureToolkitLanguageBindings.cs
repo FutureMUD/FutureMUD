@@ -124,8 +124,11 @@ earthrenaissanceworldexpansion|Georgian|georgian
 earthrenaissanceworldexpansion|Sanskrit|source.earthdarkagesandmedieval.language.Sanskrit
 """);
 
-	public static string Key(string sourcePack, string sourceName) => All.SingleOrDefault(x =>
-		x.SourcePack == sourcePack && x.SourceName == sourceName)?.CanonicalKey ?? $"source.{sourcePack}.language.{sourceName}";
+	private static readonly IReadOnlyDictionary<(string Pack, string Name), string> Keys =
+		All.ToDictionary(x => (x.SourcePack, x.SourceName), x => x.CanonicalKey);
+
+	public static string Key(string sourcePack, string sourceName) =>
+		Keys.GetValueOrDefault((sourcePack, sourceName)) ?? $"source.{sourcePack}.language.{sourceName}";
 
 	private static CultureLanguageSourceBinding[] Parse(string text) => text.Split('\n', StringSplitOptions.RemoveEmptyEntries)
 		.Select(x => x.Trim().Split('|')).Select(x => new CultureLanguageSourceBinding(x[0], x[1], x[2])).ToArray();

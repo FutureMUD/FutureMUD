@@ -85,11 +85,18 @@ public static class CultureStockAccentRoles
 		return group.Equals("foreign", StringComparison.OrdinalIgnoreCase) ? AccentRole.Foreign : AccentRole.Native;
 	}
 
-	public static IReadOnlyList<string> Associations(string language, string accent, string? module = null)
+	public static IReadOnlyList<string> Associations(string language, string accent, string? sourceModule = null)
 	{
-		if (module is null && language.Equals("English", StringComparison.OrdinalIgnoreCase) && EnglishForeign.TryGetValue(accent, out var modernSources))
-			return modernSources;
-		var reviewed = Entries(language, accent, module).ToArray();
+		if (language.Equals("English", StringComparison.OrdinalIgnoreCase))
+		{
+			if (sourceModule == "earthrenaissanceeurope")
+			{
+				if (accent.Equals("german", StringComparison.OrdinalIgnoreCase)) return ["High German", "Low German"];
+				if (accent.Equals("spanish", StringComparison.OrdinalIgnoreCase)) return ["Castilian"];
+			}
+			if (sourceModule is null && EnglishForeign.TryGetValue(accent, out var modernSources)) return modernSources;
+		}
+		var reviewed = Entries(language, accent, sourceModule).ToArray();
 		if (reviewed.Length > 0) return reviewed.SelectMany(x => CultureToolkitCatalogue.Strings(x.GetProperty("sources"))).Distinct().ToArray();
 		return [];
 	}

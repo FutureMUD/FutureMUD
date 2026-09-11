@@ -15,6 +15,16 @@ namespace MudSharp_Unit_Tests;
 public class NativeLanguageSeederTests
 {
 	[TestMethod]
+	public void HistoricalEnglishAssociationsUseHistoricalSourceIdentities()
+	{
+		CollectionAssert.AreEquivalent(new[] { "High German", "Low German" },
+			CultureStockAccentRoles.Associations("English", "German", "earthrenaissanceeurope").ToArray());
+		Assert.AreEqual("Castilian", CultureStockAccentRoles.Associations("English", "Spanish", "earthrenaissanceeurope").Single());
+		Assert.AreEqual("German", CultureStockAccentRoles.Associations("English", "German").Single());
+		Assert.AreEqual("Spanish", CultureStockAccentRoles.Associations("English", "Spanish").Single());
+	}
+
+	[TestMethod]
 	public void ClearForeignSourceAssociationsAreSeededAndBuilderOverridesSurvive()
 	{
 		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()

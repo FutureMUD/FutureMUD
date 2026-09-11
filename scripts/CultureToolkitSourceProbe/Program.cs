@@ -71,6 +71,11 @@ if (args is ["--live-rerun", var rerunDatabase, var rerunEra, var rerunReport])
 }
 using var installed = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 	.UseMySql(connection, ServerVersion.AutoDetect(connection)).Options);
+if (args is ["--benchmark-staging", var timingReport])
+{
+	BenchmarkSourceStaging.Run(installed, timingReport);
+	return;
+}
 if (args is ["--round2-optional", var round2OptionalReport])
 {
 	VerifyToolkitInstall.Run(installed, round2OptionalReport, optional: true, round2: true);

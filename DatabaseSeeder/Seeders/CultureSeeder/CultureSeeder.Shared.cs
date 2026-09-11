@@ -105,6 +105,7 @@ public partial class CultureSeeder
             _context.RandomNameProfilesElements.Remove(element);
         }
 
+		_deferredToolkitNameElements?.Remove(profile);
         _addedNames = new();
         _context.SaveChanges();
         return profile;

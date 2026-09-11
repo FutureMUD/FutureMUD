@@ -9,11 +9,11 @@ public sealed class SubstanceTrigger(bool items) : IMagicTrigger
 	public string TargetTypes => items ? "item" : "character";
 	public IMagicTrigger Clone() => new SubstanceTrigger(items);
 	public XElement SaveToXml() => new("Trigger", new XAttribute("type", items ? "substanceitem" : "substancecharacter"));
-	public string Show(ICharacter actor) => $"Magical substance applied to {(items ? "an item" : "a character")}";
+	public string Show(ICharacter actor) => $"Magical substance applied to {(items ? "an item" : "a character").ColourName()}";
 	public string ShowPlayer(ICharacter actor) => "Delivered by a magical substance";
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		actor.Send("The carrier supplies the target. Select substancecharacter or substanceitem to change target type.");
+		actor.OutputHandler.Send("This trigger has no settings. The carrier supplies the target. Use #3trigger new substancecharacter#0 or #3trigger new substanceitem#0 in the spell editor to change the target type.".SubstituteANSIColour());
 		return false;
 	}
 	public static void RegisterFactory()

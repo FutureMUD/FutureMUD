@@ -31,14 +31,18 @@ public partial class EditableItemHelper
 			{ x.Id.ToString("N0", actor), x.Name, x.Vectors.DescribeEnum(), (!x.ReadinessErrors.Any()).ToColouredString() }),
 		CustomSearch = (items, _, _) => items,
 		DefaultCommandHelp = @"Magical substances carry spell effects through liquids, gases and consumable items.
-	#3magic substance list#0
-	#3magic substance edit new <name>#0
-	#3magic substance edit <id|name>#0
-	#3magic substance clone <id|name> <new name>#0
-	#3magic substance show [<id|name>]#0
-	#3magic substance set <setting>#0
-	#3magic substance close#0
-" + MagicalSubstance.Help
+
+You can use the following options with this command:
+
+	#3magic substance list#0 - lists magical substances
+	#3magic substance edit new <name>#0 - creates a new magical substance
+	#3magic substance edit <id|name>#0 - begins editing a magical substance
+	#3magic substance clone <id|name> <new name>#0 - clones a magical substance
+	#3magic substance show [<id|name>]#0 - shows a magical substance's settings and readiness
+	#3magic substance set <setting>#0 - changes the substance you are editing
+	#3magic substance close#0 - stops editing
+
+Use #3magic substance set#0 while editing to see the available settings."
 	};
 	private static void CreateSubstance(ICharacter actor, string name, MagicalSubstance? source)
 	{

@@ -28,6 +28,8 @@ Create the payload with `magic spell`. Select `substancecharacter` or `substance
 
 Other substance commands are `list`, `edit <id|name>`, `clone <id|name> <name>`, `show`, `close` and `set name <name>`. Clones receive distinct effect-entry identities. `set unbind <liquid|gas|item> <id>` removes a carrier binding; `set remove <entry-number>` removes a payload entry. Unbinding stops new deliveries; builders should remove existing effects explicitly if they also want to stop active doses.
 
+The editor lists each setting with its own syntax and explanation. Setting commands provide specific validation and confirmation messages. The show output groups general settings, carrier bindings, payload entries and readiness under titled sections with coloured values.
+
 `set check` lists missing references and incompatible payloads. An invalid substance is skipped during delivery, so finish the definition before using it. A definition can be built before any carrier is bound.
 
 ### Quantity and potency

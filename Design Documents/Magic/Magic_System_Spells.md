@@ -92,7 +92,7 @@ If the trigger can fail to yield a target and at least one effect requires one, 
 
 This is one of the readiness rules checked before the spell is considered game-ready.
 
-### 6. Casting check
+### 6. Commitment and casting check
 Spells use:
 
 - `CheckType.CastSpellCheck` for the caster
@@ -106,17 +106,19 @@ The spell can specify:
 - optional resist trait
 - optional resist difficulty
 
-If the casting outcome is below the threshold, the fail-casting emote is shown and the spell does not proceed.
+Before a cast is committed, `MagicSpell.CastSpell` refuses it for an existing applicable lockout, insufficient resources, an infeasible material plan, or a null required target. A refusal does not spend resources, execute the material plan, or apply a new lockout.
 
-### 7. Casting emote and committed costs
-Once the spell passes its casting threshold, the runtime:
+Once preflight succeeds, the cast is committed before its casting check. The runtime:
 
 - spends its normal costs
 - executes its material-consumption plan
 - applies any lockouts
-- emits the normal casting emote
+- performs the caster's `CheckType.CastSpellCheck`
 
-This remains true even if a downstream ward blocks the spell from taking hold on a target.
+The committed costs and lockouts are paid once per invocation, not once per target. If the casting outcome is below the threshold, the fail-casting emote is shown and target-side and caster-side effects do not run. This is a paid failure, not a refusal.
+
+### 7. Casting emote and target resolution
+Only a passed casting check emits the normal casting emote, calculates effect duration, and enters target resolution. A later ward block or resistance does not refund the already committed costs or lockouts.
 
 ### 8. Interdiction and reflection
 Before target-side spell effects are applied, `MagicSpell.CastSpell` now consults the shared interdiction layer.
@@ -136,10 +138,13 @@ Current behavior is:
 - `reflect` wards only retarget ordinary `character` spells back at the caster
 - non-character-targeted invokes downgrade `reflect` to `fail`
 - self-targeted character casts do not reflect back onto the same caster; they also downgrade to `fail`
-- a blocked or resisted target aborts that invoke before caster-side spell effects are applied
+- a blocked or resisted single target ends ordinary target resolution before caster-side spell effects are applied
+- members of a supplied non-empty `PerceivableGroup` resolve independently, in the supplied order; a ward block or resistance is local to that member and does not skip later members
+- if one or more group members reach target-effect application, caster-side effects run once after the group and the tracked invocation succeeds; if every group member is blocked or resists, caster-side effects do not run and the committed invocation remains failed
+- an empty group preserves its existing successful-cast behavior, including the once-per-cast caster-effect stage
 
 ### 9. Resist check
-If a resisting target beats the caster's result, the target-resisted emote is shown and the spell does not apply to that target.
+If a resisting target beats the caster's result, the target-resisted emote is shown and the spell does not apply to that target. For a group invocation, every eligible member receives its own opposed result; one member's resistance does not decide another member's outcome.
 
 ### 10. Emotes and output flags
 Spells support:
@@ -167,10 +172,10 @@ Spells maintain two effect lists:
 At cast time:
 
 - target-side effects are applied to the resolved target or targets
-- caster-side effects are applied to the caster
+- caster-side effects are applied to the caster once after at least one target-side resolution, or through an existing targetless/empty-group successful path
 - a `MagicSpellParent` effect groups the child spell effects together on the target
 
-If all effects are instantaneous, the parent effect is not retained.
+Reaching target-effect application counts as resolving a target even when every effect is instantaneous and no `MagicSpellParent` is retained. If all effects are instantaneous, the parent effect is not retained.
 
 In builder display, `magic spell show` presents target-side effects and caster-side effects as separate titled sections. Each effect owns its own builder-facing summary through `Show(ICharacter)`, which should return a compact multi-line description beginning with the effect name and followed by labelled rows for its configured values. `MagicSpell.Show` only numbers, indents, and wraps those returned lines; it must not parse packed one-line effect summaries.
 

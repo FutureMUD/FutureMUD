@@ -44,6 +44,8 @@ The C# learner-accent property, language builder setting, and FutureProg `langua
 
 CultureToolkit uses explicit role metadata and resolved native bindings. The first declared native binding supplies the ethnicity default; culture defaults use resolved vernacular selectors where those identify a language independently of heritage. Other grants remain intact. Modern and other legacy source packs classify existing foreign accents and resolve only supported associations; ambiguous regional labels do not invent language bindings. Roles, associations, and heritage defaults preserve builder overrides through managed baselines.
 
+The [September 2026 native-language and accent review](../Seeding/Culture_Seeder_Native_Language_Accent_Review.md) adds explicit source/era mappings through Renaissance, independently authored culture native fallbacks, and neighbouring-language Foreign accents. Culture fallbacks apply after ethnicity defaults and do not change home-based grants. Explicit missing-language deferrals take precedence over naming-template defaults and retain the unresolved-native availability gate. Reruns clear only unchanged stock defaults identified as incorrect; builder edits remain protected. Foreign accent additions reuse existing source-language associations and use the existing non-native chargen availability rules.
+
 The maintained blank snapshot includes the generated migration delta. Live refresh/import verification depends on a compatible local MySQL authentication setup; static migration and snapshot checks are separate from that verification.
 
 ## Implementation verification (2026-09-10)

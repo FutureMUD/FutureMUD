@@ -111,6 +111,7 @@ public static class CultureToolkitInstaller
 					.Where(referenceKeys.ContainsKey).Select(x => referenceKeys[x]).ToHashSet();
 				var beforeIds = context.Languages.Select(x => x.Id).ToHashSet();
 				installedLanguages = CultureToolkitLanguageSeeder.Upsert(context, catalogue, pack, stages, existing.Languages, prerequisites, conflicts, activeLegacy);
+				CultureToolkitForeignAccents.Upsert(context, catalogue, era, installedLanguages.Languages, conflicts);
 				scripts = CultureToolkitScriptSeeder.Upsert(context, catalogue, pack, stages, installedLanguages.Languages, existing.Scripts, conflicts);
 				var sourceEdges = stages.SelectMany(stage => stage.Value.MutualIntelligabilities.AsEnumerable().Select(edge =>
 					new CultureSourceLanguageEdge(CultureToolkitLanguageBindings.Key(stage.Key, stage.Value.Languages.Find(edge.ListenerLanguageId)!.Name),

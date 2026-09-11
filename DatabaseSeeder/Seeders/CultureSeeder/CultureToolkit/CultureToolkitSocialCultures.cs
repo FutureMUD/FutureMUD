@@ -37,7 +37,7 @@ public static class CultureToolkitSocialCultures
 			var culture = writer.Upsert(key, new Culture
 			{
 				NativeLanguageId = catalogue is not null && languages is not null
-					? catalogue.ResolveSelector(CultureToolkitCatalogue.Text(row, "vernacular_selector"), pack.Era, [])
+					? NativeReferences(catalogue, row, pack.Era)
 						.Where(languages.ContainsKey).Select(x => (long?)languages[x].Id).FirstOrDefault() : null,
 				Name = CultureToolkitCatalogue.Text(row, "label"), Description = CultureToolkitCatalogue.Text(row, "description"),
 				PersonWordMale = "man", PersonWordFemale = "woman", PersonWordNeuter = "person", PersonWordIndeterminate = "person",
@@ -65,4 +65,9 @@ public static class CultureToolkitSocialCultures
 		}
 		return result;
 	}
+
+	internal static IReadOnlyList<string> NativeReferences(CultureToolkitCatalogue catalogue, System.Text.Json.JsonElement row, string era)
+		=> row.TryGetProperty("native_default_by_era", out var defaults) && defaults.TryGetProperty(era, out var reference)
+			? [reference.GetString()!]
+			: catalogue.ResolveSelector(CultureToolkitCatalogue.Text(row, "vernacular_selector"), era, []);
 }

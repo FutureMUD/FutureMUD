@@ -344,6 +344,2228 @@
       "description_override": null,
       "author_rationale": "The retained Albanian ethnicity has a corresponding canonical Albanian language. Supply the missing exact source crosswalk.",
       "classification": "exact existing language binding"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.early-medieval-rajput.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Early Medieval Rajput",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Early Medieval Rajput",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Western Apabhramsha"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.early-medieval-chauhan-rajput.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Early Medieval Chauhan Rajput",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Early Medieval Chauhan Rajput",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Western Apabhramsha"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.early-medieval-paramara-rajput.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Early Medieval Paramara Rajput",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Early Medieval Paramara Rajput",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Western Apabhramsha"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.chola-era-tamil.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Chola-Era Tamil",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Chola-Era Tamil",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Medieval Tamil"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.song-han-chinese.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Song Han Chinese",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Song Han Chinese",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Late Middle Chinese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.song-northern-han.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Song Northern Han",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Song Northern Han",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Late Middle Chinese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.song-jiangnan-han.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Song Jiangnan Han",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Song Jiangnan Han",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Late Middle Chinese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.song-wu-speaking-han.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Song Wu-Speaking Han",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Song Wu-Speaking Han",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Late Middle Chinese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.goryeo-korean.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Goryeo Korean",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Goryeo Korean",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Early Middle Korean"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.goryeo-gyeonggi-korean.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Goryeo Gyeonggi Korean",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Goryeo Gyeonggi Korean",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Early Middle Korean"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.goryeo-gyeongsang-korean.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Goryeo Gyeongsang Korean",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Goryeo Gyeongsang Korean",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Early Middle Korean"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.heian-kamakura-japanese.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Heian-Kamakura Japanese",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Heian-Kamakura Japanese",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Medieval Japanese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.heian-kamakura-kinai-japanese.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Heian-Kamakura Kinai Japanese",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Heian-Kamakura Kinai Japanese",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Medieval Japanese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.heian-kamakura-kanto-japanese.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Heian-Kamakura Kanto Japanese",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.Heian-Kamakura Kanto Japanese",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "languages": [
+        "source.earthdarkagesandmedieval.language.Medieval Japanese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.high-medieval-saxon.darkages",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Saxon",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.High Medieval Saxon",
+      "packs": [
+        "darkages"
+      ],
+      "languages": [
+        "german.old-saxon"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthdarkagesandmedieval.high-medieval-saxon.medieval",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Saxon",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.High Medieval Saxon",
+      "packs": [
+        "medieval"
+      ],
+      "languages": [
+        "german.middle-low"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceeurope.ukrainian.medieval",
+      "source_pack": "earthrenaissanceeurope",
+      "source_ethnicity": "Ukrainian",
+      "source_identity": "source.earthrenaissanceeurope.ethnicity.Ukrainian",
+      "packs": [
+        "medieval"
+      ],
+      "languages": [
+        "slavic.old-east"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceeurope.cossack.medieval",
+      "source_pack": "earthrenaissanceeurope",
+      "source_ethnicity": "Cossack",
+      "source_identity": "source.earthrenaissanceeurope.ethnicity.Cossack",
+      "packs": [
+        "medieval"
+      ],
+      "languages": [
+        "slavic.old-east"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceeurope.ukrainian.renaissance",
+      "source_pack": "earthrenaissanceeurope",
+      "source_ethnicity": "Ukrainian",
+      "source_identity": "source.earthrenaissanceeurope.ethnicity.Ukrainian",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "ruthenian"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceeurope.cossack.renaissance",
+      "source_pack": "earthrenaissanceeurope",
+      "source_ethnicity": "Cossack",
+      "source_identity": "source.earthrenaissanceeurope.ethnicity.Cossack",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "ruthenian"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-gorani-kurd.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Gorani Kurd",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Gorani Kurd",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "kurdish.gorani"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-turkic-mamluk.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Turkic Mamluk",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Turkic Mamluk",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "turkic.kipchak"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-maghrebi-arab.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Maghrebi Arab",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Maghrebi Arab",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "arabic.maghrebi"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-chagatai-turk.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Chagatai Turk",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Chagatai Turk",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Chagatai"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-chagatai-turk.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Chagatai Turk",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Chagatai Turk",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Chagatai"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-timurid-mongol.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Timurid Mongol",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Timurid Mongol",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Chagatai"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-delhi-turk.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Delhi Turk",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Delhi Turk",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Chagatai"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-hindustani.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Hindustani",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Hindustani",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Hindavi"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-afghan.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Afghan",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Afghan",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Pashto"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-afghan-pashtun.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Afghan Pashtun",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Afghan Pashtun",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Pashto"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-indo-persian.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Indo-Persian",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Indo-Persian",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "persian.new"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-rajput.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Rajput",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Rajput",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Old Rajasthani"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-mewar-rajput.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Mewar Rajput",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Mewar Rajput",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Old Rajasthani"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-marwar-rajput.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Marwar Rajput",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Marwar Rajput",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Old Rajasthani"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-amber-rajput.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Amber Rajput",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Amber Rajput",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Old Rajasthani"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-bengali.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Bengali",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Bengali",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Bengali"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-eastern-bengali.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Eastern Bengali",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Eastern Bengali",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Bengali"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-western-bengali.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Western Bengali",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Western Bengali",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Bengali"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-kannadiga.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Kannadiga",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Kannadiga",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Kannada"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-kannadiga.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Kannadiga",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Kannadiga",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Kannada"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-telugu.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Telugu",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Telugu",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Telugu"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-tamil.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Tamil",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Tamil",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Tamil"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.ming-han-chinese.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Ming Han Chinese",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Ming Han Chinese",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Ming Guanhua"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-northern-han.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Northern Han",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Northern Han",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Ming Guanhua"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-jiangnan-han.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Jiangnan Han",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Jiangnan Han",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Wu Chinese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-wu-speaking-han.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Wu-Speaking Han",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Wu-Speaking Han",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Wu Chinese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-yue-speaking-han.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Yue-Speaking Han",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Yue-Speaking Han",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Yue"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-southern-min-han.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Southern Min Han",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Southern Min Han",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Southern Min"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-eastern-min-han.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Eastern Min Han",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Eastern Min Han",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Eastern Min"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-northern-min-han.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Northern Min Han",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Northern Min Han",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Northern Min"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.joseon-korean.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Joseon Korean",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Joseon Korean",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Korean"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-gyeonggi-korean.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Gyeonggi Korean",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Gyeonggi Korean",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Korean"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-gyeongsang-korean.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Gyeongsang Korean",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Gyeongsang Korean",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Korean"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-jeolla-korean.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Jeolla Korean",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Jeolla Korean",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Korean"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-hamgyong-korean.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Hamgyong Korean",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Hamgyong Korean",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Korean"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.muromachi-japanese.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Muromachi Japanese",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Muromachi Japanese",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Late Middle Japanese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-kinai-japanese.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Kinai Japanese",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Kinai Japanese",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Late Middle Japanese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-kanto-japanese.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Kanto Japanese",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Kanto Japanese",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Late Middle Japanese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-tohoku-japanese.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Tohoku Japanese",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Tohoku Japanese",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Late Middle Japanese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-kyushu-japanese.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Kyushu Japanese",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Kyushu Japanese",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Late Middle Japanese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-tibetan.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Tibetan",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Tibetan",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Central Tibetan"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-u-tsang-tibetan.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance U-Tsang Tibetan",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance U-Tsang Tibetan",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Central Tibetan"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-khampa.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Khampa",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Khampa",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Khams Tibetan"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-amdo-tibetan.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Amdo Tibetan",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Amdo Tibetan",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Amdo Tibetan"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-viet.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Viet",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Viet",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Vietnamese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-red-river-kinh.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Red River Kinh",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Red River Kinh",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Vietnamese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-thanh-nghe-kinh.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Thanh-Nghe Kinh",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Thanh-Nghe Kinh",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Vietnamese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-tai.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Tai",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Tai",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Ayutthaya Thai"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-ayutthaya-central-tai.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Ayutthaya Central Tai",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Ayutthaya Central Tai",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Ayutthaya Thai"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-majapahit-javanese.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Majapahit Javanese",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Majapahit Javanese",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Javanese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-central-javanese.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Central Javanese",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Central Javanese",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Javanese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-eastern-javanese.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Eastern Javanese",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Eastern Javanese",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Middle Javanese"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-malay.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Malay",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Malay",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Classical Malay"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-malaccan-malay.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Malaccan Malay",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Malaccan Malay",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Classical Malay"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-sumatran-malay.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Sumatran Malay",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Sumatran Malay",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Classical Malay"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-bornean-malay.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Bornean Malay",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Bornean Malay",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Classical Malay"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-amhara.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Amhara",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Amhara",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Amharic"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-amhara.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Amhara",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Amhara",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Amharic"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-somali.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Somali",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Somali",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Somali"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-darod-somali.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Darod Somali",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Darod Somali",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Somali"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-hawiye-somali.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Hawiye Somali",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Hawiye Somali",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Somali"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-isaaq-somali.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Isaaq Somali",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Isaaq Somali",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Somali"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-dir-somali.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Dir Somali",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Dir Somali",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Somali"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-digil-mirifle-somali.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Digil-Mirifle Somali",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Digil-Mirifle Somali",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Maay"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-swahili.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Swahili",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Swahili",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Swahili"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-lamu-swahili.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Lamu Swahili",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Lamu Swahili",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Swahili"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-mombasa-swahili.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Mombasa Swahili",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Mombasa Swahili",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Swahili"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-zanzibar-swahili.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Zanzibar Swahili",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Zanzibar Swahili",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Swahili"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-kilwa-swahili.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Kilwa Swahili",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Kilwa Swahili",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Swahili"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-manding.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Manding",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Manding",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Manding"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-mandinka.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Mandinka",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Mandinka",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Manding"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-bambara.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Bambara",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Bambara",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Manding"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-songhay.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Songhay",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Songhay",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Songhay"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-hausa.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Hausa",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Hausa",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Hausa"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-kano-hausa.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Kano Hausa",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Kano Hausa",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Hausa"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-katsina-hausa.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Katsina Hausa",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Katsina Hausa",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Hausa"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-gobir-hausa.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Gobir Hausa",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Gobir Hausa",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Hausa"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-zazzau-hausa.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Zazzau Hausa",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Zazzau Hausa",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Hausa"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-bakongo.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Bakongo",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Bakongo",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Kikongo"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-mpemba-bakongo.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Mpemba Bakongo",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Mpemba Bakongo",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Kikongo"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-mbata-bakongo.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Mbata Bakongo",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Mbata Bakongo",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Kikongo"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-soyo-bakongo.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Soyo Bakongo",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Soyo Bakongo",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Kikongo"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.late-medieval-shona.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Late Medieval Shona",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Late Medieval Shona",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Karanga"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-karanga.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Karanga",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Karanga",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Karanga"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-zezuru.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Zezuru",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Zezuru",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Zezuru"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.earthrenaissanceworldexpansion.renaissance-korekore.renaissance",
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Korekore",
+      "source_identity": "source.earthrenaissanceworldexpansion.ethnicity.Renaissance Korekore",
+      "packs": [
+        "renaissance"
+      ],
+      "languages": [
+        "source.earthrenaissanceworldexpansion.language.Korekore"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Reviewed native-language default using an existing seeded language; a gameplay default, not universal individual bilingualism.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.darkages.high-medieval-english",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval English",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.High Medieval English",
+      "packs": [
+        "darkages"
+      ],
+      "languages": [
+        "english.old"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Use the available earlier language stage for this community in the Dark Ages toolkit.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.darkages.high-medieval-northern-english",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Northern English",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.High Medieval Northern English",
+      "packs": [
+        "darkages"
+      ],
+      "languages": [
+        "english.old"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Use the available earlier language stage for this community in the Dark Ages toolkit.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.darkages.high-medieval-midland-english",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Midland English",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.High Medieval Midland English",
+      "packs": [
+        "darkages"
+      ],
+      "languages": [
+        "english.old"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Use the available earlier language stage for this community in the Dark Ages toolkit.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.darkages.high-medieval-german",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval German",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.High Medieval German",
+      "packs": [
+        "darkages"
+      ],
+      "languages": [
+        "german.old-high"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Use the available earlier language stage for this community in the Dark Ages toolkit.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.darkages.high-medieval-franconian",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Franconian",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.High Medieval Franconian",
+      "packs": [
+        "darkages"
+      ],
+      "languages": [
+        "german.old-high"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Use the available earlier language stage for this community in the Dark Ages toolkit.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.darkages.high-medieval-thuringian",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Thuringian",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.High Medieval Thuringian",
+      "packs": [
+        "darkages"
+      ],
+      "languages": [
+        "german.old-high"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Use the available earlier language stage for this community in the Dark Ages toolkit.",
+      "classification": "existing language native-default review"
+    },
+    {
+      "key": "native.review.darkages.high-medieval-low-german",
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Low German",
+      "source_identity": "source.earthdarkagesandmedieval.ethnicity.High Medieval Low German",
+      "packs": [
+        "darkages"
+      ],
+      "languages": [
+        "german.old-saxon"
+      ],
+      "proficiency": "native",
+      "group_override": null,
+      "description_override": null,
+      "author_rationale": "Use the available earlier language stage for this community in the Dark Ages toolkit.",
+      "classification": "existing language native-default review"
+    }
+  ],
+  "deferred_source_bindings": [
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Chola-Era Telugu",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "missing_language": "period Telugu",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Song Min-Speaking Han",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "missing_language": "period Min",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Conquest-Period Pecheneg",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "missing_language": "Pecheneg",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Alan",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "missing_language": "Alanic",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Fatimid-Era Kutama",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "missing_language": "Kutama Berber",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Mozarab",
+      "packs": [
+        "darkages",
+        "medieval"
+      ],
+      "missing_language": "Mozarabic Romance",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Mingrelian",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Mingrelian",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Circassian Mamluk",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Circassian",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Punjabi",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Punjabi",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Sylheti",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Sylheti",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Tuluva",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Tulu",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Gan-Speaking Han",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Gan",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Hakka Han",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Hakka",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Jeju Islander",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Jeju",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Northern Tai",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Northern Thai",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Lao Tai",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Lao",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Sundanese",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Sundanese",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Madurese",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Madurese",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Acehnese",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Acehnese",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Tigrayan",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Tigrinya",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Agaw",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Agaw",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Soninke",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Soninke",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthrenaissanceworldexpansion",
+      "source_ethnicity": "Renaissance Manyika",
+      "packs": [
+        "renaissance"
+      ],
+      "missing_language": "Manyika",
+      "reason": "No matching language is seeded for this era; do not inherit the naming-template language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Anglo-Norman",
+      "packs": [
+        "darkages"
+      ],
+      "missing_language": "Anglo-Norman",
+      "reason": "The existing language is not installed until a later toolkit era; do not substitute another community language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "Marcher Anglo-Norman",
+      "packs": [
+        "darkages"
+      ],
+      "missing_language": "Anglo-Norman",
+      "reason": "The existing language is not installed until a later toolkit era; do not substitute another community language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Leonese",
+      "packs": [
+        "darkages"
+      ],
+      "missing_language": "Astur-Leonese",
+      "reason": "The existing language is not installed until a later toolkit era; do not substitute another community language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Aragonese",
+      "packs": [
+        "darkages"
+      ],
+      "missing_language": "Aragonese",
+      "reason": "The existing language is not installed until a later toolkit era; do not substitute another community language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Catalan",
+      "packs": [
+        "darkages"
+      ],
+      "missing_language": "Catalan",
+      "reason": "The existing language is not installed until a later toolkit era; do not substitute another community language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Galician",
+      "packs": [
+        "darkages"
+      ],
+      "missing_language": "Galician-Portuguese",
+      "reason": "The existing language is not installed until a later toolkit era; do not substitute another community language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Portuguese",
+      "packs": [
+        "darkages"
+      ],
+      "missing_language": "Galician-Portuguese",
+      "reason": "The existing language is not installed until a later toolkit era; do not substitute another community language."
+    },
+    {
+      "source_pack": "earthdarkagesandmedieval",
+      "source_ethnicity": "High Medieval Kurdish",
+      "packs": [
+        "darkages"
+      ],
+      "missing_language": "Kurmanji Kurdish",
+      "reason": "The existing language is not installed until a later toolkit era; do not substitute another community language."
     }
   ]
 }

@@ -175,6 +175,8 @@ public static class CultureToolkitLanguageSeeder
 				.Where(x => installed.ContainsKey("legacy:" + x)).Select(x => installed["legacy:" + x]).Distinct().ToArray();
 			if (matches.Length == 1) installed[CultureToolkitCatalogue.Text(binding, "key")] = matches[0];
 		}
+		var installedIds = installed.Values.Select(x => x.Id).Distinct().ToArray();
+		context.Accents.Where(x => installedIds.Contains(x.LanguageId)).Include(x => x.AssociatedLanguages).Load();
 		foreach (var row in sources.Values.SelectMany(x => x))
 		foreach (var sourceAccent in row.Language.Accents)
 		{
@@ -183,9 +185,16 @@ public static class CultureToolkitLanguageSeeder
 			if (record is null) continue;
 			var accent = context.Accents.Find(record.LogicalId)!;
 			var desiredIds = new List<long>();
-			foreach (var sourceLanguage in CultureStockAccentRoles.Associations(row.Language.Name, sourceAccent.Name))
+			foreach (var sourceLanguage in CultureStockAccentRoles.Associations(row.Language.Name, sourceAccent.Name, row.Module))
 			{
 				var binding = CultureToolkitLanguageBindings.Key(row.Module, sourceLanguage);
+				// Some canonical-only skills (for example Sardinian) have no retained source row.
+				if (!installed.ContainsKey(binding))
+				{
+					var canonical = pack.Languages.Where(x => CultureToolkitCatalogue.Strings(x.GetProperty("legacy_language_names"))
+						.Contains(sourceLanguage, StringComparer.OrdinalIgnoreCase)).ToArray();
+					if (canonical.Length == 1) binding = CultureToolkitCatalogue.Text(canonical[0], "key");
+				}
 				if (installed.TryGetValue(binding, out var associated) || installed.TryGetValue("legacy:" + sourceLanguage, out associated))
 					desiredIds.Add(associated.Id);
 				else conflicts.Add($"Accent {key}: associated source language {sourceLanguage} is not installed.");

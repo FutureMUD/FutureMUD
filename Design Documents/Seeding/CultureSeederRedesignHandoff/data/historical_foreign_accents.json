@@ -1,0 +1,796 @@
+[
+  {
+    "key": "foreign.latin.from.greek.koine",
+    "target": "latin",
+    "source": "greek.koine",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.greek.koine.from.latin",
+    "target": "greek.koine",
+    "source": "latin",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.latin.from.source.earthantiquity.language.Gaulish",
+    "target": "latin",
+    "source": "source.earthantiquity.language.Gaulish",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.source.earthantiquity.language.Gaulish.from.latin",
+    "target": "source.earthantiquity.language.Gaulish",
+    "source": "latin",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.latin.from.source.earthantiquity.language.Germanic",
+    "target": "latin",
+    "source": "source.earthantiquity.language.Germanic",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.source.earthantiquity.language.Germanic.from.latin",
+    "target": "source.earthantiquity.language.Germanic",
+    "source": "latin",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.greek.koine.from.aramaic",
+    "target": "greek.koine",
+    "source": "aramaic",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.aramaic.from.greek.koine",
+    "target": "aramaic",
+    "source": "greek.koine",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.greek.koine.from.source.earthantiquity.language.Demotic",
+    "target": "greek.koine",
+    "source": "source.earthantiquity.language.Demotic",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.source.earthantiquity.language.Demotic.from.greek.koine",
+    "target": "source.earthantiquity.language.Demotic",
+    "source": "greek.koine",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.latin.from.source.earthantiquity.language.Phoenician",
+    "target": "latin",
+    "source": "source.earthantiquity.language.Phoenician",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.source.earthantiquity.language.Phoenician.from.latin",
+    "target": "source.earthantiquity.language.Phoenician",
+    "source": "latin",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.aramaic.from.persian.middle",
+    "target": "aramaic",
+    "source": "persian.middle",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.persian.middle.from.aramaic",
+    "target": "persian.middle",
+    "source": "aramaic",
+    "packs": [
+      "antiquity"
+    ]
+  },
+  {
+    "key": "foreign.english.old.from.norse.old",
+    "target": "english.old",
+    "source": "norse.old",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.norse.old.from.english.old",
+    "target": "norse.old",
+    "source": "english.old",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.english.old.from.welsh",
+    "target": "english.old",
+    "source": "welsh",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.welsh.from.english.old",
+    "target": "welsh",
+    "source": "english.old",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.english.middle.from.french.anglonorman",
+    "target": "english.middle",
+    "source": "french.anglonorman",
+    "packs": [
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.french.anglonorman.from.english.middle",
+    "target": "french.anglonorman",
+    "source": "english.middle",
+    "packs": [
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.english.middle.from.welsh",
+    "target": "english.middle",
+    "source": "welsh",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.welsh.from.english.middle",
+    "target": "welsh",
+    "source": "english.middle",
+    "packs": [
+      "medieval",
+      "renaissance",
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.french.old.from.occitan",
+    "target": "french.old",
+    "source": "occitan",
+    "packs": [
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.occitan.from.french.old",
+    "target": "occitan",
+    "source": "french.old",
+    "packs": [
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.greek.medieval.from.arabic.mashriqi",
+    "target": "greek.medieval",
+    "source": "arabic.mashriqi",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.arabic.mashriqi.from.greek.medieval",
+    "target": "arabic.mashriqi",
+    "source": "greek.medieval",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.greek.medieval.from.turkic.oghuz",
+    "target": "greek.medieval",
+    "source": "turkic.oghuz",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.turkic.oghuz.from.greek.medieval",
+    "target": "turkic.oghuz",
+    "source": "greek.medieval",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.persian.new.from.arabic.mashriqi",
+    "target": "persian.new",
+    "source": "arabic.mashriqi",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.arabic.mashriqi.from.persian.new",
+    "target": "arabic.mashriqi",
+    "source": "persian.new",
+    "packs": [
+      "darkages",
+      "medieval",
+      "renaissance",
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.persian.new.from.turkic.oghuz",
+    "target": "persian.new",
+    "source": "turkic.oghuz",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.turkic.oghuz.from.persian.new",
+    "target": "turkic.oghuz",
+    "source": "persian.new",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.castilian.old.from.arabic.andalusi",
+    "target": "castilian.old",
+    "source": "arabic.andalusi",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.arabic.andalusi.from.castilian.old",
+    "target": "arabic.andalusi",
+    "source": "castilian.old",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.castilian.old.from.basque",
+    "target": "castilian.old",
+    "source": "basque",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.basque.from.castilian.old",
+    "target": "basque",
+    "source": "castilian.old",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.slavic.old-east.from.turkic.kipchak",
+    "target": "slavic.old-east",
+    "source": "turkic.kipchak",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.turkic.kipchak.from.slavic.old-east",
+    "target": "turkic.kipchak",
+    "source": "slavic.old-east",
+    "packs": [
+      "darkages",
+      "medieval"
+    ]
+  },
+  {
+    "key": "foreign.english.middle.from.french.middle",
+    "target": "english.middle",
+    "source": "french.middle",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.french.middle.from.english.middle",
+    "target": "french.middle",
+    "source": "english.middle",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.english.middle.from.scots",
+    "target": "english.middle",
+    "source": "scots",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.scots.from.english.middle",
+    "target": "scots",
+    "source": "english.middle",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.french.middle.from.german.early-new-high",
+    "target": "french.middle",
+    "source": "german.early-new-high",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.german.early-new-high.from.french.middle",
+    "target": "german.early-new-high",
+    "source": "french.middle",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.french.middle.from.italian",
+    "target": "french.middle",
+    "source": "italian",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.italian.from.french.middle",
+    "target": "italian",
+    "source": "french.middle",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.castilian.from.portuguese",
+    "target": "castilian",
+    "source": "portuguese",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.portuguese.from.castilian",
+    "target": "portuguese",
+    "source": "castilian",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.castilian.from.arabic.andalusi",
+    "target": "castilian",
+    "source": "arabic.andalusi",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.arabic.andalusi.from.castilian",
+    "target": "arabic.andalusi",
+    "source": "castilian",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.castilian.from.basque",
+    "target": "castilian",
+    "source": "basque",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.basque.from.castilian",
+    "target": "basque",
+    "source": "castilian",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.german.early-new-high.from.polish",
+    "target": "german.early-new-high",
+    "source": "polish",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.polish.from.german.early-new-high",
+    "target": "polish",
+    "source": "german.early-new-high",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.german.early-new-high.from.czech",
+    "target": "german.early-new-high",
+    "source": "czech",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.czech.from.german.early-new-high",
+    "target": "czech",
+    "source": "german.early-new-high",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.german.middle-low.from.danish",
+    "target": "german.middle-low",
+    "source": "danish",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.danish.from.german.middle-low",
+    "target": "danish",
+    "source": "german.middle-low",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.german.middle-low.from.swedish",
+    "target": "german.middle-low",
+    "source": "swedish",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.swedish.from.german.middle-low",
+    "target": "swedish",
+    "source": "german.middle-low",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.swedish.from.finnish",
+    "target": "swedish",
+    "source": "finnish",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.finnish.from.swedish",
+    "target": "finnish",
+    "source": "swedish",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.polish.from.ruthenian",
+    "target": "polish",
+    "source": "ruthenian",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.ruthenian.from.polish",
+    "target": "ruthenian",
+    "source": "polish",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.russian.from.turkic.crimean",
+    "target": "russian",
+    "source": "turkic.crimean",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.turkic.crimean.from.russian",
+    "target": "turkic.crimean",
+    "source": "russian",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.turkish.ottoman.from.greek.medieval",
+    "target": "turkish.ottoman",
+    "source": "greek.medieval",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.greek.medieval.from.turkish.ottoman",
+    "target": "greek.medieval",
+    "source": "turkish.ottoman",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.turkish.ottoman.from.armenian",
+    "target": "turkish.ottoman",
+    "source": "armenian",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.armenian.from.turkish.ottoman",
+    "target": "armenian",
+    "source": "turkish.ottoman",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.turkish.ottoman.from.arabic.mashriqi",
+    "target": "turkish.ottoman",
+    "source": "arabic.mashriqi",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.arabic.mashriqi.from.turkish.ottoman",
+    "target": "arabic.mashriqi",
+    "source": "turkish.ottoman",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.turkish.ottoman.from.persian.new",
+    "target": "turkish.ottoman",
+    "source": "persian.new",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.persian.new.from.turkish.ottoman",
+    "target": "persian.new",
+    "source": "turkish.ottoman",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.persian.new.from.source.earthrenaissanceworldexpansion.language.Chagatai",
+    "target": "persian.new",
+    "source": "source.earthrenaissanceworldexpansion.language.Chagatai",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Chagatai.from.persian.new",
+    "target": "source.earthrenaissanceworldexpansion.language.Chagatai",
+    "source": "persian.new",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.persian.new.from.source.earthrenaissanceworldexpansion.language.Hindavi",
+    "target": "persian.new",
+    "source": "source.earthrenaissanceworldexpansion.language.Hindavi",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Hindavi.from.persian.new",
+    "target": "source.earthrenaissanceworldexpansion.language.Hindavi",
+    "source": "persian.new",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.persian.new.from.source.earthrenaissanceworldexpansion.language.Pashto",
+    "target": "persian.new",
+    "source": "source.earthrenaissanceworldexpansion.language.Pashto",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Pashto.from.persian.new",
+    "target": "source.earthrenaissanceworldexpansion.language.Pashto",
+    "source": "persian.new",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.arabic.mashriqi.from.source.earthrenaissanceworldexpansion.language.Swahili",
+    "target": "arabic.mashriqi",
+    "source": "source.earthrenaissanceworldexpansion.language.Swahili",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Swahili.from.arabic.mashriqi",
+    "target": "source.earthrenaissanceworldexpansion.language.Swahili",
+    "source": "arabic.mashriqi",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.arabic.mashriqi.from.source.earthrenaissanceworldexpansion.language.Somali",
+    "target": "arabic.mashriqi",
+    "source": "source.earthrenaissanceworldexpansion.language.Somali",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Somali.from.arabic.mashriqi",
+    "target": "source.earthrenaissanceworldexpansion.language.Somali",
+    "source": "arabic.mashriqi",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.arabic.maghrebi.from.amazigh.tashelhit",
+    "target": "arabic.maghrebi",
+    "source": "amazigh.tashelhit",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.amazigh.tashelhit.from.arabic.maghrebi",
+    "target": "amazigh.tashelhit",
+    "source": "arabic.maghrebi",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.armenian.from.georgian",
+    "target": "armenian",
+    "source": "georgian",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.georgian.from.armenian",
+    "target": "georgian",
+    "source": "armenian",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Ming Guanhua.from.source.earthrenaissanceworldexpansion.language.Middle Korean",
+    "target": "source.earthrenaissanceworldexpansion.language.Ming Guanhua",
+    "source": "source.earthrenaissanceworldexpansion.language.Middle Korean",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Middle Korean.from.source.earthrenaissanceworldexpansion.language.Ming Guanhua",
+    "target": "source.earthrenaissanceworldexpansion.language.Middle Korean",
+    "source": "source.earthrenaissanceworldexpansion.language.Ming Guanhua",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Ming Guanhua.from.source.earthrenaissanceworldexpansion.language.Middle Vietnamese",
+    "target": "source.earthrenaissanceworldexpansion.language.Ming Guanhua",
+    "source": "source.earthrenaissanceworldexpansion.language.Middle Vietnamese",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Middle Vietnamese.from.source.earthrenaissanceworldexpansion.language.Ming Guanhua",
+    "target": "source.earthrenaissanceworldexpansion.language.Middle Vietnamese",
+    "source": "source.earthrenaissanceworldexpansion.language.Ming Guanhua",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Classical Malay.from.source.earthrenaissanceworldexpansion.language.Middle Javanese",
+    "target": "source.earthrenaissanceworldexpansion.language.Classical Malay",
+    "source": "source.earthrenaissanceworldexpansion.language.Middle Javanese",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Middle Javanese.from.source.earthrenaissanceworldexpansion.language.Classical Malay",
+    "target": "source.earthrenaissanceworldexpansion.language.Middle Javanese",
+    "source": "source.earthrenaissanceworldexpansion.language.Classical Malay",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Hausa.from.source.earthrenaissanceworldexpansion.language.Songhay",
+    "target": "source.earthrenaissanceworldexpansion.language.Hausa",
+    "source": "source.earthrenaissanceworldexpansion.language.Songhay",
+    "packs": [
+      "renaissance"
+    ]
+  },
+  {
+    "key": "foreign.source.earthrenaissanceworldexpansion.language.Songhay.from.source.earthrenaissanceworldexpansion.language.Hausa",
+    "target": "source.earthrenaissanceworldexpansion.language.Songhay",
+    "source": "source.earthrenaissanceworldexpansion.language.Hausa",
+    "packs": [
+      "renaissance"
+    ]
+  }
+]

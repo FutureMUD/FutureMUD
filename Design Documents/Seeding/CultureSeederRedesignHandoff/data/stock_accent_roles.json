@@ -1,0 +1,2828 @@
+[
+  {
+    "module": "earthantiquity",
+    "language": "Koine Greek",
+    "accent": "Egyptian",
+    "role": "Foreign",
+    "sources": [
+      "Demotic",
+      "Coptic"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Koine Greek",
+    "accent": "Punic",
+    "role": "Foreign",
+    "sources": [
+      "Phoenician"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Koine Greek",
+    "accent": "Roman",
+    "role": "Foreign",
+    "sources": [
+      "Latin"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Romani",
+    "accent": "Balkan",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Russian",
+    "accent": "Baltic",
+    "role": "Foreign",
+    "sources": [
+      "Lithuanian",
+      "Latvian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Ruthenian",
+    "accent": "Baltic",
+    "role": "Foreign",
+    "sources": [
+      "Lithuanian",
+      "Latvian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Polish",
+    "accent": "Baltic",
+    "role": "Foreign",
+    "sources": [
+      "Lithuanian",
+      "Latvian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Yiddish",
+    "accent": "Baltic",
+    "role": "Foreign",
+    "sources": [
+      "Lithuanian",
+      "Latvian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Mahgrebi Arabic",
+    "accent": "Berber",
+    "role": "Foreign",
+    "sources": [
+      "Berber"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Cornish",
+    "accent": "Breton",
+    "role": "Foreign",
+    "sources": [
+      "Breton"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "French",
+    "accent": "British",
+    "role": "Foreign",
+    "sources": [
+      "English"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Occitan",
+    "accent": "British",
+    "role": "Foreign",
+    "sources": [
+      "English"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Slovenian",
+    "accent": "Croatian",
+    "role": "Foreign",
+    "sources": [
+      "Serbo-Croatian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Icelandic",
+    "accent": "Danish",
+    "role": "Foreign",
+    "sources": [
+      "Danish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Norwegian",
+    "accent": "Danish",
+    "role": "Foreign",
+    "sources": [
+      "Danish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Swedish",
+    "accent": "Danish",
+    "role": "Foreign",
+    "sources": [
+      "Danish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "English",
+    "accent": "Dutch",
+    "role": "Foreign",
+    "sources": [
+      "Dutch"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Polish",
+    "accent": "Finnic",
+    "role": "Foreign",
+    "sources": [
+      "Finnish",
+      "Estonian",
+      "Karelian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Ruthenian",
+    "accent": "Finnic",
+    "role": "Foreign",
+    "sources": [
+      "Finnish",
+      "Estonian",
+      "Karelian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Russian",
+    "accent": "Finnic",
+    "role": "Foreign",
+    "sources": [
+      "Finnish",
+      "Estonian",
+      "Karelian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Yiddish",
+    "accent": "Finnic",
+    "role": "Foreign",
+    "sources": [
+      "Finnish",
+      "Estonian",
+      "Karelian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Estonian",
+    "accent": "Finnish",
+    "role": "Foreign",
+    "sources": [
+      "Finnish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Karelian",
+    "accent": "Finnish",
+    "role": "Foreign",
+    "sources": [
+      "Finnish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "French",
+    "accent": "Flemish",
+    "role": "Foreign",
+    "sources": [
+      "Dutch"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Occitan",
+    "accent": "Flemish",
+    "role": "Foreign",
+    "sources": [
+      "Dutch"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Aragonese",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Castilian",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Dutch",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Italian",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "French",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Frisian",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Galician",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "High German",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Leonese",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Lombard",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Low German",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Neapolitan",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Occitan",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Sicilian",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Venetian",
+    "accent": "Franco-provencal",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Aragonese",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Castilian",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "English",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Galician",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Leonese",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Russian",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Ruthenian",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Basque",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Breton",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Czech",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Irish Gaelic",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Polish",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Scottish Gaelic",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Slovak",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Wendish",
+    "accent": "French",
+    "role": "Foreign",
+    "sources": [
+      "French"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "English",
+    "accent": "Frisian",
+    "role": "Foreign",
+    "sources": [
+      "Frisian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Armenian",
+    "accent": "Georgian",
+    "role": "Foreign",
+    "sources": [
+      "Georgian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Aragonese",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Castilian",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "English",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "French",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Galician",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Leonese",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Russian",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Ruthenian",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Czech",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Danish",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Estonian",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Finnish",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Hungarian",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Icelandic",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Latvian",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Lithuanian",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Norwegian",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Polish",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Prussian",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Serbo-Croatian",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Slovak",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Slovenian",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Swedish",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Wendish",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "High German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Romani",
+    "accent": "Germanic",
+    "role": "Foreign",
+    "sources": [
+      "High German",
+      "Low German"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Aramaic",
+    "accent": "Greek",
+    "role": "Foreign",
+    "sources": [
+      "Greek"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Bulgarian",
+    "accent": "Greek",
+    "role": "Foreign",
+    "sources": [
+      "Greek"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Coptic",
+    "accent": "Greek",
+    "role": "Foreign",
+    "sources": [
+      "Greek"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Hebrew",
+    "accent": "Greek",
+    "role": "Foreign",
+    "sources": [
+      "Greek"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Turkish",
+    "accent": "Greek",
+    "role": "Foreign",
+    "sources": [
+      "Greek"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Serbo-Croatian",
+    "accent": "Hungarian",
+    "role": "Foreign",
+    "sources": [
+      "Hungarian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Slovak",
+    "accent": "Hungarian",
+    "role": "Foreign",
+    "sources": [
+      "Hungarian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Slovenian",
+    "accent": "Hungarian",
+    "role": "Foreign",
+    "sources": [
+      "Hungarian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "English",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Lithuanian",
+    "accent": "Latvian",
+    "role": "Foreign",
+    "sources": [
+      "Latvian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Prussian",
+    "accent": "Latvian",
+    "role": "Foreign",
+    "sources": [
+      "Latvian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Latvian",
+    "accent": "Lithuanian",
+    "role": "Foreign",
+    "sources": [
+      "Lithuanian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Prussian",
+    "accent": "Lithuanian",
+    "role": "Foreign",
+    "sources": [
+      "Lithuanian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Mashriqi Arabic",
+    "accent": "Mahgrebi",
+    "role": "Foreign",
+    "sources": [
+      "Mahgrebi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Mahgrebi Arabic",
+    "accent": "Mashriqi",
+    "role": "Foreign",
+    "sources": [
+      "Mashriqi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Aragonese",
+    "accent": "Moorish",
+    "role": "Foreign",
+    "sources": [
+      "Mahgrebi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Castilian",
+    "accent": "Moorish",
+    "role": "Foreign",
+    "sources": [
+      "Mahgrebi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Galician",
+    "accent": "Moorish",
+    "role": "Foreign",
+    "sources": [
+      "Mahgrebi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Leonese",
+    "accent": "Moorish",
+    "role": "Foreign",
+    "sources": [
+      "Mahgrebi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Danish",
+    "accent": "Norwegian",
+    "role": "Foreign",
+    "sources": [
+      "Norwegian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Icelandic",
+    "accent": "Norwegian",
+    "role": "Foreign",
+    "sources": [
+      "Norwegian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Swedish",
+    "accent": "Norwegian",
+    "role": "Foreign",
+    "sources": [
+      "Norwegian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Aramaic",
+    "accent": "Persian",
+    "role": "Foreign",
+    "sources": [
+      "Persian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Armenian",
+    "accent": "Persian",
+    "role": "Foreign",
+    "sources": [
+      "Persian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Mashriqi Arabic",
+    "accent": "Persian",
+    "role": "Foreign",
+    "sources": [
+      "Persian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Turkish",
+    "accent": "Persian",
+    "role": "Foreign",
+    "sources": [
+      "Persian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Latvian",
+    "accent": "Polish",
+    "role": "Foreign",
+    "sources": [
+      "Polish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Lithuanian",
+    "accent": "Polish",
+    "role": "Foreign",
+    "sources": [
+      "Polish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Prussian",
+    "accent": "Polish",
+    "role": "Foreign",
+    "sources": [
+      "Polish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Serbo-Croatian",
+    "accent": "Polish",
+    "role": "Foreign",
+    "sources": [
+      "Polish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Latvian",
+    "accent": "Prussian",
+    "role": "Foreign",
+    "sources": [
+      "Prussian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Romani",
+    "accent": "Romance",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Bulgarian",
+    "accent": "Romanian",
+    "role": "Foreign",
+    "sources": [
+      "Wallachian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Armenian",
+    "accent": "Russian",
+    "role": "Foreign",
+    "sources": [
+      "Russian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Estonian",
+    "accent": "Russian",
+    "role": "Foreign",
+    "sources": [
+      "Russian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Finnish",
+    "accent": "Russian",
+    "role": "Foreign",
+    "sources": [
+      "Russian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Karelian",
+    "accent": "Russian",
+    "role": "Foreign",
+    "sources": [
+      "Russian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Latvian",
+    "accent": "Russian",
+    "role": "Foreign",
+    "sources": [
+      "Russian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Lithuanian",
+    "accent": "Russian",
+    "role": "Foreign",
+    "sources": [
+      "Russian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Prussian",
+    "accent": "Russian",
+    "role": "Foreign",
+    "sources": [
+      "Russian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Bulgarian",
+    "accent": "Ruthenian",
+    "role": "Foreign",
+    "sources": [
+      "Ruthenian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Lithuanian",
+    "accent": "Ruthenian",
+    "role": "Foreign",
+    "sources": [
+      "Ruthenian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Serbo-Croatian",
+    "accent": "Ruthenian",
+    "role": "Foreign",
+    "sources": [
+      "Ruthenian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Slovenian",
+    "accent": "Ruthenian",
+    "role": "Foreign",
+    "sources": [
+      "Ruthenian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Aragonese",
+    "accent": "Sardinian",
+    "role": "Foreign",
+    "sources": [
+      "Sardinian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "English",
+    "accent": "Scandanavian",
+    "role": "Foreign",
+    "sources": [
+      "Danish",
+      "Swedish",
+      "Norwegian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Irish Gaelic",
+    "accent": "Scottish Gaelic",
+    "role": "Foreign",
+    "sources": [
+      "Scottish Gaelic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Manx",
+    "accent": "Scottish Gaelic",
+    "role": "Foreign",
+    "sources": [
+      "Scottish Gaelic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Bulgarian",
+    "accent": "Serbo-croatian",
+    "role": "Foreign",
+    "sources": [
+      "Serbo-Croatian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Dutch",
+    "accent": "Slavic",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Frisian",
+    "accent": "Slavic",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "High German",
+    "accent": "Slavic",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Low German",
+    "accent": "Slavic",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Greek",
+    "accent": "Slavic",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Hungarian",
+    "accent": "Slavic",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Turkish",
+    "accent": "Slavic",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Romani",
+    "accent": "Slavic",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "English",
+    "accent": "Spanish",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Danish",
+    "accent": "Swedish",
+    "role": "Foreign",
+    "sources": [
+      "Swedish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Estonian",
+    "accent": "Swedish",
+    "role": "Foreign",
+    "sources": [
+      "Swedish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Finnish",
+    "accent": "Swedish",
+    "role": "Foreign",
+    "sources": [
+      "Swedish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Icelandic",
+    "accent": "Swedish",
+    "role": "Foreign",
+    "sources": [
+      "Swedish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Karelian",
+    "accent": "Swedish",
+    "role": "Foreign",
+    "sources": [
+      "Swedish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Norwegian",
+    "accent": "Swedish",
+    "role": "Foreign",
+    "sources": [
+      "Swedish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Russian",
+    "accent": "Tatar",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Ruthenian",
+    "accent": "Tatar",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Persian",
+    "accent": "Tatar",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Bulgarian",
+    "accent": "Turkish",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Greek",
+    "accent": "Turkish",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Hungarian",
+    "accent": "Turkish",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Cornish",
+    "accent": "Welsh",
+    "role": "Foreign",
+    "sources": [
+      "Welsh"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Hebrew",
+    "accent": "Yiddish",
+    "role": "Foreign",
+    "sources": [
+      "Yiddish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "French",
+    "accent": "Arabic",
+    "role": "Foreign",
+    "sources": [
+      "Mashriqi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Aramaic",
+    "accent": "Arabic",
+    "role": "Foreign",
+    "sources": [
+      "Mashriqi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Berber",
+    "accent": "Arabic",
+    "role": "Foreign",
+    "sources": [
+      "Mashriqi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Coptic",
+    "accent": "Arabic",
+    "role": "Foreign",
+    "sources": [
+      "Mashriqi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Greek",
+    "accent": "Arabic",
+    "role": "Foreign",
+    "sources": [
+      "Mashriqi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Hebrew",
+    "accent": "Arabic",
+    "role": "Foreign",
+    "sources": [
+      "Mashriqi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Turkish",
+    "accent": "Arabic",
+    "role": "Foreign",
+    "sources": [
+      "Mashriqi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Persian",
+    "accent": "Arabic",
+    "role": "Foreign",
+    "sources": [
+      "Mashriqi Arabic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Hebrew",
+    "accent": "Aramaic",
+    "role": "Foreign",
+    "sources": [
+      "Aramaic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Breton",
+    "accent": "English",
+    "role": "Foreign",
+    "sources": [
+      "English"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Cornish",
+    "accent": "English",
+    "role": "Foreign",
+    "sources": [
+      "English"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Danish",
+    "accent": "English",
+    "role": "Foreign",
+    "sources": [
+      "English"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Icelandic",
+    "accent": "English",
+    "role": "Foreign",
+    "sources": [
+      "English"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Irish Gaelic",
+    "accent": "English",
+    "role": "Foreign",
+    "sources": [
+      "English"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Manx",
+    "accent": "English",
+    "role": "Foreign",
+    "sources": [
+      "English"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Norwegian",
+    "accent": "English",
+    "role": "Foreign",
+    "sources": [
+      "English"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Scottish Gaelic",
+    "accent": "English",
+    "role": "Foreign",
+    "sources": [
+      "English"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Swedish",
+    "accent": "English",
+    "role": "Foreign",
+    "sources": [
+      "English"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Karelian",
+    "accent": "Estonian",
+    "role": "Foreign",
+    "sources": [
+      "Estonian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Yiddish",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Czech",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Slovak",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Wendish",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Ruthenian",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Polish",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Russian",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Dutch",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Italian",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "French",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Frisian",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "High German",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Lombard",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Low German",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Neapolitan",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Occitan",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Sicilian",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Venetian",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Basque",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Berber",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Mahgrebi Arabic",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Castilian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Danish",
+    "accent": "Icelandic",
+    "role": "Foreign",
+    "sources": [
+      "Icelandic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Norwegian",
+    "accent": "Icelandic",
+    "role": "Foreign",
+    "sources": [
+      "Icelandic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Swedish",
+    "accent": "Icelandic",
+    "role": "Foreign",
+    "sources": [
+      "Icelandic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Persian",
+    "accent": "Indian",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Manx",
+    "accent": "Irish",
+    "role": "Foreign",
+    "sources": [
+      "Irish Gaelic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Scottish Gaelic",
+    "accent": "Irish",
+    "role": "Foreign",
+    "sources": [
+      "Irish Gaelic"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Aragonese",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Castilian",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "French",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Galician",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Leonese",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Occitan",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Russian",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Ruthenian",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Berber",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Czech",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Greek",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Hebrew",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Polish",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Serbo-Croatian",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Slovak",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Slovenian",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Wendish",
+    "accent": "Italian",
+    "role": "Foreign",
+    "sources": [
+      "Italian"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Aragonese",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Castilian",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Dutch",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Italian",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "French",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Frisian",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Galician",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "High German",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Leonese",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Lombard",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Low German",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Neapolitan",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Russian",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Sicilian",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Venetian",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Ruthenian",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Yiddish",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Basque",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Breton",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Czech",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Polish",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Slovak",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Wendish",
+    "accent": "Occitan",
+    "role": "Foreign",
+    "sources": [
+      "Occitan"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Dutch",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Italian",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "French",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Frisian",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "High German",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Lombard",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Low German",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Neapolitan",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Russian",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Sicilian",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Venetian",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Ruthenian",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Yiddish",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Czech",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Polish",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Slovak",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Wendish",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Aramaic",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Armenian",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Berber",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Mahgrebi Arabic",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Mashriqi Arabic",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Persian",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthrenaissanceeurope",
+    "language": "Serbo-Croatian",
+    "accent": "Ottoman",
+    "role": "Foreign",
+    "sources": [
+      "Turkish"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Coptic",
+    "accent": "Greek",
+    "role": "Foreign",
+    "sources": [
+      "Koine Greek",
+      "Attic Greek"
+    ]
+  },
+  {
+    "module": "earthdarkagesandmedieval",
+    "language": "Literary Chinese",
+    "accent": "Japanese Kanbun",
+    "role": "Foreign",
+    "sources": [
+      "Medieval Japanese"
+    ]
+  },
+  {
+    "module": "earthdarkagesandmedieval",
+    "language": "Literary Chinese",
+    "accent": "Goryeo Scholarly",
+    "role": "Foreign",
+    "sources": [
+      "Early Middle Korean"
+    ]
+  },
+  {
+    "module": "earthrenaissanceworldexpansion",
+    "language": "Classical Chinese",
+    "accent": "Japanese-reading",
+    "role": "Foreign",
+    "sources": [
+      "Late Middle Japanese"
+    ]
+  },
+  {
+    "module": "earthrenaissanceworldexpansion",
+    "language": "Classical Chinese",
+    "accent": "Korean-reading",
+    "role": "Foreign",
+    "sources": [
+      "Middle Korean"
+    ]
+  },
+  {
+    "module": "earthrenaissanceworldexpansion",
+    "language": "Classical Chinese",
+    "accent": "Vietnamese-reading",
+    "role": "Foreign",
+    "sources": [
+      "Middle Vietnamese"
+    ]
+  },
+  {
+    "module": "earthmodern",
+    "language": "Hausa",
+    "accent": "West African",
+    "role": "Foreign",
+    "sources": []
+  },
+  {
+    "module": "middleearth",
+    "language": "Westron",
+    "accent": "Orkish",
+    "role": "Foreign",
+    "sources": [
+      "Orkish"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Westron",
+    "accent": "Elven",
+    "role": "Foreign",
+    "sources": [
+      "Sindarin",
+      "Quenya",
+      "Silvan"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Westron",
+    "accent": "Dwarven",
+    "role": "Foreign",
+    "sources": [
+      "Khuzdul"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Westron",
+    "accent": "Haradic",
+    "role": "Foreign",
+    "sources": [
+      "Haradic"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Westron",
+    "accent": "Khandish",
+    "role": "Foreign",
+    "sources": [
+      "Varadja"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Westron",
+    "accent": "Dunlendish",
+    "role": "Foreign",
+    "sources": [
+      "Dunael"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Westron",
+    "accent": "Rohirric",
+    "role": "Foreign",
+    "sources": [
+      "Rohirric"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Westron",
+    "accent": "Dalish",
+    "role": "Foreign",
+    "sources": [
+      "Dalish"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Westron",
+    "accent": "Dorwinion",
+    "role": "Foreign",
+    "sources": [
+      "Logathig"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Sindarin",
+    "accent": "Orkish",
+    "role": "Foreign",
+    "sources": [
+      "Orkish"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Sindarin",
+    "accent": "High-Elven",
+    "role": "Foreign",
+    "sources": [
+      "Quenya"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Sindarin",
+    "accent": "Haradic",
+    "role": "Foreign",
+    "sources": [
+      "Haradic"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Quenya",
+    "accent": "Sindarin",
+    "role": "Foreign",
+    "sources": [
+      "Sindarin"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Quenya",
+    "accent": "Silvan",
+    "role": "Foreign",
+    "sources": [
+      "Silvan"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Quenya",
+    "accent": "Arnorian",
+    "role": "Foreign",
+    "sources": [
+      "Westron"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Quenya",
+    "accent": "Gondorian",
+    "role": "Foreign",
+    "sources": [
+      "Westron"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Silvan",
+    "accent": "Sindarin",
+    "role": "Foreign",
+    "sources": [
+      "Sindarin"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Black Speech",
+    "accent": "Elven",
+    "role": "Foreign",
+    "sources": [
+      "Sindarin",
+      "Quenya"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Black Speech",
+    "accent": "Mannish",
+    "role": "Foreign",
+    "sources": [
+      "Westron"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Black Speech",
+    "accent": "Trollish",
+    "role": "Foreign",
+    "sources": [
+      "Trollish"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Black Speech",
+    "accent": "Orkish",
+    "role": "Foreign",
+    "sources": [
+      "Orkish"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Logathig",
+    "accent": "Rhovanion",
+    "role": "Foreign",
+    "sources": [
+      "Dalish"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Rohirric",
+    "accent": "Dunlendish",
+    "role": "Foreign",
+    "sources": [
+      "Dunael"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Rohirric",
+    "accent": "Elven",
+    "role": "Foreign",
+    "sources": [
+      "Sindarin",
+      "Quenya"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Hobbitish",
+    "accent": "Elven",
+    "role": "Foreign",
+    "sources": [
+      "Sindarin",
+      "Quenya"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Haradic",
+    "accent": "Elven",
+    "role": "Foreign",
+    "sources": [
+      "Sindarin",
+      "Quenya"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Dalish",
+    "accent": "Elven",
+    "role": "Foreign",
+    "sources": [
+      "Sindarin",
+      "Quenya"
+    ]
+  },
+  {
+    "module": "middleearth",
+    "language": "Adunaic",
+    "accent": "Elven",
+    "role": "Foreign",
+    "sources": [
+      "Sindarin",
+      "Quenya"
+    ]
+  },
+  {
+    "module": "earthmodern",
+    "language": "Ukranian",
+    "accent": "Balachka",
+    "role": "Native",
+    "sources": []
+  },
+  {
+    "module": "earthmodern",
+    "language": "Ukranian",
+    "accent": "Upper Sannian",
+    "role": "Native",
+    "sources": []
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "Corsican",
+    "role": "Foreign",
+    "sources": [
+      "Corsican"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "Egyptian",
+    "role": "Foreign",
+    "sources": [
+      "Demotic",
+      "Coptic"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "Etruscan",
+    "role": "Foreign",
+    "sources": [
+      "Etruscan"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "Gallic",
+    "role": "Foreign",
+    "sources": [
+      "Gaulish"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "German",
+    "role": "Foreign",
+    "sources": [
+      "Germanic"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "Greek",
+    "role": "Foreign",
+    "sources": [
+      "Koine Greek",
+      "Attic Greek"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "Iberian",
+    "role": "Foreign",
+    "sources": [
+      "Iberian",
+      "Celtiberian"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "Illyrian",
+    "role": "Foreign",
+    "sources": [
+      "Illyrian"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "Punic",
+    "role": "Foreign",
+    "sources": [
+      "Phoenician"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "Oscan",
+    "role": "Foreign",
+    "sources": [
+      "Oscan"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "Sardinian",
+    "role": "Foreign",
+    "sources": [
+      "Nuragic"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "Sicilian",
+    "role": "Foreign",
+    "sources": [
+      "Koine Greek"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Latin",
+    "accent": "Umbrian",
+    "role": "Foreign",
+    "sources": [
+      "Umbrian"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Koine Greek",
+    "accent": "Aeolian",
+    "role": "Foreign",
+    "sources": [
+      "Aeolic Greek"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Koine Greek",
+    "accent": "Attic",
+    "role": "Foreign",
+    "sources": [
+      "Attic Greek"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Koine Greek",
+    "accent": "Doric",
+    "role": "Foreign",
+    "sources": [
+      "Doric Greek"
+    ]
+  },
+  {
+    "module": "earthantiquity",
+    "language": "Koine Greek",
+    "accent": "Ionic",
+    "role": "Foreign",
+    "sources": [
+      "Ionic Greek"
+    ]
+  }
+]

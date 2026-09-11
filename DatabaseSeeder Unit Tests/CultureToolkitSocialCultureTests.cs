@@ -26,6 +26,8 @@ public class CultureToolkitSocialCultureTests
 			using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 				.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options);
 			var pack = catalogue.Compose(era);
+			var languages = CultureToolkitNativeReviewTests.Available(era);
+			context.AddRange(languages.Values.Distinct());
 			var structures = pack.Cultures.Select(x => CultureToolkitCatalogue.Text(x, "naming_fallback")).Distinct()
 				.ToDictionary(x => x, x => new NameCulture { Name = x, Definition = "<Definition />" });
 			var calendar = new Calendar();
@@ -37,20 +39,27 @@ public class CultureToolkitSocialCultureTests
 			context.AddRange(calendar, availability, start);
 			context.SaveChanges();
 			var conflicts = new List<string>();
-			var cultures = CultureToolkitSocialCultures.Upsert(context, pack, structures, calendar, start, availability, conflicts);
+			var cultures = CultureToolkitSocialCultures.Upsert(context, pack, structures, calendar, start, availability, conflicts, catalogue, languages);
+			foreach (var row in pack.Cultures)
+			{
+				var expected = CultureToolkitSocialCultures.NativeReferences(catalogue, row, era).Select(x => (long?)languages[x].Id).FirstOrDefault();
+				Assert.AreEqual(expected, cultures[CultureToolkitCatalogue.Text(row, "key")].NativeLanguageId);
+			}
 			Assert.AreEqual(pack.Cultures.Count, cultures.Count);
 			seen.UnionWith(cultures.Keys);
 			var edited = cultures.Values.First();
 			Assert.AreEqual(start.Id, edited.SkillStartingValueProgId);
 			edited.SkillStartingValueProgId = 999;
 			edited.Description = "Builder background";
+			edited.NativeLanguageId = 999;
 			var gender = edited.CulturesNameCultures.First().Gender;
 			context.Remove(edited.CulturesNameCultures.First());
 			context.SaveChanges();
-			CultureToolkitSocialCultures.Upsert(context, pack, structures, calendar, start, availability, conflicts);
+			CultureToolkitSocialCultures.Upsert(context, pack, structures, calendar, start, availability, conflicts, catalogue, languages);
 			Assert.AreEqual(pack.Cultures.Count, context.Cultures.Count());
 			Assert.AreEqual(999, edited.SkillStartingValueProgId);
 			Assert.AreEqual("Builder background", edited.Description);
+			Assert.AreEqual(999L, edited.NativeLanguageId);
 			Assert.IsFalse(edited.CulturesNameCultures.Any(x => x.Gender == gender));
 			Assert.IsTrue(conflicts.Any(x => x.Contains("builder edit")));
 		}

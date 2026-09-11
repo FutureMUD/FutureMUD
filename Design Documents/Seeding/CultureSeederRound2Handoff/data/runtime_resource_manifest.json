@@ -28,9 +28,11 @@
     "research.latvian_documentary_name_specimen.json",
     "research.prose_revision_ledger.json",
     "research.review_gates.json",
-    "research.sources.json"
+    "research.sources.json",
+    "data.stock_accent_roles.json",
+    "data.historical_foreign_accents.json"
   ],
-  "expected_required_count": 28,
+  "expected_required_count": 30,
   "prefix": "CultureToolkit.",
   "usage": "Development input for updating CultureToolkitCatalogue required-name validation. Do not embed this manifest itself through the data wildcard without explicitly adjusting the resource contract."
 }

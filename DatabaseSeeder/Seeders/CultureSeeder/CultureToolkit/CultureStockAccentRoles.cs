@@ -12,9 +12,17 @@ namespace DatabaseSeeder.Seeders.CultureToolkit;
 /// <summary>Explicit classifications of existing stock content, not a runtime name heuristic.</summary>
 public static class CultureStockAccentRoles
 {
+	private static readonly JsonElement[] Reviewed = new CultureToolkitCatalogue()
+		.Document("data.stock_accent_roles.json").EnumerateArray().ToArray();
+
+	private static IEnumerable<JsonElement> Entries(string language, string accent, string? module = null) => Reviewed.Where(x =>
+		CultureToolkitCatalogue.Text(x, "language").Equals(language, StringComparison.OrdinalIgnoreCase) &&
+		CultureToolkitCatalogue.Text(x, "accent").Equals(accent, StringComparison.OrdinalIgnoreCase) &&
+		(module is null || CultureToolkitCatalogue.Text(x, "module") == module));
 	public static void ApplyLegacy(FuturemudDatabaseContext context, Accent accent, bool fresh,
 		ICollection<string> conflicts)
 	{
+		context.Entry(accent).Collection(x => x.AssociatedLanguages).Load();
 		var key = $"legacy.accent-metadata.{accent.Id}";
 		var record = CultureToolkitManagedEntities.Find(context, "AccentMetadata", key);
 		var role = Role(accent.Language.Name, accent.Name, accent.Group);
@@ -69,12 +77,20 @@ public static class CultureStockAccentRoles
 		if (accent.Equals("Foreign", StringComparison.OrdinalIgnoreCase) ||
 			accent.Equals("Learner", StringComparison.OrdinalIgnoreCase) ||
 			accent.Equals("Crude", StringComparison.OrdinalIgnoreCase)) return AccentRole.Fallback;
+		var reviewed = Entries(language, accent).FirstOrDefault();
+		if (reviewed.ValueKind != JsonValueKind.Undefined)
+			return Enum.Parse<AccentRole>(CultureToolkitCatalogue.Text(reviewed, "role"));
 		if (language.Equals("English", StringComparison.OrdinalIgnoreCase) && EnglishForeign.ContainsKey(accent))
 			return AccentRole.Foreign;
 		return group.Equals("foreign", StringComparison.OrdinalIgnoreCase) ? AccentRole.Foreign : AccentRole.Native;
 	}
 
-	public static IReadOnlyList<string> Associations(string language, string accent) =>
-		language.Equals("English", StringComparison.OrdinalIgnoreCase) && EnglishForeign.TryGetValue(accent, out var sources)
-			? sources : [];
+	public static IReadOnlyList<string> Associations(string language, string accent, string? module = null)
+	{
+		if (module is null && language.Equals("English", StringComparison.OrdinalIgnoreCase) && EnglishForeign.TryGetValue(accent, out var modernSources))
+			return modernSources;
+		var reviewed = Entries(language, accent, module).ToArray();
+		if (reviewed.Length > 0) return reviewed.SelectMany(x => CultureToolkitCatalogue.Strings(x.GetProperty("sources"))).Distinct().ToArray();
+		return [];
+	}
 }

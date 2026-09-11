@@ -18,7 +18,7 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
     {
         Spell = spell;
         _caster = caster;
-        _casterId = caster.Id;
+        _casterId = caster?.Id ?? 0;
         Power = power;
         Outcome = outcome;
     }
@@ -90,6 +90,7 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
     {
         get
         {
+            if (_casterId == 0) return null;
             if (_caster == null)
             {
                 _caster = Gameworld.TryGetCharacter(_casterId, true);
@@ -104,13 +105,14 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
     }
 
     private readonly List<IMagicSpellEffect> _spellEffects = new();
+    protected void RemoveOwnedChild(IMagicSpellEffect effect) => _spellEffects.Remove(effect);
 
     public void AddSpellEffect(IMagicSpellEffect effect)
     {
         _spellEffects.Add(effect);
     }
 
-    public void RemoveSpellEffect(IMagicSpellEffect effect)
+    public virtual void RemoveSpellEffect(IMagicSpellEffect effect)
     {
         _spellEffects.Remove(effect);
         if (!_removingSpellEffects && !_spellEffects.Any())

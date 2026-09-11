@@ -1,4 +1,5 @@
 ﻿using MudSharp.Body;
+using MudSharp.Magic;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
@@ -41,7 +42,7 @@ public static class WeaponPoisonDeliveryHelper
 		return mixture?.Instances.Any(x =>
 			x.Liquid.Drug is not null &&
 			x.Liquid.DrugGramsPerUnitVolume > 0.0 &&
-			(x.Liquid.Drug.DrugVectors.HasFlag(DrugVector.Touched) || x.Liquid.Drug.DrugVectors.HasFlag(DrugVector.Injected))) == true;
+			(x.Liquid.Drug.DrugVectors.HasFlag(DrugVector.Touched) || x.Liquid.Drug.DrugVectors.HasFlag(DrugVector.Injected))) == true || mixture is not null && (MagicalExposure.HasLiquidPayload(mixture, DrugVector.Injected) || MagicalExposure.HasLiquidPayload(mixture, DrugVector.Touched));
 	}
 
 	public static double CoatingCapacity(IGameItem item)
@@ -149,6 +150,7 @@ public static class WeaponPoisonDeliveryHelper
 
 	public static void DoseContact(IBody body, LiquidMixture mixture, object originator)
 	{
+		MagicalExposure.Liquid(body, mixture, DrugVector.Touched);
 		foreach (var liquid in mixture.Instances)
 		{
 			var drug = liquid.Liquid.Drug;
@@ -192,11 +194,11 @@ public static class WeaponPoisonDeliveryHelper
 		var hasInjected = mixture.Instances.Any(x =>
 			x.Liquid.Drug is not null &&
 			x.Liquid.DrugGramsPerUnitVolume > 0.0 &&
-			x.Liquid.Drug.DrugVectors.HasFlag(DrugVector.Injected));
+			x.Liquid.Drug.DrugVectors.HasFlag(DrugVector.Injected)) || MagicalExposure.HasLiquidPayload(mixture, DrugVector.Injected);
 		var hasTouched = mixture.Instances.Any(x =>
 			x.Liquid.Drug is not null &&
 			x.Liquid.DrugGramsPerUnitVolume > 0.0 &&
-			x.Liquid.Drug.DrugVectors.HasFlag(DrugVector.Touched));
+			x.Liquid.Drug.DrugVectors.HasFlag(DrugVector.Touched)) || MagicalExposure.HasLiquidPayload(mixture, DrugVector.Touched);
 
 		if (!hasInjected && !hasTouched)
 		{
@@ -268,7 +270,7 @@ public static class WeaponPoisonDeliveryHelper
 	private static LiquidMixture FilterMixture(LiquidMixture mixture, DrugVector vector)
 	{
 		var instances = mixture.Instances
-			.Where(x => x.Liquid.Drug?.DrugVectors.HasFlag(vector) == true)
+			.Where(x => x.Liquid.Drug?.DrugVectors.HasFlag(vector) == true || MagicalExposure.HasLiquidPayload(new LiquidMixture(x.Copy(), mixture.Gameworld), vector))
 			.Select(x => x.Copy())
 			.ToList();
 		return instances.Any()

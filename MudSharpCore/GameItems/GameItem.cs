@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using MudSharp.Body;
@@ -1203,6 +1203,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void ExposeToLiquid(LiquidMixture mixture, IBodypart part, LiquidExposureDirection direction)
     {
+        using var magicalExposure = MudSharp.Magic.MagicalExposure.BeginExposure();
         if (mixture.TotalVolume <= 0)
         {
             return;
@@ -1244,6 +1245,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             LiquidMixture newMixture = mixture.RemoveLiquidVolume(amountToAbsorb);
             if (newMixture?.IsEmpty == false)
             {
+                MudSharp.Magic.MagicalExposure.Liquid(this, newMixture, MudSharp.Health.DrugVector.Touched, true);
                 SurfaceLiquidState.AddLiquid(newMixture);
                 LiquidExposureStrategies.SurfaceReactions.Expose(this, newMixture, direction);
             }

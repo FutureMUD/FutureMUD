@@ -53,7 +53,7 @@ internal static class MagicInterdictionHelper
 		HashSet<IMagicInterdictionEffect> seen = [];
 
 		AddEffects(source, MagicInterdictionCoverage.Outgoing, results, seen);
-		AddEffects(source.Location, MagicInterdictionCoverage.Outgoing, results, seen);
+		AddEffects(source?.Location, MagicInterdictionCoverage.Outgoing, results, seen);
 
 		foreach (ICell room in ResolveIncomingRooms(target, additionalParameters))
 		{

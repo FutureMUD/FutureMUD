@@ -1487,6 +1487,10 @@ For information on the syntax to use in emotes (such as those included in bracke
         {
             _magicSpells.Add(new Magic.MagicSpell(spell, this));
         }
+        foreach (var substance in FMDB.Context.MagicalSubstances.AsNoTracking().ToList())
+        {
+            _magicalSubstances.Add(new Magic.MagicalSubstance(substance, this));
+        }
 #if DEBUG
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");

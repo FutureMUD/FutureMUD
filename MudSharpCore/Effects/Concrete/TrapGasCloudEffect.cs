@@ -24,10 +24,11 @@ public sealed class TrapGasCloudEffect : Effect
 		RegisterFactory("TrapGasCloud", (effect, owner) => new TrapGasCloudEffect(effect, owner));
 	}
 
-	public TrapGasCloudEffect(ICell owner, IGas gas, double dosePerTick, RoomLayer layer, string echo)
+	public TrapGasCloudEffect(ICell owner, IGas gas, double dosePerTick, RoomLayer layer, string echo, double magicVolumePerTick = 1.0)
 		: base(owner)
 	{
 		GasId = gas.Id;
+		MagicVolumePerTick = MudSharp.Magic.SubstanceDose.IsPositive(magicVolumePerTick) ? magicVolumePerTick : 0;
 		DosePerTick = Math.Max(0.0, dosePerTick);
 		Layer = layer;
 		Echo = echo;
@@ -38,12 +39,14 @@ public sealed class TrapGasCloudEffect : Effect
 	{
 		var effect = root.Element("Effect")!;
 		GasId = long.Parse(effect.Element("GasId")!.Value);
+		MagicVolumePerTick = (double?)effect.Element("MagicVolumePerTick") ?? 1.0;
 		DosePerTick = double.Parse(effect.Element("DosePerTick")?.Value ?? "0");
 		Layer = (RoomLayer)int.Parse(effect.Element("Layer")?.Value ?? "0");
 		Echo = effect.Element("Echo")?.Value ?? string.Empty;
 	}
 
 	public long GasId { get; }
+	public double MagicVolumePerTick { get; }
 	public double DosePerTick { get; }
 	public RoomLayer Layer { get; }
 	public string Echo { get; }
@@ -56,6 +59,7 @@ public sealed class TrapGasCloudEffect : Effect
 	{
 		return new XElement("Effect",
 			new XElement("GasId", GasId),
+			new XElement("MagicVolumePerTick", MagicVolumePerTick),
 			new XElement("DosePerTick", DosePerTick),
 			new XElement("Layer", (int)Layer),
 			new XElement("Echo", new XCData(Echo)));
@@ -115,7 +119,7 @@ public sealed class TrapGasCloudEffect : Effect
 
 	private void ApplyDose()
 	{
-		if (Owner is not ICell cell || !CanDose(Gas, DosePerTick))
+		if (Owner is not ICell cell || Gas is null)
 		{
 			return;
 		}
@@ -124,7 +128,8 @@ public sealed class TrapGasCloudEffect : Effect
 
 		foreach (ICharacter character in cell.LayerCharacters(Layer).Where(x => x.NeedsToBreathe && x.CanBreathe))
 		{
-			character.Body.Dose(drug, DrugVector.Inhaled, DosePerTick, this);
+			if (CanDose(Gas, DosePerTick)) character.Body.Dose(drug!, DrugVector.Inhaled, DosePerTick, this);
+			MudSharp.Magic.MagicalExposure.Carrier(character, MudSharp.Magic.SubstanceCarrier.Gas, GasId, MagicVolumePerTick, DrugVector.Inhaled);
 		}
 	}
 

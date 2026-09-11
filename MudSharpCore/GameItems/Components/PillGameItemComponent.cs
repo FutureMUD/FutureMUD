@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 
@@ -48,7 +48,8 @@ public class PillGameItemComponent : GameItemComponent, ISwallowable
 
     public void Swallow(IBody body)
     {
-        body.Dose(_prototype.Drug, DrugVector.Ingested, _prototype.GramsPerPill);
+        MudSharp.Magic.MagicalExposure.Carrier(body, MudSharp.Magic.SubstanceCarrier.Item, Parent.Prototype.Id, 1.0, DrugVector.Ingested);
+        if (_prototype.Drug is not null) body.Dose(_prototype.Drug, DrugVector.Ingested, _prototype.GramsPerPill);
         _prototype.OnSwallowProg?.Execute(body.Actor, Parent);
         Parent.Delete();
     }

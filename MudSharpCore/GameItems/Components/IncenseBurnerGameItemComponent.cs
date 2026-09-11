@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems.Prototypes;
@@ -184,6 +184,7 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 		{
 			RefreshScentEffects((int)Math.Ceiling(seconds));
 			PulseDrug(seconds);
+			PulseMagic(Math.Min(seconds, _remainingBurnSeconds));
 		}
 
 		_remainingBurnSeconds -= seconds;
@@ -266,6 +267,25 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 	{
 		return Parent.CellsAndDistancesInVicinity((uint)Math.Max(0, range), true, false)
 		             .Where(x => x.Cell is not null);
+	}
+
+	private IEnumerable<ICharacter> MagicRecipients(MudSharp.Construction.ICell cell)
+	{
+		var range = Math.Min(_prototype.DrugRange, _prototype.ScentRange);
+		return cell.RouteDefinition is { } route && ReferenceEquals(cell, Parent.Location)
+			? cell.CharactersInSpatialVicinity(Parent, maximumDistanceMetres: Math.Max(
+				RouteSpatialConfiguration.FromGameworld(Gameworld).ImmediateDistanceMetres, range * route.MetresPerRoomEquivalent))
+			: cell.LayerCharacters(Parent.RoomLayer);
+	}
+	private void PulseMagic(double seconds)
+	{
+		if (_currentFuelItem is null || seconds <= 0) return;
+		var totalSeconds = _currentFuelItem.Weight * _prototype.SecondsPerUnitWeight;
+		if (totalSeconds <= 0) return;
+		foreach (var (cell, distance) in AffectedCells(Math.Min(_prototype.DrugRange, _prototype.ScentRange)))
+			foreach (var character in MagicRecipients(cell).Where(x => x.Body.IsBreathing))
+				MudSharp.Magic.MagicalExposure.Carrier(character, MudSharp.Magic.SubstanceCarrier.Item,
+					_currentFuelItem.Prototype.Id, seconds / totalSeconds / (distance + 1.0), DrugVector.Inhaled);
 	}
 
 	private void PulseDrug(double seconds)

@@ -319,6 +319,7 @@ public sealed class TrapPayloadDefinition : ITrapPayload
 			[TrapPayloadType.GasCloud] =
 			[
 				new("gas", "<gas ID>", "gas to release", "required", false),
+				new("volume", "<positive number|none>", "engine gas volume delivered per recipient per five-second pulse for magical substances", "1"),
 				new("dose", "<positive number|none>", "inhaled drug dose per unit volume; none uses the gas default", "the gas default"),
 				new("duration", "<positive timespan|none>", "cloud duration; none uses 30 seconds", "00:00:30"),
 				new("cloudecho", "<room text|none>", "room text shown when the cloud is created", "A cloud of gas billows out.")
@@ -404,7 +405,7 @@ public sealed class TrapPayloadDefinition : ITrapPayload
 			"spell" or "prog" or "targetitem" or "liquid" or "gas" => TrapParameterValidation.TryParsePositiveLong(value, out _),
 			"power" => TrapParameterValidation.TryParseDefinedEnum<SpellPower>(value, out _),
 			"value" => TrapParameterValidation.TryParseFiniteDouble(value, out _),
-			"amount" or "dose" => TrapParameterValidation.TryParseFiniteDouble(value, out var number) && number > 0.0,
+			"amount" or "dose" or "volume" => TrapParameterValidation.TryParseFiniteDouble(value, out var number) && number > 0.0,
 			"damagetype" => TrapParameterValidation.TryParseDefinedEnum<DamageType>(value, out _),
 			"explosionsize" => TrapParameterValidation.TryParseDefinedEnum<SizeCategory>(value, out _),
 			"maximumproximity" => TrapParameterValidation.TryParseExplosionMaximumProximity(value, out _),

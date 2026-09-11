@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
@@ -90,6 +90,7 @@ public class LungBreather : IBreathingStrategy
         {
             if (gasSource.ConsumeGas(body.Race.BreathingRate(body, gasSource.Gas)))
             {
+                BreathingStrategyHelper.ExposeToMagic(body, gasSource.Gas);
                 if (body.HeldBreathTime > TimeSpan.Zero)
                 {
                     body.HeldBreathTime -= TimeSpan.FromSeconds(10);
@@ -99,6 +100,7 @@ public class LungBreather : IBreathingStrategy
             return;
         }
 
+        BreathingStrategyHelper.ExposeToMagic(body, BreathingFluid(body));
         if (body.HeldBreathTime > TimeSpan.Zero)
         {
             body.HeldBreathTime -= TimeSpan.FromSeconds(10);

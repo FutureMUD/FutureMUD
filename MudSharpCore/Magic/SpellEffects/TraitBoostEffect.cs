@@ -170,7 +170,7 @@ public class TraitBoostEffect : IMagicSpellEffectTemplate
             return null;
         }
 
-        return new SpellTraitBoostEffect(target, parent, null);
+        return new SpellTraitBoostEffect(target, parent, null) { Trait = Trait, Bonus = Bonus, TraitBonusContext = TraitBonusContext };
     }
 
     public IMagicSpellEffectTemplate Clone()

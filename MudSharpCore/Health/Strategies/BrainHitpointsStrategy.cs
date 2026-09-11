@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Needs;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Traits;
@@ -217,6 +217,7 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
 
     public override void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)
     {
+        MudSharp.Magic.MagicalExposure.Liquid(owner, mixture, MudSharp.Health.DrugVector.Injected);
         ICharacter cOwner = (ICharacter)owner;
         foreach (LiquidInstance liquid in mixture.Instances)
         {

@@ -77,26 +77,47 @@ public class SpellItemEnchantmentEffect : MagicSpellEffectBase, IDescriptionAddi
 		ItemEventProg = Gameworld.FutureProgs.Get(long.Parse(trueRoot?.Element("ItemEventProg")?.Value ?? "0"));
 	}
 
+
+	public void UpdateSubstanceMagnitude(MudSharp.Magic.SpellEffects.ItemEnchantEffect source, double dose)
+	{
+		ProvidedLux = source.GlowLux * dose;
+		AttackCheckBonus = source.AttackCheckBonus * dose;
+		QualityBonus = source.QualityBonus * dose;
+		DamageBonus = source.DamageBonus * dose;
+		PainBonus = source.PainBonus * dose;
+		StunBonus = source.StunBonus * dose;
+		ArmourDamageReduction = source.ArmourDamageReduction * dose;
+		ProjectileQualityBonus = source.ProjectileQualityBonus * dose;
+		ProjectileDamageBonus = source.ProjectileDamageBonus * dose;
+		ProjectilePainBonus = source.ProjectilePainBonus * dose;
+		ProjectileStunBonus = source.ProjectileStunBonus * dose;
+		ToolFitnessBonus = source.ToolFitnessBonus * dose;
+		ToolSpeedMultiplier = Math.Max(0, 1 + (source.ToolSpeedMultiplier - 1) * dose);
+		ToolUsageMultiplier = Math.Max(0, 1 + (source.ToolUsageMultiplier - 1) * dose);
+		PowerProductionMultiplier = Math.Max(0, 1 + (source.PowerProductionMultiplier - 1) * dose);
+		PowerConsumptionMultiplier = Math.Max(0, 1 + (source.PowerConsumptionMultiplier - 1) * dose);
+		FuelUseMultiplier = Math.Max(0, 1 + (source.FuelUseMultiplier - 1) * dose);
+	}
 	public string SDescAddendum { get; }
 	public string DescAddendum { get; }
 	public ANSIColour GlowAddendumColour { get; }
-	public double ProvidedLux { get; }
-	public double AttackCheckBonus { get; }
-	public double QualityBonus { get; }
-	public double DamageBonus { get; }
-	public double PainBonus { get; }
-	public double StunBonus { get; }
-	public double ArmourDamageReduction { get; }
-	public double ProjectileQualityBonus { get; }
-	public double ProjectileDamageBonus { get; }
-	public double ProjectilePainBonus { get; }
-	public double ProjectileStunBonus { get; }
-	public double ToolFitnessBonus { get; }
-	public double ToolSpeedMultiplier { get; }
-	public double ToolUsageMultiplier { get; }
-	public double PowerProductionMultiplier { get; }
-	public double PowerConsumptionMultiplier { get; }
-	public double FuelUseMultiplier { get; }
+	public double ProvidedLux { get; private set; }
+	public double AttackCheckBonus { get; private set; }
+	public double QualityBonus { get; private set; }
+	public double DamageBonus { get; private set; }
+	public double PainBonus { get; private set; }
+	public double StunBonus { get; private set; }
+	public double ArmourDamageReduction { get; private set; }
+	public double ProjectileQualityBonus { get; private set; }
+	public double ProjectileDamageBonus { get; private set; }
+	public double ProjectilePainBonus { get; private set; }
+	public double ProjectileStunBonus { get; private set; }
+	public double ToolFitnessBonus { get; private set; }
+	public double ToolSpeedMultiplier { get; private set; }
+	public double ToolUsageMultiplier { get; private set; }
+	public double PowerProductionMultiplier { get; private set; }
+	public double PowerConsumptionMultiplier { get; private set; }
+	public double FuelUseMultiplier { get; private set; }
 	public EventType? ItemEventType { get; }
 	public IFutureProg? ItemEventProg { get; }
 

@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Framework;
 using MudSharp.Health;
@@ -80,7 +80,9 @@ namespace MudSharp.Form.Material
         public override LiquidInstance SplitVolume(double volume)
         {
             Amount -= volume;
-            return new BloodLiquidInstance(Source, Race, BloodType, Liquid, Gameworld, volume);
+            var split = new BloodLiquidInstance(Source, Race, BloodType, Liquid, Gameworld, volume);
+            CopyMagicalChargesTo(split);
+            return split;
         }
 
         #region Overrides of LiquidInstance

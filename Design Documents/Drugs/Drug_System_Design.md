@@ -376,3 +376,8 @@ The following effect families are first-class drug types. They use the same `IDr
 - Runtime hooks: drug heartbeats decay exposure from `LastUpdatedAtUtc`, add exposure from active matching doses, reduce effective intensity for configured affected effect types, and create withdrawal effects when exposure drops below onset after prior dependence.
 - Withdrawal expression: symptoms reuse existing pathways such as check modifiers, need-rate effects, stamina multipliers, nausea, rage, and sleep prevention.
 - Caps and gates: `DrugDependenceEnabled` disables the feature globally. Minimum tolerance effectiveness defaults to at least `25%` unless a drug explicitly configures a lower floor.
+
+
+## Magical substance integration
+
+Magical substances reuse delivery measurements and absorption coefficients while retaining separate spell lifecycles. A carrier can deliver both systems. See [Magical Substances](../Magic/Magical_Substances.md).

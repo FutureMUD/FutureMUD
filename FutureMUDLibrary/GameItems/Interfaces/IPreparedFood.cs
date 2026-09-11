@@ -196,6 +196,10 @@ public interface IPreparedFood : IEdible
 	IEnumerable<FoodDrugDose> DrugDoses { get; }
 	void ApplyPreparedFoodProfile(PreparedFoodProfile profile, bool replaceIngredientsAndDoses = true);
 	void AddIngredient(FoodIngredientInstance ingredient);
+	LiquidMixture? MagicalIngredientMixture { get; }
+	double RemainingServings { get; }
+	LiquidMixture? RemainingMagicalIngredients { get; }
+	void AddMagicalIngredients(LiquidMixture mixture, double multiplier = 1.0);
 	void AddDrugDose(FoodDrugDose dose);
 	void AddStaleDrugDose(FoodDrugDose dose);
 	void AbsorbLiquid(LiquidMixture mixture, string source, bool includeDrugDoses = true);

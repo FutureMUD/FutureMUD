@@ -1,4 +1,4 @@
-﻿# FutureMUD Food And Cooking System
+# FutureMUD Food And Cooking System
 
 ## Scope
 This document describes the current new-style food system centred on `PreparedFood`, recipe-initialised prepared foods, and the `cook` command facade over crafts.
@@ -96,3 +96,8 @@ Likewise, FutureProg `loaditem`, spell `createitem`, shop prototype loading, and
 The package is idempotent and tracks its own records by stable component names, item short descriptions, tags, and recipe names.
 
 The antiquity food and beverage package is intentionally not in `CookingSeeder`. It runs through the `ItemSeeder` rework path and assumes `AnimalButcherySeeder` output tags are already present. That package seeds grain, pulse, fruit, oilseed, meat, preservation, broth, beverage, condiment, and culture-gated foodway chains using commodity tags and `PreparedFood` recipe products. The culture foodway suite includes both staple dishes and luxury preparations that require spices, honey, oil, brined fruit, garum-style sauce, broth, or multi-stage cooking. The twelve culture dish families use one `ProgCookedFoodProduct` selector craft each; the selector chooses the culture-specific prepared-food prototype and the inherited `CookedFoodProduct` logic transfers the consumed ingredient ledger and effects. The two shared fruit dishes remain direct cooked-food recipes, while culture beverage amphorae remain explicit morph-vessel crafts. It also seeds builder-owned `CommoditySpoilageRule` rows so raw and prepared meat commodities can spoil into rotten-food commodities without requiring static JSON configuration.
+
+
+## Magical substance integration
+
+Prepared food retains magical liquid ingredients independently of ordinary drug doses. Consumption uses the bite fraction; cooked-food output distributes inherited magic across the output quantity. Removing drugs and food effects also removes magical ingredients. See [Magical Substances](../Magic/Magical_Substances.md).

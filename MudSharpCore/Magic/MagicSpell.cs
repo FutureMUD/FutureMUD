@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MudSharp.Body.Traits;
@@ -1352,7 +1352,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
     public bool CharacterKnowsSpell(ICharacter magician)
     {
-		if (Trigger is SpellTriggers.AttackHitTrigger) return false;
+		if (Trigger is SpellTriggers.AttackHitTrigger or SpellTriggers.SubstanceTrigger) return false;
         if (magician is null || SpellKnownProg is null)
         {
             return false;
@@ -1776,12 +1776,12 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
     public bool ReadyForGame =>
         Trigger != null &&
-        (Trigger is SpellTriggers.AttackHitTrigger || !string.IsNullOrEmpty(CastingEmote)) &&
+        (Trigger is SpellTriggers.AttackHitTrigger or SpellTriggers.SubstanceTrigger || !string.IsNullOrEmpty(CastingEmote)) &&
         (Trigger.TriggerYieldsTarget || _spellEffects.All(x => !x.RequiresTarget)) &&
         (!Trigger.TriggerMayFailToYieldTarget || !string.IsNullOrEmpty(TargetNullEmote)) &&
-        (EffectDurationExpression != null || _spellEffects.Concat(_casterSpellEffects).All(x => x.IsInstantaneous)) &&
+        (Trigger is SpellTriggers.SubstanceTrigger || EffectDurationExpression != null || _spellEffects.Concat(_casterSpellEffects).All(x => x.IsInstantaneous)) &&
         _spellEffects.All(x => x.IsCompatibleWithTrigger(Trigger)) &&
-        CastingTrait != null;
+        (Trigger is SpellTriggers.SubstanceTrigger || CastingTrait != null);
 
     public string WhyNotReadyForGame(ICharacter builder)
     {
@@ -1791,7 +1791,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
             return "every spell much have a trigger set.";
         }
 
-        if (Trigger is not SpellTriggers.AttackHitTrigger && string.IsNullOrEmpty(CastingEmote))
+        if (Trigger is not SpellTriggers.AttackHitTrigger and not SpellTriggers.SubstanceTrigger && string.IsNullOrEmpty(CastingEmote))
         {
             return "every spell must have a casting emote.";
         }
@@ -1807,7 +1807,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
             return "the trigger may fail to yield a target, and you have no target null emote set.";
         }
 
-        if (EffectDurationExpression == null && _spellEffects.Concat(_casterSpellEffects).Any(x => !x.IsInstantaneous))
+        if (Trigger is not SpellTriggers.SubstanceTrigger && EffectDurationExpression == null && _spellEffects.Concat(_casterSpellEffects).Any(x => !x.IsInstantaneous))
         {
             return
                 "there is no effect duration expression set, and at least one of the spell effects is not instantaneous.";
@@ -1821,7 +1821,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
             }
         }
 
-        if (CastingTrait == null)
+        if (Trigger is not SpellTriggers.SubstanceTrigger && CastingTrait == null)
         {
             return "every spell must have a casting trait.";
         }

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Form.Material;
 using MudSharp.GameItems.Decorators;
 using MudSharp.GameItems.Prototypes;
@@ -35,6 +35,7 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 	private readonly List<FoodIngredientInstance> _ingredients = new();
 	private readonly List<FoodDrugDose> _drugDoses = new();
 	private readonly List<FoodDrugDose> _staleDrugDoses = new();
+	private LiquidMixture? _magicalIngredients;
 
 	public override IGameItemComponentProto Prototype => _prototype;
 
@@ -216,8 +217,22 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 		Changed = true;
 	}
 
+	public LiquidMixture? MagicalIngredientMixture => _magicalIngredients;
+	public double RemainingServings => (_servingScope == FoodServingScope.PerStackUnit ? Math.Max(0, Parent.Quantity - 1) : 0) + BitesRemaining / TotalBites;
+	public LiquidMixture? RemainingMagicalIngredients => _magicalIngredients?.Clone(_magicalIngredients.TotalVolume * RemainingServings);
+	public void AddMagicalIngredients(LiquidMixture mixture, double multiplier = 1.0)
+	{
+		var bound = mixture.Instances.Where(x => x.MagicalCharges.Count > 0 || Gameworld.MagicalSubstances.Any(s =>
+			s.Bindings.Any(b => b.Carrier == MudSharp.Magic.SubstanceCarrier.Liquid && b.Id == x.Liquid.Id))).ToList();
+		if (bound.Count == 0 || multiplier <= 0 || RemainingServings <= 0) return;
+		var magic = new LiquidMixture(bound.Select(x => x.Copy()), Gameworld);
+		_magicalIngredients ??= LiquidMixture.CreateEmpty(Gameworld);
+		_magicalIngredients.AddLiquid(magic.Clone(magic.TotalVolume * multiplier / RemainingServings));
+		Changed = true;
+	}
 	public void AbsorbLiquid(LiquidMixture mixture, string source, bool includeDrugDoses = true)
 	{
+		if (includeDrugDoses) AddMagicalIngredients(mixture);
 		foreach (var instance in mixture.Instances)
 		{
 			_ingredients.Add(new FoodIngredientInstance
@@ -253,7 +268,14 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 
 	public void Eat(IBody body, double bites)
 	{
+		using var exposure = MudSharp.Magic.MagicalExposure.BeginExposure();
 		var proportion = Math.Max(0.0, Math.Min(bites, BitesRemaining)) / TotalBites;
+		MudSharp.Magic.MagicalExposure.Carrier(body, MudSharp.Magic.SubstanceCarrier.Item, Parent.Prototype.Id, proportion, DrugVector.Ingested);
+		if (_magicalIngredients is not null && BitesRemaining > 0)
+		{
+			var portion = _magicalIngredients.Clone(_magicalIngredients.TotalVolume * proportion);
+			if (portion is not null) MudSharp.Magic.MagicalExposure.Liquid(body, portion, DrugVector.Ingested);
+		}
 		body.ApplyIngestedDrugDoses(_drugDoses, proportion, Parent);
 		if (Freshness != FoodFreshness.Fresh)
 		{
@@ -277,6 +299,7 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 		var absorbed = mixture.RemoveLiquidVolume(absorbedVolume);
 		if (absorbed is not null && !absorbed.IsEmpty)
 		{
+			MudSharp.Magic.MagicalExposure.Liquid(Parent, absorbed, DrugVector.Touched, true);
 			AbsorbLiquid(absorbed, "liquid exposure");
 		}
 
@@ -323,7 +346,8 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 		var now = DateTime.UtcNow;
 		ResolveTimeRate(now);
 		other.ResolveTimeRate(now);
-		return BitesRemaining != other.BitesRemaining ||
+		return (_magicalIngredients?.IsEmpty == false || other._magicalIngredients?.IsEmpty == false) ||
+		       BitesRemaining != other.BitesRemaining ||
 		       !EffectiveAgesAreMergeCompatible(_effectiveAge, other._effectiveAge) ||
 		       Freshness != other.Freshness ||
 		       !_ingredients.Select(x => x.Description).SequenceEqual(other._ingredients.Select(x => x.Description)) ||
@@ -450,6 +474,7 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 		_ingredients.AddRange(rhs._ingredients.Select(x => x.Clone()));
 		_drugDoses.AddRange(rhs._drugDoses.Select(x => x.Clone()));
 		_staleDrugDoses.AddRange(rhs._staleDrugDoses.Select(x => x.Clone()));
+		_magicalIngredients = rhs._magicalIngredients?.Clone();
 	}
 
 	public PreparedFoodGameItemComponent(PreparedFoodGameItemComponentProto proto, IGameItem parent, bool temporary = false)
@@ -473,6 +498,7 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 
 	private void LoadFromXml(XElement root)
 	{
+		_magicalIngredients = root.Element("MagicalIngredients")?.Element("Mix") is { } magic ? new LiquidMixture(magic, Gameworld) : null;
 		CreatedAt = DateTime.Parse(root.Attribute("created")?.Value ?? DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
 			CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
 		_effectiveAge = TimeSpan.FromSeconds(Math.Max(0.0,
@@ -545,6 +571,7 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 			new XElement("Full", new XCData(_fullDescriptionTemplate)),
 			new XElement("OnEatProg", _onEatProg?.Id ?? 0),
 			new XElement("OnStaleProg", _onStaleProg?.Id ?? 0),
+			new XElement("MagicalIngredients", _magicalIngredients?.SaveToXml()),
 			new XElement("Ingredients", _ingredients.Select(x => x.SaveToXml())),
 			new XElement("DrugDoses", _drugDoses.Select(x => x.SaveToXml())),
 			new XElement("StaleDrugDoses", _staleDrugDoses.Select(x => x.SaveToXml()))

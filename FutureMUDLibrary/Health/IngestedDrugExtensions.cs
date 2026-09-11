@@ -35,6 +35,7 @@ public static class IngestedDrugExtensions
 			return;
 		}
 
+		body.Gameworld.ExposeToMagicalLiquid(body, mixture, DrugVector.Ingested);
 		foreach (var instance in mixture.Instances.Where(x => x.Liquid?.Drug is not null))
 		{
 			var drug = instance.Liquid.Drug;

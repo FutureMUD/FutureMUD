@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
@@ -77,6 +77,7 @@ public class BlowholeBreather : IBreathingStrategy
             return;
         }
 
+        BreathingStrategyHelper.ExposeToMagic(body, BreathingFluid(body));
         if (body.HeldBreathTime > TimeSpan.Zero)
         {
             body.HeldBreathTime -= TimeSpan.FromSeconds(10);

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 
@@ -81,6 +81,7 @@ public class TopicalCreamGameItemComponent : GameItemComponent, IApply
     {
         double actualAmount = amount <= 0.0 || amount > GramsRemaining ? GramsRemaining : amount;
 
+        MudSharp.Magic.MagicalExposure.Carrier(target, MudSharp.Magic.SubstanceCarrier.Item, Parent.Prototype.Id, actualAmount / _prototype.TotalGrams, DrugVector.Touched);
         foreach (TopicalCreamGameItemComponentProto.CreamDrug drug in _prototype.Drugs)
         {
             target.Dose(drug.Drug, DrugVector.Touched, actualAmount * drug.GramsPerGram * drug.AbsorptionFraction);

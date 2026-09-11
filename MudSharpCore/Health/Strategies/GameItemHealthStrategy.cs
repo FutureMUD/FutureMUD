@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.Health.Wounds;
@@ -107,6 +107,7 @@ public class GameItemHealthStrategy : BaseHealthStrategy
 
     public override void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)
     {
+        MudSharp.Magic.MagicalExposure.Liquid(owner, mixture, MudSharp.Health.DrugVector.Injected);
     }
 
     public override double MaxHP(IHaveWounds owner)

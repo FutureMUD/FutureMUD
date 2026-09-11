@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
@@ -364,6 +364,8 @@ public class SmokeableGameItemComponent : GameItemComponent, ISmokeable
             character.Body.Dose(_prototype.Drug, DrugVector.Inhaled, _prototype.GramsPerDrag);
         }
 
+        MudSharp.Magic.MagicalExposure.Carrier(character, MudSharp.Magic.SubstanceCarrier.Item, Parent.Prototype.Id,
+            (double)Math.Min(RemainingFuel, _prototype.SecondsPerDrag) / Math.Max(1, _prototype.SecondsOfFuel), DrugVector.Inhaled);
         UseFuel(_prototype.SecondsPerDrag);
         return true;
     }

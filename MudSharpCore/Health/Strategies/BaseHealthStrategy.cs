@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Database;
@@ -1064,6 +1064,7 @@ public abstract class BaseHealthStrategy : SaveableItem, IHealthStrategy
 
     public virtual void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)
     {
+        MudSharp.Magic.MagicalExposure.Liquid(owner, mixture, MudSharp.Health.DrugVector.Injected);
     }
 
     public virtual void PerformBloodGain(IHaveWounds owner)

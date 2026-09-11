@@ -65,6 +65,7 @@ namespace MudSharp.Database
 			ConfigureRoomScaleVehicleInteriors(modelBuilder);
 			ConfigureEmployment(modelBuilder);
 			ConfigureMagicPortalTopology(modelBuilder);
+			ConfigureMagicalSubstances(modelBuilder);
 			ConfigureOutfitTemplates(modelBuilder);
 			ConfigureCharacterInstances(modelBuilder);
 			ConfigureWritingCollections(modelBuilder);

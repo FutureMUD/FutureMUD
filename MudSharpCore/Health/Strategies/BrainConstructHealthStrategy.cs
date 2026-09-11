@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Traits;
 using MudSharp.Form.Material;
@@ -163,6 +163,7 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
 
     public override void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)
     {
+        MudSharp.Magic.MagicalExposure.Liquid(owner, mixture, MudSharp.Health.DrugVector.Injected);
     }
 
     public override IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)

@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +19,7 @@ namespace MudSharp.Form.Material
             Amount = amount;
         }
 
-        public ColourLiquidInstance(ColourLiquidInstance rhs)
+        public ColourLiquidInstance(ColourLiquidInstance rhs) : base(rhs)
         {
             Liquid = rhs.Liquid;
             Colour = rhs.Colour;
@@ -39,7 +39,9 @@ namespace MudSharp.Form.Material
         public override LiquidInstance SplitVolume(double volume)
         {
             Amount -= volume;
-            return new ColourLiquidInstance(Liquid, Colour, volume);
+            var split = new ColourLiquidInstance(Liquid, Colour, volume);
+            CopyMagicalChargesTo(split);
+            return split;
         }
 
         public override LiquidInstance Copy()

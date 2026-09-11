@@ -132,7 +132,13 @@ public class CookedFoodProduct : BaseProduct
 		{
 			if (entry.Data is ICraftInputConsumeLiquidData liquidData)
 			{
-				prepared.AbsorbLiquid(liquidData.ConsumedMixture.Clone(), entry.Role, !RemoveDrugsAndFoodEffects);
+				prepared.AbsorbLiquid(liquidData.ConsumedMixture.Clone(), entry.Role, false);
+				if (!RemoveDrugsAndFoodEffects)
+				{
+					prepared.AddMagicalIngredients(liquidData.ConsumedMixture, item.Quantity / (double)Math.Max(1, Quantity));
+					foreach (var liquid in liquidData.ConsumedMixture.Instances.Where(x => x.Liquid.Drug is not null))
+						prepared.AddDrugDose(new FoodDrugDose { Drug = liquid.Liquid.Drug, Grams = liquid.Amount * liquid.Liquid.DrugGramsPerUnitVolume, Source = entry.Role });
+				}
 			}
 
 			foreach (var inputItem in ExtractItems(entry.Input, entry.Data))
@@ -190,6 +196,8 @@ public class CookedFoodProduct : BaseProduct
 
 			if (!RemoveDrugsAndFoodEffects)
 			{
+				if (preparedInput.RemainingMagicalIngredients is { } magic)
+					prepared.AddMagicalIngredients(magic, prepared.Parent.Quantity / (double)Math.Max(1, Quantity));
 				foreach (var dose in preparedInput.DrugDoses)
 				{
 					prepared.AddDrugDose(dose.Clone(servingMultiplier));

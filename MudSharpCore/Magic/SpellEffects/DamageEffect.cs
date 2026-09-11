@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
@@ -50,7 +50,7 @@ public class DamageEffect : IMagicSpellEffectTemplate
         return new XElement("Effect",
             new XAttribute("type", "damage"),
             new XElement("DamageType", (int)DamageType),
-            new XElement("DamageExpression", new XCData(DamageExpression.ToString())),
+            new XElement("DamageExpression", new XCData(DamageExpression.OriginalFormulaText)),
             new XElement("Bodypart", BodypartId),
             new XElement("Limb", (int)Limb)
         );

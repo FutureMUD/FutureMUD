@@ -41,7 +41,7 @@ public class SpellTraitBoostEffect : MagicSpellEffectBase, ITraitBonusEffect
     protected override string SpecificEffectType => "SpellTraitBoost";
 
     public ITraitDefinition Trait { get; init; }
-    public double Bonus { get; init; }
+    public double Bonus { get; set; }
     public TraitBonusContext TraitBonusContext { get; init; }
 
     #region Implementation of ITraitBonusEffect

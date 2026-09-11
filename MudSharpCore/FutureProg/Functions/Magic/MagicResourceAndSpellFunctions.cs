@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
@@ -569,7 +569,7 @@ internal class SpellDurationFunction : MagicBuiltInFunctionBase
 		var parents = ActiveSpellParents(character!, spell).ToList();
 		if (_mode == DurationMode.Get)
 		{
-			Result = new TimeSpanVariable(parents.Select(character!.ScheduledDuration).DefaultIfEmpty(TimeSpan.Zero).Max());
+			Result = new TimeSpanVariable(parents.Select(x => x is SubstanceExposureEffect substance ? TimeSpan.FromSeconds(substance.RemainingSeconds) : character!.ScheduledDuration(x)).DefaultIfEmpty(TimeSpan.Zero).Max());
 			return StatementResult.Normal;
 		}
 
@@ -588,6 +588,16 @@ internal class SpellDurationFunction : MagicBuiltInFunctionBase
 		var count = 0;
 		foreach (var parent in parents)
 		{
+			if (parent is SubstanceExposureEffect substance)
+			{
+				if (!substance.IsTimed) continue;
+				var remaining = TimeSpan.FromSeconds(substance.RemainingSeconds);
+				var next = _mode == DurationMode.Set ? duration : _mode == DurationMode.Add ? remaining + duration : remaining - duration;
+				if (next <= TimeSpan.Zero) character!.RemoveEffect(parent, true);
+				else substance.SetRemaining(next);
+				count++;
+				continue;
+			}
 			switch (_mode)
 			{
 				case DurationMode.Set:

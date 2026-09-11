@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
@@ -215,6 +215,10 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<IMagicResource> _magicResources = new();
     private readonly All<IMagicResourceRegenerator> _magicResourceRegenerators = new();
     private readonly All<IMagicSpell> _magicSpells = new();
+    private readonly All<IMagicalSubstance> _magicalSubstances = new();
+    public IUneditableAll<IMagicalSubstance> MagicalSubstances => _magicalSubstances;
+    public void Add(IMagicalSubstance substance) => _magicalSubstances.Add(substance);
+    public void ExposeToMagicalLiquid(IPerceivable recipient, LiquidMixture mixture, MudSharp.Health.DrugVector vector) => MagicalExposure.Liquid(recipient, mixture, vector);
     private readonly All<IMagicPortalNetwork> _magicPortalNetworks = new();
 
     private readonly All<IMarket> _markets = new();

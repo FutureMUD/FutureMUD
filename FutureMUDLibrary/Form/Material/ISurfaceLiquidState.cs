@@ -47,6 +47,7 @@ public interface ISurfaceContaminable : IPerceivable
 {
 	ISurfaceLiquidState SurfaceLiquidState { get; }
 	void SurfaceLiquidChanged();
+	void ResolveSurfaceLiquidDrying();
 }
 
 public interface IRoomLiquidSurface

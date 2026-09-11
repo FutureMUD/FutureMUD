@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Traits;
+using MudSharp.Body.Traits;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 using MoreLinq;
@@ -49,7 +49,7 @@ public class MendEffect : IMagicSpellEffectTemplate
             new XAttribute("type", "mend"),
             new XElement("HealWorstWoundsFirst", HealWorstWoundsFirst),
             new XElement("HealOverflow", HealOverflow),
-            new XElement("HealingAmount", new XCData(HealingAmount.ToString()))
+            new XElement("HealingAmount", new XCData(HealingAmount.OriginalFormulaText))
         );
     }
 
@@ -194,10 +194,9 @@ You can also use the traits of the caster as per #3TE HELP#0.";
             wounds = wounds.Shuffle(Constants.Random).ToList();
         }
 
-        while (amount > 0.0)
+        foreach (IWound wound in wounds.Where(x => x.CurrentDamage > 0.0))
         {
-            IWound wound = wounds.FirstOrDefault();
-            if (wound is null)
+            if (amount <= 0.0)
             {
                 break;
             }

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Form.Material;
 
 namespace MudSharp.Health.Breathing;
@@ -38,6 +38,7 @@ public class PartlessBreather : IBreathingStrategy
             return;
         }
 
+        BreathingStrategyHelper.ExposeToMagic(body, BreathingFluid(body));
         if (body.HeldBreathTime > TimeSpan.Zero)
         {
             body.HeldBreathTime -= TimeSpan.FromSeconds(10);

@@ -226,6 +226,9 @@ namespace MudSharp.Framework
         IUneditableAll<IMagicResource> MagicResources { get; }
         IUneditableAll<IMagicResourceRegenerator> MagicResourceRegenerators { get; }
         IUneditableAll<IMagicSpell> MagicSpells { get; }
+        IUneditableAll<IMagicalSubstance> MagicalSubstances { get; }
+        void Add(IMagicalSubstance substance);
+        void ExposeToMagicalLiquid(IPerceivable recipient, MudSharp.Form.Material.LiquidMixture mixture, MudSharp.Health.DrugVector vector);
         IUneditableAll<IMagicPortalNetwork> MagicPortalNetworks { get; }
 
         IUneditableAll<IMarket> Markets { get; }

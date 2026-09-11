@@ -190,7 +190,11 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 					continue;
 				}
 
-				dispelTarget.RemoveDuration(effect, ShortenDuration, true);
+				if (effect is SubstanceExposureEffect substance)
+				{
+					if (substance.IsTimed) substance.SetRemaining(TimeSpan.FromSeconds(substance.RemainingSeconds) - ShortenDuration);
+				}
+				else dispelTarget.RemoveDuration(effect, ShortenDuration, true);
 			}
 		}
 

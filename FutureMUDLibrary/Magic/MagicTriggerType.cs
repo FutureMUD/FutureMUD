@@ -5,6 +5,7 @@
         CastKeyword,
         SpeakPhrase,
         Check5Seconds,
-		AttackHit
+		AttackHit,
+		Substance
     }
 }

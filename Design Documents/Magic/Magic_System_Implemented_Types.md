@@ -354,3 +354,8 @@ The V6 possession slices extend the multi-instance model without making hostile 
 - Wind spell support extends the runtime movement layer with `IFly.CanContinueFlying`, target-specific fall prevention, fall-damage mitigation, exit-path forced movement, precise invisibility removal, and caster/target transference.
 - Persistent sensory/combat spell support adds spell-owned burn-over-time and trackmark effects without making generic `OnFire` or ordinary movement tracks magic-specific.
 - V4 psionic and perception support adds 9 power tokens, tag-aware wards, contextual interdiction tags, illusion priority/key matching, speech babbling, remote audible observation, and non-command psionic traffic/coercion delivery. The objective/group-scoped illusion slice extends subjective description illusions with shared audience scopes and adds `phantomillusion` as a non-interactive room LOOK overlay. The Old SOI parity slice adds 7 more psionic power tokens plus seeded variable checks for danger sense, empathy, hex, clairvoyance, prescience, sensitivity, and psychic bolt.
+
+
+## Magical substance integration
+
+`substancecharacter` and `substanceitem` are non-castable prepared payload triggers for magical substances. They target one exposed character or item. Only explicitly adapted effects pass substance readiness; see [Magical Substances](./Magical_Substances.md).

@@ -1,4 +1,4 @@
-﻿using MudSharp.Form.Material;
+using MudSharp.Form.Material;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 
@@ -83,6 +83,7 @@ public class IntegratedInhalerGameItemComponent : GameItemComponent, IPuffable
 
         character.OutputHandler.Handle(new MixedEmoteOutput(new Emote("@ puff|puffs on $0", character, Parent), flags: OutputFlags.SuppressObscured).Append(playerEmote));
         IGas gas = InternalContainer.Gas;
+        if (gas is not null) MudSharp.Magic.MagicalExposure.Carrier(character, MudSharp.Magic.SubstanceCarrier.Gas, gas.Id, _prototype.GasPerPuff, DrugVector.Inhaled);
         if (gas?.Drug != null && gas.Drug.DrugVectors.HasFlag(DrugVector.Inhaled))
         {
             character.Body.Dose(gas.Drug, DrugVector.Inhaled, gas.DrugGramsPerUnitVolume * _prototype.GasPerPuff);

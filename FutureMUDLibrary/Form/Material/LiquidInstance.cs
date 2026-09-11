@@ -26,9 +26,19 @@ namespace MudSharp.Form.Material
         public ILiquid Liquid { get; init; }
         public double Amount { get; set; }
 
+        public System.Collections.Generic.Dictionary<long, MudSharp.Magic.SubstanceCharge> MagicalCharges { get; } = new();
+
+        public void CopyMagicalChargesTo(LiquidInstance other)
+        {
+            foreach (var charge in MagicalCharges) other.MagicalCharges[charge.Key] = charge.Value.Copy();
+        }
+
+        public bool MagicalChargesMatch(LiquidInstance other) => MagicalCharges.Count == other.MagicalCharges.Count &&
+            System.Linq.Enumerable.All(MagicalCharges, x => other.MagicalCharges.TryGetValue(x.Key, out var charge) && x.Value.CanMerge(charge));
+
         public virtual bool CanMergeWith(LiquidInstance other)
         {
-            return Liquid == other.Liquid;
+            return Liquid == other.Liquid && MagicalChargesMatch(other);
         }
 
         public virtual void MergeOtherIntoSelf(LiquidInstance other)
@@ -39,18 +49,21 @@ namespace MudSharp.Form.Material
         public virtual LiquidInstance SplitVolume(double volume)
         {
             Amount -= volume;
-            return new LiquidInstance
+            var split = new LiquidInstance
             {
                 Liquid = Liquid,
                 Amount = volume
             };
+            CopyMagicalChargesTo(split);
+            return split;
         }
 
         public virtual XElement SaveToXml()
         {
             return new XElement("Liquid",
                     new XAttribute("id", Liquid.Id),
-                    new XAttribute("amount", Amount)
+                    new XAttribute("amount", Amount),
+                    System.Linq.Enumerable.Select(MagicalCharges, x => new XElement("Magic", new XAttribute("substance", x.Key), x.Value.Save()))
                 );
         }
 
@@ -60,12 +73,14 @@ namespace MudSharp.Form.Material
         {
             Liquid = gameworld.Liquids.Get(long.Parse(root.Attribute("id").Value));
             Amount = double.Parse(root.Attribute("amount").Value);
+            foreach (var magic in root.Elements("Magic")) MagicalCharges[(long)magic.Attribute("substance")] = MudSharp.Magic.SubstanceCharge.Load(magic.Element("Charge"));
         }
 
         public LiquidInstance(LiquidInstance rhs)
         {
             Liquid = rhs.Liquid;
             Amount = rhs.Amount;
+            rhs.CopyMagicalChargesTo(this);
         }
 
         public virtual LiquidInstance Copy()

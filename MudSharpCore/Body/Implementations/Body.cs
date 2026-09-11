@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
@@ -1160,6 +1160,7 @@ public partial class Body : PerceiverItem, IBody
 
     public void ExposeToLiquid(LiquidMixture mixture, IEnumerable<IExternalBodypart> parts, LiquidExposureDirection direction)
     {
+        using var magicalExposure = MudSharp.Magic.MagicalExposure.BeginExposure();
         if (mixture.TotalVolume <= 0)
         {
             return;
@@ -1206,6 +1207,7 @@ public partial class Body : PerceiverItem, IBody
             LiquidMixture newMixture = mixture.RemoveLiquidVolume(amountToAbsorb);
             if (newMixture?.IsEmpty == false)
             {
+                MudSharp.Magic.MagicalExposure.Liquid(this, newMixture, MudSharp.Health.DrugVector.Touched, true);
                 SurfaceLiquidState.AddLiquid(newMixture);
                 LiquidExposureStrategies.SurfaceReactions.Expose(this, newMixture, direction, parts);
             }
@@ -1219,6 +1221,7 @@ public partial class Body : PerceiverItem, IBody
 
     public void ExposeToLiquid(LiquidMixture mixture, IBodypart part, LiquidExposureDirection direction)
     {
+        using var magicalExposure = MudSharp.Magic.MagicalExposure.BeginExposure();
         if (mixture.TotalVolume <= 0 || part is not IExternalBodypart ebp)
         {
             return;
@@ -1262,6 +1265,7 @@ public partial class Body : PerceiverItem, IBody
             LiquidMixture newMixture = mixture.RemoveLiquidVolume(amountToAbsorb);
             if (newMixture?.IsEmpty == false)
             {
+                MudSharp.Magic.MagicalExposure.Liquid(this, newMixture, MudSharp.Health.DrugVector.Touched, true);
                 SurfaceLiquidState.AddLiquid(newMixture);
                 LiquidExposureStrategies.SurfaceReactions.Expose(this, newMixture, direction, new[] { ebp });
             }

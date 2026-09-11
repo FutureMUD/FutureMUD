@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Trees;
 using MudSharp.Effects.Concrete;
@@ -56,6 +56,7 @@ The syntax is:
 	#3magic regenerator#0 - edit resource regeneration rules
 	#3magic power#0 - edit hard-coded powers for a school
 	#3magic spell#0 - edit spell templates
+	#3magic substance#0 - edit potions, oils, and other magical preparations
 	#3magic portals#0 - inspect active transient portals
 	#3magic portalnetwork#0 - edit durable portal and rune topology
 	#3magic anchors [<tag>]#0 - inspect active magic-tag anchors";
@@ -146,7 +147,7 @@ The syntax is:
             sb.AppendLine(
                 $"You have the following {schools.Select(x => x.SchoolAdjective).Distinct().ListToString()} spells:");
             sb.Append(StringUtilities.GetTextTable(
-                from item in actor.Gameworld.MagicSpells.Where(x => schools.Contains(x.School) && x.ReadyForGame && x.Trigger.TriggerType != MagicTriggerType.AttackHit)
+                from item in actor.Gameworld.MagicSpells.Where(x => schools.Contains(x.School) && x.ReadyForGame && x.Trigger.TriggerType != MagicTriggerType.AttackHit && x.Trigger.TriggerType != MagicTriggerType.Substance)
                 select new[] { item.Name, item.Blurb },
                 new[] { "Name", "Blurb" },
                 actor.LineFormatLength,
@@ -319,6 +320,9 @@ The syntax is:
                 return;
             case "resource":
                 MagicResource(actor, ss);
+                return;
+            case "substance":
+                BuilderModule.GenericBuildingCommand(actor, ss, EditableItemHelper.MagicalSubstanceHelper);
                 return;
             case "spell":
                 MagicSpell(actor, ss);

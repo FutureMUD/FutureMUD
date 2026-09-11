@@ -428,3 +428,8 @@ Telekinesis uses existing switchable, selectable, openable, item-container and l
 ## Manual FutureProg item values
 
 Manual prog and register values use the [shared argument resolver](../Core/FutureProg_Type_System.md#shared-manual-argument-resolution). Item targets keep normal targeting; outfits and outfit items resolve within a specified character, and effects/traps resolve within their owner. Liquid-mixture input creates a standalone measured value without changing an item. Computer execution uses the same balanced argument reader, including empty text and containers. These changes do not alter item or effect persistence.
+
+
+## Magical substance integration
+
+Liquids, consumable items, inhalers and incense fuel can bind magical substances. Surface transfer preserves spent/suppressed charge; ordinary container storage is not magical contact. See [Magical Substances](../Magic/Magical_Substances.md) for dose units and builder workflows.

@@ -76,7 +76,7 @@ Payload parameters are named so template XML remains extensible without schema c
 | DirectDamage | damage, optional pain, optional stun, optional damagetype | Applies a normal damage packet to a random target bodypart |
 | ExplosiveDamage | damage, optional pain, stun, damagetype, explosionsize, maximumproximity, elevation | Creates an outward `IExplosiveDamage` packet at the trap anchor without requiring or deleting an explosive item; every nearby target is resolved by the established explosion handler |
 | LiquidDischarge | liquid, optional amount | Exposes target bodyparts to a LiquidMixture |
-| GasCloud | gas, optional duration, dose, cloudecho | Creates temporary local-layer gas cloud without changing bulk room atmosphere |
+| GasCloud | gas, optional duration, dose, volume, cloudecho | Creates temporary local-layer gas cloud without changing bulk room atmosphere |
 | Restraint | optional duration, description | Applies a timed movement-blocking TrapRestraintEffect |
 
 A payload can target the triggerer, all same-layer anchor occupants, or a snapshot excluding the triggerer. Delayed payloads retain intended target ID rather than dynamically choosing a later bystander.
@@ -85,7 +85,7 @@ A payload can target the triggerer, all same-layer anchor occupants, or a snapsh
 
 `traptemplate set trigger <number>` and `traptemplate set payload <number>` list each setting as `name <syntax> = current value`, with the accepted value form and default beside it. Set an optional parameter to `none` to remove its stored value and restore the documented default; `none` is never emitted as literal echo text. Required references must be positive IDs, and the builder verifies that referenced spells, FutureProgs, liquids, gases, and signal-sink items exist and are compatible before it records the change.
 
-Numeric parameters accept finite decimal values only. Chance is 0â€“100; damage, liquid amount, dose, and configured durations must be positive; signal values may be any finite number. Direct damage is a single positive number (for example, `25`), not a dice expression such as `1d40`. Enum parameters accept only named defined values, and paired signal bounds and exit size bounds cannot be inverted. A malformed legacy definition is rejected at template validation and fails closed at runtime rather than falling through to a harmful default.
+Numeric parameters accept finite decimal values only. Chance is 0–100; damage, liquid amount, dose, and configured durations must be positive; signal values may be any finite number. Direct damage is a single positive number (for example, `25`), not a dice expression such as `1d40`. Enum parameters accept only named defined values, and paired signal bounds and exit size bounds cannot be inverted. A malformed legacy definition is rejected at template validation and fails closed at runtime rather than falling through to a harmful default.
 
 #### Direct and Explosive Damage formulas
 
@@ -177,3 +177,8 @@ TrapTemplates has a composite Id/RevisionNumber key, an EditableItem foreign key
 | Blank-database snapshot refresh | Complete | Refreshed against a dedicated disposable local snapshot database. Manifest, dump history, and migration agree on `20260810130800_AddTrapTemplates`; all six snapshot tests pass. |
 | Physical component lifecycle and spent cleanup | Complete | Mechanical templates require tagged trigger/payload parts; deployments persist and reserve matched items; dual-role parts, quality-weighted trigger/payload/recovery behaviour, safe and spent recovery, component-aware detonation/signal routing, FutureProg item collections, and automatic empty-spent cleanup are implemented. Focused core persistence and seeder coverage pass on 12 August 2026. LabMUD logs 98, 101, 102, and 103 prove builder authoring, tripwire binding/reservation/detonation, dual-role bear-trap recovery, interrupted-resolution repair, and same-session spent cleanup. No relational migration was required because both definitions and instances use their existing XML persistence seams. |
 | Placement, authorization, and transient-exit lifecycle follow-up | Complete | Held item anchors use the same distinct drop plan as matched components; generic player re-arming requires manipulation permission, trap knowledge, and an unarmed/disarmed state; transient exit keys preserve traps across same-endpoint reconstruction and true logical removal destroys pending lifecycle effects and installed components. The 103 focused trap, command-security, portal, and vehicle tests pass on 15 August 2026. |
+
+
+### Magical gas payloads
+
+Gas clouds also deliver [magical substances](../Magic/Magical_Substances.md) bound to their gas. The optional positive `volume` setting specifies engine gas volume per recipient per five-second pulse (default 1). It is independent of the existing drug `dose` setting and does not require a drug on the gas. Authored magical potency is independent of trap-maker quality.

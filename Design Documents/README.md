@@ -156,6 +156,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [ItemSeeder AddCraft Authoring Guide](./Items/ItemSeeder_AddCraft_Guide.md)
 
 ## Magic
+
+- [Magical Substances: Potions, Oils and Other Carriers](./Magic/Magical_Substances.md)
 - [Magical and Psychic Combat Powers](./Magic/Magic_Combat_Powers.md)
 
 - [Psychic Powers, Impressions and Witness Memory](./Magic/Psychic_Powers_Impressions_and_Witness_Memory.md)

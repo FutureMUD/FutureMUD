@@ -230,19 +230,7 @@ public partial class Body
     {
         foreach (DrugDosage drug in LatentDrugDosages.ToList())
         {
-            double rate = 0.5;
-            switch (drug.OriginalVector)
-            {
-                case DrugVector.Ingested:
-                    rate = 0.02;
-                    break;
-                case DrugVector.Inhaled:
-                    rate = 0.4;
-                    break;
-                case DrugVector.Touched:
-                    rate = 0.05;
-                    break;
-            }
+            double rate = MudSharp.Magic.SubstanceDose.AbsorptionFraction(drug.OriginalVector);
 
             DrugDosage activeDose = _activeDrugDosages.FirstOrDefault(x =>
                 x.Drug == drug.Drug &&

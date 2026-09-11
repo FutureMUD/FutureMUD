@@ -13,6 +13,7 @@ This document is aimed at:
 - seeder authors planning manual spell data
 
 ## Quick Map
+- [Magical Substances](./Magical_Substances.md) documents non-castable `substancecharacter` and `substanceitem` payloads, authored potency, dose scaling and activation/maintenance/pulse lifecycles.
 - [Magical and Psychic Combat Powers](./Magic_Combat_Powers.md) documents the non-castable `attackcharacter` and `attackitem` triggers and attached target/caster effects. These prepared payloads are hidden from player spell lists and do not pay separate spell casting costs.
 - Read the runtime lifecycle section if you are debugging spell behavior.
 - Read the builder workflow section if you are authoring content with `magic spell`.
@@ -821,3 +822,8 @@ Reflection is intentionally narrow:
 - [Magic System: Powers](./Magic_System_Powers.md)
 - [Magic System: Implemented Types](./Magic_System_Implemented_Types.md#spell-trigger-types)
 - [Magic System: Implemented Types](./Magic_System_Implemented_Types.md#spell-effect-types)
+
+
+### Healing and damage payload persistence
+
+Healing, mending and damage templates save their original formula text, allowing cloning and dose-scaled substance application to preserve valid expressions. Healing/mending overflow advance through each eligible wound once and stop when the dose or eligible wound list is exhausted.

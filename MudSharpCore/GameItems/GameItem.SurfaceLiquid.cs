@@ -42,7 +42,7 @@ public partial class GameItem
 		return SurfaceLiquidState.IsEmpty ? null : SurfaceLiquidState.SaveToXml().ToString();
 	}
 
-	private void ResolveSurfaceLiquidDrying()
+	public void ResolveSurfaceLiquidDrying()
 	{
 		if (_surfaceLiquidState is null || _surfaceLiquidState.ContaminatingLiquid.IsEmpty)
 		{

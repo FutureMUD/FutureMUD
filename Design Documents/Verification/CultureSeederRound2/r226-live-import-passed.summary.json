@@ -1,0 +1,25 @@
+{
+  "scope": "Compact result extracted from the actual isolated MySQL fresh-install and committed same-era rerun receipt.",
+  "database": "futuremud_culture_live_2145_r226b",
+  "status": "passed",
+  "era": "medieval",
+  "completed": [
+    "EF migrations",
+    "CoreDataSeeder",
+    "TimeSeeder",
+    "AttributeSeeder",
+    "SkillPackageSeeder",
+    "HumanSeeder",
+    "ChargenSeeder",
+    "CultureSeeder"
+  ],
+  "committed_same_era_rerun": {
+    "culture_conflict_count": 0,
+    "native_binding_count": 125,
+    "targeted_name_count": 16,
+    "intelligibility_count": 411,
+    "group_count": 21,
+    "cap_count": 131,
+    "accent_count": 131
+  }
+}

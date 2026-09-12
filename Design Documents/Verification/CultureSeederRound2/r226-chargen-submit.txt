@@ -1,0 +1,137 @@
+DEbug MEdieval
+Powered by the FutureMUD Engine v2.12.1.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your password:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+       or
+   Resume an application
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your password
+
+X) Disconnect from the game
+> c
+You have the following characters:
+  1: admin (Active)
+  2: Edmund (In Creation)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 2
+Background Comment Entry
+
+Please give a brief overview of your character's background and/or personality,
+in order to give admin storytellers something to work with roleplaying with
+you. Typically we would expect a minimum of four sentences or dot points.
+
+Enter your Background Comment in the editor below.
+You are now entering an editor, use @ on a blank line to exit and *help to see help.
+
+
+>
+> begin
+Background Comment Entry
+
+Please give a brief overview of your character's background and/or personality,
+in order to give admin storytellers something to work with roleplaying with
+you. Typically we would expect a minimum of four sentences or dot points.
+
+Enter your Background Comment in the editor below.
+You are now entering an editor, use @ on a blank line to exit and *help to see help.
+
+]
+> Edmund Ashford is a literate minor noble from medieval England. He studies Latin and fights with his hands. He values duty and measured speech. He seeks a useful place in the world.
+]
+> @
+Your submitted Background Comment is:
+
+  Edmund Ashford is a literate minor noble from medieval England. He studies
+  Latin and fights with his hands. He values duty and measured speech. He seeks
+  a useful place in the world.
+Character Application
+
+Name: Edmund Ashford                                                                                                    Gender: Male
+Race: Human                                                 Ethnicity: English                                          Culture: English Nobility
+Height: 1 metre 75 centimetres                              Weight: 75 kilograms
+Age: 22 years old                                           Category: Young Adult                                       Birthday: 4/5/1277
+
+Short Description: a clean-shaven man with an acromegalic nose
+Full Description:
+
+  This man is a male human that is 1 metre 75 centimetres tall and about the
+  same height as you. You would describe him as well-proportioned, as he is of
+  an extremely fit and healthy build, being well proportioned in all respects.
+  He has grey alert eyes that are a pure shade of grey, which sit above a
+  massive lumpy nose resembling a person's fist in proportion. His head is bald,
+  with no hair at all. He does not have any facial hair, with a clean, smooth
+  chin. His ears are with a distinctive angle or tilt outward. He has a dark
+  beauty spot marring the corner of his mouth, just below his nose.
+
+Attributes:
+
+  Strength [Good]
+  Constitution [Good]
+  Dexterity [Good]
+  Intelligence [Good]
+  Willpower [Good]
+  Perception [Good]
+
+Skills:
+
+  Latin (mandatory)                    Middle English (mandatory)           Anglo-Norman French (mandatory)
+
+Native Language: Middle English
+
+Languages and Accents:
+
+  Latin (CArolingian)
+  Middle English (Anglian)
+  Anglo-Norman French (Crude)
+
+Knowledges:
+
+  The Latin letters are used in books, records and correspondence. Readers and scribes carry their written forms between courts, towns, religious houses and centres of learning.
+
+Roles:
+
+  DEfault STarting LOcation
+
+
+Background Comment:
+
+  Edmund Ashford is a literate minor noble from medieval England. He studies
+  Latin and fights with his hands. He values duty and measured speech. He seeks
+  a useful place in the world.
+
+Do you want to submit your application? Type yes or no.
+
+>
+> yes
+You submit your application.
+
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+G) Login as a guest
+W) Withdraw an application
+N) Create a new character
+E) Change your email address
+P) Change your password
+
+X) Disconnect from the game

@@ -62,6 +62,16 @@ Invocation: `--live-import <database> <era> <receipt>`. Medieval's first Culture
 
 `--round2-builder-rerun <darkages-live-receipt> <report>` performs two actual MySQL full reruns with a removed script member, custom language/trait membership, altered/deleted/added names and custom accent pointer. It then intentionally fails prog compilation after reconciliation inside a new caller-owned transaction. Counts, original acquisition body and original membership are verified after rollback: [builder and atomicity receipt](CultureSeederRound2/builder-rerun.json). Every fixture mutation was rolled back; the clean imported database was retained.
 
+## R2-26 live acceptance — 2026-09-12
+
+An isolated disposable MySQL target, `futuremud_culture_live_2145_r226b`, was created from the Debug replay profile and seeded through the real CultureSeeder entrypoint for Medieval. Its committed same-era rerun completed with zero culture conflicts: [fresh import and rerun receipt](CultureSeederRound2/r226-live-import-passed.summary.json). `labmud_dbo` was not accessed or modified.
+
+The live MUD ran against that target. The builder proof temporarily removed and restored English from the Latin script's designed-language associations: [script association edit](CultureSeederRound2/r226-builder-script-edit.txt). A normal English Nobility application was [saved pending](CultureSeederRound2/r226-chargen-pending-menu.txt), [reopened](CultureSeederRound2/r226-chargen-resume-normal.txt), named Edmund Ashford, [submitted](CultureSeederRound2/r226-chargen-submit.txt), [approved](CultureSeederRound2/r226-admin-application-approved.txt), and reconnected; the final read-only receipt and reconnect transcript record the expected native Middle English plus Carolingian Latin, Anglian Middle English and Crude Anglo-Norman French accents: [live final receipt](CultureSeederRound2/r226-live-final-receipt.summary.json), [reconnect](CultureSeederRound2/r226-edmund-reconnect.txt).
+
+The stock world intentionally has no generic enabled chargen skill group. To exercise the required group phase without changing shipped seeder content, a target-only `R226Education` group and compiled `Boolean(chargen)` eligibility prog were created through the live builder and validated: [fixture](CultureSeederRound2/r226-skillgroup-prog-fixture.txt). A second ordinary English Nobility application selected Brawling through that group, selected Scribe through the normal open-skill picker, then selected the three accents above: [group and open skill](CultureSeederRound2/r226-chargen-educated-group-and-open-skill.txt), [accents](CultureSeederRound2/r226-chargen-educated-accents.txt).
+
+During the first disposable rerun, retained accents with source-language endpoints unavailable in the selected earlier era were incorrectly reported as conflicts. `CultureToolkitLanguageSeeder` now recognizes explicitly excluded later-era language specifications, leaves those endpoints unassociated, and continues to flag missing in-era endpoints. The focused affected set passes 42 tests, including the new earlier/later-era and builder-association coverage; the complete `CultureToolkit` seeder subset passes 96 tests.
+
 ## Acceptance mapping
 
 Test classes below are under `DatabaseSeeder Unit Tests` unless prefixed `Core`. “Passed” describes the concrete execution listed, not an assertion of the separate interactive check.
@@ -92,11 +102,11 @@ Test classes below are under `DatabaseSeeder Unit Tests` unless prefixed `Core`.
 | R2-22 | passed | `CultureToolkitNameSeederTests` plus actual MySQL two-rerun fixture preserve deleted name, weight 7 and added BuilderExample weight 3. Stock floor does not restore builder deletions. |
 | R2-23 | passed | Core naming tests parse every active full form, render and XML-reload it, exercise random profiles, original compound/byname fixtures and real NamePicker with Unicode disabled. Live imports persist the corresponding database profile rows. |
 | R2-24 | passed | Five independent relational full imports/reruns plus 15 optional integrated fixtures; see scope distinctions above. |
-| R2-25 | passed | Explicit 28-name resource contract, all 28 embedded hashes; removing every required input and adding unrelated JSON still fails. Invalid source/crosswalk references fail separately. |
-| R2-26 | not run | No round-two telnet chargen/editor/pending-application/reconnect transcript was executed. Earlier round-one transcripts are not counted as round-two evidence. |
+| R2-25 | passed | Explicit 30-name resource contract, including the two accent-role resources; validator and runtime-contract test reject missing inputs and unrelated substitutes. Invalid source/crosswalk references fail separately. |
+| R2-26 | passed | Fresh isolated MySQL import/rerun, live builder script edit, saved/reopened normal application, target-only skill-group/open-skill fixture, accent selection, named submission/approval and reconnect are recorded in the R2-26 live-acceptance evidence above. |
 
 ## Failures corrected during verification and limits
 
 Initial checks exposed incorrect FutureProg negation syntax, null optional Albanian prose handling, and source-stage EF provider-cache accumulation under repeated fixtures. Each was corrected and the affected checks rerun. The relational rollback probe also needed to materialize managed records before issuing nested MySQL lookups; the same precaution now applies to accent ownership lookup. Test setup corrections supplied retained-source trait fixtures and persisted IDs before runtime name XML round-trips.
 
-The final receipts supersede these preliminary failures. No unresolved implementation defect is currently known. Interactive completion remains explicitly unexecuted; no hosted CI, PR merge, production deployment or running-server hot reload is claimed.
+The final receipts supersede these preliminary failures. The later-era accent-endpoint rerun defect identified during the R2-26 fixture is corrected and covered by focused tests plus the clean rerun receipt. No unresolved implementation defect is currently known. No hosted CI, PR merge, production deployment or running-server hot reload is claimed.

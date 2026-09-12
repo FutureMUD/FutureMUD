@@ -1,0 +1,88 @@
+DEbug MEdieval
+Powered by the FutureMUD Engine v2.12.1.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your password:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+       or
+   Resume an application
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your password
+
+X) Disconnect from the game
+> c
+You have the following characters:
+  1: admin (Active)
+  2: Unnamed (In Creation)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 2
+Application Type
+
+You may sometimes elect to submit a character application as a "Special
+Application". Special applications are marked differently so that your chargen
+availability progs can unlock additional roles, races, costs, or other choices
+for staff-reviewed applications. The stock surcharge for a special application
+is 750 BP, which you can change later. Special applications may only be
+submitted once every 3 months, and they are usually reviewed more closely by
+staff before approval.
+
+Please enter your choice. Type simple, normal or special.
+
+>
+> normal
+This application is now a normal application.
+Ethnicity Selection
+
+Ethnicity or ethnic group is a social group of people who identify with each
+other based on common ancestral, cultural, social, or national experience.
+Membership of an ethnic group tends to be associated with shared cultural
+heritage, ancestry, history, homeland, language (dialect) or ideology, and with
+symbolic systems such as religion, mythology and ritual, cuisine, dressing
+style, physical appearance, etc. Ethnicity is primarily used to determine what
+range of physical characteristics such as hair, eye and skin colour are
+naturally available to your character.
+
+1: Abbasid-Era Iraqi Arab     2: Admin                      3: Albanian                   4: Alemannic Swabian          5: Amazigh                    6: Andalusi Arab
+7: Anglo-Danish English       8: Anglo-Norman               9: Anglo-Saxon                10: Arab                      11: Armenian                  12: Ashkenazi Jewish
+13: Austrian                  14: Basque                    15: Bavarian                  16: Bosnian                   17: Breton                    18: Capetian Francien
+19: Capetian Picard           20: Carolingian Austrasian Frank21: Carolingian Neustrian Frank22: Castilian                 23: Catalan                   24: Chola-Era Tamil
+25: Conquest-Period Szekely   26: Continental Saxon         27: Copt                      28: Corsican                  29: Cossack                   30: Cotentin Norman
+31: Croat                     32: Czech                     33: Danish                    34: Dutch                     35: Early Medieval Chauhan Rajput36: Early Medieval
+Paramara Rajput
+37: Early Medieval Rajput     38: Egyptian Arab             39: English                   40: Estonian                  41: Finnish                   42: Florentine
+43: Frank                     44: French                    45: Frisian                   46: Galician                  47: Georgian                  48: German
+49: Goryeo Gyeonggi Korean    50: Goryeo Gyeongsang Korean  51: Goryeo Korean             52: Greek Roman               53: Heian-Kamakura Japanese   54: Heian-Kamakura Kanto
+Japanese
+55: Heian-Kamakura Kinai Japanese56: High Medieval Andalusi    57: High Medieval Aragonese   58: High Medieval Cuman       59: High Medieval Franconian  60: High Medieval Kievan
+Rus
+61: High Medieval Kipchak Mamluk62: High Medieval Kipchak Turk63: High Medieval Leonese     64: High Medieval Low German  65: High Medieval Midland English66: High Medieval Mongol
+67: High Medieval Muladi      68: High Medieval Northern English69: High Medieval Novgorodian Rus70: High Medieval Rus         71: High Medieval Saxon       72: High Medieval
+Syrian Arab
+73: High Medieval Thuringian  74: Hungarian                 75: Icelandic                 76: Irish Gael                77: Kurdish                   78: Latvian
+79: Lithuanian                80: Lowland Scot              81: Maghrebi Arab             82: Medieval Connacht Gael    83: Medieval Highland Gael    84: Medieval Mercian
+85: Medieval Munster Gael     86: Medieval Northumbrian     87: Medieval West Saxon       88: Middle Byzantine Anatolian Greek89: Middle Byzantine Constantinopolitan90: Milanese
+91: Neapolitan                92: Near Eastern Jewish       93: Norman                    94: Norse-Gael                95: Norwegian                 96: Occitan
+97: Old Prussian              98: Persian                   99: Polish                    100: Portuguese               101: Russian                  102: Ruthenian
+103: Sardinian                104: Scottish Gael            105: Sephardic Jewish         106: Serb                     107: Sicilian                 108: Slovak
+109: Song Han Chinese         110: Song Jiangnan Han        111: Song Northern Han        112: Song Wu-Speaking Han     113: Swedish                  114: Syriac
+115: Turkish                  116: Ukrainian                117: Venetian                 118: Viking-Age Norse         119: Vlach                    120: Welsh
+
+Enter the name or number of the ethnicity you would like to select.
+
+>

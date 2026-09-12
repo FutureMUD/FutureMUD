@@ -5850,6 +5850,31 @@ namespace MudSharp.Migrations
                     b.ToTable("CharacterLog", (string)null);
                 });
 
+            modelBuilder.Entity("MudSharp.Models.CharacterMagicCapabilityState", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("MagicCapabilityId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8mb4");
+
+                    b.Property<long>("StateVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("CharacterId", "MagicCapabilityId");
+
+                    b.HasIndex("MagicCapabilityId");
+
+                    b.ToTable("CharacterMagicCapabilityStates");
+                });
+
             modelBuilder.Entity("MudSharp.Models.CharacterSignedLanguageVariety", b =>
                 {
                     b.Property<long>("CharacterId")
@@ -15857,8 +15882,18 @@ namespace MudSharp.Migrations
                     b.Property<long?>("ResistingTraitDefinitionId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<bool>("ScrollInscriptionAllowed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false);
+
                     b.Property<long>("SpellKnownProgId")
                         .HasColumnType("bigint(20)");
+
+                    b.Property<int>("SpellLevel")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("TargetEmote")
                         .HasColumnType("text")
@@ -22899,6 +22934,65 @@ namespace MudSharp.Migrations
                     b.ToTable("UnitOfMeasure", (string)null);
                 });
 
+            modelBuilder.Entity("MudSharp.Models.VancianMagicOperation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8mb4");
+
+                    b.Property<long?>("DestinationItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Diagnostic")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Diagnostic"), "utf8mb4");
+
+                    b.Property<long>("ExpectedStateVersion")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<long>("MagicCapabilityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("SourceItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<DateTime>("UpdatedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DestinationItemId");
+
+                    b.HasIndex("SourceItemId");
+
+                    b.HasIndex("CharacterId", "MagicCapabilityId");
+
+                    b.ToTable("VancianMagicOperations");
+                });
+
             modelBuilder.Entity("MudSharp.Models.VariableDefault", b =>
                 {
                     b.Property<string>("OwnerTypeDefinition")
@@ -28681,6 +28775,25 @@ namespace MudSharp.Migrations
                     b.Navigation("Cell");
 
                     b.Navigation("Character");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterMagicCapabilityState", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MudSharp.Models.MagicCapability", "MagicCapability")
+                        .WithMany()
+                        .HasForeignKey("MagicCapabilityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+
+                    b.Navigation("MagicCapability");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterSignedLanguageVariety", b =>

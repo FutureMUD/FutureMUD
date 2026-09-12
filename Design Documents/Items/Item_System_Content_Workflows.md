@@ -1,5 +1,9 @@
 # FutureMUD Item System Content Workflows
 
+## Books, transcription and prepaid scrolls
+
+Builders author blank book/scroll prototypes and can auditably grant base formulae to individual books. Players may use any visible, accessible, readable/usable formula source, including borrowed books. Timed copying preserves a book source; successful scroll transcription consumes its one charge and copies only the base formula. Inscription combines spell and production inventory plans, reserves the exact casting, revalidates on completion, then pays before creating one charge. There is no seeded stock content or automatic character grant in this feature. See the [worked configuration](../Magic/Vancian_Magic_Builder_Guide.md) and [player guide](../Magic/Vancian_Magic_Player_Guide.md).
+
 The modern ranged seeder is rerunnable and setting-neutral; its catalogue and live verification workflow are documented in [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
 
 For modular modern firearms, author the host's slots and fire modes before creating attachment item prototypes. Match slot and attachment form-factor strings exactly apart from case, and compose active accessories from the `FirearmAttachment` profile plus the existing functional component. Use the attachment component's `require add <capability> [reason]` command to declare required sibling capabilities. Builders may assemble components in either order, but `item show`, attach, and detach report incomplete composition, and submission or approval is blocked until all requirements are satisfied. The combat seeder's pump shotgun, select-fire rifle, composed bayonet, underbarrel grenade launcher, weapon light, and impact grenade round are intentionally examples rather than a comprehensive catalogue. See [Modern Firearms, Attachments, and Alternate Fire Modes](../Combat/Modern_Firearms_and_Attachments.md).

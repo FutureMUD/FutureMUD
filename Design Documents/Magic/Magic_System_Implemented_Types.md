@@ -24,6 +24,9 @@ The psychic expansion adds builder/runtime power tokens `psychometry`, `dreamsen
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |
 | --- | --- | --- | --- | --- | --- |
 | `skilllevel` | `SkillLevelBasedMagicCapability` | Capability | Static `RegisterLoader` in `MudSharpCore/Magic/Capabilities/SkillLevelBasedMagicCapability.cs` via `MagicCapabilityFactory` | Yes | Grants school access, concentration rules, regenerators, and inherent powers based on trait thresholds |
+| `vancian` | `VancianMagicCapability` | Capability | Static `RegisterLoader` through `MagicCapabilityFactory` | Yes | Configurable repertoires, memorised/spontaneous/at-will allowances, identity-owned state and recovery; [configuration and workflow](Vancian_Magic_Builder_Guide.md) |
+
+The `spellbook` and `spellscroll` component builder tokens load the persisted `Spellbook` and `SpellScroll` types. Formulae and prepaid charges belong to instances. The [scroll compatibility inventory](Vancian_Scroll_Compatibility.md) explicitly classifies every registered effect; registration alone does not grant snapshot support. The [FutureProg API](Vancian_Magic_FutureProg.md) lists all Vancian query and guarded mutation overloads.
 
 ## Resource Types
 

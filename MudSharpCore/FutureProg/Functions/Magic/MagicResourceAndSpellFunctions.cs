@@ -87,7 +87,7 @@ internal abstract class MagicBuiltInFunctionBase : BuiltInFunction
 
 	protected static IEnumerable<MagicSpellParent> ActiveSpellParents(ICharacter character, IMagicSpell? spell = null)
 	{
-		return character.EffectsOfType<MagicSpellParent>(x => x.Applies() && (spell is null || x.Spell == spell));
+		return character.EffectsOfType<MagicSpellParent>(x => x.Applies() && (spell is null || x.Spell.Id == spell.Id));
 	}
 }
 
@@ -302,7 +302,7 @@ internal class MagicCharacterCollectionFunction : MagicBuiltInFunctionBase
 		Register("magiccapabilities", CollectionMode.Capabilities, ProgVariableTypes.MagicCapability | ProgVariableTypes.Collection,
 			"Returns the magic capabilities currently applying to the character.");
 		Register("knownspells", CollectionMode.KnownSpells, ProgVariableTypes.MagicSpell | ProgVariableTypes.Collection,
-			"Returns all spells whose known-spell prog says the character knows them.");
+			"Returns spells known through a valid legacy capability/prog or an active Vancian information route; hidden payloads are excluded.");
 		Register("castablespells", CollectionMode.CastableSpells, ProgVariableTypes.MagicSpell | ProgVariableTypes.Collection,
 			"Returns all ready, known spells that can be invoked through a cast trigger.");
 		Register("castablespellsnow", CollectionMode.CastableSpellsNow, ProgVariableTypes.MagicSpell | ProgVariableTypes.Collection,

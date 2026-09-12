@@ -302,13 +302,13 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
         }
     }
 
-    public double Evaluate(IHaveTraits owner, ITraitDefinition variable = null,
+    public virtual double Evaluate(IHaveTraits owner, ITraitDefinition variable = null,
         TraitBonusContext context = TraitBonusContext.None)
     {
         return EvaluateInternal(owner, variable, context, false, Array.Empty<(string Name, object Value)>());
     }
 
-    public double EvaluateWith(IHaveTraits owner, ITraitDefinition variable = null,
+    public virtual double EvaluateWith(IHaveTraits owner, ITraitDefinition variable = null,
         TraitBonusContext context = TraitBonusContext.None, params (string Name, object Value)[] values)
     {
         return EvaluateInternal(owner, variable, context, false, values);
@@ -360,6 +360,21 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 	}
 #endif
     }
+
+	/// <summary>Captures only owner bindings, never evaluates the formula, randomness or gameplay effects.</summary>
+	public IEnumerable<string> NumericalBindingNames => Parameters.Keys.Concat(_options.Keys).Append("variable").Distinct(StringComparer.OrdinalIgnoreCase);
+
+	public IReadOnlyDictionary<string, double> CaptureNumericalBindings(IHaveTraits owner, ITraitDefinition variable,
+		TraitBonusContext context)
+	{
+		ProcessLazyLoading();
+		if (Parameters.Values.Any(x => x.Trait is null)) throw new InvalidOperationException("A numerical expression references a missing trait.");
+		var bindings = Parameters.ToDictionary(x => x.Key, x => owner.TraitValue(x.Value.Trait, context), StringComparer.OrdinalIgnoreCase);
+		bindings["variable"] = variable is null ? 0.0 : owner.TraitValue(variable, context);
+		foreach (var (name, option) in _options) bindings[name] = option.Evaluate(owner);
+		if (bindings.Values.Any(x => !double.IsFinite(x))) throw new InvalidOperationException("A creator numerical binding is not finite.");
+		return bindings.AsReadOnly();
+	}
 
     public override void Save()
     {

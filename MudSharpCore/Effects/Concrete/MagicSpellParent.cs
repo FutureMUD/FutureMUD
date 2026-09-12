@@ -1,6 +1,7 @@
 ﻿using MudSharp.Magic;
 using MudSharp.NPC;
 using MudSharp.RPG.Checks;
+using MudSharp.Magic.Vancian;
 
 namespace MudSharp.Effects.Concrete;
 
@@ -19,6 +20,7 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
         Spell = spell;
         _caster = caster;
         _casterId = caster?.Id ?? 0;
+        _casterInstanceId = caster?.InstanceId;
         Power = power;
         Outcome = outcome;
     }
@@ -26,8 +28,11 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
     protected MagicSpellParent(XElement root, IPerceivable owner) : base(root, owner)
     {
         XElement trueRoot = root.Element("Effect");
-        Spell = Gameworld.MagicSpells.Get(long.Parse(trueRoot.Element("Spell").Value));
+        Spell = trueRoot.Element("StoredSpell") is { } snapshot
+            ? StoredSpellSnapshot.Load(snapshot).CreateSpell(Gameworld, false)
+            : Gameworld.MagicSpells.Get(long.Parse(trueRoot.Element("Spell").Value));
         _casterId = long.Parse(trueRoot.Element("Caster").Value);
+        _casterInstanceId = (long?)trueRoot.Element("CasterInstance");
         Power = (SpellPower)int.Parse(trueRoot.Element("SpellPower")?.Value ?? ((int)SpellPower.Standard).ToString());
         Outcome = (OpposedOutcomeDegree)int.Parse(trueRoot.Element("OutcomeDegree")?.Value ?? ((int)OpposedOutcomeDegree.None).ToString());
         foreach (XElement element in trueRoot.Element("Children").Elements())
@@ -55,6 +60,8 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
         return new XElement("Effect",
             new XElement("Spell", Spell.Id),
             new XElement("Caster", _casterId),
+            _casterInstanceId.HasValue ? new XElement("CasterInstance", _casterInstanceId.Value) : null,
+            (Spell as MagicSpell)?.StoredSnapshot?.Save(),
             new XElement("SpellPower", (int)Power),
             new XElement("OutcomeDegree", (int)Outcome),
             new XElement("Children",
@@ -84,6 +91,7 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
     public OpposedOutcomeDegree Outcome { get; private set; }
 
     private long _casterId { get; set; }
+    private long? _casterInstanceId;
     private ICharacter _caster;
 
     public ICharacter Caster
@@ -94,6 +102,9 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
             if (_caster == null)
             {
                 _caster = Gameworld.TryGetCharacter(_casterId, true);
+                if (_casterInstanceId is > 0 && _caster?.Identity is { } identity)
+                    _caster = identity.Instances.FirstOrDefault(x => x.InstanceId == _casterInstanceId.Value);
+                if (_caster is null) return null;
                 if (!Gameworld.Actors.Has(_caster))
                 {
                     Gameworld.Add(_caster, _caster is INPC);

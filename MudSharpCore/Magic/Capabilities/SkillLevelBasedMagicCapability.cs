@@ -11,7 +11,7 @@ namespace MudSharp.Magic.Capabilities;
 
 public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
 {
-    public IMagicCapability Clone(string newName)
+    public virtual IMagicCapability Clone(string newName)
     {
         return new SkillLevelBasedMagicCapability(this, newName);
     }
@@ -74,13 +74,17 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
         }
     }
 
-    protected SkillLevelBasedMagicCapability(Models.MagicCapability capability, IFuturemud gameworld)
+    protected string ConfigurationLoadError { get; private set; }
+
+    protected SkillLevelBasedMagicCapability(Models.MagicCapability capability, IFuturemud gameworld, bool tolerateIncomplete = false)
     {
         Gameworld = gameworld;
         _id = capability.Id;
         _name = capability.Name;
         PowerLevel = capability.PowerLevel;
         School = gameworld.MagicSchools.Get(capability.MagicSchoolId);
+		try
+		{
         XElement root = XElement.Parse(capability.Definition);
         foreach (XElement item in root.Elements("Power"))
         {
@@ -98,9 +102,17 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
                                ? gameworld.MagicResourceRegenerators.Get(value)
                                : gameworld.MagicResourceRegenerators.GetByName(x.Value)).ToList() ??
                        Enumerable.Empty<IMagicResourceRegenerator>());
+		}
+		catch (Exception ex) when (tolerateIncomplete)
+		{
+			ConfigurationLoadError = ex.Message;
+			_skillPowerMap.Clear(); _resourceRegenerators.Clear();
+			ConcentrationCapabilityExpression = new TraitExpression("0", gameworld);
+			ConcentrationDifficultyExpression = new TraitExpression(((int)Difficulty.Impossible).ToString(), gameworld);
+		}
     }
 
-    public string SaveToXml()
+    public virtual string SaveToXml()
     {
         return new XElement("Definition",
             new XElement("ConcentrationTrait", ConcentrationTrait.Id),
@@ -172,7 +184,7 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
 
     private readonly List<(ITraitDefinition Trait, double MinValue, IMagicPower Power)> _skillPowerMap = new();
 
-    public IEnumerable<IMagicPower> InherentPowers(ICharacter actor)
+    public virtual IEnumerable<IMagicPower> InherentPowers(ICharacter actor)
     {
         List<IMagicPower> powers = new();
         foreach ((ITraitDefinition trait, double minvalue, IMagicPower power) in _skillPowerMap)
@@ -191,7 +203,7 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
 
     public IEnumerable<IMagicPower> AllPowers => _skillPowerMap.Select(x => x.Power);
 
-    public double ConcentrationAbility(ICharacter actor)
+    public virtual double ConcentrationAbility(ICharacter actor)
     {
         return ConcentrationCapabilityExpression.Evaluate(actor, ConcentrationTrait);
     }
@@ -236,7 +248,7 @@ The following options have some more complex inputs:
 	Uses the variable #6total#0 for a range 0.0 - 1.0 showing what percentage of total existing powers are being sustained
 	Uses the variable #6power#0 for a range 0.0 - 1.0 showing what percentage of total power is used by just this power";
 
-    public bool BuildingCommand(ICharacter actor, StringStack command)
+    public virtual bool BuildingCommand(ICharacter actor, StringStack command)
     {
         switch (command.PopForSwitch())
         {
@@ -466,7 +478,7 @@ The following options have some more complex inputs:
         return true;
     }
 
-    public string Show(ICharacter actor)
+    public virtual string Show(ICharacter actor)
     {
         StringBuilder sb = new();
         sb.AppendLine($"Magic Capability #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Magenta, Telnet.BoldWhite));

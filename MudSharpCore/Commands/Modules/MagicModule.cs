@@ -3,11 +3,12 @@ using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Trees;
 using MudSharp.Effects.Concrete;
 using MudSharp.Magic;
+using MudSharp.Magic.Vancian;
 using Org.BouncyCastle.Asn1.Sec;
 
 namespace MudSharp.Commands.Modules;
 
-public class MagicModule : Module<ICharacter>
+public partial class MagicModule : Module<ICharacter>
 {
 	[PlayerCommand("PsychometricHistory", "psychometrichistory")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -113,6 +114,8 @@ The syntax is:
             return;
         }
 
+		if (cmdText.EqualTo("vancian")) { VancianPlayer(actor, school, ss); return; }
+
         if (cmdText.EqualToAny("?", "help") && ss.IsFinished)
         {
             actor.OutputHandler.Send(SchoolVerbHelpText(invoked).SubstituteANSIColour());
@@ -147,7 +150,7 @@ The syntax is:
             sb.AppendLine(
                 $"You have the following {schools.Select(x => x.SchoolAdjective).Distinct().ListToString()} spells:");
             sb.Append(StringUtilities.GetTextTable(
-                from item in actor.Gameworld.MagicSpells.Where(x => schools.Contains(x.School) && x.ReadyForGame && x.Trigger.TriggerType != MagicTriggerType.AttackHit && x.Trigger.TriggerType != MagicTriggerType.Substance)
+                from item in actor.Gameworld.MagicSpells.Where(x => schools.Contains(x.School) && x.ReadyForGame && x.Trigger is ICastMagicTrigger && x.CharacterKnowsSpell(actor))
                 select new[] { item.Name, item.Blurb },
                 new[] { "Name", "Blurb" },
                 actor.LineFormatLength,
@@ -168,7 +171,7 @@ The syntax is:
 
             IMagicSpell spell = actor.Gameworld.MagicSpells.Where(x =>
                                  schools.Contains(x.School) && x.ReadyForGame &&
-                                 x.SpellKnownProg.Execute<bool?>(actor, x) == true)
+                                 x.CharacterKnowsSpell(actor))
                              .GetByNameOrAbbreviation(ss.PopSpeech());
             if (spell == null)
             {
@@ -183,6 +186,11 @@ The syntax is:
                 return;
             }
 
+			if (spell is MudSharp.Magic.MagicSpell runtime && !runtime.HasLegacyRoute(actor))
+			{
+				actor.OutputHandler.Send($"Use {school.SchoolVerb} vancian <capability> cast <repertoire> <allowance> \"{spell.Name}\" <ordinal|next|atwill> [targets] to spend a Vancian casting.");
+				return;
+			}
             ct.DoTriggerCast(actor, ss);
             return;
         }
@@ -197,7 +205,7 @@ The syntax is:
 
             IMagicSpell spell = actor.Gameworld.MagicSpells.Where(x =>
                                  schools.Contains(x.School) && x.ReadyForGame &&
-                                 x.SpellKnownProg.Execute<bool?>(actor, x) == true)
+                                 x.CharacterKnowsSpell(actor))
                              .GetByNameOrAbbreviation(ss.PopSpeech());
             if (spell == null)
             {
@@ -255,6 +263,7 @@ The syntax is:
 
 	#3{invoked}#0 - see your current status, resources and sustained powers
 	#3{invoked} powers#0 - lists your powers
+	#3{invoked} vancian <capability> help#0 - selected repertoires, saved loadouts, finite and at-will casting
 	#3{invoked} help <power>#0 - shows help for a power
 	#3{invoked} <power command> [arguments]#0 - invokes a power; see individual power help for the syntax
 	#3{invoked} spells#0 - lists spells for this school
@@ -295,6 +304,7 @@ The syntax is:
         StringStack ss = new(command.RemoveFirstWord());
         switch (ss.PopSpeech().ToLowerInvariant())
         {
+            case "vancian": VancianAdmin(actor, ss); return;
             case "school":
                 MagicSchool(actor, ss);
                 return;

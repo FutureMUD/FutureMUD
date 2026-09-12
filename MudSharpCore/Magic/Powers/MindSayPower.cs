@@ -265,7 +265,7 @@ public class MindSayPower : MagicPowerBase
             effect.TargetCharacter.OutputHandler.Send(new EmoteOutput(new Emote(
                 GetAppropriateTargetEmote(actor, effect.TargetCharacter, formattedText), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
             actor.OutputHandler.Send(new EmoteOutput(new Emote(
-                string.Format(EmoteText, EscapeForEmoteFormat(formattedText)), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
+				string.Format(EmoteText, formattedText.Sanitise()), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
         }
 
         PsionicActivityNotifier.Notify(actor, this, "a directed mental message", effect.TargetCharacter);
@@ -323,7 +323,7 @@ public class MindSayPower : MagicPowerBase
 
     public string GetAppropriateTargetEmote(ICharacter connecter, ICharacter connectee, string text = "")
     {
-        text = EscapeForEmoteFormat(text);
+		text = text.Sanitise();
         var concealment = GetMindConcealment(connecter, connectee, School);
         if (concealment is not null)
         {
@@ -336,11 +336,6 @@ public class MindSayPower : MagicPowerBase
         }
 
         return string.Format(TargetEmoteText.Replace("{{1}}", "{1}"), UnknownIdentityDescription.ColourCharacter(), text);
-    }
-
-    private static string EscapeForEmoteFormat(string text)
-    {
-        return text.Replace("{", "{{").Replace("}", "}}");
     }
 
     #region Building Commands

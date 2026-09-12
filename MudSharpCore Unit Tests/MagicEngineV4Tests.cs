@@ -101,11 +101,110 @@ public class MagicEngineV4Tests
 		var echo = speech.GetAppropriateTargetEmote(actor.Object, target.Object, "Remember {");
 		StringAssert.Contains(echo, "Remember {{");
 		Assert.IsFalse(echo.Contains("{1}"));
-		var emote = new MudSharp.PerceptionEngine.Parsers.Emote(echo, actor.Object, actor.Object, target.Object);
+		var emote = new MudSharp.PerceptionEngine.Parsers.Emote(echo, actor.Object,
+			MudSharp.PerceptionEngine.PermitLanguageOptions.IgnoreLanguage, actor.Object, target.Object);
 		Assert.IsTrue(emote.Valid, emote.ErrorMessage);
 		StringAssert.Contains(emote.ParseFor(target.Object), "Remember {");
 		speech.TargetEmoteText = "{0} whispers: {{1}}";
 		StringAssert.Contains(speech.GetAppropriateTargetEmote(actor.Object, target.Object, "Legacy message."), "Legacy message.");
+	}
+
+	[DataTestMethod]
+	[DataRow("{")]
+	[DataRow("}")]
+	[DataRow("{0}")]
+	[DataRow("{99}")]
+	[DataRow("{{the gate}}")]
+	public void MindSay_SenderAndRecipient_PreserveLiteralMessageBraces(string text)
+	{
+		var world = CreateGameworld();
+		world.Setup(x => x.GetStaticInt("MaximumSayLength")).Returns(1000);
+		world.SetupGet(x => x.HeartbeatManager).Returns(Mock.Of<MudSharp.Framework.Scheduling.IHeartbeatManager>());
+		var resource = new Mock<IMagicResource>();
+		resource.SetupGet(x => x.Id).Returns(1);
+		world.SetupGet(x => x.MagicResources).Returns(CreateCollectionMock(resource.Object).Object);
+		var actor = CreateCharacter(1, world.Object);
+		var target = CreateCharacter(2, world.Object);
+		actor.SetupGet(x => x.MagicResourceAmounts).Returns(new Dictionary<IMagicResource, double> { [resource.Object] = 100 });
+		var contact = (ConnectMindPower)MagicPowerFactory.LoadPower(CreateConnectMindModel(0), world.Object);
+		var connection = new ConnectMindEffect(actor.Object, target.Object, contact);
+		actor.Setup(x => x.EffectsOfType<ConnectMindEffect>(null)).Returns([connection]);
+		var stock = PsionicStockContent.Powers.First(x => x.Type == "mindsay");
+		var definition = PsionicStockContent.Definition(stock, 1, 1, 0, 0, 0, 0);
+		definition.Element("PsionicTrace")!.SetElementValue("Enabled", false);
+		var power = (MindSayPower)MagicPowerFactory.LoadPower(new MagicPower
+		{
+			Id = 1, Name = "Mind Say", MagicSchoolId = 1, PowerModel = "mindsay", Definition = definition.ToString()
+		}, world.Object);
+		var check = new Mock<ICheck>();
+		check.Setup(x => x.Check(actor.Object, Difficulty.Normal, It.IsAny<ITraitDefinition>(), target.Object, 0,
+			TraitUseType.Practical, It.IsAny<(string, object)[]>()))
+			.Returns(CheckOutcome.SimpleOutcome(CheckType.MindSayPower, Outcome.MajorPass));
+		world.Setup(x => x.GetCheck(CheckType.MindSayPower)).Returns(check.Object);
+		var rendered = new List<string>();
+		foreach (var recipient in new[] { actor, target })
+		{
+			var output = new Mock<MudSharp.PerceptionEngine.IOutputHandler>();
+			output.Setup(x => x.Send(It.IsAny<MudSharp.PerceptionEngine.IOutput>(), true, false))
+				.Callback<MudSharp.PerceptionEngine.IOutput, bool, bool>((echo, _, _) => rendered.Add(echo.ParseFor(recipient.Object)));
+			recipient.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		}
+
+		power.UseCommand(actor.Object, power.SayVerb, new StringStack($"Remember {text}."));
+
+		Assert.AreEqual(2, rendered.Count);
+		foreach (var echo in rendered)
+		{
+			StringAssert.Contains(echo, $"Remember {text}.");
+		}
+	}
+
+	[DataTestMethod]
+	[DataRow("{")]
+	[DataRow("}")]
+	[DataRow("{0}")]
+	[DataRow("{99}")]
+	[DataRow("{{the gate}}")]
+	public void MindBroadcast_LanguageSenderEcho_PreservesLiteralMessageBraces(string text)
+	{
+		var world = CreateGameworld();
+		world.Setup(x => x.GetStaticInt("MaximumSayLength")).Returns(1000);
+		var actor = CreateCharacter(1, world.Object);
+		var language = new Mock<MudSharp.Communication.Language.ILanguage>();
+		language.SetupGet(x => x.Model).Returns(Mock.Of<MudSharp.Communication.Language.DifficultyModels.ILanguageDifficultyModel>());
+		actor.SetupGet(x => x.CurrentLanguage).Returns(language.Object);
+		actor.SetupGet(x => x.CurrentAccent).Returns(Mock.Of<MudSharp.Communication.Language.IAccent>());
+		var check = new Mock<ICheck>();
+		check.Setup(x => x.Check(actor.Object, Difficulty.Normal, It.IsAny<ITraitDefinition>(), null, 0,
+			TraitUseType.Practical, It.IsAny<(string, object)[]>()))
+			.Returns(CheckOutcome.SimpleOutcome(CheckType.MindBroadcastPower, Outcome.MajorPass));
+		world.Setup(x => x.GetCheck(CheckType.MindBroadcastPower)).Returns(check.Object);
+		var definition = new XElement("Definition", BaseElements(),
+			new XElement("Verb", "broadcast"),
+			new XElement("EmoteText", "You broadcast: {0}"),
+			new XElement("FailEmoteText", "Your message fades."),
+			new XElement("TargetEmoteText", "{0} speaks into your mind"),
+			new XElement("UnknownIdentityDescription", "an unfamiliar mind"),
+			new XElement("MinimumSuccessThreshold", (int)Outcome.MinorPass),
+			new XElement("UseLanguage", true),
+			new XElement("UseAccent", false),
+			new XElement("TargetCanSeeIdentityProg", 0),
+			new XElement("SkillCheckTrait", 1),
+			new XElement("SkillCheckDifficulty", (int)Difficulty.Normal),
+			new XElement("PowerDistance", (int)MagicPowerDistance.AnyConnectedMind));
+		var power = (MindBroadcastPower)MagicPowerFactory.LoadPower(new MagicPower
+		{
+			Id = 1, Name = "Broadcast", MagicSchoolId = 1, PowerModel = "mindbroadcast", Definition = definition.ToString()
+		}, world.Object);
+		var output = new Mock<MudSharp.PerceptionEngine.IOutputHandler>();
+		string? rendered = null;
+		output.Setup(x => x.Send(It.IsAny<MudSharp.PerceptionEngine.IOutput>(), true, false))
+			.Callback<MudSharp.PerceptionEngine.IOutput, bool, bool>((echo, _, _) => rendered = echo.ParseFor(actor.Object));
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+
+		power.UseCommand(actor.Object, "broadcast", new StringStack($"Remember {text}."));
+
+		Assert.AreEqual($"You broadcast: Remember {text}.", rendered);
 	}
 
 	[DataTestMethod]

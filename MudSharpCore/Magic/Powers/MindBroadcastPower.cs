@@ -251,7 +251,7 @@ public class MindBroadcastPower : MagicPowerBase
                 target.OutputHandler.Send(emote);
             }
 
-            actor.OutputHandler.Send(new EmoteOutput(new Emote(string.Format(EmoteText, text).ProperSentences().Fullstop(), actor, actor)));
+			actor.OutputHandler.Send(new EmoteOutput(new Emote(string.Format(EmoteText, text.Sanitise()).ProperSentences().Fullstop(), actor, actor)));
         }
         else
         {

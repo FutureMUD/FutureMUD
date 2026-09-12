@@ -25,13 +25,13 @@ Related variants exist for language handling:
 
 ## Authoring Rules
 
-- Raw `{` characters are reserved. `Emote` rewrites recognised tokens into `{0}`, `{1}`, and so on before formatting.
+- When embedding literal player text into an internal emote, escape its `{` and `}` characters with `Sanitise()` first. `Emote` rewrites recognised tokens into `{0}`, `{1}`, and so on before formatting.
 - Internal target order matters. `$0`, `$1`, `$2`, etc. refer to perceivables passed to the constructor in that order.
 - `forceSourceInclusion` prepends the source token if the emote text never explicitly included a plain `@`.
 - The parser auto-closes an odd number of quote characters by appending a trailing `"`.
 - Quoted speech is tokenised before the normal emote tokens.
 - Matching backticks in player emotes delimit signed-language input. Unlike speech quotes, unmatched backticks are an error, and the signer must have a selected signed language and valid functional anatomy. Backticks are only the keyboard input boundary; rendered signed-language content is enclosed in guillemets (`«…»`).
-- Player emotes are sanitised before parsing.
+- Both player-emote text constructors sanitise braces before parsing, including the overload accepting explicit perceivables. This also protects parenthetical emotes attached to speech and other commands.
 
 ### Signed Language in Player Emotes
 
@@ -40,6 +40,8 @@ Backtick text is parsed into a perceiver-specific `EmoteSignedLanguageInfo` toke
 ## Parsing Model
 
 The parser resolves tokens into a single shared raw format string, then renders that string separately for each perceiver. That is why the same emote can show `you`, `your`, `him`, `herself`, or a full sdesc depending on who is viewing it.
+
+If an internal or persisted emote reaches rendering with malformed composite-format braces or an out-of-range format reference, `ParseFor` returns an invalid-emote error instead of allowing `FormatException` to escape into the player-input loop. This guard also covers `NoFormatEmote` and nested emotes. It does not replace escaping at the point where literal player text enters an internal emote; valid-looking references such as `{0}` must remain literal message text. The persisted emote format is unchanged.
 
 The practical split is:
 
@@ -166,6 +168,8 @@ Notes:
 ## Speech Handling
 
 Quoted speech such as `"hello there"` becomes a language token before the rest of the emote is parsed.
+
+Ordinary speech commands pass their message through `LanguageOutput` separately from the accompanying emote. Their message text is appended after emote rendering, so braces in a `say`, `whisper`, `yell`, or `shout` message are not interpreted as composite-format instructions.
 
 Current behaviour:
 

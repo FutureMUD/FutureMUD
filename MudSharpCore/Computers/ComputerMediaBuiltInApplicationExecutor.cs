@@ -409,12 +409,10 @@ internal sealed class MediaBuiltInApplicationExecutor : IComputerBuiltInApplicat
 		var offset = gameworld.MediaRecordingService.GetRecording(recordingId)?.Duration ?? TimeSpan.Zero;
 		if (!ss.IsFinished)
 		{
-			if (!double.TryParse(ss.PopSpeech(), out var seconds) || seconds < 0.0)
+			if (!TryParseMediaTimestamp(ss.PopSpeech(), out offset))
 			{
-				return ($"The optional timestamp must be a non-negative number of seconds.\n\n{RenderPrompt(application)}", false);
+				return ($"The optional timestamp must be a non-negative number of seconds within the supported time range.\n\n{RenderPrompt(application)}", false);
 			}
-
-			offset = TimeSpan.FromSeconds(seconds);
 		}
 
 		var scene = gameworld.MediaRecordingService.GetSceneAt(recordingId, offset);
@@ -435,6 +433,21 @@ internal sealed class MediaBuiltInApplicationExecutor : IComputerBuiltInApplicat
 		return scene is null
 			? ($"That media file has no stored scene at that time.\n\n{RenderPrompt(application)}", false)
 			: ($"Still from {file.FileName.ColourName()} at {offset.Describe(session.User).ColourValue()}:\n\n{scene.CanonicalScene}\n\n{RenderPrompt(application)}", false);
+	}
+
+	internal static bool TryParseMediaTimestamp(string text, out TimeSpan timestamp)
+	{
+		timestamp = TimeSpan.Zero;
+		if (!double.TryParse(text, out var seconds) ||
+		    !double.IsFinite(seconds) ||
+		    seconds < 0.0 ||
+		    seconds > TimeSpan.MaxValue.TotalSeconds)
+		{
+			return false;
+		}
+
+		timestamp = TimeSpan.FromSeconds(seconds);
+		return true;
 	}
 
 	private static string RenderInputs(IFuturemud gameworld, IComputerHost host, IComputerBuiltInApplication application)

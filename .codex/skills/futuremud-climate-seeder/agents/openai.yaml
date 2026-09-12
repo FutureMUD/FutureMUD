@@ -1,4 +1,4 @@
 interface:
   display_name: "FutureMUD Climate Seeder"
-  short_description: "Add or tune FutureMUD climate templates and runtime climate behavior"
-  default_prompt: "Add or tune a climate template in FutureMUD's WeatherSeeder using the WeatherSeederClimateProfile pattern, the canonical weather-event graph, regional temperature fluctuation settings, opposite-hemisphere controller behavior, real-world references, analyzer-backed tests, and recalibrated transition probabilities."
+  short_description: "Tune seeded climates and diagnose climate regressions"
+  default_prompt: "Use $futuremud-climate-seeder for the requested climate task, using benchmark evidence when calibration changes and focused regression checks for the affected behaviour."

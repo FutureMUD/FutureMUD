@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace MudSharp.Commands.Modules;
 
-internal class InventoryModule : Module<ICharacter>
+internal partial class InventoryModule : Module<ICharacter>
 {
     protected static Regex PutCommandRegex =
         new(

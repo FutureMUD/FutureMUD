@@ -1,5 +1,9 @@
 # FutureProg Execution Runtime
 
+## Durable Vancian notifications
+
+`ExecuteWithStatus` reports execution/parameter-conversion errors and deliberately runs notifications without cached results. Vancian selection and refresh operations durably mark callbacks as invoking before calling this entry point; a failed or interrupted callback requires inspection and is never automatically replayed on reload. This leaves ordinary `Execute` and its existing caching semantics intact. The [Vancian API](../Magic/Vancian_Magic_FutureProg.md) uses typed functions and the same guarded service as player commands and crafting.
+
 ## Purpose
 
 FutureProg is compiled ahead of execution and is routinely used in high-frequency game checks. The runtime therefore treats execution time and transient allocation as first-class constraints while preserving script syntax, strong typing, null/error behaviour, case-insensitive variable access, persistence, and built-in semantics.

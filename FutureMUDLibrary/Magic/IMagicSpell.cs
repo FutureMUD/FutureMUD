@@ -16,6 +16,8 @@ namespace MudSharp.Magic
     public interface IMagicSpell : ISaveable, IEditableItem, IProgVariable
     {
         IFutureProg SpellKnownProg { get; }
+		int SpellLevel { get; }
+		bool ScrollInscriptionAllowed { get; }
         IMagicSchool School { get; }
         TimeSpan ExclusiveDelay { get; }
         TimeSpan NonExclusiveDelay { get; }

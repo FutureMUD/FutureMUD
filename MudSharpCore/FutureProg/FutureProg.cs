@@ -614,8 +614,15 @@ public class FutureProg : SaveableItem, IFutureProg
 		}
 	}
 
+	public bool ExecuteWithStatus(out object result, params object[] variables)
+	{
+		if (!string.IsNullOrEmpty(CompileError)) { result = null; return false; }
+		result = ExecuteUncached(variables, out var success, true);
+		return success;
+	}
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private object ExecuteUncached(object[] variables, out bool success)
+	private object ExecuteUncached(object[] variables, out bool success, bool failParameterErrors = false)
 	{
 		if (_executionParameters.Length == 0)
 		{
@@ -637,6 +644,7 @@ public class FutureProg : SaveableItem, IFutureProg
             }
             catch (Exception e)
             {
+				if (failParameterErrors) { success = false; return null; }
 				Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was an exception while assigning parameter #{i} ({NamedParameters[i].Item2}) in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nException:\n\n{e}");
 				variableSpaceDict.Add(parameter.Name, new NullVariable(parameter.Type));
             }

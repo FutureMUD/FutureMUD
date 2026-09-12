@@ -5,6 +5,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Combat;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
+using MudSharp.Magic.Vancian;
 
 namespace MudSharp.Magic;
 
@@ -28,7 +29,9 @@ public class MagicArmourConfiguration
 		Quality = rhs.Quality;
 		ArmourMaterial = rhs.ArmourMaterial;
 		ArmourAppliesProg = rhs.ArmourAppliesProg;
-		MaximumDamageAbsorbed = new TraitExpression(rhs.MaximumDamageAbsorbed.OriginalFormulaText, Gameworld);
+		MaximumDamageAbsorbed = rhs.MaximumDamageAbsorbed is ContextualSpellExpression contextual
+			? ContextualSpellExpression.LoadContext(contextual.SaveContext(), Gameworld)
+			: new TraitExpression(rhs.MaximumDamageAbsorbed.OriginalFormulaText, Gameworld);
 		FullDescriptionAddendum = rhs.FullDescriptionAddendum;
 		ArmourCanBeObscuredByInventory = rhs.ArmourCanBeObscuredByInventory;
 		foreach (var shape in rhs.CoveredShapes)
@@ -67,7 +70,9 @@ public class MagicArmourConfiguration
 			throw new ApplicationException("Invalid armour material in magic armour configuration.");
 		FullDescriptionAddendum = root.Element("FullDescriptionAddendum")?.Value ?? string.Empty;
 		ArmourCanBeObscuredByInventory = bool.Parse(root.Element("CanBeObscuredByInventory")?.Value ?? "false");
-		MaximumDamageAbsorbed = new TraitExpression(root.Element("MaximumDamageAbsorbed")?.Value ?? "0", Gameworld);
+		MaximumDamageAbsorbed = root.Element("ContextualExpression") is { } contextual
+			? ContextualSpellExpression.LoadContext(contextual, Gameworld)
+			: new TraitExpression(root.Element("MaximumDamageAbsorbed")?.Value ?? "0", Gameworld);
 		CoveredShapes.Clear();
 		var element = root.Element("BodypartShapes");
 		if (element is null)
@@ -95,7 +100,8 @@ public class MagicArmourConfiguration
 		root.Add(new XElement("ArmourMaterial", ArmourMaterial?.Id ?? 0L));
 		root.Add(new XElement("FullDescriptionAddendum", new XCData(FullDescriptionAddendum)));
 		root.Add(new XElement("CanBeObscuredByInventory", ArmourCanBeObscuredByInventory));
-		root.Add(new XElement("MaximumDamageAbsorbed", new XCData(MaximumDamageAbsorbed.OriginalFormulaText)));
+		root.Add(new XElement("MaximumDamageAbsorbed", new XCData(MaximumDamageAbsorbed is ContextualSpellExpression bound ? bound.Source.OriginalFormulaText : MaximumDamageAbsorbed.OriginalFormulaText)));
+		if (MaximumDamageAbsorbed is ContextualSpellExpression context) root.Add(context.SaveContext());
 		root.Add(new XElement("BodypartShapes",
 			from shape in CoveredShapes
 			select new XElement("Shape", shape.Id)

@@ -105,7 +105,7 @@ Typical developer changes in this area are:
 
 ## Capabilities
 ### Agent Quick Map
-- Runtime class and current type: `MudSharpCore/Magic/Capabilities/SkillLevelBasedMagicCapability.cs`
+- Runtime types: `SkillLevelBasedMagicCapability` and `VancianMagicCapability` in `MudSharpCore/Magic/Capabilities`
 - Contract: `FutureMUDLibrary/Magic/IMagicCapability.cs`
 - Character integration: `MudSharpCore/Character/CharacterMagic.cs`
 - Merit integration: `MudSharpCore/RPG/Merits/CharacterMerits/MagicCapabilityMerit.cs`
@@ -127,7 +127,7 @@ The current `IMagicCapability` contract exposes:
 - a prompt-visibility flag for resources
 - a clone method
 
-The current implemented capability type is `skilllevel`.
+The implemented capability types are `skilllevel` and `vancian`. The latter shares concentration, regenerators and inherent powers, and adds configurable spell repertoires, allowances and recovery. Its choices and slot ledger are persisted per canonical identity/capability, while live capabilities are still derived from grants. See [Vancian runtime](Vancian_Magic_Runtime.md) for state ownership, suspension and migration details, and the [builder guide](Vancian_Magic_Builder_Guide.md) for complete configuration.
 
 Its runtime model includes:
 
@@ -156,9 +156,10 @@ Current creation syntax:
 
 - `magic capability edit new <type> <name> ...`
 
-Current implemented type:
+Current implemented types:
 
 - `skilllevel`
+- `vancian` (also takes a school and concentration trait; starts disabled until its required policies and allowances are configured)
 
 For `skilllevel`, the builder creation flow requires:
 
@@ -216,6 +217,7 @@ To add a new capability type:
 The current factory token list is:
 
 - `skilllevel`
+- `vancian`
 
 ## Resources
 ### Agent Quick Map
@@ -451,7 +453,7 @@ The current builder/runtime type token list is:
 
 ## Current Implemented Type Summary
 - School model: first-class record, no subtype registry
-- Capability types: `skilllevel`
+- Capability types: `skilllevel`, `vancian`
 - Resource types: `simple`
 - Regenerator types: `linear`, `state`
 

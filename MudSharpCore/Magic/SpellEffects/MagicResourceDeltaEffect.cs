@@ -44,7 +44,7 @@ public class MagicResourceDeltaEffect : IMagicSpellEffectTemplate
 	public IMagicSpell Spell { get; }
 	public IFuturemud Gameworld => Spell.Gameworld;
 	public IMagicResource? Resource { get; private set; }
-	public ITraitExpression DeltaExpression { get; private set; } = null!;
+	public ITraitExpression DeltaExpression { get; internal set; } = null!;
 
 	private void LoadFromXml(XElement root)
 	{

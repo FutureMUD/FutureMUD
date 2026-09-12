@@ -158,6 +158,13 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 ## Magic
 
+- [Vancian Magic Runtime and Persistence](./Magic/Vancian_Magic_Runtime.md)
+- [Vancian Magic Player Guide](./Magic/Vancian_Magic_Player_Guide.md)
+- [Vancian Magic Builder Guide and Examples](./Magic/Vancian_Magic_Builder_Guide.md)
+- [Vancian FutureProg Contracts](./Magic/Vancian_Magic_FutureProg.md)
+- [Spell Scroll Compatibility Inventory](./Magic/Vancian_Scroll_Compatibility.md)
+- [Vancian Verification and Acceptance Matrix](./Magic/Vancian_Magic_Verification.md)
+- [Vancian Full Feature Specification](./Magic/Vancian_Magic_Design_and_Implementation.md)
 - [Magical Substances: Potions, Oils and Other Carriers](./Magic/Magical_Substances.md)
 - [Magical and Psychic Combat Powers](./Magic/Magic_Combat_Powers.md)
 

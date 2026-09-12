@@ -1,5 +1,9 @@
 # FutureMUD Item System Component Authoring
 
+## Magical writing components
+
+Use `spellbook` and `spellscroll` with the normal component editor. Configure capacity, eligibility/usability progs, optional readable-writing requirements, duration, inventory plans and emotes; `check` reports invalid references/configuration. Instance formula/charge data cannot be authored as reusable prototype payloads. Scrolls cannot coexist with container, stackable or spellbook components; the shared prototype-exclusivity helper reports the conflict in either attachment order. The [Vancian builder guide](../Magic/Vancian_Magic_Builder_Guide.md) supplies exact commands and signatures.
+
 For stock modern firearm, attachment, ammunition, explosive, and artillery compositions, see [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
 
 ## Scope

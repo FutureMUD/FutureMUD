@@ -1,5 +1,9 @@
 # FutureMUD Item System Runtime Model
 
+## Spellbook and spell scroll instance state
+
+`ISpellbook` formulae and `ISpellScroll` payloads persist in component-instance XML with explicit schema validation. Book copies receive independent formula collections; normal scroll copies start blank. Scrolls reject stackable/container/book composition, merging and charge-transfer morph paths. A durable charge tombstone prevents a stale component save from reactivating or retranscribing a consumed scroll. Deleting a scroll does not delete its operation audit or numerical context retained by applied effects. Abandoned Reserved writing is cancelled on lazy access, restoring only matching unspent slot state. Matching item reservations clear even if the item loads later; committed or consumed work never refunds automatically. See [Vancian persistence and commitment boundaries](../Magic/Vancian_Magic_Runtime.md).
+
 Firearm simulation copies preserve live ammunition, chamber, fire-mode, safety, and attachment state; explosive impact and trap integration are documented in [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
 
 ## Scope

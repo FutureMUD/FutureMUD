@@ -32,6 +32,8 @@ public class BlankDatabaseSnapshotTests
 		string assetDirectory = GetDatabaseSeederProjectDirectory();
 		string snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(assetDirectory));
 		string latestMigrationId = GetLatestMigrationIdFromSource();
+		Assert.IsFalse(snapshot.Contains('\uFEFF'), "An embedded byte-order mark makes appended SQL invalid for MySQL import.");
+		Assert.IsFalse(snapshot.Contains("\u00EF\u00BB\u00BF"), "An incorrectly decoded byte-order mark also makes appended SQL invalid.");
 
 		// The maintained MySQL dump writes migration history in a batched INSERT, so the
 		// newest migration is usually not the first tuple after VALUES.
@@ -54,7 +56,7 @@ public class BlankDatabaseSnapshotTests
 			         "__EFMigrationsHistory", "Vehicles", "VehicleOccupantSlotProtos",
 			         "VehicleMovementProfileProtos", "VehiclePropulsionProfileProtos",
 			         "CharacterCombatSettings", "TraitDefinitions", "RangedCovers", "LootTables",
-			         "EditableItems", "OutfitTemplateItems"
+			         "EditableItems", "OutfitTemplateItems", "MagicSpells", "CharacterMagicCapabilityStates", "VancianMagicOperations"
 		         })
 		{
 			Assert.IsFalse(deltas.Contains($"`{table}`", StringComparison.Ordinal),

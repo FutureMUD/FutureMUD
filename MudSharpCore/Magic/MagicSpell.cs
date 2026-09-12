@@ -13,18 +13,21 @@ using MudSharp.PerceptionEngine.Lists;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
 using System.Net;
+using MudSharp.Magic.Vancian;
 
 #nullable enable
 #nullable disable warnings
 
 namespace MudSharp.Magic;
 
-public class MagicSpell : SaveableItem, IMagicSpell
+public partial class MagicSpell : SaveableItem, IMagicSpell
 {
     public MagicSpell(Models.MagicSpell spell, IFuturemud gameworld)
     {
         Gameworld = gameworld;
         _id = spell.Id;
+		SpellLevel = spell.SpellLevel;
+		ScrollInscriptionAllowed = spell.ScrollInscriptionAllowed;
         _name = spell.Name;
         Blurb = spell.Blurb;
         Description = spell.Description;
@@ -132,6 +135,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
         School = rhs.School;
         _name = name;
         Blurb = rhs.Blurb;
+		SpellLevel = rhs.SpellLevel;
+		ScrollInscriptionAllowed = rhs.ScrollInscriptionAllowed;
         Description = rhs.Description;
         AppliedEffectsAreExclusive = rhs.AppliedEffectsAreExclusive;
         ExclusiveDelay = rhs.ExclusiveDelay;
@@ -174,6 +179,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
             Models.MagicSpell dbitem = new()
             {
                 Name = Name,
+				SpellLevel = SpellLevel,
+				ScrollInscriptionAllowed = ScrollInscriptionAllowed,
                 Blurb = Blurb,
                 Description = Description,
                 ExclusiveDelay = ExclusiveDelay.TotalSeconds,
@@ -235,6 +242,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
     {
         Models.MagicSpell dbitem = FMDB.Context.MagicSpells.Find(Id);
         dbitem.Name = Name;
+		dbitem.SpellLevel = SpellLevel;
+		dbitem.ScrollInscriptionAllowed = ScrollInscriptionAllowed;
         dbitem.Blurb = Blurb;
         dbitem.Description = Description;
         dbitem.ExclusiveDelay = ExclusiveDelay.TotalSeconds;
@@ -270,6 +279,9 @@ public class MagicSpell : SaveableItem, IMagicSpell
 	#3description#0 - drops you into an editor for a more detailed description
 	#3school <school>#0 - changes the school of this spell
 	#3prog <prog>#0 - sets the prog that controls a character knowing the spell
+	#3level <non-negative integer>#0 - sets the base spell level, including level zero
+	#3scroll <true|false>#0 - enables or revokes new and existing scroll activation
+	#3scrollcheck#0 - lists scroll snapshot compatibility diagnostics
 	#3exclusivedelay <seconds>#0 - sets the post-cast lockout of all spells
 	#3nonexclusivedelay <seconds>#0 - sets the post-cast lockout of same school spells
 	#3trigger new <type> [...]#0 - changes the trigger for the spell to a new type
@@ -303,6 +315,15 @@ public class MagicSpell : SaveableItem, IMagicSpell
     {
         switch (command.PopForSwitch())
         {
+            case "level":
+                if (!int.TryParse(command.SafeRemainingArgument, out var level) || level < 0) { actor.OutputHandler.Send("Supply a non-negative base spell level."); return false; }
+                SpellLevel = level; Changed = true; actor.OutputHandler.Send($"Base spell level set to {level.ToString("N0", actor)}. Existing preparations with a different base level are suspended."); return true;
+            case "scroll":
+                if (!bool.TryParse(command.SafeRemainingArgument, out var scroll)) { actor.OutputHandler.Send("Use scroll true or scroll false."); return false; }
+                ScrollInscriptionAllowed = scroll; Changed = true; actor.OutputHandler.Send($"Scroll inscription/activation enabled: {scroll.ToColouredString()}."); return true;
+            case "scrollcheck":
+                var errors = ScrollSpellCompatibility.Errors(this);
+                actor.OutputHandler.Send(errors.Count == 0 ? "This spell supports stored numerical scroll snapshots." : string.Join("\n", errors)); return false;
             case "name":
                 return BuildingCommandName(actor, command);
             case "blurb":
@@ -1201,6 +1222,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
         sb.AppendLine();
         sb.AppendLine($"Blurb: {Blurb.ColourCommand()}");
         sb.AppendLine($"School: {School.Name.Colour(School.PowerListColour)}");
+		sb.AppendLine($"Base Spell Level: {SpellLevel.ToString("N0", actor).ColourValue()}; Scrolls Enabled: {ScrollInscriptionAllowed.ToColouredString()}");
+		foreach (var error in ScrollSpellCompatibility.Errors(this)) sb.AppendLine($"Scroll compatibility: {error.ColourError()}");
         sb.AppendLine($"Exclusive Delay: {ExclusiveDelay.Describe().ColourValue()}");
         sb.AppendLine($"Non-Exclusive Delay: {NonExclusiveDelay.Describe().ColourValue()}");
         sb.AppendLine($"Known Prog: {SpellKnownProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
@@ -1317,6 +1340,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
     #region Implementation of IMagicSpell
 
     public IFutureProg SpellKnownProg { get; set; }
+	public int SpellLevel { get; set; }
+	public bool ScrollInscriptionAllowed { get; set; }
     public IMagicSchool School { get; set; }
     public string Description { get; set; }
     public string Blurb { get; set; }
@@ -1353,12 +1378,17 @@ public class MagicSpell : SaveableItem, IMagicSpell
     public bool CharacterKnowsSpell(ICharacter magician)
     {
 		if (Trigger is SpellTriggers.AttackHitTrigger or SpellTriggers.SubstanceTrigger) return false;
+		return HasLegacyRoute(magician) || (magician is not null && VancianMagicService.For(Gameworld).KnowsThroughVancian(magician, this));
+	}
+
+	public bool HasLegacyRoute(ICharacter magician)
+	{
         if (magician is null || SpellKnownProg is null)
         {
             return false;
         }
 
-        if (magician.Capabilities.Select(x => x.School).Distinct().All(x => x != School))
+        if (magician.Capabilities.Where(x => x is not IVancianMagicCapability).All(x => x.School != School))
         {
             return false;
         }
@@ -1384,6 +1414,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
         {
             return false;
         }
+		var legacy = HasLegacyRoute(magician);
 
         if (Trigger is not ICastMagicTrigger castTrigger ||
             power < castTrigger.MinimumPower ||
@@ -1397,15 +1428,33 @@ public class MagicSpell : SaveableItem, IMagicSpell
             return false;
         }
 
-        foreach ((IMagicResource resource, ITraitExpression expression) in _castingCosts)
-        {
-            double cost = expression.EvaluateWith(magician, CastingTrait, TraitBonusContext.SpellCost,
-                ("power", (int)power), ("self", magician == target ? 1 : 0));
-            if (!magician.CanUseResource(resource, cost))
-            {
-                return false;
-            }
-        }
+		bool CanAfford(SpellNumericalContext? context)
+		{
+			foreach (var (resource, expression) in _castingCosts)
+			{
+				var values = new (string, object)[] { ("power", (int)power), ("self", magician == target ? 1 : 0) };
+				var cost = context is null
+					? expression.EvaluateWith(magician, CastingTrait, TraitBonusContext.SpellCost, values)
+					: context.Evaluate($"cost/{resource.Id}", expression, magician, CastingTrait, TraitBonusContext.SpellCost, values);
+				if ((context is not null && (!double.IsFinite(cost) || cost < 0)) || !magician.CanUseResource(resource, cost)) return false;
+			}
+			return true;
+		}
+		if (legacy)
+		{
+			if (!CanAfford(null)) return false;
+		}
+		else
+		{
+			var service = VancianMagicService.For(Gameworld);
+			try
+			{
+				if (!service.AvailableRoutes(magician, this, power).Any(route => CanAfford(new SpellNumericalContext(
+					SpellLevel, route.Availability.CastingLevel, service.CasterLevel(magician, route.Capability),
+					power, route.Capability.ReliableOutcome, false)))) return false;
+			}
+			catch { return false; }
+		}
 
         if (InventoryPlanTemplate is null ||
             InventoryPlanTemplate.CreatePlan(magician).PlanIsFeasible() != InventoryPlanFeasibility.Feasible)
@@ -1424,6 +1473,26 @@ public class MagicSpell : SaveableItem, IMagicSpell
     public void CastSpell(ICharacter magician, IPerceivable target, SpellPower power,
         params SpellAdditionalParameter[] additionalParameters)
     {
+		if (SpellTargetCapture.Intercept(magician, this, target, power, additionalParameters)) return;
+		if (Trigger is ICastMagicTrigger && magician.Capabilities.Any(x => x is IVancianMagicCapability && x.School.Id == School.Id) && !HasLegacyRoute(magician))
+		{
+			if (SpellPowerInvocation.For(magician, this) is not null)
+			{
+				magician.OutputHandler.Send(VancianMagicService.For(Gameworld).CastFromPower(magician, this, target, power, additionalParameters).Message);
+				return;
+			}
+			magician.OutputHandler.Send($"Use {School.SchoolVerb} vancian <capability> cast <repertoire> <allowance> \"{Name}\" <ordinal|next|atwill> [targets] to select a paid route.");
+			return;
+		}
+		CastSpellCore(magician, target, power, null, additionalParameters);
+	}
+
+	internal void CastVancian(ICharacter magician, IPerceivable? target, SpellPower power, SpellInvocationContext invocation, SpellAdditionalParameter[] parameters)
+		=> CastSpellCore(magician, target, power, invocation, parameters);
+
+	private void CastSpellCore(ICharacter magician, IPerceivable target, SpellPower power,
+		SpellInvocationContext? invocation, params SpellAdditionalParameter[] additionalParameters)
+	{
         if (magician.CombinedEffectsOfType<MagicSpellLockout>().Any(x => x.Applies(School)))
         {
             magician.OutputHandler.Send(
@@ -1432,10 +1501,15 @@ public class MagicSpell : SaveableItem, IMagicSpell
         }
 
         List<(IMagicResource Resource, double Cost)> realCosts = new();
-        foreach ((IMagicResource resource, ITraitExpression expression) in _castingCosts)
+        foreach ((IMagicResource resource, ITraitExpression expression) in invocation?.Source == SpellInvocationSource.ScrollActivation ? [] : _castingCosts)
         {
             double cost = expression.EvaluateWith(magician, CastingTrait, TraitBonusContext.SpellCost,
                 ("power", (int)power), ("self", magician == target ? 1 : 0));
+			if (invocation is not null && (!double.IsFinite(cost) || cost < 0))
+			{
+				magician.OutputHandler.Send("That spell has an invalid resource cost; nothing was spent.");
+				return;
+			}
             if (!magician.CanUseResource(resource, cost))
             {
                 magician.OutputHandler.Send(
@@ -1446,7 +1520,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
             realCosts.Add((resource, cost));
         }
 
-        IInventoryPlan plan = InventoryPlanTemplate.CreatePlan(magician);
+        IInventoryPlan plan = (invocation?.Source == SpellInvocationSource.ScrollActivation
+			? new InventoryPlanTemplate(Gameworld, [new InventoryPlanPhaseTemplate(1, [])]) : InventoryPlanTemplate).CreatePlan(magician);
         switch (plan.PlanIsFeasible())
         {
             case InventoryPlanFeasibility.Feasible:
@@ -1473,10 +1548,17 @@ public class MagicSpell : SaveableItem, IMagicSpell
             return;
         }
 
-        foreach ((IMagicResource resource, double cost) in realCosts)
-        {
-            magician.UseResource(resource, cost);
-        }
+		void Pay()
+		{
+			foreach ((IMagicResource resource, double cost) in realCosts) magician.UseResource(resource, cost);
+			plan.ExecuteWholePlan();
+		}
+		if (invocation is not null)
+		{
+			if (!invocation.Commit(Pay)) return;
+			invocation.Status = MagicInvocationStatus.Failed;
+		}
+		else Pay();
 		var powerInvocation = SpellPowerInvocation.For(magician, this);
 		powerInvocation?.Complete(MagicInvocationStatus.Failed);
 		PsychometricRecorder.Record(magician, ImpressionKind.Magic, "the casting of a spell", target, School.Id, directItemOnly: powerInvocation is not null);
@@ -1485,7 +1567,6 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			powerInvocation?.Power.IsPsionic == true ? CrimeTypes.UnlawfulUseOfPsionics : CrimeTypes.UnlawfulUseOfMagic,
 			null, null, Name);
 
-        plan.ExecuteWholePlan();
         if (ExclusiveDelay > TimeSpan.Zero)
         {
             magician.AddEffect(new MagicSpellLockout(magician, Enumerable.Empty<IMagicSchool>()), ExclusiveDelay);
@@ -1498,8 +1579,10 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
         ICheck check = Gameworld.GetCheck(CheckType.CastSpellCheck);
         ICheck resistCheck = Gameworld.GetCheck(CheckType.ResistMagicSpellCheck);
-        Dictionary<Difficulty, CheckOutcome> result = check.CheckAgainstAllDifficulties(magician, CastingDifficulty, CastingTrait, target);
-        if (result[CastingDifficulty].Outcome < MinimumSuccessThreshold)
+        Dictionary<Difficulty, CheckOutcome> result = invocation is null
+			? check.CheckAgainstAllDifficulties(magician, CastingDifficulty, CastingTrait, target)
+			: Enum.GetValues<Difficulty>().ToDictionary(x => x, _ => CheckOutcome.SimpleOutcome(CheckType.CastSpellCheck, invocation.Outcome));
+        if (invocation is null && result[CastingDifficulty].Outcome < MinimumSuccessThreshold)
         {
             magician.OutputHandler.Handle(new EmoteOutput(new Emote(FailCastingEmote, magician, magician, target),
                 flags: CastingEmoteFlags));
@@ -1541,7 +1624,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
             if (AppliedEffectsAreExclusive)
             {
-                effectTarget.RemoveAllEffects<MagicSpellParent>(x => x.Spell == this);
+                effectTarget.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id);
             }
 
             // It's possible that all of the spell effects were instantaneous, in which case do not apply the effect
@@ -1671,6 +1754,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			ApplySpellEffect(magician, _casterSpellEffects, OpposedOutcomeDegree.None);
 		}
 		powerInvocation?.Complete(MagicInvocationStatus.Succeeded);
+		if (invocation is not null) invocation.Status = MagicInvocationStatus.Succeeded;
 	}
 
 	/// <summary>
@@ -1746,7 +1830,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
 			if (AppliedEffectsAreExclusive)
 			{
-				target.RemoveAllEffects<MagicSpellParent>(x => x.Spell == this);
+				target.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id);
 			}
 
 			if (head.SpellEffects.Any())
@@ -1835,27 +1919,20 @@ public class MagicSpell : SaveableItem, IMagicSpell
         throw new ApplicationException("Got to the end of MagicSpell.WhyNotReadyForGame without finding an error.");
     }
 
-    public string ShowPlayerHelp(ICharacter actor)
+    public string ShowPlayerHelp(ICharacter actor) => ShowPlayerHelp(actor, null);
+
+	internal string ShowPlayerHelp(ICharacter actor, IVancianMagicCapability? capability)
     {
         StringBuilder sb = new();
         sb.AppendLine($"{Name.Colour(School.PowerListColour)}");
+		sb.AppendLine($"Base spell level: {SpellLevel.ToString("N0", actor).ColourValue()}");
         sb.AppendLine($"Blurb: {Blurb.ColourCommand()}");
         sb.AppendLine($"Exclusive Effects: {AppliedEffectsAreExclusive.ToColouredString()}");
         sb.AppendLine();
         sb.AppendLine("Description:");
         sb.AppendLine();
         sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t"));
-        if (_castingCosts.Any() && Trigger is ICastMagicTrigger ct)
-        {
-            sb.AppendLine();
-            sb.AppendLine("Casting Costs:");
-            foreach (SpellPower power in Enum.GetValues<SpellPower>()
-                                      .Where(x => x >= ct.MinimumPower && x <= ct.MaximumPower))
-            {
-                sb.AppendLine(
-                    $"\t{power.DescribeEnum().ColourName()}: {_castingCosts.Select(x => $"{x.Value.EvaluateWith(actor, CastingTrait, TraitBonusContext.SpellCost, ("self", 0), ("power", (int)power))} {x.Key.ShortName}".ColourValue()).ListToString()}");
-            }
-        }
+		AppendCastingCostHelp(actor, sb, capability);
 
         if (InventoryPlanTemplate.Phases.First().Actions.Any())
         {
@@ -1883,6 +1960,10 @@ public class MagicSpell : SaveableItem, IMagicSpell
     {
         switch (property.ToLowerInvariant())
         {
+            case "spelllevel":
+                return new NumberVariable(SpellLevel);
+            case "scrollallowed":
+                return new BooleanVariable(ScrollInscriptionAllowed);
             case "name":
                 return new TextVariable(Name);
             case "id":
@@ -1908,6 +1989,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
     {
         return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
         {
+            { "spelllevel", ProgVariableTypes.Number },
+            { "scrollallowed", ProgVariableTypes.Boolean },
             { "name", ProgVariableTypes.Text },
             { "id", ProgVariableTypes.Number },
             { "description", ProgVariableTypes.Text },
@@ -1923,6 +2006,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
     {
         return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
         {
+            { "spelllevel", "The spell's non-negative base spell level; zero is a real level." },
+            { "scrollallowed", "Whether the spell currently permits scroll inscription and activation." },
             { "name", "The name of the spell" },
             { "id", "The Id of the spell" },
             { "description", "The description of the spell as seen in spellinfo" },

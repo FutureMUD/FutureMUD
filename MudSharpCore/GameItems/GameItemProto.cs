@@ -2606,6 +2606,7 @@ writing{{{exampleLanguage.Name},{exampleScript.Name},style=childish,minskill=30}
 
     private static string DescribeExclusiveComponentConflict(GameItemComponentPrototypeConflict conflict)
     {
+		if (conflict.Reason is not null) return conflict.Reason;
         var capability = conflict.Capability.Name;
         if (capability.Length > 1 && capability[0] == 'I' && char.IsUpper(capability[1]))
         {

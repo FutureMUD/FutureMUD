@@ -66,7 +66,7 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 	private static readonly HashSet<string> DependencyBound = new(StringComparer.OrdinalIgnoreCase)
 	{
 		"BiometricScanner", "BreathingFilter", "FaxMachine", "Photocopier", "Salvageable", "SignalDetonator",
-		"VehicleAccessPoint", "VehicleCargoSpace", "VehicleExterior"
+		"Spellbook", "SpellScroll", "VehicleAccessPoint", "VehicleCargoSpace", "VehicleExterior"
 	};
 
 	private static readonly HashSet<string> CombatOwned = new(StringComparer.OrdinalIgnoreCase)
@@ -423,6 +423,7 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 			"biometricscanner" => "Requires a selected world anatomy shape; UsefulSeeder must not guess one when run independently.",
 			"salvageable" => "Requires concrete material or item outputs owned by the finished item; a generic empty profile would not be useful.",
 			"signaldetonator" => "Requires a concrete signal-source component and endpoint; seed it with the finished explosive or automation graph.",
+			"spellbook" or "spellscroll" => "Requires the world's authored magic capabilities, spell policies and writing costs; configure it with that magic system rather than assuming stock spell access.",
 			_ => "Requires finished-item or world-specific references; do not seed placeholder IDs."
 		};
 	}

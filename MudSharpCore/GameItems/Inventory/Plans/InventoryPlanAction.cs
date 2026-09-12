@@ -58,6 +58,14 @@ public abstract class InventoryPlanAction : IInventoryPlanAction, IHaveFuturemud
 
     public abstract IGameItem ScoutTarget(ICharacter executor);
 
+	/// <summary>Scouts with an invocation-local allocation filter without changing the shared template's selectors.</summary>
+	internal IGameItem ScoutTarget(ICharacter executor, Func<IGameItem, bool> allocationFilter)
+	{
+		var copy = (InventoryPlanAction)MemberwiseClone();
+		copy.PrimaryItemSelector = item => (PrimaryItemSelector?.Invoke(item) ?? true) && allocationFilter(item);
+		return copy.ScoutTarget(executor);
+	}
+
     public abstract string Describe(ICharacter voyeur);
 
     #region Implementation of IXmlSavable

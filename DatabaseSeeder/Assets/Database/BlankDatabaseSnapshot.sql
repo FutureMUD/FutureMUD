@@ -15725,7 +15725,7 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 -- Total time: 0:0:0:1:652 (d:h:m:s:ms)
 
 -- EF-generated idempotent delta: NativeLanguagesAndAccentRoles
-﻿START TRANSACTION;
+START TRANSACTION;
 DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
@@ -16016,7 +16016,7 @@ DROP PROCEDURE MigrationsScript;
 COMMIT;
 
 -- Magical substance payload definitions (EF-generated delta).
-ï»¿START TRANSACTION;
+START TRANSACTION;
 DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
@@ -16075,4 +16075,157 @@ END //
 DELIMITER ;
 CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
+COMMIT;
+
+-- Reviewed EF-generated VancianMagic delta, 12 September 2026; lower-case table identifiers match the maintained dump.
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260912061254_VancianMagic') THEN
+
+    ALTER TABLE `magicspells` ADD `ScrollInscriptionAllowed` tinyint(1) NOT NULL DEFAULT FALSE;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260912061254_VancianMagic') THEN
+
+    ALTER TABLE `magicspells` ADD `SpellLevel` int NOT NULL DEFAULT 0;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260912061254_VancianMagic') THEN
+
+    CREATE TABLE `charactermagiccapabilitystates` (
+        `CharacterId` bigint(20) NOT NULL,
+        `MagicCapabilityId` bigint(20) NOT NULL,
+        `StateVersion` bigint NOT NULL,
+        `Definition` longtext CHARACTER SET utf8mb4 NOT NULL,
+        CONSTRAINT `PK_CharacterMagicCapabilityStates` PRIMARY KEY (`CharacterId`, `MagicCapabilityId`),
+        CONSTRAINT `FK_CharacterMagicCapabilityStates_Characters_CharacterId` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+        CONSTRAINT `FK_CharacterMagicCapabilityStates_MagicCapabilities_MagicCapabi~` FOREIGN KEY (`MagicCapabilityId`) REFERENCES `magiccapabilities` (`Id`) ON DELETE CASCADE
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260912061254_VancianMagic') THEN
+
+    CREATE TABLE `vancianmagicoperations` (
+        `Id` char(36) COLLATE ascii_general_ci NOT NULL,
+        `CharacterId` bigint NOT NULL,
+        `MagicCapabilityId` bigint NOT NULL,
+        `SourceItemId` bigint NULL,
+        `DestinationItemId` bigint NULL,
+        `Kind` varchar(40) CHARACTER SET utf8mb4 NOT NULL,
+        `Status` varchar(40) CHARACTER SET utf8mb4 NOT NULL,
+        `ExpectedStateVersion` bigint NOT NULL,
+        `Definition` longtext CHARACTER SET utf8mb4 NOT NULL,
+        `CreatedUtc` datetime(6) NOT NULL,
+        `UpdatedUtc` datetime(6) NOT NULL,
+        `Diagnostic` text CHARACTER SET utf8mb4 NOT NULL,
+        CONSTRAINT `PK_VancianMagicOperations` PRIMARY KEY (`Id`)
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260912061254_VancianMagic') THEN
+
+    CREATE INDEX `IX_CharacterMagicCapabilityStates_MagicCapabilityId` ON `charactermagiccapabilitystates` (`MagicCapabilityId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260912061254_VancianMagic') THEN
+
+    CREATE INDEX `IX_VancianMagicOperations_CharacterId_MagicCapabilityId` ON `vancianmagicoperations` (`CharacterId`, `MagicCapabilityId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260912061254_VancianMagic') THEN
+
+    CREATE INDEX `IX_VancianMagicOperations_DestinationItemId` ON `vancianmagicoperations` (`DestinationItemId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260912061254_VancianMagic') THEN
+
+    CREATE INDEX `IX_VancianMagicOperations_SourceItemId` ON `vancianmagicoperations` (`SourceItemId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260912061254_VancianMagic') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20260912061254_VancianMagic', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
 COMMIT;

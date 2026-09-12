@@ -1,0 +1,27 @@
+DEbug MEdieval
+Powered by the FutureMUD Engine v2.12.1.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your password:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+       or
+   Resume an application
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your password
+
+X) Disconnect from the game

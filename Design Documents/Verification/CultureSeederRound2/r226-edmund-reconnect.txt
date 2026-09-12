@@ -1,0 +1,96 @@
+DEbug MEdieval
+Powered by the FutureMUD Engine v2.12.1.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your password:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your password
+
+X) Disconnect from the game
+> c
+You have the following characters:
+  1: admin (Active)
+  2: Edmund (Active)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 2
+The Guest Lounge
+
+Exits:
+
+  This is the guest lounge, where guests to the MUD can log in and chat with
+guides, administrators or each other as well as test out features of the engine
+before their first character is approved.
+
+  Currently, it is pitch black here.
+
+A clubfooted brute with sideburns is standing here. (link dead)
+
+
+<You are currently in no pain>
+<Stamina: 220/220 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> score
+Edmund Ashford (a clean-shaven man with an acromegalic nose)
+Str: Good, Con: Good, Dex: Good, Int: Good, Wil: Good, Per: Good
+You are a twenty two year old human male, and belong to the English Nobility culture.
+You are a Young Adult.
+Your account has 1 Build Points.
+You are 1 metre 75 centimetres tall and weigh 75 kilograms.
+You are right-handed.
+Your birthday is Tuesday the 4th of May, 1277 A.D.
+You are absolutely stuffed, completely sated and sober.
+You are speaking in Latin in the Carolingian variety.
+You don't have any writing preferences set up.
+You stroll if you are standing, crawl slowly if you are lying prone, swim if you are swimming, and fly if you are flying.
+You use the Unknown currency in any economic transactions.
+You haven't even been playing this character for a single minute.
+You can carry 120 kilograms, drag 480 kilograms and are Unencumbered.
+You are not carrying anything at all.
+You are sprawled.
+
+
+
+<You are currently in no pain>
+<Stamina: 220/220 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> languages
+Native Language: Middle English
+
+You know the following languages:
+
+Latin @ (Conversant)
+Middle English @ (Masterful)
+Anglo-Norman French @ (Masterful)
+
+
+
+<You are currently in no pain>
+<Stamina: 220/220 | Exertion: Rest | Status: Awake>
+<You are sprawled here>
+> skills
+Skills:
+
+ANglo-NOrman FRench(Masterful)                LAtin          (Conversant)                   MIddle ENglish (Masterful)
+
+
+
+<You are currently in no pain>
+<Stamina: 220/220 | Exertion: Rest | Status: Awake>
+<You are sprawled here>

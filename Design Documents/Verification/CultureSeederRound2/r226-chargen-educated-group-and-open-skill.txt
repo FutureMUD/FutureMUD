@@ -1,0 +1,206 @@
+DEbug MEdieval
+Powered by the FutureMUD Engine v2.12.1.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your password:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+       or
+   Resume an application
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your password
+
+X) Disconnect from the game
+> c
+You have the following characters:
+  1: admin (Active)
+  2: Edmund (Active)
+  3: Roland (In Creation)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 3
+Mandatory skills: Latin, Middle English, and Anglo-Norman French
+R226Education
+
+Choose exactly 1 skills.
+Selected: 0; remaining capacity: 1.
+  Brawling
+Commands: groups, group <name|number>, pick <skill>, unpick <skill>, help <skill>, done, skip, back
+
+
+>
+> pick Brawling
+Mandatory skills: Latin, Middle English, and Anglo-Norman French
+R226Education
+
+Choose exactly 1 skills.
+Selected: 1; remaining capacity: 0.
+  Brawling [selected]
+Commands: groups, group <name|number>, pick <skill>, unpick <skill>, help <skill>, done, skip, back
+
+
+>
+> done
+Skill Selection
+
+Skills measure your ability to accomplish tasks - to be "good at something."
+Skills may be learned, with effort, at any time in game.
+Note: Some skill picks are nested and require the selection of another skill
+first before they are visible in the list. To those with MXP enabled, these
+nested skills will appear italicized.
+
+You get the following skills for free:
+
+Latin, Middle English, Anglo-Norman French, and Brawling
+
+You can select from the following skills:
+
+Administrator                 Armour Use                    Armourer                      Baking                        Balance                       Basketmaker
+Beekeeper                     Block                         Block Printer                 Blowgun                       Bonecarver                    Bookbinder
+Bowyer                        Brewing                       Butchery                      Calligrapher                  Candlery                      Cartographer
+Chemist                       Civil Engineer                Climb                         Clockmaker                    Cobbler                       Construction
+Cookery                       Cooper                        Crutch Use                    Diagnosis                     Distilling                    Dodge
+Drive                         Dyecraft                      Electrician                   Electronics                   Endurance                     Engraver
+Fall                          Farming                       Fletcher                      Forage                        Fuller                        Gemcraft
+Gemcutting                    Glassblower                   Glasswork                     Goldsmith                     Groom                         Gunmaker
+Gunnery                       Gunsmith                      Handwriting                   Healing                       Herbalism                     Hide
+Hideworking                   Husbandry                     Instrument Maker              Investigator                  Labourer                      Lacquerer
+Lawyer                        Lensmaker                     Listen                        Literacy                      Locksmith                     Lumberjack
+Machining                     Mechanic                      Metalcraft                    Milling                       Mining                        Munitioner
+Navigator                     Paint                         Palm                          Papermaker                    Parchmenter                   Patient Care
+Performer                     Perfumery                     Pharmacology                  Picklock                      Pottery                       Powdermaker
+Printer                       Programmer                    Quarry                        Ride                          Ropemaker                     Row
+Run                           Salvage                       Scan                          Scribe                        Scrimshaw                     Seafaring
+Search                        Silversmith                   Skin                          Sling                         Smelter                       Sneak
+Spinner                       Steal                         Stonecraft                    Subdue                        Supervisor                    Surgery
+Surveyor                      Survival                      Swimming                      Tattoo                        Textilecraft                  Thresher
+Throwing                      Tracking                      Veterancy                     Ward                          Weaponsmith                   Weaver
+Wheelwright                   Winemaker                     Woodcraft
+
+
+You also have the following languages available:
+
+Albanian                      Ancient Greek                 Andalusi Arabic               Aragonese                     Aramaic                       Armenian
+Astur-Leonese                 Basque                        Breton                        Bulgarian                     Catalan                       Church Slavonic
+Classical Arabic              Classical Armenian            Coptic                        Cornish                       Cuman-Kipchak                 Czech
+Danish                        Early Middle Korean           English                       Estonian                      Finnish                       French
+Frisian                       Galician-Portuguese           Georgian                      Gorani                        Greek                         Hebrew
+High German                   Hungarian                     Icelandic                     Italian                       Kabyle                        Koine Greek
+Kurmanji Kurdish              Late Middle Chinese           Latvian                       Lithuanian                    Lombard                       Low German
+Lusitanian                    Maghrebi Arabic               Mashriqi Arabic               Medieval Gaelic               Medieval Japanese             Medieval Tamil
+Middle Dutch                  Middle Mongol                 Middle Persian                Neapolitan                    Norman                        Norwegian
+Occitan                       Oghuz Turkic                  Old Arabic                    Old Castilian                 Old East Slavic               Old High German
+Old Irish                     Old Low Franconian            Old Norse                     Old Prussian                  Old Saxon                     Ottoman Turkish
+Persian                       Polish                        Romanian                      Ruthenian                     Sardinian                     Scots
+Serbo-Croatian                Sicilian                      Slovak                        Slovene                       Swedish                       Syriac
+Tarifit                       Tashelhit                     Venetian                      Welsh                         Western Apabhramsha           Yiddish
+
+
+You have selected 0 skills and get 5 free picks.
+Type the name of the skill you would like to select, or type done to finish.
+
+>
+> Scribe
+Skill Selection
+
+Skills measure your ability to accomplish tasks - to be "good at something."
+Skills may be learned, with effort, at any time in game.
+Note: Some skill picks are nested and require the selection of another skill
+first before they are visible in the list. To those with MXP enabled, these
+nested skills will appear italicized.
+
+You get the following skills for free:
+
+Latin, Middle English, Anglo-Norman French, and Brawling
+
+You can select from the following skills:
+
+Administrator                 Armour Use                    Armourer                      Baking                        Balance                       Basketmaker
+Beekeeper                     Block                         Block Printer                 Blowgun                       Bonecarver                    Bookbinder
+Bowyer                        Brewing                       Butchery                      Calligrapher                  Candlery                      Cartographer
+Chemist                       Civil Engineer                Climb                         Clockmaker                    Cobbler                       Construction
+Cookery                       Cooper                        Crutch Use                    Diagnosis                     Distilling                    Dodge
+Drive                         Dyecraft                      Electrician                   Electronics                   Endurance                     Engraver
+Fall                          Farming                       Fletcher                      Forage                        Fuller                        Gemcraft
+Gemcutting                    Glassblower                   Glasswork                     Goldsmith                     Groom                         Gunmaker
+Gunnery                       Gunsmith                      Handwriting                   Healing                       Herbalism                     Hide
+Hideworking                   Husbandry                     Instrument Maker              Investigator                  Labourer                      Lacquerer
+Lawyer                        Lensmaker                     Listen                        Literacy                      Locksmith                     Lumberjack
+Machining                     Mechanic                      Metalcraft                    Milling                       Mining                        Munitioner
+Navigator                     Paint                         Palm                          Papermaker                    Parchmenter                   Patient Care
+Performer                     Perfumery                     Pharmacology                  Picklock                      Pottery                       Powdermaker
+Printer                       Programmer                    Quarry                        Ride                          Ropemaker                     Row
+Run                           Salvage                       Scan                          (Scribe)                      Scrimshaw                     Seafaring
+Search                        Silversmith                   Skin                          Sling                         Smelter                       Sneak
+Spinner                       Steal                         Stonecraft                    Subdue                        Supervisor                    Surgery
+Surveyor                      Survival                      Swimming                      Tattoo                        Textilecraft                  Thresher
+Throwing                      Tracking                      Veterancy                     Ward                          Weaponsmith                   Weaver
+Wheelwright                   Winemaker                     Woodcraft
+
+
+You also have the following languages available:
+
+Albanian                      Ancient Greek                 Andalusi Arabic               Aragonese                     Aramaic                       Armenian
+Astur-Leonese                 Basque                        Breton                        Bulgarian                     Catalan                       Church Slavonic
+Classical Arabic              Classical Armenian            Coptic                        Cornish                       Cuman-Kipchak                 Czech
+Danish                        Early Middle Korean           English                       Estonian                      Finnish                       French
+Frisian                       Galician-Portuguese           Georgian                      Gorani                        Greek                         Hebrew
+High German                   Hungarian                     Icelandic                     Italian                       Kabyle                        Koine Greek
+Kurmanji Kurdish              Late Middle Chinese           Latvian                       Lithuanian                    Lombard                       Low German
+Lusitanian                    Maghrebi Arabic               Mashriqi Arabic               Medieval Gaelic               Medieval Japanese             Medieval Tamil
+Middle Dutch                  Middle Mongol                 Middle Persian                Neapolitan                    Norman                        Norwegian
+Occitan                       Oghuz Turkic                  Old Arabic                    Old Castilian                 Old East Slavic               Old High German
+Old Irish                     Old Low Franconian            Old Norse                     Old Prussian                  Old Saxon                     Ottoman Turkish
+Persian                       Polish                        Romanian                      Ruthenian                     Sardinian                     Scots
+Serbo-Croatian                Sicilian                      Slovak                        Slovene                       Swedish                       Syriac
+Tarifit                       Tashelhit                     Venetian                      Welsh                         Western Apabhramsha           Yiddish
+
+
+You have selected 1 skills and get 5 free picks.
+Type the name of the skill you would like to select, or type done to finish.
+
+>
+> done
+Skill Boosts
+
+The next step is deciding whether to apply any boosts to your character's starting skills. This is a totally optional process, and costs build points. Each character also gets 25
+free BP to spend on boosts, so even a first character can emphasise one key skill. Each skill boost will push your starting skill value up approximately one "rank". It is mostly
+designed so that after the first few characters, when players have started to accumulate some build points, they can avoid some of the starting grind, but "troll" players who
+consistently roll red-shirt characters to try and PK don't get the same leg up.
+
+You picked the following skills:
+
+LAtin (LAnguage): x0                                                                      MIddle ENglish (LAnguage): x0
+ANglo-NOrman FRench (LAnguage): x0                                                        SCribe (CRafting): x0
+BRawling (COmbat): x0
+
+Total Cost of Boosts: 0 bp
+Type the name of the skill you want to boost, done to finish, or type help for more detailed syntax options.
+
+
+>
+> done
+Accent Selection
+
+You will now be given the opportunity to pick which accents you natively employ
+with any language you have chosen. These are the accents in which you learned
+to speak the language in question, and represent how you will naturally speak
+the language. Other accents can be learned by exposure and practice.
+
+Type continue to begin, or reset at any time to return to this screen.
+
+>

@@ -120,8 +120,13 @@ def validate(root: Path) -> dict:
     check('darkages' in accent_eras('earthrenaissanceeurope','Welsh','Northern','Welsh'),'Reusable Welsh tradition lost')
     check('darkages' not in accent_eras('earthrenaissanceworldexpansion','Persian','Safavid Court','court'),'Late marker did not restrict override')
     resources=read('data/runtime_resource_manifest.json')
-    check(len(resources['required_resource_names'])==28 and len(set(resources['required_resource_names']))==28,'Resource manifest not 28 distinct names')
-    check('data.accent_era_policy.json' in resources['required_resource_names'] and 'data.name_playability_policy.json' in resources['required_resource_names'],'New policy resources absent')
+    expected_count = resources['expected_required_count']
+    check(expected_count == 30 and len(resources['required_resource_names']) == expected_count and
+          len(set(resources['required_resource_names'])) == expected_count,
+          'Resource manifest must declare 30 distinct names (28 round-two inputs plus two accent-role inputs)')
+    check({'data.accent_era_policy.json', 'data.name_playability_policy.json',
+           'data.stock_accent_roles.json', 'data.historical_foreign_accents.json'}.issubset(resources['required_resource_names']),
+          'Round-two or subsequent accent-role policy resources absent')
     cases=read('data/regression_cases.json')['cases']
     check([c['id'] for c in cases]==[f'R2-{i:02d}' for i in range(1,27)],'Regression case IDs incomplete')
     # Integrity is a separate transport check, not inflated into the authoring-assertion count.

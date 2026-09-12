@@ -2,7 +2,7 @@
 
 Implementation commit: `e052681cf6efd6170c3d776afd9ff8b45474fec1`. Branch: `codex/culture-toolkit-round2`. Base: PR #732, `2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86`, including PR #730. No merge, migration, legacy reset, alias change or new chargen screen is part of this change.
 
-The supplied [corrective handoff](../Seeding/CultureSeederRound2Handoff/AGENT_TASK.md) is retained with its original manifest, reference evidence and validator. Runtime inputs remain under `CultureSeederRedesignHandoff`: the revised names, merged exact native bindings, two new policy documents and additional bibliography entries. The explicit 28-resource manifest prevents unrelated files from concealing missing required inputs. JSON duplicate properties and stable keys fail loading.
+The supplied [corrective handoff](../Seeding/CultureSeederRound2Handoff/AGENT_TASK.md) is retained with its original manifest, reference evidence and validator. Runtime inputs remain under `CultureSeederRedesignHandoff`: the revised names, merged exact native bindings, two new policy documents and additional bibliography entries. The original explicit 28-resource manifest prevented unrelated files from concealing missing required inputs. JSON duplicate properties and stable keys fail loading.
 
 ## Script acquisition
 
@@ -31,3 +31,13 @@ Existing per-element reconciliation preserves builder deletions, custom weights 
 Repeated integrated fixtures exposed EF service-provider accumulation in isolated source stages. Each stage deliberately has its own temporary InMemory root; caching those providers retained whole source corpora and eventually tripped EF's provider-count guard. Source contexts now disable provider caching, rather than suppressing the guard. Their isolation remains unchanged.
 
 See the [content receipt](CultureSeeder_Round2_Content_Receipt.md) and [verification report](CultureSeeder_Round2_Verification.md) for exact results, database identities and unexecuted checks. The branch remains unmerged.
+
+## Maintenance addendum — 2026-09-12
+
+The preceding sections preserve the historical implementation record subsequently published in PR #733, including its then-unmerged branch status. Later accent-role and foreign-accent work extended the runtime contract from 28 to 30 named resources by adding `data.stock_accent_roles.json` and `data.historical_foreign_accents.json`.
+
+The handoff validator now checks the declared 30-resource count, uniqueness and the required policy additions; its transport checksums are refreshed. `RoundTwoHandoffManifestMatchesCurrentRuntimeResourceContract` additionally compares the complete manifest name set with the runtime required-resource contract, so an unrelated replacement cannot conceal a missing input.
+
+Earlier packs can retain an accent whose source module contains a language introduced only in a later pack. Reconciliation now leaves that unavailable endpoint unassociated rather than inventing an earlier language or reporting a false conflict. It still reports genuinely missing in-era endpoints and retains builder-managed associations.
+
+The maintenance update includes a new isolated MySQL fresh-install and committed same-era rerun receipt, plus the R2-26 telnet evidence. It does not alter the historical evidence tables; see the verification report for the target scope, exact transcripts and the distinct fixture-only skill group used to exercise the group screen.

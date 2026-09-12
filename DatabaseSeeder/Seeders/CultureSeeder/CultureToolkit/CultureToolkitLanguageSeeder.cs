@@ -27,6 +27,10 @@ public static class CultureToolkitLanguageSeeder
 		var eras = catalogue.Document("data.eras.json").EnumerateArray().Select(x => CultureToolkitCatalogue.Text(x, "key")).ToList();
 		var firstLegacyEra = CultureToolkitLanguageBindings.SourceModuleFirstEra;
 		var specifications = pack.Languages.ToDictionary(x => CultureToolkitCatalogue.Text(x, "key"));
+		var excludedLanguageKeys = catalogue.Document("data.language_identity_and_labels.json").EnumerateArray()
+			.Where(x => CultureToolkitCatalogue.Text(x, "entity_kind") == "language-specification")
+			.Where(x => !x.GetProperty("labels").TryGetProperty(pack.Era, out _))
+			.Select(x => CultureToolkitCatalogue.Text(x, "key")).ToHashSet(StringComparer.Ordinal);
 		var sources = sourceStages.SelectMany(source => source.Value.Languages.Include(x => x.LinkedTrait).ThenInclude(x => x.Expression)
 			.Include(x => x.Accents).AsEnumerable().Select(language => (Module: source.Key, Language: language,
 				Key: CultureToolkitLanguageBindings.Key(source.Key, language.Name))))
@@ -205,7 +209,10 @@ public static class CultureToolkitLanguageSeeder
 				}
 				if (installed.TryGetValue(binding, out var associated) || installed.TryGetValue("legacy:" + sourceLanguage, out associated))
 					desiredIds.Add(associated.Id);
-				else conflicts.Add($"Accent {key}: associated source language {sourceLanguage} is not installed.");
+				// Earlier packs reuse later source definitions, but do not install all of that
+				// module's languages. Retain the accent without inventing an earlier endpoint.
+				else if (!excludedLanguageKeys.Contains(binding))
+					conflicts.Add($"Accent {key}: associated source language {sourceLanguage} is not installed.");
 			}
 			var associationKey = key + ".associated-languages";
 			var owner = CultureToolkitManagedEntities.Find(context, "AccentAssociations", associationKey);

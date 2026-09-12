@@ -133,6 +133,50 @@ public class CultureToolkitLanguageSeederTests
 		Assert.AreEqual(1, context.Accents.Count(x => x.Description == "Second retained source"));
 	}
 
+	[DataTestMethod]
+	[DataRow("medieval", false)]
+	[DataRow("medieval", true)]
+	[DataRow("renaissance", false)]
+	public void LaterSourceAccentEndpointsRespectPackEraAndPreserveBuilderAssociations(string era, bool builderEdited)
+	{
+		using var context = Context();
+		using var source = Context();
+		var prerequisites = Prerequisites(context);
+		var english = new Language { Name = "English", LinkedTrait = new TraitDefinition
+			{ Name = "English", Expression = new TraitExpression { Name = "English Skill Cap", Expression = "200" } } };
+		english.Accents.Add(new Accent { Name = "German", Group = "foreign", Role = 1,
+			Description = "German pronunciation", Suffix = "with a German accent", VagueSuffix = "with a foreign accent" });
+		source.Add(english);
+		source.Add(new Language { Name = "Low German", LinkedTrait = new TraitDefinition
+			{ Name = "Low German", Expression = new TraitExpression { Name = "Low German Skill Cap", Expression = "200" } } });
+		source.SaveChanges();
+		var catalogue = new CultureToolkitCatalogue();
+		var whole = catalogue.Compose(era);
+		var lowGermanKey = CultureToolkitLanguageBindings.Key("earthrenaissanceeurope", "Low German");
+		var pack = whole with { Languages = whole.Languages.Where(x => new[] { "english.middle", lowGermanKey }.Contains(CultureToolkitCatalogue.Text(x, "key"))).ToArray() };
+		var stages = new Dictionary<string, FuturemudDatabaseContext> { ["earthrenaissanceeurope"] = source };
+		var conflicts = new List<string>();
+		void Install() => CultureToolkitLanguageSeeder.Upsert(context, catalogue, pack, stages,
+			new Dictionary<string, Language>(), prerequisites, conflicts);
+		Install();
+		var accent = context.Accents.Single(x => x.Name == "German");
+		var accentId = accent.Id;
+		if (builderEdited)
+		{
+			accent.AssociatedLanguages.Clear();
+			accent.AssociatedLanguages.Add(new Language { Name = "Builder Language" });
+			context.SaveChanges();
+		}
+		context.ChangeTracker.Clear();
+		conflicts.Clear();
+		Install();
+		accent = context.Accents.Include(x => x.AssociatedLanguages).Single(x => x.Id == accentId);
+		Assert.AreEqual(1, accent.AssociatedLanguages.Count);
+		Assert.AreEqual(era == "renaissance", conflicts.Any(x => x.Contains("associated source language")), string.Join("; ", conflicts));
+		if (builderEdited) Assert.AreEqual("Builder Language", accent.AssociatedLanguages.Single().Name);
+		if (era == "medieval" && !builderEdited) Assert.AreEqual(0, conflicts.Count);
+	}
+
 	private static FuturemudDatabaseContext Context() => new(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 		.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options);
 

@@ -356,7 +356,7 @@ internal static class DebugSeederReplayProfiles
 		[
 			Step<CoreDataSeeder>(
 				("gamename", gameName),
-				("account", "admin"),
+				("account", "Admin"),
 				("password", DebugPassword),
 				("email", "debug-replay@futuremud.com")),
 			Step<TimeSeeder>(
@@ -397,8 +397,8 @@ internal static class DebugSeederReplayProfiles
 				("sever", "yes"),
 				("bones", "full"),
 				("distinctive", "yes"),
-				("nonbinary", "yes"),
-				("includeextraperson", "yes")),
+				("nonbinary", "no"),
+				("includeextraperson", "no")),
 			Step<WeatherSeeder>(("rain", "full")),
 			Step<LawSeeder>(
 				("name", "Debug Authority"),
@@ -424,12 +424,12 @@ internal static class DebugSeederReplayProfiles
 				("ai", "yes"),
 				("covers", "yes"),
 				("items", "yes"),
-				("modernitems", "yes"),
+				("modernitems", "no"),
 				("tags", "yes"),
 				("autobuilder", "yes"),
 				("hints", "yes"),
 				("dreams", "yes"),
-				("dream-eras", "old modern")),
+				("dream-eras", "old")),
 			Step<TrapSeeder>(),
 			Step<EconomySeeder>(
 				("era", economyEra),
@@ -438,7 +438,7 @@ internal static class DebugSeederReplayProfiles
 				("shopper-scale", "standard")),
 			Step<CombatSeeder>(
 				("installmuskets", "yes"),
-				("installguns", "yes"),
+				("installguns", "no"),
 				("random", "static"),
 				("parryoption", "yes"),
 				("skilloption", "weapons"),

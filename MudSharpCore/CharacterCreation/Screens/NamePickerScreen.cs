@@ -136,6 +136,7 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
                              .Where(x => x.Culture == NameCulture)
                              .Where(x => x.IsCompatibleGender(Chargen.SelectedGender))
                              .Where(x => x.UseForChargenNameSuggestions(Chargen))
+							 .Where(x => x.RandomNames.TryGetValue(Enumerator.Current.Usage, out var names) && names.Any())
                              .ToArray();
             string[] suggestedNames = rns
                                  .SelectMany(x =>

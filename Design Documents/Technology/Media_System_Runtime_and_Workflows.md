@@ -58,7 +58,7 @@ media <medium> erase <name>
 
 The host-owned built-in `Media` application is entered through a connected terminal. Jobs belong to the computer host and continue after the terminal session closes, but active recording/playback never resumes after a power loss. The application provides `inputs`, `outputs`, `files`, `jobs`, `feeds`, `record`, `recordloop`, `recordsplit`, `recordevent`, `snapshot`, `play`, `stop`, `publish`, `acl`, `subscribe`, `unsubscribe`, and `still`.
 
-`record <input> as <file>` attaches a recorder to a local media interface input. `snapshot <input> as <file>` creates a media file containing the current canonical still. `play <file> to <output>` starts at the beginning. `still <file> [timestamp]` displays the relevant stored scene. Live feeds retain only current-frame/current-tick traffic: slow and disconnected subscribers never receive an implicit historical backlog.
+`record <input> as <file>` attaches a recorder to a local media interface input. `snapshot <input> as <file>` creates a media file containing the current canonical still. `play <file> to <output>` starts at the beginning. `still <file> [timestamp]` displays the relevant stored scene; its optional seconds value must be finite, non-negative, and representable as a `TimeSpan`, with invalid values reported to the terminal rather than passed to the runtime conversion. Live feeds retain only current-frame/current-tick traffic: slow and disconnected subscribers never receive an implicit historical backlog.
 
 Surveillance retention is implemented as host software policy over immutable recordings:
 

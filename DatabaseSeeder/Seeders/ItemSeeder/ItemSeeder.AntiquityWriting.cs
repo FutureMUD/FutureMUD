@@ -981,7 +981,7 @@ public partial class ItemSeeder
 			var disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
 			if (disposition == ManifestAggregateDisposition.Customized)
 			{
-				return existing;
+				return CacheAntiquityWritingComponent(existing);
 			}
 			existing.Type = type;
 			existing.Description = description;
@@ -990,7 +990,7 @@ public partial class ItemSeeder
 			{
 				CompleteManifestAggregate(manifestEntry, existing.Id, manifestDefinition, disposition);
 			}
-			return existing;
+			return CacheAntiquityWritingComponent(existing);
 		}
 
 		existing = _context!.GameItemComponentProtos.Local
@@ -1006,18 +1006,16 @@ public partial class ItemSeeder
 			var disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
 			if (disposition == ManifestAggregateDisposition.Customized)
 			{
-				_components[name] = existing;
-				return existing;
+				return CacheAntiquityWritingComponent(existing);
 			}
 			existing.Type = type;
 			existing.Description = description;
 			existing.Definition = definition;
-			_components[name] = existing;
 			if (disposition == ManifestAggregateDisposition.Update)
 			{
 				CompleteManifestAggregate(manifestEntry, existing.Id, manifestDefinition, disposition);
 			}
-			return existing;
+			return CacheAntiquityWritingComponent(existing);
 		}
 
 		var component = new GameItemComponentProto
@@ -1042,8 +1040,14 @@ public partial class ItemSeeder
 		};
 
 		_context.GameItemComponentProtos.Add(component);
-		_components[name] = component;
 		CompleteManifestAggregate(manifestEntry, component.Id, manifestDefinition, ManifestAggregateDisposition.Insert);
+		return CacheAntiquityWritingComponent(component);
+	}
+
+	private GameItemComponentProto CacheAntiquityWritingComponent(GameItemComponentProto component)
+	{
+		_components[component.Name] = component;
+		_componentNamesByKey[(component.Id, component.RevisionNumber)] = component.Name;
 		return component;
 	}
 }

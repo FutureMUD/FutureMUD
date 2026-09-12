@@ -58,10 +58,12 @@ public class IndustrialisedClothingOutfitPersistenceTests
 		var updated = Entries();
 		updated[0] = updated[0] with { LoadArguments = "colour=cream" };
 		Apply(context, updated, "Updated stock description.");
+		context.ChangeTracker.Clear();
+		var reconciled = context.OutfitTemplates.Include(x => x.OutfitTemplateItems).Single();
 		Assert.AreEqual(1, context.OutfitTemplates.Count());
-		Assert.AreEqual(2, context.OutfitTemplateItems.Count());
-		Assert.AreEqual("colour=cream", unchanged.OutfitTemplateItems.Single(x => x.TemplateKey == "outer").LoadArguments);
-		StringAssert.Contains(unchanged.Description, "Updated stock description.");
+		Assert.AreEqual(2, reconciled.OutfitTemplateItems.Count());
+		Assert.AreEqual("colour=cream", reconciled.OutfitTemplateItems.Single(x => x.TemplateKey == "outer").LoadArguments);
+		StringAssert.Contains(reconciled.Description, "Updated stock description.");
 	}
 
 	[DataTestMethod]
@@ -151,6 +153,8 @@ public class IndustrialisedClothingOutfitPersistenceTests
 		if (customized) outfit.OutfitTemplateItems.Single().LoadArguments = "colour=red";
 		context.SaveChanges();
 		Apply(context, [new("coat", null)], "Updated stock.");
-		Assert.AreEqual(!customized, outfit.Description.Contains("Updated stock.", StringComparison.Ordinal));
+		context.ChangeTracker.Clear();
+		var reconciled = context.OutfitTemplates.Single();
+		Assert.AreEqual(!customized, reconciled.Description.Contains("Updated stock.", StringComparison.Ordinal));
 	}
 }

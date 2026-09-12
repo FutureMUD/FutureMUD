@@ -148,6 +148,8 @@ public class StringExtensionsTests
         Assert.AreEqual("Hello World", "hello world".TitleCase());
         Assert.AreEqual("Hello-World Two", "hello-world two".TitleCase());
         Assert.AreEqual("Hello Two (World Time) Blah", "hello two (world time) blah".TitleCase());
+        Assert.AreEqual("Offset Two", "Offset Two".TitleCase());
+        Assert.AreEqual("ZZZ Pilot Weather", "ZZZ Pilot Weather".TitleCase());
     }
 
     [TestMethod]

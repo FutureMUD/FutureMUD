@@ -218,6 +218,12 @@ internal static class ItemSeederManifestCatalogue
 	public static ItemSeederManifestDocument Load(string path)
 	{
 		var document = Deserialize(File.ReadAllText(path));
+		if (!string.Equals(document.ManifestVersion, ManifestVersion, StringComparison.Ordinal))
+		{
+			throw new InvalidDataException(
+				$"Seeded_Item_Manifest.json uses contract {document.ManifestVersion}; expected {ManifestVersion}. Please recapture the manifest.");
+		}
+
 		Validate(document.Entries);
 		return document;
 	}
@@ -262,6 +268,14 @@ internal static class ItemSeederManifestCatalogue
 			"Could not find the FutureMUD repository root containing DatabaseSeeder and Design Documents.");
 	}
 
+	private static IEnumerable<string> EnumerateFilesIfPresent(string directory, string searchPattern,
+		SearchOption searchOption)
+	{
+		return Directory.Exists(directory)
+			? Directory.EnumerateFiles(directory, searchPattern, searchOption)
+			: Enumerable.Empty<string>();
+	}
+
 	public static string ComputeSourceFingerprint(string repositoryRoot)
 	{
 		var seedersDirectory = Path.Combine(repositoryRoot, "DatabaseSeeder", "Seeders");
@@ -271,9 +285,9 @@ internal static class ItemSeederManifestCatalogue
 		var sourcePaths = Directory
 			.EnumerateFiles(sourceDirectory, "ItemSeeder*.cs", SearchOption.TopDirectoryOnly)
 			.Concat(Directory.EnumerateFiles(seedersDirectory, "Industrialised*.cs", SearchOption.TopDirectoryOnly))
-			.Concat(Directory.EnumerateFiles(Path.Combine(sourceDirectory, "FoodCatalogue"), "*.tsv", SearchOption.AllDirectories))
-			.Concat(Directory.EnumerateFiles(Path.Combine(sourceDirectory, "MedicalRepairCatalogue"), "*.tsv", SearchOption.AllDirectories))
-			.Concat(Directory.EnumerateFiles(industrialisedCatalogueDirectory, "*.tsv", SearchOption.AllDirectories))
+			.Concat(EnumerateFilesIfPresent(Path.Combine(sourceDirectory, "FoodCatalogue"), "*.tsv", SearchOption.AllDirectories))
+			.Concat(EnumerateFilesIfPresent(Path.Combine(sourceDirectory, "MedicalRepairCatalogue"), "*.tsv", SearchOption.AllDirectories))
+			.Concat(EnumerateFilesIfPresent(industrialisedCatalogueDirectory, "*.tsv", SearchOption.AllDirectories))
 			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase);
 		foreach (var path in sourcePaths)
 		{

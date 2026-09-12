@@ -610,7 +610,7 @@ public partial class ItemSeeder
 			return null;
 		}
 
-		return _context!.GameItemProtos.Local
+		var persistedReference = _context!.GameItemProtos.Local
 			.AsEnumerable()
 			.Concat(_context.GameItemProtos.AsEnumerable())
 			.Where(x => x.Id == logicalId.Value && !string.IsNullOrWhiteSpace(x.UniqueName))
@@ -618,6 +618,8 @@ public partial class ItemSeeder
 			.ThenByDescending(x => x.RevisionNumber)
 			.Select(x => x.UniqueName)
 			.FirstOrDefault();
+
+		return persistedReference ?? _itemStableReferencesById.GetValueOrDefault(logicalId.Value);
 	}
 
 	private LiquidManifestDefinition BuildLiveLiquidManifestDefinition(Liquid liquid)

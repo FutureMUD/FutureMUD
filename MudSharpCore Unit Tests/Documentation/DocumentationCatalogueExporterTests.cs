@@ -78,7 +78,14 @@ public sealed class DocumentationCatalogueExporterTests
 			Assert.AreEqual("HumanSeeder;AnimalSeeder", row[9]);
 			using var types = JsonDocument.Parse(File.ReadAllText(Path.Combine(data.FullName, "Item_Component_Types.json")));
 			var exported = types.RootElement.EnumerateArray().ToArray();
-			Assert.AreEqual(244, exported.Length);
+			Assert.AreEqual(246, exported.Length);
+			foreach (var type in new[] { "Spellbook", "SpellScroll" })
+			{
+				var magicRow = File.ReadLines(Path.Combine(seeding.FullName, "Industrialised_Component_Prerequisite_Audit.tsv"))
+					.Single(x => x.StartsWith(type + "\t", StringComparison.Ordinal)).Split('\t');
+				Assert.AreEqual("dependency-bound", magicRow[11]);
+				StringAssert.Contains(magicRow[12], "authored magic capabilities");
+			}
 			Assert.IsTrue(exported.Single(x => x.GetProperty("Component Type Name").GetString() == "ActiveCraft")
 				.GetProperty("Prevents Manual Load").GetBoolean());
 			Assert.IsFalse(exported.Single(x => x.GetProperty("Component Type Name").GetString() == "Wearable")

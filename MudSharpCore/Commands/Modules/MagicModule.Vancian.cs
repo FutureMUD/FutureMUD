@@ -86,7 +86,7 @@ Use spellbook and spellscroll help for copying, inscription and stored spell act
 				case "spell":
 					var spell = VancianSpell(actor, capability, command.PopSpeech());
 					if (!capability.Repertoires.Any(r => service.Candidates(actor, capability, r.Key).Contains(spell)) && !spell.CharacterKnowsSpell(actor)) throw new InvalidOperationException("You have no permitted information route for that spell.");
-					actor.OutputHandler.Send(spell.ShowPlayerHelp(actor) + $"\nBase level: {spell.SpellLevel.ToString("N0", actor)}\n" + string.Join("\n", capability.Allowances.SelectMany(a => a.RepertoireKeys.Select(r =>
+					actor.OutputHandler.Send((spell is MagicSpell runtimeSpell ? runtimeSpell.ShowPlayerHelp(actor, capability) : spell.ShowPlayerHelp(actor)) + $"\nBase level: {spell.SpellLevel.ToString("N0", actor)}\n" + string.Join("\n", capability.Allowances.SelectMany(a => a.RepertoireKeys.Select(r =>
 						{ var route = service.CanCast(actor, capability, r, a.Key, spell); return $"{Repertoire(capability, r.ToString()).Alias}/{a.Alias}: {(route.Available ? $"level {route.CastingLevel}, {route.Power.DescribeEnum()}" : route.Reason)}"; })))); return;
 				case "known": VancianKnown(actor, capability, command); return;
 				case "loadouts":
@@ -211,9 +211,7 @@ Use spellbook and spellscroll help for copying, inscription and stored spell act
 	}
 	public const string SpellbookHelp = "spellbook show <book>\nspellbook copy <capability> <source-book-or-scroll> <spell> <destination-book>\nCopying takes configured time and materials. It spends no personal spell slot. Scroll sources are destroyed only on successful commitment.";
 	public const string SpellScrollHelp = "spellscroll show <scroll>\nspellscroll inscribe <capability> <repertoire> <allowance> <spell> <ordinal|next|atwill> <blank-scroll>\nspellscroll cast <scroll> <capability> [target arguments]\nInscription prepays the selected casting and spell costs. Release destroys the scroll, including on a committed failed control check or resisted spell.";
-	[PlayerCommand("Spellbook", "spellbook")]
-	[HelpInfo("spellbook", SpellbookHelp, AutoHelp.HelpArgOrNoArg)]
-	protected static void SpellbookCommand(ICharacter actor, string input)
+	internal static void SpellbookCommand(ICharacter actor, string input)
 	{
 		try
 		{
@@ -231,9 +229,7 @@ Use spellbook and spellscroll help for copying, inscription and stored spell act
 		}
 		catch (Exception ex) { actor.OutputHandler.Send(ex.Message); }
 	}
-	[PlayerCommand("SpellScroll", "spellscroll")]
-	[HelpInfo("spellscroll", SpellScrollHelp, AutoHelp.HelpArgOrNoArg)]
-	protected static void SpellScrollCommand(ICharacter actor, string input)
+	internal static void SpellScrollCommand(ICharacter actor, string input)
 	{
 		try
 		{

@@ -44,7 +44,7 @@ public sealed partial class VancianMagicService
 	}
 	public VancianResult ActivateScroll(ICharacter actor, IVancianMagicCapability capability, IGameItem item, StringStack targets) => Mutate(actor, capability, state =>
 	{
-		if (ActionError(actor) is { } physical) return VancianResult.Refused(physical);
+		if (CastingError(actor) is { } physical) return VancianResult.Refused(physical);
 		if (actor.EffectsOfType<VancianTimedAction>().Any()) return VancianResult.Refused("Finish or cancel your current magical work first.");
 		if (item.GetItemType<ISpellScroll>() is not SpellScrollGameItemComponent scroll) return VancianResult.Refused("That item is not a spell scroll.");
 		if (ScrollItemError(actor, scroll, false) is { } itemError) return VancianResult.Refused(itemError);

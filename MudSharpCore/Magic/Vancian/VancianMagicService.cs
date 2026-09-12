@@ -20,7 +20,12 @@ public sealed partial class VancianMagicService : IVancianMagicService
 		Func<ICharacter, IVancianMagicCapability, IMagicSpell, bool>? bookAccess = null, Action<IGameItemComponent>? persistComponent = null)
 	{ _gameworld = gameworld; Store = store; Clock = clock ?? TimeProvider.System; _bookAccess = bookAccess; _persistComponent = persistComponent; }
 	internal DateTime UtcNow => Clock.GetUtcNow().UtcDateTime;
-	public VancianCapabilityState State(ICharacter actor, IVancianMagicCapability capability) => Store.Read(VancianPolicy.Owner(actor).Id, capability.Id);
+	public VancianCapabilityState State(ICharacter actor, IVancianMagicCapability capability)
+	{
+		var key = (VancianPolicy.Owner(actor).Id, capability.Id);
+		lock (_guard) if (_busy.Contains(key)) return Store.Read(key.Item1, key.Item2);
+		return ReadAndReconcile(key.Item1, key.Item2);
+	}
 	internal IFutureProg? Policy(IVancianMagicCapability capability, string name) => _gameworld.FutureProgs.Get(capability.PolicyProgs.GetValueOrDefault(name));
 	internal string? AccessError(ICharacter actor, IVancianMagicCapability capability)
 	{
@@ -35,7 +40,7 @@ public sealed partial class VancianMagicService : IVancianMagicService
 		try
 		{
 			if (requireAccess && AccessError(actor, capability) is { } error) return VancianResult.Refused(error);
-			var state = Store.Read(key.Item1, key.Item2);
+			var state = ReadAndReconcile(key.Item1, key.Item2);
 			if (state.DataError is { } dataError) return VancianResult.Refused($"State disabled; staff repair required: {dataError}");
 			return action(state);
 		}
@@ -123,7 +128,7 @@ public sealed partial class VancianMagicService : IVancianMagicService
 		Guid repertoireKey, Guid allowanceKey, IMagicSpell spell, int? ordinal = null)
 	{
 		if ((state.DataError ?? AccessError(actor, capability)) is { } error) return new(false, error);
-		if (ActionError(actor) is { } physical) return new(false, physical);
+		if (CastingError(actor) is { } physical) return new(false, physical);
 		if (actor.CombinedEffectsOfType<MudSharp.Effects.Concrete.MagicSpellLockout>().Any(x => x.Applies(capability.School)))
 			return new(false, "You are locked out from casting spells of this school.");
 		var rule = capability.Repertoires.FirstOrDefault(x => x.Key == repertoireKey);
@@ -202,7 +207,11 @@ public sealed partial class VancianMagicService : IVancianMagicService
 		Store.Record(operation with { Status = "Invoking" });
 		try
 		{
+			if (_gameworld.SaveManager.Flushing) throw new InvalidOperationException("A callback cannot establish a durable save boundary during another save.");
 			if (!prog.ExecuteWithStatus(out _, parameters)) throw new InvalidOperationException($"Prog #{prog.Id} reported execution failure.");
+			_gameworld.SaveManager.Flush();
+			if (_gameworld.VariableRegister.Changed || _gameworld.SaveManager.IsQueued(_gameworld.VariableRegister))
+				throw new InvalidOperationException("Callback register bookkeeping has not been durably saved.");
 			Store.Record(operation with { Status = "Completed" });
 		}
 		catch (Exception ex) { Store.Record(operation with { Status = "NeedsReview", Diagnostic = ex.Message }); }

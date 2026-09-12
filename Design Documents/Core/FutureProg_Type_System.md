@@ -255,6 +255,8 @@ Script-time helpers that search, roll, or evaluate user-authored formulas must e
 
 Writing text is not exposed through the `writing.text` FutureProg dot reference. Scripts may inspect writing metadata, but readable text still goes through the normal in-character read workflow so language, literacy, script, and access checks remain authoritative.
 
+Datetime register values use round-trip ISO 8601 XML text, preserving kind and fractional seconds. Historical invariant-format values without a timezone are interpreted as UTC, matching the original storage assumption without conversion to the host local wall clock. Normal assignments retain deferred saving; Vancian callback completion also requires a successful engine save boundary.
+
 ## Date, Time, And Celestial Event Values
 
 `ProgVariableTypes.MudDateTime` remains the FutureProg type for in-game dates and times. `MudDateTime` values now expose a `mudinstant` dot reference that returns the absolute `MudInstant` storage string for the value.

@@ -30,6 +30,7 @@ internal sealed class MemoryVancianStore : IVancianStateStore
 	public Dictionary<Guid, VancianOperation> Log { get; } = [];
 	public int Writes { get; private set; }
 	public Action<VancianOperation?>? AfterCommit { get; set; }
+	public Action<VancianOperation>? BeforeRecord { get; set; }
 	public VancianCapabilityState Read(long owner, long capability) => States.TryGetValue((owner, capability), out var state) ? state.Copy() : new() { OwnerId = owner, CapabilityId = capability };
 	public void Commit(VancianCapabilityState state, long expectedVersion, VancianOperation? operation = null)
 	{
@@ -39,11 +40,12 @@ internal sealed class MemoryVancianStore : IVancianStateStore
 		AfterCommit?.Invoke(operation);
 	}
 	public IReadOnlyList<VancianOperation> Operations(long owner, long? capability = null) => Log.Values.Where(x => x.OwnerId == owner && (!capability.HasValue || x.CapabilityId == capability)).OrderByDescending(x => x.CreatedUtc).ToArray();
+	public IReadOnlyList<VancianOperation> ReservedOperations(long owner, long capability) => Operations(owner, capability).Where(x => x.Status == "Reserved").ToArray();
 	public VancianOperation? Operation(Guid id) => Log.GetValueOrDefault(id);
 	public bool HasUnresolved(long owner, long capability, params string[] kinds) => Log.Values.Any(x => x.OwnerId == owner && x.CapabilityId == capability &&
 		(kinds.Length == 0 || kinds.Contains(x.Kind)) && (x.Status is "Pending" or "Invoking" or "NeedsReview" or "Committing" or "Reserved" ||
 			x.Status == "Consumed" && x.Kind is "Cast" or "ScrollActivation"));
-	public void Record(VancianOperation operation) => Log[operation.Id] = operation;
+	public void Record(VancianOperation operation) { BeforeRecord?.Invoke(operation); Log[operation.Id] = operation; }
 	public bool ItemConsumed(long itemId, Guid chargeId) => Log.TryGetValue(chargeId, out var operation) && operation.SourceItem == itemId && operation.Status is "Committing" or "Consumed" or "Completed" or "NeedsReview";
 	public bool ClaimCharge(VancianOperation operation) => Log.TryAdd(operation.Id, operation with { Status = "Consumed" });
 }

@@ -565,7 +565,9 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                     Value = TimeSpan.Parse(valueRoot.Value, CultureInfo.InvariantCulture);
                     break;
                 case ProgVariableTypeCode.DateTime:
-                    Value = DateTime.Parse(valueRoot.Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+					Value = DateTime.TryParseExact(valueRoot.Value, "O", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var timestamp)
+						? timestamp
+						: DateTime.Parse(valueRoot.Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
                     break;
                 case ProgVariableTypeCode.MudDateTime:
                     Value = MudDateTime.FromStoredStringOrFallback(valueRoot.Value, gameworld,
@@ -647,7 +649,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             switch (Type.LegacyCode)
             {
                 case ProgVariableTypeCode.DateTime:
-                    return new XElement("var", ((DateTime)Value).ToString(CultureInfo.InvariantCulture));
+                    return new XElement("var", ((DateTime)Value).ToString("O", CultureInfo.InvariantCulture));
                 case ProgVariableTypeCode.MudDateTime:
                     return new XElement("var", ((MudDateTime)Value).GetDateTimeString());
                 case ProgVariableTypeCode.LiquidMixture:

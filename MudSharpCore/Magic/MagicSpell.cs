@@ -1474,8 +1474,13 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
         params SpellAdditionalParameter[] additionalParameters)
     {
 		if (SpellTargetCapture.Intercept(magician, this, target, power, additionalParameters)) return;
-		if (magician.Capabilities.Any(x => x is IVancianMagicCapability && x.School.Id == School.Id) && !HasLegacyRoute(magician) && SpellPowerInvocation.For(magician, this) is null)
+		if (Trigger is ICastMagicTrigger && magician.Capabilities.Any(x => x is IVancianMagicCapability && x.School.Id == School.Id) && !HasLegacyRoute(magician))
 		{
+			if (SpellPowerInvocation.For(magician, this) is not null)
+			{
+				magician.OutputHandler.Send(VancianMagicService.For(Gameworld).CastFromPower(magician, this, target, power, additionalParameters).Message);
+				return;
+			}
 			magician.OutputHandler.Send($"Use {School.SchoolVerb} vancian <capability> cast <repertoire> <allowance> \"{Name}\" <ordinal|next|atwill> [targets] to select a paid route.");
 			return;
 		}
@@ -1914,7 +1919,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
         throw new ApplicationException("Got to the end of MagicSpell.WhyNotReadyForGame without finding an error.");
     }
 
-    public string ShowPlayerHelp(ICharacter actor)
+    public string ShowPlayerHelp(ICharacter actor) => ShowPlayerHelp(actor, null);
+
+	internal string ShowPlayerHelp(ICharacter actor, IVancianMagicCapability? capability)
     {
         StringBuilder sb = new();
         sb.AppendLine($"{Name.Colour(School.PowerListColour)}");
@@ -1925,17 +1932,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
         sb.AppendLine("Description:");
         sb.AppendLine();
         sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t"));
-        if (_castingCosts.Any() && Trigger is ICastMagicTrigger ct)
-        {
-            sb.AppendLine();
-            sb.AppendLine("Casting Costs:");
-            foreach (SpellPower power in Enum.GetValues<SpellPower>()
-                                      .Where(x => x >= ct.MinimumPower && x <= ct.MaximumPower))
-            {
-                sb.AppendLine(
-                    $"\t{power.DescribeEnum().ColourName()}: {_castingCosts.Select(x => $"{x.Value.EvaluateWith(actor, CastingTrait, TraitBonusContext.SpellCost, ("self", 0), ("power", (int)power))} {x.Key.ShortName}".ColourValue()).ListToString()}");
-            }
-        }
+		AppendCastingCostHelp(actor, sb, capability);
 
         if (InventoryPlanTemplate.Phases.First().Actions.Any())
         {

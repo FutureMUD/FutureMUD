@@ -15725,7 +15725,7 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 -- Total time: 0:0:0:1:652 (d:h:m:s:ms)
 
 -- EF-generated idempotent delta: NativeLanguagesAndAccentRoles
-﻿START TRANSACTION;
+START TRANSACTION;
 DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
@@ -16016,7 +16016,7 @@ DROP PROCEDURE MigrationsScript;
 COMMIT;
 
 -- Magical substance payload definitions (EF-generated delta).
-ï»¿START TRANSACTION;
+START TRANSACTION;
 DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()

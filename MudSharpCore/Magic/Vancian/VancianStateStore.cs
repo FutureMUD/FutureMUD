@@ -12,6 +12,7 @@ public interface IVancianStateStore
 	VancianCapabilityState Read(long owner, long capability);
 	void Commit(VancianCapabilityState state, long expectedVersion, VancianOperation? operation = null);
 	IReadOnlyList<VancianOperation> Operations(long owner, long? capability = null);
+	IReadOnlyList<VancianOperation> ReservedOperations(long owner, long capability);
 	bool HasUnresolved(long owner, long capability, params string[] kinds);
 	VancianOperation? Operation(Guid id);
 	void Record(VancianOperation operation);
@@ -82,6 +83,12 @@ public sealed class VancianStateStore : IVancianStateStore
 		using (new FMDB()) return FMDB.Context.VancianMagicOperations.AsNoTracking()
 			.Where(x => x.CharacterId == owner && (!capability.HasValue || x.MagicCapabilityId == capability.Value))
 			.OrderByDescending(x => x.CreatedUtc).Take(1000).AsEnumerable().Select(FromRow).ToArray();
+	}
+	public IReadOnlyList<VancianOperation> ReservedOperations(long owner, long capability)
+	{
+		using (new FMDB()) return FMDB.Context.VancianMagicOperations.AsNoTracking()
+			.Where(x => x.CharacterId == owner && x.MagicCapabilityId == capability && x.Status == "Reserved")
+			.AsEnumerable().Select(FromRow).ToArray();
 	}
 	public VancianOperation? Operation(Guid id)
 	{

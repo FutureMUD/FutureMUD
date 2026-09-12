@@ -161,6 +161,7 @@ public class VancianIntegrationTests
 		var scroll = items.Scroll(101); var token = Guid.NewGuid(); scroll.Component.Reserve(token);
 		scroll.Component.Charge(token, StoredSpellSnapshot.Capture(spell, f.Actor.Object, f.Capability.Object, 1, SpellPower.Standard, 3, f.Clock.Now.UtcDateTime));
 		f.Actor.Setup(x => x.TraitValue(It.IsAny<ITraitDefinition>(), It.IsAny<TraitBonusContext>())).Returns(999);
+		f.Actor.SetupGet(x => x.Combat).Returns(new Mock<MudSharp.Combat.ICombat>().Object);
 		var result = f.Service.ActivateScroll(f.Actor.Object, f.Capability.Object, scroll.Item.Object, new StringStack(""));
 		Assert.IsTrue(result.Success, result.Message);
 		targets[0].Verify(x => x.GainStamina(It.IsAny<double>()), Times.Never);

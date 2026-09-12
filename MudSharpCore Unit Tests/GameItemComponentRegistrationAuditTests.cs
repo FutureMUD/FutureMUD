@@ -16,10 +16,10 @@ public class GameItemComponentRegistrationAuditTests
 		var manager = new GameItemComponentManager();
 		var entries = manager.RegistrationAuditEntries;
 
-		Assert.AreEqual(244, entries.Count);
+		Assert.AreEqual(246, entries.Count);
 		Assert.AreEqual(109, entries.Count(x => x.Technology == GameItemComponentTypeTechnology.Modern));
 		Assert.AreEqual(18, entries.Count(x => x.Technology == GameItemComponentTypeTechnology.Futuristic));
-		Assert.AreEqual(117, entries.Count(x => x.Technology == GameItemComponentTypeTechnology.None));
+		Assert.AreEqual(119, entries.Count(x => x.Technology == GameItemComponentTypeTechnology.None));
 		Assert.AreEqual(entries.Count,
 			entries.Select(x => x.CanonicalDatabaseType).Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		Assert.IsTrue(entries.All(x => x.HasDatabaseLoader));

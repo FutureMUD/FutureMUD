@@ -33,6 +33,7 @@ public sealed partial class VancianMagicService
 	private string? ScrollItemError(ICharacter actor, SpellScrollGameItemComponent scroll, bool blank)
 	{
 		if (scroll.DataError is { } error) return $"Scroll data is disabled: {error}";
+		ReconcileScrollReservation(scroll);
 		if (blank ? !scroll.IsBlank : !scroll.IsCharged) return blank ? "That scroll is not blank." : "That scroll has no usable charge.";
 		if (scroll.Parent.GetItemType<IStackable>() is not null || scroll.Parent.GetItemType<IContainer>() is not null || scroll.Parent.GetItemType<ISpellbook>() is not null)
 			return "Spell scrolls cannot also be stackable, containers or spellbooks.";
@@ -45,6 +46,7 @@ public sealed partial class VancianMagicService
 	{
 		if (ActionError(actor) is { } physical) return VancianResult.Refused(physical);
 		if (actor.EffectsOfType<VancianTimedAction>().Any()) return VancianResult.Refused("Finish or cancel your current magical work first.");
+		if (Store.HasUnresolved(state.OwnerId, capability.Id, "Inscription")) return VancianResult.Refused("An unresolved inscription requires staff review before another inscription.");
 		if (spell is not MagicSpell runtime || blank.GetItemType<ISpellScroll>() is not SpellScrollGameItemComponent scroll) return VancianResult.Refused("A runtime spell and blank spellscroll component are required.");
 		if (ScrollItemError(actor, scroll, true) is { } itemError) return VancianResult.Refused(itemError);
 		if (scroll.Reservation is not null) return VancianResult.Refused("That blank is already reserved; interrupted persisted operations require staff inspection.");
@@ -73,7 +75,7 @@ public sealed partial class VancianMagicService
 			StartWriting(work, proto);
 			return new(true, $"You begin inscription, reserving the selected casting for {duration.Describe(actor)}.", operation.Id);
 		}
-		catch { ReleaseWritingItems(operation.Id); throw; }
+		catch { ReleaseWritingItems(operation.Id); _reconciled.Remove((state.OwnerId, capability.Id)); throw; }
 	});
 	private string? InscriptionPermission(ICharacter actor, IVancianMagicCapability capability, MagicSpell spell, SpellScrollGameItemComponent scroll, VancianAvailability route)
 	{
@@ -182,17 +184,18 @@ public sealed partial class VancianMagicService
 		if (!ReserveWritingItem(source, operation.Id)) { ReleaseWritingItems(operation.Id); return VancianResult.Refused("That source is already in use."); }
 		try
 		{
+			// Journal the precommit intent before persisting an item reservation, so every durable lock has a recovery record.
+			Store.Record(operation);
 			if (source.GetItemType<ISpellScroll>() is SpellScrollGameItemComponent scroll)
 			{
 				if (!scroll.Reserve(operation.Id)) throw new InvalidOperationException("The source scroll is already reserved.");
 				Persist(scroll);
 			}
-			Store.Record(operation);
 			var work = new WritingWork(operation.Id, actor, capability, runtime, destination, source, Guid.Empty, Guid.Empty, new(false, ""), state.Version, UtcNow, duration, operation);
 			_writing.Add(operation.Id, work); StartWriting(work, proto);
 			return new(true, $"You begin copying the formula for {duration.Describe(actor)}.", operation.Id);
 		}
-		catch { ReleaseWritingItems(operation.Id); throw; }
+		catch { ReleaseWritingItems(operation.Id); _reconciled.Remove((state.OwnerId, capability.Id)); throw; }
 	});
 	private string? TranscriptionError(ICharacter actor, IVancianMagicCapability capability, IGameItem source, MagicSpell spell, IGameItem destination, Guid? reservation = null)
 	{

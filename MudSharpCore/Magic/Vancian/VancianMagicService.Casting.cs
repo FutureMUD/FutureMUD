@@ -6,13 +6,29 @@ namespace MudSharp.Magic.Vancian;
 public sealed partial class VancianMagicService
 {
 	public VancianResult Cast(ICharacter actor, IVancianMagicCapability capability, Guid repertoire, Guid allowance,
-		IMagicSpell spell, int? ordinal, StringStack targets) => Mutate(actor, capability, state =>
+		IMagicSpell spell, int? ordinal, StringStack targets) => Cast(actor, capability, repertoire, allowance, spell, ordinal,
+			power => SpellTargetCapture.Resolve(actor, spell, power, targets));
+
+	internal VancianResult CastFromPower(ICharacter actor, MagicSpell spell, IPerceivable? target, SpellPower power,
+		SpellAdditionalParameter[] parameters)
 	{
-		if (ActionError(actor) is { } physical) return VancianResult.Refused(physical);
+		var routes = AvailableRoutes(actor, spell, power).ToArray();
+		if (routes.Length != 1) return VancianResult.Refused(routes.Length == 0
+			? "No unspent Vancian casting supplies the requested spell and power."
+			: $"Several Vancian routes supply this spell and power. Use {spell.School.SchoolVerb} vancian <capability> cast <repertoire> <allowance> to choose which casting to spend.");
+		var route = routes[0];
+		return Cast(actor, route.Capability, route.Repertoire, route.Allowance, spell, route.Availability.Ordinal,
+			computed => computed == power ? new SpellTargetResolution(target, parameters) : null);
+	}
+
+	private VancianResult Cast(ICharacter actor, IVancianMagicCapability capability, Guid repertoire, Guid allowance,
+		IMagicSpell spell, int? ordinal, Func<SpellPower, SpellTargetResolution?> resolve) => Mutate(actor, capability, state =>
+	{
+		if (CastingError(actor) is { } physical) return VancianResult.Refused(physical);
 		var available = CanCast(actor, capability, state, repertoire, allowance, spell, ordinal);
 		if (!available.Available) return VancianResult.Refused(available.Reason);
 		if (spell is not MagicSpell runtime) return VancianResult.Refused("That spell implementation does not support Vancian invocation.");
-		var resolution = SpellTargetCapture.Resolve(actor, spell, available.Power, targets);
+		var resolution = resolve(available.Power);
 		if (resolution is null) return VancianResult.Refused("No valid target was resolved; nothing was spent.");
 		var operation = NewOperation(state, "Cast", "Committing", new XElement("Cast",
 			new XAttribute("spell", spell.Id), new XAttribute("repertoire", repertoire), new XAttribute("allowance", allowance),
@@ -29,6 +45,8 @@ public sealed partial class VancianMagicService
 		});
 		var invocationSpell = runtime.InvocationCopy(new SpellNumericalContext(spell.SpellLevel, available.CastingLevel,
 			CasterLevel(actor, capability), available.Power, capability.ReliableOutcome, false));
+		var adapter = SpellPowerInvocation.For(actor, runtime);
+		using var adaptedInvocation = adapter is null ? null : new SpellPowerInvocation(actor, invocationSpell, adapter.Power);
 		try
 		{
 			invocationSpell.CastVancian(actor, resolution.Target, available.Power, invocation, resolution.Parameters);
@@ -42,6 +60,7 @@ public sealed partial class VancianMagicService
 			Store.Record(operation with { Status = "NeedsReview", Diagnostic = ex.Message });
 			return new(false, $"Casting was committed but interrupted. Operation {operation.Id} requires staff inspection; the casting cannot be replayed.", operation.Id);
 		}
+		finally { adapter?.Complete(invocation.Status); }
 	});
 
 	public bool KnowsThroughVancian(ICharacter actor, IMagicSpell spell)
@@ -61,6 +80,13 @@ public sealed partial class VancianMagicService
 					if (state.Slots.Any(x => x.Preparation is { } preparation && preparation.RepertoireKey == rule.Key &&
 						preparation.SpellId == spell.Id && x.Status is VancianSlotStatus.Prepared or VancianSlotStatus.Reserved &&
 						Suspension(actor, capability, x) is null)) return true;
+					if (rule.Source == VancianRepertoireSource.Spellbook && state.LastPattern?.Any(entry =>
+						entry.RepertoireKey == rule.Key && entry.SpellId == spell.Id && entry.Ordinal > 0 &&
+						state.LastPattern.Count(x => x.AllowanceKey == entry.AllowanceKey && x.Ordinal == entry.Ordinal) == 1 &&
+						capability.Allowances.Any(x => x.Key == entry.AllowanceKey && x.Mode == VancianAllowanceMode.Memorised) &&
+						Suspension(actor, capability, new VancianSlot { AllowanceKey = entry.AllowanceKey,
+							AllowanceVersion = entry.AllowanceVersion, Ordinal = entry.Ordinal, Level = entry.SlotLevel,
+							Preparation = entry }) is null) == true) return true;
 				}
 			}
 			catch { /* Invalid configurations grant no information route. */ }
@@ -70,15 +96,15 @@ public sealed partial class VancianMagicService
 	public bool AvailableThroughVancian(ICharacter actor, IMagicSpell spell, SpellPower? power = null)
 		=> AvailableRoutes(actor, spell, power).Any();
 
-	internal IEnumerable<(IVancianMagicCapability Capability, VancianAvailability Availability)> AvailableRoutes(
+	internal IEnumerable<(IVancianMagicCapability Capability, Guid Repertoire, Guid Allowance, VancianAvailability Availability)> AvailableRoutes(
 		ICharacter actor, IMagicSpell spell, SpellPower? power = null)
 	{
-		foreach (var capability in actor.Capabilities.OfType<IVancianMagicCapability>().Where(x => x.School.Id == spell.School.Id))
+		foreach (var capability in actor.Capabilities.OfType<IVancianMagicCapability>().Where(x => x.School.Id == spell.School.Id).DistinctBy(x => x.Id))
 			foreach (var allowance in capability.Allowances)
 				foreach (var rule in allowance.RepertoireKeys)
 				{
 					var availability = CanCast(actor, capability, rule, allowance.Key, spell);
-					if (availability.Available && (!power.HasValue || power.Value == availability.Power)) yield return (capability, availability);
+					if (availability.Available && (!power.HasValue || power.Value == availability.Power)) yield return (capability, rule, allowance.Key, availability);
 				}
 	}
 }

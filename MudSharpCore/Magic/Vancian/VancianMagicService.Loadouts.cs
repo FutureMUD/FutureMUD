@@ -95,8 +95,14 @@ public sealed partial class VancianMagicService
 	}
 	internal static string? ActionError(ICharacter actor)
 	{
-		if (!actor.State.IsConscious() || actor.State.HasFlag(CharacterState.Sleeping) || actor.State.HasFlag(CharacterState.Stasis) || actor.Combat is not null || actor.Movement is not null)
-			return "You must be awake, conscious, stationary and out of combat.";
+		if (CastingError(actor) is { } error) return error;
+		return actor.Combat is not null || actor.Movement is not null
+			? "You must be stationary and out of combat for preparation or magical writing." : null;
+	}
+	internal static string? CastingError(ICharacter actor)
+	{
+		if (!actor.State.IsConscious() || actor.State.HasFlag(CharacterState.Sleeping) || actor.State.HasFlag(CharacterState.Stasis))
+			return "You must be awake and conscious.";
 		if (actor.Identity?.FocusedInstance is { } focused && !ReferenceEquals(focused, actor) && actor.IsPlayerCharacter) return "You must focus on the acting instance.";
 		return null;
 	}

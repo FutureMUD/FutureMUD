@@ -308,7 +308,8 @@ internal static class IndustrialisedItemCatalogue
 	}
 
 	private static IReadOnlyList<string> List(string text) => IndustrialisedCatalogueValues.List(text);
-	private static string? Null(string text) => string.IsNullOrWhiteSpace(text) ? null : text;
+	private static string? Null(string text) => string.IsNullOrWhiteSpace(text) ||
+		string.Equals(text, "none", StringComparison.OrdinalIgnoreCase) ? null : text;
 	private static int Int(string text) => IndustrialisedCatalogueValues.Int(text);
 	private static double Double(string text) => IndustrialisedCatalogueValues.Double(text);
 	private static decimal Decimal(string text) => IndustrialisedCatalogueValues.Decimal(text);

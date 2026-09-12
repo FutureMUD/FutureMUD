@@ -167,7 +167,9 @@ public class GameItemComponentManager : IGameItemComponentManager
 	{
 		if (CurrentAuditBuilder is not null)
 		{
-			CurrentAuditBuilder.CanonicalDatabaseType = name;
+			// The first loader is the current persisted identity. Later registrations may
+			// intentionally retain legacy aliases and must not replace the audit canonical.
+			CurrentAuditBuilder.CanonicalDatabaseType ??= name;
 		}
 
 		_registeredDatabaseLoaders.Add(name, initialiser);

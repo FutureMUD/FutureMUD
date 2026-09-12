@@ -151,6 +151,7 @@ public class CultureToolkitNamingTests
 			Name = "Local", Definition = CultureToolkitNameCatalogue.Definition("Choose a name.", ["Jonas"])
 		}, world.Object);
 		var profile = new Mock<IRandomNameProfile>();
+		profile.SetupGet(x => x.Id).Returns(1);
 		profile.SetupGet(x => x.Culture).Returns(culture);
 		profile.SetupGet(x => x.RandomNames).Returns(new Dictionary<NameUsage, List<(string Value, int Weight)>>
 		{

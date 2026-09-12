@@ -3477,6 +3477,9 @@ The syntax to use this command is as follows:
                 style: OutputStyle.IgnoreLiquidsAndFlags).Append(emote));
         }
 
+		var freshnessNow = DateTime.UtcNow;
+		containerAsContainer.ResolveLiquidFreshness(freshnessNow);
+		targetAsContainer.ResolveLiquidFreshness(freshnessNow);
         targetAsContainer.MergeLiquid(containerAsContainer.RemoveLiquidAmount(amount, character, "fill"), character,
                 "fill");
     }
@@ -3887,6 +3890,9 @@ The syntax is as follows:
                 .Append(emote));
         }
 
+		var freshnessNow = DateTime.UtcNow;
+		fromItemContainer.ResolveLiquidFreshness(freshnessNow);
+		intoItemContainer.ResolveLiquidFreshness(freshnessNow);
         intoItemContainer.MergeLiquid(fromItemContainer.RemoveLiquidAmount(amount, actor, "pour"), actor, "pour");
     }
 

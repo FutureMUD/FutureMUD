@@ -534,7 +534,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 
     public bool CanDrawdownSpike(double wattage)
     {
-        if (!ProducingPower)
+        if (!ProducingPower || !double.IsFinite(wattage) || wattage < 0.0 || _batteries.Count == 0)
         {
             return false;
         }
@@ -547,6 +547,25 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 
         return _batteries.All(x => x.WattHoursRemaining >= watthours / _batteries.Count);
     }
+
+	public bool CanDrawdownSpike(double wattage, TimeSpan duration)
+	{
+		if (!ProducingPower || !double.IsFinite(wattage) || wattage < 0.0 || duration <= TimeSpan.Zero ||
+		    !double.IsFinite(duration.TotalHours) || _batteries.Count == 0)
+		{
+			return false;
+		}
+
+		var wattHours = wattage * duration.TotalHours;
+		if (!double.IsFinite(wattHours))
+		{
+			return false;
+		}
+
+		return _prototype.BatteriesInSeries
+			? _batteries.All(x => x.WattHoursRemaining >= wattHours)
+			: _batteries.All(x => x.WattHoursRemaining >= wattHours / _batteries.Count);
+	}
 
     public bool DrawdownSpike(double wattage)
     {
@@ -573,6 +592,24 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
         CheckHeartbeat();
         return true;
     }
+
+	public bool DrawdownSpike(double wattage, TimeSpan duration)
+	{
+		if (!CanDrawdownSpike(wattage, duration))
+		{
+			return false;
+		}
+
+		var wattHours = wattage * duration.TotalHours;
+		var perBattery = _prototype.BatteriesInSeries ? wattHours : wattHours / _batteries.Count;
+		foreach (var battery in _batteries)
+		{
+			battery.WattHoursRemaining -= perBattery;
+		}
+
+		CheckHeartbeat();
+		return true;
+	}
 
     #endregion
 

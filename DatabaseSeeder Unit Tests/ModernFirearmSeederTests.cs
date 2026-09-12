@@ -1,6 +1,7 @@
 #nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DatabaseSeeder.Seeders;
 using System;
 
 namespace MudSharp_Unit_Tests;
@@ -80,5 +81,10 @@ public class ModernFirearmSeederTests
 		StringAssert.Contains(source, "\"ModernFirearms_Hard_Plate_Carrier\"");
 		StringAssert.Contains(source, "GameItemProtosGameItemComponentProtos.Any");
 		StringAssert.Contains(source, "FirstOrDefault(x => x.Type == type && x.Name == name)");
+		foreach (var componentName in CombatSeeder.IndustrialisedPrerequisiteComponentNamesForTesting)
+		{
+			Assert.IsTrue(source.Contains($"\"{componentName}\"", StringComparison.Ordinal),
+				$"CombatSeeder must own the reusable Industrialised prerequisite {componentName}.");
+		}
 	}
 }

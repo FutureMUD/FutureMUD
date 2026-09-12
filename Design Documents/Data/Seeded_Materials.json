@@ -3786,6 +3786,13 @@
                  ]
     },
     {
+        "Material Name":  "pith",
+        "Tags":  [
+                     "Functions / Material Functions / Primary Production / Primary Production Commodity",
+                     "Materials / Natural Materials / Wood"
+                 ]
+    },
+    {
         "Material Name":  "pitseed goosefoot",
         "Tags":  [
                      "Materials / Natural Materials / Agricultural Crop / Food Crop"

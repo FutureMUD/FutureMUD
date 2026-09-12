@@ -748,6 +748,72 @@ public class CoreDataSeederMaterialTests
 		Assert.IsTrue(materials["tea brick"].MaterialAliases.Any(x => x.Alias == "tea cake"));
 	}
 
+	[TestMethod]
+	public void Pith_IsDistinctSourceBackedStockWithExactAliasesTagsAndExport()
+	{
+		using var context = BuildContext();
+		SeedMaterials(context);
+		var pith = context.Materials.Include(x => x.MaterialAliases).Include(x => x.MaterialsTags).ThenInclude(x => x.Tag).Single(x => x.Name == "pith");
+		var cork = context.Materials.Single(x => x.Name == "cork");
+		Assert.AreNotEqual(cork.Id, pith.Id);
+		Assert.AreEqual((int)MaterialType.Solid, pith.Type);
+		Assert.AreEqual((int)MaterialBehaviourType.Wood, pith.BehaviourType);
+		Assert.IsTrue(pith.Organic);
+		Assert.AreEqual(40.0, pith.Density);
+		Assert.IsTrue(pith.Density < cork.Density);
+		Assert.IsTrue(new[] { pith.ShearYield, pith.ImpactYield, pith.Absorbency, pith.ThermalConductivity, pith.ElectricalConductivity, pith.SpecificHeatCapacity }.All(x => x.HasValue && double.IsFinite(x.Value) && x > 0));
+		CollectionAssert.AreEquivalent(new[] { "shola pith", "sola pith", "sholapith" }, pith.MaterialAliases.Select(x => x.Alias).ToArray());
+		foreach (var alias in pith.MaterialAliases)
+			Assert.AreEqual(1, context.MaterialAliases.AsEnumerable().Count(x => x.Alias.Equals(alias.Alias, StringComparison.OrdinalIgnoreCase)));
+		var paths = pith.MaterialsTags.Select(x => TagPath(x.Tag)).OrderBy(x => x, StringComparer.Ordinal).ToArray();
+		CollectionAssert.AreEqual(new[] { "Functions / Material Functions / Primary Production / Primary Production Commodity", "Materials / Natural Materials / Wood" }, paths);
+		using var json = JsonDocument.Parse(ReadSource("Design Documents", "Data", "Seeded_Materials.json"));
+		var exported = json.RootElement.EnumerateArray().Single(x => x.GetProperty("Material Name").GetString() == "pith");
+		CollectionAssert.AreEqual(paths, exported.GetProperty("Tags").EnumerateArray().Select(x => x.GetString()!).ToArray());
+		Assert.AreEqual("pith", IndustrialisedClothingDependencyPlan.Rows.Single(x => x.PlanningKey == "pith_helmet").Material);
+
+		static string TagPath(MudSharp.Models.Tag tag) => tag.Parent is null ? tag.Name : $"{TagPath(tag.Parent)} / {tag.Name}";
+	}
+
+	[TestMethod]
+	public void Pith_RerunRestoresAliasesWithoutDuplicatingOrOverwritingCustomProperties()
+	{
+		using var context = BuildContext();
+		SeedMaterials(context);
+		var pith = context.Materials.Include(x => x.MaterialAliases).Single(x => x.Name == "pith");
+		var id = pith.Id;
+		pith.Density = 53;
+		pith.MaterialDescription = "Builder's pith stock";
+		context.MaterialAliases.Remove(pith.MaterialAliases.Single(x => x.Alias == "shola pith"));
+		context.SaveChanges();
+		var counts = (context.Materials.Count(), context.Tags.Count(), context.MaterialsTags.Count());
+		SeedMaterials(context);
+		SeedMaterials(context);
+		Assert.AreEqual(counts, (context.Materials.Count(), context.Tags.Count(), context.MaterialsTags.Count()));
+		Assert.AreEqual(id, context.Materials.Single(x => x.Name == "pith").Id);
+		Assert.AreEqual(53.0, pith.Density);
+		Assert.AreEqual("Builder's pith stock", pith.MaterialDescription);
+		Assert.AreEqual(3, context.MaterialAliases.Count(x => x.MaterialId == id));
+	}
+
+	[TestMethod]
+	public void IndustrialisedClothing_AllPlannedMaterialsResolveToUniqueStockSolids()
+	{
+		using var context = BuildContext();
+		SeedMaterials(context);
+		var stock = context.Materials.AsEnumerable().ToLookup(x => x.Name, StringComparer.OrdinalIgnoreCase);
+		var plan = IndustrialisedClothingDependencyPlan.Rows;
+		Assert.AreEqual(364, plan.Count);
+		foreach (var row in plan)
+		{
+			var matches = stock[row.Material].ToArray();
+			Assert.AreEqual(1, matches.Length, $"{row.ItemReference}: material {row.Material} must have one stock identity.");
+			Assert.AreEqual(row.Material, matches[0].Name, row.ItemReference);
+			Assert.AreEqual((int)MaterialType.Solid, matches[0].Type, row.ItemReference);
+			Assert.IsTrue(double.IsFinite(matches[0].Density) && matches[0].Density > 0, row.ItemReference);
+		}
+	}
+
     [TestMethod]
     public void SeedMaterialsBase_DoesNotAssumeWaterHasLiquidIdOne()
     {

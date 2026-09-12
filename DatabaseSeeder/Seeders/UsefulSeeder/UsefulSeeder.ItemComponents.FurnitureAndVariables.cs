@@ -364,6 +364,13 @@ public partial class UsefulSeeder
         CharacteristicProfile jewelleryBeadPatterns = context.CharacteristicProfiles.First(x => x.Name == "Jewellery_Bead_Patterns");
         CharacteristicProfile jewelleryShapes = context.CharacteristicProfiles.First(x => x.Name == "Jewellery_Shapes");
         CharacteristicProfile jewelleryInlayStyles = context.CharacteristicProfiles.First(x => x.Name == "Jewellery_Inlay_Styles");
+		var clothingProfiles = CoreDataSeeder.ClothingColourProfiles.Select(spec =>
+		{
+			var matches = context.CharacteristicProfiles.Where(x => x.Name == spec.Name).ToArray();
+			if (matches.Length != 1 || matches[0].Name != spec.Name || matches[0].TargetDefinitionId != colour.Id)
+				throw new InvalidOperationException($"The clothing Variable stock requires the exact {spec.Name} Colour profile. Run or rerun Core Data, or resolve customised prerequisite conflicts, before retrying.");
+			return (Spec: spec, Profile: matches[0]);
+		}).ToArray();
         GameItemComponentProto component;
 
         void AddSingleVariableComponent(ref long componentId, string name, string description, CharacteristicProfile profile,
@@ -438,6 +445,8 @@ public partial class UsefulSeeder
         AddSingleVariableComponent(ref nextId, "Variable_InlayStyle",
             "Gives an item a random variable called $inlay from the Jewellery_Inlay_Styles list.",
             jewelleryInlayStyles, inlayStyle);
+		foreach (var (spec, profile) in clothingProfiles)
+			AddSingleVariableComponent(ref nextId, spec.ComponentName, spec.Description, profile, colour);
 
         component = new GameItemComponentProto
         {

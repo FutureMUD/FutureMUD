@@ -656,6 +656,41 @@ Please answer #3primitive#F, #3pre-modern#0, #3medieval#0, #3renaissance#0, #3ea
             _context.SaveChanges();
         }
 
+		private void SeedFoodAndDrinkHealthProfiles()
+		{
+			AddDrug("Dietary Caffeine", 5.0, 0.18, DrugVector.Ingested,
+				(DrugType.Arousal, 1.0, StimulantInfo().DatabaseString),
+				(DrugType.Dependence, 0.15, new DrugDependenceAdditionalInfo
+				{
+					ExposureGainPerGram = 8.0,
+					ExposureDecayPerDay = 0.15,
+					ToleranceThreshold = 5.0,
+					MinimumToleranceMultiplier = 0.65,
+					WithdrawalThreshold = 2.5,
+					WithdrawalDecayPerDay = 0.5,
+					AffectedDrugTypes = [DrugType.Arousal],
+					WithdrawalCheckPenalty = -0.03,
+					WithdrawalHungerMultiplier = 1.03,
+					WithdrawalThirstMultiplier = 1.05,
+					WithdrawalStaminaRegenMultiplier = 0.95,
+					WithdrawalStaminaCostMultiplier = 1.05,
+					WithdrawalNauseaIntensity = 0.05,
+					WithdrawalRageIntensity = 0.0,
+					SleepPreventionThreshold = 0.08
+				}.DatabaseString));
+
+			AddDrug("Food-Borne Illness", 1.0, 0.15, DrugVector.Ingested,
+				(DrugType.Nausea, 1.0, string.Empty),
+				(DrugType.NeedRate, 0.25, new NeedRateAdditionalInfo
+				{
+					HungerMultiplier = 1.15,
+					ThirstMultiplier = 1.25,
+					DrunkennessMultiplier = 1.0,
+					AppliesToPassive = true,
+					AppliesToActive = true
+				}.DatabaseString));
+		}
+
         private void AddOptionalVeterinaryKnowledge(string name, int sessions, Difficulty difficulty, string description,
             string longDescription, MudSharp.Models.FutureProg? chargenAvailabilityProg = null)
         {
@@ -2066,6 +2101,8 @@ Please answer #3primitive#F, #3pre-modern#0, #3medieval#0, #3renaissance#0, #3ea
                     SeedModernDrugs();
                     break;
             }
+
+			SeedFoodAndDrinkHealthProfiles();
 
             _context.SaveChanges();
         }

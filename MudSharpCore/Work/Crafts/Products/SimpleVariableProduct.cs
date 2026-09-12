@@ -19,6 +19,11 @@ public class SimpleVariableProduct : SimpleProduct
             Characteristics.Add((gameworld.Characteristics.Get(long.Parse(item.Value)),
                 int.Parse(item.Attribute("inputindex").Value)));
         }
+		foreach (var item in root.Elements("FixedVariable"))
+		{
+			FixedCharacteristics.Add((gameworld.Characteristics.Get(long.Parse(item.Value)),
+				gameworld.CharacteristicValues.Get(long.Parse(item.Attribute("value").Value))));
+		}
     }
 
     protected SimpleVariableProduct(ICraft craft, IFuturemud gameworld, bool failproduct) : base(craft, gameworld,
@@ -27,6 +32,7 @@ public class SimpleVariableProduct : SimpleProduct
     }
 
     public List<(ICharacteristicDefinition Definition, int InputIndex)> Characteristics { get; } = new();
+	public List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)> FixedCharacteristics { get; } = new();
 
     public new static void RegisterCraftProduct()
     {
@@ -45,12 +51,14 @@ public class SimpleVariableProduct : SimpleProduct
             new XElement("Quantity", Quantity),
             new XElement("Skin", Skin?.Id ?? 0),
             from item in Characteristics
-            select new XElement("Variable", new XAttribute("inputindex", item.InputIndex), item.Definition.Id)
+            select new XElement("Variable", new XAttribute("inputindex", item.InputIndex), item.Definition?.Id ?? 0),
+			from item in FixedCharacteristics
+			select new XElement("FixedVariable", new XAttribute("value", item.Value?.Id ?? 0), item.Definition?.Id ?? 0)
         ).ToString();
     }
 
     protected override string BuildingHelpText =>
-        $"{base.BuildingHelpText}\n\t#3variable <definition> <input#>#0 - toggles a variable to be set on this item";
+        $"{base.BuildingHelpText}\n\t#3variable <definition> <input#>#0 - copies a characteristic from a variable-aware input\n\t#3variable <definition> value <value>#0 - selects an exact characteristic for this product\n\t#3variable <definition>#0 - removes either kind of characteristic rule";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -64,7 +72,7 @@ public class SimpleVariableProduct : SimpleProduct
                 return BuildingCommandVariable(actor, command);
         }
 
-        return base.BuildingCommand(actor, new StringStack($"{command.Last} {command.RemainingArgument}"));
+        return base.BuildingCommand(actor, new StringStack($"{command.Last} {command.SafeRemainingArgument}"));
     }
 
     private bool BuildingCommandVariable(ICharacter actor, StringStack command)
@@ -84,15 +92,38 @@ public class SimpleVariableProduct : SimpleProduct
 
         if (command.IsFinished)
         {
-            if (Characteristics.Any(x => x.Definition == definition))
+            if (Characteristics.Any(x => x.Definition == definition) || FixedCharacteristics.Any(x => x.Definition == definition))
             {
                 Characteristics.RemoveAll(x => x.Definition == definition);
+				FixedCharacteristics.RemoveAll(x => x.Definition == definition);
                 ProductChanged = true;
                 actor.OutputHandler.Send(
                     $"This product will no longer be supplied the variable {definition.Name.Colour(Telnet.Yellow)}.");
                 return true;
             }
         }
+
+		if (command.PeekSpeech().EqualTo("value"))
+		{
+			command.PopSpeech();
+			var text = command.SafeRemainingArgument;
+			var candidates = Gameworld.CharacteristicValues
+				.Where(definition.IsValue)
+				.Where(x => long.TryParse(text, out var id) ? x.Id == id : x.Name.EqualTo(text))
+				.ToArray();
+			if (candidates.Length != 1)
+			{
+				actor.OutputHandler.Send("Specify an exact, unambiguous value name or ID belonging to that characteristic.");
+				return false;
+			}
+
+			Characteristics.RemoveAll(x => x.Definition == definition);
+			FixedCharacteristics.RemoveAll(x => x.Definition == definition);
+			FixedCharacteristics.Add((definition, candidates[0]));
+			ProductChanged = true;
+			actor.OutputHandler.Send($"This product will select {candidates[0].Name.ColourValue()} for {definition.Name.ColourName()}; other copies of the item prototype are unchanged.");
+			return true;
+		}
 
         if (!int.TryParse(command.PopSpeech(), out int ivalue))
         {
@@ -106,6 +137,11 @@ public class SimpleVariableProduct : SimpleProduct
             actor.OutputHandler.Send("There is no such input for this craft.");
             return false;
         }
+		if (input is not IVariableInput variableInput || !variableInput.DeterminesVariable(definition))
+		{
+			actor.OutputHandler.Send("That input does not provide this characteristic. Configure a variable-aware input first.");
+			return false;
+		}
 
         if (Characteristics.Any(x => x.Definition == definition))
         {
@@ -113,6 +149,7 @@ public class SimpleVariableProduct : SimpleProduct
         }
 
         Characteristics.Add((definition, ivalue - 1));
+		FixedCharacteristics.RemoveAll(x => x.Definition == definition);
         actor.OutputHandler.Send(
             $"This input will now be supplied the variable {definition.Name.Colour(Telnet.Yellow)} from the input {input.Name}.");
         ProductChanged = true;
@@ -121,29 +158,42 @@ public class SimpleVariableProduct : SimpleProduct
 
     public override bool IsValid()
     {
-        return base.IsValid() && Characteristics.All(x =>
-            Craft.Inputs.ElementAtOrDefault(x.InputIndex) is IVariableInput ivi &&
-            ivi.DeterminesVariable(x.Definition));
+        return base.IsValid() && !VariableErrors().Any();
     }
 
     public override string WhyNotValid()
     {
-        StringBuilder sb = new();
-        foreach ((ICharacteristicDefinition definition, int input) in Characteristics.Where(x =>
-                     Craft.Inputs.ElementAtOrDefault(x.InputIndex) is IVariableInput ivi &&
-                     ivi.DeterminesVariable(x.Definition)))
-        {
-            sb.AppendLine(
-                $"Craft Input $i{input + 1} determining variable {definition.Name.Colour(Telnet.Green)} was not found or was not providing said variable.");
-        }
-
-        if (sb.Length > 0)
-        {
-            return sb.ToString();
-        }
-
-        return base.WhyNotValid();
+		var errors = VariableErrors().ToArray();
+		return errors.Length > 0 ? string.Join("\n", errors) : base.WhyNotValid();
     }
+
+	private IEnumerable<string> VariableErrors()
+	{
+		var definitions = new HashSet<ICharacteristicDefinition>();
+		foreach (var (definition, inputIndex) in Characteristics)
+		{
+			if (definition is null)
+			{
+				yield return "A variable rule refers to a missing characteristic definition.";
+				continue;
+			}
+			if (!definitions.Add(definition)) yield return $"Characteristic {definition.Name} has more than one product rule.";
+			if (inputIndex < 0 || Craft.Inputs.ElementAtOrDefault(inputIndex) is not IVariableInput input || !input.DeterminesVariable(definition))
+			{
+				yield return $"Craft Input $i{inputIndex + 1} determining variable {definition.Name.ColourValue()} was not found or was not providing said variable.";
+			}
+		}
+		foreach (var (definition, value) in FixedCharacteristics)
+		{
+			if (definition is null)
+			{
+				yield return "A fixed variable rule refers to a missing characteristic definition.";
+				continue;
+			}
+			if (!definitions.Add(definition)) yield return $"Characteristic {definition.Name} has more than one product rule.";
+			if (value is null || !definition.IsValue(value)) yield return $"Characteristic {definition.Name} has a missing or incompatible selected value.";
+		}
+	}
 
     public override ICraftProductData ProduceProduct(IActiveCraftGameItemComponent component,
         ItemQuality referenceQuality)
@@ -154,12 +204,22 @@ public class SimpleVariableProduct : SimpleProduct
             throw new ApplicationException("Couldn't find a valid proto for craft product to load.");
         }
 
-        List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)> variables = new();
+        var errors = VariableErrors().ToArray();
+		if (errors.Length > 0) throw new ApplicationException(string.Join("\n", errors));
+		List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)> variables = new(FixedCharacteristics);
         foreach ((ICharacteristicDefinition definition, int input) in Characteristics)
         {
             ICraftInput ivi = Craft.Inputs.ElementAt(input);
-            variables.Add((definition,
-                ((IVariableInput)ivi).GetValueForVariable(definition, component.ConsumedInputs[ivi].Data)));
+			if (!component.ConsumedInputs.TryGetValue(ivi, out var consumed))
+			{
+				throw new ApplicationException($"Craft Input $i{input + 1} has not been consumed; cannot resolve {definition.Name}.");
+			}
+			var value = ((IVariableInput)ivi).GetValueForVariable(definition, consumed.Data);
+			if (value is null || !definition.IsValue(value))
+			{
+				throw new ApplicationException($"Craft Input $i{input + 1} did not supply a valid {definition.Name} value.");
+			}
+			variables.Add((definition, value));
         }
 
         ISolid material = DetermineOverrideMaterial(component);
@@ -225,8 +285,8 @@ public class SimpleVariableProduct : SimpleProduct
 
             foreach ((ICharacteristicDefinition definition, int input) in Characteristics)
             {
-                sb.Append(" ").Append(definition.Name).Append(" <- ");
-                if (Craft.Inputs.ElementAtOrDefault(input) is IVariableInput ivi && ivi.DeterminesVariable(definition))
+                sb.Append(" ").Append(definition?.Name ?? "missing characteristic").Append(" <- ");
+                if (definition is not null && input >= 0 && Craft.Inputs.ElementAtOrDefault(input) is IVariableInput ivi && ivi.DeterminesVariable(definition))
                 {
                     sb.Append(ivi.Name).Append($" ($i{input + 1})");
                 }
@@ -235,6 +295,10 @@ public class SimpleVariableProduct : SimpleProduct
                     sb.Append(" an invalid input".Colour(Telnet.Red));
                 }
             }
+			foreach (var (definition, value) in FixedCharacteristics)
+			{
+				sb.Append(" ").Append(definition?.Name ?? "missing characteristic").Append(" = ").Append(value?.Name ?? "missing value");
+			}
 
             return sb.ToString();
         }
@@ -260,8 +324,8 @@ public class SimpleVariableProduct : SimpleProduct
 
         foreach ((ICharacteristicDefinition definition, int input) in Characteristics)
         {
-            sb.Append(" ").Append(definition.Name).Append(" <- ");
-            if (Craft.Inputs.ElementAtOrDefault(input) is IVariableInput ivi && ivi.DeterminesVariable(definition))
+            sb.Append(" ").Append(definition?.Name ?? "missing characteristic").Append(" <- ");
+            if (definition is not null && input >= 0 && Craft.Inputs.ElementAtOrDefault(input) is IVariableInput ivi && ivi.DeterminesVariable(definition))
             {
                 sb.Append(ivi.Name).Append($" ($i{input + 1})");
             }
@@ -270,6 +334,10 @@ public class SimpleVariableProduct : SimpleProduct
                 sb.Append(" an invalid input".Colour(Telnet.Red));
             }
         }
+		foreach (var (definition, value) in FixedCharacteristics)
+		{
+			sb.Append(" ").Append(definition?.Name ?? "missing characteristic").Append(" = ").Append(value?.Name ?? "missing value");
+		}
 
         return sb.ToString();
     }

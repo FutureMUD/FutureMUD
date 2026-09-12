@@ -58,6 +58,11 @@ public interface IItemTimeRateSensitivePrototype : IAggregateGameItemComponentPr
 {
 }
 
+public interface IPackageFreshnessModifierPrototype : IExclusiveGameItemComponentPrototype<IPackageFreshnessModifier>,
+	IItemTimeRateModifierPrototype
+{
+}
+
 public interface IWeaponCarrierAttachmentPrototype : IExclusiveGameItemComponentPrototype<IWeaponCarrierAttachment>
 {
 }

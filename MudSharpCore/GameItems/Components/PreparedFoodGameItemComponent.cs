@@ -36,6 +36,8 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 	private readonly List<FoodDrugDose> _drugDoses = new();
 	private readonly List<FoodDrugDose> _staleDrugDoses = new();
 	private LiquidMixture? _magicalIngredients;
+	private readonly HashSet<DietaryContent> _dietaryContents = new();
+	private readonly HashSet<AnimalFeedPurpose> _animalFeedPurposes = new();
 
 	public override IGameItemComponentProto Prototype => _prototype;
 
@@ -78,6 +80,9 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 
 	public IEnumerable<FoodIngredientInstance> Ingredients => _ingredients;
 	public IEnumerable<FoodDrugDose> DrugDoses => _drugDoses;
+	public IReadOnlySet<MajorFoodAllergen> Allergens => _ingredients.SelectMany(x => x.Allergens).ToHashSet();
+	public IReadOnlySet<DietaryContent> DietaryContents => _dietaryContents;
+	public IReadOnlySet<AnimalFeedPurpose> AnimalFeedPurposes => _animalFeedPurposes;
 
 	public double SatiationPoints => _satiationPoints * QualityMultiplier * FreshnessNutritionMultiplier;
 	public double WaterLitres => _waterLitres * QualityMultiplier * FreshnessNutritionMultiplier;
@@ -178,6 +183,10 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 		_drugDoses.AddRange(profile.DrugDoses.Select(x => x.Clone()));
 		_staleDrugDoses.Clear();
 		_staleDrugDoses.AddRange(profile.StaleDrugDoses.Select(x => x.Clone()));
+		_dietaryContents.Clear();
+		_dietaryContents.UnionWith(profile.DietaryContents);
+		_animalFeedPurposes.Clear();
+		_animalFeedPurposes.UnionWith(profile.AnimalFeedPurposes);
 	}
 
 	public void ApplyPreparedFoodProfile(PreparedFoodProfile profile, bool replaceIngredientsAndDoses = true)
@@ -475,6 +484,8 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 		_drugDoses.AddRange(rhs._drugDoses.Select(x => x.Clone()));
 		_staleDrugDoses.AddRange(rhs._staleDrugDoses.Select(x => x.Clone()));
 		_magicalIngredients = rhs._magicalIngredients?.Clone();
+		_dietaryContents.UnionWith(rhs._dietaryContents);
+		_animalFeedPurposes.UnionWith(rhs._animalFeedPurposes);
 	}
 
 	public PreparedFoodGameItemComponent(PreparedFoodGameItemComponentProto proto, IGameItem parent, bool temporary = false)
@@ -543,6 +554,24 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 			_staleDrugDoses.Clear();
 			_staleDrugDoses.AddRange(staleDoses.Elements("Dose").Select(x => FoodDrugDose.LoadFromXml(x, Gameworld)));
 		}
+
+		_dietaryContents.Clear();
+		foreach (var element in root.Element("DietaryContents")?.Elements("Content") ?? [])
+		{
+			if (Enum.TryParse<DietaryContent>(element.Value, true, out var value))
+			{
+				_dietaryContents.Add(value);
+			}
+		}
+
+		_animalFeedPurposes.Clear();
+		foreach (var element in root.Element("AnimalFeedPurposes")?.Elements("Purpose") ?? [])
+		{
+			if (Enum.TryParse<AnimalFeedPurpose>(element.Value, true, out var value))
+			{
+				_animalFeedPurposes.Add(value);
+			}
+		}
 	}
 
 	protected override string SaveToXml()
@@ -574,7 +603,9 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood, I
 			new XElement("MagicalIngredients", _magicalIngredients?.SaveToXml()),
 			new XElement("Ingredients", _ingredients.Select(x => x.SaveToXml())),
 			new XElement("DrugDoses", _drugDoses.Select(x => x.SaveToXml())),
-			new XElement("StaleDrugDoses", _staleDrugDoses.Select(x => x.SaveToXml()))
+			new XElement("StaleDrugDoses", _staleDrugDoses.Select(x => x.SaveToXml())),
+			new XElement("DietaryContents", _dietaryContents.OrderBy(x => x).Select(x => new XElement("Content", x))),
+			new XElement("AnimalFeedPurposes", _animalFeedPurposes.OrderBy(x => x).Select(x => new XElement("Purpose", x)))
 		).ToString();
 	}
 

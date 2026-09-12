@@ -194,7 +194,7 @@ All tools also support the shared base tool options:
 | Alias | What it is for | Main subcommands | Important constraints |
 | --- | --- | --- | --- |
 | `simple` | Load ordinary items | `item`, `skin`, `quantity`, `material` | Must set an item proto; skin must match that proto and be approved |
-| `variable` | Load items with characteristics coming from variable-aware inputs | `item`, `skin`, `quantity`, `variable <definition> <input#>` | Source input must be an `IVariableInput` that provides the definition |
+| `variable` | Load items with inherited and/or deliberately selected characteristics | `item`, `skin`, `quantity`, `variable <definition> <input#>`, `variable <definition> value <value>` | Each definition has one rule; inherited values require a variable-aware input, selected values require an exact compatible value name or ID |
 | `inputvariable` | Load items whose characteristics depend on which item was used for an input | `item`, `skin`, `quantity`, `variable ...` | Requires explicit input index and per-item value mappings |
 | `commodity` | Load commodity piles | `commodity`, `weight`, `tag`, `material` | Requires material and positive weight |
 | `money` | Produce money | `currency`, `amount` | Requires currency and positive amount |
@@ -205,6 +205,8 @@ All tools also support the shared base tool options:
 | `scrap` | Convert part of an input into scrap commodity | `input`, `percentage`, `tag`, `material` | Good for salvage-style fail outputs |
 | `dnatest` | Compare two liquid inputs | `input1`, `input2` | Both targeted inputs must consume liquids and must be different |
 | `bloodtyping` | Test one liquid input against a blood model | `input`, `bloodmodel` | Requires a valid blood model plus a liquid-consuming input |
+
+For a variable product, `variable Colour 1` copies Colour from the first variable-aware input; `variable Accent value white` selects white for Accent on that product. Both rules can coexist when the item supports both definitions. An exact selected value affects crafted instances, not every copy of the prototype or skin. `variable <definition>` removes either rule, and configuring a new rule for the same definition replaces the old one. Invalid selections leave the previous configuration intact. Missing or incompatible input values stop product creation instead of silently choosing another colour. Check garment definitions and permitted palettes as part of content preflight; these product rules do not create characteristic channels on the item.
 
 ## Review and Debugging Workflow
 

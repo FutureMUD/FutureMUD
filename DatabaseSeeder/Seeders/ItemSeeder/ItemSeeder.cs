@@ -13,8 +13,37 @@ using System.Threading.Tasks;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class ItemSeeder : IDatabaseSeeder
+public partial class ItemSeeder : IDatabaseSeeder, ISeederAnswerNormalizer
 {
+	public IReadOnlyDictionary<string, string> NormalizeAnswers(IReadOnlyDictionary<string, string> answers)
+	{
+		var normalized = new Dictionary<string, string>(answers, StringComparer.OrdinalIgnoreCase);
+		if (normalized.TryGetValue("eras", out var eras))
+		{
+			normalized["eras"] = string.Join(" ", SplitSelectionTokens(eras)
+				.Select(x => EraDefinitionsByToken.GetValueOrDefault(x))
+				.Where(x => x is not null)
+				.Select(x => x!.Key)
+				.Distinct(StringComparer.OrdinalIgnoreCase)
+				.OrderBy(x => Array.IndexOf(EraDefinitions.Select(y => y.Key).ToArray(), x)));
+		}
+		if (normalized.TryGetValue("technologyprofile", out var profile))
+		{
+			normalized["technologyprofile"] = profile.Trim().ToLowerInvariant();
+		}
+		foreach (var key in new[] { "technologypower", "technologypaper", "technologytelecom", "technologynetworkmedia", "technologyvehicle" })
+		{
+			if (!normalized.TryGetValue(key, out var value))
+			{
+				continue;
+			}
+			normalized[key] = string.Join(", ", value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+				.Distinct(StringComparer.OrdinalIgnoreCase)
+				.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+		}
+		return normalized;
+	}
+
     /// <inheritdoc />
     public IEnumerable<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions => new List<(string Id, string Question,
             Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
@@ -27,8 +56,9 @@ public partial class ItemSeeder : IDatabaseSeeder
     #BMedieval#0 - The medieval period, roughly 500 to 1400 CE
     #BRenaissance#0 - The renaissance period, roughly 1400 to 1600 CE
     #BEarlyModern#0 - The enlightenment and early modern period, roughly 1600 to 1750 CE
+    #BIndustrial#0 - Mechanised production, steam, rail, telegraphy and early practical electricity (alias: #3revolution#0)
 
-Later eras are intentionally unavailable until they have implemented manifest modules; selecting an era therefore always installs real content.
+Modern, Nuclear and Information Age catalogues remain unavailable until their own activation gates pass.
 
 
 Please enter the eras that you want to be created, separated by spaces.
@@ -36,20 +66,49 @@ Please enter the eras that you want to be created, separated by spaces.
 What is your choice? ", (context, answers) => true,
 				(text, context) =>
 				{
-					string[] split = text.Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
-					foreach (string item in split) { switch (item.ToLowerInvariant())
-						{
-							case "antiquity":
-							case "medieval":
-							case "renaissance":
-							case "earlymodern":
-								continue;
-							default:
-								return (false,
-									$"The option '{item.ToLowerInvariant()}' is not a valid era selection.");
-						} } return (true, string.Empty);
+					return ValidateEraSelection(text);
 				}
 			),
+		("technologyprofile",
+				@"Later-era item catalogues use one remembered world technology profile so that stock power, paper, telecommunications, data/media and vehicle-support items remain mutually compatible.
+
+Choose one of #3neutral#0, #3northamerican#0, #3continentaleuropean#0, #3britishirish#0, #3australasian#0, #3japanese#0, #3chinese#0 or #3custom#0.
+
+The custom option composes exact component prototypes already supplied by UsefulSeeder; ItemSeeder does not create component prototypes.
+
+What is your choice? ",
+				(context, answers) => HasRequestedIndustrialisedEra(answers),
+				(text, context) => ValidateTechnologyProfile(text)),
+		("technologypower",
+				@"Enter the exact UsefulSeeder component prototype names used by this custom profile for mains power and power conversion, separated by commas.
+
+What is your choice? ",
+				(context, answers) => HasSelectedCustomTechnologyProfile(answers),
+				(text, context) => ValidateCustomComponentList(text, context, "power")),
+		("technologypaper",
+				@"Enter the paper format families admitted by this custom profile, separated by commas.
+
+What is your choice? ",
+				(context, answers) => HasSelectedCustomTechnologyProfile(answers),
+				(text, context) => ValidateCustomText(text, "paper format")),
+		("technologytelecom",
+				@"Enter the exact UsefulSeeder component prototype names used by this custom profile for telecommunications, separated by commas.
+
+What is your choice? ",
+				(context, answers) => HasSelectedCustomTechnologyProfile(answers),
+				(text, context) => ValidateCustomComponentList(text, context, "telecommunications")),
+		("technologynetworkmedia",
+				@"Enter the exact UsefulSeeder component prototype names used by this custom profile for networks and local media, separated by commas.
+
+What is your choice? ",
+				(context, answers) => HasSelectedCustomTechnologyProfile(answers),
+				(text, context) => ValidateCustomComponentList(text, context, "network and media")),
+		("technologyvehicle",
+				@"Enter the exact UsefulSeeder component prototype names used by this custom profile for vehicle charging and service connectors, separated by commas.
+
+What is your choice? ",
+				(context, answers) => HasSelectedCustomTechnologyProfile(answers),
+				(text, context) => ValidateCustomComponentList(text, context, "vehicle service")),
 		("scope",
 				@"This database already has managed ItemSeeder content. You can reconcile the whole selected-era catalogue, or run the much smaller black-powder support repair when you only need the physical ammunition, tools, tags, weapon items, and gunpowder craft used by muskets and artillery.
 
@@ -83,15 +142,19 @@ What is your choice? ",
 	public bool SafeToRunMoreThanOnce => true;
 
     private Dictionary<string, GameItemComponentProto> _components = new(StringComparer.InvariantCultureIgnoreCase);
+	private Dictionary<(long Id, int Revision), string> _componentNamesByKey = [];
+	private HashSet<(long ItemId, int ItemRevision, long ComponentId, int ComponentRevision)> _itemComponentKeys = [];
     private Dictionary<string, Tag> _tags = new(StringComparer.InvariantCultureIgnoreCase);
     private Dictionary<string, Tag> _tagsByFullPath = new(StringComparer.InvariantCultureIgnoreCase);
     private Dictionary<string, Material> _materials = new(StringComparer.InvariantCultureIgnoreCase);
+	private Dictionary<long, string> _materialNamesById = [];
     private Dictionary<string, Liquid> _liquids = new(StringComparer.InvariantCultureIgnoreCase);
     private Dictionary<string, FutureProg> _progs = new(StringComparer.InvariantCultureIgnoreCase);
     private DictionaryWithDefault<string, TraitDefinition> _traits = new(StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, GameItemProto> _items = new(StringComparer.InvariantCultureIgnoreCase);
 	private Dictionary<string, GameItemProto> _itemsByStableReference = new(StringComparer.OrdinalIgnoreCase);
 	private Dictionary<long, GameItemProto> _itemsById = [];
+	private HashSet<long> _preexistingItemIds = [];
 	private Dictionary<long, string> _itemStableReferencesById = [];
 	private Dictionary<string, IReadOnlyList<GameItemProto>> _legacyItemsByShortDescription =
 		new(StringComparer.OrdinalIgnoreCase);
@@ -115,6 +178,8 @@ What is your choice? ",
 
     private void InitialiseDependencies()
     {
+		_traitGateProgRows = null;
+		_pendingGeneratedManifestIdentities.Clear();
 		if (_context is null)
 		{
 			throw new ApplicationException("Context cannot be null at this point.");
@@ -129,11 +194,15 @@ What is your choice? ",
 				.ToDictionary(x => x.Key, x => x.OrderByDescending(record => record.AppliedAt).First(),
 					StringComparer.OrdinalIgnoreCase);
 
-		_components = _context.GameItemComponentProtos.Local
+		var componentPrototypes = _context.GameItemComponentProtos.Local
 			.AsEnumerable()
 			.Concat(_context.GameItemComponentProtos
 				.Include(x => x.EditableItem)
 				.AsEnumerable())
+			.GroupBy(x => (x.Id, x.RevisionNumber))
+			.Select(x => x.First())
+			.ToArray();
+		_components = componentPrototypes
 			.GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
 			.ToDictionary(
 				x => x.Key,
@@ -141,6 +210,16 @@ What is your choice? ",
 				     x.FirstOrDefault(y => y.EditableItem?.RevisionStatus is 1 or 2) ??
 				     x.OrderByDescending(y => y.RevisionNumber).First(),
 				StringComparer.OrdinalIgnoreCase);
+		_componentNamesByKey = componentPrototypes
+			.ToDictionary(x => (x.Id, x.RevisionNumber), x => x.Name);
+		_itemComponentKeys = _context.GameItemProtosGameItemComponentProtos
+			.AsNoTracking()
+			.Select(x => new ValueTuple<long, int, long, int>(
+				x.GameItemProtoId,
+				x.GameItemProtoRevision,
+				x.GameItemComponentProtoId,
+				x.GameItemComponentRevision))
+			.ToHashSet();
         _tags = _context.Tags
             .AsEnumerable()
             .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
@@ -196,6 +275,7 @@ What is your choice? ",
 
 		_materials = materialGroups.ToDictionary(x => x.Key, x => x.OrderBy(y => y.Id).First(),
 			StringComparer.OrdinalIgnoreCase);
+		_materialNamesById = _materials.Values.ToDictionary(x => x.Id, x => x.Name);
 		_liquids = liquidGroups.ToDictionary(x => x.Key, x => x.OrderBy(y => y.Id).First(),
 			StringComparer.OrdinalIgnoreCase);
 		_nextItemId = _context.GameItemProtos.Any()
@@ -228,6 +308,7 @@ What is your choice? ",
 		}
 
 		_items = new Dictionary<string, GameItemProto>(StringComparer.InvariantCultureIgnoreCase);
+		_preexistingItemIds = itemPrototypes.Select(x => x.Id).ToHashSet();
 		_itemsByStableReference = new(StringComparer.OrdinalIgnoreCase);
 		_itemsById = [];
 		_itemStableReferencesById = [];
@@ -291,6 +372,23 @@ What is your choice? ",
 		{
 		RunSeedStage("Loading item prerequisites", InitialiseDependencies);
 		var blackPowderOnly = IsBlackPowderOnlyScope(_questionAnswers);
+		if (!blackPowderOnly && HasAnyEra(_questionAnswers["eras"], "industrial"))
+		{
+			RunSeedStage(_manifestCaptureOnly
+				? "Preparing Industrialised clothing manifest capture"
+				: "Validating Industrialised item and clothing prerequisites", () =>
+			{
+				var profile = ResolveIndustrialisedTechnologyProfile();
+				if (_manifestCaptureOnly)
+				{
+					PrepareIndustrialisedClothingManifestCapture(_questionAnswers["eras"], profile);
+					return;
+				}
+				ValidateIndustrialisedTechnologyProfileImmutability(profile);
+				ValidateIndustrialisedCataloguePrerequisites(profile);
+				ValidateIndustrialisedClothingPrerequisites(_questionAnswers["eras"], profile);
+			});
+		}
 		if (!_manifestCaptureOnly && _questionAnswers.TryGetValue("eras", out var requestedEras) && HasAnyEra(requestedEras, "renaissance"))
 		{
 			RunSeedStage("Validating Renaissance military prerequisites", ValidateRenaissanceMilitaryPrerequisites);
@@ -313,7 +411,7 @@ What is your choice? ",
 				CreateProgs();
 			});
 			SeedBlackPowderCraftsOnly();
-			RunSeedStage("Saving black-powder item and craft changes", () => _context.SaveChanges());
+			RunSeedStage("Saving black-powder item and craft changes", SaveManifestChanges);
 			transaction?.Commit();
 			Console.WriteLine($"[Item Seeder] Completed in {_progressStopwatch!.Elapsed.TotalSeconds:N1}s.");
 
@@ -325,7 +423,7 @@ What is your choice? ",
 
         SeedReworkItems();
 		if (_questionAnswers.TryGetValue("eras", out var selectedEras) &&
-			HasAnyEra(selectedEras, "antiquity", "medieval", "renaissance", "earlymodern"))
+			HasAnyEra(selectedEras, "antiquity", "medieval", "renaissance", "earlymodern", "industrial"))
 		{
 			RunSeedStage("Saving item changes before crafting", SaveItemChangesBeforeCrafting);
 		}
@@ -350,7 +448,7 @@ What is your choice? ",
 		RetireMissingManagedRecords();
 		if (!_manifestCaptureOnly)
 		{
-			RunSeedStage("Saving item and craft changes", () => _context.SaveChanges());
+			RunSeedStage("Saving item and craft changes", SaveManifestChanges);
 		}
 		if (_manifestCaptureOnly)
 		{
@@ -388,7 +486,8 @@ What is your choice? ",
 			return;
 		}
 
-		_progressStageCount = 8; // Prerequisites, craft progs, the item flush, four craft batches, and the final save.
+		// In-memory manifest capture skips database-only prerequisite and final-save stages.
+		_progressStageCount = _manifestCaptureOnly ? 7 : 10;
 
 		if (!questionAnswers.TryGetValue("eras", out var eras))
 		{
@@ -398,6 +497,11 @@ What is your choice? ",
 		if (HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern"))
 		{
 			_progressStageCount++;
+		}
+
+		if (HasAnyEra(eras, "industrial"))
+		{
+			_progressStageCount += 4; // Preflight or capture preparation, catalogue items, outfits and crafts.
 		}
 
 		if (HasAnyEra(eras, "renaissance"))
@@ -487,7 +591,7 @@ What is your choice? ",
 			return;
 		}
 
-		_context!.SaveChanges();
+		SaveManifestChanges();
 		DetachTrackedEntities(entity => entity is GameItemProto or
 			GameItemComponent or
 			GameItemProtosDefaultVariable or
@@ -735,7 +839,9 @@ What is your choice? ",
 		}
 
 		var managedRecord = FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey);
-		var existing = FindItemByStableReference(stableReference);
+		var existing = _clothingPhysicalDefinitions.ContainsKey(stableReference)
+			? ResolveClothingPhysicalItem(definition, IndustrialisedCatalogue.Clothing.Bases.Single(x => x.ItemReference == stableReference).Source)
+			: FindItemByStableReference(stableReference);
 		if (existing is null && allowLegacyShortDescriptionMatch)
 		{
 			existing = FindExactLegacyItemMatch(stableReference, sdesc, definition);
@@ -756,6 +862,15 @@ What is your choice? ",
 					$"ItemSeeder ownership conflict for item:{stableReference}: provenance names logical ID {managedRecord.LogicalId:N0}, but the active stable reference resolves to {existing.Id:N0}.");
 			}
 
+			// The canonical item fingerprint uses the managed stable key, not mutable UniqueName.
+			// A renamed clothing target must therefore be explicitly preserved as customised.
+			if (managedRecord is not null && IsRenamedClothingPhysicalItem(existing, stableReference))
+			{
+				MarkManifestAggregateCustomized(manifestEntry.EntityType, manifestEntry.StableKey);
+				IncrementManifestResult(manifestEntry.Module, x => x with { Customized = x.Customized + 1 });
+				CacheReworkItem(stableReference, existing);
+				return existing;
+			}
 			var liveDefinition = BuildLiveItemManifestDefinition(existing, stableReference);
 			var liveFingerprint = ItemSeederManifestCatalogue.Fingerprint(liveDefinition);
 			if (managedRecord is null && !liveFingerprint.Equals(manifestEntry.Fingerprint, StringComparison.OrdinalIgnoreCase))
@@ -785,7 +900,8 @@ What is your choice? ",
 			}
 
 			var changed = !liveFingerprint.Equals(manifestEntry.Fingerprint, StringComparison.OrdinalIgnoreCase);
-			ApplyItemManifestDefinition(existing, definition, tagList, componentList, builderNotes);
+			ApplyItemManifestDefinition(existing, definition, tagList, componentList, builderNotes,
+				replaceStockComponents: managedRecord is not null);
 			CacheReworkItem(stableReference, existing);
 			ApplyItemLifecycleSettings(existing, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
 			RecordAppliedManifestEntry(manifestEntry, existing.Id, existing.RevisionNumber);
@@ -989,8 +1105,31 @@ What is your choice? ",
 		ItemManifestDefinition definition,
 		IEnumerable<string> tags,
 		IEnumerable<string> components,
-		string? builderNotes)
+		string? builderNotes,
+		bool replaceStockComponents = false)
 	{
+		var desiredComponents = components.Where(x => !string.IsNullOrWhiteSpace(x))
+			.Select(name => _components[name]).ToArray();
+		if (replaceStockComponents)
+		{
+			var links = item.GameItemProtosGameItemComponentProtos.ToArray();
+			if (links.Any(x => !_componentNamesByKey.ContainsKey((x.GameItemComponentProtoId, x.GameItemComponentRevision))) ||
+				links.Select(x => _componentNamesByKey[(x.GameItemComponentProtoId, x.GameItemComponentRevision)])
+					.Distinct(StringComparer.OrdinalIgnoreCase).Count() != links.Length)
+			{
+				throw new InvalidOperationException($"ItemSeeder cannot replace components on {definition.StableReference}: unresolved or duplicate component links are not covered by its stock fingerprint.");
+			}
+			// Only the exact last-applied managed aggregate reaches this branch. Remove obsolete
+			// prototype links, never component definitions, item instances or customised aggregates.
+			// The missing-link repair path is deliberately additive and does not use this permission.
+			var desiredIds = desiredComponents.Select(x => x.Id).ToHashSet();
+			foreach (var obsolete in item.GameItemProtosGameItemComponentProtos
+				.Where(x => !desiredIds.Contains(x.GameItemComponentProtoId)).ToArray())
+			{
+				item.GameItemProtosGameItemComponentProtos.Remove(obsolete);
+				_context!.GameItemProtosGameItemComponentProtos.Remove(obsolete);
+			}
+		}
 		item.Name = definition.Noun;
 		item.UniqueName = GameItemProtoLookupExtensions.NormaliseUniqueName(definition.StableReference);
 		item.Keywords = definition.Keywords;
@@ -1007,12 +1146,13 @@ What is your choice? ",
 		item.IsHiddenFromPlayers = definition.HiddenFromPlayers;
 		ApplyReworkItemMetadata(item, definition.StableReference, tags, builderNotes);
 		var existingComponents = item.GameItemProtosGameItemComponentProtos
-			.Select(x => (x.GameItemComponentProtoId, x.GameItemComponentRevision))
+			.Select(x => x.GameItemComponentProtoId)
 			.ToHashSet();
-		foreach (var componentName in components.Where(x => !string.IsNullOrWhiteSpace(x)))
+		foreach (var component in desiredComponents)
 		{
-			var component = _components[componentName];
-			if (!existingComponents.Add((component.Id, component.RevisionNumber)))
+			// Reconciliation retains an attached component revision; it must not add a second
+			// revision of that logical component alongside it when newer stock becomes current.
+			if (!existingComponents.Add(component.Id))
 			{
 				continue;
 			}
@@ -1655,19 +1795,6 @@ What is your choice? ",
 	}
 
 
-	private static readonly string[] ImplementedEraKeys = ["antiquity", "medieval", "renaissance", "earlymodern"];
-
-	private static IReadOnlyCollection<string> ParseEraTokens(string? eras)
-	{
-		return (eras ?? string.Empty)
-			.Split([' ', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-			.Select(x => x.ToLowerInvariant())
-			.Where(x => ImplementedEraKeys.Contains(x, StringComparer.OrdinalIgnoreCase))
-			.Distinct(StringComparer.OrdinalIgnoreCase)
-			.OrderBy(x => Array.IndexOf(ImplementedEraKeys, x))
-			.ToArray();
-	}
-
 	private IReadOnlyCollection<string> ResolveSelectedEras(
 		FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers)
@@ -1683,9 +1810,12 @@ What is your choice? ",
 			eras.UnionWith(ParseEraTokens(SeederAnswerMemory.GetLatestSeederAnswer(context, Name, "eras")));
 			foreach (var module in context.SeederManagedRecords
 			         .Where(x => x.Seeder == Name && !x.Retired)
-			         .Select(x => x.Module)
-			         .Distinct()
-			         .AsEnumerable())
+			         .Select(x => new { x.Module, x.EntityType, x.StableKey })
+			         .AsEnumerable()
+			         // A reused dependency is not evidence that its entire owning era was installed.
+			         // Keep this independent of current admissions so retiring a clothing row cannot activate an earlier package.
+			         .Where(x => x.EntityType != "item" || FindHistoricalClothingSource(x.StableKey) is null)
+			         .Select(x => x.Module).Distinct())
 			{
 				if (ImplementedEraKeys.Contains(module, StringComparer.OrdinalIgnoreCase))
 				{
@@ -1892,6 +2022,14 @@ What is your choice? ",
 				using var manifestModule = UseManifestModule("earlymodern", "earlymodern");
 				SeedEarlyModernItems();
 			});
+		}
+
+		if (eras.Contains("industrial", StringComparison.InvariantCultureIgnoreCase))
+		{
+			RunSeedStage("Creating shared industrialised and Industrial items", () =>
+				SeedIndustrialisedCatalogueItems(eras));
+			RunSeedStage("Creating Industrial outfits and loadouts", () =>
+				SeedIndustrialisedCatalogueOutfits(eras));
 		}
 
 		if (HasAnyEra(eras, "antiquity", "medieval", "renaissance", "earlymodern"))

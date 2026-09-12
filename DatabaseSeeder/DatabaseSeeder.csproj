@@ -56,6 +56,9 @@
 	<EmbeddedResource Include="..\Design Documents\Seeding\CultureSeederRedesignHandoff\research\*.json">
 		<LogicalName>CultureToolkit.research.%(Filename)%(Extension)</LogicalName>
 	</EmbeddedResource>
+	<EmbeddedResource Include="Seeders\IndustrialisedCatalogue\**\*.tsv" />
+	<EmbeddedResource Include="..\Design Documents\Data\Item_Component_Types.json" Link="IndustrialisedCatalogue\Item_Component_Types.json" />
+	<EmbeddedResource Include="..\Design Documents\Data\Seeded_Item_Components.json" Link="IndustrialisedCatalogue\Seeded_Item_Components.json" />
   </ItemGroup>
 
 </Project>

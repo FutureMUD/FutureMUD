@@ -98,11 +98,14 @@ public class MagicEngineV4Tests
 		var contact = (ConnectMindPower)Load("connectmind");
 		Assert.IsFalse(contact.GetAppropriateConnectEmote(actor.Object, target.Object, true).Contains("{0}"));
 		var speech = (MindSayPower)Load("mindsay");
-		var echo = speech.GetAppropriateTargetEmote(actor.Object, target.Object, "Remember {the gate}.");
-		StringAssert.Contains(echo, "Remember {the gate}.");
+		var echo = speech.GetAppropriateTargetEmote(actor.Object, target.Object, "Remember {");
+		StringAssert.Contains(echo, "Remember {{");
 		Assert.IsFalse(echo.Contains("{1}"));
-        speech.TargetEmoteText = "{0} whispers: {{1}}";
-        StringAssert.Contains(speech.GetAppropriateTargetEmote(actor.Object, target.Object, "Legacy message."), "Legacy message.");
+		var emote = new MudSharp.PerceptionEngine.Parsers.Emote(echo, actor.Object, actor.Object, target.Object);
+		Assert.IsTrue(emote.Valid, emote.ErrorMessage);
+		StringAssert.Contains(emote.ParseFor(target.Object), "Remember {");
+		speech.TargetEmoteText = "{0} whispers: {{1}}";
+		StringAssert.Contains(speech.GetAppropriateTargetEmote(actor.Object, target.Object, "Legacy message."), "Legacy message.");
 	}
 
 	[DataTestMethod]

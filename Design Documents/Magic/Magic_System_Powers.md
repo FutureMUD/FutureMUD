@@ -270,7 +270,7 @@ The mind-link stack now shares a first-class concealment policy through `IMindCo
 
 Passive psionic traffic can use either the existing `telepathy` flow or the dedicated V4 `hear` power, depending on whether the content wants ordinary telepathic communication or a sustained listener. Configure `telepathy` with `thinks`, `feels`, and `thinkemote` to represent broad passive links such as Thoughtsense or Immersion. When the thinker is sustaining `mindconceal`, passive `think` and `feel` traffic uses the concealed identity instead of leaking the actor's short description or personal name.
 
-`mindbroadcast` persists its range as `PowerDistance`; loaders also accept the older `Distance` element. Broadcast text is sanitised before it is embedded into the internal emote used for psychic speech delivery.
+`mindbroadcast` persists its range as `PowerDistance`; loaders also accept the older `Distance` element. Broadcast and directed `mindsay` text is sanitised before it is embedded into the internal emote used for psychic speech delivery. In particular, literal composite-format braces in player-authored messages are escaped while constructing the emote and restored when it is rendered.
 
 V4 adds a shared psionic traffic/coercion helper used by `projectemotion`, `suggest`, and `coerce`. It handles involuntary mental delivery, eligible listener forwarding, opt-out/refusal checks, consistent source/target messaging, and wiz-audit output. `coerce` supports stamina, hunger, thirst, and thought modes; it does not run the victim's command parser.
 

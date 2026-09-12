@@ -1,0 +1,42 @@
+{
+  "scope": "Compact result extracted from the actual read-only R2-26 live MySQL receipt. Compilation and runtime execution are established separately by the installer, test, and telnet evidence.",
+  "database": "futuremud_culture_live_2145_r226b",
+  "live_prog_contract_count": 1567,
+  "managed_identity_count": 7976,
+  "player_character": {
+    "id": 2,
+    "name": "Edmund",
+    "full_name": "Edmund Ashford",
+    "native_language": "Middle English",
+    "current_language": "Latin",
+    "current_accent": "Carolingian",
+    "languages": [
+      {
+        "name": "Anglo-Norman French",
+        "acquisition_accent_id": 110
+      },
+      {
+        "name": "Latin",
+        "acquisition_accent_id": 23
+      },
+      {
+        "name": "Middle English",
+        "acquisition_accent_id": 85
+      }
+    ],
+    "preferred_accents": [
+      {
+        "name": "Carolingian",
+        "language": "Latin"
+      },
+      {
+        "name": "Anglian",
+        "language": "Middle English"
+      },
+      {
+        "name": "Crude",
+        "language": "Anglo-Norman French"
+      }
+    ]
+  }
+}

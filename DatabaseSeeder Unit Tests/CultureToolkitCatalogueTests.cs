@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text.Json;
 using DatabaseSeeder.Seeders.CultureToolkit;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,6 +13,19 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CultureToolkitCatalogueTests
 {
+	[TestMethod]
+	public void RoundTwoHandoffManifestMatchesCurrentRuntimeResourceContract()
+	{
+		var path = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..",
+			"Design Documents", "Seeding", "CultureSeederRound2Handoff", "data", "runtime_resource_manifest.json"));
+		using var manifest = JsonDocument.Parse(File.ReadAllText(path));
+		var names = manifest.RootElement.GetProperty("required_resource_names").EnumerateArray()
+			.Select(x => x.GetString()!).ToArray();
+		Assert.AreEqual(manifest.RootElement.GetProperty("expected_required_count").GetInt32(), names.Length);
+		Assert.AreEqual(names.Length, names.Distinct(StringComparer.Ordinal).Count());
+		CollectionAssert.AreEquivalent(CultureToolkitCatalogue.RequiredDocuments.ToArray(), names);
+	}
+
 	[TestMethod]
 	public void UnrelatedResourcesCannotHideMissingRequiredInputs()
 	{

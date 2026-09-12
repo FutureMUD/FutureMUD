@@ -1,0 +1,258 @@
+DEbug MEdieval
+Powered by the FutureMUD Engine v2.12.1.0000 (Copyright 2008-2026)
+
+Select an Option:
+C) Create a new account
+L) Login to your account
+R) Recover a lost account
+> l
+
+Please enter your account name:
+> admin
+
+Please enter your password:
+> [REDACTED]
+Welcome, Admin!
+
+========== Options ===========
+
+C) Connect to a character
+       or
+   Resume an application
+G) Login as a guest
+N) Create a new character
+E) Change your email address
+P) Change your password
+
+X) Disconnect from the game
+> c
+You have the following characters:
+  1: admin (Active)
+  2: Edmund (Active)
+  3: Roland (In Creation)
+
+Please select a character to connect to, or type 0 to return to the main menu:
+> 3
+Accent Selection
+
+You will now be given the opportunity to pick which accents you natively employ
+with any language you have chosen. These are the accents in which you learned
+to speak the language in question, and represent how you will naturally speak
+the language. Other accents can be learned by exposure and practice.
+
+Type continue to begin, or reset at any time to return to this screen.
+
+>
+> continue
+Accents for Latin
+
+
+=======[ MEdieval LAtin ]===========================================================================================================================================================
+
+1: CARolingian                               2: IBErian MEDieval                          3: INSular
+
+=======[ Standard ]=================================================================================================================================================================
+
+4: CLassical                                 5: LIturgical
+
+=======[ PRovincal ]================================================================================================================================================================
+
+6: CORsican                                  7: EGYptian                                  8: GALlic                                    9: GERman
+10: GREek                                    11: IBErian                                  12: ILLyrian                                 13: PUNic
+14: SARdinian                                15: SICilian
+
+=======[ Crude ]====================================================================================================================================================================
+
+16: CRude                                    17: CRude
+
+=======[ LAtin ]====================================================================================================================================================================
+
+18: ETRuscan                                 19: OSCan                                    20: SABine                                   21: UMBrian
+
+=======[ FOreign ]==================================================================================================================================================================
+
+22: FOReign                                  23: FOReign                                  24: FOReign
+
+=======[ Learner ]==================================================================================================================================================================
+
+25: LEarner
+
+=======[ ROman ]====================================================================================================================================================================
+
+26: OLD ROMan                                27: ROMan                                    28: RUStic ROMan                             29: VULgar ROMan
+
+You are allowed 1 free picks. Additional picks cost 10 bp each.
+You can type help <accent> to view info on an accent.
+Enter the name or number of the accent you would like to select, and done to finish.
+
+
+>
+> 1
+Accents for Latin
+
+
+=======[ MEdieval LAtin ]===========================================================================================================================================================
+
+1: (CARolingian)                             2: IBErian MEDieval                          3: INSular
+
+=======[ Standard ]=================================================================================================================================================================
+
+4: CLassical                                 5: LIturgical
+
+=======[ PRovincal ]================================================================================================================================================================
+
+6: CORsican                                  7: EGYptian                                  8: GALlic                                    9: GERman
+10: GREek                                    11: IBErian                                  12: ILLyrian                                 13: PUNic
+14: SARdinian                                15: SICilian
+
+=======[ Crude ]====================================================================================================================================================================
+
+16: CRude                                    17: CRude
+
+=======[ LAtin ]====================================================================================================================================================================
+
+18: ETRuscan                                 19: OSCan                                    20: SABine                                   21: UMBrian
+
+=======[ FOreign ]==================================================================================================================================================================
+
+22: FOReign                                  23: FOReign                                  24: FOReign
+
+=======[ Learner ]==================================================================================================================================================================
+
+25: LEarner
+
+=======[ ROman ]====================================================================================================================================================================
+
+26: OLD ROMan                                27: ROMan                                    28: RUStic ROMan                             29: VULgar ROMan
+
+You are allowed 1 free picks. Additional picks cost 10 bp each.
+You can type help <accent> to view info on an accent.
+Enter the name or number of the accent you would like to select, and done to finish.
+
+
+>
+> done
+Accents for Middle English
+
+
+=======[ English ]==================================================================================================================================================================
+
+1: ANglian                                   2: LOndon                                    3: MIdlands                                  4: NOrthumbrian
+5: SCots                                     6: WEst-COuntry
+
+=======[ British ]==================================================================================================================================================================
+
+7: COrnish                                   8: IRish                                     9: SCottish                                  10: WElsh
+
+=======[ Crude ]====================================================================================================================================================================
+
+11: CRude                                    12: CRude
+
+=======[ Foreign ]==================================================================================================================================================================
+
+13: DUtch                                    14: FOreign                                  15: FRench                                   16: FRisian
+17: GErman                                   18: ITalian                                  19: SCandanavian                             20: SPanish
+
+=======[ MIdlands MIddle ENglish ]==================================================================================================================================================
+
+21: EASt MIDlands                            22: WESt MIDlands
+
+=======[ FOreign ]==================================================================================================================================================================
+
+23: FOReign
+
+=======[ SOuthern MIddle ENglish ]==================================================================================================================================================
+
+24: KENtish                                  25: SOUthern
+
+=======[ NOrthern MIddle ENglish ]==================================================================================================================================================
+
+26: LOWland SCOts                            27: NORthern
+
+You are allowed 1 free picks. Additional picks cost 10 bp each.
+You can type help <accent> to view info on an accent.
+Enter the name or number of the accent you would like to select, and done to finish.
+
+
+>
+> 1
+Accents for Middle English
+
+
+=======[ English ]==================================================================================================================================================================
+
+1: (ANglian)                                 2: LOndon                                    3: MIdlands                                  4: NOrthumbrian
+5: SCots                                     6: WEst-COuntry
+
+=======[ British ]==================================================================================================================================================================
+
+7: COrnish                                   8: IRish                                     9: SCottish                                  10: WElsh
+
+=======[ Crude ]====================================================================================================================================================================
+
+11: CRude                                    12: CRude
+
+=======[ Foreign ]==================================================================================================================================================================
+
+13: DUtch                                    14: FOreign                                  15: FRench                                   16: FRisian
+17: GErman                                   18: ITalian                                  19: SCandanavian                             20: SPanish
+
+=======[ MIdlands MIddle ENglish ]==================================================================================================================================================
+
+21: EASt MIDlands                            22: WESt MIDlands
+
+=======[ FOreign ]==================================================================================================================================================================
+
+23: FOReign
+
+=======[ SOuthern MIddle ENglish ]==================================================================================================================================================
+
+24: KENtish                                  25: SOUthern
+
+=======[ NOrthern MIddle ENglish ]==================================================================================================================================================
+
+26: LOWland SCOts                            27: NORthern
+
+You are allowed 1 free picks. Additional picks cost 10 bp each.
+You can type help <accent> to view info on an accent.
+Enter the name or number of the accent you would like to select, and done to finish.
+
+
+>
+> done
+Accents for Anglo-Norman French
+
+1: CRude                                     2: FOReign                                   3: HIBerno-NORman                            4: INSular COUrt
+5: MIddle ENglish-Speaking                   6: WEStern INSular
+
+
+You are allowed 1 free picks. Additional picks cost 10 bp each.
+You can type help <accent> to view info on an accent.
+Enter the name or number of the accent you would like to select, and done to finish.
+
+>
+> 1
+Accents for Anglo-Norman French
+
+1: (CRude)                                   2: FOReign                                   3: HIBerno-NORman                            4: INSular COUrt
+5: MIddle ENglish-Speaking                   6: WEStern INSular
+
+
+You are allowed 1 free picks. Additional picks cost 10 bp each.
+You can type help <accent> to view info on an accent.
+Enter the name or number of the accent you would like to select, and done to finish.
+
+>
+> done
+Characteristics Selection
+
+      Characteristics are a way to categorise the various aspects of your
+character's appearance, for example eye colour, or hair style. Your
+characteristics that are chosen at this stage of the character creation process
+(with the exception of hair style / length) represent your natural, intrinsic
+values for these characteristics, but can be changed, hidden or altered later
+in game by items, skills and effects.    
+
+Please type continue to begin. At any time, you may type reset to return to the beginning.
+
+>

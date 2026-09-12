@@ -2,6 +2,7 @@
 
 using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
 using MudSharp.FutureProg;
@@ -41,8 +42,56 @@ internal static class VerifyLiveReceipt
 					BodyTraits = x.Character.Body.Traits.Select(t => new { t.TraitDefinitionId, t.TraitDefinition.Name, t.Value }),
 					Accents = x.Character.CharactersAccents.Select(a => new { a.AccentId, a.Accent.Name, a.Accent.LanguageId, a.Accent.Group, a.IsPreferred })
 				}).ToArray(),
+			PlayerCharacters = context.Characters.AsNoTracking()
+				.Where(x => x.AccountId.HasValue && !x.IsAdminAvatar)
+				.Include(x => x.NativeLanguage)
+				.Include(x => x.CurrentLanguage)
+				.Include(x => x.CurrentAccent)
+				.Include(x => x.CharactersLanguages)
+				.ThenInclude(x => x.Language)
+				.Include(x => x.CharactersAccents)
+				.ThenInclude(x => x.Accent)
+				.AsEnumerable()
+				.Select(x => new
+				{
+					x.Id,
+					x.Name,
+					FullName = FullNameFromNameInfo(x.NameInfo),
+					NativeLanguage = x.NativeLanguage?.Name,
+					CurrentLanguage = x.CurrentLanguage?.Name,
+					CurrentAccent = x.CurrentAccent?.Name,
+					Languages = x.CharactersLanguages
+						.OrderBy(y => y.Language.Name)
+						.Select(y => new { y.LanguageId, Name = y.Language.Name, AcquisitionAccentId = y.AcquisitionAccentId }),
+					Accents = x.CharactersAccents
+						.OrderBy(y => y.Accent.LanguageId)
+						.ThenBy(y => y.Accent.Name)
+						.Select(y => new { y.AccentId, Name = y.Accent.Name, LanguageId = y.Accent.LanguageId, y.IsPreferred })
+				}).ToArray(),
 			ManagedIdentities = identities.Select(x => new { x.EntityType, x.StableKey, x.Module, x.LogicalId, HasBaseline = x.SeedBaseline is not null })
 		}, new JsonSerializerOptions { WriteIndented = true }));
 		Console.WriteLine($"Read {progs.Length} live prog contracts and {identities.Length} managed identities from {database}.");
+	}
+
+	private static string FullNameFromNameInfo(string? nameInfo)
+	{
+		if (string.IsNullOrWhiteSpace(nameInfo))
+		{
+			return string.Empty;
+		}
+
+		try
+		{
+			return string.Join(" ", XElement.Parse(nameInfo)
+				.Descendants("PersonalName")
+				.Elements("Name")
+				.Elements("Element")
+				.Select(x => x.Value)
+				.Where(x => !string.IsNullOrWhiteSpace(x)));
+		}
+		catch (System.Xml.XmlException)
+		{
+			return string.Empty;
+		}
 	}
 }

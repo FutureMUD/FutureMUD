@@ -133,4 +133,45 @@ public class CultureToolkitNamingTests
 		Assert.AreEqual(ChargenScreenState.Complete, screen.State);
 		Assert.AreEqual(full, chargen.Object.SelectedName.GetName(NameStyle.FullName));
 	}
+
+	[TestMethod]
+	public void NamePickerDisplay_ProfileWithoutOptionalBynamePool_DoesNotRequestMissingElement()
+	{
+		var world = World();
+		var culture = new NameCulture(new MudSharp.Models.NameCulture
+		{
+			Name = "Local", Definition = CultureToolkitNameCatalogue.Definition("Choose a name.", ["Jonas"])
+		}, world.Object);
+		var profile = new Mock<IRandomNameProfile>();
+		profile.SetupGet(x => x.Culture).Returns(culture);
+		profile.SetupGet(x => x.RandomNames).Returns(new Dictionary<NameUsage, List<(string Value, int Weight)>>
+		{
+			[NameUsage.BirthName] = [("Jonas", 100)]
+		});
+		profile.Setup(x => x.IsCompatibleGender(Gender.Male)).Returns(true);
+		profile.Setup(x => x.UseForChargenNameSuggestions(It.IsAny<ICharacterTemplate>())).Returns(true);
+		profile.Setup(x => x.GetRandomNameElement(NameUsage.BirthName)).Returns("Jonas");
+		world.SetupGet(x => x.RandomNameProfiles).Returns(new All<IRandomNameProfile> { profile.Object });
+		var ethnicity = new Mock<MudSharp.Character.Heritage.IEthnicity>();
+		ethnicity.Setup(x => x.NameCultureForGender(Gender.Male)).Returns(culture);
+		ethnicity.SetupGet(x => x.ChargenAdvices).Returns([]);
+		var account = new Mock<IAccount>();
+		account.SetupGet(x => x.InnerLineFormatLength).Returns(80);
+		var chargen = new Mock<IChargen>();
+		chargen.SetupGet(x => x.Account).Returns(account.Object);
+		chargen.SetupGet(x => x.Gameworld).Returns(world.Object);
+		chargen.SetupGet(x => x.SelectedGender).Returns(Gender.Male);
+		chargen.SetupGet(x => x.SelectedEthnicity).Returns(ethnicity.Object);
+		chargen.SetupGet(x => x.SelectedRoles).Returns([]);
+		var storyboard = new NamePickerScreenStoryboard(world.Object, new MudSharp.Models.ChargenScreenStoryboard
+		{
+			StageDefinition = "<Definition><AllowUnicodeNames>true</AllowUnicodeNames></Definition>"
+		});
+
+		var screen = storyboard.GetScreen(chargen.Object);
+		var bynameDisplay = screen.HandleCommand("Jonas");
+
+		StringAssert.Contains(bynameDisplay, "Byname Selection");
+		profile.Verify(x => x.GetRandomNameElement(NameUsage.Surname), Times.Never);
+	}
 }

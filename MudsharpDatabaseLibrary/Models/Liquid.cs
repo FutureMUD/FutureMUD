@@ -10,6 +10,8 @@ namespace MudSharp.Models
             Gases = new HashSet<Gas>();
             InverseCountAs = new HashSet<Liquid>();
             InverseSolvent = new HashSet<Liquid>();
+            InverseStaleLiquid = new HashSet<Liquid>();
+            InverseSpoiledLiquid = new HashSet<Liquid>();
             LiquidsTags = new HashSet<LiquidsTags>();
             RacesBloodLiquid = new HashSet<Race>();
             RacesBreathableLiquids = new HashSet<RacesBreathableLiquids>();
@@ -61,15 +63,23 @@ namespace MudSharp.Models
         public long? GasFormId { get; set; }
         public bool LeaveResidueInRooms { get; set; }
         public string SurfaceReactionInfo { get; set; }
+        public double? StaleAfterSeconds { get; set; }
+        public double? SpoilAfterSeconds { get; set; }
+        public long? StaleLiquidId { get; set; }
+        public long? SpoiledLiquidId { get; set; }
 
         public virtual Liquid CountAs { get; set; }
         public virtual Material DriedResidue { get; set; }
         public virtual Drug Drug { get; set; }
         public virtual Liquid Solvent { get; set; }
         public virtual Gas GasForm { get; set; }
+        public virtual Liquid StaleLiquid { get; set; }
+        public virtual Liquid SpoiledLiquid { get; set; }
         public virtual ICollection<Gas> Gases { get; set; }
         public virtual ICollection<Liquid> InverseCountAs { get; set; }
         public virtual ICollection<Liquid> InverseSolvent { get; set; }
+        public virtual ICollection<Liquid> InverseStaleLiquid { get; set; }
+        public virtual ICollection<Liquid> InverseSpoiledLiquid { get; set; }
         public virtual ICollection<LiquidsTags> LiquidsTags { get; set; }
         public virtual ICollection<Race> RacesBloodLiquid { get; set; }
         public virtual ICollection<RacesBreathableLiquids> RacesBreathableLiquids { get; set; }

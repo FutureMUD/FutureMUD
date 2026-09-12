@@ -336,7 +336,29 @@ internal static class DebugSeederReplayProfiles
 			"Early Modern Age",
 			"earlymodern",
 			"medieval renaissance earlymodern",
-			"earlymodern")
+			"earthrenaissanceeurope"),
+		CreateProfile(
+			"industrial-neutral",
+			"Industrial Neutral",
+			"Full Debug replay through Industrial ItemSeeder content using the neutral compatibility profile.",
+			"Debug Industrial",
+			"1897",
+			"Early Modern Age",
+			"earlymodern",
+			"medieval renaissance earlymodern industrial",
+			"earthrenaissanceeurope",
+			"neutral"),
+		CreateProfile(
+			"industrial-custom",
+			"Industrial Custom",
+			"Full Debug replay through Industrial ItemSeeder content using an explicit custom compatibility profile.",
+			"Debug Industrial Custom",
+			"1897",
+			"Early Modern Age",
+			"earlymodern",
+			"medieval renaissance earlymodern industrial",
+			"earthrenaissanceeurope",
+			"custom")
 	];
 
 	private static SeederReplayProfile CreateProfile(
@@ -348,7 +370,8 @@ internal static class DebugSeederReplayProfiles
 		string economyEra,
 		string healthTechLevel,
 		string itemEras,
-		string culturePack)
+		string culturePack,
+		string technologyProfile = "neutral")
 	{
 		var epoch = $"1 January {year}";
 		var moonEpoch = $"21 January {year}";
@@ -356,7 +379,7 @@ internal static class DebugSeederReplayProfiles
 		[
 			Step<CoreDataSeeder>(
 				("gamename", gameName),
-				("account", "admin"),
+				("account", "Admin"),
 				("password", DebugPassword),
 				("email", "debug-replay@futuremud.com")),
 			Step<TimeSeeder>(
@@ -397,8 +420,8 @@ internal static class DebugSeederReplayProfiles
 				("sever", "yes"),
 				("bones", "full"),
 				("distinctive", "yes"),
-				("nonbinary", "yes"),
-				("includeextraperson", "yes")),
+				("nonbinary", "no"),
+				("includeextraperson", "no")),
 			Step<WeatherSeeder>(("rain", "full")),
 			Step<LawSeeder>(
 				("name", "Debug Authority"),
@@ -424,12 +447,12 @@ internal static class DebugSeederReplayProfiles
 				("ai", "yes"),
 				("covers", "yes"),
 				("items", "yes"),
-				("modernitems", "yes"),
+				("modernitems", "no"),
 				("tags", "yes"),
 				("autobuilder", "yes"),
 				("hints", "yes"),
 				("dreams", "yes"),
-				("dream-eras", "old modern")),
+				("dream-eras", "old")),
 			Step<TrapSeeder>(),
 			Step<EconomySeeder>(
 				("era", economyEra),
@@ -438,7 +461,7 @@ internal static class DebugSeederReplayProfiles
 				("shopper-scale", "standard")),
 			Step<CombatSeeder>(
 				("installmuskets", "yes"),
-				("installguns", "yes"),
+				("installguns", "no"),
 				("random", "static"),
 				("parryoption", "yes"),
 				("skilloption", "weapons"),
@@ -468,6 +491,12 @@ internal static class DebugSeederReplayProfiles
 			Step<RobotSeeder>(),
 			Step<ItemSeeder>(
 				("eras", itemEras),
+				("technologyprofile", technologyProfile),
+				("technologypower", "Connectable_Male_To_MainsPlug"),
+				("technologypaper", "A4, Letter"),
+				("technologytelecom", "Telephone_Standard"),
+				("technologynetworkmedia", "NetworkAdapter_Wired"),
+				("technologyvehicle", "AttachableConnectable_PowerLead"),
 				("scope", "all")),
 			Step<AnimalButcherySeeder>(),
 			Step<SupernaturalSeeder>(

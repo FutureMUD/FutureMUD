@@ -1,0 +1,3 @@
+Profile	StaleDuration	SpoilDuration	StaleTarget	SpoiledTarget	ReviewState
+freshness_chilled	2 days	7 days	industrialised_food_non_alcoholic_001	industrialised_food_non_alcoholic_002	DependencyReviewed
+freshness_shelf	180 days	365 days	industrialised_food_non_alcoholic_001	industrialised_food_non_alcoholic_002	DependencyReviewed

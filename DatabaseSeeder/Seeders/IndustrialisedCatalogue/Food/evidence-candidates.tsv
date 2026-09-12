@@ -1,0 +1,21 @@
+StableReference	EvidenceClass	Source	ComparableFamily	ReviewState
+evidence_staples	candidate package	NUT;PRICE;TRADE	staples	DependencyReviewed
+evidence_baking	candidate package	BAKE;NUT;PRICE	baking	DependencyReviewed
+evidence_noodles-and-dumplings	candidate package	GLOBAL;NUT;PRICE	noodles-and-dumplings	DependencyReviewed
+evidence_plant-foods	candidate package	GLOBAL;NUT;PRICE	plant-foods	DependencyReviewed
+evidence_fruit-and-nuts	candidate package	GLOBAL;NUT;PRICE	fruit-and-nuts	DependencyReviewed
+evidence_dairy-and-eggs	candidate package	DAIRY;NUT;PRICE	dairy-and-eggs	DependencyReviewed
+evidence_meat-and-offal	candidate package	MEAT;NUT;PRICE	meat-and-offal	DependencyReviewed
+evidence_aquatic-foods	candidate package	AQUATIC;NUT;PRICE	aquatic-foods	DependencyReviewed
+evidence_composite-dishes	candidate package	GLOBAL;NUT;PRICE	composite-dishes	DependencyReviewed
+evidence_preserves-and-condiments	candidate package	PRESERVE;NUT;PRICE	preserves-and-condiments	DependencyReviewed
+evidence_processed-intermediates	candidate package	PROCESS;NUT;PRICE	processed-intermediates	DependencyReviewed
+evidence_desserts	candidate package	SWEET;NUT;PRICE	desserts	DependencyReviewed
+evidence_snacks	candidate package	GLOBAL;NUT;PRICE	snacks	DependencyReviewed
+evidence_rations	candidate package	RATION;NUT;PRICE	rations	DependencyReviewed
+evidence_infant-and-dietetic	candidate package	NUT;CARE;PRICE	infant-and-dietetic	DependencyReviewed
+evidence_processed-animal-feeds	candidate package	FEED;NUT;PRICE	processed-animal-feeds	DependencyReviewed
+evidence_non-alcoholic-drinks	candidate package	BEVERAGE;NUT;PRICE	non-alcoholic-drinks	DependencyReviewed
+evidence_stimulant-infusions	candidate package	STIM;TRADE;PRICE	stimulant-infusions	DependencyReviewed
+evidence_alcoholic-drinks	candidate package	ALCOHOL;TRADE;PRICE	alcoholic-drinks	DependencyReviewed
+evidence_beverage-intermediates	candidate package	BEVERAGE;PROCESS;PRICE	beverage-intermediates	DependencyReviewed

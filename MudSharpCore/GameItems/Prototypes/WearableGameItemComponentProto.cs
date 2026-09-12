@@ -89,10 +89,10 @@ public class WearableGameItemComponentProto : GameItemComponentProto, IWearableP
         }
 
         element = root.Element("SeeThroughDamageRatio");
-        SeeThroughDamageRatio = element != null ? double.Parse(element.Value) : 0.5;
+        SeeThroughDamageRatio = element != null ? (double)element : 0.5;
 
         element = root.Element("LayerWeightConsumption");
-        LayerWeightConsumption = element != null ? double.Parse(element.Value) : 1.0;
+        LayerWeightConsumption = element != null ? (double)element : 1.0;
 
         if (DefaultProfile == null)
         {
@@ -101,7 +101,7 @@ public class WearableGameItemComponentProto : GameItemComponentProto, IWearableP
 
         element = root.Element("Waterproof");
         Waterproof = element != null ? bool.Parse(element.Value) : false;
-        WaterproofDamageRatio = element != null ? double.Parse(element.Attribute("ratio").Value) : 0.5;
+        WaterproofDamageRatio = element != null ? (double)element.Attribute("ratio") : 0.5;
     }
 
     protected override string SaveToXml()

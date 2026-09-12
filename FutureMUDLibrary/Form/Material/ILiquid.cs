@@ -4,6 +4,19 @@ using System;
 
 namespace MudSharp.Form.Material
 {
+    public enum LiquidFreshnessStage
+    {
+        Fresh,
+        Stale,
+        Spoiled
+    }
+
+    public sealed record LiquidFreshnessConfiguration(
+        TimeSpan StaleAfter,
+        TimeSpan SpoilAfter,
+        ILiquid StaleLiquid,
+        ILiquid SpoiledLiquid);
+
     public enum LiquidInjectionConsequence
     {
         Benign,
@@ -43,6 +56,7 @@ namespace MudSharp.Form.Material
 
     public interface ILiquid : IFluid
     {
+        LiquidFreshnessConfiguration FreshnessConfiguration => null;
         double TasteIntensity { get; }
         string TasteText { get; }
         string VagueTasteText { get; }

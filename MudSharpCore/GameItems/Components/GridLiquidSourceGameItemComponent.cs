@@ -9,6 +9,7 @@ namespace MudSharp.GameItems.Components;
 
 public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidContainer, ICanConnectToLiquidGrid, IConnectable
 {
+	public bool OwnsLiquidMixture => false;
     protected GridLiquidSourceGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
 

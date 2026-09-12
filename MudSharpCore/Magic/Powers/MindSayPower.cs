@@ -261,10 +261,11 @@ public class MindSayPower : MagicPowerBase
         }
         else
         {
+            var formattedText = text.ProperSentences().Fullstop();
             effect.TargetCharacter.OutputHandler.Send(new EmoteOutput(new Emote(
-                GetAppropriateTargetEmote(actor, effect.TargetCharacter, text.ProperSentences().Fullstop()), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
+                GetAppropriateTargetEmote(actor, effect.TargetCharacter, formattedText), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
             actor.OutputHandler.Send(new EmoteOutput(new Emote(
-                string.Format(EmoteText, text.ProperSentences().Fullstop()), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
+				string.Format(EmoteText, formattedText.Sanitise()), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
         }
 
         PsionicActivityNotifier.Notify(actor, this, "a directed mental message", effect.TargetCharacter);
@@ -322,6 +323,7 @@ public class MindSayPower : MagicPowerBase
 
     public string GetAppropriateTargetEmote(ICharacter connecter, ICharacter connectee, string text = "")
     {
+		text = text.Sanitise();
         var concealment = GetMindConcealment(connecter, connectee, School);
         if (concealment is not null)
         {

@@ -1,0 +1,21 @@
+Profile	SatiationHours	ThirstHours	WaterMillilitres	AlcoholMillilitres	Basis	ReviewState
+nutrition_staples	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_baking	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_noodles-and-dumplings	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_plant-foods	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_fruit-and-nuts	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_dairy-and-eggs	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_meat-and-offal	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_aquatic-foods	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_composite-dishes	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_preserves-and-condiments	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_processed-intermediates	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_desserts	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_snacks	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_rations	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_infant-and-dietetic	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_processed-animal-feeds	2	0	25	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_non-alcoholic-drinks	0	0	250	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_stimulant-infusions	0	0	250	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_alcoholic-drinks	0	0	250	20	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed
+nutrition_beverage-intermediates	0	0	250	0	Gate 2 dependency placeholder requiring row evidence calibration at Gate 4	DependencyReviewed

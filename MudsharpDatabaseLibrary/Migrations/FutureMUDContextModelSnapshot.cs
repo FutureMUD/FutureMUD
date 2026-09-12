@@ -15141,6 +15141,18 @@ namespace MudSharp.Migrations
                         .HasColumnType("double")
                         .HasDefaultValueSql("'4181'");
 
+                    b.Property<double?>("SpoilAfterSeconds")
+                        .HasColumnType("double");
+
+                    b.Property<long?>("SpoiledLiquidId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<double?>("StaleAfterSeconds")
+                        .HasColumnType("double");
+
+                    b.Property<long?>("StaleLiquidId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<string>("SurfaceReactionInfo")
                         .HasColumnType("text")
                         .UseCollation("utf8_general_ci");
@@ -15212,6 +15224,12 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("SolventId")
                         .HasDatabaseName("FK_Liquids_Liquids_idx");
+
+                    b.HasIndex("SpoiledLiquidId")
+                        .HasDatabaseName("FK_Liquids_SpoiledLiquid_idx");
+
+                    b.HasIndex("StaleLiquidId")
+                        .HasDatabaseName("FK_Liquids_StaleLiquid_idx");
 
                     b.ToTable("Liquids");
                 });
@@ -32744,6 +32762,18 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Liquids_Liquids");
 
+                    b.HasOne("MudSharp.Models.Liquid", "SpoiledLiquid")
+                        .WithMany("InverseSpoiledLiquid")
+                        .HasForeignKey("SpoiledLiquidId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Liquids_SpoiledLiquid");
+
+                    b.HasOne("MudSharp.Models.Liquid", "StaleLiquid")
+                        .WithMany("InverseStaleLiquid")
+                        .HasForeignKey("StaleLiquidId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Liquids_StaleLiquid");
+
                     b.Navigation("CountAs");
 
                     b.Navigation("DriedResidue");
@@ -32753,6 +32783,10 @@ namespace MudSharp.Migrations
                     b.Navigation("GasForm");
 
                     b.Navigation("Solvent");
+
+                    b.Navigation("SpoiledLiquid");
+
+                    b.Navigation("StaleLiquid");
                 });
 
             modelBuilder.Entity("MudSharp.Models.LiquidsTags", b =>
@@ -38664,6 +38698,10 @@ namespace MudSharp.Migrations
                     b.Navigation("InverseCountAs");
 
                     b.Navigation("InverseSolvent");
+
+                    b.Navigation("InverseSpoiledLiquid");
+
+                    b.Navigation("InverseStaleLiquid");
 
                     b.Navigation("LiquidsTags");
 

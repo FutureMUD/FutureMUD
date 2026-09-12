@@ -67,7 +67,8 @@ public partial class HumanSeeder
 		string Name,
 		string DefaultProfileName,
 		bool Bulky,
-		IReadOnlyList<string> ProfileNames);
+		IReadOnlyList<string> ProfileNames,
+		bool PreserveExisting = false);
 
 	private static StockHumanWearProfileLocation Loc(string location, bool mandatory, bool noArmour,
 		bool transparent, bool preventsRemoval, bool hidesSevered)
@@ -101,6 +102,7 @@ public partial class HumanSeeder
 
 	private static readonly StockHumanWearProfileDefinition[] AdditionalHumanWearProfiles =
 	[
+		.. IndustrialisedHumanWearProfiles(),
 		StockDirectWearProfile("Headband", "worn on", "put", "puts", "on",
 			"Worn as a band around the forehead and temples", false, false,
 			Loc("forehead", true, false, false, true, false),
@@ -722,8 +724,24 @@ public partial class HumanSeeder
 
 	private static readonly StockHumanWearComponentDefinition[] AdditionalHumanWearComponents =
 	[
-		new("Wear_Bandana", "Headband", false, ["Headband", "Kerchief", "Armlet"])
+		new("Wear_Bandana", "Headband", false, ["Headband", "Kerchief", "Armlet"]),
+		.. IndustrialisedHumanWearProfiles().Select(x => x.Name == "Hooded Long Coat"
+			? new StockHumanWearComponentDefinition(WearComponentName(x.Name), "Hooded Long Coat Lowered", x.Bulky,
+				["Hooded Long Coat Lowered", x.Name], PreserveExisting: true)
+			: new StockHumanWearComponentDefinition(WearComponentName(x.Name), x.Name, x.Bulky,
+				[x.Name], PreserveExisting: true))
 	];
+
+	internal static bool RefreshHumanWearProfilesForTesting(FuturemudDatabaseContext context) =>
+		new HumanSeeder { _context = context }.RefreshExistingHumanWearProfiles(context.BodyProtos.Single(x => x.Name == "Humanoid"));
+
+	internal static void SeedHumanWearProfilesForTesting(FuturemudDatabaseContext context, bool includeAdditional = true) =>
+		new HumanSeeder { _context = context }.SeedHumanWearProfiles(context.BodyProtos.Single(x => x.Name == "Humanoid"), includeAdditional);
+
+	internal static bool HasMissingHumanWearProfilesForTesting(FuturemudDatabaseContext context) => HasMissingHumanWearProfiles(context);
+
+	internal static IReadOnlyDictionary<string, string> AdditionalHumanWearProfileXmlForTesting =>
+		AdditionalHumanWearProfiles.ToDictionary(x => x.Name, BuildWearlocProfileXml, StringComparer.Ordinal).AsReadOnly();
 
 	internal static int HumanWearProfileBaselineCountForTesting => 130;
 
@@ -956,6 +974,9 @@ public partial class HumanSeeder
 		foreach ((WearProfile profile, bool bulky) in profiles)
 		{
 			string componentName = WearComponentName(profile.Name);
+			// Named configurations (including hood-up/down alternatives) are created consistently by
+			// EnsureAdditionalHumanWearComponents on both fresh installs and missing-component reruns.
+			if (AdditionalHumanWearComponents.Any(x => x.Name == componentName)) continue;
 			if (!existingComponentNames.Add(componentName))
 			{
 				continue;
@@ -1043,6 +1064,9 @@ public partial class HumanSeeder
 
 			if (components.TryGetValue(definition.Name, out GameItemComponentProto? component))
 			{
+				// New clothing stock is additive: an existing builder-owned/customized configuration
+				// must not be reset on a HumanSeeder rerun. ItemSeeder validates actual revisions.
+				if (definition.PreserveExisting) continue;
 				if (!component.Type.Equals("Wearable", StringComparison.Ordinal) ||
 				    component.Description != description ||
 				    !XmlEquivalent(component.Definition, componentDefinition))
@@ -1125,12 +1149,13 @@ public partial class HumanSeeder
 		bool repaired = RepairExistingHumanWearProfileAccuracy(baseHumanoid);
 		bool added = AddMissingHumanWearProfiles(baseHumanoid, AdditionalHumanWearProfiles).Count > 0;
 		bool addedComponents = EnsureAdditionalHumanWearComponents(baseHumanoid);
-		if (repaired && !added && !addedComponents)
+		bool addedLayers = EnsureIndustrialisedClothingWearLayers();
+		if (repaired && !added && !addedComponents && !addedLayers)
 		{
 			_context.SaveChanges();
 		}
 
-		return repaired || added || addedComponents;
+		return repaired || added || addedComponents || addedLayers;
 	}
 
 	private static bool HasMissingHumanWearProfiles(FuturemudDatabaseContext context)
@@ -1155,7 +1180,8 @@ public partial class HumanSeeder
 		                                                .Select(x => x.Name)
 		                                                .AsEnumerable()
 		                                                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-		return AdditionalHumanWearComponents.Any(x => !existingComponentNames.Contains(x.Name));
+		return AdditionalHumanWearComponents.Any(x => !existingComponentNames.Contains(x.Name)) ||
+		       IndustrialisedClothingDependencyPlan.WearLayerStock.Any(x => !existingComponentNames.Contains(x.Name));
 	}
 
 	private bool RepairExistingHumanWearProfileAccuracy(BodyProto baseHumanoid)

@@ -556,6 +556,7 @@ public partial class Body : IHaveNeeds, IEat
 
     public bool SilentDrink(ILiquidContainer container, double quantity)
     {
+        container.ResolveLiquidFreshness(DateTime.UtcNow);
         // Require a working esophagus to drink
         if (OrganFunction<EsophagusProto>() < 0.5)
         {
@@ -576,6 +577,7 @@ public partial class Body : IHaveNeeds, IEat
 
     public bool Drink(ILiquidContainer container, ITable? table, double quantity, IEmote? playerEmote)
     {
+        container.ResolveLiquidFreshness(DateTime.UtcNow);
         if (!CanDrink(container, table, quantity))
         {
             Actor.Send(WhyCannotDrink(container, table, quantity));

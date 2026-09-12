@@ -15,6 +15,10 @@ This document explains how the item system is structured in code and at runtime:
 - revision updates
 - morph and destruction behaviour
 
+## Wearable numeric persistence
+
+Wearable component XML uses culture-independent numbers for `LayerWeightConsumption`, `SeeThroughDamageRatio` and the `Waterproof` damage-ratio attribute, matching `XElement`/`XAttribute` serialization. Loading on a comma-decimal host must neither reject `0.25` nor reinterpret it as `25`. Legacy definitions without these values retain layer weight 1.0 and damage ratios 0.5. Profiles, default profile, bulky/visibility flags and waterproof state survive the same round trip; no schema or builder-command change is required.
+
 ## Primary Abstractions
 
 ## Media recording persistence
@@ -690,11 +694,11 @@ Restaurant preparation does not clone a conceptual "dish" into a player inventor
 
 ## Containment-Aware Time Rates
 
-`IItemTimeRateModifier` supplies optional multipliers for prepared-food freshness, biological decay, opted-in morphing, and surface-liquid drying. Resolution walks outward through `ContainedIn`; the nearest component that supports the requested rate wins for the entire descendant tree. Containers without a provider are transparent, unsupported rate types remain at `1.0`, `0.0` pauses a process, and values above `1.0` accelerate it.
+`IItemTimeRateModifier` supplies optional multipliers for prepared-food freshness, perishable-liquid freshness, biological decay, opted-in morphing, and surface-liquid drying. Resolution walks outward through `ContainedIn`; the nearest component that supports the requested rate wins for the entire descendant tree. Containers without a provider are transparent, unsupported rate types remain at `1.0`, `0.0` pauses a process, and values above `1.0` accelerate it. `IPackageFreshnessModifier` is the minimal future logistics contract: it declares whether protection is active and whether the package has been irreversibly opened, without supplying a package component in this gate.
 
 Environment boundaries rebase elapsed state before and after containment, open/close, power, or switch changes. Prepared food persists effective age and its last resolution time while retaining the legacy `created` value. Corpses and severed body parts multiply their ordinary minute decay by the biological rate. Item morphing uses the rate only when the prototype's `RefrigerationSensitive` flag is enabled; effective remaining time survives pauses, save/load, and container changes. Ordinary morph timers are unchanged.
 
-Refrigerators modify freshness, biological decay, and opted-in morphs. Dryers modify only surface-liquid drying and are active only while powered, switched on, and closed. Implant refrigerators use implant power and function factor. These providers affect nested descendants but never the provider item itself.
+Refrigerators modify prepared-food freshness, perishable-liquid freshness, biological decay, and opted-in morphs. A configured liquid instance retains its original identity, effective age, last UTC resolution and irreversible Fresh/Stale/Spoiled stage; consumption and presentation use the configured effective result liquid. Splits and copies retain state, same-origin merges weight age by volume without improving either reached stage, and unlike origins age independently. Legacy instance XML loads fresh at load time. Grid projections do not age the supplier mixture a second time. Dryers modify only surface-liquid drying and are active only while powered, switched on, and closed. Implant refrigerators use implant power and function factor. These providers affect nested descendants but never the provider item itself.
 
 `PowerBank` combines power consumption and production around persisted internal watt-hours. Input power charges storage subject to the input limit and efficiency; output consumers always discharge storage subject to the output limit, including while charging. Depletion cuts output consumers and later charge recovery offers power again. Input and output connector sets are directional and live connections use the existing connectable restoration lifecycle.
 
@@ -706,3 +710,5 @@ Item custody and direct magic/violence impressions use a lazy `PsychometricHisto
 ## Magical substance integration
 
 Liquid-instance XML preserves magical lot and charge state through splits, mixing and transfer. Substance exposure parents own persistent spell children and use the retained surface-liquid state for maintained oils. See [Magical Substances](../Magic/Magical_Substances.md).
+
+Discrete power requests retain watts as the instantaneous load. The legacy one-argument `IProducePower.DrawdownSpike(wattage)` contract represents an instantaneous spike and remains suitable for continuous producers. Consumers whose operation has a measurable duration use the duration-aware overload instead. Finite stores such as `BatteryPowered` and `PowerBank` convert watts multiplied by elapsed hours into watt-hours for availability checks and debit, while continuous producers validate the same watt load without inventing stored-energy accounting. `PowerTool` uses this duration-aware path for both preflight and consumption, so a tool rated in watts no longer passes watt-seconds into an API whose argument is watts.

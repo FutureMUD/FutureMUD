@@ -147,12 +147,16 @@ public partial class Emote : IEmote
                             : x.DisplayThirdPerson(perceiver, flags)
                         : string.Empty).ToArray<object>();
 
-        if (FixedFormat)
-        {
-            return string.Format(RawText, parsedTokens);
-        }
-
-        return string.Format(RawText, parsedTokens);
+		try
+		{
+			return string.Format(RawText, parsedTokens);
+		}
+		catch (FormatException)
+		{
+			// A missed escaping boundary must not terminate the player-input loop.
+			ErrorMessage = "Invalid emote: malformed format braces or token reference.";
+			return ErrorMessage;
+		}
     }
 }
 
@@ -198,7 +202,7 @@ public class PlayerEmote : Emote
     /// <param name="perceivables">The list of references referred to by the raw emote string.</param>
     public PlayerEmote(string rawEmote, IPerceiver source, params IPerceivable[] perceivables)
     {
-        RawText = rawEmote;
+		RawText = rawEmote.Sanitise();
         Source = source;
         ForcedSourceInclusion = false;
         ILanguagePerceiver languagePerceiver = source as ILanguagePerceiver;

@@ -209,4 +209,6 @@ NamePicker resolves the selected ethnicity's name culture for the selected gende
 
 Name-culture XML may opt into `<PreserveNameCase>true</PreserveNameCase>`. This preserves reviewed element casing in NamePicker and PersonalName rendering; existing definitions retain their previous casing behavior when the element is absent. All existing name styles and personal-name XML remain supported. Random-name dice set to zero require no pool and emit no placeholder element.
 
+NamePicker only requests suggestions from random-name profiles that contain entries for the element currently being selected. Optional elements with a zero dice expression and no corresponding pool therefore remain selectable without displaying examples or interrupting character creation.
+
 Input is normalized to NFC before NamePicker validates letters and its existing Unicode-off setting. Latin-1 output also normalizes the complete string before encoding, uses reviewed fallback mappings and independent encoder buffers, and emits a visible diagnostic for unsupported scalars. Output fallback does not relax the input policy.

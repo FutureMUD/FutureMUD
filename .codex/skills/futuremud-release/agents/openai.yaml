@@ -1,4 +1,4 @@
 interface:
   display_name: "FutureMUD Release"
-  short_description: "Prepare and publish stable FutureMUD releases"
-  default_prompt: "Use $futuremud-release to prepare and publish a stable release for one FutureMUD product."
+  short_description: "Prepare, publish, or verify a product release"
+  default_prompt: "Use $futuremud-release for the requested release phase. Do not tag or publish for a preparation-only or verification-only request."

@@ -76,6 +76,12 @@ namespace MudSharp.FutureProg
         /// <param name="variables">The parameters to be passed in to execute the program</param>
         /// <returns>An object of the ReturnType of the program, or null in the case of an error</returns>
         object Execute(params object[] variables);
+		/// <summary>Reports execution failure separately from a legitimate void/null result. Used for durable callbacks.</summary>
+		bool ExecuteWithStatus(out object result, params object[] variables)
+		{
+			result = Execute(variables);
+			return result is not null || ReturnType == ProgVariableTypes.Void;
+		}
         object ExecuteWithRecursionProtection(params object[] variables);
         T Execute<T>(params object[] variables);
 

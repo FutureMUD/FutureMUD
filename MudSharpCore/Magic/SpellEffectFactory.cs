@@ -66,6 +66,7 @@ public static class SpellEffectFactory
     }
 
     public static IEnumerable<string> MagicEffectTypes => _builderFactories.Keys;
+	public static IReadOnlyCollection<string> RegisteredLoadTypes => _loadTimeFactories.Keys.ToArray();
 
     public static (string Blurb, string BuilderHelp, bool Instant, bool RequiresTarget, string[] MatchingTriggers) BuilderInfoForType(string type)
     {

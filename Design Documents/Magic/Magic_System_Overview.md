@@ -1,5 +1,11 @@
 # FutureMUD Magic System Overview
 
+## Vancian magic
+
+The `vancian` capability adds capability-local Selected and Spellbook repertoires, finite memorised/spontaneous allowances, explicit at-will access, saved next-refresh loadouts and configurable preparation/sleep recovery. The identity owns choices and expenditure across physical instances; the acting body supplies casting costs and context. The existing `skilllevel` capability remains available. See the [Vancian runtime](Vancian_Magic_Runtime.md), [player guide](Vancian_Magic_Player_Guide.md) and [builder guide](Vancian_Magic_Builder_Guide.md).
+
+`spellbook` and `spellscroll` item components hold instance-owned formulae and prepaid charges. Scroll release uses stored creator numerical bindings with reader attribution and live target resistance. It grants no general spell knowledge. Legacy school casting cannot bypass a Vancian-only budget; existing legitimate legacy, spell-backed power, combat, trap and substance routes retain their own payment contracts.
+
 ## Purpose
 This document is the entry point for the FutureMUD magic documentation suite.
 

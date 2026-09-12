@@ -9,7 +9,8 @@ namespace MudSharp.GameItems.Prototypes;
 public sealed record GameItemComponentPrototypeConflict(
 	Type Capability,
 	IGameItemComponentProto Existing,
-	IGameItemComponentProto Candidate);
+	IGameItemComponentProto Candidate,
+	string? Reason = null);
 
 public static class GameItemComponentPrototypeExclusivity
 {
@@ -32,6 +33,8 @@ public static class GameItemComponentPrototypeExclusivity
 
 		foreach (var component in components)
 		{
+			foreach (var existing in seen.Values.Distinct())
+				if (ScrollCompositionConflict(existing, component) is { } invalid) results.Add(invalid);
 			foreach (var capability in component.ExclusiveComponentTypes())
 			{
 				if (!seen.TryGetValue(capability, out var existing))
@@ -52,6 +55,8 @@ public static class GameItemComponentPrototypeExclusivity
 		IGameItemComponentProto candidate,
 		out GameItemComponentPrototypeConflict? conflict)
 	{
+		foreach (var existing in existingComponents)
+			if (ScrollCompositionConflict(existing, candidate) is { } invalid) { conflict = invalid; return false; }
 		var existingCapabilities = existingComponents
 		                           .SelectMany(x => x.ExclusiveComponentTypes()
 		                                            .Select(y => (Capability: y, Prototype: x)))
@@ -71,5 +76,11 @@ public static class GameItemComponentPrototypeExclusivity
 
 		conflict = null;
 		return true;
+	}
+	private static GameItemComponentPrototypeConflict? ScrollCompositionConflict(IGameItemComponentProto existing, IGameItemComponentProto candidate)
+	{
+		static bool Incompatible(IGameItemComponentProto item) => item is IContainerPrototype or IStackablePrototype or ISpellbookPrototype;
+		return existing is ISpellScrollPrototype && Incompatible(candidate) || candidate is ISpellScrollPrototype && Incompatible(existing)
+			? new(typeof(Interfaces.ISpellScroll), existing, candidate, "A spell scroll cannot also be a container, stackable item or spellbook: a paid charge must have one unambiguous destructible item owner.") : null;
 	}
 }

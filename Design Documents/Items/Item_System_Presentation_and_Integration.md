@@ -1,5 +1,9 @@
 # FutureMUD Item System Presentation and Integration
 
+## Spellbook and scroll presentation
+
+`spellbook show <item>` and `spellscroll show <item>` inspect structured instance contents; inspection never activates a scroll or adds global spell knowledge. School Vancian commands select the casting capability and route, while standalone commands support copying, inscription and activation. Visibility, manipulation, open-container access and configured comprehensible writing are checked by the common item-access service. Trusted FutureProg/craft callers use that same mutation service and live reservation tokens. See [player syntax](../Magic/Vancian_Magic_Player_Guide.md), [FutureProg contracts](../Magic/Vancian_Magic_FutureProg.md) and [stored-effect compatibility](../Magic/Vancian_Scroll_Compatibility.md).
+
 Legacy `Tape` component definitions remain loadable through the modern media storage implementation. `CapacityMs` preserves the original duration; cassette stock names map to `compact-cassette`, and microcassette stock names map to `microcassette`. New content continues to use `Media Storage Medium` and `CapacityMilliseconds`. This compatibility mapping fixes old-world startup without deleting prototype identities or changing current seeder output.
 
 Magical item smashing uses the ordinary item damage pipeline and vandalism handling, with a casting trait in place of a physical weapon. Optional `attackitem` spells supply item effects and character-compatible caster effects. See [Magical and Psychic Combat Powers](../Magic/Magic_Combat_Powers.md).

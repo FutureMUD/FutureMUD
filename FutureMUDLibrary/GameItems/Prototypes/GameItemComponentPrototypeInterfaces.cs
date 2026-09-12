@@ -26,6 +26,9 @@ public interface IActiveCraftGameItemComponentPrototype : IExclusiveGameItemComp
 {
 }
 
+public interface ISpellbookPrototype : IExclusiveGameItemComponentPrototype<ISpellbook> { }
+public interface ISpellScrollPrototype : IExclusiveGameItemComponentPrototype<ISpellScroll> { }
+
 public interface IAffectQualityPrototype : IAggregateGameItemComponentPrototype<IAffectQuality>
 {
 }

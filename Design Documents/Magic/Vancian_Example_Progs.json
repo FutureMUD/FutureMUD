@@ -1,0 +1,12 @@
+[
+	{"Name":"vancian_example_level","Kind":"casterlevel","Parameters":["owner","capability"],"Body":"return getregister(@owner, \"vancian_level\")"},
+	{"Name":"vancian_example_candidates","Kind":"candidates","Parameters":["owner","capability","spell"],"Body":"return true"},
+	{"Name":"vancian_example_limit","Kind":"limit","Parameters":["owner","capability","casterlevel","spelllevel"],"Body":"return 3"},
+	{"Name":"vancian_example_count","Kind":"count","Parameters":["owner","capability","casterlevel","spelllevel"],"Body":"if (@casterlevel < @spelllevel)\n\treturn 0\nend if\nreturn 2"},
+	{"Name":"vancian_choose_once","Kind":"canchangeknown","Parameters":["owner","capability","previous","proposed"],"Body":"return @previous.count == 0"},
+	{"Name":"vancian_daily_change","Kind":"canchangeknown","Parameters":["owner","capability","previous","proposed"],"Body":"return totalhours(now() - getregister(@owner, \"wizard_known_changed\")) >= 24"},
+	{"Name":"vancian_record_change","Kind":"onchangeknown","Parameters":["owner","capability","previous","proposed"],"Body":"setregister @owner \"wizard_known_changed\" now()\nreturn"},
+	{"Name":"vancian_progression_change","Kind":"canchangeknown","Parameters":["owner","capability","previous","proposed"],"Body":"return getregister(@owner, \"vancian_progression_allowed\")"},
+	{"Name":"vancian_fixed_known","Kind":"canchangeknown","Parameters":["owner","capability","previous","proposed"],"Body":"return false"},
+	{"Name":"vancian_free_change","Kind":"canchangeknown","Parameters":["owner","capability","previous","proposed"],"Body":"return true"}
+]

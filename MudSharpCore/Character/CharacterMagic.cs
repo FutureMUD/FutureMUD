@@ -64,6 +64,7 @@ public partial class Character : IMagicUser
 
     public void CheckResources()
     {
+		UpdateVancianSleepTracker();
         List<IMagicResourceRegenerator> generators = Capabilities.SelectMany(x => x.Regenerators).Distinct().ToList();
         foreach (IMagicResourceRegenerator generator in generators)
         {
@@ -203,6 +204,7 @@ public partial class Character : IMagicUser
 
     private void ResumeMagicResourceGeneratorHeartbeats()
     {
+		UpdateVancianSleepTracker();
         if (!CanRunCharacterOngoingProcesses)
         {
             PauseMagicResourceGeneratorHeartbeats();
@@ -224,6 +226,7 @@ public partial class Character : IMagicUser
 
     private void PauseMagicResourceGeneratorHeartbeats()
     {
+		StopVancianSleepTracker();
         foreach (HeartbeatManagerDelegate hbdelegate in _generatorDelegateDictionary.Values.ToList())
         {
             Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= hbdelegate;

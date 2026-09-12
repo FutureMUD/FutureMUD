@@ -2218,6 +2218,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     bool IControllable.ExecuteCommand(string command)
     {
+		if (!IsPrimaryInstance && State.IsConscious() && !State.HasFlag(CharacterState.Sleeping) && Identity?.PrimaryInstance is Character primary)
+			primary.InterruptVancianWork();
         Gameworld?.LogManager.LogCharacterCommand(this, command);
 		if (CommandTree.Commands is CharacterCommandManager characterCommands)
 		{

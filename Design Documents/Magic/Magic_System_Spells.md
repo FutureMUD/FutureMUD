@@ -1,5 +1,13 @@
 # FutureMUD Magic System: Spells
 
+## Vancian and prepaid scroll invocation
+
+Spells now have a non-negative `SpellLevel` and an explicit `ScrollInscriptionAllowed` opt-in. Existing rows default to level zero and scroll-ineligible; neither default grants access. Builders use `magic spell set level <number>` and `magic spell set scroll <true|false>`; spell FutureProg properties are `spelllevel` and `scrollallowed`.
+
+Vancian-only casting requires an explicit capability/repertoire/allowance route. The normal trigger parser resolves its target and additional parameters at computed power before any slot debit. A detached invocation supplies level variables and a configured successful outcome through existing check helpers; each target still resolves resistance and wards independently. The existing corrected group loop remains authoritative, including partial success after an earlier rejection.
+
+Scroll inscription pays a validated casting and production cost without invoking effect templates. Release consumes one charge before control checks/effects and uses an immutable stored configuration with frozen creator numerical bindings, reader attribution, and live target outcome. Saved persistent effects retain this context. See [Vancian runtime](Vancian_Magic_Runtime.md), [effect compatibility](Vancian_Scroll_Compatibility.md) and [verification](Vancian_Magic_Verification.md).
+
 ## Purpose
 This document explains how magic `spells` work in FutureMUD.
 

@@ -10,6 +10,8 @@ namespace MudSharp.Models
     public class MagicSpell
     {
         public long Id { get; set; }
+		public int SpellLevel { get; set; }
+		public bool ScrollInscriptionAllowed { get; set; }
         public string Name { get; set; }
         public string Blurb { get; set; }
         public string Description { get; set; }

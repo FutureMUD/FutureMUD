@@ -4,7 +4,7 @@ The revised Task 1 completion checks were executed in a Windows worktree using S
 
 ## Builds and automated checks
 
-Targeted `MudSharpCore` Debug and Release builds passed with `-m:1`; the final Release build reported only three pre-existing nullable warnings in unrelated combat/perceiver files. The benchmark Release build passed. `scripts/test-unit.ps1` built the test projects serially, then executed its isolated test hosts:
+Targeted `MudSharpCore` Debug and Release builds passed with `-m:1`. The final integrated Release build reported three pre-existing nullable warnings in unrelated combat/perceiver files and three analyzer release-tracking warnings. The benchmark Release build passed. `scripts/test-unit.ps1` built the test projects serially, then executed its isolated test hosts:
 
 | Suite | Passed |
 | --- | ---: |

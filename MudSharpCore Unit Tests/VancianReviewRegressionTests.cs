@@ -74,37 +74,57 @@ public class VancianReviewRegressionTests
 	}
 
 	[TestMethod]
-	public void SpellBackedPower_UsesOneFiniteCastingAndCannotIncreaseItsPowerOrReuseIt()
+	public void SpellBackedPower_RemainsIndependentAfterVancianSlotsAreExhausted()
 	{
-		var items = new VancianItemTests.ItemFixture("<Effect type='staminadelta'><Formula>castinglevel</Formula></Effect>"); var f = items.F;
-		var (spell, resource) = PricedSpell(items); f.Count = 1; f.Select(2); f.Plan(2); f.Refresh();
+		var items = new VancianItemTests.ItemFixture("<Effect type='staminadelta'><Formula>power</Formula></Effect>"); var f = items.F;
+		var (spell, resource) = PricedSpell(items, "5"); f.Count = 1; f.Select(2); f.Plan(2); f.Refresh();
 		var adapter = Adapter(f);
-		adapter.UseCommand(f.Actor.Object, "invoke", new StringStack("recklesslypowerful"));
-		Assert.AreEqual(VancianSlotStatus.Prepared, f.State.Slots.Single().Status);
-		adapter.UseCommand(f.Actor.Object, "invoke", new StringStack("standard"));
+		f.Actor.SetupGet(x => x.Powers).Returns([adapter]);
+		var check = new Mock<ICheck>(); f.World.Setup(x => x.GetCheck(CheckType.CastSpellCheck)).Returns(check.Object);
+		check.Setup(x => x.CheckAgainstAllDifficulties(f.Actor.Object, It.IsAny<Difficulty>(), f.Trait.Object, f.Actor.Object,
+			It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()))
+			.Returns(Enum.GetValues<Difficulty>().ToDictionary(x => x, _ => CheckOutcome.SimpleOutcome(CheckType.CastSpellCheck, Outcome.Pass)));
+
+		var ordinary = f.Service.Cast(f.Actor.Object, f.Capability.Object, f.Rules[0].Key, f.Allowances[0].Key, spell, 1, new StringStack(""));
+		Assert.IsTrue(ordinary.Success, ordinary.Message);
 		Assert.AreEqual(VancianSlotStatus.Spent, f.State.Slots.Single().Status);
-		adapter.UseCommand(f.Actor.Object, "invoke", new StringStack("standard"));
-		f.Actor.Verify(x => x.UseResource(resource, 12), Times.Once);
-		f.Actor.Verify(x => x.GainStamina(1), Times.Once);
+		Assert.IsFalse(f.Service.Cast(f.Actor.Object, f.Capability.Object, f.Rules[0].Key, f.Allowances[0].Key, spell, null, new StringStack("")).Success);
+		var ledgerWrites = f.Store.Writes; var ledgerEntries = f.Store.Log.Count;
+
+		MagicModule.MagicGeneric(f.Actor.Object, "arcane invoke recklesslypowerful");
+
+		Assert.AreEqual(VancianSlotStatus.Spent, f.State.Slots.Single().Status);
+		Assert.AreEqual(ledgerWrites, f.Store.Writes);
+		Assert.AreEqual(ledgerEntries, f.Store.Log.Count);
+		f.Actor.Verify(x => x.UseResource(resource, 5), Times.Exactly(2));
+		f.Actor.Verify(x => x.GainStamina((double)SpellPower.Standard), Times.Once);
+		f.Actor.Verify(x => x.GainStamina((double)SpellPower.RecklesslyPowerful), Times.Once);
+		check.Verify(x => x.CheckAgainstAllDifficulties(f.Actor.Object, It.IsAny<Difficulty>(), f.Trait.Object, f.Actor.Object,
+			It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()), Times.Once);
 		Assert.AreEqual(1, f.Store.Log.Values.Count(x => x.Kind == "Cast"));
 		Assert.IsNull(SpellPowerInvocation.For(f.Actor.Object, spell));
 	}
 
 	[TestMethod]
-	public void SpellBackedPower_UnpreparedBookFormulaAndAmbiguousAllowancesRefuse()
+	public void VancianKnowledge_DoesNotGrantSpellBackedPowerOrFreeDirectCasting()
 	{
-		var items = new VancianItemTests.ItemFixture(); var f = items.F; var (_, resource) = PricedSpell(items);
-		f.Rules[0] = f.Rules[0] with { Source = VancianRepertoireSource.Spellbook, SelectionLimitProgId = 0 };
-		var book = items.Book(100); book.Component.AddFormula(2, f.Clock.Now.UtcDateTime, null);
-		var adapter = Adapter(f); adapter.UseCommand(f.Actor.Object, "invoke", new StringStack("standard"));
-		Assert.AreEqual(0, f.State.Slots.Count);
-		f.Allowances.Add(f.Allowances[0] with { Key = Guid.NewGuid(), Alias = "other" });
-		f.Plan(2);
-		var state = f.State; var second = state.Loadouts.Single().Assignments.Single() with { AllowanceKey = f.Allowances[1].Key };
-		state.Loadouts.Single().Assignments.Add(second); f.Store.Commit(state, state.Version); f.Refresh();
-		adapter.UseCommand(f.Actor.Object, "invoke", new StringStack("standard"));
-		Assert.IsTrue(f.State.Slots.Where(x => x.Preparation is not null).All(x => x.Status == VancianSlotStatus.Prepared));
+		var items = new VancianItemTests.ItemFixture("<Effect type='staminadelta'><Formula>1</Formula></Effect>"); var f = items.F;
+		var (spell, resource) = PricedSpell(items, "5"); f.Count = 1; f.Select(2); f.Plan(2); f.Refresh();
+		var output = new List<string>();
+		Mock.Get(f.Actor.Object.OutputHandler).Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+			.Callback<string, bool, bool>((text, _, _) => output.Add(text));
+		f.Actor.SetupGet(x => x.Powers).Returns([]);
+		var ledgerEntries = f.Store.Log.Count;
+
+		Assert.IsTrue(spell.CharacterKnowsSpell(f.Actor.Object));
+		MagicModule.MagicGeneric(f.Actor.Object, "arcane invoke standard");
+		spell.CastSpell(f.Actor.Object, f.Actor.Object, SpellPower.Standard);
+
+		Assert.IsTrue(output.Any(x => x.Contains("You have no such power.")), string.Join("\n", output));
+		Assert.AreEqual(VancianSlotStatus.Prepared, f.State.Slots.Single().Status);
 		f.Actor.Verify(x => x.UseResource(resource, It.IsAny<double>()), Times.Never);
+		f.Actor.Verify(x => x.GainStamina(It.IsAny<double>()), Times.Never);
+		Assert.AreEqual(ledgerEntries, f.Store.Log.Count);
 	}
 
 	[TestMethod]

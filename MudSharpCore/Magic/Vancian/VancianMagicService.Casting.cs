@@ -9,18 +9,6 @@ public sealed partial class VancianMagicService
 		IMagicSpell spell, int? ordinal, StringStack targets) => Cast(actor, capability, repertoire, allowance, spell, ordinal,
 			power => SpellTargetCapture.Resolve(actor, spell, power, targets));
 
-	internal VancianResult CastFromPower(ICharacter actor, MagicSpell spell, IPerceivable? target, SpellPower power,
-		SpellAdditionalParameter[] parameters)
-	{
-		var routes = AvailableRoutes(actor, spell, power).ToArray();
-		if (routes.Length != 1) return VancianResult.Refused(routes.Length == 0
-			? "No unspent Vancian casting supplies the requested spell and power."
-			: $"Several Vancian routes supply this spell and power. Use {spell.School.SchoolVerb} vancian <capability> cast <repertoire> <allowance> to choose which casting to spend.");
-		var route = routes[0];
-		return Cast(actor, route.Capability, route.Repertoire, route.Allowance, spell, route.Availability.Ordinal,
-			computed => computed == power ? new SpellTargetResolution(target, parameters) : null);
-	}
-
 	private VancianResult Cast(ICharacter actor, IVancianMagicCapability capability, Guid repertoire, Guid allowance,
 		IMagicSpell spell, int? ordinal, Func<SpellPower, SpellTargetResolution?> resolve) => Mutate(actor, capability, state =>
 	{

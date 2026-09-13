@@ -462,7 +462,7 @@ Audit and update `MagicModule`, `CharacterKnowsSpell`, `CharacterCanCast`, spell
 
 Ordinary displays may expose the union of available routes for compatibility, but must distinguish candidate, selected, prepared, at-will and depleted states on the Vancian UI. Payload-only spells stay hidden. No global `SpellKnownProg = true` hack is allowed.
 
-When the old school cast syntax encounters a Vancian-only spell, route through proper Vancian selection or refuse with the canonical new syntax. Do not treat a legacy free-form power argument as authority to select extra power. When several possible routes exist, require an explicit route unless the player has deliberately selected a stored default; never choose the cheapest or strongest automatically.
+When the old school cast syntax encounters a Vancian-only spell, route through proper Vancian selection or refuse with the canonical new syntax. Do not treat a legacy free-form power argument as authority to select extra power. When several possible routes exist, require an explicit route unless the player has deliberately selected a stored default; never choose the cheapest or strongest automatically. A separately granted spell-backed power remains a distinct route: its normal power permissions and the backing spell's costs, checks, targeting and cooldowns apply, but it does not select or debit a Vancian allowance.
 
 Prepared attack, trap and substance resolvers continue using their existing pre-paid contracts. Do not add a slot debit to them or open them as player-cast spells. Legitimate legacy and Vancian routes can coexist in the same school and on the same character.
 
@@ -1229,9 +1229,9 @@ The following matrix is the minimum behavioural inventory. Several rows can be d
 
 | ID | Required assertion |
 |---|---|
-| INT-01 | Old school cast/help and direct invocation entry points cannot bypass Vancian expenditure; legitimate legacy route remains available. |
+| INT-01 | Old school cast/help and non-power direct invocation entry points cannot bypass Vancian expenditure; legitimate legacy and separately granted spell-backed routes remain available. |
 | INT-02 | Vancian global read-only aggregation does not grant legacy knowledge or expose hidden payloads/inaccessible books. |
-| INT-03 | Spell-backed power does not duplicate payment; prepared attack/trap/substance paths receive no new slot debit. |
+| INT-03 | Spell-backed power retains its own authorisation and backing-spell payment without a Vancian slot debit; prepared attack/trap/substance paths receive no new slot debit. |
 | INT-04 | `CharacterCanCast`/FutureProg availability agrees with actual command refusals and has no effects/charges/randomness. |
 | INT-05 | Self, character, group and an additional-parameter trigger retain target semantics under computed power and scroll context. |
 | PER-01 | Known choices, plans, last pattern, slots, callback status and qualification survive save/load with stable identities. |

@@ -1066,6 +1066,15 @@ public sealed partial class Futuremud : IDisposable
         _staticLongs.Remove(whichConfiguration);
 
         // Special values that need other actions
+		if (whichConfiguration.StartsWith("EnvironmentalMagic", StringComparison.OrdinalIgnoreCase) &&
+			EnvironmentalMagic is MudSharp.Magic.Environment.EnvironmentalMagicCoordinator environment)
+		{
+			try { environment.Configure(MudSharp.Magic.Environment.EnvironmentalMagicOptions.FromGameworld(this)); }
+			catch (ArgumentException ex) { SystemMessage($"Environmental scheduler configuration was rejected: {ex.Message}", true); }
+			catch (FormatException ex) { SystemMessage($"Environmental scheduler configuration was rejected: {ex.Message}", true); }
+			catch (OverflowException ex) { SystemMessage($"Environmental scheduler configuration was rejected: {ex.Message}", true); }
+			return;
+		}
         if (whichConfiguration.EqualTo("DisplayProgsInDarkMode"))
         {
             foreach (IFutureProg prog in FutureProgs)

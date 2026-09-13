@@ -132,11 +132,13 @@ namespace MudSharp.Database
         public virtual DbSet<CellOverlay> CellOverlays { get; set; }
         public virtual DbSet<CellOverlayExit> CellOverlaysExits { get; set; }
         public virtual DbSet<Cell> Cells { get; set; }
+        public virtual DbSet<CellEnvironmentalState> CellEnvironmentalStates { get; set; }
         public virtual DbSet<CellsForagableYield> CellsForagableYields { get; set; }
         public virtual DbSet<CellsGameItems> CellsGameItems { get; set; }
         public virtual DbSet<CellMagicResource> CellsMagicResources { get; set; }
         public virtual DbSet<CellsRangedCovers> CellsRangedCovers { get; set; }
         public virtual DbSet<CellsTags> CellsTags { get; set; }
+        public virtual DbSet<EnvironmentalMagicOperation> EnvironmentalMagicOperations { get; set; }
         public virtual DbSet<ChannelCommandWord> ChannelCommandWords { get; set; }
         public virtual DbSet<ChannelIgnorer> ChannelIgnorers { get; set; }
         public virtual DbSet<Channel> Channels { get; set; }

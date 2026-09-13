@@ -237,6 +237,11 @@ public partial class Character : IMagicUser
 
     public void AddMagicResourceGenerator(IMagicResourceRegenerator generator)
     {
+		if (generator is MudSharp.Magic.Environment.IEnvironmentalMagicProfile)
+		{
+			Gameworld.SystemMessage($"Environmental regenerator #{generator.Id} cannot be attached to character #{Id}; it is inactive.", true);
+			return;
+		}
         if (!_magicResourceGenerators.Contains(generator))
         {
             _magicResourceGenerators.Add(generator);

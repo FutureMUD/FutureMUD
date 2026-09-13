@@ -451,11 +451,21 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
 
             // Cells need to do a few things that have to happen outside the boot order. Todo - use reflection to solve problems like this
             ConsoleUtilities.WriteLine("#EFinalising Cells...#0");
-            List<Models.Cell> cells = FMDB.Context.Cells.Include(x => x.CellsForagableYields).ToList();
+            var cells = FMDB.Context.Cells.Include(x => x.CellsForagableYields).ToDictionary(x => x.Id);
             foreach (ICell cell in _cells)
             {
-                cell.PostLoadTasks(cells.FirstOrDefault(x => x.Id == cell.Id));
+                cell.PostLoadTasks(cells.GetValueOrDefault(cell.Id));
+				(cell as Cell)?.CompleteMagicLoad();
             }
+			if (EnvironmentalMagic is MudSharp.Magic.Environment.EnvironmentalMagicCoordinator environment)
+			{
+				try { environment.Configure(MudSharp.Magic.Environment.EnvironmentalMagicOptions.FromGameworld(this)); }
+				catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException)
+				{
+					SystemMessage($"Invalid environmental scheduler configuration; retaining safe default budgets: {ex.Message}", true);
+				}
+			}
+			EnvironmentalMagic?.Initialise();
 
             ConsoleUtilities.WriteLine("#ADone Finalising Cells.#0");
             ConsoleUtilities.WriteLine("#ELoading Statistics...#0");
@@ -3730,6 +3740,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                              .Include(x => x.CellsForagableYields)
                              .Include(x => x.CellsGameItems)
                              .Include(x => x.CellsMagicResources)
+							 .Include(x => x.EnvironmentalState)
                              .Include(x => x.CellsRangedCovers)
                              .Include(x => x.CellsTags)
                              .Include(x => x.HooksPerceivables)

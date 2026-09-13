@@ -40,6 +40,7 @@ The `spellbook` and `spellscroll` component builder tokens load the persisted `S
 | --- | --- | --- | --- | --- | --- |
 | `linear` | `LinearTimeBasedGenerator` | Regenerator | Switch dispatch in `MudSharpCore/Magic/Generators/BaseMagicResourceGenerator.cs` | Yes | Adds a fixed amount of one resource per minute |
 | `state` | `StateGenerator` | Regenerator | Switch dispatch in `MudSharpCore/Magic/Generators/BaseMagicResourceGenerator.cs` | Yes | Adds one or more resources per minute based on boolean state progs |
+| `environmental` | `EnvironmentalMagicGenerator` | Regenerator | Switch dispatch in `MudSharpCore/Magic/Generators/BaseMagicResourceGenerator.cs` | Yes | Physical-cell environmental profile with authoritative maxima, persistent scars/pressure, and one bounded coordinator per gameworld |
 
 ## FutureProg Magic Helpers
 

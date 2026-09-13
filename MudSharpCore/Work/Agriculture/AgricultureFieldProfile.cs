@@ -122,8 +122,15 @@ public class AgricultureFieldProfile : SaveableItem, IAgricultureFieldProfile
 
 	public void BuildingSetDefaultScore(AgricultureScoreType score, int value)
 	{
-		_defaultScores[score] = value.ClampScore();
+		value = value.ClampScore();
+		if (_defaultScores.TryGetValue(score, out var previous) && previous == value)
+		{
+			return;
+		}
+
+		_defaultScores[score] = value;
 		Changed = true;
+		Gameworld.EnvironmentalMagic?.SourceDefinitionChanged();
 	}
 
 	public void BuildingSetAllowedUse(AgricultureFieldUse use, bool allowed)

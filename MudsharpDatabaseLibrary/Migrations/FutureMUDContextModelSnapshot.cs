@@ -4357,6 +4357,14 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EffectData"), "utf8");
 
+                    b.Property<int>("EnvironmentalMagicBindingMode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(0);
+
+                    b.Property<long?>("EnvironmentalMagicProfileId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<long?>("ForagableProfileId")
                         .HasColumnType("bigint(20)");
 
@@ -4385,6 +4393,9 @@ namespace MudSharp.Migrations
                     b.HasIndex("CurrentOverlayId")
                         .HasDatabaseName("FK_Cells_CellOverlays");
 
+                    b.HasIndex("EnvironmentalMagicProfileId")
+                        .HasDatabaseName("IX_Cells_EnvironmentalMagicProfileId");
+
                     b.HasIndex("HostedVehicleCompartmentId")
                         .IsUnique()
                         .HasDatabaseName("UX_Cells_HostedVehicleCompartments");
@@ -4398,6 +4409,64 @@ namespace MudSharp.Migrations
                     b.ToTable("Cells", null, t =>
                         {
                             t.HasCheckConstraint("CK_Cells_HostedVehicleOwnership", "(`HostedVehicleId` IS NULL AND `HostedVehicleCompartmentId` IS NULL) OR (`HostedVehicleId` IS NOT NULL AND `HostedVehicleCompartmentId` IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CellEnvironmentalState", b =>
+                {
+                    b.Property<long>("CellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime?>("LastDefileUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<double>("PressureDecayAnchor")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(0.0);
+
+                    b.Property<double>("PressureHalfLifeSeconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(3600.0);
+
+                    b.Property<long?>("PressureProfileId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime?>("PressureReferenceUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<double>("RecentPressure")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(0.0);
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)")
+                        .HasDefaultValue(0L);
+
+                    b.Property<double>("ScarDamage")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(0.0);
+
+                    b.Property<int>("SchemaVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(1);
+
+                    b.HasKey("CellId")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("CellEnvironmentalStates", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_CellEnvironmentalStates_Pressure", "`RecentPressure` >= 0 AND `PressureHalfLifeSeconds` > 0");
+
+                            t.HasCheckConstraint("CK_CellEnvironmentalStates_ScarDamage", "`ScarDamage` >= 0");
+
+                            t.HasCheckConstraint("CK_CellEnvironmentalStates_Versions", "`SchemaVersion` >= 1 AND `Revision` >= 0");
                         });
                 });
 
@@ -11230,6 +11299,71 @@ namespace MudSharp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EntityDescriptions");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EnvironmentalMagicOperation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<long?>("ActorId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<double>("AppliedDamage")
+                        .HasColumnType("double");
+
+                    b.Property<double>("AppliedPressure")
+                        .HasColumnType("double");
+
+                    b.Property<double>("AppliedRepair")
+                        .HasColumnType("double");
+
+                    b.Property<DateTime>("AtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Attribution")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Attribution"), "utf8mb4");
+
+                    b.Property<long>("CellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Diagnostic")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Diagnostic"), "utf8mb4");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<double>("RequestedDamage")
+                        .HasColumnType("double");
+
+                    b.Property<double>("RequestedPressure")
+                        .HasColumnType("double");
+
+                    b.Property<double>("RequestedRepair")
+                        .HasColumnType("double");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CellId", "AtUtc")
+                        .HasDatabaseName("IX_EnvironmentalMagicOperations_CellId_AtUtc");
+
+                    b.ToTable("EnvironmentalMagicOperations", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Estate", b =>
@@ -22318,6 +22452,9 @@ namespace MudSharp.Migrations
                         .HasColumnType("bit(1)")
                         .HasDefaultValueSql("b'0'");
 
+                    b.Property<long?>("EnvironmentalMagicProfileId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<long>("ForagableProfileId")
                         .HasColumnType("bigint(20)");
 
@@ -22406,6 +22543,9 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("DefaultAgricultureFieldProfileId")
                         .HasDatabaseName("FK_Terrains_AgricultureFieldProfiles_idx");
+
+                    b.HasIndex("EnvironmentalMagicProfileId")
+                        .HasDatabaseName("IX_Terrains_EnvironmentalMagicProfileId");
 
                     b.HasIndex("WeatherControllerId")
                         .HasDatabaseName("FK_Terrains_WeatherControllers_idx");
@@ -28176,6 +28316,18 @@ namespace MudSharp.Migrations
                     b.Navigation("HostedVehicleCompartment");
 
                     b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CellEnvironmentalState", b =>
+                {
+                    b.HasOne("MudSharp.Models.Cell", "Cell")
+                        .WithOne("EnvironmentalState")
+                        .HasForeignKey("MudSharp.Models.CellEnvironmentalState", "CellId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CellEnvironmentalStates_Cells");
+
+                    b.Navigation("Cell");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CellMagicResource", b =>
@@ -37686,6 +37838,8 @@ namespace MudSharp.Migrations
                     b.Navigation("ClansTreasuryCells");
 
                     b.Navigation("Crimes");
+
+                    b.Navigation("EnvironmentalState");
 
                     b.Navigation("HooksPerceivables");
 

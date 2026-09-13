@@ -4127,6 +4127,16 @@ The syntax is #3editstaticconfig <whichsetting>#0, which will drop you into an e
     private static void PostConfigAction(string text, IOutputHandler handler, object[] args)
     {
         string which = args[0].ToString();
+		if (((IFuturemud)args[1]).EnvironmentalMagic is MudSharp.Magic.Environment.EnvironmentalMagicCoordinator environment &&
+			which.StartsWith("EnvironmentalMagic", StringComparison.OrdinalIgnoreCase))
+		{
+			try { environment.Options.WithSetting(which, text); }
+			catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException)
+			{
+				handler.Send($"The environmental scheduler setting was not saved: {ex.Message}".ColourError());
+				return;
+			}
+		}
         using (new FMDB())
         {
             StaticConfiguration dbitem = FMDB.Context.StaticConfigurations.Find(which);

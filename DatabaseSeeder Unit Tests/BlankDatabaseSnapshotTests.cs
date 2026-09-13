@@ -5,6 +5,7 @@ using MudSharp.Database;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MudSharp_Unit_Tests;
 
@@ -56,12 +57,48 @@ public class BlankDatabaseSnapshotTests
 			         "__EFMigrationsHistory", "Vehicles", "VehicleOccupantSlotProtos",
 			         "VehicleMovementProfileProtos", "VehiclePropulsionProfileProtos",
 			         "CharacterCombatSettings", "TraitDefinitions", "RangedCovers", "LootTables",
-			         "EditableItems", "OutfitTemplateItems", "MagicSpells", "CharacterMagicCapabilityStates", "VancianMagicOperations"
+			         "EditableItems", "OutfitTemplateItems", "MagicSpells", "CharacterMagicCapabilityStates", "VancianMagicOperations",
+			         "CellEnvironmentalStates", "EnvironmentalMagicOperations"
 		         })
 		{
 			Assert.IsFalse(deltas.Contains($"`{table}`", StringComparison.Ordinal),
 				$"Snapshot SQL must use the lowercase table names created by the maintained dump, not `{table}`.");
 		}
+	}
+
+	[TestMethod]
+	public void CommittedBlankSnapshot_ContainsEnvironmentalStateAndDurableOperationKeys()
+	{
+		var snapshotPath = BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory());
+		var snapshot = File.ReadAllText(snapshotPath);
+		var stateTable = ReadTableDeclaration(snapshot, "cellenvironmentalstates");
+		StringAssert.Contains(stateTable, "PRIMARY KEY (`CellId`)");
+		StringAssert.Contains(stateTable, "REFERENCES `cells` (`Id`) ON DELETE CASCADE");
+		foreach (var column in new[]
+		         {
+			         "SchemaVersion", "Revision", "ScarDamage", "LastDefileUtc", "RecentPressure",
+			         "PressureReferenceUtc", "PressureHalfLifeSeconds", "PressureProfileId", "PressureDecayAnchor"
+		         })
+		{
+			StringAssert.Contains(stateTable, $"`{column}`");
+		}
+
+		var operationTable = ReadTableDeclaration(snapshot, "environmentalmagicoperations");
+		StringAssert.Contains(operationTable, "PRIMARY KEY (`Id`)");
+		StringAssert.Contains(operationTable, "`AppliedPressure`");
+		Assert.IsFalse(operationTable.Contains("FOREIGN KEY", StringComparison.Ordinal),
+			"Explicit operation identities must survive deletion of their cells, actors and profiles.");
+		StringAssert.Contains(snapshot, "`EnvironmentalMagicBindingMode`");
+		StringAssert.Contains(snapshot, "`EnvironmentalMagicProfileId`");
+	}
+
+	private static string ReadTableDeclaration(string snapshot, string tableName)
+	{
+		var declaration = Regex.Match(snapshot,
+			$@"CREATE TABLE(?: IF NOT EXISTS)? `{Regex.Escape(tableName)}`\s*\(.*?;",
+			RegexOptions.Singleline | RegexOptions.CultureInvariant);
+		Assert.IsTrue(declaration.Success, $"Snapshot does not create `{tableName}`.");
+		return declaration.Value;
 	}
 
     [TestMethod]

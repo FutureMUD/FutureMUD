@@ -15,5 +15,9 @@ namespace ExpressionEngine
         bool HasErrors();
         string Error { get; }
         System.Collections.Generic.IEnumerable<string> ParameterNames { get; }
+		System.Collections.Generic.IEnumerable<string> FunctionNames { get; }
+		/// <summary>Evaluates a finite numeric result without substituting zero or logging on failure.</summary>
+		bool TryEvaluateDoubleWith(System.Collections.Generic.IReadOnlyDictionary<string, object> values,
+			out double result, out string error);
     }
 }

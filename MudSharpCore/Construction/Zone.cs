@@ -2,6 +2,7 @@
 using MudSharp.Climate;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
+using MudSharp.Framework.Revision;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.Models;
@@ -477,6 +478,11 @@ public class Zone : Location, IEditableZone
     {
         get
         {
+            if (_foragableProfileId == 0 && _foragableProfile is { Status: not RevisionStatus.Current })
+            {
+                _foragableProfileId = _foragableProfile.Id;
+            }
+
             if (_foragableProfileId != 0)
             {
                 var profile = Gameworld.ForagableProfiles.Get(_foragableProfileId);
@@ -493,9 +499,17 @@ public class Zone : Location, IEditableZone
         }
         set
         {
+            if (_foragableProfileId != 0
+                    ? _foragableProfileId == value?.Id && (_foragableProfile is null || ReferenceEquals(_foragableProfile, value))
+                    : ReferenceEquals(_foragableProfile, value))
+            {
+                return;
+            }
+
             _foragableProfile = value;
             _foragableProfileId = 0;
             Changed = true;
+            Gameworld.EnvironmentalMagic?.SourceDefinitionChanged();
         }
     }
 

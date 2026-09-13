@@ -256,6 +256,8 @@ This makes the current resource system more flexible than a fixed mana pool:
 - starting amounts and caps are data-driven through progs
 - the same resource can appear on a character, item, or location
 
+For a cell/resource pair explicitly managed by an environmental profile, `ResourceCap(cell)` uses that profile's maximum in place of the ordinary simple-resource cap prog. Direct mutations, FutureProg resource changes and central production use the same maximum. Pure inspection never produces resource or saves the cell; valid lower caps reconcile downward at managed mutation/configuration/advance boundaries. Invalid calculations preserve saved balances and refuse earning/spending. Unbound pairs and character/item holders retain their existing rules.
+
 ### Builder Workflow
 The builder entry point is `magic resource`.
 
@@ -339,15 +341,15 @@ The current builder/runtime type token list is:
 ## Regenerators
 ### Agent Quick Map
 - Runtime base: `MudSharpCore/Magic/Generators/BaseMagicResourceGenerator.cs`
-- Current implemented types: `LinearTimeBasedGenerator`, `StateGenerator`
+- Current implemented types: `LinearTimeBasedGenerator`, `StateGenerator`, `EnvironmentalMagicGenerator`
 - Contract: `FutureMUDLibrary/Magic/IMagicResourceRegenerator.cs`
 - Builder surface: `magic regenerator`
 - Persistence: `MudsharpDatabaseLibrary/Models/MagicGenerator.cs`
 
 ### Runtime Behavior
-Regenerators produce resources over time for any `IHaveMagicResource`.
+Linear and state regenerators produce resources over time for supported `IHaveMagicResource` holders. Environmental generators are reusable physical-cell profiles managed by one coordinator per gameworld; they never register per-cell minute delegates or grant character/item regeneration.
 
-The runtime shape is:
+The existing linear/state runtime shape is:
 
 - a capability grants one or more regenerators
 - the holder registers each generator with the heartbeat manager
@@ -358,6 +360,7 @@ The current implemented generator types are:
 
 - `linear`
 - `state`
+- `environmental`
 
 `linear` behavior:
 
@@ -370,6 +373,14 @@ The current implemented generator types are:
 - each state maps to one or more `(resource, amount)` outputs
 - can either stop after the first matching state or evaluate all matching states
 
+`environmental` behavior:
+
+- one effective profile per physical cell, from an explicit override or terrain default, with an explicit disabled mode
+- one or more distinct resource outputs with maximum/rate expressions and explicitly scaled input bindings
+- pure forage/agriculture/location-prog inputs, and one persistent cell scar/recent-pressure state
+- centrally bounded production, source invalidation, dormant registration and staggered reconciliation
+- no resource catch-up for shutdown time, no per-output maintenance duplication, and no refill on reattachment
+
 This makes the generator layer the main bridge between:
 
 - resource design
@@ -381,12 +392,13 @@ The builder entry point is `magic regenerator`.
 
 Current creation syntax:
 
-- `magic regenerator edit new <type> <name> <resource>`
+- `magic regenerator edit new <type> <resource> <name>`
 
 Current implemented types:
 
 - `linear`
 - `state`
+- `environmental`
 
 Useful editing commands for all generators include:
 
@@ -403,12 +415,14 @@ Useful subtype commands:
   - `magic regenerator set state swap <index1> <index2>`
   - `magic regenerator set state <index> <resource> <amount>`
   - `magic regenerator set all`
+- for `environmental`, use the output/input/half-life/repair/idle editor and the `magic environment` binding and inspection surface in the [Environmental Magic Builder Guide](Environmental_Magic_Builder_Guide.md).
 
 Practical builder guidance:
 
 - use `linear` when the recharge rule is unconditional and simple
 - use `state` when recharge depends on holder state, environment, posture, tags, or any other condition you can express in a boolean prog
 - make sure the capability that should grant a regenerator actually toggles that regenerator on
+- bind environmental profiles to physical cells or terrain defaults rather than character capabilities; the coordinator owns their runtime work
 
 ### Seeder and Data Author Workflow
 There is no dedicated magic regenerator seeder in `DatabaseSeeder`.
@@ -432,7 +446,7 @@ Generators use explicit switch-based dispatch in `BaseMagicResourceGenerator`.
 To add a new regenerator type:
 
 1. create a new concrete class under `MudSharpCore/Magic/Generators`
-2. implement `InternalGetOnMinuteDelegate`
+2. implement `InternalGetOnMinuteDelegate` for ordinary holder-timed types; centrally coordinated environmental profiles explicitly refuse that delegate route
 3. implement subtype builder commands, show output, clone support, and XML save/load
 4. add a new case in `LoadFromDatabase`
 5. add a new case in `LoadFromBuilderInput`
@@ -442,6 +456,7 @@ The current builder/runtime type token list is:
 
 - `linear`
 - `state`
+- `environmental`
 
 ## Integration Rules To Keep In Mind
 - A character's capabilities come from merits plus active effects, not from a dedicated stored capability list.
@@ -455,7 +470,7 @@ The current builder/runtime type token list is:
 - School model: first-class record, no subtype registry
 - Capability types: `skilllevel`, `vancian`
 - Resource types: `simple`
-- Regenerator types: `linear`, `state`
+- Regenerator types: `linear`, `state`, `environmental`
 
 For the full inventory, see [Magic System: Implemented Types](./Magic_System_Implemented_Types.md).
 

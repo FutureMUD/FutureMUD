@@ -269,6 +269,7 @@ terrain set hide <difficulty>
 terrain set spot <difficulty>
 terrain set forage none
 terrain set forage <profile>
+terrain set environment <environmental regenerator|none>
 terrain set weather none
 terrain set weather <weather controller>
 terrain set cover <cover>
@@ -332,6 +333,10 @@ cell set safequit
 ```
 
 An explicit `cell set forage <profile>` override is stored on the Cell and takes precedence over Zone and Terrain forage defaults. On startup, Cells, Zones, and Terrains retain their configured profile identity until forage profiles have loaded, then Cells restore compatible persisted yield pools without resetting partly depleted values. Persisted pools are constrained to the active profile's valid yield types and maximums. Fractional hourly recovery remains stored across restarts; discrete item and commodity finds require one complete yield point and consume it atomically. Direct edible and grazing yields may still consume fractional amounts. `cell set forage clear` removes the override and returns the Cell to normal Zone/Terrain inheritance.
+
+Environmental magic resources use a separate explicit binding. Create an `environmental` regenerator with `magic regenerator edit new environmental <resource> <name>`, then set `terrain set environment <profile>` or `magic environment terrain <terrain> <profile>`. Use `magic environment cell <here|cell id> <profile|inherit|disabled>` for the physical cell's override. `disabled` suppresses the terrain default; `inherit` restores it. Balances and persistent scar damage survive overlay/profile changes and restart. A new output starts empty, and a higher cap never refills discarded energy.
+
+`magic environment show [here|cell id]` purely inspects inputs, resources and damage. Staff damage/repair, FutureProg helpers, explicit input scaling and disposable examples are documented in the [Environmental Magic Builder Guide](../Magic/Environmental_Magic_Builder_Guide.md). Environmental reads do not consume forage or agriculture yields.
 
 Outdoors type:
 

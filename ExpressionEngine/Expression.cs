@@ -4,6 +4,7 @@ using NCalc.Extensions;
 using NCalc.Handlers;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
@@ -48,7 +49,13 @@ namespace ExpressionEngine
         private readonly NCalc.Expression _parsedExpression;
         private readonly ExpressionOptions _options;
         private readonly IReadOnlyList<string> _parameterNames;
+		private readonly IReadOnlyList<string> _functionNames;
         private readonly bool _hasErrors;
+		private static readonly HashSet<string> SupportedFunctions = new(
+			NCalc.Helpers.BuiltInFunctionHelper.GetBuiltInFunctionNames().Concat(new[] { "rand", "drand", "dice", "not" }),
+			StringComparer.OrdinalIgnoreCase);
+
+		public static bool IsSupportedFunction(string name) => SupportedFunctions.Contains(name);
 
         public string OriginalExpression { get; private set; }
 
@@ -140,6 +147,71 @@ namespace ExpressionEngine
         public string Error => _parsedExpression.Error?.Message ?? string.Empty;
 
         public IEnumerable<string> ParameterNames => _parameterNames;
+		public IEnumerable<string> FunctionNames => _functionNames;
+
+		/// <summary>
+		/// Opt-in strict evaluation for accounting boundaries. Existing Evaluate methods retain their
+		/// logging and zero-substitution contract; this path returns a diagnostic to its owning caller.
+		/// Every referenced parameter must be supplied, and null/non-finite results are invalid.
+		/// </summary>
+		public bool TryEvaluateDoubleWith(IReadOnlyDictionary<string, object> values, out double result,
+			out string error)
+		{
+			ArgumentNullException.ThrowIfNull(values);
+			result = 0.0;
+			error = string.Empty;
+			if (_hasErrors)
+			{
+				error = Error;
+				return false;
+			}
+
+			foreach (var parameter in _parameterNames)
+			{
+				if (!values.ContainsKey(parameter))
+				{
+					error = $"Parameter {parameter} was not supplied.";
+					return false;
+				}
+			}
+
+			foreach (var function in _functionNames)
+			{
+				if (!IsSupportedFunction(function))
+				{
+					error = $"Unknown function {function}.";
+					return false;
+				}
+			}
+
+			try
+			{
+				var raw = CreateEvaluationExpression(values.Select(x => (x.Key, x.Value))).Evaluate();
+				if (raw is null)
+				{
+					error = "The expression returned null instead of a number.";
+					return false;
+				}
+
+				var value = Convert.ToDouble(raw, CultureInfo.InvariantCulture);
+				if (!double.IsFinite(value))
+				{
+					error = "The expression returned a non-finite number.";
+					return false;
+				}
+
+				result = value;
+				return true;
+			}
+			catch (Exception exception) when (exception is NCalcFunctionNotFoundException or
+				NCalcParameterNotDefinedException or NCalcParserException or NCalcEvaluationException or
+				ArgumentException or ArithmeticException or InvalidOperationException or FormatException or
+				InvalidCastException)
+			{
+				error = exception.Message;
+				return false;
+			}
+		}
 
         #region Constructors
         public Expression(string expression) : this(expression, ExpressionOptions.CaseInsensitiveStringComparer | ExpressionOptions.IgnoreCaseAtBuiltInFunctions | ExpressionOptions.AllowBooleanCalculation)
@@ -159,6 +231,9 @@ namespace ExpressionEngine
             _parameterNames = _hasErrors
                 ? Array.Empty<string>()
                 : _parsedExpression.GetParameterNames();
+			_functionNames = _hasErrors
+				? Array.Empty<string>()
+				: _parsedExpression.GetFunctionNames();
         }
         #endregion
 

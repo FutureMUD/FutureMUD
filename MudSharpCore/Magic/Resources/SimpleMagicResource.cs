@@ -125,6 +125,9 @@ public class SimpleMagicResource : BaseMagicResource
 
     public override double ResourceCap(IHaveMagicResource thing)
     {
+		if (thing is MudSharp.Construction.ICell cell &&
+			Gameworld.EnvironmentalMagic?.TryInspectResource(cell, this, out var output) == true)
+			return output.IsValid ? output.Maximum : double.NaN;
         return ResourceCapProg?.ExecuteDouble(0.0, thing) ?? 0.0;
     }
 

@@ -31,6 +31,8 @@ public abstract class BaseMagicResourceGenerator : SaveableItem, IMagicResourceR
                 return new LinearTimeBasedGenerator(generator, gameworld);
             case "state":
                 return new StateGenerator(generator, gameworld);
+			case "environmental":
+				return new EnvironmentalMagicGenerator(generator, gameworld);
         }
 
         throw new ApplicationException("Invalid MagicGenerator type: " + generator.Type);
@@ -43,9 +45,10 @@ public abstract class BaseMagicResourceGenerator : SaveableItem, IMagicResourceR
         {
             case "linear":
             case "state":
+			case "environmental":
                 break;
             default:
-                actor.OutputHandler.Send("The valid types are #3linear#0 and #3state#0.".SubstituteANSIColour());
+                actor.OutputHandler.Send("The valid types are #3linear#0, #3state#0 and #3environmental#0.".SubstituteANSIColour());
                 return null;
         }
 
@@ -81,6 +84,13 @@ public abstract class BaseMagicResourceGenerator : SaveableItem, IMagicResourceR
                 return new LinearTimeBasedGenerator(actor.Gameworld, name, resource);
             case "state":
                 return new StateGenerator(actor.Gameworld, name, resource);
+			case "environmental":
+				if (!resource.ResourceType.HasFlag(MagicResourceType.LocationResource))
+				{
+					actor.OutputHandler.Send("An environmental output requires a resource that supports locations.");
+					return null;
+				}
+				return new EnvironmentalMagicGenerator(actor.Gameworld, name, resource);
         }
 
         return null;
@@ -98,6 +108,7 @@ public abstract class BaseMagicResourceGenerator : SaveableItem, IMagicResourceR
 
     public HeartbeatManagerDelegate GetOnMinuteDelegate(IHaveMagicResource thing)
     {
+		ValidateMinuteDelegateHolder(thing);
         if (!_delegates.ContainsKey(thing))
         {
             _delegates[thing] = InternalGetOnMinuteDelegate(thing);
@@ -107,6 +118,11 @@ public abstract class BaseMagicResourceGenerator : SaveableItem, IMagicResourceR
     }
 
     protected abstract HeartbeatManagerDelegate InternalGetOnMinuteDelegate(IHaveMagicResource thing);
+
+	/// <summary>Reject centrally managed or unsupported holders before adding a per-holder cache entry.</summary>
+	protected virtual void ValidateMinuteDelegateHolder(IHaveMagicResource thing)
+	{
+	}
 
     public abstract IEnumerable<IMagicResource> GeneratedResources { get; }
 
@@ -157,10 +173,20 @@ public abstract class BaseMagicResourceGenerator : SaveableItem, IMagicResourceR
         }
 
         actor.OutputHandler.Send($"You rename this regenerator from {Name.ColourName()} to {name.ColourName()}.");
+		BeforeDefinitionChange();
         _name = name;
-        Changed = true;
+		DefinitionChanged();
         return true;
     }
+
+	protected virtual void BeforeDefinitionChange()
+	{
+	}
+
+	protected virtual void DefinitionChanged()
+	{
+		Changed = true;
+	}
 
     public abstract string Show(ICharacter actor);
 

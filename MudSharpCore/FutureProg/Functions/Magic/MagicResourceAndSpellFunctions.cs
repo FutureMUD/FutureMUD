@@ -185,6 +185,20 @@ internal class MagicResourceMutationFunction : MagicBuiltInFunctionBase
 		}
 
 		var amount = Convert.ToDouble(ParameterFunctions[2].Result?.GetObject ?? 0.0M);
+		if (haver is MudSharp.Construction.ICell cell &&
+			Gameworld.EnvironmentalMagic?.TryMutateResource(cell, resource!,
+				_mode == MutationMode.Set ? MudSharp.Magic.Environment.EnvironmentalResourceMutation.Set :
+				MudSharp.Magic.Environment.EnvironmentalResourceMutation.Add,
+				_mode == MutationMode.Subtract ? -amount : amount, out var success) == true)
+		{
+			if (!success)
+			{
+				ErrorMessage = "The environmental resource mutation failed validation; no requested debit or credit was applied.";
+				return StatementResult.Error;
+			}
+			Result = new NumberVariable(haver.MagicResourceAmounts.TryGetValue(resource!, out var managed) ? managed : 0.0);
+			return StatementResult.Normal;
+		}
 		var current = haver.MagicResourceAmounts.TryGetValue(resource!, out var value) ? value : 0.0;
 		var delta = _mode switch
 		{

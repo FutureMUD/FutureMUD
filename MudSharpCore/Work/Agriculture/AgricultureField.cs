@@ -9,6 +9,7 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.Magic.Environment;
 using MudSharp.NPC;
 
 namespace MudSharp.Work.Agriculture;
@@ -32,11 +33,16 @@ public class AgricultureField : SaveableItem, IAgricultureField
 	private int _woodlandHealth;
 	private int _woodlandYieldPotential;
 	private AgricultureFieldApiary _apiary;
+	private int _pasture;
+	private int _condition;
+	private int _environmentalInputChangeDepth;
+	private bool _environmentalInputNotificationsEnabled;
 
 	public AgricultureField(Models.AgricultureField field, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
 		LoadFromDb(field);
+		_environmentalInputNotificationsEnabled = true;
 	}
 
 	public AgricultureField(ICell cell, IAgricultureFieldProfile profile)
@@ -76,6 +82,8 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			FMDB.Context.SaveChanges();
 			_id = dbitem.Id;
 		}
+
+		_environmentalInputNotificationsEnabled = true;
 	}
 
 	public override string FrameworkItemType => "AgricultureField";
@@ -94,9 +102,15 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		}
 		set
 		{
+			var changed = _profileId != (value?.Id ?? 0) ||
+			              _profile != null && !ReferenceEquals(_profile, value);
 			_profile = value;
 			_profileId = value?.Id ?? 0;
 			Changed = true;
+			if (changed)
+			{
+				NotifyEnvironmentalInputsChanged();
+			}
 		}
 	}
 
@@ -151,8 +165,72 @@ public class AgricultureField : SaveableItem, IAgricultureField
 	public int Weeds { get; set; }
 	public int Pests { get; set; }
 	public int Fence { get; set; }
-	public int Pasture { get; set; }
-	public int Condition { get; set; }
+	public int Pasture
+	{
+		get => _pasture;
+		set
+		{
+			if (_pasture == value)
+			{
+				return;
+			}
+
+			_pasture = value;
+			NotifyEnvironmentalInputsChanged();
+		}
+	}
+
+	public int Condition
+	{
+		get => _condition;
+		set
+		{
+			if (_condition == value)
+			{
+				return;
+			}
+
+			_condition = value;
+			NotifyEnvironmentalInputsChanged();
+		}
+	}
+
+	private void NotifyEnvironmentalInputsChanged()
+	{
+		if (_environmentalInputNotificationsEnabled && _environmentalInputChangeDepth == 0)
+		{
+			Gameworld.EnvironmentalMagic?.MarkDirty(Cell, EnvironmentalMagicDirtyReason.Agriculture);
+		}
+	}
+
+	private EnvironmentalInputChange BeginEnvironmentalInputChange()
+	{
+		_environmentalInputChangeDepth++;
+		return new EnvironmentalInputChange(this);
+	}
+
+	private EnvironmentalInputs CaptureEnvironmentalInputs()
+	{
+		return new EnvironmentalInputs(_profileId, CurrentUse, _cropDefinitionId, _cropHealth,
+			_cropYieldPotential, _woodlandDefinitionId, _woodlandHealth, _woodlandYieldPotential, Pasture, Condition);
+	}
+
+	private readonly record struct EnvironmentalInputs(long ProfileId, AgricultureFieldUse Use, long CropId,
+		int CropHealth, int CropYield, long WoodlandId, int WoodlandHealth, int WoodlandYield, int Pasture, int Condition);
+
+	private readonly struct EnvironmentalInputChange(AgricultureField field) : IDisposable
+	{
+		private readonly EnvironmentalInputs _before = field.CaptureEnvironmentalInputs();
+
+		public void Dispose()
+		{
+			field._environmentalInputChangeDepth--;
+			if (_before != field.CaptureEnvironmentalInputs())
+			{
+				field.NotifyEnvironmentalInputsChanged();
+			}
+		}
+	}
 
 	private void LoadFromDb(Models.AgricultureField field)
 	{
@@ -350,6 +428,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 	public void DailyTick()
 	{
+		using var environmentalChange = BeginEnvironmentalInputChange();
 		var weather = Cell.CurrentWeather(null);
 		switch (weather?.Precipitation ?? PrecipitationLevel.Dry)
 		{
@@ -702,6 +781,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			return false;
 		}
 
+		using var environmentalChange = BeginEnvironmentalInputChange();
 		outcome ??= AgricultureWorkOutcome.Neutral;
 		foreach (var delta in operation.ScoreDeltas)
 		{
@@ -1088,6 +1168,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 		_cropYieldPotential = (_cropYieldPotential - amount).ClampScore();
 		Changed = true;
+		NotifyEnvironmentalInputsChanged();
 		reason = string.Empty;
 		return true;
 	}
@@ -1115,6 +1196,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 		_woodlandYieldPotential = (_woodlandYieldPotential - amount).ClampScore();
 		Changed = true;
+		NotifyEnvironmentalInputsChanged();
 		reason = string.Empty;
 		return true;
 	}

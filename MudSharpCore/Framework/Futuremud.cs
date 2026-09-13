@@ -141,6 +141,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         ArenaCommandService = new ArenaCommandService(this);
         SaveManager = new SaveManager();
         HeartbeatManager = new HeartbeatManager(this);
+		EnvironmentalMagic = new MudSharp.Magic.Environment.EnvironmentalMagicCoordinator(this);
         ProximityEventService = new ProximityEventService();
         EconomyAnalytics = new EconomyAnalyticsService(this);
         ComputerHelpService = new ComputerHelpService();
@@ -1112,11 +1113,13 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Add(IMagicResource resource)
     {
         _magicResources.Add(resource);
+        EnvironmentalMagic?.SourceDefinitionChanged();
     }
 
     public void Add(IMagicResourceRegenerator regenerator)
     {
         _magicResourceRegenerators.Add(regenerator);
+        EnvironmentalMagic?.SourceDefinitionChanged();
     }
 
     public void Add(IChargenAdvice advice)
@@ -1257,6 +1260,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Add(IForagableProfile foragableProfile)
     {
         _foragableProfiles.Add(foragableProfile);
+        EnvironmentalMagic?.SourceDefinitionChanged();
     }
 
     public void Add(ITrapTemplate trapTemplate)
@@ -1337,6 +1341,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Add(ICell cell)
     {
         _cells.Add(cell);
+		EnvironmentalMagic?.Register(cell);
     }
 
     public void Add(IRoom room)
@@ -1530,6 +1535,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Add(IFutureProg prog)
     {
         _futureProgs.Add(prog);
+        EnvironmentalMagic?.SourceDefinitionChanged();
     }
 
     public void Add(IClan clan)
@@ -1617,6 +1623,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Add(IAgricultureField field)
     {
         _agricultureFields.Add(field);
+		EnvironmentalMagic?.FieldChanged(field);
     }
 
     public void Add(IAgricultureFieldProfile profile)
@@ -1948,6 +1955,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Destroy(IAgricultureField field)
     {
         _agricultureFields.Remove(field);
+		EnvironmentalMagic?.FieldChanged(field, removed: true);
     }
 
     public void Destroy(IAgricultureFieldProfile profile)
@@ -2317,6 +2325,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Destroy(IForagableProfile foragableProfile)
     {
         _foragableProfiles.Remove(foragableProfile);
+        EnvironmentalMagic?.SourceDefinitionChanged();
     }
 
     public void Destroy(ITrapTemplate trapTemplate)
@@ -2530,6 +2539,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public void Destroy(ICell cell)
     {
+		EnvironmentalMagic?.Unregister(cell);
         cell.Room.Destroy(cell);
         _cells.Remove(cell);
         DestroyListeners(cell);
@@ -2633,6 +2643,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Destroy(IFutureProg prog)
     {
         _futureProgs.Remove(prog);
+        EnvironmentalMagic?.SourceDefinitionChanged();
     }
 
     public void Destroy(IClan clan)
@@ -2788,6 +2799,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     private void Dispose(bool disposed)
     {
+		EnvironmentalMagic?.Dispose();
         _allgames.Remove(this);
 		ExpressionEngine.Expression.ExpressionError -= Expression_ExpressionError;
 		// A constructor failure can still run the finalizer before field initialisers have completed.

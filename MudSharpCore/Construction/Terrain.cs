@@ -2,6 +2,7 @@
 using MudSharp.Combat;
 using MudSharp.Database;
 using MudSharp.Form.Material;
+using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Health;
@@ -13,7 +14,7 @@ using System.Text.RegularExpressions;
 
 namespace MudSharp.Construction;
 
-public class Terrain : SaveableItem, ITerrain
+public partial class Terrain : SaveableItem, ITerrain
 {
     private readonly List<IRangedCover> _terrainCovers = new();
     private IForagableProfile _foragableProfile;
@@ -40,6 +41,7 @@ public class Terrain : SaveableItem, ITerrain
         StaminaCost = terrain.StaminaCost;
         _foragableProfileId = terrain.ForagableProfileId;
         _defaultAgricultureFieldProfileId = terrain.DefaultAgricultureFieldProfileId ?? 0;
+		EnvironmentalMagicProfileId = terrain.EnvironmentalMagicProfileId;
         InfectionMultiplier = terrain.InfectionMultiplier;
         InfectionVirulence = (Difficulty)terrain.InfectionVirulence;
         PrimaryInfection = (InfectionType)terrain.InfectionType;
@@ -473,6 +475,7 @@ public class Terrain : SaveableItem, ITerrain
             dbitem.WeatherControllerId = rhs.OverrideWeatherController?.Id;
             dbitem.ForagableProfileId = rhs.ForagableProfile?.Id ?? 0;
             dbitem.DefaultAgricultureFieldProfileId = rhs.DefaultAgricultureFieldProfile?.Id;
+			dbitem.EnvironmentalMagicProfileId = rhs.EnvironmentalMagicProfileId;
             dbitem.TerrainBehaviourMode = rhsItem.TerrainBehaviourMode;
             dbitem.TerrainEditorColour = rhsItem.TerrainEditorColour;
             dbitem.DefaultCellOutdoorsType = rhsItem.DefaultCellOutdoorsType;
@@ -511,6 +514,7 @@ public class Terrain : SaveableItem, ITerrain
         dbitem.WeatherControllerId = _overrideWeatherControllerId;
         dbitem.ForagableProfileId = ForagableProfile?.Id ?? 0;
         dbitem.DefaultAgricultureFieldProfileId = DefaultAgricultureFieldProfile?.Id;
+		dbitem.EnvironmentalMagicProfileId = EnvironmentalMagicProfileId;
         dbitem.TerrainBehaviourMode = TerrainBehaviourString;
         dbitem.TerrainANSIColour = TerrainANSIColour;
         dbitem.DefaultCellOutdoorsType = (int)DefaultCellOutdoorsType;
@@ -546,6 +550,11 @@ public class Terrain : SaveableItem, ITerrain
     {
         get
         {
+            if (_foragableProfileId == 0 && _foragableProfile is { Status: not RevisionStatus.Current })
+            {
+                _foragableProfileId = _foragableProfile.Id;
+            }
+
             if (_foragableProfileId != 0)
             {
                 var profile = Gameworld.ForagableProfiles.Get(_foragableProfileId);
@@ -786,6 +795,7 @@ public class Terrain : SaveableItem, ITerrain
             $"Weather: {OverrideWeatherController?.Name.Colour(Telnet.BoldCyan) ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine($"Foragable Profile: {ForagableProfile?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine($"Default Agriculture Profile: {DefaultAgricultureFieldProfile?.Name.ColourName() ?? "None".Colour(Telnet.Red)}");
+		sb.AppendLine($"Default Environmental Profile: {DescribeEnvironmentalProfile(actor)}");
         sb.AppendLine(
             $"Infection: {PrimaryInfection.Describe().Colour(Telnet.Magenta)} @ {InfectionVirulence.Describe().ColourValue()} {InfectionMultiplier.ToString("P2", actor).ColourValue()} Intensity");
         sb.AppendLine($"Model: {TerrainBehaviourString.ColourCommand()}");
@@ -856,6 +866,8 @@ public class Terrain : SaveableItem, ITerrain
                 return BuildingCommandSpot(actor, command);
             case "forage":
                 return BuildingCommandForage(actor, command);
+			case "environment":
+				return BuildingCommandEnvironment(actor, command);
             case "agriculture":
             case "agricultural":
             case "farm":
@@ -915,6 +927,7 @@ public class Terrain : SaveableItem, ITerrain
 	#3spot <difficulty>#0 - sets the minimum spot difficulty
 	#3forage none#0 - removes the forage profile from this terrain
 	#3forage <profile>#0 - sets the foragable profile
+	#3environment <profile|none>#0 - sets or removes the default environmental magic profile
 	#3agriculture none#0 - removes the default agriculture field profile
 	#3agriculture <profile>#0 - sets the profile used by FIELD CREATE defaults
 	#3weather none#0 - removes a weather controller
@@ -1439,9 +1452,14 @@ The following additional models require you to specify a liquid to go with them:
             command.SafeRemainingArgument.EqualTo("clear") ||
             command.SafeRemainingArgument.EqualTo("remove"))
         {
+            var changed = _foragableProfile is not null || _foragableProfileId != 0;
             _foragableProfile = null;
             _foragableProfileId = 0;
-            Changed = true;
+            if (changed)
+            {
+                Changed = true;
+                Gameworld.EnvironmentalMagic?.SourceDefinitionChanged();
+            }
             actor.OutputHandler.Send($"The {Name.Colour(Telnet.Cyan)} terrain no longer has any foragable profile.");
             return true;
         }
@@ -1460,9 +1478,14 @@ The following additional models require you to specify a liquid to go with them:
             return false;
         }
 
-        _foragableProfile = profile;
-        _foragableProfileId = profile.Id;
-        Changed = true;
+        if ((_foragableProfileId != 0 ? _foragableProfileId : _foragableProfile?.Id ?? 0) != profile.Id ||
+            _foragableProfile is not null && !ReferenceEquals(_foragableProfile, profile))
+        {
+            _foragableProfile = profile;
+            _foragableProfileId = profile.Id;
+            Changed = true;
+            Gameworld.EnvironmentalMagic?.SourceDefinitionChanged();
+        }
         actor.OutputHandler.Send(
             $"The {Name.Colour(Telnet.Cyan)} terrain now uses the {profile.Name.ColourValue()} foragable profile.");
         return true;

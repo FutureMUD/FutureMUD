@@ -19,6 +19,7 @@ namespace MudSharp.Construction
 {
     public interface ITerrain : IFrameworkItem, ISaveable, IHaveFuturemud, IProgVariable, IHaveTags
     {
+		long? EnvironmentalMagicProfileId => null;
         double MovementRate { get; }
         double StaminaCost { get; }
         double InfectionMultiplier { get; }

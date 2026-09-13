@@ -7,6 +7,8 @@ namespace MudSharp.Work.Foraging
 {
     public interface IForagableProfile : IEditableRevisableItem
     {
+        /// <summary>World-local revision of yield settings edited within the same builder revision.</summary>
+        long YieldDefinitionRevision { get; }
         IReadOnlyDictionary<string, double> MaximumYieldPoints { get; }
         IReadOnlyDictionary<string, double> HourlyYieldPoints { get; }
         IEnumerable<IForagable> Foragables { get; }

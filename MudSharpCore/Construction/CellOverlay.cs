@@ -212,6 +212,11 @@ public class CellOverlay : SaveableItem, IEditableCellOverlay
         {
             _terrain = value;
             _atmosphere = _terrain?.Atmosphere;
+			if (Cell.CurrentOverlay == this)
+			{
+				Cell.SynchroniseForagableProfile();
+				Gameworld.EnvironmentalMagic?.CellTerrainChanged(Cell);
+			}
             Changed = true;
         }
     }

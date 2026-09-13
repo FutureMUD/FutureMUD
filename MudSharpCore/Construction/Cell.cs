@@ -24,6 +24,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.Magic;
+using MudSharp.Magic.Environment;
 using MudSharp.Models;
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
@@ -674,6 +675,8 @@ public partial class Cell : Location, IDisposable, ICell
         }
 
         CurrentOverlay = overlay;
+		SynchroniseForagableProfile();
+		Gameworld.EnvironmentalMagic?.CellTerrainChanged(this);
         Changed = true;
         return true;
     }
@@ -708,6 +711,8 @@ public partial class Cell : Location, IDisposable, ICell
         if (CurrentOverlay == overlay)
         {
             CurrentOverlay = _overlays.FirstOrDefault(x => x.Package.Status == RevisionStatus.Current);
+			SynchroniseForagableProfile();
+			Gameworld.EnvironmentalMagic?.CellTerrainChanged(this);
             Changed = true;
         }
     }
@@ -1159,6 +1164,7 @@ public partial class Cell : Location, IDisposable, ICell
         dbcell.CurrentOverlayId = CurrentOverlay.Id;
         dbcell.RoomId = Room.Id;
         dbcell.ForagableProfileId = ExplicitForagableProfileId;
+		SaveEnvironment(dbcell);
         SaveEffects();
         if (ContentsChanged)
         {
@@ -1313,6 +1319,7 @@ public partial class Cell : Location, IDisposable, ICell
         }
 
         LoadTags(cell);
+		LoadEnvironment(cell);
         ScheduleCachedEffects();
         LoadMagic(cell);
         _noSave = false;
@@ -2125,15 +2132,11 @@ public partial class Cell : Location, IDisposable, ICell
     private IForagableProfile _foragableProfile;
     private long _foragableYieldProfileId;
     private int _foragableYieldProfileRevision;
+    private long _foragableYieldDefinitionRevision;
 
     public IForagableProfile ForagableProfile
     {
-        get
-        {
-            var profile = ResolveForagableProfile();
-            SynchroniseForagableYields(profile);
-            return profile;
-        }
+        get => ResolveForagableProfile();
         set
         {
             _foragableProfile = value;
@@ -2149,6 +2152,11 @@ public partial class Cell : Location, IDisposable, ICell
 
     private IForagableProfile ResolveForagableProfile()
     {
+        if (_foragableProfileId == 0 && _foragableProfile is { Status: not RevisionStatus.Current })
+        {
+            _foragableProfileId = _foragableProfile.Id;
+        }
+
         if (_foragableProfileId != 0)
         {
             var profile = Gameworld.ForagableProfiles.Get(_foragableProfileId);
@@ -2164,6 +2172,28 @@ public partial class Cell : Location, IDisposable, ICell
         return _foragableProfile ?? Room?.Zone?.ForagableProfile ?? CurrentOverlay?.Terrain?.ForagableProfile;
     }
 
+	public bool HasForagableProfile => PeekForagableProfile() != null;
+
+	private IForagableProfile PeekForagableProfile()
+	{
+		if (_foragableProfileId != 0)
+		{
+			return Gameworld.ForagableProfiles.Get(_foragableProfileId);
+		}
+
+		if (_foragableProfile is { Status: not RevisionStatus.Current })
+		{
+			return Gameworld.ForagableProfiles.Get(_foragableProfile.Id);
+		}
+
+		return _foragableProfile ?? Room?.Zone?.ForagableProfile ?? CurrentOverlay?.Terrain?.ForagableProfile;
+	}
+
+	public void SynchroniseForagableProfile()
+	{
+		SynchroniseForagableYields(ResolveForagableProfile());
+	}
+
     private readonly Dictionary<string, double> _foragableYields = new(StringComparer.InvariantCultureIgnoreCase);
     private const double YieldComparisonTolerance = 1.0e-9;
 
@@ -2173,6 +2203,28 @@ public partial class Cell : Location, IDisposable, ICell
         var yield = _foragableYields.GetValueOrDefault(foragableType);
         return double.IsFinite(yield) && yield > 0.0 ? yield : 0.0;
     }
+
+	public bool TryPeekForagableYield(string foragableType, out double yield)
+	{
+		yield = 0.0;
+		if (string.IsNullOrWhiteSpace(foragableType))
+		{
+			return false;
+		}
+
+		var profile = PeekForagableProfile();
+		if (profile == null || !profile.MaximumYieldPoints.TryGetValue(foragableType, out var maximum) ||
+		    !double.IsFinite(maximum) || maximum <= 0.0)
+		{
+			return false;
+		}
+
+		// Project the same clamping/new-key rules as synchronisation without writing its result.
+		yield = _foragableYields.TryGetValue(foragableType, out var existing)
+			? double.IsFinite(existing) ? Math.Clamp(existing, 0.0, maximum) : 0.0
+			: maximum;
+		return true;
+	}
 
     public bool CanConsumeYield(string foragableType, double yield)
     {
@@ -2198,8 +2250,15 @@ public partial class Cell : Location, IDisposable, ICell
                 return false;
             }
 
-            _foragableYields[foragableType] = Math.Max(0.0, available - yield);
+            var current = Math.Max(0.0, available - yield);
+            if (current == available)
+            {
+                return true;
+            }
+
+            _foragableYields[foragableType] = current;
             YieldsChanged = true;
+            Gameworld.EnvironmentalMagic?.MarkDirty(this, EnvironmentalMagicDirtyReason.Forage);
             Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
             Gameworld.HeartbeatManager.HourHeartbeat += YieldTick;
             return true;
@@ -2208,12 +2267,23 @@ public partial class Cell : Location, IDisposable, ICell
 
     public void ConsumeYieldFor(IForagable foragable)
     {
+        SynchroniseForagableProfile();
+        var changed = false;
         foreach (string type in foragable.ForagableTypes.Where(type => _foragableYields.ContainsKey(type)))
         {
-            _foragableYields[type] = Math.Max(0.0, _foragableYields[type] - 1.0);
+            var previous = _foragableYields[type];
+            var current = Math.Max(0.0, previous - 1.0);
+            _foragableYields[type] = current;
+            changed |= current != previous;
+        }
+
+        if (!changed)
+        {
+            return;
         }
 
         YieldsChanged = true;
+        Gameworld.EnvironmentalMagic?.MarkDirty(this, EnvironmentalMagicDirtyReason.Forage);
         Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
         Gameworld.HeartbeatManager.HourHeartbeat += YieldTick;
     }
@@ -2225,8 +2295,16 @@ public partial class Cell : Location, IDisposable, ICell
             return;
         }
 
-        _foragableYields[foragableType] = Math.Max(0.0, GetForagableYield(foragableType) - yield);
+        var previous = GetForagableYield(foragableType);
+        var current = Math.Max(0.0, previous - yield);
+        if (current == previous)
+        {
+            return;
+        }
+
+        _foragableYields[foragableType] = current;
         YieldsChanged = true;
+        Gameworld.EnvironmentalMagic?.MarkDirty(this, EnvironmentalMagicDirtyReason.Forage);
         Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
         Gameworld.HeartbeatManager.HourHeartbeat += YieldTick;
     }
@@ -2257,20 +2335,29 @@ public partial class Cell : Location, IDisposable, ICell
 
     private void YieldTick()
     {
+        SynchroniseForagableProfile();
         if (ForagableProfile == null)
         {
             Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
             return;
         }
 
+        var changed = false;
         foreach (KeyValuePair<string, double> item in _foragableYields.ToList())
         {
-            _foragableYields[item.Key] += GetHourlyYield(item.Key);
-            _foragableYields[item.Key] = Math.Min(_foragableYields[item.Key],
-                GetMaxYield(item.Key));
+            var current = Math.Min(item.Value + GetHourlyYield(item.Key), GetMaxYield(item.Key));
+            if (current != item.Value)
+            {
+                _foragableYields[item.Key] = current;
+                changed = true;
+            }
         }
 
-        YieldsChanged = true;
+        if (changed)
+        {
+            YieldsChanged = true;
+            Gameworld.EnvironmentalMagic?.MarkDirty(this, EnvironmentalMagicDirtyReason.Forage);
+        }
         if (_foragableYields.All(x => GetMaxYield(x.Key) <= x.Value))
         {
             Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
@@ -2306,7 +2393,9 @@ public partial class Cell : Location, IDisposable, ICell
     {
         var profileId = profile?.Id ?? 0;
         var profileRevision = profile?.RevisionNumber ?? 0;
-        if (_foragableYieldProfileId == profileId && _foragableYieldProfileRevision == profileRevision)
+        var definitionRevision = profile?.YieldDefinitionRevision ?? 0;
+        if (_foragableYieldProfileId == profileId && _foragableYieldProfileRevision == profileRevision &&
+            _foragableYieldDefinitionRevision == definitionRevision)
         {
             return;
         }
@@ -2366,9 +2455,15 @@ public partial class Cell : Location, IDisposable, ICell
 
         _foragableYieldProfileId = profileId;
         _foragableYieldProfileRevision = profileRevision;
+        _foragableYieldDefinitionRevision = definitionRevision;
         if (changed && markChanged)
         {
             YieldsChanged = true;
+        }
+
+        if (markChanged)
+        {
+            Gameworld.EnvironmentalMagic?.MarkDirty(this, EnvironmentalMagicDirtyReason.Forage);
         }
     }
 

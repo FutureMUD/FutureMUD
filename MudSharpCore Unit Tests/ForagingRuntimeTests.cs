@@ -17,7 +17,9 @@ using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.Magic.Environment;
 using MudSharp.NPC.AI;
+using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using MudSharp.Work.Foraging;
 using System;
@@ -39,6 +41,345 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ForagingRuntimeTests
 {
+	[TestMethod]
+	public void Cell_PeekUninitialisedYield_ProjectsWithoutSynchronisingOrResolvingPersistentBinding()
+	{
+		var profile = CreateProfileMock(90L, ("food", 10.0));
+		var profiles = new RevisableAll<IForagableProfile>();
+		profiles.Add(profile.Object);
+		var heartbeat = new Mock<IHeartbeatManager>();
+		var saves = new Mock<ISaveManager>();
+		var environment = new Mock<IEnvironmentalMagicService>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
+		gameworld.SetupGet(x => x.SaveManager).Returns(saves.Object);
+		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
+		var cell = CreateForagingCell(gameworld.Object, null, 90L);
+
+		for (var i = 0; i < 10; i++)
+		{
+			Assert.IsTrue(cell.HasForagableProfile);
+			Assert.IsTrue(cell.TryPeekForagableYield("food", out var value));
+			Assert.AreEqual(10.0, value);
+			Assert.IsFalse(cell.TryPeekForagableYield("missing", out _));
+		}
+
+		Assert.AreEqual(0, GetStoredYields(cell).Count);
+		Assert.AreEqual(90L, typeof(Cell).GetField("_foragableProfileId", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.GetValue(cell));
+		Assert.IsFalse(cell.YieldsChanged);
+		heartbeat.VerifyNoOtherCalls();
+		saves.VerifyNoOtherCalls();
+		environment.VerifyNoOtherCalls();
+	}
+
+	[TestMethod]
+	public void Cell_PeekAfterInheritedProfileChange_ProjectsNewKeysAndCapsWithoutChangingPools()
+	{
+		var oldProfile = CreateProfileMock(91L, ("food", 10.0), ("stone", 4.0));
+		var newProfile = CreateProfileMock(92L, ("food", 2.0), ("wood", 8.0));
+		IForagableProfile? effective = oldProfile.Object;
+		var zone = new Mock<IZone>();
+		zone.SetupGet(x => x.ForagableProfile).Returns(() => effective);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Zone).Returns(zone.Object);
+		var heartbeat = new Mock<IHeartbeatManager>();
+		var saves = new Mock<ISaveManager>();
+		var environment = new Mock<IEnvironmentalMagicService>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
+		gameworld.SetupGet(x => x.SaveManager).Returns(saves.Object);
+		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
+		var cell = CreateForagingCell(gameworld.Object, room.Object, null);
+		var model = new DbCell();
+		model.CellsForagableYields.Add(new DbCellsForagableYield { ForagableType = "food", Yield = 7.0 });
+		cell.PostLoadTasks(model);
+		heartbeat.Invocations.Clear();
+		saves.Invocations.Clear();
+		environment.Invocations.Clear();
+
+		effective = newProfile.Object;
+		Assert.AreSame(newProfile.Object, cell.ForagableProfile);
+		for (var i = 0; i < 10; i++)
+		{
+			Assert.IsTrue(cell.TryPeekForagableYield("food", out var food));
+			Assert.AreEqual(2.0, food);
+			Assert.IsTrue(cell.TryPeekForagableYield("wood", out var wood));
+			Assert.AreEqual(8.0, wood);
+			Assert.IsFalse(cell.TryPeekForagableYield("stone", out _));
+		}
+
+		Assert.AreEqual(7.0, GetStoredYields(cell)["food"]);
+		Assert.AreEqual(4.0, GetStoredYields(cell)["stone"]);
+		Assert.IsFalse(GetStoredYields(cell).ContainsKey("wood"));
+		Assert.IsFalse(cell.YieldsChanged);
+		heartbeat.VerifyNoOtherCalls();
+		saves.VerifyNoOtherCalls();
+		environment.VerifyNoOtherCalls();
+
+		cell.SynchroniseForagableProfile();
+		Assert.AreEqual(2.0, GetStoredYields(cell)["food"]);
+		Assert.AreEqual(8.0, GetStoredYields(cell)["wood"]);
+		Assert.IsFalse(GetStoredYields(cell).ContainsKey("stone"));
+		Assert.IsTrue(cell.YieldsChanged);
+		environment.Verify(x => x.MarkDirty(cell, EnvironmentalMagicDirtyReason.Forage), Times.Once);
+	}
+
+	[TestMethod]
+	public void Cell_PeekDepletedAndAbsentProfiles_DistinguishesZeroFromMissingKeyAndSubsystem()
+	{
+		var profile = CreateProfileMock(93L, ("food", 10.0));
+		var profiles = new RevisableAll<IForagableProfile>();
+		profiles.Add(profile.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(Mock.Of<IHeartbeatManager>());
+		var depleted = CreateLoadedCell(gameworld.Object, 93L, "food", 0.0);
+		var absent = CreateForagingCell(gameworld.Object, null, null);
+
+		Assert.IsTrue(depleted.HasForagableProfile);
+		Assert.IsTrue(depleted.TryPeekForagableYield("food", out var value));
+		Assert.AreEqual(0.0, value);
+		Assert.IsFalse(depleted.TryPeekForagableYield("missing", out _));
+		Assert.IsFalse(absent.HasForagableProfile);
+		Assert.IsFalse(absent.TryPeekForagableYield("food", out _));
+		Assert.IsFalse(depleted.YieldsChanged);
+	}
+
+	[DataTestMethod]
+	[DataRow("cell")]
+	[DataRow("zone")]
+	[DataRow("terrain")]
+	public void Cell_PeekAfterActualForageRevisionApproval_UsesCurrentRevisionWithoutSynchronisingPools(string binding)
+	{
+		var gameworld = CreateGameworld();
+		var environment = new Mock<IEnvironmentalMagicService>();
+		var saves = new Mock<ISaveManager>();
+		var heartbeat = new Mock<IHeartbeatManager>();
+		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
+		gameworld.SetupGet(x => x.SaveManager).Returns(saves.Object);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
+		var oldProfile = CreateProfile(gameworld.Object, "food", 1L);
+		var newModel = new DbForagableProfile
+		{
+			Id = oldProfile.Id, RevisionNumber = 1, Name = "Approved Revision", EditableItem = CreateEditableItem()
+		};
+		newModel.EditableItem.RevisionNumber = 1;
+		newModel.EditableItem.RevisionStatus = (int)RevisionStatus.PendingRevision;
+		newModel.ForagableProfilesMaximumYields.Add(new DbForagableProfilesMaximumYields { ForageType = "food", Yield = 3.0 });
+		newModel.ForagableProfilesHourlyYieldGains.Add(new MudSharp.Models.ForagableProfilesHourlyYieldGains
+		{
+			ForageType = "food", Yield = 1.0
+		});
+		var newProfile = new ForagableProfile(newModel, gameworld.Object);
+		var profiles = new RevisableAll<IForagableProfile>();
+		profiles.Add(oldProfile);
+		profiles.Add(newProfile);
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		var zone = TestObjectFactory.CreateUninitialized<Zone>();
+		SetLateInitialisingGameworld(zone, gameworld.Object);
+		var room = new Mock<IRoom>();
+		if (binding == "zone")
+		{
+			zone.ForagableProfile = oldProfile;
+			room.SetupGet(x => x.Zone).Returns(zone);
+		}
+		var cell = CreateForagingCell(gameworld.Object, room.Object, binding == "cell" ? oldProfile.Id : null);
+		if (binding == "terrain")
+		{
+			var terrain = TestObjectFactory.CreateUninitialized<Terrain>();
+			typeof(SaveableItem).GetField("_gameworld", BindingFlags.Instance | BindingFlags.NonPublic)!
+				.SetValue(terrain, gameworld.Object);
+			typeof(Terrain).GetField("_foragableProfile", BindingFlags.Instance | BindingFlags.NonPublic)!
+				.SetValue(terrain, oldProfile);
+			var overlay = new Mock<ICellOverlay>();
+			overlay.SetupGet(x => x.Terrain).Returns(terrain);
+			typeof(Cell).GetProperty(nameof(Cell.CurrentOverlay))!.SetValue(cell, overlay.Object);
+		}
+		var model = new DbCell();
+		model.CellsForagableYields.Add(new DbCellsForagableYield { ForagableType = "food", Yield = 7.0 });
+		cell.PostLoadTasks(model);
+		Assert.AreSame(oldProfile, cell.ForagableProfile);
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
+		new EditableItemReviewProposal<IForagableProfile>(actor.Object, [newProfile]).Accept();
+		Assert.AreEqual(RevisionStatus.Obsolete, oldProfile.Status);
+		Assert.AreEqual(RevisionStatus.Current, newProfile.Status);
+		environment.Invocations.Clear();
+		saves.Invocations.Clear();
+		heartbeat.Invocations.Clear();
+
+		for (var i = 0; i < 3; i++)
+		{
+			Assert.IsTrue(cell.TryPeekForagableYield("food", out var food));
+			Assert.AreEqual(3.0, food);
+		}
+		Assert.AreEqual(7.0, GetStoredYields(cell)["food"]);
+		Assert.IsFalse(cell.YieldsChanged);
+		environment.VerifyNoOtherCalls();
+		saves.VerifyNoOtherCalls();
+		heartbeat.VerifyNoOtherCalls();
+
+		cell.SynchroniseForagableProfile();
+		Assert.AreSame(newProfile, cell.ForagableProfile);
+		Assert.AreEqual(3.0, GetStoredYields(cell)["food"]);
+		Assert.IsTrue(cell.YieldsChanged);
+		environment.Verify(x => x.MarkDirty(cell, EnvironmentalMagicDirtyReason.Forage), Times.Once);
+	}
+
+	[TestMethod]
+	public void Cell_YieldDefinitionEditWithinRevision_PeeksImmediatelyAndSynchronisesAtMutationBoundary()
+	{
+		var gameworld = CreateGameworld();
+		var saves = new Mock<ISaveManager>();
+		var heartbeat = new Mock<IHeartbeatManager>();
+		var environment = new Mock<IEnvironmentalMagicService>();
+		gameworld.SetupGet(x => x.SaveManager).Returns(saves.Object);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
+		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
+		var profile = CreateProfile(gameworld.Object, "food", 1L);
+		var profiles = new RevisableAll<IForagableProfile>();
+		profiles.Add(profile);
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		var cell = CreateLoadedCell(gameworld.Object, profile.Id, "food", 7.0);
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
+
+		Assert.IsTrue(profile.BuildingCommand(actor.Object, new StringStack("yield food 2 0")));
+		Assert.AreEqual(1L, profile.YieldDefinitionRevision);
+		Assert.IsTrue(cell.TryPeekForagableYield("food", out var projected));
+		Assert.AreEqual(2.0, projected);
+		Assert.AreEqual(7.0, GetStoredYields(cell)["food"]);
+		Assert.IsFalse(cell.YieldsChanged);
+		environment.Verify(x => x.SourceDefinitionChanged(), Times.Once);
+		environment.Verify(x => x.MarkDirty(It.IsAny<ICell>(), It.IsAny<EnvironmentalMagicDirtyReason>()), Times.Never);
+
+		cell.SynchroniseForagableProfile();
+		Assert.AreEqual(2.0, GetStoredYields(cell)["food"]);
+		environment.Verify(x => x.MarkDirty(cell, EnvironmentalMagicDirtyReason.Forage), Times.Once);
+		Assert.IsTrue(profile.BuildingCommand(actor.Object, new StringStack("yield food 2 0")));
+		Assert.AreEqual(1L, profile.YieldDefinitionRevision);
+		environment.Verify(x => x.SourceDefinitionChanged(), Times.Once);
+	}
+
+	[TestMethod]
+	public void Cell_YieldConsumptionAndRecovery_NotifyOnlyActualChanges()
+	{
+		var profile = CreateRecoveringProfileMock(94L, "food", 5.0, 1.0);
+		var profiles = new RevisableAll<IForagableProfile>();
+		profiles.Add(profile.Object);
+		var environment = new Mock<IEnvironmentalMagicService>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(Mock.Of<IHeartbeatManager>());
+		gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
+		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
+		var cell = CreateLoadedCell(gameworld.Object, 94L, "food", 5.0);
+
+		Assert.IsTrue(cell.TryConsumeYield("food", 1.0));
+		environment.Verify(x => x.MarkDirty(cell, EnvironmentalMagicDirtyReason.Forage), Times.Once);
+		cell.YieldsChanged = false;
+		cell.ConsumeYield("food", 0.0);
+		Assert.IsFalse(cell.TryConsumeYield("food", 10.0));
+		Assert.IsFalse(cell.YieldsChanged);
+		environment.Verify(x => x.MarkDirty(cell, EnvironmentalMagicDirtyReason.Forage), Times.Once);
+
+		RunYieldTicks(cell, 1);
+		Assert.AreEqual(5.0, GetStoredYields(cell)["food"]);
+		environment.Verify(x => x.MarkDirty(cell, EnvironmentalMagicDirtyReason.Forage), Times.Exactly(2));
+		cell.YieldsChanged = false;
+		RunYieldTicks(cell, 1);
+		Assert.IsFalse(cell.YieldsChanged);
+		environment.Verify(x => x.MarkDirty(cell, EnvironmentalMagicDirtyReason.Forage), Times.Exactly(2));
+	}
+
+	private static Dictionary<string, double> GetStoredYields(Cell cell)
+	{
+		return (Dictionary<string, double>)typeof(Cell)
+			.GetField("_foragableYields", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(cell)!;
+	}
+
+	[TestMethod]
+	public void Zone_ForageDefaultChanges_InvalidateOnceAndSuppressRepeatedAssignments()
+	{
+		var environment = new Mock<IEnvironmentalMagicService>();
+		var saves = new Mock<ISaveManager>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
+		gameworld.SetupGet(x => x.SaveManager).Returns(saves.Object);
+		var zone = TestObjectFactory.CreateUninitialized<Zone>();
+		SetLateInitialisingGameworld(zone, gameworld.Object);
+		var profile = CreateProfileMock(175L, ("food", 10.0));
+
+		zone.ForagableProfile = null;
+		environment.VerifyNoOtherCalls();
+		saves.VerifyNoOtherCalls();
+		zone.ForagableProfile = profile.Object;
+		Assert.AreSame(profile.Object, zone.ForagableProfile);
+		environment.Verify(x => x.SourceDefinitionChanged(), Times.Once);
+		zone.Changed = false;
+		saves.Invocations.Clear();
+		zone.ForagableProfile = profile.Object;
+		Assert.IsFalse(zone.Changed);
+		saves.VerifyNoOtherCalls();
+		environment.Verify(x => x.SourceDefinitionChanged(), Times.Once);
+
+		zone.ForagableProfile = null;
+		Assert.IsNull(zone.ForagableProfile);
+		environment.Verify(x => x.SourceDefinitionChanged(), Times.Exactly(2));
+		zone.Changed = false;
+		zone.ForagableProfile = null;
+		Assert.IsFalse(zone.Changed);
+		environment.Verify(x => x.SourceDefinitionChanged(), Times.Exactly(2));
+		environment.VerifyNoOtherCalls();
+	}
+
+	[TestMethod]
+	public void Terrain_ForageDefaultBuilder_ChangesInvalidateButRepeatedCommandsDoNot()
+	{
+		var environment = new Mock<IEnvironmentalMagicService>();
+		var saves = new Mock<ISaveManager>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
+		gameworld.SetupGet(x => x.SaveManager).Returns(saves.Object);
+		var profiles = new RevisableAll<IForagableProfile>();
+		var profile = CreateProfileMock(176L, ("food", 10.0));
+		profile.SetupGet(x => x.Name).Returns("Orchard");
+		profiles.Add(profile.Object);
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		var terrain = TestObjectFactory.CreateUninitialized<Terrain>();
+		typeof(SaveableItem).GetField("_gameworld", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(terrain, gameworld.Object);
+		typeof(FrameworkItem).GetField("_name", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(terrain, "Test Terrain");
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
+
+		Assert.IsTrue(terrain.BuildingCommand(actor.Object, new StringStack("forage none")));
+		environment.VerifyNoOtherCalls();
+		saves.VerifyNoOtherCalls();
+		Assert.IsTrue(terrain.BuildingCommand(actor.Object, new StringStack("forage Orchard")));
+		Assert.AreSame(profile.Object, terrain.ForagableProfile);
+		environment.Verify(x => x.SourceDefinitionChanged(), Times.Once);
+		terrain.Changed = false;
+		saves.Invocations.Clear();
+		Assert.IsTrue(terrain.BuildingCommand(actor.Object, new StringStack("forage 176")));
+		Assert.IsFalse(terrain.Changed);
+		saves.VerifyNoOtherCalls();
+		environment.Verify(x => x.SourceDefinitionChanged(), Times.Once);
+
+		Assert.IsTrue(terrain.BuildingCommand(actor.Object, new StringStack("forage none")));
+		Assert.IsNull(terrain.ForagableProfile);
+		environment.Verify(x => x.SourceDefinitionChanged(), Times.Exactly(2));
+		terrain.Changed = false;
+		Assert.IsTrue(terrain.BuildingCommand(actor.Object, new StringStack("forage none")));
+		Assert.IsFalse(terrain.Changed);
+		environment.Verify(x => x.SourceDefinitionChanged(), Times.Exactly(2));
+		environment.VerifyNoOtherCalls();
+	}
+
 	[TestMethod]
 	public void Zone_PendingForagableProfile_ResolvesAfterProfilesLoad()
 	{

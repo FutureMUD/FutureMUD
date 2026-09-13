@@ -764,8 +764,8 @@ The core syntax is as follows:
 
 The core syntax is as follows:
 
-	#3magic regenerator list - shows all magic regenerators
-	#3magic regenerator edit new <type> <name> <resource>#0 - creates a new magic regenerator
+	#3magic regenerator list#0 - shows all magic regenerators
+	#3magic regenerator edit new <type> <resource> <name>#0 - creates a linear, state or environmental regenerator
 	#3magic regenerator clone <old> <new>#0 - clones an existing magic regenerator
 	#3magic regenerator edit <which>#0 - begins editing a magic regenerator
 	#3magic regenerator close#0 - closes an editing magic regenerator

@@ -96,6 +96,9 @@ namespace MudSharp.Framework
 
     public interface IFuturemud
     {
+#nullable enable annotations
+		MudSharp.Magic.Environment.IEnvironmentalMagicService? EnvironmentalMagic => null;
+#nullable restore annotations
         void ReleasePrimedGameItems();
         void PrimeGameItems();
         /// <summary>

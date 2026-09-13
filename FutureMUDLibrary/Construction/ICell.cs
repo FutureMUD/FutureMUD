@@ -58,6 +58,8 @@ namespace MudSharp.Construction
         IEnumerable<ICellOverlay> Overlays { get; }
 
         IForagableProfile ForagableProfile { get; set; }
+        /// <summary>Whether an effective forage profile exists, without synchronising its yield pools.</summary>
+        bool HasForagableProfile { get; }
         IAgricultureField AgricultureField { get; }
 
         IFluid Atmosphere { get; }
@@ -100,6 +102,14 @@ namespace MudSharp.Construction
             PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None);
         int LoadItems(IEnumerable<Models.GameItem> items);
         double GetForagableYield(string foragableType);
+        /// <summary>
+        /// Projects the current effective profile's yield without saving, recovering yield, or changing subscriptions.
+        /// Returns false when the profile or configured yield key is unavailable. New keys project their maximum;
+        /// existing depleted keys retain their balance, clamped to the current maximum.
+        /// </summary>
+        bool TryPeekForagableYield(string foragableType, out double yield);
+        /// <summary>Synchronises forage pools at an owning configuration or mutation boundary.</summary>
+        void SynchroniseForagableProfile();
         bool CanConsumeYield(string foragableType, double yield);
         bool TryConsumeYield(string foragableType, double yield);
         void ConsumeYieldFor(IForagable foragable);

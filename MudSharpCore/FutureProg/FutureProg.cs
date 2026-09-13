@@ -182,6 +182,7 @@ public class FutureProg : SaveableItem, IFutureProg
             _staticType = value;
             Changed = true;
 			ResetStaticCache();
+			Gameworld.EnvironmentalMagic?.SourceDefinitionChanged();
         }
     }
 
@@ -211,6 +212,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
     public bool Compile()
     {
+		Gameworld.EnvironmentalMagic?.SourceDefinitionChanged();
 #if DEBUG
 #else
 		try

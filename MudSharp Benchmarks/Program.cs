@@ -6,6 +6,11 @@ namespace MudSharp_Benchmarks
     {
         static void Main(string[] args)
         {
+			if (args.Contains("--environmental-magic"))
+			{
+				EnvironmentalMagicPerformanceHarness.Run(args);
+				return;
+			}
 			BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
         }
     }

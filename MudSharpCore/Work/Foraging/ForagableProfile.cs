@@ -2,6 +2,7 @@
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
+using MudSharp.Magic.Environment;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
 using CultureInfo = System.Globalization.CultureInfo;
@@ -11,6 +12,20 @@ namespace MudSharp.Work.Foraging;
 
 public class ForagableProfile : EditableItem, IForagableProfile
 {
+    public long YieldDefinitionRevision { get; private set; }
+
+    public override bool ChangeStatus(RevisionStatus status, string comment, IAccount reviewer)
+    {
+        var previousStatus = Status;
+        var result = base.ChangeStatus(status, comment, reviewer);
+        if (result && previousStatus != Status)
+        {
+            Gameworld.EnvironmentalMagic?.SourceDefinitionChanged();
+        }
+
+        return result;
+    }
+
     public override bool CanSubmit()
     {
         return MaximumYieldPoints.Any(x => x.Value > 0.0 && HourlyYieldPoints.ContainsKey(x.Key));
@@ -415,8 +430,17 @@ Yield types are the resource pools in a location. Foragables are the item or com
             return false;
         }
 
+        var changed = !_maximumYieldPoints.TryGetValue(forageType, out var previousMaximum) ||
+                      previousMaximum != maximumYield ||
+                      !_hourlyYieldPoints.TryGetValue(forageType, out var previousHourly) ||
+                      previousHourly != hourlyGain;
         _maximumYieldPoints[forageType] = maximumYield;
         _hourlyYieldPoints[forageType] = hourlyGain;
+        if (changed)
+        {
+            YieldDefinitionRevision++;
+            Gameworld.EnvironmentalMagic?.SourceDefinitionChanged();
+        }
         actor.OutputHandler.Send(
             $"You set the maximum yield for the {forageType.ColourName()} forage type to {maximumYield.ToString("N2", actor).ColourValue()} and the hourly yield recovery to {hourlyGain.ToString("N2", actor).ColourValue()}.");
         Changed = true;
@@ -434,6 +458,8 @@ Yield types are the resource pools in a location. Foragables are the item or com
 
         _maximumYieldPoints.Remove(forageType);
         _hourlyYieldPoints.Remove(forageType);
+        YieldDefinitionRevision++;
+        Gameworld.EnvironmentalMagic?.SourceDefinitionChanged();
         Changed = true;
         actor.OutputHandler.Send(
             $"This foragable profile will no longer contain the {forageType.ColourName()} yield type.");

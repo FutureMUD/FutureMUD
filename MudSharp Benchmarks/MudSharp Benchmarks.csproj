@@ -19,4 +19,8 @@
 	<ProjectReference Include="..\MudSharpCore\MudSharpCore.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<Compile Include="..\MudSharpCore Unit Tests\EnvironmentalMagicTestWorld.cs" Link="EnvironmentalMagicTestWorld.cs" />
+	</ItemGroup>
+
 </Project>

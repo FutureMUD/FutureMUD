@@ -55,6 +55,7 @@ The syntax is:
 	#3magic capability#0 - edit who can use magic
 	#3magic resource#0 - edit magic resources
 	#3magic regenerator#0 - edit resource regeneration rules
+	#3magic environment#0 - configure and inspect room environmental resources
 	#3magic power#0 - edit hard-coded powers for a school
 	#3magic spell#0 - edit spell templates
 	#3magic substance#0 - edit potions, oils, and other magical preparations
@@ -313,6 +314,9 @@ The syntax is:
                 return;
             case "regenerator":
                 MagicRegenerator(actor, ss);
+                return;
+            case "environment":
+                MagicEnvironment(actor, ss);
                 return;
             case "power":
                 MagicPower(actor, ss);

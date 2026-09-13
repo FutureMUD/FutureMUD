@@ -10,6 +10,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.Magic.Environment;
 using MudSharp.Work.Agriculture;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Crafts.Inputs;
@@ -28,6 +29,100 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class AgricultureOperationTests
 {
+	[TestMethod]
+	public void Field_NativeEnvironmentalScores_NotifyOnlyActualRelevantChanges()
+	{
+		var gameworld = BuildFieldGameworld(enabled: true);
+		var environment = new Mock<IEnvironmentalMagicService>();
+		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
+		var field = BuildFieldWithCustomScore(gameworld.Object, 50, AgricultureFieldUse.Fallow);
+
+		field.Condition = 50;
+		field.SetScore(AgricultureScoreType.Pasture, 50);
+		field.AdjustScore(AgricultureScoreType.Moisture, 1);
+		environment.VerifyNoOtherCalls();
+
+		field.SetScore(AgricultureScoreType.Pasture, 60);
+		environment.Verify(x => x.MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
+		field.Condition = 0;
+		field.Condition = 0;
+		environment.Verify(x => x.MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture), Times.Exactly(2));
+	}
+
+	[TestMethod]
+	public void Field_DailyTick_CoalescesChangedCropInputsIntoOneNotification()
+	{
+		var gameworld = BuildFieldGameworld(enabled: true);
+		var environment = new Mock<IEnvironmentalMagicService>();
+		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
+		var field = BuildFieldWithCustomScore(gameworld.Object, 50, AgricultureFieldUse.Crop, withCrop: true);
+
+		field.DailyTick();
+
+		Assert.AreEqual(51, field.CropHealth);
+		environment.Verify(x => x.MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
+	}
+
+	[TestMethod]
+	public void Field_Operation_CoalescesNativeScoreChangesAndIgnoresNoOp()
+	{
+		var gameworld = BuildFieldGameworld(enabled: true);
+		var environment = new Mock<IEnvironmentalMagicService>();
+		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
+		var field = BuildFieldWithCustomScore(gameworld.Object, 50, AgricultureFieldUse.Fallow);
+		var change = BuildOperation(AgricultureOperationType.Improve, AgricultureFieldUse.Fallow,
+			AgricultureFieldUse.Fallow, scoreDeltas: [(AgricultureScoreType.Pasture, 3), (AgricultureScoreType.Condition, -2)],
+			gameworldOverride: gameworld.Object);
+		var noChange = BuildOperation(AgricultureOperationType.Improve, AgricultureFieldUse.Fallow,
+			AgricultureFieldUse.Fallow, gameworldOverride: gameworld.Object);
+
+		Assert.IsTrue(field.ApplyOperation(change, null, null!, false, out _));
+		Assert.AreEqual(53, field.Pasture);
+		Assert.AreEqual(48, field.Condition);
+		environment.Verify(x => x.MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
+		Assert.IsTrue(field.ApplyOperation(noChange, null, null!, false, out _));
+		environment.Verify(x => x.MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void Field_ConsumeYield_NotifiesOnlySuccessfulNonZeroDebits(bool woodland)
+	{
+		var gameworld = BuildFieldGameworld(enabled: true);
+		var environment = new Mock<IEnvironmentalMagicService>();
+		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
+		var woodlandDefinition = new Mock<IAgricultureWoodlandDefinition>();
+		woodlandDefinition.SetupGet(x => x.Id).Returns(1L);
+		var woodlands = new All<IAgricultureWoodlandDefinition>();
+		woodlands.Add(woodlandDefinition.Object);
+		gameworld.SetupGet(x => x.AgricultureWoodlandDefinitions).Returns(woodlands);
+		var field = woodland
+			? new AgricultureField(new MudSharp.Models.AgricultureField
+			{
+				Id = 1,
+				CellId = 1,
+				ProfileId = 1,
+				CurrentUse = (int)AgricultureFieldUse.Woodland,
+				Definition = "<Field />",
+				AgricultureFieldWoodland = new MudSharp.Models.AgricultureFieldWoodland
+				{
+					WoodlandDefinitionId = 1,
+					Health = 50,
+					YieldPotential = 50,
+					Definition = "<Woodland />"
+				}
+			}, gameworld.Object)
+			: BuildFieldWithCustomScore(gameworld.Object, 50, AgricultureFieldUse.Crop, withCrop: true);
+
+		Assert.IsTrue(woodland ? field.ConsumeWoodlandYield(0, out _) : field.ConsumeCropYield(0, out _));
+		Assert.IsFalse(woodland ? field.ConsumeWoodlandYield(51, out _) : field.ConsumeCropYield(51, out _));
+		environment.VerifyNoOtherCalls();
+		Assert.IsTrue(woodland ? field.ConsumeWoodlandYield(1, out _) : field.ConsumeCropYield(1, out _));
+		Assert.AreEqual(49, woodland ? field.WoodlandYieldPotential : field.CropYieldPotential);
+		environment.Verify(x => x.MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
+	}
+
 	[TestMethod]
 	public void CustomScoreTypes_DisabledSlotsDoNotAppearAsActiveScores()
 	{

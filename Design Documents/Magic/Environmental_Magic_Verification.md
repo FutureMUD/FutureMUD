@@ -21,6 +21,8 @@ Targeted `MudSharpCore` Debug and Release builds passed with `-m:1`; the final R
 
 No failures or skipped tests were reported. This includes real command registration/permission checks for administrators and ordinary players, actual native forage/agriculture mutations, 30,000-cell heartbeat cases, controlled clock and replay failures, and the new schema/snapshot assertions. The opt-in climate suite is outside this change. Builds used the repository's permitted local `NU1902`/`NU1510` suppression; the broad script disables NuGet vulnerability queries after earlier network lookup warnings. These are compilation/test results, not a dependency-security audit. Final `git diff --check` and document-link/method-mapping checks passed.
 
+The current master update `f30870b6` (independent spell-backed power routing) was incorporated without conflicts before publication. All 3,421 core tests passed again on that integrated tree, and the targeted Release engine build was repeated.
+
 ## MySQL migration and installer
 
 Migration `20260913105616_EnvironmentalMagic` was generated with EF tooling, including its designer and model snapshot. The generated model reports no pending changes. The bundled installer SQL and manifest were refreshed through the production snapshot API, rather than manually reconstructing schema SQL.

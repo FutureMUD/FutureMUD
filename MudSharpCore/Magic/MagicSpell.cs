@@ -1474,13 +1474,11 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
         params SpellAdditionalParameter[] additionalParameters)
     {
 		if (SpellTargetCapture.Intercept(magician, this, target, power, additionalParameters)) return;
-		if (Trigger is ICastMagicTrigger && magician.Capabilities.Any(x => x is IVancianMagicCapability && x.School.Id == School.Id) && !HasLegacyRoute(magician))
+		if (Trigger is ICastMagicTrigger &&
+		    magician.Capabilities.Any(x => x is IVancianMagicCapability && x.School.Id == School.Id) &&
+		    !HasLegacyRoute(magician) &&
+		    SpellPowerInvocation.For(magician, this) is null)
 		{
-			if (SpellPowerInvocation.For(magician, this) is not null)
-			{
-				magician.OutputHandler.Send(VancianMagicService.For(Gameworld).CastFromPower(magician, this, target, power, additionalParameters).Message);
-				return;
-			}
 			magician.OutputHandler.Send($"Use {School.SchoolVerb} vancian <capability> cast <repertoire> <allowance> \"{Name}\" <ordinal|next|atwill> [targets] to select a paid route.");
 			return;
 		}

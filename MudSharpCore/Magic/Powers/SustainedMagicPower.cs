@@ -37,7 +37,12 @@ public abstract class SustainedMagicPower : MagicPowerBase
                 $"There was no DetectableWithDetectMagic in the definition XML for power {Id} ({Name}).");
         }
 
-        DetectableWithDetectMagic = (Difficulty)int.Parse(element.Value);
+        if (!element.Value.TryParseEnum(out Difficulty difficulty))
+		{
+			throw new ApplicationException(
+				$"The DetectableWithDetectMagic in the definition XML for power {Id} ({Name}) was not a valid difficulty.");
+		}
+		DetectableWithDetectMagic = difficulty;
 
         element = root.Element("Duration");
         if (element == null)

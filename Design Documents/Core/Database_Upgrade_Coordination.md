@@ -21,6 +21,8 @@
 
 `ApplyPreparedMigrations` persists `MigrationAttempted = true` before invoking the migration service. A thrown migration therefore leaves an actionable state file. Explicit rollback records the error before restoring; a successful restore archives the state as `rolled-back`, while a restore failure leaves the failure state for the next startup. Successful completion removes the active state file.
 
+The EF migration service applies the complete pending set in one migrate-to-latest operation, with progress reported from EF's migration-applying events. It does not target each pending migration ID in sequence, so a missing historical row cannot make later applied migrations appear to be rollback work.
+
 Disabled backups remain supported. Pending migration state is still written, but no backup path is claimed and automatic restore is not attempted without one.
 
 ## Snapshot and retention behavior

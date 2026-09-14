@@ -1,6 +1,6 @@
 # Environmental magic runtime
 
-Environmental magic is an opt-in physical-cell resource producer. Its reusable definition is the `environmental` magic regenerator. It adds neither a second mana balance nor player gathering. See [the builder guide](Environmental_Magic_Builder_Guide.md) for commands and test configuration.
+Environmental magic is an opt-in physical-cell resource producer. Its reusable definition is the `environmental` magic regenerator. It adds neither a second mana balance nor its own player gathering route. The separate [capability-configured gathering feature](Magic_Gathering.md) can make one exact managed debit through this service; it does not own another coordinator, generator or environmental balance. See [the builder guide](Environmental_Magic_Builder_Guide.md) for commands and test configuration.
 
 ## Ownership and persistence
 
@@ -20,7 +20,7 @@ For a configured output, `SimpleMagicResource.ResourceCap(cell)` replaces that p
 
 `TryMutateResource` handles credits, sets, and exact debits. Normal cell resource operations and registered FutureProg set/add/subtract functions call it. It resolves newly inherited assignments immediately, validates current inputs, projects the prior accepted online segment, validates all outputs, then applies the changes and updates eligibility. A valid lower cap discards excess energy. Larger capacity does not refill it. A zero-delta request enforces a changed lower cap; unchanged full balances do not enqueue saves.
 
-Subsequent gathering can use `TryDebit(cell, resource, amount, out error)`: success requires a managed pair, current valid inputs, and the entire requested recorded amount. Failure makes no partial debit. A future caller must validate its whole source/destination operation before debiting; this is not a transaction across arbitrary world objects. No gathering command or yield consumption is implemented here.
+Capability-configured Gentle gathering uses `TryDebit(cell, resource, amount, out error)`: success requires a managed pair, current valid inputs, and the entire requested recorded amount. Failure makes no partial debit. Its caller validates the whole source/destination operation before debiting; this is not a transaction across arbitrary world objects. The coordinator itself owns no gathering command or yield consumption.
 
 ## Pure input evaluation
 
@@ -62,7 +62,7 @@ Bounded rounding remainders retain sub-precision earned increments while online,
 | Source definitions and FutureProg compilation/cache-mode edits | Reference invalidation and bounded discovery |
 | Unobservable policy dependencies | Rolling audit, shorter idle cadence, or trusted `invalidateenvironment(location)` |
 
-`MarkDirty(cell, reason)` is the subsequent features' narrow wake surface; it coalesces and never awards energy. `Pump()` owns accounted advancement. Future gathering/rejuvenation must not add environmental/treatment heartbeats per room. The explicit operation identity/receipt boundary owns quantified scar changes. Unrelated spell-effect expiration and player-action scheduling are unchanged.
+`MarkDirty(cell, reason)` is the subsequent features' narrow wake surface; it coalesces and never awards energy. `Pump()` owns accounted advancement. Capability-configured Gentle gathering uses the exact debit surface and adds no environmental/treatment heartbeat per room. The explicit operation identity/receipt boundary owns quantified scar changes. Unrelated spell-effect expiration and player-action scheduling are unchanged.
 
 ## Deployment and evidence
 

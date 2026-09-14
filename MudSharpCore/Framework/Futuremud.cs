@@ -142,6 +142,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         SaveManager = new SaveManager();
         HeartbeatManager = new HeartbeatManager(this);
 		EnvironmentalMagic = new MudSharp.Magic.Environment.EnvironmentalMagicCoordinator(this);
+		MagicGathering = new MudSharp.Magic.Gathering.MagicGatheringService(this);
         ProximityEventService = new ProximityEventService();
         EconomyAnalytics = new EconomyAnalyticsService(this);
         ComputerHelpService = new ComputerHelpService();

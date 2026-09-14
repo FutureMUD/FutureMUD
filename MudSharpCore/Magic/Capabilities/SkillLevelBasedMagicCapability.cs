@@ -9,7 +9,7 @@ using Org.BouncyCastle.Asn1.Bsi;
 
 namespace MudSharp.Magic.Capabilities;
 
-public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
+public partial class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability, IMagicGatheringCapability
 {
     public virtual IMagicCapability Clone(string newName)
     {
@@ -57,6 +57,7 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
         ConcentrationCapabilityExpression = new TraitExpression(rhs.ConcentrationCapabilityExpression.OriginalFormulaText, Gameworld);
         ConcentrationDifficultyExpression = new TraitExpression(rhs.ConcentrationDifficultyExpression.OriginalFormulaText, Gameworld);
         _resourceRegenerators.AddRange(rhs._resourceRegenerators);
+		CloneGatheringMethodsFrom(rhs);
         using (new FMDB())
         {
             Models.MagicCapability dbitem = new()
@@ -83,9 +84,10 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
         _name = capability.Name;
         PowerLevel = capability.PowerLevel;
         School = gameworld.MagicSchools.Get(capability.MagicSchoolId);
+		XElement root = null;
 		try
 		{
-        XElement root = XElement.Parse(capability.Definition);
+        root = XElement.Parse(capability.Definition);
         foreach (XElement item in root.Elements("Power"))
         {
             _skillPowerMap.Add((gameworld.Traits.Get(long.Parse(item.Attribute("trait").Value)),
@@ -110,11 +112,16 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
 			ConcentrationCapabilityExpression = new TraitExpression("0", gameworld);
 			ConcentrationDifficultyExpression = new TraitExpression(((int)Difficulty.Impossible).ToString(), gameworld);
 		}
+
+		if (root is not null)
+		{
+			LoadGatheringDefinition(root);
+		}
     }
 
     public virtual string SaveToXml()
     {
-        return new XElement("Definition",
+        XElement root = new("Definition",
             new XElement("ConcentrationTrait", ConcentrationTrait.Id),
             new XElement("ConcentrationCapabilityExpression", ConcentrationCapabilityExpression.OriginalFormulaText),
             new XElement("ConcentrationDifficultyExpression", ConcentrationDifficultyExpression.OriginalFormulaText),
@@ -128,7 +135,9 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
                 new XAttribute("minvalue", power.MinValue),
                 new XAttribute("power", power.Power.Id)
             )
-        ).ToString();
+		);
+		SaveGatheringDefinition(root);
+		return root.ToString();
     }
 
     public static void RegisterLoader()
@@ -233,6 +242,7 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
 	#3power <which> <trait> <minvalue>#0 - gives a power when the character has the trait above the value
 	#3power <which>#0 - removes an existing power given by this capability
 	#3showpower#0 - toggles showing magic resources in the prompt
+	#3gather list|add|remove|show|set#0 - configures optional timed self and gentle gathering methods
 
 The following options have some more complex inputs:
 
@@ -277,6 +287,9 @@ The following options have some more complex inputs:
             case "level":
             case "powerlevel":
                 return BuildingCommandPowerLevel(actor, command);
+			case "gather":
+			case "gathering":
+				return BuildingCommandGathering(actor, command);
             default:
                 actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
                 return false;
@@ -502,6 +515,7 @@ The following options have some more complex inputs:
         {
             sb.AppendLine($"\t{power.Trait.Name.ColourName()} >= {power.MinValue.ToString("N2", actor).ColourValue()}: {power.Power.Name.Colour(power.Power.School.PowerListColour)}");
         }
+		AppendGatheringShow(sb, actor);
         return sb.ToString();
     }
 

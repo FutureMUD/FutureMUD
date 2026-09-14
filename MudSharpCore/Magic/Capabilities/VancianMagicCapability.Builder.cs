@@ -34,7 +34,7 @@ All concentration, inherent-power and regenerator settings from the standard cap
 		var setting = command.PopForSwitch();
 		try
 		{
-			if (setting == "check") { actor.OutputHandler.Send(string.Join("\n", ConfigurationErrors().DefaultIfEmpty("This capability is ready."))); return true; }
+			if (setting == "check") { actor.OutputHandler.Send(string.Join("\n", BuilderConfigurationErrors().DefaultIfEmpty("This capability is ready."))); return true; }
 			if (setting is "help" or "?") { actor.OutputHandler.Send(VancianHelp + "\n" + HelpText.SubstituteANSIColour()); return false; }
 			if (_definitionError is not null) throw new InvalidOperationException($"Definition disabled: {_definitionError}");
 			if (setting == "repertoire") return EditRepertoire(actor, command);
@@ -235,7 +235,11 @@ All concentration, inherent-power and regenerator settings from the standard cap
 		foreach (var (name, id) in _policyProgs) sb.AppendLine($"{name}: {Gameworld.FutureProgs.Get(id)?.MXPClickableFunctionNameWithId() ?? $"missing #{id}"}");
 		foreach (var r in _repertoires.OrderBy(x => x.SortOrder)) sb.AppendLine($"Repertoire {r.Alias}: {r.Name} [{r.Key}], {r.Source.DescribeEnum()}, levels {r.MinimumSpellLevel}-{r.MaximumSpellLevel}, candidate #{r.CandidateProgId}, limit #{r.SelectionLimitProgId}, {r.BookPolicy.DescribeEnum()}");
 		foreach (var a in _allowances.OrderBy(x => x.SortOrder)) sb.AppendLine($"Allowance {a.Alias}: {a.Name} [{a.Key}/v{a.StructuralVersion}], {a.Mode.DescribeEnum()}, slot {a.SlotLevel?.ToString("N0", actor) ?? "none"}, base levels {a.MinimumSpellLevel}-{a.MaximumSpellLevel}, count #{a.SlotCountProgId}, eligibility #{a.SpellEligibilityProgId}, links {string.Join(", ", a.RepertoireKeys.Select(k => _repertoires.Find(x => x.Key == k)?.Alias ?? k.ToString()))}");
-		sb.AppendLine(string.Join("\n", ConfigurationErrors().DefaultIfEmpty("Ready.")));
+		sb.AppendLine(string.Join("\n", BuilderConfigurationErrors().DefaultIfEmpty("Ready.")));
 		return sb.ToString();
 	}
+
+	private IReadOnlyList<string> BuilderConfigurationErrors() => ConfigurationErrors()
+		.Concat(GatheringConfigurationErrors())
+		.ToArray();
 }

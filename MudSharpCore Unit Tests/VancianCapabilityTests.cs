@@ -35,6 +35,31 @@ public class VancianCapabilityTests
 	public void RegisteredCapabilityRoundTripsClonesFreshKeysAndKeepsLegacyLoader()
 	{
 		var f = new VancianTestFixture(); var model = Model(f);
+		var source = new Mock<IMagicResource>();
+		source.SetupGet(x => x.Id).Returns(1L); source.SetupGet(x => x.Name).Returns("Ambient Essence");
+		source.SetupGet(x => x.ResourceType).Returns(MagicResourceType.LocationResource);
+		var destination = new Mock<IMagicResource>();
+		destination.SetupGet(x => x.Id).Returns(2L); destination.SetupGet(x => x.Name).Returns("Personal Essence");
+		destination.SetupGet(x => x.ResourceType).Returns(MagicResourceType.PlayerResource);
+		f.World.SetupGet(x => x.MagicResources).Returns(VancianTestFixture.Collection<IMagicResource>(() => [source.Object, destination.Object]));
+		var gathering = new XElement("Gathering", new XAttribute("version", 1),
+			new XElement("Method", new XAttribute("key", Guid.NewGuid()), new XAttribute("alias", "selfdraw"),
+				new XAttribute("name", "Self Draw"), new XAttribute("kind", "Self"), new XAttribute("destination", 2),
+				new XAttribute("source", 0), new XAttribute("min", 1), new XAttribute("max", 5), new XAttribute("duration", 2),
+				new XAttribute("ratio", 1), new XAttribute("stamina", 1), new XAttribute("minimumStamina", 0),
+				new XAttribute("damage", 0), new XAttribute("pain", 0), new XAttribute("stun", 0),
+				new XAttribute("maximumHealthSeverity", "None"), new XAttribute("permission", 0), new XAttribute("durationProg", 0),
+				new XAttribute("staminaProg", 0), new XAttribute("damageProg", 0), new XAttribute("painProg", 0),
+				new XAttribute("stunProg", 0), new XAttribute("onGathered", 0), new XAttribute("structuralVersion", 1)),
+			new XElement("Method", new XAttribute("key", Guid.NewGuid()), new XAttribute("alias", "gentledraw"),
+				new XAttribute("name", "Gentle Draw"), new XAttribute("kind", "Gentle"), new XAttribute("destination", 2),
+				new XAttribute("source", 1), new XAttribute("min", 1), new XAttribute("max", 5), new XAttribute("duration", 2),
+				new XAttribute("ratio", 1.5), new XAttribute("stamina", 0), new XAttribute("minimumStamina", 0),
+				new XAttribute("damage", 0), new XAttribute("pain", 0), new XAttribute("stun", 0),
+				new XAttribute("maximumHealthSeverity", "None"), new XAttribute("permission", 0), new XAttribute("durationProg", 0),
+				new XAttribute("staminaProg", 0), new XAttribute("damageProg", 0), new XAttribute("painProg", 0),
+				new XAttribute("stunProg", 0), new XAttribute("onGathered", 0), new XAttribute("structuralVersion", 1)));
+		XElement root = XElement.Parse(model.Definition); root.Add(gathering); model.Definition = root.ToString();
 		var capability = (VancianMagicCapability)MagicCapabilityFactory.LoadCapability(model,f.World.Object);
 		Assert.IsTrue(MagicCapabilityFactory.BuilderLoaders.ContainsKey("vancian")); Assert.AreEqual(0,capability.ConfigurationErrors().Count);
 		Assert.IsTrue(capability.BuildingCommand(f.Actor.Object,new StringStack("repertoire known name Renamed Choices")));
@@ -44,8 +69,28 @@ public class VancianCapabilityTests
 		var clone = new VancianMagicCapability(capability.CloneModel("Other Wizard"),f.World.Object);
 		Assert.AreNotEqual(capability.Repertoires[0].Key,clone.Repertoires[0].Key); Assert.AreNotEqual(capability.Allowances[0].Key,clone.Allowances[0].Key);
 		Assert.AreEqual(clone.Repertoires[0].Key,clone.Allowances[0].RepertoireKeys.Single()); Assert.AreEqual(0,clone.ConfigurationErrors().Count);
-		var legacy = XElement.Parse(model.Definition); legacy.Element("Vancian")!.Remove(); model.Definition = legacy.ToString(); model.CapabilityModel = "skilllevel";
-		Assert.IsInstanceOfType(MagicCapabilityFactory.LoadCapability(model,f.World.Object),typeof(SkillLevelBasedMagicCapability));
+		Assert.AreEqual(2, clone.GatheringMethods.Count);
+		Assert.AreEqual(2, capability.GatheringMethods.Select(x => x.Key).Distinct().Count());
+		Assert.IsFalse(capability.GatheringMethods.Select(x => x.Key).Intersect(clone.GatheringMethods.Select(x => x.Key)).Any());
+		var legacy = XElement.Parse(model.Definition); legacy.Element("Vancian")!.Remove(); legacy.Element("Gathering")!.Remove(); model.Definition = legacy.ToString(); model.CapabilityModel = "skilllevel";
+		var legacyCapability = (SkillLevelBasedMagicCapability)MagicCapabilityFactory.LoadCapability(model,f.World.Object);
+		Assert.AreEqual(0, legacyCapability.GatheringMethods.Count, "An absent Gathering section must preserve legacy no-method behaviour.");
+		Assert.AreEqual(0, legacyCapability.GatheringConfigurationErrors().Count);
+	}
+	[TestMethod]
+	public void MalformedGatheringXml_DisablesGatheringAndIsPreservedForExplicitRepair()
+	{
+		var f = new VancianTestFixture();
+		var model = Model(f);
+		XElement root = XElement.Parse(model.Definition);
+		root.Add(new XElement("Gathering", new XAttribute("version", 1),
+			new XElement("Method", new XAttribute("key", "not-a-guid"))));
+		model.Definition = root.ToString();
+
+		var capability = new VancianMagicCapability(model, f.World.Object);
+		Assert.AreEqual(0, capability.ConfigurationErrors().Count, "A malformed gathering definition must not disable unrelated Vancian casting.");
+		Assert.IsTrue(capability.GatheringConfigurationErrors().Any(x => x.Contains("Gathering configuration")));
+		Assert.IsTrue(capability.SaveToXml().Contains("not-a-guid"), "Malformed authored gathering XML must not be silently deleted.");
 	}
 	[TestMethod]
 	public void UnsupportedBookModesBrokenLinksAndBadSchemaDisableWithoutOverwriting()

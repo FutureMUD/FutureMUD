@@ -58,7 +58,7 @@ public class BlankDatabaseSnapshotTests
 			         "VehicleMovementProfileProtos", "VehiclePropulsionProfileProtos",
 			         "CharacterCombatSettings", "TraitDefinitions", "RangedCovers", "LootTables",
 			         "EditableItems", "OutfitTemplateItems", "MagicSpells", "CharacterMagicCapabilityStates", "VancianMagicOperations",
-			         "CellEnvironmentalStates", "EnvironmentalMagicOperations"
+			         "CellEnvironmentalStates", "EnvironmentalMagicOperations", "MagicGatheringOperations"
 		         })
 		{
 			Assert.IsFalse(deltas.Contains($"`{table}`", StringComparison.Ordinal),
@@ -90,6 +90,25 @@ public class BlankDatabaseSnapshotTests
 			"Explicit operation identities must survive deletion of their cells, actors and profiles.");
 		StringAssert.Contains(snapshot, "`EnvironmentalMagicBindingMode`");
 		StringAssert.Contains(snapshot, "`EnvironmentalMagicProfileId`");
+	}
+
+	[TestMethod]
+	public void CommittedBlankSnapshot_ContainsGatheringReceiptSchema()
+	{
+		var snapshotPath = BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory());
+		var snapshot = File.ReadAllText(snapshotPath);
+		var operationTable = ReadTableDeclaration(snapshot, "magicgatheringoperations");
+		StringAssert.Contains(operationTable, "PRIMARY KEY (`Id`)");
+		StringAssert.Contains(operationTable, "`MethodKey`");
+		StringAssert.Contains(operationTable, "`MethodVersion`");
+		StringAssert.Contains(operationTable, "`SourceDebited`");
+		StringAssert.Contains(operationTable, "`BodilyCostApplied`");
+		StringAssert.Contains(operationTable, "`DestinationCredited`");
+		StringAssert.Contains(operationTable, "`AccountingPersisted`");
+		StringAssert.Contains(operationTable, "`NotificationCompleted`");
+		StringAssert.Contains(operationTable, "`Status`");
+		Assert.IsFalse(operationTable.Contains("FOREIGN KEY", StringComparison.Ordinal),
+			"Gathering receipts must remain available after an actor, cell or configuration is deleted.");
 	}
 
 	private static string ReadTableDeclaration(string snapshot, string tableName)

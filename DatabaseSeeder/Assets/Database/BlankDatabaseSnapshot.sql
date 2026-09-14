@@ -15900,6 +15900,111 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+-- EF-generated idempotent delta: 20260914130508_MagicGatheringOperations
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260914130508_MagicGatheringOperations') THEN
+
+    CREATE TABLE `magicgatheringoperations` (
+        `Id` char(36) COLLATE ascii_general_ci NOT NULL,
+        `OwnerId` bigint(20) NOT NULL,
+        `ActorId` bigint(20) NOT NULL,
+        `BodyId` bigint(20) NOT NULL,
+        `MagicCapabilityId` bigint(20) NOT NULL,
+        `MethodKey` char(36) COLLATE ascii_general_ci NOT NULL,
+        `MethodVersion` int NOT NULL,
+        `CellId` bigint(20) NULL,
+        `SourceProfileId` bigint(20) NULL,
+        `SourceProfileRevision` bigint(20) NULL,
+        `SourceResourceId` bigint(20) NULL,
+        `DestinationResourceId` bigint(20) NOT NULL,
+        `Kind` varchar(20) CHARACTER SET utf8mb4 NOT NULL,
+        `RequestedAmount` double NOT NULL,
+        `SourceDebit` double NOT NULL,
+        `StaminaCost` double NOT NULL,
+        `DamageCost` double NOT NULL,
+        `PainCost` double NOT NULL,
+        `StunCost` double NOT NULL,
+        `SourceDebited` tinyint(1) NOT NULL,
+        `BodilyCostApplied` tinyint(1) NOT NULL,
+        `DestinationCredited` tinyint(1) NOT NULL,
+        `AccountingPersisted` tinyint(1) NOT NULL,
+        `NotificationCompleted` tinyint(1) NOT NULL,
+        `Status` varchar(40) CHARACTER SET utf8mb4 NOT NULL,
+        `CreatedUtc` datetime(6) NOT NULL,
+        `UpdatedUtc` datetime(6) NOT NULL,
+        `Diagnostic` text CHARACTER SET utf8mb4 NOT NULL,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`)
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260914130508_MagicGatheringOperations') THEN
+
+    CREATE INDEX `IX_MagicGatheringOperations_Capability_Method` ON `magicgatheringoperations` (`MagicCapabilityId`, `MethodKey`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260914130508_MagicGatheringOperations') THEN
+
+    CREATE INDEX `IX_MagicGatheringOperations_Cell_Source_Status` ON `magicgatheringoperations` (`CellId`, `SourceResourceId`, `Status`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260914130508_MagicGatheringOperations') THEN
+
+    CREATE INDEX `IX_MagicGatheringOperations_OwnerId_Status` ON `magicgatheringoperations` (`OwnerId`, `Status`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260914130508_MagicGatheringOperations') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20260914130508_MagicGatheringOperations', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;
+
 
 -- Dump completed on 2026-09-13 21:07:08
 -- Total time: 0:0:0:1:982 (d:h:m:s:ms)

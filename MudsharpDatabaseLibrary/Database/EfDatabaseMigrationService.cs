@@ -1,5 +1,6 @@
 #nullable enable
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System;
@@ -24,20 +25,25 @@ public sealed class EfDatabaseMigrationService : IDatabaseMigrationService
             return;
         }
 
-        using FuturemudDatabaseContext context = CreateContext(connectionString);
-        IMigrator migrator = context.GetService<IMigrator>();
-        int index = 1;
-        foreach (string migration in migrations)
+        List<string> migrationNames = migrations.ToList();
+        int migrationIndex = 0;
+        using FuturemudDatabaseContext context = CreateContext(connectionString, _ =>
         {
+            if (migrationIndex >= migrationNames.Count)
+            {
+                return;
+            }
+
             progressAction?.Invoke(new DatabaseMigrationProgress
             {
-                MigrationName = migration,
-                CurrentMigrationNumber = index,
-                TotalMigrations = migrations.Count
+                MigrationName = migrationNames[migrationIndex],
+                CurrentMigrationNumber = migrationIndex + 1,
+                TotalMigrations = migrationNames.Count
             });
-            migrator.Migrate(migration);
-            index++;
-        }
+            migrationIndex++;
+        });
+        IMigrator migrator = context.GetService<IMigrator>();
+        MigrateToLatest(migrator);
     }
 
     public string? GetLatestMigrationId(string connectionString)
@@ -46,12 +52,24 @@ public sealed class EfDatabaseMigrationService : IDatabaseMigrationService
         return context.Database.GetMigrations().LastOrDefault();
     }
 
-    private static FuturemudDatabaseContext CreateContext(string connectionString)
+    internal static void MigrateToLatest(IMigrator migrator)
     {
-        DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-            .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-            .Options;
-        return new FuturemudDatabaseContext(options);
+        migrator.Migrate();
+    }
+
+    private static FuturemudDatabaseContext CreateContext(string connectionString,
+        Action<EventData>? migrationApplyingAction = null)
+    {
+        DbContextOptionsBuilder<FuturemudDatabaseContext> optionsBuilder = new();
+        optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+        if (migrationApplyingAction is not null)
+        {
+            optionsBuilder.LogTo(
+                (eventId, _) => eventId == RelationalEventId.MigrationApplying,
+                migrationApplyingAction);
+        }
+
+        return new FuturemudDatabaseContext(optionsBuilder.Options);
     }
 
     private static FuturemudDatabaseContext CreateMetadataOnlyContext(string connectionString)

@@ -7,6 +7,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Functions;
+using MudSharp.FutureProg.Functions.Magic;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Magic;
 using System;
@@ -47,10 +48,34 @@ public class MagicFutureProgFunctionTests
 			         "setspellduration",
 			         "addspellduration",
 			         "subtractspellduration",
-			         "removespell"
+			         "removespell",
+			         "canmagicgather",
+			         "beginmagicgather",
+			         "completemagicgather",
+			         "cancelmagicgather",
+			         "magicgatherstatus"
 		         })
 		{
 			Assert.IsTrue(names.Contains(expected), $"Missing FutureProg magic function {expected}.");
+		}
+	}
+
+	[TestMethod]
+	public void GatheringFutureProgFunctions_CompileWithTheirExactDeclaredTypes()
+	{
+		FutureProgTestBootstrap.EnsureInitialised();
+		foreach (MagicGatheringFunction.Contract contract in MagicGatheringFunction.Contracts)
+		{
+			Tuple<ProgVariableTypes, string>[] parameters = contract.Parameters
+				.Select((type, index) => Tuple.Create(type, $"arg{index}"))
+				.ToArray();
+			string arguments = string.Join(", ", parameters.Select(x => $"@{x.Item2}"));
+			string body = contract.ReturnType == ProgVariableTypes.Void
+				? $"{contract.Name}({arguments})\nreturn"
+				: $"return {contract.Name}({arguments})";
+			var prog = new FutureProg(FutureProgTestBootstrap.Gameworld, $"gather_{contract.Name}",
+				contract.ReturnType, parameters, body);
+			Assert.IsTrue(prog.Compile(), $"{contract.Name}: {prog.CompileError}");
 		}
 	}
 

@@ -174,6 +174,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Environmental Magic Builder Guide](./Magic/Environmental_Magic_Builder_Guide.md)
 - [Environmental Magic Runtime and Integration](./Magic/Environmental_Magic_Runtime.md)
 - [Environmental Magic Acceptance Mapping](./Magic/Environmental_Magic_Acceptance.md)
+- [Capability-configured Self and Gentle Gathering](./Magic/Magic_Gathering.md)
+- [Capability-configured Gathering Acceptance Mapping](./Magic/Magic_Gathering_Acceptance.md)
 - [Magic System Implemented Types](./Magic/Magic_System_Implemented_Types.md)
 - [Magic System Powers](./Magic/Magic_System_Powers.md)
 - [Magic System Spells](./Magic/Magic_System_Spells.md)

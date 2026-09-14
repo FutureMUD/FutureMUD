@@ -3,6 +3,7 @@ using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Trees;
 using MudSharp.Effects.Concrete;
 using MudSharp.Magic;
+using MudSharp.Magic.Gathering;
 using MudSharp.Magic.Vancian;
 using Org.BouncyCastle.Asn1.Sec;
 
@@ -115,6 +116,7 @@ The syntax is:
             return;
         }
 
+		if (cmdText.EqualTo("gather")) { GatheringPlayer(actor, school, ss); return; }
 		if (cmdText.EqualTo("vancian")) { VancianPlayer(actor, school, ss); return; }
 
         if (cmdText.EqualToAny("?", "help") && ss.IsFinished)
@@ -264,6 +266,10 @@ The syntax is:
 
 	#3{invoked}#0 - see your current status, resources and sustained powers
 	#3{invoked} powers#0 - lists your powers
+	#3{invoked} gather <capability> methods#0 - lists optional self and gentle gathering methods
+	#3{invoked} gather <capability> preview <method> <amount>#0 - shows a pure full-price quote
+	#3{invoked} gather <capability> <method> <amount>#0 - begins an interruptible gathering action
+	#3{invoked} gather cancel#0 - cancels your live precommit gathering action
 	#3{invoked} vancian <capability> help#0 - selected repertoires, saved loadouts, finite and at-will casting
 	#3{invoked} help <power>#0 - shows help for a power
 	#3{invoked} <power command> [arguments]#0 - invokes a power; see individual power help for the syntax
@@ -305,6 +311,9 @@ The syntax is:
         StringStack ss = new(command.RemoveFirstWord());
         switch (ss.PopSpeech().ToLowerInvariant())
         {
+			case "gathering":
+				GatheringAdmin(actor, ss);
+				return;
             case "vancian": VancianAdmin(actor, ss); return;
             case "school":
                 MagicSchool(actor, ss);

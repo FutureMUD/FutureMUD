@@ -83,6 +83,26 @@ public interface IEnvironmentalMagicService : IDisposable
 	/// </summary>
 	bool TryInspectResource(ICell cell, IMagicResource resource, out EnvironmentalResourceSnapshot result);
 	/// <summary>
+	/// Resolves a managed output from one already-taken pure inspection snapshot. This avoids re-evaluating
+	/// profile formulae simply to identify a displayed or quoted output; callers must still reject an invalid
+	/// snapshot/output and take a fresh snapshot for a later commitment.
+	/// </summary>
+	bool TryInspectResource(EnvironmentalMagicSnapshot snapshot, IMagicResource resource,
+		out EnvironmentalResourceSnapshot result)
+	{
+		foreach (EnvironmentalResourceSnapshot output in snapshot.Outputs)
+		{
+			if (output.ResourceId == resource.Id)
+			{
+				result = output;
+				return snapshot.ProfileId.HasValue;
+			}
+		}
+
+		result = null!;
+		return false;
+	}
+	/// <summary>
 	/// Returns whether this service owns the pair; success separately reports whether the requested
 	/// mutation succeeded. Validates one current input snapshot and accepts the previous online segment.
 	/// A failed exact debit never partially consumes stock; valid downward cap reconciliation can still occur.

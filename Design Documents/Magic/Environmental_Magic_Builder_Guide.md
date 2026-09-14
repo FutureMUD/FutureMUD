@@ -2,7 +2,7 @@
 
 An `environmental` regenerator is a reusable profile for resources held by physical cells. It uses the existing magic-resource balances, one environmental maximum for each configured resource, and persistent cell damage. It applies only after an explicit cell binding or terrain default is configured. No stock setting content is installed.
 
-The world coordinator advances useful production and optional natural scar repair. See [Environmental Magic Runtime](Environmental_Magic_Runtime.md) for scheduling, persistence and integration contracts, and the [acceptance mapping](Environmental_Magic_Acceptance.md) for regression coverage and execution boundaries. Gathering, yield consumption, channelling and rejuvenation spells are outside this feature.
+The world coordinator advances useful production and optional natural scar repair. See [Environmental Magic Runtime](Environmental_Magic_Runtime.md) for scheduling, persistence and integration contracts, and the [acceptance mapping](Environmental_Magic_Acceptance.md) for regression coverage and execution boundaries. [Capability-configured Self and Gentle gathering](Magic_Gathering.md) is a separate consumer of the exact managed debit surface; it does not change profile authoring, yields, scheduler ownership, scars or pressure. Yield consumption, channelling and rejuvenation spells remain outside this feature.
 
 ## Author a profile
 

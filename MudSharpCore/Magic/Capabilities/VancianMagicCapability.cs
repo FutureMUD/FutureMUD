@@ -125,9 +125,15 @@ public sealed partial class VancianMagicCapability : SkillLevelBasedMagicCapabil
 	internal Models.MagicCapability CloneModel(string newName)
 	{
 		var root = XElement.Parse(SaveToXml());
-		var keys = _repertoires.Select(x => x.Key).Concat(_allowances.Select(x => x.Key)).ToDictionary(x => x, _ => Guid.NewGuid());
-		foreach (var attribute in root.Descendants().Attributes("key")) attribute.Value = keys[Guid.Parse(attribute.Value)].ToString();
-		foreach (var rule in root.Descendants("Rule")) rule.Value = keys[Guid.Parse(rule.Value)].ToString();
+		var vancian = root.Element("Vancian") ?? throw new InvalidOperationException("Missing Vancian definition.");
+		var keys = vancian.Elements("Repertoire").Select(x => Guid.Parse(x.Attribute("key")!.Value))
+			.Concat(vancian.Elements("Allowance").Select(x => Guid.Parse(x.Attribute("key")!.Value)))
+			.ToDictionary(x => x, _ => Guid.NewGuid());
+		foreach (var attribute in vancian.Elements("Repertoire").Concat(vancian.Elements("Allowance")).Attributes("key"))
+			attribute.Value = keys[Guid.Parse(attribute.Value)].ToString();
+		foreach (var rule in vancian.Elements("Allowance").Elements("Rule"))
+			rule.Value = keys[Guid.Parse(rule.Value)].ToString();
+		RemapGatheringKeysForClone(root);
 		return new Models.MagicCapability { Name = newName, MagicSchoolId = School.Id, PowerLevel = PowerLevel,
 			CapabilityModel = "vancian", Definition = root.ToString() };
 	}

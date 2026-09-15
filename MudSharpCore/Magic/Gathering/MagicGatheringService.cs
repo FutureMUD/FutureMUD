@@ -5,9 +5,11 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.FutureProg;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.Health;
 using MudSharp.Magic.Environment;
 
@@ -30,6 +32,7 @@ public sealed class MagicGatheringService : IMagicGatheringService
 		public required ICell Cell { get; init; }
 		public required SpatialLocation Location { get; init; }
 		public required MagicGatheringQuote Quote { get; init; }
+		public DirectHealthCostPlan? HealthPlan { get; init; }
 		public required long StartedTimestamp { get; init; }
 		public MagicGatheringTimedAction? Action { get; set; }
 		public bool Committing { get; set; }
@@ -40,6 +43,7 @@ public sealed class MagicGatheringService : IMagicGatheringService
 	private readonly IMagicGatheringReceiptStore _store;
 	private readonly TimeProvider _clock;
 	private readonly Func<ICharacter, ICell?, MagicGatheringReceipt, bool>? _persistAccounting;
+	private readonly Func<ICharacter, IReadOnlyCollection<IWound>, bool>? _persistWounds;
 	private readonly object _guard = new();
 	private readonly Dictionary<Guid, LiveOperation> _liveById = [];
 	private readonly Dictionary<long, LiveOperation> _liveByOwner = [];
@@ -47,12 +51,14 @@ public sealed class MagicGatheringService : IMagicGatheringService
 	private readonly HashSet<(long CellId, long ResourceId)> _committingSources = [];
 
 	public MagicGatheringService(IFuturemud gameworld, IMagicGatheringReceiptStore? store = null,
-		TimeProvider? clock = null, Func<ICharacter, ICell?, MagicGatheringReceipt, bool>? persistAccounting = null)
+		TimeProvider? clock = null, Func<ICharacter, ICell?, MagicGatheringReceipt, bool>? persistAccounting = null,
+		Func<ICharacter, IReadOnlyCollection<IWound>, bool>? persistWounds = null)
 	{
 		_gameworld = gameworld;
 		_store = store ?? new MagicGatheringReceiptStore();
 		_clock = clock ?? TimeProvider.System;
 		_persistAccounting = persistAccounting;
+		_persistWounds = persistWounds;
 	}
 
 	private DateTime UtcNow => _clock.GetUtcNow().UtcDateTime;
@@ -103,7 +109,7 @@ public sealed class MagicGatheringService : IMagicGatheringService
 			return Refused("A previous gathering receipt needs staff review before this identity can gather again.");
 		}
 
-		MagicGatheringResult quoteResult = Quote(actor, capability, definition, amount);
+		MagicGatheringResult quoteResult = Quote(actor, capability, definition, amount, out DirectHealthCostPlan? healthPlan);
 		if (!quoteResult.Success || quoteResult.Quote is not { } quote)
 		{
 			return quoteResult;
@@ -130,6 +136,7 @@ public sealed class MagicGatheringService : IMagicGatheringService
 			Cell = cell,
 			Location = actor.SpatialLocation,
 			Quote = quote,
+			HealthPlan = healthPlan,
 			StartedTimestamp = _clock.GetTimestamp()
 		};
 
@@ -279,12 +286,13 @@ public sealed class MagicGatheringService : IMagicGatheringService
 
 	private MagicGatheringResult Commit(LiveOperation live)
 	{
-		MagicGatheringResult fresh = Quote(live.Actor, live.Capability, live.Method, live.Quote.RequestedAmount);
+		MagicGatheringResult fresh = Quote(live.Actor, live.Capability, live.Method, live.Quote.RequestedAmount,
+			out DirectHealthCostPlan? freshHealthPlan, live.Action);
 		if (!fresh.Success || fresh.Quote is not { } quote)
 		{
 			return Refused($"Gathering cancelled before payment: {fresh.Message}");
 		}
-		if (!Equivalent(live.Quote, quote))
+		if (!Equivalent(live.Quote, quote) || !EquivalentHealthPlan(live.HealthPlan, freshHealthPlan))
 		{
 			return Refused("Gathering cancelled because its configured price, duration, source or destination changed.");
 		}
@@ -329,10 +337,21 @@ public sealed class MagicGatheringService : IMagicGatheringService
 				}
 			}
 
-			if (!ApplyBodyCosts(live.Actor, quote, out string? bodyError))
+			if (!ApplyBodyCosts(live.Actor, quote, live.Method.MaximumHealthSeverity, freshHealthPlan, out IReadOnlyList<IWound> touchedWounds,
+				out string? bodyError))
 			{
 				MarkNeedsReview(receipt, $"Bodily price was not safely verified: {bodyError}");
 				return Refused("The gathering price could not be safely verified; staff review is required and no credit was issued.");
+			}
+
+			try
+			{
+				PersistBodyCosts(live.Actor, touchedWounds);
+			}
+			catch (Exception ex)
+			{
+				MarkNeedsReview(receipt, $"Bodily price was applied but native wound persistence failed: {ex.Message}");
+				return Refused("The bodily price could not be durably saved; staff review is required and no credit was issued.");
 			}
 
 			receipt = receipt with { BodilyCostApplied = true, UpdatedUtc = UtcNow };
@@ -414,6 +433,14 @@ public sealed class MagicGatheringService : IMagicGatheringService
 	private MagicGatheringResult Quote(ICharacter actor, IMagicGatheringCapability capability,
 		MagicGatheringMethodDefinition method, double amount)
 	{
+		return Quote(actor, capability, method, amount, out _);
+	}
+
+	private MagicGatheringResult Quote(ICharacter actor, IMagicGatheringCapability capability,
+		MagicGatheringMethodDefinition method, double amount, out DirectHealthCostPlan? healthPlan,
+		MagicGatheringTimedAction? ignoredAction = null)
+	{
+		healthPlan = null;
 		try
 		{
 			if (AccessError(actor, capability) is { } access)
@@ -440,7 +467,7 @@ public sealed class MagicGatheringService : IMagicGatheringService
 			{
 				return Refused("You must be physically located in a cell to gather.");
 			}
-			if (ActionError(actor) is { } actionError)
+			if (ActionError(actor, ignoredAction) is { } actionError)
 			{
 				return Refused(actionError);
 			}
@@ -479,7 +506,8 @@ public sealed class MagicGatheringService : IMagicGatheringService
 			{
 				return Refused("You do not currently have enough safe destination-resource headroom for the full amount.");
 			}
-			if (!CanPayBodyCosts(actor, stamina, method.MinimumStamina, damage, pain, stun, method.MaximumHealthSeverity, out string? bodyError))
+			if (!TryPlanBodyCosts(actor, stamina, method.MinimumStamina, damage, pain, stun, method.MaximumHealthSeverity,
+				out healthPlan, out string? bodyError))
 			{
 				return Refused(bodyError!);
 			}
@@ -517,7 +545,8 @@ public sealed class MagicGatheringService : IMagicGatheringService
 
 			return new MagicGatheringResult(true, QuoteMessage(method, amount, sourceDebit, stamina, damage, pain, stun, duration), null,
 				new MagicGatheringQuote(method.Key, method.StructuralVersion, method.Kind, destination.Id, sourceId, cell.Id,
-					profileId, profileRevision, amount, sourceDebit, duration, stamina, method.MinimumStamina, damage, pain, stun));
+					profileId, profileRevision, amount, sourceDebit, duration, stamina, method.MinimumStamina, damage, pain, stun,
+					healthPlan?.Bodypart.Id, healthPlan?.ExistingWound is not null));
 		}
 		catch (Exception ex)
 		{
@@ -529,14 +558,33 @@ public sealed class MagicGatheringService : IMagicGatheringService
 	{
 		if (!ReferenceEquals(live.Actor.Gameworld, _gameworld) || !ReferenceEquals(live.Cell.Gameworld, _gameworld) ||
 			live.Actor.SpatialLocation != live.Location ||
-			live.Actor.Body?.Id != live.BodyId || ActionError(live.Actor) is not null ||
+			live.Actor.Body?.Id != live.BodyId || ActionError(live.Actor, live.Action) is not null ||
 			MagicGatheringPolicy.Owner(live.Actor).Id != live.Owner.Id)
 		{
 			return false;
 		}
 
 		return live.Actor.Capabilities.Any(x => ReferenceEquals(x, live.Capability)) &&
-			live.Capability.GatheringMethods.Any(x => x.Key == live.Method.Key && x.StructuralVersion == live.Method.StructuralVersion);
+			live.Capability.GatheringMethods.Any(x => x.Key == live.Method.Key && x.StructuralVersion == live.Method.StructuralVersion) &&
+			HealthPlanStillValid(live);
+	}
+
+	private static bool HealthPlanStillValid(LiveOperation live)
+	{
+		if (live.HealthPlan is null || live.Actor.HealthStrategy is null)
+		{
+			return live.HealthPlan is null;
+		}
+
+		DirectHealthCostChannels requestedChannels = RequiredHealthChannels(live.Quote.DamageCost, live.Quote.PainCost,
+			live.Quote.StunCost);
+		return (live.Actor.HealthStrategy.SupportedDirectHealthCostChannels & requestedChannels) == requestedChannels &&
+			live.Actor.HealthStrategy.TryPlanDirectHealthCost(live.Actor, live.HealthPlan.Bodypart,
+			live.Quote.DamageCost, live.Quote.PainCost, live.Quote.StunCost, live.Method.MaximumHealthSeverity,
+			out DirectHealthCostPlan? refreshed, out _) &&
+			IsExactHealthPlan(refreshed, live.HealthPlan.Bodypart, live.Quote.DamageCost, live.Quote.PainCost,
+				live.Quote.StunCost) &&
+			EquivalentHealthPlan(live.HealthPlan, refreshed);
 	}
 
 	private string? AccessError(ICharacter actor, IMagicGatheringCapability capability)
@@ -564,7 +612,7 @@ public sealed class MagicGatheringService : IMagicGatheringService
 
 	private IFutureProg? Prog(long id) => id == 0 ? null : _gameworld.FutureProgs.Get(id);
 
-	private static string? ActionError(ICharacter actor)
+	private static string? ActionError(ICharacter actor, MagicGatheringTimedAction? ignoredAction = null)
 	{
 		if (!actor.State.IsConscious() || actor.State.HasFlag(CharacterState.Sleeping) ||
 			actor.State.HasFlag(CharacterState.Stasis) || actor.State.HasFlag(CharacterState.Paralysed))
@@ -577,14 +625,40 @@ public sealed class MagicGatheringService : IMagicGatheringService
 			return "You must focus on the acting instance before gathering magic.";
 		}
 
-		return actor.Combat is not null || actor.Movement is not null
-			? "You must be stationary and out of combat before gathering magic."
-			: null;
+		if (actor.Combat is not null || actor.Movement is not null)
+		{
+			return "You must be stationary and out of combat before gathering magic.";
+		}
+
+		if (ignoredAction is null)
+		{
+			(bool Truth, string Message) blocked = actor.IsBlocked("general", "movement");
+			return blocked.Truth ? blocked.Message : null;
+		}
+
+		foreach (IEffect effect in actor.Effects.Concat(actor.Body?.Effects ?? []))
+		{
+			if (ReferenceEquals(effect, ignoredAction))
+			{
+				continue;
+			}
+
+			foreach (string block in new[] { "general", "movement" })
+			{
+				if (effect.IsBlockingEffect(block))
+				{
+					return effect.BlockingDescription(block, actor);
+				}
+			}
+		}
+
+		return null;
 	}
 
-	private static bool CanPayBodyCosts(ICharacter actor, double stamina, double minimumStamina, double damage,
-		double pain, double stun, WoundSeverity maximumHealthSeverity, out string? error)
+	private static bool TryPlanBodyCosts(ICharacter actor, double stamina, double minimumStamina, double damage,
+		double pain, double stun, WoundSeverity maximumHealthSeverity, out DirectHealthCostPlan? healthPlan, out string? error)
 	{
+		healthPlan = null;
 		error = null;
 		if (stamina > 0.0 && (!double.IsFinite(actor.CurrentStamina) || actor.CurrentStamina < stamina + minimumStamina || !actor.CanSpendStamina(stamina)))
 		{
@@ -595,33 +669,76 @@ public sealed class MagicGatheringService : IMagicGatheringService
 		{
 			return true;
 		}
-		if (maximumHealthSeverity == WoundSeverity.None || actor.Body?.RandomBodypart is null || actor.HealthStrategy is null)
+		if (maximumHealthSeverity == WoundSeverity.None || actor.Body is null || actor.HealthStrategy is null)
 		{
 			error = "Your current body cannot safely apply the configured health price.";
 			return false;
 		}
 
+		DirectHealthCostChannels requestedChannels = RequiredHealthChannels(damage, pain, stun);
+		if ((actor.HealthStrategy.SupportedDirectHealthCostChannels & requestedChannels) != requestedChannels)
+		{
+			error = "This health strategy does not support every configured direct health-cost channel.";
+			return false;
+		}
+
 		try
 		{
-			double highest = Math.Max(damage, Math.Max(pain, stun));
-			if (actor.HealthStrategy.GetSeverity(highest) > maximumHealthSeverity)
+			string? lastError = null;
+			foreach (IBodypart bodypart in actor.Body.Bodyparts.OrderBy(x => x.Id))
 			{
-				error = "The configured health price exceeds this health strategy's allowed severity.";
-				return false;
+				if (actor.HealthStrategy.TryPlanDirectHealthCost(actor, bodypart, damage, pain, stun,
+					maximumHealthSeverity, out DirectHealthCostPlan? candidatePlan, out string? candidateError))
+				{
+					if (IsExactHealthPlan(candidatePlan, bodypart, damage, pain, stun))
+					{
+						healthPlan = candidatePlan;
+						return true;
+					}
+
+					lastError = "The health strategy did not produce an exact, safe plan for the configured cost.";
+					continue;
+				}
+
+				lastError = candidateError ?? lastError;
 			}
+
+			error = lastError ?? "Your current body has no compatible health-cost target.";
+			return false;
 		}
 		catch (Exception ex)
 		{
 			error = $"The health strategy could not validate the configured price: {ex.Message}";
 			return false;
 		}
-
-		return true;
 	}
 
-	private static bool ApplyBodyCosts(ICharacter actor, MagicGatheringQuote quote, out string? error)
+	private static bool ApplyBodyCosts(ICharacter actor, MagicGatheringQuote quote, WoundSeverity maximumHealthSeverity,
+		DirectHealthCostPlan? healthPlan,
+		out IReadOnlyList<IWound> touchedWounds, out string? error)
 	{
+		touchedWounds = [];
 		error = null;
+		if (quote.DamageCost > 0.0 || quote.PainCost > 0.0 || quote.StunCost > 0.0)
+		{
+			DirectHealthCostPlan? refreshedPlan = null;
+			string? healthError = null;
+			DirectHealthCostChannels requestedChannels = RequiredHealthChannels(quote.DamageCost, quote.PainCost,
+				quote.StunCost);
+			bool planStillValid = healthPlan is not null && actor.HealthStrategy is not null &&
+				(actor.HealthStrategy.SupportedDirectHealthCostChannels & requestedChannels) == requestedChannels &&
+				actor.HealthStrategy.TryPlanDirectHealthCost(actor, healthPlan.Bodypart, quote.DamageCost, quote.PainCost,
+					quote.StunCost, maximumHealthSeverity, out refreshedPlan, out healthError) &&
+				IsExactHealthPlan(healthPlan, healthPlan.Bodypart, quote.DamageCost, quote.PainCost, quote.StunCost) &&
+				IsExactHealthPlan(refreshedPlan, healthPlan.Bodypart, quote.DamageCost, quote.PainCost, quote.StunCost) &&
+				EquivalentHealthPlan(healthPlan, refreshedPlan);
+			if (!planStillValid)
+			{
+				error = healthError ?? "The captured health-cost plan is no longer valid.";
+				return false;
+			}
+		}
+
 		if (quote.StaminaCost > 0.0)
 		{
 			double before = actor.CurrentStamina;
@@ -643,37 +760,64 @@ public sealed class MagicGatheringService : IMagicGatheringService
 			return true;
 		}
 
-		IBodypart? bodypart = actor.Body?.RandomBodypart;
-		if (bodypart is null)
-		{
-			error = "The captured body has no valid part for the health price.";
-			return false;
-		}
 		(double Damage, double Pain, double Stun) beforeWounds = WoundTotals(actor);
-		IEnumerable<IWound> applied = actor.SufferDamage(new Damage
+		IReadOnlyList<IWound> applied = actor.HealthStrategy!.ApplyDirectHealthCost(actor, healthPlan!);
+		if (applied.Count == 0)
 		{
-			// Cellular damage takes the native direct-health route and is not armour-negatable.
-			DamageType = DamageType.Cellular,
-			DamageAmount = quote.DamageCost,
-			PainAmount = quote.PainCost,
-			StunAmount = quote.StunCost,
-			Bodypart = bodypart,
-			ActorOrigin = actor
-		}).ToArray();
-		(double Damage, double Pain, double Stun) afterWounds = WoundTotals(actor);
-		if (!applied.Any() || afterWounds.Damage < beforeWounds.Damage + quote.DamageCost - 0.000001 ||
-			afterWounds.Pain < beforeWounds.Pain + quote.PainCost - 0.000001 ||
-			afterWounds.Stun < beforeWounds.Stun + quote.StunCost - 0.000001)
-		{
-			error = "The native health strategy did not apply every mandatory damage, pain and stun channel.";
+			error = "The native health strategy did not report any changed wound objects.";
 			return false;
 		}
 
+		actor.AddWounds(applied.Where(x => !actor.Wounds.Contains(x)).ToArray());
+		foreach (IWound wound in applied)
+		{
+			actor.ProcessPassiveWound(wound);
+		}
+		actor.StartHealthTick();
+		(double Damage, double Pain, double Stun) afterWounds = WoundTotals(actor);
+		if (!Same(afterWounds.Damage - beforeWounds.Damage, quote.DamageCost) ||
+			!Same(afterWounds.Pain - beforeWounds.Pain, quote.PainCost) ||
+			!Same(afterWounds.Stun - beforeWounds.Stun, quote.StunCost))
+		{
+			error = "The native health strategy did not apply the exact mandatory damage, pain and stun cost.";
+			return false;
+		}
+
+		touchedWounds = applied.Distinct().ToArray();
 		return true;
 	}
 
 	private static (double Damage, double Pain, double Stun) WoundTotals(ICharacter actor) =>
 		(actor.Wounds.Sum(x => x.CurrentDamage), actor.Wounds.Sum(x => x.CurrentPain), actor.Wounds.Sum(x => x.CurrentStun));
+
+	private static DirectHealthCostChannels RequiredHealthChannels(double damage, double pain, double stun)
+	{
+		DirectHealthCostChannels channels = DirectHealthCostChannels.None;
+		if (damage > 0.0)
+		{
+			channels |= DirectHealthCostChannels.Damage;
+		}
+		if (pain > 0.0)
+		{
+			channels |= DirectHealthCostChannels.Pain;
+		}
+		if (stun > 0.0)
+		{
+			channels |= DirectHealthCostChannels.Stun;
+		}
+
+		return channels;
+	}
+
+	private static bool IsExactHealthPlan(DirectHealthCostPlan? plan, IBodypart expectedBodypart, double damage,
+		double pain, double stun)
+	{
+		return plan is not null && ReferenceEquals(plan.Bodypart, expectedBodypart) &&
+			double.IsFinite(plan.DamageInput) && plan.DamageInput >= 0.0 &&
+			double.IsFinite(plan.PainInput) && plan.PainInput >= 0.0 &&
+			double.IsFinite(plan.StunInput) && plan.StunInput >= 0.0 &&
+			Same(plan.ExpectedDamage, damage) && Same(plan.ExpectedPain, pain) && Same(plan.ExpectedStun, stun);
+	}
 
 	private bool CreditDestination(ICharacter actor, MagicGatheringQuote quote, out string? error)
 	{
@@ -703,12 +847,91 @@ public sealed class MagicGatheringService : IMagicGatheringService
 		return true;
 	}
 
+	/// <summary>
+	/// Persists only wounds changed by this gathering operation. New wounds are initialised through the
+	/// native late-initialisation path; existing wounds are saved in one isolated context. This avoids a
+	/// global save-manager flush while ensuring a completed receipt is never advertised before its health
+	/// cost has crossed a native persistence checkpoint.
+	/// </summary>
+	private void PersistBodyCosts(ICharacter actor, IReadOnlyCollection<IWound> wounds)
+	{
+		if (wounds.Count == 0)
+		{
+			return;
+		}
+
+		if (_persistWounds is not null)
+		{
+			if (!_persistWounds(actor, wounds))
+			{
+				foreach (ISaveable wound in wounds.OfType<ISaveable>())
+				{
+					wound.Changed = true;
+				}
+
+				throw new InvalidOperationException("Injected native wound persistence failed.");
+			}
+
+			return;
+		}
+
+		IWound[] distinctWounds = wounds.Distinct().ToArray();
+		ISaveable[] saveables = distinctWounds.OfType<ISaveable>().ToArray();
+		try
+		{
+			if (saveables.Length != distinctWounds.Length)
+			{
+				throw new InvalidOperationException("A changed native wound did not expose a supported persistence contract.");
+			}
+
+			var newlyInitialised = new HashSet<ISaveable>();
+			foreach (ILateInitialisingItem lateWound in saveables.OfType<ILateInitialisingItem>()
+				.Where(x => !x.IdHasBeenRegistered))
+			{
+				_gameworld.SaveManager.DirectInitialise(lateWound);
+				if (!lateWound.IdHasBeenRegistered)
+				{
+					throw new InvalidOperationException("Native wound initialisation did not register an identifier.");
+				}
+
+				newlyInitialised.Add(lateWound);
+			}
+
+			ISaveable[] existingWounds = saveables.Where(x => !newlyInitialised.Contains(x)).ToArray();
+			if (existingWounds.Length == 0)
+			{
+				return;
+			}
+
+			using IDisposable? isolated = FMDB.IsIsolated ? null : FMDB.BeginIsolatedScope();
+			using (new FMDB())
+			{
+				foreach (ISaveable wound in existingWounds)
+				{
+					wound.Save();
+				}
+
+				FMDB.Context.SaveChanges();
+			}
+		}
+		catch
+		{
+			foreach (ISaveable wound in saveables)
+			{
+				wound.Changed = true;
+			}
+
+			throw;
+		}
+	}
+
 	private void PersistAccounting(ICharacter actor, ICell? cell, MagicGatheringReceipt receipt)
 	{
 		if (_persistAccounting is not null)
 		{
 			if (!_persistAccounting(actor, cell, receipt))
 			{
+				MarkAccountingComponentsDirty(actor, cell);
 				throw new InvalidOperationException("Injected gathering accounting persistence failed.");
 			}
 			return;
@@ -729,14 +952,28 @@ public sealed class MagicGatheringService : IMagicGatheringService
 			}
 			catch
 			{
-				actor.Body.Changed = true;
-				actor.Changed = true;
-				if (cell is not null)
-				{
-					cell.Changed = true;
-				}
+				MarkAccountingComponentsDirty(actor, cell);
 				throw;
 			}
+		}
+	}
+
+	private static void MarkAccountingComponentsDirty(ICharacter actor, ICell? cell)
+	{
+		if (actor.Body is MudSharp.Body.Implementations.Body body)
+		{
+			body.StaminaChanged = true;
+		}
+		if (actor is MudSharp.Character.Character character)
+		{
+			character.ResourcesChanged = true;
+		}
+
+		actor.Body.Changed = true;
+		actor.Changed = true;
+		if (cell is not null)
+		{
+			cell.Changed = true;
 		}
 	}
 
@@ -757,7 +994,22 @@ public sealed class MagicGatheringService : IMagicGatheringService
 		Same(expected.RequestedAmount, actual.RequestedAmount) && Same(expected.SourceDebit, actual.SourceDebit) &&
 		Same(expected.DurationSeconds, actual.DurationSeconds) && Same(expected.StaminaCost, actual.StaminaCost) &&
 		Same(expected.MinimumStamina, actual.MinimumStamina) && Same(expected.DamageCost, actual.DamageCost) &&
-		Same(expected.PainCost, actual.PainCost) && Same(expected.StunCost, actual.StunCost);
+		Same(expected.PainCost, actual.PainCost) && Same(expected.StunCost, actual.StunCost) &&
+		expected.HealthTargetBodypartId == actual.HealthTargetBodypartId &&
+		expected.HealthCostUsesExistingWound == actual.HealthCostUsesExistingWound;
+
+	private static bool EquivalentHealthPlan(DirectHealthCostPlan? expected, DirectHealthCostPlan? actual)
+	{
+		if (expected is null || actual is null)
+		{
+			return expected is null && actual is null;
+		}
+
+		return ReferenceEquals(expected.Bodypart, actual.Bodypart) && ReferenceEquals(expected.ExistingWound, actual.ExistingWound) &&
+			Same(expected.DamageInput, actual.DamageInput) && Same(expected.PainInput, actual.PainInput) &&
+			Same(expected.StunInput, actual.StunInput) && Same(expected.ExpectedDamage, actual.ExpectedDamage) &&
+			Same(expected.ExpectedPain, actual.ExpectedPain) && Same(expected.ExpectedStun, actual.ExpectedStun);
+	}
 
 	private static bool Same(double left, double right) => Math.Abs(left - right) <= 0.000001;
 

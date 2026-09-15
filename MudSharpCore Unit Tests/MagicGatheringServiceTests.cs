@@ -16,6 +16,7 @@ using MudSharp.Commands.Trees;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
@@ -406,7 +407,6 @@ public class MagicGatheringServiceTests
 	{
 		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, damage: 2.0, pain: 3.0, stun: 4.0,
 			maximumSeverity: WoundSeverity.Moderate);
-		IDamage? captured = null;
 		double woundDamage = 0.0;
 		double woundPain = 0.0;
 		double woundStun = 0.0;
@@ -414,26 +414,347 @@ public class MagicGatheringServiceTests
 		wound.SetupGet(x => x.CurrentDamage).Returns(() => woundDamage);
 		wound.SetupGet(x => x.CurrentPain).Returns(() => woundPain);
 		wound.SetupGet(x => x.CurrentStun).Returns(() => woundStun);
-		fixture.Actor.Setup(x => x.SufferDamage(It.IsAny<IDamage>())).Returns<IDamage>(damage =>
+		DirectHealthCostPlan? plan = new(fixture.Bodypart, null, 2.0, 3.0, 4.0, 2.0, 3.0, 4.0);
+		string? planError = null;
+		fixture.Health.Setup(x => x.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart, 2.0, 3.0, 4.0,
+			WoundSeverity.Moderate, out plan, out planError)).Returns(true);
+		fixture.Health.Setup(x => x.ApplyDirectHealthCost(fixture.Actor.Object, plan!)).Returns(() =>
 		{
-			captured = damage;
-			woundDamage += damage.DamageAmount;
-			woundPain += damage.PainAmount;
-			woundStun += damage.StunAmount;
-			fixture.Wounds.Add(wound.Object);
-			return [wound.Object];
+			woundDamage += 2.0;
+			woundPain += 3.0;
+			woundStun += 4.0;
+			return (IReadOnlyList<IWound>)[wound.Object];
 		});
 
 		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
 		Assert.IsTrue(started.Success, started.Message);
 		fixture.Advance(Duration);
 		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
-		Assert.IsNotNull(captured);
-		Assert.AreEqual(DamageType.Cellular, captured.DamageType, "Bodily payment cannot be armour-negated hostile damage.");
 		Assert.AreEqual(2.0, woundDamage, 0.000001);
 		Assert.AreEqual(3.0, woundPain, 0.000001);
 		Assert.AreEqual(4.0, woundStun, 0.000001);
+		CollectionAssert.AreEqual(new[] { wound.Object }, fixture.PersistedWounds,
+			"The service must persist exactly the wound objects returned by the native health strategy.");
 		Assert.AreEqual(1.0, fixture.DestinationBalance, 0.000001);
+	}
+
+	[TestMethod]
+	public void HealthPricedPreview_IsPureAndDoesNotSampleRandomBodyparts()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, damage: 1.0,
+			maximumSeverity: WoundSeverity.Moderate);
+		DirectHealthCostPlan? plan = new(fixture.Bodypart, null, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+		string? planError = null;
+		fixture.Health.Setup(x => x.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart, 1.0, 0.0, 0.0,
+			WoundSeverity.Moderate, out plan, out planError)).Returns(true);
+
+		MagicGatheringResult first = fixture.Service.Preview(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+		MagicGatheringResult second = fixture.Service.Preview(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+
+		Assert.IsTrue(first.Success, first.Message);
+		Assert.IsTrue(second.Success, second.Message);
+		fixture.Body.VerifyGet(x => x.RandomBodypart, Times.Never,
+			"Health-cost preview must examine deterministic eligible parts rather than draw a random target.");
+		fixture.Health.Verify(x => x.ApplyDirectHealthCost(It.IsAny<ICharacter>(), It.IsAny<DirectHealthCostPlan>()), Times.Never);
+		fixture.Actor.Verify(x => x.SpendStamina(It.IsAny<double>()), Times.Never);
+		fixture.Actor.Verify(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()), Times.Never);
+		Assert.AreEqual(0, fixture.Wounds.Count);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
+	}
+
+	[TestMethod]
+	public void UnsupportedHealthCostStrategy_RefusesBeforeAnyStaminaDebitOrCredit()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, stamina: 2.0, damage: 1.0,
+			maximumSeverity: WoundSeverity.Moderate);
+		fixture.Health.SetupGet(x => x.SupportedDirectHealthCostChannels).Returns(DirectHealthCostChannels.None);
+
+		MagicGatheringResult preview = fixture.Service.Preview(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+		MagicGatheringResult result = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+
+		Assert.IsFalse(preview.Success);
+		Assert.IsFalse(result.Success);
+		Assert.AreEqual(10.0, fixture.Stamina, 0.000001);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
+	}
+
+	[TestMethod]
+	public void InexactHealthPlan_RefusesBeforeAnyStaminaDebitOrCredit()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, stamina: 2.0, damage: 1.0,
+			maximumSeverity: WoundSeverity.Moderate);
+		DirectHealthCostPlan? inexact = new(fixture.Bodypart, null, 1.0, 0.0, 0.0, 0.5, 0.0, 0.0);
+		string? planError = null;
+		fixture.Health.Setup(x => x.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart, 1.0, 0.0, 0.0,
+			WoundSeverity.Moderate, out inexact, out planError)).Returns(true);
+
+		MagicGatheringResult result = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+
+		Assert.IsFalse(result.Success);
+		Assert.AreEqual(10.0, fixture.Stamina, 0.000001);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
+		fixture.Health.Verify(x => x.ApplyDirectHealthCost(It.IsAny<ICharacter>(), It.IsAny<DirectHealthCostPlan>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void ExistingNativeWoundHealthCost_UsesAndPersistsTheCapturedWoundObject()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, damage: 2.0, pain: 3.0, stun: 4.0,
+			maximumSeverity: WoundSeverity.Moderate);
+		double woundDamage = 6.0;
+		double woundPain = 7.0;
+		double woundStun = 8.0;
+		Mock<IWound> wound = new();
+		wound.SetupGet(x => x.CurrentDamage).Returns(() => woundDamage);
+		wound.SetupGet(x => x.CurrentPain).Returns(() => woundPain);
+		wound.SetupGet(x => x.CurrentStun).Returns(() => woundStun);
+		fixture.Wounds.Add(wound.Object);
+		DirectHealthCostPlan? plan = new(fixture.Bodypart, wound.Object, 2.0, 3.0, 4.0, 2.0, 3.0, 4.0);
+		string? planError = null;
+		fixture.Health.Setup(x => x.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart, 2.0, 3.0, 4.0,
+			WoundSeverity.Moderate, out plan, out planError)).Returns(true);
+		fixture.Health.Setup(x => x.ApplyDirectHealthCost(fixture.Actor.Object, plan!)).Returns(() =>
+		{
+			woundDamage += 2.0;
+			woundPain += 3.0;
+			woundStun += 4.0;
+			return (IReadOnlyList<IWound>)[wound.Object];
+		});
+
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+
+		Assert.AreEqual(8.0, woundDamage, 0.000001);
+		Assert.AreEqual(10.0, woundPain, 0.000001);
+		Assert.AreEqual(12.0, woundStun, 0.000001);
+		Assert.AreEqual(1, fixture.Wounds.Count, "An existing native wound must not be replaced by a synthetic duplicate.");
+		CollectionAssert.AreEqual(new[] { wound.Object }, fixture.PersistedWounds);
+	}
+
+	[TestMethod]
+	public void CapturedHealthPlanInvalidatedDuringWait_CancelsWithoutPayment()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, stamina: 2.0, damage: 1.0,
+			maximumSeverity: WoundSeverity.Moderate);
+		Mock<IWound> wound = new();
+		wound.SetupGet(x => x.CurrentDamage).Returns(0.0);
+		wound.SetupGet(x => x.CurrentPain).Returns(0.0);
+		wound.SetupGet(x => x.CurrentStun).Returns(0.0);
+		DirectHealthCostPlan? plan = new(fixture.Bodypart, null, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+		string? planError = null;
+		fixture.Health.Setup(x => x.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart, 1.0, 0.0, 0.0,
+			WoundSeverity.Moderate, out plan, out planError)).Returns(true);
+		fixture.Health.Setup(x => x.ApplyDirectHealthCost(fixture.Actor.Object, plan!)).Returns((IReadOnlyList<IWound>)[wound.Object]);
+
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Health.Reset();
+		fixture.World.Heartbeat.ManuallyFireHeartbeat5Second();
+		fixture.Advance(Duration);
+
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		Assert.AreEqual(10.0, fixture.Stamina, 0.000001);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
+	}
+
+	[TestMethod]
+	public void FailedNativeWoundCheckpoint_QuarantinesBeforeDestinationCredit()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, damage: 1.0,
+			maximumSeverity: WoundSeverity.Moderate) { PersistWoundsSucceeds = false };
+		double woundDamage = 0.0;
+		Mock<IWound> wound = new();
+		wound.SetupGet(x => x.CurrentDamage).Returns(() => woundDamage);
+		wound.SetupGet(x => x.CurrentPain).Returns(0.0);
+		wound.SetupGet(x => x.CurrentStun).Returns(0.0);
+		DirectHealthCostPlan? plan = new(fixture.Bodypart, null, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+		string? planError = null;
+		fixture.Health.Setup(x => x.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart, 1.0, 0.0, 0.0,
+			WoundSeverity.Moderate, out plan, out planError)).Returns(true);
+		fixture.Health.Setup(x => x.ApplyDirectHealthCost(fixture.Actor.Object, plan!)).Returns(() =>
+		{
+			woundDamage += 1.0;
+			return (IReadOnlyList<IWound>)[wound.Object];
+		});
+
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+
+		MagicGatheringOperationSummary receipt = fixture.Service.Operation(started.OperationId.Value)!;
+		Assert.IsFalse(receipt.BodilyCostApplied, "The receipt cannot advertise a health price before its native checkpoint.");
+		Assert.AreEqual("NeedsReview", receipt.Status);
+		Assert.AreEqual(1.0, woundDamage, 0.000001);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+	}
+
+	[TestMethod]
+	public void NewNativeWoundCheckpoint_InitialisesOnlyTheTrackedWoundWithoutAWorldFlush()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, damage: 1.0,
+			maximumSeverity: WoundSeverity.Moderate);
+		MagicGatheringService service = new(fixture.World.World.Object, fixture.Store, fixture.World.Clock,
+			(_, _, _) => fixture.PersistSucceeds);
+		bool registered = false;
+		double woundDamage = 0.0;
+		Mock<IWound> wound = new();
+		Mock<ILateInitialisingItem> lateWound = wound.As<ILateInitialisingItem>();
+		lateWound.SetupGet(x => x.IdHasBeenRegistered).Returns(() => registered);
+		wound.SetupGet(x => x.CurrentDamage).Returns(() => woundDamage);
+		wound.SetupGet(x => x.CurrentPain).Returns(0.0);
+		wound.SetupGet(x => x.CurrentStun).Returns(0.0);
+		fixture.World.Saves.Setup(x => x.DirectInitialise(It.IsAny<ILateInitialisingItem>()))
+			.Callback<ILateInitialisingItem>(_ => registered = true);
+		DirectHealthCostPlan? plan = new(fixture.Bodypart, null, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+		string? planError = null;
+		fixture.Health.Setup(x => x.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart, 1.0, 0.0, 0.0,
+			WoundSeverity.Moderate, out plan, out planError)).Returns(true);
+		fixture.Health.Setup(x => x.ApplyDirectHealthCost(fixture.Actor.Object, plan!)).Returns(() =>
+		{
+			woundDamage += 1.0;
+			return (IReadOnlyList<IWound>)[wound.Object];
+		});
+
+		MagicGatheringResult started = service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		Assert.IsTrue(service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+
+		fixture.World.Saves.Verify(x => x.DirectInitialise(lateWound.Object), Times.Once);
+		fixture.World.Saves.Verify(x => x.Flush(), Times.Never,
+			"A health-priced gather must not synchronously flush unrelated world saves.");
+		lateWound.Verify(x => x.Save(), Times.Never,
+			"A newly initialised wound already contains the applied cost and must not be saved as an existing wound.");
+	}
+
+	[TestMethod]
+	public void HealthWoundCheckpoint_PrecedesAndDoesNotDependOnPostGatherCallback()
+	{
+		const long progId = 903;
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, damage: 1.0,
+			maximumSeverity: WoundSeverity.Moderate, onGatheredProgId: progId);
+		MagicGatheringService service = new(fixture.World.World.Object, fixture.Store, fixture.World.Clock,
+			(_, _, _) => fixture.PersistSucceeds);
+		bool registered = false;
+		bool registeredBeforeCallback = false;
+		double woundDamage = 0.0;
+		Mock<IWound> wound = new();
+		Mock<ILateInitialisingItem> lateWound = wound.As<ILateInitialisingItem>();
+		lateWound.SetupGet(x => x.IdHasBeenRegistered).Returns(() => registered);
+		wound.SetupGet(x => x.CurrentDamage).Returns(() => woundDamage);
+		wound.SetupGet(x => x.CurrentPain).Returns(0.0);
+		wound.SetupGet(x => x.CurrentStun).Returns(0.0);
+		fixture.World.Saves.Setup(x => x.DirectInitialise(It.IsAny<ILateInitialisingItem>()))
+			.Callback<ILateInitialisingItem>(_ => registered = true);
+		Mock<IFutureProg> callback = new();
+		callback.SetupGet(x => x.Id).Returns(progId);
+		callback.Setup(x => x.ExecuteWithStatus(out It.Ref<object>.IsAny, It.IsAny<object[]>()))
+			.Callback(() => registeredBeforeCallback = registered)
+			.Returns(true);
+		fixture.World.Progs.Add(callback.Object);
+		DirectHealthCostPlan? plan = new(fixture.Bodypart, null, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+		string? planError = null;
+		fixture.Health.Setup(x => x.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart, 1.0, 0.0, 0.0,
+			WoundSeverity.Moderate, out plan, out planError)).Returns(true);
+		fixture.Health.Setup(x => x.ApplyDirectHealthCost(fixture.Actor.Object, plan!)).Returns(() =>
+		{
+			woundDamage += 1.0;
+			return (IReadOnlyList<IWound>)[wound.Object];
+		});
+
+		MagicGatheringResult started = service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		Assert.IsTrue(service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+
+		Assert.IsTrue(registeredBeforeCallback,
+			"The callback must observe the already checkpointed native wound, rather than supplying its durability.");
+		fixture.World.Saves.Verify(x => x.DirectInitialise(lateWound.Object), Times.Once);
+		fixture.World.Saves.Verify(x => x.Flush(), Times.Once,
+			"Only the legacy post-gather callback path may request its own flush.");
+	}
+
+	[TestMethod]
+	public void GeneralAndBodyActionBlockers_RefuseBeforeGatheringBegins()
+	{
+		using GatheringFixture general = new(MagicGatheringMethodKind.Self, stamina: 1.0);
+		general.ActorEffects.Add(BlockingEffect(general.Actor.Object, "general", "You are already occupied."));
+		Assert.IsFalse(general.Service.Begin(general.Actor.Object, general.Capability.Object, "draw", 1.0).Success);
+		Assert.AreEqual(10.0, general.Stamina, 0.000001);
+
+		using GatheringFixture body = new(MagicGatheringMethodKind.Self, stamina: 1.0);
+		body.BodyEffects.Add(BlockingEffect(body.Actor.Object, "movement", "Your body cannot move right now."));
+		Assert.IsFalse(body.Service.Begin(body.Actor.Object, body.Capability.Object, "draw", 1.0).Success);
+		Assert.AreEqual(10.0, body.Stamina, 0.000001);
+	}
+
+	[TestMethod]
+	public void ActionBlockerDuringWait_CancelsWithoutPayment()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, stamina: 1.0);
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.BodyEffects.Add(BlockingEffect(fixture.Actor.Object, "general", "Your body is restrained."));
+		fixture.World.Heartbeat.ManuallyFireHeartbeat5Second();
+		fixture.Advance(Duration);
+
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		Assert.AreEqual(10.0, fixture.Stamina, 0.000001);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+	}
+
+	[TestMethod]
+	public void ActionBlockerImmediatelyBeforeCommit_RefusesWithoutPayment()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, stamina: 1.0);
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.BodyEffects.Add(BlockingEffect(fixture.Actor.Object, "general", "Your body is restrained."));
+		fixture.Advance(Duration);
+
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		Assert.AreEqual(10.0, fixture.Stamina, 0.000001);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
+	}
+
+	[TestMethod]
+	public void GatheringTimedAction_DoesNotBlockItsOwnValidation()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, stamina: 1.0);
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		Assert.IsTrue(fixture.ActorEffects.OfType<MagicGatheringTimedAction>().Any());
+		fixture.World.Heartbeat.ManuallyFireHeartbeat5Second();
+		Assert.IsTrue(fixture.ActorEffects.OfType<MagicGatheringTimedAction>().Any(),
+			"The live gathering action is the only blocker ignored by its validation path.");
+		fixture.Advance(Duration);
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+	}
+
+	[TestMethod]
+	public void PlayerGatherCommand_UsesTheSameGeneralActionBlockerGate()
+	{
+		const string schoolVerb = "gatherblockergate";
+		MagicModule.EnsureMagicSchoolVerbRegistered(schoolVerb);
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, stamina: 1.0, schoolVerb: schoolVerb);
+		fixture.ActorEffects.Add(BlockingEffect(fixture.Actor.Object, "general", "You are already occupied."));
+
+		Assert.IsTrue(PlayerCommandTree.Instance.Commands.Execute(fixture.Actor.Object,
+			$"{schoolVerb} gather \"Test Capability\" draw 1", fixture.Actor.Object.State,
+			MudSharp.Accounts.PermissionLevel.Player, fixture.Actor.Object.OutputHandler));
+
+		Assert.IsTrue(fixture.Output.Any(x => x.Contains("already occupied", StringComparison.OrdinalIgnoreCase)),
+			string.Join("\n", fixture.Output));
+		Assert.AreEqual(10.0, fixture.Stamina, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
 	}
 
 	[TestMethod]
@@ -639,11 +960,19 @@ public class MagicGatheringServiceTests
 
 	private static readonly TimeSpan Duration = TimeSpan.FromSeconds(2.0);
 
-	private sealed class GatheringFixture : IDisposable
+	internal static IEffect BlockingEffect(ICharacter owner, string block, string description)
+	{
+		return new BlockingDelayedAction(owner, _ => { }, description, block, string.Empty);
+	}
+
+	internal sealed class GatheringFixture : IDisposable
 	{
 		private readonly Dictionary<IMagicResource, double> _resources = [];
 		private readonly Mock<IBody> _body = new();
+		private readonly Mock<IBodypart> _bodypart = new();
 		private readonly Mock<IHealthStrategy> _health = new();
+		private readonly List<IEffect> _actorEffects = [];
+		private readonly List<IEffect> _bodyEffects = [];
 		private readonly bool _ownsWorld;
 		private ICell _location;
 		private RoomLayer _layer = RoomLayer.GroundLevel;
@@ -651,6 +980,7 @@ public class MagicGatheringServiceTests
 
 		public EnvironmentalMagicTestWorld World { get; }
 		public MagicGatheringReceiptMemoryStore Store { get; }
+		public int ReceiptCount => Store.Count;
 		public MagicGatheringService Service { get; }
 		public Mock<ICharacter> Actor { get; } = new() { DefaultValue = DefaultValue.Mock };
 		public Mock<IMagicGatheringCapability> Capability { get; } = new();
@@ -658,13 +988,20 @@ public class MagicGatheringServiceTests
 		public IMagicResource Destination { get; }
 		public Cell Cell { get; }
 		public List<IWound> Wounds { get; } = [];
+		public List<IWound> PersistedWounds { get; } = [];
 		public List<string> Output { get; } = [];
 		public double Stamina { get; private set; } = 10.0;
 		public bool PersistSucceeds { get; set; } = true;
+		public bool PersistWoundsSucceeds { get; set; } = true;
 		public bool AcceptDestinationCredit { get; set; } = true;
 		public double DestinationBalance => _resources.GetValueOrDefault(Destination);
 		public double SourceBalance => World.Balance(0, Source.Id);
 		public MagicGatheringMethodDefinition Method => _method;
+		public Mock<IHealthStrategy> Health => _health;
+		public Mock<IBody> Body => _body;
+		public IBodypart Bodypart => _bodypart.Object;
+		public IList<IEffect> ActorEffects => _actorEffects;
+		public IList<IEffect> BodyEffects => _bodyEffects;
 
 		public GatheringFixture(MagicGatheringMethodKind kind, double ratio = 1.0, double stamina = 0.0,
 			double damage = 0.0, double pain = 0.0, double stun = 0.0, WoundSeverity maximumSeverity = WoundSeverity.None,
@@ -685,7 +1022,12 @@ public class MagicGatheringServiceTests
 			World.Resources.Add(Destination);
 			_resources[Destination] = 0.0;
 			Store = new MagicGatheringReceiptMemoryStore();
-			Service = new MagicGatheringService(World.World.Object, Store, World.Clock, (_, _, _) => PersistSucceeds);
+			Service = new MagicGatheringService(World.World.Object, Store, World.Clock, (_, _, _) => PersistSucceeds,
+				(_, wounds) =>
+				{
+					PersistedWounds.AddRange(wounds);
+					return PersistWoundsSucceeds;
+				});
 			World.World.SetupGet(x => x.MagicGathering).Returns(Service);
 
 			Mock<IMagicSchool> school = new();
@@ -702,8 +1044,16 @@ public class MagicGatheringServiceTests
 			Capability.Setup(x => x.GatheringConfigurationErrors()).Returns(Array.Empty<string>());
 
 			_body.SetupGet(x => x.Id).Returns(33L);
-			_body.SetupGet(x => x.RandomBodypart).Returns(Mock.Of<IBodypart>());
+			_bodypart.SetupGet(x => x.Id).Returns(44L);
+			_bodypart.SetupGet(x => x.DamageModifier).Returns(1.0);
+			_bodypart.SetupGet(x => x.PainModifier).Returns(1.0);
+			_bodypart.SetupGet(x => x.StunModifier).Returns(1.0);
+			_body.SetupGet(x => x.RandomBodypart).Returns(_bodypart.Object);
+			_body.SetupGet(x => x.Bodyparts).Returns(() => [_bodypart.Object]);
+			_body.SetupGet(x => x.Effects).Returns(() => _bodyEffects);
 			_health.Setup(x => x.GetSeverity(It.IsAny<double>())).Returns(WoundSeverity.Moderate);
+			_health.SetupGet(x => x.SupportedDirectHealthCostChannels).Returns(
+				DirectHealthCostChannels.Damage | DirectHealthCostChannels.Pain | DirectHealthCostChannels.Stun);
 			Actor.SetupGet(x => x.Id).Returns(11L);
 			Actor.SetupGet(x => x.Name).Returns("Gatherer");
 			Actor.SetupGet(x => x.FrameworkItemType).Returns("Character");
@@ -718,6 +1068,8 @@ public class MagicGatheringServiceTests
 			Actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
 			Actor.SetupGet(x => x.Combat).Returns((ICombat)null!);
 			Actor.SetupGet(x => x.Movement).Returns((IMovement)null!);
+			Actor.SetupGet(x => x.Effects).Returns(() => _actorEffects);
+			Actor.Setup(x => x.IsBlocked(It.IsAny<string[]>())).Returns((string[] blocks) => FindActionBlocker(blocks));
 			Actor.SetupGet(x => x.Capabilities).Returns(() => [Capability.Object]);
 			Actor.SetupGet(x => x.MagicResources).Returns(() => _resources.Keys);
 			Actor.SetupGet(x => x.MagicResourceAmounts).Returns(() => _resources);
@@ -733,6 +1085,7 @@ public class MagicGatheringServiceTests
 			Actor.Setup(x => x.SpendStamina(It.IsAny<double>())).Callback<double>(amount => Stamina -= amount);
 			Actor.SetupGet(x => x.HealthStrategy).Returns(_health.Object);
 			Actor.SetupGet(x => x.Wounds).Returns(() => Wounds);
+			Actor.Setup(x => x.AddWounds(It.IsAny<IEnumerable<IWound>>())).Callback<IEnumerable<IWound>>(wounds => Wounds.AddRange(wounds));
 			Actor.Setup(x => x.SufferDamage(It.IsAny<IDamage>())).Returns(Array.Empty<IWound>());
 			Actor.Setup(x => x.GetFormat(It.IsAny<Type>())).Returns<Type>(type => CultureInfo.InvariantCulture.GetFormat(type)!);
 			Actor.SetupGet(x => x.Account).Returns(Mock.Of<IAccount>());
@@ -741,15 +1094,33 @@ public class MagicGatheringServiceTests
 			output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.Callback<string, bool, bool>((text, _, _) => Output.Add(text)).Returns(true);
 			Actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
-			Actor.Setup(x => x.AddEffect(It.IsAny<MagicGatheringTimedAction>(), It.IsAny<TimeSpan>()));
+			Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
+				.Callback<IEffect, TimeSpan>((effect, _) => _actorEffects.Add(effect));
 			Actor.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>())).Callback<IEffect, bool>((effect, fire) =>
 			{
+				_actorEffects.Remove(effect);
 				if (fire)
 				{
 					effect.RemovalEffect();
 				}
 			});
 			World.ResetSavedFlags();
+		}
+
+		private (bool Truth, string Message) FindActionBlocker(IEnumerable<string> blocks)
+		{
+			foreach (IEffect effect in _actorEffects.Concat(_bodyEffects))
+			{
+				foreach (string block in blocks)
+				{
+					if (effect.IsBlockingEffect(block))
+					{
+						return (true, effect.BlockingDescription(block, Actor.Object));
+					}
+				}
+			}
+
+			return (false, string.Empty);
 		}
 
 		public GatheringFixture(GatheringFixture shared, MagicGatheringMethodKind kind)
@@ -882,7 +1253,7 @@ public class MagicGatheringServiceTests
 		}
 	}
 
-	private sealed class MagicGatheringReceiptMemoryStore : IMagicGatheringReceiptStore
+	internal sealed class MagicGatheringReceiptMemoryStore : IMagicGatheringReceiptStore
 	{
 		private readonly Dictionary<Guid, MagicGatheringReceipt> _operations = [];
 		public int Count => _operations.Count;

@@ -80,6 +80,51 @@ public class MagicFutureProgFunctionTests
 	}
 
 	[TestMethod]
+	public void BeginMagicGatherFunction_RoutesACompiledInvocationThroughTheGatheringService()
+	{
+		FutureProgTestBootstrap.EnsureInitialised();
+		Mock<IFuturemud> gameworld = new();
+		Mock<IMagicGatheringService> service = new();
+		Mock<ICharacter> actor = new();
+		Mock<IMagicGatheringCapability> capability = new();
+		gameworld.SetupGet(x => x.MagicGathering).Returns(service.Object);
+		service.Setup(x => x.Begin(actor.Object, capability.Object, "draw", 1.0))
+			.Returns(new MagicGatheringResult(false, "A shared action blocker refused gathering."));
+
+		IFunction function = Compile("beginmagicgather", gameworld.Object,
+			Constant(actor.Object, ProgVariableTypes.Character),
+			Constant(capability.Object, ProgVariableTypes.MagicCapability),
+			Constant("draw", ProgVariableTypes.Text),
+			Constant(1.0M, ProgVariableTypes.Number));
+
+		Assert.AreEqual(StatementResult.Normal, function.Execute(Mock.Of<IVariableSpace>()));
+		Assert.AreEqual(string.Empty, function.Result.GetObject);
+		service.Verify(x => x.Begin(actor.Object, capability.Object, "draw", 1.0), Times.Once,
+			"Compiled begin calls must share the same service gate as player commands.");
+	}
+
+	[TestMethod]
+	public void BeginMagicGatherFunction_RespectsTheSharedActionBlockerGate()
+	{
+		FutureProgTestBootstrap.EnsureInitialised();
+		using MagicGatheringServiceTests.GatheringFixture fixture = new(MagicGatheringMethodKind.Self, stamina: 1.0);
+		fixture.ActorEffects.Add(MagicGatheringServiceTests.BlockingEffect(fixture.Actor.Object, "general",
+			"You are already occupied."));
+
+		IFunction function = Compile("beginmagicgather", fixture.World.World.Object,
+			Constant(fixture.Actor.Object, ProgVariableTypes.Character),
+			Constant(fixture.Capability.Object, ProgVariableTypes.MagicCapability),
+			Constant("draw", ProgVariableTypes.Text),
+			Constant(1.0M, ProgVariableTypes.Number));
+
+		Assert.AreEqual(StatementResult.Normal, function.Execute(Mock.Of<IVariableSpace>()));
+		Assert.AreEqual(string.Empty, function.Result.GetObject);
+		Assert.AreEqual(1, fixture.ActorEffects.Count, "The real service must not schedule its gathering action past a blocker.");
+		Assert.AreEqual(0, fixture.ReceiptCount);
+		Assert.AreEqual(10.0, fixture.Stamina, 0.000001);
+	}
+
+	[TestMethod]
 	public void MagicResourceFunctions_SetAddSubtractClampAndReturnCurrentLevel()
 	{
 		var resource = CreateFrameworkItemMock<IMagicResource>(1, "Essence");

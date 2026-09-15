@@ -21,6 +21,21 @@ namespace MudSharp.Health.Strategies;
 public abstract class BaseHealthStrategy : SaveableItem, IHealthStrategy
 {
 	public virtual bool RequiresPeriodicHealthTick => true;
+	public virtual DirectHealthCostChannels SupportedDirectHealthCostChannels => DirectHealthCostChannels.None;
+
+	public virtual bool TryPlanDirectHealthCost(IHaveWounds owner, IBodypart bodypart, double damage, double pain,
+		double stun, WoundSeverity maximumSeverity, out DirectHealthCostPlan plan, out string error)
+	{
+		plan = null;
+		error = "This health strategy does not support direct independent health costs.";
+		return false;
+	}
+
+	public virtual IReadOnlyList<IWound> ApplyDirectHealthCost(IHaveWounds owner, DirectHealthCostPlan plan)
+	{
+		throw new NotSupportedException("This health strategy does not support direct independent health costs.");
+	}
+
     private static readonly Dictionary<string, Func<HealthStrategy, IFuturemud, IHealthStrategy>> _databaseLoaders = new(StringComparer.InvariantCultureIgnoreCase);
     private static readonly Dictionary<string, Func<IFuturemud, string, IHealthStrategy>> _builderLoaders = new(StringComparer.InvariantCultureIgnoreCase);
     private static readonly Dictionary<string, string> _typeHelps = new(StringComparer.InvariantCultureIgnoreCase);

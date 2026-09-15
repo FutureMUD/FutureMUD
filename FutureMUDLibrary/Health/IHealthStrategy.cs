@@ -25,6 +25,31 @@ namespace MudSharp.Health
         Pain
     }
 
+    [Flags]
+    public enum DirectHealthCostChannels
+    {
+        None = 0,
+        Damage = 1,
+        Pain = 2,
+        Stun = 4
+    }
+
+    /// <summary>
+    /// A health-cost application that has been checked against a particular body part and, where
+    /// applicable, a particular existing wound. The inputs are the values that must be supplied to
+    /// the native wound implementation; the expected values are the visible costs after its
+    /// modifiers have been applied.
+    /// </summary>
+    public sealed record DirectHealthCostPlan(
+        IBodypart Bodypart,
+        IWound ExistingWound,
+        double DamageInput,
+        double PainInput,
+        double StunInput,
+        double ExpectedDamage,
+        double ExpectedPain,
+        double ExpectedStun);
+
     public enum HealthStrategyOwnerType
     {
         Character,
@@ -75,6 +100,35 @@ namespace MudSharp.Health
 		/// Static item-health strategies can opt out because their status is evaluated synchronously.
 		/// </summary>
 		bool RequiresPeriodicHealthTick => true;
+
+		/// <summary>
+		/// The independent wound channels this strategy can safely price and apply as a direct
+		/// health cost. Strategies opt in explicitly so callers do not guess at their wound
+		/// semantics.
+		/// </summary>
+		DirectHealthCostChannels SupportedDirectHealthCostChannels => DirectHealthCostChannels.None;
+
+		/// <summary>
+		/// Attempts to create a deterministic, side-effect-free direct health-cost plan for a
+		/// specific body part. Implementations must reject plans whose native result cannot be
+		/// predicted safely.
+		/// </summary>
+		bool TryPlanDirectHealthCost(IHaveWounds owner, IBodypart bodypart, double damage, double pain,
+			double stun, WoundSeverity maximumSeverity, out DirectHealthCostPlan plan, out string error)
+		{
+			plan = null;
+			error = "This health strategy does not support direct independent health costs.";
+			return false;
+		}
+
+		/// <summary>
+		/// Applies a previously accepted direct health-cost plan and returns every native wound that
+		/// was changed. Callers use that set for the bounded persistence checkpoint.
+		/// </summary>
+		IReadOnlyList<IWound> ApplyDirectHealthCost(IHaveWounds owner, DirectHealthCostPlan plan)
+		{
+			throw new NotSupportedException("This health strategy does not support direct independent health costs.");
+		}
         string HealthStrategyType { get; }
         HealthStrategyOwnerType OwnerType { get; }
         HealthStateModel HealthStateModel { get; }

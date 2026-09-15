@@ -73,7 +73,9 @@ public sealed record MagicGatheringQuote(
 	double MinimumStamina,
 	double DamageCost,
 	double PainCost,
-	double StunCost);
+	double StunCost,
+	long? HealthTargetBodypartId = null,
+	bool HealthCostUsesExistingWound = false);
 
 public sealed record MagicGatheringMethodView(
 	Guid Key,

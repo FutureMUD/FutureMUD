@@ -1,0 +1,4 @@
+interface:
+  display_name: "FutureMUD PR Publish"
+  short_description: "Publish and merge FutureMUD PRs"
+  default_prompt: "Use $futuremud-pr-publish to publish the completed FutureMUD change and merge the pull request."

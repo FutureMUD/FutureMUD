@@ -1,0 +1,3 @@
+display_name: "FutureMUD MUD Tester"
+short_description: "Drive local FutureMUD tests"
+default_prompt: "Use the FutureMUD MUD tester skill to launch or connect to the local FutureMUD instance, log in, run the requested in-game commands, and summarize the transcript."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "FutureMUD Seeder Catalogue Audit"
+  short_description: "Audit seeded catalogues from source"
+  default_prompt: "Use $futuremud-seeder-catalogue-audit to refresh a FutureMUD seeded catalogue from live seeder sources."

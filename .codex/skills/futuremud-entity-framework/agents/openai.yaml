@@ -1,0 +1,4 @@
+interface:
+  display_name: "FutureMUD Entity Framework"
+  short_description: "Maintain EF models, migrations, and snapshots"
+  default_prompt: "Use $futuremud-entity-framework to make this FutureMUD persistence change safely."

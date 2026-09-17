@@ -1,0 +1,4 @@
+interface:
+  display_name: "FutureMUD Subsystem Quality Pass"
+  short_description: "Review FutureMUD subsystems end to end"
+  default_prompt: "Use $futuremud-subsystem-quality-pass to review and harden a FutureMUD subsystem end to end."

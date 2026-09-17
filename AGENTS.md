@@ -81,3 +81,13 @@ Give each child an objective, exact files/revision or scenario, permitted action
 Only the coordinator delegates or escalates; children return blockers and evidence, not further agents. Avoid duplicate investigation. Use one source-code writer per worktree and one operator per test server/database; do not rebuild or change a running test's inputs. Parallel writes require explicitly disjoint ownership and isolated state.
 
 QA agents do not repair code or weaken assertions. The coordinator diagnoses/fixes failed checks and requests a focused rerun. Preserve failures and unexecuted checks in the final result. A blocked check, ambiguous transcript or successful build is not proof that gameplay works.
+
+### Escalation
+
+Use `fm_escalation_specialist` for one unresolved root cause or high-risk design decision, not merely because a task is large. First distinguish missing evidence, tools, permissions or requirements from a reasoning bottleneck. Do not force cheaper-model failures before an obviously high-risk consultation.
+
+The coordinator may request one bounded specialist consultation without a separate user confirmation when the existing task scope and budget permit. Supply the exact question, revision/working-tree scope, evidence, attempted approaches and outcomes, constraints and completion boundary. Do not copy the entire conversation. Prefer a targeted handoff; check whether the harness also inherits parent context.
+
+The specialist advises; the coordinator owns implementation and final acceptance, and QA owns test execution. Do not duplicate the same investigation while the specialist works. Keep at most one premium escalation active per task; follow up on new evidence, not repeated speculation. This is an operating policy, not a hard token limit.
+
+When the coordinator already uses Astra at high or greater effort, use the specialist only for a specifically useful independent assessment, not as a nominal capability upgrade. If premium reasoning is needed throughout the remaining task, prefer continuing with an appropriately configured coordinator over repeated specialist handoffs.

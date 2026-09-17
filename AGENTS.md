@@ -69,3 +69,15 @@ Choose checks from the changed behaviour and its dependants, not merely the repo
 Use the paired repository scripts (`.ps1` on Windows, `.sh` on POSIX) where practical. For direct .NET commands, use `-m:1`; restore only when needed and use `--no-restore` for subsequent builds/tests. A full solution build is not the default: the VSIX project may require Visual Studio SDK targets absent from the environment. See the verification reference for exact commands and sandbox-specific exceptions.
 
 For documentation/instruction-only changes, validate paths, syntax, and the diff; run code tests only when the edit affects executable behaviour or a specific contract requires them. For code changes, run the relevant tests and broaden to dependent suites when justified. Report the checks actually run, their outcomes, and any blocked or unverified behaviour; do not treat an unavailable environment as a passing test.
+
+## Delegation
+
+Use subagents for bounded work that benefits from cheaper execution, independent review, or keeping noisy output out of the main thread. Small tasks stay single-agent; do not create a mandatory planning/review/testing chain.
+
+The coordinator owns implementation, integration and final acceptance. Use `fm_reviewer` for focused code review, `fm_docs_researcher` for factual lookup, `fm_qa_runner` for test selection or adaptive in-game validation, and `fm_smoke_runner` only for an executable scenario with explicit assertions and stop conditions. Keep the built-in `explorer` for bounded code mapping. Do not request premium child models or higher effort without a concrete reason.
+
+Give each child an objective, exact files/revision or scenario, permitted actions, evidence requirements and a stopping budget. Point to relevant skills/references instead of copying the whole conversation. For a substantial handoff, use the relevant section of [.codex/references/agent-delegation.md](.codex/references/agent-delegation.md).
+
+Only the coordinator delegates or escalates; children return blockers and evidence, not further agents. Avoid duplicate investigation. Use one source-code writer per worktree and one operator per test server/database; do not rebuild or change a running test's inputs. Parallel writes require explicitly disjoint ownership and isolated state.
+
+QA agents do not repair code or weaken assertions. The coordinator diagnoses/fixes failed checks and requests a focused rerun. Preserve failures and unexecuted checks in the final result. A blocked check, ambiguous transcript or successful build is not proof that gameplay works.

@@ -42,7 +42,7 @@ using RuntimeCharacter = MudSharp.Character.Character;
 
 namespace FutureMUD.GatheringNativePersistenceHarness;
 
-internal static class Program
+internal static class GNHProgram
 {
 	private const string ConnectionEnvironmentVariable = "FUTUREMUD_GATHERING_TEST_CONNECTION";
 	private const string SnapshotDatabasePlaceholder = "__FUTUREMUD_DATABASE__";

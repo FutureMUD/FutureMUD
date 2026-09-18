@@ -347,11 +347,13 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 
     #endregion
 
+#nullable enable
     internal static bool IsSupportedRooftopsOnlyLayer(ICell? location, IPerceiver perceiver, RoomLayer roomLayer)
     {
         return roomLayer == RoomLayer.OnRooftops &&
                location?.Terrain(perceiver).TerrainLayers.Contains(RoomLayer.GroundLevel) == false;
     }
+#nullable restore
 
     public virtual bool ShouldFall()
     {

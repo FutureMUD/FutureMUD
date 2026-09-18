@@ -45,7 +45,9 @@ public abstract class CombatMoveBase : ICombatMove
 
     public IEnumerable<IPerceiver> Targets => _targets;
 
+#nullable enable
     protected ICharacter? PrimaryCharacterTarget => PrimaryTarget as ICharacter ?? CharacterTargets.FirstOrDefault();
+#nullable restore
 
     public virtual IPerceiver PrimaryTarget
     {

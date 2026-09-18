@@ -37,7 +37,7 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 	public MagicPowerAttackMove(ICharacter attacker, IEnumerable<ICharacter> targets, IMagicAttackPower power)
 		: this(attacker, targets.First(), power) { }
 
-	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
+	public override CombatMoveResult ResolveMove(ICombatMove? defenderMove)
 	{
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		var target = PrimaryCharacterTarget;

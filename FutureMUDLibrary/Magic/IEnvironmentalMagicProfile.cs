@@ -18,6 +18,13 @@ public interface IEnvironmentalMagicProfile : IMagicResourceRegenerator
 	IReadOnlyList<EnvironmentalMagicOutput> Outputs { get; }
 	IReadOnlyList<EnvironmentalMagicInput> Inputs { get; }
 	IReadOnlyList<string> ValidationErrors { get; }
+	bool HasOrganicConfiguration { get; }
+	IReadOnlyList<NativeOrganicSourceDeclaration> OrganicSources { get; }
+	IReadOnlyList<NativeOrganicPenaltyDefinition> OrganicPenalties { get; }
+	long? OrganicProtectionProgId { get; }
+	IFutureProg? OrganicProtectionProg { get; }
+	/// <summary>Organic-only errors never disable otherwise valid legacy mana outputs.</summary>
+	IReadOnlyList<string> OrganicValidationErrors { get; }
 	/// <summary>All referenced built-in and named inputs, compared without case.</summary>
 	IReadOnlySet<string> RequiredInputNames { get; }
 	/// <summary>Cumulative half-lives; differences preserve pressure decay across profile edits.</summary>
@@ -27,6 +34,10 @@ public interface IEnvironmentalMagicProfile : IMagicResourceRegenerator
 	/// <summary>Evaluate a maximum, then a rate, against one already collected immutable input snapshot.</summary>
 	EnvironmentalMagicOutputEvaluation EvaluateOutput(EnvironmentalMagicOutput output,
 		IReadOnlyDictionary<string, double> sharedInputs, double balance);
+	/// <summary>Dependencies for one penalty only; evaluating a penalty never evaluates mana outputs.</summary>
+	IReadOnlySet<string> RequiredOrganicInputNames(NativeOrganicPenaltyChannel channel);
+	NativeOrganicPenaltyEvaluation EvaluateOrganicPenalty(NativeOrganicPenaltyChannel channel,
+		IReadOnlyDictionary<string, double> inputs);
 }
 
 public sealed record EnvironmentalMagicOutput(long ResourceId, IMagicResource? Resource,

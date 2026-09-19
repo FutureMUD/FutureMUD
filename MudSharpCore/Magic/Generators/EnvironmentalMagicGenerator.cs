@@ -13,7 +13,7 @@ using MagicGenerator = MudSharp.Models.MagicGenerator;
 namespace MudSharp.Magic.Generators;
 
 /// <summary>A persisted profile. Its cell runtime belongs exclusively to the world coordinator.</summary>
-public sealed class EnvironmentalMagicGenerator : BaseMagicResourceGenerator, IEnvironmentalMagicProfile
+public sealed partial class EnvironmentalMagicGenerator : BaseMagicResourceGenerator, IEnvironmentalMagicProfile
 {
 	public const int CurrentDefinitionVersion = 1;
 	public const int MaximumOutputs = 8;
@@ -66,6 +66,9 @@ public sealed class EnvironmentalMagicGenerator : BaseMagicResourceGenerator, IE
 		_outputView = _outputs.AsReadOnly();
 		_inputView = _inputs.AsReadOnly();
 		_errorView = _validationErrors.AsReadOnly();
+		_organicSourceView = _organicSources.AsReadOnly();
+		_organicPenaltyView = _organicPenalties.AsReadOnly();
+		_organicErrorView = _organicValidationErrors.AsReadOnly();
 		_outputs.Add(new EnvironmentalMagicOutput(resource.Id, resource, "basecapacity", "baserate", 100.0, 1.0));
 		DecayReferenceUtc = gameworld.EnvironmentalMagic?.UtcNow ?? DateTimeOffset.UtcNow;
 		RebuildDefinition();
@@ -77,6 +80,9 @@ public sealed class EnvironmentalMagicGenerator : BaseMagicResourceGenerator, IE
 		_outputView = _outputs.AsReadOnly();
 		_inputView = _inputs.AsReadOnly();
 		_errorView = _validationErrors.AsReadOnly();
+		_organicSourceView = _organicSources.AsReadOnly();
+		_organicPenaltyView = _organicPenalties.AsReadOnly();
+		_organicErrorView = _organicValidationErrors.AsReadOnly();
 		LoadDefinition(generator.Definition);
 		RebuildDefinition();
 	}
@@ -86,6 +92,9 @@ public sealed class EnvironmentalMagicGenerator : BaseMagicResourceGenerator, IE
 		_outputView = _outputs.AsReadOnly();
 		_inputView = _inputs.AsReadOnly();
 		_errorView = _validationErrors.AsReadOnly();
+		_organicSourceView = _organicSources.AsReadOnly();
+		_organicPenaltyView = _organicPenalties.AsReadOnly();
+		_organicErrorView = _organicValidationErrors.AsReadOnly();
 		LoadDefinition(original.SaveDefinition().ToString());
 		DecayReferenceUtc = Gameworld.EnvironmentalMagic?.UtcNow ?? DateTimeOffset.UtcNow;
 		DecayIntegral = 0.0;
@@ -219,6 +228,8 @@ public sealed class EnvironmentalMagicGenerator : BaseMagicResourceGenerator, IE
 			_inputs.Add(new EnvironmentalMagicInput(element.Attribute("name")?.Value ?? string.Empty, kind,
 				source, ReadNumber(element.Attribute("scale")?.Value, 1.0), progId));
 		}
+
+		LoadOrganicDefinition(root.Element("Organic"));
 	}
 
 	private static double ReadNumber(string? value, double missingDefault) => value is null
@@ -238,7 +249,8 @@ public sealed class EnvironmentalMagicGenerator : BaseMagicResourceGenerator, IE
 			new XElement("Rate", output.RateFormula)))),
 		new XElement("Inputs", _inputs.Select(input => new XElement("Input", new XAttribute("name", input.Name),
 			new XAttribute("kind", input.Kind), new XAttribute("source", input.Source),
-			new XAttribute("scale", input.Scale), input.ProgId.HasValue ? new XAttribute("prog", input.ProgId.Value) : null))));
+			new XAttribute("scale", input.Scale), input.ProgId.HasValue ? new XAttribute("prog", input.ProgId.Value) : null))),
+		SaveOrganicDefinition());
 
 	private void RebuildDefinition()
 	{
@@ -297,6 +309,7 @@ public sealed class EnvironmentalMagicGenerator : BaseMagicResourceGenerator, IE
 				_validationErrors.Add(inputError);
 			}
 		}
+		RebuildOrganicDefinition(names);
 
 		var required = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 		var resources = new HashSet<long>();
@@ -553,13 +566,27 @@ public sealed class EnvironmentalMagicGenerator : BaseMagicResourceGenerator, IE
 	#3halflife <seconds>#0 - set recent-pressure half-life (at least 1 second)
 	#3repair <amount>#0 - set natural scar repair per real minute (zero disables)
 	#3idle <seconds|default>#0 - set an optional 1-3600 second idle recheck
+	#3organic sources#0 - list explicitly authorised native organic sources
+	#3organic source add forage <yield-key>#0 - authorise one exact forage yield key
+	#3organic source add <crop|woodland|pasture>#0 - authorise one field source
+	#3organic source <selector> uses <uses|any>#0 - restrict compatible field uses
+	#3organic source <selector> definitions <ids|any>#0 - restrict vegetation definitions
+	#3organic source remove <selector>#0 - remove a native source authorisation
+	#3organic penalty <channel> <formula|none>#0 - set a dimensionless suppression factor from 0 to 1
+	#3organic protection <prog|none>#0 - validate a later-use protection prog without invoking it
 
 Built-ins: #6basecapacity#0, #6baserate#0, #6scardamage#0, #6pressure#0, #6hasdefile#0 and
 #6minutessincedefile#0. Rate formulae may also use #6balance#0 and #6maximum#0.
 Agriculture sources: #6hasfield#0, #6hascrop#0, #6haswoodland#0, #6crophealth#0,
 #6cropyieldpotential#0, #6woodlandhealth#0, #6woodlandyieldpotential#0, #6pasture#0 and #6fieldcondition#0.
 Absent field/crop/woodland inputs are zero; presence inputs distinguish absence.
-Progs must be #6NotStatic#0, return a number, accept one location, and perform only pure reads.";
+Progs must be #6NotStatic#0, return a number, accept one location, and perform only pure reads.
+Organic penalty channels: #6forage#0, #6crophealth#0, #6cropyield#0, #6woodlandhealth#0,
+#6woodlandyield#0, #6pasture#0, #6cropinitial#0, #6woodlandinitial#0 and #6pastureinitial#0.
+Penalty inputs: #6scardamage#0 and decayed #6pressure#0 are ecological amounts; #6hasdefile#0 is 0/1;
+#6minutessincedefile#0 is real minutes; #6nativestock#0, #6nativehealth#0, #6nativeyield#0,
+#6nativecapacity#0, #6fieldcondition#0 and #6baselineincrease#0 are raw owner values in that channel's
+native units. Declared named inputs are also available. The result is a dimensionless factor from 0 to 1.";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -570,6 +597,7 @@ Progs must be #6NotStatic#0, return a number, accept one location, and perform o
 			case "halflife": return BuildingCommandHalfLife(actor, command);
 			case "repair": return BuildingCommandRepair(actor, command);
 			case "idle": return BuildingCommandIdle(actor, command);
+			case "organic": return BuildingCommandOrganic(actor, command);
 			default: return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
@@ -729,6 +757,12 @@ Progs must be #6NotStatic#0, return a number, accept one location, and perform o
 		{
 			return BuildingCommandInputRemove(actor, command);
 		}
+		if (OrganicBuiltInInputs.Contains(name))
+		{
+			actor.OutputHandler.Send(
+				$"Input {name} is a reserved organic scalar/native input name and cannot be rebound.".ColourError());
+			return false;
+		}
 		var kindText = command.PopSpeech();
 		if (!Enum.TryParse<EnvironmentalMagicInputKind>(kindText, true, out var kind) || !Enum.IsDefined(kind))
 		{
@@ -780,9 +814,10 @@ Progs must be #6NotStatic#0, return a number, accept one location, and perform o
 			actor.OutputHandler.Send("Use input remove <existing input name>.");
 			return false;
 		}
-		if (RequiredInputNames.Contains(name))
+		if (RequiredInputNames.Contains(name) || _organicPenalties.Any(penalty =>
+			RequiredOrganicInputNames(penalty.Channel).Contains(name)))
 		{
-			actor.OutputHandler.Send("That input is used by an output formula. Change the formula before removing its input.");
+			actor.OutputHandler.Send("That input is used by an output or organic penalty formula. Change the formula before removing its input.");
 			return false;
 		}
 		ApplyDefinitionChange(() => _inputs.RemoveAll(input => input.Name.EqualTo(name)));
@@ -820,11 +855,12 @@ Progs must be #6NotStatic#0, return a number, accept one location, and perform o
 		{
 			sb.AppendLine("No named inputs.");
 		}
+		AppendOrganicShow(actor, sb);
 		sb.AppendLine();
 		sb.AppendLine("Validation".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		if (_validationErrors.Count == 0)
 		{
-			sb.AppendLine("Definition is valid. Cell-specific inputs and formula results are checked at use.".ColourValue());
+			sb.AppendLine("Legacy mana definition is valid. Cell-specific inputs and formula results are checked at use.".ColourValue());
 		}
 		else
 		{

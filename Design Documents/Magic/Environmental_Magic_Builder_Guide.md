@@ -2,7 +2,7 @@
 
 An `environmental` regenerator is a reusable profile for resources held by physical cells. It uses the existing magic-resource balances, one environmental maximum for each configured resource, and persistent cell damage. It applies only after an explicit cell binding or terrain default is configured. No stock setting content is installed.
 
-The world coordinator advances useful production and optional natural scar repair. See [Environmental Magic Runtime](Environmental_Magic_Runtime.md) for scheduling, persistence and integration contracts, and the [acceptance mapping](Environmental_Magic_Acceptance.md) for regression coverage and execution boundaries. [Capability-configured Self and Gentle gathering](Magic_Gathering.md) is a separate consumer of the exact managed debit surface; it does not change profile authoring, yields, scheduler ownership, scars or pressure. Yield consumption, channelling and rejuvenation spells remain outside this feature.
+The world coordinator advances useful production and optional natural scar repair. See [Environmental Magic Runtime](Environmental_Magic_Runtime.md) for scheduling, persistence and integration contracts, and the [acceptance mapping](Environmental_Magic_Acceptance.md) for regression coverage and execution boundaries. [Capability-configured Self and Gentle gathering](Magic_Gathering.md) is a separate consumer of the exact managed mana-debit surface. [Native organic yields](Native_Organic_Yields_and_Ecological_Penalties.md) add explicit source authorisation, staff inspection, native owner debits and scar-sensitive positive production for the later Land method. Task 3A still adds no player Land access, payout, channelling or rejuvenation spell.
 
 ## Author a profile
 
@@ -61,7 +61,37 @@ Named inputs have an explicit finite scale. The binding multiplies its source va
 
 Agriculture sources are `hasfield`, `hascrop`, `haswoodland`, `crophealth`, `cropyieldpotential`, `woodlandhealth`, `woodlandyieldpotential`, `pasture`, and `fieldcondition`. Presence values are 0 or 1; the health/yield/pasture/condition scores are 0-100. Absent field/crop/woodland values contribute zero. Bind a presence input when a missing field must differ from a present field with zero health.
 
-Forage inputs read the named yield in its native yield-point units. No effective forage profile contributes neutral zero. An existing profile without the configured key is a configuration error. Pure reads project the current profile's cap/new-key rules without modifying stored forage pools, recovering forage, changing yield heartbeats or saving. The environmental feature never consumes forage or agriculture yields and never changes their recovery rates.
+Forage mana inputs read the named yield in its native yield-point units. No effective forage profile contributes neutral zero. An existing profile without the configured key is a configuration error. Pure reads project the current profile's cap/new-key rules without modifying stored forage pools, recovering forage, changing yield heartbeats or saving. A separately declared organic source may be observed/planned and debited through its native owner, and a separately configured penalty may suppress its positive native recovery; merely reading a mana input grants neither behavior.
+
+## Organic sources and ecological penalties
+
+Organic conversion is opt-in per canonical source. Use:
+
+```text
+magic regenerator set organic sources
+magic regenerator set organic source add forage <yield-key>
+magic regenerator set organic source add crop|woodland|pasture
+magic regenerator set organic source <selector> uses <uses|any>
+magic regenerator set organic source <selector> definitions <IDs|any>
+magic regenerator set organic source remove <selector>
+magic regenerator set organic penalty <channel> <formula|none>
+magic regenerator set organic protection <prog|none>
+```
+
+Canonical selectors are `forage:<normalised-key>`, `crop`, `woodland` and `pasture`. Crop covers both an annual crop and an orchard in the shared native crop slot. A profile permits at most 32 declarations and rejects duplicate canonical selectors. Empty definition/use restrictions mean any compatible current definition/use for that declared source; they do not enable undeclared channels. Where a field and wild forage represent the same plants, declare only the intended native owner.
+
+Penalty tokens are `forage`, `crophealth`, `cropyield`, `woodlandhealth`, `woodlandyield`, `pasture`, `cropinitial`, `woodlandinitial` and `pastureinitial`. Formulae must be deterministic and return a finite multiplier from zero through one. Inputs and units are documented in the [native-yields design](Native_Organic_Yields_and_Ecological_Penalties.md). A missing formula is neutral. An invalid configured result contributes no uncertain positive growth to that channel and is diagnosed; it never turns into unrestricted growth.
+
+The optional protection prog is validated now for the later destructive operation and is not invoked by Task 3A. It returns boolean and accepts character actor, character owner, magic capability, text method key, numeric requested amount and location cell, in that order.
+
+Inspect current owners without awarding or consuming anything:
+
+```text
+magic environment yields here
+magic environment yields repair here all
+```
+
+The repair form is only for malformed field accounting. It clears unsafe fraction/progress evidence around unchanged native stock; it does not replenish vegetation, remove scars or grant mana.
 
 Optional progs must return a number, accept exactly one location, and use `NotStatic` caching mode. They must perform only read-only operations. Do not call resource mutations, staff operations or `invalidateenvironment` from an environmental input prog. Native source changes wake the coordinator; external policy dependencies need the explicit dirty helper or bounded periodic reconciliation. A current managed resource mutation always validates its necessary inputs before allowing a credit or debit.
 

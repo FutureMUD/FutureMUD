@@ -17,6 +17,8 @@ public partial class MagicModule
 	private const string EnvironmentHelp = @"Environmental resources belong to physical cells. Configure their reusable profiles with #3magic regenerator#0.
 
 	#3magic environment show [here|<cell id>]#0 - inspect profile, inputs, resources and damage
+	#3magic environment yields [here|<cell id>]#0 - purely inspect authorised native organic sources and accounting
+	#3magic environment yields repair [here|<cell id>] [crop|woodland|pasture|all]#0 - clear malformed extension accounting only
 	#3magic environment cell <here|cell id> <inherit|disabled|profile>#0 - set a cell binding
 	#3magic environment terrain <terrain> <profile|none>#0 - set a terrain default
 	#3magic environment damage <here|cell id> <damage> <pressure> <operation guid> <reason>#0 - record staff damage and destructive-use pressure
@@ -81,10 +83,154 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 				}
 
 				return;
+			case "yields":
+				EnvironmentYields(actor, command, service);
+				return;
 			default:
 				actor.OutputHandler.Send(EnvironmentHelp.SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static void EnvironmentYields(ICharacter actor, StringStack command, IEnvironmentalMagicService service)
+	{
+		if (command.PeekSpeech().EqualTo("repair"))
+		{
+			command.PopSpeech();
+			EnvironmentYieldsRepair(actor, command, service);
+			return;
+		}
+		if (!TryEnvironmentCell(actor, command, true, out var cell) || !EnvironmentArgumentsFinished(actor, command))
+		{
+			return;
+		}
+
+		var sources = service.InspectOrganicSources(cell);
+		var sb = new StringBuilder();
+		sb.AppendLine($"Native Organic Yields — Cell #{cell.Id.ToString("N0", actor)}"
+			.GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		if (sources.Count == 0)
+		{
+			sb.AppendLine("The effective environmental profile authorises no native organic sources.");
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(sources.Select(source => new[]
+		{
+			source.Selector,
+			source.Status.DescribeEnum(),
+			source.NativeStock.ToString("G8", actor),
+			source.PrepaidFraction.ToString("G8", actor),
+			$"{source.RecoveryRemainders.Health.ToString("G6", actor)}/{source.RecoveryRemainders.Yield.ToString("G6", actor)}/{source.RecoveryRemainders.Biomass.ToString("G6", actor)}",
+			OrganicLifecycleText(source, actor),
+			OrganicFactorText(service, cell, source, actor),
+			source.Diagnostic ?? string.Empty
+		}), new[] { "Selector", "Status", "Stock", "Prepaid", "Progress H/Y/B", "Lifecycle", "Factors @ +1", "Diagnostic" },
+			actor, Telnet.Green));
+		sb.AppendLine();
+		sb.AppendLine("Stock and progress are pure observations. Factors are dimensionless [0..1]; invalid configured factors fail closed. Inspection does not synchronise, consume, save or grant mana.");
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void EnvironmentYieldsRepair(ICharacter actor, StringStack command,
+		IEnvironmentalMagicService service)
+	{
+		ICell? cell;
+		var first = command.PopSpeech();
+		string kindText;
+		if (first.Length == 0)
+		{
+			cell = actor.Location;
+			kindText = "all";
+		}
+		else if (first.EqualTo("here"))
+		{
+			cell = actor.Location;
+			kindText = command.PopSpeech();
+		}
+		else if (long.TryParse(first, out var id))
+		{
+			cell = actor.Gameworld.Cells.Get(id);
+			kindText = command.PopSpeech();
+		}
+		else
+		{
+			cell = actor.Location;
+			kindText = first;
+		}
+		if (cell is null)
+		{
+			actor.OutputHandler.Send("Specify here or the ID of an existing cell.".ColourError());
+			return;
+		}
+		if (!command.IsFinished)
+		{
+			actor.OutputHandler.Send("Use magic environment yields repair [here|cell id] [crop|woodland|pasture|all].".ColourError());
+			return;
+		}
+		NativeOrganicSourceKind? kind = null;
+		if (!string.IsNullOrEmpty(kindText) && !kindText.EqualTo("all") &&
+		    (!Enum.TryParse(kindText, true, out NativeOrganicSourceKind parsed) ||
+		     !Enum.IsDefined(parsed) || parsed == NativeOrganicSourceKind.Forage))
+		{
+			actor.OutputHandler.Send("Choose crop, woodland, pasture or all. Forage has no integer accounting extension.".ColourError());
+			return;
+		}
+		else if (!string.IsNullOrEmpty(kindText) && !kindText.EqualTo("all"))
+		{
+			kind = Enum.Parse<NativeOrganicSourceKind>(kindText, true);
+		}
+		if (!service.RepairNativeOrganicAccounting(cell, kind, out var result))
+		{
+			actor.OutputHandler.Send(result.ColourError());
+			return;
+		}
+		actor.OutputHandler.Send(result.ColourValue());
+	}
+
+	private static string OrganicLifecycleText(NativeOrganicSourceSnapshot source, ICharacter actor)
+	{
+		if (source.Lifecycle is not { } lifecycle) return "-";
+		return source.Kind == NativeOrganicSourceKind.Forage
+			? $"forage #{lifecycle.ForageProfileId?.ToString("N0", actor) ?? "?"} r{lifecycle.ForageProfileRevision.ToString("N0", actor)}/{lifecycle.ForageDefinitionRevision.ToString("N0", actor)}"
+			: $"field #{lifecycle.FieldId?.ToString("N0", actor) ?? "?"} g{lifecycle.Generation.ToString("N0", actor)} d{lifecycle.DefinitionId.ToString("N0", actor)}";
+	}
+
+	private static string OrganicFactorText(IEnvironmentalMagicService service, ICell cell,
+		NativeOrganicSourceSnapshot source, ICharacter actor)
+	{
+		var channels = source.Kind switch
+		{
+			NativeOrganicSourceKind.Forage => new[] { ("R", NativeOrganicPenaltyChannel.ForageReplenishment) },
+			NativeOrganicSourceKind.Crop => new[]
+			{
+				("H", NativeOrganicPenaltyChannel.CropHealthRecovery),
+				("Y", NativeOrganicPenaltyChannel.CropYieldRecovery),
+				("I", NativeOrganicPenaltyChannel.CropInitialisation)
+			},
+			NativeOrganicSourceKind.Woodland => new[]
+			{
+				("H", NativeOrganicPenaltyChannel.WoodlandHealthRecovery),
+				("Y", NativeOrganicPenaltyChannel.WoodlandYieldRecovery),
+				("I", NativeOrganicPenaltyChannel.WoodlandInitialisation)
+			},
+			NativeOrganicSourceKind.Pasture => new[]
+			{
+				("R", NativeOrganicPenaltyChannel.PastureRecovery),
+				("I", NativeOrganicPenaltyChannel.PastureInitialisation)
+			},
+			_ => Array.Empty<(string Label, NativeOrganicPenaltyChannel Channel)>()
+		};
+		return channels.Select(item =>
+		{
+			var evaluation = service is EnvironmentalMagicCoordinator coordinator
+				? coordinator.InspectOrganicPenaltyFactor(cell, source, item.Item2)
+				: service.EvaluateOrganicPenalty(cell, item.Item2, new NativeOrganicPenaltyContext(source.Kind,
+					source.Selector, source.NativeStock, source.NativeStock, source.NativeStock,
+						Math.Max(source.NativeStock, 1.0), 0.0, 1.0));
+			return $"{item.Item1}:{(evaluation.IsValid ? evaluation.Factor.ToString("G6", actor) : "Invalid")}";
+		}).ListToString(separator: " ", conjunction: "", twoItemJoiner: " ");
 	}
 
 	private static void EnvironmentShow(ICharacter actor, StringStack command, IEnvironmentalMagicService service)

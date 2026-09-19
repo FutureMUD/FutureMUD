@@ -251,7 +251,18 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		{
 			var profile = _world.MagicResourceRegenerators.Get(registration.ProfileId) as IEnvironmentalMagicProfile;
 			var kind = reason == EnvironmentalMagicDirtyReason.Forage ? EnvironmentalMagicInputKind.Forage : EnvironmentalMagicInputKind.Agriculture;
-				if (profile is not null && !profile.Inputs.Any(x => (x.Kind == kind || x.Kind == EnvironmentalMagicInputKind.Prog) && profile.RequiredInputNames.Contains(x.Name))) return;
+			if (profile is not null)
+			{
+				var manaDepends = profile.Inputs.Any(x =>
+					(x.Kind == kind || x.Kind == EnvironmentalMagicInputKind.Prog) && profile.RequiredInputNames.Contains(x.Name));
+				var organicDepends = profile.OrganicSources.Any(x => reason == EnvironmentalMagicDirtyReason.Forage
+					? x.Kind == NativeOrganicSourceKind.Forage
+					: x.Kind is NativeOrganicSourceKind.Crop or NativeOrganicSourceKind.Woodland or NativeOrganicSourceKind.Pasture) ||
+					profile.OrganicPenalties.Any(penalty => penalty.RequiredInputNames.Any(name =>
+						profile.Inputs.Any(input => input.Name.EqualTo(name) &&
+							(input.Kind == kind || input.Kind == EnvironmentalMagicInputKind.Prog))));
+				if (!manaDepends && !organicDepends) return;
+			}
 		}
 		registration.Dirty |= reason;
 		if (registration.DirtyNode is not null) return;
@@ -343,6 +354,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		_auditAge.Clear();
 		_lastLoggedFault.Clear();
 		_lastLoggedSlow.Clear();
+		_lastLoggedOrganic.Clear();
 		_discoveryCursor = null;
 		_discoveryRemaining = _productionCount = _maintenanceCount = _faultCount = _workingCount = 0;
 	}

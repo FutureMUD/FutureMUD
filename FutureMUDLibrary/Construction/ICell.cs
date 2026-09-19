@@ -12,6 +12,7 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Magic;
+using MudSharp.Magic.Environment;
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
 using MudSharp.Work.Agriculture;
@@ -108,10 +109,14 @@ namespace MudSharp.Construction
         /// existing depleted keys retain their balance, clamped to the current maximum.
         /// </summary>
         bool TryPeekForagableYield(string foragableType, out double yield);
+		/// <summary>Purely observes stock and the effective forage-profile lifecycle used by a planned debit.</summary>
+		bool TryPeekForagableYield(string foragableType, out NativeForageYieldSnapshot snapshot);
         /// <summary>Synchronises forage pools at an owning configuration or mutation boundary.</summary>
         void SynchroniseForagableProfile();
         bool CanConsumeYield(string foragableType, double yield);
         bool TryConsumeYield(string foragableType, double yield);
+		/// <summary>Exactly compare-and-applies a previously observed native forage debit.</summary>
+		bool TryConsumeYield(NativeForageYieldSnapshot expected, double yield, out string reason);
         void ConsumeYieldFor(IForagable foragable);
         void ConsumeYield(string foragableType, double yield);
         IEnumerable<string> ForagableTypes { get; }

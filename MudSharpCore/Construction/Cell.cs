@@ -21,6 +21,7 @@ using MudSharp.Events.Hooks;
 using MudSharp.Form.Audio;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Revision;
+using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.Magic;
@@ -41,7 +42,7 @@ using Track = MudSharp.Models.Track;
 
 namespace MudSharp.Construction;
 
-public partial class Cell : Location, IDisposable, ICell
+public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailure
 {
 	private readonly bool _isCombatSimulationCell;
 	private readonly long _combatSimulationDatabaseLocationId;
@@ -59,6 +60,18 @@ public partial class Cell : Location, IDisposable, ICell
     protected List<IEditableCellOverlay> _overlays = new();
 
     private bool _yieldsChanged;
+	private CellSaveAttemptState? _recoverableSaveAttempt;
+
+	private readonly record struct CellSaveAttemptState(
+		bool ContentsChanged,
+		bool ResourcesChanged,
+		bool YieldsChanged,
+		bool TagsChanged,
+		bool EffectsChanged,
+		bool SurfaceLiquidChanged,
+		bool HooksChanged,
+		bool EnvironmentStateChanged,
+		long? ExpectedEnvironmentDatabaseRevision);
 
     public Cell(ICellOverlayPackage package, IRoom room, bool temporary = false) : base(room.Gameworld)
     {
@@ -1160,6 +1173,7 @@ public partial class Cell : Location, IDisposable, ICell
 
     public override void Save()
     {
+		PrepareForSaveAttempt();
         Models.Cell dbcell = FMDB.Context.Cells.Find(Id);
         dbcell.CurrentOverlayId = CurrentOverlay.Id;
         dbcell.RoomId = Room.Id;
@@ -1184,23 +1198,6 @@ public partial class Cell : Location, IDisposable, ICell
         if (ResourcesChanged)
         {
             SaveMagic(dbcell);
-        }
-
-        if (YieldsChanged)
-        {
-            FMDB.Context.CellsForagableYields.RemoveRange(dbcell.CellsForagableYields);
-            foreach (KeyValuePair<string, double> item in _foragableYields)
-            {
-                CellsForagableYield dbyield = new()
-                {
-                    Cell = dbcell,
-                    ForagableType = item.Key,
-                    Yield = item.Value
-                };
-                dbcell.CellsForagableYields.Add(dbyield);
-            }
-
-            _yieldsChanged = false;
         }
 
         if (TagsChanged)
@@ -1235,8 +1232,84 @@ public partial class Cell : Location, IDisposable, ICell
             HooksChanged = false;
         }
 
-        Changed = false;
+		// Keep the staged forage rows, their specialised dirty bit and the owner's final save state atomic
+		// with respect to native consumption and recovery. A mutation either precedes this snapshot or waits
+		// until Changed has been cleared, at which point it marks and queues the cell again.
+		lock (_foragableYields)
+		{
+			if (_yieldsChanged)
+			{
+				RecordForagableYieldSaveAttempt();
+				FMDB.Context.CellsForagableYields.RemoveRange(dbcell.CellsForagableYields);
+				foreach (var item in _foragableYields)
+				{
+					var dbYield = new CellsForagableYield
+					{
+						Cell = dbcell,
+						ForagableType = item.Key,
+						Yield = item.Value
+					};
+					dbcell.CellsForagableYields.Add(dbYield);
+				}
+
+				_yieldsChanged = false;
+			}
+
+			Changed = false;
+		}
     }
+
+	internal void PrepareForSaveAttempt()
+	{
+		_recoverableSaveAttempt = new CellSaveAttemptState(
+			ContentsChanged,
+			ResourcesChanged,
+			YieldsChanged,
+			TagsChanged,
+			EffectsChanged,
+			_surfaceLiquidChanged,
+			HooksChanged,
+			_environmentStateChanged,
+			ExpectedEnvironmentDatabaseRevision);
+	}
+
+	private void RecordForagableYieldSaveAttempt()
+	{
+		if (_recoverableSaveAttempt is { } attempt)
+		{
+			_recoverableSaveAttempt = attempt with { YieldsChanged = true };
+		}
+	}
+
+	public void RecoverFromSaveFailure()
+	{
+		if (_recoverableSaveAttempt is not { } attempt)
+		{
+			return;
+		}
+
+		_recoverableSaveAttempt = null;
+		_contentsChanged |= attempt.ContentsChanged;
+		_resourcesChanged |= attempt.ResourcesChanged;
+		_yieldsChanged |= attempt.YieldsChanged;
+		_tagsChanged |= attempt.TagsChanged;
+		_surfaceLiquidChanged |= attempt.SurfaceLiquidChanged;
+		_environmentStateChanged |= attempt.EnvironmentStateChanged;
+		if (attempt.EnvironmentStateChanged)
+		{
+			ExpectedEnvironmentDatabaseRevision = attempt.ExpectedEnvironmentDatabaseRevision;
+		}
+
+		if (attempt.EffectsChanged)
+		{
+			EffectsChanged = true;
+		}
+
+		if (attempt.HooksChanged)
+		{
+			HooksChanged = true;
+		}
+	}
 
     public void Dispose()
     {
@@ -2133,6 +2206,9 @@ public partial class Cell : Location, IDisposable, ICell
     private long _foragableYieldProfileId;
     private int _foragableYieldProfileRevision;
     private long _foragableYieldDefinitionRevision;
+	private long _foragableYieldSourceRevision;
+	private object _foragableYieldSubscriptionSync = new();
+	private object ForagableYieldSubscriptionSync => _foragableYieldSubscriptionSync ??= new object();
 
     public IForagableProfile ForagableProfile
     {
@@ -2200,8 +2276,11 @@ public partial class Cell : Location, IDisposable, ICell
     public double GetForagableYield(string foragableType)
     {
         SynchroniseForagableYields(ResolveForagableProfile());
-        var yield = _foragableYields.GetValueOrDefault(foragableType);
-        return double.IsFinite(yield) && yield > 0.0 ? yield : 0.0;
+		lock (_foragableYields)
+		{
+			var yield = _foragableYields.GetValueOrDefault(foragableType);
+			return double.IsFinite(yield) && yield > 0.0 ? yield : 0.0;
+		}
     }
 
 	public bool TryPeekForagableYield(string foragableType, out double yield)
@@ -2219,10 +2298,55 @@ public partial class Cell : Location, IDisposable, ICell
 			return false;
 		}
 
+		lock (_foragableYields)
+		{
+			// Project the same clamping/new-key rules as synchronisation without writing its result.
+			yield = _foragableYields.TryGetValue(foragableType, out var existing)
+				? double.IsFinite(existing) ? Math.Clamp(existing, 0.0, maximum) : 0.0
+				: maximum;
+		}
+
+		return true;
+	}
+
+	public bool TryPeekForagableYield(string foragableType, out NativeForageYieldSnapshot snapshot)
+	{
+		snapshot = null;
+		if (!NativeOrganicSourceSelectors.IsValidForageKey(foragableType))
+		{
+			return false;
+		}
+
+		var key = NativeOrganicSourceSelectors.NormaliseForageKey(foragableType);
+		var profile = PeekForagableProfile();
+		lock (_foragableYields)
+		{
+			return TryCreateNativeForageSnapshotLocked(profile, key, out snapshot);
+		}
+	}
+
+	private bool TryCreateNativeForageSnapshotLocked(IForagableProfile profile, string key,
+		out NativeForageYieldSnapshot snapshot)
+	{
+		snapshot = null;
+		if (profile == null || !profile.MaximumYieldPoints.TryGetValue(key, out var maximum) ||
+		    !double.IsFinite(maximum) || maximum <= 0.0)
+		{
+			return false;
+		}
+
 		// Project the same clamping/new-key rules as synchronisation without writing its result.
-		yield = _foragableYields.TryGetValue(foragableType, out var existing)
+		var stock = _foragableYields.TryGetValue(key, out var existing)
 			? double.IsFinite(existing) ? Math.Clamp(existing, 0.0, maximum) : 0.0
 			: maximum;
+		snapshot = new NativeForageYieldSnapshot(
+			key,
+			profile.Id,
+			profile.RevisionNumber,
+			profile.YieldDefinitionRevision,
+			maximum,
+			stock,
+			_foragableYieldSourceRevision);
 		return true;
 	}
 
@@ -2241,9 +2365,10 @@ public partial class Cell : Location, IDisposable, ICell
             return false;
         }
 
+		SynchroniseForagableYields(ResolveForagableProfile());
+		var changed = false;
         lock (_foragableYields)
         {
-            SynchroniseForagableYields(ResolveForagableProfile());
             var available = _foragableYields.GetValueOrDefault(foragableType);
             if (!double.IsFinite(available) || available + YieldComparisonTolerance < yield)
             {
@@ -2257,35 +2382,127 @@ public partial class Cell : Location, IDisposable, ICell
             }
 
             _foragableYields[foragableType] = current;
-            YieldsChanged = true;
-            Gameworld.EnvironmentalMagic?.MarkDirty(this, EnvironmentalMagicDirtyReason.Forage);
-            Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
-            Gameworld.HeartbeatManager.HourHeartbeat += YieldTick;
-            return true;
+			IncrementForagableYieldSourceRevision();
+			changed = true;
         }
+
+		if (changed)
+		{
+			NotifyForagableYieldChanged();
+		}
+
+		return true;
     }
+
+	public bool TryConsumeYield(NativeForageYieldSnapshot expected, double yield, out string reason)
+	{
+		if (expected == null)
+		{
+			reason = "A forage yield snapshot is required.";
+			return false;
+		}
+
+		if (!NativeOrganicAccountingMath.TryAmount(yield, out var exactAmount, out var amountError))
+		{
+			reason = amountError ?? "The forage debit amount is invalid.";
+			return false;
+		}
+
+		var exactYield = (double)exactAmount;
+		if (exactYield != yield)
+		{
+			reason = "The forage debit cannot be represented exactly by native accounting.";
+			return false;
+		}
+
+		var profile = PeekForagableProfile();
+		lock (_foragableYields)
+		{
+			if (!TryCreateNativeForageSnapshotLocked(profile, expected.Key, out var current))
+			{
+				reason = "The forage source is no longer available.";
+				return false;
+			}
+
+			if (current != expected)
+			{
+				reason = "The forage source changed after it was inspected; inspect it again before retrying.";
+				return false;
+			}
+
+			decimal currentAmount;
+			try
+			{
+				currentAmount = (decimal)current.Stock;
+			}
+			catch (OverflowException)
+			{
+				reason = "The forage source stock cannot be represented by native accounting.";
+				return false;
+			}
+
+			if (exactAmount > currentAmount)
+			{
+				reason = "The forage source does not contain enough stock for that exact debit.";
+				return false;
+			}
+
+			var remainingAmount = currentAmount - exactAmount;
+			var remaining = (double)remainingAmount;
+			decimal roundTrippedRemaining;
+			try
+			{
+				roundTrippedRemaining = (decimal)remaining;
+			}
+			catch (OverflowException)
+			{
+				reason = "The remaining forage stock cannot be represented by native accounting.";
+				return false;
+			}
+
+			if (!double.IsFinite(remaining) || remaining < 0.0 || roundTrippedRemaining != remainingAmount ||
+			    remaining == current.Stock)
+			{
+				reason = "The forage debit is too small to produce an exact native stock change.";
+				return false;
+			}
+
+			_foragableYields[current.Key] = remaining;
+			IncrementForagableYieldSourceRevision();
+		}
+
+		NotifyForagableYieldChanged();
+		reason = string.Empty;
+		return true;
+	}
 
     public void ConsumeYieldFor(IForagable foragable)
     {
         SynchroniseForagableProfile();
+		var forageTypes = foragable.ForagableTypes.ToList();
         var changed = false;
-        foreach (string type in foragable.ForagableTypes.Where(type => _foragableYields.ContainsKey(type)))
-        {
-            var previous = _foragableYields[type];
-            var current = Math.Max(0.0, previous - 1.0);
-            _foragableYields[type] = current;
-            changed |= current != previous;
-        }
+		lock (_foragableYields)
+		{
+			foreach (var type in forageTypes.Where(type => _foragableYields.ContainsKey(type)))
+			{
+				var previous = _foragableYields[type];
+				var current = Math.Max(0.0, previous - 1.0);
+				_foragableYields[type] = current;
+				changed |= current != previous;
+			}
+
+			if (changed)
+			{
+				IncrementForagableYieldSourceRevision();
+			}
+		}
 
         if (!changed)
         {
             return;
         }
 
-        YieldsChanged = true;
-        Gameworld.EnvironmentalMagic?.MarkDirty(this, EnvironmentalMagicDirtyReason.Forage);
-        Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
-        Gameworld.HeartbeatManager.HourHeartbeat += YieldTick;
+		NotifyForagableYieldChanged();
     }
 
     public void ConsumeYield(string foragableType, double yield)
@@ -2295,23 +2512,28 @@ public partial class Cell : Location, IDisposable, ICell
             return;
         }
 
-        var previous = GetForagableYield(foragableType);
-        var current = Math.Max(0.0, previous - yield);
-        if (current == previous)
-        {
-            return;
-        }
+		SynchroniseForagableYields(ResolveForagableProfile());
+		var changed = false;
+		lock (_foragableYields)
+		{
+			var previous = _foragableYields.GetValueOrDefault(foragableType);
+			var current = Math.Max(0.0, previous - yield);
+			if (current != previous)
+			{
+				_foragableYields[foragableType] = current;
+				IncrementForagableYieldSourceRevision();
+				changed = true;
+			}
+		}
 
-        _foragableYields[foragableType] = current;
-        YieldsChanged = true;
-        Gameworld.EnvironmentalMagic?.MarkDirty(this, EnvironmentalMagicDirtyReason.Forage);
-        Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
-        Gameworld.HeartbeatManager.HourHeartbeat += YieldTick;
+		if (changed)
+		{
+			NotifyForagableYieldChanged();
+		}
     }
 
-    private double GetMaxYield(string type)
+	private static double GetMaxYield(IForagableProfile profile, string type)
     {
-        var profile = ResolveForagableProfile();
         if (!(profile?.MaximumYieldPoints.ContainsKey(type) ?? false))
         {
             return 0.0;
@@ -2321,9 +2543,8 @@ public partial class Cell : Location, IDisposable, ICell
         return double.IsFinite(yield) && yield > 0.0 ? yield : 0.0;
     }
 
-    private double GetHourlyYield(string type)
+	private static double GetHourlyYield(IForagableProfile profile, string type)
     {
-        var profile = ResolveForagableProfile();
         if (!(profile?.HourlyYieldPoints.ContainsKey(type) ?? false))
         {
             return 0.0;
@@ -2333,35 +2554,99 @@ public partial class Cell : Location, IDisposable, ICell
         return double.IsFinite(yield) && yield >= 0.0 ? yield : 0.0;
     }
 
+	private double GetForagableRecoveryIncrement(string type, double stock, double maximum, double hourly)
+	{
+		var baseline = Math.Min(hourly, Math.Max(0.0, maximum - stock));
+		if (!double.IsFinite(baseline) || baseline <= 0.0)
+		{
+			return 0.0;
+		}
+
+		var context = new NativeOrganicPenaltyContext(
+			NativeOrganicSourceKind.Forage,
+			NativeOrganicSourceSelectors.Canonical(NativeOrganicSourceKind.Forage, type),
+			stock,
+			0.0,
+			stock,
+			maximum,
+			0.0,
+			baseline);
+		var evaluation = Gameworld.EnvironmentalMagic?.EvaluateOrganicPenalty(
+			this,
+			NativeOrganicPenaltyChannel.ForageReplenishment,
+			context) ?? NativeOrganicPenaltyEvaluation.Neutral;
+		var factor = !evaluation.IsConfigured
+			? 1.0
+			: evaluation.IsValid && double.IsFinite(evaluation.Factor) && evaluation.Factor is >= 0.0 and <= 1.0
+				? evaluation.Factor
+				: 0.0;
+		return baseline * factor;
+	}
+
     private void YieldTick()
     {
-        SynchroniseForagableProfile();
-        if (ForagableProfile == null)
-        {
-            Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
-            return;
-        }
+		const int maximumAttempts = 4;
+		for (var attempt = 0; attempt < maximumAttempts; attempt++)
+		{
+			var profile = ResolveForagableProfile();
+			SynchroniseForagableYields(profile);
+			if (profile == null)
+			{
+				RefreshForagableYieldSubscription();
+				return;
+			}
 
-        var changed = false;
-        foreach (KeyValuePair<string, double> item in _foragableYields.ToList())
-        {
-            var current = Math.Min(item.Value + GetHourlyYield(item.Key), GetMaxYield(item.Key));
-            if (current != item.Value)
-            {
-                _foragableYields[item.Key] = current;
-                changed = true;
-            }
-        }
+			long sourceRevision;
+			List<(string Key, double Stock, double Maximum, double Hourly)> candidates;
+			lock (_foragableYields)
+			{
+				sourceRevision = _foragableYieldSourceRevision;
+				candidates = _foragableYields
+					.Select(item => (item.Key, item.Value, GetMaxYield(profile, item.Key),
+						GetHourlyYield(profile, item.Key)))
+					.ToList();
+			}
 
-        if (changed)
-        {
-            YieldsChanged = true;
-            Gameworld.EnvironmentalMagic?.MarkDirty(this, EnvironmentalMagicDirtyReason.Forage);
-        }
-        if (_foragableYields.All(x => GetMaxYield(x.Key) <= x.Value))
-        {
-            Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
-        }
+			var recoveries = candidates
+				.Select(item => (item.Key, item.Stock, item.Maximum,
+					Increment: GetForagableRecoveryIncrement(item.Key, item.Stock, item.Maximum, item.Hourly)))
+				.ToList();
+			var changed = false;
+			lock (_foragableYields)
+			{
+				if (_foragableYieldSourceRevision != sourceRevision)
+				{
+					continue;
+				}
+
+				foreach (var recovery in recoveries)
+				{
+					var current = Math.Min(recovery.Stock + recovery.Increment, recovery.Maximum);
+					if (current == recovery.Stock)
+					{
+						continue;
+					}
+
+					_foragableYields[recovery.Key] = current;
+					changed = true;
+				}
+
+				if (changed)
+				{
+					IncrementForagableYieldSourceRevision();
+				}
+			}
+
+			if (changed)
+			{
+				NotifyForagableYieldChanged(refreshSubscription: false);
+			}
+
+			RefreshForagableYieldSubscription();
+			return;
+		}
+
+		RefreshForagableYieldSubscription();
     }
 
     public IEnumerable<string> ForagableTypes
@@ -2369,7 +2654,10 @@ public partial class Cell : Location, IDisposable, ICell
         get
         {
             SynchroniseForagableYields(ResolveForagableProfile());
-            return _foragableYields.Select(x => x.Key);
+			lock (_foragableYields)
+			{
+				return _foragableYields.Keys.ToList();
+			}
         }
     }
 
@@ -2381,12 +2669,15 @@ public partial class Cell : Location, IDisposable, ICell
             return;
         }
 
-        foreach (CellsForagableYield foragable in cell.CellsForagableYields.ToList())
-        {
-            _foragableYields[foragable.ForagableType] = foragable.Yield;
-        }
+		lock (_foragableYields)
+		{
+			foreach (var foragable in cell.CellsForagableYields)
+			{
+				_foragableYields[foragable.ForagableType] = foragable.Yield;
+			}
+		}
 
-        SynchroniseForagableYields(profile, markChanged: false);
+		SynchroniseForagableYields(profile, markChanged: false);
     }
 
     private void SynchroniseForagableYields(IForagableProfile profile, bool markChanged = true)
@@ -2394,78 +2685,111 @@ public partial class Cell : Location, IDisposable, ICell
         var profileId = profile?.Id ?? 0;
         var profileRevision = profile?.RevisionNumber ?? 0;
         var definitionRevision = profile?.YieldDefinitionRevision ?? 0;
-        if (_foragableYieldProfileId == profileId && _foragableYieldProfileRevision == profileRevision &&
-            _foragableYieldDefinitionRevision == definitionRevision)
-        {
-            return;
-        }
+		var validYields = profile?.MaximumYieldPoints
+			.Where(x => double.IsFinite(x.Value) && x.Value > 0.0)
+			.ToList() ?? [];
+		var changed = false;
+		lock (_foragableYields)
+		{
+			if (_foragableYieldProfileId == profileId && _foragableYieldProfileRevision == profileRevision &&
+			    _foragableYieldDefinitionRevision == definitionRevision)
+			{
+				return;
+			}
 
-        var changed = false;
-        if (profile == null)
-        {
-            if (_foragableYields.Any())
-            {
-                _foragableYields.Clear();
-                changed = true;
-            }
+			if (profile == null)
+			{
+				if (_foragableYields.Any())
+				{
+					_foragableYields.Clear();
+					changed = true;
+				}
+			}
+			else
+			{
+				var validTypes = validYields.Select(x => x.Key)
+					.ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+				foreach (var type in _foragableYields.Keys.Where(x => !validTypes.Contains(x)).ToList())
+				{
+					_foragableYields.Remove(type);
+					changed = true;
+				}
 
-            Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
-        }
-        else
-        {
-            var validYields = profile.MaximumYieldPoints
-                                     .Where(x => double.IsFinite(x.Value) && x.Value > 0.0)
-                                     .ToList();
-            var validTypes = validYields.Select(x => x.Key).ToHashSet(StringComparer.InvariantCultureIgnoreCase);
-            foreach (var type in _foragableYields.Keys.Where(x => !validTypes.Contains(x)).ToList())
-            {
-                _foragableYields.Remove(type);
-                changed = true;
-            }
+				foreach (var yield in validYields)
+				{
+					if (!_foragableYields.TryGetValue(yield.Key, out var currentYield))
+					{
+						_foragableYields[yield.Key] = yield.Value;
+						changed = true;
+						continue;
+					}
 
-            foreach (var yield in validYields)
-            {
-                if (!_foragableYields.TryGetValue(yield.Key, out var currentYield))
-                {
-                    _foragableYields[yield.Key] = yield.Value;
-                    changed = true;
-                    continue;
-                }
+					var normalisedYield = double.IsFinite(currentYield)
+						? Math.Clamp(currentYield, 0.0, yield.Value)
+						: 0.0;
+					if (normalisedYield != currentYield)
+					{
+						_foragableYields[yield.Key] = normalisedYield;
+						changed = true;
+					}
+				}
+			}
 
-                var normalisedYield = double.IsFinite(currentYield)
-                    ? Math.Clamp(currentYield, 0.0, yield.Value)
-                    : 0.0;
-                if (normalisedYield != currentYield)
-                {
-                    _foragableYields[yield.Key] = normalisedYield;
-                    changed = true;
-                }
-            }
+			_foragableYieldProfileId = profileId;
+			_foragableYieldProfileRevision = profileRevision;
+			_foragableYieldDefinitionRevision = definitionRevision;
+			IncrementForagableYieldSourceRevision();
+		}
 
-            if (_foragableYields.Any(x => GetMaxYield(x.Key) > x.Value))
-            {
-                Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
-                Gameworld.HeartbeatManager.HourHeartbeat += YieldTick;
-            }
-            else
-            {
-                Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
-            }
-        }
-
-        _foragableYieldProfileId = profileId;
-        _foragableYieldProfileRevision = profileRevision;
-        _foragableYieldDefinitionRevision = definitionRevision;
-        if (changed && markChanged)
-        {
-            YieldsChanged = true;
+		if (changed && markChanged)
+		{
+			YieldsChanged = true;
         }
 
         if (markChanged)
-        {
-            Gameworld.EnvironmentalMagic?.MarkDirty(this, EnvironmentalMagicDirtyReason.Forage);
-        }
+		{
+			Gameworld.EnvironmentalMagic?.MarkDirty(this, EnvironmentalMagicDirtyReason.Forage);
+		}
+
+		RefreshForagableYieldSubscription();
     }
+
+	private void NotifyForagableYieldChanged(bool refreshSubscription = true)
+	{
+		YieldsChanged = true;
+		Gameworld.EnvironmentalMagic?.MarkDirty(this, EnvironmentalMagicDirtyReason.Forage);
+		if (refreshSubscription)
+		{
+			RefreshForagableYieldSubscription();
+		}
+	}
+
+	private void RefreshForagableYieldSubscription()
+	{
+		lock (ForagableYieldSubscriptionSync)
+		{
+			var profile = ResolveForagableProfile();
+			bool requiresTick;
+			lock (_foragableYields)
+			{
+				requiresTick = profile != null &&
+				               _foragableYields.Any(item => GetMaxYield(profile, item.Key) > item.Value);
+			}
+
+			Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
+			if (requiresTick)
+			{
+				Gameworld.HeartbeatManager.HourHeartbeat += YieldTick;
+			}
+		}
+	}
+
+	private void IncrementForagableYieldSourceRevision()
+	{
+		_foragableYieldSourceRevision = _foragableYieldSourceRevision == long.MaxValue
+			? 1L
+			: _foragableYieldSourceRevision + 1L;
+	}
 
     private readonly List<ILocalProject> _localProjects = new();
     public IEnumerable<ILocalProject> LocalProjects => _localProjects;

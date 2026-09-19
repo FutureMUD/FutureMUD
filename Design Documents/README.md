@@ -6,6 +6,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Agriculture System Overview](./Agriculture/Agriculture_System_Overview.md)
 - [Agriculture Runtime Model](./Agriculture/Agriculture_Runtime_Model.md)
 - [Agriculture Builder Workflows](./Agriculture/Agriculture_Builder_Workflows.md)
+- [Native Organic Yields and Ecological Penalties](./Magic/Native_Organic_Yields_and_Ecological_Penalties.md)
 
 ## AI
 - [AI Storyteller Design](./AI/AI_Storyteller_Design.md)
@@ -174,6 +175,9 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Environmental Magic Builder Guide](./Magic/Environmental_Magic_Builder_Guide.md)
 - [Environmental Magic Runtime and Integration](./Magic/Environmental_Magic_Runtime.md)
 - [Environmental Magic Acceptance Mapping](./Magic/Environmental_Magic_Acceptance.md)
+- [Native Organic Yields and Ecological Penalties](./Magic/Native_Organic_Yields_and_Ecological_Penalties.md)
+- [Native Organic Yields Acceptance Mapping](./Magic/Native_Organic_Yields_Acceptance.md)
+- [Native Organic Yields Verification](./Magic/Native_Organic_Yields_Verification.md)
 - [Capability-configured Self and Gentle Gathering](./Magic/Magic_Gathering.md)
 - [Capability-configured Gathering Acceptance Mapping](./Magic/Magic_Gathering_Acceptance.md)
 - [Magic System Implemented Types](./Magic/Magic_System_Implemented_Types.md)

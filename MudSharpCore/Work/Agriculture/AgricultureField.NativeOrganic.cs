@@ -8,7 +8,7 @@ namespace MudSharp.Work.Agriculture;
 
 public partial class AgricultureField
 {
-	private const int NativeOrganicAccountingVersion = 1;
+	private const int NativeOrganicAccountingVersion = 2;
 
 	private enum NativeRecoveryComponent
 	{
@@ -39,6 +39,7 @@ public partial class AgricultureField
 	private bool _nativeOrganicAccountingLoaded;
 	private int _nativeOrganicOwnerSyncDepth;
 	private bool _nativeOrganicSavePending;
+	private bool _pendingPastureAssessment;
 
 	private T SynchronizeNativeOrganicOwner<T>(Func<T> action)
 	{
@@ -137,12 +138,21 @@ public partial class AgricultureField
 		}
 
 		if (!int.TryParse(root.Attribute("version")?.Value, NumberStyles.None, CultureInfo.InvariantCulture,
-			    out var version) || version != NativeOrganicAccountingVersion)
+			    out var version) || version is not (1 or NativeOrganicAccountingVersion))
 		{
 			_rawInvalidNativeAccountingRoot = new XElement(root);
 			InvalidateAllNativeOrganicAccounting("The saved native organic accounting version is missing or unsupported.");
 			return;
 		}
+		// Version 1 and absent extensions describe retained legacy stock, already assessed.
+		var assessment = root.Attribute("pastureAssessment")?.Value;
+		if (version == NativeOrganicAccountingVersion && assessment is not ("pending" or "assessed"))
+		{
+			_rawInvalidNativeAccountingRoot = new XElement(root);
+			InvalidateAllNativeOrganicAccounting("The saved pasture assessment state is missing or invalid.");
+			return;
+		}
+		_pendingPastureAssessment = version == NativeOrganicAccountingVersion && assessment == "pending";
 
 		var seenKinds = new HashSet<NativeOrganicSourceKind>();
 		var firstElements = new Dictionary<NativeOrganicSourceKind, XElement>();
@@ -274,7 +284,8 @@ public partial class AgricultureField
 		}
 
 		var root = new XElement("NativeOrganicAccounting",
-			new XAttribute("version", NativeOrganicAccountingVersion));
+			new XAttribute("version", NativeOrganicAccountingVersion),
+			new XAttribute("pastureAssessment", _pendingPastureAssessment ? "pending" : "assessed"));
 		foreach (var kind in FieldNativeOrganicKinds())
 		{
 			var state = AccountingFor(kind);
@@ -325,7 +336,7 @@ public partial class AgricultureField
 			? new NativeOrganicLifecycleIdentity(_cellId, Id, state.Generation, DefinitionIdFor(kind), null, 0, 0L)
 			: null;
 		var stock = NativeStockFor(kind);
-		var status = state.IsInvalid
+		var status = state.IsInvalid || kind == NativeOrganicSourceKind.Pasture && _pendingPastureAssessment && isLiving
 			? NativeOrganicSourceStatus.Invalid
 			: !isLiving
 				? NativeOrganicSourceStatus.Absent
@@ -345,7 +356,9 @@ public partial class AgricultureField
 			null,
 			0L,
 			CurrentUse,
-			state.Diagnostic ?? (!isLiving ? AbsentDiagnostic(kind) : null));
+			state.Diagnostic ?? (kind == NativeOrganicSourceKind.Pasture && _pendingPastureAssessment && isLiving
+				? "This pasture allocation is still awaiting its initial assessment."
+				: !isLiving ? AbsentDiagnostic(kind) : null));
 	}
 
 	public bool TryApplyNativeOrganicDebit(NativeOrganicDebitPlan plan, out string reason)
@@ -630,9 +643,28 @@ public partial class AgricultureField
 		MarkNativeOrganicSourceChangedUnsafe(kind);
 	}
 
-	private void TransitionNativeOrganicUse(AgricultureFieldUse newUse)
+	private void TransitionNativeOrganicUse(AgricultureFieldUse newUse, int establishmentIncrease = 0)
 	{
+		var firstEstablishment = newUse == AgricultureFieldUse.Pasture && _pendingPastureAssessment;
 		SynchronizeNativeOrganicOwner(() => TransitionNativeOrganicUseUnsafe(newUse));
+		if (!firstEstablishment)
+		{
+			return;
+		}
+
+		var baseline = SynchronizeNativeOrganicOwner(() =>
+		{
+			var staged = _pasture;
+			_pasture = 0;
+			_pendingPastureAssessment = false;
+			MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Pasture);
+			return staged + establishmentIncrease;
+		});
+		var assessed = ApplyPastureIncrease(baseline, NativeOrganicPenaltyChannel.PastureInitialisation);
+		if (assessed > 0)
+		{
+			AdjustScore(AgricultureScoreType.Pasture, assessed);
+		}
 	}
 
 	private void TransitionNativeOrganicUseUnsafe(AgricultureFieldUse newUse)
@@ -700,7 +732,7 @@ public partial class AgricultureField
 	}
 
 	private int ApplyPositiveNativeIncrease(NativeOrganicSourceKind kind, NativeOrganicPenaltyChannel channel,
-		int baseline, int current, int capacity, NativeRecoveryComponent component)
+		int baseline, int current, int capacity, NativeRecoveryComponent component, int sameOperationLoss = 0)
 	{
 		if (baseline <= 0)
 		{
@@ -711,7 +743,7 @@ public partial class AgricultureField
 		{
 			var state = AccountingFor(kind);
 			var currentValue = NativeRecoveryCurrentFor(kind, component);
-			if (capacity <= currentValue)
+			if (capacity <= currentValue + sameOperationLoss)
 			{
 				SetNativeRecoveryRemainderUnsafe(kind, component, 0m);
 				return (AtCapacity: true, Generation: state.Generation,
@@ -763,7 +795,7 @@ public partial class AgricultureField
 			}
 
 			var currentValue = NativeRecoveryCurrentFor(kind, component);
-			if (capacity <= currentValue)
+			if (capacity <= currentValue + sameOperationLoss)
 			{
 				SetNativeRecoveryRemainderUnsafe(kind, component, 0m);
 				return 0;
@@ -771,13 +803,13 @@ public partial class AgricultureField
 
 			if (state.IsInvalid)
 			{
-				return evaluation.IsConfigured ? 0 : Math.Min(capacity - currentValue, baseline);
+				return evaluation.IsConfigured ? 0 : Math.Min(capacity - currentValue - sameOperationLoss, baseline);
 			}
 
 			var progress = GetNativeRecoveryRemainder(state, component) + baseline * (decimal)evaluation.Factor;
 			var whole = (int)decimal.Floor(progress);
-			var applied = Math.Min(capacity - currentValue, whole);
-			var remainder = currentValue + applied >= capacity || applied < whole ? 0m : progress - whole;
+			var applied = Math.Min(capacity - currentValue - sameOperationLoss, whole);
+			var remainder = currentValue + sameOperationLoss + applied >= capacity || applied < whole ? 0m : progress - whole;
 			SetNativeRecoveryRemainderUnsafe(kind, component, remainder);
 			return applied;
 		});
@@ -840,17 +872,17 @@ public partial class AgricultureField
 	}
 
 	private int ApplyCropHealthIncrease(int baseline, NativeOrganicPenaltyChannel channel =
-		NativeOrganicPenaltyChannel.CropHealthRecovery)
+		NativeOrganicPenaltyChannel.CropHealthRecovery, int sameOperationLoss = 0)
 	{
 		return ApplyPositiveNativeIncrease(NativeOrganicSourceKind.Crop, channel, baseline, _cropHealth, 100,
-			NativeRecoveryComponent.Health);
+			NativeRecoveryComponent.Health, sameOperationLoss);
 	}
 
 	private int ApplyCropYieldIncrease(int baseline, NativeOrganicPenaltyChannel channel =
-		NativeOrganicPenaltyChannel.CropYieldRecovery)
+		NativeOrganicPenaltyChannel.CropYieldRecovery, int sameOperationLoss = 0)
 	{
 		return ApplyPositiveNativeIncrease(NativeOrganicSourceKind.Crop, channel, baseline, _cropYieldPotential,
-			100, NativeRecoveryComponent.Yield);
+			100, NativeRecoveryComponent.Yield, sameOperationLoss);
 	}
 
 	private int ApplyWoodlandHealthIncrease(int baseline, NativeOrganicPenaltyChannel channel =

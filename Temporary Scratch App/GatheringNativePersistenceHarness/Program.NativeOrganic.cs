@@ -36,6 +36,62 @@ internal static partial class GNHProgram
 		Console.WriteLine($"landServerVersion={database.ServerVersion}");
 		var fixture = NativeOrganicFixtureSeed.Create(database);
 		RunOrganicProfileAuthoringAndClone(database.ConnectionString, fixture.EnvironmentalResourceId);
+		foreach (var (fieldId, factor, expected) in new[]
+		         {
+			         (fixture.PendingPastureFieldId, 0.5, 25),
+			         (fixture.ZeroPastureFieldId, 0.0, 0)
+		         })
+		{
+			Require(ReadPastureAssessment(database.ConnectionString, fieldId) == "pending",
+				"C-P01 did not save the pending assessment before first pasture use.");
+			var pending = NativeOrganicRuntime.Load(database.ConnectionString, fieldId, initialFactor: factor);
+			var establish = NativeOperation(pending.World, AgricultureOperationType.Graze,
+				AgricultureFieldUse.Fallow, AgricultureFieldUse.Pasture);
+			Require(pending.Field.ApplyOperation(establish, null!, null!, false, out var establishResult),
+				establishResult);
+			pending.SaveManager.Flush();
+			var observed = NativeOrganicObservation.Read(database.ConnectionString, fieldId,
+				NativeOrganicSourceKind.Pasture);
+			Require(observed.Stock == expected && observed.CurrentUse == AgricultureFieldUse.Pasture &&
+			        ReadPastureAssessment(database.ConnectionString, fieldId) == "assessed",
+				"C-P01 saved pasture stock or assessment marker did not match first establishment.");
+			var reconstructedPasture = NativeOrganicRuntime.Load(database.ConnectionString, fieldId,
+				initialFactor: factor);
+			Require(reconstructedPasture.Field.Pasture == expected &&
+			        reconstructedPasture.Field.InspectNativeOrganicSource(NativeOrganicSourceKind.Pasture).NativeStock == expected,
+				"C-P01 reconstruction changed assessed pasture stock.");
+			Console.WriteLine($"C-P01=passed field:{fieldId} staged:50 factor:{factor} expected:{expected} observed:{observed.Stock} assessment:assessed");
+		}
+		var orchardRuntime = NativeOrganicRuntime.Load(database.ConnectionString, fixture.OrchardFieldId,
+			recoveryFactor: 0.5, perennial: true);
+		var orchardDebit = PlanNativeDebit(orchardRuntime.Field, NativeOrganicSourceKind.Crop, 0.25m);
+		Require(orchardRuntime.Field.TryApplyNativeOrganicDebit(orchardDebit, out var orchardReason), orchardReason);
+		var orchardHarvest = NativeOperation(orchardRuntime.World, AgricultureOperationType.Harvest,
+			AgricultureFieldUse.Orchard, AgricultureFieldUse.Orchard);
+		var orchardOutcome = AgricultureWorkOutcome.FromSkill(600.0, 10.0, 0.0, 0.0);
+		Require(orchardOutcome.CropYieldDelta == 5, "C-P02 fixture did not produce the required +5 work bonus.");
+		Require(orchardRuntime.Field.ApplyOperation(orchardHarvest, null!, null!, false,
+			orchardOutcome, out var orchardResult), orchardResult);
+		orchardRuntime.SaveManager.Flush();
+		var afterOrchardHarvest = NativeOrganicObservation.Read(database.ConnectionString,
+			fixture.OrchardFieldId, NativeOrganicSourceKind.Crop);
+		Require(afterOrchardHarvest.Stock == 81 && afterOrchardHarvest.Prepaid == 0.75m &&
+		        afterOrchardHarvest.YieldRemainder == 0.5m && afterOrchardHarvest.Generation == 1 &&
+		        afterOrchardHarvest.CurrentUse == AgricultureFieldUse.Orchard,
+			"C-P02 did not persist the retained orchard's near-cap harvest and distinct fractions.");
+		var orchardReloaded = NativeOrganicRuntime.Load(database.ConnectionString, fixture.OrchardFieldId,
+			recoveryFactor: 0.5, perennial: true);
+		Require(orchardReloaded.Field.CropYieldPotential == 81 &&
+		        orchardReloaded.Field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop).PrepaidFraction == 0.75m,
+			"C-P02 orchard reconstruction did not retain native stock or prepaid credit.");
+		orchardReloaded.Field.DailyTick();
+		orchardReloaded.SaveManager.Flush();
+		var afterOrchardRecovery = NativeOrganicObservation.Read(database.ConnectionString,
+			fixture.OrchardFieldId, NativeOrganicSourceKind.Crop);
+		Require(afterOrchardRecovery.Stock == 82 && afterOrchardRecovery.YieldRemainder == 0m &&
+		        afterOrchardRecovery.Prepaid == 0.75m,
+			"C-P02 later recovery did not continue the saved remainder exactly once.");
+		Console.WriteLine($"C-P02=passed field:{fixture.OrchardFieldId} opening:100 prepaidDebit:0.25 harvestBonus:5 factor:0.5 savedStock:{afterOrchardHarvest.Stock} savedPrepaid:{afterOrchardHarvest.Prepaid} savedYieldRemainder:{afterOrchardHarvest.YieldRemainder} recoveredStock:{afterOrchardRecovery.Stock}");
 
 		var p01Watch = Stopwatch.StartNew();
 		var p01 = NativeOrganicRuntime.Load(database.ConnectionString, fixture.FractionalFieldId);
@@ -322,6 +378,14 @@ internal static partial class GNHProgram
 		}, world);
 	}
 
+	private static string? ReadPastureAssessment(string connectionString, long fieldId)
+	{
+		using var context = NewIndependentContext(connectionString);
+		var definition = context.AgricultureFields.AsNoTracking().Single(x => x.Id == fieldId).Definition;
+		return XElement.Parse(definition).Element("NativeOrganicAccounting")?
+			.Attribute("pastureAssessment")?.Value;
+	}
+
 	private static AgricultureFieldInput NativeAgricultureInput(IFuturemud world, long cropDefinitionId,
 		int yieldConsumed)
 	{
@@ -346,7 +410,8 @@ internal static partial class GNHProgram
 	}
 
 	private sealed record NativeOrganicFixtureIds(long FractionalCellId, long FractionalFieldId,
-		long ConsumerCropFieldId, long GrazingFieldId, long EnvironmentalResourceId);
+		long ConsumerCropFieldId, long GrazingFieldId, long EnvironmentalResourceId,
+		long PendingPastureFieldId, long ZeroPastureFieldId, long OrchardFieldId);
 
 	private static class NativeOrganicFixtureSeed
 	{
@@ -355,6 +420,9 @@ internal static partial class GNHProgram
 			var fractionalBase = FixtureSeed.Create(database, "land_p01", false);
 			var cropConsumerBase = FixtureSeed.Create(database, "land_p03_crop", false);
 			var pastureBase = FixtureSeed.Create(database, "land_p03_pasture", false);
+			var pendingPastureBase = FixtureSeed.Create(database, "land_c_p01_pasture", false);
+			var zeroPastureBase = FixtureSeed.Create(database, "land_c_p01_zero", false);
+			var orchardBase = FixtureSeed.Create(database, "land_c_p02_orchard", false);
 			using var context = NewIndependentContext(database.ConnectionString);
 			var profile = new Db.AgricultureFieldProfile
 			{
@@ -388,6 +456,15 @@ internal static partial class GNHProgram
 			var cropConsumer = CropField(cropConsumerBase.CellId, profile.Id, crop.Id, 20,
 				AgricultureCropStage.Harvestable, nutrients: 50);
 			var pasture = BaseField(pastureBase.CellId, profile.Id, AgricultureFieldUse.Pasture, 10, 50);
+			var pendingPasture = BaseField(pendingPastureBase.CellId, profile.Id,
+				AgricultureFieldUse.Fallow, 50, 50);
+			pendingPasture.Definition = "<Field><NativeOrganicAccounting version=\"2\" pastureAssessment=\"pending\" /></Field>";
+			var zeroPasture = BaseField(zeroPastureBase.CellId, profile.Id,
+				AgricultureFieldUse.Fallow, 50, 50);
+			zeroPasture.Definition = pendingPasture.Definition;
+			var orchard = CropField(orchardBase.CellId, profile.Id, crop.Id, 100,
+				AgricultureCropStage.Harvestable, nutrients: 100);
+			orchard.CurrentUse = (int)AgricultureFieldUse.Orchard;
 			pasture.AgricultureFieldHerds.Add(new Db.AgricultureFieldHerd
 			{
 				HerdDefinitionId = herd.Id,
@@ -395,10 +472,11 @@ internal static partial class GNHProgram
 				Condition = 50.0,
 				Definition = "<Herd secondaryYield=\"0\" />"
 			});
-			context.AgricultureFields.AddRange(fractional, cropConsumer, pasture);
+			context.AgricultureFields.AddRange(fractional, cropConsumer, pasture, pendingPasture, zeroPasture,
+				orchard);
 			context.SaveChanges();
 			return new NativeOrganicFixtureIds(fractionalBase.CellId, fractional.Id, cropConsumer.Id, pasture.Id,
-				fractionalBase.ResourceId);
+				fractionalBase.ResourceId, pendingPasture.Id, zeroPasture.Id, orchard.Id);
 		}
 
 		private static Db.AgricultureField CropField(long cellId, long profileId, long cropId, int yield,
@@ -461,7 +539,8 @@ internal static partial class GNHProgram
 		public AgricultureField Field { get; }
 		public IAgricultureCropDefinition Crop { get; }
 
-		public static NativeOrganicRuntime Load(string connectionString, long fieldId, double recoveryFactor = 1.0)
+		public static NativeOrganicRuntime Load(string connectionString, long fieldId, double recoveryFactor = 1.0,
+			double initialFactor = 1.0, bool perennial = false)
 		{
 			using var context = NewIndependentContext(connectionString);
 			var model = context.AgricultureFields
@@ -514,6 +593,7 @@ internal static partial class GNHProgram
 				crop.SetupGet(x => x.MinimumTemperature).Returns(0);
 				crop.SetupGet(x => x.MaximumTemperature).Returns(40);
 				crop.SetupGet(x => x.HarvestCycleDays).Returns(30);
+				crop.SetupGet(x => x.IsPerennial).Returns(perennial);
 				crop.SetupGet(x => x.PlantingWindows).Returns(Array.Empty<AgriculturePlantingWindow>());
 				crop.SetupGet(x => x.ScoreRanges).Returns(Array.Empty<AgricultureScoreRange>());
 				crop.SetupGet(x => x.YieldOutputs).Returns(Array.Empty<AgricultureCommodityYield>());
@@ -550,7 +630,9 @@ internal static partial class GNHProgram
 						NativeOrganicPenaltyChannel.WoodlandYieldRecovery or
 						NativeOrganicPenaltyChannel.PastureRecovery
 						? new NativeOrganicPenaltyEvaluation(true, true, recoveryFactor, null)
-						: NativeOrganicPenaltyEvaluation.Neutral);
+						: channel == NativeOrganicPenaltyChannel.PastureInitialisation
+							? new NativeOrganicPenaltyEvaluation(true, true, initialFactor, null)
+							: NativeOrganicPenaltyEvaluation.Neutral);
 			world.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
 
 			var field = new AgricultureField(model, world.Object);

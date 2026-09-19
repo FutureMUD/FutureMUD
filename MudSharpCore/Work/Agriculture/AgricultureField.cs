@@ -57,6 +57,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		{
 			SetScore(score, profile.DefaultScores.TryGetValue(score, out var value) ? value : 50);
 		}
+		_pendingPastureAssessment = true;
 
 		using (new FMDB())
 		{
@@ -742,8 +743,10 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 				negativeYield += Math.Min(0, crop.PollinationYieldBonus);
 			}
 
-			var healthIncrease = ApplyCropHealthIncrease(positiveHealth);
-			var yieldIncrease = ApplyCropYieldIncrease(positiveYield);
+			var healthIncrease = ApplyCropHealthIncrease(positiveHealth,
+				sameOperationLoss: negativeHealth);
+			var yieldIncrease = ApplyCropYieldIncrease(positiveYield,
+				sameOperationLoss: negativeYield);
 			SynchronizeNativeOrganicOwner(() =>
 			{
 				if (_cropDefinitionId != cropIdentity.DefinitionId ||
@@ -1074,16 +1077,27 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 
 		using var environmentalChange = BeginEnvironmentalInputChange();
 		outcome ??= AgricultureWorkOutcome.Neutral;
-		var initialisingPasture = CurrentUse != AgricultureFieldUse.Pasture &&
+		var initialisingPasture = (CurrentUse != AgricultureFieldUse.Pasture || _pendingPastureAssessment) &&
 		                         operation.ResultUse == AgricultureFieldUse.Pasture;
+		var assessingStagedPasture = initialisingPasture && _pendingPastureAssessment;
+		var establishmentIncrease = assessingStagedPasture &&
+			operation.ScoreDeltas.TryGetValue(AgricultureScoreType.Pasture, out var pastureDelta) &&
+			AgricultureScoreType.Pasture.IsEnabledScore(Gameworld)
+			? Math.Max(0, SkillAdjustedScoreDelta(AgricultureScoreType.Pasture, pastureDelta, outcome))
+			: 0;
 		if (initialisingPasture)
 		{
-			TransitionNativeOrganicUse(AgricultureFieldUse.Pasture);
+			TransitionNativeOrganicUse(AgricultureFieldUse.Pasture, establishmentIncrease);
 		}
 
 		foreach (var delta in operation.ScoreDeltas)
 		{
 			if (!delta.Key.IsEnabledScore(Gameworld))
+			{
+				continue;
+			}
+			if (assessingStagedPasture && delta.Key == AgricultureScoreType.Pasture &&
+			    SkillAdjustedScoreDelta(delta.Key, delta.Value, outcome) > 0)
 			{
 				continue;
 			}
@@ -1213,7 +1227,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 						? ApplyCropHealthIncrease(outcome.CropHealthDelta)
 						: outcome.CropHealthDelta;
 					var harvestYieldIncrease = outcome.CropYieldDelta > 0
-						? ApplyCropYieldIncrease(outcome.CropYieldDelta)
+						? ApplyCropYieldIncrease(outcome.CropYieldDelta, sameOperationLoss: -20)
 						: outcome.CropYieldDelta;
 					SynchronizeNativeOrganicOwner(() =>
 					{
@@ -1361,13 +1375,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 			return;
 		}
 
-		var beneficial = IsBeneficialDelta(score, delta);
-		var multiplier = beneficial ? outcome.BeneficialScoreMultiplier : outcome.HarmfulScoreMultiplier;
-		var adjusted = (int)Math.Round(delta * multiplier);
-		if (adjusted == 0)
-		{
-			adjusted = Math.Sign(delta);
-		}
+		var adjusted = SkillAdjustedScoreDelta(score, delta, outcome);
 
 		if (score == AgricultureScoreType.Pasture && adjusted > 0 && CurrentUse == AgricultureFieldUse.Pasture)
 		{
@@ -1383,6 +1391,19 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		}
 
 		AdjustScore(score, adjusted);
+	}
+
+	private int SkillAdjustedScoreDelta(AgricultureScoreType score, int delta, AgricultureWorkOutcome outcome)
+	{
+		if (delta == 0)
+		{
+			return 0;
+		}
+		var multiplier = IsBeneficialDelta(score, delta)
+			? outcome.BeneficialScoreMultiplier
+			: outcome.HarmfulScoreMultiplier;
+		var adjusted = (int)Math.Round(delta * multiplier);
+		return adjusted == 0 ? Math.Sign(delta) : adjusted;
 	}
 
 	private bool IsBeneficialDelta(AgricultureScoreType score, int delta)

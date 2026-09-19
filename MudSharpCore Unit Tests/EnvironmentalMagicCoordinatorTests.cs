@@ -85,6 +85,55 @@ public class EnvironmentalMagicCoordinatorTests
 	}
 
 	[TestMethod]
+	[TestCategory("C-R4-01")]
+	[TestCategory("C-R4-02")]
+	public void OrganicConversion_DynamicInvalidPenaltyRejectsPlanAndApplyWithoutDebitingStock()
+	{
+		using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		world.Edit("organic source add forage herbs");
+		world.Edit("organic penalty forage 1 - scardamage / 100");
+		var cell = (Cell)world.Cells.At(0);
+		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
+			out var plan, out var error), error);
+		var before = world.Coordinator.InspectOrganicSource(cell, "forage:herbs");
+		var damage = world.Coordinator.ApplyOperation(cell, Request(damage: 150.0));
+		Assert.IsTrue(damage.Success, damage.Error);
+		var invalid = world.Coordinator.InspectOrganicSource(cell, "forage:herbs");
+		Assert.AreEqual(NativeOrganicSourceStatus.Invalid, invalid.Status);
+		Assert.AreEqual(before.NativeStock, invalid.NativeStock);
+		Assert.IsNotNull(invalid.Diagnostic);
+		Assert.IsFalse(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
+			out _, out error));
+		Assert.IsFalse(world.Coordinator.TryApplyOrganicDebit(cell, plan, out var refused, out error));
+		Assert.AreEqual(before.NativeStock, refused.NativeStock);
+		Assert.AreEqual(before.SourceRevision, refused.SourceRevision);
+		var repair = world.Coordinator.ApplyOperation(cell, Request(repair: 150.0));
+		Assert.IsTrue(repair.Success, repair.Error);
+		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
+			out var corrected, out error), error);
+		Assert.IsTrue(world.Coordinator.TryApplyOrganicDebit(cell, corrected, out var applied, out error), error);
+		Assert.AreEqual(before.NativeStock - 0.25, applied.NativeStock, 1e-12);
+	}
+
+	[TestMethod]
+	[TestCategory("C-R4-03")]
+	[TestCategory("C-R4-06")]
+	public void OrganicConversion_ZeroFactorIsValidAndForageBaselineIsUnclippedHourlyRate()
+	{
+		using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		world.Edit("organic source add forage herbs");
+		var cell = (Cell)world.Cells.At(0);
+		cell.ConsumeYield("herbs", 1.0);
+		world.Edit("organic penalty forage 0");
+		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
+			out _, out var error), error);
+		world.Edit("organic penalty forage 10 / baselineincrease");
+		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
+			out _, out error), error);
+		Assert.AreEqual(99.0, world.Coordinator.InspectOrganicSource(cell, "forage:herbs").NativeStock);
+	}
+
+	[TestMethod]
 	[TestCategory("Y-T01")]
 	public void OrganicPenaltyIsNeutralUntilMatchingSourceIsAuthorisedAndDoesNotEvaluateManaOutputs()
 	{

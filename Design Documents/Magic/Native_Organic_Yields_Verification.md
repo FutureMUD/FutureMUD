@@ -1,5 +1,11 @@
 # Native Organic Yields Verification
 
+## Task 3A correction run (19 September 2026)
+
+Against PR #754 head `f22028b3455a76d6399934bdfb38c0f59a73192d`, the wider agriculture, environmental, forage, SaveManager and gathering filter passed 288/288 in both Debug and Release. The engine built in both configurations. `scripts/test-unit.ps1` passed every listed project: library 505, expression 36, seeder 1379, core 3532, persistence library 58, bot 22, converter 43, web 54 and terrain planner 34. These counts are from the local correction worktree before publication.
+
+The isolated MySQL 8.0.45 harness created and cleaned up owned `futuremud_gather_gc_20260919125851_0e016c5b44` and `futuremud_land_20260919125932_afcbcd1010`. In the land database, C-P01 used saved pending pasture fixtures: field 4 assessed staged 50 at factor 0.5 as 25; field 5 assessed staged 50 at factor 0 as 0. The normal field owner checkpoint saved stock and the versioned assessment marker together, and independent reconstruction observed the assessed result. C-P02 used retained orchard field 6: a prepaid 0.25 debit left opening stock 99 and prepaid fraction 0.75; harvest bonus +5 at factor 0.5 persisted stock 81, prepaid 0.75 and yield progress 0.5; a reconstructed later native tick persisted stock 82 and cleared that progress. The existing Y-P01–Y-P03 and native provider failure/retry probes also passed. Harness fixtures substitute world catalogues, weather and ecological scalar factors; C-P01 stages the new field's pending XML through the fixture seeder rather than invoking the new-field constructor. The real coordinator dynamic-validity path is covered by `EnvironmentalMagicCoordinatorTests.OrganicConversion_DynamicInvalidPenaltyRejectsPlanAndApplyWithoutDebitingStock`; a combined database-backed coordinator C-P03 run remains unexecuted.
+
 ## Scope
 
 This is the durable evidence record for `MAGIC-LAND-YIELDS-03A`, implemented from checkout `13b495103da639114670d3759f9647519f446bdb` on `codex/native-yields-ecological-penalties` and rebased onto current `master`. The final disposable harness ran against clean post-rebase code revision `16327f882932185b2737de5976f693d2fc19d21c`; the later amendment only incorporated this evidence into documentation. It separates commands actually executed from code inspection, builder demonstrations and remaining limitations.

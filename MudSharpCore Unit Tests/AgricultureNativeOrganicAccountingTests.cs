@@ -362,6 +362,78 @@ public class AgricultureNativeOrganicAccountingTests
 	}
 
 	[TestMethod]
+	[TestCategory("C-R1-01")]
+	[TestCategory("C-R1-02")]
+	[TestCategory("C-R1-03")]
+	public void OrchardHarvest_OffsetsPositiveBonusAgainstTheSameHarvestCost()
+	{
+		var neutral = BuildFixture();
+		neutral.Crop.SetupGet(x => x.IsPerennial).Returns(true);
+		var suppressed = BuildFixture((_, channel, _) =>
+			channel == NativeOrganicPenaltyChannel.CropYieldRecovery
+				? new NativeOrganicPenaltyEvaluation(true, true, 0.5, null)
+				: NativeOrganicPenaltyEvaluation.Neutral);
+		suppressed.Crop.SetupGet(x => x.IsPerennial).Returns(true);
+		var explicitNeutral = BuildFixture((_, channel, _) =>
+			channel == NativeOrganicPenaltyChannel.CropYieldRecovery
+				? new NativeOrganicPenaltyEvaluation(true, true, 1.0, null)
+				: NativeOrganicPenaltyEvaluation.Neutral);
+		explicitNeutral.Crop.SetupGet(x => x.IsPerennial).Returns(true);
+		var constructor = typeof(AgricultureWorkOutcome).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
+			.Single();
+		AgricultureWorkOutcome Bonus(int value) => (AgricultureWorkOutcome)constructor.Invoke(new object[]
+			{ 35.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0, value, ItemQuality.Standard });
+		foreach (var (fixture, opening, bonus, expected) in new[]
+		         {
+			         (neutral, 100, 5, 85), (neutral, 99, 5, 84),
+			         (explicitNeutral, 100, 5, 85), (explicitNeutral, 99, 5, 84),
+			         (neutral, 5, 10, 0), (suppressed, 100, 10, 85),
+			         (suppressed, 50, 10, 35), (suppressed, 50, -5, 25)
+		         })
+		{
+			var orchard = BuildField(fixture, AgricultureFieldUse.Orchard, cropYield: opening,
+				cropStage: AgricultureCropStage.Harvestable);
+			var harvest = BuildOperation(fixture.Gameworld.Object, AgricultureOperationType.Harvest,
+				AgricultureFieldUse.Orchard, AgricultureFieldUse.Orchard);
+			Assert.IsTrue(orchard.ApplyOperation(harvest, null!, null!, false, Bonus(bonus), out _));
+			Assert.AreEqual(expected, orchard.CropYieldPotential,
+				$"Opening {opening}, bonus {bonus}, expected {expected}.");
+			Assert.AreEqual(1, orchard.CropHarvestCount);
+		}
+	}
+
+	[TestMethod]
+	[TestCategory("C-R1-04")]
+	public void CropTick_MixedPollinationAndNutrientContributionsRetainFinalNativeClamp()
+	{
+		foreach (var (nutrients, pollinationBonus, expected) in new[]
+		         { (40, 2, 100), (100, -2, 99) })
+		{
+			var fixture = BuildFixture();
+			fixture.Crop.SetupGet(x => x.PollinationDependency)
+				.Returns(AgriculturePollinationDependency.Beneficial);
+			fixture.Crop.SetupGet(x => x.PollinationYieldBonus).Returns(pollinationBonus);
+			var apiary = new Mock<IAgricultureFieldApiary>();
+			apiary.SetupGet(x => x.PollinationRadius).Returns(1);
+			apiary.SetupGet(x => x.PollinationStrength).Returns(50);
+			var apiaryField = new Mock<IAgricultureField>();
+			apiaryField.SetupGet(x => x.Id).Returns(2L);
+			apiaryField.SetupGet(x => x.Cell).Returns(fixture.Cell.Object);
+			apiaryField.SetupGet(x => x.HasActiveApiary).Returns(true);
+			apiaryField.SetupGet(x => x.IsApiaryHappy).Returns(true);
+			apiaryField.SetupGet(x => x.Apiary).Returns(apiary.Object);
+			var fields = new All<IAgricultureField>();
+			fields.Add(apiaryField.Object);
+			fixture.Gameworld.SetupGet(x => x.AgricultureFields).Returns(fields);
+			var field = BuildField(fixture, AgricultureFieldUse.Crop, cropYield: 100,
+				nutrients: nutrients);
+			field.DailyTick();
+			Assert.AreEqual(expected, field.CropYieldPotential,
+				$"Nutrients {nutrients}, pollination bonus {pollinationBonus}.");
+		}
+	}
+
+	[TestMethod]
 	[TestCategory("Y-T23")]
 	public void BindingToggle_DoesNotRefundStockOrPrepaidFractionAndUnboundGrowthIsNeutral()
 	{
@@ -798,7 +870,8 @@ public class AgricultureNativeOrganicAccountingTests
 		});
 		var crop = BuildField(fixture, AgricultureFieldUse.Fallow);
 		var woodland = BuildField(fixture, AgricultureFieldUse.Fallow, fieldId: 2);
-		var pasture = BuildField(fixture, AgricultureFieldUse.Fallow, pasture: 50, fieldId: 3);
+		var pasture = BuildField(fixture, AgricultureFieldUse.Fallow, pasture: 50, fieldId: 3,
+			definition: "<Field><NativeOrganicAccounting version=\"2\" pastureAssessment=\"pending\" /></Field>");
 		var poorCrop = BuildField(fixture, AgricultureFieldUse.Fallow, nutrients: 0, fieldId: 4);
 
 		var sow = BuildOperation(fixture.Gameworld.Object, AgricultureOperationType.Sow,
@@ -827,11 +900,11 @@ public class AgricultureNativeOrganicAccountingTests
 			NativeOrganicPenaltyChannel.PastureInitialisation, It.IsAny<NativeOrganicPenaltyContext>()), Times.Never,
 			"A fallow field has no productive pasture lifecycle to initialise.");
 		Assert.IsTrue(pasture.ApplyOperation(establishPasture, null!, null!, false, out _));
-		Assert.AreEqual(60, pasture.Pasture);
+		Assert.AreEqual(35, pasture.Pasture);
 		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(fixture.Cell.Object,
 			NativeOrganicPenaltyChannel.PastureInitialisation,
-			It.Is<NativeOrganicPenaltyContext>(context => context.BaselineIncrease == 20.0)), Times.Once,
-			"The positive value assigned while establishing pasture is the single initial-factor boundary.");
+			It.Is<NativeOrganicPenaltyContext>(context => context.BaselineIncrease == 70.0)), Times.Once,
+			"The staged default and new allocation are assessed together once.");
 
 		fixture.Crop.SetupGet(x => x.IsPerennial).Returns(true);
 		var orchard = BuildField(fixture, AgricultureFieldUse.Fallow, fieldId: 5);
@@ -842,6 +915,64 @@ public class AgricultureNativeOrganicAccountingTests
 		Assert.AreEqual(25, orchard.CropYieldPotential);
 		Assert.AreEqual(0, orchard.CropGrowthDays);
 		Assert.AreEqual(0, orchard.CropHarvestCount);
+	}
+
+	[TestMethod]
+	[TestCategory("C-R3-01")]
+	[TestCategory("C-R3-04")]
+	[TestCategory("C-R3-05")]
+	public void Pasture_FirstProductiveEntryAssessesStagedDefaultOnceAcrossReload()
+	{
+		foreach (var (factor, expected) in new[] { (0.0, 0), (0.5, 25), (1.0, 50) })
+		{
+			var fixture = BuildFixture((_, channel, _) =>
+				channel == NativeOrganicPenaltyChannel.PastureInitialisation
+					? new NativeOrganicPenaltyEvaluation(true, true, factor, null)
+					: NativeOrganicPenaltyEvaluation.Neutral);
+			var pending = BuildField(fixture, AgricultureFieldUse.Fallow, pasture: 50,
+				definition: "<Field><NativeOrganicAccounting version=\"2\" pastureAssessment=\"pending\" /></Field>");
+			var pendingXml = SaveDefinition(pending).ToString();
+			StringAssert.Contains(pendingXml, "pastureAssessment=\"pending\"");
+			var reloaded = BuildField(fixture, AgricultureFieldUse.Fallow, pasture: 50,
+				definition: pendingXml);
+			var establish = BuildOperation(fixture.Gameworld.Object, AgricultureOperationType.Graze,
+				AgricultureFieldUse.Fallow, AgricultureFieldUse.Pasture);
+			Assert.IsTrue(reloaded.ApplyOperation(establish, null!, null!, false, out _));
+			Assert.AreEqual(expected, reloaded.Pasture);
+			var assessedXml = SaveDefinition(reloaded).ToString();
+			StringAssert.Contains(assessedXml, "pastureAssessment=\"assessed\"");
+			var afterReload = BuildField(fixture, AgricultureFieldUse.Pasture, pasture: expected,
+				definition: assessedXml);
+			Assert.AreEqual(expected, afterReload.Pasture);
+			var legacy = BuildField(fixture, AgricultureFieldUse.Fallow, pasture: 50);
+			Assert.IsTrue(legacy.ApplyOperation(establish, null!, null!, false, out _));
+			Assert.AreEqual(50, legacy.Pasture, "Legacy stock must not be assessed retroactively.");
+		}
+	}
+
+	[TestMethod]
+	[TestCategory("C-R3-07")]
+	public void Pasture_InvalidInitialFactorDiscardsPendingDefaultWithoutLaterRefill()
+	{
+		var valid = false;
+		var fixture = BuildFixture((_, channel, _) => channel == NativeOrganicPenaltyChannel.PastureInitialisation
+			? valid
+				? new NativeOrganicPenaltyEvaluation(true, true, 1.0, null)
+				: NativeOrganicPenaltyEvaluation.Invalid("Invalid pasture initial factor")
+			: NativeOrganicPenaltyEvaluation.Neutral);
+		var field = BuildField(fixture, AgricultureFieldUse.Fallow, pasture: 50,
+			definition: "<Field><NativeOrganicAccounting version=\"2\" pastureAssessment=\"pending\" /></Field>");
+		var enter = BuildOperation(fixture.Gameworld.Object, AgricultureOperationType.Graze,
+			AgricultureFieldUse.Fallow, AgricultureFieldUse.Pasture);
+		Assert.IsTrue(field.ApplyOperation(enter, null!, null!, false, out _));
+		Assert.AreEqual(0, field.Pasture);
+		StringAssert.Contains(SaveDefinition(field).ToString(), "pastureAssessment=\"assessed\"");
+		valid = true;
+		var leave = BuildOperation(fixture.Gameworld.Object, AgricultureOperationType.Improve,
+			AgricultureFieldUse.Pasture, AgricultureFieldUse.Fallow);
+		Assert.IsTrue(field.ApplyOperation(leave, null!, null!, false, out _));
+		Assert.IsTrue(field.ApplyOperation(enter, null!, null!, false, out _));
+		Assert.AreEqual(0, field.Pasture);
 	}
 
 	private static bool ApplyPlannedDebit(AgricultureField field, NativeOrganicSourceKind kind, decimal amount)

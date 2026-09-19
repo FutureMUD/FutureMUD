@@ -574,6 +574,37 @@ public class ForagingRuntimeTests
 	}
 
 	[TestMethod]
+	[TestCategory("C-R2-01")]
+	[TestCategory("C-R2-02")]
+	public void Cell_YieldRecovery_SuppressesHourlyProductionBeforeCapacityClamp()
+	{
+		var profile = CreateRecoveringProfileMock(196L, "food", 100.0, 10.0);
+		var profiles = new RevisableAll<IForagableProfile>();
+		profiles.Add(profile.Object);
+		var environment = new Mock<IEnvironmentalMagicService>();
+		environment.Setup(x => x.EvaluateOrganicPenalty(It.IsAny<ICell>(),
+				NativeOrganicPenaltyChannel.ForageReplenishment, It.IsAny<NativeOrganicPenaltyContext>()))
+			.Returns(new NativeOrganicPenaltyEvaluation(true, true, 0.25, null));
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(Mock.Of<IHeartbeatManager>());
+		gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
+		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
+
+		var nearFull = CreateLoadedCell(gameworld.Object, 196L, "food", 99.0);
+		RunYieldTicks(nearFull, 1);
+		Assert.AreEqual(100.0, nearFull.GetForagableYield("food"), 1e-12);
+		var depleted = CreateLoadedCell(gameworld.Object, 196L, "food", 95.0);
+		RunYieldTicks(depleted, 1);
+		Assert.AreEqual(97.5, depleted.GetForagableYield("food"), 1e-12);
+		RunYieldTicks(depleted, 1);
+		Assert.AreEqual(100.0, depleted.GetForagableYield("food"), 1e-12);
+		environment.Verify(x => x.EvaluateOrganicPenalty(It.Is<ICell>(candidate => ReferenceEquals(candidate, depleted)),
+			NativeOrganicPenaltyChannel.ForageReplenishment,
+			It.Is<NativeOrganicPenaltyContext>(context => context.BaselineIncrease == 10.0)), Times.Exactly(2));
+	}
+
+	[TestMethod]
 	public void Cell_YieldRecovery_InvalidConfiguredFactorFailsClosed()
 	{
 		var profile = CreateRecoveringProfileMock(97L, "food", 5.0, 2.0);

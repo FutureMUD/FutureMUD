@@ -30,7 +30,9 @@ public sealed partial class EnvironmentalMagicCoordinator
 		{
 			return Array.Empty<NativeOrganicSourceSnapshot>();
 		}
-		return profile.OrganicSources.Select(source => InspectOrganicDeclaration(cell, profile, source)).ToList().AsReadOnly();
+		return profile.OrganicSources
+			.Select(source => WithOrganicConversionValidity(cell, InspectOrganicDeclaration(cell, profile, source)))
+			.ToList().AsReadOnly();
 	}
 
 	public NativeOrganicSourceSnapshot InspectOrganicSource(ICell cell, string selector)
@@ -77,7 +79,73 @@ public sealed partial class EnvironmentalMagicCoordinator
 			return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Invalid, diagnostic,
 				profile.Id, profile.Revision);
 		}
-		return InspectOrganicDeclaration(cell, profile, declarations[0]);
+		return WithOrganicConversionValidity(cell, InspectOrganicDeclaration(cell, profile, declarations[0]));
+	}
+
+	private NativeOrganicSourceSnapshot WithOrganicConversionValidity(ICell cell,
+		NativeOrganicSourceSnapshot source)
+	{
+		if (!source.IsEligible)
+		{
+			return source;
+		}
+		var profile = source.EnvironmentalProfileId.HasValue
+			? Profile(source.EnvironmentalProfileId.Value)
+			: null;
+		if (profile is null)
+		{
+			return source with
+			{
+				Status = NativeOrganicSourceStatus.Invalid,
+				Diagnostic = "The source's environmental profile is no longer available."
+			};
+		}
+		var channels = source.Kind switch
+		{
+			NativeOrganicSourceKind.Forage => new[] { NativeOrganicPenaltyChannel.ForageReplenishment },
+			NativeOrganicSourceKind.Crop => new[]
+			{
+				NativeOrganicPenaltyChannel.CropHealthRecovery,
+				NativeOrganicPenaltyChannel.CropYieldRecovery
+			},
+			NativeOrganicSourceKind.Woodland => new[]
+			{
+				NativeOrganicPenaltyChannel.WoodlandHealthRecovery,
+				NativeOrganicPenaltyChannel.WoodlandYieldRecovery
+			},
+			NativeOrganicSourceKind.Pasture => new[] { NativeOrganicPenaltyChannel.PastureRecovery },
+			_ => Array.Empty<NativeOrganicPenaltyChannel>()
+		};
+		foreach (var channel in channels)
+		{
+			if (!profile.OrganicPenalties.Any(penalty => penalty.Channel == channel))
+			{
+				continue;
+			}
+			NativeOrganicPenaltyEvaluation evaluation;
+			try
+			{
+				evaluation = InspectOrganicPenaltyFactor(cell, source, channel);
+			}
+			catch (Exception exception)
+			{
+				return source with
+				{
+					Status = NativeOrganicSourceStatus.Invalid,
+					Diagnostic = $"{channel.DescribeEnum()}: {exception.Message}"
+				};
+			}
+			if (evaluation.IsConfigured && (!evaluation.IsValid ||
+			    !double.IsFinite(evaluation.Factor) || evaluation.Factor is < 0.0 or > 1.0))
+			{
+				return source with
+				{
+					Status = NativeOrganicSourceStatus.Invalid,
+					Diagnostic = $"{channel.DescribeEnum()}: {evaluation.Error ?? "Invalid organic penalty."}"
+				};
+			}
+		}
+		return source;
 	}
 
 	private NativeOrganicSourceSnapshot InspectOrganicDeclaration(ICell cell, IEnvironmentalMagicProfile profile,
@@ -463,8 +531,19 @@ public sealed partial class EnvironmentalMagicCoordinator
 					break;
 			}
 		}
+		var baseline = channel switch
+		{
+			NativeOrganicPenaltyChannel.ForageReplenishment when cell is Cell concrete =>
+				concrete.PeekNativeForageHourlyProduction(source.Selector[7..]),
+			NativeOrganicPenaltyChannel.CropHealthRecovery => 1.0,
+			NativeOrganicPenaltyChannel.CropYieldRecovery when FieldFor(cell) is { } cropField =>
+				Math.Max(0, Math.Sign(cropField.Nutrients - 50)),
+			NativeOrganicPenaltyChannel.WoodlandHealthRecovery or
+				NativeOrganicPenaltyChannel.WoodlandYieldRecovery => 1.0,
+			_ => 0.0
+		};
 		return EvaluateOrganicPenalty(cell, channel, new NativeOrganicPenaltyContext(source.Kind,
-			source.Selector, stock, health, nativeYield, capacity, condition, 1.0));
+			source.Selector, stock, health, nativeYield, capacity, condition, baseline));
 	}
 
 	private bool TryCollectOrganicNamedInputs(ICell cell, IEnvironmentalMagicProfile profile,

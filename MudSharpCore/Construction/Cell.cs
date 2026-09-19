@@ -2554,10 +2554,13 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         return double.IsFinite(yield) && yield >= 0.0 ? yield : 0.0;
     }
 
+	internal double PeekNativeForageHourlyProduction(string type) =>
+		GetHourlyYield(PeekForagableProfile(), type);
+
 	private double GetForagableRecoveryIncrement(string type, double stock, double maximum, double hourly)
 	{
-		var baseline = Math.Min(hourly, Math.Max(0.0, maximum - stock));
-		if (!double.IsFinite(baseline) || baseline <= 0.0)
+		var headroom = Math.Max(0.0, maximum - stock);
+		if (!double.IsFinite(headroom) || headroom <= 0.0 || !double.IsFinite(hourly) || hourly <= 0.0)
 		{
 			return 0.0;
 		}
@@ -2570,7 +2573,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 			stock,
 			maximum,
 			0.0,
-			baseline);
+			hourly);
 		var evaluation = Gameworld.EnvironmentalMagic?.EvaluateOrganicPenalty(
 			this,
 			NativeOrganicPenaltyChannel.ForageReplenishment,
@@ -2580,7 +2583,10 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 			: evaluation.IsValid && double.IsFinite(evaluation.Factor) && evaluation.Factor is >= 0.0 and <= 1.0
 				? evaluation.Factor
 				: 0.0;
-		return baseline * factor;
+		var production = hourly * factor;
+		return double.IsFinite(production) && production >= 0.0
+			? Math.Min(headroom, production)
+			: 0.0;
 	}
 
     private void YieldTick()
@@ -2621,7 +2627,9 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 
 				foreach (var recovery in recoveries)
 				{
-					var current = Math.Min(recovery.Stock + recovery.Increment, recovery.Maximum);
+					var current = recovery.Increment >= recovery.Maximum - recovery.Stock
+						? recovery.Maximum
+						: Math.Min(recovery.Stock + recovery.Increment, recovery.Maximum);
 					if (current == recovery.Stock)
 					{
 						continue;

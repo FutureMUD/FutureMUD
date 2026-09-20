@@ -37,8 +37,11 @@ Common examples are:
 - merits versus quirks
 - ordered attributes versus point-buy attributes
 - simple skill picking versus paid skill boosts
+- sequential, simple, or rerollable characteristic picking
 
 Use `chargen changetype <stage> <type>` for these changes.
+
+For `SelectCharacteristics`, choose `RerollableCharacteristicPicker` to show an ethnicity-based roll that players can reroll, lock, or customise. The screen's `intro` builder command toggles a separate blurb step; it is on by default. When it is off, a nonblank blurb appears above the rolled values. The `blurb` builder command edits that text. A player uses `lock <characteristic>`, `basiclock <characteristic>`, and `unlock <characteristic>` on the main selection screen. A basic lock is available when the current basic value has multiple eligible specific values.
 
 Important note:
 - type changes can discard or reinterpret screen-specific configuration

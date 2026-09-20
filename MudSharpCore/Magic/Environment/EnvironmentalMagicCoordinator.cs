@@ -44,6 +44,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	private readonly Dictionary<long, LinkedListNode<Cell>> _cells = new();
 	private readonly LinkedList<Cell> _cellOrder = new();
 	private readonly Dictionary<long, IAgricultureField> _fields = new();
+	private readonly Dictionary<long, IAgricultureField> _apiaryFields = new();
 	private readonly Dictionary<long, long> _referenceGenerations = new();
 	private readonly SortedSet<Registration> _due = new(Comparer<Registration>.Create((a, b) =>
 		a.DueAt.CompareTo(b.DueAt) is var result && result != 0 ? result : a.Cell.Id.CompareTo(b.Cell.Id)));
@@ -99,7 +100,11 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	public void Initialise()
 	{
 		if (_started || _disposed) return;
-		foreach (var field in _world.AgricultureFields) _fields[field.Cell.Id] = field;
+		foreach (var field in _world.AgricultureFields)
+		{
+			_fields[field.Cell.Id] = field;
+			RefreshPollinationCandidate(field);
+		}
 		foreach (var cell in _world.Cells) Register(cell);
 		_world.HeartbeatManager.SecondHeartbeat += Pump;
 		_started = true;
@@ -232,14 +237,28 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	public IAgricultureField? FieldFor(ICell cell) => ReferenceEquals(cell.Gameworld, _world)
 		? _fields.GetValueOrDefault(cell.Id) : null;
 
+	public IEnumerable<IAgricultureField> PollinationCandidates() => _apiaryFields.Values;
+
+	public void RefreshPollinationCandidate(IAgricultureField field)
+	{
+		if (!ReferenceEquals(field.Cell.Gameworld, _world)) return;
+		if (field.HasActiveApiary) _apiaryFields[field.Cell.Id] = field;
+		else if (_apiaryFields.GetValueOrDefault(field.Cell.Id) == field) _apiaryFields.Remove(field.Cell.Id);
+	}
+
 	public void FieldChanged(IAgricultureField field, bool removed = false)
 	{
 		if (_disposed || !ReferenceEquals(field.Cell.Gameworld, _world)) return;
 		if (removed)
 		{
 			if (_fields.GetValueOrDefault(field.Cell.Id) == field) _fields.Remove(field.Cell.Id);
+			if (_apiaryFields.GetValueOrDefault(field.Cell.Id) == field) _apiaryFields.Remove(field.Cell.Id);
 		}
-		else _fields[field.Cell.Id] = field;
+		else
+		{
+			_fields[field.Cell.Id] = field;
+			RefreshPollinationCandidate(field);
+		}
 		MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture);
 	}
 
@@ -251,7 +270,18 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		{
 			var profile = _world.MagicResourceRegenerators.Get(registration.ProfileId) as IEnvironmentalMagicProfile;
 			var kind = reason == EnvironmentalMagicDirtyReason.Forage ? EnvironmentalMagicInputKind.Forage : EnvironmentalMagicInputKind.Agriculture;
-				if (profile is not null && !profile.Inputs.Any(x => (x.Kind == kind || x.Kind == EnvironmentalMagicInputKind.Prog) && profile.RequiredInputNames.Contains(x.Name))) return;
+			if (profile is not null)
+			{
+				var manaDepends = profile.Inputs.Any(x =>
+					(x.Kind == kind || x.Kind == EnvironmentalMagicInputKind.Prog) && profile.RequiredInputNames.Contains(x.Name));
+				var organicDepends = profile.OrganicSources.Any(x => reason == EnvironmentalMagicDirtyReason.Forage
+					? x.Kind == NativeOrganicSourceKind.Forage
+					: x.Kind is NativeOrganicSourceKind.Crop or NativeOrganicSourceKind.Woodland or NativeOrganicSourceKind.Pasture) ||
+					profile.OrganicPenalties.Any(penalty => penalty.RequiredInputNames.Any(name =>
+						profile.Inputs.Any(input => input.Name.EqualTo(name) &&
+							(input.Kind == kind || input.Kind == EnvironmentalMagicInputKind.Prog))));
+				if (!manaDepends && !organicDepends) return;
+			}
 		}
 		registration.Dirty |= reason;
 		if (registration.DirtyNode is not null) return;
@@ -336,6 +366,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		_cells.Clear();
 		_cellOrder.Clear();
 		_fields.Clear();
+		_apiaryFields.Clear();
 		_referenceGenerations.Clear();
 		_due.Clear();
 		_audit.Clear();
@@ -343,6 +374,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		_auditAge.Clear();
 		_lastLoggedFault.Clear();
 		_lastLoggedSlow.Clear();
+		_lastLoggedOrganic.Clear();
 		_discoveryCursor = null;
 		_discoveryRemaining = _productionCount = _maintenanceCount = _faultCount = _workingCount = 0;
 	}

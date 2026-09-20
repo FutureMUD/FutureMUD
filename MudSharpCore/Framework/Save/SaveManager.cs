@@ -157,21 +157,32 @@ public class SaveManager : ISaveManager
         }
 
         _flushingQueue = true;
-        if (_initialisationQueue.Any())
+        try
         {
-            FlushInitialisation();
-        }
+            if (_initialisationQueue.Any())
+            {
+                FlushInitialisation();
+            }
 
-        while (_saveStack.Count > 0)
+            while (_saveStack.Count > 0)
+            {
+                FlushTop();
+            }
+        }
+        finally
         {
-            FlushTop();
+            // If any items failed to save this round, queue them up to try on a future save pass.
+            foreach (ISaveable item in _delayedSaveStack)
+            {
+                if (!_saveStack.Contains(item))
+                {
+                    _saveStack.Add(item);
+                }
+            }
+
+            _delayedSaveStack.Clear();
+            _flushingQueue = false;
         }
-
-        //If any items failed to save this round, queue them up to try on a future save pass
-        _saveStack.AddRange(_delayedSaveStack);
-        _delayedSaveStack.Clear();
-
-        _flushingQueue = false;
     }
 
     public void DirectInitialise(ILateInitialisingItem item)
@@ -259,18 +270,19 @@ public class SaveManager : ISaveManager
 
     private void FlushTop()
     {
-#if DEBUG
+        List<ISaveable> tempStack = _saveStack.ToList();
+        HashSet<ISaveable> attemptedItems = new(ReferenceEqualityComparer.Instance);
+        _saveStack.Clear();
         try
         {
-#endif
             using (new FMDB())
             {
 #if DEBUG
-                if (_saveStack.Count > 500)
+                if (tempStack.Count > 500)
                 {
                     StringBuilder sb = new();
-                    sb.AppendLine($"[PERF] SaveStack has over 500 items in it: {_saveStack.Count}".Colour(Telnet.Orange));
-                    foreach (IGrouping<string, IFrameworkItem> group in _saveStack.OfType<IFrameworkItem>().GroupBy(x => x.FrameworkItemType))
+                    sb.AppendLine($"[PERF] SaveStack has over 500 items in it: {tempStack.Count}".Colour(Telnet.Orange));
+                    foreach (IGrouping<string, IFrameworkItem> group in tempStack.OfType<IFrameworkItem>().GroupBy(x => x.FrameworkItemType))
                     {
                         if (group.Key == "GameItemComponent")
                         {
@@ -287,8 +299,6 @@ public class SaveManager : ISaveManager
                     Console.WriteLine(sb.ToString());
                 }
 #endif
-                List<ISaveable> tempStack = _saveStack.ToList();
-                _saveStack.Clear();
                 foreach (ISaveable item in tempStack)
                 {
                     if (IsNoSave(item))
@@ -297,6 +307,7 @@ public class SaveManager : ISaveManager
                         continue;
                     }
 
+                    attemptedItems.Add(item);
                     item.Save();
                     if (item.Changed == true)
                     {
@@ -313,24 +324,51 @@ public class SaveManager : ISaveManager
 
                 FMDB.Context.SaveChanges();
             }
-
-#if DEBUG
         }
-        catch (DbUpdateException e)
+#if DEBUG
+        catch (DbUpdateException dbUpdateException)
         {
-            StringBuilder sb = new();
-            sb.AppendLine(e.ToString());
-            sb.AppendLine();
-            sb.AppendLine($"DbUpdateException error details - {e.InnerException?.InnerException?.Message}");
+            RecoverFailedSaveBatch(tempStack, attemptedItems);
 
-            foreach (EntityEntry eve in e.Entries)
+            StringBuilder sb = new();
+            sb.AppendLine(dbUpdateException.ToString());
+            sb.AppendLine();
+            sb.AppendLine($"DbUpdateException error details - {dbUpdateException.InnerException?.InnerException?.Message}");
+
+            foreach (EntityEntry eve in dbUpdateException.Entries)
             {
                 sb.AppendLine($"Entity of type {eve.Entity.GetType().Name} in state {eve.State} could not be updated");
             }
 
-            throw new ApplicationException(sb.ToString());
+            throw new ApplicationException(sb.ToString(), dbUpdateException);
         }
 #endif
+        catch
+        {
+            RecoverFailedSaveBatch(tempStack, attemptedItems);
+            throw;
+        }
+    }
+
+    internal void RecoverFailedSaveBatch(IEnumerable<ISaveable> batch, IReadOnlySet<ISaveable> attemptedItems)
+    {
+        foreach (ISaveable item in batch.Where(x => !IsNoSave(x)))
+        {
+            if (attemptedItems.Contains(item) && item is IRecoverableSaveFailure recoverable)
+            {
+                recoverable.RecoverFromSaveFailure();
+            }
+
+            if (!item.Changed)
+            {
+                item.Changed = true;
+            }
+
+            if (!_saveStack.Contains(item) && !_delayedSaveStack.Contains(item))
+            {
+                _saveStack.Add(item);
+            }
+        }
     }
 
     public void AddLazyLoad(ILazyLoadDuringIdleTime item)

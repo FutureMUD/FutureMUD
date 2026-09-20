@@ -1,6 +1,6 @@
 # Environmental magic runtime
 
-Environmental magic is an opt-in physical-cell resource producer. Its reusable definition is the `environmental` magic regenerator. It adds neither a second mana balance nor its own player gathering route. The separate [capability-configured gathering feature](Magic_Gathering.md) can make one exact managed debit through this service; it does not own another coordinator, generator or environmental balance. See [the builder guide](Environmental_Magic_Builder_Guide.md) for commands and test configuration.
+Environmental magic is an opt-in physical-cell resource producer. Its reusable definition is the `environmental` magic regenerator. It adds neither a second mana balance nor its own player gathering route. The separate [capability-configured gathering feature](Magic_Gathering.md) can make one exact managed mana debit through this service; it does not own another coordinator, generator or environmental balance. [Native organic yields and ecological penalties](Native_Organic_Yields_and_Ecological_Penalties.md) add profile-authorised observations and owner-routed forage/agriculture debits for the later Land integration, but no player method or payout. See [the builder guide](Environmental_Magic_Builder_Guide.md) for commands and test configuration.
 
 ## Ownership and persistence
 
@@ -20,7 +20,7 @@ For a configured output, `SimpleMagicResource.ResourceCap(cell)` replaces that p
 
 `TryMutateResource` handles credits, sets, and exact debits. Normal cell resource operations and registered FutureProg set/add/subtract functions call it. It resolves newly inherited assignments immediately, validates current inputs, projects the prior accepted online segment, validates all outputs, then applies the changes and updates eligibility. A valid lower cap discards excess energy. Larger capacity does not refill it. A zero-delta request enforces a changed lower cap; unchanged full balances do not enqueue saves.
 
-Capability-configured Gentle gathering uses `TryDebit(cell, resource, amount, out error)`: success requires a managed pair, current valid inputs, and the entire requested recorded amount. Failure makes no partial debit. Its caller validates the whole source/destination operation before debiting; this is not a transaction across arbitrary world objects. The coordinator itself owns no gathering command or yield consumption.
+Capability-configured Gentle gathering uses `TryDebit(cell, resource, amount, out error)`: success requires a managed pair, current valid inputs, and the entire requested recorded amount. Failure makes no partial debit. Its caller validates the whole source/destination operation before debiting; this is not a transaction across arbitrary world objects. The coordinator owns no gathering command. Its separate native-organic plan/apply surface routes one validated mutation to the physical forage or field owner, grants no resource, and is not a cross-holder transaction.
 
 ## Pure input evaluation
 
@@ -28,11 +28,21 @@ Definitions compile expressions and resolve references per revision. Valid profi
 
 Built-ins are `scardamage`, `pressure`, `hasdefile`, and `minutessincedefile`; each output supplies `basecapacity` and `baserate`. Only rates may use `balance` and `maximum`. An absent defile time has presence and age zero. Named forage/agriculture values have explicit scales. Agriculture scores use their raw native units (normally 0–100); absent fields/crops/woodland contribute zero, with explicit presence sources available.
 
-`ICell.TryPeekForagableYield` projects the effective forage profile without synchronising, refilling, or scheduling yields. A new valid key projects its profile maximum; an existing depleted key stays depleted subject to a lower maximum. An absent forage subsystem contributes zero, while a missing key in a configured profile is an error. Ordinary synchronisation remains at load/configuration/consumption/recovery boundaries.
+`ICell.TryPeekForagableYield` projects the effective forage profile without synchronising, refilling, or scheduling yields. Its richer native snapshot also captures the physical cell, normalised key, effective forage-profile identity/revisions and owner change token for compare-and-apply. A new valid key projects its profile maximum; an existing depleted key stays depleted subject to a lower maximum. An absent forage subsystem contributes zero, while a missing key in a configured profile is an error. Ordinary synchronisation remains at load/configuration/consumption/recovery boundaries.
 
 The world-local field-by-cell index is built once and maintained on field creation, replacement, and deletion. Input evaluation does not scan all agriculture fields. Delayed deletion of an old field cannot remove its replacement.
 
 Optional numeric location progs must be compiled and `NotStatic`, and builders must author them as read-only policies. The engine does not infer dependencies or make arbitrary progs pure. Environmental cap recursion and attempts to mutate the same cell during input evaluation are rejected. Non-finite values and negative maxima/rates fault the managed route without destroying stock. Scalar `InspectState` queries execute no input progs.
+
+## Native organic source and penalty boundary
+
+The optional versioned `Organic` profile subtree is intentionally separate from mana output validity. A missing subtree authorises no native conversion and makes every native production factor neutral. Malformed source/protection configuration makes Land accounting unavailable without disabling legacy mana outputs. An invalid factor suppresses only the affected uncertain positive production; normal negative stress continues.
+
+`InspectOrganicSources` and `InspectOrganicSource` resolve canonical forage/crop/woodland/pasture declarations through the effective physical-cell binding. Agriculture uses the coordinator's existing field index. The observation reports available/exhausted/absent/unauthorised/invalid/indeterminate state, stock, prepaid fraction, production remainders, lifecycle and owner/profile revision tokens. It performs no mana-output evaluation and accepts no scheduling sample.
+
+`TryPlanOrganicDebit` is pure. `TryApplyOrganicDebit` repeats authorisation, applicable configured recovery-penalty validity with current native/scar/pressure inputs, identity, stock and exact arithmetic validation before one native-owner mutation. Invalid dynamic factors reject planning and apply while raw inspection retains the stock and diagnostic; a factor of zero remains valid. Crop, woodland and pasture prepay a whole integer unit and retain the unused decimal source fraction on their field. Forage uses the actual fractional cell stock. These calls create no ecological receipt and grant no personal balance; the later parent gathering operation must supply its own durable receipt and persistence boundary.
+
+Penalty formula inputs are raw scalar/native values, including scar damage, current pressure, current native stock/health/yield/capacity, field condition and the positive baseline contribution. Only dependencies for the requested channel are evaluated. A penalty lookup never calls a mana cap or output evaluation, and the common recursion guard fails closed if a named prog tries to re-enter environmental calculation.
 
 ## Central scheduling and time
 

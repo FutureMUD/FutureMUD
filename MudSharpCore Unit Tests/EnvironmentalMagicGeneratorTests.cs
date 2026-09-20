@@ -19,6 +19,7 @@ using MudSharp.GameItems;
 using MudSharp.Magic;
 using MudSharp.Magic.Environment;
 using MudSharp.Magic.Generators;
+using MudSharp.Work.Agriculture;
 using MagicGenerator = MudSharp.Models.MagicGenerator;
 using MudSharp.PerceptionEngine;
 
@@ -41,6 +42,249 @@ public class EnvironmentalMagicGeneratorTests
 		Assert.AreEqual(0.0, generator.NaturalRepairPerMinute);
 		Assert.IsNull(generator.IdleRecheckSeconds);
 		Assert.AreEqual("1", SaveDefinition(generator).Attribute("version")!.Value);
+		Assert.IsFalse(generator.HasOrganicConfiguration);
+		Assert.AreEqual(0, generator.OrganicSources.Count);
+		Assert.AreEqual(NativeOrganicPenaltyEvaluation.Neutral,
+			generator.EvaluateOrganicPenalty(NativeOrganicPenaltyChannel.CropYieldRecovery,
+				new Dictionary<string, double>()));
+	}
+
+	[TestMethod]
+	public void Builder_OrganicSourcesAndPenalty_RoundTripWithOuterVersionUnchanged()
+	{
+		var world = World();
+		var actor = Actor(world.Object);
+		var generator = Load(world);
+		var revision = generator.Revision;
+
+		Assert.IsTrue(generator.BuildingCommand(actor.Object, new StringStack("organic source add forage Wild Herbs")));
+		Assert.IsTrue(generator.BuildingCommand(actor.Object, new StringStack("organic source add crop")));
+		Assert.IsTrue(generator.BuildingCommand(actor.Object, new StringStack("organic source crop uses crop orchard")));
+		Assert.IsTrue(generator.BuildingCommand(actor.Object,
+			new StringStack("organic penalty cropyield 1 - scardamage / 10")));
+
+		Assert.AreEqual(revision + 4, generator.Revision);
+		var saved = SaveDefinition(generator);
+		Assert.AreEqual("1", saved.Attribute("version")!.Value);
+		Assert.AreEqual("1", saved.Element("Organic")!.Attribute("version")!.Value);
+		var reloaded = Load(world, saved);
+		Assert.AreEqual(0, reloaded.ValidationErrors.Count, string.Join("; ", reloaded.ValidationErrors));
+		Assert.AreEqual(0, reloaded.OrganicValidationErrors.Count,
+			string.Join("; ", reloaded.OrganicValidationErrors));
+		Assert.AreEqual(2, reloaded.OrganicSources.Count);
+		Assert.AreEqual("forage:wild herbs", reloaded.OrganicSources[0].Selector);
+		CollectionAssert.AreEquivalent(new[] { AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard },
+			reloaded.OrganicSources[1].AllowedFieldUses.ToArray());
+		var evaluation = reloaded.EvaluateOrganicPenalty(NativeOrganicPenaltyChannel.CropYieldRecovery,
+			new Dictionary<string, double> { ["scardamage"] = 2.0 });
+		Assert.IsTrue(evaluation.IsValid, evaluation.Error);
+		Assert.AreEqual(0.8, evaluation.Factor, 1e-12);
+		StringAssert.Contains(reloaded.Show(actor.Object), "Ecological Penalties");
+	}
+
+	[TestMethod]
+	public void Loader_InvalidOrganicFormula_DoesNotDisableLegacyManaDefinition()
+	{
+		var definition = Definition();
+		definition.Add(new XElement("Organic", new XAttribute("version", 1),
+			new XElement("Sources"),
+			new XElement("Penalties", new XElement("Penalty",
+				new XAttribute("channel", NativeOrganicPenaltyChannel.CropYieldRecovery), "2"))));
+		var generator = Load(World(), definition);
+
+		Assert.AreEqual(0, generator.ValidationErrors.Count, string.Join("; ", generator.ValidationErrors));
+		Assert.IsTrue(generator.OrganicValidationErrors.Count > 0);
+		Assert.IsTrue(generator.EvaluateOutput(generator.Outputs[0], new Dictionary<string, double>(), 0.0).IsValid);
+		var penalty = generator.EvaluateOrganicPenalty(NativeOrganicPenaltyChannel.CropYieldRecovery,
+			new Dictionary<string, double>());
+		Assert.IsFalse(penalty.IsValid);
+		Assert.AreEqual(0.0, penalty.Factor);
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T02")]
+	[TestCategory("Y-T22")]
+	public void Loader_DuplicatePenaltyFailsOnlyThatChannelClosed()
+	{
+		var definition = Definition();
+		definition.Add(new XElement("Organic", new XAttribute("version", 1),
+			new XElement("Sources"),
+			new XElement("Penalties",
+				new XElement("Penalty", new XAttribute("channel", NativeOrganicPenaltyChannel.ForageReplenishment), "0.5"),
+				new XElement("Penalty", new XAttribute("channel", NativeOrganicPenaltyChannel.CropYieldRecovery), "0.25"),
+				new XElement("Penalty", new XAttribute("channel", NativeOrganicPenaltyChannel.CropYieldRecovery), "0.75"))));
+		var generator = Load(World(), definition);
+
+		var duplicate = generator.EvaluateOrganicPenalty(NativeOrganicPenaltyChannel.CropYieldRecovery,
+			new Dictionary<string, double>());
+		Assert.IsFalse(duplicate.IsValid);
+		Assert.AreEqual(0.0, duplicate.Factor);
+		Assert.AreEqual(0, generator.RequiredOrganicInputNames(NativeOrganicPenaltyChannel.CropYieldRecovery).Count);
+		var independent = generator.EvaluateOrganicPenalty(NativeOrganicPenaltyChannel.ForageReplenishment,
+			new Dictionary<string, double>());
+		Assert.IsTrue(independent.IsValid, independent.Error);
+		Assert.AreEqual(0.5, independent.Factor);
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T02")]
+	[TestCategory("Y-T22")]
+	public void Loader_UnsupportedOrganicVersionDoesNotExecuteConfiguredPenalty()
+	{
+		var definition = Definition();
+		definition.Add(new XElement("Organic", new XAttribute("version", 999),
+			new XElement("Sources"),
+			new XElement("Penalties", new XElement("Penalty",
+				new XAttribute("channel", NativeOrganicPenaltyChannel.ForageReplenishment), "0.5"))));
+		var generator = Load(World(), definition);
+
+		var evaluation = generator.EvaluateOrganicPenalty(NativeOrganicPenaltyChannel.ForageReplenishment,
+			new Dictionary<string, double>());
+
+		Assert.IsFalse(evaluation.IsValid);
+		Assert.AreEqual(0.0, evaluation.Factor);
+		StringAssert.Contains(evaluation.Error, "Unsupported organic definition version 999");
+		Assert.AreEqual(0, generator.RequiredOrganicInputNames(NativeOrganicPenaltyChannel.ForageReplenishment).Count);
+	}
+
+	[TestMethod]
+	public void Loader_OrganicLimitsDuplicatesAndMalformedSelectorsStaySeparateFromLegacyMana()
+	{
+		var definition = Definition();
+		var sources = new XElement("Sources");
+		for (var i = 0; i <= EnvironmentalMagicGenerator.MaximumOrganicSources; i++)
+		{
+			sources.Add(new XElement("Source", new XAttribute("selector", $"forage:key{i}"),
+				new XAttribute("kind", NativeOrganicSourceKind.Forage), new XAttribute("foragekey", $"key{i}"),
+				new XElement("Uses"), new XElement("Definitions")));
+		}
+		sources.Add(new XElement("Source", new XAttribute("selector", "forage:key0"),
+			new XAttribute("kind", NativeOrganicSourceKind.Forage), new XAttribute("foragekey", "key0"),
+			new XElement("Uses"), new XElement("Definitions")));
+		sources.Add(new XElement("Source", new XAttribute("selector", "animals"),
+			new XAttribute("kind", "Unknown"), new XElement("Uses"), new XElement("Definitions")));
+		definition.Add(new XElement("Organic", new XAttribute("version", 1), sources, new XElement("Penalties")));
+
+		var generator = Load(World(), definition);
+		var errors = string.Join("; ", generator.OrganicValidationErrors);
+		Assert.AreEqual(0, generator.ValidationErrors.Count);
+		StringAssert.Contains(errors, "at most 32");
+		StringAssert.Contains(errors, "declared more than once");
+		StringAssert.Contains(errors, "kind is unknown");
+	}
+
+	[TestMethod]
+	public void Builder_OrganicNamedDependencyPreventsRemovingItsInput()
+	{
+		var world = World();
+		var actor = Actor(world.Object);
+		var generator = Load(world);
+
+		Assert.IsTrue(generator.BuildingCommand(actor.Object, new StringStack("input ecology forage herbs 0.01")));
+		Assert.IsTrue(generator.BuildingCommand(actor.Object,
+			new StringStack("organic penalty forage 1 - ecology")));
+		Assert.IsFalse(generator.BuildingCommand(actor.Object, new StringStack("input remove ecology")));
+		Assert.AreEqual(1, generator.Inputs.Count);
+		Assert.IsTrue(generator.RequiredOrganicInputNames(NativeOrganicPenaltyChannel.ForageReplenishment)
+			.Contains("ECOLOGY"));
+	}
+
+	[DataTestMethod]
+	[DataRow("nativestock")]
+	[DataRow("nativehealth")]
+	[DataRow("nativeyield")]
+	[DataRow("nativecapacity")]
+	[DataRow("fieldcondition")]
+	[DataRow("baselineincrease")]
+	[TestCategory("Y-T02")]
+	public void Builder_OrganicBuiltInNamesCannotBeShadowedByNamedInputs(string name)
+	{
+		var generator = Load(World());
+		var actor = Actor(generator.Gameworld);
+
+		Assert.IsFalse(generator.BuildingCommand(actor.Object,
+			new StringStack($"input {name} forage herbs 1")));
+		Assert.AreEqual(0, generator.Inputs.Count);
+	}
+
+	[TestMethod]
+	public void Builder_OrganicDeclarationsRejectDuplicatesAndPenaltyRejectsRandomOrOutOfRange()
+	{
+		var generator = Load(World());
+		var actor = Actor(generator.Gameworld);
+
+		Assert.IsTrue(generator.BuildingCommand(actor.Object, new StringStack("organic source add crop")));
+		Assert.IsFalse(generator.BuildingCommand(actor.Object, new StringStack("organic source add crop")));
+		Assert.IsFalse(generator.BuildingCommand(actor.Object, new StringStack("organic source add forage")));
+		Assert.IsFalse(generator.BuildingCommand(actor.Object, new StringStack("organic penalty forage 1d6")));
+		Assert.IsFalse(generator.BuildingCommand(actor.Object, new StringStack("organic penalty forage 1.01")));
+		Assert.IsFalse(generator.BuildingCommand(actor.Object, new StringStack("organic penalty forage 1 / 0")));
+		Assert.IsFalse(generator.BuildingCommand(actor.Object, new StringStack("organic penalty forage 0 / 0")));
+		Assert.AreEqual(1, generator.OrganicSources.Count);
+		Assert.AreEqual(0, generator.OrganicPenalties.Count);
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T14")]
+	public void OrganicPenalty_DynamicNonFiniteResultFailsClosed()
+	{
+		var generator = Load(World());
+		var actor = Actor(generator.Gameworld);
+		Assert.IsTrue(generator.BuildingCommand(actor.Object,
+			new StringStack("organic penalty forage 1 / nativestock")));
+
+		var evaluation = generator.EvaluateOrganicPenalty(
+			NativeOrganicPenaltyChannel.ForageReplenishment,
+			new Dictionary<string, double> { ["nativestock"] = 0.0 });
+
+		Assert.IsFalse(evaluation.IsValid);
+		Assert.AreEqual(0.0, evaluation.Factor);
+		StringAssert.Contains(evaluation.Error, "finite");
+	}
+
+	[TestMethod]
+	public void Builder_OrganicProtectionRequiresExactCompiledSignatureAndIsNeverInvoked()
+	{
+		var valid = ProtectionProg(20);
+		var invalid = ProtectionProg(21);
+		invalid.SetupGet(x => x.Parameters).Returns(new[] { ProgVariableTypes.Character });
+		var world = World(progs: new[] { valid.Object, invalid.Object });
+		var generator = Load(world);
+		var actor = Actor(world.Object);
+
+		Assert.IsFalse(generator.BuildingCommand(actor.Object, new StringStack("organic protection 21")));
+		Assert.IsTrue(generator.BuildingCommand(actor.Object, new StringStack("organic protection 20")));
+		Assert.AreEqual(20L, generator.OrganicProtectionProgId);
+		Assert.AreSame(valid.Object, generator.OrganicProtectionProg);
+		valid.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Never);
+		var reloaded = Load(world, SaveDefinition(generator));
+		Assert.AreEqual(0, reloaded.OrganicValidationErrors.Count,
+			string.Join("; ", reloaded.OrganicValidationErrors));
+		Assert.AreEqual(20L, reloaded.OrganicProtectionProgId);
+		valid.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Never);
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T02")]
+	public void Loader_MalformedProtectionProgIsRetainedAndCanBeRepairedLive()
+	{
+		var definition = Definition();
+		definition.Add(new XElement("Organic", new XAttribute("version", 1),
+			new XElement("ProtectionProg", "not-a-prog-id"), new XElement("Sources"), new XElement("Penalties")));
+		var world = World();
+		var generator = Load(world, definition);
+
+		StringAssert.Contains(string.Join("; ", generator.OrganicValidationErrors), "malformed");
+		var saved = SaveDefinition(generator);
+		Assert.AreEqual("not-a-prog-id", saved.Element("Organic")!.Element("ProtectionProg")!.Value);
+		var reloaded = Load(world, saved);
+		StringAssert.Contains(string.Join("; ", reloaded.OrganicValidationErrors), "malformed");
+
+		Assert.IsTrue(reloaded.BuildingCommand(Actor(world.Object).Object,
+			new StringStack("organic protection none")));
+		Assert.AreEqual(0, reloaded.OrganicValidationErrors.Count,
+			string.Join("; ", reloaded.OrganicValidationErrors));
+		Assert.IsNull(SaveDefinition(reloaded).Element("Organic")!.Element("ProtectionProg"));
 	}
 
 	[TestMethod]
@@ -361,6 +605,21 @@ public class EnvironmentalMagicGeneratorTests
 		prog.SetupGet(value => value.StaticType).Returns(FutureProgStaticType.NotStatic);
 		prog.Setup(value => value.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>()))
 			.Returns<IEnumerable<ProgVariableTypes>>(parameters => parameters.SequenceEqual(new[] { ProgVariableTypes.Location }));
+		return prog;
+	}
+
+	private static Mock<IFutureProg> ProtectionProg(long id)
+	{
+		var prog = new Mock<IFutureProg>();
+		prog.SetupGet(value => value.Id).Returns(id);
+		prog.SetupGet(value => value.Name).Returns($"Protection{id}");
+		prog.SetupGet(value => value.FunctionName).Returns($"Protection{id}");
+		prog.SetupGet(value => value.ReturnType).Returns(ProgVariableTypes.Boolean);
+		prog.SetupGet(value => value.Parameters).Returns(new[]
+		{
+			ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.MagicCapability,
+			ProgVariableTypes.Text, ProgVariableTypes.Number, ProgVariableTypes.Location
+		});
 		return prog;
 	}
 

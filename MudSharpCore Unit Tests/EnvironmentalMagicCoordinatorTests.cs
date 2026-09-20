@@ -11,6 +11,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.Framework;
 using MudSharp.Magic;
 using MudSharp.Magic.Environment;
 using MudSharp.Magic.Generators;
@@ -23,6 +24,592 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class EnvironmentalMagicCoordinatorTests
 {
+	[TestMethod]
+	[TestCategory("Y-T01")]
+	[TestCategory("Y-T03")]
+	public void OrganicSourceRequiresExplicitProfileAuthorisationAndInspectionIsPure()
+	{
+		using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		var cell = (Cell)world.Cells.At(0);
+		var saveRequests = world.SaveRequests;
+		var before = world.Coordinator.InspectOrganicSource(cell, "forage:herbs");
+		Assert.AreEqual(NativeOrganicSourceStatus.Unauthorised, before.Status);
+
+		world.Edit("organic source add forage herbs");
+		world.Edit("organic source add forage berries");
+		world.ResetSavedFlags();
+		world.Cells.ForbidEnumeration = true;
+		world.Fields.ForbidEnumeration = true;
+		var snapshot = world.Coordinator.InspectOrganicSource(cell, "FORAGE:Herbs");
+
+		Assert.AreEqual(NativeOrganicSourceStatus.Available, snapshot.Status);
+		Assert.AreEqual("forage:herbs", snapshot.Selector);
+		Assert.AreEqual(100.0, snapshot.NativeStock);
+		Assert.AreEqual(0m, snapshot.PrepaidFraction);
+		Assert.IsNotNull(snapshot.Lifecycle);
+		Assert.AreEqual(1L, snapshot.Lifecycle.ForageProfileId);
+		Assert.AreEqual(NativeOrganicSourceStatus.Absent,
+			world.Coordinator.InspectOrganicSource(cell, "forage:berries").Status);
+		Assert.AreEqual(NativeOrganicSourceStatus.Invalid,
+			world.Coordinator.InspectOrganicSource(cell, "not-a-selector").Status);
+		Assert.AreEqual(NativeOrganicSourceStatus.Indeterminate,
+			world.Coordinator.InspectOrganicSource(Mock.Of<ICell>(), "crop").Status);
+		Assert.AreEqual(saveRequests, world.SaveRequests);
+		Assert.AreEqual(1, world.SecondSubscriptions);
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T04")]
+	[TestCategory("Y-T05")]
+	public void ForagePlanAndApplyUsesExactOwnerDebitAndRejectsAStalePlan()
+	{
+		using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		world.Edit("organic source add forage herbs");
+		var cell = (Cell)world.Cells.At(0);
+
+		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
+			out var first, out var error), error);
+		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.5,
+			out var stale, out error), error);
+		Assert.IsTrue(world.Coordinator.TryApplyOrganicDebit(cell, first, out var result, out error), error);
+		Assert.AreEqual(99.75, result.NativeStock, 1e-12);
+		Assert.IsFalse(world.Coordinator.TryApplyOrganicDebit(cell, stale, out result, out error));
+		StringAssert.Contains(error!, "changed");
+		Assert.AreEqual(99.75, result.NativeStock, 1e-12);
+		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 99.75,
+			out var remainder, out error), error);
+		Assert.IsTrue(world.Coordinator.TryApplyOrganicDebit(cell, remainder, out result, out error), error);
+		Assert.AreEqual(NativeOrganicSourceStatus.Exhausted, result.Status);
+		Assert.AreEqual(0.0, result.NativeStock);
+		Assert.AreEqual(0, world.Operations.Commits);
+		Assert.AreEqual(1, world.SecondSubscriptions);
+	}
+
+	[TestMethod]
+	[TestCategory("C-R4-01")]
+	[TestCategory("C-R4-02")]
+	public void OrganicConversion_DynamicInvalidPenaltyRejectsPlanAndApplyWithoutDebitingStock()
+	{
+		using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		world.Edit("organic source add forage herbs");
+		world.Edit("organic penalty forage 1 - scardamage / 100");
+		var cell = (Cell)world.Cells.At(0);
+		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
+			out var plan, out var error), error);
+		var before = world.Coordinator.InspectOrganicSource(cell, "forage:herbs");
+		var damage = world.Coordinator.ApplyOperation(cell, Request(damage: 150.0));
+		Assert.IsTrue(damage.Success, damage.Error);
+		var invalid = world.Coordinator.InspectOrganicSource(cell, "forage:herbs");
+		Assert.AreEqual(NativeOrganicSourceStatus.Invalid, invalid.Status);
+		Assert.AreEqual(before.NativeStock, invalid.NativeStock);
+		Assert.IsNotNull(invalid.Diagnostic);
+		Assert.IsFalse(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
+			out _, out error));
+		Assert.IsFalse(world.Coordinator.TryApplyOrganicDebit(cell, plan, out var refused, out error));
+		Assert.AreEqual(before.NativeStock, refused.NativeStock);
+		Assert.AreEqual(before.SourceRevision, refused.SourceRevision);
+		var repair = world.Coordinator.ApplyOperation(cell, Request(repair: 150.0));
+		Assert.IsTrue(repair.Success, repair.Error);
+		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
+			out var corrected, out error), error);
+		Assert.IsTrue(world.Coordinator.TryApplyOrganicDebit(cell, corrected, out var applied, out error), error);
+		Assert.AreEqual(before.NativeStock - 0.25, applied.NativeStock, 1e-12);
+	}
+
+	[TestMethod]
+	[TestCategory("C-R4-03")]
+	[TestCategory("C-R4-06")]
+	public void OrganicConversion_ZeroFactorIsValidAndForageBaselineIsUnclippedHourlyRate()
+	{
+		using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		world.Edit("organic source add forage herbs");
+		var cell = (Cell)world.Cells.At(0);
+		cell.ConsumeYield("herbs", 1.0);
+		world.Edit("organic penalty forage 0");
+		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
+			out _, out var error), error);
+		world.Edit("organic penalty forage 10 / baselineincrease");
+		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
+			out _, out error), error);
+		Assert.AreEqual(99.0, world.Coordinator.InspectOrganicSource(cell, "forage:herbs").NativeStock);
+	}
+
+	[TestMethod]
+	[TestCategory("C-R4-01")]
+	[TestCategory("C-R4-02")]
+	public void OrganicConversion_UsesCurrentNativeCropPollinationBaseline()
+	{
+		foreach (var (formula, expectedValid, expectedHealth) in new[]
+		         {
+			         ("1 - baselineincrease / 2.0", false, 50),
+			         ("2.0 / baselineincrease", true, 52)
+		         })
+		{
+			using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+			world.Edit("organic source add crop");
+			world.Edit($"organic penalty crophealth {formula}");
+			var (field, setPollination) = BuildPollinatedNativeCrop(world);
+			world.Fields.ForbidEnumeration = true;
+			var context = field.InspectCurrentOrganicRecoveryContext(NativeOrganicPenaltyChannel.CropHealthRecovery);
+			Assert.IsNotNull(context);
+			Assert.AreEqual(4.0, context.BaselineIncrease);
+			var source = world.Coordinator.InspectOrganicSource(field.Cell, "crop");
+			Assert.AreEqual(expectedValid ? NativeOrganicSourceStatus.Available : NativeOrganicSourceStatus.Invalid,
+				source.Status, formula);
+			Assert.AreEqual(50.0, source.NativeStock);
+			Assert.AreEqual(expectedValid, world.Coordinator.TryPlanOrganicDebit(field.Cell, "crop", 0.25,
+				out _, out _), formula);
+			if (expectedValid)
+			{
+				Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(field.Cell, "crop", 0.25,
+					out var planned, out var error), error);
+				var before = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
+				setPollination(false);
+				Assert.IsFalse(world.Coordinator.TryApplyOrganicDebit(field.Cell, planned, out _, out _));
+				var after = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
+				Assert.AreEqual(before.NativeStock, after.NativeStock);
+				Assert.AreEqual(before.PrepaidFraction, after.PrepaidFraction);
+				Assert.AreEqual(before.SourceRevision, after.SourceRevision);
+				setPollination(true);
+			}
+			else
+			{
+				setPollination(false);
+				var unpollinated = field.InspectCurrentOrganicRecoveryContext(
+					NativeOrganicPenaltyChannel.CropHealthRecovery);
+				Assert.IsNotNull(unpollinated);
+				Assert.AreEqual(1.0, unpollinated.BaselineIncrease);
+				Assert.AreEqual(NativeOrganicSourceStatus.Available,
+					world.Coordinator.InspectOrganicSource(field.Cell, "crop").Status);
+				Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(field.Cell, "crop", 0.25,
+					out var planned, out var error), error);
+				var before = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
+				setPollination(true);
+				Assert.IsFalse(world.Coordinator.TryApplyOrganicDebit(field.Cell, planned, out _, out _));
+				var after = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
+				Assert.AreEqual(before.NativeStock, after.NativeStock);
+				Assert.AreEqual(before.PrepaidFraction, after.PrepaidFraction);
+				Assert.AreEqual(before.SourceRevision, after.SourceRevision);
+				setPollination(false);
+			}
+			field.DailyTick();
+			Assert.AreEqual(expectedHealth, field.CropHealth, formula);
+			if (!expectedValid)
+				Assert.AreEqual(0.5m,
+					field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop).RecoveryRemainders.Health);
+		}
+	}
+
+	private static (AgricultureField Field, Action<bool> SetPollination) BuildPollinatedNativeCrop(
+		EnvironmentalMagicTestWorld world)
+	{
+		var cell = (Cell)world.Cells.At(0);
+		var profile = new Mock<IAgricultureFieldProfile>();
+		profile.SetupGet(x => x.Id).Returns(1L);
+		profile.SetupGet(x => x.DefaultScores).Returns(new Dictionary<AgricultureScoreType, int>());
+		var profiles = new All<IAgricultureFieldProfile>();
+		profiles.Add(profile.Object);
+		world.World.SetupGet(x => x.AgricultureFieldProfiles).Returns(profiles);
+		var crop = new Mock<IAgricultureCropDefinition>();
+		crop.SetupGet(x => x.Id).Returns(1L);
+		crop.SetupGet(x => x.BaseGrowthDays).Returns(30);
+		crop.SetupGet(x => x.HarvestWindowDays).Returns(5);
+		crop.SetupGet(x => x.MinimumMoisture).Returns(0);
+		crop.SetupGet(x => x.MaximumMoisture).Returns(100);
+		crop.SetupGet(x => x.MinimumTemperature).Returns(-100);
+		crop.SetupGet(x => x.MaximumTemperature).Returns(100);
+		crop.SetupGet(x => x.PollinationDependency).Returns(AgriculturePollinationDependency.Beneficial);
+		crop.SetupGet(x => x.PollinationHealthBonus).Returns(3);
+		crop.SetupGet(x => x.ScoreRanges).Returns(Array.Empty<AgricultureScoreRange>());
+		var crops = new All<IAgricultureCropDefinition>();
+		crops.Add(crop.Object);
+		world.World.SetupGet(x => x.AgricultureCropDefinitions).Returns(crops);
+		world.World.SetupGet(x => x.Properties).Returns(new All<MudSharp.Economy.Property.IProperty>());
+		var model = new MudSharp.Models.AgricultureField
+		{
+			Id = 1, CellId = cell.Id, ProfileId = 1, CurrentUse = (int)AgricultureFieldUse.Crop,
+			Moisture = 50, Drainage = 50, Nutrients = 100, Topsoil = 50, Tilth = 50,
+			Pasture = 50, Condition = 50, Definition = "<Field />",
+			AgricultureFieldCrop = new MudSharp.Models.AgricultureFieldCrop
+			{
+				CropDefinitionId = 1, Stage = (int)AgricultureCropStage.Growing, GrowthDays = 10,
+				Health = 50, YieldPotential = 50, Definition = "<Crop />"
+			}
+		};
+		var field = new AgricultureField(model, world.World.Object);
+		world.Fields.Add(field);
+		world.Coordinator.FieldChanged(field);
+		var apiary = new Mock<IAgricultureFieldApiary>();
+		apiary.SetupGet(x => x.PollinationRadius).Returns(1);
+		apiary.SetupGet(x => x.PollinationStrength).Returns(50);
+		var pollinator = new Mock<IAgricultureField>();
+		pollinator.SetupGet(x => x.Id).Returns(2L);
+		pollinator.SetupGet(x => x.Cell).Returns(cell);
+		pollinator.SetupGet(x => x.HasActiveApiary).Returns(true);
+		var pollinationActive = true;
+		pollinator.SetupGet(x => x.IsApiaryHappy).Returns(() => pollinationActive);
+		pollinator.SetupGet(x => x.Apiary).Returns(apiary.Object);
+		world.Coordinator.RefreshPollinationCandidate(pollinator.Object);
+		return (field, active => pollinationActive = active);
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T01")]
+	public void OrganicPenaltyIsNeutralUntilMatchingSourceIsAuthorisedAndDoesNotEvaluateManaOutputs()
+	{
+		using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		world.Edit("organic penalty forage 1 - hasdefile * 0.75");
+		var cell = (Cell)world.Cells.At(0);
+		var context = new NativeOrganicPenaltyContext(NativeOrganicSourceKind.Forage, "forage:herbs",
+			100.0, 0.0, 100.0, 100.0, 0.0, 10.0);
+		var beforeCount = world.Profile.FormulaEvaluationCount;
+		var neutral = world.Coordinator.EvaluateOrganicPenalty(cell,
+			NativeOrganicPenaltyChannel.ForageReplenishment, context);
+		Assert.AreEqual(NativeOrganicPenaltyEvaluation.Neutral, neutral);
+		Assert.AreEqual(beforeCount, world.Profile.FormulaEvaluationCount);
+
+		world.Edit("organic source add forage herbs");
+		beforeCount = world.Profile.FormulaEvaluationCount;
+		var undamaged = world.Coordinator.EvaluateOrganicPenalty(cell,
+			NativeOrganicPenaltyChannel.ForageReplenishment, context);
+		Assert.IsTrue(undamaged.IsValid, undamaged.Error);
+		Assert.AreEqual(1.0, undamaged.Factor);
+		Assert.AreEqual(beforeCount, world.Profile.FormulaEvaluationCount);
+		var operation = world.Coordinator.ApplyOperation(cell, new EnvironmentalMagicOperationRequest(
+			Guid.NewGuid(), 1, "organic penalty test", Damage: 1.0, Pressure: 0.0));
+		Assert.IsTrue(operation.Success, operation.Error);
+		beforeCount = world.Profile.FormulaEvaluationCount;
+		var damaged = world.Coordinator.EvaluateOrganicPenalty(cell,
+			NativeOrganicPenaltyChannel.ForageReplenishment, context);
+		Assert.IsTrue(damaged.IsValid, damaged.Error);
+		Assert.AreEqual(0.25, damaged.Factor, 1e-12);
+		Assert.AreEqual(beforeCount, world.Profile.FormulaEvaluationCount,
+			"Organic evaluation must not evaluate mana maximum/rate expressions.");
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T02")]
+	public void OrganicPenaltyRespectsFieldUseAndDefinitionRestrictionsWithoutRequiringPositiveStock()
+	{
+		using var world = new EnvironmentalMagicTestWorld();
+		var allowedCrop = new Mock<IAgricultureCropDefinition>();
+		allowedCrop.SetupGet(x => x.Id).Returns(100L);
+		allowedCrop.SetupGet(x => x.Name).Returns("Allowed Crop");
+		var otherCrop = new Mock<IAgricultureCropDefinition>();
+		otherCrop.SetupGet(x => x.Id).Returns(200L);
+		otherCrop.SetupGet(x => x.Name).Returns("Other Crop");
+		var definitions = new EnvironmentalMagicTestRegistry<IAgricultureCropDefinition>();
+		definitions.Add(allowedCrop.Object);
+		definitions.Add(otherCrop.Object);
+		world.World.SetupGet(x => x.AgricultureCropDefinitions).Returns(definitions);
+		world.Edit("organic source add crop");
+		world.Edit("organic source crop uses orchard");
+		world.Edit("organic source crop definitions 100");
+		world.Edit("organic penalty cropinitial 0.25");
+		var cell = (Cell)world.Cells.At(0);
+		var use = AgricultureFieldUse.Crop;
+		IAgricultureCropDefinition crop = allowedCrop.Object;
+		var field = new Mock<IAgricultureField>();
+		field.SetupGet(x => x.Id).Returns(50L);
+		field.SetupGet(x => x.Cell).Returns(cell);
+		field.SetupGet(x => x.CurrentUse).Returns(() => use);
+		field.SetupGet(x => x.CurrentCrop).Returns(() => crop);
+		world.Coordinator.FieldChanged(field.Object);
+		var context = new NativeOrganicPenaltyContext(NativeOrganicSourceKind.Crop, "crop",
+			0.0, 0.0, 0.0, 100.0, 50.0, 50.0);
+
+		Assert.AreEqual(NativeOrganicPenaltyEvaluation.Neutral,
+			world.Coordinator.EvaluateOrganicPenalty(cell, NativeOrganicPenaltyChannel.CropInitialisation, context));
+		use = AgricultureFieldUse.Orchard;
+		crop = otherCrop.Object;
+		Assert.AreEqual(NativeOrganicPenaltyEvaluation.Neutral,
+			world.Coordinator.EvaluateOrganicPenalty(cell, NativeOrganicPenaltyChannel.CropInitialisation, context));
+		crop = allowedCrop.Object;
+		var applicable = world.Coordinator.EvaluateOrganicPenalty(cell,
+			NativeOrganicPenaltyChannel.CropInitialisation, context);
+		Assert.IsTrue(applicable.IsValid, applicable.Error);
+		Assert.AreEqual(0.25, applicable.Factor);
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T02")]
+	[TestCategory("Y-T22")]
+	public void UnrelatedOrganicErrorsDoNotDisableValidForageSourceOrPenalty()
+	{
+		using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		var definition = EnvironmentalMagicTestWorld.ProfileDefinition();
+		definition.Add(new XElement("Organic", new XAttribute("version", 1),
+			new XElement("ProtectionProg", "malformed"),
+			new XElement("Sources",
+				new XElement("Source", new XAttribute("selector", "forage:herbs"),
+					new XAttribute("kind", NativeOrganicSourceKind.Forage), new XAttribute("foragekey", "herbs"),
+					new XElement("Uses"), new XElement("Definitions")),
+				new XElement("Source", new XAttribute("selector", "crop"),
+					new XAttribute("kind", NativeOrganicSourceKind.Crop),
+					new XElement("Uses", new XElement("Use", AgricultureFieldUse.Woodland)),
+					new XElement("Definitions"))),
+			new XElement("Penalties",
+				new XElement("Penalty", new XAttribute("channel", NativeOrganicPenaltyChannel.ForageReplenishment), "0.5"),
+				new XElement("Penalty", new XAttribute("channel", NativeOrganicPenaltyChannel.CropYieldRecovery), "2"))));
+		var profile = world.AddProfile(2, definition);
+		var cell = (Cell)world.Cells.At(0);
+		world.Coordinator.SetBinding(cell, EnvironmentalMagicBindingMode.Explicit, profile.Id);
+
+		Assert.IsTrue(profile.OrganicValidationErrors.Count >= 3);
+		Assert.AreEqual(NativeOrganicSourceStatus.Available,
+			world.Coordinator.InspectOrganicSource(cell, "forage:herbs").Status);
+		var evaluation = world.Coordinator.EvaluateOrganicPenalty(cell,
+			NativeOrganicPenaltyChannel.ForageReplenishment,
+			new NativeOrganicPenaltyContext(NativeOrganicSourceKind.Forage, "forage:herbs",
+				100.0, 0.0, 100.0, 100.0, 0.0, 10.0));
+		Assert.IsTrue(evaluation.IsValid, evaluation.Error);
+		Assert.AreEqual(0.5, evaluation.Factor);
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T02")]
+	[TestCategory("Y-T22")]
+	public void PersistedLegacyInputCannotShadowOrganicBuiltInContext()
+	{
+		using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		var definition = EnvironmentalMagicTestWorld.ProfileDefinition();
+		definition.Element("Inputs")!.Add(EnvironmentalMagicTestWorld.Input(
+			"nativestock", "Forage", "missing-yield"));
+		definition.Add(new XElement("Organic", new XAttribute("version", 1),
+			new XElement("Sources", new XElement("Source",
+				new XAttribute("selector", "forage:herbs"),
+				new XAttribute("kind", NativeOrganicSourceKind.Forage), new XAttribute("foragekey", "herbs"),
+				new XElement("Uses"), new XElement("Definitions"))),
+			new XElement("Penalties", new XElement("Penalty",
+				new XAttribute("channel", NativeOrganicPenaltyChannel.ForageReplenishment),
+				"nativestock / 200"))));
+		var profile = world.AddProfile(2, definition);
+		var cell = (Cell)world.Cells.At(0);
+		world.Coordinator.SetBinding(cell, EnvironmentalMagicBindingMode.Explicit, profile.Id);
+
+		var evaluation = world.Coordinator.EvaluateOrganicPenalty(cell,
+			NativeOrganicPenaltyChannel.ForageReplenishment,
+			new NativeOrganicPenaltyContext(NativeOrganicSourceKind.Forage, "forage:herbs",
+				100.0, 0.0, 100.0, 100.0, 0.0, 10.0));
+
+		Assert.IsTrue(evaluation.IsValid, evaluation.Error);
+		Assert.AreEqual(0.5, evaluation.Factor);
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T02")]
+	[TestCategory("Y-T03")]
+	public void MalformedRelevantSelectorIsInvalidForInspectionAndPenaltyEvaluation()
+	{
+		using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		var definition = EnvironmentalMagicTestWorld.ProfileDefinition();
+		definition.Add(new XElement("Organic", new XAttribute("version", 1),
+			new XElement("Sources", new XElement("Source",
+				new XAttribute("selector", "forage: herbs"),
+				new XAttribute("kind", NativeOrganicSourceKind.Forage), new XAttribute("foragekey", "herbs"),
+				new XElement("Uses"), new XElement("Definitions"))),
+			new XElement("Penalties", new XElement("Penalty",
+				new XAttribute("channel", NativeOrganicPenaltyChannel.ForageReplenishment), "0.5"))));
+		var profile = world.AddProfile(2, definition);
+		var cell = (Cell)world.Cells.At(0);
+		world.Coordinator.SetBinding(cell, EnvironmentalMagicBindingMode.Explicit, profile.Id);
+
+		var snapshot = world.Coordinator.InspectOrganicSource(cell, "forage:herbs");
+		Assert.AreEqual(NativeOrganicSourceStatus.Invalid, snapshot.Status);
+		StringAssert.Contains(snapshot.Diagnostic, "canonical selector");
+		var evaluation = world.Coordinator.EvaluateOrganicPenalty(cell,
+			NativeOrganicPenaltyChannel.ForageReplenishment,
+			new NativeOrganicPenaltyContext(NativeOrganicSourceKind.Forage, "forage:herbs",
+				100.0, 0.0, 100.0, 100.0, 0.0, 10.0));
+		Assert.IsFalse(evaluation.IsValid);
+		Assert.AreEqual(0.0, evaluation.Factor);
+		StringAssert.Contains(evaluation.Error, "canonical selector");
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T22")]
+	public void InvalidDynamicOrganicPenaltyFailsClosedAndThrottlesDiagnostics()
+	{
+		using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		world.Edit("organic source add forage herbs");
+		world.Edit("organic penalty forage 1 - scardamage");
+		var cell = (Cell)world.Cells.At(0);
+		var operation = world.Coordinator.ApplyOperation(cell, new EnvironmentalMagicOperationRequest(
+			Guid.NewGuid(), 1, "invalid organic factor test", Damage: 2.0));
+		Assert.IsTrue(operation.Success, operation.Error);
+		var context = new NativeOrganicPenaltyContext(NativeOrganicSourceKind.Forage, "forage:herbs",
+			100.0, 0.0, 100.0, 100.0, 0.0, 10.0);
+
+		for (var i = 0; i < 10; i++)
+		{
+			var evaluation = world.Coordinator.EvaluateOrganicPenalty(cell,
+				NativeOrganicPenaltyChannel.ForageReplenishment, context);
+			Assert.IsTrue(evaluation.IsConfigured);
+			Assert.IsFalse(evaluation.IsValid);
+			Assert.AreEqual(0.0, evaluation.Factor);
+		}
+		Assert.AreEqual(1, world.Messages.Count(x => x.Contains("Environmental organic penalty")));
+		world.Clock.Advance(TimeSpan.FromSeconds(61));
+		world.Coordinator.EvaluateOrganicPenalty(cell, NativeOrganicPenaltyChannel.ForageReplenishment, context);
+		Assert.AreEqual(2, world.Messages.Count(x => x.Contains("Environmental organic penalty")));
+	}
+
+	[TestMethod]
+	[TestCategory("Y-P04")]
+	[TestCategory("Y-T21")]
+	[TestCategory("Y-T23")]
+	public void NativeForageRecovery_BuilderOptInScarsAndCoordinatorRepairAffectOnlyFutureRecovery()
+	{
+		using var configured = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		configured.Edit("organic source add forage herbs");
+		configured.Edit("organic source add crop");
+		configured.Edit("organic penalty forage 1 - scardamage / 20");
+		var cell = (Cell)configured.Cells.At(0);
+
+		cell.ConsumeYield("herbs", 60.0);
+		Assert.AreEqual(40.0, cell.GetForagableYield("herbs"), 1e-9);
+		Assert.AreEqual(NativeOrganicSourceStatus.Absent,
+			configured.Coordinator.InspectOrganicSource(cell, "crop").Status);
+		Assert.IsNull(configured.Coordinator.FieldFor(cell));
+		Assert.AreEqual(0, configured.Fields.Count);
+
+		configured.Heartbeat.ManuallyFireHeartbeatHour();
+		var baselineRecovery = cell.GetForagableYield("herbs") - 40.0;
+		Assert.AreEqual(10.0, baselineRecovery, 1e-9);
+
+		var damage = configured.Coordinator.ApplyOperation(cell, Request(damage: 10.0));
+		Assert.IsTrue(damage.Success, damage.Error);
+		configured.Heartbeat.ManuallyFireHeartbeatHour();
+		var damagedRecovery = cell.GetForagableYield("herbs") - 50.0;
+		Assert.AreEqual(5.0, damagedRecovery, 1e-9);
+
+		var forageBeforeRepair = cell.GetForagableYield("herbs");
+		var manaBeforeRepair = configured.Balance();
+		var fieldEnumerationsBeforeRepair = configured.Fields.Enumerations;
+		configured.Fields.ForbidEnumeration = true;
+		var repair = configured.Coordinator.ApplyOperation(cell, Request(repair: 10.0));
+		Assert.IsTrue(repair.Success, repair.Error);
+		Assert.AreEqual(10.0, repair.AppliedRepair, 1e-9);
+		Assert.AreEqual(0.0, cell.EnvironmentState.ScarDamage, 1e-9);
+		Assert.AreEqual(forageBeforeRepair, cell.GetForagableYield("herbs"), 1e-9,
+			"Repair must not instantly restore forage stock.");
+		Assert.AreEqual(manaBeforeRepair, configured.Balance(), 1e-9,
+			"Repair must not fill environmental mana.");
+		Assert.AreEqual(NativeOrganicSourceStatus.Absent,
+			configured.Coordinator.InspectOrganicSource(cell, "crop").Status);
+		Assert.IsNull(configured.Coordinator.FieldFor(cell));
+		Assert.AreEqual(0, configured.Fields.Count);
+		Assert.AreEqual(fieldEnumerationsBeforeRepair, configured.Fields.Enumerations);
+
+		configured.Heartbeat.ManuallyFireHeartbeatHour();
+		var repairedRecovery = cell.GetForagableYield("herbs") - forageBeforeRepair;
+		Assert.AreEqual(10.0, repairedRecovery, 1e-9);
+		Assert.IsTrue(repairedRecovery > damagedRecovery);
+		Assert.AreEqual(manaBeforeRepair, configured.Balance(), 1e-9);
+
+		using var unconfigured = new EnvironmentalMagicTestWorld(policy: "native-yield");
+		var unconfiguredCell = (Cell)unconfigured.Cells.At(0);
+		unconfiguredCell.ConsumeYield("herbs", 60.0);
+		Assert.IsTrue(unconfigured.Coordinator.ApplyOperation(unconfiguredCell, Request(damage: 10.0)).Success);
+		unconfigured.Heartbeat.ManuallyFireHeartbeatHour();
+		Assert.AreEqual(50.0, unconfiguredCell.GetForagableYield("herbs"), 1e-9,
+			"A world without organic opt-in must retain baseline forage recovery despite scars.");
+		var unconfiguredRepair = unconfigured.Coordinator.ApplyOperation(unconfiguredCell, Request(repair: 10.0));
+		Assert.IsTrue(unconfiguredRepair.Success, unconfiguredRepair.Error);
+		Assert.AreEqual(50.0, unconfiguredCell.GetForagableYield("herbs"), 1e-9);
+		Assert.AreEqual(0.0, unconfigured.Balance(), 1e-9);
+		unconfigured.Heartbeat.ManuallyFireHeartbeatHour();
+		Assert.AreEqual(60.0, unconfiguredCell.GetForagableYield("herbs"), 1e-9);
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T25")]
+	public void NativeOrganicSnapshotDebitAndRecovery_ThirtyThousandCellsRemainIndexedAndSubscriptionNeutral()
+	{
+		using var world = new EnvironmentalMagicTestWorld(30000, activePercent: 0.0,
+			policy: "native-yield", options: Options(visits: 16));
+		world.Edit("organic source add forage herbs");
+		world.Edit("organic penalty forage 1");
+		var cell = (Cell)world.Cells.At(29999);
+		cell.ConsumeYield("herbs", 10.0);
+
+		var cellEnumerations = world.Cells.Enumerations;
+		var fieldEnumerations = world.Fields.Enumerations;
+		var secondSubscriptions = world.SecondSubscriptions;
+		var hourSubscriptions = EnvironmentalMagicTestWorld.InvocationCount(world.Heartbeat, "_hourHeartbeat");
+		var profileDelegates = world.EnvironmentalDelegateCount;
+		var schedulerEntries = world.SchedulerEntries;
+		world.Cells.ForbidEnumeration = true;
+		world.Fields.ForbidEnumeration = true;
+
+		var snapshot = world.Coordinator.InspectOrganicSource(cell, "forage:herbs");
+		Assert.AreEqual(NativeOrganicSourceStatus.Available, snapshot.Status);
+		Assert.AreEqual(90.0, snapshot.NativeStock, 1e-9);
+		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
+			out var plan, out var error), error);
+		Assert.IsTrue(world.Coordinator.TryApplyOrganicDebit(cell, plan, out var afterDebit, out error), error);
+		Assert.AreEqual(89.75, afterDebit.NativeStock, 1e-9);
+		world.Heartbeat.ManuallyFireHeartbeatHour();
+		Assert.IsTrue(cell.TryPeekForagableYield("herbs", out NativeForageYieldSnapshot afterRecovery));
+		Assert.AreEqual(99.75, afterRecovery.Stock, 1e-9);
+
+		Assert.AreEqual(cellEnumerations, world.Cells.Enumerations);
+		Assert.AreEqual(fieldEnumerations, world.Fields.Enumerations);
+		Assert.AreEqual(secondSubscriptions, world.SecondSubscriptions);
+		Assert.AreEqual(hourSubscriptions,
+			EnvironmentalMagicTestWorld.InvocationCount(world.Heartbeat, "_hourHeartbeat"));
+		Assert.AreEqual(profileDelegates, world.EnvironmentalDelegateCount);
+		Assert.AreEqual(schedulerEntries, world.SchedulerEntries);
+	}
+
+	[TestMethod]
+	[TestCategory("Y-T26")]
+	public void NativePenaltyDependencies_RejectCapRecursionApplyOnceAndCoalesceProfileInvalidation()
+	{
+		const int cellCount = 512;
+		const int visitBudget = 8;
+		using var world = new EnvironmentalMagicTestWorld(cellCount, activePercent: 0.0,
+			policy: "native-yield", options: Options(visits: visitBudget));
+		world.Edit("organic source add forage herbs");
+		world.Edit("organic penalty forage native / 100");
+		var cell = (Cell)world.Cells.At(cellCount - 1);
+		var resource = world.Resources.Get(1)!;
+		cell.ConsumeYield("herbs", 60.0);
+		Assert.AreEqual(40.0, resource.ResourceCap(cell), 1e-9);
+		var outputEvaluations = world.Profile.FormulaEvaluationCount;
+
+		world.Heartbeat.ManuallyFireHeartbeatHour();
+		Assert.AreEqual(44.0, cell.GetForagableYield("herbs"), 1e-9,
+			"The 0.4 native dependency factor must be applied exactly once to the 10-point baseline recovery.");
+		Assert.AreEqual(outputEvaluations, world.Profile.FormulaEvaluationCount,
+			"Organic recovery must not recurse into environmental cap/rate output evaluation.");
+		Assert.AreEqual(44.0, resource.ResourceCap(cell), 1e-9);
+
+		world.CompileProg(50, "return environmentcap(@where, 1)", "RecursiveNativePenalty");
+		world.Edit("input recursive prog 50 1");
+		world.Edit("organic penalty forage recursive / 100");
+		var beforeRecursiveRecovery = cell.GetForagableYield("herbs");
+		world.Heartbeat.ManuallyFireHeartbeatHour();
+		Assert.AreEqual(beforeRecursiveRecovery, cell.GetForagableYield("herbs"), 1e-9,
+			"A cap-recursive native dependency must fail closed without recovering stock.");
+		Assert.IsTrue(world.Messages.Any(x => x.Contains("Input prog #50 failed", StringComparison.OrdinalIgnoreCase)),
+			string.Join("; ", world.Messages));
+
+		var evaluationsBeforeEdits = world.Coordinator.Diagnostics.TotalEvaluations;
+		world.Cells.ForbidEnumeration = true;
+		world.Fields.ForbidEnumeration = true;
+		world.Edit("organic penalty forage native / 200");
+		world.Edit("organic penalty forage native / 150");
+		world.Edit("organic penalty forage native / 100");
+		Assert.AreEqual(cellCount, world.Coordinator.Diagnostics.DiscoveryRemaining,
+			"Repeated edits to one shared profile must coalesce into one bounded discovery pass.");
+		Assert.AreEqual(evaluationsBeforeEdits, world.Coordinator.Diagnostics.TotalEvaluations);
+		Assert.IsTrue(world.Coordinator.Diagnostics.Dirty <= 1);
+		world.Tick();
+		Assert.IsTrue(world.Coordinator.Diagnostics.LastCellVisits <= visitBudget);
+		Assert.IsTrue(world.Coordinator.Diagnostics.DiscoveryRemaining >= cellCount - visitBudget);
+	}
+
 	[TestMethod]
 	[TestCategory("E-P01")]
 	[TestCategory("E-P02")]

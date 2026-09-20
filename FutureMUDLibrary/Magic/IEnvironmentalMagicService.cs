@@ -111,6 +111,21 @@ public interface IEnvironmentalMagicService : IDisposable
 		double amount, out bool success);
 	/// <summary>Debits only the complete requested recorded amount after current validation; never spends unrecorded accrual.</summary>
 	bool TryDebit(ICell cell, IMagicResource resource, double amount, out string? error);
+	/// <summary>Purely resolves all declarations on the cell's effective environmental profile.</summary>
+	IReadOnlyList<NativeOrganicSourceSnapshot> InspectOrganicSources(ICell cell);
+	/// <summary>Purely resolves one canonical selector, including explicit unauthorised/error states.</summary>
+	NativeOrganicSourceSnapshot InspectOrganicSource(ICell cell, string selector);
+	/// <summary>Creates a short-lived exact native-owner plan without reserving or mutating stock.</summary>
+	bool TryPlanOrganicDebit(ICell cell, string selector, double amount, out NativeOrganicDebitPlan plan,
+		out string? error);
+	/// <summary>Revalidates and applies one owner mutation. It grants no magic resource and creates no receipt.</summary>
+	bool TryApplyOrganicDebit(ICell cell, NativeOrganicDebitPlan plan, out NativeOrganicSourceSnapshot result,
+		out string? error);
+	/// <summary>Evaluates only the requested native suppression channel and its declared dependencies.</summary>
+	NativeOrganicPenaltyEvaluation EvaluateOrganicPenalty(ICell cell, NativeOrganicPenaltyChannel channel,
+		NativeOrganicPenaltyContext context);
+	/// <summary>Clears malformed field accounting only; never adds stock, removes scars or grants mana.</summary>
+	bool RepairNativeOrganicAccounting(ICell cell, NativeOrganicSourceKind? kind, out string result);
 	/// <summary>Atomically persists quantified ecological changes and a caller-supplied unique receipt; retries reuse that exact request.</summary>
 	EnvironmentalMagicOperationResult ApplyOperation(ICell cell, EnvironmentalMagicOperationRequest request);
 	void SetBinding(ICell cell, EnvironmentalMagicBindingMode mode, long? profileId);
@@ -125,6 +140,9 @@ public interface IEnvironmentalMagicService : IDisposable
 	void SourceDefinitionChanged();
 	void FieldChanged(IAgricultureField field, bool removed = false);
 	IAgricultureField? FieldFor(ICell cell);
+	/// <summary>Indexed apiary candidates for native pollination; null only for services without this index.</summary>
+	IEnumerable<IAgricultureField>? PollinationCandidates();
+	void RefreshPollinationCandidate(IAgricultureField field);
 	void Initialise();
 	void Pump();
 	string DescribeDiagnostics();

@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param()
+param([switch]$LandOnly)
 
 $ErrorActionPreference = 'Stop'
 
@@ -86,10 +86,10 @@ try {
 	$serverArguments = "--no-defaults --basedir=`"C:\Program Files\MySQL\MySQL Server 8.0`" --datadir=`"$taskData`" --port=$taskPort --bind-address=127.0.0.1 --pid-file=`"$taskPidFile`" --log-error=`"$taskLog`" --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --mysqlx=0"
 	Start-Process $mysqld -ArgumentList $serverArguments -WindowStyle Hidden | Out-Null
 	$serverLaunched = $true
-	$env:FUTUREMUD_GATHERING_TEST_CONNECTION = "Server=127.0.0.1;Port=$taskPort;User ID=root;Database="
+	$env:FUTUREMUD_GATHERING_TEST_CONNECTION = "Server=127.0.0.1;Port=$taskPort;User ID=root;Database=;SslMode=None;AllowPublicKeyRetrieval=True"
 
 	for ($attempt = 0; $attempt -lt 60; $attempt++) {
-		& dotnet $harnessDll --probe *> $null
+		& $mysql '--no-defaults' '--protocol=tcp' '--host=127.0.0.1' "--port=$taskPort" '--user=root' '--skip-password' '--connect-timeout=1' '--batch' '--skip-column-names' '--execute=SELECT 1' *> $null
 		if ($LASTEXITCODE -eq 0) {
 			$reachable = $true
 			break
@@ -103,8 +103,15 @@ try {
 	}
 
 	& dotnet $harnessDll --probe
-	& dotnet $harnessDll --run
 	$runExit = $LASTEXITCODE
+	if (-not $LandOnly -and $runExit -eq 0) {
+		& dotnet $harnessDll --run
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0) {
+		& dotnet $harnessDll --land-run
+		$runExit = $LASTEXITCODE
+	}
 	Write-Output "nativeHarnessExit=$runExit"
 }
 catch {

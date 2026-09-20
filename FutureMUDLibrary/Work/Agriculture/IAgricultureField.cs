@@ -1,9 +1,12 @@
+#nullable enable
+
 using System.Collections.Generic;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using MudSharp.Magic.Environment;
 
 namespace MudSharp.Work.Agriculture;
 
@@ -51,6 +54,14 @@ public interface IAgricultureField : IFrameworkItem, ISaveable, IHaveFuturemud, 
 		AgricultureWorkOutcome outcome, out string result);
 	bool ConsumeCropYield(int amount, out string reason);
 	bool ConsumeWoodlandYield(int amount, out string reason);
+	/// <summary>Pure current owner state; environmental-profile authorisation is applied by the coordinator.</summary>
+	NativeOrganicSourceSnapshot InspectNativeOrganicSource(NativeOrganicSourceKind kind);
+	/// <summary>Pure current recovery context, or null when this channel has no present positive production.</summary>
+	NativeOrganicPenaltyContext? InspectCurrentOrganicRecoveryContext(NativeOrganicPenaltyChannel channel);
+	/// <summary>Compare-and-applies an already-authorised plan to this field only.</summary>
+	bool TryApplyNativeOrganicDebit(NativeOrganicDebitPlan plan, out string reason);
+	/// <summary>Explicitly discards invalid extension data without changing native stock.</summary>
+	bool RepairNativeOrganicAccounting(NativeOrganicSourceKind? kind, out string result);
 	bool DrawDownHerd(IAgricultureHerdDefinition definition, int count, ICharacter actor, out string result);
 	bool AbsorbNpcIntoHerd(ICharacter npc, IAgricultureHerdDefinition definition, ICharacter actor, out string result);
 	bool DriveHerdTo(IAgricultureField destination, IAgricultureHerdDefinition definition, int count, ICharacter actor, out string result);

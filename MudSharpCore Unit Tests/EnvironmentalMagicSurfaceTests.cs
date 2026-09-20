@@ -17,6 +17,7 @@ using MudSharp.FutureProg.Variables;
 using MudSharp.Magic;
 using MudSharp.Magic.Environment;
 using MudSharp.PerceptionEngine;
+using MudSharp.Work.Agriculture;
 
 namespace MudSharp_Unit_Tests;
 
@@ -122,6 +123,35 @@ public class EnvironmentalMagicSurfaceTests
 		Assert.IsTrue(fixture.Output.Any(x => x.Contains("Test Essence") && x.Contains("Recent Pressure")));
 		Assert.IsTrue(fixture.Output.Any(x => x.Contains("coordinator diagnostics")));
 		fixture.Service.VerifyNoOtherCalls();
+	}
+
+	[TestMethod]
+	public void MagicEnvironment_YieldsInspectsPureAccountingAndRoutesExplicitRepair()
+	{
+		var fixture = new Fixture();
+		var source = new NativeOrganicSourceSnapshot("crop", NativeOrganicSourceKind.Crop,
+			NativeOrganicSourceStatus.Available,
+			new NativeOrganicLifecycleIdentity(10, 30, 4, 99, null, 0, 0), 12.0, 0.75m,
+			new NativeOrganicRecoveryRemainders(0.25m, 0.5m, 0m), 8, 7, 3,
+			AgricultureFieldUse.Orchard, null);
+		fixture.Service.Setup(x => x.InspectOrganicSources(fixture.Cell.Object)).Returns(new[] { source });
+		fixture.Service.Setup(x => x.EvaluateOrganicPenalty(fixture.Cell.Object,
+			NativeOrganicPenaltyChannel.CropYieldRecovery, It.IsAny<NativeOrganicPenaltyContext>()))
+			.Returns(new NativeOrganicPenaltyEvaluation(true, true, 0.5, null));
+		var repairResult = "Repaired crop native organic accounting; native stock was unchanged.";
+		fixture.Service.Setup(x => x.RepairNativeOrganicAccounting(fixture.Cell.Object,
+			NativeOrganicSourceKind.Crop, out repairResult)).Returns(true);
+
+		fixture.ExecuteAdmin("magic environment yields here");
+		fixture.ExecuteAdmin("magic environment yields repair here crop");
+
+		fixture.Service.Verify(x => x.InspectOrganicSources(fixture.Cell.Object), Times.Once);
+		fixture.Service.Verify(x => x.EvaluateOrganicPenalty(fixture.Cell.Object,
+			It.IsAny<NativeOrganicPenaltyChannel>(), It.IsAny<NativeOrganicPenaltyContext>()), Times.Exactly(3));
+		fixture.Service.Verify(x => x.RepairNativeOrganicAccounting(fixture.Cell.Object,
+			NativeOrganicSourceKind.Crop, out repairResult), Times.Once);
+		Assert.IsTrue(fixture.Output.Any(x => x.Contains("Native Organic Yields") && x.Contains("0.75")));
+		Assert.IsTrue(fixture.Output.Any(x => x.Contains("native stock was unchanged")));
 	}
 
 	[TestMethod]

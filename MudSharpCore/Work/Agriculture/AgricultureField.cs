@@ -14,7 +14,7 @@ using MudSharp.NPC;
 
 namespace MudSharp.Work.Agriculture;
 
-public class AgricultureField : SaveableItem, IAgricultureField
+public partial class AgricultureField : SaveableItem, IAgricultureField
 {
 	private readonly List<AgricultureFieldHerd> _herds = new();
 	private readonly Dictionary<AgricultureScoreType, int> _customScores = new();
@@ -36,6 +36,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 	private int _pasture;
 	private int _condition;
 	private int _environmentalInputChangeDepth;
+	private bool _environmentalInputChangePending;
 	private bool _environmentalInputNotificationsEnabled;
 
 	public AgricultureField(Models.AgricultureField field, IFuturemud gameworld)
@@ -56,6 +57,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		{
 			SetScore(score, profile.DefaultScores.TryGetValue(score, out var value) ? value : 50);
 		}
+		_pendingPastureAssessment = true;
 
 		using (new FMDB())
 		{
@@ -83,6 +85,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			_id = dbitem.Id;
 		}
 
+		InitialiseLegacyNativeOrganicAccounting();
 		_environmentalInputNotificationsEnabled = true;
 	}
 
@@ -116,13 +119,76 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 	public AgricultureFieldUse CurrentUse { get; private set; }
 	public AgricultureCropStage CropStage { get; private set; }
-	public int CropGrowthDays => _cropGrowthDays;
-	public int CropHarvestCount => _cropHarvestCount;
-	public int CropHealth => _cropHealth;
-	public int CropYieldPotential => _cropYieldPotential;
-	public int WoodlandGrowthDays => _woodlandGrowthDays;
-	public int WoodlandHealth => _woodlandHealth;
-	public int WoodlandYieldPotential => _woodlandYieldPotential;
+	public int CropGrowthDays
+	{
+		get
+		{
+			lock (_nativeOrganicOwnerSync)
+			{
+				return _cropGrowthDays;
+			}
+		}
+	}
+	public int CropHarvestCount
+	{
+		get
+		{
+			lock (_nativeOrganicOwnerSync)
+			{
+				return _cropHarvestCount;
+			}
+		}
+	}
+	public int CropHealth
+	{
+		get
+		{
+			lock (_nativeOrganicOwnerSync)
+			{
+				return _cropHealth;
+			}
+		}
+	}
+	public int CropYieldPotential
+	{
+		get
+		{
+			lock (_nativeOrganicOwnerSync)
+			{
+				return _cropYieldPotential;
+			}
+		}
+	}
+	public int WoodlandGrowthDays
+	{
+		get
+		{
+			lock (_nativeOrganicOwnerSync)
+			{
+				return _woodlandGrowthDays;
+			}
+		}
+	}
+	public int WoodlandHealth
+	{
+		get
+		{
+			lock (_nativeOrganicOwnerSync)
+			{
+				return _woodlandHealth;
+			}
+		}
+	}
+	public int WoodlandYieldPotential
+	{
+		get
+		{
+			lock (_nativeOrganicOwnerSync)
+			{
+				return _woodlandYieldPotential;
+			}
+		}
+	}
 	public IAgricultureFieldApiary Apiary => _apiary;
 	public bool HasActiveApiary => _apiary?.HiveCount > 0;
 	public bool IsApiaryHappy => IsApiaryHappyForPollination();
@@ -132,12 +198,29 @@ public class AgricultureField : SaveableItem, IAgricultureField
 	{
 		get
 		{
-			if (_cropDefinition == null && _cropDefinitionId != 0)
+			IAgricultureCropDefinition cached;
+			long definitionId;
+			lock (_nativeOrganicOwnerSync)
 			{
-				_cropDefinition = Gameworld.AgricultureCropDefinitions.Get(_cropDefinitionId);
+				cached = _cropDefinition;
+				definitionId = _cropDefinitionId;
 			}
 
-			return _cropDefinition;
+			if (cached != null || definitionId == 0L)
+			{
+				return cached;
+			}
+
+			var resolved = Gameworld.AgricultureCropDefinitions.Get(definitionId);
+			lock (_nativeOrganicOwnerSync)
+			{
+				if (_cropDefinitionId == definitionId && _cropDefinition == null)
+				{
+					_cropDefinition = resolved;
+				}
+
+				return _cropDefinitionId == definitionId ? _cropDefinition : null;
+			}
 		}
 	}
 
@@ -145,12 +228,29 @@ public class AgricultureField : SaveableItem, IAgricultureField
 	{
 		get
 		{
-			if (_woodlandDefinition == null && _woodlandDefinitionId != 0)
+			IAgricultureWoodlandDefinition cached;
+			long definitionId;
+			lock (_nativeOrganicOwnerSync)
 			{
-				_woodlandDefinition = Gameworld.AgricultureWoodlandDefinitions.Get(_woodlandDefinitionId);
+				cached = _woodlandDefinition;
+				definitionId = _woodlandDefinitionId;
 			}
 
-			return _woodlandDefinition;
+			if (cached != null || definitionId == 0L)
+			{
+				return cached;
+			}
+
+			var resolved = Gameworld.AgricultureWoodlandDefinitions.Get(definitionId);
+			lock (_nativeOrganicOwnerSync)
+			{
+				if (_woodlandDefinitionId == definitionId && _woodlandDefinition == null)
+				{
+					_woodlandDefinition = resolved;
+				}
+
+				return _woodlandDefinitionId == definitionId ? _woodlandDefinition : null;
+			}
 		}
 	}
 
@@ -167,16 +267,32 @@ public class AgricultureField : SaveableItem, IAgricultureField
 	public int Fence { get; set; }
 	public int Pasture
 	{
-		get => _pasture;
+		get
+		{
+			lock (_nativeOrganicOwnerSync)
+			{
+				return _pasture;
+			}
+		}
 		set
 		{
-			if (_pasture == value)
+			SynchronizeNativeOrganicOwner(() =>
 			{
-				return;
-			}
+				if (_pasture == value)
+				{
+					return;
+				}
 
-			_pasture = value;
-			NotifyEnvironmentalInputsChanged();
+				_pasture = value;
+				if (_nativeOrganicAccountingLoaded)
+				{
+					MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Pasture);
+				}
+				else
+				{
+					RequestEnvironmentalInputNotificationUnsafe();
+				}
+			});
 		}
 	}
 
@@ -197,38 +313,83 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 	private void NotifyEnvironmentalInputsChanged()
 	{
-		if (_environmentalInputNotificationsEnabled && _environmentalInputChangeDepth == 0)
+		var notify = false;
+		lock (_nativeOrganicOwnerSync)
 		{
-			Gameworld.EnvironmentalMagic?.MarkDirty(Cell, EnvironmentalMagicDirtyReason.Agriculture);
+			RequestEnvironmentalInputNotificationUnsafe();
+			notify = TryTakeEnvironmentalInputNotificationUnsafe();
 		}
+
+		if (notify)
+		{
+			DispatchEnvironmentalInputsChanged();
+		}
+	}
+
+	private void DispatchEnvironmentalInputsChanged()
+	{
+		Gameworld.EnvironmentalMagic?.MarkDirty(Cell, EnvironmentalMagicDirtyReason.Agriculture);
+	}
+
+	private bool TryTakeEnvironmentalInputNotificationUnsafe()
+	{
+		if (!_environmentalInputNotificationsEnabled || !_environmentalInputChangePending ||
+		    _environmentalInputChangeDepth > 0 || _nativeOrganicOwnerSyncDepth > 0)
+		{
+			return false;
+		}
+
+		_environmentalInputChangePending = false;
+		return true;
 	}
 
 	private EnvironmentalInputChange BeginEnvironmentalInputChange()
 	{
-		_environmentalInputChangeDepth++;
-		return new EnvironmentalInputChange(this);
+		lock (_nativeOrganicOwnerSync)
+		{
+			_environmentalInputChangeDepth++;
+			return new EnvironmentalInputChange(this, CaptureEnvironmentalInputsUnsafe());
+		}
 	}
 
-	private EnvironmentalInputs CaptureEnvironmentalInputs()
+	private EnvironmentalInputs CaptureEnvironmentalInputsUnsafe()
 	{
 		return new EnvironmentalInputs(_profileId, CurrentUse, _cropDefinitionId, _cropHealth,
-			_cropYieldPotential, _woodlandDefinitionId, _woodlandHealth, _woodlandYieldPotential, Pasture, Condition);
+			_cropYieldPotential, _woodlandDefinitionId, _woodlandHealth, _woodlandYieldPotential, _pasture, _condition,
+			_cropNativeAccounting.Revision, _woodlandNativeAccounting.Revision, _pastureNativeAccounting.Revision);
+	}
+
+	private void EndEnvironmentalInputChange(EnvironmentalInputs before)
+	{
+		var notify = false;
+		lock (_nativeOrganicOwnerSync)
+		{
+			if (before != CaptureEnvironmentalInputsUnsafe())
+			{
+				RequestEnvironmentalInputNotificationUnsafe();
+			}
+
+			_environmentalInputChangeDepth--;
+			notify = TryTakeEnvironmentalInputNotificationUnsafe();
+		}
+
+		if (notify)
+		{
+			DispatchEnvironmentalInputsChanged();
+		}
 	}
 
 	private readonly record struct EnvironmentalInputs(long ProfileId, AgricultureFieldUse Use, long CropId,
-		int CropHealth, int CropYield, long WoodlandId, int WoodlandHealth, int WoodlandYield, int Pasture, int Condition);
+		int CropHealth, int CropYield, long WoodlandId, int WoodlandHealth, int WoodlandYield, int Pasture, int Condition,
+		long CropRevision, long WoodlandRevision, long PastureRevision);
 
-	private readonly struct EnvironmentalInputChange(AgricultureField field) : IDisposable
+	private readonly struct EnvironmentalInputChange(AgricultureField field, EnvironmentalInputs before) : IDisposable
 	{
-		private readonly EnvironmentalInputs _before = field.CaptureEnvironmentalInputs();
+		private readonly EnvironmentalInputs _before = before;
 
 		public void Dispose()
 		{
-			field._environmentalInputChangeDepth--;
-			if (_before != field.CaptureEnvironmentalInputs())
-			{
-				field.NotifyEnvironmentalInputsChanged();
-			}
+			field.EndEnvironmentalInputChange(_before);
 		}
 	}
 
@@ -297,6 +458,8 @@ public class AgricultureField : SaveableItem, IAgricultureField
 					secondaryYieldPotential));
 			}
 		}
+
+		LoadNativeOrganicAccounting(fieldRoot);
 	}
 
 	public int Score(AgricultureScoreType score)
@@ -377,6 +540,30 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 	public void AdjustScore(AgricultureScoreType score, int delta)
 	{
+		if (score == AgricultureScoreType.Pasture)
+		{
+			SynchronizeNativeOrganicOwner(() =>
+			{
+				var value = (_pasture + delta).ClampScore();
+				if (_pasture == value)
+				{
+					return;
+				}
+
+				_pasture = value;
+				if (_nativeOrganicAccountingLoaded)
+				{
+					MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Pasture);
+				}
+				else
+				{
+					RequestEnvironmentalInputNotificationUnsafe();
+				}
+			});
+			Changed = true;
+			return;
+		}
+
 		SetScore(score, Score(score) + delta);
 		Changed = true;
 	}
@@ -494,72 +681,149 @@ public class AgricultureField : SaveableItem, IAgricultureField
 	private void TickCrop()
 	{
 		var crop = CurrentCrop;
-		if (crop == null || CropStage is AgricultureCropStage.Failed or AgricultureCropStage.Overripe)
+		if (crop == null)
 		{
 			return;
 		}
 
-		var temperature = Cell.CurrentTemperature(null);
-		var pollinationSupport = CurrentPollinationSupport(crop);
-		var lacksRequiredPollination = crop.PollinationDependency == AgriculturePollinationDependency.Required &&
-		                                CropStage == AgricultureCropStage.Setting &&
-		                                pollinationSupport <= 0;
-		var stressed = Moisture < crop.MinimumMoisture || Moisture > crop.MaximumMoisture ||
-		               temperature < crop.MinimumTemperature || temperature > crop.MaximumTemperature ||
-		               Weeds > 75 || Pests > 75 || Salinity > 80 ||
-		               crop.ScoreRanges.Any(x => x.Score.IsEnabledScore(Gameworld) && !x.Contains(Score(x.Score))) ||
-		               lacksRequiredPollination;
+		var cropIdentity = SynchronizeNativeOrganicOwner(() =>
+			(DefinitionId: _cropDefinitionId, Generation: _cropNativeAccounting.Generation, Stage: CropStage,
+				HarvestCount: _cropHarvestCount));
+		if (cropIdentity.Stage is AgricultureCropStage.Failed or AgricultureCropStage.Overripe)
+		{
+			return;
+		}
+
+		var harvestDays = crop.IsPerennial && cropIdentity.HarvestCount > 0
+			? crop.HarvestCycleDays
+			: crop.BaseGrowthDays;
+		var harvestWindowDays = crop.HarvestWindowDays;
+		var (stressed, pollinationHealth, pollinationYield) = CurrentCropTickContributions(crop,
+			cropIdentity.Stage);
 		if (stressed)
 		{
-			_cropHealth = (_cropHealth - 4).ClampScore();
-			_cropYieldPotential = (_cropYieldPotential - 3).ClampScore();
+			SynchronizeNativeOrganicOwner(() =>
+			{
+				if (_cropDefinitionId != cropIdentity.DefinitionId ||
+				    _cropNativeAccounting.Generation != cropIdentity.Generation)
+				{
+					return;
+				}
+
+				var oldHealth = _cropHealth;
+				var oldYield = _cropYieldPotential;
+				_cropHealth = (_cropHealth - 4).ClampScore();
+				_cropYieldPotential = (_cropYieldPotential - 3).ClampScore();
+				if (oldHealth != _cropHealth || oldYield != _cropYieldPotential)
+				{
+					MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Crop);
+				}
+			});
 		}
 		else
 		{
-			_cropHealth = (_cropHealth + 1).ClampScore();
-			_cropYieldPotential = (_cropYieldPotential + Math.Sign(Nutrients - 50)).ClampScore();
-			if (pollinationSupport > 0)
+			var nutrientYield = Math.Sign(Nutrients - 50);
+			// Native crop ticks clamp the nutrient step before applying pollination. A later
+			// loss cannot create headroom for an earlier positive contribution.
+			var healthIncrease = ApplyCropHealthIncrease(1 + Math.Max(0, pollinationHealth));
+			var yieldIncrease = ApplyCropYieldIncrease(
+				Math.Max(0, nutrientYield) + Math.Max(0, pollinationYield),
+				sameOperationLoss: Math.Min(0, nutrientYield));
+			SynchronizeNativeOrganicOwner(() =>
 			{
-				_cropHealth = (_cropHealth + crop.PollinationHealthBonus).ClampScore();
-				_cropYieldPotential = (_cropYieldPotential + crop.PollinationYieldBonus).ClampScore();
-			}
+				if (_cropDefinitionId != cropIdentity.DefinitionId ||
+				    _cropNativeAccounting.Generation != cropIdentity.Generation)
+				{
+					return;
+				}
 
-			_cropGrowthDays++;
+				var oldHealth = _cropHealth;
+				var oldYield = _cropYieldPotential;
+				_cropHealth = ((_cropHealth + Math.Min(healthIncrease, 1)).ClampScore() +
+				               Math.Min(0, pollinationHealth) + Math.Max(0, healthIncrease - 1)).ClampScore();
+				_cropYieldPotential = ((_cropYieldPotential + Math.Min(0, nutrientYield) +
+				                        (nutrientYield > 0 ? yieldIncrease : 0)).ClampScore() +
+				                       Math.Min(0, pollinationYield) +
+				                       (nutrientYield > 0 ? 0 : yieldIncrease)).ClampScore();
+				_cropGrowthDays++;
+				if (oldHealth != _cropHealth || oldYield != _cropYieldPotential)
+				{
+					MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Crop);
+				}
+			});
 		}
 
 		AdjustScore(AgricultureScoreType.Nutrients, -1);
 		AdjustScore(AgricultureScoreType.Weeds, 1);
 		AdjustScore(AgricultureScoreType.Pests, _cropHealth < 40 ? 2 : 1);
 
-		if (_cropHealth <= 0)
+		var failed = SynchronizeNativeOrganicOwner(() =>
 		{
-			CropStage = AgricultureCropStage.Failed;
+			if (_cropDefinitionId != cropIdentity.DefinitionId ||
+			    _cropNativeAccounting.Generation != cropIdentity.Generation)
+			{
+				return false;
+			}
+
+			var oldStage = CropStage;
+			if (_cropHealth <= 0)
+			{
+				CropStage = AgricultureCropStage.Failed;
+				EndNativeOrganicLifecycleUnsafe(NativeOrganicSourceKind.Crop);
+				return true;
+			}
+
+			if (_cropGrowthDays >= harvestDays + harvestWindowDays)
+			{
+				CropStage = AgricultureCropStage.Overripe;
+			}
+			else if (_cropGrowthDays >= harvestDays)
+			{
+				CropStage = AgricultureCropStage.Harvestable;
+			}
+			else if (_cropGrowthDays >= harvestDays * 2 / 3)
+			{
+				CropStage = AgricultureCropStage.Setting;
+			}
+			else if (_cropGrowthDays >= harvestDays / 3)
+			{
+				CropStage = AgricultureCropStage.Growing;
+			}
+			else if (_cropGrowthDays >= 3)
+			{
+				CropStage = AgricultureCropStage.Germinating;
+			}
+
+			if (oldStage != CropStage)
+			{
+				MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Crop);
+			}
+
+			return false;
+		});
+		if (failed)
+		{
+			Changed = true;
 			return;
 		}
 
-		var harvestDays = crop.IsPerennial && _cropHarvestCount > 0 ? crop.HarvestCycleDays : crop.BaseGrowthDays;
-		if (_cropGrowthDays >= harvestDays + crop.HarvestWindowDays)
-		{
-			CropStage = AgricultureCropStage.Overripe;
-		}
-		else if (_cropGrowthDays >= harvestDays)
-		{
-			CropStage = AgricultureCropStage.Harvestable;
-		}
-		else if (_cropGrowthDays >= harvestDays * 2 / 3)
-		{
-			CropStage = AgricultureCropStage.Setting;
-		}
-		else if (_cropGrowthDays >= harvestDays / 3)
-		{
-			CropStage = AgricultureCropStage.Growing;
-		}
-		else if (_cropGrowthDays >= 3)
-		{
-			CropStage = AgricultureCropStage.Germinating;
-		}
-
 		Changed = true;
+	}
+
+	private (bool Stressed, int PollinationHealth, int PollinationYield) CurrentCropTickContributions(
+		IAgricultureCropDefinition crop, AgricultureCropStage stage)
+	{
+		var temperature = Cell.CurrentTemperature(null);
+		var pollinationSupport = CurrentPollinationSupport(crop);
+		var lacksRequiredPollination = crop.PollinationDependency == AgriculturePollinationDependency.Required &&
+		                                stage == AgricultureCropStage.Setting && pollinationSupport <= 0;
+		var stressed = Moisture < crop.MinimumMoisture || Moisture > crop.MaximumMoisture ||
+		               temperature < crop.MinimumTemperature || temperature > crop.MaximumTemperature ||
+		               Weeds > 75 || Pests > 75 || Salinity > 80 ||
+		               crop.ScoreRanges.Any(x => x.Score.IsEnabledScore(Gameworld) && !x.Contains(Score(x.Score))) ||
+		               lacksRequiredPollination;
+		return (stressed, pollinationSupport > 0 ? crop.PollinationHealthBonus : 0,
+			pollinationSupport > 0 ? crop.PollinationYieldBonus : 0);
 	}
 
 	private int CurrentPollinationSupport(IAgricultureCropDefinition crop)
@@ -571,7 +835,10 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		}
 
 		var best = 0;
-		foreach (var field in Gameworld.AgricultureFields)
+		var candidates = Gameworld.EnvironmentalMagic is EnvironmentalMagicCoordinator coordinator
+			? coordinator.PollinationCandidates()
+			: Gameworld.AgricultureFields;
+		foreach (var field in candidates)
 		{
 			if (field?.HasActiveApiary != true || !field.IsApiaryHappy || field.Apiary == null)
 			{
@@ -707,15 +974,47 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			return;
 		}
 
-		_woodlandGrowthDays++;
+		var woodlandIdentity = SynchronizeNativeOrganicOwner(() =>
+			(DefinitionId: _woodlandDefinitionId, Generation: _woodlandNativeAccounting.Generation,
+				GrowthDays: _woodlandGrowthDays, Health: _woodlandHealth));
 		var stressed = Moisture < 15 || Moisture > 90 || Topsoil < 25 || Pests > 80;
-		_woodlandHealth = (_woodlandHealth + (stressed ? -2 : 1)).ClampScore();
-		if (_woodlandGrowthDays > woodland.EstablishmentDays)
+		var woodlandEstablishmentDays = woodland.EstablishmentDays;
+		var healthIncrease = !stressed && woodlandIdentity.Health > 0 ? ApplyWoodlandHealthIncrease(1) : 0;
+		var yieldIncrease = !stressed && woodlandIdentity.Health > 0 &&
+		                    woodlandIdentity.GrowthDays + 1 > woodlandEstablishmentDays
+			? ApplyWoodlandYieldIncrease(1)
+			: 0;
+		SynchronizeNativeOrganicOwner(() =>
 		{
-			_woodlandYieldPotential = (_woodlandYieldPotential + (stressed ? 0 : 1)).ClampScore();
-		}
+			if (_woodlandDefinitionId != woodlandIdentity.DefinitionId ||
+			    _woodlandNativeAccounting.Generation != woodlandIdentity.Generation)
+			{
+				return;
+			}
 
-		AdjustScore(AgricultureScoreType.Nutrients, _woodlandGrowthDays % 10 == 0 ? -1 : 0);
+			var oldHealth = _woodlandHealth;
+			var oldYield = _woodlandYieldPotential;
+			_woodlandGrowthDays++;
+			_woodlandHealth = stressed
+				? (_woodlandHealth - 2).ClampScore()
+				: (_woodlandHealth + healthIncrease).ClampScore();
+			if (_woodlandGrowthDays > woodlandEstablishmentDays && !stressed && _woodlandHealth > 0)
+			{
+				_woodlandYieldPotential = (_woodlandYieldPotential + yieldIncrease).ClampScore();
+			}
+
+			if (_woodlandHealth <= 0)
+			{
+				EndNativeOrganicLifecycleUnsafe(NativeOrganicSourceKind.Woodland);
+			}
+			else if (oldHealth != _woodlandHealth || oldYield != _woodlandYieldPotential)
+			{
+				MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Woodland);
+			}
+		});
+
+		AdjustScore(AgricultureScoreType.Nutrients, WoodlandGrowthDays % 10 == 0 ? -1 : 0);
+
 		Changed = true;
 	}
 
@@ -783,40 +1082,136 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 		using var environmentalChange = BeginEnvironmentalInputChange();
 		outcome ??= AgricultureWorkOutcome.Neutral;
+		var initialisingPasture = (CurrentUse != AgricultureFieldUse.Pasture || _pendingPastureAssessment) &&
+		                         operation.ResultUse == AgricultureFieldUse.Pasture;
+		var assessingStagedPasture = initialisingPasture && _pendingPastureAssessment;
+		var establishmentIncrease = assessingStagedPasture &&
+			operation.ScoreDeltas.TryGetValue(AgricultureScoreType.Pasture, out var pastureDelta) &&
+			AgricultureScoreType.Pasture.IsEnabledScore(Gameworld)
+			? Math.Max(0, SkillAdjustedScoreDelta(AgricultureScoreType.Pasture, pastureDelta, outcome))
+			: 0;
+		if (initialisingPasture)
+		{
+			TransitionNativeOrganicUse(AgricultureFieldUse.Pasture, establishmentIncrease);
+		}
+
 		foreach (var delta in operation.ScoreDeltas)
 		{
 			if (!delta.Key.IsEnabledScore(Gameworld))
 			{
 				continue;
 			}
+			if (assessingStagedPasture && delta.Key == AgricultureScoreType.Pasture &&
+			    SkillAdjustedScoreDelta(delta.Key, delta.Value, outcome) > 0)
+			{
+				continue;
+			}
 
-			ApplySkillAdjustedScoreDelta(delta.Key, delta.Value, outcome);
+			ApplySkillAdjustedScoreDelta(delta.Key, delta.Value, outcome, initialisingPasture);
 		}
 
 		switch (operation.OperationType)
 		{
 			case AgricultureOperationType.Sow:
 				var crop = (IAgricultureCropDefinition)target;
-				_cropDefinition = crop;
-				_cropDefinitionId = crop.Id;
-				CropStage = AgricultureCropStage.Planted;
-				_cropGrowthDays = 0;
-				_cropHarvestCount = 0;
-				_cropHealth = (Condition + outcome.CropHealthDelta).ClampScore();
-				_cropYieldPotential = (Condition + Nutrients + Topsoil - Weeds - Pests + outcome.CropYieldDelta).ClampScore();
-				CurrentUse = AgricultureFieldUse.Crop;
+				var cropId = crop.Id;
+				var baselineCropHealth = Condition.ClampScore();
+				var outcomeCropHealth = (Condition + outcome.CropHealthDelta).ClampScore();
+				var cropHealthOutcomeDelta = outcomeCropHealth - baselineCropHealth;
+				var baselineCropYield = (Condition + Nutrients + Topsoil - Weeds - Pests).ClampScore();
+				var outcomeCropYield = (Condition + Nutrients + Topsoil - Weeds - Pests +
+				                        outcome.CropYieldDelta).ClampScore();
+				var cropYieldOutcomeDelta = outcomeCropYield - baselineCropYield;
+				var cropGeneration = SynchronizeNativeOrganicOwner(() =>
+				{
+					BeginNativeOrganicReplacementUnsafe(NativeOrganicSourceKind.Crop, AgricultureFieldUse.Crop);
+					_cropDefinition = crop;
+					_cropDefinitionId = cropId;
+					CropStage = AgricultureCropStage.Planted;
+					_cropGrowthDays = 0;
+					_cropHarvestCount = 0;
+					_cropHealth = 0;
+					_cropYieldPotential = 0;
+					CurrentUse = AgricultureFieldUse.Crop;
+					return _cropNativeAccounting.Generation;
+				});
+				var initialCropHealth = (ApplyCropHealthIncrease(
+					baselineCropHealth + Math.Max(0, cropHealthOutcomeDelta),
+					NativeOrganicPenaltyChannel.CropInitialisation) + Math.Min(0, cropHealthOutcomeDelta)).ClampScore();
+				var initialCropYield = initialCropHealth > 0
+					? (ApplyCropYieldIncrease(
+						baselineCropYield + Math.Max(0, cropYieldOutcomeDelta),
+						NativeOrganicPenaltyChannel.CropInitialisation) +
+						Math.Min(0, cropYieldOutcomeDelta)).ClampScore()
+					: 0;
+				SynchronizeNativeOrganicOwner(() =>
+				{
+					if (_cropDefinitionId != cropId || _cropNativeAccounting.Generation != cropGeneration)
+					{
+						return;
+					}
+
+					_cropHealth = initialCropHealth;
+					_cropYieldPotential = initialCropYield;
+					if (_cropHealth <= 0)
+					{
+						CropStage = AgricultureCropStage.Failed;
+						EndNativeOrganicLifecycleUnsafe(NativeOrganicSourceKind.Crop);
+					}
+					MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Crop);
+				});
 				result = $"The field has been sown with {crop.Name}.{outcome.DescribeEffect()}";
 				break;
 			case AgricultureOperationType.PlantOrchard:
 				var orchardCrop = (IAgricultureCropDefinition)target;
-				_cropDefinition = orchardCrop;
-				_cropDefinitionId = orchardCrop.Id;
-				CropStage = AgricultureCropStage.Planted;
-				_cropGrowthDays = 0;
-				_cropHarvestCount = 0;
-				_cropHealth = (Condition + outcome.CropHealthDelta).ClampScore();
-				_cropYieldPotential = ((Condition + Nutrients + Topsoil - Weeds - Pests + outcome.CropYieldDelta).ClampScore() / 2).ClampScore();
-				CurrentUse = AgricultureFieldUse.Orchard;
+				var orchardCropId = orchardCrop.Id;
+				var baselineOrchardHealth = Condition.ClampScore();
+				var outcomeOrchardHealth = (Condition + outcome.CropHealthDelta).ClampScore();
+				var orchardHealthOutcomeDelta = outcomeOrchardHealth - baselineOrchardHealth;
+				var baselineOrchardYield = ((Condition + Nutrients + Topsoil - Weeds - Pests).ClampScore() / 2)
+					.ClampScore();
+				var outcomeOrchardYield = ((Condition + Nutrients + Topsoil - Weeds - Pests +
+				                           outcome.CropYieldDelta).ClampScore() / 2).ClampScore();
+				var orchardYieldOutcomeDelta = outcomeOrchardYield - baselineOrchardYield;
+				var orchardGeneration = SynchronizeNativeOrganicOwner(() =>
+				{
+					BeginNativeOrganicReplacementUnsafe(NativeOrganicSourceKind.Crop, AgricultureFieldUse.Orchard);
+					_cropDefinition = orchardCrop;
+					_cropDefinitionId = orchardCropId;
+					CropStage = AgricultureCropStage.Planted;
+					_cropGrowthDays = 0;
+					_cropHarvestCount = 0;
+					_cropHealth = 0;
+					_cropYieldPotential = 0;
+					CurrentUse = AgricultureFieldUse.Orchard;
+					return _cropNativeAccounting.Generation;
+				});
+				var initialOrchardHealth = (ApplyCropHealthIncrease(
+					baselineOrchardHealth + Math.Max(0, orchardHealthOutcomeDelta),
+					NativeOrganicPenaltyChannel.CropInitialisation) +
+					Math.Min(0, orchardHealthOutcomeDelta)).ClampScore();
+				var initialOrchardYield = initialOrchardHealth > 0
+					? (ApplyCropYieldIncrease(
+						baselineOrchardYield + Math.Max(0, orchardYieldOutcomeDelta),
+						NativeOrganicPenaltyChannel.CropInitialisation) +
+						Math.Min(0, orchardYieldOutcomeDelta)).ClampScore()
+					: 0;
+				SynchronizeNativeOrganicOwner(() =>
+				{
+					if (_cropDefinitionId != orchardCropId || _cropNativeAccounting.Generation != orchardGeneration)
+					{
+						return;
+					}
+
+					_cropHealth = initialOrchardHealth;
+					_cropYieldPotential = initialOrchardYield;
+					if (_cropHealth <= 0)
+					{
+						CropStage = AgricultureCropStage.Failed;
+						EndNativeOrganicLifecycleUnsafe(NativeOrganicSourceKind.Crop);
+					}
+					MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Crop);
+				});
 				result = $"The field has been planted as {orchardCrop.Name}.{outcome.DescribeEffect()}";
 				break;
 			case AgricultureOperationType.Harvest:
@@ -833,17 +1228,44 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				result = $"The {cropName} crop is harvested with an estimated yield quality of {_cropYieldPotential.DescribeBand()}.{outcome.DescribeEffect()}{DescribeOutputResult(cropOutputs)}";
 				if (perennialHarvest)
 				{
-					_cropHarvestCount++;
-					_cropGrowthDays = 0;
-					_cropHealth = (_cropHealth + outcome.CropHealthDelta).ClampScore();
-					_cropYieldPotential = (_cropYieldPotential - 20 + outcome.CropYieldDelta).ClampScore();
-					CropStage = AgricultureCropStage.Growing;
-					CurrentUse = AgricultureFieldUse.Orchard;
+					var harvestHealthIncrease = outcome.CropHealthDelta > 0
+						? ApplyCropHealthIncrease(outcome.CropHealthDelta)
+						: outcome.CropHealthDelta;
+					var harvestYieldIncrease = outcome.CropYieldDelta > 0
+						? ApplyCropYieldIncrease(outcome.CropYieldDelta, sameOperationLoss: -20)
+						: outcome.CropYieldDelta;
+					SynchronizeNativeOrganicOwner(() =>
+					{
+						var oldCropHealth = _cropHealth;
+						var oldCropYield = _cropYieldPotential;
+						_cropHarvestCount++;
+						_cropGrowthDays = 0;
+						_cropHealth = (_cropHealth + harvestHealthIncrease).ClampScore();
+						_cropYieldPotential = (_cropYieldPotential - 20 + harvestYieldIncrease).ClampScore();
+						if (_cropHealth <= 0)
+						{
+							CropStage = AgricultureCropStage.Failed;
+							EndNativeOrganicLifecycleUnsafe(NativeOrganicSourceKind.Crop);
+						}
+						else
+						{
+							CropStage = AgricultureCropStage.Growing;
+						}
+
+						CurrentUse = AgricultureFieldUse.Orchard;
+						if (oldCropHealth != _cropHealth || oldCropYield != _cropYieldPotential)
+						{
+							MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Crop);
+						}
+					});
 				}
 				else
 				{
-					ClearCrop();
-					CurrentUse = AgricultureFieldUse.Fallow;
+					SynchronizeNativeOrganicOwner(() =>
+					{
+						ClearCrop();
+						CurrentUse = AgricultureFieldUse.Fallow;
+					});
 				}
 				break;
 			case AgricultureOperationType.InstallApiary:
@@ -879,7 +1301,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				break;
 			case AgricultureOperationType.Graze:
 			case AgricultureOperationType.Herd:
-				CurrentUse = AgricultureFieldUse.Pasture;
+				TransitionNativeOrganicUse(AgricultureFieldUse.Pasture);
 				if (target is IAgricultureHerdDefinition herdDefinition && _herds.All(x => x.Definition.Id != herdDefinition.Id))
 				{
 					_herds.Add(new AgricultureFieldHerd(0, herdDefinition, 0, Condition));
@@ -889,50 +1311,109 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				break;
 			case AgricultureOperationType.Woodland:
 				var woodland = (IAgricultureWoodlandDefinition)target;
-				_woodlandDefinition = woodland;
-				_woodlandDefinitionId = woodland.Id;
-				_woodlandGrowthDays = 0;
-				_woodlandHealth = Condition;
-				_woodlandYieldPotential = 0;
-				CurrentUse = AgricultureFieldUse.Woodland;
+				var woodlandId = woodland.Id;
+				var initialWoodlandHealth = Condition;
+				var woodlandGeneration = SynchronizeNativeOrganicOwner(() =>
+				{
+					BeginNativeOrganicReplacementUnsafe(NativeOrganicSourceKind.Woodland,
+						AgricultureFieldUse.Woodland);
+					_woodlandDefinition = woodland;
+					_woodlandDefinitionId = woodlandId;
+					_woodlandGrowthDays = 0;
+					_woodlandHealth = 0;
+					_woodlandYieldPotential = 0;
+					CurrentUse = AgricultureFieldUse.Woodland;
+					return _woodlandNativeAccounting.Generation;
+				});
+				var establishedWoodlandHealth = ApplyWoodlandHealthIncrease(initialWoodlandHealth,
+					NativeOrganicPenaltyChannel.WoodlandInitialisation).ClampScore();
+				SynchronizeNativeOrganicOwner(() =>
+				{
+					if (_woodlandDefinitionId != woodlandId ||
+					    _woodlandNativeAccounting.Generation != woodlandGeneration)
+					{
+						return;
+					}
+
+					_woodlandHealth = establishedWoodlandHealth;
+					if (_woodlandHealth <= 0)
+					{
+						EndNativeOrganicLifecycleUnsafe(NativeOrganicSourceKind.Woodland);
+					}
+					MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Woodland);
+				});
 				result = $"The field is now being managed as {woodland.Name}.";
 				break;
 			case AgricultureOperationType.Clear:
 				var clearOutputs = ReleaseWoodlandOutputs(operation, outcome, actor);
-				ClearCrop();
-				ClearWoodland();
-				_herds.Clear();
-				CurrentUse = AgricultureFieldUse.Fallow;
+				SynchronizeNativeOrganicOwner(() =>
+				{
+					ClearCrop();
+					ClearWoodland();
+					_herds.Clear();
+					if (CurrentUse == AgricultureFieldUse.Pasture)
+					{
+						EndNativeOrganicLifecycleUnsafe(NativeOrganicSourceKind.Pasture);
+					}
+
+					CurrentUse = AgricultureFieldUse.Fallow;
+				});
 				result = $"The field has been cleared back to fallow land.{outcome.DescribeEffect()}{DescribeOutputResult(clearOutputs)}";
 				break;
 			default:
-				CurrentUse = operation.ResultUse;
+				TransitionNativeOrganicUse(operation.ResultUse);
 				var woodlandOutputs = ReleaseWoodlandOutputs(operation, outcome, actor);
 				result = $"The {operation.Name} operation has been applied to the field.{outcome.DescribeEffect()}{DescribeOutputResult(woodlandOutputs)}";
 				break;
 		}
 
 		RunCompletionProg(operation, actor);
+		if (operation.OperationType is AgricultureOperationType.InstallApiary or
+		    AgricultureOperationType.RemoveApiary)
+		{
+			Gameworld.EnvironmentalMagic?.RefreshPollinationCandidate(this);
+		}
 		Changed = true;
 		return true;
 	}
 
-	private void ApplySkillAdjustedScoreDelta(AgricultureScoreType score, int delta, AgricultureWorkOutcome outcome)
+	private void ApplySkillAdjustedScoreDelta(AgricultureScoreType score, int delta, AgricultureWorkOutcome outcome,
+		bool initialisingPasture)
 	{
 		if (delta == 0)
 		{
 			return;
 		}
 
-		var beneficial = IsBeneficialDelta(score, delta);
-		var multiplier = beneficial ? outcome.BeneficialScoreMultiplier : outcome.HarmfulScoreMultiplier;
-		var adjusted = (int)Math.Round(delta * multiplier);
-		if (adjusted == 0)
+		var adjusted = SkillAdjustedScoreDelta(score, delta, outcome);
+
+		if (score == AgricultureScoreType.Pasture && adjusted > 0 && CurrentUse == AgricultureFieldUse.Pasture)
 		{
-			adjusted = Math.Sign(delta);
+			var increase = ApplyPastureIncrease(adjusted, initialisingPasture
+				? NativeOrganicPenaltyChannel.PastureInitialisation
+				: NativeOrganicPenaltyChannel.PastureRecovery);
+			if (increase > 0)
+			{
+				AdjustScore(score, increase);
+			}
+
+			return;
 		}
 
 		AdjustScore(score, adjusted);
+	}
+
+	private int SkillAdjustedScoreDelta(AgricultureScoreType score, int delta, AgricultureWorkOutcome outcome)
+	{
+		if (delta == 0)
+		{
+			return 0;
+		}
+		var multiplier = IsBeneficialDelta(score, delta)
+			? outcome.BeneficialScoreMultiplier
+			: outcome.HarmfulScoreMultiplier;
+		var adjusted = (int)Math.Round(delta * multiplier);
+		return adjusted == 0 ? Math.Sign(delta) : adjusted;
 	}
 
 	private bool IsBeneficialDelta(AgricultureScoreType score, int delta)
@@ -988,9 +1469,19 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 		var outputs = ReleaseCommodityOutputs(CurrentWoodland.YieldOutputs, _woodlandHealth, _woodlandYieldPotential,
 			operation.WoodlandYieldMultiplier, outcome, owner);
-		if (operation.WoodlandYieldCost > 0)
+		var woodlandYieldCost = operation.WoodlandYieldCost;
+		if (woodlandYieldCost > 0)
 		{
-			_woodlandYieldPotential = (_woodlandYieldPotential - Math.Min(_woodlandYieldPotential, operation.WoodlandYieldCost)).ClampScore();
+			SynchronizeNativeOrganicOwner(() =>
+			{
+				var oldYield = _woodlandYieldPotential;
+				_woodlandYieldPotential = (_woodlandYieldPotential -
+				                            Math.Min(_woodlandYieldPotential, woodlandYieldCost)).ClampScore();
+				if (oldYield != _woodlandYieldPotential)
+				{
+					MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Woodland);
+				}
+			});
 		}
 
 		return outputs;
@@ -1127,22 +1618,30 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 	private void ClearCrop()
 	{
-		_cropDefinition = null;
-		_cropDefinitionId = 0;
-		CropStage = AgricultureCropStage.None;
-		_cropGrowthDays = 0;
-		_cropHarvestCount = 0;
-		_cropHealth = 0;
-		_cropYieldPotential = 0;
+		SynchronizeNativeOrganicOwner(() =>
+		{
+			EndNativeOrganicLifecycleUnsafe(NativeOrganicSourceKind.Crop);
+			_cropDefinition = null;
+			_cropDefinitionId = 0;
+			CropStage = AgricultureCropStage.None;
+			_cropGrowthDays = 0;
+			_cropHarvestCount = 0;
+			_cropHealth = 0;
+			_cropYieldPotential = 0;
+		});
 	}
 
 	private void ClearWoodland()
 	{
-		_woodlandDefinition = null;
-		_woodlandDefinitionId = 0;
-		_woodlandGrowthDays = 0;
-		_woodlandHealth = 0;
-		_woodlandYieldPotential = 0;
+		SynchronizeNativeOrganicOwner(() =>
+		{
+			EndNativeOrganicLifecycleUnsafe(NativeOrganicSourceKind.Woodland);
+			_woodlandDefinition = null;
+			_woodlandDefinitionId = 0;
+			_woodlandGrowthDays = 0;
+			_woodlandHealth = 0;
+			_woodlandYieldPotential = 0;
+		});
 	}
 
 	public bool ConsumeCropYield(int amount, out string reason)
@@ -1160,17 +1659,25 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			return false;
 		}
 
-		if (_cropYieldPotential < amount)
+		using var environmentalChange = BeginEnvironmentalInputChange();
+		var consumeResult = SynchronizeNativeOrganicOwner(() =>
 		{
-			reason = "The crop does not have enough remaining yield.";
-			return false;
-		}
+			if (_cropDefinitionId <= 0L)
+			{
+				return (false, "There is no crop in this field.");
+			}
 
-		_cropYieldPotential = (_cropYieldPotential - amount).ClampScore();
-		Changed = true;
-		NotifyEnvironmentalInputsChanged();
-		reason = string.Empty;
-		return true;
+			if (_cropYieldPotential < amount)
+			{
+				return (false, "The crop does not have enough remaining yield.");
+			}
+
+			_cropYieldPotential = (_cropYieldPotential - amount).ClampScore();
+			MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Crop);
+			return (true, string.Empty);
+		});
+		reason = consumeResult.Item2;
+		return consumeResult.Item1;
 	}
 
 	public bool ConsumeWoodlandYield(int amount, out string reason)
@@ -1188,17 +1695,25 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			return false;
 		}
 
-		if (_woodlandYieldPotential < amount)
+		using var environmentalChange = BeginEnvironmentalInputChange();
+		var consumeResult = SynchronizeNativeOrganicOwner(() =>
 		{
-			reason = "The woodland does not have enough remaining yield.";
-			return false;
-		}
+			if (_woodlandDefinitionId <= 0L)
+			{
+				return (false, "There is no woodland in this field.");
+			}
 
-		_woodlandYieldPotential = (_woodlandYieldPotential - amount).ClampScore();
-		Changed = true;
-		NotifyEnvironmentalInputsChanged();
-		reason = string.Empty;
-		return true;
+			if (_woodlandYieldPotential < amount)
+			{
+				return (false, "The woodland does not have enough remaining yield.");
+			}
+
+			_woodlandYieldPotential = (_woodlandYieldPotential - amount).ClampScore();
+			MarkNativeOrganicSourceChangedUnsafe(NativeOrganicSourceKind.Woodland);
+			return (true, string.Empty);
+		});
+		reason = consumeResult.Item2;
+		return consumeResult.Item1;
 	}
 
 	public bool DrawDownHerd(IAgricultureHerdDefinition definition, int count, ICharacter actor, out string result)
@@ -1252,6 +1767,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			return false;
 		}
 
+		using var environmentalChange = BeginEnvironmentalInputChange();
 		var herd = _herds.FirstOrDefault(x => x.Definition.Id == definition.Id);
 		if (herd == null)
 		{
@@ -1262,7 +1778,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		npc.Quit(silent: true);
 		herd.HeadCount++;
 		herd.Condition = Math.Min(definition.MaximumCondition, (herd.Condition * (herd.HeadCount - 1) + Condition) / herd.HeadCount);
-		CurrentUse = AgricultureFieldUse.Pasture;
+		TransitionNativeOrganicUse(AgricultureFieldUse.Pasture);
 		Changed = true;
 		result = $"You add {npc.HowSeen(actor)} into the {definition.Name} herd.";
 		return true;
@@ -1315,6 +1831,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			return false;
 		}
 
+		using var destinationEnvironmentalChange = destination.BeginEnvironmentalInputChange();
 		var destinationHerd = destination._herds.FirstOrDefault(x => x.Definition.Id == definition.Id);
 		if (destinationHerd == null)
 		{
@@ -1332,7 +1849,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			_herds.Remove(sourceHerd);
 		}
 
-		destination.CurrentUse = AgricultureFieldUse.Pasture;
+		destination.TransitionNativeOrganicUse(AgricultureFieldUse.Pasture);
 		Changed = true;
 		destination.Changed = true;
 		var destinationName = actor == null ? destination.Cell.Name : destination.Cell.GetFriendlyReference(actor);
@@ -1361,8 +1878,20 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		                 .Include(x => x.AgricultureFieldHerds)
 		                 .Include(x => x.AgricultureFieldWoodland)
 		                 .First(x => x.Id == Id);
+		var native = SynchronizeNativeOrganicOwner(() =>
+		{
+			var snapshot = (Use: CurrentUse, Pasture: _pasture, CropDefinitionId: _cropDefinitionId, CropStage,
+				CropGrowthDays: _cropGrowthDays, CropHarvestCount: _cropHarvestCount, CropHealth: _cropHealth,
+				CropYield: _cropYieldPotential, WoodlandDefinitionId: _woodlandDefinitionId,
+				WoodlandGrowthDays: _woodlandGrowthDays, WoodlandHealth: _woodlandHealth,
+				WoodlandYield: _woodlandYieldPotential, Definition: SaveFieldDefinitionUnsafe());
+			// Clear the staged revision under the owner gate. A later debit must requeue this field,
+			// rather than having its dirty mark erased after the EF rows are assembled.
+			Changed = false;
+			return snapshot;
+		});
 		dbitem.ProfileId = Profile.Id;
-		dbitem.CurrentUse = (int)CurrentUse;
+		dbitem.CurrentUse = (int)native.Use;
 		dbitem.Moisture = Moisture;
 		dbitem.Drainage = Drainage;
 		dbitem.Nutrients = Nutrients;
@@ -1373,23 +1902,23 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		dbitem.Weeds = Weeds;
 		dbitem.Pests = Pests;
 		dbitem.Fence = Fence;
-		dbitem.Pasture = Pasture;
+		dbitem.Pasture = native.Pasture;
 		dbitem.Condition = Condition;
-		dbitem.Definition = SaveFieldDefinition().ToString();
+		dbitem.Definition = native.Definition.ToString();
 
 		FMDB.Context.AgricultureFieldCrops.RemoveRange(dbitem.AgricultureFieldCrop != null ? new[] { dbitem.AgricultureFieldCrop } : Array.Empty<Models.AgricultureFieldCrop>());
-		if (CurrentCrop != null)
+		if (native.CropDefinitionId > 0L)
 		{
 			dbitem.AgricultureFieldCrop = new Models.AgricultureFieldCrop
 			{
 				AgricultureFieldId = Id,
-				CropDefinitionId = CurrentCrop.Id,
-				Stage = (int)CropStage,
-				GrowthDays = _cropGrowthDays,
-				Health = _cropHealth,
-				YieldPotential = _cropYieldPotential,
+				CropDefinitionId = native.CropDefinitionId,
+				Stage = (int)native.CropStage,
+				GrowthDays = native.CropGrowthDays,
+				Health = native.CropHealth,
+				YieldPotential = native.CropYield,
 				Definition = new XElement("Crop",
-					new XAttribute("harvestCount", _cropHarvestCount)).ToString()
+					new XAttribute("harvestCount", native.CropHarvestCount)).ToString()
 			};
 		}
 
@@ -1408,26 +1937,31 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		}
 
 		FMDB.Context.AgricultureFieldWoodlands.RemoveRange(dbitem.AgricultureFieldWoodland != null ? new[] { dbitem.AgricultureFieldWoodland } : Array.Empty<Models.AgricultureFieldWoodland>());
-		if (CurrentWoodland != null)
+		if (native.WoodlandDefinitionId > 0L)
 		{
 			dbitem.AgricultureFieldWoodland = new Models.AgricultureFieldWoodland
 			{
 				AgricultureFieldId = Id,
-				WoodlandDefinitionId = CurrentWoodland.Id,
-				GrowthDays = _woodlandGrowthDays,
-				Health = _woodlandHealth,
-				YieldPotential = _woodlandYieldPotential,
+				WoodlandDefinitionId = native.WoodlandDefinitionId,
+				GrowthDays = native.WoodlandGrowthDays,
+				Health = native.WoodlandHealth,
+				YieldPotential = native.WoodlandYield,
 				Definition = "<Woodland />"
 			};
 		}
 
-		Changed = false;
 	}
 
 	private XElement SaveFieldDefinition()
 	{
+		return SynchronizeNativeOrganicOwner(SaveFieldDefinitionUnsafe);
+	}
+
+	private XElement SaveFieldDefinitionUnsafe()
+	{
 		return new XElement("Field",
 			_apiary?.SaveToXml(),
+			SaveNativeOrganicAccountingUnsafe(),
 			new XElement("CustomScores",
 				_customScores
 					.Where(x => x.Key.IsCustomScore())

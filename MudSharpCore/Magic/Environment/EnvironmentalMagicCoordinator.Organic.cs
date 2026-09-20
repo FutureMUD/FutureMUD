@@ -14,6 +14,28 @@ public sealed partial class EnvironmentalMagicCoordinator
 {
 	private readonly Dictionary<long, double> _lastLoggedOrganic = [];
 
+	public EnvironmentalOrganicProfileSnapshot InspectOrganicProfile(ICell cell)
+	{
+		if (cell is not Cell concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
+		{
+			return new(null, 0, false, false, ["Land gathering requires a physical cell in this gameworld."]);
+		}
+		var profileId = EffectiveProfileId(concrete);
+		if (!profileId.HasValue)
+		{
+			return new(null, 0, false, concrete.PendingEnvironmentalOperationId.HasValue,
+				["The cell has no effective environmental profile."]);
+		}
+		var profile = Profile(profileId.Value);
+		if (profile is null)
+		{
+			return new(profileId, 0, false, concrete.PendingEnvironmentalOperationId.HasValue,
+				[$"Environmental profile #{profileId} cannot be resolved."]);
+		}
+		return new(profile.Id, profile.Revision, profile.HasOrganicConfiguration,
+			concrete.PendingEnvironmentalOperationId.HasValue, profile.OrganicValidationErrors);
+	}
+
 	public IReadOnlyList<NativeOrganicSourceSnapshot> InspectOrganicSources(ICell cell)
 	{
 		if (cell is not Cell concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
@@ -365,6 +387,92 @@ public sealed partial class EnvironmentalMagicCoordinator
 		}
 
 		result = InspectOrganicSource(cell, plan.Selector);
+		error = null;
+		return true;
+	}
+
+	public bool TryApplyOrganicDebitBatch(ICell cell, IReadOnlyList<NativeOrganicDebitPlan> plans,
+		out IReadOnlyList<NativeOrganicDebitPlan> applied, out string? error)
+	{
+		applied = [];
+		if (plans.Count is < 1 or > 16 ||
+		    plans.Select(x => x.Selector).Distinct(StringComparer.Ordinal).Count() != plans.Count)
+		{
+			error = "A native debit batch requires one to sixteen distinct canonical sources.";
+			return false;
+		}
+		foreach (NativeOrganicDebitPlan plan in plans)
+		{
+			if (!TryPlanOrganicDebit(cell, plan.Selector, (double)plan.RequestedAmount,
+			    out NativeOrganicDebitPlan current, out error) || current != plan)
+			{
+				error ??= "A source changed before the complete native group could be validated.";
+				return false;
+			}
+		}
+
+		var completed = new List<NativeOrganicDebitPlan>(plans.Count);
+		bool forageApplied = false;
+		foreach (NativeOrganicDebitPlan original in plans)
+		{
+			// All conversion policies were validated before the first mutation. A debit can change
+			// an input used by another source's conversion formula; re-evaluating that formula
+			// here would turn our own change into a partial refusal. Check the physical owner
+			// and captured arithmetic instead, allowing only a shared forage revision to move.
+			bool ownerReady;
+			if (original.Kind == NativeOrganicSourceKind.Forage)
+			{
+				if (forageApplied) continue;
+				NativeOrganicDebitPlan[] foragePlans = plans
+					.Where(x => x.Kind == NativeOrganicSourceKind.Forage).ToArray();
+				var requests = new List<NativeForageDebitRequest>(foragePlans.Length);
+				ownerReady = true;
+				foreach (NativeOrganicDebitPlan foragePlan in foragePlans)
+				{
+					if (!cell.TryPeekForagableYield(foragePlan.Selector[7..], out NativeForageYieldSnapshot snapshot) ||
+					    snapshot.SourceRevision != foragePlan.SourceRevision ||
+					    snapshot.ProfileId != foragePlan.Lifecycle.ForageProfileId ||
+					    snapshot.ProfileRevision != foragePlan.Lifecycle.ForageProfileRevision ||
+					    snapshot.DefinitionRevision != foragePlan.Lifecycle.ForageDefinitionRevision ||
+					    snapshot.Stock != foragePlan.ExpectedNativeStock)
+					{
+						ownerReady = false;
+						break;
+					}
+					requests.Add(new(snapshot, (double)foragePlan.RequestedAmount));
+				}
+				string forageReason;
+				if (ownerReady) ownerReady = cell.TryConsumeYieldBatch(requests, out forageReason);
+				else forageReason = "A forage owner changed during the validated native group.";
+				error = ownerReady ? null : forageReason;
+				if (ownerReady)
+				{
+					completed.AddRange(foragePlans);
+					forageApplied = true;
+				}
+			}
+			else
+			{
+				IAgricultureField? field = FieldFor(cell);
+				NativeOrganicSourceSnapshot? owner = field?.InspectNativeOrganicSource(original.Kind);
+				ownerReady = owner is { IsEligible: true } && owner.Lifecycle == original.Lifecycle &&
+				             owner.SourceRevision == original.SourceRevision &&
+				             owner.NativeStock == original.ExpectedNativeStock &&
+				             owner.PrepaidFraction == original.OpeningPrepaidFraction;
+				string reason;
+				if (ownerReady) ownerReady = field!.TryApplyNativeOrganicDebit(original, out reason);
+				else reason = "An agriculture owner changed during the validated native group.";
+				error = ownerReady ? null : reason;
+			}
+			if (!ownerReady)
+			{
+				applied = completed.AsReadOnly();
+				error ??= "The native batch became uncertain after an earlier owner debit.";
+				return false;
+			}
+			if (original.Kind != NativeOrganicSourceKind.Forage) completed.Add(original);
+		}
+		applied = completed.AsReadOnly();
 		error = null;
 		return true;
 	}

@@ -57,6 +57,10 @@ public sealed partial class EnvironmentalMagicGenerator : BaseMagicResourceGener
 	public IReadOnlyList<string> ValidationErrors => _errorView;
 	public IReadOnlySet<string> RequiredInputNames { get; private set; } =
 		Array.Empty<string>().ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+	public IReadOnlySet<string> RequiredOutputInputNames(long resourceId) =>
+		_compiledOutputs.TryGetValue(resourceId, out var output)
+			? output.MaximumParameters.Concat(output.RateParameters).ToFrozenSet(StringComparer.OrdinalIgnoreCase)
+			: Array.Empty<string>().ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 	public override IEnumerable<IMagicResource> GeneratedResources => _generatedResources;
 	public override string RegeneratorTypeName => "Environmental";
 
@@ -574,6 +578,7 @@ public sealed partial class EnvironmentalMagicGenerator : BaseMagicResourceGener
 	#3organic source remove <selector>#0 - remove a native source authorisation
 	#3organic penalty <channel> <formula|none>#0 - set a dimensionless suppression factor from 0 to 1
 	#3organic protection <prog|none>#0 - validate a later-use protection prog without invoking it
+	#3organic scaraddendum <on|off>#0 - show derived local scar text in room descriptions
 
 Built-ins: #6basecapacity#0, #6baserate#0, #6scardamage#0, #6pressure#0, #6hasdefile#0 and
 #6minutessincedefile#0. Rate formulae may also use #6balance#0 and #6maximum#0.

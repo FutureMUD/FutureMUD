@@ -2,7 +2,7 @@
 
 An `environmental` regenerator is a reusable profile for resources held by physical cells. It uses the existing magic-resource balances, one environmental maximum for each configured resource, and persistent cell damage. It applies only after an explicit cell binding or terrain default is configured. No stock setting content is installed.
 
-The world coordinator advances useful production and optional natural scar repair. See [Environmental Magic Runtime](Environmental_Magic_Runtime.md) for scheduling, persistence and integration contracts, and the [acceptance mapping](Environmental_Magic_Acceptance.md) for regression coverage and execution boundaries. [Capability-configured Self and Gentle gathering](Magic_Gathering.md) is a separate consumer of the exact managed mana-debit surface. [Native organic yields](Native_Organic_Yields_and_Ecological_Penalties.md) add explicit source authorisation, staff inspection, native owner debits and scar-sensitive positive production for the later Land method. Task 3A still adds no player Land access, payout, channelling or rejuvenation spell.
+The world coordinator advances useful production and optional natural scar repair. See [Environmental Magic Runtime](Environmental_Magic_Runtime.md) for scheduling, persistence and integration contracts, and the [acceptance mapping](Environmental_Magic_Acceptance.md) for regression coverage and execution boundaries. [Capability-configured gathering](Magic_Gathering.md) uses the exact managed mana-debit surface for Gentle and configured local managed/native sources for destructive Land. [Native organic yields](Native_Organic_Yields_and_Ecological_Penalties.md) define the profile authorisation, native owner debits and scar-sensitive positive production Land depends on. A profile alone grants no gathering method; the capability builder must configure and grant one explicitly.
 
 ## Author a profile
 
@@ -19,6 +19,8 @@ magic regenerator close
 ```
 
 A new profile has one output, base capacity 100, base rate 1 per real minute, a recent-pressure half-life of 3,600 real seconds, and zero natural scar repair. The default maximum and rate expressions are `basecapacity` and `baserate`.
+
+`organic scaraddendum on|off` controls the local room-description text derived from current scar and pressure bands. It defaults to off. The addendum is computed when the room is viewed; the saved builder description is not changed.
 
 While editing a profile, use:
 

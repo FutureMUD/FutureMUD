@@ -85,4 +85,37 @@ public class MagicGatheringOperationModelTests
 		Assert.ThrowsException<InvalidOperationException>(() => context.MagicGatheringOperations.Add(
 			new MagicGatheringOperation { Id = id }));
 	}
+
+	[TestMethod]
+	public void LandGatheringMigration_AddsNullableLegacyColumnsAndIndexedParticipants()
+	{
+		LandGatheringSourceAccounting migration = new();
+		CreateTableOperation participants = migration.UpOperations.OfType<CreateTableOperation>()
+			.Single(x => x.Name == "MagicGatheringParticipants");
+		CollectionAssert.AreEquivalent(new[] { "OperationId", "CellId", "SourceKey" },
+			participants.Columns.Select(x => x.Name).ToArray());
+		CollectionAssert.AreEqual(new[] { "OperationId", "SourceKey" },
+			participants.PrimaryKey!.Columns.ToArray());
+		CollectionAssert.AreEquivalent(new[] { "EcologicalApplied", "EcologicalChildId", "LandDetailJson" },
+			migration.UpOperations.OfType<AddColumnOperation>().Select(x => x.Name).ToArray());
+		Assert.IsTrue(migration.UpOperations.OfType<AddColumnOperation>()
+			.Single(x => x.Name == "LandDetailJson").IsNullable,
+			"Existing Self/Gentle rows must upgrade without an invented Land payload.");
+		CreateIndexOperation index = migration.UpOperations.OfType<CreateIndexOperation>()
+			.Single(x => x.Name == "IX_MagicGatheringParticipants_Cell_Source");
+		CollectionAssert.AreEqual(new[] { "CellId", "SourceKey" }, index.Columns);
+	}
+
+	[TestMethod]
+	public void LandGatheringParticipants_HaveBoundedCellAndSourceLookupIdentity()
+	{
+		using FuturemudDatabaseContext context = CreateContext();
+		IEntityType participant = context.GetService<IDesignTimeModel>().Model
+			.FindEntityType(typeof(MagicGatheringParticipant))!;
+		CollectionAssert.AreEqual(new[] { "OperationId", "SourceKey" },
+			participant.FindPrimaryKey()!.Properties.Select(x => x.Name).ToArray());
+		Assert.AreEqual(150, participant.FindProperty("SourceKey")!.GetMaxLength());
+		CollectionAssert.AreEqual(new[] { "CellId", "SourceKey" },
+			participant.GetIndexes().Single().Properties.Select(x => x.Name).ToArray());
+	}
 }

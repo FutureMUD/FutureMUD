@@ -43,6 +43,7 @@ public class EnvironmentalMagicGeneratorTests
 		Assert.IsNull(generator.IdleRecheckSeconds);
 		Assert.AreEqual("1", SaveDefinition(generator).Attribute("version")!.Value);
 		Assert.IsFalse(generator.HasOrganicConfiguration);
+		Assert.IsFalse(generator.ShowLandScarAddendum);
 		Assert.AreEqual(0, generator.OrganicSources.Count);
 		Assert.AreEqual(NativeOrganicPenaltyEvaluation.Neutral,
 			generator.EvaluateOrganicPenalty(NativeOrganicPenaltyChannel.CropYieldRecovery,
@@ -62,16 +63,19 @@ public class EnvironmentalMagicGeneratorTests
 		Assert.IsTrue(generator.BuildingCommand(actor.Object, new StringStack("organic source crop uses crop orchard")));
 		Assert.IsTrue(generator.BuildingCommand(actor.Object,
 			new StringStack("organic penalty cropyield 1 - scardamage / 10")));
+		Assert.IsTrue(generator.BuildingCommand(actor.Object, new StringStack("organic scaraddendum on")));
 
-		Assert.AreEqual(revision + 4, generator.Revision);
+		Assert.AreEqual(revision + 5, generator.Revision);
 		var saved = SaveDefinition(generator);
 		Assert.AreEqual("1", saved.Attribute("version")!.Value);
 		Assert.AreEqual("1", saved.Element("Organic")!.Attribute("version")!.Value);
+		Assert.AreEqual("true", saved.Element("Organic")!.Attribute("scaraddendum")!.Value.ToLowerInvariant());
 		var reloaded = Load(world, saved);
 		Assert.AreEqual(0, reloaded.ValidationErrors.Count, string.Join("; ", reloaded.ValidationErrors));
 		Assert.AreEqual(0, reloaded.OrganicValidationErrors.Count,
 			string.Join("; ", reloaded.OrganicValidationErrors));
 		Assert.AreEqual(2, reloaded.OrganicSources.Count);
+		Assert.IsTrue(reloaded.ShowLandScarAddendum);
 		Assert.AreEqual("forage:wild herbs", reloaded.OrganicSources[0].Selector);
 		CollectionAssert.AreEquivalent(new[] { AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard },
 			reloaded.OrganicSources[1].AllowedFieldUses.ToArray());
@@ -80,6 +84,8 @@ public class EnvironmentalMagicGeneratorTests
 		Assert.IsTrue(evaluation.IsValid, evaluation.Error);
 		Assert.AreEqual(0.8, evaluation.Factor, 1e-12);
 		StringAssert.Contains(reloaded.Show(actor.Object), "Ecological Penalties");
+		Assert.IsTrue(reloaded.BuildingCommand(actor.Object, new StringStack("organic scaraddendum off")));
+		Assert.IsFalse(reloaded.ShowLandScarAddendum);
 	}
 
 	[TestMethod]

@@ -28,6 +28,8 @@ public static class MagicGatheringPolicy
 		{
 			["permission"] = (B, [C, C, K, T, N, L]),
 			["numeric"] = (N, [C, C, K, T, N, L]),
+			["landratio"] = (N, [C, C, K, T, N, L, T]),
+			["landdamage"] = (N, [C, C, K, T, N, L, ProgVariableTypes.Dictionary | N]),
 			["onsuccess"] = (ProgVariableTypes.Void, [C, C, K, T, N, L, T])
 		};
 
@@ -75,6 +77,57 @@ public static class MagicGatheringPolicy
 			{
 				errors.Add($"{label}: source units per destination unit must be finite and positive.");
 			}
+		}
+		else if (method.Kind == MagicGatheringMethodKind.Land)
+		{
+			if (method.SourceResourceId.HasValue)
+			{
+				errors.Add($"{label}: Land uses its ordered source entries, not a Gentle source resource.");
+			}
+			if (method.LandSources.Count is < 1 or > 16 ||
+			    method.LandSources.GroupBy(x => x.Key).Any(x => x.Key == Guid.Empty || x.Count() > 1))
+			{
+				errors.Add($"{label}: Land requires one to sixteen sources with unique entry identities.");
+			}
+			foreach (MagicLandSourceDefinition entry in method.LandSources)
+			{
+				if (!MagicGatheringService.TryCanonicalLandSelector(entry.Selector, out string selector))
+				{
+					errors.Add($"{label}: source {entry.Selector} has a malformed selector.");
+					continue;
+				}
+				if (!FiniteNonNegative(entry.UnitsPerDestinationUnit) ||
+				    !entry.IsCollateral && entry.UnitsPerDestinationUnit <= 0.0 ||
+				    entry.IsCollateral && entry.AllowAbsent)
+				{
+					errors.Add($"{label}: source {selector} has an invalid ratio or optional collateral.");
+				}
+				if (selector.StartsWith("ambient:", StringComparison.Ordinal) &&
+				    (gameworld.MagicResources.Get(long.Parse(selector[8..])) is not { } ambient ||
+				     !ambient.ResourceType.HasFlag(MagicResourceType.LocationResource)))
+				{
+					errors.Add($"{label}: ambient source {selector} must be a location-capable magic resource.");
+				}
+				CheckProg(entry.RatioProgId, "landratio", $"source {selector} ratio");
+			}
+			if (method.LandSources.Where(x => !x.IsCollateral)
+			    .GroupBy(x => MagicGatheringService.TryCanonicalLandSelector(x.Selector, out string key) ? key : x.Selector)
+			    .Any(x => x.Select(y => y.UnitsPerDestinationUnit).Distinct().Count() > 1))
+			{
+				errors.Add($"{label}: repeated funding sources must have the same conversion rate.");
+			}
+			if (!FiniteNonNegative(method.LandDamagePerDestinationUnit) ||
+			    method.LandDamagePerDestinationUnit <= 0.0 && method.LandDamageProgId == 0 ||
+			    method.LandPressurePerDestinationUnit is { } pressure && !FiniteNonNegative(pressure) ||
+			    !FiniteNonNegative(method.CropHealthCostPerDestinationUnit) ||
+			    !FiniteNonNegative(method.WoodlandHealthCostPerDestinationUnit))
+			{
+				errors.Add($"{label}: ecological and vegetation prices must be finite; scar damage must be positive.");
+			}
+			CheckProg(method.LandDamageProgId, "landdamage", "Land damage");
+			CheckProg(method.LandPressureProgId, "landdamage", "Land pressure");
+			CheckProg(method.CropHealthCostProgId, "landratio", "crop health cost");
+			CheckProg(method.WoodlandHealthCostProgId, "landratio", "woodland health cost");
 		}
 		else if (method.SourceResourceId.HasValue)
 		{

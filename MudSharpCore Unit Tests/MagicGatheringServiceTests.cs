@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -28,6 +29,7 @@ using MudSharp.Magic.Environment;
 using MudSharp.Magic.Gathering;
 using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
+using MudSharp.Work.Agriculture;
 using MudSharp.Testing.EnvironmentalMagic;
 using RuntimeProg = MudSharp.FutureProg.FutureProg;
 
@@ -36,6 +38,757 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicGatheringServiceTests
 {
+	[TestMethod]
+	[TestCategory("L-T03")]
+	[TestCategory("L-T18")]
+	public void LandGathering_AmbientOnlyPaysExactDebitAndOneEcologicalChild()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(20.0);
+		MagicGatheringResult preview = fixture.Service.Preview(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 5.0);
+		Assert.IsTrue(preview.Success, preview.Message);
+		Assert.AreEqual(20.0, fixture.SourceBalance, 0.000001);
+		Assert.AreEqual(0, fixture.World.Operations.Receipts.Count);
+
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 5.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		MagicGatheringResult completed = fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value);
+		Assert.IsTrue(completed.Success, completed.Message + " " + fixture.Store.Operation(started.OperationId.Value)?.Diagnostic);
+		Assert.AreEqual(5.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(1, fixture.World.Operations.Receipts.Count);
+		Assert.AreEqual(5.0, fixture.World.Coordinator.InspectState(fixture.Cell).State.ScarDamage, 0.000001);
+		Assert.AreEqual("Completed", fixture.Store.Operation(started.OperationId.Value)?.Status);
+		IReadOnlyDictionary<string, double>? details = fixture.Service.LandDetails(started.OperationId.Value);
+		Assert.IsNotNull(details);
+		Assert.AreEqual(5.0, details["credited"], 0.000001);
+		Assert.AreEqual(5.0, details["paid:ambient:1"], 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T17")]
+	public void LandGathering_PriorOnlineProductionAndNaturalRepairAreNotCountedAsPayment()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.World.Edit("repair 1");
+		fixture.SetSourceBalance(10.0);
+		var prior = fixture.World.Coordinator.ApplyOperation(fixture.Cell,
+			new EnvironmentalMagicOperationRequest(Guid.NewGuid(), fixture.Actor.Object.Id,
+				"prior scar", Damage: 5.0));
+		Assert.IsTrue(prior.Success, prior.Error);
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object,
+			fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(TimeSpan.FromMinutes(1));
+		fixture.World.Tick(0);
+		var settled = fixture.World.Coordinator.InspectState(fixture.Cell);
+		double produced = fixture.SourceBalance;
+		Assert.IsTrue(produced > 10.0, "Online production should settle before Land payment.");
+		Assert.IsTrue(settled.State.ScarDamage < 5.0, "Natural repair should settle before new damage.");
+		MagicGatheringResult completed = fixture.Service.Complete(fixture.Actor.Object,
+			started.OperationId!.Value);
+		Assert.IsTrue(completed.Success, completed.Message);
+		Assert.AreEqual(produced - 1.0, fixture.SourceBalance, 0.000001);
+		Assert.AreEqual(settled.State.ScarDamage + 1.0,
+			fixture.World.Coordinator.InspectState(fixture.Cell).State.ScarDamage, 0.000001);
+		Assert.AreEqual(1.0, fixture.DestinationBalance, 0.000001);
+		var details = fixture.Service.LandDetails(started.OperationId.Value)!;
+		Assert.AreEqual(1.0, details["paid:ambient:1"], 0.000001);
+		Assert.AreEqual(1.0, details["credited"], 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T36")]
+	public void LandGathering_PendingPastureIsNotEstablishedOrSpentByAQuote()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.World.Edit("organic source add pasture");
+		fixture.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "pasture", 1.0));
+		Mock<IAgricultureField> field = new();
+		field.SetupGet(x => x.Id).Returns(17L);
+		field.SetupGet(x => x.Cell).Returns(fixture.Cell);
+		field.SetupGet(x => x.CurrentUse).Returns(AgricultureFieldUse.Pasture);
+		var lifecycle = new NativeOrganicLifecycleIdentity(fixture.Cell.Id, 17L, 1L, 0L,
+			null, 0, 0L);
+		NativeOrganicSourceSnapshot pending = new("pasture", NativeOrganicSourceKind.Pasture,
+			NativeOrganicSourceStatus.Invalid, lifecycle, 10.0, 0m,
+			NativeOrganicRecoveryRemainders.Empty, 1L, null, 0L,
+			AgricultureFieldUse.Pasture, "This pasture allocation is still awaiting its initial assessment.");
+		field.Setup(x => x.InspectNativeOrganicSource(NativeOrganicSourceKind.Pasture)).Returns(pending);
+		fixture.World.Fields.Add(field.Object);
+		fixture.World.Coordinator.FieldChanged(field.Object);
+		Assert.IsFalse(fixture.Service.Preview(fixture.Actor.Object,
+			fixture.Capability.Object, "draw", 1.0).Success);
+		Assert.IsFalse(fixture.Service.Begin(fixture.Actor.Object,
+			fixture.Capability.Object, "draw", 1.0).Success);
+		field.Verify(x => x.TryApplyNativeOrganicDebit(It.IsAny<NativeOrganicDebitPlan>(),
+			out It.Ref<string>.IsAny), Times.Never);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
+		Assert.AreEqual(AgricultureFieldUse.Pasture, field.Object.CurrentUse);
+		field.Setup(x => x.InspectNativeOrganicSource(NativeOrganicSourceKind.Pasture))
+			.Returns(pending with { Status = NativeOrganicSourceStatus.Available, Diagnostic = null });
+		Assert.IsTrue(fixture.Service.Preview(fixture.Actor.Object,
+			fixture.Capability.Object, "draw", 1.0).Success,
+			"An already assessed legacy pasture allocation should remain eligible.");
+	}
+
+	[TestMethod]
+	[TestCategory("L-T40")]
+	public void LandGathering_AdminShowReportsPaidAccountingWithoutReplaying()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(5.0);
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object,
+			fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		var adminShow = typeof(MagicModule).GetMethod("GatheringAdmin",
+			BindingFlags.Static | BindingFlags.NonPublic)!;
+		adminShow.Invoke(null, [fixture.Actor.Object,
+			new StringStack($"show {started.OperationId.Value}")]);
+		Assert.IsTrue(fixture.Output.Any(x => x.Contains("Land accounting:") &&
+			x.Contains("paid:ambient:1") && x.Contains("credited")),
+			string.Join("\n", fixture.Output));
+		Assert.AreEqual(1.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(1, fixture.Store.Count);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T28")]
+	public void LandGathering_CompletionEmotesUseTheLocalPerceptionOutputPath()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(5.0);
+		fixture.UpdateMethod(method => method with
+		{
+			LandActorCompleteEmote = "$0 feels the land yield to $0.",
+			LandObserverCompleteEmote = "$0 draws strength from the land."
+		});
+		Mock<ICell> localCell = new();
+		Mock<IPerceiver> localSource = new();
+		Mock<ICharacter> observer = new();
+		Mock<IOutputHandler> observerOutput = new();
+		localSource.SetupGet(x => x.Location).Returns(localCell.Object);
+		localSource.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		localCell.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([observer.Object]);
+		localCell.SetupGet(x => x.Cells).Returns([]);
+		observer.SetupGet(x => x.OutputHandler).Returns(observerOutput.Object);
+		Mock.Get(fixture.Actor.Object.OutputHandler).SetupGet(x => x.Perceiver).Returns(localSource.Object);
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object,
+			fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		observerOutput.Verify(x => x.Send(It.Is<IOutput>(emote =>
+			emote.Flags.HasFlag(OutputFlags.SuppressSource)), It.IsAny<bool>(), It.IsAny<bool>()),
+			Times.Once, "Only the local observer should receive the source-suppressed emote.");
+		Assert.AreEqual(1.0, fixture.DestinationBalance, 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T04")]
+	[TestCategory("L-T05")]
+	[TestCategory("L-T14")]
+	public void LandGathering_MixedSourcesPreserveOrderedAllocationAndOneCredit()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(2.0);
+		fixture.SetLandSources(
+			new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:1", 1.0),
+			new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		MagicGatheringResult start = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 5.0);
+		Assert.IsTrue(start.Success, start.Message);
+		Assert.AreEqual(2.0, start.Quote!.LandSources.Single(x => x.Selector == "ambient:1").FundingUnits, 0.000001);
+		Assert.AreEqual(3.0, start.Quote.LandSources.Single(x => x.Selector == "forage:herbs").FundingUnits, 0.000001);
+		fixture.Advance(Duration);
+		MagicGatheringResult result = fixture.Service.Complete(fixture.Actor.Object, start.OperationId!.Value);
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.AreEqual(5.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(1, fixture.World.Operations.Receipts.Count);
+		var details = fixture.Service.LandDetails(start.OperationId.Value)!;
+		Assert.AreEqual(2.0, details["paid:ambient:1"], 0.000001);
+		Assert.AreEqual(3.0, details["paid:forage:herbs"], 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T06")]
+	[TestCategory("L-T33")]
+	public void LandGathering_CapturedMixDoesNotShiftWhenEarlierSourceGrows()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(2.0);
+		fixture.SetLandSources(
+			new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:1", 1.0),
+			new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		MagicGatheringResult start = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 5.0);
+		Assert.IsTrue(start.Success, start.Message);
+		fixture.SetSourceBalance(10.0);
+		fixture.Advance(Duration);
+		MagicGatheringResult result = fixture.Service.Complete(fixture.Actor.Object, start.OperationId!.Value);
+		Assert.IsTrue(result.Success, result.Message);
+		var details = fixture.Service.LandDetails(start.OperationId.Value)!;
+		Assert.AreEqual(2.0, details["paid:ambient:1"], 0.000001);
+		Assert.AreEqual(3.0, details["paid:forage:herbs"], 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T31")]
+	[TestCategory("L-T34")]
+	public void LandGathering_TwoForageKeysInOneCellCompleteAsOneValidatedGroup()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land, twoForage: true);
+		fixture.World.Edit("input herbstock forage herbs 0.01");
+		fixture.World.Edit("organic penalty forage 1 - herbstock");
+		fixture.SetLandSources(
+			new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0, IsCollateral: true),
+			new MagicLandSourceDefinition(Guid.NewGuid(), "forage:berries", 1.0));
+		MagicGatheringResult start = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 5.0);
+		Assert.IsTrue(start.Success, start.Message);
+		fixture.Advance(Duration);
+		MagicGatheringResult result = fixture.Service.Complete(fixture.Actor.Object, start.OperationId!.Value);
+		Assert.IsTrue(result.Success, result.Message + " " + fixture.Store.Operation(start.OperationId.Value)?.Diagnostic);
+		var details = fixture.Service.LandDetails(start.OperationId.Value)!;
+		Assert.AreEqual(5.0, details["paid:forage:herbs"], 0.000001);
+		Assert.AreEqual(5.0, details["paid:forage:berries"], 0.000001);
+		Assert.AreEqual(5.0, fixture.DestinationBalance, 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T21")]
+	public void LandGathering_RespectsUnresolvedGentleAmbientQuarantine()
+	{
+		using GatheringFixture first = new(MagicGatheringMethodKind.Land);
+		first.SetSourceBalance(20.0);
+		MagicGatheringResult started = first.Service.Begin(first.Actor.Object, first.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		first.Advance(Duration);
+		Assert.IsTrue(first.Service.Complete(first.Actor.Object, started.OperationId!.Value).Success);
+		MagicGatheringReceipt saved = first.Store.Operation(started.OperationId.Value)!;
+		first.Store.Record(saved with { Kind = MagicGatheringMethodKind.Gentle, Status = "NeedsReview",
+			SourceResourceId = first.Source.Id, ParticipantKeys = [] });
+		using GatheringFixture second = new(first, MagicGatheringMethodKind.Land);
+		second.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:1", 1.0));
+		first.SetSourceBalance(20.0);
+		MagicGatheringResult refused = second.Service.Begin(second.Actor.Object, second.Capability.Object,
+			"draw", 1.0);
+		Assert.IsFalse(refused.Success);
+		Assert.AreEqual(0.0, second.DestinationBalance, 0.000001);
+		Assert.AreEqual(20.0, first.SourceBalance, 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T04")]
+	public void LandGathering_ThirtyCreditExamplePaysTenAmbientAndFiveForage()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(10.0);
+		fixture.UpdateMethod(method => method with { MaximumAmount = 30.0 });
+		fixture.SetLandSources(
+			new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:1", 1.0),
+			new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 0.25));
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 30.0);
+		Assert.IsTrue(started.Success, started.Message);
+		Assert.AreEqual(10.0, started.Quote!.LandSources.Single(x => x.Selector == "ambient:1").FundingUnits, 0.000001);
+		Assert.AreEqual(5.0, started.Quote.LandSources.Single(x => x.Selector == "forage:herbs").FundingUnits, 0.000001);
+		fixture.Advance(Duration);
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		Assert.AreEqual(30.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(10.0, fixture.Service.LandDetails(started.OperationId.Value)!["paid:ambient:1"], 0.000001);
+		Assert.AreEqual(1, fixture.World.Operations.Receipts.Count);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T03")]
+	[TestCategory("L-T08")]
+	[TestCategory("L-T19")]
+	public void LandGathering_ZeroAmbientYieldOnlyAndInvalidScarBoundaries()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(0.0);
+		fixture.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		fixture.World.Edit("output 1 baserate 0");
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 5.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		Assert.AreEqual(5.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(0.0, fixture.Service.LandDetails(started.OperationId.Value)!.GetValueOrDefault("paid:ambient:1"), 0.000001);
+		int priorReceipts = fixture.Store.Count;
+		fixture.UpdateMethod(method => method with { LandDamagePerDestinationUnit = 0.0 });
+		MagicGatheringResult invalid = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 1.0);
+		Assert.IsFalse(invalid.Success);
+		Assert.AreEqual(priorReceipts, fixture.Store.Count);
+		Assert.AreEqual(5.0, fixture.DestinationBalance, 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T08")]
+	[TestCategory("L-T11")]
+	public void LandGathering_ShortageAndChangedPlanRefuseBeforeAnyPayment()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(4.0);
+		fixture.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:1", 1.0));
+		MagicGatheringResult shortage = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 5.0);
+		Assert.IsFalse(shortage.Success);
+		Assert.AreEqual(4.0, fixture.SourceBalance, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 3.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.UpdateMethod(method => method with { LandDamagePerDestinationUnit = 2.0 });
+		fixture.Advance(Duration);
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		Assert.AreEqual(4.0, fixture.SourceBalance, 0.000001);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
+		Assert.AreEqual(0.0, fixture.World.Coordinator.InspectState(fixture.Cell).State.ScarDamage, 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T05")]
+	[TestCategory("L-T06")]
+	public void LandGathering_MandatoryCollateralReservesItsStockBeforeFunding()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(5.0);
+		fixture.SetLandSources(
+			new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:1", 1.0),
+			new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:1", 0.6, IsCollateral: true),
+			new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 5.0);
+		Assert.IsTrue(started.Success, started.Message);
+		MagicLandSourceAllocation ambient = started.Quote!.LandSources.Single(x => x.Selector == "ambient:1");
+		Assert.AreEqual(2.0, ambient.FundingUnits, 0.000001);
+		Assert.AreEqual(3.0, ambient.CollateralUnits, 0.000001);
+		Assert.AreEqual(3.0, started.Quote.LandSources.Single(x => x.Selector == "forage:herbs").FundingUnits, 0.000001);
+		fixture.Advance(Duration);
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		Assert.AreEqual(5.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(5.0, fixture.Service.LandDetails(started.OperationId.Value)!["paid:ambient:1"], 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T06")]
+	public void LandGathering_CanonicalAmbientAliasesConsolidateAndConflictingRatesRefuse()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(10.0);
+		fixture.SetLandSources(
+			new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:01", 1.0),
+			new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:1", 1.0));
+		MagicGatheringResult preview = fixture.Service.Preview(fixture.Actor.Object,
+			fixture.Capability.Object, "draw", 5.0);
+		Assert.IsTrue(preview.Success, preview.Message);
+		Assert.AreEqual(1, preview.Quote!.LandSources.Count);
+		Assert.AreEqual(5.0, preview.Quote.LandSources[0].TotalUnits, 0.000001);
+		fixture.SetLandSources(
+			new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:01", 1.0),
+			new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:1", 2.0));
+		Assert.IsFalse(fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 5.0).Success);
+		Assert.AreEqual(10.0, fixture.SourceBalance, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T07")]
+	public void LandGathering_OptionalAbsentSourceRequiresValidAuthorisation()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.World.Edit("organic source add crop");
+		fixture.SetLandSources(
+			new MagicLandSourceDefinition(Guid.NewGuid(), "crop", 1.0, AllowAbsent: true),
+			new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		MagicGatheringResult valid = fixture.Service.Preview(fixture.Actor.Object,
+			fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(valid.Success, valid.Message);
+		Assert.AreEqual("forage:herbs", valid.Quote!.LandSources.Single().Selector);
+		fixture.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "crop", 1.0));
+		Assert.IsFalse(fixture.Service.Preview(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 1.0).Success);
+		fixture.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "forage:berries", 1.0,
+			AllowAbsent: true));
+		Assert.IsFalse(fixture.Service.Preview(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 1.0).Success);
+		fixture.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:999", 1.0));
+		Assert.IsFalse(fixture.Service.Preview(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 1.0).Success);
+		Assert.AreEqual(0, fixture.Store.Count);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T13")]
+	[TestCategory("L-T31")]
+	public void LandGathering_ExternalForageConsumerMakesCapturedPlanUnaffordable()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 5.0);
+		Assert.IsTrue(started.Success, started.Message);
+		double initial = fixture.Cell.GetForagableYield("herbs");
+		Assert.IsTrue(fixture.Cell.TryConsumeYield("herbs", initial - 4.0));
+		fixture.Advance(Duration);
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		Assert.AreEqual(4.0, fixture.Cell.GetForagableYield("herbs"), 0.000001);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T22")]
+	[TestCategory("L-T37")]
+	public void LandGathering_FailedSourceCheckpointQuarantinesPaidActionWithoutCreditOrReplay()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land) { PersistSucceeds = false };
+		fixture.SetSourceBalance(10.0);
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 2.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		MagicGatheringReceipt receipt = fixture.Store.Operation(started.OperationId.Value)!;
+		Assert.AreEqual("NeedsReview", receipt.Status);
+		Assert.IsTrue(receipt.SourceDebited);
+		Assert.IsTrue(receipt.EcologicalApplied);
+		Assert.IsFalse(receipt.DestinationCredited);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, started.OperationId.Value).Success);
+		Assert.AreEqual(1, fixture.World.Operations.Receipts.Count);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T23")]
+	public void LandGathering_UnresolvedReceiptBlocksItsSourceButAllowsUnrelatedSameCellSource()
+	{
+		using GatheringFixture first = new(MagicGatheringMethodKind.Land) { PersistSucceeds = false };
+		first.SetSourceBalance(10.0);
+		MagicGatheringResult started = first.Service.Begin(first.Actor.Object, first.Capability.Object,
+			"draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		first.Advance(Duration);
+		Assert.IsFalse(first.Service.Complete(first.Actor.Object, started.OperationId!.Value).Success);
+		Assert.AreEqual("NeedsReview", first.Store.Operation(started.OperationId.Value)?.Status);
+		using GatheringFixture second = new(first, MagicGatheringMethodKind.Land);
+		second.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		MagicGatheringResult independent = second.Service.Begin(second.Actor.Object,
+			second.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(independent.Success, independent.Message);
+		Assert.IsFalse(first.Service.Begin(first.Actor.Object, first.Capability.Object, "draw", 1.0).Success);
+		Assert.IsTrue(second.Service.Cancel(second.Actor.Object).Success);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T23")]
+	public void LandGathering_SharedCellEcologySerialisesDisjointSourceCommit()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object,
+			fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		var field = typeof(MagicGatheringService).GetField("_committingLandKeys",
+			BindingFlags.Instance | BindingFlags.NonPublic)!;
+		var committing = (HashSet<(long CellId, string SourceKey)>)field.GetValue(fixture.Service)!;
+		Assert.IsTrue(committing.Add((fixture.Cell.Id, "ecology")));
+		try
+		{
+			MagicGatheringResult refused = fixture.Service.Complete(fixture.Actor.Object,
+				started.OperationId!.Value);
+			Assert.IsFalse(refused.Success);
+			Assert.AreEqual(0, fixture.Store.Count);
+			Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+		}
+		finally
+		{
+			committing.Remove((fixture.Cell.Id, "ecology"));
+		}
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		Assert.AreEqual(1.0, fixture.DestinationBalance, 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T26")]
+	public void LandGathering_PlayerAndNpcCommandRoutesReachTheSamePaidOperation()
+	{
+		const string schoolVerb = "landgathercommand";
+		MagicModule.EnsureMagicSchoolVerbRegistered(schoolVerb);
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land, schoolVerb: schoolVerb);
+		fixture.SetSourceBalance(10.0);
+		Assert.IsTrue(PlayerCommandTree.Instance.Commands.Execute(fixture.Actor.Object,
+			$"{schoolVerb} gather \"Test Capability\" draw 2", fixture.Actor.Object.State,
+			PermissionLevel.Player, fixture.Actor.Object.OutputHandler));
+		Guid first = fixture.ActorEffects.OfType<MagicGatheringTimedAction>().Single().OperationId;
+		fixture.Advance(Duration);
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, first).Success);
+		Assert.AreEqual(2.0, fixture.DestinationBalance, 0.000001);
+		Assert.IsTrue(NPCCommandTree.Instance.Commands.Execute(fixture.Actor.Object,
+			$"{schoolVerb} gather \"Test Capability\" draw 1", fixture.Actor.Object.State,
+			PermissionLevel.NPC, fixture.Actor.Object.OutputHandler));
+		Guid second = fixture.ActorEffects.OfType<MagicGatheringTimedAction>().Single().OperationId;
+		fixture.Advance(Duration);
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, second).Success);
+		Assert.AreEqual(3.0, fixture.DestinationBalance, 0.000001);
+		Assert.IsTrue(PlayerCommandTree.Instance.Commands.Execute(fixture.Actor.Object,
+			$"{schoolVerb} gather \"Test Capability\" draw 100", fixture.Actor.Object.State,
+			PermissionLevel.Player, fixture.Actor.Object.OutputHandler));
+		Assert.AreEqual(2, fixture.Store.Count);
+		Assert.AreEqual(3.0, fixture.DestinationBalance, 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T01")]
+	[TestCategory("L-T07")]
+	[TestCategory("L-T09")]
+	public void LandGathering_RequiresExplicitMethodAndActiveProfileWhileRepeatedPreviewIsPure()
+	{
+		using GatheringFixture unconfigured = new(MagicGatheringMethodKind.Land, configureMethods: false);
+		Assert.IsFalse(unconfigured.Service.Begin(unconfigured.Actor.Object, unconfigured.Capability.Object,
+			"draw", 1.0).Success);
+		Assert.AreEqual(0, unconfigured.Store.Count);
+		using GatheringFixture active = new(MagicGatheringMethodKind.Land);
+		active.SetSourceBalance(10.0);
+		double stock = active.Cell.GetForagableYield("herbs");
+		for (int i = 0; i < 10; i++)
+		{
+			Assert.IsTrue(active.Service.Preview(active.Actor.Object, active.Capability.Object,
+				"draw", 1.0).Success);
+			Assert.AreEqual(1, active.Service.Methods(active.Actor.Object, active.Capability.Object).Count);
+		}
+		Assert.AreEqual(10.0, active.SourceBalance, 0.000001);
+		Assert.AreEqual(stock, active.Cell.GetForagableYield("herbs"), 0.000001);
+		Assert.AreEqual(0, active.Store.Count);
+		Assert.AreEqual(0.0, active.World.Coordinator.InspectState(active.Cell).State.ScarDamage, 0.000001);
+		active.World.Coordinator.SetBinding(active.Cell, EnvironmentalMagicBindingMode.Disabled, null);
+		Assert.IsFalse(active.Service.Begin(active.Actor.Object, active.Capability.Object,
+			"draw", 1.0).Success);
+		Assert.AreEqual(0, active.Store.Count);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T12")]
+	public void LandGathering_ForgedEarlyAndInterruptedTokensCannotPay()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(10.0);
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 2.0);
+		Assert.IsTrue(started.Success, started.Message);
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, Guid.NewGuid()).Success);
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		fixture.MoveActorAway();
+		fixture.World.Heartbeat.ManuallyFireHeartbeat5Second();
+		fixture.Advance(Duration);
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, started.OperationId.Value).Success);
+		Assert.AreEqual(10.0, fixture.SourceBalance, 0.000001);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T38")]
+	public void LandGathering_ExistingEcologicalUnknownBlocksYieldOnlyBeforePayment()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		fixture.World.Operations.FailAfterClaim = true;
+		EnvironmentalMagicOperationResult unknown = fixture.World.Coordinator.ApplyOperation(fixture.Cell,
+			new EnvironmentalMagicOperationRequest(Guid.NewGuid(), fixture.Actor.Object.Id,
+				"prior unknown", Damage: 1.0));
+		Assert.IsFalse(unknown.Success);
+		fixture.World.Operations.FailAfterClaim = false;
+		double stock = fixture.Cell.GetForagableYield("herbs");
+		Assert.IsFalse(fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 1.0).Success);
+		Assert.AreEqual(stock, fixture.Cell.GetForagableYield("herbs"), 0.000001);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(0, fixture.Store.Count);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T27")]
+	public void LandGathering_FailedCallbackLeavesConfirmedAccountingAndNeverReplays()
+	{
+		const long progId = 9902;
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land, onGatheredProgId: progId);
+		fixture.SetSourceBalance(10.0);
+		Mock<IFutureProg> callback = new();
+		callback.SetupGet(x => x.Id).Returns(progId);
+		callback.Setup(x => x.ExecuteWithStatus(out It.Ref<object>.IsAny, It.IsAny<object[]>())).Returns(false);
+		fixture.World.Progs.Add(callback.Object);
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 2.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		Assert.AreEqual(2.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual("NeedsReview", fixture.Store.Operation(started.OperationId.Value)?.Status);
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, started.OperationId.Value).Success);
+		Assert.IsTrue(fixture.Service.Acknowledge(started.OperationId.Value).Success);
+		callback.Verify(x => x.ExecuteWithStatus(out It.Ref<object>.IsAny, It.IsAny<object[]>()), Times.Once);
+		Assert.AreEqual(2.0, fixture.Service.LandDetails(started.OperationId.Value)!["credited"], 0.000001);
+	}
+
+	[DataTestMethod]
+	[DataRow(1)]
+	[DataRow(2)]
+	[DataRow(3)]
+	[DataRow(4)]
+	[DataRow(5)]
+	[TestCategory("L-T22")]
+	public void LandGathering_ReceiptAcknowledgementFailureAtEveryStageCannotReplay(int recordStage)
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(1.0);
+		fixture.SetLandSources(
+			new MagicLandSourceDefinition(Guid.NewGuid(), "ambient:1", 1.0),
+			new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		fixture.Store.FailRecordNumber = recordStage;
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 2.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		MagicGatheringResult completed = fixture.Service.Complete(fixture.Actor.Object,
+			started.OperationId!.Value);
+		Assert.AreEqual(recordStage == 5, completed.Success);
+		MagicGatheringReceipt receipt = fixture.Store.Operation(started.OperationId.Value)!;
+		Assert.AreEqual("NeedsReview", receipt.Status);
+		Assert.AreEqual(recordStage == 5 ? 2.0 : 0.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(recordStage >= 3 ? 1 : 0, fixture.World.Operations.Receipts.Count);
+		Assert.IsTrue(fixture.SourceCheckpointCalls >= 1,
+			"Paid source owners must reach their explicit checkpoint even if a stage acknowledgement fails.");
+		Assert.IsFalse(fixture.Service.Complete(fixture.Actor.Object, started.OperationId.Value).Success);
+		Assert.IsFalse(fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 1.0).Success);
+		Assert.AreEqual(recordStage == 5 ? 2.0 : 0.0, fixture.DestinationBalance, 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T30")]
+	public void LandGathering_ThirtyThousandCellsNeverEnumeratesRegistriesForAction()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land, cells: 30000,
+			activePercent: 0.0);
+		fixture.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		fixture.World.Cells.ForbidEnumeration = true;
+		fixture.World.Fields.ForbidEnumeration = true;
+		var elapsed = Stopwatch.StartNew();
+		for (int i = 0; i < 5; i++)
+		{
+			Assert.IsTrue(fixture.Service.Preview(fixture.Actor.Object, fixture.Capability.Object,
+				"draw", 1.0).Success);
+		}
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		MagicGatheringResult cancelled = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 1.0);
+		Assert.IsTrue(cancelled.Success, cancelled.Message);
+		Assert.IsTrue(fixture.Service.Cancel(fixture.Actor.Object).Success);
+		elapsed.Stop();
+		Assert.AreEqual(1.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(0, fixture.World.HeartbeatPumps);
+		Assert.IsTrue(elapsed.Elapsed < TimeSpan.FromSeconds(5),
+			$"Local 30,000-cell gathering operations took {elapsed.Elapsed.TotalMilliseconds:N0} ms.");
+	}
+
+	[TestMethod]
+	[TestCategory("L-T35")]
+	public void LandGathering_ProfileProtectionSeesActorAndCanonicalOwnerButRawInspectionDoesNotInvokeIt()
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		Mock<ICharacterInstance> owner = new();
+		owner.SetupGet(x => x.Id).Returns(99L);
+		Mock<ICharacterIdentity> identity = new();
+		identity.SetupGet(x => x.PrimaryInstance).Returns(owner.Object);
+		fixture.Actor.SetupGet(x => x.Identity).Returns(identity.Object);
+		Mock<IFutureProg> protection = new();
+		protection.SetupGet(x => x.Id).Returns(9903L);
+		protection.SetupGet(x => x.Name).Returns("Deny Land");
+		protection.SetupGet(x => x.FunctionName).Returns("deny_land");
+		protection.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Boolean);
+		protection.SetupGet(x => x.Parameters).Returns(new[]
+		{
+			ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.MagicCapability,
+			ProgVariableTypes.Text, ProgVariableTypes.Number, ProgVariableTypes.Location
+		});
+		object[]? received = null;
+		protection.Setup(x => x.ExecuteWithStatus(out It.Ref<object>.IsAny, It.IsAny<object[]>()))
+			.Returns((out object result, object[] arguments) =>
+			{
+				received = arguments;
+				result = false;
+				return true;
+			});
+		fixture.World.Progs.Add(protection.Object);
+		fixture.World.Edit("organic protection 9903");
+		Assert.IsTrue(fixture.World.Coordinator.InspectOrganicSource(fixture.Cell, "forage:herbs").IsEligible);
+		Assert.IsNull(received);
+		Assert.IsFalse(fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object,
+			"draw", 1.0).Success);
+		Assert.IsNotNull(received);
+		Assert.AreSame(fixture.Actor.Object, received[0]);
+		Assert.AreSame(owner.Object, received[1]);
+		Assert.AreEqual(0, fixture.Store.Count);
+		Assert.AreEqual(0.0, fixture.DestinationBalance, 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T39")]
+	public void LandGathering_ReentrantBodyCostCannotCommitAnotherSameCellSource()
+	{
+		using GatheringFixture first = new(MagicGatheringMethodKind.Land, damage: 1.0,
+			maximumSeverity: WoundSeverity.Moderate);
+		using GatheringFixture second = new(first, MagicGatheringMethodKind.Land);
+		first.SetSourceBalance(10.0);
+		second.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
+		double woundDamage = 0.0;
+		Mock<IWound> wound = new();
+		wound.SetupGet(x => x.CurrentDamage).Returns(() => woundDamage);
+		wound.SetupGet(x => x.CurrentPain).Returns(0.0);
+		wound.SetupGet(x => x.CurrentStun).Returns(0.0);
+		DirectHealthCostPlan? plan = new(first.Bodypart, null, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+		string? planError = null;
+		first.Health.Setup(x => x.TryPlanDirectHealthCost(first.Actor.Object, first.Bodypart,
+			1.0, 0.0, 0.0, WoundSeverity.Moderate, out plan, out planError)).Returns(true);
+		MagicGatheringResult firstStart = first.Service.Begin(first.Actor.Object,
+			first.Capability.Object, "draw", 1.0);
+		MagicGatheringResult secondStart = second.Service.Begin(second.Actor.Object,
+			second.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(firstStart.Success, firstStart.Message);
+		Assert.IsTrue(secondStart.Success, secondStart.Message);
+		first.Advance(Duration);
+		MagicGatheringResult? reentrant = null;
+		first.Health.Setup(x => x.ApplyDirectHealthCost(first.Actor.Object, plan!)).Returns(() =>
+		{
+			reentrant = second.Service.Complete(second.Actor.Object, secondStart.OperationId!.Value);
+			woundDamage = 1.0;
+			return (IReadOnlyList<IWound>)[wound.Object];
+		});
+		Assert.IsTrue(first.Service.Complete(first.Actor.Object, firstStart.OperationId!.Value).Success);
+		Assert.IsNotNull(reentrant);
+		Assert.IsFalse(reentrant.Success);
+		Assert.AreEqual(0.0, second.DestinationBalance, 0.000001);
+		Assert.AreEqual(1.0, first.DestinationBalance, 0.000001);
+		Assert.AreEqual(1, first.PersistedWounds.Count);
+		Assert.IsTrue(second.Service.Complete(second.Actor.Object, secondStart.OperationId!.Value).Success);
+		Assert.AreEqual(1.0, second.DestinationBalance, 0.000001);
+	}
+
 	[TestMethod]
 	public void SelfGathering_CompletionPaysStaminaAndCreditsOnceWithoutEnvironmentalMutation()
 	{
@@ -992,11 +1745,14 @@ public class MagicGatheringServiceTests
 		public List<string> Output { get; } = [];
 		public double Stamina { get; private set; } = 10.0;
 		public bool PersistSucceeds { get; set; } = true;
+		public int SourceCheckpointCalls { get; private set; }
 		public bool PersistWoundsSucceeds { get; set; } = true;
 		public bool AcceptDestinationCredit { get; set; } = true;
 		public double DestinationBalance => _resources.GetValueOrDefault(Destination);
 		public double SourceBalance => World.Balance(0, Source.Id);
 		public MagicGatheringMethodDefinition Method => _method;
+		public void SetLandSources(params MagicLandSourceDefinition[] sources) =>
+			_method = _method with { LandSources = sources, LandDamagePerDestinationUnit = 1.0 };
 		public Mock<IHealthStrategy> Health => _health;
 		public Mock<IBody> Body => _body;
 		public IBodypart Bodypart => _bodypart.Object;
@@ -1006,10 +1762,19 @@ public class MagicGatheringServiceTests
 		public GatheringFixture(MagicGatheringMethodKind kind, double ratio = 1.0, double stamina = 0.0,
 			double damage = 0.0, double pain = 0.0, double stun = 0.0, WoundSeverity maximumSeverity = WoundSeverity.None,
 			int cells = 1, bool startCoordinator = true, string schoolVerb = "arcane", bool configureMethods = true,
-			long onGatheredProgId = 0)
+			long onGatheredProgId = 0, bool twoForage = false, double activePercent = 100.0)
 		{
 			_ownsWorld = true;
-			World = new EnvironmentalMagicTestWorld(cells, 2, start: startCoordinator, clock: new EnvironmentalMagicTestClock());
+			World = new EnvironmentalMagicTestWorld(cells, kind == MagicGatheringMethodKind.Land ? 1 : 2,
+				activePercent: activePercent,
+				policy: kind == MagicGatheringMethodKind.Land
+				? twoForage ? "native-yield-two" : "native-yield" : "constant", start: startCoordinator,
+				clock: new EnvironmentalMagicTestClock());
+			if (kind == MagicGatheringMethodKind.Land)
+			{
+				World.Edit("organic source add forage herbs");
+				if (twoForage) World.Edit("organic source add forage berries");
+			}
 			Cell = (Cell)World.Cells.At(0);
 			_location = Cell;
 			Source = World.Resources.Get(1)!;
@@ -1027,7 +1792,11 @@ public class MagicGatheringServiceTests
 				{
 					PersistedWounds.AddRange(wounds);
 					return PersistWoundsSucceeds;
-				});
+			}, (_, _, _) =>
+			{
+				SourceCheckpointCalls++;
+				return PersistSucceeds;
+			});
 			World.World.SetupGet(x => x.MagicGathering).Returns(Service);
 
 			Mock<IMagicSchool> school = new();
@@ -1036,8 +1805,15 @@ public class MagicGatheringServiceTests
 			school.SetupGet(x => x.SchoolVerb).Returns(schoolVerb);
 			_method = new MagicGatheringMethodDefinition(Guid.NewGuid(), "draw", "Test Draw", kind, Destination.Id,
 				kind == MagicGatheringMethodKind.Gentle ? Source.Id : null, 1.0, 20.0, Duration.TotalSeconds,
-				ratio, stamina, 0.0, damage, pain, stun, maximumSeverity, OnGatheredProgId: onGatheredProgId);
+				ratio, stamina, 0.0, damage, pain, stun, maximumSeverity, OnGatheredProgId: onGatheredProgId)
+			{
+				LandDamagePerDestinationUnit = kind == MagicGatheringMethodKind.Land ? 1.0 : 0.0,
+				LandSources = kind == MagicGatheringMethodKind.Land
+					? [new MagicLandSourceDefinition(Guid.NewGuid(), $"ambient:{Source.Id}", 1.0)] : []
+			};
 			Capability.SetupGet(x => x.Id).Returns(22L);
+			Capability.SetupGet(x => x.Type).Returns(ProgVariableTypes.MagicCapability);
+			Capability.SetupGet(x => x.GetObject).Returns(() => Capability.Object);
 			Capability.SetupGet(x => x.Name).Returns("Test Capability");
 			Capability.SetupGet(x => x.School).Returns(school.Object);
 			Capability.SetupGet(x => x.GatheringMethods).Returns(() => configureMethods ? [Method] : []);
@@ -1146,6 +1922,8 @@ public class MagicGatheringServiceTests
 			_method = new MagicGatheringMethodDefinition(Guid.NewGuid(), "draw", "Second Draw", kind, Destination.Id,
 				kind == MagicGatheringMethodKind.Gentle ? Source.Id : null, 1.0, 20.0, Duration.TotalSeconds);
 			Capability.SetupGet(x => x.Id).Returns(23L);
+			Capability.SetupGet(x => x.Type).Returns(ProgVariableTypes.MagicCapability);
+			Capability.SetupGet(x => x.GetObject).Returns(() => Capability.Object);
 			Capability.SetupGet(x => x.Name).Returns("Second Capability");
 			Capability.SetupGet(x => x.School).Returns(school.Object);
 			Capability.SetupGet(x => x.GatheringMethods).Returns(() => [Method]);
@@ -1154,6 +1932,8 @@ public class MagicGatheringServiceTests
 			Actor.SetupGet(x => x.Id).Returns(12L);
 			Actor.SetupGet(x => x.Name).Returns("Second Gatherer");
 			Actor.SetupGet(x => x.FrameworkItemType).Returns("Character");
+			Actor.SetupGet(x => x.Type).Returns(ProgVariableTypes.Character);
+			Actor.SetupGet(x => x.GetObject).Returns(() => Actor.Object);
 			Actor.SetupGet(x => x.Gameworld).Returns(World.World.Object);
 			Actor.SetupGet(x => x.Identity).Returns((ICharacterIdentity)null!);
 			Actor.SetupGet(x => x.Body).Returns(_body.Object);
@@ -1163,6 +1943,7 @@ public class MagicGatheringServiceTests
 			Actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
 			Actor.SetupGet(x => x.Combat).Returns((ICombat)null!);
 			Actor.SetupGet(x => x.Movement).Returns((IMovement)null!);
+			Actor.SetupGet(x => x.Effects).Returns(() => _actorEffects);
 			Actor.SetupGet(x => x.Capabilities).Returns(() => [Capability.Object]);
 			Actor.SetupGet(x => x.MagicResources).Returns(() => _resources.Keys);
 			Actor.SetupGet(x => x.MagicResourceAmounts).Returns(() => _resources);
@@ -1186,9 +1967,11 @@ public class MagicGatheringServiceTests
 			output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.Callback<string, bool, bool>((text, _, _) => Output.Add(text)).Returns(true);
 			Actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
-			Actor.Setup(x => x.AddEffect(It.IsAny<MagicGatheringTimedAction>(), It.IsAny<TimeSpan>()));
+			Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
+				.Callback<IEffect, TimeSpan>((effect, _) => _actorEffects.Add(effect));
 			Actor.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>())).Callback<IEffect, bool>((effect, fire) =>
 			{
+				_actorEffects.Remove(effect);
 				if (fire)
 				{
 					effect.RemovalEffect();
@@ -1256,9 +2039,18 @@ public class MagicGatheringServiceTests
 	internal sealed class MagicGatheringReceiptMemoryStore : IMagicGatheringReceiptStore
 	{
 		private readonly Dictionary<Guid, MagicGatheringReceipt> _operations = [];
+		private int _recordCount;
+		public int? FailRecordNumber { get; set; }
 		public int Count => _operations.Count;
 		public bool TryCreate(MagicGatheringReceipt receipt) => _operations.TryAdd(receipt.Id, receipt);
-		public void Record(MagicGatheringReceipt receipt) => _operations[receipt.Id] = receipt;
+		public void Record(MagicGatheringReceipt receipt)
+		{
+			if (++_recordCount == FailRecordNumber)
+			{
+				throw new InvalidOperationException("Injected one-shot receipt acknowledgement loss.");
+			}
+			_operations[receipt.Id] = receipt;
+		}
 		public MagicGatheringReceipt? Operation(Guid id) => _operations.GetValueOrDefault(id);
 		public IReadOnlyList<MagicGatheringReceipt> Unresolved(long? ownerId = null) => _operations.Values
 			.Where(x => (!ownerId.HasValue || x.OwnerId == ownerId.Value) && x.Status is "Committing" or "Invoking" or "NeedsReview")
@@ -1267,6 +2059,9 @@ public class MagicGatheringServiceTests
 		public bool HasUnresolved(long ownerId) => Unresolved(ownerId).Count > 0;
 		public bool HasUnresolvedForSource(long cellId, long sourceResourceId) => _operations.Values.Any(x =>
 			x.CellId == cellId && x.SourceResourceId == sourceResourceId &&
+			(x.Status is "Committing" or "Invoking" or "NeedsReview"));
+		public bool HasUnresolvedForParticipant(long cellId, string sourceKey) => _operations.Values.Any(x =>
+			x.CellId == cellId && x.ParticipantKeys.Contains(sourceKey) &&
 			(x.Status is "Committing" or "Invoking" or "NeedsReview"));
 	}
 }

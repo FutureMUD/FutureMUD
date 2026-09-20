@@ -128,9 +128,9 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 			}, World.Object));
 		}
 		var definition = ProfileDefinition(outputs);
-		if (policy == "native-yield")
+		if (policy is "native-yield" or "native-yield-two")
 		{
-			CreateForageProfile(1, 100.0, 10.0);
+			CreateForageProfile(1, 100.0, 10.0, policy == "native-yield-two");
 			definition.Element("Inputs")!.Add(Input("native", "Forage", "herbs"));
 			foreach (var output in definition.Element("Outputs")!.Elements()) output.SetElementValue("Maximum", "native");
 		}
@@ -141,7 +141,7 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 			foreach (var output in definition.Element("Outputs")!.Elements()) output.SetElementValue("Maximum", "policy");
 		}
 		Profile = AddProfile(1, definition);
-		Terrain = AddTerrain(1, Profile.Id, policy == "native-yield" ? 1 : 0);
+		Terrain = AddTerrain(1, Profile.Id, policy is "native-yield" or "native-yield-two" ? 1 : 0);
 		Coordinator = new EnvironmentalMagicCoordinator(World.Object, Clock, options ?? new EnvironmentalMagicOptions
 		{
 			SoftBudgetMilliseconds = 1000.0
@@ -227,7 +227,7 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 		return prog;
 	}
 
-	public ForagableProfile CreateForageProfile(long id, double maximum, double recovery)
+	public ForagableProfile CreateForageProfile(long id, double maximum, double recovery, bool includeBerries = false)
 	{
 		var model = new Db.ForagableProfile
 		{
@@ -236,6 +236,11 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 		};
 		model.ForagableProfilesMaximumYields.Add(new Db.ForagableProfilesMaximumYields { ForageType = "herbs", Yield = maximum });
 		model.ForagableProfilesHourlyYieldGains.Add(new Db.ForagableProfilesHourlyYieldGains { ForageType = "herbs", Yield = recovery });
+		if (includeBerries)
+		{
+			model.ForagableProfilesMaximumYields.Add(new Db.ForagableProfilesMaximumYields { ForageType = "berries", Yield = maximum });
+			model.ForagableProfilesHourlyYieldGains.Add(new Db.ForagableProfilesHourlyYieldGains { ForageType = "berries", Yield = recovery });
+		}
 		var profile = new ForagableProfile(model, World.Object);
 		ForageProfiles.Add(profile);
 		return profile;

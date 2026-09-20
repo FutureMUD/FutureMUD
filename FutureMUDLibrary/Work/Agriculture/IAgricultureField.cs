@@ -25,6 +25,9 @@ public interface IAgricultureField : IFrameworkItem, ISaveable, IHaveFuturemud, 
 	int WoodlandGrowthDays { get; }
 	int WoodlandHealth { get; }
 	int WoodlandYieldPotential { get; }
+	/// <summary>Applies a previously quoted explicit Land health cost to the same living vegetation lifecycle.</summary>
+	bool TryApplyLandHealthCost(NativeOrganicSourceKind kind, NativeOrganicLifecycleIdentity lifecycle,
+		int healthLoss, out int appliedLoss, out decimal discardedPrepaid, out string reason);
 	IAgricultureFieldApiary Apiary { get; }
 	bool HasActiveApiary { get; }
 	bool IsApiaryHappy { get; }

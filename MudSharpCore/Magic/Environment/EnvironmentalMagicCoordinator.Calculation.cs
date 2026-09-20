@@ -23,7 +23,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 
 	public EnvironmentalMagicSnapshot Inspect(ICell cell) => Inspect(cell, UtcNow);
 
-	private EnvironmentalMagicSnapshot Inspect(ICell cell, DateTimeOffset utcNow)
+	private EnvironmentalMagicSnapshot Inspect(ICell cell, DateTimeOffset utcNow, long? onlyResourceId = null)
 	{
 		if (cell is not Cell concrete || cell.Id <= 0 || !ReferenceEquals(cell.Gameworld, _world))
 			return new(cell.Id, EnvironmentalMagicBindingMode.Disabled, null, null, EnvironmentalMagicState.Empty,
@@ -62,9 +62,11 @@ public sealed partial class EnvironmentalMagicCoordinator
 			};
 			IAgricultureField? field = null;
 			var fieldRead = false;
+			var requiredInputs = onlyResourceId.HasValue
+				? profile.RequiredOutputInputNames(onlyResourceId.Value) : profile.RequiredInputNames;
 			foreach (var input in profile.Inputs)
 			{
-				if (!profile.RequiredInputNames.Contains(input.Name)) continue;
+				if (!requiredInputs.Contains(input.Name)) continue;
 				double value;
 				switch (input.Kind)
 				{
@@ -102,6 +104,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			var errors = new List<string>();
 			foreach (var output in profile.Outputs)
 			{
+				if (onlyResourceId.HasValue && output.ResourceId != onlyResourceId.Value) continue;
 				var balance = output.Resource is null ? 0.0 : cell.MagicResourceAmounts.GetValueOrDefault(output.Resource);
 				var calculation = profile.EvaluateOutput(output, immutable, balance);
 				outputs.Add(new(output.ResourceId, output.Resource?.Name ?? $"Missing #{output.ResourceId}", balance,
@@ -153,6 +156,21 @@ public sealed partial class EnvironmentalMagicCoordinator
 		result = snapshot.Outputs.FirstOrDefault(x => x.ResourceId == resource.Id) ??
 			new EnvironmentalResourceSnapshot(resource.Id, resource.Name, cell.MagicResourceAmounts.GetValueOrDefault(resource),
 				false, double.NaN, double.NaN, string.Join("; ", snapshot.Errors));
+		return true;
+	}
+
+	public bool TryInspectLandResource(ICell cell, IMagicResource resource,
+		out EnvironmentalResourceSnapshot result)
+	{
+		result = null!;
+		if (cell is not Cell concrete || EffectiveProfileId(concrete) is not { } id) return false;
+		var profile = Profile(id);
+		if (profile is null || !profile.Outputs.Any(x => x.ResourceId == resource.Id)) return false;
+		var snapshot = Inspect(cell, UtcNow, resource.Id);
+		result = snapshot.Outputs.FirstOrDefault(x => x.ResourceId == resource.Id) ??
+			new EnvironmentalResourceSnapshot(resource.Id, resource.Name,
+				cell.MagicResourceAmounts.GetValueOrDefault(resource), false, double.NaN, double.NaN,
+				string.Join("; ", snapshot.Errors));
 		return true;
 	}
 

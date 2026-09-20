@@ -36,7 +36,8 @@ internal sealed class MagicGatheringFunction : BuiltInFunction
 		new("beginmagicgather", T, [C, K, T, N], "Begins the normal timed gathering action and returns its engine-issued token, or empty text on refusal. The actor must possess the exact configured capability."),
 		new("completemagicgather", B, [C, T], "Attempts controlled completion for an engine-issued live token. It rechecks elapsed time, body, location, policy, full price and exact source debit; forged or early tokens return false."),
 		new("cancelmagicgather", B, [C, T], "Cancels only the caller identity's live precommit token. It never refunds or replays a committed operation."),
-		new("magicgatherstatus", T, [C, T], "Returns the caller identity's durable gathering receipt status, or empty text for another owner or an unknown token.")
+		new("magicgatherstatus", T, [C, T], "Returns the caller identity's durable gathering receipt status, or empty text for another owner or an unknown token."),
+		new("magicgatherdetails", ProgVariableTypes.Dictionary | N, [C, T], "Returns the caller identity's read-only Land gathering units, native debit, ecological and credit details, or an empty number dictionary for an unrelated or unknown token.")
 	];
 
 	public static void RegisterFunctionCompiler()
@@ -61,7 +62,7 @@ internal sealed class MagicGatheringFunction : BuiltInFunction
 		{
 			IMagicGatheringService service = _gameworld.MagicGathering ?? throw new InvalidOperationException("The gathering service is unavailable.");
 			ICharacter actor = Required<ICharacter>(0);
-			if (_contract.Name is "completemagicgather" or "cancelmagicgather" or "magicgatherstatus")
+			if (_contract.Name is "completemagicgather" or "cancelmagicgather" or "magicgatherstatus" or "magicgatherdetails")
 			{
 				if (!Guid.TryParse(Text(1), out Guid token))
 				{
@@ -75,6 +76,14 @@ internal sealed class MagicGatheringFunction : BuiltInFunction
 						break;
 					case "cancelmagicgather":
 						Result = new BooleanVariable(service.Cancel(actor, token).Success);
+						break;
+					case "magicgatherdetails":
+						MagicGatheringOperationSummary? detailOwner = service.Operation(token);
+						IReadOnlyDictionary<string, double>? details =
+							detailOwner?.OwnerId == MagicGatheringPolicy.Owner(actor).Id
+								? service.LandDetails(token) : null;
+						Result = new DictionaryVariable((details ?? new Dictionary<string, double>())
+							.ToDictionary(x => x.Key, x => (IProgVariable)new NumberVariable(x.Value)), N);
 						break;
 					default:
 						MagicGatheringOperationSummary? operation = service.Operation(token);

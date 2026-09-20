@@ -53,7 +53,8 @@ public class MagicFutureProgFunctionTests
 			         "beginmagicgather",
 			         "completemagicgather",
 			         "cancelmagicgather",
-			         "magicgatherstatus"
+			         "magicgatherstatus",
+			         "magicgatherdetails"
 		         })
 		{
 			Assert.IsTrue(names.Contains(expected), $"Missing FutureProg magic function {expected}.");
@@ -122,6 +123,68 @@ public class MagicFutureProgFunctionTests
 		Assert.AreEqual(1, fixture.ActorEffects.Count, "The real service must not schedule its gathering action past a blocker.");
 		Assert.AreEqual(0, fixture.ReceiptCount);
 		Assert.AreEqual(10.0, fixture.Stamina, 0.000001);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T26")]
+	public void CompiledBeginAndCompleteFutureProgs_FundRealLandGathering()
+	{
+		FutureProgTestBootstrap.EnsureInitialised();
+		using MagicGatheringServiceTests.GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(3.0);
+		var begin = new FutureProg(fixture.World.World.Object, "begin_land_test", ProgVariableTypes.Text,
+			[
+				Tuple.Create(ProgVariableTypes.Character, "actor"),
+				Tuple.Create(ProgVariableTypes.MagicCapability, "capability")
+			], "return beginmagicgather(@actor, @capability, \"draw\", 1)");
+		Assert.IsTrue(begin.Compile(), begin.CompileError);
+		Assert.IsTrue(begin.ExecuteWithStatus(out object tokenResult, fixture.Actor.Object,
+			fixture.Capability.Object));
+		Assert.IsTrue(Guid.TryParse(tokenResult?.ToString(), out Guid token));
+		fixture.Advance(TimeSpan.FromSeconds(2));
+		var complete = new FutureProg(fixture.World.World.Object, "complete_land_test",
+			ProgVariableTypes.Boolean,
+			[
+				Tuple.Create(ProgVariableTypes.Character, "actor"),
+				Tuple.Create(ProgVariableTypes.Text, "token")
+			], "return completemagicgather(@actor, @token)");
+		Assert.IsTrue(complete.Compile(), complete.CompileError);
+		Assert.IsTrue(complete.ExecuteWithStatus(out object completed, fixture.Actor.Object,
+			token.ToString()));
+		Assert.AreEqual(true, completed);
+		Assert.AreEqual(1.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual("Completed", fixture.Store.Operation(token)?.Status);
+	}
+
+	[TestMethod]
+	[TestCategory("L-T27")]
+	[TestCategory("L-T40")]
+	public void MagicGatherDetails_ReturnsPaidLandAccountingOnlyToItsOwner()
+	{
+		using MagicGatheringServiceTests.GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		fixture.SetSourceBalance(3.0);
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object,
+			fixture.Capability.Object, "draw", 1.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(TimeSpan.FromSeconds(2));
+		Assert.IsTrue(fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value).Success);
+		string token = started.OperationId.Value.ToString();
+		IFunction ownerQuery = Compile("magicgatherdetails", fixture.World.World.Object,
+			Constant(fixture.Actor.Object, ProgVariableTypes.Character),
+			Constant(token, ProgVariableTypes.Text));
+		Assert.AreEqual(StatementResult.Normal, ownerQuery.Execute(Mock.Of<IVariableSpace>()));
+		var ownerDetails = (Dictionary<string, IProgVariable>)ownerQuery.Result.GetObject;
+		Assert.AreEqual(1m, ownerDetails["credited"].GetObject);
+		Assert.AreEqual(1m, ownerDetails["paid:ambient:1"].GetObject);
+		Mock<ICharacter> stranger = new();
+		stranger.SetupGet(x => x.Id).Returns(987L);
+		IFunction strangerQuery = Compile("magicgatherdetails", fixture.World.World.Object,
+			Constant(stranger.Object, ProgVariableTypes.Character),
+			Constant(token, ProgVariableTypes.Text));
+		Assert.AreEqual(StatementResult.Normal, strangerQuery.Execute(Mock.Of<IVariableSpace>()));
+		Assert.AreEqual(0, ((Dictionary<string, IProgVariable>)strangerQuery.Result.GetObject).Count);
+		Assert.AreEqual(1.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual(1, fixture.Store.Count);
 	}
 
 	[TestMethod]

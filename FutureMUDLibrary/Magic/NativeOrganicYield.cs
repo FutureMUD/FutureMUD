@@ -152,6 +152,9 @@ public sealed record NativeForageYieldSnapshot(
 	double Stock,
 	long SourceRevision);
 
+/// <summary>A bounded compare-and-apply group owned by one physical cell's forage pool.</summary>
+public sealed record NativeForageDebitRequest(NativeForageYieldSnapshot Expected, double Amount);
+
 public static class NativeOrganicSourceSelectors
 {
 	public const int MaximumForageKeyLength = 128;

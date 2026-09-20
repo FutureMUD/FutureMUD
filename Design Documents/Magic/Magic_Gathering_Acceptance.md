@@ -1,6 +1,6 @@
 # Capability-configured gathering acceptance map
 
-This map covers the 14 functional (`G-T`) and 12 environmental integration (`G-I`) rows for Self and Gentle gathering. A mapping describes checked-in coverage, not a claim that a fixture proves live database crash recovery or ordinary-player gameplay. The implementation report must state automated, disposable-database, and live-world evidence separately.
+This map covers the 14 functional (`G-T`) and 12 environmental integration (`G-I`) rows for Self and Gentle gathering, plus the 40 destructive Land (`L-T`) regressions and six native probes (`L-P`). A mapping describes checked-in coverage, not a claim that a fixture proves a network or power failure. The implementation report states automated and disposable-database evidence separately.
 
 ## Test boundaries
 
@@ -49,4 +49,53 @@ This map covers the 14 functional (`G-T`) and 12 environmental integration (`G-I
 | G-I11 | `Gathering.GentlePreview_RealCoordinatorIsPureBeforeDiscoveryAndDoesNotEnumerateWorld`; `Gathering.GatheringStartCompleteAndCancel_StayLocalWhenGlobalRegistriesRejectEnumeration`; `Environment.Coordinator.ThirtyThousandFullCells_UseOneHeartbeatAndOnlyBoundedIdleReconciliation` | Preview, start, completion and cancellation target one cell/live action without enumerating rooms/fields or adding heartbeat subscribers. |
 | G-I12 | `Gathering.GentleGathering_UsesRecordedStockFromFullDormantAndZeroRateSources`; `Environment.Coordinator.FullRoomIdleForAnHour_ThenDepleted_EarnsOnlyAfterItsDebit`; `Environment.Coordinator.UnboundCellsAndNonCellCaps_RetainOrdinaryLinearAndStateBehaviour`; `Gathering.LayerChange_InterruptsTheCapturedPhysicalGatheringLocation` | Full dormant and zero-rate valid sources spend recorded stock; a physical cell owns that pool and observer-layer changes cancel the actor action rather than create a separate room reserve. |
 
-The environmental source rows reuse the delivered coordinator's suite because gathering deliberately does not modify its profile, heartbeat, production, natural-repair, pressure or operation code. A disposable database upgrade/fresh import and ordinary non-admin live-world walkthrough remain distinct evidence.
+The environmental source rows reuse the delivered coordinator's suite because Self and Gentle do not modify its profile, heartbeat, production, natural-repair, pressure or operation code. A disposable database upgrade/fresh import and ordinary non-admin live-world walkthrough remain distinct evidence.
+
+## Destructive Land rows
+
+`Land` below means `MagicGatheringServiceTests`; `Native` means `GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1 -LandOnly`, which uses an owned disposable MySQL 8.0 instance, production cell/field/coordinator/gathering and separate EF readers. `Organic` means the existing coordinator and agriculture native-organic test suites. Unit tests use controlled world catalogues, clock and selected receipt/save boundaries. A source-name mapping is only the stated assertion boundary.
+
+| ID | Executed boundary and assertion |
+| --- | --- |
+| L-T01 | `Land.RequiresExplicitMethodAndActiveProfile`: absent method and disabled profile refuse with no receipt; existing Self/Gentle regressions still pass. |
+| L-T02 | `VancianCapabilityTests` Land load/save/clone test: third kind persists with distinct keys; unknown kind refuses without Self fallback. |
+| L-T03 | `Land.AmbientOnlyPaysExactDebit`; `Land.ZeroAmbientYieldOnly`: exact credit with an ambient source or a zero-rate, zero-balance ambient profile and native forage alone. |
+| L-T04 | `Land.ThirtyCreditExample`: ten ambient and five forage logical units yield exactly thirty personal units. |
+| L-T05 | `Land.MandatoryCollateralReservesItsStock`: collateral consumes its full allocation and grants no extra credit. |
+| L-T06 | `Land.CanonicalAmbientAliasesConsolidateAndConflictingRatesRefuse`: `ambient:01` and `ambient:1` share one physical allocation; differing ratios refuse; collateral is reserved before ordered funding. |
+| L-T07 | `Land.OptionalAbsentSourceRequiresValidAuthorisation`: approved absent crop can be skipped; required crop, unapproved forage and invalid ambient reference refuse. Disabled profile is covered by L-T01. |
+| L-T08 | `Land.ShortageAndChangedPlanRefuse`: full-plan shortage leaves source, credit and scar unchanged. |
+| L-T09 | `Land.RequiresExplicitMethodAndActiveProfile`: ten previews and method listings do not change balance, forage, scar or receipts. |
+| L-T10 | `Native L-P04`: an action begun against generation one refuses after real harvest/replant of the same crop definition at generation two, without a second credit. |
+| L-T11 | `Land.ShortageAndChangedPlanRefuse` and `CapturedMixDoesNotShift`: a changed scar price cancels; harmless earlier ambient growth retains the chosen mix. |
+| L-T12 | `Land.ForgedEarlyAndInterruptedTokens` plus the existing common action-gate tests: early, forged, moved, blocked or interrupted actions cannot pay. |
+| L-T13 | `Land.ExternalForageConsumerMakesCapturedPlanUnaffordable`; `Native L-P04`: ordinary forage/craft consumption makes stale plans refuse before credit. |
+| L-T14 | `Native L-P01`, `L-P04`, and `Land.MixedSources`: native whole/prepaid debit and personal credit are observed independently; no second fraction is minted on later use. |
+| L-T15 | `Native L-T15`: zero crop stock with 0.875 prepaid fraction pays 0.125 logical unit, leaves whole stock at zero, reduces prepaid to 0.750, and credits once. |
+| L-T16 | `Native L-T16`: the ambient maximum bound to crop health falls 49 to 48 after 0.50 paid collateral; effective balance caps at 48 and personal credit remains exactly one. |
+| L-T17 | `Land.PriorOnlineProductionAndNaturalRepairAreNotCountedAsPayment`: a coordinator tick settles both before completion; receipt detail contains only one ambient debit and one personal credit, while scar rises by only the new Land damage. |
+| L-T18 | `Land.AmbientOnlyPaysExactDebit`, `ShortageAndChangedPlanRefuse`, and `FailedSourceCheckpoint`: one completed child, none before commitment, and an actual child retained in an unresolved partial receipt. |
+| L-T19 | `Land.ZeroAmbientYieldOnlyAndInvalidScarBoundaries`: a zero scar price refuses, while ambient-only Land creates a positive scar. |
+| L-T20 | `Native L-P04`: one configured native crop-health unit persists separately from a 0.125 logical yield payment; `Native L-T15` then observes the crop still living at zero whole stock. Harvest and replant reset the old lifecycle. |
+| L-T21 | `Native L-P03` and `Land.ReceiptAcknowledgementFailureAtEveryStage`: repeat completion refuses; linked child identity is stable. The existing environmental operation regressions cover exact-child confirmation. |
+| L-T22 | `Land.ReceiptAcknowledgementFailureAtEveryStage` injects five stage failures; `Native L-P06` rejects a field save. No failed stage grants a confirmed free personal credit or replays. |
+| L-T23 | `Land.UnresolvedReceiptBlocksItsSource`, `SharedCellEcologySerialisesDisjointSourceCommit`, and `Native L-P06`: unresolved source/owner quarantine, same-cell commit exclusion and staff acknowledgement do not replay payment. |
+| L-T24 | `MagicGatheringOperationModelTests` checks schema and legacy rows; `Native L-P03/P06` checks separate-reader receipt details and indexed participant lookup. |
+| L-T25 | `Native L-P02/P03`: no-callback new and existing wounds are saved before credit and reconstructed by a separate reader; the common unsupported-health strategy test refuses in planning. |
+| L-T26 | `Land.PlayerAndNpcCommandRoutes` and `MagicFutureProgFunctionTests.CompiledBeginAndCompleteFutureProgs_FundRealLandGathering`: both command trees and compiled script calls reach real funded Land actions. |
+| L-T27 | `MagicFutureProgFunctionTests.MagicGatherDetails_ReturnsPaidLandAccountingOnlyToItsOwner` and `Land.FailedCallbackLeavesConfirmedAccounting`: one owner-only detail result, no replay after callback failure. |
+| L-T28 | `CellLandScarDescriptionTests` verifies opt-in and current scar/pressure bands; `Land.CompletionEmotesUseTheLocalPerceptionOutputPath` verifies an observer gets the source-suppressed emote through local routing. |
+| L-T29 | `Native L-P05`: real scar suppresses forage recovery; explicit repair restores the future factor without stock or personal refill. |
+| L-T30 | `Land.ThirtyThousandCellsNeverEnumeratesRegistriesForAction`: 30,000 cells, no registry iteration, no heartbeat pump, bounded local action time. Existing coordinator tests cover coalesced source events. |
+| L-T31 | `Land.TwoForageKeysInOneCell` and `ExternalForageConsumer`, plus `Native L-P01`: two keys complete as one group; a real competing mutation invalidates a stale quote. |
+| L-T32 | `Organic` dynamic/zero/pollination tests plus `Native L-P05`: invalid dynamic crop factor refuses preview and command without stock or credit change. |
+| L-T33 | `Land.CapturedMixDoesNotShiftWhenEarlierSourceGrows` preserves the chosen mix after ambient growth; `Native L-T33` grows crop stock 0 to 1 by ordinary daily tick during the wait, then pays only the captured 0.125 crop fraction with a fresh native plan. |
+| L-T34 | `Land.TwoForageKeysInOneCell`: a named forage input used by the penalty changes after the first debit, yet both sources are prevalidated and applied as a group; external mutation is checked in L-T31. |
+| L-T35 | `Land.ProfileProtectionSeesActorAndCanonicalOwner`: protection sees the actor and canonical owner, denies before cost, and raw 3A inspection never calls it. |
+| L-T36 | `Land.PendingPastureIsNotEstablishedOrSpentByAQuote`: pending pasture refuses preview and start without debit or marker change; an assessed source is eligible. `Native C-P01` covers the real pending/assessed owner load and first establishment. |
+| L-T37 | `Native L-P06` rejects the direct field checkpoint, independently observes no committed crop debit, then verifies retry persists the already-applied stock and fraction. `Native L-T37` rejects a forage row update, verifies the specialised dirty flag and queue survive, then saves 96.25 to 95.25 on retry without another credit or ecological child. |
+| L-T38 | `Land.ExistingEcologicalUnknownBlocksYieldOnly`: an environmental pending child refuses before native or bodily payment. |
+| L-T39 | `Land.ReentrantBodyCostCannotCommitAnotherSameCellSource`: an attempted second completion inside native wound application is refused until the first room ecology commit finishes. |
+| L-T40 | `Land.AdminShowReportsPaidAccountingWithoutReplaying` and `MagicFutureProgFunctionTests.MagicGatherDetails_ReturnsPaidLandAccountingOnlyToItsOwner`: admin and owner displays expose paid/credited keys and do not mutate the receipt. |
+
+The `L-P01` to `L-P06` native results, database name, MySQL version, observed values, failure-injection boundary and cleanup are recorded in [Magic Gathering](Magic_Gathering.md#task-3b-native-verification-record). The harness prints one result line per probe and returns a nonzero exit code if any assertion or owned-resource cleanup fails.

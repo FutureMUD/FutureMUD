@@ -7,6 +7,7 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.Magic;
 using MudSharp.Magic.Capabilities;
+using MudSharp.Magic.Gathering;
 using MudSharp.Magic.Vancian;
 using MudSharp.RPG.Checks;
 
@@ -59,6 +60,15 @@ public class VancianCapabilityTests
 				new XAttribute("maximumHealthSeverity", "None"), new XAttribute("permission", 0), new XAttribute("durationProg", 0),
 				new XAttribute("staminaProg", 0), new XAttribute("damageProg", 0), new XAttribute("painProg", 0),
 				new XAttribute("stunProg", 0), new XAttribute("onGathered", 0), new XAttribute("structuralVersion", 1)));
+		var land = new XElement(gathering.Elements("Method").First());
+		land.SetAttributeValue("key", Guid.NewGuid());
+		land.SetAttributeValue("alias", "landdraw");
+		land.SetAttributeValue("name", "Land Draw");
+		land.SetAttributeValue("kind", "Land");
+		land.Add(new XElement("Land", new XAttribute("damage", 1.0),
+			new XElement("Source", new XAttribute("key", Guid.NewGuid()),
+				new XAttribute("selector", "ambient:1"), new XAttribute("ratio", 1.0))));
+		gathering.Add(land);
 		XElement root = XElement.Parse(model.Definition); root.Add(gathering); model.Definition = root.ToString();
 		var capability = (VancianMagicCapability)MagicCapabilityFactory.LoadCapability(model,f.World.Object);
 		Assert.IsTrue(MagicCapabilityFactory.BuilderLoaders.ContainsKey("vancian")); Assert.AreEqual(0,capability.ConfigurationErrors().Count);
@@ -69,9 +79,13 @@ public class VancianCapabilityTests
 		var clone = new VancianMagicCapability(capability.CloneModel("Other Wizard"),f.World.Object);
 		Assert.AreNotEqual(capability.Repertoires[0].Key,clone.Repertoires[0].Key); Assert.AreNotEqual(capability.Allowances[0].Key,clone.Allowances[0].Key);
 		Assert.AreEqual(clone.Repertoires[0].Key,clone.Allowances[0].RepertoireKeys.Single()); Assert.AreEqual(0,clone.ConfigurationErrors().Count);
-		Assert.AreEqual(2, clone.GatheringMethods.Count);
-		Assert.AreEqual(2, capability.GatheringMethods.Select(x => x.Key).Distinct().Count());
+		Assert.AreEqual(3, clone.GatheringMethods.Count);
+		Assert.AreEqual(3, capability.GatheringMethods.Select(x => x.Key).Distinct().Count());
 		Assert.IsFalse(capability.GatheringMethods.Select(x => x.Key).Intersect(clone.GatheringMethods.Select(x => x.Key)).Any());
+		Assert.AreEqual(MagicGatheringMethodKind.Land, restored.GatheringMethods.Single(x => x.Alias == "landdraw").Kind);
+		Assert.AreEqual(1, clone.GatheringMethods.Single(x => x.Alias == "landdraw").LandSources.Count);
+		Assert.AreNotEqual(restored.GatheringMethods.Single(x => x.Alias == "landdraw").LandSources.Single().Key,
+			clone.GatheringMethods.Single(x => x.Alias == "landdraw").LandSources.Single().Key);
 		var legacy = XElement.Parse(model.Definition); legacy.Element("Vancian")!.Remove(); legacy.Element("Gathering")!.Remove(); model.Definition = legacy.ToString(); model.CapabilityModel = "skilllevel";
 		var legacyCapability = (SkillLevelBasedMagicCapability)MagicCapabilityFactory.LoadCapability(model,f.World.Object);
 		Assert.AreEqual(0, legacyCapability.GatheringMethods.Count, "An absent Gathering section must preserve legacy no-method behaviour.");
@@ -91,6 +105,23 @@ public class VancianCapabilityTests
 		Assert.AreEqual(0, capability.ConfigurationErrors().Count, "A malformed gathering definition must not disable unrelated Vancian casting.");
 		Assert.IsTrue(capability.GatheringConfigurationErrors().Any(x => x.Contains("Gathering configuration")));
 		Assert.IsTrue(capability.SaveToXml().Contains("not-a-guid"), "Malformed authored gathering XML must not be silently deleted.");
+	}
+	[TestMethod]
+	[TestCategory("L-T02")]
+	public void UnknownGatheringKindDoesNotLoadAsSelfOrDisableVancian()
+	{
+		var f = new VancianTestFixture();
+		var model = Model(f);
+		var root = XElement.Parse(model.Definition);
+		root.Add(new XElement("Gathering", new XAttribute("version", 1),
+			new XElement("Method", new XAttribute("key", Guid.NewGuid()),
+				new XAttribute("alias", "unknown"), new XAttribute("kind", "Unrecognised"))));
+		model.Definition = root.ToString();
+		var capability = new VancianMagicCapability(model, f.World.Object);
+		Assert.AreEqual(0, capability.GatheringMethods.Count);
+		Assert.IsTrue(capability.GatheringConfigurationErrors().Count > 0);
+		Assert.AreEqual(0, capability.ConfigurationErrors().Count);
+		StringAssert.Contains(capability.SaveToXml(), "Unrecognised");
 	}
 	[TestMethod]
 	public void UnsupportedBookModesBrokenLinksAndBadSchemaDisableWithoutOverwriting()

@@ -60,6 +60,7 @@ internal static partial class GNHProgram
 				["--reader", .. string[] readerArguments] => RunReader(readerArguments),
 				["--land-run"] => RunNativeOrganicAcceptanceChecks(),
 				["--land-reader", .. string[] readerArguments] => RunNativeOrganicReader(readerArguments),
+				["--land-action-reader", .. string[] readerArguments] => RunLandActionReader(readerArguments),
 				_ => Usage()
 			};
 		}
@@ -77,7 +78,7 @@ internal static partial class GNHProgram
 
 	private static int Usage()
 	{
-		Console.Error.WriteLine("Usage: GatheringNativePersistenceHarness --probe|--schema|--run|--reader <scenario arguments>|--land-run|--land-reader <scenario arguments>");
+		Console.Error.WriteLine("Usage: GatheringNativePersistenceHarness --probe|--schema|--run|--reader <scenario arguments>|--land-run|--land-reader <scenario arguments>|--land-action-reader <scenario arguments>");
 		return 2;
 	}
 
@@ -726,6 +727,7 @@ internal static partial class GNHProgram
 			var school = new Mock<IMagicSchool>(MockBehavior.Loose);
 			school.SetupGet(x => x.Id).Returns(id);
 			school.SetupGet(x => x.Name).Returns("Harness school");
+			school.SetupGet(x => x.SchoolVerb).Returns("draw");
 			school.SetupGet(x => x.Gameworld).Returns(world);
 			return school;
 		}

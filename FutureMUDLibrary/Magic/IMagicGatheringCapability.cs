@@ -5,18 +5,34 @@ using System.Collections.Generic;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Health;
+using MudSharp.Magic.Environment;
 
 namespace MudSharp.Magic;
 
 /// <summary>
-/// The only gathering source kinds currently implemented by the engine. Land gathering is deliberately
-/// not represented as an executable kind until its separate gameplay contract exists.
+/// The explicitly selected gathering source families.
 /// </summary>
 public enum MagicGatheringMethodKind
 {
 	Self,
-	Gentle
+	Gentle,
+	Land
 }
+
+/// <summary>One ordered Land funding source or mandatory collateral source.</summary>
+public sealed record MagicLandSourceDefinition(Guid Key, string Selector, double UnitsPerDestinationUnit,
+	bool IsCollateral = false, bool AllowAbsent = false, long RatioProgId = 0);
+
+/// <summary>The immutable logical allocation captured before a timed Land action.</summary>
+public sealed record MagicLandSourceAllocation(string Selector, NativeOrganicLifecycleIdentity? Lifecycle,
+	double FundingUnits, double CollateralUnits, double NativeStock, decimal OpeningPrepaidFraction,
+	int WholeNativeDebit, decimal ClosingPrepaidFraction)
+{
+	public double TotalUnits => FundingUnits + CollateralUnits;
+}
+
+public sealed record MagicLandEntryPrice(Guid Key, string Selector, double UnitsPerDestinationUnit,
+	bool IsCollateral);
 
 /// <summary>
 /// Capability-owned, durable configuration for one explicitly chosen gathering route. The key is identity;
@@ -46,7 +62,24 @@ public sealed record MagicGatheringMethodDefinition(
 	long PainCostProgId = 0,
 	long StunCostProgId = 0,
 	long OnGatheredProgId = 0,
-	int StructuralVersion = 1);
+	int StructuralVersion = 1)
+{
+	public IReadOnlyList<MagicLandSourceDefinition> LandSources { get; init; } = [];
+	public double LandDamagePerDestinationUnit { get; init; }
+	public double? LandPressurePerDestinationUnit { get; init; }
+	public long LandDamageProgId { get; init; }
+	public long LandPressureProgId { get; init; }
+	public double CropHealthCostPerDestinationUnit { get; init; }
+	public double WoodlandHealthCostPerDestinationUnit { get; init; }
+	public long CropHealthCostProgId { get; init; }
+	public long WoodlandHealthCostProgId { get; init; }
+	public string? LandActorStartEmote { get; init; }
+	public string? LandObserverStartEmote { get; init; }
+	public string? LandActorCompleteEmote { get; init; }
+	public string? LandObserverCompleteEmote { get; init; }
+	public string? LandActorCancelEmote { get; init; }
+	public string? LandObserverCancelEmote { get; init; }
+}
 
 /// <summary>
 /// Optional capability extension. A capability with no methods grants no gathering behaviour.
@@ -75,7 +108,17 @@ public sealed record MagicGatheringQuote(
 	double PainCost,
 	double StunCost,
 	long? HealthTargetBodypartId = null,
-	bool HealthCostUsesExistingWound = false);
+	bool HealthCostUsesExistingWound = false)
+{
+	public IReadOnlyList<MagicLandSourceAllocation> LandSources { get; init; } = [];
+	public IReadOnlyList<MagicLandEntryPrice> LandEntryPrices { get; init; } = [];
+	public double LandDamage { get; init; }
+	public double LandPressure { get; init; }
+	public double CropHealthCost { get; init; }
+	public double WoodlandHealthCost { get; init; }
+	public NativeOrganicLifecycleIdentity? CropHealthLifecycle { get; init; }
+	public NativeOrganicLifecycleIdentity? WoodlandHealthLifecycle { get; init; }
+}
 
 public sealed record MagicGatheringMethodView(
 	Guid Key,
@@ -129,6 +172,7 @@ public interface IMagicGatheringService
 	MagicGatheringResult Complete(ICharacter actor, Guid operationId);
 	MagicGatheringResult Cancel(ICharacter actor, Guid? operationId = null);
 	MagicGatheringOperationSummary? Operation(Guid operationId);
+	IReadOnlyDictionary<string, double>? LandDetails(Guid operationId);
 	IReadOnlyList<MagicGatheringOperationSummary> UnresolvedOperations(long? ownerId = null);
 	MagicGatheringResult Acknowledge(Guid operationId);
 }

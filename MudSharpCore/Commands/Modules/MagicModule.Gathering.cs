@@ -140,13 +140,17 @@ Only explicitly configured methods on a capability you currently possess are ava
 			}
 			if (verb == "show" && service.Operation(operationId) is { } receipt)
 			{
+				IReadOnlyDictionary<string, double>? landDetails = service.LandDetails(operationId);
+				string landText = landDetails is null ? string.Empty : "\nLand accounting:\n" +
+					string.Join("\n", landDetails.OrderBy(x => x.Key, StringComparer.Ordinal)
+						.Select(x => $"  {x.Key}: {x.Value.ToString("N4", actor)}"));
 				actor.OutputHandler.Send($"Gathering Receipt {receipt.Id}".GetLineWithTitle(actor, Telnet.Magenta, Telnet.BoldWhite) + "\n\n" +
 					$"Owner #{receipt.OwnerId.ToString("N0", actor)}, actor #{receipt.ActorId.ToString("N0", actor)}, body #{receipt.BodyId.ToString("N0", actor)}\n" +
 					$"Capability #{receipt.CapabilityId.ToString("N0", actor)}, method {receipt.MethodKey}, version {receipt.MethodVersion.ToString("N0", actor)}\n" +
 					$"Status: {receipt.Status}\nRequested: {receipt.RequestedAmount.ToString("N2", actor)}, source debit: {receipt.SourceDebit.ToString("N2", actor)}\n" +
 					$"Body costs: stamina {receipt.StaminaCost.ToString("N2", actor)}, damage {receipt.DamageCost.ToString("N2", actor)}, pain {receipt.PainCost.ToString("N2", actor)}, stun {receipt.StunCost.ToString("N2", actor)}\n" +
 					$"Flags: source {receipt.SourceDebited}, body {receipt.BodilyCostApplied}, destination {receipt.DestinationCredited}, accounting {receipt.AccountingPersisted}, notification {receipt.NotificationCompleted}\n" +
-					$"Diagnostic: {receipt.Diagnostic}");
+					$"Diagnostic: {receipt.Diagnostic}{landText}");
 				return;
 			}
 			actor.OutputHandler.Send(GatheringAdminHelp);

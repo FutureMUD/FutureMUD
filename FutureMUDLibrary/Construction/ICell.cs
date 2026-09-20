@@ -117,6 +117,8 @@ namespace MudSharp.Construction
         bool TryConsumeYield(string foragableType, double yield);
 		/// <summary>Exactly compare-and-applies a previously observed native forage debit.</summary>
 		bool TryConsumeYield(NativeForageYieldSnapshot expected, double yield, out string reason);
+		/// <summary>Validates and consumes distinct forage keys atomically under their one cell owner.</summary>
+		bool TryConsumeYieldBatch(IReadOnlyList<NativeForageDebitRequest> requests, out string reason);
         void ConsumeYieldFor(IForagable foragable);
         void ConsumeYield(string foragableType, double yield);
         IEnumerable<string> ForagableTypes { get; }

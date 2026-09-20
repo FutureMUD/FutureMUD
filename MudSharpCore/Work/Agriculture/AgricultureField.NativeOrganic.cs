@@ -407,6 +407,49 @@ public partial class AgricultureField
 		return applyResult.Item1;
 	}
 
+	public bool TryApplyLandHealthCost(NativeOrganicSourceKind kind, NativeOrganicLifecycleIdentity lifecycle,
+		int healthLoss, out int appliedLoss, out decimal discardedPrepaid, out string reason)
+	{
+		appliedLoss = 0;
+		discardedPrepaid = 0m;
+		if (kind is not (NativeOrganicSourceKind.Crop or NativeOrganicSourceKind.Woodland) ||
+		    lifecycle is null || healthLoss <= 0)
+		{
+			reason = "A positive Land health cost requires a crop or woodland lifecycle.";
+			return false;
+		}
+		using var environmentalChange = BeginEnvironmentalInputChange();
+		var result = SynchronizeNativeOrganicOwner(() =>
+		{
+			NativeOrganicSourceSnapshot source = InspectNativeOrganicSourceUnsafe(kind);
+			int health = kind == NativeOrganicSourceKind.Crop ? _cropHealth : _woodlandHealth;
+			if (!source.IsEligible || source.Lifecycle != lifecycle || health <= 0)
+			{
+				return (Success: false, Loss: 0, Prepaid: 0m,
+					Reason: "The living vegetation health plan or lifecycle changed before application.");
+			}
+			int actual = Math.Min(health, healthLoss);
+			decimal prepaid = actual == health ? AccountingFor(kind).Prepaid : 0m;
+			if (kind == NativeOrganicSourceKind.Crop)
+			{
+				_cropHealth -= actual;
+				if (_cropHealth == 0) ClearCrop();
+				else MarkNativeOrganicSourceChangedUnsafe(kind);
+			}
+			else
+			{
+				_woodlandHealth -= actual;
+				if (_woodlandHealth == 0) ClearWoodland();
+				else MarkNativeOrganicSourceChangedUnsafe(kind);
+			}
+			return (Success: true, Loss: actual, Prepaid: prepaid, Reason: string.Empty);
+		});
+		appliedLoss = result.Loss;
+		discardedPrepaid = result.Prepaid;
+		reason = result.Reason;
+		return result.Success;
+	}
+
 	public bool RepairNativeOrganicAccounting(NativeOrganicSourceKind? kind, out string result)
 	{
 		if (kind == NativeOrganicSourceKind.Forage)

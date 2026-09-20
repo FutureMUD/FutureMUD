@@ -16008,3 +16008,97 @@ COMMIT;
 
 -- Dump completed on 2026-09-13 21:07:08
 -- Total time: 0:0:0:1:982 (d:h:m:s:ms)
+
+-- Task 3B verified idempotent schema delta
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260920025846_LandGatheringSourceAccounting') THEN
+
+    ALTER TABLE `magicgatheringoperations` ADD `EcologicalApplied` tinyint(1) NOT NULL DEFAULT FALSE;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260920025846_LandGatheringSourceAccounting') THEN
+
+    ALTER TABLE `magicgatheringoperations` ADD `EcologicalChildId` char(36) COLLATE ascii_general_ci NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260920025846_LandGatheringSourceAccounting') THEN
+
+    ALTER TABLE `magicgatheringoperations` ADD `LandDetailJson` longtext CHARACTER SET utf8mb4 NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260920025846_LandGatheringSourceAccounting') THEN
+
+    CREATE TABLE `magicgatheringparticipants` (
+        `OperationId` char(36) COLLATE ascii_general_ci NOT NULL,
+        `SourceKey` varchar(150) CHARACTER SET utf8mb4 NOT NULL,
+        `CellId` bigint(20) NOT NULL,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`OperationId`, `SourceKey`)
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260920025846_LandGatheringSourceAccounting') THEN
+
+    CREATE INDEX `IX_MagicGatheringParticipants_Cell_Source` ON `magicgatheringparticipants` (`CellId`, `SourceKey`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260920025846_LandGatheringSourceAccounting') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20260920025846_LandGatheringSourceAccounting', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;

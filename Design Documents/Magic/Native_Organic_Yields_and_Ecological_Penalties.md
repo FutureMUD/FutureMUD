@@ -11,7 +11,7 @@
 
 This delivery makes explicitly configured forage, crop/orchard, woodland and pasture stock available through pure observations and controlled native-owner debits. It also lets persistent environmental scars suppress configured positive native production. It does not add a player Land method, a personal-resource payout, another ecological store, or another scheduler.
 
-**Source accounting and penalties implemented; Land command not yet implemented by this PR.**
+**This Task 3A delivery was the native-owner prerequisite.** The subsequent [Land gathering method](Magic_Gathering.md) now uses its source plans and penalties; Task 3A itself did not grant a player payout.
 
 ## Ownership model
 

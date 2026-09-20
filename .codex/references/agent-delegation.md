@@ -10,6 +10,7 @@ Paths are repository-relative unless the handoff gives an absolute local skill o
 | Bounded mapping of relevant symbols/callers | Built-in `explorer` | Project child default: Terra / medium unless a higher-priority setting overrides it | Findings, not a parallel implementation. |
 | Focused independent defect review | `fm_reviewer` | Terra / high | Read-only; requests execution evidence from the coordinator. |
 | A specific documented fact or versioned API question | `fm_docs_researcher` | Luna / medium | Evidence lookup, not architectural judgement. |
+| Substantial execution of a specified automated-test project/filter or established suite | `fm_test_runner` | Luna / medium | One compact run; no test selection, repair or source edit. |
 | Select tests, resolve fixtures, interpret stateful gameplay or triage a failed smoke | `fm_qa_runner` | Terra / medium | Execute/observe; do not repair implementation or weaken checks. |
 | Existing deterministic scenario with assertions | `fm_smoke_runner` | Luna / medium | Replay and evidence; return ambiguity rather than improvise. |
 
@@ -48,7 +49,7 @@ Before assigning Luna, establish all of these. Terra can help fill legitimate fi
 - **Failure policy:** dependent steps stop after a failed prerequisite. Explicitly name independent checks allowed to continue and any retries allowed. A timeout must not silently become an extended timeout until the run passes.
 - **Evidence:** approved local directory outside tracked source/configuration for transcripts, logs and receipts; return small excerpts with pointers, not the complete log to the main context.
 
-This contract is a dispatch template, not a claim that a scenario DSL, assertion engine or JSON reporter already exists. Use capabilities exposed by the installed skill/harness. If there is no machine-checkable scenario, use Terra or have the coordinator first specify one; do not give Luna a prose runbook and call it deterministic.
+This contract describes in-game scenarios; automated unit-test dispatch uses [test execution](test-execution.md). If there is no machine-checkable in-game scenario, use Terra or have the coordinator first specify one; do not give Luna a prose runbook and call it deterministic.
 
 For example, `Design Documents/Vehicle_System_Fresh_MUD_Test_Runbook.md` has fixture choices, dynamic IDs, editor transitions and expected state changes. Assign a bounded section to Terra by default. Luna is suitable after those decisions and extraction/assertion rules have been made explicit, or for a mature automated replay of that section.
 

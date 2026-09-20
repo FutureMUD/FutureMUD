@@ -14,6 +14,8 @@ Paths and commands below are relative to the repository root. Read the section n
 | `DiscordBotCore Unit Tests` | Bot commands, protocol and message formatting. |
 | `RPI Engine Worldfile Converter Tests` | Legacy formats, conversions, validation and fixture compatibility. |
 | `FutureMUD.Web.Tests` | Website endpoints, release/documentation publishing and security boundaries. |
+| `TerrainPlanner.Tests` | TerrainPlanner client/server contracts and planning behaviour. |
+| `TestReporting.Tests` | Script reporter/TRX parser and infrastructure contracts; included in the fast manifest. |
 | `MudSharpCore Climate Tests` | Slow seeded-weather and climate/analyzer regressions; opt-in, not part of the normal fast pass. |
 
 Run dependent suites when the change crosses their contracts. A shared-helper change can warrant runtime tests; an isolated shared helper does not automatically require a whole-engine boot. Seeder and release skills retain their specific required gates.
@@ -49,7 +51,7 @@ Select the command for the affected product; these examples do not require build
 | `scripts\test.ps1` | Smoke-build path. | `scripts/test.sh` |
 | `scripts\setup.ps1` | Repo-local SDK bootstrap, only when needed. | `scripts/setup.sh` |
 
-The test scripts use `--no-restore`; ensure the relevant restore has succeeded first. Ordinary source/documentation edits do not justify an SDK bootstrap.
+The broad unit-test scripts perform targeted restoring builds before no-build/no-restore test execution. The core and climate wrappers use targeted `--no-restore` builds before no-build/no-restore tests, so they still require a prior restore. See [test execution](test-execution.md) for compact receipts, explicit selection, filters and artifacts. Ordinary source/documentation edits do not justify an SDK bootstrap.
 
 Sandbox issues to recognise:
 

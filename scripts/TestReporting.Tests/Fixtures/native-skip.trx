@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="f1c940b3-1d8a-4583-ad6a-6c3260412c5c" name="fixture-user@fixture-host 2026-09-20 20:35:19" runUser="fixture-host\fixture-user" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-09-20T20:35:19.0081860+10:00" queuing="2026-09-20T20:35:19.0081861+10:00" start="2026-09-20T20:35:17.8586241+10:00" finish="2026-09-20T20:35:19.0111508+10:00" />
+  <TestSettings name="default" id="dd4b93a0-603d-4a13-8f90-346d96321d94">
+    <Deployment runDeploymentRoot="fixture-user_fixture-host_2026-09-20_20_35_19" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="acb9353f-cc25-4623-8be6-46bda9eb0e52" testId="10572862-477f-3c5b-7912-e6faa358a9da" testName="Skip" computerName="fixture-host" startTime="2026-09-20T20:35:18.9296066+10:00" endTime="2026-09-20T20:35:18.9298395+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="acb9353f-cc25-4623-8be6-46bda9eb0e52">
+      <Output>
+        <ErrorInfo>
+          <Message>native adapter representation fixture</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="a170e1a2-674b-4ff2-aa26-6b544368109b" testId="1ca23437-0211-2873-982a-886b4ce51b51" testName="Pass" computerName="fixture-host" duration="00:00:00.0013483" startTime="2026-09-20T20:35:18.9189687+10:00" endTime="2026-09-20T20:35:18.9270108+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a170e1a2-674b-4ff2-aa26-6b544368109b" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Pass" storage="c:\fixture\futuremud\.artifacts\test-runs\native-skip-fixture\bin\debug\net10.0\nativeskipfixture.dll" id="1ca23437-0211-2873-982a-886b4ce51b51">
+      <Execution id="a170e1a2-674b-4ff2-aa26-6b544368109b" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\.artifacts\test-runs\native-skip-fixture\bin\Debug\net10.0\NativeSkipFixture.dll" adapterTypeName="executor://mstestadapter/v2" className="NativeSkipFixture.Tests" name="Pass" />
+    </UnitTest>
+    <UnitTest name="Skip" storage="c:\fixture\futuremud\.artifacts\test-runs\native-skip-fixture\bin\debug\net10.0\nativeskipfixture.dll" id="10572862-477f-3c5b-7912-e6faa358a9da">
+      <Execution id="acb9353f-cc25-4623-8be6-46bda9eb0e52" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\.artifacts\test-runs\native-skip-fixture\bin\Debug\net10.0\NativeSkipFixture.dll" adapterTypeName="executor://mstestadapter/v2" className="NativeSkipFixture.Tests" name="Skip" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="10572862-477f-3c5b-7912-e6faa358a9da" executionId="acb9353f-cc25-4623-8be6-46bda9eb0e52" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1ca23437-0211-2873-982a-886b4ce51b51" executionId="a170e1a2-674b-4ff2-aa26-6b544368109b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="2" executed="1" passed="1" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>Test 'Skip' was skipped in the test run.&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

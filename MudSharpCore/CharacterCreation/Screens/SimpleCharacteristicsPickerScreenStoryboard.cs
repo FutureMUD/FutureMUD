@@ -9,11 +9,11 @@ namespace MudSharp.CharacterCreation.Screens;
 
 public class SimpleCharacteristicsPickerScreenStoryboard : ChargenScreenStoryboard
 {
-    private SimpleCharacteristicsPickerScreenStoryboard()
+    protected SimpleCharacteristicsPickerScreenStoryboard()
     {
     }
 
-    private SimpleCharacteristicsPickerScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem)
+    protected SimpleCharacteristicsPickerScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem)
         : base(dbitem, gameworld)
     {
         XElement definition = XElement.Parse(dbitem.StageDefinition);
@@ -26,6 +26,9 @@ public class SimpleCharacteristicsPickerScreenStoryboard : ChargenScreenStoryboa
         switch (storyboard)
         {
             case CharacteristicPickerScreenStoryboard picker:
+                Blurb = picker.Blurb;
+                break;
+            case SimpleCharacteristicsPickerScreenStoryboard picker:
                 Blurb = picker.Blurb;
                 break;
         }
@@ -124,15 +127,17 @@ public class SimpleCharacteristicsPickerScreenStoryboard : ChargenScreenStoryboa
 
     internal class SimpleCharacteristicPickerScreen : ChargenScreen
     {
-        private readonly Dictionary<ICharacteristicDefinition, ICharacteristicValue> SelectedCharacteristics =
+        protected virtual bool HandleGlobalCommands => true;
+
+        protected readonly Dictionary<ICharacteristicDefinition, ICharacteristicValue> SelectedCharacteristics =
             new();
 
-        private readonly new SimpleCharacteristicsPickerScreenStoryboard _storyboard;
+        protected readonly new SimpleCharacteristicsPickerScreenStoryboard _storyboard;
 
-        private IEnumerable<ICharacteristicValue> _shownValues;
-        private ICharacteristicDefinition _selectedDefinition = null;
-        private readonly List<ICharacteristicDefinition> _definitions = new();
-        private string _selectedBasicValue = "";
+        protected IEnumerable<ICharacteristicValue> _shownValues;
+        protected ICharacteristicDefinition _selectedDefinition = null;
+        protected readonly List<ICharacteristicDefinition> _definitions = new();
+        protected string _selectedBasicValue = "";
 
         internal SimpleCharacteristicPickerScreen(IChargen chargen, SimpleCharacteristicsPickerScreenStoryboard storyboard)
             : base(chargen, storyboard)
@@ -147,24 +152,31 @@ public class SimpleCharacteristicsPickerScreenStoryboard : ChargenScreenStoryboa
             }
         }
 
-        private void RandomiseCharacteristics()
+        protected void RandomiseCharacteristics()
         {
             SelectedCharacteristics.Clear();
             foreach (ICharacteristicDefinition characteristic in _definitions)
             {
-                SelectedCharacteristics[characteristic] = Chargen.SelectedEthnicity?.CharacteristicChoices[characteristic].GetRandomCharacteristic(Chargen);
+                SelectedCharacteristics[characteristic] = Chargen.SelectedEthnicity != null &&
+                    Chargen.SelectedEthnicity.CharacteristicChoices.TryGetValue(characteristic, out var profile)
+                    ? profile.GetRandomCharacteristic(Chargen)
+                    : null;
             }
         }
 
         public override ChargenStage AssociatedStage => ChargenStage.SelectCharacteristics;
 
-        private IEnumerable<ICharacteristicValue> GetCharacteristicsFor(ICharacteristicDefinition definition)
+        protected IEnumerable<ICharacteristicValue> GetCharacteristicsFor(ICharacteristicDefinition definition)
         {
-            return
-                Chargen.SelectedEthnicity.CharacteristicChoices[definition].Values.Where(
-                    x =>
-                        x.ChargenApplicabilityProg == null ||
-                        (x.ChargenApplicabilityProg.ExecuteBool(Chargen))).Distinct();
+            if (Chargen.SelectedEthnicity == null ||
+                !Chargen.SelectedEthnicity.CharacteristicChoices.TryGetValue(definition, out var profile))
+            {
+                return Enumerable.Empty<ICharacteristicValue>();
+            }
+
+            return profile.Values.Where(x =>
+                    x.ChargenApplicabilityProg?.Execute<bool?>(Chargen) != false).Distinct()
+                .OrderBy(x => x.Name);
         }
 
         public override string Display()
@@ -324,7 +336,7 @@ public class SimpleCharacteristicsPickerScreenStoryboard : ChargenScreenStoryboa
                 return HandleCommandChargenAdvice(command);
             }
 
-            if ("continue".StartsWith(command, StringComparison.InvariantCultureIgnoreCase))
+            if (HandleGlobalCommands && "continue".StartsWith(command, StringComparison.InvariantCultureIgnoreCase))
             {
                 State = ChargenScreenState.Complete;
                 Chargen.SelectedCharacteristics =
@@ -332,7 +344,7 @@ public class SimpleCharacteristicsPickerScreenStoryboard : ChargenScreenStoryboa
                 return "";
             }
 
-            if ("reset".StartsWith(command, StringComparison.InvariantCultureIgnoreCase) || "random".StartsWith(command, StringComparison.InvariantCultureIgnoreCase))
+            if (HandleGlobalCommands && ("reset".StartsWith(command, StringComparison.InvariantCultureIgnoreCase) || "random".StartsWith(command, StringComparison.InvariantCultureIgnoreCase)))
             {
                 _selectedBasicValue = "";
                 _selectedDefinition = null;
@@ -433,9 +445,10 @@ Its fancy value is: {choice.GetFancyValue.Colour(Telnet.Green)}";
                         case CharacterGenerationDisplayType.GroupByBasic:
                             string basicSelection = null;
                             basicSelection = int.TryParse(command, out value)
-                                ? availableChoices.Select(x => x.GetBasicValue).Distinct().ElementAtOrDefault(value - 1)
+                                ? availableChoices.Select(x => x.GetBasicValue).Distinct().OrderBy(x => x).ElementAtOrDefault(value - 1)
                                 : availableChoices.Select(x => x.GetBasicValue)
                                                   .Distinct()
+                                                  .OrderBy(x => x)
                                                   .FirstOrDefault(
                                                       x => x.StartsWith(command,
                                                           StringComparison.InvariantCultureIgnoreCase));

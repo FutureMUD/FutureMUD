@@ -37,8 +37,11 @@ Common examples are:
 - merits versus quirks
 - ordered attributes versus point-buy attributes
 - simple skill picking versus paid skill boosts
+- sequential, simple, or rerollable characteristic picking
 
 Use `chargen changetype <stage> <type>` for these changes.
+
+For `SelectCharacteristics`, choose `RerollableCharacteristicPicker` to show an ethnicity-based roll that players can reroll, lock, or customise. The screen's `intro` builder command toggles a separate blurb step; it is on by default. When it is off, a nonblank blurb appears above the rolled values. The `blurb` builder command edits that text. A player uses `lock <characteristic>`, `basiclock <characteristic>`, and `unlock <characteristic>` on the main selection screen. A basic lock is available when the current basic value has multiple eligible specific values.
 
 For descriptions, `chargen changetype SelectDescription CustomDescriptionPicker` makes every applicant write a short and full description. The existing `DescriptionPicker` honours its `custom` and `patterns` settings, and automatically uses custom entry for a race with no characteristic definitions. Switching between the two description types preserves the blurbs and the existing type's saved settings; `CustomDescriptionPicker` always enforces custom entry while it is active. The characteristic stage automatically completes with an empty selection for a race with no definitions.
 

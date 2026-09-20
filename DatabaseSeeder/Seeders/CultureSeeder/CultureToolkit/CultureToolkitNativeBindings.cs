@@ -18,10 +18,37 @@ public sealed record CultureNativeBinding(string SourceIdentity, string? Overlay
 /// <summary>Resolves only authored defaults. Source names, naming structures and language provenance stay distinct.</summary>
 public static class CultureToolkitNativeBindings
 {
+	// Additions to the reviewed source corpus. The original handoff JSON and its checksum remain intact.
+	private static readonly IReadOnlyDictionary<string, string> RenaissanceWorldNativeLanguages =
+		new Dictionary<string, string>(StringComparer.Ordinal)
+		{
+			["Renaissance Mingrelian"] = "Mingrelian",
+			["Renaissance Circassian Mamluk"] = "Circassian",
+			["Renaissance Punjabi"] = "Punjabi",
+			["Renaissance Sylheti"] = "Sylheti",
+			["Renaissance Tuluva"] = "Tulu",
+			["Renaissance Gan-Speaking Han"] = "Gan",
+			["Renaissance Hakka Han"] = "Hakka",
+			["Renaissance Jeju Islander"] = "Jeju",
+			["Renaissance Northern Tai"] = "Northern Thai",
+			["Renaissance Lao Tai"] = "Lao",
+			["Renaissance Sundanese"] = "Sundanese",
+			["Renaissance Madurese"] = "Madurese",
+			["Renaissance Acehnese"] = "Acehnese",
+			["Renaissance Tigrayan"] = "Tigrinya",
+			["Renaissance Agaw"] = "Agaw",
+			["Renaissance Soninke"] = "Soninke",
+			["Renaissance Manyika"] = "Manyika"
+		};
+
 	public static CultureNativeBinding Source(CultureToolkitCatalogue catalogue, string era, string module, Ethnicity ethnicity,
 		IReadOnlyDictionary<string, Language> languages)
 	{
 		var identity = $"source.{module}.ethnicity.{ethnicity.Name}";
+		if (era == "renaissance" && module == "earthrenaissanceworldexpansion" &&
+			RenaissanceWorldNativeLanguages.TryGetValue(ethnicity.Name, out var newLanguage))
+			return Resolve(identity, null, "renaissance-world-native-language",
+				[$"source.earthrenaissanceworldexpansion.language.{newLanguage}"], languages);
 		var defaults = catalogue.Document("data.ethnicity_language_defaults.json");
 		var legacy = catalogue.Document("data.legacy_native_language_rules.json");
 		var deferred = legacy.GetProperty("deferred_source_bindings").EnumerateArray().SingleOrDefault(x =>

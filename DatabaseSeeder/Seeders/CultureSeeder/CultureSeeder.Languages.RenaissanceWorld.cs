@@ -47,6 +47,57 @@ public partial class CultureSeeder
 
 	private static readonly HistoricalLanguageSeed[] RenaissanceWorldLanguages =
 	[
+		new("Mingrelian", "an unknown Kartvelian language", [
+			HistoricalAccent("samegrelo", "Mingrelian", "The Mingrelian speech of Samegrelo.", Difficulty.Trivial)
+		]),
+		new("Circassian", "an unknown Northwest Caucasian language", [
+			HistoricalAccent("western-circassian", "Circassian", "A western Circassian variety heard among the Mamluk military households.", Difficulty.Trivial)
+		]),
+		new("Punjabi", "an unknown northwestern Indo-Aryan language", [
+			HistoricalAccent("central-punjab", "Punjabi", "The Punjabi speech of the central five-river country.", Difficulty.Trivial)
+		]),
+		new("Sylheti", "an unknown eastern Indo-Aryan language", [
+			HistoricalAccent("sylhet-valley", "Sylheti", "The regional speech of the Sylhet valley.", Difficulty.Trivial)
+		]),
+		new("Tulu", "an unknown Dravidian language", [
+			HistoricalAccent("coastal-tulu", "Tulu", "The Tulu speech of the southwestern coastal country.", Difficulty.Trivial)
+		]),
+		new("Gan", "an unknown Sinitic language", [
+			HistoricalAccent("jiangxi", "Gan", "A Gan variety of Jiangxi.", Difficulty.Trivial)
+		]),
+		new("Hakka", "an unknown Sinitic language", [
+			HistoricalAccent("hakka-communities", "Hakka", "The speech of Hakka communities in southern China.", Difficulty.Trivial)
+		]),
+		new("Jeju", "an unknown Koreanic language", [
+			HistoricalAccent("jeju-island", "Jeju", "The distinct island speech of Jeju.", Difficulty.Trivial)
+		]),
+		new("Northern Thai", "an unknown Southwestern Tai language", [
+			HistoricalAccent("lan-na", "Northern Thai", "The Tai speech of the Lan Na principalities.", Difficulty.Trivial)
+		]),
+		new("Lao", "an unknown Southwestern Tai language", [
+			HistoricalAccent("lan-xang", "Lao", "The Lao speech of the Lan Xang and Mekong communities.", Difficulty.Trivial)
+		]),
+		new("Sundanese", "an unknown western Javanese language", [
+			HistoricalAccent("sunda", "Sundanese", "The Sundanese speech of western Java.", Difficulty.Trivial)
+		]),
+		new("Madurese", "an unknown Maduresic language", [
+			HistoricalAccent("madura", "Madurese", "The Madurese speech of Madura island.", Difficulty.Trivial)
+		]),
+		new("Acehnese", "an unknown Aceh-Chamic language", [
+			HistoricalAccent("aceh", "Acehnese", "The Acehnese speech of northern Sumatra.", Difficulty.Trivial)
+		]),
+		new("Tigrinya", "an unknown Ethiopian Semitic language", [
+			HistoricalAccent("tigray", "Tigrinya", "The Tigrinya speech of the northern Ethiopian highlands.", Difficulty.Trivial)
+		]),
+		new("Agaw", "an unknown Central Cushitic language", [
+			HistoricalAccent("agaw-highlands", "Agaw", "A representative Agaw speech of the Ethiopian highlands.", Difficulty.Trivial)
+		]),
+		new("Soninke", "an unknown Mande language", [
+			HistoricalAccent("sahelian", "Soninke", "The Soninke speech of Sahelian merchant and farming communities.", Difficulty.Trivial)
+		]),
+		new("Manyika", "an unknown eastern Shona language", [
+			HistoricalAccent("eastern-highlands", "Manyika", "The Manyika speech of the eastern Zimbabwe highlands.", Difficulty.Trivial)
+		]),
 		new("Armenian", "an unknown Armenian language", [
 			HistoricalAccent("eastern-armenian", "eastern Armenian", "The Eastern Armenian speech of the Ararat plain and the eastern highlands.", Difficulty.Trivial),
 			HistoricalAccent("western-armenian", "western Armenian", "The Western Armenian speech of the plateau west of Lake Van."),

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
 using DatabaseSeeder.Seeders.CultureToolkit;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,8 @@ public class CultureToolkitNativeReviewTests
 		var aliases = new Dictionary<string, HashSet<string>>();
 		foreach (var module in CultureToolkitLanguageBindings.SourceModuleFirstEra)
 		{
-			var path = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Design Documents", "Seeding", "CultureSeederOriginalCorpus", module.Key + ".json");
+			var path = Path.Combine(ItemSeederManifestCatalogue.FindRepositoryRoot(AppContext.BaseDirectory),
+				"Design Documents", "Seeding", "CultureSeederOriginalCorpus", module.Key + ".json");
 			using var document = JsonDocument.Parse(File.ReadAllText(path));
 			foreach (var row in document.RootElement.GetProperty("Tables").GetProperty("Language").EnumerateArray())
 			{
@@ -39,10 +41,37 @@ public class CultureToolkitNativeReviewTests
 				aliases[name].Add(key);
 			}
 		}
+		if (era == "renaissance")
+		foreach (var name in CultureSeeder.RenaissanceWorldLanguageNamesForTesting)
+		{
+			var key = CultureToolkitLanguageBindings.Key("earthrenaissanceworldexpansion", name);
+			result.TryAdd(key, new Language { Name = name });
+		}
 		long id = 1;
 		foreach (var language in result.Values) language.Id = id++;
 		foreach (var alias in aliases.Where(x => x.Value.Count == 1)) result["legacy:" + alias.Key] = result[alias.Value.Single()];
 		return result;
+	}
+
+	[TestMethod]
+	public void RenaissanceWorldMissingLanguagesHaveResolvedNativeBindings()
+	{
+		var catalogue = new CultureToolkitCatalogue();
+		var languages = Available("renaissance");
+		var deferred = catalogue.Document("data.legacy_native_language_rules.json")
+			.GetProperty("deferred_source_bindings").EnumerateArray()
+			.Where(x => CultureToolkitCatalogue.Strings(x.GetProperty("packs")).Contains("renaissance"))
+			.ToArray();
+		Assert.AreEqual(17, deferred.Length);
+		foreach (var row in deferred)
+		{
+			var ethnicity = new Ethnicity { Name = CultureToolkitCatalogue.Text(row, "source_ethnicity") };
+			var binding = CultureToolkitNativeBindings.Source(catalogue, "renaissance",
+				"earthrenaissanceworldexpansion", ethnicity, languages);
+			Assert.IsTrue(binding.IsResolved, string.Join(Environment.NewLine, binding.Unresolved));
+			Assert.AreEqual(1, binding.LanguageIds.Count, ethnicity.Name);
+			Assert.AreEqual("renaissance-world-native-language", binding.Rule, ethnicity.Name);
+		}
 	}
 
 	[DataTestMethod]
@@ -100,7 +129,8 @@ public class CultureToolkitNativeReviewTests
 	[DataRow("renaissance", "earthrenaissanceeurope", "MedievalEurope")]
 	public void EveryRetainedAncientAndEuropeanEthnicityHasAResolvedDefault(string era, string module, string suffix)
 	{
-		var path = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "DatabaseSeeder", "Seeders", "CultureSeeder", $"CultureSeeder.Heritage.{suffix}.cs");
+		var path = Path.Combine(ItemSeederManifestCatalogue.FindRepositoryRoot(AppContext.BaseDirectory),
+			"DatabaseSeeder", "Seeders", "CultureSeeder", $"CultureSeeder.Heritage.{suffix}.cs");
 		var names = Regex.Matches(File.ReadAllText(path), "AddEthnicity\\(_humanRace, \"([^\"]+)\"")
 			.Select(x => x.Groups[1].Value).Distinct().ToArray();
 		Assert.IsTrue(names.Length >= 50);
@@ -156,19 +186,19 @@ public class CultureToolkitNativeReviewTests
 	{
 		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options);
-		var source = new Ethnicity { Name = "Renaissance Mingrelian" };
+		var source = new Ethnicity { Name = "Chola-Era Telugu" };
 		var desired = new Ethnicity { Name = source.Name, NativeLanguageId = 10 };
 		var conflicts = new List<string>();
 		var resolved = new CultureNativeBinding("fixture", null, "old-template", ["georgian"], [10], []);
 		CultureEthnicityDefinition[] definitions = [new("fixture", source, desired, new Dictionary<short, long>(), resolved)];
-		var ethnicity = CultureToolkitEthnicities.Upsert(context, "renaissance", definitions, new Dictionary<string, Ethnicity>(), conflicts).Ethnicities["fixture"];
+		var ethnicity = CultureToolkitEthnicities.Upsert(context, "medieval", definitions, new Dictionary<string, Ethnicity>(), conflicts).Ethnicities["fixture"];
 		if (builderEdited) ethnicity.NativeLanguageId = 20;
 		context.SaveChanges();
-		var deferred = CultureToolkitNativeBindings.Source(new CultureToolkitCatalogue(), "renaissance", "earthrenaissanceworldexpansion", source,
+		var deferred = CultureToolkitNativeBindings.Source(new CultureToolkitCatalogue(), "medieval", "earthdarkagesandmedieval", source,
 			new Dictionary<string, Language> { ["georgian"] = new() { Id = 10 } });
 		desired.NativeLanguageId = null;
 		definitions = [new("fixture", source, desired, new Dictionary<short, long>(), deferred)];
-		CultureToolkitEthnicities.Upsert(context, "renaissance", definitions, new Dictionary<string, Ethnicity>(), conflicts);
+		CultureToolkitEthnicities.Upsert(context, "medieval", definitions, new Dictionary<string, Ethnicity>(), conflicts);
 		Assert.AreEqual(builderEdited ? 20L : (long?)null, ethnicity.NativeLanguageId);
 	}
 

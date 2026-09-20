@@ -35,6 +35,21 @@ public sealed partial class MagicGatheringService
 			.Order(StringComparer.Ordinal)
 			.ToArray();
 
+	private bool HasUnresolvedGatheringSource(long cellId, MagicGatheringQuote quote)
+	{
+		if (quote.Kind == MagicGatheringMethodKind.Gentle)
+		{
+			return quote.SourceResourceId is { } resourceId &&
+			       (_store.HasUnresolvedForSource(cellId, resourceId) ||
+			        _store.HasUnresolvedForParticipant(cellId, $"ambient:{resourceId}"));
+		}
+		return quote.Kind == MagicGatheringMethodKind.Land &&
+		       (LandParticipantKeys(quote).Any(key => _store.HasUnresolvedForParticipant(cellId, key)) ||
+		        quote.LandSources.Where(x => x.Selector.StartsWith("ambient:", StringComparison.Ordinal))
+			        .Any(x => _store.HasUnresolvedForSource(cellId,
+				        long.Parse(x.Selector[8..], CultureInfo.InvariantCulture))));
+	}
+
 	private sealed record LandReceiptDetail(int Version, string Stage,
 		IReadOnlyList<MagicLandSourceAllocation> CapturedSources,
 		IReadOnlyList<MagicLandSourceAllocation> AppliedSources,
@@ -114,12 +129,9 @@ public sealed partial class MagicGatheringService
 		{
 			return Refused("Land gathering cancelled because its captured price, source or action changed.");
 		}
-		foreach (string key in LandParticipantKeys(quote))
+		if (HasUnresolvedGatheringSource(live.Cell.Id, quote))
 		{
-			if (_store.HasUnresolvedForParticipant(live.Cell.Id, key))
-			{
-				return Refused("A Land participant has an unresolved earlier operation.");
-			}
+			return Refused("A Land participant has an unresolved earlier operation.");
 		}
 		IEnvironmentalMagicService environmental = _gameworld.EnvironmentalMagic!;
 		var nativePlans = new List<NativeOrganicDebitPlan>();
@@ -150,54 +162,51 @@ public sealed partial class MagicGatheringService
 		try
 		{
 			var appliedSources = new List<MagicLandSourceAllocation>();
-			foreach (MagicLandSourceAllocation allocation in quote.LandSources.Where(x => x.Selector.StartsWith("ambient:", StringComparison.Ordinal)))
+			EnvironmentalLandAmbientDebit[] ambientDebits = quote.LandSources
+				.Where(x => x.Selector.StartsWith("ambient:", StringComparison.Ordinal))
+				.Select(x => new EnvironmentalLandAmbientDebit(
+					_gameworld.MagicResources.Get(long.Parse(x.Selector[8..], CultureInfo.InvariantCulture))!,
+					x.TotalUnits)).ToArray();
+			bool groupSuccess = environmental.TryApplyLandDebitGroup(live.Cell, ambientDebits, nativePlans,
+				out IReadOnlyList<long> paidAmbient, out IReadOnlyList<NativeOrganicDebitPlan> paidNative,
+				out string? groupError);
+			foreach (long resourceId in paidAmbient)
 			{
-				long resourceId = long.Parse(allocation.Selector[8..], CultureInfo.InvariantCulture);
-				IMagicResource resource = _gameworld.MagicResources.Get(resourceId)!;
-				if (!environmental.TryDebit(live.Cell, resource, allocation.TotalUnits, out string? debitError))
-				{
-					return LandSourceRefusal(live, receipt, appliedSources.Count > 0,
-						debitError ?? "Ambient debit refused.");
-				}
-				appliedSources.Add(allocation);
-				detail = detail with { Stage = "AmbientDebited", AppliedSources = appliedSources.ToArray() };
-				receipt = receipt with { SourceDebited = true, LandDetailJson = JsonSerializer.Serialize(detail), UpdatedUtc = UtcNow };
-				if (!TryRecord(receipt))
-				{
-					return LandUnrecordedSourceProgress(live, receipt,
-						"Ambient debit succeeded but receipt progress could not be saved.");
-				}
+				appliedSources.Add(quote.LandSources.Single(x => x.Selector == $"ambient:{resourceId}"));
 			}
-			if (nativePlans.Count > 0)
+			foreach (NativeOrganicDebitPlan plan in paidNative)
 			{
-				bool nativeSuccess = environmental.TryApplyOrganicDebitBatch(live.Cell, nativePlans,
-					out IReadOnlyList<NativeOrganicDebitPlan> applied, out string? nativeError);
-				foreach (NativeOrganicDebitPlan plan in applied)
+				MagicLandSourceAllocation allocation = quote.LandSources.Single(x => x.Selector == plan.Selector);
+				appliedSources.Add(allocation with
 				{
-					MagicLandSourceAllocation allocation = quote.LandSources.Single(x => x.Selector == plan.Selector);
-					appliedSources.Add(allocation with
-					{
-						NativeStock = plan.ExpectedNativeStock,
-						OpeningPrepaidFraction = plan.OpeningPrepaidFraction,
-						WholeNativeDebit = plan.WholeNativeDebit,
-						ClosingPrepaidFraction = plan.ClosingPrepaidFraction
-					});
-				}
-				if (!nativeSuccess)
-				{
-					detail = detail with { Stage = "NativeUncertain", AppliedSources = appliedSources.ToArray() };
-					receipt = receipt with { SourceDebited = appliedSources.Count > 0,
-						LandDetailJson = JsonSerializer.Serialize(detail), UpdatedUtc = UtcNow };
-					return LandSourceRefusal(live, receipt, appliedSources.Count > 0,
-						nativeError ?? "Native debit batch refused.");
-				}
-				detail = detail with { Stage = "NativeDebited", AppliedSources = appliedSources.ToArray() };
-				receipt = receipt with { SourceDebited = true, LandDetailJson = JsonSerializer.Serialize(detail), UpdatedUtc = UtcNow };
-				if (!TryRecord(receipt))
-				{
+					NativeStock = plan.ExpectedNativeStock,
+					OpeningPrepaidFraction = plan.OpeningPrepaidFraction,
+					WholeNativeDebit = plan.WholeNativeDebit,
+					ClosingPrepaidFraction = plan.ClosingPrepaidFraction
+				});
+			}
+			detail = detail with { Stage = groupSuccess ? "SourcesDebited" : "SourcesUncertain",
+				AppliedSources = appliedSources.ToArray() };
+			receipt = receipt with { SourceDebited = appliedSources.Count > 0,
+				LandDetailJson = JsonSerializer.Serialize(detail), UpdatedUtc = UtcNow };
+			if (!groupSuccess)
+			{
+				return LandSourceRefusal(live, receipt, appliedSources.Count > 0,
+					groupError ?? "The complete Land source group refused.");
+			}
+			if (!TryRecord(receipt))
+			{
 				return LandUnrecordedSourceProgress(live, receipt,
-					"Native debit succeeded but receipt progress could not be saved.");
-				}
+					"Land source group succeeded but receipt progress could not be saved.");
+			}
+			// Confirm the exact paid group and child identity before applying ecology.
+			// Physical owners retain their existing post-child checkpoint boundary.
+			detail = detail with { Stage = "EcologyPrepared" };
+			receipt = receipt with { LandDetailJson = JsonSerializer.Serialize(detail), UpdatedUtc = UtcNow };
+			if (!TryRecord(receipt))
+			{
+				return LandUnrecordedSourceProgress(live, receipt,
+					"The paid Land group could not be acknowledged before ecology.");
 			}
 			var healthChanges = new List<LandHealthChange>();
 			foreach (var health in new (NativeOrganicSourceKind Kind, double Loss,
@@ -628,6 +637,7 @@ public sealed partial class MagicGatheringService
 			return Refused("Land gathering requires a finite, positive ecological scar and valid pressure.");
 		}
 		if (!double.IsFinite(stateView.State.ScarDamage + scar) ||
+		    stateView.State.ScarDamage + scar <= stateView.State.ScarDamage ||
 		    !double.IsFinite(stateView.Pressure) || stateView.Pressure < 0.0)
 		{
 			return Refused("The quantified Land damage cannot be applied to the current ecological state.");

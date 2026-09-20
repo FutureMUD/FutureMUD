@@ -52,6 +52,9 @@ public sealed record EnvironmentalMagicState
 public sealed record EnvironmentalResourceSnapshot(long ResourceId, string Name, double Balance,
 	bool IsValid, double Maximum, double Rate, string? Error);
 
+/// <summary>One exact recorded ambient payment in a bounded Land source group.</summary>
+public sealed record EnvironmentalLandAmbientDebit(IMagicResource Resource, double Amount);
+
 public sealed record EnvironmentalMagicStateSnapshot(EnvironmentalMagicState State, double Pressure);
 
 /// <summary>A pure Land authorisation view that does not evaluate unrelated mana output formulas.</summary>
@@ -131,6 +134,10 @@ public interface IEnvironmentalMagicService : IDisposable
 	/// <summary>Validates a bounded group against one precommit state, then applies its own sequential owner changes.</summary>
 	bool TryApplyOrganicDebitBatch(ICell cell, IReadOnlyList<NativeOrganicDebitPlan> plans,
 		out IReadOnlyList<NativeOrganicDebitPlan> applied, out string? error);
+	/// <summary>Validates all Land funding against the current environment before paying ambient then native owners.</summary>
+	bool TryApplyLandDebitGroup(ICell cell, IReadOnlyList<EnvironmentalLandAmbientDebit> ambient,
+		IReadOnlyList<NativeOrganicDebitPlan> native, out IReadOnlyList<long> appliedAmbient,
+		out IReadOnlyList<NativeOrganicDebitPlan> appliedNative, out string? error);
 	/// <summary>Evaluates only the requested native suppression channel and its declared dependencies.</summary>
 	NativeOrganicPenaltyEvaluation EvaluateOrganicPenalty(ICell cell, NativeOrganicPenaltyChannel channel,
 		NativeOrganicPenaltyContext context);

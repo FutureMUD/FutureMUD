@@ -123,14 +123,11 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 		{
 			return Refused("You must be physically located in a cell to begin gathering.");
 		}
-		if (quote.Kind == MagicGatheringMethodKind.Gentle && quote.SourceResourceId is { } sourceResourceId &&
-			(_store.HasUnresolvedForSource(cell.Id, sourceResourceId) ||
-			 _store.HasUnresolvedForParticipant(cell.Id, $"ambient:{sourceResourceId}")))
+		if (quote.Kind == MagicGatheringMethodKind.Gentle && HasUnresolvedGatheringSource(cell.Id, quote))
 		{
 			return Refused("That environmental source has an unresolved gathering receipt and is temporarily quarantined for staff review.");
 		}
-		if (quote.Kind == MagicGatheringMethodKind.Land &&
-			LandParticipantKeys(quote).Any(key => _store.HasUnresolvedForParticipant(cell.Id, key)))
+		if (quote.Kind == MagicGatheringMethodKind.Land && HasUnresolvedGatheringSource(cell.Id, quote))
 		{
 			return Refused("A Land source or this cell's ecological state has an unresolved gathering receipt.");
 		}
@@ -346,8 +343,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 		{
 			return Refused("Gathering cancelled because the captured body, capability or location is no longer valid.");
 		}
-		if (quote.Kind == MagicGatheringMethodKind.Gentle && quote.SourceResourceId is { } sourceResourceId &&
-			_store.HasUnresolvedForSource(live.Cell.Id, sourceResourceId))
+		if (quote.Kind == MagicGatheringMethodKind.Gentle && HasUnresolvedGatheringSource(live.Cell.Id, quote))
 		{
 			return Refused("Gathering cancelled because its environmental source has an unresolved transfer requiring staff review.");
 		}

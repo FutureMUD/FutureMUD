@@ -55,6 +55,8 @@ public sealed partial class EnvironmentalMagicCoordinator
 			if (!double.IsFinite(pressure)) return Fail("The saved pressure state is invalid.");
 			var damage = state.ScarDamage + request.Damage;
 			if (!double.IsFinite(damage)) return Fail("The damage total is not finite.");
+			if (request.Damage > 0.0 && damage <= state.ScarDamage)
+				return Fail("The requested damage cannot increase the stored ecological scar at its current magnitude.");
 			var repaired = Math.Min(damage, request.Repair);
 			var addedPressure = Math.Min(request.Pressure, Math.Max(0.0, MaximumRecentPressure - pressure));
 			var profile = EffectiveProfileId(concrete) is { } id ? Profile(id) : null;
@@ -63,7 +65,8 @@ public sealed partial class EnvironmentalMagicCoordinator
 			{
 				updated = PressureAnchor(updated, profile, pressure + addedPressure, utcNow) with { LastDefileUtc = utcNow };
 			}
-			var result = new EnvironmentalMagicOperationResult(request.OperationId, true, false, request.Damage, addedPressure, repaired, null);
+			var result = new EnvironmentalMagicOperationResult(request.OperationId, true, false,
+				damage - state.ScarDamage, addedPressure, repaired, null);
 			_operations.Commit(concrete, request, result, updated, utcNow, plan.Balances);
 			concrete.AdoptCommittedEnvironment(request.OperationId, updated, plan.Balances);
 			CountWrite();

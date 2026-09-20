@@ -1351,6 +1351,27 @@ public class EnvironmentalMagicCoordinatorTests
 	}
 
 	[TestMethod]
+	[TestCategory("C-R3-04")]
+	public void EcologicalOperation_IneffectivePositiveDamageRefusesWithoutAcknowledgingIt()
+	{
+		using var world = new EnvironmentalMagicTestWorld(activePercent: 0.0);
+		var cell = (Cell)world.Cells.At(0);
+		var opening = Request(damage: 1_000_000_000_000.0);
+		Assert.IsTrue(world.Coordinator.ApplyOperation(cell, opening).Success);
+		var ineffective = Request(damage: 0.000001);
+		var refused = world.Coordinator.ApplyOperation(cell, ineffective);
+		Assert.IsFalse(refused.Success);
+		Assert.AreEqual(1_000_000_000_000.0, cell.EnvironmentState.ScarDamage);
+		Assert.AreEqual(1, world.Operations.Commits);
+		Assert.IsTrue(world.Coordinator.ApplyOperation(cell, opening).Replayed);
+		var representable = world.Coordinator.ApplyOperation(cell, Request(damage: 0.001));
+		Assert.IsTrue(representable.Success, representable.Error);
+		Assert.IsTrue(cell.EnvironmentState.ScarDamage > 1_000_000_000_000.0);
+		Assert.AreEqual(cell.EnvironmentState.ScarDamage - 1_000_000_000_000.0,
+			representable.AppliedDamage, 0.000001);
+	}
+
+	[TestMethod]
 	[TestCategory("E-T11")]
 	[TestCategory("E-P20")]
 	[TestCategory("E-P21")]

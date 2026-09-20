@@ -68,7 +68,7 @@ public class CultureSeederLanguageCoverageTests
 			CultureSeeder.RenaissanceWorldNameCultureNamesForTesting.ToArray(),
 			CultureSeeder.RenaissanceWorldLanguageCoverageForTesting.Keys.ToArray());
 		Assert.AreEqual(25, CultureSeeder.RenaissanceWorldLanguageCoverageForTesting.Count);
-		Assert.AreEqual(52, CultureSeeder.RenaissanceWorldLanguageNamesForTesting.Count);
+		Assert.AreEqual(69, CultureSeeder.RenaissanceWorldLanguageNamesForTesting.Count);
 	}
 
 	[TestMethod]

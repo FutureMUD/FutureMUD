@@ -1,5 +1,13 @@
 # CultureSeeder native-language and foreign-accent review
 
+## Renaissance language-content follow-up (2026-09-20)
+
+The 17 Renaissance deferrals listed below are now supplied by the Renaissance world source pack. Each identity has an exact native-language binding to its own newly seeded language, so the unresolved-native warning and chargen gate no longer apply to these identities. The original reviewed handoff JSON remains checksum-stable; the maintained seeder provides these later additions. The historical coverage counts in the review below describe the state at the original review date.
+
+The new gameplay language skills are Mingrelian, Circassian, Punjabi, Sylheti, Tulu, Gan, Hakka, Jeju, Northern Thai, Lao, Sundanese, Madurese, Acehnese, Tigrinya, Agaw, Soninke and Manyika. These are distinct from neighbouring Georgian, Hindavi, Bengali, Kannada, Ming Guanhua, Middle Korean, Ayutthaya Thai, Middle Javanese, Classical Malay, Amharic, Manding and Karanga skills. Circassian and Agaw are broad gameplay labels for source ethnicities whose names do not identify one narrower variety; their one native accent is representative and is not a claim that every member spoke the same variety. No speculative literacy or mutual-intelligibility links were added.
+
+Language identity and classification were checked against the [Glottolog language catalogue](https://glottolog.org/glottolog); its entries for [Mingrelian](https://glottolog.org/resource/languoid/id/ming1252), [West Circassian](https://glottolog.org/resource/languoid/id/adyg1241), [Northern Thai](https://glottolog.org/resource/languoid/id/nort2740), [Soninke](https://glottolog.org/resource/languoid/id/soni1259), [Manyika](https://glottolog.org/resource/languoid/id/many1258) and the [Agaw language group](https://glottolog.org/resource/reference/id/37347) informed the distinctions. Accent labels and one-default choices are seeder gameplay decisions, not attested historical dialect inventories.
+
 Reviewed 2026-09-11. Scope: native defaults in Antiquity, Dark Ages, Medieval and Renaissance; existing accent roles across the stock packs; neighbouring-language accent gaps through Renaissance. No new language skills, migrations or live database edits.
 
 ## Results

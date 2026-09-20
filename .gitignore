@@ -28,3 +28,4 @@ MudSharp/bin/*
 /TerrainPlanner/artifacts/
 /.playwright-cli/
 /output/playwright/
+/.artifacts/test-runs/

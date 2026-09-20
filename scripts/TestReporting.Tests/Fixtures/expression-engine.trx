@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="aa594c98-3a20-45c4-acba-04f3f14bd526" name="fixture-user@fixture-host 2026-09-20 20:27:47" runUser="fixture-host\fixture-user" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-09-20T20:27:47.8864188+10:00" queuing="2026-09-20T20:27:47.8864189+10:00" start="2026-09-20T20:27:45.6933092+10:00" finish="2026-09-20T20:27:48.4641475+10:00" />
+  <TestSettings name="default" id="926c8434-4a46-459b-a0d7-ac3468838c11">
+    <Deployment runDeploymentRoot="fixture-user_fixture-host_2026-09-20_20_27_47" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="3732c15f-b5d7-4445-a559-55c4ed2d9ccc" testId="d319d0e3-5aa1-a3f8-62ea-36edaf246277" testName="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (0 / 0)" computerName="fixture-host" duration="00:00:00.0000386" startTime="2026-09-20T20:27:48.4247418+10:00" endTime="2026-09-20T20:27:48.4248784+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3732c15f-b5d7-4445-a559-55c4ed2d9ccc" />
+    <UnitTestResult executionId="980b56e5-5552-4469-9188-dd75c1dfc2c4" testId="1a71ad6a-d6b3-693c-dcad-633b6c4f0c80" testName="TryEvaluateDoubleWith_ValidFormula_DistinguishesZeroFromFailure (max(0, amount - 3),4)" computerName="fixture-host" duration="00:00:00.0006497" startTime="2026-09-20T20:27:48.4223801+10:00" endTime="2026-09-20T20:27:48.4230922+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="980b56e5-5552-4469-9188-dd75c1dfc2c4" />
+    <UnitTestResult executionId="929db646-dc10-4cd9-a3bf-a9fd4d19ab22" testId="02ccfd90-ffcd-0187-c125-5e843f009827" testName="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (unknownfunction(1))" computerName="fixture-host" duration="00:00:00.0003627" startTime="2026-09-20T20:27:48.4232822+10:00" endTime="2026-09-20T20:27:48.4236855+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="929db646-dc10-4cd9-a3bf-a9fd4d19ab22" />
+    <UnitTestResult executionId="a1b98345-fc45-481f-b80d-7a8ad5523d97" testId="90c10f39-4b76-fad8-e6ae-2e362116bf15" testName="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (1 +)" computerName="fixture-host" duration="00:00:00.0000927" startTime="2026-09-20T20:27:48.4245944+10:00" endTime="2026-09-20T20:27:48.4247273+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a1b98345-fc45-481f-b80d-7a8ad5523d97" />
+    <UnitTestResult executionId="6c97eca4-f32c-4713-ab38-9c9340db8c24" testId="053d2959-b634-4d75-52dd-07d910e686e8" testName="RandomFunctions_StayWithinTheirDocumentedBounds (drand(0.7,1.0),0.7,1,False)" computerName="fixture-host" duration="00:00:00.0007345" startTime="2026-09-20T20:27:47.8274580+10:00" endTime="2026-09-20T20:27:47.8282645+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6c97eca4-f32c-4713-ab38-9c9340db8c24" />
+    <UnitTestResult executionId="f6ac1b2a-118d-4abe-a30c-cf8bc6639d79" testId="18096d7b-55b2-dc99-5215-632afb9aaa35" testName="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing (not(1,2))" computerName="fixture-host" duration="00:00:00.0010876" startTime="2026-09-20T20:27:47.8573593+10:00" endTime="2026-09-20T20:27:47.8584985+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f6ac1b2a-118d-4abe-a30c-cf8bc6639d79">
+      <Output>
+        <StdOut>Exception in expression not(1,2):
+
+NCalc.Exceptions.NCalcEvaluationException: Error evaluating expression.&#xD;
+ ---&gt; System.InvalidCastException: Unable to cast object of type 'System.Object[]' to type 'System.IConvertible'.&#xD;
+   at System.Convert.ToBoolean(Object value, IFormatProvider provider)&#xD;
+   at NCalc.Helpers.EvaluationHelper.Unary(UnaryExpression expression, Object result, ExpressionContext context)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(UnaryExpression expression)&#xD;
+   at NCalc.UnaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   --- End of inner exception stack trace ---&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8552a900-a054-4d92-980b-b976c8eaa8c1" testId="5b7dcc59-7d6b-9b7f-2b45-7a24830bad39" testName="EvaluateWith_EnumParameter_UsesUnderlyingNumericValue" computerName="fixture-host" duration="00:00:00.5542109" startTime="2026-09-20T20:27:47.8588893+10:00" endTime="2026-09-20T20:27:48.4131536+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8552a900-a054-4d92-980b-b976c8eaa8c1" />
+    <UnitTestResult executionId="9510836c-cbde-4412-a804-ed2badefd37a" testId="7035b51d-3598-b8f9-79d8-1f3ee2909135" testName="RandomFunctions_StayWithinTheirDocumentedBounds (rand(1,10),1,10,True)" computerName="fixture-host" duration="00:00:00.0007468" startTime="2026-09-20T20:27:47.8237120+10:00" endTime="2026-09-20T20:27:47.8260093+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9510836c-cbde-4412-a804-ed2badefd37a" />
+    <UnitTestResult executionId="573a7944-7e5b-4e64-8ca7-c33f336a22fc" testId="dd45ab6c-8505-1ebd-9ccf-9b2de0bbe885" testName="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError ('not a number')" computerName="fixture-host" duration="00:00:00.0000759" startTime="2026-09-20T20:27:48.4253950+10:00" endTime="2026-09-20T20:27:48.4255020+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="573a7944-7e5b-4e64-8ca7-c33f336a22fc" />
+    <UnitTestResult executionId="7e03ddd9-1032-43f8-bea7-3671bd33cbde" testId="d6153d9c-be63-f2a5-608c-5451630fc382" testName="TryEvaluateDoubleWith_ValidFormula_DistinguishesZeroFromFailure (0,0)" computerName="fixture-host" duration="00:00:00.0011615" startTime="2026-09-20T20:27:48.4207516+10:00" endTime="2026-09-20T20:27:48.4223580+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7e03ddd9-1032-43f8-bea7-3671bd33cbde" />
+    <UnitTestResult executionId="27585014-a9d3-46aa-bc8c-21719dca6d08" testId="e47ef3bd-e892-f62c-e869-1e45e472281d" testName="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (sqrt(-1))" computerName="fixture-host" duration="00:00:00.0001674" startTime="2026-09-20T20:27:48.4249828+10:00" endTime="2026-09-20T20:27:48.4251895+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="27585014-a9d3-46aa-bc8c-21719dca6d08" />
+    <UnitTestResult executionId="4ce13275-e076-463a-ba2c-e4ccb7cd71bc" testId="efce7879-37f5-93fc-c365-937a45bc95c5" testName="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (if(true, 0, unknownfunction(1)))" computerName="fixture-host" duration="00:00:00.0001934" startTime="2026-09-20T20:27:48.4243317+10:00" endTime="2026-09-20T20:27:48.4245779+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4ce13275-e076-463a-ba2c-e4ccb7cd71bc" />
+    <UnitTestResult executionId="f70283af-659d-4086-a94e-e6ba310b8e1c" testId="a38518cf-87d7-bb26-ea9a-284fbe83186f" testName="NotFunction_UsesNumericTruthSemantics (not(0),1)" computerName="fixture-host" duration="00:00:00.0008040" startTime="2026-09-20T20:27:47.8337084+10:00" endTime="2026-09-20T20:27:47.8345789+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f70283af-659d-4086-a94e-e6ba310b8e1c" />
+    <UnitTestResult executionId="41381b3e-4f3c-40f9-aecb-bf9c3001be51" testId="fcf8fb61-dbbf-76f8-fe2e-15f14d516928" testName="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing (dice(10001,6))" computerName="fixture-host" duration="00:00:00.0000941" startTime="2026-09-20T20:27:47.8585190+10:00" endTime="2026-09-20T20:27:47.8586639+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="41381b3e-4f3c-40f9-aecb-bf9c3001be51">
+      <Output>
+        <StdOut>Exception in expression dice(10001,6):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="90b70234-da03-4222-a2df-4fc8771bba09" testId="bb5e0e7e-2eaa-0bc9-edf9-6a98e463bb7e" testName="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing (rand(1))" computerName="fixture-host" duration="00:00:00.0002046" startTime="2026-09-20T20:27:47.8568493+10:00" endTime="2026-09-20T20:27:47.8570909+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="90b70234-da03-4222-a2df-4fc8771bba09">
+      <Output>
+        <StdOut>Exception in expression rand(1):
+
+System.ArgumentException: Rand() takes exactly 2 arguments&#xD;
+   at ExpressionEngine.Expression.RandFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 326&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="b3b10120-9735-4805-97f4-abab879136be" testId="6f310d36-9889-fdc6-08a1-f0383b5ae864" testName="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing (dice(1,100001))" computerName="fixture-host" duration="00:00:00.0000513" startTime="2026-09-20T20:27:47.8587823+10:00" endTime="2026-09-20T20:27:47.8588803+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b3b10120-9735-4805-97f4-abab879136be">
+      <Output>
+        <StdOut>Exception in expression dice(1,100001):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="b9408562-17dc-484f-b1fa-7a74f8d8eb8b" testId="da3323c5-0356-8c29-73ad-22387160084c" testName="PushRandom_SameSeed_ReplaysExpressionSequence" computerName="fixture-host" duration="00:00:00.0052466" startTime="2026-09-20T20:27:47.8282851+10:00" endTime="2026-09-20T20:27:47.8336093+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b9408562-17dc-484f-b1fa-7a74f8d8eb8b">
+      <Output>
+        <StdOut>Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88&#xD;
+Exception in expression rand(1,1000000) + dice(3,1000000):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Handlers.BinaryEventArgs.RightValue()&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(BinaryExpression expression)&#xD;
+   at NCalc.BinaryExpression.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="79a8868a-1df8-4800-9b29-1e17ec955712" testId="71a04f4c-376e-e86d-a0b4-6a4030c460cd" testName="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing (dice(1,0))" computerName="fixture-host" duration="00:00:00.0000571" startTime="2026-09-20T20:27:47.8586760+10:00" endTime="2026-09-20T20:27:47.8587695+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="79a8868a-1df8-4800-9b29-1e17ec955712">
+      <Output>
+        <StdOut>Exception in expression dice(1,0):
+
+System.ArgumentException: Dice() requires 0-10000 dice and 1-100000 sides&#xD;
+   at ExpressionEngine.Expression.DiceFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 380&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="88aae260-f628-483c-9616-36c965f4910d" testId="39b64292-0396-c6bb-f537-5131ec0c769e" testName="EvaluateDecimalWith_ConvertsNumericResults" computerName="fixture-host" duration="00:00:00.0007237" startTime="2026-09-20T20:27:48.4199032+10:00" endTime="2026-09-20T20:27:48.4207339+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="88aae260-f628-483c-9616-36c965f4910d" />
+    <UnitTestResult executionId="d3de387f-58c3-4171-8528-ae38f38f4747" testId="a459c8c9-2931-a5d4-eaa3-1d94e6497d45" testName="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing (drand(1))" computerName="fixture-host" duration="00:00:00.0001824" startTime="2026-09-20T20:27:47.8571081+10:00" endTime="2026-09-20T20:27:47.8573430+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d3de387f-58c3-4171-8528-ae38f38f4747">
+      <Output>
+        <StdOut>Exception in expression drand(1):
+
+System.ArgumentException: DRand() takes exactly 2 arguments&#xD;
+   at ExpressionEngine.Expression.DRandFunction(String name, FunctionEventArgs args) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 304&#xD;
+   at NCalc.Visitors.EvaluationVisitor.OnEvaluateFunction(String name, FunctionEventArgs args)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="db8a8221-d443-4cab-96d2-0b9dbb036b64" testId="4e6a2ecc-5924-0729-9d02-5588efb5dce1" testName="TryEvaluateDoubleWith_ValidFormula_DistinguishesZeroFromFailure (if(amount &gt; 0, amount * 2, 0),14)" computerName="fixture-host" duration="00:00:00.0001030" startTime="2026-09-20T20:27:48.4231087+10:00" endTime="2026-09-20T20:27:48.4232694+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="db8a8221-d443-4cab-96d2-0b9dbb036b64" />
+    <UnitTestResult executionId="83365673-1ce1-4db8-b01f-97852462b315" testId="8eb532dc-c1d6-f0f4-a81c-33c4625b95c8" testName="MissingFunction_RaisesExpressionErrorAndReturnsZero" computerName="fixture-host" duration="00:00:00.0005634" startTime="2026-09-20T20:27:48.4192814+10:00" endTime="2026-09-20T20:27:48.4198828+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="83365673-1ce1-4db8-b01f-97852462b315">
+      <Output>
+        <StdOut>Exception in expression missingfunction(1):
+
+Function Not Found: missingfunction
+
+NCalc.Exceptions.NCalcFunctionNotFoundException: Function not found. Name: missingfunction&#xD;
+   at NCalc.Helpers.BuiltInFunctionHelper.Evaluate(String functionName, FunctionData functionData)&#xD;
+   at NCalc.Visitors.EvaluationVisitor.Visit(Function function)&#xD;
+   at NCalc.Function.Accept[T](ILogicalExpressionVisitor`1 visitor)&#xD;
+   at NCalc.Expression.Evaluate(CancellationToken cancellationToken)&#xD;
+   at ExpressionEngine.Expression.EvaluateWith(ValueTuple`2[] values) in C:\fixture\FutureMUD\ExpressionEngine\Expression.cs:line 88</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="b4674125-c49f-4272-b192-25449a25a2da" testId="0730965a-2225-2569-420d-8fb0df056c6e" testName="EvaluateDoubleWith_OverridesVariablesForEachEvaluation" computerName="fixture-host" duration="00:00:00.6294461" startTime="2026-09-20T20:27:47.1855721+10:00" endTime="2026-09-20T20:27:47.8214094+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b4674125-c49f-4272-b192-25449a25a2da" />
+    <UnitTestResult executionId="5c48c132-9ac8-47c1-a5fb-b2d73f367895" testId="69afa4bc-0806-03ce-c4c6-e29258a58d6f" testName="ParameterNames_ReportsReferencedVariables" computerName="fixture-host" duration="00:00:00.0009006" startTime="2026-09-20T20:27:48.4173106+10:00" endTime="2026-09-20T20:27:48.4182524+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5c48c132-9ac8-47c1-a5fb-b2d73f367895" />
+    <UnitTestResult executionId="77163e5a-ade6-4abd-bf2b-fe0c83d760a8" testId="8b8c3e34-9ac5-3535-e079-744fc5bfdad4" testName="FunctionNames_ReportsFunctionsInUnreachedBranchesAndDiceShorthand" computerName="fixture-host" duration="00:00:00.0002583" startTime="2026-09-20T20:27:48.4266715+10:00" endTime="2026-09-20T20:27:48.4269633+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="77163e5a-ade6-4abd-bf2b-fe0c83d760a8" />
+    <UnitTestResult executionId="63471a6c-f5fe-491f-8a91-ce6126957d9f" testId="6dc6042e-d7be-009b-82c4-0aa3103a4274" testName="RandomFunctions_StayWithinTheirDocumentedBounds (dice(3,6),3,18,True)" computerName="fixture-host" duration="00:00:00.0003295" startTime="2026-09-20T20:27:47.8261780+10:00" endTime="2026-09-20T20:27:47.8265992+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="63471a6c-f5fe-491f-8a91-ce6126957d9f" />
+    <UnitTestResult executionId="8491544e-d450-42cb-b9b2-1ab265255989" testId="45cf0f4a-12c2-5129-8da6-2b10e1acd64d" testName="RandomFunctions_StayWithinTheirDocumentedBounds (3d6+5,8,23,True)" computerName="fixture-host" duration="00:00:00.0007538" startTime="2026-09-20T20:27:47.8266204+10:00" endTime="2026-09-20T20:27:47.8274375+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8491544e-d450-42cb-b9b2-1ab265255989" />
+    <UnitTestResult executionId="b09fb3c9-9f20-43b9-9b80-f537d484b8f0" testId="ac6556e4-a633-9f90-7b20-cb685c066867" testName="EvaluateWith_MissingValues_ResetToZeroForEachCall" computerName="fixture-host" duration="00:00:00.0003638" startTime="2026-09-20T20:27:48.4132268+10:00" endTime="2026-09-20T20:27:48.4137146+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b09fb3c9-9f20-43b9-9b80-f537d484b8f0" />
+    <UnitTestResult executionId="df045ff7-3e5c-45e7-be28-794ab05dd2e7" testId="fda3a383-f882-567d-8778-ed60c8141e42" testName="TryEvaluateDoubleWith_MissingInput_DoesNotApplyLegacyImplicitZero" computerName="fixture-host" duration="00:00:00.0011165" startTime="2026-09-20T20:27:48.4255125+10:00" endTime="2026-09-20T20:27:48.4266554+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="df045ff7-3e5c-45e7-be28-794ab05dd2e7" />
+    <UnitTestResult executionId="604450f1-e29a-4ab8-b0fb-e3f43ed65c48" testId="5feff988-b7f4-2eb0-5397-a93d33e1173f" testName="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (1.0 / 0.0)" computerName="fixture-host" duration="00:00:00.0000252" startTime="2026-09-20T20:27:48.4249051+10:00" endTime="2026-09-20T20:27:48.4249678+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="604450f1-e29a-4ab8-b0fb-e3f43ed65c48" />
+    <UnitTestResult executionId="deade884-efc9-4bf3-aa1a-ab4a8c90c829" testId="d42b987c-a4b4-1bfa-ecf8-44001715c151" testName="NotFunction_UsesNumericTruthSemantics (NOT(0),1)" computerName="fixture-host" duration="00:00:00.0001025" startTime="2026-09-20T20:27:47.8566040+10:00" endTime="2026-09-20T20:27:47.8568202+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="deade884-efc9-4bf3-aa1a-ab4a8c90c829" />
+    <UnitTestResult executionId="337bbcb3-1eda-4609-99a3-47f72f1841a4" testId="907bc857-0034-428b-96db-e2ac0e0f8038" testName="EvaluateWith_StringComparisons_AreCaseInsensitive" computerName="fixture-host" duration="00:00:00.0019243" startTime="2026-09-20T20:27:48.4153077+10:00" endTime="2026-09-20T20:27:48.4172840+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="337bbcb3-1eda-4609-99a3-47f72f1841a4" />
+    <UnitTestResult executionId="d7a829d0-e454-4d5e-8213-9615bc5cdf8c" testId="a9ab608b-b7c2-e1a8-aa83-4c9fd4a72b56" testName="NotFunction_UsesNumericTruthSemantics (not(-3.5),0)" computerName="fixture-host" duration="00:00:00.0000793" startTime="2026-09-20T20:27:47.8349149+10:00" endTime="2026-09-20T20:27:47.8350447+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d7a829d0-e454-4d5e-8213-9615bc5cdf8c" />
+    <UnitTestResult executionId="6b47d716-4537-4a3b-9766-8ff06c1b8f9a" testId="36b82e7e-2cbc-3c80-89ee-6918424b6b5c" testName="InvalidSyntax_ExposesParserErrorWithoutThrowing" computerName="fixture-host" duration="00:00:00.0009436" startTime="2026-09-20T20:27:48.4182767+10:00" endTime="2026-09-20T20:27:48.4192628+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6b47d716-4537-4a3b-9766-8ff06c1b8f9a">
+      <Output>
+        <StdOut>Exception in expression 1 +:
+
+NCalc.Exceptions.NCalcParserException: Error parsing the expression.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="0851ea8f-fa11-47c8-b36d-bda82b1e8c67" testId="220a1c3a-c196-ba1a-6dab-d155930b3453" testName="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (not(1, 2))" computerName="fixture-host" duration="00:00:00.0001358" startTime="2026-09-20T20:27:48.4252088+10:00" endTime="2026-09-20T20:27:48.4253836+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0851ea8f-fa11-47c8-b36d-bda82b1e8c67" />
+    <UnitTestResult executionId="a47f2b48-0589-492b-9f9e-76ed98253d17" testId="c3c4e7d0-0ae8-d85e-370b-6e9e79737e89" testName="NotFunction_UsesNumericTruthSemantics (not(1),0)" computerName="fixture-host" duration="00:00:00.0002192" startTime="2026-09-20T20:27:47.8346001+10:00" endTime="2026-09-20T20:27:47.8348952+10:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a47f2b48-0589-492b-9f9e-76ed98253d17" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="PushRandom_SameSeed_ReplaysExpressionSequence" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="da3323c5-0356-8c29-73ad-22387160084c">
+      <Execution id="b9408562-17dc-484f-b1fa-7a74f8d8eb8b" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="PushRandom_SameSeed_ReplaysExpressionSequence" />
+    </UnitTest>
+    <UnitTest name="TryEvaluateDoubleWith_MissingInput_DoesNotApplyLegacyImplicitZero" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="fda3a383-f882-567d-8778-ed60c8141e42">
+      <Execution id="df045ff7-3e5c-45e7-be28-794ab05dd2e7" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="TryEvaluateDoubleWith_MissingInput_DoesNotApplyLegacyImplicitZero" />
+    </UnitTest>
+    <UnitTest name="RandomFunctions_StayWithinTheirDocumentedBounds (3d6+5,8,23,True)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="45cf0f4a-12c2-5129-8da6-2b10e1acd64d">
+      <Execution id="8491544e-d450-42cb-b9b2-1ab265255989" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="RandomFunctions_StayWithinTheirDocumentedBounds" />
+    </UnitTest>
+    <UnitTest name="ParameterNames_ReportsReferencedVariables" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="69afa4bc-0806-03ce-c4c6-e29258a58d6f">
+      <Execution id="5c48c132-9ac8-47c1-a5fb-b2d73f367895" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="ParameterNames_ReportsReferencedVariables" />
+    </UnitTest>
+    <UnitTest name="TryEvaluateDoubleWith_ValidFormula_DistinguishesZeroFromFailure (0,0)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="d6153d9c-be63-f2a5-608c-5451630fc382">
+      <Execution id="7e03ddd9-1032-43f8-bea7-3671bd33cbde" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="TryEvaluateDoubleWith_ValidFormula_DistinguishesZeroFromFailure" />
+    </UnitTest>
+    <UnitTest name="NotFunction_UsesNumericTruthSemantics (not(1),0)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="c3c4e7d0-0ae8-d85e-370b-6e9e79737e89">
+      <Execution id="a47f2b48-0589-492b-9f9e-76ed98253d17" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="NotFunction_UsesNumericTruthSemantics" />
+    </UnitTest>
+    <UnitTest name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (0 / 0)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="d319d0e3-5aa1-a3f8-62ea-36edaf246277">
+      <Execution id="3732c15f-b5d7-4445-a559-55c4ed2d9ccc" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError" />
+    </UnitTest>
+    <UnitTest name="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing (drand(1))" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="a459c8c9-2931-a5d4-eaa3-1d94e6497d45">
+      <Execution id="d3de387f-58c3-4171-8528-ae38f38f4747" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing" />
+    </UnitTest>
+    <UnitTest name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (1 +)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="90c10f39-4b76-fad8-e6ae-2e362116bf15">
+      <Execution id="a1b98345-fc45-481f-b80d-7a8ad5523d97" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError" />
+    </UnitTest>
+    <UnitTest name="RandomFunctions_StayWithinTheirDocumentedBounds (rand(1,10),1,10,True)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="7035b51d-3598-b8f9-79d8-1f3ee2909135">
+      <Execution id="9510836c-cbde-4412-a804-ed2badefd37a" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="RandomFunctions_StayWithinTheirDocumentedBounds" />
+    </UnitTest>
+    <UnitTest name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError ('not a number')" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="dd45ab6c-8505-1ebd-9ccf-9b2de0bbe885">
+      <Execution id="573a7944-7e5b-4e64-8ca7-c33f336a22fc" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError" />
+    </UnitTest>
+    <UnitTest name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (not(1, 2))" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="220a1c3a-c196-ba1a-6dab-d155930b3453">
+      <Execution id="0851ea8f-fa11-47c8-b36d-bda82b1e8c67" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError" />
+    </UnitTest>
+    <UnitTest name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (unknownfunction(1))" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="02ccfd90-ffcd-0187-c125-5e843f009827">
+      <Execution id="929db646-dc10-4cd9-a3bf-a9fd4d19ab22" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError" />
+    </UnitTest>
+    <UnitTest name="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing (dice(1,0))" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="71a04f4c-376e-e86d-a0b4-6a4030c460cd">
+      <Execution id="79a8868a-1df8-4800-9b29-1e17ec955712" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing" />
+    </UnitTest>
+    <UnitTest name="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing (dice(10001,6))" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="fcf8fb61-dbbf-76f8-fe2e-15f14d516928">
+      <Execution id="41381b3e-4f3c-40f9-aecb-bf9c3001be51" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing" />
+    </UnitTest>
+    <UnitTest name="NotFunction_UsesNumericTruthSemantics (NOT(0),1)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="d42b987c-a4b4-1bfa-ecf8-44001715c151">
+      <Execution id="deade884-efc9-4bf3-aa1a-ab4a8c90c829" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="NotFunction_UsesNumericTruthSemantics" />
+    </UnitTest>
+    <UnitTest name="EvaluateDoubleWith_OverridesVariablesForEachEvaluation" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="0730965a-2225-2569-420d-8fb0df056c6e">
+      <Execution id="b4674125-c49f-4272-b192-25449a25a2da" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="EvaluateDoubleWith_OverridesVariablesForEachEvaluation" />
+    </UnitTest>
+    <UnitTest name="MissingFunction_RaisesExpressionErrorAndReturnsZero" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="8eb532dc-c1d6-f0f4-a81c-33c4625b95c8">
+      <Execution id="83365673-1ce1-4db8-b01f-97852462b315" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="MissingFunction_RaisesExpressionErrorAndReturnsZero" />
+    </UnitTest>
+    <UnitTest name="EvaluateDecimalWith_ConvertsNumericResults" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="39b64292-0396-c6bb-f537-5131ec0c769e">
+      <Execution id="88aae260-f628-483c-9616-36c965f4910d" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="EvaluateDecimalWith_ConvertsNumericResults" />
+    </UnitTest>
+    <UnitTest name="InvalidSyntax_ExposesParserErrorWithoutThrowing" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="36b82e7e-2cbc-3c80-89ee-6918424b6b5c">
+      <Execution id="6b47d716-4537-4a3b-9766-8ff06c1b8f9a" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="InvalidSyntax_ExposesParserErrorWithoutThrowing" />
+    </UnitTest>
+    <UnitTest name="RandomFunctions_StayWithinTheirDocumentedBounds (drand(0.7,1.0),0.7,1,False)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="053d2959-b634-4d75-52dd-07d910e686e8">
+      <Execution id="6c97eca4-f32c-4713-ab38-9c9340db8c24" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="RandomFunctions_StayWithinTheirDocumentedBounds" />
+    </UnitTest>
+    <UnitTest name="FunctionNames_ReportsFunctionsInUnreachedBranchesAndDiceShorthand" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="8b8c3e34-9ac5-3535-e079-744fc5bfdad4">
+      <Execution id="77163e5a-ade6-4abd-bf2b-fe0c83d760a8" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="FunctionNames_ReportsFunctionsInUnreachedBranchesAndDiceShorthand" />
+    </UnitTest>
+    <UnitTest name="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing (rand(1))" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="bb5e0e7e-2eaa-0bc9-edf9-6a98e463bb7e">
+      <Execution id="90b70234-da03-4222-a2df-4fc8771bba09" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing" />
+    </UnitTest>
+    <UnitTest name="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing (dice(1,100001))" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="6f310d36-9889-fdc6-08a1-f0383b5ae864">
+      <Execution id="b3b10120-9735-4805-97f4-abab879136be" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing" />
+    </UnitTest>
+    <UnitTest name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (sqrt(-1))" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="e47ef3bd-e892-f62c-e869-1e45e472281d">
+      <Execution id="27585014-a9d3-46aa-bc8c-21719dca6d08" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError" />
+    </UnitTest>
+    <UnitTest name="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing (not(1,2))" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="18096d7b-55b2-dc99-5215-632afb9aaa35">
+      <Execution id="f6ac1b2a-118d-4abe-a30c-cf8bc6639d79" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing" />
+    </UnitTest>
+    <UnitTest name="EvaluateWith_EnumParameter_UsesUnderlyingNumericValue" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="5b7dcc59-7d6b-9b7f-2b45-7a24830bad39">
+      <Execution id="8552a900-a054-4d92-980b-b976c8eaa8c1" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="EvaluateWith_EnumParameter_UsesUnderlyingNumericValue" />
+    </UnitTest>
+    <UnitTest name="TryEvaluateDoubleWith_ValidFormula_DistinguishesZeroFromFailure (if(amount &gt; 0, amount * 2, 0),14)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="4e6a2ecc-5924-0729-9d02-5588efb5dce1">
+      <Execution id="db8a8221-d443-4cab-96d2-0b9dbb036b64" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="TryEvaluateDoubleWith_ValidFormula_DistinguishesZeroFromFailure" />
+    </UnitTest>
+    <UnitTest name="RandomFunctions_StayWithinTheirDocumentedBounds (dice(3,6),3,18,True)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="6dc6042e-d7be-009b-82c4-0aa3103a4274">
+      <Execution id="63471a6c-f5fe-491f-8a91-ce6126957d9f" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="RandomFunctions_StayWithinTheirDocumentedBounds" />
+    </UnitTest>
+    <UnitTest name="TryEvaluateDoubleWith_ValidFormula_DistinguishesZeroFromFailure (max(0, amount - 3),4)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="1a71ad6a-d6b3-693c-dcad-633b6c4f0c80">
+      <Execution id="980b56e5-5552-4469-9188-dd75c1dfc2c4" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="TryEvaluateDoubleWith_ValidFormula_DistinguishesZeroFromFailure" />
+    </UnitTest>
+    <UnitTest name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (if(true, 0, unknownfunction(1)))" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="efce7879-37f5-93fc-c365-937a45bc95c5">
+      <Execution id="4ce13275-e076-463a-ba2c-e4ccb7cd71bc" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError" />
+    </UnitTest>
+    <UnitTest name="EvaluateWith_StringComparisons_AreCaseInsensitive" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="907bc857-0034-428b-96db-e2ac0e0f8038">
+      <Execution id="337bbcb3-1eda-4609-99a3-47f72f1841a4" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="EvaluateWith_StringComparisons_AreCaseInsensitive" />
+    </UnitTest>
+    <UnitTest name="NotFunction_UsesNumericTruthSemantics (not(-3.5),0)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="a9ab608b-b7c2-e1a8-aa83-4c9fd4a72b56">
+      <Execution id="d7a829d0-e454-4d5e-8213-9615bc5cdf8c" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="NotFunction_UsesNumericTruthSemantics" />
+    </UnitTest>
+    <UnitTest name="NotFunction_UsesNumericTruthSemantics (not(0),1)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="a38518cf-87d7-bb26-ea9a-284fbe83186f">
+      <Execution id="f70283af-659d-4086-a94e-e6ba310b8e1c" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="NotFunction_UsesNumericTruthSemantics" />
+    </UnitTest>
+    <UnitTest name="EvaluateWith_MissingValues_ResetToZeroForEachCall" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="ac6556e4-a633-9f90-7b20-cb685c066867">
+      <Execution id="b09fb3c9-9f20-43b9-9b80-f537d484b8f0" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.ExpressionEngineTests" name="EvaluateWith_MissingValues_ResetToZeroForEachCall" />
+    </UnitTest>
+    <UnitTest name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError (1.0 / 0.0)" storage="c:\fixture\futuremud\expressionengine unit tests\bin\debug\net10.0\expressionengine unit tests.dll" id="5feff988-b7f4-2eb0-5397-a93d33e1173f">
+      <Execution id="604450f1-e29a-4ab8-b0fb-e3f43ed65c48" />
+      <TestMethod codeBase="C:\fixture\FutureMUD\ExpressionEngine Unit Tests\bin\Debug\net10.0\ExpressionEngine Unit Tests.dll" adapterTypeName="executor://mstestadapter/v2" className="MudSharp_Unit_Tests.StrictExpressionTests" name="TryEvaluateDoubleWith_InvalidFormula_ReturnsDiagnosticWithoutGlobalError" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="d319d0e3-5aa1-a3f8-62ea-36edaf246277" executionId="3732c15f-b5d7-4445-a559-55c4ed2d9ccc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1a71ad6a-d6b3-693c-dcad-633b6c4f0c80" executionId="980b56e5-5552-4469-9188-dd75c1dfc2c4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="02ccfd90-ffcd-0187-c125-5e843f009827" executionId="929db646-dc10-4cd9-a3bf-a9fd4d19ab22" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="90c10f39-4b76-fad8-e6ae-2e362116bf15" executionId="a1b98345-fc45-481f-b80d-7a8ad5523d97" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="053d2959-b634-4d75-52dd-07d910e686e8" executionId="6c97eca4-f32c-4713-ab38-9c9340db8c24" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="18096d7b-55b2-dc99-5215-632afb9aaa35" executionId="f6ac1b2a-118d-4abe-a30c-cf8bc6639d79" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5b7dcc59-7d6b-9b7f-2b45-7a24830bad39" executionId="8552a900-a054-4d92-980b-b976c8eaa8c1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7035b51d-3598-b8f9-79d8-1f3ee2909135" executionId="9510836c-cbde-4412-a804-ed2badefd37a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dd45ab6c-8505-1ebd-9ccf-9b2de0bbe885" executionId="573a7944-7e5b-4e64-8ca7-c33f336a22fc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d6153d9c-be63-f2a5-608c-5451630fc382" executionId="7e03ddd9-1032-43f8-bea7-3671bd33cbde" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e47ef3bd-e892-f62c-e869-1e45e472281d" executionId="27585014-a9d3-46aa-bc8c-21719dca6d08" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="efce7879-37f5-93fc-c365-937a45bc95c5" executionId="4ce13275-e076-463a-ba2c-e4ccb7cd71bc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a38518cf-87d7-bb26-ea9a-284fbe83186f" executionId="f70283af-659d-4086-a94e-e6ba310b8e1c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fcf8fb61-dbbf-76f8-fe2e-15f14d516928" executionId="41381b3e-4f3c-40f9-aecb-bf9c3001be51" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bb5e0e7e-2eaa-0bc9-edf9-6a98e463bb7e" executionId="90b70234-da03-4222-a2df-4fc8771bba09" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6f310d36-9889-fdc6-08a1-f0383b5ae864" executionId="b3b10120-9735-4805-97f4-abab879136be" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="da3323c5-0356-8c29-73ad-22387160084c" executionId="b9408562-17dc-484f-b1fa-7a74f8d8eb8b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="71a04f4c-376e-e86d-a0b4-6a4030c460cd" executionId="79a8868a-1df8-4800-9b29-1e17ec955712" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="39b64292-0396-c6bb-f537-5131ec0c769e" executionId="88aae260-f628-483c-9616-36c965f4910d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a459c8c9-2931-a5d4-eaa3-1d94e6497d45" executionId="d3de387f-58c3-4171-8528-ae38f38f4747" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4e6a2ecc-5924-0729-9d02-5588efb5dce1" executionId="db8a8221-d443-4cab-96d2-0b9dbb036b64" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8eb532dc-c1d6-f0f4-a81c-33c4625b95c8" executionId="83365673-1ce1-4db8-b01f-97852462b315" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0730965a-2225-2569-420d-8fb0df056c6e" executionId="b4674125-c49f-4272-b192-25449a25a2da" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="69afa4bc-0806-03ce-c4c6-e29258a58d6f" executionId="5c48c132-9ac8-47c1-a5fb-b2d73f367895" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8b8c3e34-9ac5-3535-e079-744fc5bfdad4" executionId="77163e5a-ade6-4abd-bf2b-fe0c83d760a8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6dc6042e-d7be-009b-82c4-0aa3103a4274" executionId="63471a6c-f5fe-491f-8a91-ce6126957d9f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="45cf0f4a-12c2-5129-8da6-2b10e1acd64d" executionId="8491544e-d450-42cb-b9b2-1ab265255989" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ac6556e4-a633-9f90-7b20-cb685c066867" executionId="b09fb3c9-9f20-43b9-9b80-f537d484b8f0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fda3a383-f882-567d-8778-ed60c8141e42" executionId="df045ff7-3e5c-45e7-be28-794ab05dd2e7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5feff988-b7f4-2eb0-5397-a93d33e1173f" executionId="604450f1-e29a-4ab8-b0fb-e3f43ed65c48" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d42b987c-a4b4-1bfa-ecf8-44001715c151" executionId="deade884-efc9-4bf3-aa1a-ab4a8c90c829" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="907bc857-0034-428b-96db-e2ac0e0f8038" executionId="337bbcb3-1eda-4609-99a3-47f72f1841a4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a9ab608b-b7c2-e1a8-aa83-4c9fd4a72b56" executionId="d7a829d0-e454-4d5e-8213-9615bc5cdf8c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="36b82e7e-2cbc-3c80-89ee-6918424b6b5c" executionId="6b47d716-4537-4a3b-9766-8ff06c1b8f9a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="220a1c3a-c196-ba1a-6dab-d155930b3453" executionId="0851ea8f-fa11-47c8-b36d-bda82b1e8c67" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c3c4e7d0-0ae8-d85e-370b-6e9e79737e89" executionId="a47f2b48-0589-492b-9f9e-76ed98253d17" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="36" executed="36" passed="36" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+  </ResultSummary>
+</TestRun>

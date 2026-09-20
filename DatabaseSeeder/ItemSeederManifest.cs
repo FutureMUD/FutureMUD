@@ -288,7 +288,8 @@ internal static class ItemSeederManifestCatalogue
 			.Concat(EnumerateFilesIfPresent(Path.Combine(sourceDirectory, "FoodCatalogue"), "*.tsv", SearchOption.AllDirectories))
 			.Concat(EnumerateFilesIfPresent(Path.Combine(sourceDirectory, "MedicalRepairCatalogue"), "*.tsv", SearchOption.AllDirectories))
 			.Concat(EnumerateFilesIfPresent(industrialisedCatalogueDirectory, "*.tsv", SearchOption.AllDirectories))
-			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase);
+			.OrderBy(x => Path.GetRelativePath(repositoryRoot, x).Replace('\\', '/'),
+				StringComparer.OrdinalIgnoreCase);
 		foreach (var path in sourcePaths)
 		{
 			var relativePath = Path.GetRelativePath(repositoryRoot, path).Replace('\\', '/');

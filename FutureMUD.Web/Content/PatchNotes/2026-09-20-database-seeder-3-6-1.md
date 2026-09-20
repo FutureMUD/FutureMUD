@@ -1,11 +1,11 @@
 ---
-title: FutureMUD Database Seeder 3.6.0
+title: FutureMUD Database Seeder 3.6.1
 summary: Expands historical culture and accent stock, improves safe reruns, and updates the blank database for Engine 2.13.0.
 date: 2026-09-20
 tags: seeder, release, culture, languages, installation
 ---
 
-**Compatibility:** Use Database Seeder 3.6.0 with Engine 2.13.0. Its bundled blank database snapshot includes the latest migration for Land gathering source accounting.
+**Compatibility:** Use Database Seeder 3.6.1 with Engine 2.13.0. Its bundled blank database snapshot includes the latest migration for Land gathering source accounting.
 
 ## Historical Cultures, Languages and Accents
 

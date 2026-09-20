@@ -1906,20 +1906,22 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		dbitem.Condition = Condition;
 		dbitem.Definition = native.Definition.ToString();
 
-		FMDB.Context.AgricultureFieldCrops.RemoveRange(dbitem.AgricultureFieldCrop != null ? new[] { dbitem.AgricultureFieldCrop } : Array.Empty<Models.AgricultureFieldCrop>());
 		if (native.CropDefinitionId > 0L)
 		{
-			dbitem.AgricultureFieldCrop = new Models.AgricultureFieldCrop
-			{
-				AgricultureFieldId = Id,
-				CropDefinitionId = native.CropDefinitionId,
-				Stage = (int)native.CropStage,
-				GrowthDays = native.CropGrowthDays,
-				Health = native.CropHealth,
-				YieldPotential = native.CropYield,
-				Definition = new XElement("Crop",
-					new XAttribute("harvestCount", native.CropHarvestCount)).ToString()
-			};
+			var crop = dbitem.AgricultureFieldCrop ?? new Models.AgricultureFieldCrop { AgricultureFieldId = Id };
+			crop.CropDefinitionId = native.CropDefinitionId;
+			crop.Stage = (int)native.CropStage;
+			crop.GrowthDays = native.CropGrowthDays;
+			crop.Health = native.CropHealth;
+			crop.YieldPotential = native.CropYield;
+			crop.Definition = new XElement("Crop",
+				new XAttribute("harvestCount", native.CropHarvestCount)).ToString();
+			dbitem.AgricultureFieldCrop = crop;
+		}
+		else if (dbitem.AgricultureFieldCrop != null)
+		{
+			FMDB.Context.AgricultureFieldCrops.Remove(dbitem.AgricultureFieldCrop);
+			dbitem.AgricultureFieldCrop = null;
 		}
 
 		FMDB.Context.AgricultureFieldHerds.RemoveRange(dbitem.AgricultureFieldHerds);
@@ -1936,18 +1938,20 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 			});
 		}
 
-		FMDB.Context.AgricultureFieldWoodlands.RemoveRange(dbitem.AgricultureFieldWoodland != null ? new[] { dbitem.AgricultureFieldWoodland } : Array.Empty<Models.AgricultureFieldWoodland>());
 		if (native.WoodlandDefinitionId > 0L)
 		{
-			dbitem.AgricultureFieldWoodland = new Models.AgricultureFieldWoodland
-			{
-				AgricultureFieldId = Id,
-				WoodlandDefinitionId = native.WoodlandDefinitionId,
-				GrowthDays = native.WoodlandGrowthDays,
-				Health = native.WoodlandHealth,
-				YieldPotential = native.WoodlandYield,
-				Definition = "<Woodland />"
-			};
+			var woodland = dbitem.AgricultureFieldWoodland ?? new Models.AgricultureFieldWoodland { AgricultureFieldId = Id };
+			woodland.WoodlandDefinitionId = native.WoodlandDefinitionId;
+			woodland.GrowthDays = native.WoodlandGrowthDays;
+			woodland.Health = native.WoodlandHealth;
+			woodland.YieldPotential = native.WoodlandYield;
+			woodland.Definition = "<Woodland />";
+			dbitem.AgricultureFieldWoodland = woodland;
+		}
+		else if (dbitem.AgricultureFieldWoodland != null)
+		{
+			FMDB.Context.AgricultureFieldWoodlands.Remove(dbitem.AgricultureFieldWoodland);
+			dbitem.AgricultureFieldWoodland = null;
 		}
 
 	}

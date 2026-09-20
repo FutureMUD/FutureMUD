@@ -4,6 +4,7 @@ using MudSharp.Economy;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Magic;
+using MudSharp.Magic.Environment;
 using MudSharp.Planes;
 using MudSharp.RPG.Law;
 using System.Numerics;
@@ -485,6 +486,26 @@ public partial class Cell
             }
         }
 
+        // Ecological damage is a derived local observation, never an edit to the builder's base prose.
+        var environmental = Gameworld.EnvironmentalMagic;
+        var profileView = environmental?.InspectOrganicProfile(this);
+        var profile = profileView?.ProfileId is { } profileId
+            ? Gameworld.MagicResourceRegenerators.Get(profileId) as IEnvironmentalMagicProfile
+            : null;
+        var ecologicalState = profile?.ShowLandScarAddendum == true ? environmental?.InspectState(this) : null;
+        string scarText = LandScarRoomDescriptionAddendum(profile, ecologicalState);
+        if (scarText is not null)
+        {
+            if (character?.Account.CodedRoomDescriptionAdditionsOnNewLine == true)
+            {
+                descSubSB.AppendLine($"{(character.Account.TabRoomDescriptions ? "\t" : "")}{scarText}");
+            }
+            else
+            {
+                descSubSB.Append(' ').Append(scarText);
+            }
+        }
+
         string auraText = MagicPerceptionUtilities.DescribeMagicAuras(voyeur, Effects);
         if (!string.IsNullOrEmpty(auraText))
         {
@@ -847,6 +868,26 @@ public partial class Cell
         }
 
         return sb.ToString();
+    }
+
+    internal static string LandScarRoomDescriptionAddendum(IEnvironmentalMagicProfile profile,
+        EnvironmentalMagicStateSnapshot snapshot)
+    {
+        if (profile?.ShowLandScarAddendum != true || snapshot is null) return null;
+        double scar = snapshot.State.ScarDamage;
+        double pressure = snapshot.Pressure;
+        if (!double.IsFinite(scar) || !double.IsFinite(pressure)) return null;
+        string scarText = scar >= 10.0
+            ? "Wide patches of the land look stripped and slow to recover."
+            : scar > 0.0
+                ? "Small patches of the land look stripped and slow to recover."
+                : null;
+        string pressureText = pressure >= 10.0
+            ? "A heavy unnatural stillness hangs over the area."
+            : pressure > 0.0
+                ? "A faint unnatural stillness hangs over the area."
+                : null;
+        return scarText is null ? pressureText : pressureText is null ? scarText : $"{scarText} {pressureText}";
     }
 
     #endregion

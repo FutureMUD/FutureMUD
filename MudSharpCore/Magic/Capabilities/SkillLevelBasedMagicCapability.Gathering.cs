@@ -24,7 +24,11 @@ public partial class SkillLevelBasedMagicCapability
 		_unreadableGatheringDefinition = source._unreadableGatheringDefinition is null
 			? null
 			: new XElement(source._unreadableGatheringDefinition);
-		_gatheringMethods.AddRange(source._gatheringMethods.Select(x => x with { Key = Guid.NewGuid() }));
+		_gatheringMethods.AddRange(source._gatheringMethods.Select(x => x with
+		{
+			Key = Guid.NewGuid(),
+			LandSources = x.LandSources.Select(y => y with { Key = Guid.NewGuid() }).ToArray()
+		}));
 	}
 
 	protected void LoadGatheringDefinition(XElement root)
@@ -40,14 +44,14 @@ public partial class SkillLevelBasedMagicCapability
 
 		try
 		{
-			if ((int?)gathering.Attribute("version") is not (null or 1))
+			if ((int?)gathering.Attribute("version") is not (null or 1 or 2))
 			{
 				throw new FormatException("Unsupported gathering definition version.");
 			}
 
 			foreach (XElement method in gathering.Elements("Method"))
 			{
-				_gatheringMethods.Add(new MagicGatheringMethodDefinition(
+				MagicGatheringMethodDefinition definition = new MagicGatheringMethodDefinition(
 					Guid.Parse(Required(method, "key")),
 					Required(method, "alias"),
 					Required(method, "name"),
@@ -71,7 +75,37 @@ public partial class SkillLevelBasedMagicCapability
 					Long(method, "painProg", 0),
 					Long(method, "stunProg", 0),
 					Long(method, "onGathered", 0),
-					(int)Long(method, "structuralVersion", 1)));
+					(int)Long(method, "structuralVersion", 1));
+				if (definition.Kind == MagicGatheringMethodKind.Land)
+				{
+					XElement land = method.Element("Land") ?? throw new FormatException("Land method is missing its Land subtree.");
+					definition = definition with
+					{
+						LandSources = land.Elements("Source").Select(x => new MagicLandSourceDefinition(
+							Guid.Parse(Required(x, "key")), Required(x, "selector"), Number(x, "ratio"),
+							(bool?)x.Attribute("collateral") ?? false, (bool?)x.Attribute("allowAbsent") ?? false,
+							Long(x, "ratioProg"))).ToArray(),
+						LandDamagePerDestinationUnit = Number(land, "damage", 0.0),
+						LandPressurePerDestinationUnit = land.Attribute("pressure") is null ? null : Number(land, "pressure"),
+						LandDamageProgId = Long(land, "damageProg"),
+						LandPressureProgId = Long(land, "pressureProg"),
+						CropHealthCostPerDestinationUnit = Number(land, "cropHealth", 0.0),
+						WoodlandHealthCostPerDestinationUnit = Number(land, "woodlandHealth", 0.0),
+						CropHealthCostProgId = Long(land, "cropHealthProg"),
+						WoodlandHealthCostProgId = Long(land, "woodlandHealthProg"),
+						LandActorStartEmote = land.Element("ActorStart")?.Value,
+						LandObserverStartEmote = land.Element("ObserverStart")?.Value,
+						LandActorCompleteEmote = land.Element("ActorComplete")?.Value,
+						LandObserverCompleteEmote = land.Element("ObserverComplete")?.Value,
+						LandActorCancelEmote = land.Element("ActorCancel")?.Value,
+						LandObserverCancelEmote = land.Element("ObserverCancel")?.Value
+					};
+				}
+				else if (method.Element("Land") is not null)
+				{
+					throw new FormatException("Only an explicit Land method may contain a Land subtree.");
+				}
+				_gatheringMethods.Add(definition);
 			}
 		}
 		catch (Exception ex)
@@ -96,7 +130,7 @@ public partial class SkillLevelBasedMagicCapability
 			return;
 		}
 
-		root.Add(new XElement("Gathering", new XAttribute("version", 1),
+		root.Add(new XElement("Gathering", new XAttribute("version", 2),
 			_gatheringMethods.OrderBy(x => x.Alias, StringComparer.OrdinalIgnoreCase).Select(SaveGatheringMethod)));
 	}
 
@@ -117,6 +151,11 @@ public partial class SkillLevelBasedMagicCapability
 			if (key is not null)
 			{
 				key.Value = keys[Guid.Parse(key.Value)].ToString();
+			}
+			foreach (XElement source in method.Element("Land")?.Elements("Source") ?? [])
+			{
+				XAttribute? sourceKey = source.Attribute("key");
+				if (sourceKey is not null) sourceKey.Value = Guid.NewGuid().ToString();
 			}
 		}
 	}
@@ -177,7 +216,28 @@ public partial class SkillLevelBasedMagicCapability
 		new XAttribute("painProg", method.PainCostProgId),
 		new XAttribute("stunProg", method.StunCostProgId),
 		new XAttribute("onGathered", method.OnGatheredProgId),
-		new XAttribute("structuralVersion", method.StructuralVersion));
+		new XAttribute("structuralVersion", method.StructuralVersion),
+		method.Kind == MagicGatheringMethodKind.Land ? SaveLandMethod(method) : null);
+
+	private static XElement SaveLandMethod(MagicGatheringMethodDefinition method) => new("Land",
+		new XAttribute("damage", NumberText(method.LandDamagePerDestinationUnit)),
+		method.LandPressurePerDestinationUnit is { } pressure ? new XAttribute("pressure", NumberText(pressure)) : null,
+		new XAttribute("damageProg", method.LandDamageProgId),
+		new XAttribute("pressureProg", method.LandPressureProgId),
+		new XAttribute("cropHealth", NumberText(method.CropHealthCostPerDestinationUnit)),
+		new XAttribute("woodlandHealth", NumberText(method.WoodlandHealthCostPerDestinationUnit)),
+		new XAttribute("cropHealthProg", method.CropHealthCostProgId),
+		new XAttribute("woodlandHealthProg", method.WoodlandHealthCostProgId),
+		method.LandSources.Select(x => new XElement("Source", new XAttribute("key", x.Key),
+			new XAttribute("selector", x.Selector), new XAttribute("ratio", NumberText(x.UnitsPerDestinationUnit)),
+			new XAttribute("collateral", x.IsCollateral), new XAttribute("allowAbsent", x.AllowAbsent),
+			new XAttribute("ratioProg", x.RatioProgId))),
+		new XElement("ActorStart", method.LandActorStartEmote ?? ""),
+		new XElement("ObserverStart", method.LandObserverStartEmote ?? ""),
+		new XElement("ActorComplete", method.LandActorCompleteEmote ?? ""),
+		new XElement("ObserverComplete", method.LandObserverCompleteEmote ?? ""),
+		new XElement("ActorCancel", method.LandActorCancelEmote ?? ""),
+		new XElement("ObserverCancel", method.LandObserverCancelEmote ?? ""));
 
 	private static string Required(XElement element, string attribute) =>
 		element.Attribute(attribute)?.Value ?? throw new FormatException($"Method is missing the {attribute} attribute.");
@@ -220,6 +280,8 @@ public partial class SkillLevelBasedMagicCapability
 				return BuildingCommandGatheringShow(actor, command);
 			case "set":
 				return BuildingCommandGatheringSet(actor, command);
+			case "land":
+				return BuildingCommandGatheringLand(actor, command);
 			default:
 				actor.OutputHandler.Send(GatheringHelp.SubstituteANSIColour());
 				return false;
@@ -230,7 +292,7 @@ public partial class SkillLevelBasedMagicCapability
 	{
 		if (!command.PopSpeech().TryParseEnum<MagicGatheringMethodKind>(out MagicGatheringMethodKind kind))
 		{
-			actor.OutputHandler.Send("Use gather add self|gentle <alias> <presentation name>.");
+			actor.OutputHandler.Send("Use gather add self|gentle|land <alias> <presentation name>.");
 			return false;
 		}
 
@@ -249,7 +311,11 @@ public partial class SkillLevelBasedMagicCapability
 		}
 
 		_gatheringMethods.Add(new MagicGatheringMethodDefinition(Guid.NewGuid(), alias, name, kind, 0,
-			null, 1.0, 1.0, 10.0, StaminaCost: kind == MagicGatheringMethodKind.Self ? 1.0 : 0.0));
+			null, 1.0, 1.0, 10.0, StaminaCost: kind == MagicGatheringMethodKind.Self ? 1.0 : 0.0)
+		{
+			LandDamagePerDestinationUnit = kind == MagicGatheringMethodKind.Land ? 1.0 : 0.0,
+			LandPressurePerDestinationUnit = null
+		});
 		Changed = true;
 		actor.OutputHandler.Send($"Added the {name.ColourName()} gathering method. Set its destination resource before it can be used.");
 		return true;
@@ -315,6 +381,7 @@ public partial class SkillLevelBasedMagicCapability
 					replacement = method with { DestinationResourceId = ResourceId(command) };
 					break;
 				case "source":
+					if (method.Kind == MagicGatheringMethodKind.Land) throw new InvalidOperationException("Use gather land <method> source add for Land sources.");
 					replacement = method with { SourceResourceId = ResourceId(command) };
 					break;
 				case "min":
@@ -327,6 +394,7 @@ public partial class SkillLevelBasedMagicCapability
 					replacement = method with { DurationSeconds = PositiveNumber(command, "duration") };
 					break;
 				case "ratio":
+					if (method.Kind == MagicGatheringMethodKind.Land) throw new InvalidOperationException("Use gather land <method> source <index> ratio for Land prices.");
 					replacement = method with { SourceUnitsPerDestinationUnit = PositiveNumber(command, "source ratio") };
 					break;
 				case "stamina":
@@ -493,6 +561,17 @@ public partial class SkillLevelBasedMagicCapability
 	{
 		IMagicResource? destination = Gameworld.MagicResources.Get(method.DestinationResourceId);
 		IMagicResource? source = method.SourceResourceId is { } id ? Gameworld.MagicResources.Get(id) : null;
+		string land = method.Kind == MagicGatheringMethodKind.Land
+			? "\nLand sources (ordered; source units per destination unit):\n" +
+			  string.Join("\n", method.LandSources.Select((entry, index) =>
+				  $"  {index + 1}. {(entry.IsCollateral ? "mandatory collateral" : "funding")} {entry.Selector}: {entry.UnitsPerDestinationUnit.ToString("N4", actor)}" +
+				  $"{(entry.AllowAbsent ? " (absent permitted)" : "")}" +
+				  $"{(entry.RatioProgId != 0 ? $" [ratio prog #{entry.RatioProgId}]" : "")}")) +
+			  $"\nScar per destination unit: {method.LandDamagePerDestinationUnit.ToString("N4", actor)}; pressure: {(method.LandPressurePerDestinationUnit?.ToString("N4", actor) ?? "follows scar")}" +
+			  $"\nCrop health per destination unit: {method.CropHealthCostPerDestinationUnit.ToString("N4", actor)}; woodland health: {method.WoodlandHealthCostPerDestinationUnit.ToString("N4", actor)}" +
+			  $"\nEcology progs: scar #{method.LandDamageProgId}, pressure #{method.LandPressureProgId}; health progs: crop #{method.CropHealthCostProgId}, woodland #{method.WoodlandHealthCostProgId}" +
+			  $"\nMessages: actor start '{method.LandActorStartEmote}', observer start '{method.LandObserverStartEmote}', actor complete '{method.LandActorCompleteEmote}', observer complete '{method.LandObserverCompleteEmote}', actor cancel '{method.LandActorCancelEmote}', observer cancel '{method.LandObserverCancelEmote}'"
+			: "";
 		return $"Gathering Method {method.Name}".GetLineWithTitle(actor, Telnet.Magenta, Telnet.BoldWhite) + "\n\n" +
 			$"Identity: {method.Key}\nAlias: {method.Alias}\nKind: {method.Kind}\nDestination: {destination?.Name ?? $"missing #{method.DestinationResourceId}"}\n" +
 			$"Source: {source?.Name ?? (method.Kind == MagicGatheringMethodKind.Gentle ? "missing" : "not applicable")}\n" +
@@ -502,13 +581,13 @@ public partial class SkillLevelBasedMagicCapability
 			$"Maximum health severity: {method.MaximumHealthSeverity.DescribeEnum()}\nPermission: {Gameworld.FutureProgs.Get(method.PermissionProgId)?.MXPClickableFunctionName() ?? "none"}\n" +
 			$"Duration prog: {Gameworld.FutureProgs.Get(method.DurationProgId)?.MXPClickableFunctionName() ?? "static"}\n" +
 			$"On success: {Gameworld.FutureProgs.Get(method.OnGatheredProgId)?.MXPClickableFunctionName() ?? "none"}\n" +
-			$"Structural version: {method.StructuralVersion}";
+			$"Structural version: {method.StructuralVersion}" + land;
 	}
 
 	private const string GatheringHelp = @"Gathering capability configuration:
 
 	#3gather list#0 - lists configured methods
-	#3gather add self|gentle <alias> <presentation name>#0 - adds a disabled-by-default method
+	#3gather add self|gentle|land <alias> <presentation name>#0 - adds a disabled-by-default method
 	#3gather remove <method>#0 - removes a method
 	#3gather show <method>#0 - shows one method
 	#3gather set <method> destination|source <resource>#0 - chooses the personal destination and Gentle room source
@@ -517,6 +596,14 @@ public partial class SkillLevelBasedMagicCapability
 	#3gather set <method> healthseverity <severity>#0 - maximum strategy-derived severity allowed for a health price
 	#3gather set <method> permission|durationprog|staminaprog|damageprog|painprog|stunprog|onsuccess <prog|none>#0 - policy hooks
 	#3gather set <method> alias|name <text>#0 - presentation-only changes that keep the stable method identity
+	#3gather land <method> source add ambient <resource> <units-per-mana>#0 - ordered ambient funding
+	#3gather land <method> source add forage <key> <units-per-mana>#0 - ordered native forage funding
+	#3gather land <method> source add crop|woodland|pasture <units-per-mana>#0 - ordered field funding
+	#3gather land <method> collateral add <selector> <units-per-mana>#0 - mandatory source cost without extra credit
+	#3gather land <method> source <index> remove|move <new-index>|ratio <number>|ratioprog <prog|none>|optional on|off#0
+	#3gather land <method> damage|pressure|crophealth|woodlandhealth <per-mana-number>#0 - ecological and vegetation prices
+	#3gather land <method> damageprog|pressureprog|crophealthprog|woodlandhealthprog <prog|none>#0
+	#3gather land <method> message actorstart|observerstart|actorcomplete|observercomplete|actorcancel|observercancel <emote>#0
 
-Gentle's ratio is source units consumed per destination unit credited. Structural settings invalidate live precommit work; aliases and names do not.";
+Gentle and Land ratios are source units consumed per destination unit credited. Land requires an opted-in local environmental profile, positive scar and full source funding. Structural settings invalidate live precommit work; aliases and names do not.";
 }

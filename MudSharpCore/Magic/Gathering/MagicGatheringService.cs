@@ -19,7 +19,7 @@ namespace MudSharp.Magic.Gathering;
 /// A world-local, capability-gated transfer service. Preparation stays entirely transient; the first durable
 /// receipt is written immediately before any gathering-caused debit or bodily price.
 /// </summary>
-public sealed class MagicGatheringService : IMagicGatheringService
+public sealed partial class MagicGatheringService : IMagicGatheringService
 {
 	private sealed class LiveOperation
 	{
@@ -44,21 +44,25 @@ public sealed class MagicGatheringService : IMagicGatheringService
 	private readonly TimeProvider _clock;
 	private readonly Func<ICharacter, ICell?, MagicGatheringReceipt, bool>? _persistAccounting;
 	private readonly Func<ICharacter, IReadOnlyCollection<IWound>, bool>? _persistWounds;
+	private readonly Func<ICharacter, ICell, MagicGatheringReceipt, bool>? _persistLandSources;
 	private readonly object _guard = new();
 	private readonly Dictionary<Guid, LiveOperation> _liveById = [];
 	private readonly Dictionary<long, LiveOperation> _liveByOwner = [];
 	private readonly HashSet<long> _committingOwners = [];
 	private readonly HashSet<(long CellId, long ResourceId)> _committingSources = [];
+	private readonly HashSet<(long CellId, string SourceKey)> _committingLandKeys = [];
 
 	public MagicGatheringService(IFuturemud gameworld, IMagicGatheringReceiptStore? store = null,
 		TimeProvider? clock = null, Func<ICharacter, ICell?, MagicGatheringReceipt, bool>? persistAccounting = null,
-		Func<ICharacter, IReadOnlyCollection<IWound>, bool>? persistWounds = null)
+		Func<ICharacter, IReadOnlyCollection<IWound>, bool>? persistWounds = null,
+		Func<ICharacter, ICell, MagicGatheringReceipt, bool>? persistLandSources = null)
 	{
 		_gameworld = gameworld;
 		_store = store ?? new MagicGatheringReceiptStore();
 		_clock = clock ?? TimeProvider.System;
 		_persistAccounting = persistAccounting;
 		_persistWounds = persistWounds;
+		_persistLandSources = persistLandSources;
 	}
 
 	private DateTime UtcNow => _clock.GetUtcNow().UtcDateTime;
@@ -120,9 +124,15 @@ public sealed class MagicGatheringService : IMagicGatheringService
 			return Refused("You must be physically located in a cell to begin gathering.");
 		}
 		if (quote.Kind == MagicGatheringMethodKind.Gentle && quote.SourceResourceId is { } sourceResourceId &&
-			_store.HasUnresolvedForSource(cell.Id, sourceResourceId))
+			(_store.HasUnresolvedForSource(cell.Id, sourceResourceId) ||
+			 _store.HasUnresolvedForParticipant(cell.Id, $"ambient:{sourceResourceId}")))
 		{
 			return Refused("That environmental source has an unresolved gathering receipt and is temporarily quarantined for staff review.");
+		}
+		if (quote.Kind == MagicGatheringMethodKind.Land &&
+			LandParticipantKeys(quote).Any(key => _store.HasUnresolvedForParticipant(cell.Id, key)))
+		{
+			return Refused("A Land source or this cell's ecological state has an unresolved gathering receipt.");
 		}
 
 		LiveOperation live = new()
@@ -159,6 +169,10 @@ public sealed class MagicGatheringService : IMagicGatheringService
 				() => CancelFromAction(live.Id),
 				() => StillValid(live));
 			actor.AddEffect(live.Action, duration);
+			if (quote.Kind == MagicGatheringMethodKind.Land)
+			{
+				EmitLandEmotes(live, definition.LandActorStartEmote, definition.LandObserverStartEmote);
+			}
 			return new MagicGatheringResult(true,
 				$"You begin gathering {definition.Name.ColourName()}. It will take {duration.Describe(actor)} if uninterrupted.",
 				live.Id, quote);
@@ -199,13 +213,27 @@ public sealed class MagicGatheringService : IMagicGatheringService
 			_committingOwners.Add(live.Owner.Id);
 			if (live.Quote.Kind == MagicGatheringMethodKind.Gentle && live.Quote.SourceResourceId is { } source)
 			{
-				if (_committingSources.Contains((live.Cell.Id, source)))
+				if (_committingSources.Contains((live.Cell.Id, source)) ||
+				    _committingLandKeys.Contains((live.Cell.Id, $"ambient:{source}")))
 				{
 					live.Committing = false;
 					_committingOwners.Remove(live.Owner.Id);
 					return Refused("Another gathering operation is committing against that exact environmental source.");
 				}
 				_committingSources.Add((live.Cell.Id, source));
+			}
+			if (live.Quote.Kind == MagicGatheringMethodKind.Land)
+			{
+				string[] keys = LandCommitKeys(live.Quote);
+				if (keys.Any(key => _committingLandKeys.Contains((live.Cell.Id, key)) ||
+				    key.StartsWith("ambient:", StringComparison.Ordinal) &&
+				    long.TryParse(key[8..], out long source) && _committingSources.Contains((live.Cell.Id, source))))
+				{
+					live.Committing = false;
+					_committingOwners.Remove(live.Owner.Id);
+					return Refused("Another gathering operation is committing against this Land participant.");
+				}
+				foreach (string key in keys) _committingLandKeys.Add((live.Cell.Id, key));
 			}
 		}
 
@@ -226,6 +254,13 @@ public sealed class MagicGatheringService : IMagicGatheringService
 				if (live.Quote.Kind == MagicGatheringMethodKind.Gentle && live.Quote.SourceResourceId is { } source)
 				{
 					_committingSources.Remove((live.Cell.Id, source));
+				}
+				if (live.Quote.Kind == MagicGatheringMethodKind.Land)
+				{
+					foreach (string key in LandCommitKeys(live.Quote))
+					{
+						_committingLandKeys.Remove((live.Cell.Id, key));
+					}
 				}
 			}
 			RemoveLive(live);
@@ -251,10 +286,17 @@ public sealed class MagicGatheringService : IMagicGatheringService
 
 		live.Action?.CancelExternally();
 		RemoveLive(live);
+		if (live.Quote.Kind == MagicGatheringMethodKind.Land)
+		{
+			EmitLandEmotes(live, live.Method.LandActorCancelEmote, live.Method.LandObserverCancelEmote);
+		}
 		return new MagicGatheringResult(true, "Your gathering action has been cancelled without a gathering cost or credit.", live.Id);
 	}
 
 	public MagicGatheringOperationSummary? Operation(Guid operationId) => _store.Operation(operationId)?.Summary();
+
+	public IReadOnlyDictionary<string, double>? LandDetails(Guid operationId) =>
+		LandDetails(_store.Operation(operationId));
 
 	public IReadOnlyList<MagicGatheringOperationSummary> UnresolvedOperations(long? ownerId = null) =>
 		_store.Unresolved(ownerId).Select(x => x.Summary()).ToArray();
@@ -286,6 +328,10 @@ public sealed class MagicGatheringService : IMagicGatheringService
 
 	private MagicGatheringResult Commit(LiveOperation live)
 	{
+		if (live.Quote.Kind == MagicGatheringMethodKind.Land)
+		{
+			return CommitLand(live);
+		}
 		MagicGatheringResult fresh = Quote(live.Actor, live.Capability, live.Method, live.Quote.RequestedAmount,
 			out DirectHealthCostPlan? freshHealthPlan, live.Action);
 		if (!fresh.Success || fresh.Quote is not { } quote)
@@ -438,7 +484,7 @@ public sealed class MagicGatheringService : IMagicGatheringService
 
 	private MagicGatheringResult Quote(ICharacter actor, IMagicGatheringCapability capability,
 		MagicGatheringMethodDefinition method, double amount, out DirectHealthCostPlan? healthPlan,
-		MagicGatheringTimedAction? ignoredAction = null)
+		MagicGatheringTimedAction? ignoredAction = null, MagicGatheringQuote? capturedLand = null)
 	{
 		healthPlan = null;
 		try
@@ -451,7 +497,7 @@ public sealed class MagicGatheringService : IMagicGatheringService
 			{
 				return Refused($"The amount must be finite and between {method.MinimumAmount:N2} and {method.MaximumAmount:N2}.");
 			}
-			if (method.Kind is not (MagicGatheringMethodKind.Self or MagicGatheringMethodKind.Gentle))
+			if (method.Kind is not (MagicGatheringMethodKind.Self or MagicGatheringMethodKind.Gentle or MagicGatheringMethodKind.Land))
 			{
 				return Refused("That gathering method has an unsupported semantic kind.");
 			}
@@ -541,6 +587,11 @@ public sealed class MagicGatheringService : IMagicGatheringService
 				sourceId = source.Id;
 				profileId = snapshot.ProfileId;
 				profileRevision = (_gameworld.MagicResourceRegenerators.Get(snapshot.ProfileId.Value) as IEnvironmentalMagicProfile)?.Revision;
+			}
+			if (method.Kind == MagicGatheringMethodKind.Land)
+			{
+				return QuoteLand(actor, owner, capability, method, amount, cell, destination, duration,
+					stamina, damage, pain, stun, healthPlan, capturedLand?.LandSources);
 			}
 
 			return new MagicGatheringResult(true, QuoteMessage(method, amount, sourceDebit, stamina, damage, pain, stun, duration), null,
@@ -996,7 +1047,15 @@ public sealed class MagicGatheringService : IMagicGatheringService
 		Same(expected.MinimumStamina, actual.MinimumStamina) && Same(expected.DamageCost, actual.DamageCost) &&
 		Same(expected.PainCost, actual.PainCost) && Same(expected.StunCost, actual.StunCost) &&
 		expected.HealthTargetBodypartId == actual.HealthTargetBodypartId &&
-		expected.HealthCostUsesExistingWound == actual.HealthCostUsesExistingWound;
+		expected.HealthCostUsesExistingWound == actual.HealthCostUsesExistingWound &&
+		(expected.Kind != MagicGatheringMethodKind.Land ||
+			EquivalentLandAllocations(expected.LandSources, actual.LandSources) &&
+			expected.LandEntryPrices.SequenceEqual(actual.LandEntryPrices) &&
+			Same(expected.LandDamage, actual.LandDamage) && Same(expected.LandPressure, actual.LandPressure) &&
+			Same(expected.CropHealthCost, actual.CropHealthCost) &&
+			Same(expected.WoodlandHealthCost, actual.WoodlandHealthCost) &&
+			expected.CropHealthLifecycle == actual.CropHealthLifecycle &&
+			expected.WoodlandHealthLifecycle == actual.WoodlandHealthLifecycle);
 
 	private static bool EquivalentHealthPlan(DirectHealthCostPlan? expected, DirectHealthCostPlan? actual)
 	{
@@ -1029,10 +1088,12 @@ public sealed class MagicGatheringService : IMagicGatheringService
 
 	private void CancelFromAction(Guid id)
 	{
+		LiveOperation? cancelled = null;
 		lock (_guard)
 		{
 			if (_liveById.TryGetValue(id, out LiveOperation? live))
 			{
+				if (!live.Cancelled && !live.Committing) cancelled = live;
 				live.Cancelled = true;
 				if (!live.Committing)
 				{
@@ -1040,6 +1101,11 @@ public sealed class MagicGatheringService : IMagicGatheringService
 					_liveByOwner.Remove(live.Owner.Id);
 				}
 			}
+		}
+		if (cancelled?.Quote.Kind == MagicGatheringMethodKind.Land)
+		{
+			EmitLandEmotes(cancelled, cancelled.Method.LandActorCancelEmote,
+				cancelled.Method.LandObserverCancelEmote);
 		}
 	}
 

@@ -38,6 +38,10 @@ public sealed record MagicGatheringReceipt(
 	string Diagnostic = "")
 {
 	public DateTime UpdatedUtc { get; init; } = CreatedUtc;
+	public string LandDetailJson { get; init; } = "";
+	public Guid? EcologicalChildId { get; init; }
+	public bool EcologicalApplied { get; init; }
+	public IReadOnlyList<string> ParticipantKeys { get; init; } = [];
 	public MagicGatheringOperationSummary Summary() => new(Id, OwnerId, ActorId, BodyId, CapabilityId, MethodKey, MethodVersion,
 		Kind.ToString(), Status, RequestedAmount, SourceDebit, StaminaCost, DamageCost, PainCost, StunCost,
 		SourceDebited, BodilyCostApplied, DestinationCredited, AccountingPersisted, NotificationCompleted,
@@ -52,6 +56,7 @@ public interface IMagicGatheringReceiptStore
 	IReadOnlyList<MagicGatheringReceipt> Unresolved(long? ownerId = null);
 	bool HasUnresolved(long ownerId);
 	bool HasUnresolvedForSource(long cellId, long sourceResourceId);
+	bool HasUnresolvedForParticipant(long cellId, string sourceKey);
 }
 
 public sealed class MagicGatheringReceiptStore : IMagicGatheringReceiptStore
@@ -71,6 +76,18 @@ public sealed class MagicGatheringReceiptStore : IMagicGatheringReceiptStore
 			try
 			{
 				WriteCurrent(receipt);
+				if (receipt.CellId is { } cellId)
+				{
+					foreach (string key in receipt.ParticipantKeys.Distinct(StringComparer.Ordinal))
+					{
+						FMDB.Context.MagicGatheringParticipants.Add(new Models.MagicGatheringParticipant
+						{
+							OperationId = receipt.Id,
+							CellId = cellId,
+							SourceKey = key
+						});
+					}
+				}
 				FMDB.Context.SaveChanges();
 				return true;
 			}
@@ -134,6 +151,19 @@ public sealed class MagicGatheringReceiptStore : IMagicGatheringReceiptStore
 		}
 	}
 
+	public bool HasUnresolvedForParticipant(long cellId, string sourceKey)
+	{
+		using (new FMDB())
+		{
+			return (from participant in FMDB.Context.MagicGatheringParticipants.AsNoTracking()
+				join operation in FMDB.Context.MagicGatheringOperations.AsNoTracking()
+					on participant.OperationId equals operation.Id
+				where participant.CellId == cellId && participant.SourceKey == sourceKey &&
+					UnresolvedStatuses.Contains(operation.Status)
+				select participant.OperationId).Any();
+		}
+	}
+
 	internal static void WriteCurrent(MagicGatheringReceipt receipt)
 	{
 		Models.MagicGatheringOperation? row = FMDB.Context.MagicGatheringOperations.Find(receipt.Id);
@@ -170,6 +200,9 @@ public sealed class MagicGatheringReceiptStore : IMagicGatheringReceiptStore
 		row.CreatedUtc = receipt.CreatedUtc;
 		row.UpdatedUtc = receipt.UpdatedUtc;
 		row.Diagnostic = receipt.Diagnostic;
+		row.LandDetailJson = receipt.LandDetailJson;
+		row.EcologicalChildId = receipt.EcologicalChildId;
+		row.EcologicalApplied = receipt.EcologicalApplied;
 	}
 
 	private static MagicGatheringReceipt FromRow(Models.MagicGatheringOperation row) => new(
@@ -180,7 +213,8 @@ public sealed class MagicGatheringReceiptStore : IMagicGatheringReceiptStore
 		row.MagicCapabilityId,
 		row.MethodKey,
 		row.MethodVersion,
-		Enum.TryParse(row.Kind, true, out MagicGatheringMethodKind kind) ? kind : MagicGatheringMethodKind.Self,
+		Enum.TryParse(row.Kind, true, out MagicGatheringMethodKind kind) && Enum.IsDefined(kind)
+			? kind : (MagicGatheringMethodKind)(-1),
 		row.CellId,
 		row.SourceProfileId,
 		row.SourceProfileRevision,
@@ -201,6 +235,9 @@ public sealed class MagicGatheringReceiptStore : IMagicGatheringReceiptStore
 		DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
 		row.Diagnostic)
 	{
-		UpdatedUtc = DateTime.SpecifyKind(row.UpdatedUtc, DateTimeKind.Utc)
+		UpdatedUtc = DateTime.SpecifyKind(row.UpdatedUtc, DateTimeKind.Utc),
+		LandDetailJson = row.LandDetailJson ?? "",
+		EcologicalChildId = row.EcologicalChildId,
+		EcologicalApplied = row.EcologicalApplied
 	};
 }

@@ -37,4 +37,7 @@ public class MagicGatheringOperation
 	public DateTime CreatedUtc { get; set; }
 	public DateTime UpdatedUtc { get; set; }
 	public string Diagnostic { get; set; } = "";
+	public string? LandDetailJson { get; set; }
+	public Guid? EcologicalChildId { get; set; }
+	public bool EcologicalApplied { get; set; }
 }

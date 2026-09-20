@@ -36,6 +36,7 @@ public sealed partial class EnvironmentalMagicGenerator
 	private readonly Dictionary<NativeOrganicPenaltyChannel, CompiledOrganicPenalty> _compiledOrganicPenalties = [];
 	private readonly Dictionary<NativeOrganicPenaltyChannel, List<string>> _organicPenaltyValidationErrors = [];
 	private bool _hasOrganicConfiguration;
+	private bool _showLandScarAddendum;
 	private int _organicDefinitionVersion = CurrentOrganicDefinitionVersion;
 	private long? _organicProtectionProgId;
 	private IFutureProg? _organicProtectionProg;
@@ -46,6 +47,7 @@ public sealed partial class EnvironmentalMagicGenerator
 		IReadOnlySet<string> RequiredInputs);
 
 	public bool HasOrganicConfiguration => _hasOrganicConfiguration;
+	public bool ShowLandScarAddendum => _showLandScarAddendum;
 	public IReadOnlyList<NativeOrganicSourceDeclaration> OrganicSources => _organicSourceView;
 	public IReadOnlyList<NativeOrganicPenaltyDefinition> OrganicPenalties => _organicPenaltyView;
 	public long? OrganicProtectionProgId => _organicProtectionProgId;
@@ -60,6 +62,7 @@ public sealed partial class EnvironmentalMagicGenerator
 		}
 
 		_hasOrganicConfiguration = true;
+		_showLandScarAddendum = bool.TryParse(organic.Attribute("scaraddendum")?.Value, out var showScar) && showScar;
 		_organicDefinitionVersion = int.TryParse(organic.Attribute("version")?.Value, out var version) ? version : 0;
 		var protectionText = organic.Element("ProtectionProg")?.Value;
 		if (!string.IsNullOrWhiteSpace(protectionText))
@@ -111,6 +114,7 @@ public sealed partial class EnvironmentalMagicGenerator
 
 		return new XElement("Organic",
 			new XAttribute("version", _organicDefinitionVersion),
+			new XAttribute("scaraddendum", _showLandScarAddendum),
 			_organicProtectionProgId.HasValue
 				? new XElement("ProtectionProg", _organicProtectionProgId.Value)
 				: _organicProtectionRawValue is not null
@@ -493,10 +497,30 @@ public sealed partial class EnvironmentalMagicGenerator
 				return BuildingCommandOrganicPenalty(actor, command);
 			case "protection":
 				return BuildingCommandOrganicProtection(actor, command);
+			case "scaraddendum":
+				return BuildingCommandOrganicScarAddendum(actor, command);
 			default:
-				actor.OutputHandler.Send("Use organic sources, organic source <...>, organic penalty <channel> <formula|none>, or organic protection <prog|none>.");
+				actor.OutputHandler.Send("Use organic sources, organic source <...>, organic penalty <channel> <formula|none>, organic protection <prog|none>, or organic scaraddendum <on|off>.");
 				return false;
 		}
+	}
+
+	private bool BuildingCommandOrganicScarAddendum(ICharacter actor, StringStack command)
+	{
+		var setting = command.PopForSwitch();
+		if (setting is not ("on" or "off") || !command.IsFinished)
+		{
+			actor.OutputHandler.Send("Use organic scaraddendum <on|off>.");
+			return false;
+		}
+		ApplyDefinitionChange(() =>
+		{
+			_hasOrganicConfiguration = true;
+			_organicDefinitionVersion = CurrentOrganicDefinitionVersion;
+			_showLandScarAddendum = setting == "on";
+		});
+		actor.OutputHandler.Send($"Land scar room addendum is now {(_showLandScarAddendum ? "on" : "off").ColourValue()}.");
+		return true;
 	}
 
 	private bool BuildingCommandOrganicSource(ICharacter actor, StringStack command)
@@ -788,6 +812,7 @@ public sealed partial class EnvironmentalMagicGenerator
 			sb.AppendLine($"{OrganicPenaltyToken(channel).ColourName()}: {(definition?.Formula ?? "1.0 (neutral default)").ColourCommand()} [dimensionless 0..1]");
 		}
 		sb.AppendLine($"Protection Prog: {(_organicProtectionProg is null ? "None".ColourValue() : _organicProtectionProg.MXPClickableFunctionName())}");
+		sb.AppendLine($"Land Scar Room Addendum: {_showLandScarAddendum.ToColouredString()}");
 		if (_organicValidationErrors.Count > 0)
 		{
 			sb.AppendLine();

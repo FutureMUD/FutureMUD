@@ -19,6 +19,7 @@ public interface IEnvironmentalMagicProfile : IMagicResourceRegenerator
 	IReadOnlyList<EnvironmentalMagicInput> Inputs { get; }
 	IReadOnlyList<string> ValidationErrors { get; }
 	bool HasOrganicConfiguration { get; }
+	bool ShowLandScarAddendum { get; }
 	IReadOnlyList<NativeOrganicSourceDeclaration> OrganicSources { get; }
 	IReadOnlyList<NativeOrganicPenaltyDefinition> OrganicPenalties { get; }
 	long? OrganicProtectionProgId { get; }
@@ -27,6 +28,8 @@ public interface IEnvironmentalMagicProfile : IMagicResourceRegenerator
 	IReadOnlyList<string> OrganicValidationErrors { get; }
 	/// <summary>All referenced built-in and named inputs, compared without case.</summary>
 	IReadOnlySet<string> RequiredInputNames { get; }
+	/// <summary>Input names used by one managed output's maximum or rate, excluding unrelated outputs.</summary>
+	IReadOnlySet<string> RequiredOutputInputNames(long resourceId);
 	/// <summary>Cumulative half-lives; differences preserve pressure decay across profile edits.</summary>
 	double PressureDecayIntegralAt(DateTimeOffset utc);
 	/// <summary>Rebind edited references once per definition revision, without evaluating cell inputs.</summary>

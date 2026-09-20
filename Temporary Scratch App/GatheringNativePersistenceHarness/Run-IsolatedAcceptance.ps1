@@ -101,7 +101,6 @@ try {
 	if (-not $reachable) {
 		throw 'The owned MySQL instance did not become reachable.'
 	}
-
 	& dotnet $harnessDll --probe
 	$runExit = $LASTEXITCODE
 	if (-not $LandOnly -and $runExit -eq 0) {

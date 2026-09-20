@@ -54,6 +54,10 @@ public sealed record EnvironmentalResourceSnapshot(long ResourceId, string Name,
 
 public sealed record EnvironmentalMagicStateSnapshot(EnvironmentalMagicState State, double Pressure);
 
+/// <summary>A pure Land authorisation view that does not evaluate unrelated mana output formulas.</summary>
+public sealed record EnvironmentalOrganicProfileSnapshot(long? ProfileId, long Revision,
+	bool HasOrganicConfiguration, bool HasPendingOperation, IReadOnlyList<string> Errors);
+
 public sealed record EnvironmentalMagicSnapshot(long CellId, EnvironmentalMagicBindingMode BindingMode,
 	long? ProfileId, string? ProfileName, EnvironmentalMagicState State, double Pressure,
 	IReadOnlyDictionary<string, double> Inputs, IReadOnlyList<EnvironmentalResourceSnapshot> Outputs,
@@ -76,12 +80,15 @@ public interface IEnvironmentalMagicService : IDisposable
 {
 	DateTimeOffset UtcNow { get; }
 	EnvironmentalMagicStateSnapshot InspectState(ICell cell);
+	EnvironmentalOrganicProfileSnapshot InspectOrganicProfile(ICell cell);
 	EnvironmentalMagicSnapshot Inspect(ICell cell);
 	/// <summary>
 	/// Returns whether the pair is managed. A managed invalid result has IsValid false; it is not an
 	/// unbound fallback or a zero cap. Available recorded stock is min(Balance, Maximum) when valid.
 	/// </summary>
 	bool TryInspectResource(ICell cell, IMagicResource resource, out EnvironmentalResourceSnapshot result);
+	/// <summary>Purely evaluates one Land-funded output without evaluating unrelated output formulas.</summary>
+	bool TryInspectLandResource(ICell cell, IMagicResource resource, out EnvironmentalResourceSnapshot result);
 	/// <summary>
 	/// Resolves a managed output from one already-taken pure inspection snapshot. This avoids re-evaluating
 	/// profile formulae simply to identify a displayed or quoted output; callers must still reject an invalid
@@ -121,6 +128,9 @@ public interface IEnvironmentalMagicService : IDisposable
 	/// <summary>Revalidates and applies one owner mutation. It grants no magic resource and creates no receipt.</summary>
 	bool TryApplyOrganicDebit(ICell cell, NativeOrganicDebitPlan plan, out NativeOrganicSourceSnapshot result,
 		out string? error);
+	/// <summary>Validates a bounded group against one precommit state, then applies its own sequential owner changes.</summary>
+	bool TryApplyOrganicDebitBatch(ICell cell, IReadOnlyList<NativeOrganicDebitPlan> plans,
+		out IReadOnlyList<NativeOrganicDebitPlan> applied, out string? error);
 	/// <summary>Evaluates only the requested native suppression channel and its declared dependencies.</summary>
 	NativeOrganicPenaltyEvaluation EvaluateOrganicPenalty(ICell cell, NativeOrganicPenaltyChannel channel,
 		NativeOrganicPenaltyContext context);

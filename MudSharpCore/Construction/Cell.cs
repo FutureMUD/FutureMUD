@@ -2476,6 +2476,60 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		return true;
 	}
 
+	public bool TryConsumeYieldBatch(IReadOnlyList<NativeForageDebitRequest> requests, out string reason)
+	{
+		if (requests.Count is < 1 or > 16 ||
+		    requests.Select(x => x.Expected.Key).Distinct(StringComparer.Ordinal).Count() != requests.Count)
+		{
+			reason = "A forage debit group requires one to sixteen distinct keys.";
+			return false;
+		}
+		var profile = PeekForagableProfile();
+		var closing = new Dictionary<string, double>(StringComparer.Ordinal);
+		lock (_foragableYields)
+		{
+			foreach (NativeForageDebitRequest request in requests)
+			{
+				if (request.Expected is null ||
+				    !TryCreateNativeForageSnapshotLocked(profile, request.Expected.Key, out var current) ||
+				    current != request.Expected)
+				{
+					reason = "A forage source changed before its complete owner group was consumed.";
+					return false;
+				}
+				if (!NativeOrganicAccountingMath.TryAmount(request.Amount, out decimal debit, out string amountError) ||
+				    (double)debit != request.Amount)
+				{
+					reason = amountError ?? "A forage group debit cannot be represented exactly.";
+					return false;
+				}
+				decimal remaining;
+				try
+				{
+					remaining = (decimal)current.Stock - debit;
+				}
+				catch (OverflowException)
+				{
+					reason = "A forage group stock cannot be represented by native accounting.";
+					return false;
+				}
+				double output = (double)remaining;
+				if (remaining < 0m || !double.IsFinite(output) || (decimal)output != remaining ||
+				    output == current.Stock)
+				{
+					reason = "A forage group debit exceeds or cannot change its exact native stock.";
+					return false;
+				}
+				closing.Add(current.Key, output);
+			}
+			foreach (var value in closing) _foragableYields[value.Key] = value.Value;
+			IncrementForagableYieldSourceRevision();
+		}
+		NotifyForagableYieldChanged();
+		reason = string.Empty;
+		return true;
+	}
+
     public void ConsumeYieldFor(IForagable foragable)
     {
         SynchroniseForagableProfile();

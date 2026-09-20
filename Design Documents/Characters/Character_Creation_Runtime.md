@@ -62,7 +62,10 @@ Not every stage has only one possible screen type. The most important alternativ
 - `SelectMerits`: `MeritPicker` or `QuirkPicker`
 - `SelectAttributes`: `AttributeOrderer` or `AttributePointBuy`
 - `SelectSkills`: `SkillPicker` or `SkillCostPicker`
+- `SelectDescription`: `DescriptionPicker` or `CustomDescriptionPicker`; the latter always requires custom short and full descriptions
 - `SpecialApplication`: the same stage can be configured to auto-short first-account applications
+
+For races without characteristic definitions, both characteristic picker types complete with an empty selection. `DescriptionPicker` then uses custom description entry regardless of its pattern setting, and an otherwise complete application can be submitted without selected characteristics. Races with definitions retain the configured characteristic picker and normal submission requirement.
 
 ### Knowledge Selection
 `KnowledgePickerBySkill` iterates the selected skill traits and offers only knowledges that are marked `LearnableAtChargen`, are not already selected, and whose `CanPickChargenProg` returns true for the current chargen application plus the current skill trait.

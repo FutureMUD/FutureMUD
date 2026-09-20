@@ -140,7 +140,11 @@ public class SimpleCharacteristicsPickerScreenStoryboard : ChargenScreenStoryboa
             _storyboard = storyboard;
             _definitions.AddRange(Chargen.SelectedRace.Characteristics(Chargen.SelectedGender).Distinct());
             RandomiseCharacteristics();
-
+            if (_definitions.Count == 0)
+            {
+                Chargen.SelectedCharacteristics = new List<(ICharacteristicDefinition, ICharacteristicValue)>();
+                State = ChargenScreenState.Complete;
+            }
         }
 
         private void RandomiseCharacteristics()

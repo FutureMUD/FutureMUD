@@ -186,6 +186,23 @@ public class RerollableCharacteristicPickerScreenTests
 			typeof(RerollableCharacteristicsPickerScreenStoryboard).GetMethod("RegisterFactory")!.DeclaringType);
 	}
 
+	[TestMethod]
+	public void Screen_RaceWithoutDefinitions_CompletesWithEmptySelection()
+	{
+		var race = new Mock<IRace>();
+		race.Setup(x => x.Characteristics(It.IsAny<Gender>())).Returns([]);
+		var chargen = new Mock<IChargen>();
+		chargen.SetupAllProperties();
+		chargen.SetupGet(x => x.SelectedRace).Returns(race.Object);
+		var storyboard = (RerollableCharacteristicsPickerScreenStoryboard)Activator.CreateInstance(
+			typeof(RerollableCharacteristicsPickerScreenStoryboard), true)!;
+
+		var screen = storyboard.GetScreen(chargen.Object);
+
+		Assert.AreEqual(ChargenScreenState.Complete, screen.State);
+		Assert.AreEqual(0, chargen.Object.SelectedCharacteristics.Count);
+	}
+
 	private static (RerollableCharacteristicsPickerScreenStoryboard.RerollableCharacteristicPickerScreen Screen,
 		Mock<IChargen> Chargen, Mock<ICharacteristicProfile> Profile) CreateFixture(
 		bool separateBlurb, string blurb, params ICharacteristicValue[] values)

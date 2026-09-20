@@ -63,9 +63,12 @@ Not every stage has only one possible screen type. The most important alternativ
 - `SelectAttributes`: `AttributeOrderer` or `AttributePointBuy`
 - `SelectSkills`: `SkillPicker` or `SkillCostPicker`
 - `SelectCharacteristics`: `CharacteristicPicker`, `SimpleCharacteristicPicker`, or `RerollableCharacteristicPicker`
+- `SelectDescription`: `DescriptionPicker` or `CustomDescriptionPicker`; the latter always requires custom short and full descriptions
 - `SpecialApplication`: the same stage can be configured to auto-short first-account applications
 
 `RerollableCharacteristicPicker` rolls values from the selected ethnicity's characteristic profiles when the stage opens. Players can accept the roll, reroll unlocked values, lock an exact value, lock a basic value while varying its specific form, or customise any individual value. A manual choice retains its existing lock. The screen requires a selected value for every characteristic before it completes. Locks belong to the active screen session; accepted values become the chargen's selected characteristics.
+
+For races without characteristic definitions, all three characteristic picker types complete with an empty selection. `DescriptionPicker` then uses custom description entry regardless of its pattern setting, and an otherwise complete application can be submitted without selected characteristics. Races with definitions retain the configured characteristic picker and normal submission requirement.
 
 ### Knowledge Selection
 `KnowledgePickerBySkill` iterates the selected skill traits and offers only knowledges that are marked `LearnableAtChargen`, are not already selected, and whose `CanPickChargenProg` returns true for the current chargen application plus the current skill trait.

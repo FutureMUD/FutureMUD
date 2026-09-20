@@ -74,6 +74,10 @@
     "RPI Engine": {
       "commandName": "Project",
       "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=rpi_engine;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Damnatio Memoriae": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=damnatio_memoriae;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     }
   }
 }

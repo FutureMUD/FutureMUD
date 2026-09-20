@@ -11,6 +11,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.Framework;
 using MudSharp.Magic;
 using MudSharp.Magic.Environment;
 using MudSharp.Magic.Generators;
@@ -131,6 +132,125 @@ public class EnvironmentalMagicCoordinatorTests
 		Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25,
 			out _, out error), error);
 		Assert.AreEqual(99.0, world.Coordinator.InspectOrganicSource(cell, "forage:herbs").NativeStock);
+	}
+
+	[TestMethod]
+	[TestCategory("C-R4-01")]
+	[TestCategory("C-R4-02")]
+	public void OrganicConversion_UsesCurrentNativeCropPollinationBaseline()
+	{
+		foreach (var (formula, expectedValid, expectedHealth) in new[]
+		         {
+			         ("1 - baselineincrease / 2.0", false, 50),
+			         ("2.0 / baselineincrease", true, 52)
+		         })
+		{
+			using var world = new EnvironmentalMagicTestWorld(policy: "native-yield");
+			world.Edit("organic source add crop");
+			world.Edit($"organic penalty crophealth {formula}");
+			var (field, setPollination) = BuildPollinatedNativeCrop(world);
+			world.Fields.ForbidEnumeration = true;
+			var context = field.InspectCurrentOrganicRecoveryContext(NativeOrganicPenaltyChannel.CropHealthRecovery);
+			Assert.IsNotNull(context);
+			Assert.AreEqual(4.0, context.BaselineIncrease);
+			var source = world.Coordinator.InspectOrganicSource(field.Cell, "crop");
+			Assert.AreEqual(expectedValid ? NativeOrganicSourceStatus.Available : NativeOrganicSourceStatus.Invalid,
+				source.Status, formula);
+			Assert.AreEqual(50.0, source.NativeStock);
+			Assert.AreEqual(expectedValid, world.Coordinator.TryPlanOrganicDebit(field.Cell, "crop", 0.25,
+				out _, out _), formula);
+			if (expectedValid)
+			{
+				Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(field.Cell, "crop", 0.25,
+					out var planned, out var error), error);
+				var before = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
+				setPollination(false);
+				Assert.IsFalse(world.Coordinator.TryApplyOrganicDebit(field.Cell, planned, out _, out _));
+				var after = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
+				Assert.AreEqual(before.NativeStock, after.NativeStock);
+				Assert.AreEqual(before.PrepaidFraction, after.PrepaidFraction);
+				Assert.AreEqual(before.SourceRevision, after.SourceRevision);
+				setPollination(true);
+			}
+			else
+			{
+				setPollination(false);
+				var unpollinated = field.InspectCurrentOrganicRecoveryContext(
+					NativeOrganicPenaltyChannel.CropHealthRecovery);
+				Assert.IsNotNull(unpollinated);
+				Assert.AreEqual(1.0, unpollinated.BaselineIncrease);
+				Assert.AreEqual(NativeOrganicSourceStatus.Available,
+					world.Coordinator.InspectOrganicSource(field.Cell, "crop").Status);
+				Assert.IsTrue(world.Coordinator.TryPlanOrganicDebit(field.Cell, "crop", 0.25,
+					out var planned, out var error), error);
+				var before = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
+				setPollination(true);
+				Assert.IsFalse(world.Coordinator.TryApplyOrganicDebit(field.Cell, planned, out _, out _));
+				var after = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
+				Assert.AreEqual(before.NativeStock, after.NativeStock);
+				Assert.AreEqual(before.PrepaidFraction, after.PrepaidFraction);
+				Assert.AreEqual(before.SourceRevision, after.SourceRevision);
+				setPollination(false);
+			}
+			field.DailyTick();
+			Assert.AreEqual(expectedHealth, field.CropHealth, formula);
+			if (!expectedValid)
+				Assert.AreEqual(0.5m,
+					field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop).RecoveryRemainders.Health);
+		}
+	}
+
+	private static (AgricultureField Field, Action<bool> SetPollination) BuildPollinatedNativeCrop(
+		EnvironmentalMagicTestWorld world)
+	{
+		var cell = (Cell)world.Cells.At(0);
+		var profile = new Mock<IAgricultureFieldProfile>();
+		profile.SetupGet(x => x.Id).Returns(1L);
+		profile.SetupGet(x => x.DefaultScores).Returns(new Dictionary<AgricultureScoreType, int>());
+		var profiles = new All<IAgricultureFieldProfile>();
+		profiles.Add(profile.Object);
+		world.World.SetupGet(x => x.AgricultureFieldProfiles).Returns(profiles);
+		var crop = new Mock<IAgricultureCropDefinition>();
+		crop.SetupGet(x => x.Id).Returns(1L);
+		crop.SetupGet(x => x.BaseGrowthDays).Returns(30);
+		crop.SetupGet(x => x.HarvestWindowDays).Returns(5);
+		crop.SetupGet(x => x.MinimumMoisture).Returns(0);
+		crop.SetupGet(x => x.MaximumMoisture).Returns(100);
+		crop.SetupGet(x => x.MinimumTemperature).Returns(-100);
+		crop.SetupGet(x => x.MaximumTemperature).Returns(100);
+		crop.SetupGet(x => x.PollinationDependency).Returns(AgriculturePollinationDependency.Beneficial);
+		crop.SetupGet(x => x.PollinationHealthBonus).Returns(3);
+		crop.SetupGet(x => x.ScoreRanges).Returns(Array.Empty<AgricultureScoreRange>());
+		var crops = new All<IAgricultureCropDefinition>();
+		crops.Add(crop.Object);
+		world.World.SetupGet(x => x.AgricultureCropDefinitions).Returns(crops);
+		world.World.SetupGet(x => x.Properties).Returns(new All<MudSharp.Economy.Property.IProperty>());
+		var model = new MudSharp.Models.AgricultureField
+		{
+			Id = 1, CellId = cell.Id, ProfileId = 1, CurrentUse = (int)AgricultureFieldUse.Crop,
+			Moisture = 50, Drainage = 50, Nutrients = 100, Topsoil = 50, Tilth = 50,
+			Pasture = 50, Condition = 50, Definition = "<Field />",
+			AgricultureFieldCrop = new MudSharp.Models.AgricultureFieldCrop
+			{
+				CropDefinitionId = 1, Stage = (int)AgricultureCropStage.Growing, GrowthDays = 10,
+				Health = 50, YieldPotential = 50, Definition = "<Crop />"
+			}
+		};
+		var field = new AgricultureField(model, world.World.Object);
+		world.Fields.Add(field);
+		world.Coordinator.FieldChanged(field);
+		var apiary = new Mock<IAgricultureFieldApiary>();
+		apiary.SetupGet(x => x.PollinationRadius).Returns(1);
+		apiary.SetupGet(x => x.PollinationStrength).Returns(50);
+		var pollinator = new Mock<IAgricultureField>();
+		pollinator.SetupGet(x => x.Id).Returns(2L);
+		pollinator.SetupGet(x => x.Cell).Returns(cell);
+		pollinator.SetupGet(x => x.HasActiveApiary).Returns(true);
+		var pollinationActive = true;
+		pollinator.SetupGet(x => x.IsApiaryHappy).Returns(() => pollinationActive);
+		pollinator.SetupGet(x => x.Apiary).Returns(apiary.Object);
+		world.Coordinator.RefreshPollinationCandidate(pollinator.Object);
+		return (field, active => pollinationActive = active);
 	}
 
 	[TestMethod]

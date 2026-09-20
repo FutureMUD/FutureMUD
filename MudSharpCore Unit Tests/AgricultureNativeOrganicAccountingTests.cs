@@ -404,12 +404,24 @@ public class AgricultureNativeOrganicAccountingTests
 
 	[TestMethod]
 	[TestCategory("C-R1-04")]
-	public void CropTick_MixedPollinationAndNutrientContributionsRetainFinalNativeClamp()
+	public void CropTick_MixedPollinationAndNutrientContributionsRetainSequentialNativeClamps()
 	{
-		foreach (var (nutrients, pollinationBonus, expected) in new[]
-		         { (40, 2, 100), (100, -2, 99) })
+		foreach (var (opening, nutrients, pollinationBonus, factor, expected) in new[]
+		         { (0, 40, 2, -1.0, 2), (100, 100, -2, -1.0, 98),
+		           (100, 40, 2, -1.0, 100), (1, 40, 2, -1.0, 2),
+		           (99, 100, -2, -1.0, 98), (100, 100, -2, 1.0, 98),
+		           (0, 40, 2, 0.5, 1), (100, 100, -2, 0.5, 98) })
 		{
-			var fixture = BuildFixture();
+			if (factor is < 0 or 1.0)
+			{
+				var native = Math.Clamp(Math.Clamp(opening + Math.Sign(nutrients - 50), 0, 100) +
+				                        pollinationBonus, 0, 100);
+				Assert.AreEqual(native, expected, "The neutral expectation must match the pre-feature tick.");
+			}
+			var fixture = BuildFixture((_, channel, _) =>
+				factor < 0 || channel != NativeOrganicPenaltyChannel.CropYieldRecovery
+					? NativeOrganicPenaltyEvaluation.Neutral
+					: new NativeOrganicPenaltyEvaluation(true, true, factor, null));
 			fixture.Crop.SetupGet(x => x.PollinationDependency)
 				.Returns(AgriculturePollinationDependency.Beneficial);
 			fixture.Crop.SetupGet(x => x.PollinationYieldBonus).Returns(pollinationBonus);
@@ -425,11 +437,47 @@ public class AgricultureNativeOrganicAccountingTests
 			var fields = new All<IAgricultureField>();
 			fields.Add(apiaryField.Object);
 			fixture.Gameworld.SetupGet(x => x.AgricultureFields).Returns(fields);
-			var field = BuildField(fixture, AgricultureFieldUse.Crop, cropYield: 100,
+			var field = BuildField(fixture, AgricultureFieldUse.Crop, cropYield: opening,
 				nutrients: nutrients);
 			field.DailyTick();
 			Assert.AreEqual(expected, field.CropYieldPotential,
-				$"Nutrients {nutrients}, pollination bonus {pollinationBonus}.");
+				$"Opening {opening}, nutrients {nutrients}, pollination bonus {pollinationBonus}.");
+		}
+	}
+
+	[TestMethod]
+	[TestCategory("C-R1-04")]
+	public void CropTick_HealthClampsOrdinaryRecoveryBeforePollination()
+	{
+		foreach (var (opening, bonus, factor, expected) in new[]
+		         { (100, -2, -1.0, 98), (1, 2, -1.0, 4),
+		           (99, 3, -1.0, 100), (100, -2, 1.0, 98),
+		           (50, -2, 0.5, 48) })
+		{
+			var fixture = BuildFixture((_, channel, _) =>
+				factor < 0 || channel != NativeOrganicPenaltyChannel.CropHealthRecovery
+					? NativeOrganicPenaltyEvaluation.Neutral
+					: new NativeOrganicPenaltyEvaluation(true, true, factor, null));
+			fixture.Crop.SetupGet(x => x.PollinationDependency)
+				.Returns(AgriculturePollinationDependency.Beneficial);
+			fixture.Crop.SetupGet(x => x.PollinationHealthBonus).Returns(bonus);
+			var apiary = new Mock<IAgricultureFieldApiary>();
+			apiary.SetupGet(x => x.PollinationRadius).Returns(1);
+			apiary.SetupGet(x => x.PollinationStrength).Returns(50);
+			var apiaryField = new Mock<IAgricultureField>();
+			apiaryField.SetupGet(x => x.Id).Returns(2L);
+			apiaryField.SetupGet(x => x.Cell).Returns(fixture.Cell.Object);
+			apiaryField.SetupGet(x => x.HasActiveApiary).Returns(true);
+			apiaryField.SetupGet(x => x.IsApiaryHappy).Returns(true);
+			apiaryField.SetupGet(x => x.Apiary).Returns(apiary.Object);
+			var fields = new All<IAgricultureField>();
+			fields.Add(apiaryField.Object);
+			fixture.Gameworld.SetupGet(x => x.AgricultureFields).Returns(fields);
+			var field = BuildField(fixture, AgricultureFieldUse.Crop, cropHealth: opening,
+				cropYield: 50, nutrients: 50);
+			field.DailyTick();
+			Assert.AreEqual(expected, field.CropHealth,
+				$"Opening {opening}, pollination health {bonus}, factor {factor}.");
 		}
 	}
 

@@ -12,7 +12,9 @@ using MudSharp.Climate;
 using MudSharp.Construction;
 using MudSharp.Economy.Property;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using MudSharp.Framework.Scheduling;
 using MudSharp.Magic;
 using MudSharp.Magic.Environment;
 using MudSharp.Magic.Generators;
@@ -20,6 +22,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.Work.Agriculture;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Crafts.Inputs;
+using MudSharp.Work.Foraging;
 using MySql.Data.MySqlClient;
 using Db = MudSharp.Models;
 
@@ -35,7 +38,8 @@ internal static partial class GNHProgram
 		Console.WriteLine($"landCreated={database.Name}");
 		Console.WriteLine($"landServerVersion={database.ServerVersion}");
 		var fixture = NativeOrganicFixtureSeed.Create(database);
-		RunOrganicProfileAuthoringAndClone(database.ConnectionString, fixture.EnvironmentalResourceId);
+		var coordinatorProfileId = RunOrganicProfileAuthoringAndClone(database.ConnectionString,
+			fixture.EnvironmentalResourceId);
 		foreach (var (fieldId, factor, expected) in new[]
 		         {
 			         (fixture.PendingPastureFieldId, 0.5, 25),
@@ -62,6 +66,53 @@ internal static partial class GNHProgram
 				"C-P01 reconstruction changed assessed pasture stock.");
 			Console.WriteLine($"C-P01=passed field:{fieldId} staged:50 factor:{factor} expected:{expected} observed:{observed.Stock} assessment:assessed");
 		}
+		foreach (var (cellId, factor, expected) in new[]
+		         { (fixture.ConstructorHalfCellId, 0.5, 25), (fixture.ConstructorZeroCellId, 0.0, 0) })
+		{
+			var owner = NativeOrganicRuntime.Load(database.ConnectionString, fixture.FractionalFieldId,
+				initialFactor: factor);
+			var newCell = new Mock<ICell>(MockBehavior.Loose);
+			newCell.SetupGet(x => x.Id).Returns(cellId);
+			newCell.SetupGet(x => x.Gameworld).Returns(owner.World);
+			newCell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(20.0);
+			var newField = new AgricultureField(newCell.Object, owner.Field.Profile);
+			Require(ReadPastureAssessment(database.ConnectionString, newField.Id) == "pending",
+				"C-P01 constructor did not persist pending assessment on its first insert.");
+			var firstSave = NativeOrganicObservation.Read(database.ConnectionString, newField.Id,
+				NativeOrganicSourceKind.Pasture);
+			Require(firstSave.Stock == 50 && firstSave.CurrentUse == AgricultureFieldUse.Fallow,
+				"C-P01 constructor initial save did not retain staged pasture 50.");
+			var reconstructedConstructor = NativeOrganicRuntime.Load(database.ConnectionString, newField.Id,
+				initialFactor: factor);
+			var establish = NativeOperation(reconstructedConstructor.World, AgricultureOperationType.Graze,
+				AgricultureFieldUse.Fallow, AgricultureFieldUse.Pasture);
+			Require(reconstructedConstructor.Field.ApplyOperation(establish, null!, null!, false, out var result), result);
+			reconstructedConstructor.SaveManager.Flush();
+			var assessed = NativeOrganicObservation.Read(database.ConnectionString, newField.Id,
+				NativeOrganicSourceKind.Pasture);
+			Require(assessed.Stock == expected && ReadPastureAssessment(database.ConnectionString, newField.Id) == "assessed",
+				"C-P01 constructor field did not save its first assessment.");
+			var reentered = NativeOrganicRuntime.Load(database.ConnectionString, newField.Id,
+				initialFactor: factor);
+			Require(reentered.Field.Pasture == expected,
+				"C-P01 reload reassessed the constructor field.");
+			var exitPasture = NativeOperation(reentered.World, AgricultureOperationType.Clear,
+				AgricultureFieldUse.Pasture, AgricultureFieldUse.Fallow);
+			Require(reentered.Field.ApplyOperation(exitPasture, null!, null!, false, out var exitResult),
+				exitResult);
+			var reestablish = NativeOperation(reentered.World, AgricultureOperationType.Graze,
+				AgricultureFieldUse.Fallow, AgricultureFieldUse.Pasture);
+			Require(reentered.Field.ApplyOperation(reestablish, null!, null!, false, out var reentryResult),
+				reentryResult);
+			reentered.SaveManager.Flush();
+			var afterReentry = NativeOrganicObservation.Read(database.ConnectionString, newField.Id,
+				NativeOrganicSourceKind.Pasture);
+			Require(afterReentry.Stock == expected && ReadPastureAssessment(database.ConnectionString, newField.Id) == "assessed",
+				"C-P01 re-entry reassessed or refilled the constructor field.");
+			Console.WriteLine($"C-P01-constructor=passed field:{newField.Id} cell:{cellId} initial:50 factor:{factor} saved:{assessed.Stock} assessment:assessed");
+		}
+		RunNativeOrganicCoordinatorAcceptance(database, fixture.CoordinatorCropFieldId, coordinatorProfileId,
+			fixture.EnvironmentalResourceId);
 		var orchardRuntime = NativeOrganicRuntime.Load(database.ConnectionString, fixture.OrchardFieldId,
 			recoveryFactor: 0.5, perennial: true);
 		var orchardDebit = PlanNativeDebit(orchardRuntime.Field, NativeOrganicSourceKind.Crop, 0.25m);
@@ -235,13 +286,13 @@ internal static partial class GNHProgram
 		failureWatch.Stop();
 		Console.WriteLine(
 			$"Y-T24-provider=passed field:{fixture.GrazingFieldId} rolledBackStock:{rolledBack.Stock} rolledBackPrepaid:{rolledBack.Prepaid} retryStock:{afterRetry.Stock} retryPrepaid:{afterRetry.Prepaid} elapsedMs:{failureWatch.ElapsedMilliseconds}");
-		Console.WriteLine("landHarnessSubstitutions=world catalogues, weather and ecological scalar factor only; native owner accounting, agriculture operations/ticks, craft reservation, grazing, SaveManager, EF/MySQL persistence and separate-reader reconstruction are production paths");
+		Console.WriteLine("landHarnessSubstitutions=world catalogues and deterministic weather; C-P03 uses a persisted overlay and forage profile with a real Cell/coordinator/agriculture owner and a controllable apiary candidate; other land cases use an ecological scalar fixture; SaveManager and independent EF/MySQL observations are production paths");
 		total.Stop();
 		Console.WriteLine($"landHarnessElapsedMs={total.ElapsedMilliseconds}");
 		return 0;
 	}
 
-	private static void RunOrganicProfileAuthoringAndClone(string connectionString, long resourceId)
+	private static long RunOrganicProfileAuthoringAndClone(string connectionString, long resourceId)
 	{
 		using var context = NewIndependentContext(connectionString);
 		var resourceModel = context.MagicResources.AsNoTracking().Single(x => x.Id == resourceId);
@@ -274,12 +325,15 @@ internal static partial class GNHProgram
 		Require(created.BuildingCommand(actor.Object,
 			new StringStack("organic penalty forage 1 - scardamage / 20")),
 			"Y-T02 could not author the forage penalty through the real profile editor.");
+		Require(created.BuildingCommand(actor.Object,
+			new StringStack("organic penalty crophealth 2.0 / baselineincrease")),
+			"C-P03 could not author the dynamic crop-health penalty through the real profile editor.");
 		saveManager.Flush();
 
 		var savedModel = context.MagicGenerators.AsNoTracking().Single(x => x.Id == created.Id);
 		var reloaded = new EnvironmentalMagicGenerator(savedModel, world.Object);
 		Require(reloaded.OrganicValidationErrors.Count == 0 && reloaded.OrganicSources.Count == 2 &&
-		        reloaded.OrganicPenalties.Count == 1,
+		        reloaded.OrganicPenalties.Count == 2,
 			"Y-T02 did not reload the authored organic subtree intact.");
 		var clone = (EnvironmentalMagicGenerator)reloaded.Clone("Land Harness Organic Clone");
 		Require(clone.BuildingCommand(actor.Object, new StringStack("organic source remove crop")),
@@ -297,6 +351,155 @@ internal static partial class GNHProgram
 			"Y-T02 clone editing changed the original profile or did not save the independent clone.");
 		Console.WriteLine(
 			$"Y-T02=passed createdProfile:{created.Id} clonedProfile:{clone.Id} originalSources:{originalSources} cloneSources:{cloneSources} penalties:{clone.OrganicPenalties.Count}");
+		return created.Id;
+	}
+
+	private static void RunNativeOrganicCoordinatorAcceptance(TestDatabase database, long fieldId, long profileId,
+		long resourceId)
+	{
+		var baseRuntime = NativeOrganicRuntime.Load(database.ConnectionString, fieldId);
+		var world = Mock.Get(baseRuntime.World);
+		var crop = Mock.Get(baseRuntime.Crop);
+		crop.SetupGet(x => x.PollinationDependency).Returns(AgriculturePollinationDependency.Beneficial);
+		crop.SetupGet(x => x.PollinationHealthBonus).Returns(3);
+		using (var binding = NewIndependentContext(database.ConnectionString))
+		{
+			var persistedCell = binding.Cells.Single(x => x.Id == baseRuntime.Field.Cell.Id);
+			persistedCell.EnvironmentalMagicBindingMode = (int)EnvironmentalMagicBindingMode.Explicit;
+			persistedCell.EnvironmentalMagicProfileId = profileId;
+			binding.SaveChanges();
+		}
+		using var read = NewIndependentContext(database.ConnectionString);
+		var fieldModel = read.AgricultureFields.Include(x => x.AgricultureFieldCrop)
+			.AsNoTracking().Single(x => x.Id == fieldId);
+		var cellModel = read.Cells.Include(x => x.CellOverlays).Include(x => x.CellsForagableYields)
+			.AsNoTracking().Single(x => x.Id == fieldModel.CellId);
+		var forageModel = read.ForagableProfiles.Include(x => x.EditableItem)
+			.Include(x => x.ForagableProfilesMaximumYields)
+			.Include(x => x.ForagableProfilesHourlyYieldGains)
+			.AsNoTracking().Single(x => x.Id == cellModel.ForagableProfileId);
+		var generatorModel = read.MagicGenerators.AsNoTracking().Single(x => x.Id == profileId);
+		var resourceModel = read.MagicResources.AsNoTracking().Single(x => x.Id == resourceId);
+		var resources = new All<IMagicResource>();
+		resources.Add(new CappedSimpleMagicResource(resourceModel, world.Object));
+		world.SetupGet(x => x.MagicResources).Returns(resources);
+		var generators = new All<IMagicResourceRegenerator>();
+		generators.Add(new EnvironmentalMagicGenerator(generatorModel, world.Object));
+		world.SetupGet(x => x.MagicResourceRegenerators).Returns(generators);
+		world.SetupGet(x => x.FutureProgs).Returns(new All<MudSharp.FutureProg.IFutureProg>());
+		var terrain = new Terrain(read.Terrains.AsNoTracking()
+			.Single(x => x.Id == cellModel.CellOverlays.Single().TerrainId), world.Object);
+		var terrains = new All<ITerrain>();
+		terrains.Add(terrain);
+		world.SetupGet(x => x.Terrains).Returns(terrains);
+		var package = new Mock<ICellOverlayPackage>();
+		package.SetupGet(x => x.Id).Returns(cellModel.CellOverlays.Single().CellOverlayPackageId);
+		package.SetupGet(x => x.RevisionNumber).Returns(1);
+		package.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
+		var packages = new RevisableAll<ICellOverlayPackage>();
+		packages.Add(package.Object);
+		world.SetupGet(x => x.CellOverlayPackages).Returns(packages);
+		var forageProfiles = new RevisableAll<IForagableProfile>();
+		forageProfiles.Add(new ForagableProfile(forageModel, world.Object));
+		world.SetupGet(x => x.ForagableProfiles).Returns(forageProfiles);
+		var zone = new Mock<IZone>();
+		zone.SetupGet(x => x.Gameworld).Returns(world.Object);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Gameworld).Returns(world.Object);
+		room.SetupGet(x => x.Id).Returns(cellModel.RoomId);
+		room.SetupGet(x => x.Zone).Returns(zone.Object);
+		room.SetupGet(x => x.Areas).Returns(Array.Empty<IArea>());
+		var cell = new Cell(cellModel, room.Object);
+		cell.PostLoadTasks(cellModel);
+		var cells = new All<ICell>();
+		cells.Add(cell);
+		world.SetupGet(x => x.Cells).Returns(cells);
+		var fields = new All<IAgricultureField>();
+		world.SetupGet(x => x.AgricultureFields).Returns(fields);
+		world.SetupGet(x => x.HeartbeatManager).Returns(new HeartbeatManager(world.Object));
+		using var coordinator = new EnvironmentalMagicCoordinator(world.Object);
+		world.SetupGet(x => x.EnvironmentalMagic).Returns(coordinator);
+		var field = new AgricultureField(fieldModel, world.Object);
+		fields.Add(field);
+		coordinator.Initialise();
+		Require(cell.HasForagableProfile,
+			$"C-P03 did not resolve persisted forage profile {cellModel.ForagableProfileId} for cell {cell.Id}.");
+		Require(cell.GetForagableYield("herbs") == 100.0,
+			"C-P03 did not load the native forage maximum before ordinary consumption.");
+		cell.ConsumeYield("herbs", 10.0);
+		Require(cell.GetForagableYield("herbs") == 90.0 && baseRuntime.SaveManager.IsQueued(cell),
+			"C-P03 ordinary forage consumption did not queue the native cell owner.");
+		baseRuntime.SaveManager.Flush();
+		Require(ReadForageYield(database.ConnectionString, cell.Id) == 90.0,
+			"C-P03 forage setup did not persist native stock before conversion.");
+		Require(coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25, out var foragePlan,
+			out var forageError), forageError ?? "C-P03 forage conversion failed.");
+		var damage = coordinator.ApplyOperation(cell, new EnvironmentalMagicOperationRequest(
+			Guid.NewGuid(), 1, "C-P03 forage damage", Damage: 30.0));
+		Require(damage.Success, damage.Error ?? "C-P03 forage damage failed.");
+		Require(!coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25, out _, out _),
+			"C-P03 accepted forage planning with an invalid dynamic penalty.");
+		Require(!coordinator.TryApplyOrganicDebit(cell, foragePlan, out _, out _),
+			"C-P03 applied a stale forage plan after its penalty became invalid.");
+		baseRuntime.SaveManager.Flush();
+		Require(ReadForageYield(database.ConnectionString, cell.Id) == 90.0,
+			"C-P03 refused forage conversions mutated persisted stock.");
+		var repair = coordinator.ApplyOperation(cell, new EnvironmentalMagicOperationRequest(
+			Guid.NewGuid(), 1, "C-P03 forage repair", Repair: 30.0));
+		Require(repair.Success, repair.Error ?? "C-P03 forage repair failed.");
+		Require(coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25, out var correctedForage,
+			out forageError), forageError ?? "C-P03 forage conversion failed.");
+		Require(coordinator.TryApplyOrganicDebit(cell, correctedForage, out _, out forageError), forageError ?? "C-P03 forage conversion failed.");
+		baseRuntime.SaveManager.Flush();
+		Require(Math.Abs(ReadForageYield(database.ConnectionString, cell.Id) - 89.75) < 1e-9,
+			"C-P03 corrected forage conversion did not persist the exact quarter debit.");
+		var apiary = new Mock<IAgricultureFieldApiary>();
+		apiary.SetupGet(x => x.PollinationRadius).Returns(1);
+		apiary.SetupGet(x => x.PollinationStrength).Returns(50);
+		var pollinationActive = true;
+		var pollinator = new Mock<IAgricultureField>();
+		pollinator.SetupGet(x => x.Cell).Returns(cell);
+		pollinator.SetupGet(x => x.HasActiveApiary).Returns(true);
+		pollinator.SetupGet(x => x.IsApiaryHappy).Returns(() => pollinationActive);
+		pollinator.SetupGet(x => x.Apiary).Returns(apiary.Object);
+		coordinator.RefreshPollinationCandidate(pollinator.Object);
+		Require(field.InspectCurrentOrganicRecoveryContext(NativeOrganicPenaltyChannel.CropHealthRecovery)?
+			.BaselineIncrease == 4.0, "C-P03 did not supply the native pollinated health baseline of four.");
+		Require(coordinator.TryPlanOrganicDebit(cell, "crop", 0.25, out var initial, out var error),
+			error ?? "C-P03 initial crop conversion failed.");
+		Require(coordinator.TryApplyOrganicDebit(cell, initial, out _, out error), error ?? "C-P03 crop conversion failed.");
+		baseRuntime.SaveManager.Flush();
+		var prepaid = NativeOrganicObservation.Read(database.ConnectionString, fieldId,
+			NativeOrganicSourceKind.Crop);
+		Require(prepaid.Stock == 9 && prepaid.Prepaid == 0.75m,
+			"C-P03 initial real-coordinator debit did not persist native stock and prepaid credit.");
+		Require(coordinator.TryPlanOrganicDebit(cell, "crop", 0.25, out var planned, out error), error ?? "C-P03 crop conversion failed.");
+		pollinationActive = false;
+		Require(!coordinator.TryPlanOrganicDebit(cell, "crop", 0.25, out _, out _),
+			"C-P03 accepted planning with actual invalid factor 2 at baseline one.");
+		Require(!coordinator.TryApplyOrganicDebit(cell, planned, out _, out _),
+			"C-P03 applied a previously valid plan after its native context became invalid.");
+		var refused = NativeOrganicObservation.Read(database.ConnectionString, fieldId,
+			NativeOrganicSourceKind.Crop);
+		Require(refused.Stock == prepaid.Stock && refused.Prepaid == prepaid.Prepaid &&
+		        refused.Revision == prepaid.Revision,
+			"C-P03 refusal changed persisted native stock, fraction or revision.");
+		pollinationActive = true;
+		Require(coordinator.TryPlanOrganicDebit(cell, "crop", 0.25, out var corrected, out error), error ?? "C-P03 crop conversion failed.");
+		Require(coordinator.TryApplyOrganicDebit(cell, corrected, out _, out error), error ?? "C-P03 crop conversion failed.");
+		baseRuntime.SaveManager.Flush();
+		var accepted = NativeOrganicObservation.Read(database.ConnectionString, fieldId,
+			NativeOrganicSourceKind.Crop);
+		Require(accepted.Stock == 9 && accepted.Prepaid == 0.5m && accepted.Revision > refused.Revision,
+			"C-P03 corrected conversion did not persist exactly one prepaid-credit debit.");
+		Console.WriteLine($"C-P03=passed field:{fieldId} cell:{cell.Id} profile:{profileId} forage:90->90->89.75 baseline:4->1->4 persistedStock:{prepaid.Stock}->{refused.Stock}->{accepted.Stock} prepaid:{prepaid.Prepaid}->{refused.Prepaid}->{accepted.Prepaid} revision:{prepaid.Revision}->{refused.Revision}->{accepted.Revision}");
+	}
+
+	private static double ReadForageYield(string connectionString, long cellId)
+	{
+		using var context = NewIndependentContext(connectionString);
+		return context.CellsForagableYields.AsNoTracking()
+			.Single(x => x.CellId == cellId && x.ForagableType == "herbs").Yield;
 	}
 
 	private static int RunNativeOrganicReader(string[] arguments)
@@ -411,7 +614,8 @@ internal static partial class GNHProgram
 
 	private sealed record NativeOrganicFixtureIds(long FractionalCellId, long FractionalFieldId,
 		long ConsumerCropFieldId, long GrazingFieldId, long EnvironmentalResourceId,
-		long PendingPastureFieldId, long ZeroPastureFieldId, long OrchardFieldId);
+		long PendingPastureFieldId, long ZeroPastureFieldId, long OrchardFieldId,
+		long ConstructorHalfCellId, long ConstructorZeroCellId, long CoordinatorCropFieldId);
 
 	private static class NativeOrganicFixtureSeed
 	{
@@ -423,6 +627,9 @@ internal static partial class GNHProgram
 			var pendingPastureBase = FixtureSeed.Create(database, "land_c_p01_pasture", false);
 			var zeroPastureBase = FixtureSeed.Create(database, "land_c_p01_zero", false);
 			var orchardBase = FixtureSeed.Create(database, "land_c_p02_orchard", false);
+			var constructorHalfBase = FixtureSeed.Create(database, "land_c_p01_constructor_half", false);
+			var constructorZeroBase = FixtureSeed.Create(database, "land_c_p01_constructor_zero", false);
+			var coordinatorCropBase = FixtureSeed.Create(database, "land_c_p03_crop", false);
 			using var context = NewIndependentContext(database.ConnectionString);
 			var profile = new Db.AgricultureFieldProfile
 			{
@@ -464,6 +671,8 @@ internal static partial class GNHProgram
 			zeroPasture.Definition = pendingPasture.Definition;
 			var orchard = CropField(orchardBase.CellId, profile.Id, crop.Id, 100,
 				AgricultureCropStage.Harvestable, nutrients: 100);
+			var coordinatorCrop = CropField(coordinatorCropBase.CellId, profile.Id, crop.Id, 10,
+				AgricultureCropStage.Growing, nutrients: 100);
 			orchard.CurrentUse = (int)AgricultureFieldUse.Orchard;
 			pasture.AgricultureFieldHerds.Add(new Db.AgricultureFieldHerd
 			{
@@ -473,10 +682,67 @@ internal static partial class GNHProgram
 				Definition = "<Herd secondaryYield=\"0\" />"
 			});
 			context.AgricultureFields.AddRange(fractional, cropConsumer, pasture, pendingPasture, zeroPasture,
-				orchard);
+				orchard, coordinatorCrop);
+			context.SaveChanges();
+			var forageProfile = new Db.ForagableProfile
+			{
+				Id = 930001,
+				Name = "Land harness forage profile", RevisionNumber = 1,
+				EditableItem = new Db.EditableItem
+				{
+					RevisionNumber = 1, RevisionStatus = (int)RevisionStatus.Current,
+					BuilderAccountId = 1, BuilderDate = DateTime.UtcNow
+				}
+			};
+			forageProfile.ForagableProfilesMaximumYields.Add(new Db.ForagableProfilesMaximumYields
+			{
+				ForageType = "herbs", Yield = 100.0
+			});
+			forageProfile.ForagableProfilesHourlyYieldGains.Add(new Db.ForagableProfilesHourlyYieldGains
+			{
+				ForageType = "herbs", Yield = 10.0
+			});
+			context.ForagableProfiles.Add(forageProfile);
+			var overlayPackage = new Db.CellOverlayPackage
+			{
+				Id = 930001,
+				Name = "Land harness overlay package", RevisionNumber = 1,
+				EditableItem = new Db.EditableItem
+				{
+					RevisionNumber = 1, RevisionStatus = (int)RevisionStatus.Current,
+					BuilderAccountId = 1, BuilderDate = DateTime.UtcNow
+				}
+			};
+			context.CellOverlayPackages.Add(overlayPackage);
+			var terrain = new Db.Terrain
+			{
+				Id = 930001,
+				Name = "Land harness coordinator terrain", TerrainBehaviourMode = "outdoors",
+				MovementRate = 1.0
+			};
+			context.Terrains.Add(terrain);
+			context.SaveChanges();
+			terrain.ForagableProfileId = forageProfile.Id;
+			var coordinatorCell = context.Cells.Single(x => x.Id == coordinatorCropBase.CellId);
+			coordinatorCell.ForagableProfileId = forageProfile.Id;
+			var overlay = new Db.CellOverlay
+			{
+				Id = 930001,
+				Name = "Land harness coordinator overlay",
+				CellName = "Land harness coordinator cell",
+				CellDescription = "Disposable native organic acceptance cell.",
+				CellId = coordinatorCell.Id,
+				CellOverlayPackageId = overlayPackage.Id,
+				CellOverlayPackageRevisionNumber = overlayPackage.RevisionNumber,
+				TerrainId = terrain.Id, AmbientLightFactor = 1.0, SafeQuit = true
+			};
+			context.CellOverlays.Add(overlay);
+			context.SaveChanges();
+			coordinatorCell.CurrentOverlayId = overlay.Id;
 			context.SaveChanges();
 			return new NativeOrganicFixtureIds(fractionalBase.CellId, fractional.Id, cropConsumer.Id, pasture.Id,
-				fractionalBase.ResourceId, pendingPasture.Id, zeroPasture.Id, orchard.Id);
+				fractionalBase.ResourceId, pendingPasture.Id, zeroPasture.Id, orchard.Id,
+				constructorHalfBase.CellId, constructorZeroBase.CellId, coordinatorCrop.Id);
 		}
 
 		private static Db.AgricultureField CropField(long cellId, long profileId, long cropId, int yield,

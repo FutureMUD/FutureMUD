@@ -751,13 +751,7 @@ public partial class AgricultureField
 			}
 
 			return (AtCapacity: false, Generation: state.Generation,
-				Context: new NativeOrganicPenaltyContext(kind, NativeOrganicSourceSelectors.Canonical(kind),
-					NativeStockFor(kind),
-					kind == NativeOrganicSourceKind.Crop ? _cropHealth :
-					kind == NativeOrganicSourceKind.Woodland ? _woodlandHealth : _condition,
-					kind == NativeOrganicSourceKind.Crop ? _cropYieldPotential :
-					kind == NativeOrganicSourceKind.Woodland ? _woodlandYieldPotential : _pasture,
-					capacity, _condition, baseline));
+				Context: BuildNativeOrganicPenaltyContext(kind, capacity, baseline));
 		});
 		if (input.AtCapacity)
 		{
@@ -813,6 +807,65 @@ public partial class AgricultureField
 			SetNativeRecoveryRemainderUnsafe(kind, component, remainder);
 			return applied;
 		});
+	}
+
+	private NativeOrganicPenaltyContext BuildNativeOrganicPenaltyContext(NativeOrganicSourceKind kind,
+		double capacity, double baseline) => new(kind, NativeOrganicSourceSelectors.Canonical(kind),
+		NativeStockFor(kind),
+		kind == NativeOrganicSourceKind.Crop ? _cropHealth :
+		kind == NativeOrganicSourceKind.Woodland ? _woodlandHealth : _condition,
+		kind == NativeOrganicSourceKind.Crop ? _cropYieldPotential :
+		kind == NativeOrganicSourceKind.Woodland ? _woodlandYieldPotential : _pasture,
+		capacity, _condition, baseline);
+
+	public NativeOrganicPenaltyContext? InspectCurrentOrganicRecoveryContext(NativeOrganicPenaltyChannel channel)
+	{
+		var baseline = 0;
+		var headroom = 0;
+		NativeOrganicSourceKind kind;
+		switch (channel)
+		{
+			case NativeOrganicPenaltyChannel.CropHealthRecovery:
+			case NativeOrganicPenaltyChannel.CropYieldRecovery:
+				var crop = CurrentCrop;
+				if (crop == null || CropStage is AgricultureCropStage.Failed or AgricultureCropStage.Overripe)
+					return null;
+				var (stressed, pollinationHealth, pollinationYield) = CurrentCropTickContributions(crop,
+					CropStage);
+				if (stressed) return null;
+				kind = NativeOrganicSourceKind.Crop;
+				if (channel == NativeOrganicPenaltyChannel.CropHealthRecovery)
+				{
+					baseline = 1 + Math.Max(0, pollinationHealth);
+					headroom = 100 - _cropHealth;
+				}
+				else
+				{
+					var nutrientYield = Math.Sign(Nutrients - 50);
+					baseline = Math.Max(0, nutrientYield) + Math.Max(0, pollinationYield);
+					headroom = 100 - (_cropYieldPotential + Math.Min(0, nutrientYield));
+					if (nutrientYield > 0) headroom = 100 - _cropYieldPotential;
+				}
+				break;
+			case NativeOrganicPenaltyChannel.WoodlandHealthRecovery:
+			case NativeOrganicPenaltyChannel.WoodlandYieldRecovery:
+				if (CurrentWoodland == null || _woodlandHealth <= 0 || Moisture < 15 || Moisture > 90 ||
+				    Topsoil < 25 || Pests > 80) return null;
+				kind = NativeOrganicSourceKind.Woodland;
+				if (channel == NativeOrganicPenaltyChannel.WoodlandYieldRecovery &&
+				    _woodlandGrowthDays + 1 <= CurrentWoodland.EstablishmentDays) return null;
+				baseline = 1;
+				headroom = channel == NativeOrganicPenaltyChannel.WoodlandHealthRecovery
+					? 100 - _woodlandHealth : 100 - _woodlandYieldPotential;
+				break;
+			default:
+				// Pasture recovery requires a future operation's positive score delta.
+				return null;
+		}
+
+		return baseline <= 0 || headroom <= 0
+			? null
+			: SynchronizeNativeOrganicOwner(() => BuildNativeOrganicPenaltyContext(kind, 100, baseline));
 	}
 
 	private int NativeRecoveryCurrentFor(NativeOrganicSourceKind kind, NativeRecoveryComponent component)

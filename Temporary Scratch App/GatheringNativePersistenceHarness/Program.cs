@@ -70,7 +70,7 @@ internal static partial class GNHProgram
 		}
 		catch (Exception ex)
 		{
-			Console.Error.WriteLine($"Harness failed: {ex.GetType().Name}: {ex.Message}");
+			Console.Error.WriteLine($"Harness failed: {ex}");
 			return 1;
 		}
 	}

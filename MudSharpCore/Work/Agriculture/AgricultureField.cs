@@ -694,20 +694,12 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 			return;
 		}
 
-		var temperature = Cell.CurrentTemperature(null);
 		var harvestDays = crop.IsPerennial && cropIdentity.HarvestCount > 0
 			? crop.HarvestCycleDays
 			: crop.BaseGrowthDays;
 		var harvestWindowDays = crop.HarvestWindowDays;
-		var pollinationSupport = CurrentPollinationSupport(crop);
-		var lacksRequiredPollination = crop.PollinationDependency == AgriculturePollinationDependency.Required &&
-		                                cropIdentity.Stage == AgricultureCropStage.Setting &&
-		                                pollinationSupport <= 0;
-		var stressed = Moisture < crop.MinimumMoisture || Moisture > crop.MaximumMoisture ||
-		               temperature < crop.MinimumTemperature || temperature > crop.MaximumTemperature ||
-		               Weeds > 75 || Pests > 75 || Salinity > 80 ||
-		               crop.ScoreRanges.Any(x => x.Score.IsEnabledScore(Gameworld) && !x.Contains(Score(x.Score))) ||
-		               lacksRequiredPollination;
+		var (stressed, pollinationHealth, pollinationYield) = CurrentCropTickContributions(crop,
+			cropIdentity.Stage);
 		if (stressed)
 		{
 			SynchronizeNativeOrganicOwner(() =>
@@ -730,23 +722,13 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		}
 		else
 		{
-			var positiveHealth = 1;
-			var negativeHealth = 0;
 			var nutrientYield = Math.Sign(Nutrients - 50);
-			var positiveYield = Math.Max(0, nutrientYield);
-			var negativeYield = Math.Min(0, nutrientYield);
-			if (pollinationSupport > 0)
-			{
-				positiveHealth += Math.Max(0, crop.PollinationHealthBonus);
-				negativeHealth += Math.Min(0, crop.PollinationHealthBonus);
-				positiveYield += Math.Max(0, crop.PollinationYieldBonus);
-				negativeYield += Math.Min(0, crop.PollinationYieldBonus);
-			}
-
-			var healthIncrease = ApplyCropHealthIncrease(positiveHealth,
-				sameOperationLoss: negativeHealth);
-			var yieldIncrease = ApplyCropYieldIncrease(positiveYield,
-				sameOperationLoss: negativeYield);
+			// Native crop ticks clamp the nutrient step before applying pollination. A later
+			// loss cannot create headroom for an earlier positive contribution.
+			var healthIncrease = ApplyCropHealthIncrease(1 + Math.Max(0, pollinationHealth));
+			var yieldIncrease = ApplyCropYieldIncrease(
+				Math.Max(0, nutrientYield) + Math.Max(0, pollinationYield),
+				sameOperationLoss: Math.Min(0, nutrientYield));
 			SynchronizeNativeOrganicOwner(() =>
 			{
 				if (_cropDefinitionId != cropIdentity.DefinitionId ||
@@ -757,8 +739,12 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 
 				var oldHealth = _cropHealth;
 				var oldYield = _cropYieldPotential;
-				_cropHealth = (_cropHealth + negativeHealth + healthIncrease).ClampScore();
-				_cropYieldPotential = (_cropYieldPotential + negativeYield + yieldIncrease).ClampScore();
+				_cropHealth = ((_cropHealth + Math.Min(healthIncrease, 1)).ClampScore() +
+				               Math.Min(0, pollinationHealth) + Math.Max(0, healthIncrease - 1)).ClampScore();
+				_cropYieldPotential = ((_cropYieldPotential + Math.Min(0, nutrientYield) +
+				                        (nutrientYield > 0 ? yieldIncrease : 0)).ClampScore() +
+				                       Math.Min(0, pollinationYield) +
+				                       (nutrientYield > 0 ? 0 : yieldIncrease)).ClampScore();
 				_cropGrowthDays++;
 				if (oldHealth != _cropHealth || oldYield != _cropYieldPotential)
 				{
@@ -824,6 +810,22 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		Changed = true;
 	}
 
+	private (bool Stressed, int PollinationHealth, int PollinationYield) CurrentCropTickContributions(
+		IAgricultureCropDefinition crop, AgricultureCropStage stage)
+	{
+		var temperature = Cell.CurrentTemperature(null);
+		var pollinationSupport = CurrentPollinationSupport(crop);
+		var lacksRequiredPollination = crop.PollinationDependency == AgriculturePollinationDependency.Required &&
+		                                stage == AgricultureCropStage.Setting && pollinationSupport <= 0;
+		var stressed = Moisture < crop.MinimumMoisture || Moisture > crop.MaximumMoisture ||
+		               temperature < crop.MinimumTemperature || temperature > crop.MaximumTemperature ||
+		               Weeds > 75 || Pests > 75 || Salinity > 80 ||
+		               crop.ScoreRanges.Any(x => x.Score.IsEnabledScore(Gameworld) && !x.Contains(Score(x.Score))) ||
+		               lacksRequiredPollination;
+		return (stressed, pollinationSupport > 0 ? crop.PollinationHealthBonus : 0,
+			pollinationSupport > 0 ? crop.PollinationYieldBonus : 0);
+	}
+
 	private int CurrentPollinationSupport(IAgricultureCropDefinition crop)
 	{
 		if (crop.PollinationDependency == AgriculturePollinationDependency.None ||
@@ -833,7 +835,10 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		}
 
 		var best = 0;
-		foreach (var field in Gameworld.AgricultureFields)
+		var candidates = Gameworld.EnvironmentalMagic is EnvironmentalMagicCoordinator coordinator
+			? coordinator.PollinationCandidates()
+			: Gameworld.AgricultureFields;
+		foreach (var field in candidates)
 		{
 			if (field?.HasActiveApiary != true || !field.IsApiaryHappy || field.Apiary == null)
 			{
@@ -1363,6 +1368,11 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		}
 
 		RunCompletionProg(operation, actor);
+		if (operation.OperationType is AgricultureOperationType.InstallApiary or
+		    AgricultureOperationType.RemoveApiary)
+		{
+			Gameworld.EnvironmentalMagic?.RefreshPollinationCandidate(this);
+		}
 		Changed = true;
 		return true;
 	}

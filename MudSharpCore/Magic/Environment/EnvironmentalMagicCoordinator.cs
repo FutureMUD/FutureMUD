@@ -44,6 +44,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	private readonly Dictionary<long, LinkedListNode<Cell>> _cells = new();
 	private readonly LinkedList<Cell> _cellOrder = new();
 	private readonly Dictionary<long, IAgricultureField> _fields = new();
+	private readonly Dictionary<long, IAgricultureField> _apiaryFields = new();
 	private readonly Dictionary<long, long> _referenceGenerations = new();
 	private readonly SortedSet<Registration> _due = new(Comparer<Registration>.Create((a, b) =>
 		a.DueAt.CompareTo(b.DueAt) is var result && result != 0 ? result : a.Cell.Id.CompareTo(b.Cell.Id)));
@@ -99,7 +100,11 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	public void Initialise()
 	{
 		if (_started || _disposed) return;
-		foreach (var field in _world.AgricultureFields) _fields[field.Cell.Id] = field;
+		foreach (var field in _world.AgricultureFields)
+		{
+			_fields[field.Cell.Id] = field;
+			RefreshPollinationCandidate(field);
+		}
 		foreach (var cell in _world.Cells) Register(cell);
 		_world.HeartbeatManager.SecondHeartbeat += Pump;
 		_started = true;
@@ -232,14 +237,28 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	public IAgricultureField? FieldFor(ICell cell) => ReferenceEquals(cell.Gameworld, _world)
 		? _fields.GetValueOrDefault(cell.Id) : null;
 
+	public IEnumerable<IAgricultureField> PollinationCandidates() => _apiaryFields.Values;
+
+	public void RefreshPollinationCandidate(IAgricultureField field)
+	{
+		if (!ReferenceEquals(field.Cell.Gameworld, _world)) return;
+		if (field.HasActiveApiary) _apiaryFields[field.Cell.Id] = field;
+		else if (_apiaryFields.GetValueOrDefault(field.Cell.Id) == field) _apiaryFields.Remove(field.Cell.Id);
+	}
+
 	public void FieldChanged(IAgricultureField field, bool removed = false)
 	{
 		if (_disposed || !ReferenceEquals(field.Cell.Gameworld, _world)) return;
 		if (removed)
 		{
 			if (_fields.GetValueOrDefault(field.Cell.Id) == field) _fields.Remove(field.Cell.Id);
+			if (_apiaryFields.GetValueOrDefault(field.Cell.Id) == field) _apiaryFields.Remove(field.Cell.Id);
 		}
-		else _fields[field.Cell.Id] = field;
+		else
+		{
+			_fields[field.Cell.Id] = field;
+			RefreshPollinationCandidate(field);
+		}
 		MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture);
 	}
 
@@ -347,6 +366,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		_cells.Clear();
 		_cellOrder.Clear();
 		_fields.Clear();
+		_apiaryFields.Clear();
 		_referenceGenerations.Clear();
 		_due.Clear();
 		_audit.Clear();

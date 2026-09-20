@@ -140,6 +140,9 @@ public interface IEnvironmentalMagicService : IDisposable
 	void SourceDefinitionChanged();
 	void FieldChanged(IAgricultureField field, bool removed = false);
 	IAgricultureField? FieldFor(ICell cell);
+	/// <summary>Indexed apiary candidates for native pollination; null only for services without this index.</summary>
+	IEnumerable<IAgricultureField>? PollinationCandidates();
+	void RefreshPollinationCandidate(IAgricultureField field);
 	void Initialise();
 	void Pump();
 	string DescribeDiagnostics();

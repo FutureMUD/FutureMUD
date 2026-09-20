@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param()
+param([switch]$LandOnly)
 
 $ErrorActionPreference = 'Stop'
 
@@ -103,8 +103,11 @@ try {
 	}
 
 	& dotnet $harnessDll --probe
-	& dotnet $harnessDll --run
 	$runExit = $LASTEXITCODE
+	if (-not $LandOnly -and $runExit -eq 0) {
+		& dotnet $harnessDll --run
+		$runExit = $LASTEXITCODE
+	}
 	if ($runExit -eq 0) {
 		& dotnet $harnessDll --land-run
 		$runExit = $LASTEXITCODE

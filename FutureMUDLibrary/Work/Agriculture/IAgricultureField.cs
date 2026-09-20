@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Collections.Generic;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -54,6 +56,8 @@ public interface IAgricultureField : IFrameworkItem, ISaveable, IHaveFuturemud, 
 	bool ConsumeWoodlandYield(int amount, out string reason);
 	/// <summary>Pure current owner state; environmental-profile authorisation is applied by the coordinator.</summary>
 	NativeOrganicSourceSnapshot InspectNativeOrganicSource(NativeOrganicSourceKind kind);
+	/// <summary>Pure current recovery context, or null when this channel has no present positive production.</summary>
+	NativeOrganicPenaltyContext? InspectCurrentOrganicRecoveryContext(NativeOrganicPenaltyChannel channel);
 	/// <summary>Compare-and-applies an already-authorised plan to this field only.</summary>
 	bool TryApplyNativeOrganicDebit(NativeOrganicDebitPlan plan, out string reason);
 	/// <summary>Explicitly discards invalid extension data without changing native stock.</summary>

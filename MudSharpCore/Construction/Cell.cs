@@ -2557,6 +2557,12 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 	internal double PeekNativeForageHourlyProduction(string type) =>
 		GetHourlyYield(PeekForagableProfile(), type);
 
+	internal static NativeOrganicPenaltyContext BuildNativeForagePenaltyContext(string type,
+		double stock, double maximum, double hourly) => new(
+		NativeOrganicSourceKind.Forage,
+		NativeOrganicSourceSelectors.Canonical(NativeOrganicSourceKind.Forage, type),
+		stock, 0.0, stock, maximum, 0.0, hourly);
+
 	private double GetForagableRecoveryIncrement(string type, double stock, double maximum, double hourly)
 	{
 		var headroom = Math.Max(0.0, maximum - stock);
@@ -2565,15 +2571,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 			return 0.0;
 		}
 
-		var context = new NativeOrganicPenaltyContext(
-			NativeOrganicSourceKind.Forage,
-			NativeOrganicSourceSelectors.Canonical(NativeOrganicSourceKind.Forage, type),
-			stock,
-			0.0,
-			stock,
-			maximum,
-			0.0,
-			hourly);
+		var context = BuildNativeForagePenaltyContext(type, stock, maximum, hourly);
 		var evaluation = Gameworld.EnvironmentalMagic?.EvaluateOrganicPenalty(
 			this,
 			NativeOrganicPenaltyChannel.ForageReplenishment,

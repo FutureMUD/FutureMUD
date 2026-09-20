@@ -501,49 +501,18 @@ public sealed partial class EnvironmentalMagicCoordinator
 	internal NativeOrganicPenaltyEvaluation InspectOrganicPenaltyFactor(ICell cell,
 		NativeOrganicSourceSnapshot source, NativeOrganicPenaltyChannel channel)
 	{
-		var stock = source.NativeStock;
-		var health = 0.0;
-		var nativeYield = stock;
-		var capacity = source.Kind == NativeOrganicSourceKind.Forage ? Math.Max(stock, 0.0) : 100.0;
-		var condition = 0.0;
 		if (source.Kind == NativeOrganicSourceKind.Forage &&
 		    source.Selector.StartsWith("forage:", StringComparison.Ordinal) &&
+		    cell is Cell concrete &&
 		    cell.TryPeekForagableYield(source.Selector[7..], out NativeForageYieldSnapshot forage))
 		{
-			capacity = forage.Maximum;
+			return EvaluateOrganicPenalty(cell, channel, Cell.BuildNativeForagePenaltyContext(
+				source.Selector[7..], source.NativeStock, forage.Maximum,
+				concrete.PeekNativeForageHourlyProduction(source.Selector[7..])));
 		}
-		else if (FieldFor(cell) is { } field)
-		{
-			condition = field.Condition;
-			switch (source.Kind)
-			{
-				case NativeOrganicSourceKind.Crop:
-					health = field.CropHealth;
-					nativeYield = field.CropYieldPotential;
-					break;
-				case NativeOrganicSourceKind.Woodland:
-					health = field.WoodlandHealth;
-					nativeYield = field.WoodlandYieldPotential;
-					break;
-				case NativeOrganicSourceKind.Pasture:
-					health = field.Condition;
-					nativeYield = field.Pasture;
-					break;
-			}
-		}
-		var baseline = channel switch
-		{
-			NativeOrganicPenaltyChannel.ForageReplenishment when cell is Cell concrete =>
-				concrete.PeekNativeForageHourlyProduction(source.Selector[7..]),
-			NativeOrganicPenaltyChannel.CropHealthRecovery => 1.0,
-			NativeOrganicPenaltyChannel.CropYieldRecovery when FieldFor(cell) is { } cropField =>
-				Math.Max(0, Math.Sign(cropField.Nutrients - 50)),
-			NativeOrganicPenaltyChannel.WoodlandHealthRecovery or
-				NativeOrganicPenaltyChannel.WoodlandYieldRecovery => 1.0,
-			_ => 0.0
-		};
-		return EvaluateOrganicPenalty(cell, channel, new NativeOrganicPenaltyContext(source.Kind,
-			source.Selector, stock, health, nativeYield, capacity, condition, baseline));
+
+		var context = FieldFor(cell)?.InspectCurrentOrganicRecoveryContext(channel);
+		return context == null ? NativeOrganicPenaltyEvaluation.Neutral : EvaluateOrganicPenalty(cell, channel, context);
 	}
 
 	private bool TryCollectOrganicNamedInputs(ICell cell, IEnvironmentalMagicProfile profile,

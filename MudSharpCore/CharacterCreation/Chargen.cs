@@ -204,10 +204,14 @@ public partial class Chargen : FrameworkItem, IChargen
                              SelectedAttributes.Any() &&
                              SelectedSkills.Any() &&
 							 (SelectedAccents.Any() || !Gameworld.Languages.Any(x => SelectedSkills.Contains(x.LinkedTrait) && x.Accents.Any())) &&
-                             SelectedCharacteristics.Any() &&
+                             HasRequiredCharacteristics(this) &&
                              SelectedNotes.Any() &&
                              SelectedStartingLocation != null &&
                              Handedness != Alignment.Irrelevant;
+
+    internal static bool HasRequiredCharacteristics(IChargen chargen) =>
+        chargen.SelectedCharacteristics.Any() ||
+        !chargen.SelectedRace.Characteristics(chargen.SelectedGender).Any();
 
     public IEnumerable<Tuple<string, string>> PriorRejections => _priorRejections;
 

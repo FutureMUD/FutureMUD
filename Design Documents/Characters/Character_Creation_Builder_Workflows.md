@@ -40,6 +40,8 @@ Common examples are:
 
 Use `chargen changetype <stage> <type>` for these changes.
 
+For descriptions, `chargen changetype SelectDescription CustomDescriptionPicker` makes every applicant write a short and full description. The existing `DescriptionPicker` honours its `custom` and `patterns` settings, and automatically uses custom entry for a race with no characteristic definitions. Switching between the two description types preserves the blurbs and the existing type's saved settings; `CustomDescriptionPicker` always enforces custom entry while it is active. The characteristic stage automatically completes with an empty selection for a race with no definitions.
+
 Important note:
 - type changes can discard or reinterpret screen-specific configuration
 - they should be treated as a rebuild operation, not a harmless cosmetic change

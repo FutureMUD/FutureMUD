@@ -109,6 +109,7 @@ public class CharacteristicPickerScreenStoryboard : ChargenScreenStoryboard
             CharacteristicEnumerator = characteristics.GetEnumerator();
             if (!CharacteristicEnumerator.MoveNext())
             {
+                Chargen.SelectedCharacteristics = new List<(ICharacteristicDefinition, ICharacteristicValue)>();
                 State = ChargenScreenState.Complete;
             }
         }

@@ -6,7 +6,7 @@ namespace MudSharp.CharacterCreation.Screens;
 
 public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 {
-    private DescriptionPickerScreenStoryboard()
+    protected DescriptionPickerScreenStoryboard()
     {
     }
 
@@ -20,6 +20,17 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
         SDescBlurb = definition.Element("SDescBlurb").Value;
     }
 
+    protected DescriptionPickerScreenStoryboard(IFuturemud gameworld, IChargenScreenStoryboard storyboard)
+        : base(gameworld, storyboard)
+    {
+        if (storyboard is DescriptionPickerScreenStoryboard descriptionPicker)
+        {
+            CopyDescriptionSettings(descriptionPicker);
+        }
+
+        SaveAfterTypeChange();
+    }
+
     protected override string StoryboardName => "DescriptionPicker";
 
     public bool AllowCustomDescription { get; protected set; }
@@ -30,7 +41,21 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
     public string SDescBlurb { get; protected set; }
 
+    internal void CopyDescriptionSettings(DescriptionPickerScreenStoryboard source)
+    {
+        AllowCustomDescription = source.AllowCustomDescription;
+        AllowEntityDescriptionPatterns = source.AllowEntityDescriptionPatterns;
+        FullDescBlurb = source.FullDescBlurb;
+        SDescBlurb = source.SDescBlurb;
+    }
+
     public override ChargenStage Stage => ChargenStage.SelectDescription;
+
+    protected virtual bool AlwaysUseCustomDescriptions => false;
+
+    internal bool UseCustomDescriptionsOnly(IChargen chargen) =>
+        AlwaysUseCustomDescriptions || !AllowEntityDescriptionPatterns ||
+        !chargen.SelectedRace.Characteristics(chargen.SelectedGender).Any();
 
     #region Overrides of ChargenScreenStoryboard
 
@@ -51,7 +76,8 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
     {
         ChargenStoryboard.RegisterFactory(ChargenStage.SelectDescription,
             new ChargenScreenStoryboardFactory("DescriptionPicker",
-                (game, dbitem) => new DescriptionPickerScreenStoryboard(game, dbitem)),
+                (game, dbitem) => new DescriptionPickerScreenStoryboard(game, dbitem),
+                (game, storyboard) => new DescriptionPickerScreenStoryboard(game, storyboard)),
             "DescriptionPicker",
             "Pick a short and full description from a list",
             ((ChargenScreenStoryboard)Activator.CreateInstance(MethodBase.GetCurrentMethod().DeclaringType, true))
@@ -92,6 +118,7 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
         private readonly DescriptionPickerScreenStoryboard Storyboard;
         private readonly IList<IEntityDescriptionPattern> ValidPatterns;
+        private readonly bool _customOnly;
         private bool InCustomMode;
         private List<IEntityDescriptionPattern> RandomPatterns;
         private string SelectedDesc;
@@ -102,10 +129,10 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
             : base(chargen, storyboard)
         {
             Storyboard = storyboard;
-
-            ValidPatterns =
-                Storyboard.Gameworld.EntityDescriptionPatterns.Where(
-                    x => x.IsValidSelection(chargen)).ToList();
+            _customOnly = storyboard.UseCustomDescriptionsOnly(chargen);
+            ValidPatterns = _customOnly
+                ? new List<IEntityDescriptionPattern>()
+                : Storyboard.Gameworld.EntityDescriptionPatterns.Where(x => x.IsValidSelection(chargen)).ToList();
         }
 
         public override ChargenStage AssociatedStage => ChargenStage.SelectDescription;
@@ -119,9 +146,9 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
             if (string.IsNullOrEmpty(SelectedSdesc))
             {
-                if (InCustomMode)
+                if (InCustomMode || _customOnly)
                 {
-                    return $"{EntityDescriptionPatternExtensions.GetDescriptionHelpFor(Chargen, Account)}\n\nPlease enter the custom short description that you would like to use:\n";
+                    return $"{Storyboard.SDescBlurb.SubstituteANSIColour().Wrap(Account.InnerLineFormatLength)}\n\n{EntityDescriptionPatternExtensions.GetDescriptionHelpFor(Chargen, Account)}\n\nPlease enter the custom short description that you would like to use:\n";
                 }
 
                 if (SelectedEntityDescriptionPattern == null)
@@ -155,6 +182,11 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
                 return
                     $"You have selected the following pattern:\n\n{IHaveCharacteristicsExtensions.ParseCharacteristicsAbsolute(SelectedEntityDescriptionPattern.Pattern, Chargen.SelectedCharacteristics, Gendering.Get(Chargen.SelectedGender), Chargen.Gameworld, Chargen.SelectedRace, Chargen.SelectedCulture, Chargen.SelectedEthnicity, Chargen.SelectedBirthday?.Calendar.CurrentDate.YearsDifference(Chargen.SelectedBirthday ?? Chargen.SelectedCulture?.PrimaryCalendar.CurrentDate) ?? 0, Chargen.SelectedHeight).Colour(Telnet.Magenta).Wrap(Chargen.Account.InnerLineFormatLength)}\n\nType {"yes".Colour(Telnet.Yellow)} to proceed or {"no".Colour(Telnet.Yellow)} to select again.";
+            }
+
+            if (_customOnly)
+            {
+                return $"{Storyboard.FullDescBlurb.SubstituteANSIColour().Wrap(Account.InnerLineFormatLength)}\n\nPlease type {"continue".ColourCommand()} to enter your custom full description in the editor.";
             }
 
             if (InCustomMode)
@@ -207,7 +239,7 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
             if (string.IsNullOrEmpty(SelectedSdesc))
             {
-                if (InCustomMode)
+                if (InCustomMode || _customOnly)
                 {
                     string sdesc = command.ToLowerInvariant().Trim();
                     if (sdesc.Length == 0)
@@ -251,13 +283,16 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
                 return Display();
             }
 
+            if (_customOnly)
+            {
+                return command.EqualTo("continue") ? BeginFullDescriptionEditor() : Display();
+            }
+
             if (SelectedEntityDescriptionPattern == null)
             {
                 if (command.EqualTo("custom") && Storyboard.AllowCustomDescription)
                 {
-                    Chargen.SetEditor(new EditorController(Chargen.Menu, null, PostCustomDescription,
-                        CancelCustomDescription, EditorOptions.None));
-                    return $"\n\nPlease enter your custom description in the editor below.\n\n{"You are now entering an editor, use @ on a blank line to exit and *help to see help.".Colour(Telnet.Yellow)}";
+                    return BeginFullDescriptionEditor();
                 }
 
                 if (int.TryParse(command, out int value))
@@ -288,6 +323,13 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
             return Display();
         }
 
+        private string BeginFullDescriptionEditor()
+        {
+            Chargen.SetEditor(new EditorController(Chargen.Menu, null, PostCustomDescription,
+                CancelCustomDescription, EditorOptions.None));
+            return $"\n\nPlease enter your custom description in the editor below.\n\n{"You are now entering an editor, use @ on a blank line to exit and *help to see help.".Colour(Telnet.Yellow)}";
+        }
+
         private void CancelCustomDescription(IOutputHandler outputHandler, object[] arguments)
         {
             InCustomMode = false;
@@ -296,6 +338,11 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
         private void FinaliseScreen()
         {
+            if (_customOnly)
+            {
+                SelectedEntityDescriptionPatterns.Clear();
+            }
+
             Chargen.SelectedSdesc = SelectedSdesc;
             Chargen.SelectedFullDesc = SelectedDesc;
             Chargen.SelectedEntityDescriptionPatterns = SelectedEntityDescriptionPatterns;
@@ -304,6 +351,12 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
         private void PostCustomDescription(string description, IOutputHandler outputHandler, object[] arguments)
         {
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                outputHandler.Send("You must enter a full description before continuing.");
+                return;
+            }
+
             SelectedDesc = description;
             outputHandler.Send("\n\nYou set your description to:\n\n" + SelectedDesc.Wrap(80) + "\n");
             FinaliseScreen();
@@ -353,7 +406,7 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
         Changed = true;
         actor.OutputHandler.Send(
-            $"Players will {(AllowEntityDescriptionPatterns ? "now" : "no longer")} be allowed to enter their own custom descriptions.");
+            $"Players will {(AllowEntityDescriptionPatterns ? "now" : "no longer")} be allowed to pick from description patterns.");
         return true;
     }
 
@@ -367,7 +420,7 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
         Changed = true;
         actor.OutputHandler.Send(
-            $"Players will {(AllowEntityDescriptionPatterns ? "now" : "no longer")} be allowed to pick from a selection of description patterns.");
+            $"Players will {(AllowCustomDescription ? "now" : "no longer")} be allowed to enter their own custom descriptions.");
         return true;
     }
 

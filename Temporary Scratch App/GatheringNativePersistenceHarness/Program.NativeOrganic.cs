@@ -17,6 +17,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
+using MudSharp.FutureProg;
 using MudSharp.Health.Wounds;
 using MudSharp.Magic;
 using MudSharp.Magic.Environment;
@@ -29,6 +30,7 @@ using MudSharp.Work.Crafts;
 using MudSharp.Work.Crafts.Inputs;
 using MudSharp.Work.Foraging;
 using MySql.Data.MySqlClient;
+using CompiledFutureProg = MudSharp.FutureProg.FutureProg;
 using Db = MudSharp.Models;
 
 namespace FutureMUD.GatheringNativePersistenceHarness;
@@ -292,7 +294,8 @@ internal static partial class GNHProgram
 		Console.WriteLine(
 			$"Y-T24-provider=passed field:{fixture.GrazingFieldId} rolledBackStock:{rolledBack.Stock} rolledBackPrepaid:{rolledBack.Prepaid} retryStock:{afterRetry.Stock} retryPrepaid:{afterRetry.Prepaid} elapsedMs:{failureWatch.ElapsedMilliseconds}");
 		RunLandActionPersistenceProbe(database.Name, database.ConnectionString, fixture.CoordinatorActorFixture,
-			fixture.CoordinatorCropFieldId, coordinatorProfileId, fixture.EnvironmentalResourceId);
+			fixture.GentleActorFixture, fixture.CoordinatorCropFieldId, coordinatorProfileId,
+			fixture.EnvironmentalResourceId);
 		RunLandReceiptPersistenceProbe(database.ConnectionString, fixture.FractionalCellId,
 			fixture.EnvironmentalResourceId, coordinatorProfileId);
 		Console.WriteLine("landHarnessSubstitutions=world catalogues and deterministic weather; C-P03 uses a persisted overlay and forage profile with a real Cell/coordinator/agriculture owner and a controllable apiary candidate; other land cases use an ecological scalar fixture; SaveManager and independent EF/MySQL observations are production paths");
@@ -340,7 +343,7 @@ internal static partial class GNHProgram
 	}
 
 	private static void RunLandActionPersistenceProbe(string databaseName, string connectionString, FixtureIds actorFixture,
-		long fieldId, long profileId, long environmentalResourceId)
+		FixtureIds gentleFixture, long fieldId, long profileId, long environmentalResourceId)
 	{
 		using (var authoring = NewIndependentContext(connectionString))
 		{
@@ -629,6 +632,294 @@ internal static partial class GNHProgram
 			connectionString, actorFixture);
 		RunLandNativeGrowthDuringWaitProbe(actorRuntime, capability, service, clock, cell,
 			field, fieldId, connectionString, actorFixture);
+		RunLandIneffectiveScarCorrectionProbe(actorRuntime, capability, service, clock, coordinator,
+			cell, environmentalProfile, connectionString, actorFixture, environmentalResourceId);
+		RunLandComposedSourceCorrectionProbe(actorRuntime, capability, service, clock, coordinator,
+			cell, environmentalProfile, connectionString, actorFixture, environmentalResourceId);
+		RunLandParticipantQuarantineCorrectionProbe(actorRuntime, gentleFixture, capability, service, clock,
+			coordinator, cell, connectionString, environmentalResourceId);
+	}
+
+	private static void RunLandComposedSourceCorrectionProbe(NativeRuntime runtime,
+		SkillLevelBasedMagicCapability capability, MagicGatheringService service, HarnessClock clock,
+		EnvironmentalMagicCoordinator coordinator, Cell cell, EnvironmentalMagicGenerator profile,
+		string connectionString, FixtureIds fixture, long ambientResourceId)
+	{
+		IMagicResource ambient = runtime.World.MagicResources.Get(ambientResourceId)!;
+		Require(coordinator.TryMutateResource(cell, ambient, EnvironmentalResourceMutation.Set, 5.0,
+			out bool staged) && staged, "C3B-P02 could not stage five recorded ambient units.");
+		double berries = cell.GetForagableYield("berries");
+		Require(berries >= 5.0 && cell.TryConsumeYield("berries", berries - 5.0),
+			"C3B-P02 could not stage five real forage units through its native owner.");
+		runtime.World.SaveManager.Flush();
+		CompiledFutureProg.Initialise();
+		var input = new CompiledFutureProg(runtime.World, "C3B Ambient Stock", ProgVariableTypes.Number,
+			[Tuple.Create(ProgVariableTypes.Location, "where")],
+			$"return magicresourcelevel(@where, {ambientResourceId})")
+		{
+			Id = 990001,
+			StaticType = FutureProgStaticType.NotStatic
+		};
+		Require(input.Compile(), $"C3B-P02 ambient input did not compile: {input.CompileError}");
+		((All<IFutureProg>)runtime.World.FutureProgs).Add(input);
+		Require(profile.BuildingCommand(runtime.Actor,
+			new StringStack("input ambientstock prog 990001 1")) &&
+		        profile.BuildingCommand(runtime.Actor,
+				new StringStack("organic penalty forage 1 / ambientstock")),
+			"C3B-P02 could not author the named recorded-balance forage factor.");
+		while (capability.GatheringMethods.Single().LandSources.Count > 0)
+		{
+			Require(capability.BuildingCommand(runtime.Actor, new StringStack("gather land draw source 1 remove")),
+				"C3B-P02 could not clear the prior Land funding source.");
+		}
+		foreach (string command in new[]
+		         {
+			"gather set draw max 10",
+			$"gather land draw source add ambient {ambientResourceId} 1",
+			"gather land draw source add forage berries 1",
+			"gather land draw damage 0.1",
+			"gather land draw pressure 0"
+		 })
+		{
+			Require(capability.BuildingCommand(runtime.Actor, new StringStack(command)),
+				$"C3B-P02 could not author {command}.");
+		}
+		using var before = NewIndependentContext(connectionString);
+		double initialCredit = before.CharactersMagicResources.AsNoTracking()
+			.Single(x => x.CharacterId == fixture.CharacterId && x.MagicResourceId == fixture.ResourceId).Amount;
+		MagicGatheringResult started = service.Begin(runtime.Actor, runtime.Capability, "draw", 10.0);
+		Require(started.Success && started.OperationId.HasValue,
+			$"C3B-P02 initially valid group did not start: {started.Message}");
+		Require(Same(started.Quote!.LandSources.Single(x => x.Selector == $"ambient:{ambientResourceId}").FundingUnits, 5.0) &&
+		        Same(started.Quote.LandSources.Single(x => x.Selector == "forage:berries").FundingUnits, 5.0),
+			"C3B-P02 did not capture the exact five-plus-five funding allocation.");
+		clock.Advance(TimeSpan.FromSeconds(1));
+		MagicGatheringResult completed = service.Complete(runtime.Actor,
+			started.OperationId ?? throw new InvalidOperationException("C3B-P02 did not start."));
+		Require(completed.Success,
+			$"C3B-P02 approved mixed group did not complete: {completed.Message}; {new MagicGatheringReceiptStore().Operation(started.OperationId.Value)?.Diagnostic}");
+		using var independent = NewIndependentContext(connectionString);
+		double savedAmbient = independent.CellsMagicResources.AsNoTracking()
+			.Single(x => x.CellId == cell.Id && x.MagicResourceId == ambientResourceId).Amount;
+		double savedBerries = ReadForageYield(connectionString, cell.Id, "berries");
+		double credit = independent.CharactersMagicResources.AsNoTracking()
+			.Single(x => x.CharacterId == fixture.CharacterId && x.MagicResourceId == fixture.ResourceId).Amount;
+		Db.MagicGatheringOperation parent = independent.MagicGatheringOperations.AsNoTracking()
+			.Single(x => x.Id == started.OperationId.Value);
+		Require(Same(savedAmbient, 0.0) && Same(savedBerries, 0.0) &&
+		        Same(credit, initialCredit + 10.0) && parent.Status == "Completed" &&
+		        parent.EcologicalChildId.HasValue &&
+		        independent.EnvironmentalMagicOperations.AsNoTracking().Count(x => x.Id == parent.EcologicalChildId) == 1,
+			$"C3B-P02 independent read missed the exact paid group: ambient {savedAmbient}, berries {savedBerries}, credit {initialCredit}->{credit}, status {parent.Status}.");
+		MagicGatheringResult later = service.Begin(runtime.Actor, runtime.Capability, "draw", 1.0);
+		Require(!later.Success && later.Message.Contains("non-finite", StringComparison.OrdinalIgnoreCase),
+			$"C3B-P02 later independent gather did not observe the resulting invalid factor: {later.Message}");
+		Console.WriteLine($"C3B-P02=passed cell:{cell.Id} ambient:5->0 forage:berries:5->0 credit:{initialCredit:F2}->{credit:F2} child:{parent.EcologicalChildId} laterInvalid:True");
+	}
+
+	private static void RunLandParticipantQuarantineCorrectionProbe(NativeRuntime runtime,
+		FixtureIds gentleFixture, SkillLevelBasedMagicCapability landCapability, MagicGatheringService service,
+		HarnessClock clock, EnvironmentalMagicCoordinator coordinator, Cell cell, string connectionString,
+		long ambientResourceId)
+	{
+		using (var authoring = NewIndependentContext(connectionString))
+		{
+			Db.MagicCapability authored = authoring.MagicCapabilities.Single(x => x.Id == gentleFixture.CapabilityId);
+			XElement definition = XElement.Parse(authored.Definition);
+			XElement method = definition.Element("Gathering")!.Element("Method")!;
+			method.SetAttributeValue("kind", MagicGatheringMethodKind.Gentle);
+			method.SetAttributeValue("source", ambientResourceId);
+			method.SetAttributeValue("min", 1.0);
+			method.SetAttributeValue("max", 1.0);
+			method.SetAttributeValue("damage", 0.0);
+			method.SetAttributeValue("pain", 0.0);
+			method.SetAttributeValue("stun", 0.0);
+			authored.Definition = definition.ToString();
+			authoring.SaveChanges();
+		}
+		NativeRuntime gentleRuntime = NativeRuntime.Load(gentleFixture, connectionString);
+		IMagicResource ambient = runtime.World.MagicResources.Get(ambientResourceId)!;
+		((All<IMagicResource>)gentleRuntime.World.MagicResources).Add(ambient);
+		((All<IMagicResource>)runtime.World.MagicResources).Add(gentleRuntime.Resource);
+		SetPrivateMember(gentleRuntime.Actor, "Gameworld", runtime.World);
+		SetPrivateMember(gentleRuntime.Actor, "Location", cell);
+		Require(gentleRuntime.Capability.GatheringConfigurationErrors().Count == 0,
+			$"C3B-P01 native Gentle capability is invalid: {string.Join("; ", gentleRuntime.Capability.GatheringConfigurationErrors())}");
+		Require(coordinator.TryMutateResource(cell, ambient, EnvironmentalResourceMutation.Set, 5.0,
+			out bool staged) && staged, "C3B-P01 could not stage five real ambient units.");
+		while (landCapability.GatheringMethods.Single().LandSources.Count > 0)
+		{
+			Require(landCapability.BuildingCommand(runtime.Actor, new StringStack("gather land draw source 1 remove")),
+				"C3B-P01 could not clear the prior Land funding entries.");
+		}
+		foreach (string command in new[]
+		         {
+			         $"gather land draw source add ambient {ambientResourceId} 1",
+			         "gather land draw damage 0.1"
+		         })
+		{
+			Require(landCapability.BuildingCommand(runtime.Actor, new StringStack(command)),
+				$"C3B-P01 could not author {command}.");
+		}
+		runtime.World.SaveManager.Flush();
+		MagicGatheringResult gentle = service.Begin(gentleRuntime.Actor, gentleRuntime.Capability, "draw", 1.0);
+		Require(gentle.Success && gentle.OperationId.HasValue,
+			$"C3B-P01 second actor could not begin its timed Gentle action: {gentle.Message}");
+		MagicGatheringResult land = service.Begin(runtime.Actor, runtime.Capability, "draw", 1.0);
+		Require(land.Success && land.OperationId.HasValue,
+			$"C3B-P01 first actor could not begin its Land action: {land.Message}");
+		using (var connection = new MySqlConnection(connectionString))
+		{
+			connection.Open();
+			using var command = connection.CreateCommand();
+			command.CommandText =
+				"CREATE TRIGGER `land_c3b_parent_ack_fail` BEFORE UPDATE ON `MagicGatheringOperations` FOR EACH ROW BEGIN IF NEW.EcologicalApplied = 1 AND NEW.Status = 'Committing' THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'owned C3B Land parent acknowledgement failure'; END IF; END;";
+			command.ExecuteNonQuery();
+		}
+		MagicGatheringResult landResult;
+		try
+		{
+			clock.Advance(TimeSpan.FromSeconds(1));
+			landResult = service.Complete(runtime.Actor,
+				land.OperationId ?? throw new InvalidOperationException("C3B-P01 Land did not start."));
+		}
+		finally
+		{
+			using var connection = new MySqlConnection(connectionString);
+			connection.Open();
+			using var command = connection.CreateCommand();
+			command.CommandText = "DROP TRIGGER IF EXISTS `land_c3b_parent_ack_fail`;";
+			command.ExecuteNonQuery();
+		}
+		using var independent = NewIndependentContext(connectionString);
+		Db.MagicGatheringOperation parent = independent.MagicGatheringOperations.AsNoTracking()
+			.Single(x => x.Id == land.OperationId.Value);
+		double gentleCreditBefore = independent.CharactersMagicResources.AsNoTracking()
+			.Single(x => x.CharacterId == gentleFixture.CharacterId &&
+			             x.MagicResourceId == gentleFixture.ResourceId).Amount;
+		int gentleWoundsBefore = independent.Wounds.AsNoTracking()
+			.Count(x => x.BodyId == gentleFixture.BodyId);
+		double savedAmbientBefore = independent.CellsMagicResources.AsNoTracking()
+			.Single(x => x.CellId == cell.Id && x.MagicResourceId == ambientResourceId).Amount;
+		Require(coordinator.TryInspectLandResource(cell, ambient, out var paidAmbient),
+			"C3B-P01 could not inspect the paid source after checkpoint failure.");
+		double liveAmbientBefore = paidAmbient.Balance;
+		Console.WriteLine($"C3B-P01-diagnostic status:{parent.Status} ecologicalApplied:{parent.EcologicalApplied} credited:{parent.DestinationCredited} child:{parent.EcologicalChildId} childRows:{independent.EnvironmentalMagicOperations.AsNoTracking().Count(x => x.Id == parent.EcologicalChildId)} indexedRows:{independent.MagicGatheringParticipants.AsNoTracking().Count(x => x.OperationId == parent.Id && x.SourceKey == $"ambient:{ambientResourceId}")} pending:{cell.PendingEnvironmentalOperationId} source:{parent.SourceResourceId}");
+		Require(!landResult.Success && parent.Status == "NeedsReview" && parent.SourceResourceId is null &&
+		        parent.EcologicalApplied &&
+		        !parent.DestinationCredited && parent.EcologicalChildId.HasValue &&
+		        independent.EnvironmentalMagicOperations.AsNoTracking()
+			        .Count(x => x.Id == parent.EcologicalChildId) == 1 &&
+		        independent.MagicGatheringParticipants.AsNoTracking()
+			        .Any(x => x.OperationId == parent.Id && x.SourceKey == $"ambient:{ambientResourceId}") &&
+		        !cell.PendingEnvironmentalOperationId.HasValue,
+			$"C3B-P01 did not preserve a confirmed ecological child and indexed unresolved parent: {landResult.Message}, {parent.Status}.");
+		MagicGatheringResult refused = service.Complete(gentleRuntime.Actor,
+			gentle.OperationId ?? throw new InvalidOperationException("C3B-P01 Gentle did not start."));
+		using var after = NewIndependentContext(connectionString);
+		double gentleCreditAfter = after.CharactersMagicResources.AsNoTracking()
+			.Single(x => x.CharacterId == gentleFixture.CharacterId &&
+			             x.MagicResourceId == gentleFixture.ResourceId).Amount;
+		int gentleWoundsAfter = after.Wounds.AsNoTracking().Count(x => x.BodyId == gentleFixture.BodyId);
+		double savedAmbientAfter = after.CellsMagicResources.AsNoTracking()
+			.Single(x => x.CellId == cell.Id && x.MagicResourceId == ambientResourceId).Amount;
+		Require(coordinator.TryInspectLandResource(cell, ambient, out var refusedAmbient),
+			"C3B-P01 could not inspect source after Gentle refusal.");
+		Require(!refused.Success && Same(gentleCreditBefore, gentleCreditAfter) &&
+		        gentleWoundsBefore == gentleWoundsAfter && Same(savedAmbientBefore, savedAmbientAfter) &&
+		        Same(liveAmbientBefore, refusedAmbient.Balance) &&
+		        after.MagicGatheringOperations.AsNoTracking().Count(x => x.ActorId == gentleFixture.CharacterId) == 0,
+			$"C3B-P01 waiting Gentle actor was not quarantined before payment: {refused.Message}.");
+		Console.WriteLine($"C3B-P01=passed cell:{cell.Id} land:{parent.Id} child:{parent.EcologicalChildId} status:{parent.Status} secondActor:{gentleFixture.CharacterId} credit:{gentleCreditBefore}->{gentleCreditAfter} wounds:{gentleWoundsBefore}->{gentleWoundsAfter} ambient:{savedAmbientBefore:R}->{savedAmbientAfter:R} denied:True");
+	}
+
+	private static void RunLandIneffectiveScarCorrectionProbe(NativeRuntime runtime,
+		SkillLevelBasedMagicCapability capability, MagicGatheringService service, HarnessClock clock,
+		EnvironmentalMagicCoordinator coordinator, Cell cell, EnvironmentalMagicGenerator profile,
+		string connectionString,
+		FixtureIds fixture, long ambientResourceId)
+	{
+		while (capability.GatheringMethods.Single().LandSources.Count > 0)
+		{
+			Require(capability.BuildingCommand(runtime.Actor, new StringStack("gather land draw source 1 remove")),
+				"C3B-P03 could not clear the prior Land funding definition.");
+		}
+		foreach (string command in new[]
+		         {
+			$"gather land draw source add ambient {ambientResourceId} 1",
+			"gather land draw damage 0.000001",
+			"gather land draw pressure 0",
+			"gather set draw damage 0",
+			"gather set draw pain 0",
+			"gather set draw stun 0"
+		 })
+		{
+			Require(capability.BuildingCommand(runtime.Actor, new StringStack(command)),
+				$"C3B-P03 could not author {command}.");
+		}
+		IMagicResource ambient = runtime.World.MagicResources.Get(ambientResourceId)!;
+		Require(profile.BuildingCommand(runtime.Actor,
+			new StringStack($"output {ambientResourceId} baserate 0")),
+			"C3B-P03 could not disable incidental ambient production.");
+		Require(coordinator.TryMutateResource(cell, ambient, EnvironmentalResourceMutation.Set, 2.0,
+			out bool staged) && staged, "C3B-P03 could not stage two real recorded ambient units.");
+		runtime.World.SaveManager.Flush();
+		using var before = NewIndependentContext(connectionString);
+		double initialCredit = before.CharactersMagicResources.AsNoTracking()
+			.Single(x => x.CharacterId == fixture.CharacterId && x.MagicResourceId == fixture.ResourceId).Amount;
+		int initialParents = before.MagicGatheringOperations.AsNoTracking()
+			.Count(x => x.ActorId == fixture.CharacterId);
+		MagicGatheringResult waiting = service.Begin(runtime.Actor, runtime.Capability, "draw", 1.0);
+		Require(waiting.Success && waiting.OperationId.HasValue,
+			$"C3B-P03 small representable scar did not permit a timed start: {waiting.Message}");
+		double openingScar = coordinator.InspectState(cell).State.ScarDamage;
+		var large = coordinator.ApplyOperation(cell, new EnvironmentalMagicOperationRequest(
+			Guid.NewGuid(), runtime.Actor.Id, "C3B-P03 prior scar", Damage: 1_000_000_000_000.0 - openingScar));
+		Require(large.Success && Same(coordinator.InspectState(cell).State.ScarDamage, 1_000_000_000_000.0),
+			$"C3B-P03 could not persist the large scar: {large.Error}");
+		Require(!service.Preview(runtime.Actor, runtime.Capability, "draw", 1.0).Success &&
+		        !service.Begin(runtime.Actor, runtime.Capability, "draw", 1.0).Success,
+			"C3B-P03 accepted an ineffective large-scar preview or start.");
+		clock.Advance(TimeSpan.FromSeconds(1));
+		Require(!service.Complete(runtime.Actor,
+			waiting.OperationId ?? throw new InvalidOperationException("C3B-P03 waiting action did not start.")).Success,
+			"C3B-P03 paid an ineffective scar introduced during the wait.");
+		using (var refused = NewIndependentContext(connectionString))
+		{
+			double credit = refused.CharactersMagicResources.AsNoTracking()
+				.Single(x => x.CharacterId == fixture.CharacterId && x.MagicResourceId == fixture.ResourceId).Amount;
+			double ambientSaved = refused.CellsMagicResources.AsNoTracking()
+				.Single(x => x.CellId == cell.Id && x.MagicResourceId == ambientResourceId).Amount;
+			int parents = refused.MagicGatheringOperations.AsNoTracking()
+				.Count(x => x.ActorId == fixture.CharacterId);
+			Require(Same(credit, initialCredit) && Same(ambientSaved, 2.0) &&
+			        parents == initialParents && Same(coordinator.InspectState(cell).State.ScarDamage, 1_000_000_000_000.0),
+				$"C3B-P03 independent refusal observation changed credit {initialCredit}->{credit}, ambient 2->{ambientSaved}, parents {initialParents}->{parents}, scar {coordinator.InspectState(cell).State.ScarDamage:R}.");
+		}
+		var repaired = coordinator.ApplyOperation(cell, new EnvironmentalMagicOperationRequest(
+			Guid.NewGuid(), runtime.Actor.Id, "C3B-P03 reset scar", Repair: 1_000_000_000_000.0));
+		Require(repaired.Success && coordinator.InspectState(cell).State.ScarDamage == 0.0,
+			$"C3B-P03 could not restore representable scar headroom: {repaired.Error}");
+		MagicGatheringResult started = service.Begin(runtime.Actor, runtime.Capability, "draw", 1.0);
+		Require(started.Success && started.OperationId.HasValue,
+			$"C3B-P03 representable request did not start: {started.Message}");
+		clock.Advance(TimeSpan.FromSeconds(1));
+		MagicGatheringResult completed = service.Complete(runtime.Actor,
+			started.OperationId ?? throw new InvalidOperationException("C3B-P03 did not start."));
+		Require(completed.Success, $"C3B-P03 representable completion failed: {completed.Message}");
+		using var accepted = NewIndependentContext(connectionString);
+		double acceptedCredit = accepted.CharactersMagicResources.AsNoTracking()
+			.Single(x => x.CharacterId == fixture.CharacterId && x.MagicResourceId == fixture.ResourceId).Amount;
+		double acceptedAmbient = accepted.CellsMagicResources.AsNoTracking()
+			.Single(x => x.CellId == cell.Id && x.MagicResourceId == ambientResourceId).Amount;
+		Db.MagicGatheringOperation parent = accepted.MagicGatheringOperations.AsNoTracking()
+			.Single(x => x.Id == started.OperationId.Value);
+		Require(Same(acceptedCredit, initialCredit + 1.0) && Same(acceptedAmbient, 1.0) &&
+		        parent.Status == "Completed" && parent.EcologicalChildId.HasValue &&
+		        accepted.EnvironmentalMagicOperations.AsNoTracking().Count(x => x.Id == parent.EcologicalChildId) == 1 &&
+		        Same(coordinator.InspectState(cell).State.ScarDamage, 0.000001),
+			"C3B-P03 independent read missed the one affordable representable Land transfer.");
+		Console.WriteLine($"C3B-P03=passed cell:{cell.Id} ineffectiveScar:1000000000000 unchangedCredit:{initialCredit:F2} acceptedScar:{coordinator.InspectState(cell).State.ScarDamage:R} ambient:2->1 credit:{acceptedCredit:F2} child:{parent.EcologicalChildId}");
 	}
 
 	private static void RunLandNativeGrowthDuringWaitProbe(NativeRuntime runtime,
@@ -1445,7 +1736,7 @@ internal static partial class GNHProgram
 		long ConsumerCropFieldId, long GrazingFieldId, long EnvironmentalResourceId,
 		long PendingPastureFieldId, long ZeroPastureFieldId, long OrchardFieldId,
 		long ConstructorHalfCellId, long ConstructorZeroCellId, long CoordinatorCropFieldId,
-		FixtureIds CoordinatorActorFixture);
+		FixtureIds CoordinatorActorFixture, FixtureIds GentleActorFixture);
 
 	private static class NativeOrganicFixtureSeed
 	{
@@ -1460,6 +1751,7 @@ internal static partial class GNHProgram
 			var constructorHalfBase = FixtureSeed.Create(database, "land_c_p01_constructor_half", false);
 			var constructorZeroBase = FixtureSeed.Create(database, "land_c_p01_constructor_zero", false);
 			var coordinatorCropBase = FixtureSeed.Create(database, "land_c_p03_crop", false);
+			var gentleActorBase = FixtureSeed.Create(database, "land_c3b_p01_gentle", false);
 			using var context = NewIndependentContext(database.ConnectionString);
 			var profile = new Db.AgricultureFieldProfile
 			{
@@ -1581,7 +1873,7 @@ internal static partial class GNHProgram
 			return new NativeOrganicFixtureIds(fractionalBase.CellId, fractional.Id, cropConsumer.Id, pasture.Id,
 				fractionalBase.ResourceId, pendingPasture.Id, zeroPasture.Id, orchard.Id,
 				constructorHalfBase.CellId, constructorZeroBase.CellId, coordinatorCrop.Id,
-				coordinatorCropBase);
+				coordinatorCropBase, gentleActorBase);
 		}
 
 		private static Db.AgricultureField CropField(long cellId, long profileId, long cropId, int yield,

@@ -99,3 +99,27 @@ The environmental source rows reuse the delivered coordinator's suite because Se
 | L-T40 | `Land.AdminShowReportsPaidAccountingWithoutReplaying` and `MagicFutureProgFunctionTests.MagicGatherDetails_ReturnsPaidLandAccountingOnlyToItsOwner`: admin and owner displays expose paid/credited keys and do not mutate the receipt. |
 
 The `L-P01` to `L-P06` native results, database name, MySQL version, observed values, failure-injection boundary and cleanup are recorded in [Magic Gathering](Magic_Gathering.md#task-3b-native-verification-record). The harness prints one result line per probe and returns a nonzero exit code if any assertion or owned-resource cleanup fails.
+
+## Task 3B correction boundaries
+
+The `C-R` cases correct the delivered Land gathering implementation. `C3B-P01` to `C3B-P03` are the additional real coordinator, cell, gathering, receipt and disposable MySQL probes in the existing native harness. These rows state assertion boundaries; executed quantities and commands are recorded in [Magic Gathering](Magic_Gathering.md#task-3b-correction-verification-record).
+
+| ID | Checked-in assertion boundary |
+| --- | --- |
+| C-R1-01 | `GentleGathering_LandParentBecomesUnresolvedDuringWait_RefusesAtCommitUntilAcknowledged`: a second actor's overlapping Land parent becomes unresolved while Gentle waits; completion refuses before debit or credit. `C3B-P01` independently checks the persisted version. |
+| C-R1-02 | The blocking Land receipt has null legacy `SourceResourceId` and an indexed `ambient:<id>` participant. The service checks indexed unresolved participation for Gentle at start and commitment. |
+| C-R1-03 | A fresh Gentle start stays quarantined until the blocking Land receipt is acknowledged. |
+| C-R1-04 | `LandGathering_RespectsUnresolvedGentleAmbientQuarantine` and `LandGathering_LegacyGentleReceiptBecomesUnresolvedDuringWait_RefusesBeforePayment` protect the reverse direction, including a during-wait change. |
+| C-R1-05 | `LandGathering_UnresolvedReceiptBlocksItsSourceButAllowsUnrelatedSameCellSource` preserves unrelated-source use when ecology is confirmed; `LandGathering_ExistingEcologicalUnknownBlocksYieldOnly` preserves an independently pending ecological freeze. |
+| C-R1-06 | Staff acknowledgement releases only the reviewed receipt; the refused completion does not replay or grant payment. Existing `FailedPostGatherProg_IsQuarantinedAndStaffAcknowledgementNeverReplaysIt` covers callback non-replay. |
+| C-R2-01 | `LandGathering_AmbientDebitMayInvalidateNativePenaltyOnlyForLaterActions` and `C3B-P02`: an initially valid 5 ambient plus 5 forage group completes once with ambient and forage at zero, credit 10, one confirmed child and completed parent. |
+| C-R2-02 | The next independent attempt evaluates the resulting invalid factor and refuses; normal replenishment restores eligibility without retroactive payment. |
+| C-R2-03 | `LandGathering_ExternalAmbientInputInvalidatesNativePenaltyBeforePayment` refuses a genuinely changed input before any group debit or credit. |
+| C-R2-04 | `LandGathering_TwoForageKeysInOneCellCompleteAsOneValidatedGroup`, the existing native two-forage case and external-consumer case retain shared-owner batching and stale-owner refusal. |
+| C-R2-05 | `LandGathering_FirstAmbientDebitMayInvalidateSecondAmbientFormulaWithinApprovedGroup` validates two ambient participants as one current group; a planned first debit cannot revoke the second's opening formula. |
+| C-R2-06 | Existing `LandGathering_FailedSourceCheckpointQuarantinesPaidActionWithoutCreditOrReplay`, native `L-P06`/`L-T37`, and captured-mix growth cases retain truthful partial evidence, dirty owner retry and fixed allocation. |
+| C-R3-01 | `LandGathering_IneffectiveScarRefusesPreviewAndCompletionBeforePayment` and `C3B-P03` refuse the 1e12 scar plus 1e-6 damage example before transfer, including after a timed start. |
+| C-R3-02 | Existing ordinary Land successes persist positive, representable scar and report one ecological child; requested and realised increments are checked at the coordinator. |
+| C-R3-03 | `C3B-P03` repairs scar and then completes an affordable 1e-6 damage action; no global minimum price is imposed. |
+| C-R3-04 | `EcologicalOperation_IneffectivePositiveDamageRefusesWithoutAcknowledgingIt` rejects a no-change ecological addition and preserves confirmed idempotent replay. |
+| C-R3-05 | Existing invalid-scar and ecological-boundary cases cover zero, negative, non-finite and overflow. `C3B-P03` uses legal zero pressure; prior online repair is kept separate from the positive applied damage amount. |

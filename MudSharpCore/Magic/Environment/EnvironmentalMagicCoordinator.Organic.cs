@@ -393,6 +393,10 @@ public sealed partial class EnvironmentalMagicCoordinator
 
 	public bool TryApplyOrganicDebitBatch(ICell cell, IReadOnlyList<NativeOrganicDebitPlan> plans,
 		out IReadOnlyList<NativeOrganicDebitPlan> applied, out string? error)
+		=> ApplyOrganicDebitBatch(cell, plans, true, out applied, out error);
+
+	private bool ApplyOrganicDebitBatch(ICell cell, IReadOnlyList<NativeOrganicDebitPlan> plans,
+		bool validateCurrentPolicies, out IReadOnlyList<NativeOrganicDebitPlan> applied, out string? error)
 	{
 		applied = [];
 		if (plans.Count is < 1 or > 16 ||
@@ -401,7 +405,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			error = "A native debit batch requires one to sixteen distinct canonical sources.";
 			return false;
 		}
-		foreach (NativeOrganicDebitPlan plan in plans)
+		foreach (NativeOrganicDebitPlan plan in validateCurrentPolicies ? plans : [])
 		{
 			if (!TryPlanOrganicDebit(cell, plan.Selector, (double)plan.RequestedAmount,
 			    out NativeOrganicDebitPlan current, out error) || current != plan)

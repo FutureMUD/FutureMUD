@@ -471,6 +471,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 			? (decimal)PersistedRoutePositionMetres.Value
 			: null;
         dbitem.SkinId = _skinId;
+        dbitem.OverrideSdesc = OverrideSdesc;
+        dbitem.OverrideDesc = OverrideDesc;
         if (PositionChanged)
         {
             SavePosition(dbitem);
@@ -621,12 +623,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             return (colour ? "something".ColourIncludingReset(Telnet.Green) : "something").FluentProper(proper);
         }
 
-        string description = Prototype.ShortDescription;
-        if (Skin is { ShortDescription: { } } skin)
-        {
-            description = skin.ShortDescription;
-        }
-        else if (voyeur is ICharacter ch)
+        string description = OverrideSdesc ?? Skin?.ShortDescription ?? Prototype.ShortDescription;
+        if (OverrideSdesc is null && Skin?.ShortDescription is null && voyeur is ICharacter ch)
         {
             (FutureProg.IFutureProg Prog, string ShortDescription, string FullDescription, string FullDescriptionAddendum) descValue = Prototype.ExtraDescriptions.Where(x => !string.IsNullOrEmpty(x.ShortDescription))
                                      .FirstOrDefault(x => x.Prog.Execute<bool?>(ch) == true);
@@ -688,6 +686,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 				: null,
             EffectData = SaveEffects().ToString(),
             SurfaceLiquidData = SaveSurfaceLiquidState(),
+            OverrideSdesc = OverrideSdesc,
+            OverrideDesc = OverrideDesc,
             OwnerId = _ownerReference?.Id,
             OwnerType = _ownerReference?.FrameworkItemType
         };
@@ -740,19 +740,19 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             return "You cannot make out anything about it.";
         }
 
-        string description = Prototype.FullDescription;
-        if (Skin is { FullDescription: { } } skin)
-        {
-            description = skin.FullDescription;
-        }
+        string description = OverrideDesc ?? Skin?.FullDescription ?? Prototype.FullDescription;
 
         if (voyeur is ICharacter ch)
         {
-            (FutureProg.IFutureProg Prog, string ShortDescription, string FullDescription, string FullDescriptionAddendum) descValue = Prototype.ExtraDescriptions.Where(x => !string.IsNullOrEmpty(x.FullDescription))
-                                     .FirstOrDefault(x => x.Prog.Execute<bool?>(ch) == true);
-            if (descValue.Prog != null)
+            if (OverrideDesc is null && Skin?.FullDescription is null)
             {
-                description = descValue.FullDescription;
+                var descValue = Prototype.ExtraDescriptions
+                    .Where(x => !string.IsNullOrEmpty(x.FullDescription))
+                    .FirstOrDefault(x => x.Prog.Execute<bool?>(ch) == true);
+                if (descValue.Prog != null)
+                {
+                    description = descValue.FullDescription;
+                }
             }
 
             (FutureProg.IFutureProg Prog, string ShortDescription, string FullDescription, string FullDescriptionAddendum) addendumValue = Prototype.ExtraDescriptions.Where(x => !string.IsNullOrEmpty(x.FullDescriptionAddendum))
@@ -859,8 +859,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     private string DisplayContents(IPerceiver voyeur, bool colour, PerceiveIgnoreFlags flags)
     {
-        string description = Prototype.FullDescription;
-        if (voyeur is ICharacter ch)
+        string description = OverrideDesc ?? Skin?.FullDescription ?? Prototype.FullDescription;
+        if (OverrideDesc is null && Skin?.FullDescription is null && voyeur is ICharacter ch)
         {
             (FutureProg.IFutureProg Prog, string ShortDescription, string FullDescription, string FullDescriptionAddendum) descValue = Prototype.ExtraDescriptions.Where(x => !string.IsNullOrEmpty(x.FullDescription))
                                      .FirstOrDefault(x => x.Prog.Execute<bool?>(ch) == true);
@@ -933,6 +933,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         _overrideMaterial = game.Materials.Get(item.MaterialId);
         _roomLayer = (RoomLayer)item.RoomLayer;
         _skinId = item.SkinId;
+        _overrideSdesc = item.OverrideSdesc;
+        _overrideDesc = item.OverrideDesc;
         if (item.OwnerId.HasValue && !string.IsNullOrWhiteSpace(item.OwnerType))
         {
             _ownerReference = new FrameworkItemReference(item.OwnerId.Value, item.OwnerType, game);
@@ -1065,6 +1067,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         Prototype = rhs.Prototype;
         _quality = rhs._quality;
         _overrideMaterial = rhs._overrideMaterial;
+        _overrideSdesc = rhs._overrideSdesc;
+        _overrideDesc = rhs._overrideDesc;
         Gameworld = rhs.Gameworld;
 		MudSharp.Magic.PsychometricRecorder.CopyHistory(rhs, this);
         _name = rhs.Name;
@@ -2308,6 +2312,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             return false;
         }
 
+        if (OverrideSdesc != otherItem.OverrideSdesc || OverrideDesc != otherItem.OverrideDesc)
+        {
+            return false;
+        }
+
         if (!HasSameOwnerAs(otherItem))
         {
             return false;
@@ -2578,6 +2587,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
             newItem.RoomLayer = RoomLayer;
             newItem.CopyOwnerFrom(this);
+            newItem.OverrideSdesc = OverrideSdesc;
+            newItem.OverrideDesc = OverrideDesc;
             newItem.GetItemType<ICommodity>().CopySpoilageFrom(commodity);
             commodity.Weight -= weight;
             newItem.Drop(location);
@@ -2603,6 +2614,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
             newItem.RoomLayer = RoomLayer;
             newItem.CopyOwnerFrom(this);
+            newItem.OverrideSdesc = OverrideSdesc;
+            newItem.OverrideDesc = OverrideDesc;
             newItem.GetItemType<ICommodity>().CopySpoilageFrom(commodity);
             commodity.Weight -= weight;
             newItem.Get(getter);
@@ -2632,6 +2645,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
         newItem.RoomLayer = RoomLayer;
         newItem.CopyOwnerFrom(this);
+        newItem.OverrideSdesc = OverrideSdesc;
+        newItem.OverrideDesc = OverrideDesc;
         newItem.GetItemType<ICommodity>().CopySpoilageFrom(commodity);
         return newItem;
     }

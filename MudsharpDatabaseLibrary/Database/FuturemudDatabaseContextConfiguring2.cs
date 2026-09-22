@@ -3379,6 +3379,18 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<Models.GameItem>(entity =>
             {
+                entity.Property(e => e.OverrideSdesc)
+                    .IsRequired(false)
+                    .HasColumnType("text")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.OverrideDesc)
+                    .IsRequired(false)
+                    .HasColumnType("text")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
                 entity.HasIndex(e => e.ContainerId)
                     .HasDatabaseName("FK_GameItems_GameItems_Containers_idx");
 

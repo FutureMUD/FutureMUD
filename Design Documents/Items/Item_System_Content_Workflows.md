@@ -430,6 +430,13 @@ Use:
 This is especially important after changing component prototype structure or moving a current component into a new revision.
 
 ## Skins, Groups, and Related Content
+
+### Individual item descriptions
+
+Junior administrators can use `resdesc <item>` to edit one item's short description and `redesc <item>` to edit its full description in the normal text editor. Item targeting supports ordinary visible/inventory targets, including quoted target names. The editor recalls the current instance, skin or prototype text and supports ordinary item markup. Submitting changes only that instance; cancelling leaves it unchanged.
+
+Use `resdesc <item> clear` or `redesc <item> clear` to remove that override and resume inheritance from the skin or prototype. Each field is independent, and instance overrides take precedence over skins. Characters and corpses retain the existing character-description editor and character markup; a corpse is never assigned an item description override by these commands. Character/corpse targeting keeps its existing priority when a keyword could also match an item.
+
 ### Skins
 Skins are item-prototype-adjacent content that override presentation details such as:
 - item name

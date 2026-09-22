@@ -55,6 +55,8 @@ Item prototypes provide the base descriptive layer:
 
 Skins can override several of these presentation values without replacing the underlying item behaviour.
 
+Live items can also store nullable `OverrideSdesc` and `OverrideDesc` values. Short and full description text resolves from the instance override, then the skin, then the prototype (including its conditional extra descriptions). Full-description inspection of contents uses the same precedence. A null override preserves inheritance; it is not replaced with a copy of the inherited text when the item is saved. Material/characteristic markup, component decorators, full-description addenda and perception effects continue through the normal rendering pipeline. Explicit long descriptions remain independent of short-description overrides.
+
 `item show` displays the prototype's unique name and builder comment alongside the runtime-facing description fields. `item list` and item review tables include the unique name to make active templates easier to distinguish when nouns are intentionally generic. Builder comments are intentionally visible only in builder/admin workflows and are searchable with `comment:<text>` or the normal item-list text filters.
 
 `item show` also presents component composition warnings. Attaching a component with unmet sibling-capability requirements, or detaching a component that previously satisfied one, emits the same warning immediately. These warnings do not impose a component attachment order, but unresolved requirements block submission and review approval.

@@ -500,6 +500,12 @@ When a live item is loaded:
 
 Each component persists its own XML definition through `GameItemComponent.Save()` and `SaveToXml()`.
 
+### Instance description overrides
+
+`GameItems.OverrideSdesc` and `GameItems.OverrideDesc` are nullable text columns for an individual item's short and full descriptions. New and upgraded items default to null, retaining skin/prototype inheritance. Insert, save and load preserve nulls exactly; clearing an override writes null again. Updating a prototype or skin therefore still changes inherited text, while an explicit instance override remains in place.
+
+Item copies and stack/commodity splits retain these overrides. Merge eligibility requires exact equality of both nullable values, so customised prose cannot be silently discarded by combining stacks. Overrides change the base descriptive text; they do not replace component decoration or perception effects.
+
 ### Durable legal ownership
 
 Item ownership is a generic `(framework item type, id)` reference, separate from physical custody. The public `ItemOwnershipReference` value remains usable even when the owning entity is not currently resolved. Characters, clans, properties, estates, shops, and all live employment hosts can own items; clan templates cannot.

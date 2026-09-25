@@ -1,7 +1,7 @@
 # FutureMUD custom subagent; reviewed 2026-09-15.
 name = "fm_smoke_runner"
 description = "Execute a fully specified local FutureMUD startup/Telnet smoke scenario with explicit assertions, waits and stop conditions; no exploratory QA or diagnosis."
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 web_search = "disabled"

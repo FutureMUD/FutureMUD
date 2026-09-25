@@ -1,7 +1,7 @@
 # FutureMUD custom subagent; reviewed 2026-09-15.
 name = "fm_docs_researcher"
 description = "Narrow factual lookup in FutureMUD design docs or version-matched primary documentation, including specified climate benchmarks; no design or implementation work."
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
 web_search = "live"

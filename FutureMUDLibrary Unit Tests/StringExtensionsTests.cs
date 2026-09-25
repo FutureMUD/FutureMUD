@@ -150,7 +150,9 @@ public class StringExtensionsTests
         Assert.AreEqual("Hello Two (World Time) Blah", "hello two (world time) blah".TitleCase());
         Assert.AreEqual("Offset Two", "Offset Two".TitleCase());
         Assert.AreEqual("ZZZ Pilot Weather", "ZZZ Pilot Weather".TitleCase());
-    }
+        Assert.AreEqual("Earth's Sky", "earth's sky".TitleCase());
+		Assert.AreEqual("He said, breathlessly, \"Hello.\"", "he said, breathlessly, \"hello.\"".TitleCase());
+	}
 
     [TestMethod]
     public void FluentProper_Conditional()

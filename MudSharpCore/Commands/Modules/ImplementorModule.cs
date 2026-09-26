@@ -1343,6 +1343,7 @@ The syntax is:
         string oldTime = actor.Location.DateTime().ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short);
         foreach (IClock clock in actor.Gameworld.Clocks)
         {
+            using var timeChange = clock.BeginTimeChange();
             clock.CurrentTime.AddSeconds(timespan.Seconds);
             clock.CurrentTime.AddMinutes(timespan.Minutes);
             clock.CurrentTime.AddHours(timespan.Hours);

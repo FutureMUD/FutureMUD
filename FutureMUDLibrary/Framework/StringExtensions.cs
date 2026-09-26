@@ -15,7 +15,7 @@ namespace MudSharp.Framework
 
         private static readonly Regex ProperCaseRegex = new("(?<=\x1B\\[[^m]+m|^)([a-z])");
 
-        private static readonly Regex TitleCaseRegex = new("(?<=\x1B\\[[^m]+m|[^a-zA-Z0-9]|^)([a-z])");
+		private static readonly Regex TitleCaseRegex = new("(?<=\x1B\\[[^m]+m|[^a-zA-Z0-9]|^)(?<![a-zA-Z0-9]['’])([a-z])");
 
         private static readonly Regex NormaliseSpacingRegex1St = new(@"[ \t]{2,}", RegexOptions.Compiled);
         private static readonly Regex NormaliseSpacingRegex2Nd = new(@"[ \t]+([.,;:!?])", RegexOptions.Compiled);
@@ -245,6 +245,7 @@ namespace MudSharp.Framework
             return text[..pos] + replace + text[(pos + 1)..];
         }
 
+		/// <summary>Capitalises word starts while preserving internal apostrophes and existing capitalisation.</summary>
         public static string TitleCase(this string input)
         {
             return TitleCaseRegex.Replace(input, m => char.ToUpper(m.Groups[1].Value[0]).ToString());

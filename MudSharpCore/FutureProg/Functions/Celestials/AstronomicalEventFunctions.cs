@@ -9,10 +9,10 @@ namespace MudSharp.FutureProg.Functions.Celestials;
 
 internal sealed class AstronomicalEventFunction : BuiltInFunction
 {
-	private readonly AstronomicalEventType _eventType;
+	private readonly AstronomicalEventType? _eventType;
 	private readonly IFuturemud _gameworld;
 
-	public AstronomicalEventFunction(IList<IFunction> parameters, AstronomicalEventType eventType, IFuturemud gameworld)
+	public AstronomicalEventFunction(IList<IFunction> parameters, AstronomicalEventType? eventType, IFuturemud gameworld)
 		: base(parameters)
 	{
 		_eventType = eventType;
@@ -44,14 +44,7 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var primaryParameter = ParameterFunctions[1].Result?.GetObject;
-		var primary = primaryParameter switch
-		{
-			ICelestialEphemeris ephemeris => ephemeris,
-			ICelestialObject => null,
-			_ => zone.Celestials.FirstOrDefault(x => x.Id == Convert.ToInt64(primaryParameter ?? 0L)) as ICelestialEphemeris ??
-			     _gameworld.CelestialObjects.Get(Convert.ToInt64(primaryParameter ?? 0L)) as ICelestialEphemeris
-		};
+		var primary = ResolveCelestial(ParameterFunctions[1].Result?.GetObject, zone);
 		if (primary is null)
 		{
 			Result = MudDateTime.Never;
@@ -60,22 +53,21 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 
 		var occurrenceIndex = 3;
 		var targetLongitude = 0.0;
-		ICelestialEphemeris? secondary = null;
+		ICelestialObject? secondary = null;
+		string? eventKey = null;
 		if (_eventType == AstronomicalEventType.SolarLongitude)
 		{
-			targetLongitude = Convert.ToDouble(ParameterFunctions[3].Result?.GetObject ?? 0.0).DegreesToRadians();
+			if (!TryFiniteNumber(ParameterFunctions[3].Result?.GetObject, out var degrees))
+			{
+				Result = MudDateTime.Never;
+				return StatementResult.Normal;
+			}
+			targetLongitude = (degrees % 360).DegreesToRadians();
 			occurrenceIndex = 4;
 		}
 		else if (_eventType == AstronomicalEventType.VisibleCrescent)
 		{
-			var secondaryParameter = ParameterFunctions[2].Result?.GetObject;
-			secondary = secondaryParameter switch
-			{
-				ICelestialEphemeris ephemeris => ephemeris,
-				ICelestialObject => null,
-				_ => zone.Celestials.FirstOrDefault(x => x.Id == Convert.ToInt64(secondaryParameter ?? 0L)) as ICelestialEphemeris ??
-				     _gameworld.CelestialObjects.Get(Convert.ToInt64(secondaryParameter ?? 0L)) as ICelestialEphemeris
-			};
+			secondary = ResolveCelestial(ParameterFunctions[2].Result?.GetObject, zone);
 			occurrenceIndex = 4;
 			if (secondary is null)
 			{
@@ -84,19 +76,55 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 			}
 		}
 
-		var occurrence = ParameterFunctions.Count > occurrenceIndex
-			? Convert.ToInt32(ParameterFunctions[occurrenceIndex].Result?.GetObject ?? 1)
-			: 1;
-
-		if (!AstronomicalEventService.Instance.TryFindNext(_eventType, calendar.CurrentInstant, occurrence, primary,
-			    zone.Geography, out var instant, out _, targetLongitude, secondary))
+		if (_eventType is null)
+		{
+			eventKey = ParameterFunctions[3].Result?.GetObject as string;
+			occurrenceIndex = 4;
+			if (string.IsNullOrWhiteSpace(eventKey)) { Result = MudDateTime.Never; return StatementResult.Normal; }
+		}
+		var occurrence = 1L;
+		if (ParameterFunctions.Count > occurrenceIndex && !TryPositiveInteger(ParameterFunctions[occurrenceIndex].Result?.GetObject, int.MaxValue, out occurrence))
 		{
 			Result = MudDateTime.Never;
 			return StatementResult.Normal;
 		}
 
-		Result = instant.ToMudDateTime(calendar, calendar.FeedClock, zone.TimeZone(calendar.FeedClock));
+		try
+		{
+			var result = AstronomicalEventService.Instance.FindNextForCelestial(calendar.CurrentInstant,
+				new(_eventType, occurrence, targetLongitude, eventKey), primary, zone.Geography, secondary);
+			Result = result.Found ? result.Instant.ToMudDateTime(calendar, calendar.FeedClock, zone.TimeZone(calendar.FeedClock)) : MudDateTime.Never;
+		}
+		catch (Exception ex) when (ex is OverflowException or ArgumentException or InvalidOperationException)
+		{
+			Result = MudDateTime.Never;
+		}
 		return StatementResult.Normal;
+	}
+
+	private ICelestialObject? ResolveCelestial(object? value, IZone zone) => value is ICelestialObject celestial ? celestial :
+		TryPositiveInteger(value, long.MaxValue, out var id) ? zone.Celestials.FirstOrDefault(x => x.Id == id) ?? _gameworld.CelestialObjects.Get(id) : null;
+
+	internal static bool TryPositiveInteger(object? value, long maximum, out long result)
+	{
+		result = 0;
+		if (value is null) return false;
+		try
+		{
+			var number = Convert.ToDecimal(value);
+			if (number < 1 || number > maximum || decimal.Truncate(number) != number) return false;
+			result = (long)number;
+			return true;
+		}
+		catch (Exception ex) when (ex is OverflowException or FormatException or InvalidCastException) { return false; }
+	}
+
+	private static bool TryFiniteNumber(object? value, out double number)
+	{
+		number = 0;
+		if (value is null) return false;
+		try { number = Convert.ToDouble(value); return double.IsFinite(number); }
+		catch (Exception ex) when (ex is OverflowException or FormatException or InvalidCastException) { return false; }
 	}
 
 	private static IZone? ResolveZone(object? value)
@@ -121,6 +149,15 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 		RegisterLunar("nextfullmoon", AstronomicalEventType.FullMoon,
 			"Returns the next deterministic full moon for a lunar celestial. The optional occurrence parameter returns the nth next occurrence. Returns Never if no event is found.");
 		RegisterVisibleCrescent();
+		foreach (var objectType in new[] { ProgVariableTypes.Number, ProgVariableTypes.CelestialObject })
+		{
+			RegisterLocationAndZone("nextcelestialevent", null, [objectType, ProgVariableTypes.Calendar, ProgVariableTypes.Text],
+				["celestial", "calendar", "eventKey"], ["Celestial object or ID.", "Display calendar.", "Explicit custom: milestone key."],
+				"Returns the next authored milestone without delivering its echo, or Never when unavailable.");
+			RegisterLocationAndZone("nextcelestialevent", null, [objectType, ProgVariableTypes.Calendar, ProgVariableTypes.Text, ProgVariableTypes.Number],
+				["celestial", "calendar", "eventKey", "occurrence"], ["Celestial object or ID.", "Display calendar.", "Explicit custom: milestone key.", "Positive integral occurrence."],
+				"Returns the nth strictly-next authored milestone without delivering its echo, or Never when unavailable.");
+		}
 	}
 
 	private static void RegisterSolar(string name, AstronomicalEventType type, string description)
@@ -198,7 +235,7 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 
 	private static void RegisterVisibleCrescent()
 	{
-		const string description = "Returns the next deterministic visible-crescent approximation after sunset using geometric thresholds only. The optional occurrence parameter returns the nth next occurrence. Returns Never if no event is found.";
+		const string description = "Returns the next physical visible-crescent approximation, or an authored moon's explicit crescent marker associated with the supplied sun. Authored markers add no geometric or weather tests. The optional positive integral occurrence selects the nth event. Returns Never when unavailable or incompatible.";
 		RegisterLocationAndZone("nextvisiblecrescent", AstronomicalEventType.VisibleCrescent,
 			[ProgVariableTypes.Number, ProgVariableTypes.Number, ProgVariableTypes.Calendar],
 			["sunId", "moonId", "calendar"],
@@ -221,14 +258,14 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 			description);
 	}
 
-	private static void RegisterLocationAndZone(string name, AstronomicalEventType type, ProgVariableTypes[] trailingTypes,
+	private static void RegisterLocationAndZone(string name, AstronomicalEventType? type, ProgVariableTypes[] trailingTypes,
 		List<string> trailingNames, List<string> trailingDescriptions, string description)
 	{
 		RegisterForFirstParameter(name, type, ProgVariableTypes.Location, trailingTypes, trailingNames, trailingDescriptions, description);
 		RegisterForFirstParameter(name, type, ProgVariableTypes.Zone, trailingTypes, trailingNames, trailingDescriptions, description);
 	}
 
-	private static void RegisterForFirstParameter(string name, AstronomicalEventType type, ProgVariableTypes firstType,
+	private static void RegisterForFirstParameter(string name, AstronomicalEventType? type, ProgVariableTypes firstType,
 		ProgVariableTypes[] trailingTypes, List<string> trailingNames, List<string> trailingDescriptions, string description)
 	{
 		var parameterTypes = new[] { firstType }.Concat(trailingTypes).ToArray();

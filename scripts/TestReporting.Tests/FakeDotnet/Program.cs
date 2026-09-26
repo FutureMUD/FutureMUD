@@ -21,6 +21,14 @@ if (operation != "test") { Console.Error.WriteLine("unexpected operation"); retu
 if (scenario == "timeout") { await Task.Delay(TimeSpan.FromSeconds(10)); return 0; }
 if (scenario == "changed") File.AppendAllText("input.txt", "changed");
 if (scenario is "huge" or "failhuge") Console.WriteLine(new string('W', 200_000));
+if (scenario == "concurrent-output")
+{
+	Console.WriteLine(new string('W', 200_000));
+	Console.Error.WriteLine(new string('E', 200_000));
+	await Task.Delay(TimeSpan.FromSeconds(2));
+	Console.WriteLine("output-complete");
+	Console.Error.WriteLine("output-complete");
+}
 var resultIndex = Array.IndexOf(args, "--results-directory");
 if (resultIndex < 0 || resultIndex + 1 >= args.Length) return 4;
 var directory = args[resultIndex + 1];

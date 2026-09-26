@@ -4,6 +4,7 @@
 * text=auto
 
 # Authored handoff and preservation checksums cover exact file bytes.
+"MudSharpCore Unit Tests/Fixtures/authored-celestial-test-fixtures.json" -text
 "Design Documents/Seeding/CultureSeederRedesignHandoff/data/*.json" -text
 "Design Documents/Seeding/CultureSeederRedesignHandoff/research/*.json" -text
 "Design Documents/Seeding/CultureSeederOriginalCorpus/*.json" -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

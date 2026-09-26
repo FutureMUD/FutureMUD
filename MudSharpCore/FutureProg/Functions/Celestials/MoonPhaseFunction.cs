@@ -34,7 +34,7 @@ internal class MoonPhaseFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        PlanetaryMoon moon = zone.Celestials.OfType<PlanetaryMoon>().FirstOrDefault();
+        ILunarPhase moon = zone.Celestials.OfType<ILunarPhase>().FirstOrDefault();
         if (moon == null)
         {
             Result = new TextVariable(string.Empty);
@@ -53,7 +53,7 @@ internal class MoonPhaseFunction : BuiltInFunction
             (pars, gameworld) => new MoonPhaseFunction(pars),
             new List<string> { "location" },
             new List<string> { "The room whose zone should be used to determine the current moon phase." },
-            "Looks up the first planetary moon associated with the supplied room's zone or zone and returns its current phase text. Returns an empty string if the zone or moon cannot be found.",
+            "Looks up the first celestial with lunar phase capability associated with the supplied room's zone or zone. Returns an empty string if no moon is present.",
             "Celestials",
             ProgVariableTypes.Text
         ));
@@ -64,7 +64,7 @@ internal class MoonPhaseFunction : BuiltInFunction
             (pars, gameworld) => new MoonPhaseFunction(pars),
             new List<string> { "zone" },
             new List<string> { "The zone to use when determining the current moon phase." },
-            "Looks up the first planetary moon associated with the supplied room's zone or zone and returns its current phase text. Returns an empty string if the zone or moon cannot be found.",
+            "Looks up the first celestial with lunar phase capability associated with the supplied room's zone or zone. Returns an empty string if no moon is present.",
             "Celestials",
             ProgVariableTypes.Text
         ));

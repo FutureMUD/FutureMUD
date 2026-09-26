@@ -348,6 +348,26 @@ public class Clock : SaveableItem, IClock
     public event ClockEventHandler MinutesUpdated;
     public event ClockEventHandler HoursUpdated;
     public event ClockAdvanceDaysEventHandler DaysUpdated;
+    public event ClockEventHandler TimeChanged;
+    private int _timeChangeDepth;
+    public bool IsTimeBeingSet => _timeChangeDepth > 0;
+
+    public IDisposable BeginTimeChange()
+    {
+        _timeChangeDepth++;
+        return new TimeChangeScope(this);
+    }
+
+    private sealed class TimeChangeScope(Clock clock) : IDisposable
+    {
+        private bool _disposed;
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            if (--clock._timeChangeDepth == 0) clock.TimeChanged?.Invoke();
+        }
+    }
 
     #endregion
 
@@ -994,6 +1014,7 @@ public class Clock : SaveableItem, IClock
             throw new ArgumentException("A clock time cannot include a date offset.", nameof(time));
         }
 
+        using var change = BeginTimeChange();
         _currentTime = MudTime.CreatePrimaryTime(primaryTime.Seconds, primaryTime.Minutes, primaryTime.Hours, timezone,
             this);
     }

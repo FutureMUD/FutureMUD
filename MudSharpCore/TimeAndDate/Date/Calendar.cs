@@ -596,10 +596,22 @@ public class Calendar : SaveableItem, ICalendar
         get => _feedClock;
         set
         {
+            if (Gameworld?.CelestialObjects is { } ownedCelestials &&
+                ownedCelestials.OfType<IAuthoredCelestial>().Any(x => x.Calendar.Id == Id && x.Clock.Id != value?.Id))
+            {
+                throw new InvalidOperationException("This calendar drives authored celestials; their feed clock must remain compatible.");
+            }
             UnsubscribeFromFeedClock();
 
             _feedClock = value;
             SubscribeToFeedClock();
+            if (Gameworld?.CelestialObjects is { } celestials)
+            {
+                foreach (var celestial in celestials.Where(x => x is IAuthoredCelestial authored && authored.Calendar.Id == Id))
+                {
+                    celestial.AddMinutes(0);
+                }
+            }
 
             if (_clockID == 0)
             {
@@ -617,8 +629,8 @@ public class Calendar : SaveableItem, ICalendar
         {
             if (Gameworld.Clocks.Has(value))
             {
+                FeedClock = Gameworld.Clocks.Get(value);
                 _clockID = value;
-                FeedClock = Gameworld.Clocks.Get(_clockID);
             }
         }
     }
@@ -644,6 +656,13 @@ public class Calendar : SaveableItem, ICalendar
             _clockDaysSinceCalendarAdvance = 0;
 
             SubscribeToFeedClock();
+            if (Gameworld?.CelestialObjects is { } celestials)
+            {
+                foreach (var celestial in celestials.Where(x => x is IAuthoredCelestial authored && authored.Calendar.Id == Id))
+                {
+                    celestial.AddMinutes(0);
+                }
+            }
         }
     }
 
@@ -1263,12 +1282,17 @@ public class Calendar : SaveableItem, ICalendar
         if (DayBoundary.In(CalendarDayBoundaryType.SunriseAtAuthorityLocation,
                 CalendarDayBoundaryType.SunsetAtAuthorityLocation) &&
             AuthorityLocation is not null &&
-            Gameworld?.CelestialObjects.OfType<ISolarEphemeris>().FirstOrDefault() is { } sun)
+            Gameworld?.CelestialObjects.FirstOrDefault(AstronomicalEventService.IsSolar) is { } sun)
         {
             var reference = MudInstant.FromMudDateTime(new MudDateTime(date,
                 MudTime.FromLocalTime(0, 0, 0, FeedClock.PrimaryTimezone, FeedClock),
                 FeedClock.PrimaryTimezone));
-            if (AstronomicalEventService.Instance.TryFindNext(
+            // Include an authored boundary exactly at midnight while preserving the public strictly-next contract.
+            if (sun is IAuthoredCelestial && !reference.IsNever)
+            {
+                reference = reference.AddSeconds(-1);
+            }
+            if (AstronomicalEventService.Instance.TryFindNextForCelestial(
                     DayBoundary == CalendarDayBoundaryType.SunriseAtAuthorityLocation
                         ? AstronomicalEventType.Sunrise
                         : AstronomicalEventType.Sunset,

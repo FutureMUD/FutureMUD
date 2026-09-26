@@ -228,6 +228,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		if (_disposed || !Enum.IsDefined(mutation) || !double.IsFinite(amount) || mutation == EnvironmentalResourceMutation.Debit && amount < 0.0 ||
 			mutation == EnvironmentalResourceMutation.Set && amount < 0.0) return true;
 		if (_evaluating.Contains(cell.Id)) { _recursive.Add(cell.Id); return true; }
+		if (_ecologicalMutations.Contains(cell.Id)) return true;
 		Register(cell); // Also discovers a newly inherited binding before the unconfigured fast path can escape.
 		var registration = _registered[cell.Id];
 		var snapshot = Inspect(cell);

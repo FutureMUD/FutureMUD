@@ -14,6 +14,21 @@ public sealed partial class EnvironmentalMagicCoordinator
 		IReadOnlyList<NativeOrganicDebitPlan> native, out IReadOnlyList<long> appliedAmbient,
 		out IReadOnlyList<NativeOrganicDebitPlan> appliedNative, out string? error)
 	{
+		if (!_ecologicalMutations.Add(cell.Id))
+		{
+			appliedAmbient = [];
+			appliedNative = [];
+			error = "This cell already has an ecological mutation in progress.";
+			return false;
+		}
+		try { return TryApplyLandDebitGroupCore(cell, ambient, native, out appliedAmbient, out appliedNative, out error); }
+		finally { _ecologicalMutations.Remove(cell.Id); }
+	}
+
+	private bool TryApplyLandDebitGroupCore(ICell cell, IReadOnlyList<EnvironmentalLandAmbientDebit> ambient,
+		IReadOnlyList<NativeOrganicDebitPlan> native, out IReadOnlyList<long> appliedAmbient,
+		out IReadOnlyList<NativeOrganicDebitPlan> appliedNative, out string? error)
+	{
 		appliedAmbient = [];
 		appliedNative = [];
 		if (_disposed || cell is not Cell concrete || concrete.Id <= 0 ||

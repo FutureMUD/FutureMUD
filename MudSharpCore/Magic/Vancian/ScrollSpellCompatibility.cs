@@ -29,6 +29,7 @@ public static class ScrollSpellCompatibility
 		var entries = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 		void Add(string types, string reason) { foreach (var type in types.Split(' ', StringSplitOptions.RemoveEmptyEntries)) entries.Add(type, reason); }
 		Add("executeprog forcecommand reciteproxy", "Arbitrary script/command effects have no typed numerical snapshot adapter.");
+		Add("rejuvenateland", "Bounded scar treatment has no stored capture, dose or retained-lifecycle adapter; direct invocation only.");
 		Add("changecharacteristic", "Characteristic profile/value selection and its live referenced definitions require a dedicated compatibility adapter.");
 		Add("astralprojection bodybackup createclone createcopy animatecorpse possesscorpse seizebody possessbody resurrect transformform", "Identity/body lifecycle and control-transfer configuration requires a dedicated snapshot adapter.");
 		Add("createitem createliquid createnpc corpsespawn", "Creation/template callbacks and referenced prototype lifecycle require a dedicated adapter.");
@@ -60,6 +61,10 @@ public static class ScrollSpellCompatibility
 			case StaminaDeltaSpellEffect x: yield return ("Formula", x.AmountExpression, e => x.AmountExpression = e); break;
 			case MagicResourceDeltaEffect x: yield return ("Formula", x.DeltaExpression, e => x.DeltaExpression = e); break;
 			case SpellArmourEffect x: yield return ("MaximumDamageAbsorbed", x.ArmourConfiguration.MaximumDamageAbsorbed, e => x.ArmourConfiguration.MaximumDamageAbsorbed = e); break;
+			case RejuvenateLandEffect x:
+				yield return ("Budget", x.BudgetExpression, e => x.BudgetExpression = e);
+				yield return ("Rate", x.RateExpression, e => x.RateExpression = e);
+				break;
 		}
 	}
 	public static IReadOnlyList<string> Errors(IMagicSpell spell, bool requireOptIn = true)

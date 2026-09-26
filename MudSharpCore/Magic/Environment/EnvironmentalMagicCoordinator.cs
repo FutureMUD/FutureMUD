@@ -171,6 +171,11 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	public void Unregister(ICell cell)
 	{
 		if (!_cells.TryGetValue(cell.Id, out var indexed) || !ReferenceEquals(indexed.Value, cell)) return;
+		if (_treatments.TryGetValue(cell.Id, out var treatment))
+		{
+			_treatmentDue.Remove(treatment);
+			_treatments.Remove(cell.Id);
+		}
 		if (_registered.Remove(cell.Id, out var registration)) RemoveRegistration(registration);
 		if (_cells.Remove(cell.Id, out var node))
 		{
@@ -207,6 +212,8 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		if (_registered.TryGetValue(cell.Id, out var old)) Settle(old, Now);
 		SettlePressure(concrete, null);
 		concrete.SetEnvironmentBinding(mode, profileId);
+		if (_treatments.TryGetValue(cell.Id, out var treatment) && EffectiveProfileId(concrete) != treatment.Progress.ProfileId)
+			CancelTreatment(cell, treatment.Progress.Id, "The effective environmental profile changed.");
 		Register(concrete);
 		if (_registered.TryGetValue(cell.Id, out var next)) Recheck(next, Now);
 	}
@@ -214,14 +221,28 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	public void CellTerrainChanged(ICell cell)
 	{
 		if (_disposed) return;
+		if (cell is Cell concrete && _treatments.TryGetValue(cell.Id, out var treatment) && EffectiveProfileId(concrete) != treatment.Progress.ProfileId)
+			CancelTreatment(cell, treatment.Progress.Id, "The effective environmental profile changed.");
 		if (_registered.TryGetValue(cell.Id, out var old)) Settle(old, Now);
 		Register(cell);
 		if (_registered.TryGetValue(cell.Id, out var next)) Recheck(next, Now);
 	}
 
-	public void TerrainDefaultChanged(ITerrain terrain) => BeginDiscovery();
-	public void BeforeProfileChange(IEnvironmentalMagicProfile profile) { }
-	public void ProfileChanged(IEnvironmentalMagicProfile profile) => BeginDiscovery();
+	public void TerrainDefaultChanged(ITerrain terrain)
+	{
+		foreach (var r in _treatments.Values.Where(x => EffectiveProfileId(x.Cell) != x.Progress.ProfileId).ToArray())
+			CancelTreatment(r.Cell, r.Progress.Id, "The terrain's effective environmental profile changed.");
+		BeginDiscovery();
+	}
+	public void BeforeProfileChange(IEnvironmentalMagicProfile profile)
+	{
+		foreach (var r in _treatments.Values.Where(x => x.Progress.ProfileId == profile.Id).ToArray()) AdvanceTreatment(r, Now);
+	}
+	public void ProfileChanged(IEnvironmentalMagicProfile profile)
+	{
+		TreatmentProfileChanged(profile);
+		BeginDiscovery();
+	}
 	public void SourceDefinitionChanged()
 	{
 		_sourceGeneration++;
@@ -305,8 +326,8 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 				Registration? work = null;
 				var discovered = false;
 				var lane = _lane;
-				_lane = (_lane + 1) % 4;
-				switch (lane)
+				_lane = (_lane + 1) % 5;
+					switch (lane)
 				{
 					case 0 when _due.Min is { } due && due.DueAt <= now:
 						work = due;
@@ -317,18 +338,22 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 					case 2 when _audit.Min is { } audit && audit.AuditAt <= now:
 						work = audit;
 						break;
-					case 3 when _discoveryRemaining > 0 && _discoveryCursor is not null:
+						case 3 when _discoveryRemaining > 0 && _discoveryCursor is not null:
 						var cell = _discoveryCursor.Value;
 						_discoveryCursor = _discoveryCursor.Next ?? _cellOrder.First;
 						_discoveryRemaining--;
 						Register(cell);
 						_registered.TryGetValue(cell.Id, out work);
 						discovered = true;
-						break;
+							break;
+						case 4:
+							discovered = VisitTreatment(now);
+							if (discovered) outputWork++;
+							break;
 				}
 				if (work is null && !discovered)
 				{
-					if (++emptyLanes >= 4) break;
+					if (++emptyLanes >= 5) break;
 					continue;
 				}
 				emptyLanes = 0;
@@ -355,6 +380,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	}
 
 	private bool HasReadyWork(double now) => _dirty.Count > 0 || _discoveryRemaining > 0 ||
+		_loadedTreatments.Count > 0 || _treatmentDue.Min is { } treatment && treatment.DueAt <= now ||
 		_due.Min is { } due && due.DueAt <= now || _audit.Min is { } audit && audit.AuditAt <= now;
 
 	public void Dispose()
@@ -362,6 +388,13 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		if (_disposed) return;
 		if (_started) _world.HeartbeatManager.SecondHeartbeat -= Pump;
 		_disposed = true;
+		_treatments.Clear();
+		_treatmentDue.Clear();
+		_treatmentRecords.Clear();
+		_treatmentRecordsByCell.Clear();
+		_treatmentCellsLoaded.Clear();
+		_loadedTreatments.Clear();
+		_queuedTreatments.Clear();
 		_registered.Clear();
 		_cells.Clear();
 		_cellOrder.Clear();

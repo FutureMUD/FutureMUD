@@ -32,6 +32,8 @@ The editor lists each setting with its own syntax and explanation. Setting comma
 
 `set check` lists missing references and incompatible payloads. An invalid substance is skipped during delivery, so finish the definition before using it. A definition can be built before any carrier is bound.
 
+`rejuvenateland` is explicitly unsupported as a substance payload. Its physical-cell treatment, captured spell lifetime, costs and authoritative progress require an ordinary direct spell invocation; no dose or stored-payload adapter is supplied.
+
 ### Quantity and potency
 
 `reference` is the quantity representing one full dose. Bindings specify quantity per engine fluid-volume unit for liquids/gases, or quantity per complete consumed item for pills, creams, smokeables and incense fuel. Use the world's configured fluid units when converting an intended millilitre dose to a binding: **quantity per engine unit = reference quantity / engine volume of one reference serving**. Item bindings use item prototype IDs, not component prototype IDs.

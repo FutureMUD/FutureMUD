@@ -8,7 +8,34 @@ Vancian-only casting requires an explicit capability/repertoire/allowance route.
 
 Scroll inscription pays a validated casting and production cost without invoking effect templates. Release consumes one charge before control checks/effects and uses an immutable stored configuration with frozen creator numerical bindings, reader attribution, and live target outcome. Saved persistent effects retain this context. See [Vancian runtime](Vancian_Magic_Runtime.md), [effect compatibility](Vancian_Scroll_Compatibility.md) and [verification](Vancian_Magic_Verification.md).
 
-## Purpose
+## Bounded land rejuvenation
+
+`rejuvenateland` is a continuing effect for `room` and `rooms` triggers. It repairs existing ecological scars gradually. The source spell supplies normal costs, check and a finite positive resolved duration. Only one treatment can occupy a physical cell, across all spells/casters. A conflicting application leaves the old parent and siblings intact; a committed cast still pays its normal costs. Completed repair remains after dispel.
+
+With a spell selected, author its ordinary school, known prog, trait, emotes and costs, then use:
+
+```text
+magic spell set trigger new room
+magic spell set duration <trait-expression ID or name yielding seconds>
+magic spell set effect add rejuvenateland
+magic spell set effect 1 budget 12
+magic spell set effect 1 rate 2
+magic spell set effect 1 eligibility none
+magic spell set effect 1 continuation none
+magic spell set effect 1 local off
+magic spell set effect 1 desc The scarred earth is slowly mending.
+magic spell set effect 1 colour green
+```
+
+`budget <expression>` and `rate <expression>` are ordinary trait expressions; rate is scar units per real minute. `power` is the actual `SpellPower` integer and `outcome` the supplied `OpposedOutcomeDegree` integer. Direct Vancian invocations additionally bind `spelllevel`, `castinglevel`, `casterlevel`, `degrees` and `success` through their existing numerical context. Missing invocation-only values, invalid/negative/non-finite results or zero budget/rate establish no treatment. Captured values are not recalculated after stat or template edits.
+
+`eligibility <prog|none>` and `continuation <prog|none>` accept compiled `NotStatic` boolean `(character, location)` policies, written as read-only checks. Continuation requires the original active acting instance; false/error/absence terminates work. `local on` additionally requires it to remain conscious and active in the captured physical cell, plane and layer. Default `local off` with no continuation is caster-independent and never loads an absent caster. `desc <plain text|none>` accepts no substitution placeholders; the addendum observes the viewer's plane/layer and does not modify base room prose.
+
+Set the environmental profile's separate `magicalrepaircap 1` for a slow ceiling of one scar unit per minute. `none` imposes no extra cap, zero disables magical treatment, and natural `repair` remains independent. Installation and inspection never repair. Normal expiry accounts the final elapsed segment once; dispel/removal discard pending elapsed work. Saved progress resumes from a fresh online epoch, without downtime recovery. Reaching zero scars ends the effect before later destructive actions.
+
+Legacy direct casts, direct Vancian casts and independently granted spell-backed powers use the same admission/accounting path. A power does not spend an unrelated Vancian slot. Scroll and magical-substance payloads are explicitly unsupported. Read [environmental runtime and staff diagnostics](Environmental_Magic_Runtime.md#bounded-spell-treatment) for atomic checkpoints, uncertain-step handling and native ecological consequences.
+
+## Purpose and overview
 This document explains how magic `spells` work in FutureMUD.
 
 Spells are the data-driven half of the magic subsystem. A spell is assembled from a trigger, effect lists, costs, checks, emotes, and timing rules instead of from one bespoke hard-coded command class.
@@ -761,6 +788,7 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 | `roomflag` | `RoomFlagEffect` | Applies a configured magical room flag such as peaceful, no-dream, alarm, darkness, or ward tags |
 | `roomatmosphere` | `RoomAtmosphereEffect` | Alters room atmosphere |
 | `roomlight` | `RoomLightEffect` | Alters room light |
+| `rejuvenateland` | `RejuvenateLandEffect` | Gradually repairs existing physical-cell scars within captured budget, rate, profile cap and lifetime |
 | `roomward` | `RoomWardEffect` | Applies a school-based room ward that can fail or reflect matching incoming or outgoing magic |
 | `roomtagward` | `RoomTagWardEffect` | Applies a room ward that fails or reflects matching incoming or outgoing magic by `magictag` key/value |
 | `roomtemperature` | `RoomTemperatureEffect` | Alters room temperature |

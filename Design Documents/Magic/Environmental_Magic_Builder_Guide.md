@@ -37,10 +37,13 @@ magic regenerator set input <name> prog <prog> <scale>
 magic regenerator set input remove <name>
 magic regenerator set halflife <seconds>
 magic regenerator set repair <amount per real minute>
+magic regenerator set magicalrepaircap <non-negative-number|none>
 magic regenerator set idle <seconds|default>
 ```
 
 Each resource occurs at most once. Half-life must be at least one second; an optional idle interval is from one through 3,600 seconds. Repair zero disables natural repair. Inputs and outputs have finite count limits enforced by the profile. A missing reference, invalid expression, unsupported resource holder, duplicate output or invalid numeric result disables the affected environmental route with diagnostics.
+
+`magicalrepaircap` independently limits the scar units repaired per real minute by a [`rejuvenateland` spell treatment](Magic_System_Spells.md#bounded-land-rejuvenation). Older profiles and `none` add no cap beyond the spell's captured rate. Zero disables treatments; it does not change natural repair or erase scars. For slow restoration, use `magic regenerator set magicalrepaircap 1`. Positive cap edits apply prospectively; disabling or replacing the effective profile ends an existing treatment. Invalid persisted cap values fault treatment policy while preserving otherwise valid mana outputs.
 
 Changing a profile retains existing room balances and damage. A valid lower maximum discards excess energy at the owning managed mutation/configuration/advance boundary. A higher maximum increases capacity only. Removing an output or disabling a profile does not delete stored balances or damage. A newly attached output starts empty; existing stored zero balances remain empty on restart.
 
@@ -110,6 +113,8 @@ magic environment terrain <terrain> none
 magic environment show [here|<cell id>]
 magic environment recheck [here|<cell id>]
 magic environment diagnostics
+magic environment treatments [here|cell id]
+magic environment treatments confirm <here|cell id> <treatment guid>
 ```
 
 The ordinary terrain editor also supports `terrain set environment <profile|none>`. `terrain show` displays the default environmental profile and preserves a diagnostic for a saved missing profile ID.
@@ -119,6 +124,8 @@ One effective profile applies to each physical cell. An explicit cell profile ov
 `show` displays effective profile, inputs, balance, maximum, rate, scars, pressure, last destructive-use time and errors. It does not advance production or alter scheduling. `recheck` requests coalesced work and grants no energy. `diagnostics` reports coordinator queues, activity, budgets, evaluation/write counts and ages.
 
 ## Staff damage and repair
+
+Treatment inspection reports captured and remaining work, status, source IDs and ecological step IDs without advancing time or loading the creator. `treatments confirm` reconciles an existing uncertain step; it never applies repair or evaluates a policy. A foreign pending ecological operation remains owned by its original action. See [the treatment verification record](Land_Rejuvenation_Verification.md) for restart, cancellation and provider-fault evidence.
 
 ```text
 magic environment damage <here|cell id> <damage> <pressure> <operation guid> <reason>

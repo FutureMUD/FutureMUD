@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MudSharp.Body.Traits;
 using MudSharp.Commands.Trees;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Save;
@@ -1592,24 +1593,54 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 		TimeSpan duration = TimeSpan.Zero;
 		if (EffectDurationExpression is not null)
 		{
+			try
+			{
             duration =
                 TimeSpan.FromSeconds(
 					EffectDurationExpression.EvaluateWith(magician, CastingTrait, TraitBonusContext.SpellDuration,
 						("degrees", result[CastingDifficulty].CheckDegrees()),
 						("success", result[CastingDifficulty].SuccessDegrees()),
 						("power", (int)power)));
+			}
+			catch (Exception ex) when (_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Any())
+			{
+				magician.OutputHandler.Send($"No rejuvenation treatment was established: invalid spell duration ({ex.Message}).".ColourError());
+				return;
+			}
 		}
 
 		OpposedOutcome baseOutcome = new(result[CastingDifficulty].Outcome, Outcome.NotTested);
 		bool allowReflection = Trigger.TargetTypes == "character";
 
-		void ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects,
-			OpposedOutcomeDegree effectOutcome)
+		var rejuvenatedCells = new HashSet<long>();
+		bool ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects,
+			OpposedOutcomeDegree effectOutcome, bool echoTarget = false)
 		{
-			MagicSpellParent head = new(effectTarget, this, magician, power, effectOutcome);
-			foreach (IMagicSpellEffectTemplate effect in effects)
+			var templates = effects.ToArray();
+			var prepared = new Dictionary<IMagicSpellEffectTemplate, IMagicSpellEffectApplication>();
+			if (templates.OfType<SpellEffects.RejuvenateLandEffect>().Count() > 1)
+			{
+				magician.OutputHandler.Send("No treatment was established: duplicate rejuvenateland entries are forbidden.".ColourError());
+				return false;
+			}
+			if (templates.OfType<SpellEffects.RejuvenateLandEffect>().Any() && effectTarget is ICell cell && !rejuvenatedCells.Add(cell.Id)) return true;
+			foreach (var template in templates)
+			{
+				if (template is not IMagicSpellEffectAdmission admission) continue;
+				if (!admission.TryPrepareApplication(magician, effectTarget, effectOutcome, power, duration, out var application, out var error))
+				{
+					magician.OutputHandler.Send($"No treatment was established: {error}".ColourError());
+					return false;
+				}
+				prepared.Add(template, application!);
+			}
+			if (echoTarget && !string.IsNullOrEmpty(TargetEmote))
+				effectTarget.OutputHandler.Handle(new EmoteOutput(new Emote(TargetEmote, magician, magician, effectTarget), flags: TargetEmoteFlags));
+			MagicSpellParent head = new(effectTarget, this, magician, power, effectOutcome) { ResolvedDuration = duration };
+			foreach (IMagicSpellEffectTemplate effect in templates)
 			{
 				IMagicSpellEffect child =
+					prepared.TryGetValue(effect, out var application) ? application.Create(head) :
 					effect.GetOrApplyEffect(magician, effectTarget, effectOutcome, power, head, additionalParameters);
 				if (child == null)
 				{
@@ -1630,6 +1661,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 			{
 				effectTarget.AddEffect(head, duration);
 			}
+			return true;
 		}
 
 		void EchoInterdiction(IPerceivable originalTarget, MagicInterdictionResult interdiction, bool reflected)
@@ -1706,14 +1738,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 				EchoInterdiction(originalTarget, interdiction, true);
 			}
 
-			if (!string.IsNullOrEmpty(TargetEmote))
-			{
-				actualTarget.OutputHandler.Handle(new EmoteOutput(
-					new Emote(TargetEmote, magician, magician, actualTarget), flags: TargetEmoteFlags));
-			}
-
-			ApplySpellEffect(actualTarget, _spellEffects, outcome.Degree);
-			return false;
+			return !ApplySpellEffect(actualTarget, _spellEffects, outcome.Degree, true);
 		}
 
 		if (target is PerceivableGroup pg)
@@ -1864,6 +1889,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 
     public bool ReadyForGame =>
         Trigger != null &&
+		_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Count() <= 1 &&
+		!_casterSpellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Any() &&
+		_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().All(x => x.DefinitionError is null) &&
         (Trigger is SpellTriggers.AttackHitTrigger or SpellTriggers.SubstanceTrigger || !string.IsNullOrEmpty(CastingEmote)) &&
         (Trigger.TriggerYieldsTarget || _spellEffects.All(x => !x.RequiresTarget)) &&
         (!Trigger.TriggerMayFailToYieldTarget || !string.IsNullOrEmpty(TargetNullEmote)) &&
@@ -1873,6 +1901,10 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 
     public string WhyNotReadyForGame(ICharacter builder)
     {
+		if (_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Count() > 1 || _casterSpellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Any())
+			return "rejuvenateland permits one target effect and cannot be a caster-side effect.";
+		if (_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Select(x => x.DefinitionError).FirstOrDefault(x => x is not null) is { } repairError)
+			return repairError;
 
         if (Trigger == null)
         {

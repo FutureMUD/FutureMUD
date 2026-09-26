@@ -49,6 +49,12 @@ public sealed partial class EnvironmentalMagicGenerator : BaseMagicResourceGener
 	public long FormulaEvaluationCount { get; private set; }
 	public double PressureHalfLifeSeconds { get; private set; } = 3600.0;
 	public double NaturalRepairPerMinute { get; private set; }
+	public double? MagicalRepairLimitPerMinute { get; private set; }
+	public IReadOnlyList<string> RepairValidationErrors => _definitionVersion != CurrentDefinitionVersion || _loadError is not null
+		? new[] { _loadError ?? "Unsupported environmental profile version." }
+		: MagicalRepairLimitPerMinute is { } cap && (!double.IsFinite(cap) || cap < 0.0)
+			? new[] { "Magical repair ceiling must be a finite non-negative number or none." }
+			: Array.Empty<string>();
 	public double? IdleRecheckSeconds { get; private set; }
 	public DateTimeOffset DecayReferenceUtc { get; private set; } = DateTimeOffset.UnixEpoch;
 	public double DecayIntegral { get; private set; }
@@ -190,6 +196,8 @@ public sealed partial class EnvironmentalMagicGenerator : BaseMagicResourceGener
 
 		PressureHalfLifeSeconds = ReadNumber(root.Element("PressureHalfLifeSeconds")?.Value, 3600.0);
 		NaturalRepairPerMinute = ReadNumber(root.Element("NaturalRepairPerMinute")?.Value, 0.0);
+		MagicalRepairLimitPerMinute = root.Element("MagicalRepairLimitPerMinute") is { } cap
+			? ReadNumber(cap.Value, double.NaN) : null;
 		var idle = root.Element("IdleRecheckSeconds")?.Value;
 		IdleRecheckSeconds = string.IsNullOrWhiteSpace(idle) ? null : ReadNumber(idle, double.NaN);
 		DecayIntegral = ReadNumber(root.Element("DecayIntegral")?.Value, 0.0);
@@ -244,6 +252,7 @@ public sealed partial class EnvironmentalMagicGenerator : BaseMagicResourceGener
 		new XAttribute("version", _definitionVersion),
 		new XElement("PressureHalfLifeSeconds", PressureHalfLifeSeconds),
 		new XElement("NaturalRepairPerMinute", NaturalRepairPerMinute),
+		MagicalRepairLimitPerMinute.HasValue ? new XElement("MagicalRepairLimitPerMinute", MagicalRepairLimitPerMinute.Value) : null,
 		IdleRecheckSeconds.HasValue ? new XElement("IdleRecheckSeconds", IdleRecheckSeconds.Value) : null,
 		new XElement("DecayReferenceUtc", DecayReferenceUtc.ToString("O", CultureInfo.InvariantCulture)),
 		new XElement("DecayIntegral", DecayIntegral),
@@ -569,6 +578,7 @@ public sealed partial class EnvironmentalMagicGenerator : BaseMagicResourceGener
 	#3input remove <name>#0 - remove an unused input
 	#3halflife <seconds>#0 - set recent-pressure half-life (at least 1 second)
 	#3repair <amount>#0 - set natural scar repair per real minute (zero disables)
+	#3magicalrepaircap <non-negative-number|none>#0 - cap spell scar repair per real minute (zero disables treatments)
 	#3idle <seconds|default>#0 - set an optional 1-3600 second idle recheck
 	#3organic sources#0 - list explicitly authorised native organic sources
 	#3organic source add forage <yield-key>#0 - authorise one exact forage yield key
@@ -601,6 +611,7 @@ native units. Declared named inputs are also available. The result is a dimensio
 			case "input": return BuildingCommandInput(actor, command);
 			case "halflife": return BuildingCommandHalfLife(actor, command);
 			case "repair": return BuildingCommandRepair(actor, command);
+			case "magicalrepaircap": return BuildingCommandMagicalRepairCap(actor, command);
 			case "idle": return BuildingCommandIdle(actor, command);
 			case "organic": return BuildingCommandOrganic(actor, command);
 			default: return base.BuildingCommand(actor, command.GetUndo());
@@ -634,6 +645,23 @@ native units. Declared named inputs are also available. The result is a dimensio
 		}
 		ApplyDefinitionChange(() => NaturalRepairPerMinute = value);
 		actor.OutputHandler.Send($"Natural scar repair is now {value.ToString("N3", actor).ColourValue()} per real minute, once per cell.");
+		return true;
+	}
+
+	private bool BuildingCommandMagicalRepairCap(ICharacter actor, StringStack command)
+	{
+		double? cap = null;
+		if (!command.SafeRemainingArgument.EqualTo("none"))
+		{
+			if (!TryBuilderNumber(actor, command.SafeRemainingArgument, 0.0, double.MaxValue, out var value))
+			{
+				actor.OutputHandler.Send("Use magicalrepaircap <finite non-negative number|none> (scar units per real minute).");
+				return false;
+			}
+			cap = value;
+		}
+		ApplyDefinitionChange(() => MagicalRepairLimitPerMinute = cap);
+		actor.OutputHandler.Send($"Magical scar repair ceiling: {(cap?.ToString("G", actor) ?? "none").ColourValue()} per real minute. Natural repair is independent.");
 		return true;
 	}
 
@@ -839,6 +867,8 @@ native units. Declared named inputs are also available. The result is a dimensio
 		sb.AppendLine($"Definition Version: {_definitionVersion.ToString("N0", actor).ColourValue()}    Runtime Revision: {Revision.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Pressure Half-Life: {PressureHalfLifeSeconds.ToString("N3", actor).ColourValue()} real seconds");
 		sb.AppendLine($"Natural Scar Repair: {NaturalRepairPerMinute.ToString("N3", actor).ColourValue()} per real minute (once per cell)");
+		sb.AppendLine($"Magical Repair Ceiling: {(MagicalRepairLimitPerMinute?.ToString("G", actor) ?? "none").ColourValue()} per real minute (zero disables treatments)");
+		foreach (var error in RepairValidationErrors) sb.AppendLine(error.ColourError());
 		sb.AppendLine($"Idle Recheck: {(IdleRecheckSeconds.HasValue ? $"{IdleRecheckSeconds.Value.ToString("N0", actor)} real seconds" : "world default").ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Resource Outputs".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));

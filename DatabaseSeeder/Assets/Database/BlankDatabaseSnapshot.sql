@@ -16149,3 +16149,82 @@ CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
 
 COMMIT;
+
+-- Reviewed generated EF delta: full refresh blocked by local auth_gssapi_client.
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260926124947_AddEnvironmentalExposureDefinitions') THEN
+
+    ALTER TABLE `materials` ADD `ExposureInfo` mediumtext CHARACTER SET utf8mb4 NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260926124947_AddEnvironmentalExposureDefinitions') THEN
+
+    ALTER TABLE `gases` ADD `SurfaceReactionInfo` mediumtext CHARACTER SET utf8mb4 NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260926124947_AddEnvironmentalExposureDefinitions') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20260926124947_AddEnvironmentalExposureDefinitions', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;
+
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260926145630_ExpandLiquidExposureDefinitions') THEN
+
+    ALTER TABLE `liquids` MODIFY COLUMN `SurfaceReactionInfo` mediumtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20260926145630_ExpandLiquidExposureDefinitions') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20260926145630_ExpandLiquidExposureDefinitions', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;

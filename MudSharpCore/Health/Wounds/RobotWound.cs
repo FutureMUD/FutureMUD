@@ -10,8 +10,9 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Health.Wounds;
 
-public class RobotWound : PerceivedItem, IWound
+public class RobotWound : PerceivedItem, IContinuousExposureWound
 {
+	public string ExposureKey { get; set; }
     private IBody _ownerBody;
 
     public RobotWound(IHaveWounds owner, Models.Wound wound, IFuturemud gameworld, IBody ownerBody = null)
@@ -23,7 +24,7 @@ public class RobotWound : PerceivedItem, IWound
     }
 
     public RobotWound(IFuturemud gameworld, IHaveWounds owner, double damage, double stun, DamageType damageType,
-        IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin, ICharacter actorOrigin)
+        IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin, ICharacter actorOrigin, IBody ownerBody = null)
     {
         if (bodypart == null)
         {
@@ -32,7 +33,7 @@ public class RobotWound : PerceivedItem, IWound
 
         Gameworld = gameworld;
         _parent = owner ?? throw new ArgumentNullException(nameof(owner));
-        _ownerBody = owner as ICharacter != null ? (owner as ICharacter)?.Body : null;
+        _ownerBody = ownerBody ?? (owner as ICharacter)?.Body;
         _currentDamage = Math.Max(0.0,
             Math.Min(damage * bodypart.DamageModifier, (_ownerBody ?? CharacterParent.Body).HitpointsForBodypart(bodypart)));
         _originalDamage = Math.Max(0.0,
@@ -147,6 +148,7 @@ public class RobotWound : PerceivedItem, IWound
         RealTimeOfWound = wound.RealTimeOfWound;
 
         XElement root = XElement.Parse(wound.ExtraInformation);
+		ExposureKey = (string)root.Element("ExposureKey");
         XElement element = root.Element("BleedStatus");
         if (element != null)
         {
@@ -165,6 +167,7 @@ public class RobotWound : PerceivedItem, IWound
     public string SaveExtras()
     {
         return new XElement("Definition",
+			ExposureKey is null ? null : new XElement("ExposureKey", ExposureKey),
             new XElement("BleedStatus", (int)BleedStatus),
             new XElement("TreatmentAttempts", _unsuccessfulTreatmentAttempts),
             new XElement("IsFriendlyWound", IsFriendlyWound)
@@ -227,6 +230,15 @@ public class RobotWound : PerceivedItem, IWound
         CurrentDamage += damage.DamageAmount;
         Changed = true;
     }
+
+	public void SufferAdditionalExposureDamage(IDamage damage)
+	{
+		SufferAdditionalDamage(new Damage(damage) { DamageAmount = Math.Max(0, damage.DamageAmount * Bodypart.DamageModifier) });
+		CurrentStun += Math.Max(0, damage.StunAmount * Bodypart.StunModifier);
+		if (Bodypart is not IOrganProto && ContinuousExposureDamage.BleedingFor(DamageType, Severity) == BleedStatus.Bleeding)
+			_bleedStatus = BleedStatus.Bleeding;
+		_unsuccessfulTreatmentAttempts = 0;
+	}
 
     public void OnWoundSuffered()
     {

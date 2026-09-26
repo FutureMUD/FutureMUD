@@ -11,8 +11,10 @@ namespace MudSharp.Health.Wounds;
 ///     A simple wound is a wound with no pain, shock or bleeding. It would be used by, for example, items or undead.
 ///     Simple wounds also do not heal.
 /// </summary>
-public class SimpleWound : PerceivedItem, IWound
+public class SimpleWound : PerceivedItem, IContinuousExposureWound
 {
+	public string ExposureKey { get; set; }
+	public void SufferAdditionalExposureDamage(IDamage damage) => SufferAdditionalDamage(damage);
     private IBody _ownerBody;
     private long? _vehicleId;
     private long? _vehicleDamageZoneId;
@@ -29,7 +31,7 @@ public class SimpleWound : PerceivedItem, IWound
 
     public SimpleWound(IFuturemud gameworld, IHaveWounds owner, double damage, DamageType damageType,
         IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin, ICharacter actorOrigin,
-        long? vehicleId = null, long? vehicleDamageZoneId = null)
+        long? vehicleId = null, long? vehicleDamageZoneId = null, IBody ownerBody = null)
     {
         if (owner == null)
         {
@@ -43,7 +45,7 @@ public class SimpleWound : PerceivedItem, IWound
 #endif
         Gameworld = gameworld;
         _parent = owner;
-        _ownerBody = (owner as ICharacter)?.Body;
+        _ownerBody = ownerBody ?? (owner as ICharacter)?.Body;
         _originalDamage = Math.Max(0.0, damage);
         _currentDamage = Math.Max(0.0, damage);
         DamageType = damageType;
@@ -89,6 +91,7 @@ public class SimpleWound : PerceivedItem, IWound
     public string SaveExtras()
     {
         return new XElement("Definition",
+			ExposureKey is null ? null : new XElement("ExposureKey", ExposureKey),
             new XElement("IsFriendlyWound", IsFriendlyWound)
         ).ToString();
     }
@@ -247,6 +250,7 @@ public class SimpleWound : PerceivedItem, IWound
         _vehicleId = wound.VehicleId;
         _vehicleDamageZoneId = wound.VehicleDamageZoneId;
         XElement root = XElement.Parse(wound.ExtraInformation ?? "<Empty/>");
+		ExposureKey = (string)root.Element("ExposureKey");
         IsFriendlyWound = bool.Parse(root.Element("IsFriendlyWound")?.Value ?? "false");
     }
 

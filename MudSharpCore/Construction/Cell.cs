@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using ExpressionEngine;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -681,6 +681,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 
     public bool SetCurrentOverlay(ICellOverlayPackage package)
     {
+		using var exposureChange = EnvironmentalExposureService.ChangingEnvironment(this);
         ICellOverlay overlay = Overlays.FirstOrDefault(x => x.Package == package);
         if (overlay == null)
         {
@@ -1670,13 +1671,13 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         CollectionDictionary<RoomLayer, ICharacter> characters = Characters.Select(x => (x.RoomLayer, x)).ToCollectionDictionary();
         RoomLayer lowestLayer = Terrain(null).TerrainLayers.FirstMin(x => x.LayerHeight());
         ILiquid liquid = (ILiquid)Terrain(null).WaterFluid;
-        LiquidMixture mixture = new(liquid, double.MaxValue, Gameworld);
+
         List<RoomLayer> underwaterLayers = Terrain(null).TerrainLayers.Where(x => IsSwimmingLayer(x)).ToList();
         foreach (RoomLayer layer in underwaterLayers.OrderBy(x => x.LayerHeight()))
         {
             foreach (IGameItem item in items[layer])
             {
-                item.ExposeToLiquid(mixture, null, LiquidExposureDirection.Irrelevant);
+                EnvironmentalExposureService.For(Gameworld).RefreshImmersion(item, liquid);
                 var exteriorVehicle = item.GetItemType<IVehicleExterior>()?.Vehicle;
                 if (exteriorVehicle.KeepsExteriorAfloat())
                 {
@@ -1738,10 +1739,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
                     continue;
                 }
 
-                foreach (IGameItem item in character.Body.ExposedItems)
-                {
-                    item.ExposeToLiquid(mixture, null, LiquidExposureDirection.FromOnTop);
-                }
+                EnvironmentalExposureService.For(Gameworld).RefreshImmersion(character.Body);
             }
         }
     }

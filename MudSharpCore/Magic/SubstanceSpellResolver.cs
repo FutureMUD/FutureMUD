@@ -24,6 +24,7 @@ public static class SubstanceSpellResolver
 		["needdelta"] = ["Hunger", "Thirst", "Drunk"], ["glow"] = ["GlowLuxPerPower"],
 		["weight"] = ["Weight"], ["pacifism"] = ["Intensity"], ["rage"] = ["Intensity"],
 		["staminaregenrate"] = ["Multiplier"], ["staminaexpendrate"] = ["Multiplier"],
+		["exposureresistance"] = ["Multiplier"],
 		["needrate"] = ["HungerMult", "ThirstMult", "DrunkMult"],
 		["itemenchant"] = ["GlowLux", "AttackCheckBonus", "QualityBonus", "DamageBonus", "PainBonus", "StunBonus", "ArmourDamageReduction", "ProjectileQualityBonus", "ProjectileDamageBonus", "ProjectilePainBonus", "ProjectileStunBonus", "ToolFitnessBonus", "ToolSpeedMultiplier", "ToolUsageMultiplier", "PowerProductionMultiplier", "PowerConsumptionMultiplier", "FuelUseMultiplier"]
 	};
@@ -137,6 +138,7 @@ public static class SubstanceSpellResolver
 	{
 		switch (effect)
 		{
+			case SpellExposureResistanceEffect resistance when template is ExposureResistanceSpellEffect source: resistance.Multiplier = ScaleMultiplier(source.Multiplier, dose); break;
 			case SpellWeightEffect weight when template is WeightSpellEffect source: weight.AddedWeight = source.AddedWeight * dose; break;
 			case SpellStaminaRegenerationEffect stamina when template is StaminaRegenRateSpellEffect source: stamina.Multiplier = ScaleMultiplier(source.Multiplier, dose); break;
 			case SpellStaminaExpenditureEffect stamina when template is StaminaExpenditureSpellEffect source: stamina.Multiplier = ScaleMultiplier(source.Multiplier, dose); break;

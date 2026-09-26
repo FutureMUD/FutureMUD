@@ -204,6 +204,8 @@ public class SpellItemEnchantmentEffect : MagicSpellEffectBase, IDescriptionAddi
 
 	private IDamage ReduceDamage(IDamage damage)
 	{
+		if (damage is not null && ContinuousExposureDamage.TryNormalise(damage, out var rateDamage, out var seconds))
+			return ContinuousExposureDamage.Restore(ReduceDamage(rateDamage), damage, seconds)!;
 		if (damage is null)
 		{
 			return null!;

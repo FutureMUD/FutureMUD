@@ -369,6 +369,9 @@ public partial class Body : PerceiverItem, IBody
     public override void SetIDFromDatabase(object dbitem)
     {
         _id = ((MudSharp.Models.Body)dbitem).Id;
+        // Character insertion also assigns this identity directly, without Body.InitialiseItem.
+        // Subsequent exposure contexts must not flush the save queue merely to read the body ID.
+        IdInitialised = true;
         if (Prosthetics.Any())
         {
             ProstheticsChanged = true;
@@ -945,7 +948,6 @@ public partial class Body : PerceiverItem, IBody
         try
         {
             Models.Body dbentity = FMDB.Context.Bodies.Find(Id);
-            ResolveSurfaceLiquidDrying();
             dbentity.Height = Height;
             dbentity.Weight = Weight;
             dbentity.Position = PositionState.Id;
@@ -1134,7 +1136,6 @@ public partial class Body : PerceiverItem, IBody
     {
         get
         {
-            ResolveSurfaceLiquidDrying();
             (double coating, double absorb) = LiquidAbsorbtionAmounts;
             return SurfaceLiquidState.SaturationLevel(coating, absorb);
         }
@@ -1155,128 +1156,20 @@ public partial class Body : PerceiverItem, IBody
     public ItemSaturationLevel SaturationLevelForLiquid(IEnumerable<IExternalBodypart> bodyparts)
     {
         (double coating, double absorb) = LiquidAbsorbtionAmountsForBodyparts(bodyparts);
-        return SurfaceLiquidState.SaturationLevel(coating, absorb);
+        var ids = bodyparts.Select(x => x.Id).ToHashSet();
+        var volume = ((ILocalisedSurfaceLiquidState)SurfaceLiquidState).Parts.Where(x => ids.Contains(x.PartId)).Sum(x => x.State.LiquidVolume);
+        return SurfaceLiquidState.SaturationLevelForLiquid(volume, coating, absorb);
     }
 
     public void ExposeToLiquid(LiquidMixture mixture, IEnumerable<IExternalBodypart> parts, LiquidExposureDirection direction)
     {
-        using var magicalExposure = MudSharp.Magic.MagicalExposure.BeginExposure();
-        if (mixture.TotalVolume <= 0)
-        {
-            return;
-        }
-
-        ResolveSurfaceLiquidDrying();
-        if (direction == LiquidExposureDirection.Irrelevant)
-        {
-            foreach (IExternalBodypart part in parts)
-            {
-                LiquidMixture localMixture = mixture.Clone();
-                localMixture.SetLiquidVolume(localMixture.TotalVolume * part.RelativeHitChance / parts.Sum(x => x.RelativeHitChance));
-                IGameItem item = WornItemsFor(part).LastOrDefault();
-                item?.ExposeToLiquid(localMixture, part, LiquidExposureDirection.FromOnTop);
-
-                if (localMixture.IsEmpty)
-                {
-                    continue;
-                }
-
-                ExposeToLiquid(localMixture, part, LiquidExposureDirection.FromOnTop);
-            }
-
-            return;
-        }
-
-        List<ICleanableEffect> cleanableEffects =
-            EffectsOfType<ICleanableEffect>(x => x is not SurfaceContaminationEffect && mixture.Instances.Any(y => x.LiquidRequired is not null && y.Liquid.LiquidCountsAs(x.LiquidRequired)))
-                .ToList();
-        foreach (ICleanableEffect cleanable in cleanableEffects)
-        {
-            if (cleanable.CleanWithLiquid(mixture, mixture.TotalVolume))
-            {
-                RemoveEffect(cleanable, true);
-            }
-        }
-
-        SurfaceLiquidState.CleanWithLiquid(mixture, mixture.TotalVolume);
-
-        (double coating, double _) = LiquidAbsorbtionAmountsForBodyparts(parts);
-        double amountToAbsorb = Math.Min(Math.Max(coating - SurfaceLiquidState.LiquidVolume, 0.0), mixture.TotalVolume);
-        if (amountToAbsorb > 0.0)
-        {
-            LiquidMixture newMixture = mixture.RemoveLiquidVolume(amountToAbsorb);
-            if (newMixture?.IsEmpty == false)
-            {
-                MudSharp.Magic.MagicalExposure.Liquid(this, newMixture, MudSharp.Health.DrugVector.Touched, true);
-                SurfaceLiquidState.AddLiquid(newMixture);
-                LiquidExposureStrategies.SurfaceReactions.Expose(this, newMixture, direction, parts);
-            }
-        }
-
-        if (mixture.TotalVolume > 0.0)
-        {
-            PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, Location, RoomLayer, Actor);
-        }
+        ExposureTransport.Body(this, mixture, parts, direction);
     }
 
     public void ExposeToLiquid(LiquidMixture mixture, IBodypart part, LiquidExposureDirection direction)
     {
-        using var magicalExposure = MudSharp.Magic.MagicalExposure.BeginExposure();
-        if (mixture.TotalVolume <= 0 || part is not IExternalBodypart ebp)
-        {
-            return;
-        }
-
-		OnFire.ExtinguishWith(Actor, mixture);
-        ResolveSurfaceLiquidDrying();
-        if (direction == LiquidExposureDirection.Irrelevant)
-        {
-            IGameItem item = WornItemsFor(part).LastOrDefault();
-            item?.ExposeToLiquid(mixture, part, LiquidExposureDirection.FromOnTop);
-
-            foreach (IGameItem held in HeldOrWieldedItemsFor(part))
-            {
-                held.ExposeToLiquid(mixture, part, LiquidExposureDirection.FromOnTop);
-            }
-
-            if (mixture.TotalVolume <= 0)
-            {
-                return;
-            }
-        }
-
-        List<ICleanableEffect> cleanableEffects =
-            EffectsOfType<ICleanableEffect>(x => x is not SurfaceContaminationEffect && mixture.Instances.Any(y => x.LiquidRequired is not null && y.Liquid.LiquidCountsAs(x.LiquidRequired)))
-                .ToList();
-        foreach (ICleanableEffect cleanable in cleanableEffects)
-        {
-            if (cleanable.CleanWithLiquid(mixture, mixture.TotalVolume))
-            {
-                RemoveEffect(cleanable, true);
-            }
-        }
-
-        SurfaceLiquidState.CleanWithLiquid(mixture, mixture.TotalVolume);
-
-        (double coating, double _) = LiquidAbsorbtionAmountsForBodyparts(new[] { ebp });
-        double amountToAbsorb = Math.Min(Math.Max(coating - SurfaceLiquidState.LiquidVolume, 0.0), mixture.TotalVolume);
-        if (amountToAbsorb > 0.0)
-        {
-            LiquidMixture newMixture = mixture.RemoveLiquidVolume(amountToAbsorb);
-            if (newMixture?.IsEmpty == false)
-            {
-                MudSharp.Magic.MagicalExposure.Liquid(this, newMixture, MudSharp.Health.DrugVector.Touched, true);
-                SurfaceLiquidState.AddLiquid(newMixture);
-                LiquidExposureStrategies.SurfaceReactions.Expose(this, newMixture, direction, new[] { ebp });
-            }
-        }
-
-        if (mixture.TotalVolume > 0.0)
-        {
-            PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, Location, RoomLayer, Actor);
-        }
+        if (part is IExternalBodypart external) ExposureTransport.Body(this, mixture, new[] { external }, direction);
     }
-
     double LiquidVolumeFromPrecipitation(PrecipitationLevel level)
     {
         return Gameworld.GetStaticDouble($"PrecipitationAmountPerItemSize{Size.DescribeEnum()}{level.DescribeEnum()}");
@@ -1285,6 +1178,8 @@ public partial class Body : PerceiverItem, IBody
     public void ExposeToPrecipitation(PrecipitationLevel level, ILiquid liquid)
     {
         LiquidMixture mixture = new(liquid, LiquidVolumeFromPrecipitation(level), Gameworld);
+		using var exposure = MudSharp.Magic.MagicalExposure.BeginExposure();
+		using var delivery = new ExposureDeliveryScope(mixture.TotalVolume);
         List<IExternalBodypart> externalParts = Bodyparts.OfType<IExternalBodypart>().ToList();
         double sum = externalParts.Sum(x => x.RelativeHitChance);
         foreach (IExternalBodypart bodypart in Bodyparts.OfType<IExternalBodypart>())

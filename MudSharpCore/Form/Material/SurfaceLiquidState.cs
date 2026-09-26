@@ -54,16 +54,29 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 	private readonly IFuturemud _gameworld;
 	private readonly Action? _changed;
 	private readonly List<SurfaceResidue> _residues = new();
+	private int _liquidNotificationDepth;
+	private sealed class LiquidNotificationScope(SurfaceLiquidState state) : IDisposable
+	{
+		public void Dispose() => state._liquidNotificationDepth--;
+	}
+	private IDisposable DeferLiquidNotifications()
+	{
+		_liquidNotificationDepth++;
+		return new LiquidNotificationScope(this);
+	}
+	private void LiquidChanged() { if (_liquidNotificationDepth == 0) _changed?.Invoke(); }
 
-	public SurfaceLiquidState(IFuturemud gameworld, Action? changed = null)
+	public SurfaceLiquidState(IFuturemud gameworld, Action? changed = null, Action? beforeMutation = null)
 	{
 		_gameworld = gameworld;
 		_changed = changed;
 		ContaminatingLiquid = LiquidMixture.CreateEmpty(gameworld);
+		ContaminatingLiquid.BeforeMutation = beforeMutation;
+		ContaminatingLiquid.OnLiquidMixtureChanged += _ => LiquidChanged();
 		LastResolvedUtc = DateTime.UtcNow;
 	}
 
-	public SurfaceLiquidState(IFuturemud gameworld, XElement? root, Action? changed = null) : this(gameworld, changed)
+	public SurfaceLiquidState(IFuturemud gameworld, XElement? root, Action? changed = null, Action? beforeMutation = null) : this(gameworld, changed, beforeMutation)
 	{
 		if (root is null)
 		{
@@ -78,6 +91,8 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 		if (root.Element("Mix") is { } mixRoot)
 		{
 			ContaminatingLiquid = new LiquidMixture(mixRoot, gameworld);
+			ContaminatingLiquid.BeforeMutation = beforeMutation;
+			ContaminatingLiquid.OnLiquidMixtureChanged += _ => LiquidChanged();
 		}
 
 		foreach (var element in root.Element("Residues")?.Elements("Residue") ?? Enumerable.Empty<XElement>())
@@ -144,6 +159,7 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 
 	public void AddLiquid(LiquidMixture liquid)
 	{
+		using var notifications = DeferLiquidNotifications();
 		if (liquid.IsEmpty)
 		{
 			return;
@@ -187,19 +203,20 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 
 	public LiquidMixture? RemoveLiquidVolume(double volume)
 	{
+		using var notifications = DeferLiquidNotifications();
 		if (volume <= 0.0 || ContaminatingLiquid.IsEmpty)
 		{
 			return null;
 		}
 
 		var removed = ContaminatingLiquid.RemoveLiquidVolume(Math.Min(volume, ContaminatingLiquid.TotalVolume));
-		LastResolvedUtc = DateTime.UtcNow;
 		_changed?.Invoke();
 		return removed;
 	}
 
 	public bool CleanWithLiquid(LiquidMixture? liquid, double amount)
 	{
+		using var notifications = DeferLiquidNotifications();
 		if (liquid is null || liquid.IsEmpty || amount <= 0.0)
 		{
 			return false;
@@ -264,6 +281,7 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 
 	public void Dry(double amount, bool roomSurface = false)
 	{
+		using var notifications = DeferLiquidNotifications();
 		if (!DryInternal(amount, roomSurface))
 		{
 			return;
@@ -274,14 +292,15 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 	}
 
 	public bool ResolveDrying(TimeSpan interval, double minimumDryVolume, double dryFraction, bool roomSurface = false,
-		int maxTicks = 24)
+		int maxTicks = 24, DateTime? utcNow = null)
 	{
+		using var notifications = DeferLiquidNotifications();
 		if (ContaminatingLiquid.IsEmpty || interval <= TimeSpan.Zero || maxTicks <= 0)
 		{
 			return false;
 		}
 
-		var now = DateTime.UtcNow;
+		var now = utcNow ?? DateTime.UtcNow;
 		var elapsed = now - LastResolvedUtc;
 		if (elapsed <= TimeSpan.Zero)
 		{
@@ -412,15 +431,18 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 			return false;
 		}
 
-		var dried = Math.Min(amount, ContaminatingLiquid.TotalVolume);
-		var total = ContaminatingLiquid.TotalVolume;
-		var ratios = ContaminatingLiquid.Instances
+		var candidates = ContaminatingLiquid.Instances.Where(x =>
+			x.Liquid is not Liquid { HazardPersistence: RetainedHazardPersistence.UntilRemoved }).ToArray();
+		var total = candidates.Sum(x => x.Amount);
+		if (total <= 0) return false;
+		var dried = Math.Min(amount, total);
+		var ratios = candidates
 			.Select(x => (Instance: x, Ratio: x.Amount / total))
 			.ToList();
 
-		ContaminatingLiquid.RemoveLiquidVolume(dried);
 		foreach (var (instance, ratio) in ratios)
 		{
+			ContaminatingLiquid.RemoveLiquidVolume(instance, dried * ratio);
 			if (instance.Liquid.DriedResidue is null)
 			{
 				continue;
@@ -437,7 +459,7 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 		return true;
 	}
 
-	private void AddResidue(ISolid material, ILiquid originalLiquid, double weight)
+	public void AddResidue(ISolid material, ILiquid? originalLiquid, double weight)
 	{
 		if (weight <= 0.0 || double.IsNaN(weight))
 		{

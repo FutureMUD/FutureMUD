@@ -9,8 +9,9 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Health.Wounds;
 
-public class HealingSimpleWound : PerceivedItem, IWound
+public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
 {
+	public string ExposureKey { get; set; }
     private SurgicalProcedureType? _scarSurgicalProcedureType;
     private int _scarSurgeryCheckDegrees;
     private IBody _ownerBody;
@@ -26,7 +27,7 @@ public class HealingSimpleWound : PerceivedItem, IWound
     }
 
     public HealingSimpleWound(IFuturemud gameworld, IHaveWounds owner, double damage, DamageType damageType,
-        IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin, ICharacter actorOrigin)
+        IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin, ICharacter actorOrigin, IBody ownerBody = null)
     {
         if (owner == null)
         {
@@ -40,7 +41,7 @@ public class HealingSimpleWound : PerceivedItem, IWound
 #endif
         Gameworld = gameworld;
         _parent = owner;
-        _ownerBody = (owner as ICharacter)?.Body;
+        _ownerBody = ownerBody ?? (owner as ICharacter)?.Body;
         _currentDamage = Math.Max(0.0,
             Math.Min(damage * bodypart.DamageModifier, (_ownerBody ?? CharacterParent.Body).HitpointsForBodypart(bodypart)));
         _originalDamage = _currentDamage;
@@ -99,6 +100,7 @@ public class HealingSimpleWound : PerceivedItem, IWound
     public string SaveExtras()
     {
         return new XElement("Definition",
+			ExposureKey is null ? null : new XElement("ExposureKey", ExposureKey),
             new XElement("DamageDescription", _damageDescription),
             new XElement("BleedStatus", (int)BleedStatus),
             new XElement("Tended", (int)_tended),
@@ -390,6 +392,7 @@ public class HealingSimpleWound : PerceivedItem, IWound
         _toolOriginId = wound.ToolOriginId ?? 0;
         RealTimeOfWound = wound.RealTimeOfWound;
         XElement root = XElement.Parse(wound.ExtraInformation ?? "<Empty/>");
+		ExposureKey = (string)root.Element("ExposureKey");
         IsFriendlyWound = bool.Parse(root.Element("IsFriendlyWound")?.Value ?? "false");
         if (int.TryParse(root.Element("ScarSurgicalProcedureType")?.Value, out int scarSurgeryType) &&
             scarSurgeryType >= 0)
@@ -443,6 +446,12 @@ public class HealingSimpleWound : PerceivedItem, IWound
         _unsuccessfulTreatmentAttempts = 0;
         Changed = true;
     }
+
+	public void SufferAdditionalExposureDamage(IDamage damage)
+	{
+		SufferAdditionalDamage(new Damage(damage) { DamageAmount = Math.Max(0, damage.DamageAmount * Bodypart.DamageModifier) });
+		_damageDescription = SimpleOrganicWound.GetWoundDescription(DamageType, Severity);
+	}
 
     public void OnWoundSuffered()
     {

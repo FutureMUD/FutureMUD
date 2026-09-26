@@ -1417,6 +1417,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public void Add(ICharacter actor, bool isNPC)
     {
+		MudSharp.Form.Material.EnvironmentalExposureService.TrackExisting(this, actor);
         if (!_actors.Has(actor))
         {
             _actors.Add(actor);
@@ -1451,6 +1452,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Add(IGameItem item)
     {
         _items.Add(item);
+		MudSharp.Form.Material.EnvironmentalExposureService.TrackExisting(this, item);
     }
 
     public void Add(ICellOverlayPackage package)
@@ -2462,6 +2464,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public void Destroy(ICharacter actor)
     {
+		MudSharp.Form.Material.EnvironmentalExposureService.ForgetExisting(this, actor);
         _actors.Remove(actor);
         if (_characters.Remove(actor))
         {
@@ -2483,6 +2486,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public void Destroy(IGameItem item)
     {
+		MudSharp.Form.Material.EnvironmentalExposureService.ForgetExisting(this, item);
         _items.Remove(item);
         DestroyListeners(item);
     }

@@ -34,6 +34,7 @@ public class CellOverlay : SaveableItem, IEditableCellOverlay
         get => _atmosphere;
         set
         {
+			using var exposureChange = EnvironmentalExposureService.ChangingEnvironment(Cell);
             _atmosphere = value;
             Changed = true;
         }
@@ -210,6 +211,7 @@ public class CellOverlay : SaveableItem, IEditableCellOverlay
         get => _terrain;
         set
         {
+			using var exposureChange = EnvironmentalExposureService.ChangingEnvironment(Cell);
             _terrain = value;
             _atmosphere = _terrain?.Atmosphere;
 			if (Cell.CurrentOverlay == this)

@@ -39,7 +39,8 @@ public sealed record SeederMetadata(
     string? RerunSummary = null,
     string? UpdateSummary = null,
     string? OwnershipSummary = null,
-    IReadOnlyCollection<Type>? DependencySeederTypes = null)
+    IReadOnlyCollection<Type>? DependencySeederTypes = null,
+    IReadOnlyCollection<Type>? OrderAfterSeederTypes = null)
 {
     public IReadOnlyCollection<Type> RequiredSeederTypes => DependencySeederTypes ?? Array.Empty<Type>();
 

@@ -383,7 +383,6 @@ public partial class Cell
         ICharacter character = voyeur as ICharacter;
         StringBuilder descSubSB = new();
         IWeatherEvent weather = CurrentWeather(voyeur);
-        ResolveRoomWeatherExposure(voyeur);
 
         sb.AppendLine(HowSeen(voyeur, proper, DescriptionType.Short, colour, flags));
         if (character?.IsAdministrator() == true)

@@ -6,6 +6,7 @@ namespace MudSharp.Form.Material
 {
     public interface IFluid : IMaterial
     {
+		System.Collections.Generic.IEnumerable<IEnvironmentalReaction> EnvironmentalReactions => System.Array.Empty<IEnvironmentalReaction>();
         ANSIColour DisplayColour { get; }
         double Viscosity { get; }
         double SmellIntensity { get; }

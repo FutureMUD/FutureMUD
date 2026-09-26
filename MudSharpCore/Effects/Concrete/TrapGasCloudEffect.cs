@@ -24,10 +24,11 @@ public sealed class TrapGasCloudEffect : Effect
 		RegisterFactory("TrapGasCloud", (effect, owner) => new TrapGasCloudEffect(effect, owner));
 	}
 
-	public TrapGasCloudEffect(ICell owner, IGas gas, double dosePerTick, RoomLayer layer, string echo, double magicVolumePerTick = 1.0)
+	public TrapGasCloudEffect(ICell owner, IGas gas, double dosePerTick, RoomLayer layer, string echo, double magicVolumePerTick = 1.0, double contactStrength = 1.0)
 		: base(owner)
 	{
 		GasId = gas.Id;
+		ContactStrength = double.IsFinite(contactStrength) ? Math.Clamp(contactStrength, 0, 1) : 0;
 		MagicVolumePerTick = MudSharp.Magic.SubstanceDose.IsPositive(magicVolumePerTick) ? magicVolumePerTick : 0;
 		DosePerTick = Math.Max(0.0, dosePerTick);
 		Layer = layer;
@@ -38,6 +39,9 @@ public sealed class TrapGasCloudEffect : Effect
 		: base(root, owner)
 	{
 		var effect = root.Element("Effect")!;
+		SourceIdentity = Guid.TryParse((string?)effect.Element("SourceIdentity"), out var identity) ? identity : Guid.NewGuid();
+		ContactStrength = double.TryParse((string?)effect.Element("ContactStrength"), System.Globalization.NumberStyles.Float,
+			System.Globalization.CultureInfo.InvariantCulture, out var strength) && double.IsFinite(strength) ? Math.Clamp(strength, 0, 1) : 0;
 		GasId = long.Parse(effect.Element("GasId")!.Value);
 		MagicVolumePerTick = (double?)effect.Element("MagicVolumePerTick") ?? 1.0;
 		DosePerTick = double.Parse(effect.Element("DosePerTick")?.Value ?? "0");
@@ -46,6 +50,8 @@ public sealed class TrapGasCloudEffect : Effect
 	}
 
 	public long GasId { get; }
+	public Guid SourceIdentity { get; private set; } = Guid.NewGuid();
+	public double ContactStrength { get; private set; } = 1.0;
 	public double MagicVolumePerTick { get; }
 	public double DosePerTick { get; }
 	public RoomLayer Layer { get; }
@@ -58,6 +64,7 @@ public sealed class TrapGasCloudEffect : Effect
 	protected override XElement SaveDefinition()
 	{
 		return new XElement("Effect",
+			new XElement("SourceIdentity", SourceIdentity), new XElement("ContactStrength", ContactStrength),
 			new XElement("GasId", GasId),
 			new XElement("MagicVolumePerTick", MagicVolumePerTick),
 			new XElement("DosePerTick", DosePerTick),
@@ -97,6 +104,7 @@ public sealed class TrapGasCloudEffect : Effect
 
 	private void Subscribe()
 	{
+		if (Owner is ICell cell) EnvironmentalExposureService.For(Gameworld).RefreshCell(cell);
 		if (_subscribed)
 		{
 			return;
@@ -128,6 +136,9 @@ public sealed class TrapGasCloudEffect : Effect
 
 		foreach (ICharacter character in cell.LayerCharacters(Layer).Where(x => x.NeedsToBreathe && x.CanBreathe))
 		{
+			if (MudSharp.Health.Breathing.BreathingStrategyHelper.HasWorkingSupply(character.Body) ||
+				EnvironmentalExposureService.For(Gameworld).LastBreathWasSupplied(character.Body) ||
+				EnvironmentalExposureService.For(Gameworld).LastBreathWasSuppressed(character.Body)) continue;
 			if (CanDose(Gas, DosePerTick)) character.Body.Dose(drug!, DrugVector.Inhaled, DosePerTick, this);
 			MudSharp.Magic.MagicalExposure.Carrier(character, MudSharp.Magic.SubstanceCarrier.Gas, GasId, MagicVolumePerTick, DrugVector.Inhaled);
 		}

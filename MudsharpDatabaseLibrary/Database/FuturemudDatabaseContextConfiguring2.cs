@@ -3557,6 +3557,7 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<Gas>(entity =>
             {
+				entity.Property(e => e.SurfaceReactionInfo).HasColumnType("mediumtext").IsRequired(false);
                 entity.HasIndex(e => e.CountAsId)
                     .HasDatabaseName("FK_Gases_Gases_idx");
 
@@ -4906,7 +4907,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.SpecificHeatCapacity).HasDefaultValueSql("'4181'");
 
                 entity.Property(e => e.SurfaceReactionInfo)
-                    .HasColumnType("text")
+                    .HasColumnType("mediumtext")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 

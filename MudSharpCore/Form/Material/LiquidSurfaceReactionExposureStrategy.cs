@@ -23,7 +23,7 @@ public sealed class LiquidSurfaceReactionExposureStrategy : ILiquidExposureStrat
 				return;
 			case IBody body:
 				LiquidSurfaceReactionHelper
-					.ApplyToCharacter(body.Actor, bodyparts ?? body.Bodyparts.OfType<IExternalBodypart>(), mixture)
+					.ApplyToBody(body, bodyparts ?? body.Bodyparts.OfType<IExternalBodypart>(), mixture)
 					.ProcessPassiveWounds();
 				return;
 		}
@@ -31,7 +31,7 @@ public sealed class LiquidSurfaceReactionExposureStrategy : ILiquidExposureStrat
 
 	public void Dry(IPerceivable owner, LiquidMixture driedLiquid, IEnumerable<IExternalBodypart>? bodyparts = null)
 	{
-		Expose(owner, driedLiquid, LiquidExposureDirection.Irrelevant, bodyparts);
+		// Drying and inspection never create a new contact dose.
 	}
 }
 

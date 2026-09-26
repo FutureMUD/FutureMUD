@@ -514,6 +514,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
         get => _isOpen;
         protected set
         {
+			using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.Changing(Parent);
             _isOpen = value;
             Changed = true;
         }

@@ -1,11 +1,11 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.Framework.Units;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
 
 namespace MudSharp.Form.Material;
 
-public class Solid : Material, ISolid
+public partial class Solid : Material, ISolid
 {
     public Solid(MudSharp.Models.Material material, IFuturemud gameworld)
         : base(material, gameworld)
@@ -19,6 +19,7 @@ public class Solid : Material, ISolid
         ShearFracture = material.ShearFracture ?? 0;
         ShearYield = material.ShearYield ?? 0;
         ShearStrainAtYield = material.ShearStrainAtYield ?? 100;
+		ExposureProperties = MaterialExposureProperties.Load(material.ExposureInfo);
         HeatDamagePoint = material.HeatDamagePoint;
         YoungsModulus = material.YoungsModulus ?? 0;
         IgnitionPoint = material.IgnitionPoint;
@@ -262,6 +263,7 @@ public class Solid : Material, ISolid
             dbnew.BehaviourType = (int)BehaviourType;
             dbnew.Density = Density;
             dbnew.ElectricalConductivity = ElectricalConductivity;
+            dbnew.ExposureInfo = ExposureProperties.Save();
             dbnew.HeatDamagePoint = HeatDamagePoint;
             dbnew.IgnitionPoint = IgnitionPoint;
             dbnew.ImpactFracture = ImpactFracture;
@@ -429,11 +431,17 @@ public class Solid : Material, ISolid
             }
         }
 
+        sb.AppendLine($"Transmission liquid/gas/thermal: {ExposureProperties.LiquidTransmission:P0}/{ExposureProperties.GasTransmission:P0}/{ExposureProperties.ThermalTransmission:P0}; soak fraction/s: {ExposureProperties.SoakPerSecond:N3}");
+		sb.AppendLine($"Thermal slope/cap: {ExposureProperties.ThermalSlope?.ToString("N3", actor) ?? "world default"}/{ExposureProperties.ThermalCap?.ToString("N3", actor) ?? "world default"} (damage/s/Celsius degree; damage/s)");
+		sb.AppendLine($"Ambient intensity prog: {(ExposureProperties.ThermalIntensityProgId is { } progId ? Gameworld.FutureProgs.Get(progId)?.Name ?? $"missing #{progId} (inactive)" : "none")}");
         return sb.ToString();
     }
 
     /// <inheritdoc />
     protected override string HelpText => $@"{base.HelpText}
+	#3transmission liquid|gas|thermal|soak <fraction>#0 - fraction passed through this material (0-1)
+	#3thermalresponse slope|cap <number>|default#0 - damage per second per Celsius degree, or maximum damage per second
+	#3thermalresponse intensity <prog>|none#0 - bounded ambient heat strength hook
 	#3alias add <text>#0 - adds an alias for this material
 	#3alias remove <text>#0 - removes an alias from this material
 	#3alias clear#0 - removes all aliases from this material
@@ -457,8 +465,11 @@ public class Solid : Material, ISolid
     /// <inheritdoc />
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
+		using var exposureChange = EnvironmentalExposureService.For(Gameworld).DefinitionsChanging();
         switch (command.PopForSwitch())
         {
+			case "transmission": return BuildingCommandTransmission(actor, command);
+			case "thermalresponse": return BuildingCommandThermalResponse(actor, command);
             case "alias":
                 return BuildingCommandAlias(actor, command);
             case "impactyield":
@@ -959,6 +970,7 @@ public class Solid : Material, ISolid
         dbitem.ShearFracture = ShearFracture;
         dbitem.ShearStrainAtYield = ShearStrainAtYield;
         dbitem.ShearYield = ShearYield;
+        dbitem.ExposureInfo = ExposureProperties.Save();
         dbitem.HeatDamagePoint = HeatDamagePoint;
         dbitem.YoungsModulus = YoungsModulus;
         dbitem.IgnitionPoint = IgnitionPoint;

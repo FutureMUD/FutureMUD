@@ -151,6 +151,7 @@ public class ImplantLiquidContainerGameItemComponent : ImplantBaseGameItemCompon
         get => _liquidMixture;
         set
         {
+            using var exposureChange = EnvironmentalExposureService.Changing(Parent);
             _liquidMixture = value;
             Changed = true;
         }

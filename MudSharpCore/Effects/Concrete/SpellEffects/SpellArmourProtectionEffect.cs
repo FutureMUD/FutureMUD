@@ -32,6 +32,10 @@ public class SpellArmourProtectionEffect : SimpleSpellStatusEffectBase, IMagicAr
 	public MagicArmourConfiguration ArmourConfiguration { get; }
 	public double TotalDamageAbsorbed { get; protected set; }
 
+	public IDamage PreviewDamage(IDamage damage) => Owner is ICharacter character
+		? ArmourType.AbsorbDamageViaSpell(damage, ArmourConfiguration.ArmourMaterial, Quality, character, true).PassedOn
+		: damage;
+
 	protected override XElement SaveDefinition()
 	{
 		var root = SimpleSaveDefinition(new XElement("TotalDamageAbsorbed", TotalDamageAbsorbed));
@@ -69,9 +73,9 @@ public class SpellArmourProtectionEffect : SimpleSpellStatusEffectBase, IMagicAr
 
 		(IDamage passOn, IDamage self) = ArmourType.AbsorbDamageViaSpell(damage, ArmourConfiguration.ArmourMaterial,
 			Quality, character, true);
-		TotalDamageAbsorbed += passOn?.DamageAmount ?? 0.0;
+		TotalDamageAbsorbed += Math.Max(0.0, (self?.DamageAmount ?? 0.0) - (passOn?.DamageAmount ?? 0.0));
 		CheckDamageAbsorbed();
-		return self;
+		return passOn!;
 	}
 
 	public IDamage PassiveSufferDamage(IDamage damage, ref List<IWound> wounds)
@@ -83,9 +87,9 @@ public class SpellArmourProtectionEffect : SimpleSpellStatusEffectBase, IMagicAr
 
 		(IDamage passOn, IDamage self) = ArmourType.AbsorbDamageViaSpell(damage, ArmourConfiguration.ArmourMaterial,
 			Quality, character, true);
-		TotalDamageAbsorbed += passOn?.DamageAmount ?? 0.0;
+		TotalDamageAbsorbed += Math.Max(0.0, (self?.DamageAmount ?? 0.0) - (passOn?.DamageAmount ?? 0.0));
 		CheckDamageAbsorbed();
-		return self;
+		return passOn!;
 	}
 
 	public void ProcessPassiveWound(IWound wound)

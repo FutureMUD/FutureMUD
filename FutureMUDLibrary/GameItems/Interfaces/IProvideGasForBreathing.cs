@@ -22,7 +22,7 @@ namespace MudSharp.GameItems.Interfaces
         /// Consumes gas from the breathing device
         /// </summary>
         /// <param name="volume">The volume (at sea level) of the gas to consume</param>
-        /// <returns>True if the gas is not empty after this consumption</returns>
+        /// <returns>True if the requested breath was supplied, including one that exactly empties the source.</returns>
         bool ConsumeGas(double volume);
 
         bool WaterTight { get; }

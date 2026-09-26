@@ -1,4 +1,4 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Units;
 using MudSharp.FutureProg.Variables;
@@ -8,7 +8,7 @@ using MudSharp.Models;
 
 namespace MudSharp.Form.Material;
 
-public class Gas : Fluid, IGas
+public partial class Gas : Fluid, IGas
 {
     public Gas(MudSharp.Models.Gas gas, IFuturemud gameworld) : base(gas, gameworld)
     {
@@ -25,6 +25,7 @@ public class Gas : Fluid, IGas
         Drug = Gameworld.Drugs.Get(gas.DrugId ?? 0);
         DrugGramsPerUnitVolume = gas.DrugGramsPerUnitVolume;
         OxidationFactor = gas.OxidationFactor;
+		LoadExposureReactions(gas.SurfaceReactionInfo);
     }
 
     public Gas(string name, IFuturemud gameworld) : base(name, MaterialBehaviourType.Gas, gameworld)
@@ -55,6 +56,7 @@ public class Gas : Fluid, IGas
                 Viscosity = Viscosity,
                 DrugId = Drug?.Id,
                 DrugGramsPerUnitVolume = DrugGramsPerUnitVolume,
+                SurfaceReactionInfo = SaveExposureReactions(),
                 OxidationFactor = OxidationFactor
             };
             FMDB.Context.Gases.Add(dbitem);
@@ -65,6 +67,7 @@ public class Gas : Fluid, IGas
 
     public Gas(Gas rhs, string newName) : base(rhs, newName, MaterialBehaviourType.Gas)
     {
+		LoadExposureReactions(rhs.SaveExposureReactions());
         _countsAsId = rhs._countsAsId;
         _liquidFormId = rhs._liquidFormId;
         CondensationTemperature = rhs.CondensationTemperature;
@@ -92,6 +95,7 @@ public class Gas : Fluid, IGas
                 Viscosity = Viscosity,
                 DrugId = Drug?.Id,
                 DrugGramsPerUnitVolume = DrugGramsPerUnitVolume,
+                SurfaceReactionInfo = SaveExposureReactions(),
                 OxidationFactor = OxidationFactor
             };
             FMDB.Context.Gases.Add(dbitem);
@@ -353,6 +357,7 @@ public class Gas : Fluid, IGas
     public override void Save()
     {
         Models.Gas dbitem = FMDB.Context.Gases.Find(Id);
+		dbitem.SurfaceReactionInfo = SaveExposureReactions();
         dbitem.Organic = Organic;
         dbitem.Description = MaterialDescription;
         dbitem.SpecificHeatCapacity = SpecificHeatCapacity;
@@ -390,7 +395,7 @@ public class Gas : Fluid, IGas
     #region Overrides of Fluid
 
     /// <inheritdoc />
-    protected override string HelpText => $@"{base.HelpText}
+    protected override string HelpText => $@"{base.HelpText}{ExposureReactionBuilder.Help}
 	#3countsas <gas>#0 - sets a gas that this counts as
 	#3countsas none#0 - clears a counts-as gas
 	#3quality <quality>#0 - sets the maximum quality of the gas when counting-as
@@ -403,8 +408,10 @@ public class Gas : Fluid, IGas
     /// <inheritdoc />
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
+		using var exposureChange = ExposureReactionBuilder.IsDiagnostic(command) ? null : EnvironmentalExposureService.For(Gameworld).DefinitionsChanging();
         switch (command.PopForSwitch())
         {
+			case "reaction": return BuildingCommandExposure(actor, command);
             case "countsas":
             case "counts":
             case "count":
@@ -636,6 +643,7 @@ public class Gas : Fluid, IGas
             }
         }
 
+        sb.AppendLine(ExposureReactionBuilder.Show(_exposureReactions, actor, true));
         return sb.ToString();
     }
 

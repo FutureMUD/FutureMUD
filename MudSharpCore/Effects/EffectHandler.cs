@@ -58,6 +58,7 @@ public class EffectHandler : IEffectHandler
 
     public void AddEffect(IEffect effect)
     {
+		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.Changing(Parent);
         if (!_effects.Contains(effect))
         {
             _effects.Add(effect);
@@ -90,6 +91,7 @@ public class EffectHandler : IEffectHandler
 
     public void RemoveEffect(IEffect effect, bool fireRemovalAction = false)
     {
+		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.Changing(Parent);
         if (fireRemovalAction)
         {
             effect.RemovalEffect();

@@ -53,10 +53,10 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 
     public BoneFracture(IFuturemud gameworld, IHaveWounds owner, double damage, double pain, double stun,
         DamageType damageType, IBodypart bodypart, IGameItem toolOrigin,
-        ICharacter actorOrigin) : this(gameworld)
+        ICharacter actorOrigin, IBody ownerBody = null) : this(gameworld)
     {
         _parent = (ICharacter)owner ?? throw new ArgumentNullException(nameof(owner));
-        _ownerBody = _parent.Body;
+        _ownerBody = ownerBody ?? _parent.Body;
         CurrentDamage = Math.Min(damage * bodypart.DamageModifier, _ownerBody.HitpointsForBodypart(bodypart));
         OriginalDamage = Math.Min(damage * bodypart.DamageModifier, _ownerBody.HitpointsForBodypart(bodypart));
         CurrentPain = pain * bodypart.PainModifier;

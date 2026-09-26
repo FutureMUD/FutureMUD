@@ -379,6 +379,7 @@ internal static class DebugSeederReplayProfiles
 		[
 			Step<CoreDataSeeder>(
 				("gamename", gameName),
+				("environmentalexposure", "no"),
 				("account", "Admin"),
 				("password", DebugPassword),
 				("email", "debug-replay@futuremud.com")),
@@ -503,7 +504,8 @@ internal static class DebugSeederReplayProfiles
 				("model", "full"),
 				("random", "static"),
 				("messagestyle", "sparse")),
-			Step<PsionicsSeeder>(("install-psionics", "yes"))
+			Step<PsionicsSeeder>(("install-psionics", "yes")),
+			Step<EnvironmentalExposureSeeder>(("natural", "yes"), ("fantasy", "yes"))
 		]);
 	}
 

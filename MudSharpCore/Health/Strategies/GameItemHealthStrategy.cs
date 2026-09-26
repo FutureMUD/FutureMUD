@@ -72,7 +72,13 @@ public class GameItemHealthStrategy : BaseHealthStrategy
             ];
         }
 
-        IWound existing = owner.Wounds.FirstOrDefault(x => x.DamageType == damage.DamageType);
+		if (damage.ExposureContext is not null)
+			return ContinuousExposureDamage.Accumulate(owner, damage, packet =>
+				new SimpleWound(owner.Gameworld, owner, packet.DamageAmount, packet.DamageType, null, null,
+					packet.ToolOrigin, packet.ActorOrigin), bodyModifiers: false);
+
+        IWound existing = owner.Wounds.FirstOrDefault(x => x.DamageType == damage.DamageType &&
+			x is not IContinuousExposureWound { ExposureKey: not null });
         if (existing != null && Dice.Roll(1, 6) == 1)
         {
             existing.SufferAdditionalDamage(damage);

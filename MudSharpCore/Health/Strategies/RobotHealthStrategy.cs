@@ -233,11 +233,9 @@ public class RobotHealthStrategy : BaseHealthStrategy
 
         IGameItem lodgedItem = CheckDamageLodges(damage) ? damage.LodgableItem : null;
 
-        return
-        [
-            new RobotWound(owner.Gameworld, owner, damage.DamageAmount, damage.StunAmount, damage.DamageType,
-                damage.Bodypart, lodgedItem, damage.ToolOrigin, damage.ActorOrigin)
-        ];
+		return ContinuousExposureDamage.Accumulate(owner, damage, packet =>
+			new RobotWound(owner.Gameworld, owner, packet.DamageAmount, packet.StunAmount, packet.DamageType,
+				packet.Bodypart, lodgedItem, packet.ToolOrigin, packet.ActorOrigin, ownerBody: packet.TargetBody));
     }
 
     public override void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)

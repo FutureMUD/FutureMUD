@@ -33,6 +33,7 @@ namespace MudSharp.Body
         ISurfaceContaminable
     {
         bool InventoryLoaded { get; }
+		IEnumerable<IGameItem> HeldOrWieldedItemsFor(IBodypart prototype);
         void LoadInventory(MudSharp.Models.Body body);
         bool InventoryChanged { get; set; }
         IEnumerable<IEntityDescriptionPattern> EntityDescriptionPatterns { get; }
@@ -138,6 +139,7 @@ namespace MudSharp.Body
         (List<ILimb> WorkingLegs, List<ILimb> NonWorkingLegs) GetLegInformation(bool ignoreAids);
         (List<ILimb> WorkingAppendages, List<ILimb> NonWorkingAppendages) GetArmAndAppendagesInformation();
         (double Coating, double Absorb) LiquidAbsorbtionAmounts { get; }
+		(double Coating, double Absorb) LiquidAbsorbtionAmountsForBodyparts(IEnumerable<IExternalBodypart> parts);
         ItemSaturationLevel SaturationLevel { get; }
         ItemSaturationLevel SaturationLevelForLiquid(LiquidInstance instance);
         ItemSaturationLevel SaturationLevelForLiquid(double total);

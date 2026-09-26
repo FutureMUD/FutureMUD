@@ -29,6 +29,7 @@ public class PartlessBreather : IBreathingStrategy
     {
         if (!CanBreathe(body))
         {
+			BreathingStrategyHelper.UnbreathableSample(body, BreathingFluid(body));
             if (body.HeldBreathTime <= TimeSpan.Zero)
             {
                 body.OutputHandler.Send("You can't breathe, and have begun to hold your breath.");

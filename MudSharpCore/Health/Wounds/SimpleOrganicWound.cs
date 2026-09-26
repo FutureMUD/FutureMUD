@@ -17,8 +17,9 @@ using MudSharp.Work.Projects.Impacts;
 
 namespace MudSharp.Health.Wounds;
 
-public class SimpleOrganicWound : PerceivedItem, IWound
+public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
 {
+	public string ExposureKey { get; set; }
     private BleedStatus _bleedStatus;
     private bool _cleanAttempted;
     private bool _cleaned;
@@ -100,7 +101,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
     public SimpleOrganicWound(IFuturemud gameworld, ICharacter owner, double damage, double pain, double stun,
         DamageType damageType, IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin,
-        ICharacter actorOrigin)
+        ICharacter actorOrigin, IBody ownerBody = null)
     {
         if (bodypart == null)
         {
@@ -109,7 +110,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
         Gameworld = gameworld;
         _parent = owner ?? throw new ArgumentNullException(nameof(owner));
-        _ownerBody = owner.Body;
+        _ownerBody = ownerBody ?? owner.Body;
         DamageType = damageType;
         _currentDamage = Math.Max(0.0,
             Math.Min(damage * bodypart.DamageModifier, (_ownerBody ?? CharacterParent.Body).HitpointsForBodypart(bodypart)));
@@ -131,7 +132,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
         {
             CheckForOrganBleeding();
         }
-        else if (owner.Race.BloodLiquid is null)
+        else if ((_ownerBody.Race ?? owner.Race).BloodLiquid is null)
         {
             _bleedStatus = BleedStatus.NeverBled;
         }
@@ -562,6 +563,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
         RealTimeOfWound = wound.RealTimeOfWound;
 
         XElement root = XElement.Parse(wound.ExtraInformation);
+		ExposureKey = (string)root.Element("ExposureKey");
         XElement element = root.Element("DamageDescription");
         if (element != null)
         {
@@ -634,6 +636,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
     public string SaveExtras()
     {
         return new XElement("Definition",
+			ExposureKey is null ? null : new XElement("ExposureKey", ExposureKey),
             new XElement("DamageDescription", _damageDescription),
             new XElement("Cleaned", _cleaned),
             new XElement("CleanAttempted", _cleanAttempted),
@@ -744,6 +747,21 @@ public class SimpleOrganicWound : PerceivedItem, IWound
         _tended = Outcome.None;
         _unsuccessfulTreatmentAttempts = 0;
     }
+
+	public void SufferAdditionalExposureDamage(IDamage damage)
+	{
+		SufferAdditionalDamage(new Damage(damage)
+		{
+			DamageAmount = Math.Max(0, damage.DamageAmount * Bodypart.DamageModifier),
+			PainAmount = Math.Max(0, damage.PainAmount * Bodypart.PainModifier),
+			StunAmount = Math.Max(0, damage.StunAmount * Bodypart.StunModifier)
+		});
+		_damageDescription = GetWoundDescription(DamageType, Severity);
+		if (Bodypart is IOrganProto) CheckForOrganBleeding();
+		else if (_ownerBody.Race.BloodLiquid is not null && ContinuousExposureDamage.BleedingFor(DamageType, Severity) == BleedStatus.Bleeding)
+			_bleedStatus = BleedStatus.Bleeding;
+		Changed = true;
+	}
 
     public bool UseDamagePercentageSeverities => false;
 

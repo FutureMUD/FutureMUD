@@ -59,8 +59,7 @@ public static class MagicalExposure
 	}
 	public static void Liquid(IPerceivable recipient, LiquidMixture mixture, DrugVector vector, bool surface = false)
 	{
-		if (recipient is IBody body) recipient = body.Actor;
-		if (recipient is not ICharacter && recipient is not IGameItem || mixture.IsEmpty) return;
+		if (recipient is not (ICharacter or IBody or IGameItem) || mixture.IsEmpty) return;
 		using var scope = BeginExposure();
 		foreach (var substance in recipient.Gameworld.MagicalSubstances.Where(x => x.Vectors.HasFlag(vector) &&
 			x.Bindings.Any(b => b.Carrier == SubstanceCarrier.Liquid && mixture.Instances.Any(i => i.Liquid.Id == b.Id)) && !x.ReadinessErrors.Any()))
@@ -83,13 +82,13 @@ public static class MagicalExposure
 	internal static void RetainedLiquidsChanged(IPerceivable target)
 	{
 		((target is ICharacter c ? c.Body : target) as ISurfaceContaminable)?.SurfaceLiquidChanged();
+		foreach (var effect in (target is IBody body ? body.Actor : target).EffectsOfType<SubstanceExposureEffect>().ToArray()) effect.RefreshRetainedDose();
 		if (target is IGameItem item && item.GetItemType<IPreparedFood>() is { } food) food.Changed = true;
 	}
 	public static bool HasLiquidPayload(LiquidMixture mixture, DrugVector vector) => mixture.Gameworld.MagicalSubstances?.Any(s =>
 		s.Vectors.HasFlag(vector) && !s.ReadinessErrors.Any() && s.Bindings.Any(b => b.Carrier == SubstanceCarrier.Liquid && mixture.Instances.Any(x => x.Liquid.Id == b.Id))) == true;
 	public static void Carrier(IPerceivable recipient, SubstanceCarrier carrier, long id, double amount, DrugVector vector)
 	{
-		if (recipient is IBody body) recipient = body.Actor;
 		if (!SubstanceDose.IsPositive(amount)) return;
 		using var scope = BeginExposure();
 		foreach (var substance in recipient.Gameworld.MagicalSubstances.Where(x => x.Vectors.HasFlag(vector) &&
@@ -106,6 +105,8 @@ public static class MagicalExposure
 	}
 	private static void DeliverParts(IPerceivable recipient, IMagicalSubstance substance, DrugVector vector, bool surface, List<Part> parts)
 	{
+		var sourceBody = recipient as IBody;
+		if (sourceBody is not null) recipient = sourceBody.Actor;
 		foreach (var entry in substance.Entries)
 		{
 			var spell = substance.Gameworld.MagicSpells.Get(entry.SpellId);
@@ -129,10 +130,10 @@ public static class MagicalExposure
 				if (spell.SpellEffects.All(x => x.IsInstantaneous)) continue;
 			}
 			var parent = recipient.EffectsOfType<SubstanceExposureEffect>().FirstOrDefault(x =>
-				x.SubstanceId == substance.Id && x.Entry.Key == entry.Key && entry.Stacking != SubstanceStacking.Independent);
+				x.SubstanceId == substance.Id && x.Entry.Key == entry.Key && x.SourceBodyId == (sourceBody?.Id ?? 0) && entry.Stacking != SubstanceStacking.Independent);
 			if (parent is null)
 			{
-				parent = new SubstanceExposureEffect(recipient, substance, entry);
+				parent = new SubstanceExposureEffect(recipient, substance, entry, sourceBody);
 				recipient.AddEffect(parent, TimeSpan.FromSeconds(1));
 			}
 			parent.AddExposure(eligible.Select(x => (x.Quantity, x.Charge)), vector, surface);

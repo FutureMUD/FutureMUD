@@ -7,10 +7,11 @@ namespace MudSharp.Body.Implementations;
 
 public partial class Body
 {
-	private SurfaceLiquidState? _surfaceLiquidState;
+	private BodySurfaceLiquidState? _surfaceLiquidState;
 	private bool _surfaceLiquidChanged;
 
-	public ISurfaceLiquidState SurfaceLiquidState => _surfaceLiquidState ??= new SurfaceLiquidState(Gameworld, SurfaceLiquidChanged);
+	public ISurfaceLiquidState SurfaceLiquidState => _surfaceLiquidState ??= new BodySurfaceLiquidState(Gameworld,
+		() => Bodyparts.OfType<IExternalBodypart>(), SurfaceLiquidChanged, beforeMutation: () => EnvironmentalExposureService.SettleExisting(this));
 
 	public void SurfaceLiquidChanged()
 	{
@@ -22,13 +23,13 @@ public partial class Body
 		_surfaceLiquidChanged = true;
 		Changed = true;
 		EnsureSurfaceContaminationEffect();
+		EnvironmentalExposureService.For(Gameworld).Track(this);
 	}
 
 	private void LoadSurfaceLiquidState(string? xml)
 	{
-		_surfaceLiquidState = string.IsNullOrWhiteSpace(xml)
-			? new SurfaceLiquidState(Gameworld, SurfaceLiquidChanged)
-			: new SurfaceLiquidState(Gameworld, XElement.Parse(xml), SurfaceLiquidChanged);
+		_surfaceLiquidState = new BodySurfaceLiquidState(Gameworld, () => Bodyparts.OfType<IExternalBodypart>(),
+			SurfaceLiquidChanged, string.IsNullOrWhiteSpace(xml) ? null : XElement.Parse(xml), () => EnvironmentalExposureService.SettleExisting(this));
 		var effectsChanged = EffectsChanged;
 		var changed = Changed;
 		EnsureSurfaceContaminationEffect();
@@ -44,6 +45,7 @@ public partial class Body
 
 	public void ResolveSurfaceLiquidDrying()
 	{
+		EnvironmentalExposureService.SettleExisting(this);
 		if (_surfaceLiquidState is null || _surfaceLiquidState.ContaminatingLiquid.IsEmpty)
 		{
 			return;

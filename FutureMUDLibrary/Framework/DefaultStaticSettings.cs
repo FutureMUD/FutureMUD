@@ -17,6 +17,23 @@ public static class DefaultStaticSettings
     public static readonly IReadOnlyDictionary<string, string> DefaultStaticConfigurations =
         new Dictionary<string, string>
         {
+			{ "EnvironmentalExposureMode", "Legacy" },
+			{ "EnvironmentalExposureLiquids", "true" },
+			{ "EnvironmentalExposureGases", "true" },
+			{ "EnvironmentalExposureInhalation", "true" },
+			{ "EnvironmentalExposureCloudStrengthCap", "1" },
+			{ "EnvironmentalExposureHeat", "true" },
+			{ "EnvironmentalExposureCharacters", "true" },
+			{ "EnvironmentalExposureItems", "true" },
+			{ "EnvironmentalExposureScale", "1" },
+			{ "EnvironmentalExposureInterval", "1" },
+			{ "EnvironmentalExposureSubstep", "0.25" },
+			{ "EnvironmentalExposureMaximumInterval", "60" },
+			{ "EnvironmentalExposureMinimumVolume", "0.000000001" },
+			{ "EnvironmentalExposureHeatSlope", "0.05" },
+			{ "EnvironmentalExposureHeatCap", "20" },
+			{ "EnvironmentalExposureSplashReferenceLitres", "0.1" },
+			{ "EnvironmentalExposureMessageInterval", "15" },
 			{ "EnablePsychometricImpressions", "false" },
 			{ "PsychometricImpressionEpoch", "0" },
 			{ "VNPCWitnessReportDelaySeconds", "0" },
@@ -1012,6 +1029,12 @@ public static class DefaultStaticSettings
 
     public static readonly IReadOnlyDictionary<string, string> DefaultStaticStrings = new Dictionary<string, string>
     {
+		{"EnvironmentalExposureWarning", "Contact with {0} can cause injury."},
+		{"EnvironmentalExposureContinuing", "You suffer from {0} exposure on your {1}."},
+		{"EnvironmentalExposureItemDeterioration", "{0} deteriorates from {1} exposure."},
+		{"EnvironmentalExposureExhausted", "The reacting {0} has been exhausted."},
+		{"EnvironmentalExposureProtection", "The treatment protects against {0} injury; physical contact still occurs."},
+		{"EnvironmentalExposureDiagnostic", "Environmental exposure: {0}"},
         {"DefaultCannotMountError", "@ attempt|attempts to mount $1, but #1 $1|reject|rejects %0."},
         {"DefaultDismountMessage", "@ dismount|dismounts from $1."},
         {"DefaultFormTransformationEcho", "@ transform|transforms into ^1."},

@@ -488,12 +488,10 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
 
         IGameItem lodgedItem = CheckDamageLodges(damage) ? damage.LodgableItem : null;
 
-        return new[]
-        {
-            new SimpleOrganicWound(owner.Gameworld, (ICharacter)owner, damage.DamageAmount, damage.PainAmount,
-                damage.StunAmount, damage.DamageType, damage.Bodypart, lodgedItem, damage.ToolOrigin,
-                damage.ActorOrigin)
-        };
+		return ContinuousExposureDamage.Accumulate(owner, damage, packet =>
+			new SimpleOrganicWound(owner.Gameworld, (ICharacter)owner, packet.DamageAmount, packet.PainAmount,
+				packet.StunAmount, packet.DamageType, packet.Bodypart, lodgedItem, packet.ToolOrigin,
+				packet.ActorOrigin, ownerBody: packet.TargetBody));
     }
 
     public override DirectHealthCostChannels SupportedDirectHealthCostChannels =>

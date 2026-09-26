@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
 using MudSharp.Combat;
@@ -2404,6 +2404,7 @@ public partial class Body
 
     public void Take(IGameItem item)
     {
+		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
         InventoryState oldState = InventoryState.Held;
         if (_wieldedItems.Any(x => x.Item1 == item))
         {
@@ -2612,6 +2613,7 @@ public partial class Body
 
     public void RemoveItem(IGameItem item)
     {
+		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
 #if DEBUG
         if (_wornItems.Any(x => x.Item1.Id == item.Id && x.Item1 != item))
         {
@@ -2951,6 +2953,7 @@ public partial class Body
 
     public void Wear(IGameItem item, IWearProfile profile, IEmote? playerEmote = null, bool silent = false)
     {
+		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
         if (!CanWear(item, profile))
         {
             if (!silent)

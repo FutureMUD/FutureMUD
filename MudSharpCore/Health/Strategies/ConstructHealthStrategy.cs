@@ -143,11 +143,9 @@ public class ConstructHealthStrategy : BaseHealthStrategy
 
         IGameItem lodgedItem = CheckDamageLodges(damage) ? damage.LodgableItem : null;
 
-        return
-        [
-            new SimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, damage.Bodypart,
-                lodgedItem, damage.ToolOrigin, damage.ActorOrigin)
-        ];
+		return ContinuousExposureDamage.Accumulate(owner, damage, packet =>
+			new SimpleWound(owner.Gameworld, owner, packet.DamageAmount, packet.DamageType, packet.Bodypart,
+				lodgedItem, packet.ToolOrigin, packet.ActorOrigin, ownerBody: packet.TargetBody), bodyModifiers: false);
     }
 
     public override HealthTickResult PerformHealthTick(IHaveWounds thing)

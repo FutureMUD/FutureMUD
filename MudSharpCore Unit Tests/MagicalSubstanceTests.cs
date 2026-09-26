@@ -78,12 +78,67 @@ public class MagicalSubstanceTests
 		{ var result = new All<T>(); foreach (var item in items) result.Add(item); return result; }
 	}
 	[TestMethod]
+	public void N11_LocalisedDelivery_PreservesOneActivationAndOriginalRetainedLots()
+	{
+		var f = new Fixture();
+		f.Substance.SetupGet(x => x.ReferenceDose).Returns(10);
+		f.Entry.MinimumDose = 1;
+		var parts = Enumerable.Range(1, 4).Select(id => Mock.Of<IExternalBodypart>(x => x.Id == id && x.RelativeHitChance == 1)).ToArray();
+		var state = new BodySurfaceLiquidState(f.World.Object, () => parts, () => { });
+		f.Body.SetupGet(x => x.SurfaceLiquidState).Returns(state);
+		var delivered = f.Mix(10);
+		using (MagicalExposure.BeginExposure())
+			foreach (var part in parts)
+			{
+				var portion = delivered.RemoveLiquidVolume(2.5)!;
+				MagicalExposure.Liquid(f.Body.Object, portion, DrugVector.Touched, true);
+				state.ForPart(part).AddLiquid(portion);
+			}
+		Assert.AreEqual(10, f.Stamina, 1e-9);
+		Assert.AreEqual(10, MagicalExposure.RetainedLiquids(f.Actor.Object).Sum(x => x.Quantity), 1e-9);
+		MagicalExposure.RetainedLiquidsChanged(f.Actor.Object);
+		MagicalExposure.RetainedLiquidsChanged(f.Actor.Object);
+		Assert.AreEqual(10, f.Stamina, 1e-9);
+		state.RemoveLiquidVolume(6);
+		Assert.AreEqual(4, MagicalExposure.RetainedLiquids(f.Actor.Object).Sum(x => x.Quantity), 1e-9);
+	}
+	[TestMethod]
 	public void Activation_FractionalSips_EqualWholeDoseAndDoNotUseCasterTraits()
 	{
 		var f = new Fixture();
 		for (var i = 0; i < 10; i++) MagicalExposure.Liquid(f.Actor.Object, f.Mix(0.1), DrugVector.Ingested);
 		Assert.AreEqual(10, f.Stamina, 1e-9);
 		Assert.IsFalse(f.Spell.CharacterKnowsSpell(f.Actor.Object)); Assert.IsTrue(f.Spell.ReadyForGame);
+	}
+	[TestMethod]
+	public void MaintainedExposureProtection_StaysWithDeliveredBodyAcrossActiveBodyChangeAndReload()
+	{
+		var f = new Fixture("<Effect type='exposureresistance'><Multiplier>0.25</Multiplier><Routes>1</Routes><Category>*</Category><Part>0</Part></Effect>");
+		f.Entry.Lifecycle = SubstanceLifecycle.Maintained;
+		f.Body.SetupGet(x => x.Id).Returns(22);
+		var alternate = new Mock<IBody>(); alternate.SetupGet(x => x.Id).Returns(44);
+		alternate.SetupGet(x => x.SurfaceLiquidState).Returns(new SurfaceLiquidState(f.World.Object));
+		f.Actor.SetupGet(x => x.Bodies).Returns(new[] { f.Body.Object, alternate.Object });
+		using (MagicalExposure.BeginExposure())
+		{
+			var mix = f.Mix(1); MagicalExposure.Liquid(f.Body.Object, mix, DrugVector.Touched, true);
+			f.Body.Object.SurfaceLiquidState.AddLiquid(mix);
+		}
+		var parent = f.Effects.OfType<SubstanceExposureEffect>().Single(); parent.Advance(TimeSpan.FromSeconds(1));
+		f.Actor.SetupGet(x => x.Body).Returns(alternate.Object);
+		parent.Advance(TimeSpan.FromSeconds(1));
+		var protection = f.Effects.OfType<SpellExposureResistanceEffect>().Single();
+		var context = new ExposureDamageContext(ExposureRoute.LiquidContact, ExposureSourceKind.Retained, "test", "chemical", "chemical", Guid.Empty, 1, 22);
+		Assert.AreEqual(0.25, protection.ExposureDamageMultiplier(context, null), 1e-8);
+		Assert.AreEqual(1, protection.ExposureDamageMultiplier(context with { TargetBodyId = 44 }, null));
+		Assert.AreEqual(1, protection.ExposureDamageMultiplier(context with { Route = ExposureRoute.Inhalation }, null));
+		var xml = parent.SaveToXml(new Dictionary<IEffect, TimeSpan> { [parent] = TimeSpan.FromSeconds(1) });
+		SubstanceExposureEffect.InitialiseEffectType(); SpellExposureResistanceEffect.InitialiseEffectType();
+		var loaded = (SubstanceExposureEffect)Effect.LoadEffect(XElement.Parse(xml.ToString()), f.Actor.Object);
+		Assert.AreEqual(22L, loaded.SourceBodyId);
+		loaded.RemovalEffect();
+		Assert.IsTrue(f.Body.Object.SurfaceLiquidState.ContaminatingLiquid.Instances.Single().MagicalCharges[3].Suppressed.Contains(f.Entry.Key));
+		Assert.AreEqual(0, alternate.Object.SurfaceLiquidState.LiquidVolume);
 	}
 	[TestMethod]
 	public void Activation_TransferSpentLiquid_DoesNotActivateTwice()

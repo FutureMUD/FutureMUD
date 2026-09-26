@@ -1,6 +1,7 @@
 using MudSharp.Form.Material;
 using MudSharp.Health;
 using MudSharp.Magic;
+using MudSharp.Body;
 
 #nullable enable
 namespace MudSharp.Effects.Concrete;
@@ -26,21 +27,29 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 	private double _pulseElapsed;
 	private DateTime _lastTick = DateTime.UtcNow;
 	public long SubstanceId { get; private set; }
+	private IBody? _sourceBody;
+	public long SourceBodyId { get; private set; }
+	private IPerceivable? RetainedTarget => _sourceBody ?? (SourceBodyId > 0
+		? Owner is ICharacter actor ? _sourceBody = actor.Bodies.FirstOrDefault(x => x.Id == SourceBodyId) : null : Owner);
+	private IEnumerable<(LiquidInstance Instance, double Quantity)> RetainedLiquids => RetainedTarget is { } target
+		? MagicalExposure.RetainedLiquids(target) : Array.Empty<(LiquidInstance, double)>();
 	public SubstanceEffectEntry Entry { get; private set; }
 	public IMagicalSubstance? Substance => Gameworld.MagicalSubstances.Get(SubstanceId);
 	public double RemainingSeconds => !IsTimed ? 0 : _doses.Select(x => x.Remaining).DefaultIfEmpty().Max();
 	public static new void InitialiseEffectType() => RegisterFactory("SubstanceExposure", (xml, owner) => new SubstanceExposureEffect(xml, owner));
 	protected override string SpecificEffectType => "SubstanceExposure";
-	public SubstanceExposureEffect(IPerceivable owner, IMagicalSubstance substance, SubstanceEffectEntry entry)
+	public SubstanceExposureEffect(IPerceivable owner, IMagicalSubstance substance, SubstanceEffectEntry entry, IBody? sourceBody = null)
 		: base(owner, substance.Gameworld.MagicSpells.Get(entry.SpellId), null!, substance.Power)
 	{
 		SubstanceId = substance.Id;
+		_sourceBody = sourceBody; SourceBodyId = sourceBody?.Id ?? 0;
 		Entry = MagicalSubstance.LoadEntry(MagicalSubstance.SaveEntry(entry));
 	}
 	private SubstanceExposureEffect(XElement xml, IPerceivable owner) : base(xml, owner)
 	{
 		var root = xml.Element("Effect")!;
 		SubstanceId = (long)root.Element("Substance")!;
+		SourceBodyId = (long?)root.Element("SourceBody") ?? 0;
 		Entry = MagicalSubstance.LoadEntry(root.Element("Entry")!);
 		var indices = root.Element("TemplateIndices")?.Elements("Index").Select(x => (int)x).ToList() ?? [];
 		foreach (var pair in SpellEffects.Zip(indices)) _templateIndices[pair.First] = pair.Second;
@@ -56,6 +65,7 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 	protected override XElement SaveDefinition()
 	{
 		var root = base.SaveDefinition();
+		root.Add(new XElement("SourceBody", SourceBodyId));
 		root.Add(new XElement("TemplateIndices", SpellEffects.Select(x => new XElement("Index", _templateIndices.GetValueOrDefault(x, -1)))), new XElement("Substance", SubstanceId), MagicalSubstance.SaveEntry(Entry), new XElement("PulseElapsed", _pulseElapsed),
 			new XElement("AbsorptionElapsed", _absorptionElapsed), _doses.Select(d => new XElement("Dose", new XAttribute("quantity", d.Quantity),
 				new XAttribute("latent", d.Latent), new XAttribute("active", d.Active), new XAttribute("remaining", d.Remaining),
@@ -98,7 +108,7 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 	}
 	private List<SubstanceCharge> RetainedCharges(IEnumerable<SubstanceCharge> charges)
 	{
-		var lots = MagicalExposure.RetainedLiquids(Owner)
+		var lots = RetainedLiquids
 			.Where(x => x.Instance.MagicalCharges.ContainsKey(SubstanceId))
 			.Select(x => x.Instance.MagicalCharges[SubstanceId].Lot).ToHashSet();
 		return charges.Where(x => lots.Contains(x.Lot)).DistinctBy(x => x.Lot).ToList();
@@ -107,7 +117,7 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 		Entry.Lifecycle == SubstanceLifecycle.Periodic && Entry.PulseMode == SubstancePulseMode.Timed;
 	private double SurfaceQuantity(Contribution d)
 	{
-		return MagicalExposure.RetainedLiquids(Owner).Sum(x =>
+		return RetainedLiquids.Sum(x =>
 			x.Instance.MagicalCharges.TryGetValue(SubstanceId, out var charge) && d.Charges.Any(c => c.Lot == charge.Lot) && !charge.Suppressed.Contains(Entry.Key)
 				? x.Quantity * (Substance?.Bindings.FirstOrDefault(b => b.Carrier == SubstanceCarrier.Liquid && b.Id == x.Instance.Liquid.Id)?.QuantityPerUnit ?? 0) : 0);
 	}
@@ -144,6 +154,10 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 			Owner.AddEffect(child); AddSpellEffect(child); _templateIndices[child] = index;
 		}
 	}
+	internal void RefreshRetainedDose()
+	{
+		if (!_updating && !IsTimed && _doses.Any(x => x.Surface)) ReconcileChildren(CurrentDose());
+	}
 	public override void ExpireEffect()
 	{
 		var now = DateTime.UtcNow;
@@ -155,7 +169,7 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 	{
 		if (Substance is not { } substance || SubstanceSpellResolver.Errors(Spell, Entry).Any()) { EndNaturally(); return; }
 		if (_doses.Any(x => x.Surface))
-			((Owner is ICharacter c ? c.Body : Owner) as ISurfaceContaminable)?.ResolveSurfaceLiquidDrying();
+			((RetainedTarget is ICharacter c ? c.Body : RetainedTarget) as ISurfaceContaminable)?.ResolveSurfaceLiquidDrying();
 		var elapsed = Math.Clamp(interval.TotalSeconds, 0, 10);
 		_absorptionElapsed += elapsed; _pulseElapsed += elapsed;
 		foreach (var d in _doses)
@@ -200,11 +214,11 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 	private void Suppress()
 	{
 		foreach (var charge in _doses.SelectMany(x => x.Charges)) charge.Suppressed.Add(Entry.Key);
-		var surface = (Owner is ICharacter c ? c.Body : Owner) as ISurfaceContaminable;
+		var surface = (RetainedTarget is ICharacter c ? c.Body : RetainedTarget) as ISurfaceContaminable;
 		if (surface is null) return;
-		foreach (var (instance, _) in MagicalExposure.RetainedLiquids(Owner))
+		foreach (var (instance, _) in RetainedLiquids)
 			if (instance.MagicalCharges.TryGetValue(SubstanceId, out var charge) && _doses.Any(x => x.Charges.Any(c => c.Lot == charge.Lot))) charge.Suppressed.Add(Entry.Key);
-		MagicalExposure.RetainedLiquidsChanged(Owner);
+		if (RetainedTarget is { } target) MagicalExposure.RetainedLiquidsChanged(target);
 	}
 	public override void RemovalEffect()
 	{

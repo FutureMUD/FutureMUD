@@ -1282,13 +1282,16 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		}
 
 		var magicVolume = 1.0;
+		var contactStrength = 1.0;
+		if (payload.Parameters.TryGetValue("contactstrength", out var strengthText) &&
+			(!TrapParameterValidation.TryParseFiniteDouble(strengthText, out contactStrength) || contactStrength < 0 || contactStrength > 1)) return;
 		if (payload.Parameters.TryGetValue("volume", out var volumeText) &&
 			(!TrapParameterValidation.TryParseFiniteDouble(volumeText, out magicVolume) || magicVolume <= 0)) return;
 		dose *= PayloadQualityMultiplier;
 		var echo = payload.Parameters.TryGetValue("cloudecho", out var cloudEcho)
 			? cloudEcho
 			: "A cloud of gas billows out.";
-		cell.AddEffect(new TrapGasCloudEffect(cell, gas, dose, target?.RoomLayer ?? Owner.RoomLayer, echo, magicVolume), duration);
+		cell.AddEffect(new TrapGasCloudEffect(cell, gas, dose, target?.RoomLayer ?? Owner.RoomLayer, echo, magicVolume, contactStrength), duration);
 	}
 
 	private void ExecuteRestraintPayload(ITrapPayload payload, ICharacter target)

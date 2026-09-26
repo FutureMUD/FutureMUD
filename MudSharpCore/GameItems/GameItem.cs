@@ -2358,6 +2358,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         {
 			MudSharp.Magic.PsychometricRecorder.MergeHistory(this, otherItem);
             thisStackable.Quantity += thatStackable.Quantity;
+            NotifyStockItemMerge(otherItem);
             return;
         }
 
@@ -2367,6 +2368,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         {
 			MudSharp.Magic.PsychometricRecorder.MergeHistory(this, otherItem);
             thisCurrency.AddCoins(thatCurrency.Coins);
+            NotifyStockItemMerge(otherItem);
             return;
         }
 
@@ -2377,9 +2379,21 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 			MudSharp.Magic.PsychometricRecorder.MergeHistory(this, otherItem);
             thisCommodity.Weight += thatCommodity.Weight;
             thisCommodity.MergeSpoilageFrom(thatCommodity);
+            NotifyStockItemMerge(otherItem);
             return;
         }
         // TODO - anything else that might occur on merging?
+    }
+
+    private void NotifyStockItemMerge(IGameItem absorbed)
+    {
+        foreach (var display in absorbed.EffectsOfType<ItemOnDisplayInShop>())
+        {
+            if (AffectedBy<ItemOnDisplayInShop>(display.Merchandise))
+            {
+                display.Shop.RegisterStockItemMerge(this, absorbed);
+            }
+        }
     }
 
     public IEnumerable<IGameItemComponent> Components => _components;
@@ -2610,13 +2624,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         ICommodity commodity = GetItemType<ICommodity>();
         if (commodity != null)
         {
-            IGameItem newItem = CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag,
-                commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
+            IGameItem newItem = new GameItem(this, temporary: false, preserveMorphTime: true);
             newItem.RoomLayer = RoomLayer;
-            newItem.CopyOwnerFrom(this);
-            newItem.OverrideSdesc = OverrideSdesc;
-            newItem.OverrideDesc = OverrideDesc;
-            newItem.GetItemType<ICommodity>().CopySpoilageFrom(commodity);
+            newItem.GetItemType<ICommodity>().Weight = weight;
+            CopyStockDisplayToSplit(newItem);
             commodity.Weight -= weight;
             newItem.Get(getter);
             newItem.Login();
@@ -2625,6 +2636,18 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         }
 
         return Get(getter, (int)Math.Ceiling(weight / (Weight / Quantity)));
+    }
+
+    internal void CopyStockDisplayToSplit(IGameItem split)
+    {
+        foreach (var display in EffectsOfType<ItemOnDisplayInShop>())
+        {
+            if (display.Merchandise is { } merchandise && !split.AffectedBy<ItemOnDisplayInShop>(merchandise))
+            {
+                split.AddEffect(new ItemOnDisplayInShop(split, display.Shop, merchandise));
+                display.Shop.RegisterStockItemSplit(this, split);
+            }
+        }
     }
 
     public IGameItem PeekSplitByWeight(double weight)
@@ -2640,14 +2663,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             return PeekSplit((int)Math.Ceiling(weight / (Weight / Quantity)));
         }
 
-        IGameItem newItem =
-            CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag,
-                commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
+        IGameItem newItem = new GameItem(this, temporary: true, preserveMorphTime: true);
         newItem.RoomLayer = RoomLayer;
-        newItem.CopyOwnerFrom(this);
-        newItem.OverrideSdesc = OverrideSdesc;
-        newItem.OverrideDesc = OverrideDesc;
-        newItem.GetItemType<ICommodity>().CopySpoilageFrom(commodity);
+        newItem.GetItemType<ICommodity>().Weight = weight;
         return newItem;
     }
 

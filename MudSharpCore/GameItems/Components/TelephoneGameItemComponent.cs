@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Construction.Grids;
@@ -215,6 +216,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool CanConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         if (!FreeConnections.Any() || !other.FreeConnections.Any())
         {
             return false;
@@ -226,6 +232,12 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public void Connect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         ConnectorType? connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
         {
@@ -248,6 +260,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!FreeConnections.Any())
         {
             return
@@ -273,11 +290,22 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool CanDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         return _connectedItems.Any(x => x.Item2 == other);
     }
 
     public void Disconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         RawDisconnect(other, true);
     }
 
@@ -299,6 +327,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         return _connectedItems.All(x => x.Item2 != other)
             ? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
             : $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";
@@ -592,6 +625,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         if (setting.Equals("on", StringComparison.InvariantCultureIgnoreCase))
         {
             return !_switchedOn;
@@ -618,6 +656,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out _))
         {
             return $"{Parent.HowSeen(actor, true)} is already set to {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()}.";
@@ -636,6 +679,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public virtual bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             return false;
@@ -667,6 +715,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool CanPickUp(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_isOffHook && _currentCall == null)
         {
             error = "That telephone is already off the hook.";
@@ -691,6 +744,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool PickUp(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanPickUp(actor, out error))
         {
             return false;
@@ -717,6 +775,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool CanDial(ICharacter actor, string number, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_currentCall?.IsConnected == true)
         {
             return CanSendDigits(actor, number, out error);
@@ -752,6 +815,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool Dial(ICharacter actor, string number, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_currentCall?.IsConnected == true)
         {
             return SendDigits(actor, number, out error);
@@ -769,6 +837,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool CanSendDigits(ICharacter actor, string digits, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_currentCall?.IsConnected != true)
         {
             error = "That telephone is not connected to a live call.";
@@ -793,6 +866,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool SendDigits(ICharacter actor, string digits, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanSendDigits(actor, digits, out error))
         {
             return false;
@@ -806,6 +884,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool CanAnswer(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!_isRinging || _currentCall == null)
         {
             error = "That telephone is not ringing.";
@@ -824,6 +907,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool Answer(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanAnswer(actor, out error))
         {
             return false;
@@ -834,6 +922,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool CanHangUp(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_currentCall == null && !_isOffHook)
         {
             error = "That telephone is not currently in use.";
@@ -846,6 +939,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public bool HangUp(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanHangUp(actor, out error))
         {
             return false;

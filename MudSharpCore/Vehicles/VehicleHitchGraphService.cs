@@ -290,6 +290,12 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 			return false;
 		}
 
+		if (!ItemManipulationGuard.CanManipulate(actor, out reason, sourceVehicle.ExteriorItem, targetVehicle.ExteriorItem) ||
+		    hitchItem is not null && !ItemManipulationGuard.CanManipulate(actor, out reason, hitchItem))
+		{
+			return false;
+		}
+
 		if (sourceVehicle.IsDisabledByDamage(VehicleDamageEffectTargetType.TowPoint, sourceTowPoint.Id))
 		{
 			reason = $"{sourceTowPoint.Name} is disabled because {sourceVehicle.DamageDisabledReason(VehicleDamageEffectTargetType.TowPoint, sourceTowPoint.Id)}.";
@@ -376,6 +382,12 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 		}
 
 		if (!RequiredAccessAvailable(actor, targetVehicle, targetTowPoint, out reason))
+		{
+			return false;
+		}
+
+		if (!ItemManipulationGuard.CanManipulate(actor, out reason, targetVehicle.ExteriorItem) ||
+		    hitchItem is not null && !ItemManipulationGuard.CanManipulate(actor, out reason, hitchItem))
 		{
 			return false;
 		}

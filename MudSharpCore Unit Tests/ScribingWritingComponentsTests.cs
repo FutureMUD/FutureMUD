@@ -90,6 +90,8 @@ public class ScribingWritingComponentsTests
 	[TestMethod]
 	public void InscribableSurface_UsesConfiguredImplementTypesAndCapacity()
 	{
+		var actor = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
 		var gameworld = CreateGameworld(CreateColour(ColourId, "black"));
 		var proto = CreateInscribableSurfaceProto(gameworld.Object, 20, WritingImplementType.Stylus);
 		var surface = (InscribableSurfaceGameItemComponent)proto.CreateNew(CreateParent(gameworld.Object, 10L));
@@ -99,15 +101,15 @@ public class ScribingWritingComponentsTests
 		var shortWriting = CreateWriting(11L, 10).Object;
 		var longWriting = CreateWriting(12L, 25).Object;
 
-		Assert.IsTrue(surface.CanWrite(Mock.Of<ICharacter>(), stylus.Object, shortWriting));
-		Assert.IsFalse(surface.CanWrite(Mock.Of<ICharacter>(), quill.Object, shortWriting));
-		Assert.IsFalse(surface.CanWrite(Mock.Of<ICharacter>(), spentStylus.Object, shortWriting));
-		Assert.IsFalse(surface.CanWrite(Mock.Of<ICharacter>(), stylus.Object, longWriting));
+		Assert.IsTrue(surface.CanWrite(actor.Object, stylus.Object, shortWriting));
+		Assert.IsFalse(surface.CanWrite(actor.Object, quill.Object, shortWriting));
+		Assert.IsFalse(surface.CanWrite(actor.Object, spentStylus.Object, shortWriting));
+		Assert.IsFalse(surface.CanWrite(actor.Object, stylus.Object, longWriting));
 
 		var stackedSurface =
 			(InscribableSurfaceGameItemComponent)proto.CreateNew(CreateParent(gameworld.Object, 11L, quantity: 2));
 
-		Assert.IsFalse(stackedSurface.CanWrite(Mock.Of<ICharacter>(), stylus.Object, shortWriting));
+		Assert.IsFalse(stackedSurface.CanWrite(actor.Object, stylus.Object, shortWriting));
 	}
 
 	[TestMethod]

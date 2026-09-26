@@ -1,4 +1,5 @@
-﻿using MudSharp.Construction;
+﻿using MudSharp.GameItems;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Events;
@@ -556,6 +557,22 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
 
     public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
+        if (emptier is not null)
+        {
+            var targets = intoContainer is null ? new[] { Parent } : new[] { Parent, intoContainer.Parent };
+            if (!ItemManipulationGuard.CanManipulate(emptier, out var reason, targets))
+            {
+				emptier.Send(reason);
+				return;
+            }
+
+            if (Contents.Any(x => !CanTake(emptier, x, 0)))
+            {
+				emptier.Send("You cannot empty that container while some of its contents cannot be taken.");
+				return;
+            }
+        }
+
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         _contents.Clear();
@@ -778,6 +795,11 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
 
     public bool CanInsert(ICharacter actor, IGameItem item)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, item))
+		{
+			return false;
+		}
+
         if (item?.IsItemType<ICurrencyPile>() != true)
         {
             return false;
@@ -788,6 +810,11 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
 
     public bool Insert(ICharacter actor, IGameItem item, IEmote playerEmote, bool silent = false)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, item))
+		{
+			return false;
+		}
+
         if (!CanInsert(actor, item))
         {
             actor.Send(WhyCannotInsert(actor, item));
@@ -835,6 +862,11 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
 
     public bool Select(ICharacter character, string argument, IEmote playerEmote, bool silent)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!SwitchedOn)
         {
             character.Send(
@@ -890,6 +922,11 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
 
     public bool CanSelect(ICharacter character, string argument)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out _, Parent))
+		{
+			return false;
+		}
+
         if (argument.Equals("refund", StringComparison.InvariantCultureIgnoreCase))
         {
             return true;

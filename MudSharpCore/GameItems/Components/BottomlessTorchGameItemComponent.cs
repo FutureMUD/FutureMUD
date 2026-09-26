@@ -1,4 +1,5 @@
-﻿using MudSharp.GameItems.Prototypes;
+﻿using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
 
@@ -35,11 +36,21 @@ public class BottomlessTorchGameItemComponent : TorchGameItemComponent
 
     public override bool CanLight(ICharacter lightee, IPerceivable ignitionSource)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out _, Parent))
+		{
+			return false;
+		}
+
         return !Lit;
     }
 
     public override string WhyCannotLight(ICharacter lightee, IPerceivable ignitionSource)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (Lit)
         {
             return $"You cannot light {Parent.HowSeen(lightee)} because it is already lit.";

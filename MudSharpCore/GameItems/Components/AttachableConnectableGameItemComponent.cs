@@ -1,4 +1,5 @@
-﻿using MudSharp.Construction;
+﻿using MudSharp.GameItems;
+using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 
 #nullable enable annotations
@@ -119,6 +120,11 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
 
     public bool CanConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         if (_connectedItem != null)
         {
             return false;
@@ -134,6 +140,12 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
 
     public void Connect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         _connectedItem = other;
         other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(_prototype.Connector)));
         Changed = true;
@@ -161,6 +173,11 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
 
     public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (_connectedItem != null)
         {
             return
@@ -186,12 +203,23 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
 
     public bool CanDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         // TODO - effects that prevent this
         return _connectedItem == other;
     }
 
     public void Disconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         RawDisconnect(other, true);
         if (actor.Body.CanGet(Parent, 0))
         {
@@ -218,6 +246,11 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         return _connectedItem != other
             ? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
             : $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";

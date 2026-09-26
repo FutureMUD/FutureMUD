@@ -1,4 +1,5 @@
-﻿using MudSharp.Body.Position;
+﻿using MudSharp.Movement;
+using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Heritage;
 using MudSharp.Construction.Boundary;
@@ -43,6 +44,11 @@ public partial class Character
 
     public bool CanBeMountedBy(ICharacter rider)
     {
+        if (!rider.ColocatedWith(this) || !rider.CanMove(CanMoveFlags.None))
+        {
+            return false;
+        }
+
         IMountableAI ai = (this as INPC)?.AIs.OfType<IMountableAI>().FirstOrDefault();
         if (ai is null)
         {
@@ -79,6 +85,17 @@ public partial class Character
 
     public string WhyCannotBeMountedBy(ICharacter rider)
     {
+        if (!rider.ColocatedWith(this))
+        {
+            return "You are too far away to mount that creature.";
+        }
+
+        var movement = rider.CanMove(CanMoveFlags.None);
+        if (!movement.Result)
+        {
+            return movement.ErrorMessage;
+        }
+
         IMountableAI ai = (this as INPC)?.AIs.OfType<IMountableAI>().FirstOrDefault();
         if (ai is null)
         {

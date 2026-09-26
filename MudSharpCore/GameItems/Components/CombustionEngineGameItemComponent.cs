@@ -1,3 +1,4 @@
+using MudSharp.GameItems;
 #nullable enable
 
 using MudSharp.Form.Audio;
@@ -75,6 +76,11 @@ public class CombustionEngineGameItemComponent : GameItemComponent, IVehicleEngi
 
 	public bool CanSwitch(ICharacter actor, string setting)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		if (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase))
 		{
 			return !SwitchedOn && HasFuel;
@@ -85,6 +91,11 @@ public class CombustionEngineGameItemComponent : GameItemComponent, IVehicleEngi
 
 	public string WhyCannotSwitch(ICharacter actor, string setting)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase))
 		{
 			return SwitchedOn
@@ -99,6 +110,11 @@ public class CombustionEngineGameItemComponent : GameItemComponent, IVehicleEngi
 
 	public bool Switch(ICharacter actor, string setting)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanSwitch(actor, setting))
 		{
 			return false;

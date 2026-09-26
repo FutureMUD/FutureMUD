@@ -156,6 +156,13 @@ public partial class Body
 
     public bool CanOpen(IOpenable openable)
     {
+        var manipulation = Actor.CanManipulateItem(openable.Parent);
+        if (!manipulation.Truth)
+        {
+            WhyCannotOpen = " " + manipulation.Message;
+            return false;
+        }
+
         if (HoldLocs.All(x => CanUseBodypart(x) != CanUseBodypartResult.CanUse))
         {
             WhyCannotOpen = $" you do not have any undamaged {WielderDescriptionPlural.ToLowerInvariant()}.";
@@ -206,6 +213,13 @@ public partial class Body
 
     public void Open(IOpenable openable, ICharacter openableOwner, IEmote playerEmote, bool useCouldLogic = false)
     {
+        if (!(useCouldLogic ? CouldOpen(openable) : CanOpen(openable)))
+        {
+            CanOpen(openable);
+            OutputHandler.Send($"You cannot open {openable.Parent.HowSeen(Actor)} because{WhyCannotOpen}");
+            return;
+        }
+
         if (useCouldLogic)
         {
             WhyCannotOpenReason why = openable.WhyCannotOpen(this);
@@ -265,7 +279,7 @@ public partial class Body
             OutputHandler.Handle(
                 new MixedEmoteOutput(new Emote("@ open|opens $0", this, openable.Parent)).Append(playerEmote));
             IDoor door = openable as IDoor;
-            door?.InstalledExit.Opposite(Location)
+            door?.InstalledExit?.Opposite(Location)
                 .Handle(new EmoteOutput(new Emote("@ is opened from the other side.", door.Parent)));
         }
         else
@@ -282,6 +296,11 @@ public partial class Body
 
     public bool CouldOpen(IOpenable openable)
     {
+        if (!Actor.CanManipulateItem(openable.Parent).Truth)
+        {
+            return false;
+        }
+
         if (CanOpen(openable))
         {
             return true;
@@ -320,6 +339,13 @@ public partial class Body
 
     public bool CanClose(IOpenable openable)
     {
+        var manipulation = Actor.CanManipulateItem(openable.Parent);
+        if (!manipulation.Truth)
+        {
+            WhyCannotClose = " " + manipulation.Message;
+            return false;
+        }
+
         if (HoldLocs.All(x => CanUseBodypart(x) != CanUseBodypartResult.CanUse))
         {
             WhyCannotClose = $" you do not have any undamaged {WielderDescriptionPlural.ToLowerInvariant()}.";
@@ -358,6 +384,12 @@ public partial class Body
 
     public void Close(IOpenable openable, ICharacter openableOwner, IEmote playerEmote)
     {
+        if (!CanClose(openable))
+        {
+            OutputHandler.Send($"You cannot close {openable.Parent.HowSeen(Actor)} because{WhyCannotClose}");
+            return;
+        }
+
         if (openableOwner == null)
         {
             OutputHandler.Handle(
@@ -365,7 +397,7 @@ public partial class Body
             if (openable is IDoor door)
             {
                 IEnumerable<ICellExit> allExit = Gameworld.ExitManager.GetAllExits(Location);
-                door.InstalledExit.Opposite(Location)
+                door.InstalledExit?.Opposite(Location)
                     .Handle(new EmoteOutput(new Emote("@ is closed from the other side.", door.Parent)));
             }
         }
@@ -385,6 +417,11 @@ public partial class Body
 
     public bool CanConnect(IConnectable connectable, IConnectable other)
     {
+        if (!ItemManipulationGuard.CanManipulate(Actor, out _, connectable?.Parent, other?.Parent))
+        {
+            return false;
+        }
+
         if (connectable == null || other == null)
         {
             return false;
@@ -413,6 +450,11 @@ public partial class Body
 
     public string WhyCannotConnect(IConnectable connectable, IConnectable other)
     {
+        if (!ItemManipulationGuard.CanManipulate(Actor, out var manipulationReason, connectable?.Parent, other?.Parent))
+        {
+            return manipulationReason;
+        }
+
         if (HoldLocs.All(x => CanUseBodypart(x) != CanUseBodypartResult.CanUse))
         {
             return
@@ -424,6 +466,11 @@ public partial class Body
 
     public bool CanDisconnect(IConnectable connectable, IConnectable other)
     {
+        if (!ItemManipulationGuard.CanManipulate(Actor, out _, connectable?.Parent, other?.Parent))
+        {
+            return false;
+        }
+
         if (connectable == null || other == null)
         {
             return false;
@@ -452,6 +499,11 @@ public partial class Body
 
     public string WhyCannotDisconnect(IConnectable connectable, IConnectable other)
     {
+        if (!ItemManipulationGuard.CanManipulate(Actor, out var manipulationReason, connectable?.Parent, other?.Parent))
+        {
+            return manipulationReason;
+        }
+
         if (HoldLocs.All(x => CanUseBodypart(x) != CanUseBodypartResult.CanUse))
         {
             return

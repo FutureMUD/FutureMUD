@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 
 using MudSharp.Computers;
 using MudSharp.Effects.Concrete;
@@ -136,6 +137,12 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 
 	public virtual bool TryConnectSession(ICharacter actor, out IComputerTerminalSession? session, out string error)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+		{
+			session = default;
+			return false;
+		}
+
 		session = null;
 		if (!SwitchedOn)
 		{
@@ -202,6 +209,11 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 
 	public bool TrySelectOwner(ICharacter actor, IComputerExecutableOwner owner, out string error)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+		{
+			return false;
+		}
+
 		var session = _sessions.FirstOrDefault(x => x.User == actor) as ComputerTerminalSession;
 		if (session is null)
 		{
@@ -223,6 +235,11 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 
 	public bool TryType(ICharacter actor, string text, out string error)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+		{
+			return false;
+		}
+
 		var session = _sessions.FirstOrDefault(x => x.User == actor);
 		if (session is null)
 		{
@@ -240,6 +257,11 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 
 	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		return _connectedHost is null &&
 		       other is IComputerHost &&
 		       other.FreeConnections.Any(x => x.CompatibleWith(ComputerConnectionTypes.TerminalPlug));
@@ -247,6 +269,12 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 
 	public void Connect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		if (!CanConnect(actor, other))
 		{
 			return;
@@ -266,6 +294,11 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 
 	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return _connectedHost is not null
 			? $"{Parent.HowSeen(actor)} is already connected to a computer host."
 			: $"{Parent.HowSeen(actor)} cannot connect to {other.Parent.HowSeen(actor)}.";
@@ -278,11 +311,22 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 
 	public bool CanDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		return ReferenceEquals(_connectedHost, other);
 	}
 
 	public void Disconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		RawDisconnect(other, true);
 	}
 
@@ -307,6 +351,11 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 
 	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return $"{Parent.HowSeen(actor)} is not connected to {other.Parent.HowSeen(actor)}.";
 	}
 

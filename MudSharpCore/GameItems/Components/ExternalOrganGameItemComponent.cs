@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+﻿using MudSharp.GameItems;
+using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 
@@ -352,6 +353,11 @@ public class ExternalOrganGameItemComponent : GameItemComponent, IExternalBloodO
 
     public bool CanConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         if (!FreeConnections.Any())
         {
             return false;
@@ -368,6 +374,12 @@ public class ExternalOrganGameItemComponent : GameItemComponent, IExternalBloodO
 
     public void Connect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         ConnectorType connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
         {
@@ -389,6 +401,11 @@ public class ExternalOrganGameItemComponent : GameItemComponent, IExternalBloodO
 
     public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!FreeConnections.Any())
         {
             return
@@ -414,11 +431,22 @@ public class ExternalOrganGameItemComponent : GameItemComponent, IExternalBloodO
 
     public bool CanDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         return _connectedItems.Any(x => x.Item2 == other);
     }
 
     public void Disconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         RawDisconnect(other, true);
     }
 
@@ -440,6 +468,11 @@ public class ExternalOrganGameItemComponent : GameItemComponent, IExternalBloodO
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         return _connectedItems.All(x => x.Item2 != other)
             ? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
             : $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";
@@ -541,6 +574,11 @@ public class ExternalOrganGameItemComponent : GameItemComponent, IExternalBloodO
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         // TODO - more reasons why something couldn't be switched on or off
         return (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase) && !SwitchedOn) ||
                (setting.StartsWith("off", StringComparison.InvariantCultureIgnoreCase) && SwitchedOn)
@@ -549,6 +587,11 @@ public class ExternalOrganGameItemComponent : GameItemComponent, IExternalBloodO
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase) && SwitchedOn)
         {
             return $"{Parent.HowSeen(actor)} is already on.";
@@ -580,6 +623,11 @@ public class ExternalOrganGameItemComponent : GameItemComponent, IExternalBloodO
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             return false;

@@ -512,6 +512,18 @@ internal class TrapModule : Module<ICharacter>
 		}
 
 		var (anchor, exit, trap) = result.Value;
+		if (!actor.CanPerformManualAction(out var reason))
+		{
+			actor.Send(reason);
+			return;
+		}
+		if (!AnchorStillAvailable(actor, anchor, exit) ||
+		    anchor is IGameItem item && !actor.CanManipulateItem(item).Truth)
+		{
+			actor.Send("You can no longer reach that trap.");
+			return;
+		}
+
 		if (!trap.IsKnownBy(actor))
 		{
 			actor.Send("You must first identify the trap before attempting to disarm it.");
@@ -538,6 +550,18 @@ internal class TrapModule : Module<ICharacter>
 
 		void Complete(IPerceivable _)
 		{
+		if (!actor.CanPerformManualAction(out var continuationReason))
+		{
+			actor.Send(continuationReason);
+			return;
+		}
+		if (!AnchorStillAvailable(actor, anchor, exit) ||
+		    anchor is IGameItem currentItem && !actor.CanManipulateItem(currentItem).Truth)
+		{
+			actor.Send("You can no longer reach that trap.");
+			return;
+		}
+
 			if (!anchor.EffectsOfType<TrapEffect>().Contains(trap) || trap.State != TrapState.Armed)
 			{
 				actor.Send("That trap is no longer available to disarm.");
@@ -579,8 +603,32 @@ internal class TrapModule : Module<ICharacter>
 		}
 
 		var (anchor, exit, trap) = result.Value;
+		if (!actor.CanPerformManualAction(out var reason))
+		{
+			actor.Send(reason);
+			return;
+		}
+		if (!AnchorStillAvailable(actor, anchor, exit) ||
+		    anchor is IGameItem item && !actor.CanManipulateItem(item).Truth)
+		{
+			actor.Send("You can no longer reach that trap.");
+			return;
+		}
+
 		void Complete(IPerceivable _)
 		{
+		if (!actor.CanPerformManualAction(out var continuationReason))
+		{
+			actor.Send(continuationReason);
+			return;
+		}
+		if (!AnchorStillAvailable(actor, anchor, exit) ||
+		    anchor is IGameItem currentItem && !actor.CanManipulateItem(currentItem).Truth)
+		{
+			actor.Send("You can no longer reach that trap.");
+			return;
+		}
+
 			if (!anchor.EffectsOfType<TrapEffect>().Contains(trap) || trap.State is not (TrapState.Disarmed or TrapState.Spent))
 			{
 				actor.Send("That disarmed trap is no longer available to recover.");

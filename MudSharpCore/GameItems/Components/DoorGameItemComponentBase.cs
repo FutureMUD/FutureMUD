@@ -350,6 +350,12 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 
 	public void Knock(ICharacter actor, IEmote? playerEmote = null)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		var targetExit = InstalledExit?.CellExitFor(actor.Location);
 		if (targetExit is null)
 		{

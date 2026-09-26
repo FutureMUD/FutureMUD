@@ -1086,7 +1086,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 					if (target.Body.CanWear(item, profile))
 					{
 						item.Get(null);
-						target.Body.Wear(item, profile, silent: true);
+						target.Body.WearExternally(item, profile);
 					}
 					else if (target.Body.CanGet(item, 0))
 					{
@@ -1146,10 +1146,10 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			}
 
 			var sheath = ResolveSheath(templateItem, createdItems, target, item);
-			if (target.Body.CanSheathe(item, sheath))
+			if (target.Body.CanSheatheExternally(item, sheath))
 			{
 				item.Get(null);
-				target.Body.Sheathe(item, sheath, silent: true);
+				target.Body.SheatheExternally(item, sheath);
 				continue;
 			}
 
@@ -1224,7 +1224,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 
 		return target.Body.ExternalItems
 		             .Where(x => x.IsItemType<ISheath>())
-		             .FirstOrDefault(x => target.Body.CanSheathe(item, x));
+		             .FirstOrDefault(x => target.Body.CanSheatheExternally(item, x));
 	}
 
 	private static string UniqueOutfitName(ICharacter target, string baseName)

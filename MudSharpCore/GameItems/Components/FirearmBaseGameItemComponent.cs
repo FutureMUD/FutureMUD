@@ -1,4 +1,5 @@
-﻿using MudSharp.Accounts;
+﻿using MudSharp.GameItems;
+using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
@@ -138,6 +139,11 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         switch (setting.ToLowerInvariant())
         {
             case "safe":
@@ -156,6 +162,11 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         switch (setting.ToLowerInvariant())
         {
             case "safe":
@@ -187,6 +198,11 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             actor.Send(WhyCannotSwitch(actor, setting));
@@ -282,6 +298,11 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
     /// <inheritdoc />
     public bool CanReady(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         if (WeaponType.RequiresFreeHandToReady &&
             readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
         {
@@ -293,6 +314,11 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     public string WhyCannotReady(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         if (WeaponType.RequiresFreeHandToReady &&
             readier.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < 2)
         {
@@ -305,6 +331,11 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     public bool Ready(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         if (!CanReady(readier))
         {
             readier.Send(WhyCannotReady(readier));
@@ -381,6 +412,12 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
     /// <inheritdoc />
     public virtual void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            actor?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
         if (!ReadyToFire)
         {
             actor.OutputHandler.Handle(new EmoteOutput(

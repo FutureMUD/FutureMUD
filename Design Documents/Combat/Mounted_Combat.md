@@ -6,6 +6,10 @@ Mounted combat is the shared shock-and-mobility layer for riders and controlled 
 
 The runtime entry point is `IMountedCombatService`. A combatant receives a mounted context only while they are the primary rider of an animal mount or the current controller and occupant of an intact, operational vehicle. A passenger or secondary rider cannot originate the conveyance's charge.
 
+## Mounting capability
+
+`CanBeMountedBy` requires rider/mount colocation and the rider's normal movement capability, with matching diagnostics. Mounting has no universal hand count; dismounting remains a release operation. Item manipulation while mounted combines manual capability and reach with existing mounted restrictions. See [Physical Manipulation Audit](../Items/Physical_Manipulation_Audit.md).
+
 ## Domains And Momentum
 
 The service classifies the conveyance at the moment the move resolves:

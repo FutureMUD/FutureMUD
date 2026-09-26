@@ -30,6 +30,10 @@ Stamina-to-fire, per-load-stage stamina, recovery delay, aim loss per shot, maga
 
 Modern breech-loading artillery and drop-fire mortars no longer inherit muzzle-loading linstock/fuse behaviour. Artillery loading performs the configured `ArtilleryLoadCheckDifficulty`; only a major failure aborts the loading action, while lesser failed outcomes complete with their normal time and stamina cost.
 
+### Runtime operator capability
+
+Actorful loading, readying, unloading, firing and unjamming validate manual capability and item access at the component boundary, including direct combat/runtime calls. Existing plans keep their free-hand, wielding, ammunition, breath and stamina requirements. Blowgun readying/firing checks reach and a functioning, uncovered mouth with breath; additional hands are governed by its authored readying requirement. Manual loading/unloading still needs manipulators. Projectile/ammunition flight, automatic triggers and releasing readiness remain exempt. Artillery command roles remain distinct from physical crew work. See [Physical Manipulation Audit](../Items/Physical_Manipulation_Audit.md).
+
 ### Damage and protection
 
 Projectile damage remains ammunition-led, allowing the same firearm to produce materially different results with ball, armour-piercing, expanding, buckshot, slug, or explosive ammunition. Impact-fused ammunition now resolves its detonator after the normal projectile impact, including when the projectile lodges in a target. High-explosive artillery projectiles are therefore not destroyed before their bomb component resolves.

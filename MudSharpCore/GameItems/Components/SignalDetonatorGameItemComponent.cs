@@ -1,3 +1,4 @@
+using MudSharp.GameItems;
 #nullable enable
 
 using MudSharp.Computers;
@@ -178,11 +179,21 @@ public class SignalDetonatorGameItemComponent : GameItemComponent, IArmableExplo
 
 	public bool CanArm(ICharacter actor, string argument)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		return !Armed && string.IsNullOrWhiteSpace(argument) && Parent.IsItemType<IDetonatable>();
 	}
 
 	public string WhyCannotArm(ICharacter actor, string argument)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (Armed) return $"{Parent.HowSeen(actor, true)} is already armed.";
 		if (!Parent.IsItemType<IDetonatable>()) return $"{Parent.HowSeen(actor, true)} has no explosive payload to detonate.";
 		if (!string.IsNullOrWhiteSpace(argument)) return "This signal detonator does not take an arming duration or datetime.";
@@ -191,6 +202,11 @@ public class SignalDetonatorGameItemComponent : GameItemComponent, IArmableExplo
 
 	public bool Arm(ICharacter actor, string argument, IEmote? playerEmote = null)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanArm(actor, argument))
 		{
 			actor.Send(WhyCannotArm(actor, argument));
@@ -212,11 +228,21 @@ public class SignalDetonatorGameItemComponent : GameItemComponent, IArmableExplo
 
 	public bool CanDisarm(ICharacter actor)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		return Armed && _prototype.CanBeDisarmed;
 	}
 
 	public string WhyCannotDisarm(ICharacter actor)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (!Armed) return $"{Parent.HowSeen(actor, true)} is not armed.";
 		return _prototype.CanBeDisarmed
 			? $"{Parent.HowSeen(actor, true)} cannot be disarmed at this time."
@@ -225,6 +251,11 @@ public class SignalDetonatorGameItemComponent : GameItemComponent, IArmableExplo
 
 	public bool Disarm(ICharacter actor, IEmote? playerEmote = null)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanDisarm(actor))
 		{
 			actor.Send(WhyCannotDisarm(actor));

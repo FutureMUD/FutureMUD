@@ -248,6 +248,11 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
     /// <returns>True if the butcher can butcher the item</returns>
     public bool CanButcher(ICharacter butcher, IGameItem targetItem)
     {
+        if (!ItemManipulationGuard.CanManipulate(butcher, out var reason, targetItem))
+        {
+            return false;
+        }
+
         if (targetItem.EffectsOfType<BeingButchered>().Any())
         {
             return false;
@@ -280,6 +285,11 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
     /// <returns>An error message</returns>
     public string WhyCannotButcher(ICharacter butcher, IGameItem targetItem)
     {
+        if (!ItemManipulationGuard.CanManipulate(butcher, out var reason, targetItem))
+        {
+            return reason;
+        }
+
         if (targetItem.EffectsOfType<BeingButchered>().Any())
         {
             return

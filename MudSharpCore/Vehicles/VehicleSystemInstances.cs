@@ -408,8 +408,7 @@ public class VehicleInstallation : FrameworkItem, IVehicleInstallation
 			}
 		}
 
-		reason = string.Empty;
-		return true;
+		return ItemManipulationGuard.CanManipulate(actor, out reason, item, Vehicle.ExteriorItem);
 	}
 
 	public bool Install(ICharacter actor, IGameItem item)
@@ -470,8 +469,7 @@ public class VehicleInstallation : FrameworkItem, IVehicleInstallation
 			}
 		}
 
-		reason = string.Empty;
-		return true;
+		return ItemManipulationGuard.CanManipulate(actor, out reason, InstalledItem, Vehicle.ExteriorItem);
 	}
 
 	public IGameItem? Remove(ICharacter actor)

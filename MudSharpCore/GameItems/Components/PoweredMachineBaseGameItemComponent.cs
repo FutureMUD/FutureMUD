@@ -1,4 +1,5 @@
-﻿using MudSharp.Form.Audio;
+﻿using MudSharp.GameItems;
+using MudSharp.Form.Audio;
 using MudSharp.GameItems.Prototypes;
 
 #nullable enable
@@ -223,6 +224,11 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         if (_prototype.Switchable)
         {
             return (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase) && !SwitchedOn) ||
@@ -235,6 +241,11 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!_prototype.Switchable)
         {
             return $"{Parent.HowSeen(actor)} is not something that can be switched to {setting}.";
@@ -267,6 +278,11 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             return false;

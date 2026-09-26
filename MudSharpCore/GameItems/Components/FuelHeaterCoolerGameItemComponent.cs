@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 using MudSharp.Form.Material;
 using MudSharp.GameItems.Prototypes;
 
@@ -192,6 +193,11 @@ public class FuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGameItem
 
     public bool CanConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         if (_connectedItems.Any() || !other.FreeConnections.Any(x => x.CompatibleWith(_prototype.Connector)) || !other.CanBeConnectedTo(this))
         {
             return false;
@@ -204,6 +210,12 @@ public class FuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGameItem
 
     public void Connect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         if (!CanConnect(actor, other))
         {
             return;
@@ -225,6 +237,11 @@ public class FuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGameItem
 
     public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (_connectedItems.Any())
         {
             return $"{Parent.HowSeen(actor)} is already connected to a fuel source.";
@@ -240,11 +257,22 @@ public class FuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGameItem
 
     public bool CanDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         return CanBeDisconnectedFrom(other);
     }
 
     public void Disconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         RawDisconnect(other, true);
     }
 
@@ -270,6 +298,11 @@ public class FuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGameItem
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         return !_connectedItems.Any(x => x.Item2 == other)
             ? $"{Parent.HowSeen(actor)} is not connected to that item."
             : string.Empty;

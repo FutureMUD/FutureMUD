@@ -6,6 +6,16 @@
 
 Firearm simulation copies preserve live ammunition, chamber, fire-mode, safety, and attachment state; explosive impact and trap integration are documented in [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
 
+## Physical manipulation and reach
+
+Ordinary manual actions require at least one current `IBody.HoldLocs` part for which `CanUseBodypart` succeeds. Occupied manipulators still count; inventory and weapon plans keep their stricter free-location requirements. Missing parts and restrained limbs fail at the body capability layer, including wield-only locations.
+
+`CanReachItem` follows containment and automation mount hosts, checking planar interaction, closed ancestor containers, inventory-owner proximity/permission, cell/layer or installed-door adjacency, and room guard access. External locks remain reachable on closed doors. `Character.CanManipulateItem` combines reach, manual capability and mounted restrictions. Eating, drinking, swallowing and bodypart-operated devices use reach with their own anatomy rules.
+
+Weight and currency retrieval validate actual sources before previews, splitting or debiting. Commodity previews are temporary. Splits preserve shop display identity for existing stock-loss hooks. `WearExternally`, `CanSheatheExternally` and `SheatheExternally` preserve fit checks for validated dressing of another body and system outfit placement; the recipient need not use its own hands.
+
+See [Physical Manipulation Audit](Physical_Manipulation_Audit.md) for all changed functions, exceptions and verification.
+
 ## Scope
 This document explains how the item system is structured in code and at runtime:
 

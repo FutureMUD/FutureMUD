@@ -123,6 +123,7 @@ public class StackableGameItemComponent : GameItemComponent, IStackable
         // partially purchased items do not reset their decay timers
         GameItem newItem = new((GameItem)Parent, temporary: false, preserveMorphTime: true);
         ((StackableGameItemComponent)newItem.GetItemType<IStackable>()).Quantity = quantity;
+        ((GameItem)Parent).CopyStockDisplayToSplit(newItem);
         TransferWeaponPoisonCoatingToSplit(newItem, quantity);
         Quantity -= quantity;
         return newItem;

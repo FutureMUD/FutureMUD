@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 
 using MudSharp.Computers;
 using MudSharp.Construction;
@@ -203,6 +204,11 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 
 	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		if (other is not INetworkAdapter && other is not INetworkInfrastructure)
 		{
 			return false;
@@ -216,6 +222,12 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 
 	public void Connect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		var connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
 		if (connection is null)
 		{
@@ -244,16 +256,32 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 
 	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return $"{Parent.HowSeen(actor)} has no compatible free network switch connection ports.";
 	}
 
 	public bool CanDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		return _connectedItems.Any(x => x.Item2 == other);
 	}
 
 	public void Disconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		RawDisconnect(other, true);
 	}
 
@@ -281,6 +309,11 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 
 	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return _connectedItems.All(x => x.Item2 != other)
 			? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
 			: $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";

@@ -1,4 +1,5 @@
-﻿using MudSharp.Communication.Language;
+﻿using MudSharp.GameItems;
+using MudSharp.Communication.Language;
 using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
@@ -134,11 +135,21 @@ public class RadioDetonatorGameItemComponent : GameItemComponent, IReceive, ICon
 
 	public bool CanArm(ICharacter actor, string argument)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		return !Armed && string.IsNullOrWhiteSpace(argument) && Parent.IsItemType<IDetonatable>();
 	}
 
 	public string WhyCannotArm(ICharacter actor, string argument)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (Armed)
 		{
 			return $"{Parent.HowSeen(actor, true)} is already armed.";
@@ -156,6 +167,11 @@ public class RadioDetonatorGameItemComponent : GameItemComponent, IReceive, ICon
 
 	public bool Arm(ICharacter actor, string argument, IEmote playerEmote = null)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanArm(actor, argument))
 		{
 			actor.Send(WhyCannotArm(actor, argument));
@@ -170,11 +186,21 @@ public class RadioDetonatorGameItemComponent : GameItemComponent, IReceive, ICon
 
 	public bool CanDisarm(ICharacter actor)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		return Armed;
 	}
 
 	public string WhyCannotDisarm(ICharacter actor)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		return Armed
 			? $"{Parent.HowSeen(actor, true)} cannot be disarmed at this time."
 			: $"{Parent.HowSeen(actor, true)} is not armed.";
@@ -182,6 +208,11 @@ public class RadioDetonatorGameItemComponent : GameItemComponent, IReceive, ICon
 
 	public bool Disarm(ICharacter actor, IEmote playerEmote = null)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanDisarm(actor))
 		{
 			actor.Send(WhyCannotDisarm(actor));
@@ -229,6 +260,11 @@ public class RadioDetonatorGameItemComponent : GameItemComponent, IReceive, ICon
 
     public bool CanSelect(ICharacter character, string argument)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out _, Parent))
+		{
+			return false;
+		}
+
         StringStack ss = new(argument);
         if (!ss.PopSpeech().EqualTo("code"))
         {
@@ -245,6 +281,11 @@ public class RadioDetonatorGameItemComponent : GameItemComponent, IReceive, ICon
 
     public bool Select(ICharacter character, string argument, IEmote playerEmote, bool silent = false)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         StringStack ss = new(argument);
         if (!ss.PopSpeech().EqualTo("code"))
         {
@@ -274,6 +315,11 @@ public class RadioDetonatorGameItemComponent : GameItemComponent, IReceive, ICon
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         // TODO - more reasons why something couldn't be switched on or off
         return (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase) && !SwitchedOn) ||
                (setting.StartsWith("off", StringComparison.InvariantCultureIgnoreCase) && SwitchedOn)
@@ -282,6 +328,11 @@ public class RadioDetonatorGameItemComponent : GameItemComponent, IReceive, ICon
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase) && SwitchedOn)
         {
             return $"{Parent.HowSeen(actor)} is already on.";
@@ -311,6 +362,11 @@ public class RadioDetonatorGameItemComponent : GameItemComponent, IReceive, ICon
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             return false;

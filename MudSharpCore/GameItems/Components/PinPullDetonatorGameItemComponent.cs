@@ -55,12 +55,22 @@ public class PinPullDetonatorGameItemComponent : DeadlineExplosiveTriggerGameIte
 
 	public bool CanPullPin(ICharacter actor)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		return !PinPulled && Parent.IsItemType<IDetonatable>() &&
 		       ExplosiveDeadlineScheduler.TryGetDeadline(RuntimeClock.UtcNow, _prototype.Delay, out _);
 	}
 
 	public string WhyCannotPullPin(ICharacter actor)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (PinPulled)
 		{
 			return $"The pin has already been pulled from {Parent.HowSeen(actor)}.";
@@ -78,6 +88,11 @@ public class PinPullDetonatorGameItemComponent : DeadlineExplosiveTriggerGameIte
 
 	public bool PullPin(ICharacter actor, IEmote? playerEmote = null)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanPullPin(actor))
 		{
 			actor.Send(WhyCannotPullPin(actor));

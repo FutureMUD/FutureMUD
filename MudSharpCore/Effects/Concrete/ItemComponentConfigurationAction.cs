@@ -119,6 +119,13 @@ public class ItemComponentConfigurationAction : CharacterActionWithTarget
 
 	public override void ExpireEffect()
 	{
+		if (!ItemManipulationGuard.CanManipulate(CharacterOwner, out var reason, Target as IGameItem, Tool))
+		{
+			CharacterOwner.Send(reason);
+			Owner.RemoveEffect(this, true);
+			return;
+		}
+
 		CurrentStage++;
 		if (CurrentStage < _totalStages)
 		{

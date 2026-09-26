@@ -1850,6 +1850,7 @@ public class GridSystemTests
     private static Mock<ICharacter> CreateCharacter(IFuturemud gameworld, long id, ICell location)
     {
         Mock<ICharacter> character = new();
+		PhysicalManipulationTestHelper.SetUpUsableHands(character);
         character.SetupGet(x => x.Id).Returns(id);
         character.SetupGet(x => x.Gameworld).Returns(gameworld);
         character.SetupGet(x => x.Location).Returns(location);

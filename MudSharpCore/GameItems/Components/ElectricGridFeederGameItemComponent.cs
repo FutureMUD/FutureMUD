@@ -1,4 +1,5 @@
-﻿using MudSharp.Construction.Grids;
+﻿using MudSharp.GameItems;
+using MudSharp.Construction.Grids;
 using MudSharp.GameItems.Prototypes;
 
 #nullable enable annotations
@@ -154,6 +155,11 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
 
     public bool CanConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         if (!FreeConnections.Any())
         {
             return false;
@@ -170,6 +176,12 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
 
     public void Connect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         ConnectorType connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
         {
@@ -191,6 +203,11 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
 
     public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!FreeConnections.Any())
         {
             return
@@ -216,11 +233,22 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
 
     public bool CanDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         return _connectedItems.Any(x => x.Item2 == other);
     }
 
     public void Disconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         RawDisconnect(other, true);
     }
 
@@ -242,6 +270,11 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         return _connectedItems.All(x => x.Item2 != other)
             ? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
             : $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";

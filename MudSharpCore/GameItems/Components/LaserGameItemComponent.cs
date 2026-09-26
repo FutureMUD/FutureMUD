@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+﻿using MudSharp.GameItems;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
 using MudSharp.Construction;
@@ -144,6 +145,11 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         if (PowerPack != null)
         {
             return false;
@@ -162,6 +168,11 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         if (PowerPack != null)
         {
             return $"There is already a clip in the magazine of {Parent.HowSeen(loader)}, you should eject that first.";
@@ -189,6 +200,12 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            loader?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
         if (!CanLoad(loader))
         {
             loader.Send(WhyCannotLoad(loader));
@@ -212,11 +229,21 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool CanUnload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         return PowerPack != null;
     }
 
     public string WhyCannotUnload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         if (PowerPack == null)
         {
             return $"{Parent.HowSeen(loader, true)} is already unloaded.";
@@ -227,6 +254,11 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public IEnumerable<IGameItem> Unload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return [];
+        }
+
         if (!CanUnload(loader))
         {
             loader.Send(WhyCannotUnload(loader));
@@ -253,17 +285,33 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool CanFire(ICharacter actor, IPerceivable target)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         return true;
     }
 
     public string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         throw new ApplicationException("Guns should always be able to fire.");
     }
 
     public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
         OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            actor?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
         if (!ReadyToFire)
         {
             actor.OutputHandler.Handle(new EmoteOutput(
@@ -302,6 +350,11 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool CanReady(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         if (IsReadied)
         {
             return false;
@@ -318,6 +371,11 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public string WhyCannotReady(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         if (IsReadied)
         {
             return $"{Parent.HowSeen(readier, true)} is already ready to fire, and does not need further readying.";
@@ -335,6 +393,11 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool Ready(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         if (!CanReady(readier))
         {
             readier.Send(WhyCannotReady(readier));
@@ -385,6 +448,11 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         switch (setting.ToLowerInvariant())
         {
             case "safe":
@@ -400,6 +468,11 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         switch (setting.ToLowerInvariant())
         {
             case "safe":
@@ -416,6 +489,11 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             actor.Send(WhyCannotSwitch(actor, setting));

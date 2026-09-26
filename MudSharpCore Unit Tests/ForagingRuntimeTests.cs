@@ -908,6 +908,7 @@ public class ForagingRuntimeTests
 			              It.IsAny<IReadOnlyDictionary<Difficulty, CheckOutcome>>(), "food"))
 		       .Returns(foragable.Object);
 		var character = new Mock<MudSharp.Character.ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(character);
 		character.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		character.SetupGet(x => x.Location).Returns(cell);
 		SimpleCharacterAction? action = null;

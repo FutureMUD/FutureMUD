@@ -1,4 +1,6 @@
-﻿using MudSharp.Communication;
+﻿using MudSharp.Body;
+using MudSharp.GameItems;
+using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
@@ -570,6 +572,12 @@ Style: {actor.WritingStyle.Describe().ColourValue()}
                 return;
             }
 
+            if (!ItemManipulationGuard.CanManipulate(actor, out var accessReason, target, implement.Parent))
+            {
+                handler.Send(accessReason);
+                return;
+            }
+
 			if (!BreakSealForAccess(actor, target, "graffiti"))
 			{
 				return;
@@ -585,6 +593,12 @@ Style: {actor.WritingStyle.Describe().ColourValue()}
 
     private static void GraffitiRoom(ICharacter actor, StringStack ss)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         if (ss.IsFinished)
         {
             actor.OutputHandler.Send("You must specify a short description for your graffiti, in a format like #E\"an image of a black lotus\"#0".SubstituteANSIColour());
@@ -634,6 +648,12 @@ Style: {actor.WritingStyle.Describe().ColourValue()}
         {
             actor.RemoveAllEffects(x => x.IsEffectType<StoredEditorText>());
             actor.AddEffect(new StoredEditorText(actor, text), TimeSpan.FromMinutes(30));
+            if (!actor.CanPerformManualAction(out var continuationReason))
+            {
+                handler.Send(continuationReason);
+                return;
+            }
+
             // First, check they still have the writing implement and can still see the writeable
             if (!actor.Body.HeldOrWieldedItems.Contains(implement.Parent))
             {

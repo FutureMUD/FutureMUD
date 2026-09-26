@@ -1,3 +1,4 @@
+using MudSharp.GameItems;
 using MudSharp.Form.Material;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
@@ -83,6 +84,11 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
 
     public bool CanConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         if (ConnectedItem != null)
         {
             return false;
@@ -109,6 +115,12 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
 
     public void Connect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         if (!CanConnect(actor, other))
         {
             return;
@@ -129,11 +141,22 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
 
     public bool CanDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         return ConnectedItem == other;
     }
 
     public void Disconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         RawDisconnect(other, true);
     }
 
@@ -153,6 +176,11 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
 
     public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (ConnectedItem != null)
         {
             return $"{Parent.HowSeen(actor)} already has a canister attached.";
@@ -189,6 +217,11 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         return ConnectedItem != other
             ? $"{Parent.HowSeen(actor)} is not connected to {other.Parent.HowSeen(actor)}."
             : $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason.";

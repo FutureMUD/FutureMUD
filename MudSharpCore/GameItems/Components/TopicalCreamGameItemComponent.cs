@@ -79,6 +79,19 @@ public class TopicalCreamGameItemComponent : GameItemComponent, IApply
 
     public void Apply(IBody target, IBodypart part, double amount, ICharacter applier)
     {
+        if (!ItemManipulationGuard.CanManipulate(applier, out var reason, Parent))
+        {
+            applier?.Send(reason);
+            return;
+        }
+
+        if (applier is not null && (!applier.ColocatedWith(target.Actor) || !target.Bodyparts.Contains(part)) ||
+            CanApply(target, part) != WhyCannotApply.CanApply)
+        {
+            applier?.Send("You can no longer apply that cream to that bodypart.");
+            return;
+        }
+
         double actualAmount = amount <= 0.0 || amount > GramsRemaining ? GramsRemaining : amount;
 
         MudSharp.Magic.MagicalExposure.Carrier(target, MudSharp.Magic.SubstanceCarrier.Item, Parent.Prototype.Id, actualAmount / _prototype.TotalGrams, DrugVector.Touched);

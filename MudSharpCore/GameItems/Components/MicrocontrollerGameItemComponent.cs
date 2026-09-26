@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 
 using MudSharp.Computers;
 using MudSharp.Construction;
@@ -478,6 +479,11 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 
 	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		if (_mountedHost is not null || !other.FreeConnections.Any())
 		{
 			return false;
@@ -488,6 +494,12 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 
 	public void Connect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		_mountedHost = other;
 		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(MountConnector)));
 		RefreshPowerSourceConnection();
@@ -517,6 +529,11 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 
 	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (_mountedHost is not null)
 		{
 			return
@@ -545,11 +562,22 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 
 	public bool CanDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		return _mountedHost == other;
 	}
 
 	public void Disconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		RawDisconnect(other, true);
 		if (actor?.Body.CanGet(Parent, 0) == true)
 		{
@@ -581,6 +609,11 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 
 	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return _mountedHost != other
 			? $"You cannot remove {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because it is not installed there."
 			: $"You cannot remove {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason.";

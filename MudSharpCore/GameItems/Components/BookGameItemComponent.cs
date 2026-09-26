@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+﻿using MudSharp.GameItems;
+using MudSharp.Body;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Events;
@@ -300,6 +301,11 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public bool CanWrite(ICharacter character, IWritingImplement implement, IWriting writing)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, implement.Parent))
+		{
+			return false;
+		}
+
         if (!IsOpen)
         {
             return false;
@@ -332,6 +338,11 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public string WhyCannotWrite(ICharacter character, IWritingImplement implement, IWriting writing)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, implement.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!IsOpen)
         {
             return $"You cannot write on {Parent.HowSeen(character)} while it is closed.";
@@ -365,6 +376,12 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public bool Write(ICharacter character, IWritingImplement implement, IWriting writing)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, implement.Parent))
+		{
+			character.OutputHandler.Send(manipulationReason);
+			return false;
+		}
+
         if (!CanWrite(character, implement, writing))
         {
             character.Send(WhyCannotWrite(character, implement, writing));
@@ -385,17 +402,32 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public string WhyCannotGiveTitle(ICharacter character, string title)
     {
+        if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         throw new ApplicationException(
             "BookGameItemComponent had WhyCannotGiveTitle called - which is an invalid operation.");
     }
 
     public bool CanGiveTitle(ICharacter character, string title)
     {
+        if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         return true;
     }
 
     public bool GiveTitle(ICharacter character, string title)
     {
+        if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         Title = title;
         Changed = true;
         return true;
@@ -430,6 +462,11 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
     /// <returns>True if the character can draw on the proposed writeable in the proposed way</returns>
     public bool CanDraw(ICharacter character, IWritingImplement implement, IDrawing drawing)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, implement.Parent))
+		{
+			return false;
+		}
+
         if (!IsOpen)
         {
             return false;
@@ -462,6 +499,11 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public string WhyCannotDraw(ICharacter character, IWritingImplement implement, IDrawing drawing)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, implement.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!IsOpen)
         {
             return $"You cannot draw on {Parent.HowSeen(character)} while it is closed.";
@@ -495,6 +537,12 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public bool Draw(ICharacter character, IWritingImplement implement, IDrawing drawing)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, implement.Parent))
+		{
+			character.OutputHandler.Send(manipulationReason);
+			return false;
+		}
+
         if (!CanDraw(character, implement, drawing))
         {
             character.Send(WhyCannotDraw(character, implement, drawing));
@@ -545,6 +593,11 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public bool Turn(ICharacter actor, double turnExtent, IEmote emote)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanTurn(actor, turnExtent))
         {
             actor?.Send(WhyCannotTurn(actor, turnExtent));
@@ -570,6 +623,11 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public bool CanTurn(ICharacter actor, double turnExtent)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         if (!IsOpen)
         {
             return false;
@@ -596,6 +654,11 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public string WhyCannotTurn(ICharacter actor, double turnExtent)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!IsOpen)
         {
             return $"You cannot turn the pages of {Parent.HowSeen(actor)} while it is closed.";
@@ -788,6 +851,11 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public IGameItem Tear(ICharacter actor, IEmote emote)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return null;
+        }
+
         if (!CanTear(actor))
         {
             actor?.Send(WhyCannotTear(actor));
@@ -858,6 +926,11 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public bool CanTear(ICharacter actor)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         if (!IsOpen)
         {
             return false;
@@ -878,6 +951,11 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public string WhyCannotTear(ICharacter actor)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         if (!IsOpen)
         {
             return $"You cannot tear a page out of {Parent.HowSeen(actor)} unless it is open.";

@@ -259,6 +259,9 @@ namespace MudSharp.Body
 
         void Wear(IGameItem item, string profile, IEmote? playerEmote = null, bool silent = false);
 
+        /// <summary>Fits clothing supplied by another actor or by system provisioning. The caller validates the dresser.</summary>
+        void WearExternally(IGameItem item, IWearProfile? profile = null);
+
         #endregion
 
         #region Wielded Items
@@ -278,6 +281,13 @@ namespace MudSharp.Body
             OutputFlags additionalFlags = OutputFlags.Normal, bool silent = false, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
 
         bool CanSheathe(IGameItem item, IGameItem sheath);
+
+		/// <summary>Checks sheath fit/access for externally equipped or system-provisioned inventory.</summary>
+		bool CanSheatheExternally(IGameItem item, IGameItem sheath);
+
+		/// <summary>Equips a sheath without requiring the receiving body's manipulators to work.</summary>
+		bool SheatheExternally(IGameItem item, IGameItem sheath);
+
 
         string WhyCannotSheathe(IGameItem item, IGameItem sheath);
 
@@ -384,9 +394,9 @@ namespace MudSharp.Body
 
         string WhyCannotGet(ICurrency currency, IGameItem container, decimal amount, bool exact);
 
-        bool WhyCannotGetByWeight(IGameItem item, double weight, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
+        string WhyCannotGetByWeight(IGameItem item, double weight, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
 
-        bool WhyCannotGetByWeight(IGameItem item, IGameItem container, double weight, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
+        string WhyCannotGetByWeight(IGameItem item, IGameItem container, double weight, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
 
         /// <summary>
         ///     Grabs the specified item
@@ -720,7 +730,6 @@ namespace MudSharp.Body
         NotWielded,
         Unknown
     }
-
 
     public static class WieldExtensionClass
     {

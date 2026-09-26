@@ -1,3 +1,4 @@
+using MudSharp.GameItems;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
@@ -125,6 +126,11 @@ public class LockingCashRegisterGameItemComponent : CashRegisterGameItemComponen
 
 	public bool CanUnlock(ICharacter actor, IKey key)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		return actor?.IsAdministrator() != false ||
 		       (Parent.EffectsOfType<IOverrideLockEffect>().All(x => !x.Applies(actor)) &&
 		        key?.Unlocks(LockType, Pattern) == true);
@@ -132,6 +138,11 @@ public class LockingCashRegisterGameItemComponent : CashRegisterGameItemComponen
 
 	public bool Unlock(ICharacter actor, IKey key, IPerceivable containingPerceivable, IEmote playerEmote)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanUnlock(actor, key) || !_isLocked)
 		{
 			return false;
@@ -145,11 +156,21 @@ public class LockingCashRegisterGameItemComponent : CashRegisterGameItemComponen
 
 	public bool CanLock(ICharacter actor, IKey key)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		return !IsOpen && (actor?.IsAdministrator() != false || key?.Unlocks(LockType, Pattern) == true);
 	}
 
 	public bool Lock(ICharacter actor, IKey key, IPerceivable containingPerceivable, IEmote playerEmote)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanLock(actor, key) || _isLocked)
 		{
 			return false;

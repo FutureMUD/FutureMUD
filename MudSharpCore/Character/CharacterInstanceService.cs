@@ -1047,12 +1047,12 @@ public static class CharacterInstanceService
 
 			if (target.Body.CanWear(clone, item.Profile!))
 			{
-				target.Body.Wear(clone, item.Profile!, silent: true);
+				target.Body.WearExternally(clone, item.Profile!);
 				worn++;
 			}
 			else if (target.Body.CanWear(clone))
 			{
-				target.Body.Wear(clone, silent: true);
+				target.Body.WearExternally(clone);
 				worn++;
 			}
 			else

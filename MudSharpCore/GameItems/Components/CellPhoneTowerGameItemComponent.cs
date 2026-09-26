@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 using MudSharp.Construction;
 using MudSharp.Construction.Grids;
 using MudSharp.GameItems.Prototypes;
@@ -139,12 +140,22 @@ public class CellPhoneTowerGameItemComponent : GameItemComponent, ICellPhoneTowe
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         return setting.Equals("on", System.StringComparison.InvariantCultureIgnoreCase) ? !_switchedOn
             : setting.Equals("off", System.StringComparison.InvariantCultureIgnoreCase) && _switchedOn;
     }
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         return setting.Equals("on", System.StringComparison.InvariantCultureIgnoreCase)
             ? $"{Parent.HowSeen(actor, true)} is already on."
             : $"{Parent.HowSeen(actor, true)} is already off.";
@@ -152,6 +163,11 @@ public class CellPhoneTowerGameItemComponent : GameItemComponent, ICellPhoneTowe
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             return false;

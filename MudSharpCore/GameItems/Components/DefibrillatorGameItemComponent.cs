@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+﻿using MudSharp.GameItems;
+using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems.Prototypes;
@@ -21,6 +22,11 @@ public class DefibrillatorGameItemComponent : GameItemComponent, IDefibrillator
 
     public bool CanShock(ICharacter shocker, IBody target)
     {
+		if (!ItemManipulationGuard.CanManipulate(shocker, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!(Parent.GetItemType<IProducePower>()?.CanDrawdownSpike(_prototype.WattagePerShock) ?? false))
         {
             return false;
@@ -48,6 +54,11 @@ public class DefibrillatorGameItemComponent : GameItemComponent, IDefibrillator
 
     public string WhyCannotShock(ICharacter shocker, IBody target)
     {
+		if (!ItemManipulationGuard.CanManipulate(shocker, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!(Parent.GetItemType<IProducePower>()?.CanDrawdownSpike(_prototype.WattagePerShock) ?? false))
         {
             return $"{Parent.HowSeen(shocker, true)} does not have enough power to deliver a shock.";
@@ -83,6 +94,12 @@ public class DefibrillatorGameItemComponent : GameItemComponent, IDefibrillator
 
     public void Shock(ICharacter shocker, IBody target)
     {
+		if (!ItemManipulationGuard.CanManipulate(shocker, out var manipulationReason, Parent))
+		{
+			shocker.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         if (!CanShock(shocker, target))
         {
             shocker.Send(WhyCannotShock(shocker, target));

@@ -86,6 +86,11 @@ public class TimePieceGameItemComponent : GameItemComponent, ITimePiece
 
     public bool CanSetTime(ICharacter actor)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         return _prototype.PlayersCanSetTime || actor.IsAdministrator();
     }
 

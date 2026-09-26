@@ -126,6 +126,7 @@ public class CombatActionAvailabilityTests
 		location.SetupGet(x => x.Atmosphere).Returns(Mock.Of<IGas>());
 		location.Setup(x => x.CurrentWeather(It.IsAny<ICharacter>())).Returns((IWeatherEvent)null!);
 		var actor = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
 		actor.SetupGet(x => x.Location).Returns(location.Object);
 
 		Assert.AreEqual(MusketIgnitionFamily.Matchlock, prototype.IgnitionFamily);

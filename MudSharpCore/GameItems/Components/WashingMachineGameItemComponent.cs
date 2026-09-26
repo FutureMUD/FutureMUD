@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+﻿using MudSharp.GameItems;
+using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
@@ -704,6 +705,11 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
 
     public bool CanSelect(ICharacter character, string argument)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out _, Parent))
+		{
+			return false;
+		}
+
         switch (argument.ToLowerInvariant())
         {
             case "quick":
@@ -726,6 +732,11 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
 
     public bool Select(ICharacter character, string argument, IEmote playerEmote, bool silent = false)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!SwitchedOn || !_powered)
         {
             character.Send($"{Parent.HowSeen(character, true)} is not on, and so you cannot make any selections.");
@@ -969,6 +980,22 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
 
     public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
+        if (emptier is not null)
+        {
+            var targets = intoContainer is null ? new[] { Parent } : new[] { Parent, intoContainer.Parent };
+            if (!ItemManipulationGuard.CanManipulate(emptier, out var reason, targets))
+            {
+				emptier.Send(reason);
+				return;
+            }
+
+            if (Contents.Any(x => !CanTake(emptier, x, 0)))
+            {
+				emptier.Send("You cannot empty that container while some of its contents cannot be taken.");
+				return;
+            }
+        }
+
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         _laundryContents.Clear();

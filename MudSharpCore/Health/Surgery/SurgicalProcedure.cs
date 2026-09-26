@@ -74,6 +74,12 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
 
     public void PerformProcedure(ICharacter surgeon, ICharacter patient, params object[] additionalArguments)
     {
+        if (!CanPerformProcedure(surgeon, patient, additionalArguments))
+        {
+            surgeon.Send(WhyCannotPerformProcedure(surgeon, patient, additionalArguments));
+            return;
+        }
+
         object[] args = GetProcessedAdditionalArguments(surgeon, patient, additionalArguments);
         IPerceivable[] perceivableArgs = new[] { surgeon, patient }.Concat(args.OfType<IPerceivable>()).ToArray();
         surgeon.AddEffect(GetActionEffect(surgeon, patient, args), TimeSpan.FromSeconds(10));
@@ -95,6 +101,11 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
     public virtual bool CanPerformProcedure(ICharacter surgeon, ICharacter patient,
         params object[] additionalArguments)
     {
+        if (!surgeon.CanPerformManualAction(out _))
+        {
+            return false;
+        }
+
         if (!CharacterState.Able.HasFlag(surgeon.State))
         {
             return false;
@@ -114,7 +125,6 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
                 return false;
             }
         }
-
 
         if (patient.Movement != null || surgeon.Movement != null)
         {
@@ -159,6 +169,11 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
     public virtual string WhyCannotPerformProcedure(ICharacter surgeon, ICharacter patient,
         params object[] additionalArguments)
     {
+        if (!surgeon.CanPerformManualAction(out var manualReason))
+        {
+            return manualReason;
+        }
+
         if (!CharacterState.Able.HasFlag(surgeon.State))
         {
             return $"You cannot perform that procedure because you are {surgeon.State}.";

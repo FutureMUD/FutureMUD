@@ -1,4 +1,5 @@
-﻿using MudSharp.Construction;
+﻿using MudSharp.GameItems;
+using MudSharp.Construction;
 using MudSharp.Form.Material;
 using MudSharp.GameItems.Prototypes;
 
@@ -182,6 +183,11 @@ public class RebreatherGameItemComponent : GameItemComponent, IConnectable, IPro
 
     public bool CanConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         if (ConnectedItem != null)
         {
             return false;
@@ -197,6 +203,12 @@ public class RebreatherGameItemComponent : GameItemComponent, IConnectable, IPro
 
     public void Connect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         if (!CanConnect(actor, other))
         {
             return;
@@ -217,6 +229,11 @@ public class RebreatherGameItemComponent : GameItemComponent, IConnectable, IPro
 
     public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!FreeConnections.Any())
         {
             return
@@ -247,11 +264,22 @@ public class RebreatherGameItemComponent : GameItemComponent, IConnectable, IPro
 
     public bool CanDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         return ConnectedItem == other;
     }
 
     public void Disconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         RawDisconnect(other, true);
     }
 
@@ -271,6 +299,11 @@ public class RebreatherGameItemComponent : GameItemComponent, IConnectable, IPro
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         return ConnectedItem != other
             ? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
             : $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";

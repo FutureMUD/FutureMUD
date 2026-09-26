@@ -272,11 +272,19 @@ public class NetworkWorkflowTests
 			var payload = Encoding.ASCII.GetBytes(string.Join("\r", expected) + "\r");
 			await fixture.Client.GetStream().WriteAsync(payload);
 
-			for (var i = 0; i < expected.Length; i++)
+			await WaitUntil(() =>
 			{
-				await WaitUntil(() => fixture.Connection.HasIncomingCommands);
-				fixture.Connection.AttemptCommand();
-			}
+				while (fixture.Connection.HasIncomingCommands)
+				{
+					var delivered = fixture.Commands.Count;
+					fixture.Connection.AttemptCommand();
+					// The queue count includes a producer waiting to publish. Let
+					// that producer resume before attempting to consume again.
+					if (fixture.Commands.Count == delivered) break;
+				}
+
+				return fixture.Commands.Count == expected.Length;
+			});
 
 			CollectionAssert.AreEqual(expected, fixture.Commands);
 		}

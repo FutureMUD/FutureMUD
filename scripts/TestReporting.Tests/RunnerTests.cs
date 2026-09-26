@@ -54,12 +54,14 @@ public class RunnerTests
 	private static async Task<(int Exit, string Output, JsonDocument Json)> Run(Repo repo, string scenario, params string[] extra)
 	{
 		var start = new ProcessStartInfo("dotnet") { WorkingDirectory = repo.PathValue, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
-		foreach (var arg in new[] { Reporter, "--repo", repo.PathValue, "--suite", "fast", "--project", "Sample Tests/Sample Tests.csproj", "--output-mode", "json", "--timeout-seconds", "3" }.Concat(extra)) start.ArgumentList.Add(arg);
+		var timeout = scenario == "timeout" ? "3" : "30";
+		foreach (var arg in new[] { Reporter, "--repo", repo.PathValue, "--suite", "fast", "--project", "Sample Tests/Sample Tests.csproj", "--output-mode", "json", "--timeout-seconds", timeout }.Concat(extra)) start.ArgumentList.Add(arg);
 		start.Environment["FUTUREMUD_TEST_DOTNET"] = scenario == "missing-sdk" ? Path.Combine(repo.PathValue, "no-such-dotnet") : Fake;
 		start.Environment["FM_FAKE_SCENARIO"] = scenario;
 		start.Environment["FM_FAKE_TRX"] = Fixture;
+		start.Environment["DOTNET_PROCESSOR_COUNT"] = "2";
 		using var process = Process.Start(start)!;
-		using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+		using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(60));
 		try { await process.WaitForExitAsync(deadline.Token); }
 		catch (OperationCanceledException) { process.Kill(entireProcessTree: true); throw new AssertFailedException("Reporter hung."); }
 		var output = await process.StandardOutput.ReadToEndAsync();
@@ -78,7 +80,7 @@ public class RunnerTests
 			var result = await Run(repo, scenario.Item1);
 			using (result.Json)
 			{
-				Assert.AreEqual(scenario.Item2, result.Exit);
+				Assert.AreEqual(scenario.Item2, result.Exit, result.Output);
 				Assert.AreEqual(scenario.Item3, result.Json.RootElement.GetProperty("status").GetString());
 				Assert.IsTrue(File.Exists(result.Json.RootElement.GetProperty("artifacts").GetProperty("summary").GetString()));
 				if (scenario.Item1 == "fail") Assert.AreEqual(1, result.Json.RootElement.GetProperty("failures").GetArrayLength());
@@ -152,14 +154,46 @@ public class RunnerTests
 		using var repo = new Repo();
 		var lockPath = Path.Combine(repo.PathValue, ".artifacts", "test-runs", ".worktree.lock");
 		Directory.CreateDirectory(Path.GetDirectoryName(lockPath)!);
-		using var ownership = new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
-		ownership.SetLength(0);
-		ownership.Write(System.Text.Encoding.UTF8.GetBytes("active-fixture-run"));
-		ownership.Flush(true);
+		using var ownership = new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+		File.WriteAllText(lockPath + ".owner", "active-fixture-run");
 		using var result = (await Run(repo, "pass")).Json;
 		Assert.AreEqual("BLOCKED", result.RootElement.GetProperty("status").GetString());
 		StringAssert.Contains(result.RootElement.GetProperty("issues")[0].GetProperty("detail").GetString()!, "active-fixture-run");
 		Assert.AreEqual(JsonValueKind.Null, result.RootElement.GetProperty("source_stable").ValueKind);
+		ownership.Dispose();
+		var released = await Run(repo, "pass");
+		using (released.Json) Assert.AreEqual(0, released.Exit, released.Output);
+	}
+
+	[TestMethod]
+	public async Task ConcurrentHostsDrainBothOutputStreams()
+	{
+		using var repo = new Repo();
+		var extra = new List<string>();
+		for (var index = 1; index < 8; index++)
+		{
+			var project = $"Project {index}/Sample Tests.csproj";
+			Directory.CreateDirectory(Path.Combine(repo.PathValue, $"Project {index}"));
+			File.Copy(Path.Combine(repo.PathValue, "Sample Tests", "Sample Tests.csproj"), Path.Combine(repo.PathValue, project));
+			extra.AddRange(["--project", project]);
+		}
+
+		var result = await Run(repo, "concurrent-output", extra.ToArray());
+		using (result.Json)
+		{
+			Assert.AreEqual(0, result.Exit, result.Output);
+			Assert.AreEqual(8 * 36, result.Json.RootElement.GetProperty("counts").GetProperty("passed").GetInt32());
+			using var summary = JsonDocument.Parse(File.ReadAllText(result.Json.RootElement.GetProperty("artifacts").GetProperty("summary").GetString()!));
+			foreach (var invocation in summary.RootElement.GetProperty("invocations").EnumerateArray())
+			{
+				foreach (var stream in new[] { "stdout", "stderr" })
+				{
+					var log = File.ReadAllText(invocation.GetProperty("test").GetProperty(stream).GetString()!);
+					Assert.IsTrue(log.Length >= 200_000, stream);
+					StringAssert.EndsWith(log.TrimEnd(), "output-complete");
+				}
+			}
+		}
 	}
 
 	[TestMethod]

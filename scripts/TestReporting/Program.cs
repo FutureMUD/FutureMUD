@@ -117,22 +117,24 @@ internal static class Program
 		WriteJson(summary.Artifacts["run"], new { summary.RunId, summary.Repository, summary.StartedUtc, summary.Suite, summary.Projects, summary.Configuration, summary.Filter, summary.FailOnSkipped, options.TimeoutSeconds, summary.BuildSwitches });
 		var records = new List<TestRecord>();
 		var lockPath = Path.Combine(repo, ".artifacts", "test-runs", ".worktree.lock");
+		var ownerPath = lockPath + ".owner";
 		Directory.CreateDirectory(Path.GetDirectoryName(lockPath)!);
 		FileStream? ownership = null;
 		try
 		{
-			ownership = new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
-			ownership.SetLength(0);
-			var marker = Encoding.UTF8.GetBytes(runId);
-			ownership.Write(marker);
-			ownership.Flush(true);
+			// FileShare.Read permits shared flock ownership on Unix. Exclude every
+			// other opener and keep the diagnostic marker in a separate readable file.
+			ownership = new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+			File.WriteAllText(ownerPath, runId);
 		}
 		catch (IOException)
 		{
+			ownership?.Dispose();
+			ownership = null;
 			string active;
 			try
 			{
-				using var reader = new StreamReader(new FileStream(lockPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+				using var reader = new StreamReader(new FileStream(ownerPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
 				active = reader.ReadToEnd();
 			}
 			catch { active = "unknown"; }
@@ -440,8 +442,8 @@ internal static class Program
 			started = true;
 			await using var stdout = File.Create(phase.Stdout);
 			await using var stderr = File.Create(phase.Stderr);
-			var outTask = process.StandardOutput.BaseStream.CopyToAsync(stdout);
-			var errTask = process.StandardError.BaseStream.CopyToAsync(stderr);
+			var outTask = CopyProcessLog(process.StandardOutput.BaseStream, stdout);
+			var errTask = CopyProcessLog(process.StandardError.BaseStream, stderr);
 			try { await process.WaitForExitAsync(cancellation); }
 			catch (OperationCanceledException)
 			{
@@ -470,6 +472,17 @@ internal static class Program
 		}
 		phase.EndedUtc = DateTimeOffset.UtcNow.ToString("O");
 		return phase;
+	}
+
+	private static Task CopyProcessLog(Stream source, Stream destination)
+	{
+		// Windows Process pipes are synchronous handles: CopyToAsync blocks a
+		// pool worker per pipe. Dedicated readers keep parallel hosts from starving
+		// process-exit and deadline continuations on small CI machines.
+		return OperatingSystem.IsWindows()
+			? Task.Factory.StartNew(() => source.CopyTo(destination), CancellationToken.None,
+				TaskCreationOptions.LongRunning, TaskScheduler.Default)
+			: source.CopyToAsync(destination);
 	}
 
 	private static async Task<string> RunVersion(string dotnet, string repo, string runDirectory, CancellationToken cancellation)

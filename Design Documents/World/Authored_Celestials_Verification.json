@@ -1,7 +1,7 @@
 {
   "feature": "Authored, Geography-Independent Celestials",
   "status": "PASS",
-  "generatedUtc": "2026-09-26T12:16:32.847224+00:00",
+  "generatedUtc": "2026-09-26T12:47:43.387607+00:00",
   "baselineHead": "666efc94a2065fb94ef75a1ffe6dd42359940c6c",
   "workingTree": "Verified implementation prepared for publication on codex/authored-celestials",
   "tests": [
@@ -138,6 +138,57 @@
       "sourceFingerprint": "ef6f6860eda0ff502ebceb5a8ea5ee19e5f6820e44d87fedafadd1d60d8d2f8e",
       "sourceStable": true,
       "artifacts": ".artifacts/test-runs/20260926T120752Z-3c22adc97175"
+    },
+    {
+      "scope": "CI harness repair focused suite",
+      "runId": "20260926T123936Z-ac8deffdcba2",
+      "status": "PASS",
+      "counts": {
+        "executed": 18,
+        "passed": 18,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 18
+      },
+      "project": [
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+      ],
+      "filter": null,
+      "sourceFingerprint": "c25ebbf362c929673f7b6e5705120aca944dc036155a2398e536eda77f60c48e",
+      "sourceStable": true,
+      "artifacts": ".artifacts/test-runs/20260926T123936Z-ac8deffdcba2"
+    },
+    {
+      "scope": "Full fast gate after CI harness repair",
+      "runId": "20260926T124228Z-3e57de8bdd72",
+      "status": "PASS",
+      "counts": {
+        "executed": 5918,
+        "passed": 5918,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5918
+      },
+      "project": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+      ],
+      "filter": null,
+      "sourceFingerprint": "2320b4c590dd616f2a1f6f7031a5d41abe8ccd06b72b00d419b7383638589f16",
+      "sourceStable": true,
+      "artifacts": ".artifacts/test-runs/20260926T124228Z-3e57de8bdd72"
     }
   ],
   "release": {
@@ -614,7 +665,7 @@
       "20260926115932_WidenCelestialDefinition"
     ]
   },
-  "review": "Read-only focused review of the persistence follow-up found no actionable defects.",
+  "review": "Read-only focused review of the persistence follow-up found no actionable defects. Read-only review of the CI harness correction found no actionable defects.",
   "followupDevelopmentHistory": [
     "Initial EF tool download was blocked in sandbox; pinned 9.0.11 installation succeeded with escalation.",
     "Harness compilation initially rejected three bare returns; corrected to return 0 and rebuilt successfully.",
@@ -622,6 +673,31 @@
     "Current master gained LandRejuvenationTreatments. The unpublished celestial migration was regenerated against the combined model, then upgrade/snapshot proof repeated in a new instance from the preserved pre-upgrade backup.",
     "The first full fast gate found an existing TitleCase apostrophe bug. Internal apostrophes now stay within words; a contradictory sentence-case assertion was corrected to the established title-case contract. Opening single-quote coverage was added. The focused case passed before the final gate.",
     "Fresh backup import initially required an empty database because MySqlBackup.NET emits unconditional DROP DATABASE. The wrapper now creates that empty target only in its new isolated instance; the complete repeat passed.",
-    "Final artifact checking caught CRLF conversion of the fixture by Windows Git checkout. Parsed JSON was identical; restored the original attachment bytes, pinned -text and reran all 14 fixtures successfully. No numerical source or production behavior changed after the full fast gate."
-  ]
+    "Final artifact checking caught CRLF conversion of the fixture by Windows Git checkout. Parsed JSON was identical; restored the original attachment bytes, pinned -text and reran all 14 fixtures successfully. No numerical source or production behavior changed after the full fast gate.",
+    "Initial hosted Linux and Windows checks failed in the existing test-reporting harness. Their logs are preserved. Cross-platform locking and synchronous-pipe scheduling were repaired, with focused and full local gates rerun; hosted results are reported separately on the PR."
+  ],
+  "ciHarnessFollowUp": {
+    "initialHead": "b62c1140395986dba874554a45cafcb71efdadc2",
+    "initialHostedStatus": "FAIL",
+    "initialHostedRuns": [
+      36241467061,
+      36241477442
+    ],
+    "initialFailures": [
+      "Unix cooperative ownership was not exclusive",
+      "Windows parallel output drains exhausted their budget",
+      "Healthy fake reporter scenarios exceeded their 3-second budget"
+    ],
+    "fixes": [
+      "Exclusive cross-platform FileShare.None ownership with readable owner sidecar",
+      "Dedicated readers for synchronous Windows process pipes; drain failure still fails closed",
+      "30-second healthy fixture budget, unchanged 3-second deliberate timeout",
+      "Eight concurrent hosts verify both 200KB streams and complete tails; lock release verified"
+    ],
+    "localStatus": "PASS",
+    "focusedRunId": "20260926T123936Z-ac8deffdcba2",
+    "fastRunId": "20260926T124228Z-3e57de8bdd72",
+    "productionCelestialChanges": false,
+    "hostedStatus": "Reported separately on the pull request at the published commit"
+  }
 }

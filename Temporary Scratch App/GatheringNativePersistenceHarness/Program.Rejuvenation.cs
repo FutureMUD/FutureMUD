@@ -40,6 +40,7 @@ internal static partial class GNHProgram
 	private static int RunRejuvenationAcceptanceChecks()
 	{
 		using var database = TestDatabase.CreateFresh("futuremud_land_");
+		Console.WriteLine($"rejuvenationCreated={database.Name}");
 		ConfigureNativeDatabase(database.ConnectionString);
 		using (var schema = NewIndependentContext(database.ConnectionString))
 		{
@@ -160,6 +161,65 @@ internal static partial class GNHProgram
 		return reconstructed;
 	}
 
+	private static void RunRejuvenationCheckpointDeadlineProbe(NativeRuntime runtime, string connectionString,
+		Cell cell, MagicSpell spell, EnvironmentalMagicCoordinator coordinator, HarnessClock clock)
+	{
+		var template = (RejuvenateLandEffect)spell.SpellEffects.Single();
+		Require(template.BuildingCommand(runtime.Actor, new StringStack("rate 1")), "J-C-native could not set the captured rate.");
+		Require(cell.EnvironmentState.ScarDamage == 20 && coordinator.ActiveTreatmentCount == 0,
+			"J-C-native requires twenty scars and no active treatment.");
+		MagicModule.MagicGeneric(runtime.Actor, $"{spell.School.SchoolVerb} cast \"{spell.Name}\" standard");
+		var child = cell.Effects.OfType<SpellRejuvenateLandEffect>().Single();
+		var parent = (MagicSpellParent)child.ParentEffect;
+		var attribution = $"Land rejuvenation {child.TreatmentId},";
+		for (var second = 1; second <= 120; second++)
+		{
+			clock.Advance(TimeSpan.FromSeconds(1));
+			if (second % 30 == 0)
+			{
+				var scarBeforeSave = cell.EnvironmentState.ScarDamage;
+				// Persist only this cell through its real effect serializer. No world flush or repair call.
+				using (new FMDB())
+				{
+					cell.EffectsChanged = true;
+					cell.Save();
+					FMDB.Context.SaveChanges();
+				}
+				using var saved = NewIndependentContext(connectionString);
+				var checkpoint = JsonSerializer.Deserialize<LandRejuvenationProgress>(saved.LandRejuvenationTreatments
+					.AsNoTracking().Single(x => x.Id == child.TreatmentId).Checkpoint)!;
+				var xml = XElement.Parse(saved.Cells.AsNoTracking().Single(x => x.Id == cell.Id).EffectData);
+				Require(xml.Descendants("Identity").Any(x => x.Value == parent.Identity.ToString()) &&
+					xml.Descendants("Type").Any(x => x.Value == "SpellRejuvenateLand") &&
+					checkpoint.ParentId == parent.Identity && checkpoint.Rate == 1 && checkpoint.RemainingSeconds == 600 - second &&
+					cell.EnvironmentState.ScarDamage == scarBeforeSave &&
+					saved.CellEnvironmentalStates.AsNoTracking().Single(x => x.CellId == cell.Id).ScarDamage == scarBeforeSave &&
+					coordinator.ActiveTreatmentCount == 1, $"J-C-native save at t={second} repaired, extended or replaced the treatment.");
+			}
+			// Ordinary bounded pump slices, including immediately after every actual effect save.
+			for (var i = 0; i < 10; i++) coordinator.Pump();
+			if (second % 60 != 0) continue;
+			using var independent = NewIndependentContext(connectionString);
+			var state = independent.CellEnvironmentalStates.AsNoTracking().Single(x => x.CellId == cell.Id);
+			var progress = JsonSerializer.Deserialize<LandRejuvenationProgress>(independent.LandRejuvenationTreatments
+				.AsNoTracking().Single(x => x.Id == child.TreatmentId).Checkpoint)!;
+			var receipts = independent.EnvironmentalMagicOperations.AsNoTracking()
+				.Where(x => x.CellId == cell.Id && x.Attribution.StartsWith(attribution)).ToArray();
+			var repaired = second / 60;
+			Require(state.ScarDamage == 20 - repaired && progress.RemainingBudget == 12 - repaired &&
+				progress.TotalRepaired == repaired && progress.Sequence == repaired && progress.AcknowledgedSequence == repaired &&
+				progress.RemainingSeconds == 600 - second && progress.EarnedWork == 0 && progress.PendingRequest is null &&
+				receipts.Length == repaired && receipts.Sum(x => x.AppliedRepair) == repaired,
+				$"J-C-native t={second} did not persist timely repair, exact sequence/budget and elapsed lifetime before a rescue flush.");
+			Console.WriteLine($"J-C-native=passed t:{second} treatment:{progress.Id} scar:{state.ScarDamage} budget:{progress.RemainingBudget} sequence:{progress.Sequence} acknowledged:{progress.AcknowledgedSequence} remaining-seconds:{progress.RemainingSeconds} receipts:{receipts.Length} independent-read:True rescue-flush:False");
+		}
+		cell.RemoveEffect(parent, true);
+		// Restore the opening fixture only after both independent observations, for the existing R-P probes.
+		Require(coordinator.ApplyOperation(cell, new(Guid.NewGuid(), runtime.Actor.Id, "J-C-native fixture reset", Damage: 2)).Success,
+			"J-C-native could not restore the following probes' opening scars.");
+		Require(template.BuildingCommand(runtime.Actor, new StringStack("rate 2")), "Could not restore the existing probe rate.");
+	}
+
 	private static void RunRejuvenationSpellProbes(string databaseName, string connectionString, FixtureIds fixture,
 		NativeRuntime runtime, Cell cell, AgricultureField field, EnvironmentalMagicGenerator profile,
 		EnvironmentalMagicCoordinator coordinator, HarnessClock clock, RejuvenationAcceptanceStore store, Guid landOperation)
@@ -179,6 +239,7 @@ internal static partial class GNHProgram
 			"Unable to set the acceptance ambient balance.");
 		actor.AddResource(runtime.Resource, 20.0);
 		runtime.World.SaveManager.Flush();
+		RunRejuvenationCheckpointDeadlineProbe(runtime, connectionString, cell, spell, coordinator, clock);
 		var nativeBefore = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
 		var forageBefore = cell.GetForagableYield("herbs");
 		var beforeState = cell.EnvironmentState;

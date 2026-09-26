@@ -261,19 +261,23 @@ public class LandRejuvenationTests
 		Assert.AreEqual(5.0, f.Scar);
 	}
 
-	[TestMethod, TestCategory("R-I03"), TestCategory("R-I04"), TestCategory("R-I05")]
+	[TestMethod, TestCategory("R-I03"), TestCategory("R-I04"), TestCategory("R-I05"), TestCategory("J-C08")]
 	public void ProfileCap_EditIsProspective_AndDisableIsTerminal()
 	{
 		using var f = new Fixture();
 		Assert.IsNull(f.Environment.Profile.MagicalRepairLimitPerMinute);
 		f.Environment.Edit("magicalrepaircap 1");
-		f.Install(12, 10, 600);
+		var parent = f.Install(12, 10, 600).ParentEffect;
 		f.Environment.Clock.Advance(TimeSpan.FromSeconds(30));
+		SaveParentWithoutRepair(f, parent, 570);
 		f.Environment.Edit("magicalrepaircap 2");
 		Assert.AreEqual(19.5, f.Scar);
-		f.Advance(60);
+		f.Environment.Clock.Advance(TimeSpan.FromSeconds(30));
+		SaveParentWithoutRepair(f, parent, 540);
+		f.Advance(30);
 		Assert.AreEqual(17.5, f.Scar);
 		f.Environment.Clock.Advance(TimeSpan.FromSeconds(30));
+		SaveParentWithoutRepair(f, parent, 480);
 		f.Environment.Edit("magicalrepaircap 0.5");
 		Assert.AreEqual(16.5, f.Scar, "The old cap owns the elapsed half-minute before the decrease.");
 		f.Advance(60);
@@ -450,7 +454,7 @@ public class LandRejuvenationTests
 		f.Environment.World.Verify(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>()), Times.Never);
 	}
 
-	[TestMethod, TestCategory("R-T08"), TestCategory("R-I11"), TestCategory("R-I12")]
+	[TestMethod, TestCategory("R-T08"), TestCategory("R-I11"), TestCategory("R-I12"), TestCategory("J-C07")]
 	public void ParentChild_XmlReload_UsesAuthoritativeBudgetAndFreshOnlineEpoch()
 	{
 		var store = new EnvironmentalMagicTestOperationStore();
@@ -463,6 +467,7 @@ public class LandRejuvenationTests
 			Assert.IsTrue(saved.Descendants("Type").Any(x => x.Value == "SpellRejuvenateLand"));
 		}
 		using var f = new Fixture(operations: store, scar: null);
+		f.Environment.Clock.Advance(TimeSpan.FromDays(7));
 		// Independent environmental load uses the committed scalar, never the former process clock.
 		f.Cell.LoadEnvironmentForTest(store.PersistedStates[f.Cell.Id]);
 		MagicSpellParent.InitialiseEffectType();
@@ -475,9 +480,11 @@ public class LandRejuvenationTests
 		f.Environment.Coordinator.Pump();
 		Assert.AreEqual(19.0, f.Scar);
 		Assert.AreEqual(11.0, f.Progress.RemainingBudget);
+		Assert.AreEqual(540.0, f.Progress.RemainingSeconds);
 		f.Advance(60);
 		Assert.AreEqual(18.0, f.Scar);
 		Assert.AreEqual(10.0, f.Progress.RemainingBudget);
+		Assert.AreEqual(480.0, f.Progress.RemainingSeconds);
 	}
 
 	[TestMethod, TestCategory("R-I11"), TestCategory("R-I12")]
@@ -510,6 +517,203 @@ public class LandRejuvenationTests
 		Assert.AreEqual(10.0, f.Progress.TotalRepaired);
 	}
 
+	[DataTestMethod, DataRow(true), DataRow(false), TestCategory("J-C01"), TestCategory("J-C02")]
+	public void RepeatedParentSaves_PreserveRepairCadence_InEitherPumpOrder(bool saveBeforePump)
+	{
+		using var f = new Fixture();
+		f.Environment.Edit("magicalrepaircap 1");
+		var parent = f.Install().ParentEffect;
+		var commits = f.Environment.Operations.Commits;
+		for (var second = 1; second <= 120; second++)
+		{
+			f.Environment.Clock.Advance(TimeSpan.FromSeconds(1));
+			if (!saveBeforePump) f.Environment.Coordinator.Pump();
+			if (second % 30 == 0)
+			{
+				SaveParentWithoutRepair(f, parent, 600 - second);
+				Assert.AreEqual(600.0 - second, f.Progress.RemainingSeconds);
+				Assert.AreEqual(1, f.Environment.Coordinator.ActiveTreatmentCount);
+				if (second % 60 == 30) Assert.AreEqual(0.5, f.Progress.EarnedWork);
+			}
+			f.Environment.Coordinator.Pump();
+			Assert.AreEqual(20.0 - second / 60, f.Scar, $"Scar at t={second}");
+			Assert.AreEqual(12.0 - second / 60, f.Progress.RemainingBudget);
+			Assert.AreEqual((long)(second / 60), f.Progress.Sequence);
+			Assert.AreEqual(f.Progress.Sequence, f.Progress.AcknowledgedSequence);
+			Assert.AreEqual(commits + second / 60, f.Environment.Operations.Commits);
+		}
+		Assert.AreEqual(2.0, f.Progress.TotalRepaired);
+		Assert.AreEqual(2L, f.Environment.Coordinator.TreatmentVisits);
+	}
+
+	[TestMethod, TestCategory("J-C03")]
+	public void ParentSave_OverdueVisit_RemainsEligibleAndAccountsAllElapsedWorkOnce()
+	{
+		using var f = new Fixture();
+		var parent = f.Install().ParentEffect;
+		// No treatment visit is admitted until t=150, after the original t=60 deadline.
+		f.Environment.Clock.Advance(TimeSpan.FromSeconds(90));
+		SaveParentWithoutRepair(f, parent, 510);
+		f.Environment.Clock.Advance(TimeSpan.FromSeconds(60));
+		SaveParentWithoutRepair(f, parent, 450);
+		Assert.AreEqual(2.5, f.Progress.EarnedWork);
+		f.Environment.Coordinator.Pump();
+		Assert.AreEqual(17.5, f.Scar);
+		Assert.AreEqual(9.5, f.Progress.RemainingBudget);
+		Assert.AreEqual(450.0, f.Progress.RemainingSeconds);
+		Assert.AreEqual(1L, f.Progress.AcknowledgedSequence);
+		f.Environment.Coordinator.Pump();
+		Assert.AreEqual(1L, f.Environment.Coordinator.TreatmentVisits);
+		Assert.AreEqual(17.5, f.Scar);
+	}
+
+	[TestMethod, TestCategory("J-C04")]
+	public void ParentSave_RepeatedAtSameInstant_AddsNeitherCreditNorQueueEntries()
+	{
+		using var f = new Fixture();
+		var parent = f.Install().ParentEffect;
+		f.Environment.Clock.Advance(TimeSpan.FromSeconds(30));
+		for (var i = 0; i < 5; i++)
+		{
+			SaveParentWithoutRepair(f, parent, 570);
+			f.Environment.Coordinator.Pump();
+			Assert.AreEqual(0.5, f.Progress.EarnedWork);
+			Assert.AreEqual(570.0, f.Progress.RemainingSeconds);
+			Assert.AreEqual(1, f.Environment.Coordinator.ActiveTreatmentCount);
+			Assert.AreEqual(0L, f.Environment.Coordinator.TreatmentVisits);
+		}
+		f.Advance(30);
+		Assert.AreEqual(19.0, f.Scar);
+		for (var i = 0; i < 5; i++)
+		{
+			SaveParentWithoutRepair(f, parent, 540);
+			f.Environment.Coordinator.Pump();
+			Assert.AreEqual(0.0, f.Progress.EarnedWork);
+			Assert.AreEqual(540.0, f.Progress.RemainingSeconds);
+			Assert.AreEqual(1, f.Environment.Coordinator.ActiveTreatmentCount);
+			Assert.AreEqual(1L, f.Environment.Coordinator.TreatmentVisits);
+			Assert.AreEqual(1L, f.Progress.AcknowledgedSequence);
+		}
+		f.Advance(60);
+		Assert.AreEqual(18.0, f.Scar);
+		Assert.AreEqual(2L, f.Progress.AcknowledgedSequence);
+	}
+
+	[DataTestMethod, DataRow(true), DataRow(false), TestCategory("J-C05")]
+	public void RepeatedParentSaves_FinalHalfMinuteIsAccountedOnce_InEitherExpiryOrder(bool parentExpiresFirst)
+	{
+		using var f = new Fixture();
+		var parent = f.Install(2.5, 1, 150).ParentEffect;
+		for (var seconds = 30; seconds <= 120; seconds += 30)
+		{
+			f.Environment.Clock.Advance(TimeSpan.FromSeconds(30));
+			SaveParentWithoutRepair(f, parent, 150 - seconds);
+			f.Environment.Coordinator.Pump();
+			Assert.AreEqual(20.0 - seconds / 60, f.Scar);
+		}
+		f.Environment.Clock.Advance(TimeSpan.FromSeconds(29.5));
+		SaveParentWithoutRepair(f, parent, 0.5);
+		f.Environment.Coordinator.Pump();
+		Assert.AreEqual(18.0, f.Scar);
+		f.Environment.Clock.Advance(TimeSpan.FromSeconds(0.5));
+		SaveParentWithoutRepair(f, parent, 0);
+		Assert.AreEqual(0.0, f.Progress.RemainingSeconds);
+		if (parentExpiresFirst) parent.ExpireEffect(); else f.Environment.Coordinator.Pump();
+		Assert.AreEqual(17.5, f.Scar, "The first expiry callback must finish the final segment.");
+		parent.ExpireEffect();
+		f.Environment.Coordinator.Pump();
+		SaveParentWithoutRepair(f, parent, 0);
+		f.Advance(600);
+		Assert.AreEqual(17.5, f.Scar);
+		Assert.AreEqual(0.0, f.Progress.RemainingBudget);
+		Assert.AreEqual(2.5, f.Progress.TotalRepaired);
+		Assert.AreEqual(3L, f.Progress.AcknowledgedSequence);
+		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
+	}
+
+	[TestMethod, TestCategory("J-C05")]
+	public void ParentSave_LessThanOneSecondBeforeShortExpiry_PreservesFinalDeadline()
+	{
+		using var f = new Fixture();
+		var parent = f.Install(1, 1, 30).ParentEffect;
+		f.Environment.Clock.Advance(TimeSpan.FromSeconds(29.5));
+		SaveParentWithoutRepair(f, parent, 0.5);
+		f.Advance(0.5);
+		Assert.AreEqual(19.5, f.Scar);
+		Assert.AreEqual(0.5, f.Progress.RemainingBudget);
+		Assert.AreEqual(0.0, f.Progress.RemainingSeconds);
+		Assert.AreEqual(1L, f.Progress.AcknowledgedSequence);
+		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
+	}
+
+	[TestMethod, TestCategory("J-C06")]
+	public void RepeatedParentSaves_DispelDiscardsPartialIntervalAndNeverResumes()
+	{
+		using var f = new Fixture();
+		var parent = f.Install().ParentEffect;
+		for (var seconds = 30; seconds <= 150; seconds += 30)
+		{
+			f.Environment.Clock.Advance(TimeSpan.FromSeconds(30));
+			SaveParentWithoutRepair(f, parent, 600 - seconds);
+			f.Environment.Coordinator.Pump();
+		}
+		Assert.AreEqual(18.0, f.Scar);
+		Assert.AreEqual(0.5, f.Progress.EarnedWork);
+		f.Cell.RemoveEffect(parent, true);
+		SaveParentWithoutRepair(f, parent, 450);
+		f.Advance(600);
+		Assert.AreEqual(18.0, f.Scar);
+		Assert.AreEqual(10.0, f.Progress.RemainingBudget);
+		Assert.AreEqual(2L, f.Progress.AcknowledgedSequence);
+		Assert.AreEqual(LandRejuvenationStatus.Cancelled, f.Progress.Status);
+		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
+	}
+
+	[TestMethod, TestCategory("J-C07")]
+	public void RepeatedParentSaves_PendingStepRetainsIdentityAndRetryDeadline()
+	{
+		using var f = new Fixture();
+		var parent = f.Install().ParentEffect;
+		var commits = f.Environment.Operations.Commits;
+		f.Environment.Operations.FailAfterClaim = true;
+		f.Advance(60);
+		var request = f.Progress.PendingRequest;
+		Assert.IsNotNull(request);
+		f.Environment.Operations.FailAfterClaim = false;
+		for (var seconds = 90; seconds <= 120; seconds += 30)
+		{
+			f.Environment.Clock.Advance(TimeSpan.FromSeconds(30));
+			SaveParentWithoutRepair(f, parent, 600 - seconds);
+			Assert.AreEqual(request, f.Progress.PendingRequest);
+			Assert.AreEqual(1L, f.Progress.Sequence);
+			Assert.AreEqual(0L, f.Progress.AcknowledgedSequence);
+			Assert.AreEqual(1.0, f.Progress.EarnedWork, "Unknown steps earn no additional work.");
+			Assert.AreEqual(600.0 - seconds, f.Progress.RemainingSeconds);
+			f.Environment.Coordinator.Pump();
+		}
+		Assert.AreEqual(19.0, f.Scar);
+		Assert.AreEqual(11.0, f.Progress.RemainingBudget);
+		Assert.AreEqual(request.OperationId, f.Progress.LastOperationId);
+		Assert.AreEqual(1L, f.Progress.AcknowledgedSequence);
+		Assert.IsNull(f.Progress.PendingRequest);
+		SaveParentWithoutRepair(f, parent, 480);
+		f.Environment.Coordinator.Pump();
+		Assert.AreEqual(commits + 1, f.Environment.Operations.Commits);
+		Assert.AreEqual(2L, f.Environment.Coordinator.TreatmentVisits);
+	}
+
+	private static void SaveParentWithoutRepair(Fixture f, IMagicSpellEffectParent parent, double remainingSeconds)
+	{
+		var scar = f.Scar;
+		var progress = f.Progress;
+		var commits = f.Environment.Operations.Commits;
+		_ = parent.SaveToXml(new() { [parent] = TimeSpan.FromSeconds(remainingSeconds) });
+		Assert.AreEqual(scar, f.Scar, "Actual parent/child serialization must not repair scars.");
+		Assert.AreEqual(progress.RemainingBudget, f.Progress.RemainingBudget);
+		Assert.AreEqual(progress.AcknowledgedSequence, f.Progress.AcknowledgedSequence);
+		Assert.AreEqual(commits, f.Environment.Operations.Commits);
+	}
+
 	[TestMethod, TestCategory("R-I12")]
 	public void ReloadMissingSource_TerminatesPersistedSlot_WithoutRepair()
 	{
@@ -530,7 +734,7 @@ public class LandRejuvenationTests
 		Assert.IsTrue(f.Environment.Coordinator.CanInstallTreatment(f.Cell, out var error), error);
 	}
 
-	[TestMethod, TestCategory("R-I22"), TestCategory("R-I23"), TestCategory("R-I24")]
+	[TestMethod, TestCategory("R-I22"), TestCategory("R-I23"), TestCategory("R-I24"), TestCategory("J-C08")]
 	public void Scheduling_ThirtyThousandCells_VisitsOnlyIndexedTreatmentsAndInspectionIsPure()
 	{
 		using var f = new Fixture(count: 30000);
@@ -543,9 +747,17 @@ public class LandRejuvenationTests
 		var child = f.Install();
 		for (var i = 0; i < 5; i++) _ = child.Describe(f.Environment.Builder);
 		Assert.AreEqual(20.0, f.Scar);
-		f.Advance(60);
+		for (var seconds = 30; seconds <= 60; seconds += 30)
+		{
+			f.Environment.Clock.Advance(TimeSpan.FromSeconds(30));
+			SaveParentWithoutRepair(f, child.ParentEffect, 600 - seconds);
+			f.Environment.Coordinator.Pump();
+			Assert.AreEqual(1, f.Environment.Coordinator.ActiveTreatmentCount);
+			Assert.IsTrue(f.Environment.Coordinator.Diagnostics.LastCellVisits <= f.Environment.Coordinator.Options.MaximumCellVisits);
+		}
 		Assert.AreEqual(1L, f.Environment.Coordinator.TreatmentVisits);
 		Assert.AreEqual(19.0, f.Scar);
+		Assert.AreEqual(1, f.Environment.SecondSubscriptions);
 		Assert.IsTrue(f.Environment.Coordinator.Diagnostics.LastCellVisits <= f.Environment.Coordinator.Options.MaximumCellVisits);
 		f.Environment.Coordinator.Unregister(f.Cell);
 		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);

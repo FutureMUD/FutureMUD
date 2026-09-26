@@ -250,12 +250,14 @@ public sealed partial class EnvironmentalMagicCoordinator
 		};
 	}
 
-	private void QueueTreatment(TreatmentRegistration r)
+	private void QueueTreatment(TreatmentRegistration r, bool keepDeadline = false)
 	{
 		_treatmentDue.Remove(r);
 		if (r.Progress.IsTerminal && r.Progress.PendingRequest is null) { FinishTreatment(r); return; }
 		if (r.Effect is null || r.Progress.CancellationRequested) return;
-		r.DueAt = Now + Math.Min(60.0, Math.Max(1.0, r.Progress.RemainingSeconds));
+		// Accounting checkpoints must retain even an overdue visit or a pending step's retry.
+		// Only work visits and reconciliation establish a new cadence deadline.
+		if (!keepDeadline) r.DueAt = Now + Math.Min(60.0, Math.Max(1.0, r.Progress.RemainingSeconds));
 		_treatmentDue.Add(r);
 	}
 
@@ -349,7 +351,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			_world.SystemMessage($"Land rejuvenation {r.Progress.Id}: {r.Progress.Diagnostic}", true);
 			if (checkpointOnly) throw;
 		}
-		finally { r.At = now; r.Working = false; QueueTreatment(r); }
+		finally { r.At = now; r.Working = false; QueueTreatment(r, keepDeadline: checkpointOnly); }
 	}
 
 	private bool CommitTreatmentStep(TreatmentRegistration r)

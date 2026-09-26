@@ -151,7 +151,10 @@ public class StringExtensionsTests
         Assert.AreEqual("Offset Two", "Offset Two".TitleCase());
         Assert.AreEqual("ZZZ Pilot Weather", "ZZZ Pilot Weather".TitleCase());
         Assert.AreEqual("Earth's Sky", "earth's sky".TitleCase());
-		Assert.AreEqual("He said, breathlessly, \"Hello.\"", "he said, breathlessly, \"hello.\"".TitleCase());
+		Assert.AreEqual("Earth’s Sky", "earth’s sky".TitleCase());
+		Assert.AreEqual("'Earth's Sky'", "'earth's sky'".TitleCase());
+		Assert.AreEqual("‘Earth’s Sky’", "‘earth’s sky’".TitleCase());
+		Assert.AreEqual("He Said, Breathlessly, \"Hello.\"", "he said, breathlessly, \"hello.\"".TitleCase());
 	}
 
     [TestMethod]

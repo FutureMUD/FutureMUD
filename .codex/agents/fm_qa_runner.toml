@@ -1,7 +1,7 @@
 # FutureMUD custom subagent; reviewed 2026-09-15.
 name = "fm_qa_runner"
 description = "Select FutureMUD checks, perform adaptive verification or bounded failure triage, and collect evidence without repairing code; predetermined automated-test runs belong to fm_test_runner."
-model = "gpt-5.6-terra"
+model = "gpt-6-sol"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 web_search = "disabled"

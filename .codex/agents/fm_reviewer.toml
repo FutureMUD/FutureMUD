@@ -1,7 +1,7 @@
 # FutureMUD custom subagent; reviewed 2026-09-15.
 name = "fm_reviewer"
 description = "Read-only review of a specified FutureMUD diff for concrete defects, regressions and missing acceptance coverage; not implementation or test execution."
-model = "gpt-5.6-terra"
+model = "gpt-6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 web_search = "disabled"

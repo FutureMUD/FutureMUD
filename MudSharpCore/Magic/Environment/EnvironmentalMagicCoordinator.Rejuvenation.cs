@@ -491,4 +491,28 @@ public sealed partial class EnvironmentalMagicCoordinator
 		if (cell is Cell { EnvironmentState.ScarDamage: 0.0 } && _treatments.TryGetValue(cell.Id, out var r) && !r.Working)
 			CancelTreatment(cell, r.Progress.Id, "No scars remain; this treatment has ended.");
 	}
+
+	private bool TryEndTreatmentsAtZeroBoundary(Cell cell, out string? error)
+	{
+		error = null;
+		if (!_treatments.ContainsKey(cell.Id) && !cell.Effects.OfType<ILandRejuvenationEffect>().Any()) return true;
+		try
+		{
+			LoadTreatmentRecords(cell.Id);
+			foreach (var progress in CellTreatmentRecords(cell.Id).Where(x => !x.IsTerminal || x.PendingRequest is not null).ToArray())
+			{
+				CancelTreatment(cell, progress.Id, "Natural recovery reached zero scars; this treatment has ended.");
+				var stored = _operations.FindTreatment(progress.Id);
+				if (stored is { CancellationRequested: true } || stored is { IsTerminal: true, PendingRequest: null }) continue;
+				error = $"Treatment {progress.Id} must have its termination durably confirmed before another ecological operation.";
+				return false;
+			}
+			return true;
+		}
+		catch (Exception ex)
+		{
+			error = $"Treatment termination could not be confirmed at the zero-scar boundary: {ex.Message}";
+			return false;
+		}
+	}
 }

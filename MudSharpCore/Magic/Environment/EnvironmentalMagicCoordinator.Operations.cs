@@ -80,6 +80,10 @@ public sealed partial class EnvironmentalMagicCoordinator
 			{
 				updated = PressureAnchor(updated, profile, pressure + addedPressure, utcNow) with { LastDefileUtc = utcNow };
 			}
+			// Natural settlement may reach zero before this operation adds new damage.
+			// Persist the old treatment's termination first so a restart cannot revive it against that damage.
+			if (treatment is null && state.ScarDamage == 0.0 && !TryEndTreatmentsAtZeroBoundary(concrete, out var terminationError))
+				return Fail(terminationError!);
 			var result = new EnvironmentalMagicOperationResult(request.OperationId, true, false,
 				damage - state.ScarDamage, addedPressure, repaired, null);
 			if (treatment is null) _operations.Commit(concrete, request, result, updated, utcNow, plan.Balances);

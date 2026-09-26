@@ -3531,14 +3531,15 @@ The syntax is as follows:
     }
 
     private const string RedescHelp =
-        @"The #3redesc#0 command edits a character or corpse's full description in the text editor.
+        @"The #3redesc#0 command edits a character, corpse or item's full description in the text editor.
 
-Use it on a visible character or corpse, review the current description and description-pattern guidance, then enter the replacement text in the editor.
+Use it on a visible target, review the current description, then enter the replacement text in the editor. Corpses continue to edit the original character's description.
 
-The target must be visible as a character or corpse. The entered description replaces the current full description.
+For an ordinary item, the description applies only to that instance and overrides its skin and prototype. Use #3clear#0 to restore inheritance from the skin or prototype.
 
 The syntax is as follows:
-	#3redesc <target>#0 - edits a target's full description";
+	#3redesc <target>#0 - edits a target's full description
+	#3redesc <item> clear#0 - clears an item's full description override";
 
     [PlayerCommand("Redesc", "redesc")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -3546,10 +3547,18 @@ The syntax is as follows:
     protected static void Redesc(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
-        ICharacter target = actor.TargetActorOrCorpse(ss.PopSpeech());
+        var targetText = ss.PopSpeech();
+        ICharacter target = actor.TargetActorOrCorpse(targetText);
         if (target is null)
         {
-            actor.OutputHandler.Send("You don't see anyone like that.");
+            var item = actor.TargetItem(targetText);
+            if (item is not null && !item.IsItemType<ICorpse>())
+            {
+                EditItemDescription(actor, item, ss, false);
+                return;
+            }
+
+            actor.OutputHandler.Send("You don't see anyone or anything like that.");
             return;
         }
 
@@ -3580,14 +3589,15 @@ The syntax is as follows:
     }
 
     private const string ResdescHelp =
-        @"The #3resdesc#0 command edits a character or corpse's short description in the text editor.
+        @"The #3resdesc#0 command edits a character, corpse or item's short description in the text editor.
 
-Use it on a visible character or corpse, review the current short description and description-pattern guidance, then enter the replacement text in the editor.
+Use it on a visible target, review the current short description, then enter the replacement text in the editor. Corpses continue to edit the original character's description.
 
-The target must be visible as a character or corpse. The entered description replaces the current short description.
+For an ordinary item, the description applies only to that instance and overrides its skin and prototype. Use #3clear#0 to restore inheritance from the skin or prototype.
 
 The syntax is as follows:
-	#3resdesc <target>#0 - edits a target's short description";
+	#3resdesc <target>#0 - edits a target's short description
+	#3resdesc <item> clear#0 - clears an item's short description override";
 
     [PlayerCommand("Resdesc", "resdesc")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -3595,10 +3605,18 @@ The syntax is as follows:
     protected static void Resdesc(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
-        ICharacter target = actor.TargetActorOrCorpse(ss.PopSpeech());
+        var targetText = ss.PopSpeech();
+        ICharacter target = actor.TargetActorOrCorpse(targetText);
         if (target is null)
         {
-            actor.OutputHandler.Send("You don't see anyone like that.");
+            var item = actor.TargetItem(targetText);
+            if (item is not null && !item.IsItemType<ICorpse>())
+            {
+                EditItemDescription(actor, item, ss, true);
+                return;
+            }
+
+            actor.OutputHandler.Send("You don't see anyone or anything like that.");
             return;
         }
 
@@ -3628,6 +3646,82 @@ The syntax is as follows:
         target.Body.SetShortDescription(text);
         handler.Send($"You change the short description of {old} to {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)}.");
     }
+
+	private static void EditItemDescription(ICharacter actor, IGameItem item, StringStack command, bool shortDescription)
+	{
+		var descriptionType = shortDescription ? "short" : "full";
+		if (command.SafeRemainingArgument.EqualTo("clear"))
+		{
+			if (shortDescription)
+			{
+				item.OverrideSdesc = null;
+			}
+			else
+			{
+				item.OverrideDesc = null;
+			}
+
+			actor.OutputHandler.Send($"You clear the {descriptionType} description override of {item.HowSeen(actor)}. It now inherits that description from its skin or prototype.");
+			return;
+		}
+
+		if (!command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Use {(shortDescription ? "resdesc <item> [clear]" : "redesc <item> [clear]").ColourCommand()}.");
+			return;
+		}
+
+		var currentDescription = shortDescription
+			? item.OverrideSdesc ?? item.Skin?.ShortDescription ?? item.Prototype.ShortDescription
+			: item.OverrideDesc ?? item.Skin?.FullDescription ?? item.Prototype.FullDescription;
+		if (shortDescription
+			? item.OverrideSdesc is null && item.Skin?.ShortDescription is null
+			: item.OverrideDesc is null && item.Skin?.FullDescription is null)
+		{
+			var extraDescription = item.Prototype.ExtraDescriptions
+				.Where(x => !string.IsNullOrEmpty(shortDescription ? x.ShortDescription : x.FullDescription))
+				.FirstOrDefault(x => x.Prog.Execute<bool?>(actor) == true);
+			if (extraDescription.Prog is not null)
+			{
+				currentDescription = shortDescription ? extraDescription.ShortDescription : extraDescription.FullDescription;
+			}
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Editing the {descriptionType} description for {item.HowSeen(actor)}.");
+		sb.AppendLine();
+		sb.AppendLine("Replacing:\n");
+		sb.AppendLine(currentDescription.Wrap(actor.InnerLineFormatLength, "\t").ColourCommand());
+		sb.AppendLine();
+		sb.AppendLine("This changes only this item. Item description markup, including @material, @matdesc and characteristics, is supported.");
+		sb.AppendLine("Enter the description in the editor below.");
+		actor.OutputHandler.Send(sb.ToString());
+		actor.EditorMode(ItemDescriptionPostAction, shortDescription ? ResdescCancelAction : RedescCancelAction,
+			1.0, currentDescription, EditorOptions.None, new object[] { item, actor, shortDescription });
+	}
+
+	private static void ItemDescriptionPostAction(string text, IOutputHandler handler, object[] args)
+	{
+		var item = (IGameItem)args[0];
+		var actor = (ICharacter)args[1];
+		var shortDescription = (bool)args[2];
+		if (item.Deleted || item.IsItemType<ICorpse>())
+		{
+			handler.Send("That item can no longer be redescribed.");
+			return;
+		}
+
+		if (shortDescription)
+		{
+			var old = item.HowSeen(actor);
+			item.OverrideSdesc = text.Trim();
+			handler.Send($"You change the short description of {old} to {item.HowSeen(actor)}.");
+			return;
+		}
+
+		item.OverrideDesc = text.Trim();
+		handler.Send($"You change the description of {item.HowSeen(actor)} to:\n\n{item.OverrideDesc.ColourCommand()}");
+	}
 
     private const string SniffHelp =
         @"The #3sniff#0 command shows debug information about world objects and locations.

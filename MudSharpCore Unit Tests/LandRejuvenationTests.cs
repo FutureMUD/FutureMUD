@@ -190,6 +190,29 @@ public class LandRejuvenationTests
 		Assert.AreEqual(1.0, f.Progress.TotalRepaired);
 	}
 
+	[DataTestMethod, DataRow(false), DataRow(true), TestCategory("R-I02")]
+	public void Admission_InvalidRepairPolicyOrScalarState_PreservesEvidenceWithoutInstallation(bool invalidState)
+	{
+		using var f = new Fixture();
+		if (invalidState)
+		{
+			f.Cell.LoadEnvironmentForTest(f.Cell.EnvironmentState with { ScarDamage = double.NaN });
+		}
+		else
+		{
+			var definition = XElement.Parse(f.Environment.Profile.ExportDefinition());
+			definition.SetElementValue("MagicalRepairLimitPerMinute", "invalid");
+			var profile = f.Environment.AddProfile(2, definition);
+			f.Environment.Coordinator.SetBinding(f.Cell, EnvironmentalMagicBindingMode.Explicit, profile.Id);
+		}
+		Assert.IsFalse(f.Template.TryPrepareApplication(f.Actor.Object, f.Cell, OpposedOutcomeDegree.Moderate,
+			SpellPower.Standard, TimeSpan.FromMinutes(1), out _, out var error));
+		Assert.IsFalse(string.IsNullOrEmpty(error));
+		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
+		Assert.AreEqual(0, f.Environment.Operations.Treatments.Count);
+		if (invalidState) Assert.IsTrue(double.IsNaN(f.Scar)); else Assert.AreEqual(20.0, f.Scar);
+	}
+
 	[TestMethod, TestCategory("R-T04"), TestCategory("R-T09"), TestCategory("R-I19")]
 	public void NaturalRepair_IsNotSpentFromBudget_AndZeroTransitionEndsBeforeNewDamage()
 	{
@@ -203,6 +226,35 @@ public class LandRejuvenationTests
 		Assert.IsTrue(f.Environment.Coordinator.ApplyOperation(f.Cell, new(Guid.NewGuid(), null, "staff repair", Repair: 100)).Success);
 		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
 		Assert.IsTrue(f.Environment.Coordinator.ApplyOperation(f.Cell, new(Guid.NewGuid(), null, "new damage", Damage: 5)).Success);
+		f.Environment.Edit("repair 0");
+		f.Environment.Coordinator.Pump();
+		f.Advance(120);
+		Assert.AreEqual(5.0, f.Scar);
+	}
+
+	[DataTestMethod, DataRow(false), DataRow(true), TestCategory("R-I19")]
+	public void NaturalZeroThenDamage_BeforePump_TerminatesOldTreatment(bool failTerminationSave)
+	{
+		using var f = new Fixture(scar: 1);
+		f.Environment.Edit("repair 1");
+		f.Environment.Coordinator.Pump();
+		var child = f.Install();
+		f.Environment.Clock.Advance(TimeSpan.FromSeconds(60));
+		var request = new EnvironmentalMagicOperationRequest(Guid.NewGuid(), null, "later damage", Damage: 5);
+		if (failTerminationSave)
+		{
+			f.Environment.Operations.FailTreatmentSave = true;
+			Assert.IsFalse(f.Environment.Coordinator.ApplyOperation(f.Cell, request).Success);
+			Assert.IsFalse(f.Environment.Operations.Receipts.ContainsKey(request.OperationId));
+			Assert.IsFalse(f.Environment.Operations.Treatments[child.TreatmentId].CancellationRequested);
+			Assert.AreEqual(1.0, f.Scar, "Failed termination must not commit new damage or consume the natural sample.");
+			f.Environment.Operations.FailTreatmentSave = false;
+		}
+		Assert.IsTrue(f.Environment.Coordinator.ApplyOperation(f.Cell, request).Success);
+		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
+		Assert.IsTrue(f.Environment.Operations.Treatments[child.TreatmentId].CancellationRequested);
+		Assert.AreEqual(0.0, f.Progress.TotalRepaired);
+		Assert.AreEqual(1.0, f.Progress.RemainingBudget);
 		f.Environment.Edit("repair 0");
 		f.Environment.Coordinator.Pump();
 		f.Advance(120);

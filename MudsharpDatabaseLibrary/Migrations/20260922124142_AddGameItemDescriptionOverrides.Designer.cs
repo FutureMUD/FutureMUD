@@ -12,8 +12,8 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    [Migration("20260922130543_LandRejuvenationTreatments")]
-    partial class LandRejuvenationTreatments
+    [Migration("20260922124142_AddGameItemDescriptionOverrides")]
+    partial class AddGameItemDescriptionOverrides
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -12338,6 +12338,18 @@ namespace MudSharp.Migrations
                     b.Property<int?>("MorphTimeRemaining")
                         .HasColumnType("int(11)");
 
+                    b.Property<string>("OverrideDesc")
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OverrideDesc"), "utf8");
+
+                    b.Property<string>("OverrideSdesc")
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OverrideSdesc"), "utf8");
+
                     b.Property<long?>("OwnerId")
                         .HasColumnType("bigint(20)");
 
@@ -14559,39 +14571,6 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_KnowledgesCosts_Knowledges_idx");
 
                     b.ToTable("KnowledgesCosts");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.LandRejuvenationTreatment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("char(36)");
-
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("Checkpoint")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .UseCollation("utf8mb4_unicode_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Checkpoint"), "utf8mb4");
-
-                    b.Property<long>("Revision")
-                        .IsConcurrencyToken()
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("varchar(40)");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("CellId", "Status")
-                        .HasDatabaseName("IX_LandRejuvenationTreatments_CellId_Status");
-
-                    b.ToTable("LandRejuvenationTreatments", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Language", b =>

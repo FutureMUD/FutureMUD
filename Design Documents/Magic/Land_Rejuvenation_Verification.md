@@ -7,6 +7,9 @@ Authoritative assignment: `04_Bounded_Land_Rejuvenation_Implementation_Brief.md`
 **Task 4 — Bounded land-rejuvenation spell effect**, Revision 2, read from the supplied
 `FutureMUD_Task4_Rejuvenation_Handoff_Revision_2` attachment directory.
 Starting checkout: `037ac65c3f22359b093f685b838457a5b17871ee`, containing prerequisite PR #763.
+Before publication, master `cdf6f79997cc7b5081e51ceee2e1c45cf6adc39a` was integrated to
+retain its independently delivered item-description schema. The unpublished Task 4
+migration was regenerated against that combined model with the same table-only Up/Down.
 The delivery is one implementation PR; it does not include merging, deployment or stock content.
 
 ## Delivered contract
@@ -47,6 +50,9 @@ budgets. Online monotonic time starts after attachment/load. Profile edits close
 old-rate segment; unknown policy intervals are discarded conservatively. Normal
 expiry clips and accounts its final interval once. Explicit removal and failed
 maintenance discard uncommitted time. Zero scars terminate before later damage.
+When natural settlement reaches zero inside a new damage operation, durable
+termination is confirmed first. A failed termination save refuses that operation
+without consuming the natural sample; retry cannot reuse the ended treatment.
 
 `ConservativeScarRepair` rounds the remaining scar upward by one representable step
 when subtraction would exceed the allowance. Reported and charged repair is exactly
@@ -64,10 +70,18 @@ database was an owned loopback MySQL 8.0.45 instance, never a game database.
 | Check | Actual result and local evidence |
 | --- | --- |
 | Focused rejuvenation run 9 | PASS: 60/60, no skips, native and shell exit 0. `.artifacts/rejuvenation-focused-9/rejuvenation-focused-9.trx` and its adjacent log. |
-| Final full fast gate | Pending final run; recorded below before delivery. |
-| Debug/Release engine and EF model parity | Pending final build/parity receipts. |
+| First full fast gate | 5,806/5,808 passed, no skips; all 3,657 core cases passed (including 61 rejuvenation rows). Two existing snapshot-helper tests hit shared `%TEMP%/FutureMUD-SnapshotRefresh` ACL denial. Stable-source run `20260926T093611Z-e3c333bf89c9`; `.artifacts/rejuvenation-fast-final.log`. Final run uses a fresh owned temp root. |
+| Final focused rejuvenation run 10 | PASS: 65/65, no skips, native/shell exit 0. Includes natural-zero-before-damage and failed termination-save/retry rows. `.artifacts/rejuvenation-focused-10/rejuvenation-focused-10.trx`. |
+| Final integrated full fast gate | FAIL: 5,843/5,844 passed, no skips/inconclusive rows; source stable. All 3,691 core, 1,380 seeder and 62 persistence cases pass. Only `TitleCase_CapitalisesWords` fails: expected `Earth's Sky`, actual `Earth'S Sky`. Run `20260926T100816Z-fc15261c204d`, native/shell exit 1; `.artifacts/rejuvenation-fast-integrated.log`. |
+| Isolated master failure reproduction | Same one-test failure reproduced on clean master `cdf6f79997cc7b5081e51ceee2e1c45cf6adc39a`, without any rejuvenation changes. Test/implementation match master. Native/shell exit 1; `.artifacts/rejuvenation-titlecase-master/titlecase-master.trx` and `.artifacts/rejuvenation-titlecase-master.log`. No unrelated helper repair or assertion change. |
+| Debug/Release engine | PASS, both zero warnings/errors and exit 0. Debug rebuilt through the final native harness build (`.artifacts/rejuvenation-native-14-build.log`); targeted Release `.artifacts/rejuvenation-release-final.log`. |
+| EF model parity | PASS: no pending model changes with generated migration `20260926094429_LandRejuvenationTreatments`; `.artifacts/rejuvenation-integrated-parity.log`. |
+| Focused blank snapshot tests | PASS: 8/8, no skips, native/shell exit 0. `.artifacts/rejuvenation-snapshot-final/rejuvenation-snapshot-final.trx`. |
 | Native run 10 | PASS: R-P01–R-P06, direct Vancian/power probe, refreshed-snapshot import; `nativeHarnessExit=0`. `.artifacts/rejuvenation-native-10.log`. |
-| Final snapshot/native run 11 | PASS: all native probes repeated with the final runtime, native and shell exit 0, owned cleanup complete. `.artifacts/rejuvenation-native-11.log`. Full snapshot refresh/import at the new migration preserves `utf8mb4_0900_ai_ci`; manifest UTC `2026-09-26T09:34:28.4231551Z`. |
+| Snapshot/native run 11 | PASS: all native probes, native and shell exit 0, owned cleanup complete. `.artifacts/rejuvenation-native-11.log`. Full snapshot refresh/import preserves `utf8mb4_0900_ai_ci`; manifest UTC `2026-09-26T09:34:28.4231551Z`. |
+| Integrated upgrade/native run 12 | PASS: imported master migration `20260922124142_AddGameItemDescriptionOverrides`, upgraded to `20260926094429_LandRejuvenationTreatments`; all native probes, exit 0 and cleanup. `.artifacts/rejuvenation-native-12-upgrade.log`. |
+| Integrated fresh/native run 13 | PASS: full migration-chain refresh, import already at `20260926094429_LandRejuvenationTreatments`, all native probes, exit 0 and cleanup. `.artifacts/rejuvenation-native-13-fresh.log`; manifest UTC `2026-09-26T09:51:16.6090764Z`. |
+| Final runtime/native run 14 | PASS: R-P01–R-P06 plus direct Vancian/power probes on the final runtime including the natural-zero boundary fix. Native/shell exit 0; disposable database and owned MySQL instance removed. `.artifacts/rejuvenation-native-14-final.log`. |
 
 Earlier failures are retained locally, not counted as acceptance. They include
 fixture compile/setup errors, a wrapper bootstrap `CS2012` access denial, and a run
@@ -75,13 +89,18 @@ with 49 passing TRX assertions but contradictory shell exit 1. Run 9 closed that
 discrepancy with explicit native/shell zero. Native setup failures exposed an overly
 long disposable database name and a shared temporary-directory ACL; the harness
 now uses a short unique database name and owned `TEMP`/`TMP` for snapshot export.
+The final fast gate also used a fresh owned `TEMP`/`TMP`, clearing both prior snapshot
+ACL failures. Its compiler-held temporary analyzer files could not all be removed;
+that unit-test temp directory remains locally. Native database/server cleanup succeeded.
+The full gate remains red solely for the independently reproduced master title-case
+failure; it is not represented as a passing gate. These runs do not establish hosted CI status.
 
 ## Automated requirement map
 
 The named methods are in
 [`LandRejuvenationTests.cs`](../../MudSharpCore%20Unit%20Tests/LandRejuvenationTests.cs).
 Rows refer to assertions, not merely test categories. The malformed textual-version
-row was added after run 9 and is included in the final gate.
+row was added after run 9 and is included in the final focused run and full gate.
 
 | ID | Executable evidence and asserted boundary |
 | --- | --- |
@@ -99,7 +118,7 @@ row was added after run 9 and is included in the final gate.
 | R-T12 | `CastSpell_RepeatedRoomAndIndependentTargets_PaysOnceAndInstallsPerCell` and native direct command probes: distinct cells, one invocation payment, real non-admin legacy/Vancian cost and slot semantics. |
 | R-T13 | Template compatibility assertions, existing scroll/substance suites and native direct Vancian probe: payload rejection does not disable direct casting. |
 | R-I01 | Three rows of `Treatment_FullZeroCapacityAndDormantCells_AdvanceWithoutResourceProduction`: full, zero-capacity and zero-rate cells repair exactly 1 while resource balances stay unchanged. |
-| R-I02 | Invalid-output test and `Treatment_InvalidOrganicDefinition_DoesNotBlockRepair`: invalid unrelated output/organic policy and absent field still permit valid repair; profile ceiling/load tests reject invalid repair policy. |
+| R-I02 | Invalid-output test, `Treatment_InvalidOrganicDefinition_DoesNotBlockRepair`, `Admission_InvalidRepairPolicyOrScalarState_PreservesEvidenceWithoutInstallation`: unrelated output/organic errors and absent field permit repair; malformed repair cap/NaN scalar refuse without erasing evidence or installing work. |
 | R-I03 | Three `ProfileCeiling_RoundTripsIndependentlyFromNaturalRepair` rows plus cap-edit test: none/zero/positive round-trip, malformed cap is repair-specific, zero ends work without erasing scars. |
 | R-I04 | `ProfileCap_EditIsProspective_AndDisableIsTerminal`, both `Expressions_CaptureCastingTraitAndSustainedBonusContext` rows: cap increase/decrease split old/new segments; later template/trait edits cannot change captured values; direct Vancian wrapping included. |
 | R-I05 | Both `Binding_DisableOrReplaceThenRestore_DoesNotReviveTreatment` rows: disabled or different effective profile ends work, even after restoring the original binding. |
@@ -116,7 +135,7 @@ row was added after run 9 and is included in the final gate.
 | R-I16 | Atomic-step and `FinalCommittedRepair_LostAcknowledgementRemainsCompletedAfterConfirmation`, native R-P04: same ID, one budget debit, coherent terminal cache/store on final repair. |
 | R-I17 | `ForeignPendingOperation_IsNeverAcknowledged_AndBlockedTimeEarnsNothing`: no foreign acknowledgement, no earned work during quarantine and no paused-time burst. |
 | R-I18 | `Dispel_UnresolvedRollback_CancelsWithoutRetryOrResurrection`, native R-P04: cancellation survives uncertainty and confirmation never reinstalls the child. |
-| R-I19 | Natural-zero transition/retry tests and native zero-then-Land probe: ended treatment cannot repair later scars, including before a normal pump. |
+| R-I19 | Natural-zero transition/retry tests, both rows of `NaturalZeroThenDamage_BeforePump_TerminatesOldTreatment` and native zero-then-Land probe: ended treatment cannot repair later scars, including before a normal pump; failed termination persistence refuses new damage and preserves its sample for retry. |
 | R-I20 | `RepairCommit_RejectsNestedSameCellLandDebit_AndAllowsOtherCell`, `LandDebit_RejectsNestedRepair_WithoutBlockingAnotherCell`: both mutation directions refuse same-cell reentry without partial debit; another cell remains independent. |
 | R-I21 | Exclusive/composite and repeated-room tests: preserve old siblings, one child per distinct cell and one ordinary payment per invocation. |
 | R-I22 | `Scheduling_ThirtyThousandCells_VisitsOnlyIndexedTreatmentsAndInspectionIsPure`: forbidden cell/field enumeration, zero recurring treatment reads/visits with no treatments, one existing heartbeat. |
@@ -129,7 +148,7 @@ Maintained executable harness:
 [`Program.Rejuvenation.cs`](../../Temporary%20Scratch%20App/GatheringNativePersistenceHarness/Program.Rejuvenation.cs),
 [`Program.RejuvenationVancian.cs`](../../Temporary%20Scratch%20App/GatheringNativePersistenceHarness/Program.RejuvenationVancian.cs).
 
-| Probe | Observed assertions in passing native runs 10 and 11 |
+| Probe | Observed assertions in passing native runs 10–14 |
 | --- | --- |
 | R-P01 | Real builder editor configures profile cap 1 and spell budget 12/rate 2/duration 600/cost 0.25; DB source reloads; non-admin `MagicGeneric` room cast pays and attaches without repair. |
 | R-P02 | Real Land creates 20 scars. A timed step yields scar 19, budget 11, total repaired 1 and acknowledged sequence 1 in a fresh MySQL context before global save. Crop stock 9/prepaid 0.75, casting/gathering payments, pressure and destructive timestamp remain correct. |
@@ -170,11 +189,12 @@ configured to throw. Total visits stay within `MaximumCellVisits`. Disposal remo
 the one existing second-heartbeat subscription. These are work-count assertions,
 not a production throughput guarantee.
 
-Migration `20260922130543_LandRejuvenationTreatments` was generated with `dotnet-ef`
+Migration `20260926094429_LandRejuvenationTreatments` was generated with `dotnet-ef`
 9.0.11 matching checked-out EF packages. Its Up creates only the checkpoint table
 and cell/status index; Down drops that table. Model, designer and EF snapshot are
 aligned. Earlier native runs independently upgraded the prerequisite snapshot
-`20260920025846_LandGatheringSourceAccounting` to the new migration. The full refresh
+`20260920025846_LandGatheringSourceAccounting` to the original unpublished migration.
+The final integrated schema is checked again against the newer master snapshot. The full refresh
 replays the real migration chain and folds the older appended deltas into the dump;
 the maintained MySQL lower-case table naming and existing default collation are retained.
 

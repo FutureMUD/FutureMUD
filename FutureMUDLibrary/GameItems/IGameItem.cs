@@ -28,6 +28,17 @@ namespace MudSharp.GameItems
         ItemQuality RawQuality { get; }
 
         IGameItemProto Prototype { get; }
+#nullable enable
+        /// <summary>
+        /// Instance short description, or null to inherit the skin/prototype description.
+        /// </summary>
+        string? OverrideSdesc { get; set; }
+
+        /// <summary>
+        /// Instance full description, or null to inherit the skin/prototype description.
+        /// </summary>
+        string? OverrideDesc { get; set; }
+#nullable restore
         new SizeCategory Size { get; }
         ISolid Material { get; set; }
         double Buoyancy(double fluidDensity);

@@ -4191,6 +4191,11 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
 
         shard.GetEditableShard.Celestials.Clear();
         shard.GetEditableShard.Celestials.AddRange(celestials);
+        var eligible = celestials.Where(x => x.CelestialAngleIsUsedToDetermineTimeOfDay).ToList();
+        if (eligible.Count > 1)
+        {
+            actor.OutputHandler.Send($"Warning: {eligible[0].Name.ColourName()} remains the first time-of-day authority; the later eligible objects will not be selected.".ColourError());
+        }
         foreach (IZone zone in shard.Zones)
         {
             zone.InitialiseCelestials();

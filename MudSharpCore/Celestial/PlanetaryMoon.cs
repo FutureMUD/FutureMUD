@@ -11,7 +11,7 @@ namespace MudSharp.Celestial;
 ///     mirrors the approach used in <see cref="NewSun"/> where calculations are based on the
 ///     current day number rather than updating each minute.
 /// </summary>
-public class PlanetaryMoon : PerceivedItem, ICelestialObject, ILunarEphemeris
+public class PlanetaryMoon : PerceivedItem, ICelestialObject, ILunarEphemeris, ILunarPhase, ICelestialTimeContext
 {
     public override string FrameworkItemType => "Celestial";
 

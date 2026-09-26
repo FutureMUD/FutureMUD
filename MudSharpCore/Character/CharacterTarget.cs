@@ -132,7 +132,10 @@ public partial class Character : ITarget
                               .Concat(Body.ExternalItems.Concat(SpatiallyTargetableItems()))
                               .Where(x => CanSee(x))
                               .ToList();
-        return targets.GetFromItemListByKeyword(keyword, this);
+        return targets.GetFromItemListByKeyword(keyword, this) ??
+               (IPerceivable?)Location.Celestials.OfType<MudSharp.Celestial.Authored.AuthoredCelestial>()
+                   .Where(x => x.CanReceiveEcho(this, MudSharp.Celestial.Authored.CelestialEchoAudience.BodyVisible))
+                   .GetFromItemListByKeyword(keyword, this);
     }
 
     public virtual IPerceivable? TargetLocal(string keyword)

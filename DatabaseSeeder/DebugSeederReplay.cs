@@ -399,7 +399,9 @@ internal static class DebugSeederReplayProfiles
 				("installgasgiantmoon", "yes"),
 				("gasgiantcalendar", "1"),
 				("gasgiantsunepoch", epoch),
-				("gasgiantmoonepoch", epoch)),
+				("gasgiantmoonepoch", epoch),
+				("installauthored", "yes"),
+				("authoredcalendar", "1")),
 			Step<AttributeSeeder>(
 				("choice", "labmud"),
 				("decorator", "labmud")),

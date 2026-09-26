@@ -4320,7 +4320,7 @@ namespace MudSharp.Migrations
 
                     b.Property<string>("Definition")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("longtext")
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8");

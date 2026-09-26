@@ -28,6 +28,10 @@ namespace MudSharp.TimeAndDate.Time
         event ClockEventHandler MinutesUpdated;
         event ClockEventHandler HoursUpdated;
         event ClockAdvanceDaysEventHandler DaysUpdated;
+        /// <summary>Administrative time changes finish with one silent celestial resynchronisation.</summary>
+        event ClockEventHandler TimeChanged;
+        bool IsTimeBeingSet { get; }
+        System.IDisposable BeginTimeChange();
         string Alias { get; }
         string Description { get; }
         int SecondsPerMinute { get; }

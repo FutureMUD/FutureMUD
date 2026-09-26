@@ -29,3 +29,4 @@ MudSharp/bin/*
 /.playwright-cli/
 /output/playwright/
 /.artifacts/test-runs/
+/.artifacts/authored-celestials/

@@ -199,6 +199,8 @@ Each profile is a typed inventory of concrete seeder types and question IDs; it 
 
 For ItemSeeder this inventory includes `technologyprofile`, `technologypower`, `technologypaper`, `technologytelecom`, `technologynetworkmedia`, and `technologyvehicle`. The first four profiles select `neutral`; `industrial-custom` activates its explicit custom answers. Inactive answers remain inventoried so question-contract drift stays visible.
 
+For CelestialSeeder, all five profiles include `installauthored=yes` and `authoredcalendar=1`. Interactive installation defaults this optional package to no. Its six geography-independent examples remain unattached; `SeederPreset` identifies existing members so reruns preserve IDs and builder edits while adding missing examples. Physical celestial packages retain their established detection and source formats.
+
 Replay runs require a freshly migrated, unseeded database. The runner refuses a target with bootstrap accounts or remembered seeder choices and never resets, overwrites, or cross-seeder-rolls back a database. Each completed seeder commits through the same executor used by the interactive path. A blocked prerequisite or exception stops the run immediately; completed work is preserved, later steps are not run, and the result reports completed, failed, and unstarted steps.
 
 The profiles use the Debug-only bootstrap credential `DebugReplayOnly!2026`. The UI warns that this credential and workflow must never be used for a reachable or production database.

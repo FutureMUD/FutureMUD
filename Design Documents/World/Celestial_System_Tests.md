@@ -12,10 +12,14 @@ The automated suite therefore keeps runtime regressions and seeder regressions s
 
 | Test project | Scope |
 | --- | --- |
-| `MudSharpCore Unit Tests` | Deterministic numeric regression coverage for `Sun`, `PlanetaryMoon`, `PlanetFromMoon`, and `SunFromPlanetaryMoon`, plus non-24x60 direction sampling checks |
-| `DatabaseSeeder Unit Tests` | Stock package creation, linkage, package dependency rules, and seeded-constant regression checks |
+| `MudSharpCore Unit Tests` | Physical and authored numeric regressions, nonstandard clocks, event/public API contracts, zone/lifecycle/perception integration, resource guards and performance counters |
+| `DatabaseSeeder Unit Tests` | Stock package creation, linkage, dependency rules, seeded constants, authored rerun preservation and Debug replay contracts |
 
 ## Runtime Coverage
+Authored coverage is in `AuthoredCelestialNumericalTests`, `AuthoredCelestialIntegrationTests`, `AuthoredCelestialValidationTests`, `AuthoredCelestialWorldTests`, `AuthoredCelestialFutureProgTests` and `AuthoredCelestialPerformanceTests`. The companion fixture JSON is copied to the test output; all fourteen authored fixtures use their supplied independent expectations. Additional tests cover randomized geometry and sampled-event oracles, source failures and limits, real zone authority/light/lifecycle, timezone projection, echoes, atomic edits and calendar boundaries, every registered event overload, zero-allocation numerical paths and 1/100/1,000-subscriber fanout.
+
+`AuthoredCelestialSeederTests` checks six example records, compiling their source and preserving edits/IDs while restoring a missing member. The executable native harness is `scripts/AuthoredCelestialSmokeWorld`; use its runbook for a disposable MySQL replay, nonblank refusal, in-game commands and persistence evidence. No existing physical numerical golden values are changed.
+
 The modern runtime coverage lives in four focused suites:
 
 - `CelestialTests.cs`

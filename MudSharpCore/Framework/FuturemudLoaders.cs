@@ -5000,6 +5000,12 @@ For information on the syntax to use in emotes (such as those included in bracke
         {
             switch (celestial.CelestialType)
             {
+                case "RailSun":
+                case "RailMoon":
+                case "ScriptedSun":
+                case "ScriptedMoon":
+                    _celestialObjects.Add(Celestial.Authored.AuthoredCelestial.Load(celestial, this));
+                    continue;
                 case "OldSun":
                     throw new ApplicationException(
                         $"Celestial #{celestial.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)} uses deprecated type OldSun, which is no longer supported. Replace it with the modern Sun type before loading this world.");

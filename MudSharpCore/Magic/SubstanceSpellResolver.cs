@@ -37,7 +37,7 @@ public static class SubstanceSpellResolver
 	};
 	public static bool Scalable(IMagicSpellEffectTemplate effect) => effect is HealEffect or MendEffect or DamageEffect or
 		StaminaDeltaSpellEffect or MagicResourceDeltaEffect or NeedDeltaEffect or TraitBoostEffect or GlowEffect or HealingRateSpellEffect or ItemDamageEffect or SpellArmourEffect || Scalars.ContainsKey(Type(effect));
-	public static bool Supported(IMagicSpellEffectTemplate effect) => Scalable(effect) || Binary.Contains(Type(effect));
+	public static bool Supported(IMagicSpellEffectTemplate effect) => effect is not RejuvenateLandEffect && (Scalable(effect) || Binary.Contains(Type(effect)));
 	public static IEnumerable<string> Errors(IMagicSpell? spell, SubstanceEffectEntry entry)
 	{
 		if (spell is null) { yield return "Missing spell."; yield break; }

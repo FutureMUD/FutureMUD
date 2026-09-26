@@ -342,6 +342,44 @@ internal sealed class EnvironmentalMagicTestClock : TimeProvider
 
 internal sealed class EnvironmentalMagicTestOperationStore : IEnvironmentalMagicOperationStore
 {
+	public Dictionary<Guid, LandRejuvenationProgress> Treatments { get; } = new();
+	public int TreatmentReads { get; private set; }
+	public bool FailTreatmentSave { get; set; }
+	public LandRejuvenationProgress? FindTreatment(Guid id)
+	{
+		TreatmentReads++;
+		if (FailRead) throw new InvalidOperationException("Test treatment read failure");
+		return Treatments.GetValueOrDefault(id);
+	}
+	public IReadOnlyList<LandRejuvenationProgress> TreatmentsFor(long cellId)
+	{
+		TreatmentReads++;
+		if (FailRead) throw new InvalidOperationException("Test treatment read failure");
+		return Treatments.Values.Where(x => x.CellId == cellId).ToArray();
+	}
+	public void SaveTreatment(LandRejuvenationProgress progress, long? expectedRevision)
+	{
+		if (FailTreatmentSave) throw new InvalidOperationException("Test treatment save failure");
+		if (Treatments.GetValueOrDefault(progress.Id)?.Revision != expectedRevision || progress.Revision != (expectedRevision ?? -1) + 1)
+			throw new InvalidOperationException("Test treatment checkpoint concurrency conflict");
+		Treatments[progress.Id] = progress;
+	}
+	public void CommitRepair(Cell cell, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
+		EnvironmentalMagicState state, DateTimeOffset atUtc, IReadOnlyDictionary<IMagicResource, double> balances,
+		LandRejuvenationProgress progress, long expectedRevision)
+	{
+		var before = Treatments[progress.Id];
+		if (before.Revision != expectedRevision || before.PendingRequest != request) throw new InvalidOperationException("Prepared step mismatch");
+		var loseAck = FailAfterCommit;
+		FailAfterCommit = false;
+		try
+		{
+			Commit(cell, request, result, state, atUtc, balances);
+			Treatments[progress.Id] = progress;
+		}
+		finally { FailAfterCommit = loseAck; }
+		if (loseAck) throw new InvalidOperationException("Test acknowledgement lost after atomic checkpoint");
+	}
 	public Dictionary<Guid, StoredEnvironmentalMagicOperation> Receipts { get; } = new();
 	public Dictionary<long, EnvironmentalMagicState> PersistedStates { get; } = new();
 	public Dictionary<long, IReadOnlyDictionary<long, double>> PersistedResourceAmounts { get; } = new();
@@ -350,6 +388,7 @@ internal sealed class EnvironmentalMagicTestOperationStore : IEnvironmentalMagic
 	public bool FailAfterCommit { get; set; }
 	public bool FailAfterClaim { get; set; }
 	public bool FailRead { get; set; }
+	public Action<Cell>? BeforeCommit { get; set; }
 	public int Reads { get; private set; }
 	public int Commits { get; private set; }
 	public StoredEnvironmentalMagicOperation? Find(Guid operationId)
@@ -369,6 +408,7 @@ internal sealed class EnvironmentalMagicTestOperationStore : IEnvironmentalMagic
 		EnvironmentalMagicState state, DateTimeOffset atUtc,
 		IReadOnlyDictionary<IMagicResource, double>? resourceAmounts = null)
 	{
+		BeforeCommit?.Invoke(cell);
 		if (FailCommit) throw new InvalidOperationException("Test persistence failure");
 		typeof(Cell).GetMethod("BeginEnvironmentalOperation", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.Invoke(cell, new object[] { request.OperationId });

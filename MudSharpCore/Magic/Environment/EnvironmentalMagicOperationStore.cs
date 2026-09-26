@@ -17,6 +17,12 @@ public sealed record StoredEnvironmentalMagicState(EnvironmentalMagicState State
 /// <summary>Explicit-operation persistence boundary; ordinary background work never calls this store.</summary>
 public interface IEnvironmentalMagicOperationStore
 {
+	LandRejuvenationProgress? FindTreatment(Guid id) => throw new NotSupportedException("Treatment checkpoints are not supported by this store.");
+	IReadOnlyList<LandRejuvenationProgress> TreatmentsFor(long cellId) => throw new NotSupportedException("Treatment checkpoints are not supported by this store.");
+	void SaveTreatment(LandRejuvenationProgress progress, long? expectedRevision) => throw new NotSupportedException("Treatment checkpoints are not supported by this store.");
+	void CommitRepair(Cell cell, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
+		EnvironmentalMagicState state, DateTimeOffset atUtc, IReadOnlyDictionary<IMagicResource, double> balances,
+		LandRejuvenationProgress progress, long expectedRevision) => throw new NotSupportedException("Atomic repair checkpoints are not supported by this store.");
 	StoredEnvironmentalMagicOperation? Find(Guid operationId);
 	StoredEnvironmentalMagicState Load(Cell cell);
 	void Commit(Cell cell, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
@@ -24,7 +30,7 @@ public interface IEnvironmentalMagicOperationStore
 		IReadOnlyDictionary<IMagicResource, double>? resourceAmounts = null);
 }
 
-public sealed class DatabaseEnvironmentalMagicOperationStore : IEnvironmentalMagicOperationStore
+public sealed partial class DatabaseEnvironmentalMagicOperationStore : IEnvironmentalMagicOperationStore
 {
 	public StoredEnvironmentalMagicOperation? Find(Guid operationId)
 	{
@@ -67,6 +73,16 @@ public sealed class DatabaseEnvironmentalMagicOperationStore : IEnvironmentalMag
 	public void Commit(Cell cell, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
 		EnvironmentalMagicState state, DateTimeOffset atUtc,
 		IReadOnlyDictionary<IMagicResource, double>? resourceAmounts = null)
+		=> CommitCore(cell, request, result, state, atUtc, resourceAmounts, null, null);
+
+	public void CommitRepair(Cell cell, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
+		EnvironmentalMagicState state, DateTimeOffset atUtc, IReadOnlyDictionary<IMagicResource, double> balances,
+		LandRejuvenationProgress progress, long expectedRevision)
+		=> CommitCore(cell, request, result, state, atUtc, balances, progress, expectedRevision);
+
+	private void CommitCore(Cell cell, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
+		EnvironmentalMagicState state, DateTimeOffset atUtc, IReadOnlyDictionary<IMagicResource, double>? resourceAmounts,
+		LandRejuvenationProgress? progress, long? expectedProgressRevision)
 	{
 		var balances = cell.MagicResourceAmounts.ToDictionary(x => x.Key, x => x.Value);
 		if (resourceAmounts is not null)
@@ -81,6 +97,17 @@ public sealed class DatabaseEnvironmentalMagicOperationStore : IEnvironmentalMag
 			if (dbcell.EnvironmentalState?.Revision != cell.ExpectedEnvironmentDatabaseRevision)
 				throw new DbUpdateConcurrencyException("The cell's environmental persistence revision changed. Reload before retrying the operation.");
 			using var transaction = FMDB.Context.Database.BeginTransaction(IsolationLevel.ReadCommitted);
+			if (progress is not null)
+			{
+				var treatment = FMDB.Context.LandRejuvenationTreatments.Single(x => x.Id == progress.Id);
+				var prepared = ReadTreatment(treatment);
+				if (prepared.CellId != cell.Id || prepared.Revision != expectedProgressRevision ||
+					prepared.PendingRequest != request || prepared.CancellationRequested ||
+					progress.AcknowledgedSequence != prepared.Sequence || progress.PendingRequest is not null ||
+					progress.RemainingBudget > prepared.RemainingBudget || progress.TotalRepaired < prepared.TotalRepaired)
+					throw new DbUpdateConcurrencyException("The prepared repair checkpoint no longer matches this step.");
+				WriteTreatment(progress, treatment);
+			}
 			FMDB.Context.EnvironmentalMagicOperations.Add(new Models.EnvironmentalMagicOperation
 			{
 				Id = request.OperationId,

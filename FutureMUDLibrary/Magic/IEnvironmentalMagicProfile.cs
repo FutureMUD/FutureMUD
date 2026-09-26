@@ -12,6 +12,8 @@ public interface IEnvironmentalMagicProfile : IMagicResourceRegenerator
 	long Revision { get; }
 	double PressureHalfLifeSeconds { get; }
 	double NaturalRepairPerMinute { get; }
+	double? MagicalRepairLimitPerMinute => null;
+	IReadOnlyList<string> RepairValidationErrors => Array.Empty<string>();
 	double? IdleRecheckSeconds { get; }
 	DateTimeOffset DecayReferenceUtc { get; }
 	double DecayIntegral { get; }

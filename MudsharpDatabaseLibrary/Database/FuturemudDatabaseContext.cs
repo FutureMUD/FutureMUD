@@ -139,6 +139,8 @@ namespace MudSharp.Database
         public virtual DbSet<CellsRangedCovers> CellsRangedCovers { get; set; }
         public virtual DbSet<CellsTags> CellsTags { get; set; }
         public virtual DbSet<EnvironmentalMagicOperation> EnvironmentalMagicOperations { get; set; }
+
+        public virtual DbSet<LandRejuvenationTreatment> LandRejuvenationTreatments { get; set; }
         public virtual DbSet<ChannelCommandWord> ChannelCommandWords { get; set; }
         public virtual DbSet<ChannelIgnorer> ChannelIgnorers { get; set; }
         public virtual DbSet<Channel> Channels { get; set; }

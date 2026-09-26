@@ -83,6 +83,19 @@ public interface IEnvironmentalMagicService : IDisposable
 {
 	DateTimeOffset UtcNow { get; }
 	EnvironmentalMagicStateSnapshot InspectState(ICell cell);
+	LandRejuvenationPolicy InspectRepairPolicy(ICell cell);
+	IReadOnlyList<LandRejuvenationProgress> InspectTreatments(ICell cell);
+	LandRejuvenationProgress? InspectTreatment(ICell cell, Guid treatmentId);
+	bool CanInstallTreatment(ICell cell, out string? error);
+	bool ActivateTreatment(ILandRejuvenationEffect effect, LandRejuvenationProgress? initial, out string? error);
+	void RegisterLoadedTreatment(ILandRejuvenationEffect effect);
+	/// <summary>Persists earned online work and lifetime without applying repair, for parent serialization.</summary>
+	void CheckpointTreatment(ICell cell, Guid treatmentId);
+	void CancelTreatment(ICell cell, Guid treatmentId, string reason);
+	void ExpireTreatment(ICell cell, Guid treatmentId);
+	bool ConfirmTreatment(ICell cell, Guid treatmentId, out string? error);
+	bool EvaluateRepairPolicy(ICell cell, MudSharp.Character.ICharacter caster, MudSharp.FutureProg.IFutureProg prog, out string? error);
+	void ScarStateChanged(ICell cell);
 	EnvironmentalOrganicProfileSnapshot InspectOrganicProfile(ICell cell);
 	EnvironmentalMagicSnapshot Inspect(ICell cell);
 	/// <summary>

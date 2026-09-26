@@ -17,6 +17,8 @@ public partial class MagicModule
 	private const string EnvironmentHelp = @"Environmental resources belong to physical cells. Configure their reusable profiles with #3magic regenerator#0.
 
 	#3magic environment show [here|<cell id>]#0 - inspect profile, inputs, resources and damage
+	#3magic environment treatments [here|<cell id>]#0 - inspect active, completed and unresolved land treatments
+	#3magic environment treatments confirm <here|cell id> <treatment guid>#0 - reconcile durable evidence without applying repair
 	#3magic environment yields [here|<cell id>]#0 - purely inspect authorised native organic sources and accounting
 	#3magic environment yields repair [here|<cell id>] [crop|woodland|pasture|all]#0 - clear malformed extension accounting only
 	#3magic environment cell <here|cell id> <inherit|disabled|profile>#0 - set a cell binding
@@ -86,10 +88,49 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 			case "yields":
 				EnvironmentYields(actor, command, service);
 				return;
+			case "treatments":
+				EnvironmentTreatments(actor, command, service);
+				return;
 			default:
 				actor.OutputHandler.Send(EnvironmentHelp.SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static void EnvironmentTreatments(ICharacter actor, StringStack command, IEnvironmentalMagicService service)
+	{
+		var confirm = command.PeekSpeech().EqualTo("confirm");
+		if (confirm) command.PopSpeech();
+		if (!TryEnvironmentCell(actor, command, !confirm, out var cell)) return;
+		if (confirm)
+		{
+			if (!Guid.TryParse(command.PopSpeech(), out var id) || id == Guid.Empty || !EnvironmentArgumentsFinished(actor, command))
+			{
+				actor.OutputHandler.Send("Use magic environment treatments confirm <here|cell id> <treatment guid>.".ColourError());
+				return;
+			}
+			actor.OutputHandler.Send(service.ConfirmTreatment(cell, id, out var error)
+				? "Treatment evidence reconciled. Confirmation applies no new repair; inspect its status below.".ColourValue()
+				: (error ?? "Treatment confirmation failed.").ColourError());
+		}
+		else if (!EnvironmentArgumentsFinished(actor, command)) return;
+		try
+		{
+			var sb = new StringBuilder($"Land Treatments — Cell #{cell.Id.ToString("N0", actor)}\n");
+			var policy = service.InspectRepairPolicy(cell);
+			sb.AppendLine($"Magical repair ceiling: {policy.Ceiling?.ToString("G", actor) ?? "none"}; {policy.Error ?? "repair policy valid"}");
+			var records = service.InspectTreatments(cell);
+			if (records.Count == 0) sb.AppendLine("No recorded land treatments.");
+			foreach (var p in records)
+			{
+				sb.AppendLine($"{p.Id}: {p.Status.DescribeEnum()}, spell #{p.SpellId}, caster #{p.CasterId}, instance #{p.ActingInstanceId}");
+				sb.AppendLine($"  Rate {p.Rate.ToString("G", actor)}/minute; budget {p.RemainingBudget.ToString("G", actor)}/{p.InitialBudget.ToString("G", actor)}; repaired {p.TotalRepaired.ToString("G", actor)}; lifetime {TimeSpan.FromSeconds(p.RemainingSeconds).Describe(actor)}; step {p.AcknowledgedSequence}/{p.Sequence}");
+				sb.AppendLine($"  Pending operation: {p.PendingRequest?.OperationId.ToString() ?? "none"}; last confirmed: {p.LastOperationId?.ToString() ?? "none"}; cancellation: {p.CancellationRequested.ToColouredString()}");
+				if (!string.IsNullOrEmpty(p.Diagnostic)) sb.AppendLine($"  {p.Diagnostic.ColourError()}");
+			}
+			actor.OutputHandler.Send(sb.ToString());
+		}
+		catch (Exception ex) { actor.OutputHandler.Send($"Treatment records are unavailable: {ex.Message}".ColourError()); }
 	}
 
 	private static void EnvironmentYields(ICharacter actor, StringStack command, IEnvironmentalMagicService service)

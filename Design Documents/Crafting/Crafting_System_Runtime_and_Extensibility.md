@@ -148,6 +148,8 @@ Important behaviour:
 - interruptable crafts can be allowed to start or resume when only the immediate next phase is currently feasible
 - failures distinguish between missing tools, missing wielders/hands, and missing materials
 
+`BeginCraft` and `ResumeCraft` revalidate feasibility immediately before creating/resuming the effect. Each phase still validates its inventory plan, so changed limb function affects configured held/wielded tools. There is deliberately no universal hand requirement: tool-free crafts, room tools and prog-driven crafts can represent non-manual work. Tool requirements and `CanUseProg` supply those restrictions. See [Physical Manipulation Audit](../Items/Physical_Manipulation_Audit.md).
+
 ### 3. Starting a craft
 `BeginCraft` performs the following actions:
 

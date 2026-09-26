@@ -82,6 +82,12 @@ public class SignalInstrumentGameItemComponent : InstrumentGameItemComponent, IS
 
 	private string WhyCannotUse(ICharacter actor)
 	{
+		var reach = actor.CanReachItem(Parent);
+		if (!reach.Truth)
+		{
+			return reach.Message;
+		}
+
 		if (!CharacterState.Able.HasFlag(actor.State))
 		{
 			return "You are not in a fit state to sound a signal.";

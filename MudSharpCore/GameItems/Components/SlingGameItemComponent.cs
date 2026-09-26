@@ -131,6 +131,11 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 
 	public bool CanReady(ICharacter readier)
 	{
+		if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!IsLoaded)
 		{
 			return false;
@@ -157,6 +162,11 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 
 	public string WhyCannotReady(ICharacter readier)
 	{
+		if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (!IsLoaded)
 		{
 			return $"You must first load a sling bullet before you can ready {Parent.HowSeen(readier)}.";
@@ -183,6 +193,11 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 
 	public bool Ready(ICharacter readier)
 	{
+		if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanReady(readier))
 		{
 			readier.Send(WhyCannotReady(readier));
@@ -236,11 +251,21 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 
 	public bool CanUnload(ICharacter loader)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		return LoadedAmmo != null && !IsReadied;
 	}
 
 	public string WhyCannotUnload(ICharacter loader)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (LoadedAmmo == null)
 		{
 			return $"You cannot unload {Parent.HowSeen(loader)} because it is not loaded.";
@@ -256,6 +281,11 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 
 	public IEnumerable<IGameItem> Unload(ICharacter loader)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return [];
+		}
+
 		IAmmo ammo = LoadedAmmo;
 		LoadedAmmo = null;
 		loader.OutputHandler.Handle(new EmoteOutput(new Emote("@ unload|unloads $0 from $1.", loader, ammo.Parent, Parent)));
@@ -274,6 +304,11 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 
 	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (LoadedAmmo != null)
 		{
 			return false;
@@ -285,6 +320,11 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 
 	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (LoadedAmmo != null)
 		{
 			return $"You cannot load {Parent.HowSeen(loader)} because it is already loaded!";
@@ -303,6 +343,12 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 
 	public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			loader?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		IInventoryPlan plan = _prototype.LoadTemplate.CreatePlan(loader);
 		if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible)
 		{
@@ -346,11 +392,21 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 
 	public bool CanFire(ICharacter actor, IPerceivable target)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		return LoadedAmmo != null && IsReadied;
 	}
 
 	public string WhyCannotFire(ICharacter actor, IPerceivable target)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (LoadedAmmo == null)
 		{
 			return $"You cannot fire {Parent.HowSeen(actor)} because it is not loaded.";
@@ -367,6 +423,12 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 	public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
 		OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		if (LoadedAmmo == null)
 		{
 			actor.OutputHandler.Handle(new EmoteOutput(

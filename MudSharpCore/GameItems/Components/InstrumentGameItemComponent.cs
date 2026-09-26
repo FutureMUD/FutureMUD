@@ -74,6 +74,12 @@ public class InstrumentGameItemComponent : GameItemComponent, IInstrument
 
 	public virtual string WhyCannotPlay(ICharacter actor, string style)
 	{
+		var reach = actor.CanReachItem(Parent);
+		if (!reach.Truth)
+		{
+			return reach.Message;
+		}
+
 		if (IsBeingPlayed)
 		{
 			return $"{Parent.HowSeen(actor, true)} is already being played.";
@@ -220,6 +226,12 @@ public class InstrumentGameItemComponent : GameItemComponent, IInstrument
 
 	internal bool CanContinue(ICharacter actor)
 	{
+		if (!actor.CanReachItem(Parent).Truth ||
+		    actor.Body.FunctioningWieldingLocationsAvailableFor(Parent).Count() < RequiredHands)
+		{
+			return false;
+		}
+
 		if (!CharacterState.Able.HasFlag(actor.State) || actor.Combat is not null)
 		{
 			return false;

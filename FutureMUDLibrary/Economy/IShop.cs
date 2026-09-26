@@ -81,6 +81,10 @@ public interface IShop : IFrameworkItem, ISaveable, IProgVariable, IEmploymentHo
     void AddTransaction(ITransactionRecord record);
 
     void AddToStock(ICharacter actor, IGameItem item, IMerchandise merch);
+    /// <summary>Tracks a split of existing displayed stock without recording newly acquired goods.</summary>
+    void RegisterStockItemSplit(IGameItem source, IGameItem split);
+    /// <summary>Tracks an absorbed display pile without recording missing goods.</summary>
+    void RegisterStockItemMerge(IGameItem target, IGameItem absorbed);
     void DisposeFromStock(ICharacter actor, IGameItem item);
     void LoseFromStock(ICharacter actor, IGameItem item);
     IEnumerable<IMerchandise> StockedMerchandise { get; }

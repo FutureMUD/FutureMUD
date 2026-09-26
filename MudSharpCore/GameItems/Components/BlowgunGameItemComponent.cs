@@ -130,10 +130,11 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	private (bool Success, string Reason) CanUseBreathToFire(ICharacter actor)
 	{
-		var mouth = actor.Body.Bodyparts.OfType<MouthProto>().FirstOrDefault();
+		var mouth = actor.Body.Bodyparts.OfType<MouthProto>()
+			.FirstOrDefault(x => actor.Body.CanUseBodypart(x) == CanUseBodypartResult.CanUse);
 		if (mouth == null)
 		{
-			return (false, "You need a mouth to use a blowgun.");
+			return (false, "You need a functioning mouth to use a blowgun.");
 		}
 
 		if (!actor.Body.IsBreathing)
@@ -153,6 +154,12 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool CanReady(ICharacter readier)
 	{
+		var reach = readier.CanReachItem(Parent);
+		if (!reach.Truth)
+		{
+			return false;
+		}
+
 		if (!IsLoaded)
 		{
 			return false;
@@ -184,6 +191,12 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public string WhyCannotReady(ICharacter readier)
 	{
+		var reach = readier.CanReachItem(Parent);
+		if (!reach.Truth)
+		{
+			return reach.Message;
+		}
+
 		if (!IsLoaded)
 		{
 			return $"You must first load a dart before you can ready {Parent.HowSeen(readier)}.";
@@ -216,6 +229,12 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool Ready(ICharacter readier)
 	{
+		var reach = readier.CanReachItem(Parent);
+		if (!reach.Truth)
+		{
+			return false;
+		}
+
 		if (!CanReady(readier))
 		{
 			readier.Send(WhyCannotReady(readier));
@@ -269,11 +288,21 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool CanUnload(ICharacter loader)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		return LoadedAmmo != null && !IsReadied;
 	}
 
 	public string WhyCannotUnload(ICharacter loader)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (LoadedAmmo == null)
 		{
 			return $"You cannot unload {Parent.HowSeen(loader)} because it is not loaded.";
@@ -289,6 +318,11 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public IEnumerable<IGameItem> Unload(ICharacter loader)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return [];
+		}
+
 		IAmmo ammo = LoadedAmmo;
 		LoadedAmmo = null;
 		loader.OutputHandler.Handle(new EmoteOutput(new Emote("@ unload|unloads $0 from $1.", loader, ammo.Parent, Parent)));
@@ -307,6 +341,11 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (LoadedAmmo != null)
 		{
 			return false;
@@ -318,6 +357,11 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (LoadedAmmo != null)
 		{
 			return $"You cannot load {Parent.HowSeen(loader)} because it is already loaded!";
@@ -336,6 +380,12 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			loader?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		IInventoryPlan plan = _prototype.LoadTemplate.CreatePlan(loader);
 		if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible)
 		{
@@ -381,11 +431,23 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool CanFire(ICharacter actor, IPerceivable target)
 	{
+		var reach = actor.CanReachItem(Parent);
+		if (!reach.Truth)
+		{
+			return false;
+		}
+
 		return LoadedAmmo != null && IsReadied && CanUseBreathToFire(actor).Success;
 	}
 
 	public string WhyCannotFire(ICharacter actor, IPerceivable target)
 	{
+		var reach = actor.CanReachItem(Parent);
+		if (!reach.Truth)
+		{
+			return reach.Message;
+		}
+
 		if (LoadedAmmo == null)
 		{
 			return $"You cannot fire {Parent.HowSeen(actor)} because it is not loaded.";
@@ -408,6 +470,13 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 	public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
 		OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
 	{
+		var reach = actor.CanReachItem(Parent);
+		if (!reach.Truth)
+		{
+			actor.OutputHandler.Send(reach.Message);
+			return;
+		}
+
 		var breathCheck = CanUseBreathToFire(actor);
 		if (!breathCheck.Success)
 		{

@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using MudSharp.Character;
+using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
@@ -62,6 +63,12 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 		if (actor is null)
 		{
 			result = new VehicleAccessPermissionResult(false, action, requiredLevel, null, "There is no such character.");
+			return false;
+		}
+
+		if (action != VehicleOperationalAction.Board && !actor.CanPerformManualAction(out var manualReason))
+		{
+			result = new VehicleAccessPermissionResult(false, action, requiredLevel, null, manualReason);
 			return false;
 		}
 

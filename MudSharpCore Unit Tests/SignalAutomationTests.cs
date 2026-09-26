@@ -1087,6 +1087,7 @@ return @togglevalue");
 			SwitchedOn = true
 		};
 		var actor = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
 
 		sensor.OnPowerCutIn();
 		Assert.IsFalse(sensor.Select(actor.Object, "9999", Mock.Of<IEmote>(), true));
@@ -1236,11 +1237,18 @@ return @togglevalue");
 		var severedItem = CreateBasicItem(gameworld.Object, 5056L, "Severed Hand");
 		severedItem.Setup(x => x.GetItemType<ISeveredBodypart>()).Returns(severed.Object);
 
-		Assert.IsTrue(scanner.CanScan(Mock.Of<ICharacter>(), severedItem.Object, out var identityId, out error), error);
+		var actor = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
+		var cell = new Mock<ICell>();
+		cell.Setup(x => x.CanGetAccess(It.IsAny<IGameItem>(), actor.Object)).Returns(true);
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		scannerItem.SetupGet(x => x.Location).Returns(cell.Object);
+		scannerItem.SetupGet(x => x.BasePlanarPresence).Returns(MudSharp.Planes.PlanarPresenceDefinition.DefaultMaterial(1));
+		Assert.IsTrue(scanner.CanScan(actor.Object, severedItem.Object, out var identityId, out error), error);
 		Assert.AreEqual(42L, identityId);
 		Assert.AreEqual(1.0, scanner.CurrentValue, 0.0001);
 		Assert.IsTrue(scanner.RemoveAuthorisedPerson(42L, out error), error);
-		Assert.IsFalse(scanner.CanScan(Mock.Of<ICharacter>(), severedItem.Object, out _, out _));
+		Assert.IsFalse(scanner.CanScan(actor.Object, severedItem.Object, out _, out _));
 	}
 
 	[TestMethod]

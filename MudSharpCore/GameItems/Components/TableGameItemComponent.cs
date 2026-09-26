@@ -1,4 +1,5 @@
-﻿using MudSharp.Body.Position;
+﻿using MudSharp.GameItems;
+using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat;
 using MudSharp.Construction;
@@ -206,12 +207,23 @@ public class TableGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
 
     public void AddChair(ICharacter character, IChair chair)
     {
+        if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, chair.Parent))
+        {
+            character?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
         _chairs.Add(chair);
         Changed = true;
     }
 
     public bool CanAddChair(ICharacter character, IChair chair)
     {
+        if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, chair.Parent))
+        {
+            return false;
+        }
+
         return !_chairs.Contains(chair) &&
                _chairs.Sum(x => x.ChairSlotsUsed) + chair.ChairSlotsUsed <= MaximumChairSlots &&
                !Flipped;
@@ -230,6 +242,11 @@ public class TableGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
 
     public string WhyCannotAddChair(ICharacter character, IChair chair)
     {
+        if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, chair.Parent))
+        {
+            return manipulationReason;
+        }
+
         if (Flipped)
         {
             return
@@ -251,17 +268,33 @@ public class TableGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
 
     public bool CanRemoveChair(ICharacter character, IChair chair)
     {
+        if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, chair.Parent))
+        {
+            return false;
+        }
+
         // TODO - other reasons why this might be the case
         return !chair.Occupants.Any();
     }
 
     public string WhyCannotRemoveChair(ICharacter character, IChair chair)
     {
+        if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, chair.Parent))
+        {
+            return manipulationReason;
+        }
+
         return chair.Occupants.Any() ? "That chair is still occupied." : "You cannot remove that chair";
     }
 
     public void RemoveChair(ICharacter character, IChair chair)
     {
+        if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, chair.Parent))
+        {
+            character?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
         _chairs.Remove(chair);
         Changed = true;
     }
@@ -324,6 +357,11 @@ public class TableGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
 
     public bool Flip(ICharacter flipper, IEmote? playerEmote = null, bool silent = false)
     {
+		if (!ItemManipulationGuard.CanManipulate(flipper, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanFlip(flipper))
         {
             flipper?.OutputHandler.Handle(new EmoteOutput(new Emote(WhyCannotFlip(flipper), flipper, flipper, Parent)));
@@ -351,6 +389,11 @@ public class TableGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
 
     public bool CanFlip(ICharacter flipper)
     {
+		if (!ItemManipulationGuard.CanManipulate(flipper, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (flipper == null)
         {
             return true;
@@ -366,6 +409,11 @@ public class TableGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
 
     public string WhyCannotFlip(ICharacter flipper)
     {
+		if (!ItemManipulationGuard.CanManipulate(flipper, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (_prototype.TraitsToFlipExpression.Evaluate(flipper) < 0.0)
         {
             return _prototype.CannotFlipTraitMessage;

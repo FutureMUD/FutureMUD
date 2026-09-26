@@ -1,4 +1,5 @@
-﻿using MudSharp.GameItems.Prototypes;
+﻿using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
 
@@ -61,6 +62,11 @@ public class RcsThrusterGameItemComponent : GameItemComponent, IZeroGravityPropu
 
 	public bool CanConnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		return ConnectedItem is null &&
 		       other.Parent.GetItemType<IGasSupply>() is not null &&
 		       other.FreeConnections.Any(x => x.CompatibleWith(_prototype.Connector)) &&
@@ -69,6 +75,12 @@ public class RcsThrusterGameItemComponent : GameItemComponent, IZeroGravityPropu
 
 	public void Connect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		if (!CanConnect(actor, other))
 		{
 			return;
@@ -89,6 +101,11 @@ public class RcsThrusterGameItemComponent : GameItemComponent, IZeroGravityPropu
 
 	public string WhyCannotConnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (ConnectedItem is not null)
 		{
 			return $"{Parent.HowSeen(actor)} is already connected to a gas supply.";
@@ -114,11 +131,22 @@ public class RcsThrusterGameItemComponent : GameItemComponent, IZeroGravityPropu
 
 	public bool CanDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		return ConnectedItem == other;
 	}
 
 	public void Disconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		RawDisconnect(other, true);
 	}
 
@@ -138,6 +166,11 @@ public class RcsThrusterGameItemComponent : GameItemComponent, IZeroGravityPropu
 
 	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return ConnectedItem != other
 			? $"{Parent.HowSeen(actor)} is not connected to {other.Parent.HowSeen(actor)}."
 			: $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)}.";

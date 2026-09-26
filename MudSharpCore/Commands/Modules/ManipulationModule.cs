@@ -613,7 +613,7 @@ The syntax is #3seal <target> with <stamp> [using <medium>]#0.", AutoHelp.HelpAr
 			return;
 		}
 
-		if (!instrument.CanMeasure(target, out error))
+		if (!instrument.CanMeasure(actor, target, out error))
 		{
 			actor.OutputHandler.Send(error);
 			return;
@@ -678,7 +678,7 @@ The syntax is #3seal <target> with <stamp> [using <medium>]#0.", AutoHelp.HelpAr
 			return;
 		}
 
-		if (!instrument.CanMeasure(target, out error))
+		if (!instrument.CanMeasure(actor, target, out error))
 		{
 			actor.OutputHandler.Send(error);
 			return;
@@ -774,6 +774,12 @@ You can also use this command to remove similarly large items from containers. I
         AutoHelp.HelpArgOrNoArg)]
     protected static void Haul(ICharacter actor, string command)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
 
         if (ss.PeekSpeech().EqualTo("out"))
@@ -889,6 +895,12 @@ You can also use this command to remove similarly large items from containers. I
 
     private static void HaulOut(ICharacter actor, StringStack ss)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         ss.PopSpeech();
         if (ss.IsFinished)
         {
@@ -934,6 +946,18 @@ You can also use this command to remove similarly large items from containers. I
         if (targetItem == null)
         {
             actor.OutputHandler.Send($"You don't see anything like that in {targetContainer.HowSeen(actor)}.");
+            return;
+        }
+
+        if (!ItemManipulationGuard.CanManipulate(actor, out var reachReason, targetContainer, targetItem))
+        {
+            actor.Send(reachReason);
+            return;
+        }
+
+        if (!targetAsContainer.CanTake(actor, targetItem, 0))
+        {
+            actor.Send(actor.Body.WhyCannotGet(targetItem, targetContainer, 0));
             return;
         }
 
@@ -1744,6 +1768,12 @@ The syntax is as follows:
 	#3apply <source> to <ammo> [count <number|all>] [volume <amount>]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Apply(ICharacter character, string command)
     {
+        if (!character.CanPerformManualAction(out var manualReason))
+        {
+            character.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         if (ss.IsFinished)
         {
@@ -1923,6 +1953,12 @@ The syntax is as follows:
     [HelpInfo("dip", DipHelpText, AutoHelp.HelpArgOrNoArg)]
     protected static void Dip(ICharacter character, string command)
     {
+        if (!character.CanPerformManualAction(out var manualReason))
+        {
+            character.Send(manualReason);
+            return;
+        }
+
         var ss = new StringStack(command.RemoveFirstWord());
         if (ss.IsFinished)
         {
@@ -2329,6 +2365,12 @@ If you don't specify an amount, you will inject the whole volume of the syringe.
 The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpArgOrNoArg)]
     protected static void Inject(ICharacter character, string command)
     {
+        if (!character.CanPerformManualAction(out var manualReason))
+        {
+            character.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         if (ss.IsFinished)
         {
@@ -2528,6 +2570,12 @@ You can use the following syntaxes with this command:
 	#3feed <target> from <liquid container>#0 - give a drink to the target", AutoHelp.HelpArgOrNoArg)]
     protected static void Feed(ICharacter character, string command)
     {
+        if (!character.CanPerformManualAction(out var manualReason))
+        {
+            character.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
 
         ICharacter target = character.TargetActor(ss.PopSpeech());
@@ -2858,7 +2906,7 @@ The syntax is as follows:
                 return;
             }
 
-            (bool truth, string error) = character.CanManipulateItem(tableItem);
+            (bool truth, string error) = character.CanReachItem(tableItem);
             if (!truth)
             {
                 character.Send(error);
@@ -2896,7 +2944,7 @@ The syntax is as follows:
                 return;
             }
 
-            (bool truth, string error) = character.CanManipulateItem(targetContainer);
+            (bool truth, string error) = character.CanReachItem(targetContainer);
             if (!truth)
             {
                 character.Send(error);
@@ -3044,7 +3092,7 @@ Additionally, if you can eat foragable yields, the syntax is as per below:
                 return;
             }
 
-            (bool truth, string error) = character.CanManipulateItem(tableItem);
+            (bool truth, string error) = character.CanReachItem(tableItem);
             if (!truth)
             {
                 character.Send(error);
@@ -3082,7 +3130,7 @@ Additionally, if you can eat foragable yields, the syntax is as per below:
                 return;
             }
 
-            (bool truth, string error) = character.CanManipulateItem(targetContainer);
+            (bool truth, string error) = character.CanReachItem(targetContainer);
             if (!truth)
             {
                 character.Send(error);
@@ -3220,7 +3268,7 @@ The core syntax for this command is as follows:
                 return;
             }
 
-            (bool truth, string error) = character.CanManipulateItem(target);
+            (bool truth, string error) = character.CanReachItem(target);
             if (!truth)
             {
                 character.Send(error);
@@ -4442,6 +4490,12 @@ The syntax is:
 	#3knock <exit|door> [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Knock(ICharacter character, string command)
     {
+        if (!character.CanPerformManualAction(out var manualReason))
+        {
+            character.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         if (ss.IsFinished)
         {
@@ -8662,6 +8716,12 @@ The syntax is:
 	#3lob <item> <direction|layer> [<target>] [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Lob(ICharacter actor, string command)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         IGameItem tossable = actor.TargetHeldItem(ss.PopSpeech());
         if (tossable == null)
@@ -8923,6 +8983,12 @@ The syntax is:
 	#3bundle <item> <item> [<item> ...]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Bundle(ICharacter actor, string command)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         if (ss.IsFinished)
         {
@@ -9003,6 +9069,12 @@ The syntax is:
 	#3roll <die|dice bundle> [<table>] [(<emote>)]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Roll(ICharacter actor, string command)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         if (ss.IsFinished)
         {

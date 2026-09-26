@@ -44,6 +44,12 @@ The syntax is:
 	#3cpr <target>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void CPR(ICharacter actor, string command)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         if (!actor.Gameworld.GetStaticBool("CPRAllowed"))
         {
             actor.Send(actor.Gameworld.GetStaticString("FailedToFindCommand"));
@@ -255,6 +261,12 @@ The syntax is:
 	#3relocate <target> <bodypart>#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Relocate(ICharacter actor, string command)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         ICharacter target = actor.TargetActor(ss.PopSpeech());
         if (target == null)
@@ -404,6 +416,12 @@ The syntax is:
 	#3bind [<target>]#0", AutoHelp.HelpArg)]
     protected static void Bind(ICharacter actor, string command)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         ICharacter target = null;
         target = ss.IsFinished ? actor : actor.TargetActor(ss.PopSpeech());
@@ -464,6 +482,12 @@ Options:
 	#6severity#0 to specify a minimum severity of wound to treat", AutoHelp.HelpArg)]
     protected static void CleanWounds(ICharacter actor, string command)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         ICharacter target = null;
         target = ss.IsFinished ? actor : actor.TargetActor(ss.PopSpeech());
@@ -624,6 +648,12 @@ The syntax is:
 	#3suture [<target>]#0", AutoHelp.HelpArg)]
     protected static void Suture(ICharacter actor, string command)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         ICharacter target = null;
         target = ss.IsFinished ? actor : actor.TargetActor(ss.PopSpeech());
@@ -778,6 +808,12 @@ The syntax is:
 	#3tend [<target>]#0", AutoHelp.HelpArg)]
     protected static void Tend(ICharacter actor, string command)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         ICharacter target = null;
         target = ss.IsFinished ? actor : actor.TargetActor(ss.PopSpeech());
@@ -880,6 +916,12 @@ The syntaxes available include:
         AutoHelp.HelpArgOrNoArg)]
     protected static void Repair(ICharacter actor, string command)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         IPerceivable target = actor.Target(ss.PopSpeech());
         if (target == null)
@@ -1159,6 +1201,12 @@ The syntax is:
 	#3dislodge <item> [<arguments>]#0", AutoHelp.HelpArg)]
     protected static void Dislodge(ICharacter actor, string command)
     {
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
+
         StringStack ss = new(command.RemoveFirstWord());
         IPerceivable broadTarget = ss.IsFinished ? actor : actor.Target(ss.PopSpeech());
 
@@ -3073,7 +3121,6 @@ The syntax is:
 
         actor.Send($"You install {item.HowSeen(actor)} into {target.Perceivable.HowSeen(actor)}.");
     }
-
 
     [PlayerCommand("PowerImplant", "powerimplant")]
     [CommandPermission(PermissionLevel.Admin)]

@@ -319,6 +319,19 @@ public class SyringeGameItemComponent : GameItemComponent, ILiquidContainer, IIn
 
     public void Inject(IBody target, IBodypart part, double amount, ICharacter injector)
     {
+        if (!ItemManipulationGuard.CanManipulate(injector, out var reason, Parent))
+        {
+            injector.Send(reason);
+            return;
+        }
+
+        if (!injector.ColocatedWith(target.Actor) || !target.Bodyparts.Contains(part) ||
+            CanInject(target, part) != WhyCannotInject.CanInject)
+        {
+            injector.Send("You can no longer reach a suitable bodypart to inject.");
+            return;
+        }
+
         if (amount == 0.0)
         {
             amount = LiquidMixture.TotalVolume;

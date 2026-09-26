@@ -49,6 +49,7 @@ namespace MudSharp.Body
         CantUseLimbGrappled = 64,
         CantUseMissingBone = 128,
         CantUseSpinalDamage = 256,
+        CantUseLimbRestrained = 512,
     }
 
     public enum EncumbranceLevel

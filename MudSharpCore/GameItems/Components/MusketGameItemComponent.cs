@@ -379,6 +379,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanUnjam(ICharacter actor)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         if (!IsJammed)
         {
             return false;
@@ -396,6 +401,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotUnjam(ICharacter actor)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         if (!IsJammed)
         {
             return $"You cannot unjam {Parent.HowSeen(actor)} because it is not jammed.";
@@ -418,6 +428,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool Unjam(ICharacter actor)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         if (!CanUnjam(actor))
         {
             actor.OutputHandler.Send(WhyCannotUnjam(actor));
@@ -454,6 +469,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
 	public bool Emplace(ICharacter actor, out string reason)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
+		{
+			return false;
+		}
+
 		if (!_prototype.RequiresRest)
 		{
 			reason = $"{Parent.HowSeen(actor, true)} does not require a rest or emplacement.";
@@ -472,6 +492,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
 	public bool Limber(ICharacter actor, out string reason)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
+		{
+			return false;
+		}
+
 		if (!IsEmplaced)
 		{
 			reason = $"{Parent.HowSeen(actor, true)} is not emplaced on a rest.";
@@ -515,6 +540,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
 		if (IsJammed)
 		{
 			return false;
@@ -567,6 +597,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
 		if (IsJammed)
 		{
 			return $"You must unjam {Parent.HowSeen(loader)} before loading it.";
@@ -665,6 +700,12 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            loader?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
         void AddEffect()
         {
             ICheck check = Gameworld.GetCheck(CheckType.LoadMusket);
@@ -981,6 +1022,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanReady(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
 		if (IsReadied || !IsLoaded || !BlackPowderWeaponEnvironment.CanHandlePowder(readier))
 		{
 			return false;
@@ -1011,6 +1057,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotReady(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
 		if (IsReadied)
 		{
 			return $"{Parent.HowSeen(readier, true)} is already readied.";
@@ -1053,6 +1104,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool Ready(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         if (!CanReady(readier))
         {
             readier.Send(WhyCannotReady(readier));
@@ -1112,6 +1168,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanUnload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         if (IsJammed)
         {
             return false;
@@ -1132,6 +1193,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotUnload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         if (IsJammed)
         {
             return $"{Parent.HowSeen(loader, true)} is jammed and the jam must be cleared first.";
@@ -1152,6 +1218,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public IEnumerable<IGameItem> Unload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return [];
+        }
+
         if (!CanUnload(loader))
         {
             loader.Send(WhyCannotUnload(loader));
@@ -1203,6 +1274,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanFire(ICharacter actor, IPerceivable target)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
 		return ReadyToFire &&
                !IsJammed &&
 			   BlackPowderWeaponEnvironment.CanHandlePowder(actor) &&
@@ -1218,6 +1294,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         if (IsJammed)
         {
             return $"You cannot fire {Parent.HowSeen(actor)} because it is jammed.";
@@ -1294,6 +1375,12 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            actor?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
 		if (!CanFire(actor, target))
 		{
 			actor.Send(WhyCannotFire(actor, target));
@@ -1379,7 +1466,6 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                     bulletProto = ballComp.BulletProto;
                     ammo = ballComp;
                 }
-
 
                 if (wad is not null)
                 {
@@ -1554,6 +1640,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 	/// </summary>
 	public bool TryInstallIgnitionStone(ICharacter actor, IGameItem stone, out string reason)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
+		{
+			return false;
+		}
+
 		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Matchlock)
 		{
 			reason = "Matchlocks use match cord rather than an ignition stone.";

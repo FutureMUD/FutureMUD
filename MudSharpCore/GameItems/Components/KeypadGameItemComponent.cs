@@ -1,3 +1,4 @@
+using MudSharp.GameItems;
 #nullable enable
 
 using MudSharp.GameItems.Prototypes;
@@ -64,10 +65,16 @@ public class KeypadGameItemComponent : AccessControlReaderGameItemComponent, IKe
 		return root;
 	}
 
-	public bool CanSelect(ICharacter character, string argument) => IsNumericCode(argument);
+	public bool CanSelect(ICharacter character, string argument) =>
+		ItemManipulationGuard.CanManipulate(character, out _, Parent) && IsNumericCode(argument);
 
 	public bool Select(ICharacter character, string argument, IEmote playerEmote, bool silent = false)
 	{
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!silent)
 		{
 			character.OutputHandler.Handle(new MixedEmoteOutput(

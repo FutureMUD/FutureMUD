@@ -1,5 +1,11 @@
 # FutureMUD Health System: Medical Interactions
 
+## Operator capability during treatment
+
+Manual bedside actions check usable manipulators before starting. Binding, cleaning, suturing, tending, CPR, tattooing, butchering, skinning and surgery effects recheck before delayed steps and stop if capability is lost. Item configuration also rechecks target/tool access. `PerformProcedure` rechecks full start feasibility; its ongoing effect checks capability without rerunning preflight for already consumed resources.
+
+Actorful syringe injection and topical application check item access, patient colocation and the target bodypart before dosing. Silent feeding/drinking/swallowing and low-level wound treatment remain result primitives: patients need no working hands to receive care. See [Physical Manipulation Audit](../Items/Physical_Manipulation_Audit.md).
+
 ## Scope
 This document covers the player-facing and builder-facing interaction surfaces around health:
 

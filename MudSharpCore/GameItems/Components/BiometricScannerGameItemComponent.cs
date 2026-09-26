@@ -115,6 +115,17 @@ public class BiometricScannerGameItemComponent : AccessControlReaderGameItemComp
 	public bool CanScan(ICharacter actor, IGameItem? severedBodypart, out long identityId, out string error)
 	{
 		identityId = 0L;
+		var reach = actor.CanReachItem(Parent);
+		if (!reach.Truth)
+		{
+			error = reach.Message;
+			return false;
+		}
+		if (severedBodypart is not null &&
+		    !ItemManipulationGuard.CanManipulate(actor, out error, Parent, severedBodypart))
+		{
+			return false;
+		}
 		if (!SwitchedOn || !IsPowered)
 		{
 			error = "The biometric scanner is not powered and ready.";

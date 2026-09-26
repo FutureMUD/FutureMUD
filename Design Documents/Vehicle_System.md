@@ -13,6 +13,10 @@ Authored access-point and cargo-space items are logical target projections, not 
 
 This keeps vehicle logic out of component XML while preserving normal item-world affordances such as seeing, targeting, damaging, locking, towing, examining, and scripting against the exterior shell.
 
+## Physical operator checks
+
+`VehicleOperationalReadinessService.CanPerformAction` requires usable manipulators for control, service, repair and hitch actions before access-policy exemptions. Ordinary control and subsequent manual movement readiness use this check. Boarding has no universal hand requirement; automatic powered operation uses its separate actor-independent path. Actorful hitch preflight checks exterior and optional gear access. Installation/removal validates the module and exterior after installation-specific checks. Actorless relocation, attachment restoration and automatic route simulation remain system operations. See [Physical Manipulation Audit](Items/Physical_Manipulation_Audit.md).
+
 ## Current Implementation Status
 
 Phases 1, 2, 3, and 3B are present for the V1.0 vehicle boundary:

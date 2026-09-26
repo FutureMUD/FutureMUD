@@ -1,3 +1,4 @@
+using MudSharp.GameItems;
 #nullable enable
 
 using MudSharp.Computers;
@@ -303,6 +304,12 @@ public abstract class AccessControlReaderGameItemComponent : PoweredMachineBaseG
 		other.CanBeConnectedTo(this);
 	public void Connect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		_mountedHost = other;
 		_pendingMountedHostId = null;
 		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(MountConnector)));
@@ -324,6 +331,12 @@ public abstract class AccessControlReaderGameItemComponent : PoweredMachineBaseG
 	public bool CanDisconnect(ICharacter actor, IConnectable other) => ReferenceEquals(_mountedHost, other);
 	public void Disconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		RawDisconnect(other, true);
 		if (actor?.Body.CanGet(Parent, 0) == true)
 		{

@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+﻿using MudSharp.GameItems;
+using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Events;
@@ -119,6 +120,11 @@ public class LockingDoorGameItemComponent : DoorGameItemComponentBase, ILock
 
 	public bool CanUnlock(ICharacter actor, IKey key)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		if (actor?.IsAdministrator() != false)
 		{
 			return true;
@@ -134,6 +140,11 @@ public class LockingDoorGameItemComponent : DoorGameItemComponentBase, ILock
 
 	public bool Unlock(ICharacter actor, IKey key, IPerceivable containingPerceivable, IEmote playerEmote)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanUnlock(actor, key))
 		{
 			return false;
@@ -164,11 +175,21 @@ public class LockingDoorGameItemComponent : DoorGameItemComponentBase, ILock
 
 	public bool CanLock(ICharacter actor, IKey key)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		return actor?.IsAdministrator() != false || key?.Unlocks(LockType, Pattern) == true;
 	}
 
 	public bool Lock(ICharacter actor, IKey key, IPerceivable containingPerceivable, IEmote playerEmote)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanLock(actor, key))
 		{
 			return false;

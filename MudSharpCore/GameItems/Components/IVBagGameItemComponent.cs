@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+﻿using MudSharp.GameItems;
+using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Form.Material;
 using MudSharp.GameItems.Prototypes;
@@ -620,6 +621,11 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         ICannula cannula;
         if (_connectedItems
             .FirstOrDefault(x => x.Item1.Gender == Gender.Male && x.Item1.ConnectionType.EqualTo("cannula"))
@@ -653,6 +659,11 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         ICannula cannula;
         if (_connectedItems
             .FirstOrDefault(x => x.Item1.Gender == Gender.Male && x.Item1.ConnectionType.EqualTo("cannula"))
@@ -686,6 +697,11 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             actor.Send(WhyCannotSwitch(actor, setting));
@@ -936,6 +952,11 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
 
     public bool CanConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         if (!FreeConnections.Any())
         {
             return false;
@@ -952,6 +973,12 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
 
     public void Connect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         ConnectorType connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
         {
@@ -980,6 +1007,11 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
 
     public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!FreeConnections.Any())
         {
             return
@@ -1005,11 +1037,22 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
 
     public bool CanDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         return _connectedItems.Any(x => x.Item2 == other);
     }
 
     public void Disconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         RawDisconnect(other, true);
     }
 
@@ -1037,6 +1080,11 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         return _connectedItems.All(x => x.Item2 != other)
             ? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
             : $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";

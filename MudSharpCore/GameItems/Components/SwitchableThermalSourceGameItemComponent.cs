@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
@@ -89,11 +90,21 @@ public abstract class SwitchableThermalSourceGameItemComponent : ThermalSourceGa
 
     public virtual bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         return setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase) ? !SwitchedOn : SwitchedOn;
     }
 
     public virtual string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         return setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase)
             ? $"{Parent.HowSeen(actor)} is already on."
             : $"{Parent.HowSeen(actor)} is already off.";
@@ -101,6 +112,11 @@ public abstract class SwitchableThermalSourceGameItemComponent : ThermalSourceGa
 
     public virtual bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             return false;

@@ -376,6 +376,11 @@ public partial class Body
 
     public CanUseBodypartResult CanUseBodypart(IBodypart part)
     {
+        if (part == null || !Bodyparts.Contains(part) && !Organs.Contains(part) && !Bones.Contains(part))
+        {
+            return CanUseBodypartResult.CantUseSevered;
+        }
+
         CanUseLimbResult limbResult = CanUseLimb(GetLimbFor(part));
         if (limbResult.HasFlag(CanUseLimbResult.CantUseDamage))
         {
@@ -395,6 +400,11 @@ public partial class Body
         if (limbResult.HasFlag(CanUseLimbResult.CantUseGrappled))
         {
             return CanUseBodypartResult.CantUseLimbGrappled;
+        }
+
+        if (limbResult.HasFlag(CanUseLimbResult.CantUseRestrained))
+        {
+            return CanUseBodypartResult.CantUseLimbRestrained;
         }
 
         if (limbResult.HasFlag(CanUseLimbResult.CantUseMissingBone))

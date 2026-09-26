@@ -432,6 +432,12 @@ public partial class Body : IHaveNeeds, IEat
 
     public bool CanEat(IEdible edible, IContainer? container, ITable? table, double bites)
     {
+        var access = Actor.CanReachItem(edible.Parent);
+        if (!access.Truth)
+        {
+            return false;
+        }
+
         if (!Actor.Race.CanEatFoodMaterial(edible.Parent.Material))
         {
             return false;
@@ -467,6 +473,12 @@ public partial class Body : IHaveNeeds, IEat
 
     private string WhyCannotEat(IEdible edible, IContainer container, ITable table, double bites)
     {
+        var access = Actor.CanReachItem(edible.Parent);
+        if (!access.Truth)
+        {
+            return access.Message;
+        }
+
         if (!Actor.Race.CanEatFoodMaterial(edible.Parent.Material))
         {
             return
@@ -505,6 +517,12 @@ public partial class Body : IHaveNeeds, IEat
 
     public (bool Success, string ErrorMessage) CanEat(ICorpse corpse, double bites)
     {
+        var access = Actor.CanReachItem(corpse.Parent);
+        if (!access.Truth)
+        {
+            return access;
+        }
+
         if (!Actor.Race.CanEatCorpses)
         {
             return (false,
@@ -522,6 +540,12 @@ public partial class Body : IHaveNeeds, IEat
 
     public (bool Success, string ErrorMessage) CanEat(ISeveredBodypart bodypart, double bites)
     {
+        var access = Actor.CanReachItem(bodypart.Parent);
+        if (!access.Truth)
+        {
+            return access;
+        }
+
         if (!Actor.Race.CanEatCorpses)
         {
             return (false,
@@ -605,6 +629,12 @@ public partial class Body : IHaveNeeds, IEat
 
     public bool CanDrink(ILiquidContainer container, ITable table, double quantity)
     {
+        var access = Actor.CanReachItem(container.Parent);
+        if (!access.Truth)
+        {
+            return false;
+        }
+
         if (!container.IsOpen)
         {
             return false;
@@ -642,6 +672,12 @@ public partial class Body : IHaveNeeds, IEat
 
     private string WhyCannotDrink(ILiquidContainer container, ITable table, double quantity)
     {
+        var access = Actor.CanReachItem(container.Parent);
+        if (!access.Truth)
+        {
+            return access.Message;
+        }
+
         if (!container.IsOpen)
         {
             return "It is not possible to drink from closed containers.";
@@ -777,6 +813,12 @@ public partial class Body : IHaveNeeds, IEat
 
     public bool CanSwallow(ISwallowable swallowable, IContainer container, ITable table)
     {
+        var access = Actor.CanReachItem(swallowable.Parent);
+        if (!access.Truth)
+        {
+            return false;
+        }
+
         if (container != null && !CanGet(swallowable.Parent, container.Parent, 0))
         {
             return false;
@@ -810,6 +852,12 @@ public partial class Body : IHaveNeeds, IEat
 
     public string WhyCannotSwallow(ISwallowable swallowable, IContainer container, ITable table)
     {
+        var access = Actor.CanReachItem(swallowable.Parent);
+        if (!access.Truth)
+        {
+            return access.Message;
+        }
+
         if (container != null && !CanGet(swallowable.Parent, container.Parent, 0))
         {
             return WhyCannotGet(swallowable.Parent, container.Parent, 0);

@@ -22,6 +22,26 @@ public static class TelekineticManipulation
 	public static bool TryPrepare(ICharacter actor, IGameItem item, string operation, StringStack arguments,
 		Func<IGameItem, bool> eligible, out Func<bool> execute, out string error)
 	{
+		var argumentText = arguments.RemainingArgument;
+		using var scope = ItemManipulationGuard.BeginTelekineticOperation(actor, eligible);
+		if (!TryPrepareCore(actor, item, operation, arguments, eligible, out _, out error))
+		{
+			execute = () => false;
+			return false;
+		}
+
+		execute = () =>
+		{
+			using var executionScope = ItemManipulationGuard.BeginTelekineticOperation(actor, eligible);
+			return TryPrepareCore(actor, item, operation, new StringStack(argumentText), eligible,
+				out var currentAction, out _) && currentAction();
+		};
+		return true;
+	}
+
+	private static bool TryPrepareCore(ICharacter actor, IGameItem item, string operation, StringStack arguments,
+		Func<IGameItem, bool> eligible, out Func<bool> execute, out string error)
+	{
 		execute = () => false;
 		error = "That object cannot be manipulated in that way.";
 		if (!eligible(item)) return false;

@@ -1,4 +1,5 @@
-﻿using MudSharp.Construction;
+﻿using MudSharp.GameItems;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Events;
 using MudSharp.GameItems.Prototypes;
@@ -119,6 +120,11 @@ public class LatchGameItemComponent : GameItemComponent, ILock
 
     public bool CanUnlock(ICharacter actor, IKey key)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         if (actor?.IsAdministrator() != false)
         {
             return true;
@@ -134,6 +140,11 @@ public class LatchGameItemComponent : GameItemComponent, ILock
 
     public bool Unlock(ICharacter actor, IKey key, IPerceivable containingPerceivable, IEmote playerEmote)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanUnlock(actor, key))
         {
             return false;
@@ -154,6 +165,11 @@ public class LatchGameItemComponent : GameItemComponent, ILock
 
     public bool CanLock(ICharacter actor, IKey key)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         if (actor?.IsAdministrator() != false)
         {
             return true;
@@ -169,6 +185,11 @@ public class LatchGameItemComponent : GameItemComponent, ILock
 
     public bool Lock(ICharacter actor, IKey key, IPerceivable containingPerceivable, IEmote playerEmote)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanLock(actor, key))
         {
             return false;

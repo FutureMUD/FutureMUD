@@ -264,7 +264,7 @@ public class OutfitTemplateTests
 
 		template.Materialise(target.Object);
 
-		body.Verify(x => x.Wear(created.Object, defaultProfile, null, true), Times.Once);
+		body.Verify(x => x.WearExternally(created.Object, defaultProfile), Times.Once);
 	}
 
 	[TestMethod]
@@ -283,7 +283,7 @@ public class OutfitTemplateTests
 
 		location.Verify(x => x.Insert(created.Object, false), Times.Once);
 		created.Verify(x => x.Get(null), Times.Once);
-		body.Verify(x => x.Wear(created.Object, profile, null, true), Times.Once);
+		body.Verify(x => x.WearExternally(created.Object, profile), Times.Once);
 		body.Verify(x => x.Get(created.Object, 0, null, true, It.IsAny<ItemCanGetIgnore>()), Times.Never);
 	}
 
@@ -323,7 +323,7 @@ public class OutfitTemplateTests
 
 		location.Verify(x => x.Insert(created.Object, false), Times.Once);
 		created.Verify(x => x.Get(null), Times.Never);
-		body.Verify(x => x.Wear(created.Object, profile, null, true), Times.Never);
+		body.Verify(x => x.WearExternally(created.Object, profile), Times.Never);
 		body.Verify(x => x.Get(created.Object, 0, null, true, It.IsAny<ItemCanGetIgnore>()), Times.Never);
 	}
 
@@ -416,12 +416,12 @@ public class OutfitTemplateTests
 			new[] { TemplateItem("sword", proto, OutfitTemplateItemPlacement.Sheathed) });
 		var target = Target(System.Array.Empty<IOutfit>(), out _, out var body, out _);
 		body.Setup(x => x.ExternalItems).Returns(new[] { sheath.Object });
-		body.Setup(x => x.CanSheathe(item.Object, sheath.Object)).Returns(true);
+		body.Setup(x => x.CanSheatheExternally(item.Object, sheath.Object)).Returns(true);
 
 		template.Materialise(target.Object);
 
 		item.Verify(x => x.Get(null), Times.Once);
-		body.Verify(x => x.Sheathe(item.Object, sheath.Object, null, OutputFlags.Normal, true), Times.Once);
+		body.Verify(x => x.SheatheExternally(item.Object, sheath.Object), Times.Once);
 	}
 
 	[TestMethod]

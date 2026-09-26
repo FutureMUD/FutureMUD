@@ -1,4 +1,5 @@
-﻿using MudSharp.GameItems.Prototypes;
+﻿using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
 
@@ -72,6 +73,11 @@ public class SelectableGameItemComponent : GameItemComponent, ISelectable
 
     public bool CanSelect(ICharacter character, string argument)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out _, Parent))
+		{
+			return false;
+		}
+
         return
             _prototype.Options.Where(x => x.CanSelectProg.ExecuteBool(character, Parent))
                       .Any(x => x.Keyword.StartsWith(argument, StringComparison.InvariantCultureIgnoreCase));
@@ -79,6 +85,11 @@ public class SelectableGameItemComponent : GameItemComponent, ISelectable
 
     public bool Select(ICharacter character, string argument, IEmote playerEmote, bool silent = false)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         List<SelectableOption> options =
             _prototype.Options.Where(x => x.CanSelectProg.ExecuteBool(character, Parent)).ToList();
         SelectableOption option =

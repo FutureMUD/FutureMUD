@@ -507,7 +507,7 @@ public class VehicleTowServiceTests
 		var strategy = new CellExitVehicleMovementStrategy(service);
 		var location = new Mock<ICell>().Object;
 		var destination = new Mock<ICell>().Object;
-		var controller = new Mock<ICharacter>().Object;
+		var controller = CreateActor().Object;
 		var root = CreateVehicle(1, "tractor", location);
 		var middle = CreateVehicle(2, "trailer", location);
 		var rear = CreateVehicle(3, "cart", location);
@@ -535,7 +535,7 @@ public class VehicleTowServiceTests
 		var strategy = new CellExitVehicleMovementStrategy(new VehicleTowService());
 		var location = new Mock<ICell>().Object;
 		var destination = new Mock<ICell>().Object;
-		var controller = new Mock<ICharacter>().Object;
+		var controller = CreateActor().Object;
 		var root = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
 		SetupCellExitProfile(root, controller, requiredPower: 100.0);
@@ -850,6 +850,7 @@ public class VehicleTowServiceTests
 		body.Setup(x => x.CanDrop(It.IsAny<IGameItem>(), 0)).Returns(true);
 		body.SetupGet(x => x.ExternalItems).Returns([]);
 		var actor = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(actor, body);
 		actor.SetupGet(x => x.Body).Returns(body.Object);
 		actor.SetupGet(x => x.MaximumDragWeight).Returns(1000.0);
 		actor.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),

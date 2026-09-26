@@ -30,10 +30,18 @@ public class VehicleEngineInstallationTests
 	{
 		var installation = CreateInstallation("motorcycle");
 		var item = CreateEngineItem("motorcycle", "motorcycle");
+		var actor = new Mock<ICharacter>();
+		var body = PhysicalManipulationTestHelper.SetUpUsableHands(actor);
 
-		var result = installation.CanInstall(new Mock<ICharacter>().Object, item.Object, out var reason);
+		var result = installation.CanInstall(actor.Object, item.Object, out var reason);
 
 		Assert.IsTrue(result, reason);
+		actor.Setup(x => x.CanManipulateItem(item.Object)).Returns((false, "The module is inaccessible."));
+		Assert.IsFalse(installation.CanInstall(actor.Object, item.Object, out reason));
+		Assert.AreEqual("The module is inaccessible.", reason);
+		body.SetupGet(x => x.HoldLocs).Returns([]);
+		Assert.IsFalse(installation.CanInstall(actor.Object, item.Object, out reason));
+		StringAssert.Contains(reason, "functioning");
 	}
 
 	private static VehicleInstallation CreateInstallation(string mountType)
@@ -45,6 +53,7 @@ public class VehicleEngineInstallationTests
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.InstallationPoints).Returns([point.Object]);
 		var vehicle = new Mock<IVehicle>();
+		vehicle.SetupGet(x => x.ExteriorItem).Returns(Mock.Of<IGameItem>());
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
 		vehicle.Setup(x => x.IsDisabledByDamage(It.IsAny<VehicleDamageEffectTargetType>(), It.IsAny<long?>()))
 			.Returns(false);

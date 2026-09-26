@@ -268,6 +268,7 @@ public class VehicleMovementCommandTests
 
 		var output = new Mock<IOutputHandler>();
 		var actor = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
 		actor.SetupProperty(x => x.Movement);
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
@@ -476,6 +477,7 @@ public class VehicleMovementCommandTests
 	{
 		var output = new Mock<IOutputHandler>();
 		var actor = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
 		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
 		actor.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(false);
 

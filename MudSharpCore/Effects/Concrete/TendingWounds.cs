@@ -1,4 +1,5 @@
-﻿using MudSharp.Construction;
+﻿using MudSharp.Body;
+using MudSharp.Construction;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
@@ -85,6 +86,13 @@ public class TendingWounds : CharacterActionWithTarget, IAffectProximity
 
     public override void ExpireEffect()
     {
+        if (!CharacterOwner.CanPerformManualAction(out var manualReason))
+        {
+            CharacterOwner.Send(manualReason);
+            Owner.RemoveEffect(this, true);
+            return;
+        }
+
         List<IWound> wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination).ToList();
         (IWound Wound, TreatmentType Type, Difficulty Difficulty) treatment = GetPendingTreatment(wounds);
         if (treatment.Wound == null)

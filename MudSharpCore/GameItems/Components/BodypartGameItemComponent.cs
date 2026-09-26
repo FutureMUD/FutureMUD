@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+﻿using MudSharp.GameItems;
+using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -727,6 +728,11 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     public bool Butcher(ICharacter butcher, string subcategory = null)
     {
+		if (!ItemManipulationGuard.CanManipulate(butcher, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         StringBuilder productSB = new();
         List<IGameItem> products = new();
         int count = 0;
@@ -842,6 +848,11 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     public void Skin(ICharacter skinner)
     {
+		if (!ItemManipulationGuard.CanManipulate(skinner, out var manipulationReason, Parent))
+		{
+			return;
+		}
+
     }
 
     #endregion
@@ -906,6 +917,22 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
+        if (emptier is not null)
+        {
+            var targets = intoContainer is null ? new[] { Parent } : new[] { Parent, intoContainer.Parent };
+            if (!ItemManipulationGuard.CanManipulate(emptier, out var reason, targets))
+            {
+				emptier.Send(reason);
+				return;
+            }
+
+            if (Contents.Any(x => !CanTake(emptier, x, 0)))
+            {
+				emptier.Send("You cannot empty that container while some of its contents cannot be taken.");
+				return;
+            }
+        }
+
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         _contents.Clear();

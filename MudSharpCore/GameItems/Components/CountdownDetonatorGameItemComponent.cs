@@ -1,3 +1,4 @@
+using MudSharp.GameItems;
 #nullable enable
 
 using MudSharp.GameItems.Prototypes;
@@ -55,6 +56,11 @@ public class CountdownDetonatorGameItemComponent : DeadlineExplosiveTriggerGameI
 
 	public bool CanArm(ICharacter actor, string argument)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		return !Armed &&
 		       Parent.IsItemType<IDetonatable>() &&
 		       TryResolveDelay(actor, argument, out _, out _);
@@ -62,6 +68,11 @@ public class CountdownDetonatorGameItemComponent : DeadlineExplosiveTriggerGameI
 
 	public string WhyCannotArm(ICharacter actor, string argument)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (Armed)
 		{
 			return $"{Parent.HowSeen(actor, true)} is already armed.";
@@ -79,6 +90,11 @@ public class CountdownDetonatorGameItemComponent : DeadlineExplosiveTriggerGameI
 
 	public bool Arm(ICharacter actor, string argument, IEmote? playerEmote = null)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanArm(actor, argument))
 		{
 			actor.Send(WhyCannotArm(actor, argument));
@@ -99,11 +115,21 @@ public class CountdownDetonatorGameItemComponent : DeadlineExplosiveTriggerGameI
 
 	public bool CanDisarm(ICharacter actor)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		return Armed && _prototype.CanBeDisarmed;
 	}
 
 	public string WhyCannotDisarm(ICharacter actor)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (!Armed)
 		{
 			return $"{Parent.HowSeen(actor, true)} is not armed.";
@@ -116,6 +142,11 @@ public class CountdownDetonatorGameItemComponent : DeadlineExplosiveTriggerGameI
 
 	public bool Disarm(ICharacter actor, IEmote? playerEmote = null)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanDisarm(actor))
 		{
 			actor.Send(WhyCannotDisarm(actor));

@@ -11,6 +11,12 @@ This document explains how to add a new item capability through the component sy
 
 It is the primary implementation guide for creating new item "types" in FutureMUD.
 
+## Actor-driven physical operations
+
+Use `ItemManipulationGuard.CanManipulate` in actorful feasibility, diagnostic and execution methods before resource use or mutation. Include the component parent and any separately manipulated tool, connector or target. Delayed work must recheck before each step. Generic operation requires a usable manipulator, not an empty hand; component-specific plans and lawful-action checks still apply. Actorful `Empty` preflights every source item with `CanTake` before clearing anything.
+
+A null actor retains system/load/morph operations. Raw transfer and signal primitives remain available to those operations. Telekinesis supplies an internal actor-specific eligibility scope and revalidates on execution; body inventory requirements still apply. Neural control of internal implants installed in the actor remains non-manual; external endpoints are not exempt. Configured zero-hand instruments, scans of the actor's configured biometric part, projectile resolution and breath-operated blowgun firing use their own capability rules. See [the audit ledger](Physical_Manipulation_Audit.md).
+
 ## The Real Workflow
 Adding a new item capability usually means all of the following:
 1. Decide whether there should be a public interface in `FutureMUDLibrary`.

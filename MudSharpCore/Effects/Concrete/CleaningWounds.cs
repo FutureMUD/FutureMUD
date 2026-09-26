@@ -1,4 +1,5 @@
-﻿using MudSharp.Construction;
+﻿using MudSharp.Body;
+using MudSharp.Construction;
 using MudSharp.Character;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Inventory;
@@ -165,6 +166,13 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 
     public override void ExpireEffect()
     {
+        if (!CharacterOwner.CanPerformManualAction(out var manualReason))
+        {
+            CharacterOwner.Send(manualReason);
+            Owner.RemoveEffect(this, true);
+            return;
+        }
+
         List<IWound> wounds = TargetCharacter
 
                      .VisibleWounds(CharacterOwner, WoundExaminationType.Examination)

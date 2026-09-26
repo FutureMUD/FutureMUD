@@ -320,7 +320,7 @@ public partial class Body
             return false;
         }
 
-        List<IWield> openWieldLocs = WieldLocs.Select(x => (Wielder: x, CanWield: x.CanWield(item, this))).Where(x =>
+        List<IWield> openWieldLocs = WieldLocs.Where(x => CanUseBodypart(x) == CanUseBodypartResult.CanUse).Select(x => (Wielder: x, CanWield: x.CanWield(item, this))).Where(x =>
             x.CanWield == IWieldItemWieldResult.Success ||
             (flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands) &&
              (x.CanWield == IWieldItemWieldResult.AlreadyWielding ||
@@ -342,6 +342,11 @@ public partial class Body
 
     public bool CanWield(IGameItem item, IWield? specificHand, ItemCanWieldFlags flags = ItemCanWieldFlags.None)
     {
+        if (specificHand is not null && (!WieldLocs.Contains(specificHand) || CanUseBodypart(specificHand) != CanUseBodypartResult.CanUse))
+        {
+            return false;
+        }
+
         IWieldable wieldable = item.GetItemType<IWieldable>();
         if (wieldable is null)
         {
@@ -364,7 +369,7 @@ public partial class Body
             return false;
         }
 
-        List<IWield> openWieldLocs = WieldLocs.Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success ||
+        List<IWield> openWieldLocs = WieldLocs.Where(x => CanUseBodypart(x) == CanUseBodypartResult.CanUse).Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success ||
                                                  (flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands) &&
                                                   (x.CanWield(item, this) == IWieldItemWieldResult.AlreadyWielding ||
                                                    x.CanWield(item, this) ==
@@ -410,7 +415,7 @@ public partial class Body
         }
 
         List<IWieldItemWieldResult> reasons = WieldLocs.Select(x => x.CanWield(item, this)).ToList();
-        List<IWield> openWieldLocs = WieldLocs.Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success ||
+        List<IWield> openWieldLocs = WieldLocs.Where(x => CanUseBodypart(x) == CanUseBodypartResult.CanUse).Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success ||
                                                  (flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands) &&
                                                   (x.CanWield(item, this) == IWieldItemWieldResult.AlreadyWielding ||
                                                    x.CanWield(item, this) ==
@@ -484,7 +489,7 @@ public partial class Body
                 $"You can't wield {item.HowSeen(Actor)} specifically in your {specificHand.FullDescription()} at the moment.";
         }
 
-        List<IWield> openWieldLocs = WieldLocs.Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success ||
+        List<IWield> openWieldLocs = WieldLocs.Where(x => CanUseBodypart(x) == CanUseBodypartResult.CanUse).Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success ||
                                                  (flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands) &&
                                                   (x.CanWield(item, this) == IWieldItemWieldResult.AlreadyWielding ||
                                                    x.CanWield(item, this) ==
@@ -895,6 +900,11 @@ public partial class Body
 
     public bool CanSheathe(IGameItem item, IGameItem sheath)
     {
+        return this.CanPerformManualAction(out _) && CanSheatheExternally(item, sheath);
+    }
+
+    public bool CanSheatheExternally(IGameItem item, IGameItem sheath)
+    {
         IWieldable targetItemWieldable = null;
         if (item == null)
         {
@@ -1002,6 +1012,11 @@ public partial class Body
 
     public string WhyCannotSheathe(IGameItem item, IGameItem sheath)
     {
+        if (!this.CanPerformManualAction(out var manualReason))
+        {
+            return manualReason;
+        }
+
         IWieldable targetItemWieldable = null;
         if (item == null)
         {
@@ -1135,6 +1150,18 @@ public partial class Body
             return false;
         }
 
+        return SheatheInternal(item, sheath, playerEmote, additionalFlags, silent);
+    }
+
+    public bool SheatheExternally(IGameItem item, IGameItem sheath)
+    {
+        return CanSheatheExternally(item, sheath) &&
+               SheatheInternal(item, sheath, null, OutputFlags.Normal, true);
+    }
+
+    private bool SheatheInternal(IGameItem item, IGameItem sheath, IEmote? playerEmote,
+        OutputFlags additionalFlags, bool silent)
+    {
         IWieldable targetItemWieldable = null;
         if (item == null)
         {
@@ -1280,6 +1307,20 @@ public partial class Body
 
     public bool CanGet(IGameItem item, int quantity, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
+        if (item is not null && (item.Location is not null || item.ContainedIn is not null || item.InInventoryOf is not null))
+        {
+            var reach = Actor.CanReachItem(item, requireInventoryPermission: false);
+            if (!reach.Truth)
+            {
+                return false;
+            }
+        }
+
+        if (!this.CanPerformManualAction(out _))
+        {
+            return false;
+        }
+
 		if (item?.Location?.RouteDefinition is not null && Actor.GetProximity(item) > Proximity.Immediate)
 		{
 			return false;
@@ -1301,7 +1342,7 @@ public partial class Body
         }
 
         IGameItem actualItem = quantity == 0 ? item : item.PeekSplit(quantity);
-        switch (actualItem.CanGet(quantity, ignoreFlags))
+        switch (item.CanGet(quantity, ignoreFlags))
         {
             case ItemGetResponse.NoGetEffectCombat:
                 if (!ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreCombat))
@@ -1366,6 +1407,12 @@ public partial class Body
     public bool CanGet(IGameItem item, IGameItem container, int quantity,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
+        var manipulation = Actor.CanReachItem(container, requireInventoryPermission: false);
+        if (!manipulation.Truth)
+        {
+            return false;
+        }
+
         if (item == null)
         {
             return false;
@@ -1383,7 +1430,7 @@ public partial class Body
 
         if (!ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreInContainer))
         {
-            if (tcontainer?.Contents.Contains(item) == true && !tcontainer.CanTake(Actor, item, quantity))
+            if (tcontainer is null || !tcontainer.Contents.Contains(item) || !tcontainer.CanTake(Actor, item, quantity))
             {
                 return false;
             }
@@ -1399,6 +1446,20 @@ public partial class Body
 
     public string WhyCannotGet(IGameItem item, int quantity, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
+        if (item is not null && (item.Location is not null || item.ContainedIn is not null || item.InInventoryOf is not null))
+        {
+            var reach = Actor.CanReachItem(item, requireInventoryPermission: false);
+            if (!reach.Truth)
+            {
+                return reach.Message;
+            }
+        }
+
+        if (!this.CanPerformManualAction(out var manualReason))
+        {
+            return manualReason;
+        }
+
 		if (item?.Location?.RouteDefinition is not null && Actor.GetProximity(item) > Proximity.Immediate)
 		{
 			return $"You are too far away from {item.HowSeen(Actor)} to pick it up.";
@@ -1420,7 +1481,7 @@ public partial class Body
         }
 
         IGameItem actualItem = quantity == 0 ? item : item.PeekSplit(quantity);
-        switch (actualItem.CanGet(quantity, ignoreFlags))
+        switch (item.CanGet(quantity, ignoreFlags))
         {
             case ItemGetResponse.NoGetEffectCombat:
                 if (!ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreCombat))
@@ -1509,6 +1570,12 @@ public partial class Body
     public string WhyCannotGet(IGameItem item, IGameItem container, int quantity,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
+        var manipulation = Actor.CanReachItem(container, requireInventoryPermission: false);
+        if (!manipulation.Truth)
+        {
+            return manipulation.Message;
+        }
+
         if (item == null)
         {
             return "You don't see anything like that in such a container.";
@@ -1532,7 +1599,12 @@ public partial class Body
 
         if (!ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreInContainer))
         {
-            if (tcontainer.Contents.Contains(item) && !tcontainer.CanTake(Actor, item, quantity))
+            if (!tcontainer.Contents.Contains(item))
+            {
+                return $"You do not see that in {container.HowSeen(this)}.";
+            }
+
+            if (!tcontainer.CanTake(Actor, item, quantity))
             {
                 switch (tcontainer.WhyCannotTake(Actor, item))
                 {
@@ -1806,6 +1878,17 @@ public partial class Body
     public bool CanPut(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity,
         bool allowLesserAmounts)
     {
+        var manipulation = Actor.CanReachItem(container, requireInventoryPermission: false);
+        if (!manipulation.Truth)
+        {
+            return false;
+        }
+
+        if (!this.CanPerformManualAction(out _))
+        {
+            return false;
+        }
+
 		if (container?.Location?.RouteDefinition is not null && Actor.GetProximity(container) > Proximity.Immediate)
 		{
 			return false;
@@ -1830,6 +1913,17 @@ public partial class Body
     public string WhyCannotPut(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity,
         bool allowLesserAmounts)
     {
+        var manipulation = Actor.CanReachItem(container, requireInventoryPermission: false);
+        if (!manipulation.Truth)
+        {
+            return manipulation.Message;
+        }
+
+        if (!this.CanPerformManualAction(out var manualReason))
+        {
+            return manualReason;
+        }
+
 		if (container?.Location?.RouteDefinition is not null && Actor.GetProximity(container) > Proximity.Immediate)
 		{
 			return $"You are too far away from {container.HowSeen(Actor)} to put anything into it.";
@@ -1999,6 +2093,17 @@ public partial class Body
 
     public bool CanPut(IGameItem item, IGameItem container, string profile)
     {
+        var manipulation = Actor.CanReachItem(container, requireInventoryPermission: false);
+        if (!manipulation.Truth)
+        {
+            return false;
+        }
+
+        if (!this.CanPerformManualAction(out _))
+        {
+            return false;
+        }
+
         ICorpse containerAsCorpse = container.GetItemType<ICorpse>();
         if (containerAsCorpse == null)
         {
@@ -2034,6 +2139,17 @@ public partial class Body
 
     public string WhyCannotPut(IGameItem item, IGameItem container, string profile)
     {
+        var manipulation = Actor.CanReachItem(container, requireInventoryPermission: false);
+        if (!manipulation.Truth)
+        {
+            return manipulation.Message;
+        }
+
+        if (!this.CanPerformManualAction(out var manualReason))
+        {
+            return manualReason;
+        }
+
         ICorpse containerAsCorpse = container.GetItemType<ICorpse>();
         if (containerAsCorpse == null)
         {
@@ -2074,7 +2190,6 @@ public partial class Body
                 return $"{container.HowSeen(Actor, true)} does not have a wear profile named {profile}.";
             }
         }
-
 
         switch (wprof == null
                     ? containerAsCorpse.Body.WearLocs.WhyCannotDrape(item,
@@ -2124,11 +2239,11 @@ public partial class Body
         InventoryChanged = true;
         if (string.IsNullOrEmpty(profile))
         {
-            targetBody.Wear(item, null, true);
+            targetBody.WearExternally(item);
         }
         else
         {
-            targetBody.Wear(item, profile, null, true);
+            targetBody.WearExternally(item, item.GetItemType<IWearable>().Profiles.First(x => x.Name.StartsWith(profile, StringComparison.InvariantCultureIgnoreCase)));
         }
     }
 
@@ -2225,11 +2340,31 @@ public partial class Body
 
     public bool CanGive(IGameItem item, IBody target, int quantity = 0)
     {
+        if (!Actor.ColocatedWith(target.Actor))
+        {
+            return false;
+        }
+
+        if (!this.CanPerformManualAction(out _))
+        {
+            return false;
+        }
+
         return CanDrop(item, quantity) && target.CanGet(quantity == 0 ? item : item.PeekSplit(quantity), 0);
     }
 
     public string WhyCannotGive(IGameItem item, IBody target, int quantity = 0)
     {
+        if (!Actor.ColocatedWith(target.Actor))
+        {
+            return "They are too far away for you to give anything to them.";
+        }
+
+        if (!this.CanPerformManualAction(out var manualReason))
+        {
+            return manualReason;
+        }
+
         IGameItem dummy = item.PeekSplit(quantity);
         if (!CanDrop(item, quantity))
         {
@@ -2309,12 +2444,34 @@ public partial class Body
 
     public bool CanGive(IGameItem item, ICorpse target, int quantity = 0)
     {
+        var manipulation = Actor.CanManipulateItem(target.Parent);
+        if (!manipulation.Truth)
+        {
+            return false;
+        }
+
+        if (!this.CanPerformManualAction(out _))
+        {
+            return false;
+        }
+
         return CanDrop(item, quantity) &&
                target.Body.CanGet(quantity == 0 ? item : item.PeekSplit(quantity), 0);
     }
 
     public string WhyCannotGive(IGameItem item, ICorpse target, int quantity = 0)
     {
+        var manipulation = Actor.CanManipulateItem(target.Parent);
+        if (!manipulation.Truth)
+        {
+            return manipulation.Message;
+        }
+
+        if (!this.CanPerformManualAction(out var manualReason))
+        {
+            return manualReason;
+        }
+
         IGameItem dummy = item.PeekSplit(quantity);
         if (!CanDrop(item, quantity))
         {
@@ -2471,6 +2628,12 @@ public partial class Body
     /// <returns>True if the swap took place</returns>
     public bool Swap(IGameItem firstItem, IGameItem secondItem)
     {
+        if (!this.CanPerformManualAction(out var manualReason))
+        {
+            Actor.Send(manualReason);
+            return false;
+        }
+
         if (!HeldOrWieldedItems.Contains(firstItem) || (secondItem != null && !HeldOrWieldedItems.Contains(secondItem)))
         {
             Actor.Send("You cannot swap items that you aren't holding.");
@@ -2493,14 +2656,14 @@ public partial class Body
                 return _heldItems.First(x => x.Item1 == otherItem).Item2;
             }
 
-            if (itemWielded && WieldLocs.Any(x => _wieldedItems.All(y => y.Item2 != x)))
+            if (itemWielded && WieldLocs.Any(x => CanUseBodypart(x) == CanUseBodypartResult.CanUse && _wieldedItems.All(y => y.Item2 != x)))
             {
-                return WieldLocs.First(x => _wieldedItems.All(y => y.Item2 != x));
+                return WieldLocs.First(x => CanUseBodypart(x) == CanUseBodypartResult.CanUse && _wieldedItems.All(y => y.Item2 != x));
             }
 
-            if (HoldLocs.Any(x => _heldItems.All(y => y.Item2 != x)))
+            if (HoldLocs.Any(x => CanUseBodypart(x) == CanUseBodypartResult.CanUse && _heldItems.All(y => y.Item2 != x)))
             {
-                return HoldLocs.First(x => _heldItems.All(y => y.Item2 != x));
+                return HoldLocs.First(x => CanUseBodypart(x) == CanUseBodypartResult.CanUse && _heldItems.All(y => y.Item2 != x));
             }
 
             return null;
@@ -2508,6 +2671,13 @@ public partial class Body
 
         IBodypart targetloc1 = FindTargetLocation(secondItem, item1Wielded);
         IBodypart targetloc2 = FindTargetLocation(firstItem, item2Wielded);
+        if (targetloc1 is null || CanUseBodypart(targetloc1) != CanUseBodypartResult.CanUse ||
+            secondItem is not null && (targetloc2 is null || CanUseBodypart(targetloc2) != CanUseBodypartResult.CanUse))
+        {
+            Actor.Send("You do not have functioning locations available to swap those items.");
+            return false;
+        }
+
         _heldItems.RemoveAll(x => x.Item1 == firstItem || x.Item1 == secondItem);
         _wieldedItems.RemoveAll(x => x.Item1 == firstItem || x.Item1 == secondItem);
 
@@ -2693,6 +2863,12 @@ public partial class Body
 
     public void RemoveItem(IGameItem item, IEmote playerEmote, ICharacter remover)
     {
+        if (!CanBeRemoved(item, remover))
+        {
+            remover.Send(WhyCannotBeRemoved(item, remover));
+            return;
+        }
+
         IObscureCharacteristics obscurer = item.GetItemType<IObscureCharacteristics>();
         MixedEmoteOutput output = null;
         if (!string.IsNullOrEmpty(obscurer?.RemovalEcho))
@@ -2911,6 +3087,18 @@ public partial class Body
         IEmote? emote = null,
         bool silent = false)
     {
+        if (!restrainer.CanPerformManualAction(out var manualReason))
+        {
+            restrainer.Send(manualReason);
+            return;
+        }
+
+        if (!restrainer.ColocatedWith(Actor))
+        {
+            restrainer.Send("They are too far away for you to restrain.");
+            return;
+        }
+
         if (!silent && restrainer != null)
         {
             MixedEmoteOutput output =
@@ -2949,7 +3137,23 @@ public partial class Body
         return true;
     }
 
+    public void WearExternally(IGameItem item, IWearProfile? profile = null)
+    {
+        WearInternal(item, profile ?? WhichProfile(item), null, true);
+    }
+
     public void Wear(IGameItem item, IWearProfile profile, IEmote? playerEmote = null, bool silent = false)
+    {
+        if (!this.CanPerformManualAction(out var reason))
+        {
+            if (!silent) OutputHandler.Send(reason);
+            return;
+        }
+
+        WearInternal(item, profile, playerEmote, silent);
+    }
+
+    private void WearInternal(IGameItem item, IWearProfile profile, IEmote? playerEmote, bool silent)
     {
         if (!CanWear(item, profile))
         {
@@ -3019,6 +3223,17 @@ public partial class Body
 
     public bool CanBeRemoved(IGameItem item, ICharacter remover)
     {
+        if (!remover.CanPerformManualAction(out var manualReason))
+        {
+            return false;
+        }
+
+        var reach = remover.CanReachItem(item, requireInventoryPermission: false);
+        if (!reach.Truth)
+        {
+            return false;
+        }
+
         if (!Actor.IsTrustedAlly(remover) && Actor.EffectsOfType<BeDressedEffect>().All(x => x.Dresser != remover))
         {
             if (!Actor.State.HasFlag(CharacterState.Dead) && !Actor.State.HasFlag(CharacterState.Unconscious) &&
@@ -3048,6 +3263,16 @@ public partial class Body
 
     public bool CanDress(IGameItem item, ICharacter dresser, IWearProfile profile = null)
     {
+        if (!dresser.CanPerformManualAction(out var manualReason))
+        {
+            return false;
+        }
+
+        if (!dresser.ColocatedWith(Actor))
+        {
+            return false;
+        }
+
         if (!dresser.Body.CanDrop(item, 0))
         {
             return false;
@@ -3071,6 +3296,16 @@ public partial class Body
 
     public string WhyCannotDress(IGameItem item, ICharacter dresser, IWearProfile profile = null)
     {
+        if (!dresser.CanPerformManualAction(out var manualReason))
+        {
+            return manualReason;
+        }
+
+        if (!dresser.ColocatedWith(Actor))
+        {
+            return "They are too far away for you to dress.";
+        }
+
         if (!dresser.Body.CanDrop(item, 0))
         {
             return dresser.Body.WhyCannotDrop(item, 0);
@@ -3137,7 +3372,7 @@ public partial class Body
         dresser.OutputHandler.Handle(new MixedEmoteOutput(new Emote("@ dress|dresses $0 in $1", dresser, Actor, item))
             .Append(emote));
         dresser.Body.Take(item);
-        Wear(item, tempProfile, silent: true);
+        WearExternally(item, tempProfile);
         return true;
     }
 
@@ -3503,6 +3738,17 @@ public partial class Body
 
     public string WhyCannotBeRemoved(IGameItem item, ICharacter remover)
     {
+        if (!remover.CanPerformManualAction(out var manualReason))
+        {
+            return manualReason;
+        }
+
+        var reach = remover.CanReachItem(item, requireInventoryPermission: false);
+        if (!reach.Truth)
+        {
+            return reach.Message;
+        }
+
         if (!Actor.WillingToPermitInventoryManipulation(remover))
         {
             return "You can only take things from willing people, or corpses.";
@@ -3698,13 +3944,26 @@ public partial class Body
         return newItem;
     }
 
+    private IEnumerable<ICurrencyPile> AccessibleRoomCurrencyPiles()
+    {
+        return Location.LayerGameItems(RoomLayer)
+            .SelectNotNull(x => x.GetItemType<ICurrencyPile>())
+            .Where(x => CanGet(x.Parent, 0, ItemCanGetIgnore.IgnoreWeight));
+    }
+
+    private IEnumerable<ICurrencyPile> AccessibleContainerCurrencyPiles(IGameItem container)
+    {
+        var component = container.GetItemType<IContainer>();
+        return component?.Contents
+            .SelectNotNull(x => x.GetItemType<ICurrencyPile>())
+            .Where(x => CanGet(x.Parent, container, 0, ItemCanGetIgnore.IgnoreWeight)) ?? Enumerable.Empty<ICurrencyPile>();
+    }
+
     public bool CanGet(ICurrency currency, decimal amount, bool exact)
     {
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
             FindCurrencyPreservingOwnership(currency,
-                Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>())
-                        .Where(x => Location.CanGet(x.Parent, Actor))
-                        .Where(x => Actor.MountedCanRetrieve(x.Parent, out _)), amount);
+                AccessibleRoomCurrencyPiles(), amount);
         if (!targetCoins.Any())
         {
             return false;
@@ -3721,14 +3980,14 @@ public partial class Body
 
     public bool CanGet(ICurrency currency, IGameItem container, decimal amount, bool exact)
     {
-        if (!(container?.TrueLocations.FirstOrDefault()?.CanGetAccess(container, Actor) ?? true))
+        if (container?.GetItemType<IContainer>() is null || !Actor.CanReachItem(container, requireInventoryPermission: false).Truth)
         {
             return false;
         }
 
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
             FindCurrencyPreservingOwnership(currency,
-                container.GetItemType<IContainer>().Contents.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+                AccessibleContainerCurrencyPiles(container),
                 amount);
         if (!targetCoins.Any())
         {
@@ -3749,9 +4008,7 @@ public partial class Body
     {
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
             FindCurrencyPreservingOwnership(currency,
-                Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>())
-                        .Where(x => Location.CanGet(x.Parent, Actor))
-                        .Where(x => Actor.MountedCanRetrieve(x.Parent, out _)), amount);
+                AccessibleRoomCurrencyPiles(), amount);
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> trueTargetCoins =
             currency.FindCurrency(Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
                 amount);
@@ -3763,9 +4020,13 @@ public partial class Body
                 return mountMessage;
             }
 
-            return trueTargetCoins.Any()
-                ? Location.WhyCannotGet(trueTargetCoins.First().Key.Parent, Actor)
-                : "There is no money at all to get.";
+            if (trueTargetCoins.Any())
+            {
+                var pile = trueTargetCoins.First().Key.Parent;
+                return WhyCannotGet(pile, 0, ItemCanGetIgnore.IgnoreWeight);
+            }
+
+            return "There is no money at all to get.";
         }
 
         if (exact && targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)) != amount)
@@ -3781,18 +4042,27 @@ public partial class Body
 
     public string WhyCannotGet(ICurrency currency, IGameItem container, decimal amount, bool exact)
     {
-        if (!(container?.TrueLocations.FirstOrDefault()?.CanGetAccess(container, Actor) ?? true))
+        if (container?.GetItemType<IContainer>() is null)
         {
-            return container.Location.WhyCannotGetAccess(container, Actor);
+            return "That is not a container.";
+        }
+
+        var manipulation = Actor.CanReachItem(container, requireInventoryPermission: false);
+        if (!manipulation.Truth)
+        {
+            return manipulation.Message;
         }
 
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
             FindCurrencyPreservingOwnership(currency,
-                container.GetItemType<IContainer>().Contents.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+                AccessibleContainerCurrencyPiles(container),
                 amount);
         if (!targetCoins.Any())
         {
-            return "There is no money in " + container.HowSeen(this) + " at all to get.";
+            var inaccessible = container.GetItemType<IContainer>().Contents.FirstOrDefault(x => x.IsItemType<ICurrencyPile>());
+            return inaccessible is not null
+                ? WhyCannotGet(inaccessible, container, 0)
+                : "There is no money in " + container.HowSeen(this) + " at all to get.";
         }
 
         if (exact && targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)) != amount)
@@ -3826,7 +4096,7 @@ public partial class Body
 
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
             FindCurrencyPreservingOwnership(currency,
-                container.Contents.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+                AccessibleContainerCurrencyPiles(containerItem),
                 amount);
         IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
         container.Put(null, newItem, false);
@@ -3857,7 +4127,7 @@ public partial class Body
         }
 
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
-            FindCurrencyPreservingOwnership(currency, Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
+            FindCurrencyPreservingOwnership(currency, AccessibleRoomCurrencyPiles(),
                 amount);
         IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
         foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
@@ -4132,37 +4402,69 @@ public partial class Body
 
     public bool CanGetByWeight(IGameItem item, double weight, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
-        throw new NotImplementedException();
+        return double.IsFinite(weight) && weight > 0.0 &&
+               CanGet(item, 0, ignoreFlags | ItemCanGetIgnore.IgnoreWeight) &&
+               CanGet(item.PeekSplitByWeight(weight), 0, ignoreFlags);
     }
 
     public bool CanGetByWeight(IGameItem item, IGameItem container, double weight,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
-        throw new NotImplementedException();
+        return double.IsFinite(weight) && weight > 0.0 &&
+               CanGet(item, container, 0, ignoreFlags | ItemCanGetIgnore.IgnoreWeight) &&
+               CanGet(item.PeekSplitByWeight(weight), 0,
+                   container.InInventoryOf == this ? ignoreFlags | ItemCanGetIgnore.IgnoreWeight : ignoreFlags);
     }
 
-    public bool WhyCannotGetByWeight(IGameItem item, double weight,
+    public string WhyCannotGetByWeight(IGameItem item, double weight,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
-        throw new NotImplementedException();
+        if (!double.IsFinite(weight) || weight <= 0.0) return "You must specify a finite positive weight.";
+        return !CanGet(item, 0, ignoreFlags | ItemCanGetIgnore.IgnoreWeight)
+            ? WhyCannotGet(item, 0, ignoreFlags | ItemCanGetIgnore.IgnoreWeight)
+            : WhyCannotGet(item.PeekSplitByWeight(weight), 0, ignoreFlags);
     }
 
-    public bool WhyCannotGetByWeight(IGameItem item, IGameItem container, double weight,
+    public string WhyCannotGetByWeight(IGameItem item, IGameItem container, double weight,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
-        throw new NotImplementedException();
+        if (!double.IsFinite(weight) || weight <= 0.0) return "You must specify a finite positive weight.";
+        return !CanGet(item, container, 0, ignoreFlags | ItemCanGetIgnore.IgnoreWeight)
+            ? WhyCannotGet(item, container, 0, ignoreFlags | ItemCanGetIgnore.IgnoreWeight)
+            : WhyCannotGet(item.PeekSplitByWeight(weight), 0,
+                container.InInventoryOf == this ? ignoreFlags | ItemCanGetIgnore.IgnoreWeight : ignoreFlags);
     }
 
     public void GetByWeight(IGameItem item, double weight, IEmote? playerEmote = null, bool silent = false,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
-        throw new NotImplementedException();
+        if (!CanGetByWeight(item, weight, ignoreFlags))
+        {
+            if (!silent) OutputHandler.Send(WhyCannotGetByWeight(item, weight, ignoreFlags));
+            return;
+        }
+
+        Get(item.DropsWholeByWeight(weight) ? item : item.GetByWeight(this, weight),
+            0, playerEmote, silent, ignoreFlags);
     }
 
     public void GetByWeight(IGameItem item, IGameItem container, double weight, IEmote? playerEmote = null,
         bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
-        throw new NotImplementedException();
+        if (!CanGetByWeight(item, container, weight, ignoreFlags))
+        {
+            if (!silent) OutputHandler.Send(WhyCannotGetByWeight(item, container, weight, ignoreFlags));
+            return;
+        }
+
+        if (item.DropsWholeByWeight(weight))
+        {
+            Get(item, container, 0, playerEmote, silent, ignoreFlags);
+            return;
+        }
+
+        Get(item.GetByWeight(this, weight), container, 0, playerEmote, silent,
+            ignoreFlags | ItemCanGetIgnore.IgnoreInContainer);
     }
 
     #endregion

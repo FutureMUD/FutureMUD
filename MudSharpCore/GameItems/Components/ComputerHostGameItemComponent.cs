@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 
 using MudSharp.Computers;
 using MudSharp.Framework.Scheduling;
@@ -662,6 +663,11 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 
 	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		if (other is not IComputerStorage && other is not IComputerTerminal && other is not INetworkAdapter)
 		{
 			return false;
@@ -672,6 +678,12 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 
 	public void Connect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		if (!CanConnect(actor, other))
 		{
 			return;
@@ -702,6 +714,11 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 
 	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return $"{Parent.HowSeen(actor)} has no compatible free computer connection ports.";
 	}
 
@@ -712,11 +729,22 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 
 	public bool CanDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		return _connectedItems.Contains(other);
 	}
 
 	public void Disconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		RawDisconnect(other, true);
 	}
 
@@ -744,6 +772,11 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 
 	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return $"{other.Parent.HowSeen(actor)} is not currently connected to {Parent.HowSeen(actor)}.";
 	}
 

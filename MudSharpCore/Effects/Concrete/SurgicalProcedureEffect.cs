@@ -1,4 +1,5 @@
-﻿using MudSharp.GameItems;
+﻿using MudSharp.Body;
+using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
@@ -41,6 +42,18 @@ public class SurgicalProcedureEffect : StagedCharacterActionWithTarget
     public override bool CanBeStoppedByPlayer => true;
 
     public List<(IGameItem Item, DesiredItemState State)> AdditionalInventory { get; }
+
+    public override void ExpireEffect()
+    {
+        if (!Surgeon.CanPerformManualAction(out var reason))
+        {
+            Surgeon.Send(reason);
+            Owner.RemoveEffect(this, true);
+            return;
+        }
+
+        base.ExpireEffect();
+    }
 
     protected override void ReleaseEventHandlers()
     {

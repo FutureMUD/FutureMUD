@@ -1,3 +1,4 @@
+using MudSharp.GameItems;
 #nullable enable
 
 using MudSharp.Computers;
@@ -101,6 +102,11 @@ public abstract class MediaEndpointPoweredComponentBase : PoweredMachineBaseGame
 
 	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		if (other is not IMediaEndpoint endpoint ||
 		    (ConnectorCapabilities & endpoint.MediaCapabilities) == MediaCapabilities.None ||
 		    !Parent.ColocatedWith(other.Parent) || !FreeConnections.Any() || !other.FreeConnections.Any())
@@ -114,6 +120,12 @@ public abstract class MediaEndpointPoweredComponentBase : PoweredMachineBaseGame
 
 	public void Connect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		if (!CanConnect(actor, other))
 		{
 			return;
@@ -142,6 +154,11 @@ public abstract class MediaEndpointPoweredComponentBase : PoweredMachineBaseGame
 
 	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (!Parent.ColocatedWith(other.Parent))
 		{
 			return $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} because they are not colocated.";
@@ -165,11 +182,22 @@ public abstract class MediaEndpointPoweredComponentBase : PoweredMachineBaseGame
 
 	public bool CanDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		return CanBeDisconnectedFrom(other);
 	}
 
 	public void Disconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		RawDisconnect(other, true);
 	}
 
@@ -198,6 +226,11 @@ public abstract class MediaEndpointPoweredComponentBase : PoweredMachineBaseGame
 
 	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return CanBeDisconnectedFrom(other)
 			? string.Empty
 			: $"{Parent.HowSeen(actor)} is not connected to {other.Parent.HowSeen(actor)}.";

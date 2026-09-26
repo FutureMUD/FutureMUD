@@ -87,6 +87,11 @@ public class WieldingBodypartProto : DrapeableBodypartProto, IWield
 
     public IWieldItemWieldResult CanWield(IGameItem item, IInventory body)
     {
+        if (body.CanUseBodypart(this) != CanUseBodypartResult.CanUse)
+        {
+            return IWieldItemWieldResult.TooDamaged;
+        }
+
         IWieldable wieldable = item.GetItemType<IWieldable>();
         if (wieldable == null)
         {

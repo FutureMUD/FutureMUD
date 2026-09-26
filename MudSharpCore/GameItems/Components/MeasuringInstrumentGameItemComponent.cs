@@ -122,9 +122,14 @@ public class MeasuringInstrumentGameItemComponent : GameItemComponent, IMeasurin
 		return true;
 	}
 
+	public bool CanMeasure(ICharacter actor, IGameItem target, out string error)
+	{
+		return ItemManipulationGuard.CanManipulate(actor, out error, Parent, target) && CanMeasure(target, out error);
+	}
+
 	public MeasurementResult Measure(ICharacter actor, IGameItem target)
 	{
-		if (!CanMeasure(target, out var error))
+		if (!CanMeasure(actor, target, out var error))
 		{
 			throw new InvalidOperationException(error);
 		}
@@ -141,6 +146,12 @@ public class MeasuringInstrumentGameItemComponent : GameItemComponent, IMeasurin
 
 	public void Calibrate(ICharacter actor)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		_calibrationBias = 0.0;
 		_calibrationBiasIsPercentage = false;
 		_hasDeliberateBias = false;
@@ -151,6 +162,11 @@ public class MeasuringInstrumentGameItemComponent : GameItemComponent, IMeasurin
 
 	public bool CalibrateWrong(ICharacter actor, double bias, bool percentageBias, out string error)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+		{
+			return false;
+		}
+
 		if (percentageBias && Math.Abs(bias) > _prototype.MaximumWrongCalibration)
 		{
 			error = $"That bias is too large. This instrument can only be wrong-calibrated by up to {_prototype.MaximumWrongCalibration.ToString("P2", actor)}.";

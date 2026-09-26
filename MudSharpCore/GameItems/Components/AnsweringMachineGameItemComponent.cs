@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 using MudSharp.Communication.Language;
 using MudSharp.Computers;
 using MudSharp.Construction;
@@ -276,6 +277,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool CanConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         return FreeConnections.Any() &&
                other.FreeConnections.Any() &&
                other.FreeConnections.Any(x => Connections.Any(x.CompatibleWith)) &&
@@ -284,6 +290,12 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public void Connect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         ConnectorType? connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
         {
@@ -306,6 +318,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!FreeConnections.Any())
         {
             return
@@ -331,11 +348,22 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool CanDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         return _connectedItems.Any(x => x.Item2 == other);
     }
 
     public void Disconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         RawDisconnect(other, true);
     }
 
@@ -357,6 +385,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         return _connectedItems.All(x => x.Item2 != other)
             ? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
             : $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";
@@ -865,6 +898,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         if (setting.Equals("on", StringComparison.InvariantCultureIgnoreCase))
         {
             return !_switchedOn;
@@ -881,6 +919,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out _))
         {
             return $"{Parent.HowSeen(actor, true)} is already set to {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()}.";
@@ -893,6 +936,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             return false;
@@ -917,6 +965,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool CanPickUp(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_isOffHook && _currentCall == null)
         {
             error = "That telephone is already off the hook.";
@@ -941,6 +994,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool PickUp(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanPickUp(actor, out error))
         {
             return false;
@@ -967,6 +1025,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool CanDial(ICharacter actor, string number, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_currentCall?.IsConnected == true)
         {
             return CanSendDigits(actor, number, out error);
@@ -1002,6 +1065,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool Dial(ICharacter actor, string number, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_currentCall?.IsConnected == true)
         {
             return SendDigits(actor, number, out error);
@@ -1019,6 +1087,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool CanSendDigits(ICharacter actor, string digits, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_currentCall?.IsConnected != true)
         {
             error = "That telephone is not connected to a live call.";
@@ -1043,6 +1116,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool SendDigits(ICharacter actor, string digits, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanSendDigits(actor, digits, out error))
         {
             return false;
@@ -1056,6 +1134,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool CanAnswer(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!_isRinging || _currentCall == null)
         {
             error = "That telephone is not ringing.";
@@ -1074,6 +1157,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool Answer(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanAnswer(actor, out error))
         {
             return false;
@@ -1084,6 +1172,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool CanHangUp(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_currentCall == null && !_isOffHook)
         {
             error = "That telephone is not currently in use.";
@@ -1096,6 +1189,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool HangUp(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanHangUp(actor, out error))
         {
             return false;
@@ -1504,11 +1602,21 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public bool CanSelect(ICharacter character, string argument)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out _, Parent))
+		{
+			return false;
+		}
+
         return !string.IsNullOrWhiteSpace(argument);
     }
 
     public bool Select(ICharacter character, string argument, IEmote playerEmote, bool silent = false)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         StringStack ss = new(argument);
         string verb = ss.PopSpeech().ToLowerInvariant();
         switch (verb)
@@ -1789,6 +1897,22 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 
     public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
+        if (emptier is not null)
+        {
+            var targets = intoContainer is null ? new[] { Parent } : new[] { Parent, intoContainer.Parent };
+            if (!ItemManipulationGuard.CanManipulate(emptier, out var reason, targets))
+            {
+				emptier.Send(reason);
+				return;
+            }
+
+            if (Contents.Any(x => !CanTake(emptier, x, 0)))
+            {
+				emptier.Send("You cannot empty that container while some of its contents cannot be taken.");
+				return;
+            }
+        }
+
 		if (_mediumItem == null)
         {
             return;

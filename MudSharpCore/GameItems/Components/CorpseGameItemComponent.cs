@@ -1,4 +1,5 @@
-﻿using MudSharp.Accounts;
+﻿using MudSharp.GameItems;
+using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
@@ -445,6 +446,11 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     public bool Butcher(ICharacter butcher, string subcategory = null)
     {
+		if (!ItemManipulationGuard.CanManipulate(butcher, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         StringBuilder productSB = new();
         List<IGameItem> products = new();
         int count = 0;
@@ -540,6 +546,11 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     public void Skin(ICharacter skinner)
     {
+		if (!ItemManipulationGuard.CanManipulate(skinner, out var manipulationReason, Parent))
+		{
+			return;
+		}
+
         void LoadItem(IGameItemProto proto, int quantity)
         {
             if (proto.Components.Any(x => x is StackableGameItemComponentProto))

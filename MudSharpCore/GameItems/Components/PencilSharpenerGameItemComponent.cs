@@ -1,4 +1,5 @@
-﻿using MudSharp.GameItems.Prototypes;
+﻿using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
 
@@ -60,6 +61,11 @@ public class PencilSharpenerGameItemComponent : GameItemComponent, ISharpen
 
     public bool CanSharpen(ICharacter actor, IGameItem otherItem)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, otherItem))
+		{
+			return false;
+		}
+
         PencilGameItemComponent pencil = otherItem.GetItemType<PencilGameItemComponent>();
         if (pencil == null)
         {
@@ -76,6 +82,11 @@ public class PencilSharpenerGameItemComponent : GameItemComponent, ISharpen
 
     public string WhyCannotSharpen(ICharacter actor, IGameItem otherItem)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, otherItem))
+		{
+			return manipulationReason;
+		}
+
         PencilGameItemComponent pencil = otherItem.GetItemType<PencilGameItemComponent>();
         if (pencil == null)
         {
@@ -94,6 +105,11 @@ public class PencilSharpenerGameItemComponent : GameItemComponent, ISharpen
 
     public bool Sharpen(ICharacter actor, IGameItem otherItem)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, otherItem))
+		{
+			return false;
+		}
+
         if (!CanSharpen(actor, otherItem))
         {
             actor.Send(WhyCannotSharpen(actor, otherItem));

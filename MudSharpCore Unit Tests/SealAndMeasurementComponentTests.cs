@@ -313,6 +313,8 @@ public class SealAndMeasurementComponentTests
 		var firstParent = CreateParent(gameworld.Object, 629L, "first lyre");
 		var secondParent = CreateParent(gameworld.Object, 630L, "second lyre");
 		var (actor, _, _) = CreateInstrumentActor(gameworld.Object, firstParent);
+		secondParent.SetupGet(x => x.Location).Returns(actor.Object.Location);
+		secondParent.SetupGet(x => x.BasePlanarPresence).Returns(MudSharp.Planes.PlanarPresenceDefinition.DefaultMaterial(1));
 		var first = (InstrumentGameItemComponent)proto.CreateNew(firstParent.Object, temporary: true);
 		var second = (InstrumentGameItemComponent)proto.CreateNew(secondParent.Object, temporary: true);
 		var activePerformance = new PlayingInstrument(actor.Object, first);
@@ -1125,6 +1127,7 @@ public class SealAndMeasurementComponentTests
 	private static Mock<ICharacter> CreateActor(IFuturemud gameworld, long id)
 	{
 		var actor = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
 		actor.SetupGet(x => x.Id).Returns(id);
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld);
 		actor.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(true);
@@ -1138,8 +1141,10 @@ public class SealAndMeasurementComponentTests
 		IFuturemud gameworld, Mock<IGameItem> instrument)
 	{
 		var actor = CreateActor(gameworld, instrument.Object.Id + 100);
-		var body = new Mock<IBody>();
+		var body = PhysicalManipulationTestHelper.SetUpUsableHands(actor);
 		var cell = new Mock<ICell>();
+		cell.Setup(x => x.CanGetAccess(It.IsAny<IGameItem>(), actor.Object)).Returns(true);
+		instrument.SetupGet(x => x.BasePlanarPresence).Returns(MudSharp.Planes.PlanarPresenceDefinition.DefaultMaterial(1));
 		var position = new Mock<IPositionState>();
 		var output = new Mock<IOutputHandler>();
 		var inventory = new Mock<IGrab>();

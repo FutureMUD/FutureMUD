@@ -56,6 +56,10 @@ During boot:
 
 The implementor commands can freeze and unfreeze time. Freezing clears the manager's tick dictionary and persists `TimeIsFrozen=true`; unfreezing rebuilds tick state for all loaded clocks and persists `TimeIsFrozen=false`.
 
+`IClock.BeginTimeChange()` marks an explicit time adjustment; nested scopes raise `TimeChanged` once after the outer adjustment completes. Primary `MudTime.SetTime`, bulk minute/hour changes, `Clock.SetTime` and the implementor advance command use this scope. Existing minute notifications remain available to established consumers; authored celestials suppress scheduled echoes during the scope and silently refresh at its end. Calendar date replacement also silently refreshes its authored celestials. Normal consecutive clock minutes still deliver their authored events exactly once. Pure date/time value conversions do not advance live objects.
+
+Authored celestial calendars use the underlying clock date for their canonical instant, preventing astronomical day-boundary recursion. Sunrise/sunset boundaries include a crossing exactly at midnight while public event queries remain strictly-next. An owning calendar rejects a switch to an incompatible feed clock without changing either clock identity property. See [Authored Celestials](Authored_Celestials.md).
+
 ## Persistence Model
 Time definitions are persisted separately from their current positions.
 
@@ -237,7 +241,7 @@ Supported boundary types are:
 
 `AstronomicalEvent` remains a reserved enum value, but generic astronomical-event boundaries are deliberately not a persisted or builder-selectable mode: no event parameter schema exists. Use the supported sunrise or sunset modes instead.
 
-Legacy calendars default to `ClockMidnight`. Sunrise and sunset boundaries use the calendar's authority location and the first available solar ephemeris when present; otherwise they fall back to clock midnight so old worlds keep booting. Authority locations are stored as `GeographicCoordinate` values in calendar XML and can be inspected or edited by builders.
+Legacy calendars default to `ClockMidnight`. Sunrise and sunset boundaries use the calendar's authority location and the first available solar capability (a physical ephemeris or authored sun) when present; otherwise they fall back to clock midnight so old worlds keep booting. Authority locations are stored as `GeographicCoordinate` values in calendar XML and can be inspected or edited by builders.
 
 ## Months, Intercalaries, And Weekdays
 `MonthDefinition` is the authored month template. `Month` is the generated month for a specific year.

@@ -2251,7 +2251,7 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.Definition)
                     .IsRequired()
-                    .HasColumnType("text")
+                    .HasColumnType("longtext")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 

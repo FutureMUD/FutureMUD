@@ -17,6 +17,10 @@ public static class DefaultStaticSettings
     public static readonly IReadOnlyDictionary<string, string> DefaultStaticConfigurations =
         new Dictionary<string, string>
         {
+			{ "AuthoredCelestialSourceBytes", "16777216" },
+			{ "AuthoredCelestialEntries", "100000" },
+			{ "AuthoredCelestialPreviewSamples", "10000" },
+			{ "AuthoredCelestialPreviewEvents", "1000" },
 			{ "EnablePsychometricImpressions", "false" },
 			{ "PsychometricImpressionEpoch", "0" },
 			{ "VNPCWitnessReportDelaySeconds", "0" },

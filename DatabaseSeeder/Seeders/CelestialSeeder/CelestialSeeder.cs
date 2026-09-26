@@ -13,7 +13,7 @@ using Calendar = MudSharp.Models.Calendar;
 
 namespace DatabaseSeeder.Seeders;
 
-public class CelestialSeeder : IDatabaseSeeder
+public partial class CelestialSeeder : IDatabaseSeeder
 {
     private const string EarthSunPackage = "EarthSun";
     private const string EarthMoonPackage = "EarthMoonView";
@@ -171,7 +171,15 @@ For the stock gas giant package, use the start-of-year epoch for your chosen cal
 
 The stock package uses an epoch-aligned default at the start of the selected calendar year.",
             (context, answers) => AnswerIsYes(answers, "installgasgiantmoon") && !HasGasGiantPackage(context),
-            ValidateDate)
+            ValidateDate),
+        ("installauthored",
+            "Install the six geography-independent authored celestial examples (rails, scripts, Morning Star and Morning Glow)? These remain unattached until a builder selects them. Answer yes or no: ",
+            (context, answers) => !HasAuthoredPackage(context),
+            ValidateYesNo),
+        ("authoredcalendar",
+            "Which calendar should drive the authored examples? Specify a calendar name or ID: ",
+            (context, answers) => AnswerIsYes(answers, "installauthored") && !HasAuthoredPackage(context),
+            ValidateCalendar)
     ];
 
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
@@ -195,6 +203,11 @@ The stock package uses an epoch-aligned default at the start of the selected cal
                 EnsureGasGiantPackage(context, questionAnswers);
             }
 
+            if (AnswerIsYes(questionAnswers, "installauthored"))
+            {
+                EnsureAuthoredPackage(context, questionAnswers);
+            }
+
             context.SaveChanges();
             context.Database.CommitTransaction();
             return "Successfully set up celestials.";
@@ -216,12 +229,13 @@ The stock package uses an epoch-aligned default at the start of the selected cal
         bool hasEarthSun = HasEarthSunPackage(context);
         bool hasEarthMoon = HasEarthMoonPackage(context);
         bool hasGasGiant = HasGasGiantPackage(context);
-        if (!hasEarthSun && !hasEarthMoon && !hasGasGiant)
+        bool hasAuthored = HasAuthoredPackage(context);
+        if (!hasEarthSun && !hasEarthMoon && !hasGasGiant && !hasAuthored)
         {
             return ShouldSeedResult.ReadyToInstall;
         }
 
-        return hasEarthSun && hasEarthMoon && hasGasGiant
+        return hasEarthSun && hasEarthMoon && hasGasGiant && hasAuthored
             ? ShouldSeedResult.MayAlreadyBeInstalled
             : ShouldSeedResult.ExtraPackagesAvailable;
     }
@@ -229,7 +243,7 @@ The stock package uses an epoch-aligned default at the start of the selected cal
     public int SortOrder => 6;
     public string Name => "Celestial Seeder";
     public string Tagline => "Sets up Suns, Moons, etc";
-    public string FullDescription => "This seeder sets up stock celestial packages such as Earth-facing suns, planetary moons, and moon-view celestial objects. It is additive and intended to be rerun safely.";
+    public string FullDescription => "This seeder sets up stock physical celestial packages and optional geography-independent authored examples. Reruns add missing package members and preserve builder customisation. Authored examples are not automatically attached to shards.";
 
     internal static string? ResolveInstallSunDefault(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> answers)

@@ -489,6 +489,7 @@ namespace MudSharp.TimeAndDate.Time
                 throw new ArgumentOutOfRangeException(nameof(seconds));
             }
 
+            using var change = IsPrimaryTime ? Clock.BeginTimeChange() : null;
             ApplyNormalisedTime(0, hours, minutes, seconds, true, true, true);
         }
 
@@ -509,6 +510,7 @@ namespace MudSharp.TimeAndDate.Time
                 return;
             }
 
+            using var change = IsPrimaryTime ? Clock.BeginTimeChange() : null;
             ApplyTimeDelta((long)minutes * Clock.SecondsPerMinute, false, true, true);
         }
 
@@ -519,6 +521,7 @@ namespace MudSharp.TimeAndDate.Time
                 return;
             }
 
+            using var change = IsPrimaryTime ? Clock.BeginTimeChange() : null;
             ApplyTimeDelta((long)hours * Clock.MinutesPerHour * Clock.SecondsPerMinute, false, false, true);
         }
 

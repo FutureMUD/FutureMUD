@@ -281,6 +281,9 @@ public class Zone : Location, IEditableZone
 
     public void InitialiseCelestials()
     {
+        DeregisterCelestials();
+        CelestialInfo.Clear();
+        LightLevelDictionary.Clear();
         foreach (ICelestialObject celestial in Celestials)
         {
             celestial.MinuteUpdateEvent -= celestial_MinuteUpdateEvent;
@@ -294,9 +297,10 @@ public class Zone : Location, IEditableZone
 
     public void DeregisterCelestials()
     {
-        foreach (ICelestialObject celestial in Celestials)
+        foreach (ICelestialObject celestial in CelestialInfo.Keys)
         {
             celestial.MinuteUpdateEvent -= celestial_MinuteUpdateEvent;
+            (celestial as IAuthoredCelestial)?.ForgetSubscriber(this);
         }
     }
 

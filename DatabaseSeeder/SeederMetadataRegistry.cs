@@ -45,8 +45,8 @@ public static class SeederMetadataRegistry
                 [
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any())
                 ],
-                RerunSummary: "Designed as an additive package for more suns, moons, and related celestial objects.",
-                UpdateSummary: "Reruns are intended to add stock celestial packages rather than reconcile edits to existing objects.",
+                RerunSummary: "Adds missing stock physical packages and optional authored celestial examples.",
+                UpdateSummary: "Authored examples use stable preset identities; reruns preserve existing IDs and builder-edited definitions and add missing members. Physical packages retain their existing detection rules.",
                 DependencySeederTypes: [typeof(CoreDataSeeder)]
             ),
             nameof(AttributeSeeder) => new SeederMetadata(

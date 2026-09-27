@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.6.1.0",
-  "LatestMigrationId": "20260926115932_WidenCelestialDefinition",
-  "GeneratedUtc": "2026-09-26T12:06:05.6110495Z"
+  "LatestMigrationId": "20260926145630_ExpandLiquidExposureDefinitions",
+  "GeneratedUtc": "2026-09-26T23:43:41Z"
 }

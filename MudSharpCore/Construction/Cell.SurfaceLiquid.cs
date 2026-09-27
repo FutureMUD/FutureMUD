@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.IO;
 using MudSharp.Character.Heritage;
 using MudSharp.Climate;
@@ -31,6 +31,9 @@ public partial class Cell
 	}
 
 	public void AddLiquidToSurface(LiquidMixture mixture, RoomLayer layer, IPerceivable? referenceItem)
+		=> AddLiquidToSurfaceAt(mixture, layer, SurfaceCoordinateFor(referenceItem));
+
+	internal void AddLiquidToSurfaceAt(LiquidMixture mixture, RoomLayer layer, double? coordinate)
 	{
 		var route = SurfaceLiquidTransferService.SelectRoute(
 			mixture.IsEmpty,
@@ -45,7 +48,7 @@ public partial class Cell
 				return;
 			case SurfaceLiquidRoute.Surface:
 				SurfaceLiquidTransferService.TransferToSurface(
-					GetOrCreateSurfaceState(layer, SurfaceCoordinateFor(referenceItem)),
+					GetOrCreateSurfaceState(layer, coordinate),
 					mixture,
 					Gameworld.GetStaticDouble("EnormousPoolLiquidQuantity"));
 				return;
@@ -56,7 +59,6 @@ public partial class Cell
 
 	public string DescribeLiquidSurface(RoomLayer layer, IPerceiver voyeur, bool colour)
 	{
-		ResolveSurfaceDrying(layer);
 		if (!Gameworld.GetStaticBool("PuddlesEnabled"))
 		{
 			return string.Empty;
@@ -91,21 +93,29 @@ public partial class Cell
 		return $"{amountDescription.A_An()} of {liquidDescription} is here.".Proper();
 	}
 
-	public void ResolveRoomWeatherExposure(IPerceiver? voyeur)
+	internal void SurfaceWeatherTick()
 	{
-		var layer = voyeur?.RoomLayer ?? RoomLayer.GroundLevel;
+		foreach (var layer in _surfaceLiquidStates.Keys.Select(x => x.Layer)
+			.Concat(Characters.Select(x => x.RoomLayer)).Concat(GameItems.Select(x => x.RoomLayer)).Distinct().ToArray())
+			ResolveRoomWeatherExposure(layer);
+	}
+
+	public void ResolveRoomWeatherExposure(IPerceiver? voyeur) => ResolveRoomWeatherExposure(voyeur?.RoomLayer ?? RoomLayer.GroundLevel);
+
+	private void ResolveRoomWeatherExposure(RoomLayer layer)
+	{
 		ConsolidateLegacyPuddles(layer);
 		if (!IsUnderwaterLayer(layer))
 		{
 			ResolveSurfaceDrying(layer);
 		}
 
-		if (IsUnderwaterLayer(layer) || OutdoorsType(voyeur) != CellOutdoorsType.Outdoors)
+		if (IsUnderwaterLayer(layer) || OutdoorsType(null) != CellOutdoorsType.Outdoors)
 		{
 			return;
 		}
 
-		if (CurrentWeather(voyeur) is not RainWeatherEvent { RainLiquid: { } rainLiquid } weather)
+		if (CurrentWeather(null) is not RainWeatherEvent { RainLiquid: { } rainLiquid } weather)
 		{
 			_lastWeatherExposureByLayer[layer] = System.DateTime.UtcNow;
 			return;
@@ -140,7 +150,7 @@ public partial class Cell
 		}
 
 		var boundedExposureTicks = (int)Math.Clamp(Math.Ceiling(elapsed / 5.0), 1.0, 10.0);
-		foreach (var item in GameItems.ToArray())
+		foreach (var item in GameItems.Where(x => x.RoomLayer == layer).ToArray())
 		{
 			if (item.PositionModifier == MudSharp.Body.Position.PositionModifier.Under &&
 				item.PositionTarget is not null &&
@@ -160,7 +170,7 @@ public partial class Cell
 			}
 		}
 
-		foreach (var ch in Characters.ToArray())
+		foreach (var ch in Characters.Where(x => x.RoomLayer == layer).ToArray())
 		{
 			if (ch.PositionModifier == MudSharp.Body.Position.PositionModifier.Under &&
 				ch.PositionTarget is not null &&
@@ -253,7 +263,7 @@ public partial class Cell
 			_surfaceLiquidStates[key] = new SurfaceLiquidState(
 				Gameworld,
 				element.Element("Surface"),
-				SurfaceLiquidChanged);
+				SurfaceLiquidChanged, () => EnvironmentalExposureService.SettleExisting(this));
 		}
 
 		_surfaceLiquidChanged = false;
@@ -261,11 +271,6 @@ public partial class Cell
 
 	private string? SaveSurfaceLiquidState()
 	{
-		foreach (var layer in _surfaceLiquidStates.Keys.Select(x => x.Layer).Distinct().ToList())
-		{
-			ResolveSurfaceDrying(layer);
-		}
-
 		if (!_surfaceLiquidStates.Any(x => !x.Value.IsEmpty))
 		{
 			return null;
@@ -292,13 +297,14 @@ public partial class Cell
 			return state;
 		}
 
-		state = new SurfaceLiquidState(Gameworld, SurfaceLiquidChanged);
+		state = new SurfaceLiquidState(Gameworld, SurfaceLiquidChanged, () => EnvironmentalExposureService.SettleExisting(this));
 		_surfaceLiquidStates[key] = state;
 		return state;
 	}
 
 	private void SurfaceLiquidChanged()
 	{
+		EnvironmentalExposureService.For(Gameworld).RefreshCell(this);
 		if (_noSave)
 		{
 			return;
@@ -310,6 +316,7 @@ public partial class Cell
 
 	private void ResolveSurfaceDrying(RoomLayer layer)
 	{
+		EnvironmentalExposureService.SettleExisting(this);
 		foreach (var state in _surfaceLiquidStates
 			.Where(x => x.Key.Layer == layer)
 			.Select(x => x.Value)
@@ -366,6 +373,8 @@ public partial class Cell
 			.Select(x => x.Value)
 			.ToArray();
 	}
+
+	internal IEnumerable<ISurfaceLiquidState> ExposureSurfaceStates(RoomLayer layer, IPerceiver voyeur) => VisibleSurfaceStates(layer, voyeur);
 
 	private double? NormaliseSurfaceCoordinate(double? coordinate)
 	{

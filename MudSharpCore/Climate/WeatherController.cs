@@ -264,6 +264,7 @@ public class WeatherController : SaveableItem, IWeatherController
 
     private void CalculateCurrentTemperature()
     {
+		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.ChangingWeather(Gameworld, this);
         CurrentTemperature =
             RegionalClimate.HourlyBaseTemperaturesBySeason[
                 (CurrentSeason, FeedClock.CurrentTime.GetTimeByTimezone(FeedClockTimeZone).Hours)] +

@@ -24,6 +24,8 @@ public class Damage : IDamage
 
     public Damage(IDamage rhs)
     {
+		TargetBody = rhs.TargetBody;
+		ExposureContext = rhs.ExposureContext;
         DamageType = rhs.DamageType;
         DamageAmount = rhs.DamageAmount;
         PainAmount = rhs.PainAmount;
@@ -39,6 +41,8 @@ public class Damage : IDamage
 
     public Damage(IDamage rhs, double damageMultipliers)
     {
+		TargetBody = rhs.TargetBody;
+		ExposureContext = rhs.ExposureContext;
         DamageType = rhs.DamageType;
         DamageAmount = rhs.DamageAmount * damageMultipliers;
         PainAmount = rhs.PainAmount * damageMultipliers;
@@ -55,6 +59,8 @@ public class Damage : IDamage
     #region IDamage Members
 
     public DamageType DamageType { get; init; }
+	public IBody TargetBody { get; init; }
+	public MudSharp.Form.Material.ExposureDamageContext ExposureContext { get; init; }
 
     public double DamageAmount { get; init; }
 

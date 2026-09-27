@@ -12968,6 +12968,9 @@ namespace MudSharp.Migrations
                         .HasColumnType("double")
                         .HasDefaultValueSql("'1.005'");
 
+                    b.Property<string>("SurfaceReactionInfo")
+                        .HasColumnType("mediumtext");
+
                     b.Property<double>("ThermalConductivity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("double")
@@ -15333,7 +15336,7 @@ namespace MudSharp.Migrations
                         .HasColumnType("bigint(20)");
 
                     b.Property<string>("SurfaceReactionInfo")
-                        .HasColumnType("text")
+                        .HasColumnType("mediumtext")
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SurfaceReactionInfo"), "utf8");
@@ -16599,6 +16602,9 @@ namespace MudSharp.Migrations
 
                     b.Property<double>("ElectricalConductivity")
                         .HasColumnType("double");
+
+                    b.Property<string>("ExposureInfo")
+                        .HasColumnType("mediumtext");
 
                     b.Property<double?>("HeatDamagePoint")
                         .HasColumnType("double");

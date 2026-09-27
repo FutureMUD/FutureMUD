@@ -923,12 +923,13 @@ public partial class Body
             return Enumerable.Empty<IWound>();
         }
 
-        if (damage.DamageType == DamageType.Cellular || damage.DamageType == DamageType.Hypoxia)
+        if (damage.ExposureContext is null && (damage.DamageType == DamageType.Cellular || damage.DamageType == DamageType.Hypoxia))
         {
-            IWound existingWound = Wounds.FirstOrDefault(x => x.Bodypart == damage.Bodypart && damage.DamageType == x.DamageType);
+            IWound existingWound = Wounds.FirstOrDefault(x => x.Bodypart == damage.Bodypart && damage.DamageType == x.DamageType &&
+				x is not IContinuousExposureWound { ExposureKey: not null });
             if (existingWound == null)
             {
-                existingWound = HealthStrategy.SufferDamage(Actor, damage, damage.Bodypart).FirstOrDefault();
+                existingWound = HealthStrategy.SufferDamage(Actor, new Damage(damage) { TargetBody = this }, damage.Bodypart).FirstOrDefault();
                 if (existingWound == null)
                 {
                     return Enumerable.Empty<IWound>();
@@ -957,7 +958,7 @@ public partial class Body
 
         List<IWound> wounds = new();
         bool isplainbodypart = !(damage.Bodypart is IOrganProto) && !(damage.Bodypart is IBone);
-        if (isplainbodypart)
+        if (isplainbodypart && damage.ExposureContext is null)
         {
             List<IArmour> armour =
                 WornItemsProfilesFor(damage.Bodypart)
@@ -1049,7 +1050,7 @@ public partial class Body
         IBodypart severedPart = null;
         EffectHandler.RemoveAllEffects(
             x => x.GetSubtype<IEffectRemoveOnDamage>()?.RemovesWith(damage1) ?? false);
-        if (isplainbodypart)
+        if (isplainbodypart && damage.ExposureContext is null)
         {
 			RecordSimulationDamageState(damage, internalDamage);
             if (!CheckBoneDamage(ref damage, ref wounds, ref internalDamage, true, sb))
@@ -1070,7 +1071,7 @@ public partial class Body
             }
         }
 
-        IWound[] newWounds = HealthStrategy.SufferDamage(Actor, damage, damage.Bodypart).ToArray();
+        IWound[] newWounds = HealthStrategy.SufferDamage(Actor, new Damage(damage) { TargetBody = this }, damage.Bodypart).ToArray();
         IWound newWound = newWounds.FirstOrDefault(x => x is not BoneFracture);
         newWound?.SeveredBodypart = severedPart;
 

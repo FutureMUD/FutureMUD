@@ -458,7 +458,6 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             Changed = false;
             return;
         }
-        ResolveSurfaceLiquidDrying();
         dbitem.Quality = (int)_quality;
         dbitem.MaterialId = _overrideMaterial?.Id ?? 0;
         dbitem.Size = (int)Size;
@@ -727,7 +726,6 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 .Select(effect => effect.GetAddendumText(colour))
                 .Aggregate(description, (current, text) => $"{current} {text}");
 
-        ResolveSurfaceLiquidDrying();
         var (coating, absorb) = LiquidAbsorbtionAmounts;
         var surfaceAddendum = SurfaceLiquidState.GetAddendumText(coating, absorb, colour);
         return string.IsNullOrWhiteSpace(surfaceAddendum) ? description : $"{description} {surfaceAddendum}";
@@ -777,7 +775,6 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                                                                   $"{current}\n\t{component.GetAdditionalText(voyeur, true)}");
         if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreLiquidsAndFlags))
         {
-            ResolveSurfaceLiquidDrying();
             var (coating, absorb) = LiquidAbsorbtionAmounts;
             var surfaceText = SurfaceLiquidState.GetAdditionalText(coating, absorb, voyeur, colour);
             if (!string.IsNullOrWhiteSpace(surfaceText))
@@ -1207,144 +1204,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void ExposeToLiquid(LiquidMixture mixture, IBodypart part, LiquidExposureDirection direction)
     {
-        using var magicalExposure = MudSharp.Magic.MagicalExposure.BeginExposure();
-        if (mixture.TotalVolume <= 0)
-        {
-            return;
-        }
-
-		OnFire.ExtinguishWith(this, mixture);
-        ResolveSurfaceLiquidDrying();
-        foreach (IGameItemComponent component in _components)
-        {
-            if (component.ExposeToLiquid(mixture) || mixture.TotalVolume <= 0)
-            {
-                return;
-            }
-        }
-
-        List<ICleanableEffect> cleanableEffects =
-            EffectsOfType<ICleanableEffect>(x => x is not SurfaceContaminationEffect && mixture.Instances.Any(y => x.LiquidRequired is not null && y.Liquid.LiquidCountsAs(x.LiquidRequired)))
-                .ToList();
-        foreach (ICleanableEffect cleanable in cleanableEffects)
-        {
-            if (cleanable.CleanWithLiquid(mixture, mixture.TotalVolume))
-            {
-                RemoveEffect(cleanable, true);
-            }
-        }
-
-        SurfaceLiquidState.CleanWithLiquid(mixture, mixture.TotalVolume);
-
-        (double coatingAmount, double absorbAmount) = LiquidAbsorbtionAmounts;
-        double totalAbsorbCapacity = coatingAmount + absorbAmount - SurfaceLiquidState.LiquidVolume;
-        double amountToAbsorb = totalAbsorbCapacity;
-        if (totalAbsorbCapacity > mixture.TotalVolume)
-        {
-            amountToAbsorb = mixture.TotalVolume;
-        }
-
-        if (amountToAbsorb > 0)
-        {
-            LiquidMixture newMixture = mixture.RemoveLiquidVolume(amountToAbsorb);
-            if (newMixture?.IsEmpty == false)
-            {
-                MudSharp.Magic.MagicalExposure.Liquid(this, newMixture, MudSharp.Health.DrugVector.Touched, true);
-                SurfaceLiquidState.AddLiquid(newMixture);
-                LiquidExposureStrategies.SurfaceReactions.Expose(this, newMixture, direction);
-            }
-        }
-
-        if (mixture.TotalVolume > 0)
-        {
-            // Item is saturated
-            IEnumerable<IContainer> containers = GetItemTypes<IContainer>();
-            foreach (IContainer container in containers)
-            {
-                foreach (IGameItem content in container.Contents)
-                {
-                    content.ExposeToLiquid(mixture, null, LiquidExposureDirection.FromContainer);
-                }
-            }
-
-            IBelt attach = GetItemType<IBelt>();
-            if (attach != null)
-            {
-                foreach (IBeltable attached in attach.ConnectedItems)
-                {
-                    attached.Parent.ExposeToLiquid(mixture, null, LiquidExposureDirection.FromOnTop);
-                }
-            }
-
-            switch (direction)
-            {
-                case LiquidExposureDirection.FromInside:
-                    ContainedIn?.ExposeToLiquid(mixture, part, LiquidExposureDirection.FromInside);
-                    break;
-                case LiquidExposureDirection.FromUnderneath:
-                    if (part == null)
-                    {
-                        foreach (IWear wornPart in GetItemType<IWearable>()?.CurrentProfile?.AllProfiles.Keys ??
-                                                 Enumerable.Empty<IWear>())
-                        {
-                            InInventoryOf.WornItemsFor(wornPart).SkipWhile(x => x != this).Skip(1).FirstOrDefault()
-                                         ?.ExposeToLiquid(mixture, wornPart, LiquidExposureDirection.FromUnderneath);
-                        }
-                    }
-                    else
-                    {
-                        InInventoryOf.WornItemsFor(part).SkipWhile(x => x != this).Skip(1).FirstOrDefault()
-                                     ?.ExposeToLiquid(mixture, part, LiquidExposureDirection.FromUnderneath);
-                    }
-
-                    break;
-                case LiquidExposureDirection.FromOnTop:
-                    if (part == null)
-                    {
-                        foreach (IWear wornPart in GetItemType<IWearable>()?.CurrentProfile?.AllProfiles.Keys ??
-                                                 Enumerable.Empty<IWear>())
-                        {
-                            InInventoryOf.WornItemsFor(wornPart).Reverse().SkipWhile(x => x != this).Skip(1)
-                                         .FirstOrDefault()?.ExposeToLiquid(mixture, wornPart,
-                                             LiquidExposureDirection.FromOnTop);
-                        }
-                    }
-                    else
-                    {
-                        InInventoryOf.WornItemsFor(part).Reverse().SkipWhile(x => x != this).Skip(1).FirstOrDefault()
-                                     ?.ExposeToLiquid(mixture, part, LiquidExposureDirection.FromOnTop);
-                        InInventoryOf.ExposeToLiquid(mixture, part, LiquidExposureDirection.FromOnTop);
-                    }
-
-                    break;
-                case LiquidExposureDirection.Irrelevant:
-                    ContainedIn?.ExposeToLiquid(mixture, part, LiquidExposureDirection.FromInside);
-                    break;
-            }
-
-            // Drip onto ground if we have any left and are outerwear
-            if (
-                mixture.TotalVolume > 0 &&
-                ContainedIn is null &&
-                direction != LiquidExposureDirection.FromOnTop &&
-                direction != LiquidExposureDirection.FromContainer &&
-                InInventoryOf?.ExternalItemsForOtherActors.Contains(this) != false
-            )
-            {
-                IPerceiver topLevel = (IPerceiver)LocationLevelPerceivable;
-                PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, topLevel?.Location, topLevel?.RoomLayer ?? RoomLayer.GroundLevel, topLevel);
-                mixture.SetLiquidVolume(0.0);
-            }
-
-            return;
-        }
+        ExposureTransport.Item(this, mixture, part, direction);
     }
+
 
     public ItemSaturationLevel SaturationLevel
     {
         get
         {
-            ResolveSurfaceLiquidDrying();
             (double coating, double absorb) = LiquidAbsorbtionAmounts;
             return SurfaceLiquidState.SaturationLevel(coating, absorb);
         }
@@ -1496,6 +1363,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         get => _containedIn;
         set
         {
+			using var exposureChange = EnvironmentalExposureService.Changing(this);
 			if (ReferenceEquals(_containedIn, value))
 			{
 				return;

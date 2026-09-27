@@ -125,6 +125,11 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Drug System Design](./Drugs/Drug_System_Design.md)
 - [Drug Builder Guide](./Drugs/Drug_Builder_Guide.md)
 
+## Environment
+- [Environmental Exposure Design](./Environment/Environmental_Exposure_Design.md)
+- [Environmental Exposure Builder Guide](./Environment/Environmental_Exposure_Builder_Guide.md)
+- [Environmental Exposure Seeder Audit](./Environment/Environmental_Exposure_Seeder_Audit.md)
+
 ## Economy
 - [Economy System Runtime](./Economy/Economy_System_Runtime.md)
 - [Economy System Workflows and Integration](./Economy/Economy_System_Workflows_and_Integration.md)

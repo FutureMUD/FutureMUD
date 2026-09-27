@@ -56,6 +56,15 @@ internal class Program
 
     private static void Main(string[] args)
     {
+#if DEBUG
+		try { if (EnvironmentalExposureCatalogueCapture.TryHandle(args)) return; }
+		catch (Exception exception) when (args.Contains("--capture-environmental-exposure"))
+		{
+			Console.Error.WriteLine(exception);
+			Environment.ExitCode = 1;
+			return;
+		}
+#endif
 		if (IndustrialisedCatalogueAudit.TryHandleCommand(args))
 		{
 			return;

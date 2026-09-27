@@ -280,11 +280,9 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
 
         IGameItem lodgedItem = CheckDamageLodges(damage) ? damage.LodgableItem : null;
 
-        return
-        [
-            new HealingSimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, damage.Bodypart,
-                lodgedItem, damage.ToolOrigin, damage.ActorOrigin)
-        ];
+		return ContinuousExposureDamage.Accumulate(owner, damage, packet =>
+			new HealingSimpleWound(owner.Gameworld, owner, packet.DamageAmount, packet.DamageType, packet.Bodypart,
+				lodgedItem, packet.ToolOrigin, packet.ActorOrigin, ownerBody: packet.TargetBody));
     }
 
     public override HealthTickResult PerformHealthTick(IHaveWounds thing)

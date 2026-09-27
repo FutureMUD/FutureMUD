@@ -588,6 +588,17 @@ public partial class GameItem : IHaveWounds
         }
 
         bool locationChanged = false;
+		if (!SurfaceLiquidState.ContaminatingLiquid.IsEmpty)
+		{
+			var remaining = SurfaceLiquidState.RemoveLiquidVolume(SurfaceLiquidState.LiquidVolume);
+			if (remaining is not null)
+			{
+				if (newItem is not null) newItem.SurfaceLiquidState.AddLiquid(remaining);
+				else if (originalTrueLocation is MudSharp.Construction.Cell cell && originalSpatialLocation is { } point)
+					cell.AddLiquidToSurfaceAt(remaining, point.Layer, point.RoutePositionMetres);
+				else originalTrueLocation?.AddLiquidToSurface(remaining, RoomLayer, LocationLevelPerceivable);
+			}
+		}
         foreach (IGameItemComponent component in Components.OrderBy(x => x.ComponentDieOrder))
         {
             if (component.HandleDieOrMorph(newItem, originalTrueLocation, originalSpatialLocation))

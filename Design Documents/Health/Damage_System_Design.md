@@ -3,6 +3,10 @@
 ## Purpose
 This document describes the current stock damage pipeline after the April 2026 combat-balance profile work. It is a current-state reference for seeded formulas, profile-specific tuning, and the runtime order that consumes them.
 
+Environmental exposure is another ordinary wound source, with its own `ExposureDamageContext`. It routes injuries to the contacted bodypart (or selected respiratory anatomy) and preserves applicable natural and spell armour while avoiding a second traversal of clothing already applied by exposure transport. Ambient Celsius heat uses material `HeatDamagePoint` plus thermal slope/cap settings; it is separate from physiological `ThermalImbalance`. Exposure resistance scales injury after reaction work and does not undo finite-liquid consumption. See [Environmental Exposure Design](../Environment/Environmental_Exposure_Design.md) and its [builder guide](../Environment/Environmental_Exposure_Builder_Guide.md).
+
+Continuous exposure accumulates after armour in the concrete health strategy. A persisted exposure identity keeps separate sources and ordinary combat wounds distinct. Bodypart modifiers apply exactly once to each delivered increment; capped wound types retain overflow in additional marked wounds. The actual target body's live wound collection supplies accumulation candidates, including after reload or controller body changes. Severity, bleeding and health processing still run on every increment.
+
 Primary source files:
 
 - `DatabaseSeeder/Seeders/CombatSeeder/CombatSeeder.cs`

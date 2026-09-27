@@ -29,4 +29,9 @@ MudSharp/bin/*
 /.playwright-cli/
 /output/playwright/
 /.artifacts/test-runs/
+# Local environmental-exposure verification logs, fixtures and diagnostic tools
+/.artifacts/exposure*
+/.artifacts/live_exposure.py
+/.artifacts/tools/
+/.artifacts/__pycache__/
 /.artifacts/authored-celestials/

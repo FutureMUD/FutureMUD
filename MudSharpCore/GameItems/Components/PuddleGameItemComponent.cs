@@ -225,6 +225,7 @@ namespace MudSharp.GameItems.Components
             get => _liquidMixture;
             set
             {
+                using var exposureChange = EnvironmentalExposureService.Changing(Parent);
                 _liquidMixture = value;
                 Changed = true;
             }
@@ -452,12 +453,13 @@ It is best described as {PuddleDescription(LiquidMixture.TotalVolume).A_An()} co
 
         public override bool ExposeToLiquid(LiquidMixture mixture)
         {
-            if (LiquidMixture.CanMerge(mixture))
+            if (LiquidMixture == null || LiquidMixture.CanMerge(mixture))
             {
-                MergeLiquid(mixture, null, "");
+                var transferred = mixture.RemoveLiquidVolume(mixture.TotalVolume);
+                if (transferred is not null) MergeLiquid(transferred, null, "");
                 return true;
             }
-            return true;
+            return false;
         }
 
         #region IsOpenable

@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Commands.Trees;
 using MudSharp.Database;
 using MudSharp.Form.Material;
@@ -384,6 +384,12 @@ public class ArmourType : SaveableItem, IArmourType
         IMaterial material, IHaveWounds owner,
         ref List<IWound> wounds)
     {
+		if (ContinuousExposureDamage.TryNormalise(damage, out var rateDamage, out var seconds))
+		{
+			var result = AbsorbDamage(rateDamage, quality, material, owner, ref wounds);
+			return (ContinuousExposureDamage.Restore(result.SufferedDamage, damage, seconds),
+				ContinuousExposureDamage.Restore(result.PassThroughDamage, damage, seconds));
+		}
         ISolid solid = material as ISolid;
         double strength = 0.0;
         switch (damage.DamageType)
@@ -427,6 +433,7 @@ public class ArmourType : SaveableItem, IArmourType
 
         Damage partDamage = new()
         {
+            ExposureContext = damage.ExposureContext,
             DamageType = damage.DamageType,
             ActorOrigin = damage.ActorOrigin,
             AngleOfIncidentRadians = damage.AngleOfIncidentRadians,
@@ -463,6 +470,7 @@ public class ArmourType : SaveableItem, IArmourType
 
         return (partDamage, new Damage
         {
+            ExposureContext = damage.ExposureContext,
             DamageType = newDamageType,
             ActorOrigin = damage.ActorOrigin,
             AngleOfIncidentRadians = damage.AngleOfIncidentRadians,
@@ -537,6 +545,7 @@ public class ArmourType : SaveableItem, IArmourType
         // Absorb - after suffering damage itself, the armour will remove an amount equal to its absorb expression before passing it on
         Damage armourDamage = new()
         {
+            ExposureContext = damage.ExposureContext,
             DamageType = damage.DamageType,
             ActorOrigin = damage.ActorOrigin,
             AngleOfIncidentRadians = damage.AngleOfIncidentRadians,
@@ -580,6 +589,7 @@ public class ArmourType : SaveableItem, IArmourType
 
         return new Damage
         {
+            ExposureContext = damage.ExposureContext,
             DamageType = newDamageType,
             ActorOrigin = damage.ActorOrigin,
             AngleOfIncidentRadians = damage.AngleOfIncidentRadians,
@@ -598,9 +608,15 @@ public class ArmourType : SaveableItem, IArmourType
         IHaveWounds owner,
         bool passive)
     {
+		if (ContinuousExposureDamage.TryNormalise(damage, out var rateDamage, out var seconds))
+		{
+			var result = AbsorbDamageViaSpell(rateDamage, solid, quality, owner, passive);
+			return (ContinuousExposureDamage.Restore(result.PassedOn, damage, seconds),
+				ContinuousExposureDamage.Restore(result.Absorbed, damage, seconds));
+		}
         // Penetrate
         ICheck penetrateDefenseCheck = Gameworld.GetCheck(CheckType.PenetrationDefenseCheck);
-        Outcome penetrateDefenseResult = owner is ICharacter ownerAsCharacter
+        Outcome penetrateDefenseResult = damage.ExposureContext is null && owner is ICharacter ownerAsCharacter
             ? penetrateDefenseCheck.Check(ownerAsCharacter, Difficulty.Normal)
             : Outcome.NotTested;
         OpposedOutcome penetrateOutcome = new(damage.PenetrationOutcome, penetrateDefenseResult);
@@ -608,7 +624,7 @@ public class ArmourType : SaveableItem, IArmourType
         Console.WriteLine(
             $"Penetration {damage.PenetrationOutcome.Describe()} vs {penetrateDefenseResult.Describe()} - Outcome {penetrateOutcome.Outcome.Describe()} ({penetrateOutcome.Degree.Describe()}). Required degree {MinimumPenetrationDegree.Describe()}");
 #endif
-        if (penetrateOutcome.Outcome == OpposedOutcomeDirection.Proponent &&
+        if (damage.ExposureContext is null && penetrateOutcome.Outcome == OpposedOutcomeDirection.Proponent &&
             penetrateOutcome.Degree >= MinimumPenetrationDegree)
         {
             return (damage, null);
@@ -652,6 +668,7 @@ public class ArmourType : SaveableItem, IArmourType
         // Absorb - after suffering damage itself, the armour will remove an amount equal to its absorb expression before passing it on
         Damage armourDamage = new()
         {
+            ExposureContext = damage.ExposureContext,
             DamageType = damage.DamageType,
             ActorOrigin = damage.ActorOrigin,
             AngleOfIncidentRadians = damage.AngleOfIncidentRadians,
@@ -687,6 +704,7 @@ public class ArmourType : SaveableItem, IArmourType
 
         return (new Damage
         {
+            ExposureContext = damage.ExposureContext,
             DamageType = newDamageType,
             ActorOrigin = damage.ActorOrigin,
             AngleOfIncidentRadians = damage.AngleOfIncidentRadians,

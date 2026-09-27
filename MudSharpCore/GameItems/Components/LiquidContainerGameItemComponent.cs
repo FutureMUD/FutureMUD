@@ -19,6 +19,7 @@ internal class LiquidContainerGameItemComponent : GameItemComponent, ILiquidCont
         get => _liquidMixture;
         set
         {
+            using var exposureChange = EnvironmentalExposureService.Changing(Parent);
             _liquidMixture = value;
             Changed = true;
         }
@@ -259,7 +260,16 @@ internal class LiquidContainerGameItemComponent : GameItemComponent, ILiquidCont
         {
             newItemLiquid.LiquidMixture = LiquidMixture;
             newItemLiquid.Changed = true;
+			LiquidMixture = null;
         }
+		else if (location is not null)
+		{
+			var remainder = LiquidMixture;
+			LiquidMixture = null;
+			if (location is MudSharp.Construction.Cell cell && CapturedLifecycleSource is { } point)
+				cell.AddLiquidToSurfaceAt(remainder, point.Layer, point.RoutePositionMetres);
+			else location.AddLiquidToSurface(remainder, Parent.RoomLayer, Parent.LocationLevelPerceivable);
+		}
 
         return false;
     }
@@ -319,6 +329,7 @@ internal class LiquidContainerGameItemComponent : GameItemComponent, ILiquidCont
         get => _isOpen;
         protected set
         {
+            using var exposureChange = EnvironmentalExposureService.Changing(Parent);
             _isOpen = value;
             Changed = true;
         }

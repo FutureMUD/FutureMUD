@@ -90,6 +90,7 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<Material>(entity =>
             {
+				entity.Property(e => e.ExposureInfo).HasColumnType("mediumtext").IsRequired(false);
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.Absorbency).HasDefaultValueSql("'0.25'");

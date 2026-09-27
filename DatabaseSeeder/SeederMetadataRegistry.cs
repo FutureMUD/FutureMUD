@@ -14,6 +14,13 @@ public static class SeederMetadataRegistry
     {
         return seeder.GetType().Name switch
         {
+			nameof(EnvironmentalExposureSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
+				[Requirement("Core materials and fluids must be installed.", context => context.Materials.Any() && context.Liquids.Any())],
+				RerunSummary: "Reconciles exposure-owned fields, reactions, preparations and demonstrations; preserves builder changes and reports conflicts.",
+				OwnershipSummary: "Optional natural and fantasy exposure content; never enables an existing world or creates live hazardous rooms.",
+				DependencySeederTypes: [typeof(CoreDataSeeder)],
+				OrderAfterSeederTypes: [typeof(HumanSeeder), typeof(AnimalSeeder), typeof(AnimalButcherySeeder), typeof(CultureSeeder),
+					typeof(ItemSeeder), typeof(RobotSeeder), typeof(SupernaturalSeeder), typeof(UsefulSeeder), typeof(HealthSeeder), typeof(PsionicsSeeder)]),
 			nameof(PsionicsSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
 				[Requirement("A skill scaffold must already exist.", context => context.TraitDefinitions.Any(x => x.Type == 0)),
 				 Requirement("The organic Human race must already exist.", context => context.Races.Any(x => x.Name == "Human"))],
@@ -628,7 +635,8 @@ public static class SeederMetadataRegistry
 
         foreach ((Type seederType, IDatabaseSeeder seeder) in seedersByType)
         {
-            foreach (Type prerequisiteType in seeder.Metadata.RequiredSeederTypes.Distinct())
+            foreach (Type prerequisiteType in seeder.Metadata.RequiredSeederTypes
+                         .Concat((seeder.Metadata.OrderAfterSeederTypes ?? Array.Empty<Type>()).Where(seedersByType.ContainsKey)).Distinct())
             {
                 if (prerequisiteType == seederType)
                 {

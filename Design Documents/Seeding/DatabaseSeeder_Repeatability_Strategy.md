@@ -3,6 +3,8 @@
 ## Purpose
 This document is the durable reference for how DatabaseSeeder packages should behave over time.
 
+The optional EnvironmentalExposureSeeder audits installed solids, liquids and gases and can install natural/industrial and fantasy reaction profiles, preparations and demonstration equipment. It is idempotent and preserves builder edits through seeder-managed records; unowned same-name collisions are reported rather than adopted. Its optional packs do not enable exposure or create hazardous rooms. Seeder rates are authored game-balance content and are not presented as health-profile calibration. See [Environmental Exposure Builder Guide](../Environment/Environmental_Exposure_Builder_Guide.md) and [catalogue audit](../Environment/Environmental_Exposure_Seeder_Audit.md).
+
 It has four jobs:
 
 1. Define the seeder repeatability goals and contributor rules.

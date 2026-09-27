@@ -1710,12 +1710,7 @@ public partial class AnimalSeeder
 		if (!hasSurfaceReaction)
 		{
 			animalAcid.SurfaceReactionInfo = new XElement("Reactions",
-				new XElement("Reaction",
-					new XAttribute("DamageType", (int)DamageType.Chemical),
-					new XAttribute("DamagePerTick", 125.0),
-					new XAttribute("PainPerTick", 175.0),
-					new XAttribute("StunPerTick", 0.0),
-					new XElement("Tags", new XElement("Tag", animalSkinTag.Id))))
+				EnvironmentalExposureSeeder.BiologicalAcidReaction(animalSkinTag.Id))
 				.ToString();
 		}
 

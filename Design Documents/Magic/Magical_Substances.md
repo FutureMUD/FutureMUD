@@ -8,6 +8,8 @@ The runtime contract is `IMagicalSubstance`. `MagicalSubstance` owns builder con
 
 This change provides runtime and builder tools. A generic fantasy alchemy catalogue, reagent recipes and spellcaster production traditions remain future content work.
 
+Environmental protection preparations use the ordinary substance spell-effect delivery path. The `exposureresistance` effect can select external liquid contact, external gas contact, inhalation, category and optionally a bodypart. External and respiratory protection are distinct selections. It reduces injury after reaction work; it does not stop liquid/gas transmission, create a surface film, or prevent reaction consumption. See [Environmental Exposure Builder Guide](../Environment/Environmental_Exposure_Builder_Guide.md) for routes, configuration and rate units.
+
 ## Builder workflow
 
 Use the normal editable-item workflow:

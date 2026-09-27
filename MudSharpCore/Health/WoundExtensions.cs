@@ -8,7 +8,7 @@ namespace MudSharp.Health;
 
 public static class WoundExtensions
 {
-    public static void ProcessPassiveWounds(this IEnumerable<IWound> wounds)
+    public static void ProcessPassiveWounds(this IEnumerable<IWound> wounds, IBody injuredBody = null)
     {
         IEnumerable<IMortalPerceiver> parents = wounds.Select(x => x.Parent).OfType<IMortalPerceiver>().Distinct();
         List<IGameItem> itemParents = parents.OfType<IGameItem>().ToList();
@@ -51,14 +51,17 @@ public static class WoundExtensions
                     nameof(wounds));
             }
 
-            wound.Parent.ProcessPassiveWound(wound);
+            if (injuredBody is not null && ReferenceEquals(wound.Parent, injuredBody.Actor))
+                injuredBody.ProcessPassiveWound(wound);
+            else wound.Parent.ProcessPassiveWound(wound);
             AutomaticCrimeExtensions.CheckGreviousBodilyHarmForWound(wound);
         }
 
         foreach (IMortalPerceiver parent in parents)
         {
-            parent.StartHealthTick();
-            parent.CheckHealthStatus();
+            var healthOwner = injuredBody is not null && ReferenceEquals(parent, injuredBody.Actor) ? injuredBody : parent;
+            healthOwner.StartHealthTick();
+            healthOwner.CheckHealthStatus();
             parent.RemoveAllEffects<SupressWoundMessages>();
         }
     }

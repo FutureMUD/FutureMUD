@@ -10,7 +10,7 @@ public partial class GameItem
 	private SurfaceLiquidState? _surfaceLiquidState;
 	private bool _surfaceLiquidChanged;
 
-	public ISurfaceLiquidState SurfaceLiquidState => _surfaceLiquidState ??= new SurfaceLiquidState(Gameworld, SurfaceLiquidChanged);
+	public ISurfaceLiquidState SurfaceLiquidState => _surfaceLiquidState ??= new SurfaceLiquidState(Gameworld, SurfaceLiquidChanged, () => EnvironmentalExposureService.SettleExisting(this));
 
 	public void SurfaceLiquidChanged()
 	{
@@ -22,13 +22,14 @@ public partial class GameItem
 		_surfaceLiquidChanged = true;
 		Changed = true;
 		EnsureSurfaceContaminationEffect();
+		EnvironmentalExposureService.For(Gameworld).Track(this);
 	}
 
 	private void LoadSurfaceLiquidState(string? xml)
 	{
 		_surfaceLiquidState = string.IsNullOrWhiteSpace(xml)
-			? new SurfaceLiquidState(Gameworld, SurfaceLiquidChanged)
-			: new SurfaceLiquidState(Gameworld, XElement.Parse(xml), SurfaceLiquidChanged);
+			? new SurfaceLiquidState(Gameworld, SurfaceLiquidChanged, () => EnvironmentalExposureService.SettleExisting(this))
+			: new SurfaceLiquidState(Gameworld, XElement.Parse(xml), SurfaceLiquidChanged, () => EnvironmentalExposureService.SettleExisting(this));
 		var effectsChanged = EffectsChanged;
 		var changed = Changed;
 		EnsureSurfaceContaminationEffect();
@@ -44,6 +45,7 @@ public partial class GameItem
 
 	public void ResolveSurfaceLiquidDrying()
 	{
+		EnvironmentalExposureService.SettleExisting(this);
 		if (_surfaceLiquidState is null || _surfaceLiquidState.ContaminatingLiquid.IsEmpty)
 		{
 			return;

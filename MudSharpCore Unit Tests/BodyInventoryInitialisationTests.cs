@@ -12,6 +12,19 @@ namespace MudSharp_Unit_Tests;
 public class BodyInventoryInitialisationTests
 {
 	[TestMethod]
+	public void SetIDFromDatabase_ParentCharacterInsertionRegistersBodyIdentityWithoutAnotherSave()
+	{
+		var body = TestObjectFactory.CreateUninitialized<Body>();
+		SetNewCollection(body, "_prosthetics");
+		Assert.IsFalse(body.IdHasBeenRegistered);
+		body.SetIDFromDatabase(new MudSharp.Models.Body { Id = 41 });
+		Assert.IsTrue(body.IdHasBeenRegistered);
+		// No gameworld/save manager is attached: an unregistered ID read would throw here.
+		Assert.AreEqual(41L, body.Id);
+		Assert.AreEqual(41L, body.Id);
+	}
+
+	[TestMethod]
 	public void RecalculateItemHelpers_EmptyBodyWithoutLoadedInventory_InitialisesPublicInventoryViews()
 	{
 		var body = TestObjectFactory.CreateUninitialized<Body>();

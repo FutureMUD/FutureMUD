@@ -29,8 +29,10 @@ public class NaturalRangedAttackSeederSourceTests
 		string source = SeederSourceTestHelper.ReadPartialFamily("AnimalSeeder");
 
 		StringAssert.Contains(source, "animalAcid.SurfaceReactionInfo = new XElement(\"Reactions\"");
-		StringAssert.Contains(source, "new XAttribute(\"DamageType\", (int)DamageType.Chemical)");
-		StringAssert.Contains(source, "new XElement(\"Tag\", animalSkinTag.Id)");
+		StringAssert.Contains(source, "EnvironmentalExposureSeeder.BiologicalAcidReaction(animalSkinTag.Id)");
+		var reaction = DatabaseSeeder.Seeders.EnvironmentalExposureSeeder.BiologicalAcidReaction(42);
+		Assert.AreEqual((int)MudSharp.Health.DamageType.Chemical, (int)reaction.Attribute("DamageType")!);
+		Assert.AreEqual(42L, (long)reaction.Element("Tags")!.Element("Tag")!);
 		StringAssert.Contains(source, "new XElement(\"ExtinguishTags\", new XElement(\"Tag\", waterTag.Id))");
 		StringAssert.Contains(source, "new XElement(\"OffensiveAdvantagePerDegree\", 0.1)");
 		StringAssert.Contains(source, "new XElement(\"DefensiveAdvantagePerDegree\", 0.15)");

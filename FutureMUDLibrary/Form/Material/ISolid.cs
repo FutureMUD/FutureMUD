@@ -5,6 +5,7 @@ namespace MudSharp.Form.Material
 {
     public interface ISolid : IMaterial, IHaveMultipleNames
     {
+		MaterialExposureProperties ExposureProperties => new();
         IEnumerable<string> Aliases { get; }
 
         double ImpactFracture { get; }

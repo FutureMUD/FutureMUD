@@ -68,6 +68,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 			}
 
 			using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Layer, this);
+			using var exposureChange = Gameworld is null ? null : MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
             _roomLayer = value;
             Changed = true;
 			RouteSpatialService.Instance.TrackPerceivable(this);
@@ -101,6 +102,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     public virtual void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false)
     {
+		using var exposureChange = Gameworld is null ? null : MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
 		using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Movement, this);
 		var previousLocation = SpatialLocation;
 		var routePosition = default(double?);
@@ -173,6 +175,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 		}
 
 		using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.RoutePosition, this);
+		using var exposureChange = Gameworld is null ? null : MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
 		var previousLocation = SpatialLocation;
 		_routePositionMetres = metres;
 		if (!noSave)

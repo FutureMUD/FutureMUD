@@ -348,6 +348,11 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 		DateTime now = DateTime.UtcNow;
 
 		IDbContextTransaction transaction = context.Database.BeginTransaction();
+		context.StaticConfigurations.Add(new StaticConfiguration
+		{
+			SettingName = "EnvironmentalExposureMode",
+			Definition = questionAnswers.TryGetValue("environmentalexposure", out var enableExposure) && enableExposure.Equals("yes", StringComparison.OrdinalIgnoreCase) ? "Enabled" : "Disabled"
+		});
 		// Set up account authorities
 		AuthorityGroup producer = SeedAuthorities(context);
 
@@ -1441,6 +1446,9 @@ public partial class CoreDataSeeder : IDatabaseSeeder
                 {
                     if (text.Length < 2) { return (false, "You must enter an name with at least 2 characters."); } return (true, string.Empty);
                 }),
+			("environmentalexposure", "Enable environmental exposure injury and finite chemical reactions? (yes/no) ", (context, answers) => !IsCoreBootstrapInstalled(context),
+				(text, _) => text.Equals("yes", StringComparison.OrdinalIgnoreCase) || text.Equals("no", StringComparison.OrdinalIgnoreCase)
+					? (true, string.Empty) : (false, "Please answer yes or no.")),
 			("account", "What name do you want to use for your implementor account? ", (context, answers) => !IsCoreBootstrapInstalled(context),
                 (text, context) =>
                 {

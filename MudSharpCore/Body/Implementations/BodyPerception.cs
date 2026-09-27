@@ -331,7 +331,6 @@ public partial class Body
 
         if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreLiquidsAndFlags))
         {
-            ResolveSurfaceLiquidDrying();
             var (coating, absorb) = LiquidAbsorbtionAmounts;
             var surfaceAddendum = SurfaceLiquidState.GetAddendumText(coating, absorb, colour);
             if (!string.IsNullOrWhiteSpace(surfaceAddendum))
@@ -573,7 +572,6 @@ public partial class Body
 			             .Aggregate(text, (current, line) => $"{current}\n\t{line}");
 		}
 
-        ResolveSurfaceLiquidDrying();
         var (coating, absorb) = LiquidAbsorbtionAmounts;
         var surfaceText = SurfaceLiquidState.GetAdditionalText(coating, absorb, voyeur, true);
         if (!string.IsNullOrWhiteSpace(surfaceText))
@@ -659,7 +657,6 @@ public partial class Body
                                                                 (x.IsOccupant(Actor) || visibleCharacters.Any(x.IsOccupant)))
                                                     .Select(x => x.ExteriorItem)
                                                     .ToHashSet();
-        Location.ResolveRoomWeatherExposure(Actor);
         List<IGameItem> items = localItems
                                         .Where(x => x.RoomLayer == RoomLayer)
                                         .Where(x => CanSee(x))

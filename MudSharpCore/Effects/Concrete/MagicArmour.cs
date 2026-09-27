@@ -116,6 +116,9 @@ public class MagicArmour : ConcentrationConsumingEffect, IMagicEffect, ICheckBon
 
     public double TotalDamageAbsorbed { get; protected set; }
 
+	public IDamage PreviewDamage(IDamage damage) =>
+		ArmourType.AbsorbDamageViaSpell(damage, Power.ArmourMaterial, Quality, CharacterOwner, true).PassedOn;
+
     private void CheckDamageAbsorbed()
     {
         double max = Power.MaximumDamageAbsorbed.Evaluate(CharacterOwner);
@@ -134,18 +137,18 @@ public class MagicArmour : ConcentrationConsumingEffect, IMagicEffect, ICheckBon
     {
         (IDamage passOn, IDamage self) =
             ArmourType.AbsorbDamageViaSpell(damage, Power.ArmourMaterial, Quality, CharacterOwner, true);
-        TotalDamageAbsorbed += passOn?.DamageAmount ?? 0.0;
+        TotalDamageAbsorbed += Math.Max(0.0, (self?.DamageAmount ?? 0.0) - (passOn?.DamageAmount ?? 0.0));
         CheckDamageAbsorbed();
-        return self;
+        return passOn;
     }
 
     public IDamage PassiveSufferDamage(IDamage damage, ref List<IWound> wounds)
     {
         (IDamage passOn, IDamage self) =
             ArmourType.AbsorbDamageViaSpell(damage, Power.ArmourMaterial, Quality, CharacterOwner, true);
-        TotalDamageAbsorbed += passOn?.DamageAmount ?? 0.0;
+        TotalDamageAbsorbed += Math.Max(0.0, (self?.DamageAmount ?? 0.0) - (passOn?.DamageAmount ?? 0.0));
         CheckDamageAbsorbed();
-        return self;
+        return passOn;
     }
 
     public void ProcessPassiveWound(IWound wound)

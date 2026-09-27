@@ -572,6 +572,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
             fm => { EmploymentScheduledRuleEvaluationService.EvaluateAll(fm); }, ScheduleType.System, TimeSpan.FromMinutes(1),
             "Employment Scheduled Rule Evaluation"));
         Chargen.SetupChargen(this);
+		MudSharp.Form.Material.EnvironmentalExposureService.For(this).Refresh();
         HeartbeatManager.StartHeartbeatTick();
         Track.CreateGlobalHeartbeatEvent();
         CommodityGameItemComponentProto.CreateGlobalHeartbeatEvent();

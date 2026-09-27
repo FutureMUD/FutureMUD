@@ -622,7 +622,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
                 if (RandomUtilities.Random(1, ExistingFractureAggravationChanceDivisor) == 1)
                 {
                     BoneFracture existing =
-                        owner.Wounds.Where(x => x.Bodypart == bodypart).OfType<BoneFracture>().GetRandomElement();
+                        (damage.TargetBody?.Wounds ?? owner.Wounds).Where(x => x.Bodypart == bodypart).OfType<BoneFracture>().GetRandomElement();
                     if (existing != null)
                     {
                         existing.SufferAdditionalDamage(boneDamage);
@@ -632,7 +632,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
                 else
                 {
                     wounds.Add(new BoneFracture(owner.Gameworld, owner, boneDamageAmount, boneDamageAmount,
-                        0, DamageType.Crushing, damage.Bodypart, damage.ToolOrigin, damage.ActorOrigin));
+                        0, DamageType.Crushing, damage.Bodypart, damage.ToolOrigin, damage.ActorOrigin, ownerBody: damage.TargetBody));
                 }
             }
 
@@ -641,18 +641,16 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
                 damage = new Damage(damage) { DamageAmount = ordinaryDamageAmount };
                 wounds.Add(new SimpleOrganicWound(owner.Gameworld, chOwner, damage.DamageAmount, damage.PainAmount,
                     damage.StunAmount, damage.DamageType, damage.Bodypart, lodgedItem, damage.ToolOrigin,
-                    damage.ActorOrigin));
+                    damage.ActorOrigin, ownerBody: damage.TargetBody));
             }
 
             return wounds;
         }
 
-        return new[]
-        {
-            new SimpleOrganicWound(owner.Gameworld, chOwner, damage.DamageAmount, damage.PainAmount,
-                damage.StunAmount, damage.DamageType, damage.Bodypart, lodgedItem, damage.ToolOrigin,
-                damage.ActorOrigin)
-        };
+		return ContinuousExposureDamage.Accumulate(owner, damage, packet =>
+			new SimpleOrganicWound(owner.Gameworld, chOwner, packet.DamageAmount, packet.PainAmount,
+				packet.StunAmount, packet.DamageType, packet.Bodypart, lodgedItem, packet.ToolOrigin,
+				packet.ActorOrigin, ownerBody: packet.TargetBody));
     }
 
     private string WoundCountDesc(int count)

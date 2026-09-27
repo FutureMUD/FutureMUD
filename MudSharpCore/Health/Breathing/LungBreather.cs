@@ -68,8 +68,30 @@ public class LungBreather : IBreathingStrategy
 
     public void Breathe(IBody body)
     {
+		// Resolve and withdraw a real supply before testing oxygen compatibility. An unbreathable
+		// supplied gas can still enter a functioning airway; a failed withdrawal cannot.
+		var suppliedMouth = body.Bodyparts.OfType<MouthProto>().FirstOrDefault();
+		var suppliedSource = suppliedMouth is null ? null : GetBreathingGasSource(body, suppliedMouth);
+		if (suppliedSource is not null && BreathingStrategyHelper.HasAirflow(body) &&
+			(CanBreathe(body) || body.HeldBreathTime <= TimeSpan.Zero))
+		{
+			var suppliedGas = suppliedSource.Gas;
+			if (suppliedSource.CanConsumeGas(body.Race.BreathingRate(body, suppliedGas)) &&
+				suppliedSource.ConsumeGas(body.Race.BreathingRate(body, suppliedGas)))
+			{
+				BreathingStrategyHelper.ExposeToMagic(body, suppliedGas, true);
+				body.HeldBreathTime = CanBreathe(body) ? TimeSpan.FromSeconds(Math.Max(0, body.HeldBreathTime.TotalSeconds - 10)) : body.HeldBreathTime + TimeSpan.FromSeconds(10);
+			}
+			else
+			{
+				EnvironmentalExposureService.For(body.Gameworld).NoInhalation(body);
+				body.HeldBreathTime += TimeSpan.FromSeconds(10);
+			}
+			return;
+		}
         if (!CanBreathe(body))
         {
+			BreathingStrategyHelper.UnbreathableSample(body, BreathingFluid(body));
             if (body.HeldBreathTime <= TimeSpan.Zero)
             {
                 body.OutputHandler.Send("You can't breathe, and have begun to hold your breath.");
@@ -82,21 +104,14 @@ public class LungBreather : IBreathingStrategy
         MouthProto mouth = body.Bodyparts.OfType<MouthProto>().FirstOrDefault();
         if (mouth == null)
         {
+			EnvironmentalExposureService.For(body.Gameworld).NoInhalation(body);
             return;
         }
 
         IProvideGasForBreathing gasSource = GetBreathingGasSource(body, mouth);
         if (gasSource != null)
         {
-            if (gasSource.ConsumeGas(body.Race.BreathingRate(body, gasSource.Gas)))
-            {
-                BreathingStrategyHelper.ExposeToMagic(body, gasSource.Gas);
-                if (body.HeldBreathTime > TimeSpan.Zero)
-                {
-                    body.HeldBreathTime -= TimeSpan.FromSeconds(10);
-                }
-            }
-
+			EnvironmentalExposureService.For(body.Gameworld).NoInhalation(body);
             return;
         }
 

@@ -18,6 +18,7 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
 {
     private MudSharp.Models.GameItem _parentDBItem;
 	private SpatialLocation? _activeDieOrMorphSource;
+	protected SpatialLocation? CapturedLifecycleSource => _activeDieOrMorphSource;
 
     protected GameItemComponent(GameItemComponent rhs, IGameItem newParent, bool temporary = false)
     {

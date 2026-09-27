@@ -27,6 +27,22 @@ namespace MudSharp.Form.Material
 
     public class LiquidMixture : IProgVariable
     {
+		private bool _readOnlyView;
+		public Action BeforeMutation { get; set; }
+		private bool _notifyingMutation;
+		public static LiquidMixture CreateReadOnlyView(IEnumerable<LiquidInstance> instances, IFuturemud gameworld)
+		{
+			return new LiquidMixture(instances, gameworld) { _readOnlyView = true };
+		}
+		private void AssertOwned()
+		{
+			if (_readOnlyView) throw new InvalidOperationException("Mutate the owning surface state, not its aggregate liquid view.");
+			if (!_notifyingMutation && BeforeMutation is { } notify)
+			{
+				_notifyingMutation = true;
+				try { notify(); } finally { _notifyingMutation = false; }
+			}
+		}
         public XElement SaveToXml()
         {
             return new XElement("Mix",
@@ -40,6 +56,7 @@ namespace MudSharp.Form.Material
         /// </summary>
         public bool ResolveFreshness(DateTime utcNow, double rateMultiplier)
         {
+			AssertOwned();
             var changed = _instances.Aggregate(false,
                 (current, instance) => instance.ResolveFreshness(utcNow, rateMultiplier) || current);
             if (changed)
@@ -173,7 +190,7 @@ namespace MudSharp.Form.Material
 
         public void ContentsUpdated()
         {
-            _instances.RemoveAll(x => x.Amount <= 0.0);
+            _instances.RemoveAll(x => x.Liquid is null || !double.IsFinite(x.Amount) || x.Amount <= 0.0);
             TotalVolume = _instances.Sum(x => x.Amount);
             double baseFluidToLitres = Gameworld?.UnitManager?.BaseFluidToLitres ?? 1.0;
             double baseWeightToKilograms = Gameworld?.UnitManager?.BaseWeightToKilograms ?? 1.0;
@@ -202,6 +219,8 @@ namespace MudSharp.Form.Material
 
         public void AddLiquid(LiquidInstance instance)
         {
+			AssertOwned();
+			if (instance.Liquid is null || !double.IsFinite(instance.Amount) || instance.Amount <= 0.0) return;
             LiquidInstance compatibleInstance = _instances.FirstOrDefault(x => x.CanMergeWith(instance));
             if (compatibleInstance != null)
             {
@@ -258,12 +277,14 @@ namespace MudSharp.Form.Material
 
         public void RemoveLiquidVolume(LiquidInstance instance, double volume)
         {
+			AssertOwned();
+			if (!double.IsFinite(volume) || volume <= 0.0) return;
             if (!_instances.Contains(instance))
             {
                 return;
             }
 
-            instance.Amount -= volume;
+            instance.Amount -= Math.Min(volume, instance.Amount);
             ContentsUpdated();
         }
 
@@ -310,11 +331,13 @@ namespace MudSharp.Form.Material
 
         public LiquidMixture RemoveLiquidVolume(double volume)
         {
+			AssertOwned();
+			if (!double.IsFinite(volume) || volume <= 0.0) return null;
             if (TotalVolume <= 0)
             {
                 return this;
             }
-            double ratio = volume / TotalVolume;
+            double ratio = Math.Min(1.0, volume / TotalVolume);
             if (ratio < 0.0)
             {
                 ratio = 0.0;
@@ -338,6 +361,8 @@ namespace MudSharp.Form.Material
 
         public void SetLiquidVolume(double volume)
         {
+			AssertOwned();
+			if (!double.IsFinite(volume) || volume < 0.0) throw new ArgumentOutOfRangeException(nameof(volume));
             if (TotalVolume <= 0)
             {
                 foreach (LiquidInstance liquid in _instances)
@@ -358,6 +383,7 @@ namespace MudSharp.Form.Material
 
         public void AddLiquidVolume(double volume)
         {
+			AssertOwned();
             if (volume < 0.0)
             {
                 RemoveLiquidVolume(-1 * volume);
@@ -373,6 +399,7 @@ namespace MudSharp.Form.Material
 
         public void RemoveLiquidInstance(LiquidInstance instance)
         {
+			AssertOwned();
             _instances.Remove(instance);
             ContentsUpdated();
         }

@@ -16,5 +16,7 @@ namespace MudSharp.Effects.Interfaces
         ItemQuality Quality { get; }
         bool AppliesToPart(IBodypart bodypart);
         string MagicArmourOriginDescription { get; }
+		/// <summary>Evaluates armour without consuming capacity, removing effects or creating wounds.</summary>
+		IDamage PreviewDamage(IDamage damage);
     }
 }

@@ -294,6 +294,7 @@ public partial class Body
 
     public void RecalculatePartsAndOrgans()
     {
+		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.Changing(this);
         List<IAdditionalBodypartsMerit> merits = Merits.Concat(Actor.Merits)
                            .OfType<IAdditionalBodypartsMerit>()
                            .Where(x => x.Applies(Actor)).ToList();
@@ -342,6 +343,7 @@ public partial class Body
             _bones = bones;
             SetupStandardParts();
             BodypartsChanged = true;
+			_surfaceLiquidState?.ReconcileParts();
         }
     }
 

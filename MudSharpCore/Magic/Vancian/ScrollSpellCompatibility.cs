@@ -21,7 +21,7 @@ public static class ScrollSpellCompatibility
 		"insomnia", "paralysis", "removecomprehendlanguage", "removecurse", "removedetectethereal", "removedetectinvisible",
 		"removedetectmagick", "removefear", "removeflying", "removeinfravision", "removeinsomnia", "removeparalysis",
 		"removesilence", "removesleep", "removewaterbreathing", "silence", "sleep", "waterbreathing",
-		"removeinvisibility", "dispelinvisibility", "removepoison", "removedisease", "magictag", "removemagictag"
+		"removeinvisibility", "dispelinvisibility", "removepoison", "removedisease", "magictag", "removemagictag", "exposureresistance"
 	};
 	private static readonly IReadOnlyDictionary<string, string> Unsupported = BuildUnsupported();
 	private static IReadOnlyDictionary<string, string> BuildUnsupported()
@@ -84,6 +84,7 @@ public static class ScrollSpellCompatibility
 			if (effect is TraitBoostEffect { Trait: null }) errors.Add($"{label}: missing boost trait.");
 			if (effect is MagicResourceDeltaEffect { Resource: null }) errors.Add($"{label}: missing magic resource.");
 			if (effect is DamageEffect { BodypartId: > 0 } damage && spell.Gameworld.BodypartPrototypes.Get(damage.BodypartId) is null) errors.Add($"{label}: missing damage bodypart.");
+			if (effect is ExposureResistanceSpellEffect { PartId: > 0 } resistance && spell.Gameworld.BodypartPrototypes.Get(resistance.PartId) is null) errors.Add($"{label}: missing exposure-resistance bodypart.");
 			if (effect is SpellArmourEffect armour && (armour.ArmourConfiguration.ArmourType is null || armour.ArmourConfiguration.ArmourMaterial is null)) errors.Add($"{label}: missing armour type/material.");
 			// Policy references are live predicates, never creator numerical capture or an executed production effect.
 			foreach (var node in effect.SaveToXml().Descendants().Where(x => x.Name.LocalName.EndsWith("Prog", StringComparison.OrdinalIgnoreCase)))
@@ -103,6 +104,7 @@ public static class ScrollSpellCompatibility
 				: name switch
 				{
 					"Bodypart" => gameworld.BodypartPrototypes.Get(id) is null,
+					"Part" when (string?)element.Parent?.Attribute("type") == "exposureresistance" => gameworld.BodypartPrototypes.Get(id) is null,
 					"Shape" when element.Parent?.Name == "BodypartShapes" => gameworld.BodypartShapes.Get(id) is null,
 					"Resource" => gameworld.MagicResources.Get(id) is null,
 					"Drug" => gameworld.Drugs.Get(id) is null,

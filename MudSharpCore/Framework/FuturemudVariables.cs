@@ -1042,6 +1042,8 @@ public sealed partial class Futuremud : IDisposable
 
     public void UpdateStaticConfiguration(string whichConfiguration, string newValue)
     {
+		if (whichConfiguration.StartsWith("EnvironmentalExposure", StringComparison.OrdinalIgnoreCase))
+			MudSharp.Form.Material.EnvironmentalExposureService.For(this).Settle(null);
 		if (whichConfiguration.EqualTo(MudSharp.Magic.PsychometricRecorder.EnabledSetting) &&
 		    !string.Equals(GetStaticConfiguration(whichConfiguration), newValue, StringComparison.OrdinalIgnoreCase))
 		{
@@ -1066,6 +1068,11 @@ public sealed partial class Futuremud : IDisposable
         _staticLongs.Remove(whichConfiguration);
 
         // Special values that need other actions
+		if (whichConfiguration.StartsWith("EnvironmentalExposure", StringComparison.OrdinalIgnoreCase))
+		{
+			MudSharp.Form.Material.EnvironmentalExposureService.For(this).Refresh();
+			return;
+		}
 		if (whichConfiguration.StartsWith("EnvironmentalMagic", StringComparison.OrdinalIgnoreCase) &&
 			EnvironmentalMagic is MudSharp.Magic.Environment.EnvironmentalMagicCoordinator environment)
 		{

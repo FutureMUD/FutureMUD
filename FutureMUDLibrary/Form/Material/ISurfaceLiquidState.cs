@@ -35,7 +35,7 @@ public interface ISurfaceLiquidState
 	bool CleanWithLiquid(LiquidMixture? liquid, double amount);
 	void Dry(double amount, bool roomSurface = false);
 	bool ResolveDrying(TimeSpan interval, double minimumDryVolume, double dryFraction, bool roomSurface = false,
-		int maxTicks = 24);
+		int maxTicks = 24, DateTime? utcNow = null);
 	ItemSaturationLevel SaturationLevel(double coating, double absorb);
 	ItemSaturationLevel SaturationLevelForLiquid(double total, double coating, double absorb);
 	string GetAddendumText(double coating, double absorb, bool colour);

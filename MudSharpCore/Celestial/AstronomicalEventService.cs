@@ -16,6 +16,68 @@ public sealed class AstronomicalEventService : IAstronomicalEventService
 	{
 	}
 
+	public static bool IsSolar(ICelestialObject celestial) => celestial is ISolarEphemeris ||
+		celestial is IAuthoredCelestial authored && authored.GetCapabilities().HasFlag(CelestialCapabilities.Solar);
+	public static bool IsLunar(ICelestialObject celestial) => celestial is ILunarEphemeris ||
+		celestial is IAuthoredCelestial authored && authored.GetCapabilities().HasFlag(CelestialCapabilities.Lunar);
+
+	public bool TryFindNextForCelestial(AstronomicalEventType eventType, MudInstant reference, int occurrence,
+		ICelestialObject primary, GeographicCoordinate observer, out MudInstant instant, out string error,
+		double targetLongitude = 0, ICelestialObject? secondary = null)
+	{
+		var result = FindNextForCelestial(reference, new(eventType, occurrence, targetLongitude), primary, observer, secondary);
+		instant = result.Instant;
+		error = result.Found ? string.Empty : $"{result.Status}: {result.Error}";
+		return result.Found;
+	}
+
+	public CelestialEventResult FindNextForCelestial(MudInstant reference, CelestialEventRequest request,
+		ICelestialObject primary, GeographicCoordinate observer, ICelestialObject? secondary = null)
+	{
+		if (reference.IsNever || request.Occurrence < 1 || request.Occurrence > int.MaxValue ||
+		    !double.IsFinite(request.TargetLongitude) || primary is null || observer is null)
+			return CelestialEventResult.Failure(CelestialEventStatus.InvalidRequest, "Supply an instant, object, observer, finite longitude and positive integral occurrence within Int32 range.");
+		try
+		{
+			if (request.Type == AstronomicalEventType.VisibleCrescent)
+			{
+				if (!IsSolar(primary) || secondary is null || !IsLunar(secondary))
+					return CelestialEventResult.Failure(CelestialEventStatus.InvalidRequest, "Crescent queries require a sun and a moon, in that order.");
+				if (secondary is IAuthoredCelestial moon)
+				{
+					if (primary is not ICelestialTimeContext solar || solar.Clock.Id != moon.Clock.Id)
+						return CelestialEventResult.Failure(CelestialEventStatus.IncompatibleTimeContext, "Crescent participants have incompatible clocks.");
+					if (primary is IAuthoredCelestial authoredSun) _ = authoredSun.EvaluateAt(reference);
+					else if (reference.ToMudDateTime(solar.Calendar, solar.Clock, solar.Clock.PrimaryTimezone).Date is null)
+						return CelestialEventResult.Failure(CelestialEventStatus.IncompatibleTimeContext, "Cannot convert the reference into the associated sun's calendar.");
+					return moon.FindNext(reference, request with { AssociatedSunId = primary.Id });
+				}
+				if (primary is IAuthoredCelestial)
+					return CelestialEventResult.Failure(CelestialEventStatus.Unsupported, "This physical moon has no authored crescent-marker capability.");
+			}
+			if (primary is IAuthoredCelestial authored) return authored.FindNext(reference, request);
+			if (request.EventKey is not null || primary is not ICelestialEphemeris ephemeris || request.Type is not { } type)
+				return CelestialEventResult.Failure(CelestialEventStatus.Unsupported, "The object does not support that event capability.");
+			if (primary is ICelestialTimeContext context && reference.HasSourceContext)
+			{
+				var converted = reference.ToMudDateTime(context.Calendar, context.Clock, context.Clock.PrimaryTimezone);
+				if (converted.Date is null) return CelestialEventResult.Failure(CelestialEventStatus.IncompatibleTimeContext, "The source time context cannot be converted.");
+				reference = MudInstant.FromMudDateTime(converted);
+			}
+			if (secondary is ICelestialTimeContext secondaryContext && primary is ICelestialTimeContext primaryContext && secondaryContext.Clock.Id != primaryContext.Clock.Id)
+				return CelestialEventResult.Failure(CelestialEventStatus.IncompatibleTimeContext, "The celestial clocks cannot be converted.");
+			return TryFindNext(type, reference, (int)request.Occurrence, ephemeris, observer, out var instant, out var error,
+				request.TargetLongitude, secondary as ICelestialEphemeris)
+				? new(CelestialEventStatus.Found, instant, string.Empty)
+				: CelestialEventResult.Failure(error.Contains("bounded search window", StringComparison.Ordinal) ? CelestialEventStatus.SearchLimitReached : CelestialEventStatus.Unsupported, error);
+		}
+		catch (OverflowException) { return CelestialEventResult.Failure(CelestialEventStatus.OutOfRange, "The requested instant is outside representable time."); }
+		catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+		{
+			return CelestialEventResult.Failure(CelestialEventStatus.IncompatibleTimeContext, ex.Message);
+		}
+	}
+
 	public bool TryFindNext(AstronomicalEventType eventType, MudInstant reference, int occurrence,
 		ICelestialEphemeris primary, GeographicCoordinate observer, out MudInstant instant, out string error,
 		double targetLongitude = 0.0, ICelestialEphemeris? secondary = null)

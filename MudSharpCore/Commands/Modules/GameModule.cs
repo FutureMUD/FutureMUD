@@ -1353,9 +1353,20 @@ You can also type 'forage' on its own to see what kinds of yields you can search
             return;
         }
 
+        if (!actor.CanPerformManualAction(out var manualReason))
+        {
+            actor.Send(manualReason);
+            return;
+        }
         int time = Dice.Roll(Foragable.BaseForageTimeExpression);
         actor.AddEffect(new SimpleCharacterAction(actor, perceivable =>
             {
+                if (!actor.CanPerformManualAction(out var continuationReason))
+                {
+                    actor.Send(continuationReason);
+                    return;
+                }
+
                 ICheck forageCheck = actor.Gameworld.GetCheck(specificForagable == null ? CheckType.ForageCheck : CheckType.ForageSpecificCheck);
                 Dictionary<Difficulty, CheckOutcome> forageOutcome =
                     forageCheck.CheckAgainstAllDifficulties(actor, Difficulty.Normal, null,

@@ -1,4 +1,5 @@
-﻿#nullable enable annotations
+﻿using MudSharp.GameItems;
+#nullable enable annotations
 
 using MudSharp.Body;
 using MudSharp.Construction;
@@ -599,6 +600,11 @@ public class WaterSourceGameItemComponent : GameItemComponent, ILiquidContainer,
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         if (!_prototype.UseOnOffForRefill)
         {
             return false;
@@ -612,6 +618,11 @@ public class WaterSourceGameItemComponent : GameItemComponent, ILiquidContainer,
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!_prototype.UseOnOffForRefill)
         {
             return $"{Parent.HowSeen(actor)} is not something that can be switched.";
@@ -648,6 +659,11 @@ public class WaterSourceGameItemComponent : GameItemComponent, ILiquidContainer,
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             return false;

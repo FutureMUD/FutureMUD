@@ -1,4 +1,5 @@
-﻿using MudSharp.Body.Disfigurements;
+﻿using MudSharp.Body;
+using MudSharp.Body.Disfigurements;
 using MudSharp.Construction;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
@@ -120,6 +121,13 @@ public class InkingTattoo : CharacterActionWithTargetAndTool, IAffectProximity
 
     public override void ExpireEffect()
     {
+        if (!CharacterOwner.CanPerformManualAction(out var manualReason))
+        {
+            CharacterOwner.Send(manualReason);
+            Owner.RemoveEffect(this, true);
+            return;
+        }
+
         // TODO - tool usage
         Tattoo.CompletionPercentage += 1.0 / Tattoo.TattooTemplate.TicksToCompleteTattoo;
         Tattoo.TimeOfInscription = CharacterOwner.Location.DateTime();

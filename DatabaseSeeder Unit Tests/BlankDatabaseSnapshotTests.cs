@@ -12,6 +12,15 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BlankDatabaseSnapshotTests
 {
+	[TestMethod]
+	public void CommittedBlankSnapshot_CelestialsSupportDenseSources()
+	{
+		var snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory()));
+		var table = ReadTableDeclaration(snapshot, "celestials");
+		StringAssert.Contains(table, "`Definition` longtext");
+		StringAssert.Contains(table, "PRIMARY KEY (`Id`)");
+	}
+
 	private const string LatestMigrationId = "20260829082253_AddOutfitTemplateItemSkin";
 
     [TestMethod]

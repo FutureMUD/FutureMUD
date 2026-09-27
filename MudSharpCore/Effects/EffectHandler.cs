@@ -1,5 +1,6 @@
 ﻿using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
+using MudSharp.Magic.Environment;
 
 namespace MudSharp.Effects;
 
@@ -92,7 +93,8 @@ public class EffectHandler : IEffectHandler
     public void RemoveEffect(IEffect effect, bool fireRemovalAction = false)
     {
 		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.Changing(Parent);
-        if (fireRemovalAction)
+        if (fireRemovalAction || effect is ILandRejuvenationEffect ||
+			effect is IMagicSpellEffectParent parent && parent.SpellEffects.OfType<ILandRejuvenationEffect>().Any())
         {
             effect.RemovalEffect();
         }

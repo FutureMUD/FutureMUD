@@ -154,6 +154,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Disfigurement Seeder Builder Reference](./Health/Disfigurement_Seeder_Builder_Reference.md)
 
 ## Items
+
+- [Physical Manipulation Audit](./Items/Physical_Manipulation_Audit.md)
 - [Item System Overview](./Items/Item_System_Overview.md)
 - [Item System Runtime Model](./Items/Item_System_Runtime_Model.md)
 - [Item System Component Authoring](./Items/Item_System_Component_Authoring.md)

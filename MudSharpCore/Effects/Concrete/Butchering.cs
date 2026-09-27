@@ -130,6 +130,19 @@ public class Butchering : StagedCharacterActionWithTarget, IAffectProximity
         Target.AddEffect(new BeingButchered(Target, Butcher));
     }
 
+    public override void ExpireEffect()
+    {
+        if (!ItemManipulationGuard.CanManipulate(Butcher, out var reason, Butcherable.Parent) ||
+            Tool is not null && !ItemManipulationGuard.CanManipulate(Butcher, out reason, Tool))
+        {
+            Butcher.Send(reason);
+            Owner.RemoveEffect(this, true);
+            return;
+        }
+
+        base.ExpireEffect();
+    }
+
     public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
     {
         if (Butcherable.Parent == thing)

@@ -19,10 +19,12 @@ The supported modern celestial types are:
 - `PlanetaryMoon`
 - `PlanetFromMoon`
 - `SunFromPlanetaryMoon`
+- `RailSun`, `RailMoon`, `ScriptedSun`, `ScriptedMoon` (authored apparent sky models)
 
 `OldSun` is no longer supported. Persisted `OldSun` records now fail explicitly during load instead of silently falling back to legacy behavior.
 
 ## Document Map
+- [Authored, geography-independent celestials](./Authored_Celestials.md)
 - [Celestial System Seeder](./Celestial_System_Seeder.md)
 - [Celestial System Tests](./Celestial_System_Tests.md)
 - [Celestial Type: Sun](./Celestial_Type_Sun.md)
@@ -87,7 +89,7 @@ The normal runtime flow is:
 4. Zones cache `CelestialInformation` and illumination per celestial.
 5. Minute updates refresh the cache and recalculate zone light.
 
-This is why geography matters. The same shard celestial can produce different sky state in different zones at the same moment.
+Physical models use geography and can produce different sky state in different zones at the same moment. Authored models share one intrinsic minute snapshot globally; per-zone wrappers, illumination modifiers and perception remain local. The first eligible celestial and existing elevation/direction thresholds still determine zone time of day.
 
 ## Builders and Integration
 Builders attach celestials to shards with `shard set <shard> celestials ...`.
@@ -122,5 +124,6 @@ FutureProgs can also ask for deterministic event times as `MudDateTime` values:
 - `nextnewmoon(location|zone, moonId, calendar[, occurrence])`
 - `nextfullmoon(location|zone, moonId, calendar[, occurrence])`
 - `nextvisiblecrescent(location|zone, sunId, moonId, calendar[, occurrence])`
+- `nextcelestialevent(location|zone, celestialId, calendar, "custom:key"[, occurrence])`
 
-These functions use the supplied room or zone geography as the observer and project the found `MudInstant` back through the supplied calendar, feed clock, and local zone time zone. They return `MudDateTime.Never` when the requested celestial does not support the required ephemeris or no event is found inside the bounded deterministic search window.
+These functions also accept resolved celestial objects. They project the found `MudInstant` through the supplied calendar, clock and local zone timezone. Physical pairs use the existing bounded ephemeris solver. Authored capabilities use independent minute-sampled tracks and direct cycle/rank arithmetic, ignoring observer geography. Unavailable events, invalid arguments and incompatible time contexts return `MudDateTime.Never`. `moonphase(location|zone)` selects the first celestial exposing lunar phase capability. See [Authored Celestials](Authored_Celestials.md) for synthetic longitude and explicitly associated crescent markers.

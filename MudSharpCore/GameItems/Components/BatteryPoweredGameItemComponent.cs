@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+﻿using MudSharp.GameItems;
+using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 
@@ -659,6 +660,11 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 
     public bool CanConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         if (!FreeConnections.Any() || !other.FreeConnections.Any())
         {
             return false;
@@ -670,6 +676,12 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 
     public void Connect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         ConnectorType connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
         {
@@ -693,6 +705,11 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 
     public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!FreeConnections.Any())
         {
             return
@@ -718,11 +735,22 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 
     public bool CanDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         return _connectedItems.Any(x => x.Item2 == other);
     }
 
     public void Disconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         RawDisconnect(other, true);
     }
 
@@ -745,6 +773,11 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         return _connectedItems.All(x => x.Item2 != other)
             ? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
             : $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";
@@ -952,6 +985,22 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 
     public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
+        if (emptier is not null)
+        {
+            var targets = intoContainer is null ? new[] { Parent } : new[] { Parent, intoContainer.Parent };
+            if (!ItemManipulationGuard.CanManipulate(emptier, out var reason, targets))
+            {
+				emptier.Send(reason);
+				return;
+            }
+
+            if (Contents.Any(x => !CanTake(emptier, x, 0)))
+            {
+				emptier.Send("You cannot empty that container while some of its contents cannot be taken.");
+				return;
+            }
+        }
+
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         _contents.Clear();

@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 using MudSharp.Body;
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
@@ -303,6 +304,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         if (setting.Equals("on", StringComparison.InvariantCultureIgnoreCase))
         {
             return !_switchedOn;
@@ -329,6 +335,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (TelephoneRingSettings.TryGetVolumeForSetting(setting, true, out _))
         {
             return $"{Parent.HowSeen(actor, true)} is already set to {TelephoneRingSettings.DescribeSetting(RingVolume, true).ColourValue()}.";
@@ -347,6 +358,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             return false;
@@ -378,6 +394,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public bool CanPickUp(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_isOffHook && _currentCall == null)
         {
             error = "That telephone is already off the hook.";
@@ -402,6 +423,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public bool PickUp(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanPickUp(actor, out error))
         {
             return false;
@@ -428,6 +454,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public bool CanDial(ICharacter actor, string number, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_currentCall?.IsConnected == true)
         {
             return CanSendDigits(actor, number, out error);
@@ -469,6 +500,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public bool Dial(ICharacter actor, string number, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_currentCall?.IsConnected == true)
         {
             return SendDigits(actor, number, out error);
@@ -496,6 +532,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public bool CanSendDigits(ICharacter actor, string digits, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_currentCall?.IsConnected != true)
         {
             error = "That telephone is not connected to a live call.";
@@ -520,6 +561,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public bool SendDigits(ICharacter actor, string digits, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanSendDigits(actor, digits, out error))
         {
             return false;
@@ -533,6 +579,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public bool CanAnswer(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!_isRinging || _currentCall == null)
         {
             error = "That telephone is not ringing.";
@@ -557,6 +608,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public bool Answer(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanAnswer(actor, out error))
         {
             return false;
@@ -567,6 +623,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public bool CanHangUp(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (_currentCall == null && !_isOffHook)
         {
             error = "That telephone is not currently in use.";
@@ -579,6 +640,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     public bool HangUp(ICharacter actor, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanHangUp(actor, out error))
         {
             return false;

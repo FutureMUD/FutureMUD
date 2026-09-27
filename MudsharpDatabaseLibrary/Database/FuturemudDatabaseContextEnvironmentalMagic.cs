@@ -9,6 +9,20 @@ public partial class FuturemudDatabaseContext
 {
 	private static void ConfigureEnvironmentalMagic(ModelBuilder modelBuilder)
 	{
+		modelBuilder.Entity<LandRejuvenationTreatment>(entity =>
+		{
+			entity.ToTable("LandRejuvenationTreatments");
+			entity.HasKey(x => x.Id).HasName("PRIMARY");
+			entity.Property(x => x.Id).ValueGeneratedNever();
+			entity.Property(x => x.CellId).HasColumnType("bigint(20)");
+			entity.Property(x => x.Revision).HasColumnType("bigint(20)").IsConcurrencyToken();
+			entity.Property(x => x.Status).HasMaxLength(40).IsRequired();
+			entity.Property(x => x.Checkpoint).HasColumnType("longtext").HasCharSet("utf8mb4")
+				.UseCollation("utf8mb4_unicode_ci").IsRequired();
+			entity.HasIndex(x => new { x.CellId, x.Status }).HasDatabaseName("IX_LandRejuvenationTreatments_CellId_Status");
+			// Retain terminal/pending evidence after deletion of its originating spell, caster or cell.
+		});
+
 		modelBuilder.Entity<Cell>(entity =>
 		{
 			entity.Property(x => x.EnvironmentalMagicBindingMode)

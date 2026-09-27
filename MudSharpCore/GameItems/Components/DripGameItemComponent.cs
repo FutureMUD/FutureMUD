@@ -1,4 +1,5 @@
-﻿using MudSharp.Construction;
+﻿using MudSharp.GameItems;
+using MudSharp.Construction;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems.Prototypes;
 
@@ -298,6 +299,11 @@ public class DripGameItemComponent : GameItemComponent, IDrip, ISelectable
 
     public bool CanConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         if (!FreeConnections.Any())
         {
             return false;
@@ -314,6 +320,12 @@ public class DripGameItemComponent : GameItemComponent, IDrip, ISelectable
 
     public void Connect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         ConnectorType connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
         {
@@ -335,6 +347,11 @@ public class DripGameItemComponent : GameItemComponent, IDrip, ISelectable
 
     public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!FreeConnections.Any())
         {
             return
@@ -360,11 +377,22 @@ public class DripGameItemComponent : GameItemComponent, IDrip, ISelectable
 
     public bool CanDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
         return _connectedItems.Any(x => x.Item2 == other);
     }
 
     public void Disconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
         RawDisconnect(other, true);
     }
 
@@ -386,6 +414,11 @@ public class DripGameItemComponent : GameItemComponent, IDrip, ISelectable
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
         return _connectedItems.All(x => x.Item2 != other)
             ? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
             : $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";
@@ -408,6 +441,11 @@ public class DripGameItemComponent : GameItemComponent, IDrip, ISelectable
 
     public bool CanSelect(ICharacter character, string argument)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out _, Parent))
+		{
+			return false;
+		}
+
         Gameworld.UnitManager.GetBaseUnits(argument, UnitType.FluidVolume, out bool success);
         if (!success)
         {
@@ -419,6 +457,11 @@ public class DripGameItemComponent : GameItemComponent, IDrip, ISelectable
 
     public bool Select(ICharacter character, string argument, IEmote playerEmote, bool silent = false)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         double amount = Gameworld.UnitManager.GetBaseUnits(argument, UnitType.FluidVolume, out bool success);
         if (!success || amount <= 0.0)
         {

@@ -2108,11 +2108,11 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
         if (profile is not null)
         {
-            body.Wear(item, profile, null, true);
+            body.WearExternally(item, profile);
         }
         else
         {
-            body.Wear(item, null, true);
+            body.WearExternally(item);
         }
     }
 

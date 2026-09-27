@@ -367,6 +367,7 @@ public class ExplosiveTriggerTests
 	private static Mock<ICharacter> CreateActor()
 	{
 		var actor = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
 		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
 		return actor;
 	}

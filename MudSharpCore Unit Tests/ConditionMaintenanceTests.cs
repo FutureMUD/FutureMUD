@@ -290,6 +290,7 @@ public class ConditionMaintenanceTests
 	private static Mock<ICharacter> CreateActor(IFuturemud gameworld)
 	{
 		var actor = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld);
 		actor.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
 				It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>()))

@@ -1,3 +1,4 @@
+using MudSharp.GameItems;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
@@ -484,6 +485,22 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 
 	public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
 	{
+		if (emptier is not null)
+		{
+			var targets = intoContainer is null ? new[] { Parent } : new[] { Parent, intoContainer.Parent };
+			if (!ItemManipulationGuard.CanManipulate(emptier, out var reason, targets))
+			{
+				emptier.Send(reason);
+				return;
+			}
+
+			if (Contents.Any(x => !CanTake(emptier, x, 0)))
+			{
+				emptier.Send("You cannot empty that container while some of its contents cannot be taken.");
+				return;
+			}
+		}
+
 		foreach (var item in _contents.ToList())
 		{
 			if (item == _currentFuelItem)
@@ -507,6 +524,11 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 
 	public bool CanLight(ICharacter lightee, IPerceivable ignitionSource)
 	{
+		if (!ItemManipulationGuard.CanManipulate(lightee, out _, Parent))
+		{
+			return false;
+		}
+
 		return (Parent.Location?.CanGetAccess(Parent, lightee) ?? true) &&
 		       !Lit &&
 		       HasFuel;
@@ -514,6 +536,11 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 
 	public string WhyCannotLight(ICharacter lightee, IPerceivable ignitionSource)
 	{
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (!(Parent.Location?.CanGetAccess(Parent, lightee) ?? true))
 		{
 			return Parent.Location.WhyCannotGetAccess(Parent, lightee);
@@ -534,6 +561,11 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 
 	public bool Light(ICharacter lightee, IPerceivable ignitionSource, IEmote playerEmote)
 	{
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanLight(lightee, ignitionSource))
 		{
 			lightee.OutputHandler.Send(WhyCannotLight(lightee, ignitionSource));
@@ -550,11 +582,21 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 
 	public bool CanExtinguish(ICharacter lightee)
 	{
+		if (!ItemManipulationGuard.CanManipulate(lightee, out _, Parent))
+		{
+			return false;
+		}
+
 		return (Parent.Location?.CanGetAccess(Parent, lightee) ?? true) && Lit;
 	}
 
 	public string WhyCannotExtinguish(ICharacter lightee)
 	{
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (!(Parent.Location?.CanGetAccess(Parent, lightee) ?? true))
 		{
 			return Parent.Location.WhyCannotGetAccess(Parent, lightee);
@@ -567,6 +609,11 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 
 	public bool Extinguish(ICharacter lightee, IEmote playerEmote)
 	{
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanExtinguish(lightee))
 		{
 			lightee.OutputHandler.Send(WhyCannotExtinguish(lightee));

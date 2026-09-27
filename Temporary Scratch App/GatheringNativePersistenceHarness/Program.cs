@@ -59,6 +59,8 @@ internal static partial class GNHProgram
 				["--run"] => RunAcceptanceChecks(),
 				["--reader", .. string[] readerArguments] => RunReader(readerArguments),
 				["--land-run"] => RunNativeOrganicAcceptanceChecks(),
+				["--rejuvenation-run"] => RunRejuvenationAcceptanceChecks(),
+				["--rejuvenation-reader", .. string[] readerArguments] => RunRejuvenationReader(readerArguments),
 				["--land-reader", .. string[] readerArguments] => RunNativeOrganicReader(readerArguments),
 				["--land-action-reader", .. string[] readerArguments] => RunLandActionReader(readerArguments),
 				_ => Usage()
@@ -78,7 +80,7 @@ internal static partial class GNHProgram
 
 	private static int Usage()
 	{
-		Console.Error.WriteLine("Usage: GatheringNativePersistenceHarness --probe|--schema|--run|--reader <scenario arguments>|--land-run|--land-reader <scenario arguments>|--land-action-reader <scenario arguments>");
+		Console.Error.WriteLine("Usage: GatheringNativePersistenceHarness --probe|--schema|--run|--reader <scenario arguments>|--land-run|--land-reader <scenario arguments>|--land-action-reader <scenario arguments>|--rejuvenation-run|--rejuvenation-reader <owned fixture descriptor>");
 		return 2;
 	}
 

@@ -42,6 +42,10 @@ public interface ILunarEphemeris : ICelestialEphemeris
 
 public interface IAstronomicalEventService
 {
+	bool TryFindNextForCelestial(AstronomicalEventType eventType, MudInstant reference, int occurrence,
+		ICelestialObject primary, GeographicCoordinate observer, out MudInstant instant, out string error,
+		double targetLongitude = 0.0, ICelestialObject? secondary = null);
+
 	bool TryFindNext(AstronomicalEventType eventType, MudInstant reference, int occurrence,
 		ICelestialEphemeris primary, GeographicCoordinate observer, out MudInstant instant, out string error,
 		double targetLongitude = 0.0, ICelestialEphemeris? secondary = null);

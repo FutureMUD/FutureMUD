@@ -181,6 +181,11 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
 	public bool Emplace(ICharacter actor, out string reason)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
+		{
+			return false;
+		}
+
 		if (!_prototype.RequiresEmplacement)
 		{
 			reason = $"{Parent.HowSeen(actor, true)} does not require emplacement.";
@@ -199,6 +204,11 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
 	public bool Limber(ICharacter actor, out string reason)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
+		{
+			return false;
+		}
+
 		if (!IsEmplaced)
 		{
 			reason = $"{Parent.HowSeen(actor, true)} is not emplaced.";
@@ -217,6 +227,11 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public bool CanReady(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
 		if (_prototype.RequiresEmplacement && !IsEmplaced)
 		{
 			return false;
@@ -249,6 +264,11 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public string WhyCannotReady(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
 		if (_prototype.RequiresEmplacement && !IsEmplaced)
 		{
 			return $"You must emplace {Parent.HowSeen(readier)} before readying it.";
@@ -290,6 +310,11 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public bool Ready(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         if (!CanReady(readier))
         {
             readier.Send(WhyCannotReady(readier));
@@ -361,11 +386,21 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public bool CanUnload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         return LoadedAmmo != null && !IsReadied;
     }
 
     public string WhyCannotUnload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         if (LoadedAmmo == null)
         {
             return $"You cannot unload {Parent.HowSeen(loader)} because it is not loaded.";
@@ -382,6 +417,11 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public IEnumerable<IGameItem> Unload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return [];
+        }
+
         IAmmo ammo = LoadedAmmo;
         LoadedAmmo = null;
         loader.OutputHandler.Handle(
@@ -401,6 +441,11 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
 		if (_prototype.RequiresEmplacement && !IsEmplaced)
 		{
 			return false;
@@ -417,6 +462,11 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
 		if (_prototype.RequiresEmplacement && !IsEmplaced)
 		{
 			return $"You must emplace {Parent.HowSeen(loader)} before loading it.";
@@ -443,6 +493,12 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            loader?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
         IInventoryPlan plan = _prototype.LoadTemplate.CreatePlan(loader);
         plan.ExecuteWholePlan();
         IGameItem ammo =
@@ -477,11 +533,21 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public bool CanFire(ICharacter actor, IPerceivable target)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
 		return (!_prototype.RequiresEmplacement || IsEmplaced) && LoadedAmmo != null && IsReadied;
     }
 
     public string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
 		if (_prototype.RequiresEmplacement && !IsEmplaced)
 		{
 			return $"You must emplace {Parent.HowSeen(actor)} before firing it.";
@@ -503,6 +569,12 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
     public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
         OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            actor?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
 		if (!CanFire(actor, target))
 		{
 			actor.Send(WhyCannotFire(actor, target));
@@ -564,7 +636,6 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 		_magazine.Add(ammunition);
 		ammunition.Parent.ContainedIn = Parent;
 	}
-
 
     #region Implementation of IMeleeWeapon
 

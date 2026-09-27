@@ -1,4 +1,5 @@
-﻿using MudSharp.Construction;
+﻿using MudSharp.Body;
+using MudSharp.Construction;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
@@ -84,6 +85,13 @@ public class Suturing : CharacterActionWithTarget, IAffectProximity
 
     public override void ExpireEffect()
     {
+        if (!CharacterOwner.CanPerformManualAction(out var manualReason))
+        {
+            CharacterOwner.Send(manualReason);
+            Owner.RemoveEffect(this, true);
+            return;
+        }
+
         List<IWound> wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
                                     .Where(x => x.BleedStatus == BleedStatus.TraumaControlled &&
                                                 x.CanBeTreated(TreatmentType.Close) != Difficulty.Impossible)

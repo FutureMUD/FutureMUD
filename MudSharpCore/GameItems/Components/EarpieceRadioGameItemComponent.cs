@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+﻿using MudSharp.GameItems;
+using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Communication.Language;
 using MudSharp.Form.Audio;
@@ -249,6 +250,11 @@ public class EarpieceRadioGameItemComponent : GameItemComponent, IReceive, ICons
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         switch (setting.ToLowerInvariant())
         {
             case "on":
@@ -265,6 +271,11 @@ public class EarpieceRadioGameItemComponent : GameItemComponent, IReceive, ICons
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         switch (setting.ToLowerInvariant())
         {
             case "on":
@@ -278,6 +289,11 @@ public class EarpieceRadioGameItemComponent : GameItemComponent, IReceive, ICons
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             actor.Send(WhyCannotSwitch(actor, setting));

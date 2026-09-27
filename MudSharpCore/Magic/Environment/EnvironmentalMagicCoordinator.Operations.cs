@@ -9,6 +9,25 @@ public sealed partial class EnvironmentalMagicCoordinator
 	public const double MaximumRecentPressure = 1.0e12;
 
 	public EnvironmentalMagicOperationResult ApplyOperation(ICell cell, EnvironmentalMagicOperationRequest request)
+		=> ApplyOperationCore(cell, request, null);
+
+	private readonly HashSet<long> _ecologicalMutations = [];
+
+	private void ResetRecoveredEnvironment(Cell cell, bool notifyScarChange = true)
+	{
+		Register(cell);
+		if (_registered.TryGetValue(cell.Id, out var recovered))
+		{
+			recovered.SampleAt = Now;
+			recovered.Sample = Array.Empty<EnvironmentalResourceSnapshot>();
+			recovered.RepairRate = 0.0;
+			Recheck(recovered, Now);
+		}
+		if (notifyScarChange) ScarStateChanged(cell);
+	}
+
+	private EnvironmentalMagicOperationResult ApplyOperationCore(ICell cell, EnvironmentalMagicOperationRequest request,
+		LandRejuvenationProgress? treatment)
 	{
 		EnvironmentalMagicOperationResult Fail(string error) => new(request.OperationId, false, false, 0.0, 0.0, 0.0, error);
 		if (_disposed || cell is not Cell concrete || cell.Id <= 0 || !ReferenceEquals(cell.Gameworld, _world) || request.OperationId == Guid.Empty ||
@@ -19,6 +38,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		if (_evaluating.Contains(cell.Id)) { _recursive.Add(cell.Id); return Fail("Environmental input progs must be read-only."); }
 		if (concrete.PendingEnvironmentalOperationId is { } pending && pending != request.OperationId)
 			return Fail($"Operation {pending} must be confirmed before another environmental operation can be applied.");
+		if (!_ecologicalMutations.Add(cell.Id)) return Fail("This cell already has an ecological mutation in progress.");
 		try
 		{
 			var previous = _operations.Find(request.OperationId);
@@ -29,14 +49,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 				if (concrete.PendingEnvironmentalOperationId == request.OperationId)
 				{
 					concrete.AdoptDurableEnvironment(request.OperationId, _operations.Load(concrete));
-					Register(cell);
-					if (_registered.TryGetValue(cell.Id, out var recovered))
-					{
-						recovered.SampleAt = Now;
-						recovered.Sample = Array.Empty<EnvironmentalResourceSnapshot>();
-						recovered.RepairRate = 0.0;
-						Recheck(recovered, Now);
-					}
+					ResetRecoveredEnvironment(concrete);
 				}
 				return previous.Result with { Replayed = true };
 			}
@@ -57,18 +70,27 @@ public sealed partial class EnvironmentalMagicCoordinator
 			if (!double.IsFinite(damage)) return Fail("The damage total is not finite.");
 			if (request.Damage > 0.0 && damage <= state.ScarDamage)
 				return Fail("The requested damage cannot increase the stored ecological scar at its current magnitude.");
-			var repaired = Math.Min(damage, request.Repair);
+			var (remainingScar, repaired) = ConservativeScarRepair.Calculate(damage, request.Repair);
+			if (request.Repair > 0.0 && repaired == 0.0 && (damage > 0.0 || treatment is not null))
+				return Fail("The earned repair cannot yet make a representable scar decrement.");
 			var addedPressure = Math.Min(request.Pressure, Math.Max(0.0, MaximumRecentPressure - pressure));
 			var profile = EffectiveProfileId(concrete) is { } id ? Profile(id) : null;
-			var updated = state with { ScarDamage = damage - repaired, Revision = state.Revision + 1 };
+			var updated = state with { ScarDamage = remainingScar, Revision = state.Revision + 1 };
 			if (request.Damage > 0.0 || request.Pressure > 0.0)
 			{
 				updated = PressureAnchor(updated, profile, pressure + addedPressure, utcNow) with { LastDefileUtc = utcNow };
 			}
+			// Natural settlement may reach zero before this operation adds new damage.
+			// Persist the old treatment's termination first so a restart cannot revive it against that damage.
+			if (treatment is null && state.ScarDamage == 0.0 && !TryEndTreatmentsAtZeroBoundary(concrete, out var terminationError))
+				return Fail(terminationError!);
 			var result = new EnvironmentalMagicOperationResult(request.OperationId, true, false,
 				damage - state.ScarDamage, addedPressure, repaired, null);
-			_operations.Commit(concrete, request, result, updated, utcNow, plan.Balances);
+			if (treatment is null) _operations.Commit(concrete, request, result, updated, utcNow, plan.Balances);
+			else _operations.CommitRepair(concrete, request, result, updated, utcNow, plan.Balances,
+				ConfirmProgress(treatment, repaired, remainingScar), treatment.Revision);
 			concrete.AdoptCommittedEnvironment(request.OperationId, updated, plan.Balances);
+			if (treatment is null) ScarStateChanged(cell);
 			CountWrite();
 			if (registration is not null)
 			{
@@ -84,5 +106,6 @@ public sealed partial class EnvironmentalMagicCoordinator
 			if (_registered.TryGetValue(cell.Id, out var registration)) Fault(registration, error, Now);
 			return Fail(error);
 		}
+		finally { _ecologicalMutations.Remove(cell.Id); }
 	}
 }

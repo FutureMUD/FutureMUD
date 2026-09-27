@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([switch]$LandOnly)
+param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$RefreshSnapshot)
 
 $ErrorActionPreference = 'Stop'
 
@@ -17,6 +17,7 @@ $serverLaunched = $false
 $reachable = $false
 $cleanupSucceeded = $false
 $runExit = 1
+$previousSnapshotConnection = $env:FUTUREMUD_SNAPSHOT_CONNECTION_STRING
 
 function Require-TemporaryRoot {
 	param([string]$Path)
@@ -83,7 +84,9 @@ try {
 		throw 'The owned MySQL instance could not be initialized.'
 	}
 
-	$serverArguments = "--no-defaults --basedir=`"C:\Program Files\MySQL\MySQL Server 8.0`" --datadir=`"$taskData`" --port=$taskPort --bind-address=127.0.0.1 --pid-file=`"$taskPidFile`" --log-error=`"$taskLog`" --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --mysqlx=0"
+	# A full snapshot refresh must preserve the maintained dump's database default.
+	$serverCollation = if ($RefreshSnapshot) { 'utf8mb4_0900_ai_ci' } else { 'utf8mb4_general_ci' }
+	$serverArguments = "--no-defaults --basedir=`"C:\Program Files\MySQL\MySQL Server 8.0`" --datadir=`"$taskData`" --port=$taskPort --bind-address=127.0.0.1 --pid-file=`"$taskPidFile`" --log-error=`"$taskLog`" --character-set-server=utf8mb4 --collation-server=$serverCollation --mysqlx=0"
 	Start-Process $mysqld -ArgumentList $serverArguments -WindowStyle Hidden | Out-Null
 	$serverLaunched = $true
 	$env:FUTUREMUD_GATHERING_TEST_CONNECTION = "Server=127.0.0.1;Port=$taskPort;User ID=root;Database=;SslMode=None;AllowPublicKeyRetrieval=True"
@@ -101,14 +104,32 @@ try {
 	if (-not $reachable) {
 		throw 'The owned MySQL instance did not become reachable.'
 	}
+	if ($RefreshSnapshot) {
+		$snapshotDatabase = 'fm_snap_' + [guid]::NewGuid().ToString('N')
+		$env:FUTUREMUD_SNAPSHOT_CONNECTION_STRING = "Server=127.0.0.1;Port=$taskPort;User ID=root;Database=$snapshotDatabase;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300"
+		$previousTemporaryDirectory = $env:TEMP
+		$previousTmpDirectory = $env:TMP
+		try {
+			# The snapshot helper's shared temporary subdirectory may belong to another Windows identity.
+			$env:TEMP = $taskRoot
+			$env:TMP = $taskRoot
+			& dotnet (Join-Path $workspaceRoot 'DatabaseSeeder\bin\Debug\net10.0\DatabaseSeeder.dll') --refresh-blank-snapshot
+			if ($LASTEXITCODE -ne 0) { throw 'The owned blank-snapshot refresh failed.' }
+		}
+		finally { $env:TEMP = $previousTemporaryDirectory; $env:TMP = $previousTmpDirectory }
+	}
 	& dotnet $harnessDll --probe
 	$runExit = $LASTEXITCODE
-	if (-not $LandOnly -and $runExit -eq 0) {
+	if (-not $LandOnly -and -not $RejuvenationOnly -and $runExit -eq 0) {
 		& dotnet $harnessDll --run
 		$runExit = $LASTEXITCODE
 	}
-	if ($runExit -eq 0) {
+	if ($runExit -eq 0 -and -not $RejuvenationOnly) {
 		& dotnet $harnessDll --land-run
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $RejuvenationOnly) {
+		& dotnet $harnessDll --rejuvenation-run
 		$runExit = $LASTEXITCODE
 	}
 	Write-Output "nativeHarnessExit=$runExit"
@@ -118,6 +139,7 @@ catch {
 	Write-Output "runnerFailure=$($_.Exception.Message)"
 }
 finally {
+	$env:FUTUREMUD_SNAPSHOT_CONNECTION_STRING = $previousSnapshotConnection
 	try {
 		if ($reachable) {
 			Stop-OwnedMySql $taskPort

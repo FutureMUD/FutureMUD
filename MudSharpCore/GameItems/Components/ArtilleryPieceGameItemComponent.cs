@@ -201,6 +201,12 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public bool CanPerform(ICharacter character, ArtilleryCrewAction action, out string reason)
 	{
+		if (action != ArtilleryCrewAction.Command &&
+		    !ItemManipulationGuard.CanManipulate(character, out reason, Parent))
+		{
+			return false;
+		}
+
 		PruneCrew();
 		if (!IsAssignedAndPresent(character))
 		{
@@ -314,6 +320,12 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public void Limber(ICharacter actor)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		if (!IsCrewedBy(actor) || LoadingStage != ArtilleryLoadingStage.Empty || AllContainedItems.Any()) return;
 		IsEmplaced = false;
 		IsReadied = false;
@@ -324,6 +336,12 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public void Emplace(ICharacter actor)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		if (!IsCrewedBy(actor)) return;
 		IsEmplaced = true;
 		Changed = true;
@@ -331,6 +349,11 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!IsOperationalFor(loader) || IsReadied || LoadingStage == ArtilleryLoadingStage.Primed ||
 			(UsesLinstock && !BlackPowderWeaponEnvironment.CanHandlePowder(loader))) return false;
 		var action = UsesFixedAmmunition
@@ -354,6 +377,11 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (!IsOperationalFor(loader)) return OperationalReason(loader);
 		if (IsReadied) return "The artillery piece is already ignition ready.";
 		if (LoadingStage == ArtilleryLoadingStage.Primed) return "The artillery loading drill is complete; ready the piece or unload it.";
@@ -396,6 +424,12 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			loader?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		if (!CanLoad(loader, ignoreEmpty, mode))
 		{
 			loader.Send(WhyCannotLoad(loader, ignoreEmpty, mode));
@@ -506,22 +540,42 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 			loader, Parent, primary ?? (IPerceivable)new DummyPerceivable("the required equipment"))));
 	}
 
-	public bool CanReady(ICharacter readier) => IsOperationalFor(readier) &&
+	public bool CanReady(ICharacter readier)
+	{
+		if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
+		return IsOperationalFor(readier) &&
 		LoadingStage == ArtilleryLoadingStage.Primed && !IsReadied &&
 		(!LoadedAmmunitionRequiresFuse() || _fuse is not null) &&
 		(!UsesLinstock || BlackPowderWeaponEnvironment.CanSustainOpenFlame(readier)) &&
 		CanPerform(readier, ArtilleryCrewAction.Prime, out _) &&
 		(!UsesLinstock || CreateTaggedPlan(readier, _prototype.LinstockTag, "linstock").PlanIsFeasible() == InventoryPlanFeasibility.Feasible);
-	public string WhyCannotReady(ICharacter readier) =>
-		!IsOperationalFor(readier) ? OperationalReason(readier) :
+	}
+	public string WhyCannotReady(ICharacter readier)
+	{
+		if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
+		return !IsOperationalFor(readier) ? OperationalReason(readier) :
 		LoadingStage != ArtilleryLoadingStage.Primed ? "The artillery drill must be completed before it can be readied." :
 		IsReadied ? "It is already primed and ready." :
 		LoadedAmmunitionRequiresFuse() && _fuse is null ? "The loaded shell or carcass needs a physical artillery fuse." :
 		UsesLinstock && !BlackPowderWeaponEnvironment.CanSustainOpenFlame(readier) ? "A linstock cannot remain lit here; it needs a gaseous atmosphere and reasonably dry weather." :
 		!UsesLinstock ? "The breech cannot be closed and locked." :
 		"You need a physical tool tagged as an artillery linstock.";
+	}
 	public bool Ready(ICharacter readier)
 	{
+		if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanReady(readier))
 		{
 			readier.Send(WhyCannotReady(readier));
@@ -561,15 +615,36 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		return true;
 	}
 
-	public bool CanUnload(ICharacter loader) => IsCrewedBy(loader) && !IsReadied &&
+	public bool CanUnload(ICharacter loader)
+	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
+		return IsCrewedBy(loader) && !IsReadied &&
 		(LoadingStage != ArtilleryLoadingStage.Empty || AllContainedItems.Any());
-	public string WhyCannotUnload(ICharacter loader) => !IsCrewedBy(loader)
+	}
+	public string WhyCannotUnload(ICharacter loader)
+	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
+		return !IsCrewedBy(loader)
 		? "You are not assigned to that artillery crew."
 		: IsReadied
 			? "Stand down the artillery piece from ignition readiness before unloading it."
 			: "The artillery piece is already empty.";
+	}
 	public IEnumerable<IGameItem> Unload(ICharacter loader)
 	{
+		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		{
+			return [];
+		}
+
 		if (!CanUnload(loader)) return [];
 		var items = AllContainedItems.Distinct().ToList();
 		_installedChamber = null;
@@ -591,22 +666,42 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		return items;
 	}
 
-	public bool CanFire(ICharacter actor, IPerceivable target) =>
-		IsOperationalFor(actor) && HasMinimumCrew && ReadyToFire &&
+	public bool CanFire(ICharacter actor, IPerceivable target)
+	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
+		return IsOperationalFor(actor) && HasMinimumCrew && ReadyToFire &&
 		(!UsesLinstock || BlackPowderWeaponEnvironment.CanSustainOpenFlame(actor)) &&
 		CanPerform(actor, ArtilleryCrewAction.Fire, out _) &&
 		(!UsesLinstock || CreateTaggedPlan(actor, _prototype.LinstockTag, "linstock").PlanIsFeasible() == InventoryPlanFeasibility.Feasible);
-	public string WhyCannotFire(ICharacter actor, IPerceivable target) =>
-		!IsOperationalFor(actor) ? OperationalReason(actor) :
+	}
+	public string WhyCannotFire(ICharacter actor, IPerceivable target)
+	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
+		return !IsOperationalFor(actor) ? OperationalReason(actor) :
 		!HasMinimumCrew ? $"That artillery piece requires at least {_prototype.MinimumCrew.ToString(actor)} active crew members." :
 		!ReadyToFire ? "The artillery piece is not ready to fire." :
 		UsesLinstock && !BlackPowderWeaponEnvironment.CanSustainOpenFlame(actor) ? "The ignition flame cannot burn in this atmosphere or precipitation." :
 		!CanPerform(actor, ArtilleryCrewAction.Fire, out var reason) ? reason :
 		!UsesLinstock ? "The artillery piece cannot fire its primer." :
 		"You need a physical tool tagged as an artillery linstock to fire the piece.";
+	}
 	public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome, OpposedOutcome defenseOutcome,
 		IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		if (!CanFire(actor, target))
 		{
 			actor.Send(WhyCannotFire(actor, target));

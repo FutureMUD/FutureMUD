@@ -1,4 +1,5 @@
-﻿using MudSharp.Commands.Trees;
+﻿using MudSharp.GameItems;
+using MudSharp.Commands.Trees;
 using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
@@ -157,6 +158,11 @@ public class RadioDetonatorTransmitterGameItemComponent : GameItemComponent, ICo
 
     public bool CanSelect(ICharacter character, string argument)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out _, Parent))
+		{
+			return false;
+		}
+
         StringStack ss = new(argument);
         string cmd = ss.PopSpeech();
         if (cmd.EqualTo("detonate"))
@@ -179,6 +185,11 @@ public class RadioDetonatorTransmitterGameItemComponent : GameItemComponent, ICo
 
     public bool Select(ICharacter character, string argument, IEmote playerEmote, bool silent = false)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         StringStack ss = new(argument);
         string cmd = ss.PopSpeech();
         if (cmd.EqualTo("detonate"))
@@ -215,6 +226,11 @@ public class RadioDetonatorTransmitterGameItemComponent : GameItemComponent, ICo
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         // TODO - more reasons why something couldn't be switched on or off
         return (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase) && !SwitchedOn) ||
                (setting.StartsWith("off", StringComparison.InvariantCultureIgnoreCase) && SwitchedOn)
@@ -223,6 +239,11 @@ public class RadioDetonatorTransmitterGameItemComponent : GameItemComponent, ICo
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase) && SwitchedOn)
         {
             return $"{Parent.HowSeen(actor)} is already on.";
@@ -252,6 +273,11 @@ public class RadioDetonatorTransmitterGameItemComponent : GameItemComponent, ICo
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             return false;
@@ -314,7 +340,6 @@ public class RadioDetonatorTransmitterGameItemComponent : GameItemComponent, ICo
 
         return description;
     }
-
 
     public override void Quit()
     {

@@ -31,6 +31,7 @@ public interface IMeasuringInstrument : IGameItemComponent
 	bool HasDeliberateBias { get; }
 	int UsesSinceCalibration { get; }
 	bool CanMeasure(IGameItem target, out string error);
+	bool CanMeasure(MudSharp.Character.ICharacter actor, IGameItem target, out string error);
 	MeasurementResult Measure(ICharacter actor, IGameItem target);
 	void Calibrate(ICharacter actor);
 	bool CalibrateWrong(ICharacter actor, double bias, bool percentageBias, out string error);

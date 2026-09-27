@@ -57,6 +57,7 @@ public partial class Cell
 		EnvironmentState = state;
 		_environmentStateChanged = true;
 		Changed = true;
+		if (state.ScarDamage == 0.0) Gameworld.EnvironmentalMagic?.ScarStateChanged(this);
 		return true;
 	}
 

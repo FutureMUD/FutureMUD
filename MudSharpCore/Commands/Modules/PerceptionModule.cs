@@ -464,6 +464,7 @@ The syntax is either:
         @"The look command is used to show you specific information about your character's surrounds, and has a few simple variants:
 
 To view your general surroundings: #3look#0
+To view the sky and visible celestial bodies: #3look sky#0
 To look at something in particular: #3look <thing>#0
 To look inside something: #3look in <thing>#0
 To look at something someone else has: #3look <person> <thing>#0
@@ -487,6 +488,32 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
         if (arg.Length == 0)
         {
             actor.Body.Look();
+            return;
+        }
+
+        if (arg.EqualTo("sky") && ss.IsFinished)
+        {
+            var celestials = actor.Location.Celestials.ToArray();
+            if (actor.Location.OutdoorsType(actor) is not (CellOutdoorsType.Outdoors or CellOutdoorsType.IndoorsWithWindows) ||
+                !(celestials.Any(x => actor.CanSee(x)) || celestials.Length == 0 && actor.CanSee(actor.Location)))
+            {
+                actor.OutputHandler.Send("You cannot see the sky from here.");
+                return;
+            }
+            if (actor.Location.CurrentWeather(actor)?.ObscuresViewOfSky == true)
+            {
+                actor.OutputHandler.Send("The weather obscures your view of the sky.");
+                return;
+            }
+            var sky = new StringBuilder(actor.Location.Zone.DescribeSky);
+            foreach (var celestial in celestials)
+            {
+                if (!actor.CanSee(celestial) || celestial is MudSharp.Celestial.Authored.AuthoredCelestial authored &&
+                    !authored.CanReceiveEcho(actor, MudSharp.Celestial.Authored.CelestialEchoAudience.BodyVisible)) continue;
+                sky.AppendLine();
+                sky.AppendLine(celestial.Describe(actor.Location.GetInfo(celestial)).Fullstop());
+            }
+            actor.OutputHandler.Send(sky.ToString());
             return;
         }
 

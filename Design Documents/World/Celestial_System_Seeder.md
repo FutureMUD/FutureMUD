@@ -10,6 +10,9 @@
 | `EarthSun` | `Sun` | Self-contained Earth-surface root sun |
 | `EarthMoonView` | `PlanetaryMoon`, `PlanetFromMoon`, `SunFromPlanetaryMoon` | Requires exactly one matching Earth-facing root sun |
 | `GasGiantMoonView` | `Sun`, `PlanetaryMoon`, `PlanetFromMoon`, `SunFromPlanetaryMoon` | Self-contained Jupiter/Ganymede package |
+| Authored examples | `RailSun`, `RailMoon`, `ScriptedSun`, `ScriptedMoon`, MorningStar and MorningGlow scripts | Optional, geography-independent examples; never automatically attached |
+
+The authored package uses `installauthored` (interactive default `no`) and `authoredcalendar`. Every Debug replay profile explicitly supplies both answers and installs the examples. Their JSON `SeederPreset` identities are stable: reruns insert only missing members, preserving existing IDs and builder changes. Clones made through the builder command clear ownership. Physical package detection and XML definitions are unchanged. See [Authored Celestials](Authored_Celestials.md) for clock units, illustrative lighting, source-byte limits and attachment commands.
 
 The seeder no longer emits or recognizes `OldSun` as a supported runtime target.
 

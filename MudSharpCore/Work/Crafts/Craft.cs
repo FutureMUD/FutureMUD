@@ -1200,6 +1200,13 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 
     public void BeginCraft(ICharacter character)
     {
+        var feasibility = CanDoCraft(character, null, true, false);
+        if (!feasibility.Success)
+        {
+            character.Send(feasibility.Error);
+            return;
+        }
+
         ActiveCraftGameItemComponent craftItem = ActiveCraftGameItemComponentProto.LoadActiveCraft(this);
         craftItem.Parent.RoomLayer = character.RoomLayer;
         craftItem.Parent.InsertAtSource(character);
@@ -1273,6 +1280,13 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 
     public void ResumeCraft(ICharacter character, IActiveCraftGameItemComponent active)
     {
+        var feasibility = CanResumeCraft(character, active);
+        if (!feasibility.Success)
+        {
+            character.Send(feasibility.Error);
+            return;
+        }
+
         ActiveCraftEffect effect = new(character)
         {
             Component = active
@@ -1684,7 +1698,6 @@ public class Craft : Framework.Revision.EditableItem, ICraft
         return false;
     }
 
-
     private bool BuildingCommandFailProductRemove(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
@@ -1770,7 +1783,6 @@ public class Craft : Framework.Revision.EditableItem, ICraft
             "You must either add a new product, delete an existing one, or specify the number of the product you want to edit.");
         return false;
     }
-
 
     private bool BuildingCommandProductRemove(ICharacter actor, StringStack command)
     {

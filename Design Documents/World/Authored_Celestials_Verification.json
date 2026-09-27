@@ -1,0 +1,1030 @@
+{
+  "feature": "Authored, Geography-Independent Celestials",
+  "status": "PASS",
+  "generatedUtc": "2026-09-26T13:18:17.822062+00:00",
+  "baselineHead": "666efc94a2065fb94ef75a1ffe6dd42359940c6c",
+  "workingTree": "Verified implementation prepared for publication on codex/authored-celestials",
+  "tests": [
+    {
+      "scope": "Core physical/authored/calendar/clock regression filter",
+      "runId": "20260926T105845Z-6db5108eebc6",
+      "status": "PASS",
+      "counts": {
+        "executed": 167,
+        "passed": 167,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 167
+      },
+      "project": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~Celestial|FullyQualifiedName~PlanetaryMoon|FullyQualifiedName~PlanetFromMoon|FullyQualifiedName~SunFromPlanetaryMoon|FullyQualifiedName~MudDate|FullyQualifiedName~Calendar|FullyQualifiedName~FutureProgDateTime|FullyQualifiedName~Clock",
+      "sourceFingerprint": "32e090bebbadaee944b43d715fd4acbb1da4f9f742ba410216ef7689474a1223",
+      "sourceStable": true,
+      "artifacts": ".artifacts/test-runs/20260926T105845Z-6db5108eebc6"
+    },
+    {
+      "scope": "Focused SeederReplayTests (included in full suite)",
+      "runId": "20260926T105956Z-a876346257e3",
+      "status": "PASS",
+      "counts": {
+        "executed": 9,
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 9
+      },
+      "project": [
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~SeederReplayTests",
+      "sourceFingerprint": "13dc3a6e518c2f5da628a62db7dad82d68dd9c3805696d870dde1430f7bcbf3b",
+      "sourceStable": true,
+      "artifacts": ".artifacts/test-runs/20260926T105956Z-a876346257e3"
+    },
+    {
+      "scope": "Full DatabaseSeeder suite",
+      "runId": "20260926T110043Z-1807195e5a5e",
+      "status": "PASS",
+      "counts": {
+        "executed": 1381,
+        "passed": 1381,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 1381
+      },
+      "project": [
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+      ],
+      "filter": null,
+      "sourceFingerprint": "13dc3a6e518c2f5da628a62db7dad82d68dd9c3805696d870dde1430f7bcbf3b",
+      "sourceStable": true,
+      "artifacts": ".artifacts/test-runs/20260926T110043Z-1807195e5a5e"
+    },
+    {
+      "scope": "Shared time/date filter",
+      "runId": "20260926T110355Z-8b9891b179f7",
+      "status": "PASS",
+      "counts": {
+        "executed": 23,
+        "passed": 23,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 23
+      },
+      "project": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~MudTimeFactory|FullyQualifiedName~DateUtilities|FullyQualifiedName~ItemTimeRate",
+      "sourceFingerprint": "d90a3e58596797e4fc38dc3a5897edd47f56ae08bd2aad6ddc8d11fada01e8d6",
+      "sourceStable": true,
+      "artifacts": ".artifacts/test-runs/20260926T110355Z-8b9891b179f7"
+    },
+    {
+      "scope": "Final authored rerun after nullable cleanup",
+      "runId": "20260926T110741Z-191c0527c467",
+      "status": "PASS",
+      "counts": {
+        "executed": 66,
+        "passed": 66,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 66
+      },
+      "project": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~AuthoredCelestial",
+      "sourceFingerprint": "9c04258f1412f9abe2b360eacf04f7dc63a322f9b492fa6c9325123184a17cab",
+      "sourceStable": true,
+      "artifacts": ".artifacts/test-runs/20260926T110741Z-191c0527c467"
+    },
+    {
+      "scope": "Full fast gate after LONGTEXT migration and snapshot refresh",
+      "runId": "20260926T120752Z-3c22adc97175",
+      "status": "PASS",
+      "counts": {
+        "executed": 5917,
+        "passed": 5917,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5917
+      },
+      "projects": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+      ],
+      "sourceFingerprint": "ef6f6860eda0ff502ebceb5a8ea5ee19e5f6820e44d87fedafadd1d60d8d2f8e",
+      "sourceStable": true,
+      "artifacts": ".artifacts/test-runs/20260926T120752Z-3c22adc97175"
+    },
+    {
+      "scope": "CI harness repair focused suite",
+      "runId": "20260926T123936Z-ac8deffdcba2",
+      "status": "PASS",
+      "counts": {
+        "executed": 18,
+        "passed": 18,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 18
+      },
+      "project": [
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+      ],
+      "filter": null,
+      "sourceFingerprint": "c25ebbf362c929673f7b6e5705120aca944dc036155a2398e536eda77f60c48e",
+      "sourceStable": true,
+      "artifacts": ".artifacts/test-runs/20260926T123936Z-ac8deffdcba2"
+    },
+    {
+      "scope": "Full fast gate after CI harness repair",
+      "runId": "20260926T124228Z-3e57de8bdd72",
+      "status": "PASS",
+      "counts": {
+        "executed": 5918,
+        "passed": 5918,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5918
+      },
+      "project": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+      ],
+      "filter": null,
+      "sourceFingerprint": "2320b4c590dd616f2a1f6f7031a5d41abe8ccd06b72b00d419b7383638589f16",
+      "sourceStable": true,
+      "artifacts": ".artifacts/test-runs/20260926T124228Z-3e57de8bdd72"
+    },
+    {
+      "scope": "Network workflow suite after CI test synchronization repair",
+      "runId": "20260926T131313Z-0406b777a363",
+      "status": "PASS",
+      "counts": {
+        "executed": 18,
+        "passed": 18,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 18
+      },
+      "project": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~NetworkWorkflowTests",
+      "sourceFingerprint": "773b5aab7b2e64388b129f21c5c212695b94faa9e2f1faad11e45e04422775d3",
+      "sourceStable": true,
+      "artifacts": ".artifacts/test-runs/20260926T131313Z-0406b777a363"
+    }
+  ],
+  "release": {
+    "status": "PASS",
+    "warnings": 3,
+    "errors": 0,
+    "log": "schema-seeder-release.log"
+  },
+  "cleanupUnitTests": {
+    "status": "PASS",
+    "executed": 3,
+    "log": "cleanup-tests.log"
+  },
+  "fixtures": {
+    "count": 14,
+    "sha256": "f49e8c13bd27c5ddd38e7cf2c26d2cea6b09168bfdfb9271c6254ca59838e0ce",
+    "attachmentUnchanged": true,
+    "cases": [
+      {
+        "id": "R1",
+        "name": "Overhead rail",
+        "status": "PASS"
+      },
+      {
+        "id": "R2",
+        "name": "South-tilted rail",
+        "status": "PASS"
+      },
+      {
+        "id": "R3",
+        "name": "Non-opposite bearings, true small circle",
+        "status": "PASS"
+      },
+      {
+        "id": "S1",
+        "name": "Visible Morning Star, elevation-only dawn",
+        "status": "PASS"
+      },
+      {
+        "id": "S2",
+        "name": "Below-horizon Morning Star, glow only",
+        "status": "PASS"
+      },
+      {
+        "id": "S3",
+        "name": "Rapid jumps and multiple events",
+        "status": "PASS"
+      },
+      {
+        "id": "H1",
+        "name": "Crossing with horizon plateaux",
+        "status": "PASS"
+      },
+      {
+        "id": "H2",
+        "name": "Horizon touch and retreat",
+        "status": "PASS"
+      },
+      {
+        "id": "H3",
+        "name": "Permanent horizon",
+        "status": "PASS"
+      },
+      {
+        "id": "M1",
+        "name": "Daily rail moon, independent 28-day phase",
+        "status": "PASS"
+      },
+      {
+        "id": "M2",
+        "name": "Authored phase with full and new holds",
+        "status": "PASS"
+      },
+      {
+        "id": "M3",
+        "name": "Phase jumps skip intermediates but landing is an event",
+        "status": "PASS"
+      },
+      {
+        "id": "C1",
+        "name": "20 x 80 x 100 clock",
+        "status": "PASS"
+      },
+      {
+        "id": "A1",
+        "name": "Independent synthetic annual angle",
+        "status": "PASS"
+      }
+    ],
+    "exactByteRecheck": {
+      "status": "PASS",
+      "passed": 14,
+      "failed": 0,
+      "report": "exact-fixture-recheck/fixtures.trx",
+      "reason": "Restored attachment LF bytes after Windows Git checkout; JSON values unchanged; -text attribute now preserves the supplied bytes."
+    }
+  },
+  "native": {
+    "status": "PASS",
+    "run": "eff91c3a",
+    "assertions": 141,
+    "transcript": "run-9a3180ec1fa0/smoke-eff91c3a/transcript.txt",
+    "receipt": "smoke-latest.json",
+    "objects": {
+      "Sun": {
+        "id": 15,
+        "name": "QAeff91c3aSun"
+      },
+      "Moon": {
+        "id": 16,
+        "name": "QAeff91c3aMoon"
+      },
+      "Scripted": {
+        "id": 17,
+        "name": "QAeff91c3aScripted"
+      },
+      "FixedMoon": {
+        "id": 18,
+        "name": "QAeff91c3aFixedMoon"
+      }
+    },
+    "replay": "native-replay.json",
+    "completedSeeders": 30,
+    "nonblankRefusalDigestBefore": "98EB3B62094397FE995F9D81971BF55D5CB8D18E308009B7A38FFAAFB8B93045",
+    "nonblankRefusalDigestAfter": "98EB3B62094397FE995F9D81971BF55D5CB8D18E308009B7A38FFAAFB8B93045",
+    "cleanup": {
+      "mysqlStopped": true,
+      "dataPreserved": ".artifacts/authored-celestials/run-9a3180ec1fa0/mysql/data"
+    }
+  },
+  "performance": [
+    {
+      "operation": "evaluate",
+      "name": "small rail",
+      "nanoseconds": 303.223,
+      "allocatedBytes": 0,
+      "calls": 100000,
+      "compileMilliseconds": 0.1387,
+      "StoredEntries": 6,
+      "checksum": 27780530
+    },
+    {
+      "operation": "nth event",
+      "name": "small rail",
+      "rank": 1,
+      "nanoseconds": 261.276,
+      "allocatedBytes": 0,
+      "calls": 100000,
+      "status": "Found"
+    },
+    {
+      "operation": "nth event",
+      "name": "small rail",
+      "rank": 1000,
+      "nanoseconds": 257.308,
+      "allocatedBytes": 0,
+      "calls": 100000,
+      "status": "Found"
+    },
+    {
+      "operation": "nth event",
+      "name": "small rail",
+      "rank": 1000000,
+      "nanoseconds": 256.48,
+      "allocatedBytes": 0,
+      "calls": 100000,
+      "status": "Found"
+    },
+    {
+      "operation": "evaluate",
+      "name": "long sparse",
+      "nanoseconds": 299.812,
+      "allocatedBytes": 0,
+      "calls": 100000,
+      "compileMilliseconds": 0.6083,
+      "StoredEntries": 25,
+      "checksum": 606760
+    },
+    {
+      "operation": "nth event",
+      "name": "long sparse",
+      "rank": 1,
+      "nanoseconds": 257.416,
+      "allocatedBytes": 0,
+      "calls": 100000,
+      "status": "Found"
+    },
+    {
+      "operation": "nth event",
+      "name": "long sparse",
+      "rank": 1000,
+      "nanoseconds": 310.505,
+      "allocatedBytes": 0,
+      "calls": 100000,
+      "status": "Found"
+    },
+    {
+      "operation": "nth event",
+      "name": "long sparse",
+      "rank": 1000000,
+      "nanoseconds": 271.695,
+      "allocatedBytes": 0,
+      "calls": 100000,
+      "status": "Found"
+    },
+    {
+      "operation": "evaluate",
+      "name": "dense 40000",
+      "nanoseconds": 157.313,
+      "allocatedBytes": 0,
+      "calls": 100000,
+      "compileMilliseconds": 152.1989,
+      "StoredEntries": 40004,
+      "checksum": 30137054.13525136
+    },
+    {
+      "operation": "nth event",
+      "name": "dense 40000",
+      "rank": 1,
+      "nanoseconds": 268.966,
+      "allocatedBytes": 0,
+      "calls": 100000,
+      "status": "Found"
+    },
+    {
+      "operation": "nth event",
+      "name": "dense 40000",
+      "rank": 1000,
+      "nanoseconds": 268.288,
+      "allocatedBytes": 0,
+      "calls": 100000,
+      "status": "Found"
+    },
+    {
+      "operation": "nth event",
+      "name": "dense 40000",
+      "rank": 1000000,
+      "nanoseconds": 279.608,
+      "allocatedBytes": 0,
+      "calls": 100000,
+      "status": "Found"
+    },
+    {
+      "operation": "live fanout with clock and mutable wrappers",
+      "zones": 1,
+      "milliseconds": 0.1164,
+      "allocatedBytes": 83520,
+      "updates": 60,
+      "intrinsicEvaluations": 60
+    },
+    {
+      "operation": "live fanout with clock and mutable wrappers",
+      "zones": 100,
+      "milliseconds": 0.3384,
+      "allocatedBytes": 368640,
+      "updates": 60,
+      "intrinsicEvaluations": 60
+    },
+    {
+      "operation": "live fanout with clock and mutable wrappers",
+      "zones": 1000,
+      "milliseconds": 2.5815,
+      "allocatedBytes": 2960640,
+      "updates": 60,
+      "intrinsicEvaluations": 60
+    }
+  ],
+  "unchangedContracts": [
+    "No authored time-of-day track",
+    "Existing first-eligible zone authority and thresholds",
+    "Physical ephemeris route and numerical golden values",
+    "Existing celestial IDs, XML/JSON contents and charset/collation preserved by widening"
+  ],
+  "limitations": [
+    "Source guard defaults to 16 MiB; configured limits and MySQL packet/memory limits still apply.",
+    "Schema rollback requires every definition to fit the former 65535-byte TEXT capacity.",
+    "Performance numbers are earlier Debug observations, not timing acceptance thresholds.",
+    "Full 141-assertion Telnet scenario predates the schema follow-up; forward upgrade and dense reload were separately exercised afterward.",
+    "Fanout uses runtime subscriptions/wrappers; native gameplay uses one disposable zone and an Admin avatar.",
+    "Blindness/weather rejection is covered by runtime perception-contract tests.",
+    "Native provisioning is Windows/MySQL 8 specific; POSIX native execution, full solution/VSIX build and production deployment not run.",
+    "Hosted CI status is reported separately on the PR; local success is not hosted CI evidence."
+  ],
+  "history": [
+    {
+      "runId": "20260926T094026Z-5fe749d0b6f1",
+      "status": "FAIL",
+      "counts": {
+        "executed": 16,
+        "passed": 15,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 16
+      },
+      "superseded": true
+    },
+    {
+      "runId": "20260926T095732Z-25d34cc0c93e",
+      "status": "FAIL",
+      "counts": null,
+      "superseded": true
+    },
+    {
+      "runId": "20260926T100615Z-ae2e7376d6a8",
+      "status": "FAIL",
+      "counts": null,
+      "superseded": true
+    },
+    {
+      "runId": "20260926T101032Z-5670b3ec06a8",
+      "status": "FAIL",
+      "counts": null,
+      "superseded": true
+    },
+    {
+      "runId": "20260926T101812Z-0e08afdead23",
+      "status": "FAIL",
+      "counts": null,
+      "superseded": true
+    },
+    {
+      "runId": "20260926T101924Z-50aaefdad94f",
+      "status": "PASS",
+      "counts": {
+        "executed": 58,
+        "passed": 58,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 58
+      },
+      "superseded": true
+    },
+    {
+      "runId": "20260926T102959Z-a221d58e5604",
+      "status": "FAIL",
+      "counts": {
+        "executed": 62,
+        "passed": 61,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 62
+      },
+      "superseded": true
+    },
+    {
+      "runId": "20260926T103303Z-e4ed04aa03c6",
+      "status": "FAIL",
+      "counts": {
+        "executed": 165,
+        "passed": 103,
+        "failed": 62,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 165
+      },
+      "superseded": true
+    },
+    {
+      "runId": "20260926T103854Z-08690786b463",
+      "status": "NOT_RUN",
+      "reason": "Reporter stalled before source fingerprint/build on Git stderr pipe; owned process stopped. Retried with process-local core.safecrlf=false.",
+      "superseded": true
+    },
+    {
+      "runId": "20260926T115024Z-7c1eef252245",
+      "status": "FAIL",
+      "counts": {
+        "executed": 5852,
+        "passed": 5851,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5852
+      },
+      "superseded": true,
+      "reason": "Existing TitleCase apostrophe regression and inconsistent prose assertion repaired before final full gate."
+    }
+  ],
+  "nativeHistory": [
+    {
+      "run": "smoke-1fb485a5",
+      "status": "FAIL",
+      "error": "celestial save: Saved and silently activated"
+    },
+    {
+      "run": "smoke-26363f16",
+      "status": "FAIL",
+      "error": "look sky: QA26363f16Sun.*rising.*QA26363f16FixedMoon.*stationary.*full"
+    },
+    {
+      "run": "smoke-9f6a6d6d",
+      "status": "FAIL",
+      "error": "celestial event fullmoon 0: NoOccurrence|Unsupported"
+    },
+    {
+      "run": "smoke-a38303d4",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "run": "smoke-bde440b4",
+      "status": "FAIL",
+      "error": "public moonphase value: Executing qabde440b4phase (#3939) with the following parameters:\n\n  Location loc: The Guest Lounge [#1]\n\n================================================================\nIt returned New.\nIt took approximately 843,800 nanoseconds to execute.\n\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+    }
+  ],
+  "binaries": [
+    {
+      "path": "MudSharpCore/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "48cba69824ad5d2626d06d3f10b3c53c53e7203f5eb0b24ef839d3a48aa2b56d"
+    },
+    {
+      "path": "FutureMUDLibrary/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "37b532143378c5b2eb85431063eee1e8ec4381d25a10a8dabbd1e9bab4be3062"
+    },
+    {
+      "path": "DatabaseSeeder/bin/Release/net10.0/DatabaseSeeder.dll",
+      "sha256": "8fd2680c9b73fa3183c2981dc0609c3d3501046c9bc6c0e4ad0a8d2c7dc86afe"
+    }
+  ],
+  "changedFileManifest": ".artifacts/authored-celestials/changed-files.json",
+  "originalBaselineHead": "cdf6f79997cc7b5081e51ceee2e1c45cf6adc39a",
+  "persistence": {
+    "status": "PASS",
+    "migration": "20260926115932_WidenCelestialDefinition",
+    "modelParity": "No pending model changes (EF tool 9.0.11)",
+    "migrationGenerated": true,
+    "columnBefore": "text",
+    "columnAfter": "longtext",
+    "existingRowsPreserved": 19,
+    "storedByteHashesPreserved": true,
+    "denseRows": [
+      {
+        "Id": 20,
+        "Samples": 1440,
+        "SourceBytes": 205062,
+        "DefinitionHash": "0AB3EF641D70080AD4C69FA7025A39CC979919DF276D40D461C45F9FB5D709A5"
+      },
+      {
+        "Id": 21,
+        "Samples": 40000,
+        "SourceBytes": 5730585,
+        "DefinitionHash": "37DCD2684F291DD2EE35CE7553D53E54664645ED75D7C22DAD687D9296138B09"
+      },
+      {
+        "Id": 22,
+        "Samples": 40320,
+        "SourceBytes": 5776680,
+        "DefinitionHash": "1F18C293962CE786C1EB36A1506ECA8A11AD387EF7E39A23FDF4232B80ECDF34"
+      }
+    ],
+    "mysqlRestartReload": true,
+    "fullSnapshotRefresh": true,
+    "snapshotImport": {
+      "status": "PASS",
+      "columnType": "longtext",
+      "latestMigration": "20260926115932_WidenCelestialDefinition",
+      "pendingMigrations": 0,
+      "celestialRows": 0,
+      "snapshotSha256": "9ECE6704EC16CD4C9874E6F096C7951A4FC8CF87C93FC2ACAFC4FDDE44037757"
+    },
+    "mysqlStopped": true,
+    "artifactDirectory": "persistence-1e14b217648f",
+    "focusedChecksIncludedInFastGate": 81,
+    "appliedMigrations": [
+      "20260926094429_LandRejuvenationTreatments",
+      "20260926115932_WidenCelestialDefinition"
+    ]
+  },
+  "review": "Read-only focused review of the persistence follow-up found no actionable defects. Read-only review of the CI harness correction found no actionable defects.",
+  "followupDevelopmentHistory": [
+    "Initial EF tool download was blocked in sandbox; pinned 9.0.11 installation succeeded with escalation.",
+    "Harness compilation initially rejected three bare returns; corrected to return 0 and rebuilt successfully.",
+    "Bundled Python needed an explicit local import path before starting MySQL; corrected and rerun.",
+    "Current master gained LandRejuvenationTreatments. The unpublished celestial migration was regenerated against the combined model, then upgrade/snapshot proof repeated in a new instance from the preserved pre-upgrade backup.",
+    "The first full fast gate found an existing TitleCase apostrophe bug. Internal apostrophes now stay within words; a contradictory sentence-case assertion was corrected to the established title-case contract. Opening single-quote coverage was added. The focused case passed before the final gate.",
+    "Fresh backup import initially required an empty database because MySqlBackup.NET emits unconditional DROP DATABASE. The wrapper now creates that empty target only in its new isolated instance; the complete repeat passed.",
+    "Final artifact checking caught CRLF conversion of the fixture by Windows Git checkout. Parsed JSON was identical; restored the original attachment bytes, pinned -text and reran all 14 fixtures successfully. No numerical source or production behavior changed after the full fast gate.",
+    "Initial hosted Linux and Windows checks failed in the existing test-reporting harness. Their logs are preserved. Cross-platform locking and synchronous-pipe scheduling were repaired, with focused and full local gates rerun; hosted results are reported separately on the PR.",
+    "After both hosted PR gates passed at 592474df, the duplicate Windows push check exposed a pre-existing networking-test enqueue/readability race. Only test synchronization was corrected; the production transport and its assertions remain unchanged."
+  ],
+  "ciHarnessFollowUp": {
+    "initialHead": "b62c1140395986dba874554a45cafcb71efdadc2",
+    "initialHostedStatus": "FAIL",
+    "initialHostedRuns": [
+      36241467061,
+      36241477442
+    ],
+    "initialFailures": [
+      "Unix cooperative ownership was not exclusive",
+      "Windows parallel output drains exhausted their budget",
+      "Healthy fake reporter scenarios exceeded their 3-second budget"
+    ],
+    "fixes": [
+      "Exclusive cross-platform FileShare.None ownership with readable owner sidecar",
+      "Dedicated readers for synchronous Windows process pipes; drain failure still fails closed",
+      "30-second healthy fixture budget, unchanged 3-second deliberate timeout",
+      "Eight concurrent hosts verify both 200KB streams and complete tails; lock release verified"
+    ],
+    "localStatus": "PASS",
+    "focusedRunId": "20260926T123936Z-ac8deffdcba2",
+    "fastRunId": "20260926T124228Z-3e57de8bdd72",
+    "productionCelestialChanges": false,
+    "hostedStatus": "Reported separately on the pull request at the published commit"
+  },
+  "networkTestFollowUp": {
+    "productionChanges": false,
+    "cause": "The advisory incoming count includes a producer before channel publication; fixed attempt count could assert before all deliveries.",
+    "fix": "Pump until all 24 callbacks arrive within the existing deadline; exact complete ordered collection assertion retained.",
+    "priorHostedPrStatus": "PASS: both platforms, 5918 each at 592474df",
+    "priorPushWindowsStatus": "FAIL: intermittent PlayerConnection_InputBackpressurePreservesEveryCommandInOrder at 592474df",
+    "focusedRunId": "20260926T131313Z-0406b777a363",
+    "repeatedExecution": {
+      "head_before": "592474df50badba80abdbb05fa18b6c1b7ea2834",
+      "head_after": "592474df50badba80abdbb05fa18b6c1b7ea2834",
+      "source": "MudSharpCore Unit Tests/NetworkWorkflowTests.cs",
+      "source_sha256_before": "BFA515852E3E4870349DD12869E9CDC574F90EF789F1345353FD68AB9D8D57B2",
+      "source_sha256_after": "BFA515852E3E4870349DD12869E9CDC574F90EF789F1345353FD68AB9D8D57B2",
+      "source_stable": true,
+      "requested_repetitions": 20,
+      "completed_repetitions": 20,
+      "passed_repetitions": 20,
+      "stopped_on_failure": false,
+      "started_utc": "2026-09-26T13:16:52.7361916Z",
+      "ended_utc": "2026-09-26T13:17:16.7845189Z",
+      "receipts": [
+        {
+          "iteration": 1,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:16:52.7424333Z",
+          "ended_utc": "2026-09-26T13:16:53.9294721Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-01/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-01/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 2,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:16:53.9809958Z",
+          "ended_utc": "2026-09-26T13:16:55.2302365Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-02/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-02/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 3,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:16:55.2373985Z",
+          "ended_utc": "2026-09-26T13:16:56.4192318Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-03/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-03/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 4,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:16:56.4275718Z",
+          "ended_utc": "2026-09-26T13:16:57.6162241Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-04/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-04/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 5,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:16:57.6196895Z",
+          "ended_utc": "2026-09-26T13:16:58.8207146Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-05/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-05/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 6,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:16:58.8239451Z",
+          "ended_utc": "2026-09-26T13:16:59.9741013Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-06/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-06/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 7,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:16:59.9771418Z",
+          "ended_utc": "2026-09-26T13:17:01.1805172Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-07/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-07/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 8,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:01.1838478Z",
+          "ended_utc": "2026-09-26T13:17:02.3817458Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-08/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-08/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 9,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:02.3850039Z",
+          "ended_utc": "2026-09-26T13:17:03.5772521Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-09/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-09/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 10,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:03.5804467Z",
+          "ended_utc": "2026-09-26T13:17:04.7423426Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-10/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-10/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 11,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:04.7455434Z",
+          "ended_utc": "2026-09-26T13:17:05.9882825Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-11/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-11/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 12,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:05.9913142Z",
+          "ended_utc": "2026-09-26T13:17:07.1525849Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-12/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-12/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 13,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:07.1555798Z",
+          "ended_utc": "2026-09-26T13:17:08.3717029Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-13/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-13/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 14,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:08.3749629Z",
+          "ended_utc": "2026-09-26T13:17:09.5769472Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-14/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-14/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 15,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:09.5800211Z",
+          "ended_utc": "2026-09-26T13:17:10.8027900Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-15/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-15/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 16,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:10.8055947Z",
+          "ended_utc": "2026-09-26T13:17:11.9718118Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-16/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-16/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 17,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:11.9749257Z",
+          "ended_utc": "2026-09-26T13:17:13.1647303Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-17/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-17/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 18,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:13.1676757Z",
+          "ended_utc": "2026-09-26T13:17:14.3442047Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-18/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-18/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 19,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:14.3472672Z",
+          "ended_utc": "2026-09-26T13:17:15.5684157Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-19/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-19/dotnet-test.log",
+          "failure_details": []
+        },
+        {
+          "iteration": 20,
+          "status": "PASS",
+          "dotnet_exit": 0,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0,
+          "started_utc": "2026-09-26T13:17:15.5711908Z",
+          "ended_utc": "2026-09-26T13:17:16.7437434Z",
+          "trx": ".artifacts/authored-celestials/network-ci-fix/repeat-20/results/results.trx",
+          "log": ".artifacts/authored-celestials/network-ci-fix/repeat-20/dotnet-test.log",
+          "failure_details": []
+        }
+      ]
+    },
+    "finalHostedStatus": "See pull request and local publication receipt at the final commit."
+  }
+}

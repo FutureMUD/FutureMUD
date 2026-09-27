@@ -1,4 +1,5 @@
-﻿using MudSharp.GameItems.Prototypes;
+﻿using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
 
@@ -159,6 +160,11 @@ public class FuseGameItemComponent : GameItemComponent, ILightable
 
     public bool CanLight(ICharacter lightee, IPerceivable ignitionSource)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out _, Parent))
+		{
+			return false;
+		}
+
         if (!(Parent.Location?.CanGetAccess(Parent, lightee) ?? true))
         {
             return false;
@@ -169,6 +175,11 @@ public class FuseGameItemComponent : GameItemComponent, ILightable
 
     public string WhyCannotLight(ICharacter lightee, IPerceivable ignitionSource)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!(Parent.Location?.CanGetAccess(Parent, lightee) ?? true))
         {
             return Parent.Location.WhyCannotGetAccess(Parent, lightee);
@@ -184,6 +195,11 @@ public class FuseGameItemComponent : GameItemComponent, ILightable
 
     public bool Light(ICharacter lightee, IPerceivable ignitionSource, IEmote playerEmote)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanLight(lightee, ignitionSource))
         {
             lightee.Send(WhyCannotLight(lightee, ignitionSource));
@@ -199,6 +215,11 @@ public class FuseGameItemComponent : GameItemComponent, ILightable
 
     public bool CanExtinguish(ICharacter lightee)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out _, Parent))
+		{
+			return false;
+		}
+
         if (!(Parent.Location?.CanGetAccess(Parent, lightee) ?? true))
         {
             return false;
@@ -214,6 +235,11 @@ public class FuseGameItemComponent : GameItemComponent, ILightable
 
     public string WhyCannotExtinguish(ICharacter lightee)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (!(Parent.Location?.CanGetAccess(Parent, lightee) ?? true))
         {
             return Parent.Location.WhyCannotGetAccess(Parent, lightee);
@@ -235,6 +261,11 @@ public class FuseGameItemComponent : GameItemComponent, ILightable
 
     public bool Extinguish(ICharacter lightee, IEmote playerEmote)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanExtinguish(lightee))
         {
             lightee.Send(WhyCannotExtinguish(lightee));

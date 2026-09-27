@@ -1031,14 +1031,7 @@ The syntax is:
                     return;
                 }
 
-                if (targetItem.DropsWholeByWeight(amount))
-                {
-                    actor.Body.Get(targetItem, containerItem, 0, emote);
-                    return;
-                }
-
-                IGameItem item = targetItem.GetByWeight(actor.Body, amount);
-                actor.Body.Get(item, containerItem, 0, emote, false, ItemCanGetIgnore.IgnoreInContainer);
+                actor.Body.GetByWeight(targetItem, containerItem, amount, emote);
             }
             else if (match.Success)
             {
@@ -1088,14 +1081,7 @@ The syntax is:
                     return;
                 }
 
-                if (targetItem.DropsWholeByWeight(amount))
-                {
-                    actor.Body.Get(targetItem, 0, emote);
-                    return;
-                }
-
-                IGameItem item = targetItem.GetByWeight(actor.Body, amount);
-                actor.Body.Get(item, 0, emote);
+                actor.Body.GetByWeight(targetItem, amount, emote);
             }
             else if (match.Success)
             {

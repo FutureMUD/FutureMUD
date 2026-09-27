@@ -4,6 +4,12 @@
 
 This document records the current runtime behavior of the legal authority, sentencing, and patrol systems. It is intended as a builder-facing and implementer-facing reference for the coded law system rather than a setting-specific legal guide.
 
+## Physical access and lawful transfers
+
+Physical capability and reach checks do not record crimes. Item-specific `CanTake` restrictions and existing action-specific crime handling remain authoritative. Currency collection filters actual source piles consistently for feasibility and execution. Quantity and weight collection validate the original source, including pickup reservations, before transfer; actorful `Empty` preflights all contents before mutation. A split or batch cannot bypass a closed or lawfully restricted source.
+
+Splits preserve `ItemOnDisplayInShop` for existing shoplifting hooks. Shop split and merge notifications preserve the stock index without recording newly acquired or lost goods. Stock loss values the portion removed and preserves the count of a residual commodity pile; purchases reconcile the actual number of indexed piles removed. Covert transfers retain their intentional consent bypass and crime handling; ordinary manipulation still requires the inventory owner's permission. This audit does not introduce new crime categories. See [the full ledger](../Items/Physical_Manipulation_Audit.md).
+
 ## Automatic Crime Application
 
 Automatic enforcement is opt-in per law. A law only applies from coded hooks when `law auto` is enabled, the offender and victim legal-class filters pass, and the optional law prog returns true. `law repeat` controls whether repeated automatic applications against the same law, target, object, and location are suppressed for the short repeat window. Violent victim-targeted automatic crimes are additionally treated as encounter repeats for the same offender and victim during that window, so a single fight does not create fresh assault or grievous-bodily-harm counts for every blow, weapon, or room transition.

@@ -34,3 +34,4 @@ MudSharp/bin/*
 /.artifacts/live_exposure.py
 /.artifacts/tools/
 /.artifacts/__pycache__/
+/.artifacts/authored-celestials/

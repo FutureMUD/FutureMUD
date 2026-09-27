@@ -96,6 +96,11 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         if (Magazine != null)
         {
             return false;
@@ -114,6 +119,11 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         if (Magazine != null)
         {
             return
@@ -182,6 +192,12 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            loader?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
         if (!CanLoad(loader))
         {
             loader.Send(WhyCannotLoad(loader));
@@ -212,11 +228,21 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override bool CanUnload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         return Magazine != null;
     }
 
     public override string WhyCannotUnload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         if (Magazine == null)
         {
             return $"{Parent.HowSeen(loader, true)} is already unloaded.";
@@ -227,6 +253,11 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override IEnumerable<IGameItem> Unload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return [];
+        }
+
         if (!CanUnload(loader))
         {
             loader.Send(WhyCannotUnload(loader));
@@ -253,11 +284,21 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override bool CanFire(ICharacter actor, IPerceivable target)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         return true;
     }
 
     public override string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         throw new ApplicationException("Guns should always be able to fire.");
     }
 

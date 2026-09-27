@@ -131,6 +131,13 @@ public class Binding : CharacterActionWithTarget, IAffectProximity
 
     public override void ExpireEffect()
     {
+        if (!CharacterOwner.CanPerformManualAction(out var manualReason))
+        {
+            CharacterOwner.Send(manualReason);
+            Owner.RemoveEffect(this, true);
+            return;
+        }
+
         List<IWound> wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
                                     .Where(x => x.BleedStatus == BleedStatus.Bleeding)
                                     .ToList();

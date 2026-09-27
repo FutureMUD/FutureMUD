@@ -343,7 +343,7 @@ internal static partial class GNHProgram
 	}
 
 	private static void RunLandActionPersistenceProbe(string databaseName, string connectionString, FixtureIds actorFixture,
-		FixtureIds gentleFixture, long fieldId, long profileId, long environmentalResourceId)
+		FixtureIds gentleFixture, long fieldId, long profileId, long environmentalResourceId, bool rejuvenation = false)
 	{
 		using (var authoring = NewIndependentContext(connectionString))
 		{
@@ -356,7 +356,7 @@ internal static partial class GNHProgram
 			method.SetAttributeValue("damage", 0.0);
 			method.SetAttributeValue("pain", 0.0);
 			method.SetAttributeValue("stun", 0.0);
-			method.Add(new XElement("Land", new XAttribute("damage", 1.0),
+			method.Add(new XElement("Land", new XAttribute("damage", rejuvenation ? 20.0 : 1.0),
 				new XElement("Source", new XAttribute("key", Guid.NewGuid()),
 					new XAttribute("selector", "crop"), new XAttribute("ratio", 0.25)),
 				new XElement("Source", new XAttribute("key", Guid.NewGuid()),
@@ -445,7 +445,9 @@ internal static partial class GNHProgram
 		var fields = new All<IAgricultureField>();
 		world.SetupGet(x => x.AgricultureFields).Returns(fields);
 		world.SetupGet(x => x.HeartbeatManager).Returns(new HeartbeatManager(world.Object));
-		using var coordinator = new EnvironmentalMagicCoordinator(world.Object);
+		var treatmentClock = rejuvenation ? new HarnessClock() : null;
+		var repairStore = rejuvenation ? new RejuvenationAcceptanceStore() : null;
+		using var coordinator = new EnvironmentalMagicCoordinator(world.Object, treatmentClock, operations: repairStore);
 		world.SetupGet(x => x.EnvironmentalMagic).Returns(coordinator);
 		var field = new AgricultureField(fieldModel, world.Object);
 		fields.Add(field);
@@ -462,6 +464,12 @@ internal static partial class GNHProgram
 		MagicGatheringResult completed = service.Complete(actorRuntime.Actor, operationId);
 		Require(completed.Success,
 			$"L-P01 native Land action did not complete: {completed.Message}; receipt {new MagicGatheringReceiptStore().Operation(operationId)?.Diagnostic}");
+		if (rejuvenation)
+		{
+			RunRejuvenationSpellProbes(databaseName, connectionString, actorFixture, actorRuntime, cell, field,
+				environmentalProfile, coordinator, treatmentClock!, repairStore!, operationId);
+			return;
+		}
 		using var independent = NewIndependentContext(connectionString);
 		Db.MagicGatheringOperation parent = independent.MagicGatheringOperations.AsNoTracking()
 			.Single(x => x.Id == operationId);

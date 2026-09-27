@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+﻿using MudSharp.GameItems;
+using MudSharp.Body;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Form.Characteristics;
@@ -170,6 +171,11 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
 
     public bool CanWrite(ICharacter character, IWritingImplement implement, IWriting writing)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, implement.Parent))
+		{
+			return false;
+		}
+
         if (Parent.Quantity > 1)
         {
             return false;
@@ -202,6 +208,11 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
 
     public string WhyCannotWrite(ICharacter character, IWritingImplement implement, IWriting writing)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, implement.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (Parent.Quantity > 1)
         {
             return "You must separate a single sheet of paper from the stack in order to write on it.";
@@ -234,6 +245,12 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
 
     public bool Write(ICharacter character, IWritingImplement implement, IWriting writing)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, implement.Parent))
+		{
+			character.OutputHandler.Send(manipulationReason);
+			return false;
+		}
+
         if (!CanWrite(character, implement, writing))
         {
             character.Send(WhyCannotWrite(character, implement, writing));
@@ -256,17 +273,32 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
 
     public string WhyCannotGiveTitle(ICharacter character, string title)
     {
+        if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         throw new ApplicationException(
             "PaperSheetGameItemComponent had WhyCannotGiveTitle called - which is an invalid operation.");
     }
 
     public bool CanGiveTitle(ICharacter character, string title)
     {
+        if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         return true;
     }
 
     public bool GiveTitle(ICharacter character, string title)
     {
+        if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         Title = title;
         Changed = true;
         return true;
@@ -304,6 +336,11 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
     /// <returns>True if the character can draw on the proposed writeable in the proposed way</returns>
     public bool CanDraw(ICharacter character, IWritingImplement implement, IDrawing drawing)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, implement.Parent))
+		{
+			return false;
+		}
+
         if (Parent.Quantity > 1)
         {
             return false;
@@ -336,6 +373,11 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
 
     public string WhyCannotDraw(ICharacter character, IWritingImplement implement, IDrawing drawing)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, implement.Parent))
+		{
+			return manipulationReason;
+		}
+
         if (Parent.Quantity > 1)
         {
             return "You must separate a single sheet of paper from the stack in order to draw on it.";
@@ -368,6 +410,12 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
 
     public bool Draw(ICharacter character, IWritingImplement implement, IDrawing drawing)
     {
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent, implement.Parent))
+		{
+			character.OutputHandler.Send(manipulationReason);
+			return false;
+		}
+
         if (!CanDraw(character, implement, drawing))
         {
             character.Send(WhyCannotDraw(character, implement, drawing));

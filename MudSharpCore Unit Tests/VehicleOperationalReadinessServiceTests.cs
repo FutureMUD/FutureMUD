@@ -23,6 +23,24 @@ namespace MudSharp_Unit_Tests;
 public class VehicleOperationalReadinessServiceTests
 {
 	[TestMethod]
+	[DataRow(VehicleOperationalAction.Control)]
+	[DataRow(VehicleOperationalAction.Service)]
+	[DataRow(VehicleOperationalAction.Repair)]
+	[DataRow(VehicleOperationalAction.Hitch)]
+	public void CanPerformAction_ManualOperation_RechecksManipulatorLoss(VehicleOperationalAction action)
+	{
+		var service = new VehicleOperationalReadinessService();
+		var actor = CreateCharacter(10);
+		var body = PhysicalManipulationTestHelper.SetUpUsableHands(actor);
+		var vehicle = CreateVehicle("cart", []);
+		Assert.IsTrue(service.CanPerformAction(vehicle.Object, actor.Object, action, out _));
+		body.SetupGet(x => x.HoldLocs).Returns([]);
+		Assert.IsFalse(service.CanPerformAction(vehicle.Object, actor.Object, action, out var result));
+		StringAssert.Contains(result.Reason, "functioning");
+		Assert.IsTrue(service.CanPerformAction(vehicle.Object, actor.Object, VehicleOperationalAction.Board, out _));
+	}
+
+	[TestMethod]
 	public void CanPerformAction_NoAccessRows_AllowsByDefault()
 	{
 		var service = new VehicleOperationalReadinessService();
@@ -848,6 +866,7 @@ public class VehicleOperationalReadinessServiceTests
 	private static Mock<ICharacter> CreateCharacter(long id)
 	{
 		var character = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(character);
 		character.SetupGet(x => x.Id).Returns(id);
 		character.Setup(x => x.SameIdentity(It.IsAny<ICharacter>()))
 		         .Returns((ICharacter other) => other?.Id == id);

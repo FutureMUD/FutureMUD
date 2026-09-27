@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 
 using MudSharp.Computers;
 using MudSharp.GameItems.Prototypes;
@@ -302,6 +303,11 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 
 	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		return _connectedHost is null &&
 		       other is IComputerHost &&
 		       other.FreeConnections.Any(x => x.CompatibleWith(ComputerConnectionTypes.StoragePlug));
@@ -309,6 +315,12 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 
 	public void Connect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		if (!CanConnect(actor, other))
 		{
 			return;
@@ -334,6 +346,11 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 
 	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return _connectedHost is not null
 			? $"{Parent.HowSeen(actor)} is already mounted to another computer host."
 			: $"{Parent.HowSeen(actor)} cannot mount to {other.Parent.HowSeen(actor)}.";
@@ -346,11 +363,22 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 
 	public bool CanDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		return ReferenceEquals(_connectedHost, other);
 	}
 
 	public void Disconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		RawDisconnect(other, true);
 	}
 
@@ -376,6 +404,11 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 
 	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return $"{Parent.HowSeen(actor)} is not mounted to {other.Parent.HowSeen(actor)}.";
 	}
 

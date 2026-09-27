@@ -1,3 +1,4 @@
+using MudSharp.GameItems;
 #nullable enable
 
 using MudSharp.Community;
@@ -226,6 +227,12 @@ public class MilitaryStandardGameItemComponent : GameItemComponent, IMilitarySta
 
 	public bool Plant(ICharacter actor, IEmote? playerEmote = null)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			actor.OutputHandler.Send(manipulationReason);
+			return false;
+		}
+
 		if (IsPlanted)
 		{
 			actor.OutputHandler.Send($"{Parent.HowSeen(actor, true)} is already planted.");
@@ -255,6 +262,12 @@ public class MilitaryStandardGameItemComponent : GameItemComponent, IMilitarySta
 
 	public bool TakeUp(ICharacter actor, IEmote? playerEmote = null)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			actor.OutputHandler.Send(manipulationReason);
+			return false;
+		}
+
 		if (!IsPlanted)
 		{
 			actor.OutputHandler.Send($"{Parent.HowSeen(actor, true)} is not planted.");
@@ -279,6 +292,12 @@ public class MilitaryStandardGameItemComponent : GameItemComponent, IMilitarySta
 
 	public bool Signal(ICharacter actor, string pattern, IEmote? playerEmote = null)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			actor.OutputHandler.Send(manipulationReason);
+			return false;
+		}
+
 		var actual = SignalPatterns.FirstOrDefault(x => x.EqualTo(pattern));
 		if (actual is null)
 		{

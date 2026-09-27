@@ -296,11 +296,11 @@ public class ArenaNpcService : IArenaNpcService
 
         if (profile is not null)
         {
-            body.Wear(item, profile, null, true);
+            body.WearExternally(item, profile);
         }
         else
         {
-            body.Wear(item, null, true);
+            body.WearExternally(item);
         }
 
         return body.WornItems.Contains(item);

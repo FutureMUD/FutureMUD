@@ -1,4 +1,5 @@
-﻿using MudSharp.Construction;
+﻿using MudSharp.GameItems;
+using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
@@ -115,16 +116,31 @@ public class ProgLightGameItemComponent : GameItemComponent, ILightable, IProduc
 
     public virtual bool CanLight(ICharacter lightee, IPerceivable ignitionSource)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out _, Parent))
+		{
+			return false;
+		}
+
         return false;
     }
 
     public virtual string WhyCannotLight(ICharacter lightee, IPerceivable ignitionSource)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         return $"You cannot light {Parent.HowSeen(lightee)} because you do not know a way to.";
     }
 
     public bool Light(ICharacter lightee, IPerceivable ignitionSource, IEmote playerEmote)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanLight(lightee, ignitionSource))
         {
             lightee.Send(WhyCannotLight(lightee, ignitionSource));
@@ -136,16 +152,31 @@ public class ProgLightGameItemComponent : GameItemComponent, ILightable, IProduc
 
     public bool CanExtinguish(ICharacter lightee)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out _, Parent))
+		{
+			return false;
+		}
+
         return false;
     }
 
     public string WhyCannotExtinguish(ICharacter lightee)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         return $"You cannot extinguish {Parent.HowSeen(lightee)} because you do not know a way to.";
     }
 
     public bool Extinguish(ICharacter lightee, IEmote playerEmote)
     {
+		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanExtinguish(lightee))
         {
             lightee.Send(WhyCannotExtinguish(lightee));

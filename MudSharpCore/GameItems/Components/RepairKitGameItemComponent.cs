@@ -115,6 +115,12 @@ public class RepairKitGameItemComponent : GameItemComponent, IRepairKit
 
     public void Repair(IWound wound, ICharacter repairer)
     {
+        if (!ItemManipulationGuard.CanManipulate(repairer, out var manipulationReason, Parent))
+        {
+            repairer?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
         ICheck check = Gameworld.GetCheck(CheckType.RepairItemCheck);
         Difficulty difficulty = wound.CanBeTreated(TreatmentType.Repair);
         CheckOutcome result = check.Check(repairer, difficulty, CheckTrait, externalBonus: CheckBonus);
@@ -126,6 +132,12 @@ public class RepairKitGameItemComponent : GameItemComponent, IRepairKit
 
     public void Repair(IEnumerable<IWound> wounds, ICharacter repairer)
     {
+        if (!ItemManipulationGuard.CanManipulate(repairer, out var manipulationReason, Parent))
+        {
+            repairer?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
         ICheck check = Gameworld.GetCheck(CheckType.RepairItemCheck);
         Difficulty difficulty = wounds.First().CanBeTreated(TreatmentType.Repair);
         int intDiff = (int)difficulty;

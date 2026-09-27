@@ -210,6 +210,10 @@ Runtime safety invariants:
 - merchandise repricing permits ordinary reductions and rejects unsafe markup multipliers rather than allowing decimal arithmetic to crash command handling
 - item preview follows normal container visibility rules; closed opaque containers do not reveal contents through shop preview
 
+Partial stack and commodity retrieval preserve shop display identity. Stock removal resolves that merchandise before generic prototype matching, values the actual split, and does not decrement a residual commodity pile for a split never separately indexed. Read-only commodity previews never enter the world or save queue. Source lawful/access checks run before splitting or debiting. See [Physical Manipulation Audit](../Items/Physical_Manipulation_Audit.md).
+
+`IShop.RegisterStockItemSplit` indexes another portion of existing displayed goods without a stock transaction. Stack quantity remains conserved; commodity splitting adds one pile. `RegisterStockItemMerge` removes absorbed pile identities without recording lost goods, including repeated pickup into a held display pile. Commodity purchases reconcile the indexed pile count they remove, so a held display split does not appear as newly acquired stock.
+
 ### Markets, Influences, Populations, and Shoppers
 The market subsystem models macroeconomic pressure rather than only local shop stock.
 

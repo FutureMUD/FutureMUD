@@ -669,6 +669,7 @@ public class VehicleMovementStrategyTests
 	private static IVehicle CreateVehicle(ICharacter controller, IEnumerable<VehicleMovementProfileType> movementTypes,
 		SizeCategory exteriorSize, VehicleMovementEnvironment environment = VehicleMovementEnvironment.Unrestricted)
 	{
+		PhysicalManipulationTestHelper.SetUpUsableHands(Mock.Get(controller));
 		var location = new Mock<ICell>();
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Size).Returns(exteriorSize);

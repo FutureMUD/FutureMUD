@@ -96,6 +96,7 @@ These are per-invocation expression wrappers. Neither scroll release nor an over
 | `possesscorpse` | Unsupported | Identity/body lifecycle and control-transfer configuration requires a dedicated snapshot adapter. |
 | `rage` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
 | `reciteproxy` | Unsupported | Arbitrary script/command effects have no typed numerical snapshot adapter. |
+| `rejuvenateland` | Unsupported | Durable cell treatment and maintenance require a dedicated stored-payload lifecycle adapter. Budget/rate are bound for direct Vancian invocation only. |
 | `relocate` | Unsupported | This legacy implementation is a healing variant with specialised wound logic; use the audited heal or mend adapter. |
 | `removeblindness` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
 | `removecomprehendlanguage` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |

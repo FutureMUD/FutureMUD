@@ -2,12 +2,16 @@
 using MudSharp.NPC;
 using MudSharp.RPG.Checks;
 using MudSharp.Magic.Vancian;
+using MudSharp.Magic.Environment;
 
 namespace MudSharp.Effects.Concrete;
 
 public class MagicSpellParent : Effect, IMagicSpellEffectParent
 {
     private bool _removingSpellEffects;
+	private bool _loaded;
+	public Guid Identity { get; private set; } = Guid.NewGuid();
+	public TimeSpan ResolvedDuration { get; init; }
 
     public static void InitialiseEffectType()
     {
@@ -27,7 +31,9 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 
     protected MagicSpellParent(XElement root, IPerceivable owner) : base(root, owner)
     {
+		_loaded = true;
         XElement trueRoot = root.Element("Effect");
+		Identity = Guid.TryParse(trueRoot.Element("Identity")?.Value, out var identity) ? identity : Guid.Empty;
         Spell = trueRoot.Element("StoredSpell") is { } snapshot
             ? StoredSpellSnapshot.Load(snapshot).CreateSpell(Gameworld, false)
             : Gameworld.MagicSpells.Get(long.Parse(trueRoot.Element("Spell").Value));
@@ -48,8 +54,24 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 
     public override string Describe(IPerceiver voyeur)
     {
-        return $"Affected by the {Spell.Name.Colour(Spell.School.PowerListColour)} spell.";
+        return Spell is null ? "Orphaned spell parent (missing source spell)." : $"Affected by the {Spell.Name.Colour(Spell.School.PowerListColour)} spell.";
     }
+
+	public override void InitialEffect()
+	{
+		if (!_loaded) foreach (var treatment in _spellEffects.OfType<ILandRejuvenationEffect>().ToArray()) treatment.ActivateTreatment();
+	}
+
+	public override void Login()
+	{
+		foreach (var treatment in _spellEffects.OfType<ILandRejuvenationEffect>().ToArray()) treatment.ActivateTreatment();
+	}
+
+	public override void ExpireEffect()
+	{
+		foreach (var treatment in _spellEffects.OfType<ILandRejuvenationEffect>().ToArray()) treatment.ExpireTreatment();
+		base.ExpireEffect();
+	}
 
     protected override string SpecificEffectType => "MagicSpellParent";
 
@@ -57,15 +79,17 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 
     protected override XElement SaveDefinition()
     {
+		foreach (var treatment in _spellEffects.OfType<ILandRejuvenationEffect>().ToArray()) treatment.CheckpointTreatment();
         return new XElement("Effect",
-            new XElement("Spell", Spell.Id),
+			new XElement("Identity", Identity),
+            new XElement("Spell", Spell?.Id ?? 0),
             new XElement("Caster", _casterId),
             _casterInstanceId.HasValue ? new XElement("CasterInstance", _casterInstanceId.Value) : null,
             (Spell as MagicSpell)?.StoredSnapshot?.Save(),
             new XElement("SpellPower", (int)Power),
             new XElement("OutcomeDegree", (int)Outcome),
             new XElement("Children",
-                from child in _spellEffects
+                from child in _spellEffects.ToArray()
                 select child.SaveToXml(new Dictionary<IEffect, TimeSpan>())
             )
         );

@@ -11,7 +11,7 @@ using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Commands.Modules;
 
-internal class TimeModule : Module<ICharacter>
+internal partial class TimeModule : Module<ICharacter>
 {
     private TimeModule()
         : base("Time")
@@ -66,12 +66,14 @@ The syntax is:
         IEnumerable<ICelestialObject> celestials = actor.Location.Celestials;
         foreach (CelestialInformation info in celestials.Select(x => actor.Location.GetInfo(x)))
         {
-            if (actor.Body.CanSee(info.Origin))
+            if (actor.Body.CanSee(info.Origin) && (info.Origin is not MudSharp.Celestial.Authored.AuthoredCelestial authoredBody ||
+                authoredBody.CanReceiveEcho(actor, MudSharp.Celestial.Authored.CelestialEchoAudience.BodyVisible)))
             {
                 string description = info.Origin.Describe(info).Fullstop().Wrap(actor.InnerLineFormatLength, "\t");
                 if (actor.IsAdministrator())
                 {
-                    var ephemeris = info.Origin is ISolarEphemeris ? "solar" :
+                    var ephemeris = info.Origin is IAuthoredCelestial authored ? $"authored ({authored.GetCapabilities()})" :
+                        info.Origin is ISolarEphemeris ? "solar" :
                         info.Origin is ILunarEphemeris ? "lunar" :
                         info.Origin is ICelestialEphemeris ? "generic" :
                         "current-only";
@@ -167,14 +169,14 @@ The syntax is:
             return;
         }
 
-        var primary = actor.Gameworld.CelestialObjects.GetByIdOrName(command.PopSpeech()) as ICelestialEphemeris;
+        var primary = actor.Gameworld.CelestialObjects.GetByIdOrName(command.PopSpeech());
         if (primary is null)
         {
-            actor.OutputHandler.Send("There is no such celestial object with arbitrary-instant ephemeris support.");
+            actor.OutputHandler.Send("There is no such celestial object.");
             return;
         }
 
-        ICelestialEphemeris secondary = null;
+        ICelestialObject secondary = null;
         if (eventType == AstronomicalEventType.VisibleCrescent)
         {
             if (command.IsFinished)
@@ -183,10 +185,10 @@ The syntax is:
                 return;
             }
 
-            secondary = actor.Gameworld.CelestialObjects.GetByIdOrName(command.PopSpeech()) as ICelestialEphemeris;
-            if (secondary is not ILunarEphemeris)
+            secondary = actor.Gameworld.CelestialObjects.GetByIdOrName(command.PopSpeech());
+            if (secondary is null || !AstronomicalEventService.IsLunar(secondary))
             {
-                actor.OutputHandler.Send("The second celestial must be a moon with lunar ephemeris support.");
+                actor.OutputHandler.Send("The second celestial must have a lunar role.");
                 return;
             }
         }
@@ -194,20 +196,23 @@ The syntax is:
         var targetLongitude = 0.0;
         if (eventType == AstronomicalEventType.SolarLongitude)
         {
-            if (command.IsFinished || !double.TryParse(command.PopSpeech(), out var degrees))
+            if (command.IsFinished || !double.TryParse(command.PopSpeech(), out var degrees) || !double.IsFinite(degrees))
             {
                 actor.OutputHandler.Send("Solar longitude events require a target longitude in degrees.");
                 return;
             }
 
-            targetLongitude = degrees.DegreesToRadians();
+            targetLongitude = (degrees % 360).DegreesToRadians();
         }
 
         var occurrence = 1;
-        if (!command.IsFinished && int.TryParse(command.PeekSpeech(), out var parsedOccurrence))
+        if (!command.IsFinished)
         {
-            occurrence = parsedOccurrence;
-            command.PopSpeech();
+            if (!int.TryParse(command.PopSpeech(), out occurrence) || occurrence < 1 || !command.IsFinished)
+            {
+                actor.OutputHandler.Send("Occurrence must be one positive integer within Int32 range.");
+                return;
+            }
         }
 
         var calendar = actor.Location.Calendars.FirstOrDefault();
@@ -219,7 +224,7 @@ The syntax is:
 
         var reference = calendar.CurrentInstant;
         var observer = actor.Location.Zone.Geography;
-        if (!AstronomicalEventService.Instance.TryFindNext(eventType.Value, reference, occurrence, primary, observer,
+        if (!AstronomicalEventService.Instance.TryFindNextForCelestial(eventType.Value, reference, occurrence, primary, observer,
                 out var instant, out var error, targetLongitude, secondary))
         {
             actor.OutputHandler.Send(error);

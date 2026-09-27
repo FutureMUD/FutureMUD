@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 
 using MudSharp.Computers;
 using MudSharp.Framework.Scheduling;
@@ -112,12 +113,22 @@ public class PushButtonGameItemComponent : GameItemComponent, ISelectable, ISign
 
 	public bool CanSelect(ICharacter character, string argument)
 	{
+		if (!ItemManipulationGuard.CanManipulate(character, out _, Parent))
+		{
+			return false;
+		}
+
 		return !string.IsNullOrWhiteSpace(argument) &&
 		       _prototype.Keyword.StartsWith(argument, StringComparison.InvariantCultureIgnoreCase);
 	}
 
 	public bool Select(ICharacter character, string argument, IEmote playerEmote, bool silent = false)
 	{
+		if (!ItemManipulationGuard.CanManipulate(character, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanSelect(character, argument))
 		{
 			character.Send("That is not a valid control to press.");

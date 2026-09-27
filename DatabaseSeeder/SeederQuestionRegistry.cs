@@ -92,6 +92,12 @@ public static class SeederQuestionRegistry
                 DefaultAnswerResolver: CelestialSeeder.ResolveInstallSunDefault,
                 DisplayResolver: CelestialSeeder.ResolveInstallSunDisplay
             ),
+            [BuildKey(nameof(CelestialSeeder), "installauthored")] = new(
+                DefaultAnswerResolver: (_, _) => "no"
+            ),
+            [BuildKey(nameof(CelestialSeeder), "authoredcalendar")] = new(
+                DefaultAnswerResolver: CelestialSeeder.ResolveSunCalendarDefault
+            ),
             [BuildKey(nameof(CelestialSeeder), "suncalendar")] = new(
                 DefaultAnswerResolver: CelestialSeeder.ResolveSunCalendarDefault,
                 DisplayResolver: CelestialSeeder.ResolveSunCalendarDisplay

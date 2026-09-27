@@ -1,3 +1,4 @@
+using MudSharp.GameItems;
 using MudSharp.Body;
 using MudSharp.GameItems.Prototypes;
 
@@ -89,14 +90,21 @@ public class DryerGameItemComponent : ContainerGameItemComponent, IConsumePower,
 	}
 
 	public IEnumerable<string> SwitchSettings => ["on", "off"];
-	public bool CanSwitch(ICharacter actor, string setting) => setting.EqualTo("off") ||
-		(setting.EqualTo("on") && !IsOpen);
-	public string WhyCannotSwitch(ICharacter actor, string setting) => IsOpen
-		? $"You must close {Parent.HowSeen(actor)} before switching it on."
-		: "That is not a valid switch setting.";
+	public bool CanSwitch(ICharacter actor, string setting) =>
+		ItemManipulationGuard.CanManipulate(actor, out _, Parent) &&
+		(setting.EqualTo("off") || setting.EqualTo("on") && !IsOpen);
+	public string WhyCannotSwitch(ICharacter actor, string setting) =>
+		!ItemManipulationGuard.CanManipulate(actor, out var reason, Parent) ? reason : IsOpen
+			? $"You must close {Parent.HowSeen(actor)} before switching it on."
+			: "That is not a valid switch setting.";
 
 	public bool Switch(ICharacter actor, string setting)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanSwitch(actor, setting))
 		{
 			actor.Send(WhyCannotSwitch(actor, setting));

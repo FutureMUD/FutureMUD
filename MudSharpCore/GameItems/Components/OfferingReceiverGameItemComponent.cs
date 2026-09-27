@@ -1,4 +1,5 @@
-﻿using MudSharp.Construction;
+﻿using MudSharp.GameItems;
+using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Events;
 using MudSharp.Form.Material;
@@ -294,6 +295,22 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 
 	public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
 	{
+		if (emptier is not null)
+		{
+			var targets = intoContainer is null ? new[] { Parent } : new[] { Parent, intoContainer.Parent };
+			if (!ItemManipulationGuard.CanManipulate(emptier, out var reason, targets))
+			{
+				emptier.Send(reason);
+				return;
+			}
+
+			if (Contents.Any(x => !CanTake(emptier, x, 0)))
+			{
+				emptier.Send("You cannot empty that container while some of its contents cannot be taken.");
+				return;
+			}
+		}
+
 		foreach (var item in _contents.ToList())
 		{
 			_contents.Remove(item);
@@ -312,11 +329,21 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 
 	public bool CanOffer(ICharacter actor, IGameItem offering)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, offering))
+		{
+			return false;
+		}
+
 		return CanAcceptItem(actor, offering);
 	}
 
 	public string WhyCannotOffer(ICharacter actor, IGameItem offering)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, offering))
+		{
+			return manipulationReason;
+		}
+
 		if (offering is null)
 		{
 			return "You do not have such an item to offer.";
@@ -367,6 +394,11 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 
 	public bool CanBurnOffering(ICharacter actor, IGameItem offering)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, offering))
+		{
+			return false;
+		}
+
 		return _prototype.ConsumptionMode != OfferingConsumptionMode.RecordOnly &&
 		       offering is not null &&
 		       _contents.Contains(offering) &&
@@ -375,6 +407,11 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 
 	public string WhyCannotBurnOffering(ICharacter actor, IGameItem offering)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, offering))
+		{
+			return manipulationReason;
+		}
+
 		if (_prototype.ConsumptionMode == OfferingConsumptionMode.RecordOnly)
 		{
 			return $"{Parent.HowSeen(actor, true)} records offerings but does not burn them.";
@@ -428,6 +465,11 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 
 	public bool CanOfferLiquid(ICharacter actor, IGameItem source, double amount)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, source))
+		{
+			return false;
+		}
+
 		if (!_prototype.AcceptsLiquidOfferings || source == Parent || amount <= 0.0)
 		{
 			return false;
@@ -449,6 +491,11 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 
 	public string WhyCannotOfferLiquid(ICharacter actor, IGameItem source, double amount)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, source))
+		{
+			return manipulationReason;
+		}
+
 		if (!_prototype.AcceptsLiquidOfferings)
 		{
 			return $"{Parent.HowSeen(actor, true)} does not accept liquid libations.";
@@ -514,6 +561,11 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 
 	public bool OfferLiquid(ICharacter actor, IGameItem source, double amount, IEmote? playerEmote)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, source))
+		{
+			return false;
+		}
+
 		if (!CanOfferLiquid(actor, source, amount))
 		{
 			actor.OutputHandler.Handle(

@@ -1,0 +1,1502 @@
+{
+  "fixture_schema": "authoring-neutral test data; NOT an existing or proposed engine import format",
+  "version": 1,
+  "baseline_commit": "cdf6f79997cc7b5081e51ceee2e1c45cf6adc39a",
+  "units": {
+    "angles": "degrees in this file; radians at existing engine interfaces",
+    "time": "integer feed-clock minutes from test epoch unless explicitly tick/day",
+    "lux": "unmodified source contribution",
+    "vectors": "East, North, Up"
+  },
+  "sampling": "All new types use floor-to-feed-minute state, held until next minute. Closure rows at period are not independent samples.",
+  "tolerances": {
+    "vector_absolute": 1e-10,
+    "angle_degrees_absolute": 1e-08,
+    "lux_absolute": 1e-09,
+    "event_ticks": "exact; no tolerance"
+  },
+  "clocks": {
+    "earth_test_clock": {
+      "hours_per_day": 24,
+      "minutes_per_hour": 60,
+      "seconds_per_minute": 60
+    },
+    "nonstandard_test_clock": {
+      "hours_per_day": 20,
+      "minutes_per_hour": 80,
+      "seconds_per_minute": 100
+    }
+  },
+  "fixtures": [
+    {
+      "id": "R1",
+      "name": "Overhead rail",
+      "kind": "RailSun",
+      "clock": "earth_test_clock",
+      "path": {
+        "mode": "simple_rail",
+        "rise_minute": 360,
+        "set_minute": 1080,
+        "rise_bearing_degrees": 90,
+        "set_bearing_degrees": 270,
+        "maximum_elevation_degrees": 90,
+        "tilt_bearing_degrees": 180,
+        "period_minutes": 1440
+      },
+      "expected_states": [
+        {
+          "minute": 0,
+          "azimuth_degrees": null,
+          "elevation_degrees": -90.0,
+          "unit_vector_enu": [
+            -1.8369701987210297e-16,
+            6.123233995736766e-17,
+            -1.0
+          ]
+        },
+        {
+          "minute": 360,
+          "azimuth_degrees": 90.0,
+          "elevation_degrees": 0.0,
+          "unit_vector_enu": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "minute": 540,
+          "azimuth_degrees": 90.00000000000001,
+          "elevation_degrees": 44.99999999999999,
+          "unit_vector_enu": [
+            0.7071067811865476,
+            -4.329780281177466e-17,
+            0.7071067811865475
+          ]
+        },
+        {
+          "minute": 720,
+          "azimuth_degrees": null,
+          "elevation_degrees": 90.0,
+          "unit_vector_enu": [
+            6.123233995736766e-17,
+            -6.123233995736766e-17,
+            1.0
+          ]
+        },
+        {
+          "minute": 900,
+          "azimuth_degrees": 270.0,
+          "elevation_degrees": 45.00000000000001,
+          "unit_vector_enu": [
+            -0.7071067811865475,
+            -4.329780281177467e-17,
+            0.7071067811865476
+          ]
+        },
+        {
+          "minute": 1080,
+          "azimuth_degrees": 270.0,
+          "elevation_degrees": 0.0,
+          "unit_vector_enu": [
+            -1.0,
+            -7.498798913309288e-33,
+            1.2246467991473532e-16
+          ]
+        },
+        {
+          "minute": 1260,
+          "azimuth_degrees": 270.0,
+          "elevation_degrees": -44.99999999999999,
+          "unit_vector_enu": [
+            -0.7071067811865477,
+            4.329780281177466e-17,
+            -0.7071067811865475
+          ]
+        }
+      ],
+      "expected_events": {
+        "rise_minutes": [
+          360
+        ],
+        "set_minutes": [
+          1080
+        ]
+      }
+    },
+    {
+      "id": "R2",
+      "name": "South-tilted rail",
+      "kind": "RailSun",
+      "clock": "earth_test_clock",
+      "path": {
+        "mode": "simple_rail",
+        "rise_minute": 360,
+        "set_minute": 1080,
+        "rise_bearing_degrees": 90,
+        "set_bearing_degrees": 270,
+        "maximum_elevation_degrees": 35,
+        "tilt_bearing_degrees": 180,
+        "period_minutes": 1440
+      },
+      "expected_states": [
+        {
+          "minute": 0,
+          "azimuth_degrees": 0.0,
+          "elevation_degrees": -35.00000000000001,
+          "unit_vector_enu": [
+            -1.8369701987210302e-16,
+            0.819152044288992,
+            -0.5735764363510462
+          ]
+        },
+        {
+          "minute": 360,
+          "azimuth_degrees": 90.0,
+          "elevation_degrees": 0.0,
+          "unit_vector_enu": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "minute": 540,
+          "azimuth_degrees": 129.32268990964002,
+          "elevation_degrees": 23.92746472075891,
+          "unit_vector_enu": [
+            0.7071067811865476,
+            -0.5792279653395691,
+            0.4055797876726388
+          ]
+        },
+        {
+          "minute": 720,
+          "azimuth_degrees": 180.0,
+          "elevation_degrees": 35.00000000000001,
+          "unit_vector_enu": [
+            6.123233995736767e-17,
+            -0.819152044288992,
+            0.5735764363510462
+          ]
+        },
+        {
+          "minute": 900,
+          "azimuth_degrees": 230.67731009035998,
+          "elevation_degrees": 23.92746472075892,
+          "unit_vector_enu": [
+            -0.7071067811865476,
+            -0.5792279653395693,
+            0.40557978767263897
+          ]
+        },
+        {
+          "minute": 1080,
+          "azimuth_degrees": 270.0,
+          "elevation_degrees": 0.0,
+          "unit_vector_enu": [
+            -1.0,
+            -1.0031719290535247e-16,
+            7.024285468436541e-17
+          ]
+        },
+        {
+          "minute": 1260,
+          "azimuth_degrees": 309.32268990964,
+          "elevation_degrees": -23.92746472075891,
+          "unit_vector_enu": [
+            -0.7071067811865477,
+            0.5792279653395691,
+            -0.4055797876726388
+          ]
+        }
+      ],
+      "expected_events": {
+        "rise_minutes": [
+          360
+        ],
+        "set_minutes": [
+          1080
+        ]
+      }
+    },
+    {
+      "id": "R3",
+      "name": "Non-opposite bearings, true small circle",
+      "kind": "RailSun",
+      "clock": "earth_test_clock",
+      "path": {
+        "mode": "three_point_circle",
+        "start": [
+          45,
+          0
+        ],
+        "via": [
+          0,
+          30
+        ],
+        "end": [
+          315,
+          0
+        ],
+        "rise_minute": 360,
+        "set_minute": 1080,
+        "period_minutes": 1440
+      },
+      "expected_states": [
+        {
+          "minute": 0,
+          "azimuth_degrees": 0.0,
+          "elevation_degrees": -65.26438968275468,
+          "unit_vector_enu": [
+            -2.238764138877578e-16,
+            0.4184316465917347,
+            -0.9082482904638632
+          ]
+        },
+        {
+          "minute": 360,
+          "azimuth_degrees": 44.999999999999986,
+          "elevation_degrees": 0.0,
+          "unit_vector_enu": [
+            0.7071067811865474,
+            0.7071067811865477,
+            -8.326672684688677e-17
+          ]
+        },
+        {
+          "minute": 540,
+          "azimuth_degrees": 28.173650333542042,
+          "elevation_degrees": 21.183060301078164,
+          "unit_vector_enu": [
+            0.44024286723591854,
+            0.8219569231260602,
+            0.3613489094670657
+          ]
+        },
+        {
+          "minute": 720,
+          "azimuth_degrees": 0.0,
+          "elevation_degrees": 29.99999999999998,
+          "unit_vector_enu": [
+            -1.0083581641494177e-16,
+            0.8660254037844388,
+            0.49999999999999967
+          ]
+        },
+        {
+          "minute": 900,
+          "azimuth_degrees": 331.82634966645793,
+          "elevation_degrees": 21.183060301078157,
+          "unit_vector_enu": [
+            -0.4402428672359188,
+            0.8219569231260601,
+            0.36134890946706555
+          ]
+        },
+        {
+          "minute": 1080,
+          "azimuth_degrees": 315.0,
+          "elevation_degrees": 0.0,
+          "unit_vector_enu": [
+            -0.7071067811865475,
+            0.7071067811865477,
+            0.0
+          ]
+        }
+      ],
+      "expected_events": {
+        "rise_minutes": [
+          360
+        ],
+        "set_minutes": [
+          1080
+        ]
+      }
+    },
+    {
+      "id": "S1",
+      "name": "Visible Morning Star, elevation-only dawn",
+      "kind": "ScriptedSun",
+      "clock": "earth_test_clock",
+      "path": {
+        "mode": "keyframed",
+        "period_minutes": 1440,
+        "azimuth_degrees": 90,
+        "elevation_keyframes": [
+          {
+            "minute": 0,
+            "degrees": -20
+          },
+          {
+            "minute": 300,
+            "degrees": -20
+          },
+          {
+            "minute": 360,
+            "degrees": -12
+          },
+          {
+            "minute": 540,
+            "degrees": 2
+          },
+          {
+            "minute": 600,
+            "degrees": 2
+          },
+          {
+            "minute": 610,
+            "degrees": -12
+          },
+          {
+            "minute": 620,
+            "degrees": -20
+          },
+          {
+            "minute": 1440,
+            "degrees": -20
+          }
+        ],
+        "interpolation": "shortest_spherical_arc; identical-endpoint intervals hold; final minute is closure only"
+      },
+      "lighting": {
+        "mode": "absolute_lux",
+        "keyframes": [
+          {
+            "minute": 0,
+            "lux": 0
+          },
+          {
+            "minute": 300,
+            "lux": 0
+          },
+          {
+            "minute": 360,
+            "lux": 1
+          },
+          {
+            "minute": 540,
+            "lux": 50
+          },
+          {
+            "minute": 600,
+            "lux": 50
+          },
+          {
+            "minute": 610,
+            "lux": 1
+          },
+          {
+            "minute": 620,
+            "lux": 0
+          },
+          {
+            "minute": 1440,
+            "lux": 0
+          }
+        ],
+        "interpolation": "linear"
+      },
+      "echoes": [
+        {
+          "id": "stir",
+          "minute": 300,
+          "order": 0,
+          "audience": "SkyVisible"
+        },
+        {
+          "id": "struggle",
+          "minute": 360,
+          "order": 0,
+          "audience": "SkyVisible"
+        },
+        {
+          "id": "bound",
+          "minute": 540,
+          "order": 0,
+          "audience": "BodyVisible"
+        },
+        {
+          "id": "defeated",
+          "minute": 600,
+          "order": 0,
+          "audience": "BodyVisible"
+        },
+        {
+          "id": "extinguished",
+          "minute": 620,
+          "order": 0,
+          "audience": "SkyVisible"
+        }
+      ],
+      "expected_states": [
+        {
+          "minute": 0,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -20.0,
+          "intrinsic_lux": 0.0,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Night",
+          "motion": "LevelOrStationary"
+        },
+        {
+          "minute": 300,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -20.0,
+          "intrinsic_lux": 0.0,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Night",
+          "motion": "LevelOrStationary"
+        },
+        {
+          "minute": 359,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -12.133333333333333,
+          "intrinsic_lux": 0.9833333333333333,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Night",
+          "motion": "Ascending"
+        },
+        {
+          "minute": 360,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -12.0,
+          "intrinsic_lux": 1.0,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Dawn",
+          "motion": "Ascending"
+        },
+        {
+          "minute": 514,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -0.022222222222222143,
+          "intrinsic_lux": 42.922222222222224,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Dawn",
+          "motion": "Ascending"
+        },
+        {
+          "minute": 515,
+          "azimuth_degrees": 90,
+          "elevation_degrees": 0.05555555555555536,
+          "intrinsic_lux": 43.19444444444444,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Dawn",
+          "motion": "Ascending"
+        },
+        {
+          "minute": 540,
+          "azimuth_degrees": 90,
+          "elevation_degrees": 2.0,
+          "intrinsic_lux": 50.0,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Dawn",
+          "motion": "Ascending"
+        },
+        {
+          "minute": 599,
+          "azimuth_degrees": 90,
+          "elevation_degrees": 2.0,
+          "intrinsic_lux": 50.0,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Dawn",
+          "motion": "LevelOrStationary"
+        },
+        {
+          "minute": 600,
+          "azimuth_degrees": 90,
+          "elevation_degrees": 2.0,
+          "intrinsic_lux": 50.0,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Dawn",
+          "motion": "LevelOrStationary"
+        },
+        {
+          "minute": 601,
+          "azimuth_degrees": 90,
+          "elevation_degrees": 0.6000000000000001,
+          "intrinsic_lux": 45.1,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Dusk",
+          "motion": "Descending"
+        },
+        {
+          "minute": 602,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -0.7999999999999998,
+          "intrinsic_lux": 40.2,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Dusk",
+          "motion": "Descending"
+        },
+        {
+          "minute": 609,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -10.6,
+          "intrinsic_lux": 5.899999999999999,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Dusk",
+          "motion": "Descending"
+        },
+        {
+          "minute": 610,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -12.0,
+          "intrinsic_lux": 1.0,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Dusk",
+          "motion": "Descending"
+        },
+        {
+          "minute": 611,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -12.8,
+          "intrinsic_lux": 0.9,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Night",
+          "motion": "Descending"
+        },
+        {
+          "minute": 620,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -20.0,
+          "intrinsic_lux": 0.0,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Night",
+          "motion": "Descending"
+        },
+        {
+          "minute": 1439,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -20.0,
+          "intrinsic_lux": 0.0,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Night",
+          "motion": "LevelOrStationary"
+        }
+      ],
+      "expected_events": {
+        "rise_minutes": [
+          515
+        ],
+        "set_minutes": [
+          602
+        ]
+      }
+    },
+    {
+      "id": "S2",
+      "name": "Below-horizon Morning Star, glow only",
+      "kind": "ScriptedSun",
+      "clock": "earth_test_clock",
+      "path": {
+        "mode": "keyframed",
+        "period_minutes": 1440,
+        "azimuth_degrees": 90,
+        "elevation_keyframes": [
+          {
+            "minute": 0,
+            "degrees": -20
+          },
+          {
+            "minute": 300,
+            "degrees": -20
+          },
+          {
+            "minute": 360,
+            "degrees": -12
+          },
+          {
+            "minute": 540,
+            "degrees": -1
+          },
+          {
+            "minute": 600,
+            "degrees": -1
+          },
+          {
+            "minute": 610,
+            "degrees": -12
+          },
+          {
+            "minute": 620,
+            "degrees": -20
+          },
+          {
+            "minute": 1440,
+            "degrees": -20
+          }
+        ],
+        "interpolation": "shortest_spherical_arc; identical-endpoint intervals hold; final minute is closure only"
+      },
+      "lighting": {
+        "mode": "absolute_lux",
+        "keyframes": [
+          {
+            "minute": 0,
+            "lux": 0
+          },
+          {
+            "minute": 300,
+            "lux": 0
+          },
+          {
+            "minute": 360,
+            "lux": 1
+          },
+          {
+            "minute": 540,
+            "lux": 50
+          },
+          {
+            "minute": 600,
+            "lux": 50
+          },
+          {
+            "minute": 610,
+            "lux": 1
+          },
+          {
+            "minute": 620,
+            "lux": 0
+          },
+          {
+            "minute": 1440,
+            "lux": 0
+          }
+        ],
+        "interpolation": "linear"
+      },
+      "echoes": [
+        {
+          "id": "stir",
+          "minute": 300,
+          "order": 0,
+          "audience": "SkyVisible"
+        },
+        {
+          "id": "struggle",
+          "minute": 360,
+          "order": 0,
+          "audience": "SkyVisible"
+        },
+        {
+          "id": "bound",
+          "minute": 540,
+          "order": 0,
+          "audience": "SkyVisible"
+        },
+        {
+          "id": "defeated",
+          "minute": 600,
+          "order": 0,
+          "audience": "SkyVisible"
+        },
+        {
+          "id": "extinguished",
+          "minute": 620,
+          "order": 0,
+          "audience": "SkyVisible"
+        }
+      ],
+      "expected_states": [
+        {
+          "minute": 0,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -20.0,
+          "intrinsic_lux": 0.0,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Night",
+          "motion": "LevelOrStationary"
+        },
+        {
+          "minute": 300,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -20.0,
+          "intrinsic_lux": 0.0,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Night",
+          "motion": "LevelOrStationary"
+        },
+        {
+          "minute": 359,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -12.133333333333333,
+          "intrinsic_lux": 0.9833333333333333,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Night",
+          "motion": "Ascending"
+        },
+        {
+          "minute": 360,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -12.0,
+          "intrinsic_lux": 1.0,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Dawn",
+          "motion": "Ascending"
+        },
+        {
+          "minute": 514,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -2.5888888888888886,
+          "intrinsic_lux": 42.922222222222224,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Dawn",
+          "motion": "Ascending"
+        },
+        {
+          "minute": 515,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -2.5277777777777786,
+          "intrinsic_lux": 43.19444444444444,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Dawn",
+          "motion": "Ascending"
+        },
+        {
+          "minute": 540,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -1.0,
+          "intrinsic_lux": 50.0,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Dawn",
+          "motion": "Ascending"
+        },
+        {
+          "minute": 599,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -1.0,
+          "intrinsic_lux": 50.0,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Dawn",
+          "motion": "LevelOrStationary"
+        },
+        {
+          "minute": 600,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -1.0,
+          "intrinsic_lux": 50.0,
+          "compatibility_direction": "Ascending",
+          "time_of_day": "Dawn",
+          "motion": "LevelOrStationary"
+        },
+        {
+          "minute": 601,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -2.1,
+          "intrinsic_lux": 45.1,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Dusk",
+          "motion": "Descending"
+        },
+        {
+          "minute": 602,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -3.2,
+          "intrinsic_lux": 40.2,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Dusk",
+          "motion": "Descending"
+        },
+        {
+          "minute": 609,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -10.9,
+          "intrinsic_lux": 5.899999999999999,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Dusk",
+          "motion": "Descending"
+        },
+        {
+          "minute": 610,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -12.0,
+          "intrinsic_lux": 1.0,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Dusk",
+          "motion": "Descending"
+        },
+        {
+          "minute": 611,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -12.8,
+          "intrinsic_lux": 0.9,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Night",
+          "motion": "Descending"
+        },
+        {
+          "minute": 620,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -20.0,
+          "intrinsic_lux": 0.0,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Night",
+          "motion": "Descending"
+        },
+        {
+          "minute": 1439,
+          "azimuth_degrees": 90,
+          "elevation_degrees": -20.0,
+          "intrinsic_lux": 0.0,
+          "compatibility_direction": "Descending",
+          "time_of_day": "Night",
+          "motion": "LevelOrStationary"
+        }
+      ],
+      "expected_events": {
+        "rise_minutes": [],
+        "set_minutes": []
+      }
+    },
+    {
+      "id": "S3",
+      "name": "Rapid jumps and multiple events",
+      "kind": "ScriptedSun",
+      "clock": "earth_test_clock",
+      "path": {
+        "mode": "dense_samples",
+        "period_minutes": 60,
+        "azimuth_degrees": 90,
+        "elevation_degrees": [
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          10,
+          10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10,
+          -10
+        ]
+      },
+      "expected_events": {
+        "rise_minutes": [
+          10,
+          30
+        ],
+        "set_minutes": [
+          12,
+          31
+        ]
+      },
+      "event_queries": [
+        {
+          "event": "rise",
+          "reference_minute": 0,
+          "occurrence": 1,
+          "expected_minute": 10
+        },
+        {
+          "event": "rise",
+          "reference_minute": 10,
+          "occurrence": 1,
+          "expected_minute": 30
+        },
+        {
+          "event": "rise",
+          "reference_minute": 10,
+          "occurrence": 2,
+          "expected_minute": 70
+        },
+        {
+          "event": "rise",
+          "reference_minute": 0,
+          "occurrence": 1000000,
+          "expected_minute": 29999970
+        }
+      ],
+      "echoes": [
+        {
+          "id": "a",
+          "minute": 10,
+          "order": 0
+        },
+        {
+          "id": "b",
+          "minute": 10,
+          "order": 1
+        },
+        {
+          "id": "c",
+          "minute": 12,
+          "order": 0
+        }
+      ]
+    },
+    {
+      "id": "H1",
+      "name": "Crossing with horizon plateaux",
+      "kind": "ScriptedSun",
+      "clock": "earth_test_clock",
+      "path": {
+        "mode": "dense_samples",
+        "period_minutes": 8,
+        "azimuth_degrees": 90,
+        "elevation_degrees": [
+          -1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          -1
+        ]
+      },
+      "expected_events": {
+        "rise_minutes": [
+          1
+        ],
+        "set_minutes": [
+          5
+        ]
+      }
+    },
+    {
+      "id": "H2",
+      "name": "Horizon touch and retreat",
+      "kind": "ScriptedSun",
+      "clock": "earth_test_clock",
+      "path": {
+        "mode": "dense_samples",
+        "period_minutes": 3,
+        "azimuth_degrees": 90,
+        "elevation_degrees": [
+          -1,
+          0,
+          -1
+        ]
+      },
+      "expected_events": {
+        "rise_minutes": [],
+        "set_minutes": []
+      }
+    },
+    {
+      "id": "H3",
+      "name": "Permanent horizon",
+      "kind": "ScriptedSun",
+      "clock": "earth_test_clock",
+      "path": {
+        "mode": "dense_samples",
+        "period_minutes": 4,
+        "azimuth_degrees": 90,
+        "elevation_degrees": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "expected_events": {
+        "rise_minutes": [],
+        "set_minutes": []
+      }
+    },
+    {
+      "id": "M1",
+      "name": "Daily rail moon, independent 28-day phase",
+      "kind": "RailMoon",
+      "clock": "earth_test_clock",
+      "path": {
+        "mode": "simple_rail",
+        "period_minutes": 1440,
+        "rise_minute": 1080,
+        "set_minute": 360,
+        "maximum_elevation_degrees": 90,
+        "rise_bearing_degrees": 90,
+        "set_bearing_degrees": 270
+      },
+      "phase": {
+        "mode": "regular",
+        "period_minutes": 40320,
+        "full_moon_anchor_minute": 0
+      },
+      "lighting": {
+        "mode": "phase_scaled_elevation",
+        "elevation_lux_knots": [
+          [
+            -90,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            90,
+            0.4
+          ]
+        ]
+      },
+      "expected_states": [
+        {
+          "day": 0,
+          "minute": 0,
+          "elevation_degrees": 90,
+          "phase_turns": 0.0,
+          "phase_name": "Full",
+          "phase_fraction": 1.0,
+          "intrinsic_lux": 0.4,
+          "time_of_day": "Night"
+        },
+        {
+          "day": 7,
+          "minute": 10080,
+          "elevation_degrees": 90,
+          "phase_turns": 0.25,
+          "phase_name": "LastQuarter",
+          "phase_fraction": 0.5,
+          "intrinsic_lux": 0.2,
+          "time_of_day": "Night"
+        },
+        {
+          "day": 14,
+          "minute": 20160,
+          "elevation_degrees": 90,
+          "phase_turns": 0.5,
+          "phase_name": "New",
+          "phase_fraction": 0.0,
+          "intrinsic_lux": 0.0,
+          "time_of_day": "Night"
+        },
+        {
+          "day": 21,
+          "minute": 30240,
+          "elevation_degrees": 90,
+          "phase_turns": 0.75,
+          "phase_name": "FirstQuarter",
+          "phase_fraction": 0.4999999999999999,
+          "intrinsic_lux": 0.19999999999999996,
+          "time_of_day": "Night"
+        },
+        {
+          "day": 28,
+          "minute": 40320,
+          "elevation_degrees": 90,
+          "phase_turns": 0.0,
+          "phase_name": "Full",
+          "phase_fraction": 1.0,
+          "intrinsic_lux": 0.4,
+          "time_of_day": "Night"
+        }
+      ],
+      "expected_events": {
+        "path_period_minutes": 1440,
+        "rise_minutes": [
+          1080
+        ],
+        "set_minutes": [
+          360
+        ],
+        "phase_period_minutes": 40320,
+        "full_moon_minutes": [
+          0
+        ],
+        "new_moon_minutes": [
+          20160
+        ]
+      },
+      "event_queries": [
+        {
+          "event": "new_moon",
+          "reference_minute": 0,
+          "occurrence": 1,
+          "expected_minute": 20160
+        },
+        {
+          "event": "new_moon",
+          "reference_minute": 0,
+          "occurrence": 2,
+          "expected_minute": 60480
+        },
+        {
+          "event": "full_moon",
+          "reference_minute": 0,
+          "occurrence": 1,
+          "expected_minute": 40320
+        }
+      ],
+      "optional_authored_crescent": {
+        "sun_fixture_id": "R1",
+        "minute_in_phase_cycle": 24180,
+        "semantics": "authored milestone, not computed visibility"
+      }
+    },
+    {
+      "id": "M2",
+      "name": "Authored phase with full and new holds",
+      "kind": "ScriptedMoon",
+      "clock": "earth_test_clock",
+      "path": {
+        "mode": "stationary",
+        "period_minutes": 1440,
+        "azimuth_degrees": 0,
+        "elevation_degrees": 90
+      },
+      "phase": {
+        "mode": "authored_unwrapped_turns",
+        "period_minutes": 16,
+        "keyframes": [
+          {
+            "minute": 0,
+            "turns": 0
+          },
+          {
+            "minute": 4,
+            "turns": 0
+          },
+          {
+            "minute": 8,
+            "turns": 0.5
+          },
+          {
+            "minute": 12,
+            "turns": 0.5
+          },
+          {
+            "minute": 16,
+            "turns": 1
+          }
+        ],
+        "interpolation": "linear; last keyframe is winding-aware closure"
+      },
+      "lighting": {
+        "mode": "phase_scaled_absolute_base",
+        "base_lux": 0.4
+      },
+      "expected_states": [
+        {
+          "minute": 0,
+          "phase_turns": 0.0,
+          "phase_name": "Full",
+          "intrinsic_lux": 0.4
+        },
+        {
+          "minute": 2,
+          "phase_turns": 0.0,
+          "phase_name": "Full",
+          "intrinsic_lux": 0.4
+        },
+        {
+          "minute": 4,
+          "phase_turns": 0.0,
+          "phase_name": "Full",
+          "intrinsic_lux": 0.4
+        },
+        {
+          "minute": 6,
+          "phase_turns": 0.25,
+          "phase_name": "LastQuarter",
+          "intrinsic_lux": 0.2
+        },
+        {
+          "minute": 8,
+          "phase_turns": 0.5,
+          "phase_name": "New",
+          "intrinsic_lux": 0.0
+        },
+        {
+          "minute": 10,
+          "phase_turns": 0.5,
+          "phase_name": "New",
+          "intrinsic_lux": 0.0
+        },
+        {
+          "minute": 12,
+          "phase_turns": 0.5,
+          "phase_name": "New",
+          "intrinsic_lux": 0.0
+        },
+        {
+          "minute": 14,
+          "phase_turns": 0.75,
+          "phase_name": "FirstQuarter",
+          "intrinsic_lux": 0.19999999999999996
+        },
+        {
+          "minute": 16,
+          "phase_turns": 0.0,
+          "phase_name": "Full",
+          "intrinsic_lux": 0.4
+        }
+      ],
+      "expected_events": {
+        "full_moon_minutes": [
+          0
+        ],
+        "new_moon_minutes": [
+          8
+        ]
+      }
+    },
+    {
+      "id": "M3",
+      "name": "Phase jumps skip intermediates but landing is an event",
+      "kind": "ScriptedMoon",
+      "clock": "earth_test_clock",
+      "phase": {
+        "mode": "authored_unwrapped_turns",
+        "period_minutes": 8,
+        "keyframes": [
+          {
+            "minute": 0,
+            "turns": 0.25
+          },
+          {
+            "minute": 2,
+            "turns": 0.75
+          },
+          {
+            "minute": 4,
+            "turns": 0.5
+          },
+          {
+            "minute": 6,
+            "turns": 0
+          },
+          {
+            "minute": 8,
+            "turns": 0.25
+          }
+        ],
+        "interpolation": "hold then jump at each destination; final key is closure"
+      },
+      "expected_events": {
+        "full_moon_minutes": [
+          6
+        ],
+        "new_moon_minutes": [
+          4
+        ]
+      },
+      "path": {
+        "mode": "stationary",
+        "period_minutes": 1440,
+        "azimuth_degrees": 0,
+        "elevation_degrees": 90
+      },
+      "lighting": {
+        "mode": "phase_scaled_absolute_base",
+        "base_lux": 0.4
+      }
+    },
+    {
+      "id": "C1",
+      "name": "20 x 80 x 100 clock",
+      "kind": "RailSun",
+      "clock": "nonstandard_test_clock",
+      "path": {
+        "mode": "simple_rail",
+        "period_minutes": 1600,
+        "rise_minute": 400,
+        "set_minute": 1200,
+        "maximum_elevation_degrees": 90,
+        "rise_bearing_degrees": 90,
+        "set_bearing_degrees": 270
+      },
+      "expected_states": [
+        {
+          "minute": 0,
+          "azimuth_degrees": null,
+          "elevation_degrees": -90.0,
+          "unit_vector_enu": [
+            -1.8369701987210297e-16,
+            6.123233995736766e-17,
+            -1.0
+          ]
+        },
+        {
+          "minute": 400,
+          "azimuth_degrees": 90.0,
+          "elevation_degrees": 0.0,
+          "unit_vector_enu": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "minute": 600,
+          "azimuth_degrees": 90.00000000000001,
+          "elevation_degrees": 44.99999999999999,
+          "unit_vector_enu": [
+            0.7071067811865476,
+            -4.329780281177466e-17,
+            0.7071067811865475
+          ]
+        },
+        {
+          "minute": 800,
+          "azimuth_degrees": null,
+          "elevation_degrees": 90.0,
+          "unit_vector_enu": [
+            6.123233995736766e-17,
+            -6.123233995736766e-17,
+            1.0
+          ]
+        },
+        {
+          "minute": 1000,
+          "azimuth_degrees": 270.0,
+          "elevation_degrees": 45.00000000000001,
+          "unit_vector_enu": [
+            -0.7071067811865475,
+            -4.329780281177467e-17,
+            0.7071067811865476
+          ]
+        },
+        {
+          "minute": 1200,
+          "azimuth_degrees": 270.0,
+          "elevation_degrees": 0.0,
+          "unit_vector_enu": [
+            -1.0,
+            -7.498798913309288e-33,
+            1.2246467991473532e-16
+          ]
+        }
+      ],
+      "expected_events": {
+        "rise_minutes": [
+          400
+        ],
+        "set_minutes": [
+          1200
+        ],
+        "first_rise_tick": 40000,
+        "first_set_tick": 120000
+      },
+      "negative_epoch_cases": [
+        {
+          "tick": -1,
+          "expected_absolute_minute": -1,
+          "expected_cycle_minute": 1599
+        },
+        {
+          "tick": -100,
+          "expected_absolute_minute": -1,
+          "expected_cycle_minute": 1599
+        },
+        {
+          "tick": -101,
+          "expected_absolute_minute": -2,
+          "expected_cycle_minute": 1598
+        }
+      ]
+    },
+    {
+      "id": "A1",
+      "name": "Independent synthetic annual angle",
+      "kind": "RailSun",
+      "clock": "earth_test_clock",
+      "annual": {
+        "period_minutes": 518400,
+        "longitude_at_epoch_degrees": 0,
+        "solar_longitude_enabled": true
+      },
+      "expected_longitudes": [
+        {
+          "day": 0,
+          "degrees": 0
+        },
+        {
+          "day": 90,
+          "degrees": 90
+        },
+        {
+          "day": 180,
+          "degrees": 180
+        },
+        {
+          "day": 270,
+          "degrees": 270
+        },
+        {
+          "day": 360,
+          "degrees": 0
+        }
+      ],
+      "event_queries": [
+        {
+          "event": "solar_longitude",
+          "longitude_degrees": 90,
+          "reference_minute": 0,
+          "occurrence": 1,
+          "expected_minute": 129600
+        },
+        {
+          "event": "solar_longitude",
+          "longitude_degrees": 90,
+          "reference_minute": 129600,
+          "occurrence": 1,
+          "expected_minute": 648000
+        }
+      ]
+    }
+  ],
+  "test_defaults": {
+    "epoch": "Day 0 00:00 in a compatible owning calendar and primary feed-clock timezone",
+    "annual_period_feed_clock_days": 360,
+    "solar_longitude_enabled": false,
+    "lighting_when_unspecified": {
+      "mode": "absolute_lux",
+      "constant_lux": 0
+    },
+    "time_of_day_eligibility": "true for suns; false for moons",
+    "descriptions": "Use supplied/default valid test descriptions; do not omit description integration."
+  }
+}

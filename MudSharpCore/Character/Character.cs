@@ -1632,7 +1632,6 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         _knowledgesChanged = false;
     }
 
-
     private void LoadFromDatabase(MudSharp.Models.Character character)
     {
         _noSave = true;
@@ -2946,49 +2945,20 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public (bool Truth, string Message) CanManipulateItem(IGameItem item)
     {
-        if (!this.CanInteractPlanar(item, PlanarInteractionKind.Inventory, out var planarMessage))
+        if (!this.CanPerformManualAction(out var reason))
         {
-            return (false, planarMessage);
+            return (false, reason);
         }
 
-        if (item.InInventoryOf != null && item.InInventoryOf != Body)
+        var reach = this.CanReachItem(item);
+        if (!reach.Truth)
         {
-			if (!ColocatedWith(item.InInventoryOf.Actor))
-			{
-				return (false, $"{item.HowSeen(this, true)} is too far away for you to reach.");
-			}
-
-            if (!this.CanInteractPlanar(item.InInventoryOf.Actor, PlanarInteractionKind.Inventory, out planarMessage))
-            {
-                return (false, planarMessage);
-            }
-
-            if (!item.InInventoryOf.Actor.WillingToPermitInventoryManipulation(this))
-            {
-                return (false,
-                        new QuickEmote("$0 &0|is|are not willing to permit you to manipulate things in &0's possession.",
-                                this, item.InInventoryOf.Actor));
-            }
-
-            return (true, string.Empty);
+            return reach;
         }
 
-        if (item.ContainedIn != null && !Location.CanGetAccess(item.ContainedIn, this))
-        {
-            return (false, Location.WhyCannotGetAccess(item.ContainedIn, this));
-        }
-
-        if (!Location.CanGetAccess(item, this))
-        {
-            return (false, Location.WhyCannotGetAccess(item, this));
-        }
-
-        if (!MountedCanManipulate(item, out string mountMessage))
-        {
-            return (false, mountMessage);
-        }
-
-        return (true, string.Empty);
+        return MountedCanManipulate(item, out var mountMessage)
+            ? (true, string.Empty)
+            : (false, mountMessage);
     }
 
     public ICharacterTemplate GetCharacterTemplate()
@@ -3662,6 +3632,11 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
     public string WhyCannotStyle(ICharacter target, ICharacteristicDefinition definition,
         IGrowableCharacteristicValue value)
     {
+        if (!this.CanPerformManualAction(out var manualReason))
+        {
+            return manualReason;
+        }
+
         if (!CanSee(target))
         {
             return "You can't see your target, which makes it pretty hard to do any styling.";
@@ -3732,6 +3707,11 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public bool CanStyle(ICharacter target, ICharacteristicDefinition definition, IGrowableCharacteristicValue value)
     {
+        if (!this.CanPerformManualAction(out _))
+        {
+            return false;
+        }
+
         if (!CanSee(target))
         {
             return false;
@@ -3825,7 +3805,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
             OutputHandler.Handle(new EmoteOutput(
                 new Emote($"@ begin|begins to work on $0's {definition.Name.ToLowerInvariant()}.", this, target)));
-            EffectHandler.AddEffect(new StagedCharacterActionWithTarget(this, target,
+            StagedCharacterActionWithTarget styleAction = null;
+            styleAction = new StagedCharacterActionWithTarget(this, target,
                 $"styling {definition.Name.ToLowerInvariant()}",
                 $"@ stop|stops working on $1's {definition.Name.ToLowerInvariant()}.",
                 $"@ cannot move because #0 are|is working on $1's {definition.Name}.", new[] { "general", "movement" },
@@ -3833,6 +3814,13 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                 {
                     perc =>
                     {
+                        if (!CanStyle(target, definition, value))
+                        {
+                            OutputHandler.Send(WhyCannotStyle(target, definition, value));
+                            RemoveEffect(styleAction, true);
+                            return;
+                        }
+
                         OutputHandler.Handle(new EmoteOutput(new Emote(
                             $"@ continue|continues to work on $0's {definition.Name.ToLowerInvariant()}.", this,
                             target)));
@@ -3841,6 +3829,13 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                     },
                     perc =>
                     {
+                        if (!CanStyle(target, definition, value))
+                        {
+                            OutputHandler.Send(WhyCannotStyle(target, definition, value));
+                            RemoveEffect(styleAction, true);
+                            return;
+                        }
+
                         OutputHandler.Handle(new EmoteOutput(new Emote(
                             $"@ have|has finished working on $0's {definition.Name.ToLowerInvariant()}, it is now {value.GetValue.A_An().Colour(Telnet.Green)}.",
                             this, target)));
@@ -3861,7 +3856,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                                 TimeSpan.FromSeconds(Gameworld.GetStaticInt("RecentlyStyledDelaySeconds")));
                         }
                     }
-                }, 2, TimeSpan.FromSeconds(20)), TimeSpan.FromSeconds(20));
+                }, 2, TimeSpan.FromSeconds(20));
+            EffectHandler.AddEffect(styleAction, TimeSpan.FromSeconds(20));
         }
 
         if (target == this || target.IsTrustedAlly(this))

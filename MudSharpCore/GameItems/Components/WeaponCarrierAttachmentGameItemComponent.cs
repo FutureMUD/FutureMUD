@@ -35,6 +35,11 @@ public class WeaponCarrierAttachmentGameItemComponent : GameItemComponent, IWeap
 	public WeaponCarrierState State => _state;
 	public bool CanAttach(IGameItem weapon, ICharacter actor, out string reason)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent, weapon))
+		{
+			return false;
+		}
+
 		if (_attachedWeapon is not null)
 		{
 			reason = "That carrier already has a weapon attached.";
@@ -80,6 +85,11 @@ public class WeaponCarrierAttachmentGameItemComponent : GameItemComponent, IWeap
 	}
 	public bool Attach(IGameItem weapon, ICharacter actor, out string reason)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent, weapon))
+		{
+			return false;
+		}
+
 		if (!CanAttach(weapon, actor, out reason)) return false;
 		if (!CarrierIsUsableBy(actor))
 		{
@@ -93,6 +103,11 @@ public class WeaponCarrierAttachmentGameItemComponent : GameItemComponent, IWeap
 	}
 	public bool Detach(ICharacter actor, out string reason)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
+		{
+			return false;
+		}
+
 		if (_attachedWeapon is null)
 		{
 			reason = "That carrier has no attached weapon.";
@@ -119,6 +134,11 @@ public class WeaponCarrierAttachmentGameItemComponent : GameItemComponent, IWeap
 	}
 	public bool Recover(ICharacter actor, out string reason)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
+		{
+			return false;
+		}
+
 		if (_attachedWeapon is null || _state != WeaponCarrierState.Hanging)
 		{
 			reason = "That carrier is not retaining a hanging weapon.";
@@ -139,6 +159,11 @@ public class WeaponCarrierAttachmentGameItemComponent : GameItemComponent, IWeap
 	}
 	public bool Release(ICharacter actor, out string reason)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
+		{
+			return false;
+		}
+
 		if (_attachedWeapon is null || _state != WeaponCarrierState.Hanging)
 		{
 			reason = "That carrier is not retaining a hanging weapon.";

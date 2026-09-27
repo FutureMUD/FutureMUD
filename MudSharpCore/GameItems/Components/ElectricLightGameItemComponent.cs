@@ -1,4 +1,5 @@
-﻿using MudSharp.GameItems.Prototypes;
+﻿using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
 
@@ -173,6 +174,11 @@ public class ElectricLightGameItemComponent : GameItemComponent, IProduceLight, 
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
         // TODO - more reasons why something couldn't be switched on or off
         return (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase) && !SwitchedOn) ||
                (setting.StartsWith("off", StringComparison.InvariantCultureIgnoreCase) && SwitchedOn)
@@ -181,6 +187,11 @@ public class ElectricLightGameItemComponent : GameItemComponent, IProduceLight, 
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
         if (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase) && SwitchedOn)
         {
             return $"{Parent.HowSeen(actor)} is already on.";
@@ -212,6 +223,11 @@ public class ElectricLightGameItemComponent : GameItemComponent, IProduceLight, 
 
     public bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!CanSwitch(actor, setting))
         {
             return false;

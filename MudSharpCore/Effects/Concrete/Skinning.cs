@@ -89,6 +89,19 @@ public class Skinning : StagedCharacterActionWithTarget, IAffectProximity
         SetupEventHandlers();
     }
 
+    public override void ExpireEffect()
+    {
+        if (!ItemManipulationGuard.CanManipulate(Skinner, out var reason, Skinnable.Parent) ||
+            Tool is not null && !ItemManipulationGuard.CanManipulate(Skinner, out reason, Tool))
+        {
+            Skinner.Send(reason);
+            Owner.RemoveEffect(this, true);
+            return;
+        }
+
+        base.ExpireEffect();
+    }
+
     public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
     {
         if (Skinnable.Parent == thing)

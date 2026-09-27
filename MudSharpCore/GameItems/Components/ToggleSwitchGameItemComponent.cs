@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 
 using MudSharp.Computers;
 using MudSharp.GameItems.Prototypes;
@@ -109,12 +110,22 @@ public class ToggleSwitchGameItemComponent : GameItemComponent, ISignalSourceCom
 
 	public bool CanSwitch(ICharacter actor, string setting)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		return (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase) && !SwitchedOn) ||
 		       (setting.StartsWith("off", StringComparison.InvariantCultureIgnoreCase) && SwitchedOn);
 	}
 
 	public string WhyCannotSwitch(ICharacter actor, string setting)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (setting.StartsWith("on", StringComparison.InvariantCultureIgnoreCase) && SwitchedOn)
 		{
 			return $"{Parent.HowSeen(actor)} is already switched on.";
@@ -130,6 +141,11 @@ public class ToggleSwitchGameItemComponent : GameItemComponent, ISignalSourceCom
 
 	public bool Switch(ICharacter actor, string setting)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
 		if (!CanSwitch(actor, setting))
 		{
 			return false;

@@ -99,6 +99,7 @@ public class GrabbingBodypartProto : DrapeableBodypartProto, IGrab
             case CanUseBodypartResult.CantUseSevered:
             case CanUseBodypartResult.CantUseNonFunctionalProsthetic:
             case CanUseBodypartResult.CantUseLimbGrappled:
+            case CanUseBodypartResult.CantUseLimbRestrained:
             case CanUseBodypartResult.CantUseMissingBone:
             case CanUseBodypartResult.CantUseSpinalDamage:
                 return WearlocGrabResult.FailDamaged;

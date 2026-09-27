@@ -103,6 +103,12 @@ public class SealableGameItemComponent : GameItemComponent, ISealable
 
 	public bool CanSeal(ICharacter actor, ISealStamp stamp, IGameItem? medium, out string error)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent, stamp.Parent) ||
+		    medium is not null && !ItemManipulationGuard.CanManipulate(actor, out error, medium))
+		{
+			return false;
+		}
+
 		if (_isSealed)
 		{
 			error = $"{Parent.HowSeen(actor, true)} is already sealed.";
@@ -126,6 +132,12 @@ public class SealableGameItemComponent : GameItemComponent, ISealable
 
 	public void Seal(ICharacter actor, ISealStamp stamp, IGameItem? medium)
 	{
+		if (!CanSeal(actor, stamp, medium, out var error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
 		CurrentSeal = stamp.CreateImpression(actor, Parent, medium);
 		_isSealed = true;
 		_sealBroken = false;
@@ -135,6 +147,11 @@ public class SealableGameItemComponent : GameItemComponent, ISealable
 
 	public bool BreakSeal(ICharacter? actor, string reason)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
+		{
+			return false;
+		}
+
 		if (!_isSealed)
 		{
 			return false;

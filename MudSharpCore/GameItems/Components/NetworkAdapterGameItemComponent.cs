@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 
 using MudSharp.Computers;
 using MudSharp.Construction.Grids;
@@ -240,6 +241,11 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 
 	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		if (other is IComputerHost)
 		{
 			return _connectedHost is null &&
@@ -257,6 +263,12 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 
 	public void Connect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		if (!CanConnect(actor, other))
 		{
 			return;
@@ -286,6 +298,11 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 
 	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (other is IComputerHost && _connectedHost is not null)
 		{
 			return $"{Parent.HowSeen(actor)} is already connected to a computer host.";
@@ -306,12 +323,23 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 
 	public bool CanDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		return ReferenceEquals(_connectedHost, other) ||
 		       ReferenceEquals(_connectedInfrastructure as IConnectable, other);
 	}
 
 	public void Disconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		RawDisconnect(other, true);
 	}
 
@@ -348,6 +376,11 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 
 	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return $"{Parent.HowSeen(actor)} is not connected to {other.Parent.HowSeen(actor)}.";
 	}
 

@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 using MudSharp.Body;
 using MudSharp.Communication;
 using MudSharp.Construction;
@@ -231,6 +232,11 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
 
     public override bool Switch(ICharacter actor, string setting)
     {
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+		{
+			return false;
+		}
+
         if (!base.Switch(actor, setting))
         {
             return false;
@@ -246,6 +252,11 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
 
     public bool CanSendFax(ICharacter actor, string number, IReadable document, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (TelecommunicationsGrid == null)
         {
             error = "That fax machine is not connected to a telecommunications grid.";
@@ -282,6 +293,11 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
 
     public bool SendFax(ICharacter actor, string number, IReadable document, out string error)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out error, Parent))
+        {
+            return false;
+        }
+
         if (!CanSendFax(actor, number, document, out error))
         {
             return false;
@@ -526,6 +542,22 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
 
     public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
+        if (emptier is not null)
+        {
+            var targets = intoContainer is null ? new[] { Parent } : new[] { Parent, intoContainer.Parent };
+            if (!ItemManipulationGuard.CanManipulate(emptier, out var reason, targets))
+            {
+				emptier.Send(reason);
+				return;
+            }
+
+            if (Contents.Any(x => !CanTake(emptier, x, 0)))
+            {
+				emptier.Send("You cannot empty that container while some of its contents cannot be taken.");
+				return;
+            }
+        }
+
         ICell? location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         _contents.Clear();

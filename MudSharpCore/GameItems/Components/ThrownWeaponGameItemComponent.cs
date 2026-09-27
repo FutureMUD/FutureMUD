@@ -106,41 +106,82 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public bool CanUnload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         return false;
     }
 
     public string WhyCannotUnload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         return "That is not something that can be unloaded. What would you do, just drop it?";
     }
 
     public IEnumerable<IGameItem> Unload(ICharacter loader)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return [];
+        }
+
         return Enumerable.Empty<IGameItem>();
     }
 
     public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         return false;
     }
 
     public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         return "That is not something that needs to be loaded! Just throw the thing!";
     }
 
     public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+        {
+            loader?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
         // Do nothing
     }
 
     public bool CanFire(ICharacter actor, IPerceivable target)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         return actor.Body.CanUnwield(Parent);
     }
 
     public string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         if (!actor.Body.CanUnwield(Parent))
         {
             return actor.Body.WhyCannotUnwield(Parent);
@@ -153,6 +194,12 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
     public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
         OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
     {
+        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
+        {
+            actor?.OutputHandler.Send(manipulationReason);
+            return;
+        }
+
         actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ hurl|hurls $1 at $0.", actor, target, Parent),
             style: OutputStyle.CombatMessage));
         if (defenseEmote != null)
@@ -356,16 +403,31 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public bool CanReady(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         return false;
     }
 
     public string WhyCannotReady(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return manipulationReason;
+        }
+
         return $"{Parent.HowSeen(readier, true)} is not something that needs to be readied. Just throw the thing!";
     }
 
     public bool Ready(ICharacter readier)
     {
+        if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
+        {
+            return false;
+        }
+
         readier.Send(WhyCannotReady(readier));
         return false;
     }

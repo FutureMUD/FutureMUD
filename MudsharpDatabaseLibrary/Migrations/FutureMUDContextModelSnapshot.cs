@@ -4320,7 +4320,7 @@ namespace MudSharp.Migrations
 
                     b.Property<string>("Definition")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("longtext")
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8");
@@ -14571,6 +14571,39 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_KnowledgesCosts_Knowledges_idx");
 
                     b.ToTable("KnowledgesCosts");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.LandRejuvenationTreatment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<long>("CellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Checkpoint")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Checkpoint"), "utf8mb4");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CellId", "Status")
+                        .HasDatabaseName("IX_LandRejuvenationTreatments_CellId_Status");
+
+                    b.ToTable("LandRejuvenationTreatments", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Language", b =>

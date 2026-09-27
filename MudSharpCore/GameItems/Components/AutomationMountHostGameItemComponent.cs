@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿using MudSharp.GameItems;
+#nullable enable
 
 using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
@@ -236,6 +237,11 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 
 	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		if (actor is not null && !CanAccessMounts(actor, out _))
 		{
 			return false;
@@ -259,6 +265,12 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 
 	public void Connect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		var bay = _prototype.Bays.FirstOrDefault(x =>
 			!_mountedByBay.ContainsKey(x.Name) &&
 			other is IAutomationMountable mountable &&
@@ -292,6 +304,11 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 
 	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		if (actor is not null && !CanAccessMounts(actor, out var accessError))
 		{
 			return accessError;
@@ -312,11 +329,22 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 
 	public bool CanDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
+		{
+			return false;
+		}
+
 		return _mountedByBay.Values.Any(x => ReferenceEquals(x, other));
 	}
 
 	public void Disconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		var bay = _mountedByBay.FirstOrDefault(x => ReferenceEquals(x.Value, other));
 		if (string.IsNullOrEmpty(bay.Key))
 		{
@@ -364,6 +392,11 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 
 	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			return manipulationReason;
+		}
+
 		return $"{other.Parent.HowSeen(actor)} is not currently installed in {Parent.HowSeen(actor)}.";
 	}
 

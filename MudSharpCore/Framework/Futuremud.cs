@@ -2576,6 +2576,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public void Destroy(ICelestialObject celestial)
     {
+        if (celestial is IAuthoredCelestial && celestial is IDisposable disposable) disposable.Dispose();
         _celestialObjects.Remove(celestial);
         DestroyListeners(celestial);
     }

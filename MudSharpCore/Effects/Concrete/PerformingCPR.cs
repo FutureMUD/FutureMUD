@@ -17,6 +17,13 @@ public class PerformingCPR : CharacterActionWithTarget
 
     public override void ExpireEffect()
     {
+        if (!CharacterOwner.CanPerformManualAction(out var manualReason))
+        {
+            CharacterOwner.Send(manualReason);
+            Owner.RemoveEffect(this, true);
+            return;
+        }
+
         double targetHeartFunction = TargetCharacter.Body.Organs.OfType<HeartProto>()
                                                  .Select(x => x.OrganFunctionFactor(TargetCharacter.Body))
                                                  .DefaultIfEmpty(0)

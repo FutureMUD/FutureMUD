@@ -13,7 +13,7 @@ using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Celestial;
 
-public class NewSun : PerceivedItem, ICelestialObject, ISolarEphemeris
+public class NewSun : PerceivedItem, ICelestialObject, ISolarEphemeris, ICelestialTimeContext
 {
     public override string FrameworkItemType => "Celestial";
 

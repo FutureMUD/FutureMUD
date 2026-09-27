@@ -480,6 +480,44 @@ public abstract partial class Shop : SaveableItem, IShop
         _stockedMerchandiseCounts.Add(merch, item.Quantity);
     }
 
+    public void RegisterStockItemSplit(IGameItem source, IGameItem split)
+    {
+        var merchandise = _stockedMerchandise.FirstOrDefault(x => x.Value.Contains(source.Id)).Key;
+        if (merchandise is null || _stockedMerchandise[merchandise].Contains(split.Id))
+        {
+            return;
+        }
+
+        _stockedMerchandise.Add(merchandise, split.Id);
+        // Stack quantities are conserved; splitting a commodity creates an additional pile.
+        if (source.GetItemType<ICommodity>() is not null)
+        {
+            _stockedMerchandiseCounts.Add(merchandise, split.Quantity);
+        }
+    }
+
+    public void RegisterStockItemMerge(IGameItem target, IGameItem absorbed)
+    {
+        if (ReferenceEquals(target, absorbed))
+        {
+            return;
+        }
+
+        var merchandise = _stockedMerchandise
+            .FirstOrDefault(x => x.Value.Contains(target.Id) && x.Value.Contains(absorbed.Id)).Key;
+        if (merchandise is null)
+        {
+            return;
+        }
+
+        _stockedMerchandise.Remove(merchandise, absorbed.Id);
+        // Stack units remain in the surviving stack; other mergeable types lose one physical pile.
+        if (absorbed.GetItemType<IStackable>() is null)
+        {
+            _stockedMerchandiseCounts.Add(merchandise, -absorbed.Quantity);
+        }
+    }
+
     public void DisposeFromStock(ICharacter actor, IGameItem item)
     {
         actor?.OutputHandler.Send(
@@ -500,7 +538,8 @@ public abstract partial class Shop : SaveableItem, IShop
             return stockedMerchandise;
         }
 
-        return _merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item)) ??
+        return item.EffectsOfType<ItemOnDisplayInShop>().FirstOrDefault(x => x.Shop == this)?.Merchandise ??
+               _merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item)) ??
                _merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true));
     }
 
@@ -518,8 +557,14 @@ public abstract partial class Shop : SaveableItem, IShop
             return;
         }
 
+        var wasIndexed = _stockedMerchandise[merch].Contains(item.Id);
         _stockedMerchandise.Remove(merch, item.Id);
-        _stockedMerchandiseCounts.Add(merch, item.Quantity * -1);
+        // Legacy or externally created splits may carry the display marker without an index entry.
+        // Removing such a commodity must not decrement its remaining source's pile count.
+        if (wasIndexed || item.GetItemType<ICommodity>() is null)
+        {
+            _stockedMerchandiseCounts.Add(merch, item.Quantity * -1);
+        }
     }
 
     private readonly List<ILineOfCreditAccount> _lineOfCreditAccounts = new();
@@ -1193,6 +1238,9 @@ public abstract partial class Shop : SaveableItem, IShop
             }
         }
 
+        var removedStockCount = boughtItems
+            .Where(x => _stockedMerchandise[merchandise].Contains(x.Id))
+            .Sum(x => x.Quantity);
         List<(IGameItem Item, IGameItem Container)> restockInfo = boughtItems.Select(x => (Item: x, Container: x.ContainedIn)).ToList();
         foreach (IGameItem item in boughtItems)
         {
@@ -1204,7 +1252,7 @@ public abstract partial class Shop : SaveableItem, IShop
             _stockedMerchandise.Remove(merchandise, item.Id);
         }
 
-        RecalculateStockedItems(merchandise, 0);
+        RecalculateStockedItems(merchandise, removedStockCount);
         var calculation = PriceAndTaxForMerchandiseWeight(actor, merchandise, weight);
         var price = calculation.Price;
         var tax = calculation.Tax;

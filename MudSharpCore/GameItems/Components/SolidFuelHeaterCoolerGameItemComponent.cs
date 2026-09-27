@@ -306,6 +306,22 @@ public class SolidFuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGam
 
     public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
+        if (emptier is not null)
+        {
+            var targets = intoContainer is null ? new[] { Parent } : new[] { Parent, intoContainer.Parent };
+            if (!ItemManipulationGuard.CanManipulate(emptier, out var reason, targets))
+            {
+				emptier.Send(reason);
+				return;
+            }
+
+            if (Contents.Any(x => !CanTake(emptier, x, 0)))
+            {
+				emptier.Send("You cannot empty that container while some of its contents cannot be taken.");
+				return;
+            }
+        }
+
         foreach (IGameItem? item in _contents.ToList())
         {
             if (item == _currentFuelItem)

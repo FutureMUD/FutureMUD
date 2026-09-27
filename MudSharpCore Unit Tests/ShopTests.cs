@@ -358,6 +358,100 @@ public class ShopTests
     }
 
     [TestMethod]
+    public void LoseFromStock_PartialCommodity_RecordsWeightLossAndKeepsResidualPileCount()
+    {
+        var material = RegisterMaterial(1, "Iron");
+        var proto = RegisterPrototype(12);
+        Merchandise merch = new(_shop, "iron", proto.Object, material.Object, null, 20m, 0.5, false, null, null);
+        _shop.AddMerchandise(merch);
+        var source = CreateCommodityItem(120L, proto.Object, material.Object, 5.0);
+        var split = CreateCommodityItem(121L, proto.Object, material.Object, 1.0);
+        _shop.AddToStock(null, source.Object, merch);
+        source.Object.GetItemType<ICommodity>().Weight = 4.0;
+        var display = new ItemOnDisplayInShop(split.Object, _shop, merch);
+        split.Setup(x => x.EffectsOfType<ItemOnDisplayInShop>(It.IsAny<Predicate<ItemOnDisplayInShop>>()))
+            .Returns([display]);
+
+        _shop.LoseFromStock(null, split.Object);
+
+        Assert.AreEqual(1, _shop.RecordedStockCount(merch));
+        Assert.AreSame(source.Object, _shop.StockedItems(merch).Single());
+        Assert.AreEqual(4.0, source.Object.GetItemType<ICommodity>().Weight);
+        var loss = _shop.TransactionRecords.Last();
+        Assert.AreEqual(ShopTransactionType.StockLoss, loss.TransactionType);
+        Assert.AreSame(merch, loss.Merchandise);
+        Assert.AreEqual(40m, loss.PretaxValue);
+        _shop.LoseFromStock(null, source.Object);
+        Assert.AreEqual(0, _shop.RecordedStockCount(merch));
+    }
+
+    [TestMethod]
+    public void BuyCommodityWeight_WithAnotherDisplayedSplit_DoesNotInventStockTransactions()
+    {
+        var material = RegisterMaterial(1, "Iron");
+        var proto = RegisterPrototype(12);
+        Merchandise merch = new(_shop, "iron", proto.Object, material.Object, null, 20m, 0.5, false, null, null);
+        _shop.AddMerchandise(merch);
+        var source = CreateCommodityItem(120L, proto.Object, material.Object, 5.0);
+        var heldSplit = CreateCommodityItem(121L, proto.Object, material.Object, 1.0);
+        var boughtSplit = CreateCommodityItem(122L, proto.Object, material.Object, 0.5);
+        _shop.AddToStock(null, source.Object, merch);
+        source.Object.GetItemType<ICommodity>().Weight = 4.0;
+        _shop.RegisterStockItemSplit(source.Object, heldSplit.Object);
+        _shop.RegisterStockItemSplit(source.Object, heldSplit.Object);
+        Assert.AreEqual(2, _shop.RecordedStockCount(merch));
+        Assert.AreEqual(1, _shop.TransactionRecords.Count());
+        source.Setup(x => x.GetByWeight(null, 0.5)).Returns(() =>
+        {
+            source.Object.GetItemType<ICommodity>().Weight -= 0.5;
+            _shop.RegisterStockItemSplit(source.Object, boughtSplit.Object);
+            return boughtSplit.Object;
+        });
+        var bankActor = CreateBankPaymentActor();
+
+        var bought = _shop.BuyCommodityWeight(bankActor.Actor.Object, merch, 0.5,
+            bankActor.Payment, [source.Object]).ToList();
+
+        Assert.AreSame(boughtSplit.Object, bought.Single());
+        Assert.AreEqual(2, _shop.RecordedStockCount(merch));
+        CollectionAssert.AreEquivalent(new[] { source.Object, heldSplit.Object }, _shop.StockedItems(merch).ToArray());
+        CollectionAssert.AreEqual(new[] { ShopTransactionType.Stock, ShopTransactionType.Sale },
+            _shop.TransactionRecords.Select(x => x.TransactionType).ToArray());
+        Assert.AreEqual(20m, _shop.TransactionRecords.Last().PretaxValue);
+        _shop.LoseFromStock(null, heldSplit.Object);
+        Assert.AreEqual(1, _shop.RecordedStockCount(merch));
+        Assert.AreEqual(40m, _shop.TransactionRecords.Last().PretaxValue);
+    }
+
+    [TestMethod]
+    public void RegisterStockItemMerge_RepeatedCommodityPickupDoesNotInventStockLoss()
+    {
+        var material = RegisterMaterial(1, "Iron");
+        var proto = RegisterPrototype(12);
+        Merchandise merch = new(_shop, "iron", proto.Object, material.Object, null, 20m, 0.5, false, null, null);
+        _shop.AddMerchandise(merch);
+        var source = CreateCommodityItem(120L, proto.Object, material.Object, 5.0);
+        var first = CreateCommodityItem(121L, proto.Object, material.Object, 1.0);
+        var second = CreateCommodityItem(122L, proto.Object, material.Object, 1.0);
+        _shop.AddToStock(null, source.Object, merch);
+        source.Object.GetItemType<ICommodity>().Weight = 3.0;
+        _shop.RegisterStockItemSplit(source.Object, first.Object);
+        _shop.RegisterStockItemSplit(source.Object, second.Object);
+        Assert.AreEqual(3, _shop.RecordedStockCount(merch));
+
+        first.Object.GetItemType<ICommodity>().Weight = 2.0;
+        _shop.RegisterStockItemMerge(first.Object, second.Object);
+        _shop.RegisterStockItemMerge(first.Object, second.Object);
+        _shop.ReconcileStock(merch);
+
+        Assert.AreEqual(2, _shop.RecordedStockCount(merch));
+        CollectionAssert.AreEquivalent(new[] { source.Object, first.Object }, _shop.StockedItems(merch).ToArray());
+        Assert.AreEqual(1, _shop.TransactionRecords.Count());
+        Assert.AreEqual(ShopTransactionType.Stock, _shop.TransactionRecords.Single().TransactionType);
+        Assert.AreEqual(5.0, _shop.StockedItems(merch).Sum(x => x.GetItemType<ICommodity>().Weight));
+    }
+
+    [TestMethod]
     public void BuyCommand_CommodityMerchandiseRequiresWeightSyntax()
     {
         Mock<ISolid> material = RegisterMaterial(2, "Copper");
@@ -728,6 +822,8 @@ public class ShopTests
 
     private class TestShop : PermanentShop
     {
+        public int RecordedStockCount(IMerchandise merchandise) => _stockedMerchandiseCounts[merchandise];
+        public void ReconcileStock(IMerchandise merchandise) => RecalculateStockedItems(merchandise, 0);
         public IEnumerable<ICell> CurrentLocationsOverride { get; set; } = Enumerable.Empty<ICell>();
         public TestShop(MudSharp.Models.Shop model, IFuturemud gameworld) : base(model, gameworld) { }
         protected override void Save(MudSharp.Models.Shop dbitem) { }

@@ -1,3 +1,4 @@
+using MudSharp.GameItems;
 #nullable enable
 
 using MudSharp.GameItems.Prototypes;
@@ -136,6 +137,12 @@ public class KeycardWriterGameItemComponent : PoweredMachineBaseGameItemComponen
 
 	public void Connect(ICharacter? actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		_mountedHost = other;
 		_pendingMountedHostId = null;
 		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(MountConnector)));
@@ -161,6 +168,12 @@ public class KeycardWriterGameItemComponent : PoweredMachineBaseGameItemComponen
 
 	public void Disconnect(ICharacter actor, IConnectable other)
 	{
+		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		{
+			actor?.OutputHandler.Send(manipulationReason);
+			return;
+		}
+
 		RawDisconnect(other, true);
 		if (actor.Body.CanGet(Parent, 0))
 		{

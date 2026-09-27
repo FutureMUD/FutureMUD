@@ -1,0 +1,50 @@
+ARM-02 native command and persistence acceptance
+Completed UTC: 2026-09-27T06:53:33Z
+Command: Run-IsolatedAcceptance.ps1 -CastingOnly
+Executed non-admin command adapter input: draw cast "ARM02 Stone Skin" grade 3 overreach on self via 1
+Input is recorded from the executable fixture; the retained response below is native output.
+Scope: minimal native world, controlled checks/randomness, real domain objects and MySQL persistence.
+This is not a full installed-world Telnet transcript.
+Raw local source: .artifacts/configurable-casting/native-final.log
+Raw log SHA256: ac07872a330215d7099a0f469a5c9a6fc7f5316749ae0a662a8b7e4515540b6e
+
+Selected output lines below are extracted unchanged from the successful run.
+
+workingTreeRevision=cacbd2d26057cfdaaabf9532c6d4e210c50f9f10
+workingTreeState=dirty
+server=isolated-loopback-mysql
+MySQL server reachable; version=8.0.45; test connection contains no selected database.
+ARM02-created=futuremud_land_20260927065148_df4fbc11a2
+ARM02-schema=passed blank-snapshot-import empty-casting-tables generated-migration-and-model-parity
+rejuvenation-command: The paid casting succeeded.
+ARM02-receipt=passed operation:2f3efbc9-d366-41ab-aa9c-c4d8cf7b1957 character:1 actor:1 body:1 capability:1 spell:1 trait:1 reserve:1 stage:Completed
+ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:39304
+ARM02-native-cast=passed non-admin-command real-Skill real-Body payment:22.5 grade:3 separate-process-reload
+ARM02-sorcerer=passed second-non-admin distinct-reserve:77.5 agility:-3 armour:92 gathering-only
+ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:43332
+ARM02-second-body=passed focus detach restore single-passive-tick grade-one-cost:5 shared-opportunity native-gathering-canonical-credit-physical-costs
+ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:53852
+ARM02-second-body-restart=passed persisted-instance-effects shared-skill shared-deadlines shared-reserve
+ARM02-reader=passed grade:3 balance:72.5 unresolved:0 operation:none process:20300
+ARM02-reader=passed grade:2 balance:100 unresolved:0 operation:none process:53396
+ARM02-fault=passed stage:BeforePayment status:Refused operation:none no-replay-no-refund-no-reroll
+ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route
+ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:5d3adb65-979e-473a-bf15-ec1426a0486f process:40912
+ARM02-fault=passed stage:PaymentMutated status:NeedsReview operation:5d3adb65-979e-473a-bf15-ec1426a0486f no-replay-no-refund-no-reroll
+ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route
+ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:fb34c896-f21f-4fd6-a103-23ab17635669 process:44180
+ARM02-fault=passed stage:EffectsExecuted status:NeedsReview operation:fb34c896-f21f-4fd6-a103-23ab17635669 no-replay-no-refund-no-reroll
+ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route
+ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:46881e21-3ed0-4c7f-8419-ba1cf3e26d2f process:9120
+ARM02-fault=passed stage:MasterySampledBeforeWrite status:NeedsReview operation:46881e21-3ed0-4c7f-8419-ba1cf3e26d2f no-replay-no-refund-no-reroll
+ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route
+ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:c06eb9d9-ad02-4bf2-9092-1a83a3b54db0 process:38584
+ARM02-fault=passed stage:MasterySampleRecorded status:NeedsReview operation:c06eb9d9-ad02-4bf2-9092-1a83a3b54db0 no-replay-no-refund-no-reroll
+ARM02-provider=passed operation:96f0229d-950c-4013-89a8-157c3e2a6a0a At SamplingMastery: An error occurred while saving the entity changes. See the inner exception for details. (ARM02 controlled provider sample failure)
+ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route
+ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:96f0229d-950c-4013-89a8-157c3e2a6a0a process:48360
+ARM02-auxiliary=passed Ember-Lance-native-wounds Wardcraft-native-tag-ward per-spell-trait shared-trait-edge native-school-preserved
+ARM02-native=passed
+cleanup=deleted-owned-database
+nativeHarnessExit=0
+temporaryMySqlCleanup=gracefully-shut-down-and-deleted-owned-instance

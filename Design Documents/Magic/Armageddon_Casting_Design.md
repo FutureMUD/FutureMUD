@@ -2,6 +2,10 @@
 
 Task: `MAGIC-ARMAGEDDON-ARM-01`. Edition: 1, 27 September 2026.
 
+ARM-02 implementation follow-up: [runtime and authoring guide](Configurable_Casting.md)
+and [acceptance handover](Configurable_Casting_Handover.md). The proposal below remains
+the wider design; later slices and the candidate stock repertoire are not installed by ARM-02.
+
 **Status: design proposal; not authority to implement or seed.** Luke authorised this
 design/audit package and selected the architecture and optional features recorded below.
 The numerical stock profile, candidate repertoire, adaptations and proposed omissions

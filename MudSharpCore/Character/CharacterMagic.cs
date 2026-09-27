@@ -1,6 +1,7 @@
 ﻿using MudSharp.Database;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Magic;
+using MudSharp.Magic.Casting;
 using MudSharp.Models;
 using MudSharp.RPG.Merits.Interfaces;
 
@@ -65,7 +66,7 @@ public partial class Character : IMagicUser
     public void CheckResources()
     {
 		UpdateVancianSleepTracker();
-        List<IMagicResourceRegenerator> generators = Capabilities.SelectMany(x => x.Regenerators).Distinct().ToList();
+        List<IMagicResourceRegenerator> generators = Capabilities.SelectMany(x => x.Regenerators).Where(x => !IsCastingGenerator(x)).Distinct().ToList();
         foreach (IMagicResourceRegenerator generator in generators)
         {
             if (!_magicResourceGenerators.Contains(generator))
@@ -87,6 +88,7 @@ public partial class Character : IMagicUser
         {
             RemoveMagicResourceGenerator(generator);
         }
+		Gameworld.MagicCasting?.Reconcile(this);
     }
 
     public void SaveMagic(MudSharp.Models.Character character)
@@ -126,13 +128,13 @@ public partial class Character : IMagicUser
             _magicResourceAmounts.Add(Gameworld.MagicResources.Get(resource.MagicResourceId), resource.Amount);
         }
 
-        foreach (IMagicResourceRegenerator item in Capabilities.SelectMany(x => x.Regenerators))
+        foreach (IMagicResourceRegenerator item in Capabilities.SelectMany(x => x.Regenerators).Where(x => !IsCastingGenerator(x)))
         {
             AddMagicResourceGenerator(item);
         }
 
         foreach (IMagicResource resource in Gameworld.MagicResources.Where(x =>
-                     !_magicResourceAmounts.ContainsKey(x) && x.ShouldStartWithResource(this)))
+                     !_magicResourceAmounts.ContainsKey(x) && !IsCastingReserve(x) && x.ShouldStartWithResource(this)))
         {
             _magicResourceAmounts.Add(resource, resource.StartingResourceAmount(this));
             ResourcesChanged = true;
@@ -143,9 +145,12 @@ public partial class Character : IMagicUser
 
     #region Implementation of IHaveMagicResource
 
-    public IEnumerable<IMagicResource> MagicResources => _magicResourceAmounts.Keys;
+    public IEnumerable<IMagicResource> MagicResources => MagicResourceAmounts.Keys;
     private readonly DoubleCounter<IMagicResource> _magicResourceAmounts = new();
-    public IReadOnlyDictionary<IMagicResource, double> MagicResourceAmounts => _magicResourceAmounts;
+    public IReadOnlyDictionary<IMagicResource, double> MagicResourceAmounts =>
+		MudSharp.Magic.Casting.MagicCastingService.Owner(this) is { } owner && !ReferenceEquals(owner, this)
+			? _magicResourceAmounts.Where(x => !IsCastingReserve(x.Key)).Concat(owner.MagicResourceAmounts.Where(x => IsCastingReserve(x.Key))).ToDictionary(x => x.Key, x => x.Value)
+			: _magicResourceAmounts;
 
     private bool _resourcesChanged;
 
@@ -164,11 +169,15 @@ public partial class Character : IMagicUser
 
     public bool CanUseResource(IMagicResource resource, double amount)
     {
+		var owner = CastingResourceOwner(resource);
+		if (!ReferenceEquals(owner, this)) return owner.CanUseResource(resource, amount);
         return _magicResourceAmounts[resource] >= amount;
     }
 
     public bool UseResource(IMagicResource resource, double amount)
     {
+		var owner = CastingResourceOwner(resource);
+		if (!ReferenceEquals(owner, this)) return owner.UseResource(resource, amount);
         if (_magicResourceAmounts[resource] >= amount)
         {
             _magicResourceAmounts[resource] -= amount;
@@ -182,7 +191,13 @@ public partial class Character : IMagicUser
 
     public void AddResource(IMagicResource resource, double amount)
     {
-        if (!CanRunCharacterOngoingProcesses)
+		if (GenerationFilter.Value is { } filter &&
+			(ReferenceEquals(filter.Recipient, this) || IsCastingReserve(resource) && ReferenceEquals(MagicCastingService.Owner(filter.Recipient), this)) &&
+			!filter.Allows(resource)) return;
+		var owner = CastingResourceOwner(resource);
+		if (!ReferenceEquals(owner, this)) { owner.AddResource(resource, amount); return; }
+        if (!CanRunCharacterOngoingProcesses && !(IsCastingReserve(resource) && CastingGenerationBodies().Any(x =>
+			!x.State.HasFlag(CharacterState.Dead) && !x.State.HasFlag(CharacterState.Stasis))))
         {
             PauseMagicResourceGeneratorHeartbeats();
             return;
@@ -199,7 +214,7 @@ public partial class Character : IMagicUser
     }
 
     private readonly List<IMagicResourceRegenerator> _magicResourceGenerators = new();
-    public IEnumerable<IMagicResourceRegenerator> MagicResourceGenerators => _magicResourceGenerators;
+    public IEnumerable<IMagicResourceRegenerator> MagicResourceGenerators => _magicResourceGenerators.Concat(_castingGenerators.Keys).Distinct();
     private Dictionary<IMagicResourceRegenerator, HeartbeatManagerDelegate> _generatorDelegateDictionary = new();
 
     private void ResumeMagicResourceGeneratorHeartbeats()
@@ -218,14 +233,16 @@ public partial class Character : IMagicUser
                 continue;
             }
 
-            HeartbeatManagerDelegate hbdelegate = generator.GetOnMinuteDelegate(this);
+            HeartbeatManagerDelegate hbdelegate = () => GenerateFiltered(this, generator.GetOnMinuteDelegate(this), r => !IsCastingReserve(r));
             _generatorDelegateDictionary[generator] = hbdelegate;
             Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += hbdelegate;
         }
+		ReconcileCastingResources();
     }
 
     private void PauseMagicResourceGeneratorHeartbeats()
     {
+		PauseCastingGenerators();
 		StopVancianSleepTracker();
         foreach (HeartbeatManagerDelegate hbdelegate in _generatorDelegateDictionary.Values.ToList())
         {

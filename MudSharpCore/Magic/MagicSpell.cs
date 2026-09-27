@@ -21,7 +21,7 @@ using MudSharp.Magic.Vancian;
 
 namespace MudSharp.Magic;
 
-public partial class MagicSpell : SaveableItem, IMagicSpell
+public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpell
 {
     public MagicSpell(Models.MagicSpell spell, IFuturemud gameworld)
     {
@@ -54,6 +54,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
         TargetNullEmote = spell.TargetNullEmote;
 
         XElement definition = XElement.Parse(spell.Definition);
+		LoadGradeProfile(definition);
         if (definition.Element("NoTrigger") == null)
         {
             Trigger = SpellTriggerFactory.LoadTrigger(definition.Element("Trigger"), this);
@@ -136,6 +137,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
         School = rhs.School;
         _name = name;
         Blurb = rhs.Blurb;
+		GradeProfile = rhs.GradeProfile;
+		_gradeLoadError = rhs._gradeLoadError;
+		_unreadableGradeProfile = rhs._unreadableGradeProfile is null ? null : new XElement(rhs._unreadableGradeProfile);
 		SpellLevel = rhs.SpellLevel;
 		ScrollInscriptionAllowed = rhs.ScrollInscriptionAllowed;
         Description = rhs.Description;
@@ -143,7 +147,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
         ExclusiveDelay = rhs.ExclusiveDelay;
         NonExclusiveDelay = rhs.NonExclusiveDelay;
         SpellKnownProg = rhs.SpellKnownProg;
-        Trigger = rhs.Trigger.Clone();
+        Trigger = SpellTriggerFactory.LoadTrigger(rhs.Trigger.SaveToXml(), this);
         CastingTrait = rhs.CastingTrait;
         CastingDifficulty = rhs.CastingDifficulty;
         OpposedDifficulty = rhs.OpposedDifficulty;
@@ -154,12 +158,12 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 
         foreach (IMagicSpellEffectTemplate effect in rhs.SpellEffects)
         {
-            _spellEffects.Add(effect.Clone());
+            _spellEffects.Add(SpellEffectFactory.LoadEffect(effect.SaveToXml(), this));
         }
 
         foreach (IMagicSpellEffectTemplate effect in rhs.CasterSpellEffects)
         {
-            _casterSpellEffects.Add(effect.Clone());
+            _casterSpellEffects.Add(SpellEffectFactory.LoadEffect(effect.SaveToXml(), this));
         }
 
         CastingEmote = rhs.CastingEmote;
@@ -213,6 +217,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
     private XElement SaveDefinition()
     {
         return new XElement("Spell",
+            SaveGradeProfile(),
             Trigger?.SaveToXml() ?? new XElement("NoTrigger"),
             new XElement("Costs",
                 from cost in _castingCosts
@@ -314,6 +319,11 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
+		if (command.PeekSpeech().EqualTo("grades"))
+		{
+			command.PopSpeech();
+			return BuildingCommandGrades(actor, command);
+		}
         switch (command.PopForSwitch())
         {
             case "level":
@@ -1245,6 +1255,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
         sb.AppendLine($"Target Null Emote: {TargetNullEmote?.ColourCommand() ?? ""}");
         sb.AppendLine();
         sb.AppendLine($"Trigger: {Trigger?.Show(actor) ?? "None".Colour(Telnet.Red)}");
+		AppendGradeShow(sb, actor);
         sb.AppendLine();
         sb.AppendLine("Description:");
         sb.AppendLine();
@@ -1379,7 +1390,8 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
     public bool CharacterKnowsSpell(ICharacter magician)
     {
 		if (Trigger is SpellTriggers.AttackHitTrigger or SpellTriggers.SubstanceTrigger) return false;
-		return HasLegacyRoute(magician) || (magician is not null && VancianMagicService.For(Gameworld).KnowsThroughVancian(magician, this));
+		return HasLegacyRoute(magician) || (magician is not null &&
+			(Gameworld.MagicCasting?.Acquisition(magician, Id) is not null || VancianMagicService.For(Gameworld).KnowsThroughVancian(magician, this)));
 	}
 
 	public bool HasLegacyRoute(ICharacter magician)
@@ -1389,7 +1401,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
             return false;
         }
 
-        if (magician.Capabilities.Where(x => x is not IVancianMagicCapability).All(x => x.School != School))
+        if (magician.Capabilities.Where(x => x is not IVancianMagicCapability && x is not IMagicCastingCapability { HasCastingPolicy: true }).All(x => x.School != School))
         {
             return false;
         }
@@ -1475,6 +1487,12 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
         params SpellAdditionalParameter[] additionalParameters)
     {
 		if (SpellTargetCapture.Intercept(magician, this, target, power, additionalParameters)) return;
+		if (Trigger is ICastMagicTrigger && !HasLegacyRoute(magician) && SpellPowerInvocation.For(magician, this) is null &&
+			(magician.Capabilities.Any(x => x is IMagicCastingCapability { HasCastingPolicy: true }) || GradeProfile is not null))
+		{
+			magician.OutputHandler.Send("Select an acquired, admitted and paid casting route with grade and optional via capability.");
+			return;
+		}
 		if (Trigger is ICastMagicTrigger &&
 		    magician.Capabilities.Any(x => x is IVancianMagicCapability && x.School.Id == School.Id) &&
 		    !HasLegacyRoute(magician) &&
@@ -1489,9 +1507,13 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 	internal void CastVancian(ICharacter magician, IPerceivable? target, SpellPower power, SpellInvocationContext invocation, SpellAdditionalParameter[] parameters)
 		=> CastSpellCore(magician, target, power, invocation, parameters);
 
-	private void CastSpellCore(ICharacter magician, IPerceivable target, SpellPower power,
+    private void CastSpellCore(ICharacter magician, IPerceivable target, SpellPower power,
 		SpellInvocationContext? invocation, params SpellAdditionalParameter[] additionalParameters)
 	{
+		if (Gameworld.MagicCasting?.QuarantineReason(magician, Id, CastingTrait?.Id) is { } quarantine)
+		{
+			magician.OutputHandler.Send(quarantine.ColourError()); return;
+		}
         if (magician.CombinedEffectsOfType<MagicSpellLockout>().Any(x => x.Applies(School)))
         {
             magician.OutputHandler.Send(
@@ -1500,7 +1522,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
         }
 
         List<(IMagicResource Resource, double Cost)> realCosts = new();
-        foreach ((IMagicResource resource, ITraitExpression expression) in invocation?.Source == SpellInvocationSource.ScrollActivation ? [] : _castingCosts)
+		foreach ((IMagicResource resource, ITraitExpression expression) in invocation?.Source is SpellInvocationSource.ScrollActivation or SpellInvocationSource.ConfiguredCasting ? [] : _castingCosts)
         {
             double cost = expression.EvaluateWith(magician, CastingTrait, TraitBonusContext.SpellCost,
                 ("power", (int)power), ("self", magician == target ? 1 : 0));
@@ -1540,6 +1562,15 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
             default:
                 throw new ArgumentOutOfRangeException();
         }
+		var inputIds = plan.PeekPlanResults().SelectMany(x => new[] { x.PrimaryTarget?.Id, x.SecondaryTarget?.Id })
+			.Where(x => x.HasValue).Select(x => x!.Value).Distinct().ToArray();
+		if (Gameworld.MagicCasting?.QuarantineReason(magician, itemIds: inputIds) is { } inputQuarantine)
+		{ magician.OutputHandler.Send(inputQuarantine.ColourError()); return; }
+		foreach (var resourceId in _castingCosts.Keys.Select(x => x.Id))
+			if (Gameworld.MagicCasting?.QuarantineReason(magician, reserveId: resourceId) is { } resourceQuarantine)
+			{ magician.OutputHandler.Send(resourceQuarantine.ColourError()); return; }
+		if (invocation?.Configured is { } preflight && preflight.Payments.Any(x => !x.Holder.CanUseResource(x.Resource, x.Amount)))
+		{ magician.OutputHandler.Send("The current balance cannot fund this invocation."); return; }
 
         if (target is null && SpellEffects.Any(x => x.RequiresTarget))
         {
@@ -1549,8 +1580,15 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 
 		void Pay()
 		{
+			if (invocation?.Configured is { } configured)
+			{
+				foreach (var payment in configured.Payments)
+					if (!payment.Holder.UseResource(payment.Resource, payment.Amount)) throw new InvalidOperationException("A revalidated casting payment was declined.");
+				configured.BeforeMaterials?.Invoke();
+			}
 			foreach ((IMagicResource resource, double cost) in realCosts) magician.UseResource(resource, cost);
 			plan.ExecuteWholePlan();
+			if (invocation?.Configured is not null) plan.FinalisePlan();
 		}
 		if (invocation is not null)
 		{
@@ -1575,18 +1613,25 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
         {
             magician.AddEffect(new MagicSpellLockout(magician, new List<IMagicSchool> { School }), NonExclusiveDelay);
         }
+		invocation?.Configured?.AfterCommit?.Invoke();
 
         ICheck check = Gameworld.GetCheck(CheckType.CastSpellCheck);
         ICheck resistCheck = Gameworld.GetCheck(CheckType.ResistMagicSpellCheck);
-        Dictionary<Difficulty, CheckOutcome> result = invocation is null
-			? check.CheckAgainstAllDifficulties(magician, CastingDifficulty, CastingTrait, target)
+        Dictionary<Difficulty, CheckOutcome> result = invocation is null || invocation.Configured is not null
+			? PerformCastCheck()
 			: Enum.GetValues<Difficulty>().ToDictionary(x => x, _ => CheckOutcome.SimpleOutcome(CheckType.CastSpellCheck, invocation.Outcome));
-        if (invocation is null && result[CastingDifficulty].Outcome < MinimumSuccessThreshold)
+		if (invocation?.Configured is { } checkedInvocation) checkedInvocation.CheckResult = result[CastingDifficulty];
+        if ((invocation is null || invocation.Configured is not null) && result[CastingDifficulty].Outcome < MinimumSuccessThreshold)
         {
             magician.OutputHandler.Handle(new EmoteOutput(new Emote(FailCastingEmote, magician, magician, target),
                 flags: CastingEmoteFlags));
             return;
         }
+		Dictionary<Difficulty, CheckOutcome> PerformCastCheck()
+		{
+			using var suppression = invocation?.Configured is null ? null : new CheckImprovementScope(magician);
+			return check.CheckAgainstAllDifficulties(magician, CastingDifficulty, CastingTrait, target);
+		}
 
         magician.OutputHandler.Handle(new EmoteOutput(new Emote(CastingEmote, magician, magician, target),
             flags: CastingEmoteFlags));
@@ -1614,7 +1659,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 
 		var rejuvenatedCells = new HashSet<long>();
 		bool ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects,
-			OpposedOutcomeDegree effectOutcome, bool echoTarget = false)
+			OpposedOutcomeDegree effectOutcome, bool echoTarget = false, bool intended = false)
 		{
 			var templates = effects.ToArray();
 			var prepared = new Dictionary<IMagicSpellEffectTemplate, IMagicSpellEffectApplication>();
@@ -1639,9 +1684,15 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 			MagicSpellParent head = new(effectTarget, this, magician, power, effectOutcome) { ResolvedDuration = duration };
 			foreach (IMagicSpellEffectTemplate effect in templates)
 			{
-				IMagicSpellEffect child =
-					prepared.TryGetValue(effect, out var application) ? application.Create(head) :
-					effect.GetOrApplyEffect(magician, effectTarget, effectOutcome, power, head, additionalParameters);
+				IMagicSpellEffect? child;
+				if (prepared.TryGetValue(effect, out var application)) child = application.Create(head);
+				else if (invocation?.Configured is { } reporting && effect is IMagicSpellEffectOperation operation)
+				{
+					var report = operation.Apply(magician, effectTarget, effectOutcome, power, head, additionalParameters);
+					child = report.Effect;
+					if (intended && report.Status == MagicEffectOperationStatus.Applied) reporting.AppliedIntendedOperation = true;
+				}
+				else child = effect.GetOrApplyEffect(magician, effectTarget, effectOutcome, power, head, additionalParameters);
 				if (child == null)
 				{
 					continue;
@@ -1738,7 +1789,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 				EchoInterdiction(originalTarget, interdiction, true);
 			}
 
-			return !ApplySpellEffect(actualTarget, _spellEffects, outcome.Degree, true);
+			return !ApplySpellEffect(actualTarget, _spellEffects, outcome.Degree, true, !reflected);
 		}
 
 		if (target is PerceivableGroup pg)
@@ -1888,6 +1939,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 	}
 
     public bool ReadyForGame =>
+        GradeConfigurationErrors().Count == 0 &&
         Trigger != null &&
 		_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Count() <= 1 &&
 		!_casterSpellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Any() &&
@@ -1901,6 +1953,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell
 
     public string WhyNotReadyForGame(ICharacter builder)
     {
+		if (GradeConfigurationErrors().FirstOrDefault() is { } gradeError) return gradeError;
 		if (_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Count() > 1 || _casterSpellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Any())
 			return "rejuvenateland permits one target effect and cannot be a caster-side effect.";
 		if (_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Select(x => x.DefinitionError).FirstOrDefault(x => x is not null) is { } repairError)

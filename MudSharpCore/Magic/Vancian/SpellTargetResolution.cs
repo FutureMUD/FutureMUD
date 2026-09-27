@@ -36,7 +36,7 @@ internal sealed class SpellTargetCapture : IDisposable
 	public void Dispose() => Current.Value = _previous;
 }
 
-internal enum SpellInvocationSource { VancianDirect, ScrollActivation }
+internal enum SpellInvocationSource { VancianDirect, ScrollActivation, ConfiguredCasting }
 
 /// <summary>Engine-issued commitment callback; there is no player-provided prepaid switch.</summary>
 internal sealed class SpellInvocationContext(SpellInvocationSource source, Outcome outcome, Func<Action, bool> commit)
@@ -45,4 +45,5 @@ internal sealed class SpellInvocationContext(SpellInvocationSource source, Outco
 	public Outcome Outcome { get; } = outcome;
 	public Func<Action, bool> Commit { get; } = commit;
 	public MagicInvocationStatus Status { get; set; } = MagicInvocationStatus.Refused;
+	public MudSharp.Magic.Casting.ConfiguredCastingExecution? Configured { get; init; }
 }

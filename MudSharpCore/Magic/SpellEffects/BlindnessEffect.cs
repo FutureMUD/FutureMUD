@@ -84,7 +84,7 @@ public class BlindnessEffect : IMagicSpellEffectTemplate
     }
 }
 
-public class RemoveBlindnessEffect : IMagicSpellEffectTemplate
+public class RemoveBlindnessEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation
 {
     public static void RegisterFactory()
     {
@@ -159,4 +159,14 @@ public class RemoveBlindnessEffect : IMagicSpellEffectTemplate
     {
         return new RemoveBlindnessEffect(SaveToXml(), Spell);
     }
+
+	public MagicEffectOperation Apply(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome, SpellPower power,
+		IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+	{
+		if (target is not ICharacter character) return new(MagicEffectOperationStatus.Rejected, null);
+		var before = character.EffectsOfType<SpellBlindnessEffect>().ToArray();
+		GetOrApplyEffect(caster, target, outcome, power, parent, additionalParameters);
+		return new(before.Any(x => !character.EffectsOfType<SpellBlindnessEffect>().Contains(x))
+			? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
+	}
 }

@@ -134,5 +134,7 @@ public abstract class Trait : FrameworkItem, ITrait
     {
         TraitValueChanged?.Invoke(this, new TraitChangedEventArgs(this, oldval, newval));
         Changed = true;
+		if (Definition.OwnerScope == TraitOwnerScope.Character && Owner is ICharacter character)
+			Gameworld.MagicCasting?.NotifyProgress(character, traitId: Definition.Id);
     }
 }

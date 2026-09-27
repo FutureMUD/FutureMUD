@@ -54,6 +54,7 @@ The syntax is:
 
 	#3magic school#0 - edit magic schools
 	#3magic capability#0 - edit who can use magic
+	#3magic casting enrol|grant|resolve#0 - explicit configured acquisition and paid-operation reconciliation
 	#3magic resource#0 - edit magic resources
 	#3magic regenerator#0 - edit resource regeneration rules
 	#3magic environment#0 - configure and inspect room environmental resources
@@ -94,7 +95,9 @@ The syntax is:
             return true;
         }
 
-        return false;
+        return actor.Gameworld.MagicCasting is { } casting && actor.Gameworld.MagicCapabilities.OfType<IMagicCastingCapability>()
+			.Where(x => x.School.SchoolVerb.EqualTo(commandWord) && x.CastingPolicy is not null)
+			.Any(x => x.CastingPolicy!.Admissions.Any(a => casting.Acquisition(actor, a.SpellId) is not null));
     }
 
     public static void MagicGeneric(ICharacter actor, string command)
@@ -104,6 +107,7 @@ The syntax is:
         string cmdText = ss.PopSpeech();
         IMagicSchool school = actor.Capabilities.Select(x => x.School).Distinct().FirstOrDefault(x =>
             x.SchoolVerb.StartsWith(invoked, StringComparison.InvariantCultureIgnoreCase));
+		school ??= actor.Gameworld.MagicSchools.FirstOrDefault(x => x.SchoolVerb.EqualTo(invoked) && MagicFilterFunction(actor, invoked));
         if (school == null)
         {
             actor.OutputHandler.Send("Something went wrong with this command.");
@@ -118,6 +122,7 @@ The syntax is:
 
 		if (cmdText.EqualTo("gather")) { GatheringPlayer(actor, school, ss); return; }
 		if (cmdText.EqualTo("vancian")) { VancianPlayer(actor, school, ss); return; }
+		if (CastingPlayer(actor, school, cmdText, ss)) return;
 
         if (cmdText.EqualToAny("?", "help") && ss.IsFinished)
         {
@@ -266,6 +271,7 @@ The syntax is:
 
 	#3{invoked}#0 - see your current status, resources and sustained powers
 	#3{invoked} powers#0 - lists your powers
+	#3{invoked} cast <spell> grade <1..7> [overreach] on <target> [via <capability>]#0 - configured paid casting
 	#3{invoked} gather <capability> methods#0 - lists optional self and gentle gathering methods
 	#3{invoked} gather <capability> preview <method> <amount>#0 - shows a pure full-price quote
 	#3{invoked} gather <capability> <method> <amount>#0 - begins an interruptible gathering action
@@ -315,6 +321,7 @@ The syntax is:
 				GatheringAdmin(actor, ss);
 				return;
             case "vancian": VancianAdmin(actor, ss); return;
+			case "casting": CastingAdmin(actor, ss); return;
             case "school":
                 MagicSchool(actor, ss);
                 return;

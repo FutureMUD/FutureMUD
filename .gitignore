@@ -35,3 +35,5 @@ MudSharp/bin/*
 /.artifacts/tools/
 /.artifacts/__pycache__/
 /.artifacts/authored-celestials/
+/.artifacts/configurable-casting/
+/.artifacts/arm02-tools/

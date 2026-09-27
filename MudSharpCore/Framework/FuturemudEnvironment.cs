@@ -10,4 +10,5 @@ public partial class Futuremud
 {
 	public IEnvironmentalMagicService? EnvironmentalMagic { get; private set; }
 	public IMagicGatheringService? MagicGathering { get; private set; }
+	public IMagicCastingService? MagicCasting { get; private set; }
 }

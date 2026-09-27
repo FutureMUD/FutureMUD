@@ -90,7 +90,7 @@ public partial class Character
 
 	public IEnumerable<ICharacterForm> Forms => _forms.OrderBy(x => x.SortOrder).ThenBy(x => x.Alias);
 	public IEnumerable<IBody> Bodies => Forms.Select(x => x.Body).Distinct();
-	public IEnumerable<ITrait> CharacterTraits => _characterTraits;
+	public IEnumerable<ITrait> CharacterTraits => CanonicalTraitOwner._characterTraits;
 	public IBody CurrentBody => Body;
 	public event CurrentBodyChangedEvent CurrentBodyChanged;
 
@@ -144,7 +144,7 @@ public partial class Character
 			SelectedFullDesc = body.GetRawDescriptions.FullDescription,
 			SelectedSdesc = body.GetRawDescriptions.ShortDescription,
 			SelectedGender = body.Gender.Enum,
-			SkillValues = (from skill in _characterTraits.OfType<ISkill>() select (skill.Definition, skill.RawValue))
+			SkillValues = (from skill in CharacterTraits.OfType<ISkill>() select (skill.Definition, skill.RawValue))
 				.ToList(),
 			SelectedAttributes = (from attribute in body.Traits.OfType<IAttribute>()
 				select TraitFactory.LoadAttribute(attribute.AttributeDefinition, body, attribute.RawValue))
@@ -1488,6 +1488,7 @@ public partial class Character
 			newBody.FinaliseSwitchActivation();
 			EmitTransformationEcho(form, oldBody, Body);
 			CurrentBodyChanged?.Invoke(this, oldBody, Body);
+			Gameworld.MagicCasting?.Reconcile(this);
 			Changed = true;
 			return true;
 		}

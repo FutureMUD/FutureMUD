@@ -116,7 +116,6 @@ public partial class Character
 		_gender = Body.Gender;
 		InitialiseDefaultForm(body);
 		_merits.AddRange(identity._merits);
-		_characterTraits.AddRange(identity._characterTraits);
 		_roles.AddRange(identity._roles);
 		_clanMemberships.AddRange(identity._clanMemberships);
 		_characterKnowledges.AddRange(identity._characterKnowledges);
@@ -364,6 +363,7 @@ public partial class Character
 	{
 		InterruptVancianWork();
 		_focusedInstance = instance is null || instance.IsPrimaryInstance ? null : instance;
+		Gameworld.MagicCasting?.Reconcile(this);
 	}
 
 	internal string InstanceFocusPromptLine()

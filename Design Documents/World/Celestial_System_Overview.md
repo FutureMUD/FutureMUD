@@ -68,6 +68,8 @@ Some celestial types also expose arbitrary-instant ephemeris interfaces for cale
 
 The solver is intentionally deterministic and engine-local. Visible crescent detection uses geometric thresholds at sunset; it does not consult manual observation ledgers or weather-dependent official calendar decisions.
 
+Weather controllers also sample these frames without advancing live clocks to build their persisted future weather schedules. Physical and authored frames preserve their existing time-of-day rules. Authored activation invalidates dependent forecasts, including composite frames; previously issued player readings remain unchanged. See [Weather forecasts and hazardous weather](Weather_System.md).
+
 ## Observer Frames
 The subsystem deliberately models observer frames rather than only physical bodies.
 

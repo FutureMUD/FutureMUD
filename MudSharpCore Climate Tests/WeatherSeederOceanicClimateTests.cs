@@ -817,7 +817,7 @@ public class WeatherSeederClimateTests
     public void WeatherSeeder_SeedsSingleCanonicalWeatherEventSet()
     {
         using FuturemudDatabaseContext context = CreateFreshSeededWeatherContext();
-        Assert.AreEqual(322, context.WeatherEvents.Count(), "Expected the weather seeder to create the canonical single-tier weather event set.");
+        Assert.AreEqual(322, context.WeatherEvents.Count(x => !x.Name.StartsWith("WeatherHazard_")), "Expected the weather seeder to retain the canonical single-tier base weather event set alongside hazard variants.");
     }
 
 	[TestMethod]
@@ -1079,7 +1079,8 @@ public class WeatherSeederClimateTests
 		string namePrefix,
 		double expectedMultiplier)
 	{
-		MudSharp.Models.WeatherEvent weatherEvent = context.WeatherEvents.Single(x =>
+        MudSharp.Models.WeatherEvent weatherEvent = context.WeatherEvents.Single(x =>
+            !x.Name.StartsWith("WeatherHazard_") &&
 			x.Precipitation == (int)precipitation &&
 			x.Wind == (int)WindLevel.None &&
 			(namePrefix == null

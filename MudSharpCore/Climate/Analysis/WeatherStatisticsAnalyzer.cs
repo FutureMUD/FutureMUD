@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Celestial;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
@@ -211,26 +211,7 @@ internal sealed class WeatherTransitionSnapshot
             return null;
         }
 
-        if (total <= 0.0)
-        {
-            return options[random.Next(options.Length)].EventId;
-        }
-
-        double roll = random.NextDouble() * total;
-        foreach ((long EventId, double Chance) option in options)
-        {
-            if (option.Chance <= 0.0)
-            {
-                continue;
-            }
-
-            if ((roll -= option.Chance) <= 0.0)
-            {
-                return option.EventId;
-            }
-        }
-
-        return options[^1].EventId;
+        return WeatherSelection.Choose(options, total, random.NextDouble);
     }
 
     private void RecalculateCaches()
@@ -324,7 +305,7 @@ internal sealed class WeatherSimulationContext : IDisposable
     public required Func<bool> ConsumeYearBoundary { get; init; }
     public required Func<long, int, double> GetBaseTemperature { get; init; }
     public double InitialTemperatureFluctuation { get; init; }
-    public Func<double, int, double>? AdvanceTemperatureFluctuation { get; init; }
+    public Func<double, int, Func<double>, double>? AdvanceTemperatureFluctuation { get; init; }
     public Action? DisposeAction { private get; init; }
     private bool _disposed;
     public void Dispose()
@@ -629,7 +610,7 @@ internal sealed class WeatherStatisticsAnalyzer
                     {
                         state.CurrentTemperatureFluctuation = request.SimulationContext.AdvanceTemperatureFluctuation(
                             state.CurrentTemperatureFluctuation,
-                            request.TransitionSnapshot.MinuteProcessingInterval);
+                            request.TransitionSnapshot.MinuteProcessingInterval, random.NextDouble);
                     }
                     long? nextEvent = request.TransitionSnapshot.NextWeatherEvent(
                         state.CurrentWeatherEventId,
@@ -1036,11 +1017,11 @@ internal sealed class WeatherStatisticsAnalyzer
             ConsumeYearBoundary = runtime.ConsumeYearBoundary,
             GetBaseTemperature = (seasonId, hour) => baseTemperatures[(seasonId, hour)],
             InitialTemperatureFluctuation = controller.CurrentTemperatureFluctuation,
-            AdvanceTemperatureFluctuation = (currentOffset, tickMinutes) => WeatherClimateUtilities.AdvanceTemperatureFluctuation(
+            AdvanceTemperatureFluctuation = (currentOffset, tickMinutes, nextRandom) => WeatherClimateUtilities.AdvanceTemperatureFluctuation(
                 currentOffset,
                 controller.RegionalClimate.TemperatureFluctuationStandardDeviation,
                 controller.RegionalClimate.TemperatureFluctuationPeriod,
-                tickMinutes),
+                tickMinutes, nextRandom),
             DisposeAction = () =>
             {
                 for (int i = cleanupActions.Count - 1; i >= 0; i--)
@@ -1104,6 +1085,8 @@ internal sealed class WeatherStatisticsAnalyzer
     {
         switch (source)
         {
+            case MudSharp.Celestial.Authored.AuthoredCelestial authored:
+                return (new PredictiveCelestialSimulation(authored), new List<Action>());
             case NewSun newSun:
                 {
                     (NewSun clonedSun, Clock clonedClock, ICalendar _, List<Action> cleanupActions) = CloneNewSun(newSun, celestialModels);
@@ -1364,6 +1347,19 @@ internal sealed class WeatherStatisticsAnalyzer
         TimeOfDay CurrentTimeOfDay(GeographicCoordinate geography);
         bool AdvanceByRealSeconds(double realSeconds);
     }
+    private sealed class PredictiveCelestialSimulation(ICelestialObject celestial) : ICelestialSimulation
+    {
+        private double _elapsed;
+        public double CurrentCelestialDay => WeatherAstronomy.Sample(celestial, _elapsed, default).Day;
+        public TimeOfDay CurrentTimeOfDay(GeographicCoordinate geography) => WeatherAstronomy.Sample(celestial, _elapsed, geography).Time;
+        public bool AdvanceByRealSeconds(double realSeconds)
+        {
+            var previous = CurrentCelestialDay;
+            _elapsed += realSeconds;
+            return CurrentCelestialDay + 0.000_001 < previous;
+        }
+    }
+
     private sealed class ClockDrivenCelestialSimulation : ICelestialSimulation
     {
         private readonly ICelestialObject _celestial;

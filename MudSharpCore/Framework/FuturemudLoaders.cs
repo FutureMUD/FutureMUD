@@ -4914,7 +4914,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                     CheckTemplate =
                         checkType switch
                         {
-                            CheckType.WritingComprehendCheck => FMDB.Context.CheckTemplates.FirstOrDefault(x =>
+                            CheckType.WritingComprehendCheck or CheckType.WeatherForecastCapability => FMDB.Context.CheckTemplates.FirstOrDefault(x =>
                                 x.Name == "CapabilityCheck" || x.Name == "Capability Check"),
                             _ => FMDB.Context.CheckTemplates.FirstOrDefault(x =>
                                 x.Name == "SkillCheck" || x.Name == "Skill Check")
@@ -4929,6 +4929,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                         Expression = checkType switch
                         {
                             CheckType.WritingComprehendCheck => "variable",
+                            CheckType.WeatherForecastCapability or CheckType.WeatherForecast => "0",
                             CheckType.ClimbTreetoTreeCheck => _checks.FirstOrDefault(x => x.Type == CheckType.ClimbCheck)?.TargetNumberExpression.OriginalFormulaText ?? "50",
                             _ => "50"
                         }

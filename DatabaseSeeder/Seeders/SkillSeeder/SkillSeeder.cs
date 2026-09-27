@@ -208,6 +208,7 @@ Again, the choices you make here can be fixed later so don't stress it too great
                     AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "100" }, 8,
                         Difficulty.Automatic);
                     break;
+                case CheckType.WeatherForecastCapability:
                 case CheckType.ExactTimeCheck:
                 case CheckType.VagueTimeCheck:
                 case CheckType.StyleCharacteristicCapabilityCheck:
@@ -226,6 +227,11 @@ Again, the choices you make here can be fixed later so don't stress it too great
                     AddCheck(check,
                         new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 3,
                         Difficulty.Automatic);
+                    continue;
+                case CheckType.WeatherForecast:
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "0" }, 3,
+                        Difficulty.Normal);
                     continue;
                 case CheckType.GenericListenCheck:
                 case CheckType.LanguageListenCheck:

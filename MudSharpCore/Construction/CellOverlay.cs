@@ -214,6 +214,7 @@ public class CellOverlay : SaveableItem, IEditableCellOverlay
 			using var exposureChange = EnvironmentalExposureService.ChangingEnvironment(Cell);
             _terrain = value;
             _atmosphere = _terrain?.Atmosphere;
+			(Cell as Cell)?.RefreshWeatherSubscriptions();
 			if (Cell.CurrentOverlay == this)
 			{
 				Cell.SynchroniseForagableProfile();

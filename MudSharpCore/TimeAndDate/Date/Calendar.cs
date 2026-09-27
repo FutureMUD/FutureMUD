@@ -2,6 +2,7 @@
 using MudSharp.Effects.Concrete;
 using MudSharp.Economy.Currency;
 using MudSharp.Celestial;
+using MudSharp.Climate;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
@@ -612,6 +613,7 @@ public class Calendar : SaveableItem, ICalendar
                     celestial.AddMinutes(0);
                 }
             }
+            WeatherForecastInvalidation.CalendarChanged(Gameworld, this);
 
             if (_clockID == 0)
             {
@@ -663,6 +665,7 @@ public class Calendar : SaveableItem, ICalendar
                     celestial.AddMinutes(0);
                 }
             }
+            WeatherForecastInvalidation.CalendarChanged(Gameworld, this);
         }
     }
 

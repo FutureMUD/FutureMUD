@@ -407,8 +407,8 @@ public static class SeederMetadataRegistry
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
                     Requirement("The Celestial seeder must have installed at least one celestial object.", context => context.Celestials.Any())
                 ],
-                RerunSummary: "Reruns reuse the canonical weather catalog, seasons, climate models, and regional climates by stable names.",
-                UpdateSummary: "Reruns refresh stock climate definitions without auto-retargeting runtime weather controllers or duplicating northern/southern climate rows.",
+                RerunSummary: "The explicit hazards update adds lightning and dust to verified stock climates and preserves builder customisations.",
+                UpdateSummary: "Legacy definitions are adopted only after matching canonical stock data; managed climates with builder edits are reported and preserved. Controllers are never retargeted.",
                 DependencySeederTypes: [typeof(CoreDataSeeder), typeof(CelestialSeeder)]
             ),
             nameof(RobotSeeder) => new SeederMetadata(

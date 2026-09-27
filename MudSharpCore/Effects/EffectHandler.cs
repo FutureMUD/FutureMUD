@@ -59,6 +59,8 @@ public class EffectHandler : IEffectHandler
 
     public void AddEffect(IEffect effect)
     {
+		using var atmosphereChange = Parent is MudSharp.Construction.ICell cell && effect is IAffectAtmosphere
+			? MudSharp.Form.Material.EnvironmentalExposureService.ChangingEnvironment(cell) : null;
 		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.Changing(Parent);
         if (!_effects.Contains(effect))
         {
@@ -92,6 +94,8 @@ public class EffectHandler : IEffectHandler
 
     public void RemoveEffect(IEffect effect, bool fireRemovalAction = false)
     {
+		using var atmosphereChange = Parent is MudSharp.Construction.ICell cell && effect is IAffectAtmosphere
+			? MudSharp.Form.Material.EnvironmentalExposureService.ChangingEnvironment(cell) : null;
 		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.Changing(Parent);
         if (fireRemovalAction || effect is ILandRejuvenationEffect ||
 			effect is IMagicSpellEffectParent parent && parent.SpellEffects.OfType<ILandRejuvenationEffect>().Any())

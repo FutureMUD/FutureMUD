@@ -30,6 +30,8 @@ namespace MudSharp.Models
         public int PeriodsSinceHighestPrecipitation { get; set; }
         public bool OppositeHemisphere { get; set; }
         public double CurrentTemperatureFluctuation { get; set; }
+		public string ForecastState { get; set; }
+		public int ForecastHorizonDays { get; set; } = 7;
 
         public virtual Celestial Celestial { get; set; }
         public virtual Season CurrentSeason { get; set; }

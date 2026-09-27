@@ -17,11 +17,11 @@ internal class WeatherModule : BaseBuilderModule
 
     private const string WeatherPlayerHelp = @"The #3weather#0 command is used to see information about the weather and temperature at your current location. You may not be able to see everything about the weather from some locations inside buildings or underground.
 
-The syntax is simply #3weather#0.";
+Use #3weather#0 for current conditions, #3weather forecast#0 for your outlook, or #3weather forecast table#0 for its table view. A new reading requires meteorological knowledge and observable outdoor conditions; you can recall a saved reading indoors. You receive one attempt per local game day and weather region. Forecasts can be wrong, especially further ahead.";
 
     private const string WeatherAdminHelp = @"The #3weather#0 command is used to see information about the weather and temperature at your current location. You may not be able to see everything about the weather from some locations inside buildings or underground.
 
-The syntax is simply #3weather#0.
+Use #3weather#0 for current conditions, #3weather forecast#0 for your saved daily outlook, or #3weather forecast table#0 for its table view.
 
 As an admin, you can also do #3weather transition <event>#0 to force a transition to a particular weather event at the next tick.";
 
@@ -32,6 +32,18 @@ As an admin, you can also do #3weather transition <event>#0 to force a transitio
     protected static void Weather(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
+        if (!ss.IsFinished && ss.PeekSpeech().EqualTo("forecast"))
+        {
+            ss.PopSpeech();
+            var view = ss.PopSpeech();
+            if (!string.IsNullOrEmpty(view) && !view.EqualTo("table") || !ss.IsFinished)
+            {
+                actor.OutputHandler.Send("Use weather forecast or weather forecast table.");
+                return;
+            }
+            WeatherForecastService.Show(actor, view.EqualTo("table"));
+            return;
+        }
         if (!actor.IsAdministrator() || ss.IsFinished)
         {
             PlayerWeather(actor);
@@ -156,6 +168,7 @@ The syntax is as follows:
 	#3wc show <which>#0 - views information about a controller
 	#3wc show#0 - views information about your currently editing controller
 	#3wc set name <name>#0 - rename the weather controller
+	#3wc set forecast <days>#0 - set the forecast horizon (1 to 30 game days)
 	#3wc set clock <clock>#0 - set the clock
 	#3wc set timezone <tz>#0 - set the timezone
 	#3wc set longitude <degrees>#0 - set the longitude

@@ -7,8 +7,9 @@ using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.Climate.WeatherEvents;
 
-public abstract class WeatherEventBase : SaveableItem, IWeatherEvent, IHaveFuturemud
+public abstract partial class WeatherEventBase : SaveableItem, IWeatherEvent, IHaveFuturemud
 {
+	public WeatherHazardSettings Hazards { get; protected set; } = new();
     public PrecipitationLevel Precipitation { get; protected set; }
     public WindLevel Wind { get; protected set; }
     public string WeatherDescription { get; protected set; }
@@ -46,7 +47,7 @@ public abstract class WeatherEventBase : SaveableItem, IWeatherEvent, IHaveFutur
 
     public virtual void OnMinuteEvent(ICell cell)
     {
-        // Do nothing
+		WeatherHazardService.Tick(this, cell, Constants.Random.NextDouble);
     }
 
     public virtual void OnFiveSecondEvent(ICell cell)
@@ -285,6 +286,14 @@ public abstract class WeatherEventBase : SaveableItem, IWeatherEvent, IHaveFutur
 	#3light <%>#0 - sets how much natural light is let through
 	#3sky#0 - toggles the sky being visible with this event
 	#3morning|afternoon|dusk|dawn|night#0 - toggles a time of day applying
+	#3forecast <summary>#0 - sets the short forecast description
+	#3atmosphere <gas|none>#0 - replaces exposed atmosphere while this weather lasts
+	#3lightning chance|atmospheric <0-1>#0 - sets local/atmospheric lightning chance per game minute
+	#3lightning damage <damage> <pain> <stun>#0 - sets direct electrical damage
+	#3lightning targets <ground> <character> <item>#0 - sets target weights
+	#3lightning ground <0-1>#0 - sets ground-strike splash damage (0 disables)
+	#3lightning distance <0-100>#0 - sets bounded thunder propagation
+	#3lightning flash|thunder <text>#0 - sets the associated echo
 	{SubtypeHelpText}";
 
     public abstract string SubtypeHelpText { get; }
@@ -294,6 +303,10 @@ public abstract class WeatherEventBase : SaveableItem, IWeatherEvent, IHaveFutur
     {
         switch (command.PopForSwitch())
         {
+            case "forecast":
+            case "atmosphere":
+            case "lightning":
+                return BuildingCommandHazard(actor, command, command.Last.ToLowerInvariant());
             case "name":
                 return BuildingCommandName(actor, command);
             case "desc":

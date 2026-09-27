@@ -25,8 +25,9 @@ public class TerrestrialClimateModel : ClimateModelBase
 
     public override IEnumerable<IWeatherEvent> WeatherEvents => _weatherEventChangeChance.Select(x => x.Key.Event).Distinct().ToList();
 
-    private void RecalculateCaches()
+    internal void RecalculateCaches()
     {
+        WeatherForecastInvalidation.Invalidate(Gameworld, this);
         _cachedTransitions.Clear();
         _cachedTransitionTotals.Clear();
         foreach (KeyValuePair<(ISeason Season, IWeatherEvent OldEvent), List<(IWeatherEvent NewEvent, double Chance)>> kvp in _newWeatherEventChances)
@@ -64,39 +65,14 @@ public class TerrestrialClimateModel : ClimateModelBase
         }
     }
 
-    private static IWeatherEvent SelectRandom((IWeatherEvent Event, double Chance)[] options, double total)
+    private static IWeatherEvent SelectRandom((IWeatherEvent Event, double Chance)[] options, double total, Func<double> nextRandom)
     {
-        if (options.Length == 0)
-        {
-            return null;
-        }
-
-        if (total <= 0.0)
-        {
-            return options.GetRandomElement().Event;
-        }
-
-        double roll = Constants.Random.NextDouble() * total;
-        foreach ((IWeatherEvent Event, double Chance) option in options)
-        {
-            if (option.Chance <= 0.0)
-            {
-                continue;
-            }
-
-            if ((roll -= option.Chance) <= 0.0)
-            {
-                return option.Event;
-            }
-        }
-
-        return options.Last().Event;
+        return options.Length == 0 ? null : WeatherSelection.Choose(options, total, nextRandom);
     }
-
-    private IWeatherEvent RandomEventForSeason(ISeason season, TimeOfDay time)
+    private IWeatherEvent RandomEventForSeason(ISeason season, TimeOfDay time, Func<double> nextRandom)
     {
         return _seasonEventCache.TryGetValue((season, time), out (IWeatherEvent Event, double Chance)[] options)
-                ? SelectRandom(options, _seasonEventTotals[(season, time)])
+                ? SelectRandom(options, _seasonEventTotals[(season, time)], nextRandom)
                 : null;
     }
 
@@ -104,17 +80,21 @@ public class TerrestrialClimateModel : ClimateModelBase
 
     public override IWeatherEvent HandleWeatherTick(IWeatherEvent currentWeather, ISeason currentSeason,
             TimeOfDay currentTime, int consecutiveUnchangedPeriods)
+        => HandleWeatherTick(currentWeather, currentSeason, currentTime, consecutiveUnchangedPeriods, Constants.Random.NextDouble);
+
+    public override IWeatherEvent HandleWeatherTick(IWeatherEvent currentWeather, ISeason currentSeason,
+        TimeOfDay currentTime, int consecutiveUnchangedPeriods, Func<double> nextRandom)
     {
         if (currentWeather is null)
         {
-            return RandomEventForSeason(currentSeason, currentTime);
+            return RandomEventForSeason(currentSeason, currentTime, nextRandom);
         }
 
         bool hasData = _weatherEventChangeChance.ContainsKey((currentSeason, currentWeather)) &&
                       _newWeatherEventChances.ContainsKey((currentSeason, currentWeather));
         bool forceChange = !hasData || !currentWeather.PermittedTimesOfDay.Contains(currentTime);
 
-        if (forceChange || RandomUtilities.Roll(1.0,
+        if (forceChange || (nextRandom() <=
                     _weatherEventChangeChance[(currentSeason, currentWeather)] + Math.Min(
                             _maximumAdditionalChangeChanceFromStableWeather[currentSeason],
                             _incrementalAdditionalChangeChanceFromStableWeather[currentSeason] * consecutiveUnchangedPeriods)))
@@ -123,12 +103,12 @@ public class TerrestrialClimateModel : ClimateModelBase
                 options.Length > 0)
             {
                 return SelectRandom(options,
-                        _cachedTransitionTotals[(currentSeason, currentWeather, currentTime)]);
+                        _cachedTransitionTotals[(currentSeason, currentWeather, currentTime)], nextRandom);
             }
 
             if (forceChange)
             {
-                return RandomEventForSeason(currentSeason, currentTime) ?? currentWeather;
+                return RandomEventForSeason(currentSeason, currentTime, nextRandom) ?? currentWeather;
             }
         }
 

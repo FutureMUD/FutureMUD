@@ -605,7 +605,7 @@ The time and date system is used broadly across FutureMUD:
 
 - rooms, zones, and shards expose local calendars, clocks, and time zones
 - celestial objects use calendars and clocks for sky positions and cycles
-- climate and weather controllers use clocks and time zones for weather progression
+- climate and weather controllers use clocks and time zones for weather progression; manual clock/date changes invalidate affected future weather schedules and rebase their daily reading keys without rewriting issued character forecasts (see [Weather forecasts](Weather_System.md))
 - economies use calendars, clocks, and time zones for financial periods and recurring policy events
 - clans use calendars and recurring intervals for pay cycles and elections
 - shoppers, jobs, property leases, hotels, stables, and estate systems use recurring intervals and mud datetimes

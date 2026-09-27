@@ -212,3 +212,128 @@ git diff --check
 
 The isolated script verifies ownership before cleanup and removes its disposable
 database and MySQL data directory. Credentials and raw transient logs remain local.
+
+## Task 4C checkpoint deadline correction — 27 September 2026
+
+Assignment read: `04C_Rejuvenation_Checkpoint_Deadline_Correction.md`, revision 1,
+task `MAGIC-LAND-REJUVENATION-04-CHECKPOINT-DEADLINE`. Starting checkout:
+`f2adb2cd43a6f993e141d488db91fea6ed1cc486`. The defect described against
+`666efc94a2065fb94ef75a1ffe6dd42359940c6c` was still present. The historical results
+above remain historical: the single save/reload regression did not establish
+continuous repeated-save behaviour in one running world.
+
+`AdvanceTreatment` still checkpoints eligible work and lifetime at the current
+accounting time. Its persistence-only path now reinserts the indexed registration
+with its existing `DueAt`, including overdue work and an exact pending retry.
+`QueueTreatment` removes the registration before any key mutation. Normal visits,
+reconciliation and prospective policy boundaries retain their existing scheduling
+semantics; genuine reload establishes a new online epoch. Serialization does not
+repair, pump, extend lifetime, replace pending identities or revive terminal work.
+No schema, casting, resource, catalogue or heartbeat change was required.
+
+### Current automated evidence
+
+The unchanged runtime failed both new save/pump-order reproduction rows at t=60:
+expected scar 19, actual 20. Baseline run
+`20260926T233710Z-12c697395dbd` recorded 2 executed / 2 failed in native TRX, with a
+stable source fingerprint. Evidence is under
+`.artifacts/rejuvenation-checkpoint-baseline/20260926T233710Z-12c697395dbd/`.
+
+The corrected run `20260926T234024Z-ad38eac683f4` passed **382/382** with zero skipped
+or inconclusive tests: **74 rejuvenation**, **308 related environmental, save/lifecycle,
+spell resolution, magical substance and Vancian tests**. The reporter's source
+fingerprint was stable:
+`51c63fb14c9003872d774477591be9838a21409b6a96c48489b40277d5932606`.
+Its `summary.json`, `test-results.json` and native TRX are under
+`.artifacts/rejuvenation-checkpoint-tests/20260926T234024Z-ad38eac683f4/`.
+Subsequent edits affected the native probe and documentation only; the runtime and
+unit-test source tested by this run remained unchanged.
+
+All methods below are in `LandRejuvenationTests.cs` and use the actual template,
+parent, child, cell, coordinator and parent XML serializer with an injected clock.
+
+| ID | Executable assertions, all passed |
+| --- | --- |
+| J-C01 / J-C02 | Both rows of `RepeatedParentSaves_PreserveRepairCadence_InEitherPumpOrder`: normal pumps every second, actual parent saves at 30/60/90/120, save-before-pump and pump-before-save, exactly two receipts/sequences and no repair during serialization. |
+| J-C03 | `ParentSave_OverdueVisit_RemainsEligibleAndAccountsAllElapsedWorkOnce`: saves at 90 and 150 preserve the overdue visit; the first admitted pump repairs 2.5 once. |
+| J-C04 | `ParentSave_RepeatedAtSameInstant_AddsNeitherCreditNorQueueEntries`: five saves/pumps at t=30 and again immediately after real work at t=60 retain one registration and add no extra credit or visit. |
+| J-C05 | Both rows of `RepeatedParentSaves_FinalHalfMinuteIsAccountedOnce_InEitherExpiryOrder` finish 150 seconds / 2.5 budget at exactly 2.5 total repair; `ParentSave_LessThanOneSecondBeforeShortExpiry_PreservesFinalDeadline` retains the 30-second deadline after a save with only 0.5 seconds remaining. |
+| J-C06 | `RepeatedParentSaves_DispelDiscardsPartialIntervalAndNeverResumes`: two timely committed units remain; a checkpointed half-minute grants no removal burst or later work. |
+| J-C07 | `RepeatedParentSaves_PendingStepRetainsIdentityAndRetryDeadline`: repeated saves retain the prepared request/sequence and its t=120 retry; blocked time earns nothing. Existing atomic rollback/lost-ack, partial-save/reload and authoritative-budget regressions pass. `ParentChild_XmlReload_UsesAuthoritativeBudgetAndFreshOnlineEpoch` additionally advances the new process clock by seven days before activation, without downtime credit. |
+| J-C08 | `ProfileCap_EditIsProspective_AndDisableIsTerminal` now interleaves saves with cap edits. `Scheduling_ThirtyThousandCells_VisitsOnlyIndexedTreatmentsAndInspectionIsPure` now exercises saves on the active queue path while retaining forbidden global enumeration, no treatment-free work, bounded visits and one heartbeat. Existing independent-world disposal coverage passes. |
+
+With scar 20, budget 12, captured rate 1/minute, cap 1/minute and 600 seconds duration,
+the same-runtime save-before-pump timeline is:
+
+| Online time | Scar after pump | Budget | Earned remainder | Remaining seconds | Acknowledged sequence |
+| --- | --- | --- | --- | --- | --- |
+| 30 | 20 | 12 | 0.5 | 570 | 0 |
+| 60 | 19 | 11 | 0 | 540 | 1 |
+| 90 | 19 | 11 | 0.5 | 510 | 1 |
+| 120 | 18 | 10 | 0 | 480 | 2 |
+
+### Current native persistence evidence
+
+`RunRejuvenationCheckpointDeadlineProbe` in `Program.Rejuvenation.cs` casts the real
+spell and calls `Cell.Save()` at t=30/60/90/120 in ordinary `FMDB` scopes. This saves
+the actual parent/child XML and checkpoints treatment progress. Independent contexts
+verify each save left scars unchanged. Ordinary coordinator pumps run throughout,
+including after saves; ten bounded slices at each clock instant admit work without
+adding elapsed time. No parent expiry or repair call makes the assertions pass.
+
+The passing MySQL 8.0.45 run used disposable database
+`futuremud_land_20260926234742_f95518be31` and treatment
+`c135cc04-26f3-4f77-8b5a-41bbbfd5be69`. Separate database contexts observed:
+
+| Boundary, before any rescue flush | Persisted scar | Budget | Sequence / acknowledged | Remaining seconds | Repair receipts / total repair |
+| --- | --- | --- | --- | --- | --- |
+| t=60 | 19 | 11 | 1 / 1 | 540 | 1 / 1 |
+| t=120 | 18 | 10 | 2 / 2 | 480 | 2 / 2 |
+
+Both boundaries had zero earned remainder and no pending request. Only after both
+observations does the probe remove its parent and restore two fixture scars with a
+normal damage operation for the existing R-P probes. R-P01–R-P06, direct Vancian and
+independent-power cost checks, native rollback/lost-response and both separate-reader
+paths also passed. `rejuvenationNative=passed`, `nativeHarnessExit=0`, shell exit 0,
+owned database deletion and verified server shutdown/directory cleanup were recorded
+in `.artifacts/rejuvenation-checkpoint-native/native-current.log`.
+
+Final native source SHA-256 (`Program.Rejuvenation.cs`):
+`CFFBDA1820A812F1197D1514E0B2C2D009D24CA5C0113799796128429A30BE69`.
+Runtime source SHA-256 (`EnvironmentalMagicCoordinator.Rejuvenation.cs`):
+`E1FC5057E5A5CBAA6F8AFC1939BCC1EBC75F143E7CCCB9F9A22123F827CC4550`.
+
+Earlier attempts are retained as failed evidence, not passes: the first setup error
+was obscured by ownership cleanup; temporary diagnostic logging identified MySQL's
+Windows path-length limit when creating the ownership table. A shorter owned
+`TEMP`/`TMP` fixed provisioning. The first executable probe then exposed a redundant
+outer isolated `FMDB` scope; removing it lets the operation store own its normal
+isolated checkpoint. Diagnostic source was restored and the harness recompiled
+before the passing run. Failed logs are `native.log`, `native-diagnostic.log` and
+`native-final.log` in the same artifact directory. Every attempt removed its owned
+temporary server; no player/development database was used.
+
+### Builds, reproduction and limits
+
+Targeted Debug and Release engine builds passed; Debug reported zero warnings and
+Release reported 110 warnings, with zero errors. The final Debug harness build
+passed with zero warnings/errors. Build logs are under
+`.artifacts/rejuvenation-checkpoint-builds/`. Local builds used the repository's
+permitted `NoWarn=NU1902;NU1510` package-warning suppression. `git diff --check`
+passed. Source review found no actionable scheduling defect in the correction.
+
+```powershell
+scripts/test-unit.ps1 -OutputMode Compact -Project 'MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj' -Filter 'FullyQualifiedName~LandRejuvenationTests|FullyQualifiedName~EnvironmentalMagic|FullyQualifiedName~SaveManagerFailureRecoveryTests|FullyQualifiedName~SaveNoSaveTests|FullyQualifiedName~MagicSpellResolutionTests|FullyQualifiedName~MagicSpellPhaseOneTests|FullyQualifiedName~MagicalSubstanceTests|FullyQualifiedName~Vancian' -TimeoutSeconds 1200
+dotnet build MudSharpCore/MudSharpCore.csproj -c Debug --no-restore -m:1 '-p:NoWarn=NU1902%3BNU1510'
+dotnet build MudSharpCore/MudSharpCore.csproj -c Release --no-restore -m:1 '-p:NoWarn=NU1902%3BNU1510'
+dotnet build 'Temporary Scratch App/GatheringNativePersistenceHarness/GatheringNativePersistenceHarness.csproj' -c Debug --no-restore -m:1 '-p:NoWarn=NU1902%3BNU1510'
+# Use a short, owned TEMP/TMP directory; the runner creates its own unique instance beneath it.
+& 'Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1' -RejuvenationOnly
+git diff --check
+```
+
+The final native run imported the existing `20260926115932_WidenCelestialDefinition`
+snapshot without refreshing or changing schema. All Task 4C required local checks
+were executed. No full fast-suite rerun, full Telnet boot, production benchmark,
+merge or deployment was performed; the historical full-gate failure above is not
+presented as a current result. Hosted CI status is separate from this local evidence.

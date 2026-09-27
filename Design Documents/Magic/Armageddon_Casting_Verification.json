@@ -1,0 +1,1387 @@
+{
+  "schema_version": 1,
+  "task_id": "MAGIC-ARMAGEDDON-ARM-01",
+  "runtime_revision": "ec361d9c2911b31e4a09284acea8e574b9c7ebfa",
+  "existing_runtime_tests": {
+    "executed": 234,
+    "passed": 234,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0,
+    "runs": [
+      {
+        "run_id": "20260927T032154Z-72913fe48504",
+        "head": "ec361d9c2911b31e4a09284acea8e574b9c7ebfa",
+        "started_utc": "2026-09-27T03:21:54.6709287+00:00",
+        "ended_utc": "2026-09-27T03:22:21.2350794+00:00",
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~MagicSpellResolutionTests|FullyQualifiedName~VancianReviewRegressionTests|FullyQualifiedName~VancianIntegrationTests|FullyQualifiedName~VancianItemTests|FullyQualifiedName~MagicalSubstanceTests|FullyQualifiedName~CharacterInstanceFocusServiceTests|FullyQualifiedName~CharacterInstanceInitialisationTests|FullyQualifiedName~MagicArmageddonInformationEffectTests|FullyQualifiedName~MagicWindSpellEffectTests|FullyQualifiedName~MagicPhase2Tests|FullyQualifiedName~MagicPhase3Tests|FullyQualifiedName~MagicEngineV2Tests|FullyQualifiedName~MagicEngineV3Tests|FullyQualifiedName~MagicEngineV4Tests|FullyQualifiedName~MagicPersistentSensoryCombatTests|FullyQualifiedName~MagicPortalTopologyTests",
+        "source_start": "4e1c0c9a2f0f9beba7574d30c25ffa97a71267df96105b332c118ac516024ed4",
+        "source_end": "4e1c0c9a2f0f9beba7574d30c25ffa97a71267df96105b332c118ac516024ed4",
+        "source_stable": true,
+        "counts": {
+          "executed": 207,
+          "passed": 207,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 207
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ],
+        "status": "PASS_NATIVE_TRX_VERIFIED",
+        "command": ".\\scripts\\test-unit.ps1 -OutputMode Compact -Project 'MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj' -Filter 'FullyQualifiedName~MagicSpellResolutionTests|FullyQualifiedName~VancianReviewRegressionTests|FullyQualifiedName~VancianIntegrationTests|FullyQualifiedName~VancianItemTests|FullyQualifiedName~MagicalSubstanceTests|FullyQualifiedName~CharacterInstanceFocusServiceTests|FullyQualifiedName~CharacterInstanceInitialisationTests|FullyQualifiedName~MagicArmageddonInformationEffectTests|FullyQualifiedName~MagicWindSpellEffectTests|FullyQualifiedName~MagicPhase2Tests|FullyQualifiedName~MagicPhase3Tests|FullyQualifiedName~MagicEngineV2Tests|FullyQualifiedName~MagicEngineV3Tests|FullyQualifiedName~MagicEngineV4Tests|FullyQualifiedName~MagicPersistentSensoryCombatTests|FullyQualifiedName~MagicPortalTopologyTests' -TimeoutSeconds 1200 -FailOnSkipped",
+        "class_counts": {
+          "MudSharp_Unit_Tests.MagicEngineV4Tests": 43,
+          "MudSharp_Unit_Tests.MagicalSubstanceTests": 32,
+          "MudSharp_Unit_Tests.MagicEngineV2Tests": 9,
+          "MudSharp_Unit_Tests.VancianIntegrationTests": 15,
+          "MudSharp_Unit_Tests.CharacterInstanceFocusServiceTests": 8,
+          "MudSharp_Unit_Tests.MagicArmageddonInformationEffectTests": 5,
+          "MudSharp_Unit_Tests.VancianItemTests": 21,
+          "MudSharp_Unit_Tests.MagicPersistentSensoryCombatTests": 5,
+          "MudSharp_Unit_Tests.MagicPhase2Tests": 12,
+          "MudSharp_Unit_Tests.MagicSpellResolutionTests": 7,
+          "MudSharp_Unit_Tests.MagicEngineV3Tests": 11,
+          "MudSharp_Unit_Tests.CharacterInstanceInitialisationTests": 3,
+          "MudSharp_Unit_Tests.MagicPhase3Tests": 8,
+          "MudSharp_Unit_Tests.MagicWindSpellEffectTests": 7,
+          "MudSharp_Unit_Tests.MagicPortalTopologyTests": 6,
+          "MudSharp_Unit_Tests.VancianReviewRegressionTests": 15
+        },
+        "native_counters": {
+          "total": "207",
+          "executed": "207",
+          "passed": "207",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "local_summary": ".artifacts/test-runs/20260927T032154Z-72913fe48504/summary.json",
+        "summary_sha256": "319cb71acdf0519fc1f016e2b8383c988c5425c524c1d232c27b15cc0a74cb0b",
+        "local_trx": ".artifacts/test-runs/20260927T032154Z-72913fe48504/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+        "trx_sha256": "2efadb1a9e5636dc237366458ffe8d6f661a872498e28e74a578fc4bb35ad1d1",
+        "native_results": [
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.PsychicDefinition_NonFiniteMagnitudeIsRejected",
+            "native_name": "PsychicDefinition_NonFiniteMagnitudeIsRejected",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.PersistentActivation_SplitActionHasWholeDoseLifetimeAndMagnitude",
+            "native_name": "PersistentActivation_SplitActionHasWholeDoseLifetimeAndMagnitude (Replace,Duration)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV2Tests.PortalSpellEffect_DuplicateCasterOwnedItemAnchors_SelectsDeterministicDestination",
+            "native_name": "PortalSpellEffect_DuplicateCasterOwnedItemAnchors_SelectsDeterministicDestination",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.NonCasterAndRevokedPayloadRefuseButUnknownSpellWithAllSlotsSpentReleases",
+            "native_name": "NonCasterAndRevokedPayloadRefuseButUnknownSpellWithAllSlotsSpentReleases",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.SkillSuppression_SaveLoadRetainsSubjectAndOriginWithoutChangingLearnedTraits",
+            "native_name": "SkillSuppression_SaveLoadRetainsSubjectAndOriginWithoutChangingLearnedTraits",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV2Tests.ItemEnchantEffect_RoundTripsEngineV2HookFields",
+            "native_name": "ItemEnchantEffect_RoundTripsEngineV2HookFields",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.CharacterInstanceFocusServiceTests.Focus_ValidSecondary_SetsControllerContextToTarget",
+            "native_name": "Focus_ValidSecondary_SetsControllerContextToTarget",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicArmageddonInformationEffectTests.SpellIdentifyEffect_GetLookText_SuppressesBlankProgOutput",
+            "native_name": "SpellIdentifyEffect_GetLookText_SuppressesBlankProgOutput",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.RealActionEventsCancelInscriptionAndReleaseExactReservation",
+            "native_name": "RealActionEventsCancelInscriptionAndReleaseExactReservation (quit)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.ScrollOverLevelFailureDestroysChargeWithoutSpellEffects",
+            "native_name": "ScrollOverLevelFailureDestroysChargeWithoutSpellEffects",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.MaintainedExposureProtection_StaysWithDeliveredBodyAcrossActiveBodyChangeAndReload",
+            "native_name": "MaintainedExposureProtection_StaysWithDeliveredBodyAcrossActiveBodyChangeAndReload",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MentalAction_ProtectedTargetRefusesBeforeChecksOrFeedback",
+            "native_name": "MentalAction_ProtectedTargetRefusesBeforeChecksOrFeedback",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.SpellAdapter_ForwardsUnmodifiedArgumentsWithoutChargingPowerCosts",
+            "native_name": "SpellAdapter_ForwardsUnmodifiedArgumentsWithoutChargingPowerCosts",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Readiness_InstantaneousMaintainedEffect_IsRejected",
+            "native_name": "Readiness_InstantaneousMaintainedEffect_IsRejected",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPersistentSensoryCombatTests.SpellEffectFactory_RegistersPersistentSensoryCombatEffectTypes",
+            "native_name": "SpellEffectFactory_RegistersPersistentSensoryCombatEffectTypes",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase2Tests.CastingTriggerExit_DoTriggerCast_ResolvesLocalExitAndSuppliesExitParameter",
+            "native_name": "CastingTriggerExit_DoTriggerCast_ResolvesLocalExitAndSuppliesExitParameter",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Stacking_FollowsConfiguredPolicy",
+            "native_name": "Stacking_FollowsConfiguredPolicy (Replace,3,1)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.PublicHelpAndScrollInspectionDoNotCreateStateOrActivateTheCharge",
+            "native_name": "PublicHelpAndScrollInspectionDoNotCreateStateOrActivateTheCharge",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase2Tests.CastingTriggerProgCharacterRoom_DoTriggerCast_UsesProgResolvedCharacterAndRoom",
+            "native_name": "CastingTriggerProgCharacterRoom_DoTriggerCast_UsesProgResolvedCharacterAndRoom",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.PersistentActivation_SplitActionHasWholeDoseLifetimeAndMagnitude",
+            "native_name": "PersistentActivation_SplitActionHasWholeDoseLifetimeAndMagnitude (Strongest,Duration)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase2Tests.ForcedExitMovementEffect_GetOrApplyEffect_MovesTargetWhenMovementIsLegal",
+            "native_name": "ForcedExitMovementEffect_GetOrApplyEffect_MovesTargetWhenMovementIsLegal",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Activation_OneActionAcrossParts_ChecksTotalExposureOnce",
+            "native_name": "Activation_OneActionAcrossParts_ChecksTotalExposureOnce",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellResolutionTests.CastSpell_GroupAllMembersReject_ProcessesAllAndLeavesCommittedInvocationFailed",
+            "native_name": "CastSpell_GroupAllMembersReject_ProcessesAllAndLeavesCommittedInvocationFailed",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase2Tests.ForcedExitMovementEffect_GetOrApplyEffect_StopsWhenExitCannotBeCrossed",
+            "native_name": "ForcedExitMovementEffect_GetOrApplyEffect_StopsWhenExitCannotBeCrossed",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV3Tests.DispelMagicEffect_ContestTieRemovesSpell",
+            "native_name": "DispelMagicEffect_ContestTieRemovesSpell",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.Hex_InvalidDurationDoesNotChangeExistingDuration",
+            "native_name": "Hex_InvalidDurationDoesNotChangeExistingDuration (Infinity)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV3Tests.SleepEffect_DoesNotApplyWhenInsomniaBlocksSleep",
+            "native_name": "SleepEffect_DoesNotApplyWhenInsomniaBlocksSleep",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV3Tests.MagicSecurity_LoadedSpellEffects_ClampUnsafePersistedNumericValues",
+            "native_name": "MagicSecurity_LoadedSpellEffects_ClampUnsafePersistedNumericValues",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.OldSoiPsionicPowerXml_RoundTripsSubtypeFields",
+            "native_name": "OldSoiPsionicPowerXml_RoundTripsSubtypeFields",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.FailureAfterDurableInscriptionDebitCannotCreateOrRetryAFreeCharge",
+            "native_name": "FailureAfterDurableInscriptionDebitCannotCreateOrRetryAFreeCharge",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.ItemTransformation_IsRejectedBeforeExposure",
+            "native_name": "ItemTransformation_IsRejectedBeforeExposure",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.ContactFailureAndDirectedSpeech_SubstituteIdentityAndMessageOnce",
+            "native_name": "ContactFailureAndDirectedSpeech_SubstituteIdentityAndMessageOnce",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.ScriptReservationAndPlayerInscriptionUseTheSameGuardedTimedDebit",
+            "native_name": "ScriptReservationAndPlayerInscriptionUseTheSameGuardedTimedDebit",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.CharacterInstanceInitialisationTests.ResolveSignedLanguagesForTemplate_LinkedNpcSkillGrantsSignedLanguageOnce",
+            "native_name": "ResolveSignedLanguagesForTemplate_LinkedNpcSkillGrantsSignedLanguageOnce",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.HealingOverflow_ConsumesEachWoundOnceAndTerminatesWhenDoseExceedsAllDamage",
+            "native_name": "HealingOverflow_ConsumesEachWoundOnceAndTerminatesWhenDoseExceedsAllDamage (heal)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.FormulaScaling_DoesNotChangeAnEqualResourceIdentifier",
+            "native_name": "FormulaScaling_DoesNotChangeAnEqualResourceIdentifier",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV2Tests.TransientExitManager_ExposesPortalMetadataForInspection",
+            "native_name": "TransientExitManager_ExposesPortalMetadataForInspection",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellResolutionTests.CastSpell_GroupFirstMemberIsWardBlocked_LaterMembersResolveWithoutAResistanceCheck",
+            "native_name": "CastSpell_GroupFirstMemberIsWardBlocked_LaterMembersResolveWithoutAResistanceCheck",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.AllPlanEditsLeaveCurrentCopiesUntouchedAndEmptyPlanCreatesUnassignedSlots",
+            "native_name": "AllPlanEditsLeaveCurrentCopiesUntouchedAndEmptyPlanCreatesUnassignedSlots",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.UnusableOrFullBooksRefuseWithoutFormulaOrPayment",
+            "native_name": "UnusableOrFullBooksRefuseWithoutFormulaOrPayment (full)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicArmageddonInformationEffectTests.SpellEffectFactory_RegistersArmageddonInformationEffects",
+            "native_name": "SpellEffectFactory_RegistersArmageddonInformationEffects",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.FormulaOverflow_SkipsPayloadWithoutThrowingOrGrantingNonFiniteResources",
+            "native_name": "FormulaOverflow_SkipsPayloadWithoutThrowingOrGrantingNonFiniteResources",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase2Tests.MagicInterdictionHelper_DowngradesReflectionWhenNotAllowed",
+            "native_name": "MagicInterdictionHelper_DowngradesReflectionWhenNotAllowed",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV2Tests.PortalSpellEffect_ResolvesCasterOwnedItemAnchors",
+            "native_name": "PortalSpellEffect_ResolvesCasterOwnedItemAnchors",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MindBarrier_ApplicabilityUsesProgTruth",
+            "native_name": "MindBarrier_ApplicabilityUsesProgTruth (False)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase3Tests.ForceCommandEffect_RespectsIgnoreForceEffect",
+            "native_name": "ForceCommandEffect_RespectsIgnoreForceEffect",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.PersistentActivation_SplitActionHasWholeDoseLifetimeAndMagnitude",
+            "native_name": "PersistentActivation_SplitActionHasWholeDoseLifetimeAndMagnitude (Aggregate,Magnitude)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPersistentSensoryCombatTests.DispelMagicEffect_BurningAndTrackmarkKeys_RemoveMatchingSpellParent",
+            "native_name": "DispelMagicEffect_BurningAndTrackmarkKeys_RemoveMatchingSpellParent",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicWindSpellEffectTests.TransferenceEffect_SameLocationAndLayer_DoesNotTeleport",
+            "native_name": "TransferenceEffect_SameLocationAndLayer_DoesNotTeleport",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.Hex_InvalidDurationDoesNotChangeExistingDuration",
+            "native_name": "Hex_InvalidDurationDoesNotChangeExistingDuration (NaN)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPortalTopologyTests.PortalTopologySpellEffect_PermanentMissingLink_DoesNotMoveExistingEndpoint",
+            "native_name": "PortalTopologySpellEffect_PermanentMissingLink_DoesNotMoveExistingEndpoint",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Parent_Reload_DoesNotRepeatActivation",
+            "native_name": "Parent_Reload_DoesNotRepeatActivation",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.TimedAggregate_ReloadRetainsCoatingSuppressionButPrunesRemovedLots",
+            "native_name": "TimedAggregate_ReloadRetainsCoatingSuppressionButPrunesRemovedLots",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.CharacterInstanceFocusServiceTests.CanFocus_DeadOrStasisInstance_ReturnsFailure",
+            "native_name": "CanFocus_DeadOrStasisInstance_ReturnsFailure",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.DuplicateFormulaRefusalPreservesScroll_AndBorrowedBookCopyPreservesSource",
+            "native_name": "DuplicateFormulaRefusalPreservesScroll_AndBorrowedBookCopyPreservesSource",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.ScrollReleaseConsumesBeforeEffects_AndTombstonePreventsStaleReloadReplay",
+            "native_name": "ScrollReleaseConsumesBeforeEffects_AndTombstonePreventsStaleReloadReplay",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Stacking_FollowsConfiguredPolicy",
+            "native_name": "Stacking_FollowsConfiguredPolicy (Strongest,3,1)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MindBroadcast_LanguageSenderEcho_PreservesLiteralMessageBraces",
+            "native_name": "MindBroadcast_LanguageSenderEcho_PreservesLiteralMessageBraces ({)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.CombinedMaterials_RetainedToolIsAllocatedSeparatelyFromConsumedItem",
+            "native_name": "CombinedMaterials_RetainedToolIsAllocatedSeparatelyFromConsumedItem",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.RealActionEventsCancelInscriptionAndReleaseExactReservation",
+            "native_name": "RealActionEventsCancelInscriptionAndReleaseExactReservation (state)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase3Tests.SpellEffectFactory_LoadEffect_RoundTripsPhase3Xml",
+            "native_name": "SpellEffectFactory_LoadEffect_RoundTripsPhase3Xml",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.SpellHelp_UsesTheSameRouteContextAsActualExpenditure",
+            "native_name": "SpellHelp_UsesTheSameRouteContextAsActualExpenditure (AtWill,1,12)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.FixedRepertoireRequiresStaffAndRejectsInvalidWholeCapabilityChangesAtomically",
+            "native_name": "FixedRepertoireRequiresStaffAndRejectsInvalidWholeCapabilityChangesAtomically",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV2Tests.PlaneAndFormRecipes_RemainBuilderLoadableForEngineV2",
+            "native_name": "PlaneAndFormRecipes_RemainBuilderLoadableForEngineV2",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Stacking_FollowsConfiguredPolicy",
+            "native_name": "Stacking_FollowsConfiguredPolicy (Independent,5,2)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.SpellHelp_UsesTheSameRouteContextAsActualExpenditure",
+            "native_name": "SpellHelp_UsesTheSameRouteContextAsActualExpenditure (Memorised,3,16)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.PsionicStockDefinitions_AllLoadWithFiniteCostsAndUnchangedTypeTokens",
+            "native_name": "PsionicStockDefinitions_AllLoadWithFiniteCostsAndUnchangedTypeTokens",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase2Tests.MagicInterdictionHelper_BothCoverageAppliesToOutgoingMagic",
+            "native_name": "MagicInterdictionHelper_BothCoverageAppliesToOutgoingMagic",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.RetainedBookPattern_RemainsKnownAfterLastCastButInvalidReferencesDoNot",
+            "native_name": "RetainedBookPattern_RemainsKnownAfterLastCastButInvalidReferencesDoNot",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.ConnectMindPower_LoadsAndAppliesTargetEligibilityProg",
+            "native_name": "ConnectMindPower_LoadsAndAppliesTargetEligibilityProg",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPortalTopologyTests.RebuildNetworksForItem_ItemEndpointMovedOut_RemovesMaterializedTopologyPortal",
+            "native_name": "RebuildNetworksForItem_ItemEndpointMovedOut_RemovesMaterializedTopologyPortal",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase3Tests.SpellPortalEffect_PersistsStablePortalInstanceIdentity",
+            "native_name": "SpellPortalEffect_PersistsStablePortalInstanceIdentity",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.SpellPhantomIllusionEffect_PresentsOnlyToEligibleViewers",
+            "native_name": "SpellPhantomIllusionEffect_PresentsOnlyToEligibleViewers",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.SpellBackedPower_RemainsIndependentAfterVancianSlotsAreExhausted",
+            "native_name": "SpellBackedPower_RemainsIndependentAfterVancianSlotsAreExhausted",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.Hex_InvalidDurationDoesNotChangeExistingDuration",
+            "native_name": "Hex_InvalidDurationDoesNotChangeExistingDuration (1e300)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.OldSoiPsionicCheckTypes_AreClassifiedForPowerEffects",
+            "native_name": "OldSoiPsionicCheckTypes_AreClassifiedForPowerEffects",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicWindSpellEffectTests.SpellEffectFactory_LoadEffect_RoundTripsWindXml",
+            "native_name": "SpellEffectFactory_LoadEffect_RoundTripsWindXml",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.CharacterInstanceFocusServiceTests.QuitThroughPrimary_FromSecondary_ReturnsControllerToPrimaryAndQuitsPrimary",
+            "native_name": "QuitThroughPrimary_FromSecondary_ReturnsControllerToPrimaryAndQuitsPrimary",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPortalTopologyTests.RebuildNetwork_ItemEndpointWithEffectiveButNotDirectLocation_DoesNotMaterialize",
+            "native_name": "RebuildNetwork_ItemEndpointWithEffectiveButNotDirectLocation_DoesNotMaterialize",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.TimedAggregate_ContinuousExposureKeepsBoundedSavedStateAndSurvivesReload",
+            "native_name": "TimedAggregate_ContinuousExposureKeepsBoundedSavedStateAndSurvivesReload",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.RealActionEventsCancelInscriptionAndReleaseExactReservation",
+            "native_name": "RealActionEventsCancelInscriptionAndReleaseExactReservation (combat)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicWindSpellEffectTests.SpellEffectFactory_RegistersWindEffectTypes",
+            "native_name": "SpellEffectFactory_RegistersWindEffectTypes",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.RuntimeSubjectiveDescriptionEffect_ExposesPriorityAndKey",
+            "native_name": "RuntimeSubjectiveDescriptionEffect_ExposesPriorityAndKey",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.N11_LocalisedDelivery_PreservesOneActivationAndOriginalRetainedLots",
+            "native_name": "N11_LocalisedDelivery_PreservesOneActivationAndOriginalRetainedLots",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Maintained_Absorption_UpdatesExistingChildAndDispelRemovesParent",
+            "native_name": "Maintained_Absorption_UpdatesExistingChildAndDispelRemovesParent",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellResolutionTests.CastSpell_InstantaneousTargetEffectWithoutAChild_StillResolvesAndRunsCasterEffects",
+            "native_name": "CastSpell_InstantaneousTargetEffectWithoutAChild_StillResolvesAndRunsCasterEffects",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.CharacterAndExitParametersSurviveActualScrollAndFiniteTargetParsing",
+            "native_name": "CharacterAndExitParametersSurviveActualScrollAndFiniteTargetParsing",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.MixedCantripsAndMemorisedBooksUseSeveralAccessibleInstanceBooksAndBothRecoveryPolicies",
+            "native_name": "MixedCantripsAndMemorisedBooksUseSeveralAccessibleInstanceBooksAndBothRecoveryPolicies",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV3Tests.DispelMagicEffect_ContestBlocksWeakerDispel",
+            "native_name": "DispelMagicEffect_ContestBlocksWeakerDispel",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.FiniteInscriptionReservesThenDebitsOnce_AndNeverReleasesSpellEffects",
+            "native_name": "FiniteInscriptionReservesThenDebitsOnce_AndNeverReleasesSpellEffects",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MagicTagEffect_ExposesInterdictionMetadata",
+            "native_name": "MagicTagEffect_ExposesInterdictionMetadata",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MindBroadcast_LanguageSenderEcho_PreservesLiteralMessageBraces",
+            "native_name": "MindBroadcast_LanguageSenderEcho_PreservesLiteralMessageBraces (})",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.TimedDuration_SmallDoseSchedulesExactExpiry_AndDurationCapApplies",
+            "native_name": "TimedDuration_SmallDoseSchedulesExactExpiry_AndDurationCapApplies",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPortalTopologyTests.RebuildNetwork_ItemEndpointWithoutDirectLocation_DoesNotMaterialize",
+            "native_name": "RebuildNetwork_ItemEndpointWithoutDirectLocation_DoesNotMaterialize",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.WritingCommands_AreAvailableThroughRealPlayerAndNpcCommandTrees",
+            "native_name": "WritingCommands_AreAvailableThroughRealPlayerAndNpcCommandTrees",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV2Tests.DispelMagicEffect_ShortenModeShortensOwnedMatchingEffects",
+            "native_name": "DispelMagicEffect_ShortenModeShortensOwnedMatchingEffects",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Activation_TransferSpentLiquid_DoesNotActivateTwice",
+            "native_name": "Activation_TransferSpentLiquid_DoesNotActivateTwice",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.SpellEffectFactory_RegistersV4TagWardTypes",
+            "native_name": "SpellEffectFactory_RegistersV4TagWardTypes",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.ScrollPrototypeRejectsContainerAndStackableCompositionsInEitherOrder",
+            "native_name": "ScrollPrototypeRejectsContainerAndStackableCompositionsInEitherOrder",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicWindSpellEffectTests.InvisibilityEffect_SaveAndLegacyGlowFallback_UseInvisibilityType",
+            "native_name": "InvisibilityEffect_SaveAndLegacyGlowFallback_UseInvisibilityType",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MindBroadcast_LanguageSenderEcho_PreservesLiteralMessageBraces",
+            "native_name": "MindBroadcast_LanguageSenderEcho_PreservesLiteralMessageBraces ({0})",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.BookCopyPaysActualProductionMaterialOnceAndCancellationPaysNothing",
+            "native_name": "BookCopyPaysActualProductionMaterialOnceAndCancellationPaysNothing",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.CombinedMaterials_TwoCostsConsumeTwoUnitsExactlyOnce",
+            "native_name": "CombinedMaterials_TwoCostsConsumeTwoUnitsExactlyOnce (False)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase2Tests.SpellPersonalWardEffect_ShouldInterdictChildSchoolWhenProgAllows",
+            "native_name": "SpellPersonalWardEffect_ShouldInterdictChildSchoolWhenProgAllows",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.UnusableOrFullBooksRefuseWithoutFormulaOrPayment",
+            "native_name": "UnusableOrFullBooksRefuseWithoutFormulaOrPayment (closed)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MindBroadcast_LanguageSenderEcho_PreservesLiteralMessageBraces",
+            "native_name": "MindBroadcast_LanguageSenderEcho_PreservesLiteralMessageBraces ({99})",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.CharacterInstanceFocusServiceTests.CanFocus_OtherIdentity_ReturnsFailure",
+            "native_name": "CanFocus_OtherIdentity_ReturnsFailure",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MindSay_SenderAndRecipient_PreserveLiteralMessageBraces",
+            "native_name": "MindSay_SenderAndRecipient_PreserveLiteralMessageBraces ({{the gate}})",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV3Tests.DetectPoisonEffect_ReportsActiveAndLatentDrugDosages",
+            "native_name": "DetectPoisonEffect_ReportsActiveAndLatentDrugDosages",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicWindSpellEffectTests.WindStatusEffects_ExposeRuntimeInterfacesAndSaveConfiguration",
+            "native_name": "WindStatusEffects_ExposeRuntimeInterfacesAndSaveConfiguration",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.CharacterInstanceFocusServiceTests.Focus_InvalidSecondary_DoesNotSetControllerContext",
+            "native_name": "Focus_InvalidSecondary_DoesNotSetControllerContext",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.PersistentActivation_SplitActionHasWholeDoseLifetimeAndMagnitude",
+            "native_name": "PersistentActivation_SplitActionHasWholeDoseLifetimeAndMagnitude (Independent,Duration)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.CapabilityIdentitiesHaveSeparateSelectionsAndGenerationEvenWithIdenticalRuleKeys",
+            "native_name": "CapabilityIdentitiesHaveSeparateSelectionsAndGenerationEvenWithIdenticalRuleKeys",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.SpellBackedPower_LegitimateLegacyRouteStillUsesItsNormalCheckAndCosts",
+            "native_name": "SpellBackedPower_LegitimateLegacyRouteStillUsesItsNormalCheckAndCosts",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.Hex_InvalidDurationDoesNotChangeExistingDuration",
+            "native_name": "Hex_InvalidDurationDoesNotChangeExistingDuration (-1)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicWindSpellEffectTests.DispelMagicEffect_InvisibilityKey_RemovesMatchingSpellParent",
+            "native_name": "DispelMagicEffect_InvisibilityKey_RemovesMatchingSpellParent",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.InscriptionOfDamagingSpellNeverExecutesItsEffectAndMovedBlankCancels",
+            "native_name": "InscriptionOfDamagingSpellNeverExecutesItsEffectAndMovedBlankCancels",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.CharacterInstanceInitialisationTests.ResolveSecondaryNeedsModel_IdentityNotYetLoaded_ReturnsNoNeedsFallback",
+            "native_name": "ResolveSecondaryNeedsModel_IdentityNotYetLoaded_ReturnsNoNeedsFallback",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV2Tests.SpellEffectFactory_RegistersEngineV2DispelMagic",
+            "native_name": "SpellEffectFactory_RegistersEngineV2DispelMagic",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase3Tests.SpellMagicTagEffect_ExposesCasterSpellAndMetadata",
+            "native_name": "SpellMagicTagEffect_ExposesCasterSpellAndMetadata",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.PsionicTrafficHelper_RespectsIgnoreForceOptOut",
+            "native_name": "PsionicTrafficHelper_RespectsIgnoreForceOptOut",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV3Tests.SpellEffectFactory_RegistersEngineV3EffectTypes",
+            "native_name": "SpellEffectFactory_RegistersEngineV3EffectTypes",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Coating_RemovalEndsMaintainedEffects_AndDispelSuppressesRetainedLiquid",
+            "native_name": "Coating_RemovalEndsMaintainedEffects_AndDispelSuppressesRetainedLiquid",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase3Tests.SpellEffectFactory_RegistersPhase3EffectTypes",
+            "native_name": "SpellEffectFactory_RegistersPhase3EffectTypes",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MagicHexEffect_AppliesConfiguredPenaltyCategories",
+            "native_name": "MagicHexEffect_AppliesConfiguredPenaltyCategories",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Ward_BlockedActivationSpendsCharge_AndFreshDoseStillWorks",
+            "native_name": "Ward_BlockedActivationSpendsCharge_AndFreshDoseStillWorks",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellResolutionTests.CastSpell_GroupFirstMemberResists_LaterMembersResolveAndInvocationSucceeds",
+            "native_name": "CastSpell_GroupFirstMemberResists_LaterMembersResolveAndInvocationSucceeds",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicArmageddonInformationEffectTests.SpellIdentifyEffect_GetLookText_FallsBackToSingleParameterProgWhenCasterUnavailable",
+            "native_name": "SpellIdentifyEffect_GetLookText_FallsBackToSingleParameterProgWhenCasterUnavailable",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.Combat_AllOrdinaryAllowanceModesCastButTimedWorkRefuses",
+            "native_name": "Combat_AllOrdinaryAllowanceModesCastButTimedWorkRefuses (AtWill)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.VancianKnowledge_DoesNotGrantSpellBackedPowerOrFreeDirectCasting",
+            "native_name": "VancianKnowledge_DoesNotGrantSpellBackedPowerOrFreeDirectCasting",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.RemovedStoredPolicyReferenceRefusesBeforeAnyConsumption",
+            "native_name": "RemovedStoredPolicyReferenceRefusesBeforeAnyConsumption",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.RealActionEventsCancelInscriptionAndReleaseExactReservation",
+            "native_name": "RealActionEventsCancelInscriptionAndReleaseExactReservation (death)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MagicPowerFactory_RegistersAndLoadsV4PsionicPowerTypes",
+            "native_name": "MagicPowerFactory_RegistersAndLoadsV4PsionicPowerTypes",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.PowerCost_ExactResourceBalanceIsAffordable",
+            "native_name": "PowerCost_ExactResourceBalanceIsAffordable",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase3Tests.PlaneAndFormRecipeEffects_RemainBuilderVisibleForEngineV1",
+            "native_name": "PlaneAndFormRecipeEffects_RemainBuilderVisibleForEngineV1",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.DispelMagicEffect_MatchesPhantomIllusionAndSharedIllusionKey",
+            "native_name": "DispelMagicEffect_MatchesPhantomIllusionAndSharedIllusionKey",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.EffectFailureAfterCommitLeavesDiagnosticAndNeverReplaysFiniteOrScrollCasting",
+            "native_name": "EffectFailureAfterCommitLeavesDiagnosticAndNeverReplaysFiniteOrScrollCasting (False)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase2Tests.SpellEffectFactory_RegistersPhase2EffectTypes",
+            "native_name": "SpellEffectFactory_RegistersPhase2EffectTypes",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Pulse_Timed_DoesNotBurstOnExposureOrReplayMissedTicks",
+            "native_name": "Pulse_Timed_DoesNotBurstOnExposureOrReplayMissedTicks",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicArmageddonInformationEffectTests.SpellIdentifyEffect_GetLookText_UsesStoredCasterInstanceForTwoParameterProg",
+            "native_name": "SpellIdentifyEffect_GetLookText_UsesStoredCasterInstanceForTwoParameterProg",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase3Tests.ItemEnchantmentEffect_ImplementsCombatAndArmourHooks",
+            "native_name": "ItemEnchantmentEffect_ImplementsCombatAndArmourHooks",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.RuntimeSubjectiveDescriptionEffect_AudienceScopesApply",
+            "native_name": "RuntimeSubjectiveDescriptionEffect_AudienceScopesApply",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MindSay_SenderAndRecipient_PreserveLiteralMessageBraces",
+            "native_name": "MindSay_SenderAndRecipient_PreserveLiteralMessageBraces (})",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.ItemOil_UpdatesSameChildAsCoatingDrains",
+            "native_name": "ItemOil_UpdatesSameChildAsCoatingDrains",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase2Tests.CastingTriggerCharacterExit_DoTriggerCast_ResolvesCharacterAndExit",
+            "native_name": "CastingTriggerCharacterExit_DoTriggerCast_ResolvesCharacterAndExit",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.UnusableOrFullBooksRefuseWithoutFormulaOrPayment",
+            "native_name": "UnusableOrFullBooksRefuseWithoutFormulaOrPayment (unreadable)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPortalTopologyTests.RebuildNetwork_RepeatedRebuild_DoesNotDuplicateAndPreservesLegacyPortal",
+            "native_name": "RebuildNetwork_RepeatedRebuild_DoesNotDuplicateAndPreservesLegacyPortal",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase3Tests.TransientExitManager_RegistersAndRemovesPortalExitWithoutDatabaseId",
+            "native_name": "TransientExitManager_RegistersAndRemovesPortalExitWithoutDatabaseId",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.HealingOverflow_ConsumesEachWoundOnceAndTerminatesWhenDoseExceedsAllDamage",
+            "native_name": "HealingOverflow_ConsumesEachWoundOnceAndTerminatesWhenDoseExceedsAllDamage (mend)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV3Tests.RemoveBlindnessEffect_RemovesSpellBlindness",
+            "native_name": "RemoveBlindnessEffect_RemovesSpellBlindness",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase2Tests.MagicInterdictionHelper_UsesAdditionalRoomIncomingWard",
+            "native_name": "MagicInterdictionHelper_UsesAdditionalRoomIncomingWard",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellResolutionTests.CastSpell_CastingCheckFails_CommitsCostsMaterialsAndLockoutBeforeFailing",
+            "native_name": "CastSpell_CastingCheckFails_CommitsCostsMaterialsAndLockoutBeforeFailing",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV2Tests.DispelMagicEffect_DefaultCasterPolicyDoesNotRemoveHostileEffects",
+            "native_name": "DispelMagicEffect_DefaultCasterPolicyDoesNotRemoveHostileEffects",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.CharacterInstanceFocusServiceTests.CanFocus_UnloadedInstance_ReturnsFailure",
+            "native_name": "CanFocus_UnloadedInstance_ReturnsFailure",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MagicModule_SchoolVerbHelpText_ListsFullPlayerCommandSurface",
+            "native_name": "MagicModule_SchoolVerbHelpText_ListsFullPlayerCommandSurface",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.TechniqueEchoes_PreserveCustomTextAndExplicitSilenceAcrossSaveLoad",
+            "native_name": "TechniqueEchoes_PreserveCustomTextAndExplicitSilenceAcrossSaveLoad",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MindSay_SenderAndRecipient_PreserveLiteralMessageBraces",
+            "native_name": "MindSay_SenderAndRecipient_PreserveLiteralMessageBraces ({0})",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.ScrollGroupWithFirstTargetResistedOrWardedStillAffectsLaterTargetsAndConsumesOnce",
+            "native_name": "ScrollGroupWithFirstTargetResistedOrWardedStillAffectsLaterTargetsAndConsumesOnce (True)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MindSay_SenderAndRecipient_PreserveLiteralMessageBraces",
+            "native_name": "MindSay_SenderAndRecipient_PreserveLiteralMessageBraces ({99})",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV2Tests.MindConcealPower_LoadsAndConcealsMindContactIdentity",
+            "native_name": "MindConcealPower_LoadsAndConcealsMindContactIdentity",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellResolutionTests.CastSpell_EmptyGroup_PreservesCasterEffectsAndSuccessfulInvocation",
+            "native_name": "CastSpell_EmptyGroup_PreservesCasterEffectsAndSuccessfulInvocation",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.SubjectiveDescriptionEffect_RoundTripsAudienceScopeFields",
+            "native_name": "SubjectiveDescriptionEffect_RoundTripsAudienceScopeFields",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.CombinedMaterials_TwoCostsConsumeTwoUnitsExactlyOnce",
+            "native_name": "CombinedMaterials_TwoCostsConsumeTwoUnitsExactlyOnce (True)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV3Tests.DispelMagicEffect_DefaultContestOffStillRemovesStrongerSpell",
+            "native_name": "DispelMagicEffect_DefaultContestOffStillRemovesStrongerSpell",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Stacking_FollowsConfiguredPolicy",
+            "native_name": "Stacking_FollowsConfiguredPolicy (Aggregate,4,1)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.ScrollGroupWithFirstTargetResistedOrWardedStillAffectsLaterTargetsAndConsumesOnce",
+            "native_name": "ScrollGroupWithFirstTargetResistedOrWardedStillAffectsLaterTargetsAndConsumesOnce (False)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Food_PartialBitesAndStackServings_ConserveAbsorbedMagic",
+            "native_name": "Food_PartialBitesAndStackServings_ConserveAbsorbedMagic",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellResolutionTests.CastSpell_GroupLastMemberResists_RetainsEarlierResolutionAndCompletesOnce",
+            "native_name": "CastSpell_GroupLastMemberResists_RetainsEarlierResolutionAndCompletesOnce",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.Combat_AllOrdinaryAllowanceModesCastButTimedWorkRefuses",
+            "native_name": "Combat_AllOrdinaryAllowanceModesCastButTimedWorkRefuses (Spontaneous)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.UnusableOrFullBooksRefuseWithoutFormulaOrPayment",
+            "native_name": "UnusableOrFullBooksRefuseWithoutFormulaOrPayment (hidden)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.AtWillInscriptionCanStockpileWhileSpontaneousInscriptionDebitsChosenSlot",
+            "native_name": "AtWillInscriptionCanStockpileWhileSpontaneousInscriptionDebitsChosenSlot",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPersistentSensoryCombatTests.Movement_GetTrackIntensities_AppliesTrackIntensityEffects",
+            "native_name": "Movement_GetTrackIntensities_AppliesTrackIntensityEffects",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.CharacterInstanceInitialisationTests.ResolveSecondaryNeedsModel_IdentityHasNeedsModel_ReusesIdentityModel",
+            "native_name": "ResolveSecondaryNeedsModel_IdentityHasNeedsModel_ReusesIdentityModel",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.ProductionPlanDetectsSharedQuantityUnderpaymentBeforeAnyConsumption",
+            "native_name": "ProductionPlanDetectsSharedQuantityUnderpaymentBeforeAnyConsumption",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MindBarrier_ApplicabilityUsesProgTruth",
+            "native_name": "MindBarrier_ApplicabilityUsesProgTruth (True)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.InscriptionCancellationKeepsBlankAndExactUnspentCasting",
+            "native_name": "InscriptionCancellationKeepsBlankAndExactUnspentCasting",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase2Tests.SpellTriggerFactory_RegistersPhase2TriggerTypes",
+            "native_name": "SpellTriggerFactory_RegistersPhase2TriggerTypes",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.Combat_AllOrdinaryAllowanceModesCastButTimedWorkRefuses",
+            "native_name": "Combat_AllOrdinaryAllowanceModesCastButTimedWorkRefuses (Memorised)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.CombinedMaterials_HeavilyOverlappingImpossiblePlanRefusesWithoutSpending",
+            "native_name": "CombinedMaterials_HeavilyOverlappingImpossiblePlanRefusesWithoutSpending",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Activation_SeparateSubthresholdActions_DoNotAccumulateCredit",
+            "native_name": "Activation_SeparateSubthresholdActions_DoNotAccumulateCredit",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.Activation_FractionalSips_EqualWholeDoseAndDoNotUseCasterTraits",
+            "native_name": "Activation_FractionalSips_EqualWholeDoseAndDoNotUseCasterTraits",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV3Tests.SpellEffectFactory_LoadEffect_RoundTripsEngineV3Xml",
+            "native_name": "SpellEffectFactory_LoadEffect_RoundTripsEngineV3Xml",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.CharacterInstanceFocusServiceTests.CanFocus_PassiveSecondary_ReturnsFailure",
+            "native_name": "CanFocus_PassiveSecondary_ReturnsFailure",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPersistentSensoryCombatTests.SpellEffectFactory_LoadEffect_RoundTripsPersistentSensoryCombatXml",
+            "native_name": "SpellEffectFactory_LoadEffect_RoundTripsPersistentSensoryCombatXml",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.DangerSenseDefensiveEdge_AppliesOnlyToDefensiveChecks",
+            "native_name": "DangerSenseDefensiveEdge_AppliesOnlyToDefensiveChecks",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.InstancePayloadsRoundTrip_BookCopiesAreIndependent_ScrollCopiesStartBlank",
+            "native_name": "InstancePayloadsRoundTrip_BookCopiesAreIndependent_ScrollCopiesStartBlank",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV3Tests.DetectPoisonEffect_ReportsNoDrugEffects",
+            "native_name": "DetectPoisonEffect_ReportsNoDrugEffects",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.HighLevelScrollTranscriptionConsumesScrollWithoutSlotsOrActivationChecks",
+            "native_name": "HighLevelScrollTranscriptionConsumesScrollWithoutSlotsOrActivationChecks",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPhase2Tests.CastingTriggerProgItemRoom_DoTriggerCast_AllowsNullTargetAndStillSuppliesRoom",
+            "native_name": "CastingTriggerProgItemRoom_DoTriggerCast_AllowsNullTargetAndStillSuppliesRoom",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV3Tests.MagicSecurity_CreateLiquidEffect_RoundTripsLoadableLiquidIdXml",
+            "native_name": "MagicSecurity_CreateLiquidEffect_RoundTripsLoadableLiquidIdXml",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPortalTopologyTests.RebuildNetwork_ValidLink_MaterializesTopologyPortal",
+            "native_name": "RebuildNetwork_ValidLink_MaterializesTopologyPortal",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.StrongestInternalDose_AbsorbsTheCompleteAction",
+            "native_name": "StrongestInternalDose_AbsorbsTheCompleteAction",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianReviewRegressionTests.SpellHelp_MultipleCapabilitiesShowIndependentCostsAndScopedHelpUsesSelectedCapability",
+            "native_name": "SpellHelp_MultipleCapabilitiesShowIndependentCostsAndScopedHelpUsesSelectedCapability",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MindBroadcast_LanguageSenderEcho_PreservesLiteralMessageBraces",
+            "native_name": "MindBroadcast_LanguageSenderEcho_PreservesLiteralMessageBraces ({{the gate}})",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.StockEchoes_ParseAfterTheirDocumentedSubstitutions",
+            "native_name": "StockEchoes_ParseAfterTheirDocumentedSubstitutions",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MentalAction_OpposedTieFailsAndNotifiesReactionOnce",
+            "native_name": "MentalAction_OpposedTieFailsAndNotifiesReactionOnce",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.SubjectiveDescriptionEffect_RoundTripsPriorityAndIllusionKey",
+            "native_name": "SubjectiveDescriptionEffect_RoundTripsPriorityAndIllusionKey",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicPersistentSensoryCombatTests.PersistentSensoryCombatStatusEffects_ExposeRuntimeInterfacesAndSaveConfiguration",
+            "native_name": "PersistentSensoryCombatStatusEffects_ExposeRuntimeInterfacesAndSaveConfiguration",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.AvailabilityAndCastingUseLevelBasedCostsAndScrollReleaseNeverPaysThemAgain",
+            "native_name": "AvailabilityAndCastingUseLevelBasedCostsAndScrollReleaseNeverPaysThemAgain",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicWindSpellEffectTests.RemoveInvisibilityEffect_GetOrApplyEffect_RemovesOnlySpellInvisibilityEffects",
+            "native_name": "RemoveInvisibilityEffect_GetOrApplyEffect_RemovesOnlySpellInvisibilityEffects",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.MindSay_SenderAndRecipient_PreserveLiteralMessageBraces",
+            "native_name": "MindSay_SenderAndRecipient_PreserveLiteralMessageBraces ({)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicArmageddonInformationEffectTests.SpellEffectFactory_LoadEffect_RoundTripsArmageddonInformationXml",
+            "native_name": "SpellEffectFactory_LoadEffect_RoundTripsArmageddonInformationXml",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianIntegrationTests.EffectFailureAfterCommitLeavesDiagnosticAndNeverReplaysFiniteOrScrollCasting",
+            "native_name": "EffectFailureAfterCommitLeavesDiagnosticAndNeverReplaysFiniteOrScrollCasting (True)",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicEngineV4Tests.V4PowerXml_RoundTripsPsionicAndBasePolicyFields",
+            "native_name": "V4PowerXml_RoundTripsPsionicAndBasePolicyFields",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.CharacterInstanceFocusServiceTests.CanFocus_PlayerFocusableSecondary_ReturnsSuccess",
+            "native_name": "CanFocus_PlayerFocusableSecondary_ReturnsSuccess",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicalSubstanceTests.StrongestCoating_GroupsLotsAndSuppressesEveryRetainedPart",
+            "native_name": "StrongestCoating_GroupsLotsAndSuppressesEveryRetainedPart",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianItemTests.FailureAfterScrollConsumptionNeverResurrectsChargeOrDuplicatesFormula",
+            "native_name": "FailureAfterScrollConsumptionNeverResurrectsChargeOrDuplicatesFormula",
+            "native_outcome": "Passed"
+          }
+        ]
+      },
+      {
+        "run_id": "20260927T034128Z-9cbd6ee7faae",
+        "head": "ec361d9c2911b31e4a09284acea8e574b9c7ebfa",
+        "started_utc": "2026-09-27T03:41:28.4618691+00:00",
+        "ended_utc": "2026-09-27T03:41:32.8155597+00:00",
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~VancianSnapshotTests|FullyQualifiedName~MagicSpellPhaseOneTests|FullyQualifiedName~MagicFutureProgFunctionTests",
+        "source_start": "293f2da240bc76df32696ce4b67bfd2f92cc984f12b8981074263da671368364",
+        "source_end": "293f2da240bc76df32696ce4b67bfd2f92cc984f12b8981074263da671368364",
+        "source_stable": true,
+        "counts": {
+          "executed": 27,
+          "passed": 27,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 27
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ],
+        "status": "PASS_NATIVE_TRX_VERIFIED",
+        "command": ".\\scripts\\test-unit-core.ps1 -OutputMode Compact -Filter 'FullyQualifiedName~VancianSnapshotTests|FullyQualifiedName~MagicSpellPhaseOneTests|FullyQualifiedName~MagicFutureProgFunctionTests' -TimeoutSeconds 600 -FailOnSkipped",
+        "class_counts": {
+          "MudSharp_Unit_Tests.MagicFutureProgFunctionTests": 9,
+          "MudSharp_Unit_Tests.VancianSnapshotTests": 10,
+          "MudSharp_Unit_Tests.MagicSpellPhaseOneTests": 8
+        },
+        "native_counters": {
+          "total": "27",
+          "executed": "27",
+          "passed": "27",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "local_summary": ".artifacts/test-runs/20260927T034128Z-9cbd6ee7faae/summary.json",
+        "summary_sha256": "178d7d90a4bb37b498ef47fe0519fcd026340aa94286396f9f19c4733df6325e",
+        "local_trx": ".artifacts/test-runs/20260927T034128Z-9cbd6ee7faae/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+        "trx_sha256": "c1f5101982d7779c45a197d2c7b46006f5bd5f074d47a1129c47ff4c1fa39fd9",
+        "native_results": [
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicFutureProgFunctionTests.GatheringFutureProgFunctions_CompileWithTheirExactDeclaredTypes",
+            "native_name": "GatheringFutureProgFunctions_CompileWithTheirExactDeclaredTypes",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianSnapshotTests.DirectVancianInvocationUsesSyntheticOutcomeAndExactFiniteDebit",
+            "native_name": "DirectVancianInvocationUsesSyntheticOutcomeAndExactFiniteDebit",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicFutureProgFunctionTests.CompiledBeginAndCompleteFutureProgs_FundRealLandGathering",
+            "native_name": "CompiledBeginAndCompleteFutureProgs_FundRealLandGathering",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellPhaseOneTests.MagicPerceptionUtilities_DescribeMagicAuras_ShowsDistinctMagicalSpellEffectsOnly",
+            "native_name": "MagicPerceptionUtilities_DescribeMagicAuras_ShowsDistinctMagicalSpellEffectsOnly",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianSnapshotTests.AllFutureProgContractsAreRegisteredWithTypedReturns",
+            "native_name": "AllFutureProgContractsAreRegisteredWithTypedReturns",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianSnapshotTests.CompatibilityManifestCoversEveryRegisteredTypeAndRequiredFamilies",
+            "native_name": "CompatibilityManifestCoversEveryRegisteredTypeAndRequiredFamilies",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicFutureProgFunctionTests.MagicGatherDetails_ReturnsPaidLandAccountingOnlyToItsOwner",
+            "native_name": "MagicGatherDetails_ReturnsPaidLandAccountingOnlyToItsOwner",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellPhaseOneTests.RoomFlagEffects_LoadFromXml_PreserveAlarmAndWardConfiguration",
+            "native_name": "RoomFlagEffects_LoadFromXml_PreserveAlarmAndWardConfiguration",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianSnapshotTests.NumericContextsAreIsolated_AndExtendedOptionsAreStored",
+            "native_name": "NumericContextsAreIsolated_AndExtendedOptionsAreStored",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellPhaseOneTests.SpellArmourEffect_LoadFromXml_PreservesConfiguredArmourValues",
+            "native_name": "SpellArmourEffect_LoadFromXml_PreservesConfiguredArmourValues",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianSnapshotTests.LegacyDirectRouteCannotBypassVancian_AndMixedCapabilityRemainsValid",
+            "native_name": "LegacyDirectRouteCannotBypassVancian_AndMixedCapabilityRemainsValid",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicFutureProgFunctionTests.BeginMagicGatherFunction_RoutesACompiledInvocationThroughTheGatheringService",
+            "native_name": "BeginMagicGatherFunction_RoutesACompiledInvocationThroughTheGatheringService",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicFutureProgFunctionTests.BeginMagicGatherFunction_RespectsTheSharedActionBlockerGate",
+            "native_name": "BeginMagicGatherFunction_RespectsTheSharedActionBlockerGate",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianSnapshotTests.ActorOwnedMovementUsesReaderAndFrozenConfiguration",
+            "native_name": "ActorOwnedMovementUsesReaderAndFrozenConfiguration",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianSnapshotTests.NumericBindings_FreezePerLocationAndBonusContext_KeepTargetOutcomeLive",
+            "native_name": "NumericBindings_FreezePerLocationAndBonusContext_KeepTargetOutcomeLive",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellPhaseOneTests.TeleportEffect_IsCompatibleWithTrigger_RoomTargetsOnly",
+            "native_name": "TeleportEffect_IsCompatibleWithTrigger_RoomTargetsOnly",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicFutureProgFunctionTests.MagicFutureProgFunctions_RegisterExpectedSurface",
+            "native_name": "MagicFutureProgFunctions_RegisterExpectedSurface",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellPhaseOneTests.MagicResourceDeltaEffect_LoadFromXml_PreservesConfiguredResourceAndFormula",
+            "native_name": "MagicResourceDeltaEffect_LoadFromXml_PreservesConfiguredResourceAndFormula",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellPhaseOneTests.SpellEffectFactory_LoadEffectFromBuilderInput_BuildsAllPhaseOneEffectTypes",
+            "native_name": "SpellEffectFactory_LoadEffectFromBuilderInput_BuildsAllPhaseOneEffectTypes",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianSnapshotTests.CorruptSnapshotBindingIsRejectedBeforeRelease",
+            "native_name": "CorruptSnapshotBindingIsRejectedBeforeRelease",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianSnapshotTests.SnapshotRoundTripPreservesSourceConfigurationAndCreatorNumbersAfterEdits",
+            "native_name": "SnapshotRoundTripPreservesSourceConfigurationAndCreatorNumbersAfterEdits",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicFutureProgFunctionTests.SpellDurationFunctions_QueryRescheduleAndRemoveMatchingParents",
+            "native_name": "SpellDurationFunctions_QueryRescheduleAndRemoveMatchingParents",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.VancianSnapshotTests.CaptureDoesNotEvaluateFormula_AndRejectsNonFiniteCreatorBindings",
+            "native_name": "CaptureDoesNotEvaluateFormula_AndRejectsNonFiniteCreatorBindings",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellPhaseOneTests.EffectHandler_GetPerception_CombinesGrantingAndDenying",
+            "native_name": "EffectHandler_GetPerception_CombinesGrantingAndDenying",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicFutureProgFunctionTests.MagicResourceFunctions_SetAddSubtractClampAndReturnCurrentLevel",
+            "native_name": "MagicResourceFunctions_SetAddSubtractClampAndReturnCurrentLevel",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicFutureProgFunctionTests.CanCastSpellFunctions_UseGeneralAndCurrentSpellChecks",
+            "native_name": "CanCastSpellFunctions_UseGeneralAndCurrentSpellChecks",
+            "native_outcome": "Passed"
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.MagicSpellPhaseOneTests.SpellEffectFactory_LoadEffect_LoadsAllPhaseOneEffectTypesFromXml",
+            "native_name": "SpellEffectFactory_LoadEffect_LoadsAllPhaseOneEffectTypesFromXml",
+            "native_outcome": "Passed"
+          }
+        ]
+      }
+    ]
+  },
+  "proposed_runtime_acceptance": "NOT_RUN: no implementation in ARM-01",
+  "native_database_or_telnet_acceptance": "NOT_RUN: documentation-only scope",
+  "reported_04C_correction": {
+    "source": "Land_Rejuvenation_Verification.md",
+    "prior_run_id": "20260926T234024Z-ad38eac683f4",
+    "reported_passed": 382,
+    "arm01_re_reviewed": false,
+    "arm01_closes_acceptance_gate": false
+  },
+  "documentation_validation": {
+    "status": "PASS",
+    "source_entries": 152,
+    "proposed_additions": 2,
+    "total_entries": 154,
+    "classifications": {
+      "existing_primitive_configuration": 38,
+      "existing_primitive_plus_bounded_policy_content": 65,
+      "small_missing_primitive": 43,
+      "larger_supporting_system": 8
+    },
+    "checks": [
+      "required fields and values",
+      "unique stable keys and generic names",
+      "exact source-ID set and hashes",
+      "single-line historical labels",
+      "valid explicit memberships",
+      "same-tradition prerequisite references and acyclic graphs",
+      "runtime implementation methods and source line bounds",
+      "deterministic JSON-to-Markdown equality",
+      "154 distinct detailed Markdown entries",
+      "package links and source paths",
+      "balanced fences and whitespace",
+      "design index entry"
+    ],
+    "relative_links_verified": 398,
+    "markdown_anchors_verified": 155,
+    "new_document_diff_checks": [
+      "Armageddon_Casting_Design.md",
+      "Armageddon_Casting_Decisions.md",
+      "ARM02_Configurable_Casting_Implementation_Brief.md",
+      "Armageddon_Repertoire.md",
+      "Armageddon_Repertoire.json",
+      "Armageddon_Casting_Integration.md"
+    ],
+    "document_hashes_excluding_receipt": {
+      "Armageddon_Casting_Design.md": "43e989777f010d954cafb09a50df74005a5d3ddc2e4bef928db2c19ae823065b",
+      "Armageddon_Casting_Decisions.md": "8d0b826c954f52bd7e926edbed68096bacbc1c0259bd33e5c22b5a5d04a97de3",
+      "ARM02_Configurable_Casting_Implementation_Brief.md": "e670d8daf5613a2e3e82f303aaab28afe4e223857b3b6281d55dd8c2234a1b94",
+      "Armageddon_Repertoire.md": "7df874b64c66d66055065a5303628474bf2bfc69f4c410a2d81cdeded110f82c",
+      "Armageddon_Repertoire.json": "ee2f5c341c715c27446014dbd3cc175c0b3ee908116be2b4dea80e8231dc266f",
+      "Armageddon_Casting_Integration.md": "1ad233135feac7e4a724d99c0fc4c2465b8bd448fac15e3e583ab805c11a91db"
+    }
+  },
+  "change_boundary": {
+    "status": "PASS_DOCUMENTATION_ONLY",
+    "changed_files": [
+      "Design Documents/README.md",
+      "Design Documents/Magic/ARM02_Configurable_Casting_Implementation_Brief.md",
+      "Design Documents/Magic/Armageddon_Casting_Decisions.md",
+      "Design Documents/Magic/Armageddon_Casting_Design.md",
+      "Design Documents/Magic/Armageddon_Casting_Integration.md",
+      "Design Documents/Magic/Armageddon_Casting_Verification.json",
+      "Design Documents/Magic/Armageddon_Repertoire.json",
+      "Design Documents/Magic/Armageddon_Repertoire.md"
+    ],
+    "production_code_changed": false,
+    "production_schema_changed": false,
+    "seed_stock_changed": false,
+    "game_database_touched": false,
+    "merged_or_deployed": false,
+    "database_statement_basis": "Only file reads, unit-test fixture execution and documentation writes; no native database or server operation was invoked."
+  }
+}

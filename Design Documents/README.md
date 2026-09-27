@@ -166,6 +166,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 ## Magic
 
+- [ARM-01 Configurable Casting Design and Candidate Repertoire](./Magic/Armageddon_Casting_Design.md)
 - [Vancian Magic Runtime and Persistence](./Magic/Vancian_Magic_Runtime.md)
 - [Vancian Magic Player Guide](./Magic/Vancian_Magic_Player_Guide.md)
 - [Vancian Magic Builder Guide and Examples](./Magic/Vancian_Magic_Builder_Guide.md)

@@ -425,7 +425,7 @@ internal static class DebugSeederReplayProfiles
 				("distinctive", "yes"),
 				("nonbinary", "no"),
 				("includeextraperson", "no")),
-			Step<WeatherSeeder>(("rain", "full")),
+        Step<WeatherSeeder>(("operation", "install"), ("rain", "full")),
 			Step<LawSeeder>(
 				("name", "Debug Authority"),
 				("currency", "1"),

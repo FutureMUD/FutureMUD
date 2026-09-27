@@ -13,6 +13,7 @@ namespace MudSharp.Climate
     {
         string Description { get; }
         IWeatherEvent HandleWeatherTick(IWeatherEvent currentWeather, ISeason currentSeason, TimeOfDay currentTime, int consecutiveUnchangedPeriods);
+        IWeatherEvent HandleWeatherTick(IWeatherEvent currentWeather, ISeason currentSeason, TimeOfDay currentTime, int consecutiveUnchangedPeriods, Func<double> nextRandom);
         /// <summary>
         /// The number of in-character minutes between checking for weather changes
         /// </summary>

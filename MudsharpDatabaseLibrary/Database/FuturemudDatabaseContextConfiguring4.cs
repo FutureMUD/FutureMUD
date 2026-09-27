@@ -1877,6 +1877,8 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<WeatherController>(entity =>
             {
+				entity.Property(e => e.ForecastState).HasColumnType("longtext");
+				entity.Property(e => e.ForecastHorizonDays).HasDefaultValue(7);
                 entity.HasIndex(e => e.CelestialId)
                     .HasDatabaseName("FK_WeatherControllers_Celestials_idx");
 

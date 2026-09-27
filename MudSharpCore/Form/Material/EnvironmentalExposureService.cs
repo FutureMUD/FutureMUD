@@ -82,6 +82,8 @@ public sealed class EnvironmentalExposureService
 	}
 	public static IDisposable Changing(IPerceivable target) => target.Gameworld is { } world && Services.TryGetValue(world, out var service)
 		? service.Change(target) : new ChangeScope(() => { });
+	public static IDisposable ChangingDefinitions(IFuturemud world) => Services.TryGetValue(world, out var service)
+		? service.DefinitionsChanging() : new ChangeScope(() => { });
 	public static void SettleExisting(IPerceivable target)
 	{
 		if (target.Gameworld is { } world && Services.TryGetValue(world, out var service)) service.Settle(target);
@@ -95,11 +97,13 @@ public sealed class EnvironmentalExposureService
 	public static IDisposable ChangingWeather(IFuturemud world, MudSharp.Climate.IWeatherController controller)
 	{
 		if (!Services.TryGetValue(world, out var service)) return new ChangeScope(() => { });
+		var previousWeather = controller.CurrentWeatherEvent;
+		var previousTemperature = controller.CurrentTemperature;
 		service.Advance(service.Clock());
 		return new ChangeScope(() =>
 		{
-			foreach (var cell in world.Actors.Select(x => x.Location).Concat(world.Items.Select(x => x.LocationLevelPerceivable?.Location))
-				.Where(x => x?.WeatherController == controller).Distinct().ToArray()) service.RefreshCell(cell!);
+			if (ReferenceEquals(previousWeather, controller.CurrentWeatherEvent) && previousTemperature == controller.CurrentTemperature) return;
+			foreach (var cell in service._weatherCells.Where(x => x.WeatherController == controller).ToArray()) service.RefreshCell(cell);
 		});
 	}
 
@@ -454,7 +458,7 @@ public sealed class EnvironmentalExposureService
 	private void Atmosphere(ICell cell, RoomLayer layer, IReadOnlyList<ExposurePatch> patches, double seconds, double temperature)
 	{
 		patches = Contents(patches, ExposureRoute.GasContact);
-		if (cell.Atmosphere is { } gas)
+		if (!cell.IsUnderwaterLayer(layer) && cell.Atmosphere is { } gas)
 			foreach (var result in Resolver.Gas(gas, patches, ExposureRoute.GasContact, ExposureSourceKind.Atmosphere, $"atmosphere:{cell.Id}:{layer}", 1, seconds, temperature, dryRun: true, evaluateProgs: true))
 			{
 				if (result.Work > 0 && result.Reaction.DamageType == DamageType.Burning && _options.Allows(result.Patch.Target, ExposureRoute.AmbientHeat) && result.Reaction.Channel.Equals("thermal", StringComparison.OrdinalIgnoreCase))

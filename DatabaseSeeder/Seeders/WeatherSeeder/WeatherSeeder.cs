@@ -52,6 +52,14 @@ public partial class WeatherSeeder : IDatabaseSeeder
         Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
     {
         (
+            "operation",
+            "Choose #3install#F to install weather into an empty world, or #3hazards#F to add lightning and dust to verified stock climates while preserving customisations: ",
+            (context, answers) => true,
+            (text, context) => text.EqualToAny("install", "hazards")
+                ? (text.EqualTo("hazards") || !context.WeatherEvents.Any(), "An existing weather catalogue must use the hazards update.")
+                : (false, "Please choose install or hazards.")
+        ),
+        (
             "rain",
             @"The engine can set up the rain events to soak items and create puddles. This will effectively have the engine automatically add water contamination to items left outside, fill up open containers, and create puddles around things.
 
@@ -64,7 +72,7 @@ The possible configurations are as follows:
 	#3none#F: Rain events only have temperature and flavour impacts, but don't impact the world
 
 Please answer #3full#F, #3soak#F or #3none#f. ",
-            (context, answers) => true, (text, context) =>
+            (context, answers) => !answers.GetValueOrDefault("operation", "install").EqualTo("hazards"), (text, context) =>
             {
                 if (!text.EqualToAny("full", "soak", "none")) { return (false, "Please answer #3full#F, #3soak#F or #3none#f."); } return (true, string.Empty);
             }
@@ -530,6 +538,16 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 
     /// <inheritdoc />
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        var existing = context.WeatherEvents.Any();
+        var operation = questionAnswers.GetValueOrDefault("operation", existing ? "hazards" : "install");
+        if (operation.EqualTo("hazards")) return InstallWeatherHazards(context, false);
+        if (existing) return "Weather already exists. Choose the hazards update to preserve builder customisations.";
+        var error = SeedBaseData(context, questionAnswers);
+        return error.Length > 0 ? error : InstallWeatherHazards(context, true);
+    }
+
+    internal string SeedBaseData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
     {
         _context = context;
         _questionAnswers = questionAnswers;

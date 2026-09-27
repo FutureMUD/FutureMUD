@@ -104,6 +104,7 @@ public abstract class AuthoredCelestial : PerceivedItem, ICelestialObject, IAuth
 		_delivering = false;
 		ApplyDescriptions();
 		Changed = true;
+		MudSharp.Climate.WeatherForecastInvalidation.Invalidate(Gameworld, this);
 		MinuteUpdateEvent?.Invoke(this);
 	}
 

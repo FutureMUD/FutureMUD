@@ -322,5 +322,14 @@ public class SunFromPlanetaryMoon : PerceivedItem, ICelestialObject
 
         return position.Direction == CelestialMoveDirection.Ascending ? TimeOfDay.Dawn : TimeOfDay.Dusk;
     }
+
+	internal MudSharp.Climate.WeatherSky PredictWeatherSky(double realSeconds, GeographicCoordinate geography)
+	{
+		var days = MudSharp.Climate.WeatherAstronomy.Days(realSeconds, Sun.Clock);
+		var dn = CurrentDayNumber + days;
+		return new((CurrentCelestialDay + days).Modulus(CelestialDaysPerYear),
+			MudSharp.Climate.WeatherAstronomy.Classify(ElevationAngle(dn, geography),
+				ElevationAngle(dn - OneMinuteTimeFraction, geography)));
+	}
 }
 

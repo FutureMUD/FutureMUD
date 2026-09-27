@@ -15,6 +15,7 @@ namespace MudSharp.Climate
 
     public interface IWeatherEvent : IEditableItem, IProgVariable
     {
+		WeatherHazardSettings Hazards { get; }
         PrecipitationLevel Precipitation { get; }
         WindLevel Wind { get; }
         string WeatherDescription { get; }

@@ -5,7 +5,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public class DamageEffect : IMagicSpellEffectTemplate
+public class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation
 {
     public static void RegisterFactory()
     {
@@ -177,10 +177,13 @@ public class DamageEffect : IMagicSpellEffectTemplate
     }
 
     public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+        => Apply(caster, target, outcome, power, parent, additionalParameters).Effect;
+
+    public MagicEffectOperation Apply(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
     {
         if (target is not ICharacter tch)
         {
-            return null;
+            return new(MagicEffectOperationStatus.Rejected, null);
         }
         double amount = DamageExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) });
         IBodypart part = BodypartId != 0 ? tch.Body.Bodyparts.FirstOrDefault(x => x.Id == BodypartId) : null;
@@ -199,8 +202,12 @@ public class DamageEffect : IMagicSpellEffectTemplate
             Bodypart = part,
             ActorOrigin = caster
         };
-        tch.SufferDamage(dmg);
-        return null;
+		var before = tch.Wounds.ToDictionary(x => x, x => (Damage: x.CurrentDamage, Pain: x.CurrentPain, Stun: x.CurrentStun));
+		var wounds = tch.SufferDamage(dmg).ToArray();
+		var applied = wounds.Any(x => !before.TryGetValue(x, out var prior)
+			? x.CurrentDamage > 0 || x.CurrentPain > 0 || x.CurrentStun > 0
+			: x.CurrentDamage > prior.Damage || x.CurrentPain > prior.Pain || x.CurrentStun > prior.Stun);
+		return new(applied ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
     }
 
     public IMagicSpellEffectTemplate Clone()

@@ -9,6 +9,7 @@ using Moq;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Implementations;
+using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
@@ -57,6 +58,8 @@ internal static partial class GNHProgram
 				["--probe"] => Probe(),
 				["--schema"] => InspectFreshSchema(),
 				["--run"] => RunAcceptanceChecks(),
+				["--casting-run"] => RunCastingAcceptanceChecks(),
+				["--casting-reader", .. string[] readerArguments] => RunCastingReader(readerArguments),
 				["--reader", .. string[] readerArguments] => RunReader(readerArguments),
 				["--land-run"] => RunNativeOrganicAcceptanceChecks(),
 				["--rejuvenation-run"] => RunRejuvenationAcceptanceChecks(),
@@ -80,7 +83,7 @@ internal static partial class GNHProgram
 
 	private static int Usage()
 	{
-		Console.Error.WriteLine("Usage: GatheringNativePersistenceHarness --probe|--schema|--run|--reader <scenario arguments>|--land-run|--land-reader <scenario arguments>|--land-action-reader <scenario arguments>|--rejuvenation-run|--rejuvenation-reader <owned fixture descriptor>");
+		Console.Error.WriteLine("Usage: GatheringNativePersistenceHarness --probe|--schema|--run|--reader <scenario arguments>|--land-run|--land-reader <scenario arguments>|--land-action-reader <scenario arguments>|--rejuvenation-run|--rejuvenation-reader <owned fixture descriptor>|--casting-run|--casting-reader <owned fixture descriptor>");
 		return 2;
 	}
 
@@ -378,6 +381,7 @@ internal static partial class GNHProgram
 			long roomId = Insert(connection, "rooms", ("ZoneId", zoneId), ("X", 0), ("Y", 0), ("Z", 0));
 			long cellId = Insert(connection, "cells", ("RoomId", roomId), ("EffectData", "<Effects />"));
 			long bodyId = Insert(connection, "bodies", ("BodyPrototypeID", bodyPrototypeId), ("Height", 1.8),
+				("ShortDescription", "a native acceptance participant"), ("FullDescription", "A native acceptance participant stands here."),
 				("Weight", 80.0), ("Position", 1L), ("RaceId", raceId), ("CurrentStamina", 100.0),
 				("CurrentBloodVolume", 5.0), ("EthnicityId", ethnicityId), ("Gender", (short)Gender.Male),
 				("HeldBreathLength", 120), ("EffectData", "<Effects />"), ("HealthStrategyId", healthStrategyId));
@@ -508,7 +512,7 @@ internal static partial class GNHProgram
 		public IMagicResource Resource { get; }
 		public IMagicGatheringCapability Capability { get; }
 
-		public static NativeRuntime Load(FixtureIds fixture, string connectionString)
+		public static NativeRuntime Load(FixtureIds fixture, string connectionString, bool casting = false)
 		{
 			using FuturemudDatabaseContext context = NewIndependentContext(connectionString);
 			Db.Character character = context.Characters
@@ -538,6 +542,7 @@ internal static partial class GNHProgram
 			world.SetupGet(x => x.TraitExpressions).Returns(expressions);
 
 			Mock<IExternalBodypart> bodypart = NewBodypart(fixture.BodypartId, world.Object);
+			if (casting) bodypart.As<IGrab>();
 			var bodyparts = new All<IBodypart>();
 			bodyparts.Add(bodypart.Object);
 			world.SetupGet(x => x.BodypartPrototypes).Returns(bodyparts);
@@ -551,6 +556,12 @@ internal static partial class GNHProgram
 			world.SetupGet(x => x.HealthStrategies).Returns(healthStrategies);
 
 			Mock<IRace> race = NewRace(bodyModel.RaceId, world.Object, healthStrategy);
+			if (casting)
+			{
+				var speech = new Mock<MudSharp.Strategies.BodyStratagies.IBodyCommunicationStrategy>();
+				speech.Setup(x => x.CanVocalise(It.IsAny<IBody>())).Returns(true);
+				race.SetupGet(x => x.CommunicationStrategy).Returns(speech.Object);
+			}
 			var races = new All<IRace>();
 			races.Add(race.Object);
 			world.SetupGet(x => x.Races).Returns(races);
@@ -560,7 +571,7 @@ internal static partial class GNHProgram
 			ethnicities.Add(ethnicity.Object);
 			world.SetupGet(x => x.Ethnicities).Returns(ethnicities);
 
-			Mock<IBodyPrototype> bodyPrototype = NewBodyPrototype(bodyModel.BodyPrototypeId, world.Object, bodypart.Object);
+			Mock<IBodyPrototype> bodyPrototype = NewBodyPrototype(bodyModel.BodyPrototypeId, world.Object, bodypart.Object, casting);
 			var bodyPrototypes = new All<IBodyPrototype>();
 			bodyPrototypes.Add(bodyPrototype.Object);
 			world.SetupGet(x => x.BodyPrototypes).Returns(bodyPrototypes);
@@ -599,6 +610,9 @@ internal static partial class GNHProgram
 			IMagicResource resource = new CappedSimpleMagicResource(resourceModel, world.Object);
 			var resources = new All<IMagicResource>();
 			resources.Add(resource);
+			if (casting)
+				foreach (var other in context.MagicResources.AsNoTracking().Where(x => x.Id != resource.Id))
+					resources.Add(new CappedSimpleMagicResource(other, world.Object));
 			world.SetupGet(x => x.MagicResources).Returns(resources);
 
 			IMagicGatheringCapability capability = (IMagicGatheringCapability)MagicCapabilityFactory.LoadCapability(capabilityModel, world.Object);
@@ -651,17 +665,40 @@ internal static partial class GNHProgram
 			return bodypart;
 		}
 
-		private static Mock<IBodyPrototype> NewBodyPrototype(long id, IFuturemud world, IBodypart bodypart)
+		private static Mock<IBodyPrototype> NewBodyPrototype(long id, IFuturemud world, IBodypart bodypart, bool livingAnatomy = false)
 		{
 			var prototype = new Mock<IBodyPrototype>(MockBehavior.Loose);
+			// Real damage runs the living health strategy, which requires functioning brain and heart organs.
+			// These untargeted catalogue parts do not create wounds or pre-populate any action outcome.
+			Db.BodypartProto OrganModel(long organId, string name) => new()
+			{
+				Id = organId, Name = name, Description = name, BodyId = id,
+				MaxLife = 100, DamageModifier = 1, PainModifier = 1, StunModifier = 1
+			};
+			IOrganProto[] organs = livingAnatomy
+				? [new BrainProto(OrganModel(bodypart.Id + 1, "harness brain"), world),
+					new HeartProto(OrganModel(bodypart.Id + 2, "harness heart"), world)]
+				: [];
+			var allParts = new[] { bodypart }.Concat(organs).ToArray();
+			if (livingAnatomy)
+			{
+				Mock.Get((IExternalBodypart)bodypart).SetupGet(x => x.Organs).Returns(organs);
+				Mock.Get((IExternalBodypart)bodypart).SetupGet(x => x.OrganInfo)
+					.Returns(organs.ToDictionary(x => x, _ => new BodypartInternalInfo(0, true, "harness")));
+				foreach (var organ in organs.Cast<BodypartPrototype>())
+				{
+					organ.SetBodyProto(prototype.Object);
+					((All<IBodypart>)world.BodypartPrototypes).Add(organ);
+				}
+			}
 			prototype.SetupGet(x => x.Id).Returns(id);
 			prototype.SetupGet(x => x.Name).Returns("Harness body prototype");
 			prototype.SetupGet(x => x.Gameworld).Returns(world);
-			prototype.Setup(x => x.BodypartsFor(It.IsAny<IRace>(), It.IsAny<Gender>())).Returns(new[] { bodypart });
+			prototype.Setup(x => x.BodypartsFor(It.IsAny<IRace>(), It.IsAny<Gender>())).Returns(allParts);
 			prototype.SetupGet(x => x.AllBodyparts).Returns(new[] { bodypart });
-			prototype.SetupGet(x => x.AllBodypartsBonesAndOrgans).Returns(new[] { bodypart });
+			prototype.SetupGet(x => x.AllBodypartsBonesAndOrgans).Returns(allParts);
 			prototype.SetupGet(x => x.AllExternalBodyparts).Returns(new[] { (IExternalBodypart)bodypart });
-			prototype.SetupGet(x => x.Organs).Returns(Array.Empty<IOrganProto>());
+			prototype.SetupGet(x => x.Organs).Returns(organs);
 			prototype.SetupGet(x => x.Bones).Returns(Array.Empty<IBone>());
 			prototype.SetupGet(x => x.Limbs).Returns(Array.Empty<ILimb>());
 			prototype.SetupGet(x => x.DefaultSpeeds).Returns(new Dictionary<IPositionState, IMoveSpeed>());
@@ -724,7 +761,7 @@ internal static partial class GNHProgram
 			return trait;
 		}
 
-		private static Mock<IMagicSchool> NewMagicSchool(long id, IFuturemud world)
+		public static Mock<IMagicSchool> NewMagicSchool(long id, IFuturemud world)
 		{
 			var school = new Mock<IMagicSchool>(MockBehavior.Loose);
 			school.SetupGet(x => x.Id).Returns(id);
@@ -734,7 +771,7 @@ internal static partial class GNHProgram
 			return school;
 		}
 
-		private static IMerit NewCapabilityMerit(IMagicGatheringCapability capability)
+		public static IMerit NewCapabilityMerit(IMagicCapability capability)
 		{
 			var merit = new Mock<IMagicCapabilityMerit>(MockBehavior.Loose);
 			merit.SetupGet(x => x.Capabilities).Returns(new[] { (IMagicCapability)capability });
@@ -755,6 +792,8 @@ internal static partial class GNHProgram
 
 	private sealed class NativeHarnessCharacter : RuntimeCharacter
 	{
+		public ICharacterIdentity? HarnessIdentity { get; set; }
+		public override ICharacterIdentity Identity => HarnessIdentity ?? base.Identity;
 		private NativeHarnessCharacter()
 			: base(null!, null!)
 		{
@@ -768,6 +807,7 @@ internal static partial class GNHProgram
 			SetPrivateField(character, "_noSave", true);
 			SetPrivateMember(character, "Gameworld", world);
 			SetPrivateMember(character, "EffectHandler", new EffectHandler(character));
+			SetPrivateField(character, "_cachedEffects", new List<(IEffect Effect, TimeSpan Time)>());
 			SetPrivateMember(character, "OutputHandler", new NonPlayerOutputHandler());
 			SetPrivateMember(character, "Location", cell);
 			SetPrivateMember(character, "Culture", culture);
@@ -775,6 +815,9 @@ internal static partial class GNHProgram
 			SetPrivateField(character, "_account", NewFormattingAccount());
 			SetPrivateField(character, "_state", CharacterState.Awake);
 			SetPrivateField(character, "_merits", new List<IMerit>());
+			SetPrivateField(character, "_characterTraits", new List<ITrait>());
+			SetPrivateField(character, "_secondaryInstances", new List<ICharacterInstance>());
+			SetPrivateField(character, "_castingGenerators", new Dictionary<IMagicResourceRegenerator, HeartbeatManagerDelegate>());
 			SetPrivateField(character, "_magicResourceAmounts", new DoubleCounter<IMagicResource>());
 			SetPrivateField(character, "_magicResourceGenerators", new List<IMagicResourceRegenerator>());
 			SetPrivateField(character, "_generatorDelegateDictionary", new Dictionary<IMagicResourceRegenerator, HeartbeatManagerDelegate>());
@@ -794,6 +837,7 @@ internal static partial class GNHProgram
 		public void AttachBody(IBody body) => SetPrivateMember(this, "Body", body);
 
 		public void SetMerits(IEnumerable<IMerit> merits) => SetPrivateField(this, "_merits", merits.ToList());
+		public void RestoreCastingEffects(string xml) => LoadEffects(XElement.Parse(xml));
 
 		// The isolated fixture has no installed hooks, combat, or attached items. The normal event pipeline therefore
 		// has no observer work to perform after ProcessPassiveWound has run its native wound lifecycle.
@@ -801,6 +845,13 @@ internal static partial class GNHProgram
 
 		public override void Save()
 		{
+			if (HarnessIdentity is not null)
+			{
+				var instance = FMDB.Context.CharacterInstances.Find(InstanceId);
+				if (instance is not null) instance.EffectData = SaveEffects().ToString();
+				Changed = false;
+				return;
+			}
 			Db.Character character = FMDB.Context.Characters
 				.Include(x => x.CharactersMagicResources)
 				.Single(x => x.Id == Id);
@@ -808,6 +859,7 @@ internal static partial class GNHProgram
 			{
 				SaveMagic(character);
 			}
+			character.EffectData = SaveEffects().ToString();
 
 			Changed = false;
 		}

@@ -9,7 +9,7 @@ using Org.BouncyCastle.Asn1.Bsi;
 
 namespace MudSharp.Magic.Capabilities;
 
-public partial class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability, IMagicGatheringCapability
+public partial class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability, IMagicGatheringCapability, IMagicCastingCapability
 {
     public virtual IMagicCapability Clone(string newName)
     {
@@ -58,6 +58,7 @@ public partial class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapabi
         ConcentrationDifficultyExpression = new TraitExpression(rhs.ConcentrationDifficultyExpression.OriginalFormulaText, Gameworld);
         _resourceRegenerators.AddRange(rhs._resourceRegenerators);
 		CloneGatheringMethodsFrom(rhs);
+		CloneCastingFrom(rhs);
         using (new FMDB())
         {
             Models.MagicCapability dbitem = new()
@@ -116,6 +117,7 @@ public partial class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapabi
 		if (root is not null)
 		{
 			LoadGatheringDefinition(root);
+			LoadCastingDefinition(root);
 		}
     }
 
@@ -137,6 +139,7 @@ public partial class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapabi
             )
 		);
 		SaveGatheringDefinition(root);
+		SaveCastingDefinition(root);
 		return root.ToString();
     }
 
@@ -243,6 +246,7 @@ public partial class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapabi
 	#3power <which>#0 - removes an existing power given by this capability
 	#3showpower#0 - toggles showing magic resources in the prompt
 	#3gather list|add|remove|show|set#0 - configures optional timed self and gentle gathering methods
+	#3casting#0 - configures optional explicit spell admissions, traits and reserves
 
 The following options have some more complex inputs:
 
@@ -260,6 +264,11 @@ The following options have some more complex inputs:
 
     public virtual bool BuildingCommand(ICharacter actor, StringStack command)
     {
+		if (command.PeekSpeech().EqualTo("casting"))
+		{
+			command.PopSpeech();
+			return BuildingCommandCasting(actor, command);
+		}
         switch (command.PopForSwitch())
         {
             case "name":
@@ -516,6 +525,7 @@ The following options have some more complex inputs:
             sb.AppendLine($"\t{power.Trait.Name.ColourName()} >= {power.MinValue.ToString("N2", actor).ColourValue()}: {power.Power.Name.Colour(power.Power.School.PowerListColour)}");
         }
 		AppendGatheringShow(sb, actor);
+		AppendCastingShow(sb, actor);
         return sb.ToString();
     }
 

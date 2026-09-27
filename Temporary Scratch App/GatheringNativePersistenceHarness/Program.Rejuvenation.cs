@@ -64,7 +64,7 @@ internal static partial class GNHProgram
 		return 0;
 	}
 
-	private static void ConfigureRejuvenationSpellWorld(NativeRuntime runtime, string connectionString)
+	private static void ConfigureRejuvenationSpellWorld(NativeRuntime runtime, string connectionString, bool loadSpells = true)
 	{
 		var world = runtime.WorldMock;
 		world.Setup(x => x.SystemMessage(It.IsAny<string>(), It.IsAny<bool>()))
@@ -118,7 +118,7 @@ internal static partial class GNHProgram
 		world.SetupGet(x => x.TraitExpressions).Returns(expressions);
 		MagicSpellParent.InitialiseEffectType();
 		SpellRejuvenateLandEffect.InitialiseEffectType();
-		foreach (var model in context.MagicSpells.AsNoTracking()) spells.Add(new MagicSpell(model, runtime.World));
+		if (loadSpells) foreach (var model in context.MagicSpells.AsNoTracking()) spells.Add(new MagicSpell(model, runtime.World));
 	}
 
 	private static MagicSpell AuthorRejuvenationSpell(NativeRuntime runtime, string connectionString)

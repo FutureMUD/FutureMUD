@@ -2190,6 +2190,8 @@ public class MagicGatheringServiceTests
 			typeof(MudSharp.Character.Character).GetField("_magicResourceAmounts", BindingFlags.Instance | BindingFlags.NonPublic)!;
 		private static readonly FieldInfo GeneratorDelegatesField =
 			typeof(MudSharp.Character.Character).GetField("_generatorDelegateDictionary", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		private static readonly FieldInfo CastingGeneratorDelegatesField =
+			typeof(MudSharp.Character.Character).GetField("_castingGenerators", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
 		private ResourceHolderCharacter() : base(null!, null!, true)
 		{
@@ -2198,11 +2200,14 @@ public class MagicGatheringServiceTests
 		public static ResourceHolderCharacter Create(CharacterState state)
 		{
 			ResourceHolderCharacter character = (ResourceHolderCharacter)RuntimeHelpers.GetUninitializedObject(typeof(ResourceHolderCharacter));
-			GameworldBackingField.SetValue(character, Mock.Of<IFuturemud>());
+			var world = new Mock<IFuturemud>();
+			world.SetupGet(x => x.MagicCapabilities).Returns(new All<IMagicCapability>());
+			GameworldBackingField.SetValue(character, world.Object);
 			NoSaveField.SetValue(character, true);
 			StateField.SetValue(character, state);
 			ResourceAmountsField.SetValue(character, new DoubleCounter<IMagicResource>());
 			GeneratorDelegatesField.SetValue(character, new Dictionary<IMagicResourceRegenerator, HeartbeatManagerDelegate>());
+			CastingGeneratorDelegatesField.SetValue(character, new Dictionary<IMagicResourceRegenerator, HeartbeatManagerDelegate>());
 			return character;
 		}
 	}

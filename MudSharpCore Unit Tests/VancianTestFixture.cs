@@ -158,6 +158,8 @@ internal sealed class VancianTestFixture
 	public static IUneditableAll<T> Collection<T>(Func<IEnumerable<T>> values) where T : class, IFrameworkItem
 	{
 		var collection = new Mock<IUneditableAll<T>>(); collection.Setup(x => x.Get(It.IsAny<long>())).Returns<long>(id => values().FirstOrDefault(x => x.Id == id)!);
-		collection.Setup(x => x.GetEnumerator()).Returns(() => values().GetEnumerator()); return collection.Object;
+		collection.Setup(x => x.GetEnumerator()).Returns(() => values().GetEnumerator());
+		collection.As<System.Collections.IEnumerable>().Setup(x => x.GetEnumerator()).Returns(() => values().GetEnumerator());
+		return collection.Object;
 	}
 }

@@ -1,0 +1,51 @@
+using System;
+using System.Collections.Generic;
+using MudSharp.Character;
+using MudSharp.Framework;
+using MudSharp.RPG.Checks;
+
+#nullable enable
+namespace MudSharp.Magic;
+
+public sealed record AcquiredSpell(long CharacterId, long SpellId, int ControlledGrade, int ProfileVersion,
+	DateTime AcquiredUtc, string Provenance, DateTime NextMasteryUtc, long Version);
+
+public sealed record MagicCastingRoute(long CapabilityId, Guid AdmissionId, long SpellId, long TraitId,
+	long ReserveId, bool Available, string Reason);
+
+public sealed record MagicCastingIntent(ICharacter Actor, long CapabilityId, long SpellId, int Grade,
+	bool Overreach, string Targets);
+
+public sealed record MagicCastingCost(long HolderId, long ResourceId, double Amount);
+
+/// <summary>An advisory immutable description, never a spendable token or shared spell state.</summary>
+public sealed record ResolvedMagicCastingInvocation(Guid Id, long ActorId, long BodyId, long CharacterId,
+	long CapabilityId, Guid CapabilityIdentity, Guid AdmissionId, long SpellId, long NativeSchoolId,
+	long TraitId, long ReserveHolderId, long ReserveId, int Grade, SpellPower Power, bool Overreach,
+	Difficulty Difficulty, string TargetSpecification, IReadOnlyList<SpellAdditionalParameter> TargetParameters,
+	IReadOnlyList<MagicCastingCost> Costs, int ConfigurationVersion, int ProfileVersion);
+
+public sealed record MagicCastingQuote(ResolvedMagicCastingInvocation? Invocation, string Reason)
+{
+	public bool Allowed => Invocation is not null;
+}
+
+public enum MagicCastingStatus { Refused, Failed, Succeeded, NeedsReview }
+public sealed record MagicCastingResult(MagicCastingStatus Status, string Message, Guid? OperationId = null);
+public sealed record MagicCastingGrant(bool Changed, bool Allowed, string Message);
+
+/// <summary>World-local authority for acquired knowledge, explicit routes, paid casting and progression.</summary>
+public interface IMagicCastingService
+{
+	AcquiredSpell? Acquisition(ICharacter character, long spellId);
+	IReadOnlyList<MagicCastingRoute> Routes(ICharacter actor, long? spellId = null);
+	string? Preflight(ICharacter actor, long capabilityId, long spellId, int grade, bool overreach);
+	MagicCastingQuote Quote(MagicCastingIntent intent);
+	MagicCastingResult Cast(MagicCastingIntent intent);
+	MagicCastingGrant Grant(ICharacter authority, ICharacter target, long capabilityId, long spellId, string reason);
+	MagicCastingGrant Enrol(ICharacter authority, ICharacter target, long capabilityId, string reason);
+	void NotifyProgress(ICharacter character, long? traitId = null, long? spellId = null);
+	void Reconcile(ICharacter actor);
+	string? QuarantineReason(ICharacter actor, long? spellId = null, long? traitId = null, long? reserveId = null,
+		IEnumerable<long>? itemIds = null);
+}

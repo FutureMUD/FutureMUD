@@ -226,8 +226,14 @@ public sealed class RoomTagWardEffect : TagWardSpellEffectBase
 	}
 }
 
-public sealed class PersonalTagWardEffect : TagWardSpellEffectBase
+public sealed class PersonalTagWardEffect : TagWardSpellEffectBase, IMagicSpellEffectOperation
 {
+	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome, SpellPower power,
+		IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+	{
+		var child = GetOrApplyEffect(caster, target, outcome, power, parent, additionalParameters);
+		return new(child is null ? MagicEffectOperationStatus.Rejected : MagicEffectOperationStatus.Applied, child);
+	}
 	private static readonly string[] CompatibleTypes = ["character", "characters", "character&room", "character&exit"];
 
 	public static void RegisterFactory()

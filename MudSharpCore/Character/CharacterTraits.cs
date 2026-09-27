@@ -141,6 +141,7 @@ public partial class Character
 		}
 
 		MeritsChanged = true;
+		if (merit is IMagicCapabilityMerit) CheckResources();
 		return true;
     }
 
@@ -159,6 +160,7 @@ public partial class Character
 		}
 
 		MeritsChanged = true;
+		if (merit is IMagicCapabilityMerit) CheckResources();
 		return true;
 	}
 
@@ -225,9 +227,11 @@ public partial class Character
     #region IHaveTraits Members
 
     private readonly List<ITrait> _characterTraits = new();
+	private Character CanonicalTraitOwner => Identity?.PrimaryInstance as Character ?? this;
 
     public bool AddTrait(ITraitDefinition trait, double value)
     {
+		if (trait.OwnerScope == TraitOwnerScope.Character && !ReferenceEquals(CanonicalTraitOwner, this)) return CanonicalTraitOwner.AddTrait(trait, value);
         if (trait.OwnerScope == TraitOwnerScope.Body)
         {
             return Body.AddTrait(trait, value);
@@ -242,11 +246,11 @@ public partial class Character
         Changed = true;
 		foreach (ILanguage language in Gameworld.Languages.Where(x => x.LinkedTrait == trait))
 		{
-			LearnLanguage(language);
+			foreach (var instance in Identity?.Instances ?? [this]) instance.LearnLanguage(language);
 		}
 		foreach (var language in Gameworld.SignedLanguages.Where(x => x.LinkedTrait == trait))
 		{
-			LearnSignedLanguage(language);
+			foreach (var instance in Identity?.Instances ?? [this]) instance.LearnSignedLanguage(language);
 		}
 
         return true;
@@ -254,6 +258,7 @@ public partial class Character
 
     public bool RemoveTrait(ITraitDefinition trait)
     {
+		if (trait.OwnerScope == TraitOwnerScope.Character && !ReferenceEquals(CanonicalTraitOwner, this)) return CanonicalTraitOwner.RemoveTrait(trait);
         if (trait.OwnerScope == TraitOwnerScope.Body)
         {
             return Body.RemoveTrait(trait);
@@ -268,11 +273,11 @@ public partial class Character
         Changed = true;
 		foreach (ILanguage language in Languages.Where(x => x.LinkedTrait == trait).ToList())
 		{
-			ForgetLanguage(language);
+			foreach (var instance in Identity?.Instances ?? [this]) instance.ForgetLanguage(language);
 		}
 		foreach (var language in SignedLanguages.Where(x => x.LinkedTrait == trait).ToList())
 		{
-			ForgetSignedLanguage(language);
+			foreach (var instance in Identity?.Instances ?? [this]) instance.ForgetSignedLanguage(language);
 		}
 
         using (new FMDB())
@@ -291,6 +296,7 @@ public partial class Character
 
     public bool SetTraitValue(ITraitDefinition trait, double value)
     {
+		if (trait.OwnerScope == TraitOwnerScope.Character && !ReferenceEquals(CanonicalTraitOwner, this)) return CanonicalTraitOwner.SetTraitValue(trait, value);
         if (trait.OwnerScope == TraitOwnerScope.Body)
         {
             return Body.SetTraitValue(trait, value);
@@ -316,7 +322,7 @@ public partial class Character
             return Body.TraitValue(trait, context);
         }
 
-        ITrait characterTrait = _characterTraits.FirstOrDefault(x => x.Definition == trait);
+        ITrait characterTrait = CanonicalTraitOwner._characterTraits.FirstOrDefault(x => x.Definition == trait);
         double baseValue = characterTrait?.Value ?? 0.0;
         baseValue +=
             Merits.OfType<ITraitBonusMerit>().Where(x => x.Applies(this))
@@ -337,7 +343,7 @@ public partial class Character
     {
         return trait.OwnerScope == TraitOwnerScope.Body
             ? Body.TraitRawValue(trait)
-            : _characterTraits.FirstOrDefault(x => x.Definition == trait)?.Value ?? 0.0;
+            : CanonicalTraitOwner._characterTraits.FirstOrDefault(x => x.Definition == trait)?.Value ?? 0.0;
     }
 
     public double TraitMaxValue(ITraitDefinition trait)
@@ -354,14 +360,14 @@ public partial class Character
     {
         return trait.OwnerScope == TraitOwnerScope.Body
             ? Body.HasTrait(trait)
-            : _characterTraits.Any(x => x.Definition == trait);
+            : CanonicalTraitOwner._characterTraits.Any(x => x.Definition == trait);
     }
 
     public ITrait GetTrait(ITraitDefinition definition)
     {
         return definition.OwnerScope == TraitOwnerScope.Body
             ? Body.GetTrait(definition)
-            : _characterTraits.FirstOrDefault(x => x.Definition == definition);
+            : CanonicalTraitOwner._characterTraits.FirstOrDefault(x => x.Definition == definition);
     }
 
     public IEnumerable<ITrait> Traits => Body.Traits;

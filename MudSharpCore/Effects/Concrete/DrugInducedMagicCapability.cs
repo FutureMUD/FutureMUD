@@ -53,11 +53,13 @@ public class DrugInducedMagicCapability : Effect, IGiveMagicCapabilityEffect
         }
 
         InducedCapabilities.Add(capability);
+		BodyOwner.Actor.Gameworld.MagicCasting?.Reconcile(BodyOwner.Actor);
     }
 
     public void RemoveCapability(IMagicCapability capability)
     {
         InducedCapabilities.Remove(capability);
+		BodyOwner.Actor.Gameworld.MagicCasting?.Reconcile(BodyOwner.Actor);
         if (!BodyOwner.Actor.Capabilities.Contains(capability))
         {
             BodyOwner.Actor.OutputHandler.Send(

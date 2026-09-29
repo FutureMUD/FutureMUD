@@ -292,6 +292,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 1.0),
             new SkillDetails("Salvaging", "Salvage", "Survival", "min(99,3*int + 2*per)", "Crafting", "General", true,
                 1.0),
+            new SkillDetails("Meteorology", "Meteorology", "Survival", "min(99,3*int + 2*per)", "Crafting", "General", true, 1.0),
 			new SkillDetails("Surviving", "Survival", "Survival", "min(99,3*int + 2*per)", "Crafting", "General", true,
 				1.0)
 		};
@@ -299,6 +300,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
     private IEnumerable<SkillDetails> SimpleUniversalCraftSkills =>
         new[]
         {
+            new SkillDetails("Meteorology", "Meteorology", "Survival", "min(99,3*int + 2*per)", "Crafting", "General", true, 1.0),
             new SkillDetails("Surviving", "Survival", "Survival", "min(99,3*int + 2*per)", "Crafting", "General", true,
                 1.0)
         };
@@ -713,6 +715,12 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                     AddCheck(check, new TraitExpression { Expression = "10" }, templates["Capability Check"].Id,
                         Difficulty.Automatic);
                     break;
+                case CheckType.WeatherForecastCapability:
+                    AddCheck(check, new TraitExpression { Expression = $"if(meteorology:{skills["Meteorology"].Id}>0,100,0)" }, templates["Capability Check"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.WeatherForecast:
+                    AddCheck(check, new TraitExpression { Expression = $"meteorology:{skills["Meteorology"].Id}" }, templates["Skill Check Fail If Missing"].Id, Difficulty.Normal);
+                    continue;
                 case CheckType.ExactTimeCheck:
                     AddCheck(check, new TraitExpression { Expression = "0" }, templates["Capability Check"].Id,
                         Difficulty.Automatic);

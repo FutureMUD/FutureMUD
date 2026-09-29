@@ -1,4 +1,4 @@
-using Dapper;
+﻿using Dapper;
 using ExpressionEngine;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -689,6 +689,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         }
 
         CurrentOverlay = overlay;
+		RefreshWeatherSubscriptions();
 		SynchroniseForagableProfile();
 		Gameworld.EnvironmentalMagic?.CellTerrainChanged(this);
         Changed = true;
@@ -711,6 +712,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
     public void AddOverlay(IEditableCellOverlay overlay)
     {
         _overlays.Add(overlay);
+		RefreshWeatherSubscriptions();
     }
 
     public void RemoveOverlay(long id)
@@ -965,7 +967,8 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         }
     }
 
-    public IFluid Atmosphere => CurrentOverlay.Atmosphere;
+    public IFluid Atmosphere => EffectsOfType<IAffectAtmosphere>().FirstOrDefault(x => x.Applies())?.Atmosphere ??
+        MudSharp.Climate.WeatherHazardService.WeatherAtmosphere(this) ?? CurrentOverlay.Atmosphere;
 
     public override IEnumerable<ICalendar> Calendars => HostedExteriorContext?.Calendars ?? Room.Calendars;
 
@@ -1314,6 +1317,8 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 
     public void Dispose()
     {
+		foreach (var controller in _subscribedWeatherControllers) UnsubscribeWeather(controller);
+		_subscribedWeatherControllers.Clear();
         Gameworld.Destroy(this);
         GC.SuppressFinalize(this);
     }
@@ -1365,32 +1370,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         }
 
         Temporary = cell.Temporary;
-        foreach (IWeatherController controller in _overlays.SelectNotNull(x => x.Terrain.OverrideWeatherController).Distinct())
-        {
-            _subscribedWeatherControllers.Add(controller);
-            controller.WeatherEcho += TerrainEchoController;
-            controller.WeatherChanged += TerrainChangedController;
-            controller.WeatherRoomTick += ControllerOnWeatherControllerRoomTick;
-        }
-
-        foreach (IArea area in Areas)
-        {
-            if (area.WeatherController != null && !_subscribedWeatherControllers.Contains(area.WeatherController))
-            {
-                area.WeatherController.WeatherEcho += WeatherControllerEchoController;
-                area.WeatherController.WeatherChanged += WeatherControllerChangedController;
-                area.WeatherController.WeatherRoomTick += ControllerOnWeatherControllerRoomTick;
-                _subscribedWeatherControllers.Add(area.WeatherController);
-            }
-        }
-
-        if (Zone.WeatherController != null && !_subscribedWeatherControllers.Contains(Zone.WeatherController))
-        {
-            Zone.WeatherController.WeatherEcho += WeatherControllerEchoController;
-            Zone.WeatherController.WeatherChanged += WeatherControllerChangedController;
-            Zone.WeatherController.WeatherRoomTick += ControllerOnWeatherControllerRoomTick;
-            _subscribedWeatherControllers.Add(Zone.WeatherController);
-        }
+		RefreshWeatherSubscriptions();
 
         LoadTags(cell);
 		LoadEnvironment(cell);
@@ -1399,17 +1379,16 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         _noSave = false;
     }
 
-    private void ControllerOnWeatherControllerRoomTick(Action<ICell> visitor)
+    private void ControllerOnWeatherControllerRoomTick(IWeatherController sender, Action<ICell> visitor)
     {
-        visitor(this);
+        if (ReferenceEquals(WeatherController, sender)) visitor(this);
     }
 
     private void WeatherControllerChangedController(IWeatherController sender, IWeatherEvent oldWeather, IWeatherEvent newWeather)
     {
         foreach (IHandleEvents handler in EventHandlers)
         {
-            if (handler is IPerceiver p && Terrain(p).OverrideWeatherController != sender &&
-                Terrain(p).OverrideWeatherController != null)
+            if ((handler is IPerceiver p ? WeatherForObserver(p) : WeatherController) != sender)
             {
                 continue;
             }
@@ -1421,7 +1400,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
     private void WeatherControllerEchoController(IWeatherController sender, string echo)
     {
         foreach (ICharacter actor in Characters.Where(x =>
-                     Terrain(x).OverrideWeatherController == sender || Terrain(x).OverrideWeatherController == null))
+                     WeatherForObserver(x) == sender))
         {
             if (actor.RoomLayer.IsUnderwater())
             {
@@ -1443,58 +1422,41 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 
     private readonly List<IWeatherController> _subscribedWeatherControllers = new();
 
-    private void TerrainChangedController(IWeatherController sender, IWeatherEvent oldWeather, IWeatherEvent newWeather)
-    {
-        foreach (IHandleEvents handler in EventHandlers)
-        {
-            if (handler is IPerceiver p && Terrain(p).OverrideWeatherController != sender)
-            {
-                continue;
-            }
+	internal void RefreshWeatherSubscriptions()
+	{
+		var controllers = _overlays.Select(x => x.Terrain?.OverrideWeatherController)
+			.Concat(Areas.Select(x => x.WeatherController))
+			.Append(Zone?.WeatherController)
+			.Where(x => x is not null)
+			.Distinct()
+			.ToArray();
+		foreach (var controller in _subscribedWeatherControllers.Except(controllers).ToArray())
+		{
+			UnsubscribeWeather(controller);
+			_subscribedWeatherControllers.Remove(controller);
+		}
+		foreach (var controller in controllers.Except(_subscribedWeatherControllers))
+		{
+			controller.WeatherEcho += WeatherControllerEchoController;
+			controller.WeatherChanged += WeatherControllerChangedController;
+			controller.WeatherRoomTick += ControllerOnWeatherControllerRoomTick;
+			_subscribedWeatherControllers.Add(controller);
+		}
+	}
 
-            handler.HandleEvent(EventType.WeatherChanged, handler, oldWeather, newWeather);
-        }
-    }
+	private void UnsubscribeWeather(IWeatherController controller)
+	{
+		controller.WeatherEcho -= WeatherControllerEchoController;
+		controller.WeatherChanged -= WeatherControllerChangedController;
+		controller.WeatherRoomTick -= ControllerOnWeatherControllerRoomTick;
+	}
 
-    private void TerrainEchoController(IWeatherController sender, string echo)
-    {
-        foreach (ICharacter actor in Characters)
-        {
-            if (actor.RoomLayer.IsUnderwater())
-            {
-                continue;
-            }
+	private IWeatherController WeatherForObserver(IPerceiver observer) =>
+		GetOverlayFor(observer).Terrain.OverrideWeatherController ??
+		Areas.FirstOrDefault(x => x.WeatherController is not null)?.WeatherController ?? Zone.WeatherController;
 
-            ITerrain terrain = Terrain(actor);
-            if (terrain.OverrideWeatherController != sender)
-            {
-                continue;
-            }
-
-
-            actor.OutputHandler.Send(echo);
-        }
-    }
-
-    public void AreaAdded(IArea area)
-    {
-        if (area.WeatherController != null && !_subscribedWeatherControllers.Contains(area.WeatherController))
-        {
-            area.WeatherController.WeatherEcho += WeatherControllerEchoController;
-            area.WeatherController.WeatherChanged += WeatherControllerChangedController;
-            _subscribedWeatherControllers.Add(area.WeatherController);
-        }
-    }
-
-    public void AreaRemoved(IArea area)
-    {
-        if (area.WeatherController != null && _subscribedWeatherControllers.Contains(area.WeatherController))
-        {
-            area.WeatherController.WeatherEcho -= WeatherControllerEchoController;
-            area.WeatherController.WeatherChanged -= WeatherControllerChangedController;
-            _subscribedWeatherControllers.Remove(area.WeatherController);
-        }
-    }
+	public void AreaAdded(IArea area) => RefreshWeatherSubscriptions();
+	public void AreaRemoved(IArea area) => RefreshWeatherSubscriptions();
 
     /// <summary>
     ///     If the voyeur is specifying an overlay package they wish to see, and this cell has an overlay from that package,

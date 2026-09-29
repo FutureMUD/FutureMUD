@@ -104,6 +104,14 @@ public class Season : SaveableItem, ISeason
     /// <inheritdoc />
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
+		var option = command.PeekSpeech().ToLowerInvariant();
+		var result = BuildingCommandInternal(actor, command);
+		if (result && option is "onset" or "celestial") WeatherForecastInvalidation.Invalidate(Gameworld, this);
+		return result;
+	}
+
+	private bool BuildingCommandInternal(ICharacter actor, StringStack command)
+	{
         switch (command.PopForSwitch())
         {
             case "name":

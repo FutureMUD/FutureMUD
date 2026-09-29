@@ -15,6 +15,7 @@ public partial class MagicSpell
 		ScrollInscriptionAllowed = ScrollInscriptionAllowed, MagicSchoolId = School.Id, SpellKnownProgId = SpellKnownProg?.Id ?? 0,
 		ExclusiveDelay = ExclusiveDelay.TotalSeconds, NonExclusiveDelay = NonExclusiveDelay.TotalSeconds,
 		AppliedEffectsAreExclusive = AppliedEffectsAreExclusive, CastingTraitDefinitionId = CastingTrait?.Id,
+		EffectDurationExpressionId = EffectDurationExpression?.Id,
 		ResistingTraitDefinitionId = OpposedTrait?.Id, CastingDifficulty = (int)CastingDifficulty, ResistingDifficulty = (int?)OpposedDifficulty,
 		MinimumSuccessThreshold = (int)MinimumSuccessThreshold, CastingEmote = CastingEmote, FailCastingEmote = FailCastingEmote,
 		TargetEmote = TargetEmote, TargetResistedEmote = TargetResistedEmote, TargetNullEmote = TargetNullEmote,

@@ -168,6 +168,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 ## Magic
 
 - [ARM-01 Configurable Casting Design and Candidate Repertoire](./Magic/Armageddon_Casting_Design.md)
+- [ARM-02 Configurable Casting Player, Builder and FutureProg Guide](./Magic/Configurable_Casting.md)
+- [ARM-02 Implementation and Verification Handover](./Magic/Configurable_Casting_Handover.md)
 - [Vancian Magic Runtime and Persistence](./Magic/Vancian_Magic_Runtime.md)
 - [Vancian Magic Player Guide](./Magic/Vancian_Magic_Player_Guide.md)
 - [Vancian Magic Builder Guide and Examples](./Magic/Vancian_Magic_Builder_Guide.md)
@@ -295,4 +297,5 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [RouteCell Spatial System](./World/Route_Cell_System.md)
 - [Spatial Area Transfer Packages](./World/Spatial_Area_Transfer_Packages.md)
 - [Time and Date System](./World/Time_And_Date_System.md)
+- [Weather forecasts and hazardous weather](./World/Weather_System.md)
 - [Zero Gravity System](./World/Zero_Gravity_System.md)

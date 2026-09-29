@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MudSharp.Celestial;
 using MudSharp.Database;
 using MudSharp.Framework.Units;
@@ -11,6 +11,7 @@ public class SimpleWeatherEvent : WeatherEventBase
     public SimpleWeatherEvent(Models.WeatherEvent weather, IFuturemud gameworld) : base(weather, gameworld)
     {
         XElement definition = XElement.Parse(weather.AdditionalInfo);
+		Hazards = WeatherHazardSettings.FromXml(definition.Element("Hazards"));
         foreach (XElement element in definition.Element("Echoes")?.Elements("Echo") ?? Enumerable.Empty<XElement>())
         {
             _randomEchoes.Add((element.Value, double.Parse(element.Attribute("chance")?.Value ?? "1.0")));
@@ -27,6 +28,7 @@ public class SimpleWeatherEvent : WeatherEventBase
     protected virtual XElement SaveToXml()
     {
         return new XElement("Info",
+			Hazards.ToXml(),
             new XElement("Echoes",
                 from item in _randomEchoes
                 select new XElement("Echo",
@@ -51,7 +53,7 @@ public class SimpleWeatherEvent : WeatherEventBase
         {
             WeatherEvent dbitem = new()
             {
-                WeatherEventType = "simple",
+                WeatherEventType = WeatherType,
                 Name = Name,
                 CountsAsId = CountsAs?.Id,
                 LightLevelMultiplier = LightLevelMultiplier,
@@ -80,6 +82,8 @@ public class SimpleWeatherEvent : WeatherEventBase
     {
     }
 
+	protected virtual string WeatherType => "simple";
+
     public SimpleWeatherEvent(IFuturemud gameworld, string name) : base(gameworld, name)
     {
         Precipitation = PrecipitationLevel.Parched;
@@ -96,8 +100,11 @@ public class SimpleWeatherEvent : WeatherEventBase
         DoDatabaseInsert();
     }
 
-    private SimpleWeatherEvent(SimpleWeatherEvent rhs, string name) : base(rhs.Gameworld, name)
+    protected SimpleWeatherEvent(SimpleWeatherEvent rhs, string name, bool insert = true) : base(rhs.Gameworld, name)
     {
+		_countsAs = rhs.CountsAs;
+		_countsAsId = rhs.CountsAs?.Id;
+		Hazards = rhs.Hazards with { };
         Precipitation = rhs.Precipitation;
         Wind = rhs.Wind;
         WeatherDescription = rhs.WeatherDescription;
@@ -114,7 +121,7 @@ public class SimpleWeatherEvent : WeatherEventBase
         {
             _transitionEchoOverrides[item.Key] = item.Value;
         }
-        DoDatabaseInsert();
+        if (insert) DoDatabaseInsert();
     }
 
     #region Overrides of WeatherEventBase
@@ -134,6 +141,13 @@ public class SimpleWeatherEvent : WeatherEventBase
 
     /// <inheritdoc />
     public override bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        var result = BuildingCommandInternal(actor, command);
+        if (result) WeatherForecastInvalidation.Invalidate(Gameworld, this);
+        return result;
+    }
+
+    private bool BuildingCommandInternal(ICharacter actor, StringStack command)
     {
         switch (command.PopForSwitch())
         {
@@ -346,7 +360,8 @@ public class SimpleWeatherEvent : WeatherEventBase
                 sb.AppendLine($"\t{echo.Chance.ToStringN2Colour(actor)} ({(echo.Chance / total).ToStringP2Colour(actor)}): {echo.Echo.SubstituteANSIColour()}");
             }
         }
-        return sb.ToString();
+        sb.AppendLine(HazardShow(actor));
+            return sb.ToString();
     }
 
     #endregion

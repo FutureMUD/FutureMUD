@@ -5,7 +5,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public class TraitBoostEffect : IMagicSpellEffectTemplate
+public class TraitBoostEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation
 {
     public IFuturemud Gameworld => Spell.Gameworld;
 
@@ -33,6 +33,12 @@ public class TraitBoostEffect : IMagicSpellEffectTemplate
     public IMagicSpell Spell { get; }
     public ITraitDefinition Trait { get; private set; }
     public double Bonus { get; private set; }
+	public MagicEffectOperation Apply(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome, SpellPower power,
+		IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+	{
+		var child = GetOrApplyEffect(caster, target, outcome, power, parent, additionalParameters);
+		return new(child is null ? MagicEffectOperationStatus.Rejected : Bonus == 0 ? MagicEffectOperationStatus.NoChange : MagicEffectOperationStatus.Applied, child);
+	}
     public TraitBonusContext TraitBonusContext { get; private set; }
 
     protected TraitBoostEffect(XElement root, IMagicSpell spell)

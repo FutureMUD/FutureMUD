@@ -99,6 +99,7 @@ namespace MudSharp.Framework
 #nullable enable annotations
 		MudSharp.Magic.Environment.IEnvironmentalMagicService? EnvironmentalMagic => null;
 		MudSharp.Magic.IMagicGatheringService? MagicGathering => null;
+		MudSharp.Magic.IMagicCastingService? MagicCasting => null;
 #nullable restore annotations
         void ReleasePrimedGameItems();
         void PrimeGameItems();

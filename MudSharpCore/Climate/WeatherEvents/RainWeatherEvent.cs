@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.Character.Heritage;
 using MudSharp.Construction;
 using MudSharp.Form.Material;
@@ -10,6 +10,13 @@ namespace MudSharp.Climate.WeatherEvents
 {
     internal class RainWeatherEvent : SimpleWeatherEvent
     {
+		protected override string WeatherType => "rain";
+		private RainWeatherEvent(RainWeatherEvent source, string name) : base(source, name, false)
+		{
+			RainLiquid = source.RainLiquid;
+			DoDatabaseInsert();
+		}
+		public override IWeatherEvent Clone(string name) => new RainWeatherEvent(this, name);
         public RainWeatherEvent(IFuturemud gameworld, string name)
         {
             Gameworld = gameworld;
@@ -98,6 +105,7 @@ namespace MudSharp.Climate.WeatherEvents
                     sb.AppendLine($"\t{echo.Chance.ToStringN2Colour(actor)} ({(echo.Chance / total).ToStringP2Colour(actor)}): {echo.Echo.SubstituteANSIColour()}");
                 }
             }
+            sb.AppendLine(HazardShow(actor));
             return sb.ToString();
         }
 

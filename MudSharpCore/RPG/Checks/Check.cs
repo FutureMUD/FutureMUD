@@ -101,6 +101,7 @@ public class StandardCheck : FrameworkItem, ICheck
         TraitUseType traitUseType = TraitUseType.Practical, IEnumerable<Tuple<string, double>> bonuses = null)
     {
         bool abject = false;
+		permitBranchingAndImprovement &= !CheckImprovementScope.Suppresses(checkee, Type);
         // Handle checks that specify traits must be possessed by the owner
         if (TargetNumberExpression.Parameters.Any() &&
             ((FailIfTraitMissing == FailIfTraitMissingType.FailIfAnyMissing &&

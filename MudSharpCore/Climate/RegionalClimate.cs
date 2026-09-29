@@ -33,15 +33,7 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
             }
         }
 
-        if (_seasons.Count > 0)
-        {
-            SeasonRotation = new CircularRange<ISeason>(_seasons.First().Celestial.CelestialDaysPerYear,
-                Seasons.Select(x => (x, (double)x.CelestialDayOnset)));
-        }
-        else
-        {
-            SeasonRotation = new CircularRange<ISeason>();
-        }
+		RebuildSeasonRotation();
     }
 
     public RegionalClimate(IFuturemud gameworld, string name, IClimateModel model)
@@ -69,15 +61,7 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
         {
             _hourlyBaseTemperaturesBySeason[item.Key] = item.Value;
         }
-        if (_seasons.Count > 0)
-        {
-            SeasonRotation = new CircularRange<ISeason>(_seasons.First().Celestial.CelestialDaysPerYear,
-                Seasons.Select(x => (x, (double)x.CelestialDayOnset)));
-        }
-        else
-        {
-            SeasonRotation = new CircularRange<ISeason>();
-        }
+		RebuildSeasonRotation();
         DoDatabaseInsert();
     }
 
@@ -119,6 +103,10 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
     private readonly List<ISeason> _seasons = new();
     public IEnumerable<ISeason> Seasons => _seasons;
     private readonly Dictionary<(ISeason Season, int DailyHour), double> _hourlyBaseTemperaturesBySeason = new();
+	internal void RebuildSeasonRotation() => SeasonRotation = _seasons.Count > 0
+		? new CircularRange<ISeason>(_seasons[0].Celestial.CelestialDaysPerYear, Seasons.Select(x => (x, (double)x.CelestialDayOnset)))
+		: new CircularRange<ISeason>();
+
     public CircularRange<ISeason> SeasonRotation { get; private set; }
 
     public IReadOnlyDictionary<(ISeason Season, int DailyHour), double> HourlyBaseTemperaturesBySeason =>
@@ -137,6 +125,13 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 
     /// <inheritdoc />
     public bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        var result = BuildingCommandInternal(actor, command);
+        if (result) WeatherForecastInvalidation.Invalidate(Gameworld, this);
+        return result;
+    }
+
+    private bool BuildingCommandInternal(ICharacter actor, StringStack command)
     {
         switch (command.PopForSwitch())
         {
@@ -373,15 +368,7 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
             }
             actor.OutputHandler.Send($"This regional climate now contains the {season.Name.ColourValue()} season. Default temperature values have been added.");
         }
-        if (_seasons.Count > 0)
-        {
-            SeasonRotation = new CircularRange<ISeason>(_seasons.First().Celestial.CelestialDaysPerYear,
-                Seasons.Select(x => (x, (double)x.CelestialDayOnset)));
-        }
-        else
-        {
-            SeasonRotation = new CircularRange<ISeason>();
-        }
+		RebuildSeasonRotation();
         Changed = true;
         return true;
     }

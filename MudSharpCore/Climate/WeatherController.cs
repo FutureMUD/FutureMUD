@@ -7,7 +7,7 @@ using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Climate;
 
-public class WeatherController : SaveableItem, IWeatherController
+public partial class WeatherController : SaveableItem, IWeatherController
 {
     public WeatherController(MudSharp.Models.WeatherController controller, IFuturemud gameworld)
     {
@@ -34,8 +34,11 @@ public class WeatherController : SaveableItem, IWeatherController
             HighestRecentPrecipitationLevel = CurrentWeatherEvent.Precipitation;
             PeriodsSinceHighestPrecipitation = 0;
         }
-        UpdateCurrentSeason();
+        // A season only changes at a climate checkpoint. Preserve the durable season
+        // when restarting between checkpoints, including across an astronomical boundary.
+        if (CurrentSeason is null || !RegionalClimate.Seasons.Contains(CurrentSeason)) UpdateCurrentSeason();
         CalculateCurrentTemperature();
+        LoadForecast(controller.ForecastState, controller.ForecastHorizonDays);
         FeedClock.MinutesUpdated += HandleWeatherTick;
         Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += HandleFiveSecondTick;
     }
@@ -84,6 +87,7 @@ public class WeatherController : SaveableItem, IWeatherController
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
         }
+        LoadForecast(null, 7);
     }
 
     public override string FrameworkItemType => "WeatherController";
@@ -137,6 +141,8 @@ public class WeatherController : SaveableItem, IWeatherController
 
     public void SetWeather(IWeatherEvent newEvent)
     {
+        using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.ChangingWeather(Gameworld, this);
+        InvalidateForecast();
         IWeatherEvent oldEvent = CurrentWeatherEvent;
         CurrentWeatherEvent = newEvent;
         ConsecutiveUnchangedPeriods = 0;
@@ -160,6 +166,7 @@ public class WeatherController : SaveableItem, IWeatherController
 
     public void FreezeWeather()
     {
+        InvalidateForecast();
         _freezeCounter++;
     }
 
@@ -168,6 +175,7 @@ public class WeatherController : SaveableItem, IWeatherController
         if (_freezeCounter > 0)
         {
             _freezeCounter--;
+            InvalidateForecast();
         }
     }
 
@@ -178,38 +186,36 @@ public class WeatherController : SaveableItem, IWeatherController
             return;
         }
 
-        WeatherRoomTick?.Invoke(CurrentWeatherEvent.OnFiveSecondEvent);
+        WeatherRoomTick?.Invoke(this, CurrentWeatherEvent.OnFiveSecondEvent);
     }
 
     public void HandleWeatherTick()
     {
+        if (FeedClock.IsTimeBeingSet) return;
+        using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.ChangingWeather(Gameworld, this);
+        _forecastMinute++;
         bool weatherChanged = false;
         if (CurrentWeatherEvent is not null)
         {
-            WeatherRoomTick?.Invoke(CurrentWeatherEvent.OnMinuteEvent);
+            WeatherRoomTick?.Invoke(this, CurrentWeatherEvent.OnMinuteEvent);
         }
 
         if (++MinuteCounter >= RegionalClimate.ClimateModel.MinuteProcessingInterval)
         {
-            TimeOfDay currentTimeOfDay = Celestial?.CurrentTimeOfDay(GeographyForTimeOfDay) ?? TimeOfDay.Night;
-            UpdateCurrentSeason();
+            var scheduled = TakeScheduledWeather();
+            CurrentSeason = Gameworld.Seasons.Get(scheduled.SeasonId);
+            CurrentTemperatureFluctuation = scheduled.TemperatureFluctuation;
+            ConsecutiveUnchangedPeriods = scheduled.UnchangedPeriods;
             MinuteCounter = 0;
 
             if (WeatherFrozen)
             {
-                ConsecutiveUnchangedPeriods++;
             }
             else
             {
-                CurrentTemperatureFluctuation = WeatherClimateUtilities.AdvanceTemperatureFluctuation(
-                    CurrentTemperatureFluctuation,
-                    RegionalClimate.TemperatureFluctuationStandardDeviation,
-                    RegionalClimate.TemperatureFluctuationPeriod,
-                    RegionalClimate.ClimateModel.MinuteProcessingInterval);
-                IWeatherEvent weather = RegionalClimate.ClimateModel.HandleWeatherTick(CurrentWeatherEvent, CurrentSeason, currentTimeOfDay, ConsecutiveUnchangedPeriods);
+                IWeatherEvent weather = Gameworld.WeatherEvents.Get(scheduled.EventId);
                 if (weather == CurrentWeatherEvent)
                 {
-                    ConsecutiveUnchangedPeriods++;
                 }
                 else
                 {
@@ -264,7 +270,6 @@ public class WeatherController : SaveableItem, IWeatherController
 
     private void CalculateCurrentTemperature()
     {
-		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.ChangingWeather(Gameworld, this);
         CurrentTemperature =
             RegionalClimate.HourlyBaseTemperaturesBySeason[
                 (CurrentSeason, FeedClock.CurrentTime.GetTimeByTimezone(FeedClockTimeZone).Hours)] +
@@ -306,6 +311,8 @@ public class WeatherController : SaveableItem, IWeatherController
         dbitem.Latitude = GeographyForTimeOfDay.Latitude;
         dbitem.Elevation = GeographyForTimeOfDay.Elevation;
         dbitem.Radius = GeographyForTimeOfDay.Radius;
+        dbitem.ForecastState = SaveForecast();
+        dbitem.ForecastHorizonDays = ForecastHorizonDays;
         Changed = false;
     }
 
@@ -319,13 +326,25 @@ public class WeatherController : SaveableItem, IWeatherController
 	#3elevation <height>#0 - sets the height above sea level
 	#3radius <measurement>#0 - sets the planetary radius
 	#3celestial <which>#0 - changes which celestial this is tied to
-	#3hemisphere <normal|opposite>#0 - phase shifts seasons by half a year for opposite-hemisphere locations";
+	#3hemisphere <normal|opposite>#0 - phase shifts seasons by half a year for opposite-hemisphere locations
+	#3forecast <days>#0 - sets the forecast horizon (1-30 local game days)";
 
     /// <inheritdoc />
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
+        using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.ChangingWeather(Gameworld, this);
+        var option = command.PeekSpeech().ToLowerInvariant();
+        var result = BuildingCommandInternal(actor, command);
+        if (result && option is not ("forecast" or "name")) InvalidateForecast();
+        return result;
+    }
+
+    private bool BuildingCommandInternal(ICharacter actor, StringStack command)
+    {
         switch (command.PopForSwitch())
         {
+            case "forecast":
+                return BuildingCommandForecast(actor, command);
             case "name":
                 return BuildingCommandName(actor, command);
             case "clock":
@@ -522,9 +541,13 @@ public class WeatherController : SaveableItem, IWeatherController
         }
 
         FeedClock.MinutesUpdated -= HandleWeatherTick;
+        FeedClock.TimeChanged -= ResynchroniseForecast;
+        _forecastTimeSubscribed = false;
         FeedClock = clock;
         FeedClock.MinutesUpdated += HandleWeatherTick;
         FeedClockTimeZone = clock.PrimaryTimezone;
+        SubscribeForecastClock();
+        ResynchroniseForecast();
         actor.OutputHandler.Send($"This weather controller is now tied to the {clock.Name.ColourValue()} clock.");
         Changed = true;
         return true;
@@ -557,6 +580,7 @@ public class WeatherController : SaveableItem, IWeatherController
         sb.AppendLine($"Weather Controller #{Id.ToString("N0", voyeur)}: {Name}".GetLineWithTitleInner(voyeur, Telnet.Yellow, Telnet.BoldWhite));
         sb.AppendLine();
         sb.AppendLine($"Feed Clock: {FeedClock.Name.ColourValue()}");
+        sb.AppendLine($"Forecast Horizon: {ForecastHorizonDays.ToStringN0(voyeur).ColourValue()} game days; {_forecast.Count.ToStringN0(voyeur).ColourValue()} scheduled checkpoints");
         sb.AppendLine($"Feed Clock Timezone: {FeedClockTimeZone.Name.Colour(Telnet.Green)}");
         sb.AppendLine($"Regional Climate: {RegionalClimate.Name.Colour(Telnet.BoldCyan)}");
         sb.AppendLine($"Latitude {GeographyForTimeOfDay.Latitude.RadiansToDegrees().ToString("N3").Colour(Telnet.Green)}");

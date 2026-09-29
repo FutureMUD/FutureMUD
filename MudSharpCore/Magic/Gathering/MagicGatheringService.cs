@@ -537,13 +537,15 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			}
 
 			IMagicResource? destination = _gameworld.MagicResources.Get(method.DestinationResourceId);
+			var destinationHolder = MudSharp.Magic.Casting.MagicCastingService.ReserveHolder(actor, method.DestinationResourceId);
+			if (_gameworld.MagicCasting?.QuarantineReason(actor, reserveId: method.DestinationResourceId) is { } quarantine) return Refused(quarantine);
 			if (destination is null || !destination.ResourceType.HasFlag(MagicResourceType.PlayerResource) ||
-				!actor.MagicResources.Any(x => x.Id == destination.Id))
+				!destinationHolder.MagicResources.Any(x => x.Id == destination.Id))
 			{
 				return Refused("The configured personal destination resource is unavailable to this actor.");
 			}
-			double current = Amount(actor.MagicResourceAmounts, destination);
-			double cap = destination.ResourceCap(actor);
+			double current = Amount(destinationHolder.MagicResourceAmounts, destination);
+			double cap = destination.ResourceCap(destinationHolder);
 			if (!double.IsFinite(current) || !double.IsFinite(cap) || current < 0.0 || cap < current || cap - current < amount)
 			{
 				return Refused("You do not currently have enough safe destination-resource headroom for the full amount.");
@@ -868,6 +870,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 
 	private bool CreditDestination(ICharacter actor, MagicGatheringQuote quote, out string? error)
 	{
+		actor = MudSharp.Magic.Casting.MagicCastingService.ReserveHolder(actor, quote.DestinationResourceId);
 		error = null;
 		IMagicResource? destination = _gameworld.MagicResources.Get(quote.DestinationResourceId);
 		if (destination is null)
@@ -978,7 +981,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 		{
 			if (!_persistAccounting(actor, cell, receipt))
 			{
-				MarkAccountingComponentsDirty(actor, cell);
+				MarkAccountingComponentsDirty(actor, cell, receipt.DestinationResourceId);
 				throw new InvalidOperationException("Injected gathering accounting persistence failed.");
 			}
 			return;
@@ -992,6 +995,8 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			{
 				actor.Body.Save();
 				actor.Save();
+				var reserveOwner = MudSharp.Magic.Casting.MagicCastingService.ReserveHolder(actor, receipt.DestinationResourceId);
+				if (!ReferenceEquals(reserveOwner, actor)) reserveOwner.Save();
 				cell?.Save();
 				MagicGatheringReceiptStore.WriteCurrent(receipt);
 				FMDB.Context.SaveChanges();
@@ -999,14 +1004,23 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			}
 			catch
 			{
-				MarkAccountingComponentsDirty(actor, cell);
+				MarkAccountingComponentsDirty(actor, cell, receipt.DestinationResourceId);
 				throw;
 			}
 		}
 	}
 
-	private static void MarkAccountingComponentsDirty(ICharacter actor, ICell? cell)
+	private static void MarkAccountingComponentsDirty(ICharacter actor, ICell? cell, long? reserveId = null)
 	{
+		if (reserveId is { } resourceId)
+		{
+			var owner = MudSharp.Magic.Casting.MagicCastingService.ReserveHolder(actor, resourceId);
+			if (!ReferenceEquals(owner, actor))
+			{
+				if (owner is MudSharp.Character.Character canonical) canonical.ResourcesChanged = true;
+				owner.Changed = true;
+			}
+		}
 		if (actor.Body is MudSharp.Body.Implementations.Body body)
 		{
 			body.StaminaChanged = true;

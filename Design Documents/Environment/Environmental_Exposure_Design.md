@@ -31,6 +31,8 @@ A source is either replenishing or finite:
 | Local cloud | Independent saved source identity and contact strength, separate from drug quantity. |
 | Breath | The selected breathing fluid and actual supply/airflow result. |
 
+The effective cell atmosphere gives applicable explicit atmosphere effects priority over an exposed weather gas override, then falls back to the permanent overlay. Weather gas reaches outdoors and climate-exposed interiors; windows and sealed interiors retain their air. Underwater ambient gas contact is excluded and breathing continues to resolve the terrain water fluid. Weather/effect transitions settle the old exposure before refreshing registered affected cells. [Weather forecasts and hazardous weather](../World/Weather_System.md) documents the builder settings and stock dust variants.
+
 Captured contact patches reject stale bodyparts, moved targets, changed materials, deleted items and changed containment. The simulation registers active targets, settles elapsed time before movement/equipment/environment/effect changes, and evaluates bounded substeps. Repeated LOOK, description, weight or saturation reads do not apply injury.
 
 The default heartbeat interval is one second with 0.25-second integration substeps. Constant rates retain exact elapsed-time work; finite concentration, inward soaking and consequences are recalculated between substeps. Builders can reduce the substep for a steeper authored system at the cost of more anatomy and health processing. Geometry and saturated-immersion refresh avoid repeated whole-body scans; unchanged static reaction selection is cached within an advance, while script results and callback-sensitive mode gates remain live.

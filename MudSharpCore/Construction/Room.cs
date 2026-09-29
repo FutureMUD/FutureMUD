@@ -1,6 +1,7 @@
 ﻿using MudSharp.Celestial;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
+using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.TimeAndDate.Date;
@@ -224,14 +225,17 @@ public class Room : Location, IDisposable, IRoom
 
     public void SetNewZone(IZone zone)
     {
+		using var exposureChange = EnvironmentalExposureService.ChangingDefinitions(Gameworld);
         Zone.Unregister(this);
         Zone = zone;
         Zone.Register(this);
+		foreach (var cell in Cells.OfType<Cell>()) cell.RefreshWeatherSubscriptions();
         Changed = true;
     }
 
     public void AddArea(IArea area)
     {
+		using var exposureChange = EnvironmentalExposureService.ChangingDefinitions(Gameworld);
         if (!_areas.Contains(area))
         {
             _areas.Add(area);
@@ -244,6 +248,7 @@ public class Room : Location, IDisposable, IRoom
 
     public void RemoveArea(IArea area)
     {
+		using var exposureChange = EnvironmentalExposureService.ChangingDefinitions(Gameworld);
         if (_areas.Remove(area))
         {
             foreach (ICell cell in Cells)

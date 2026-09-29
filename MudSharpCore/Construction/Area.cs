@@ -1,5 +1,6 @@
 ﻿using MudSharp.Celestial;
 using MudSharp.Climate;
+using MudSharp.Form.Material;
 using MudSharp.Database;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
@@ -111,7 +112,10 @@ public class Area : Location, IEditableArea
         get => _weatherController;
         set
         {
+			if (ReferenceEquals(_weatherController, value)) return;
+			using var exposureChange = EnvironmentalExposureService.ChangingDefinitions(Gameworld);
             _weatherController = value;
+			foreach (var cell in Cells.OfType<Cell>()) cell.RefreshWeatherSubscriptions();
             Changed = true;
         }
     }

@@ -1416,8 +1416,10 @@ The following additional models require you to specify a liquid to go with them:
 
         if (command.Peek().EqualTo("none"))
         {
+			using var exposureChange = EnvironmentalExposureService.ChangingDefinitions(Gameworld);
             _overrideWeatherController = null;
             _overrideWeatherControllerId = null;
+			RefreshWeatherSubscriptions();
             Changed = true;
             actor.OutputHandler.Send($"The {Name.Colour(Telnet.Cyan)} terrain no longer has any weather controller.");
             return true;
@@ -1432,12 +1434,21 @@ The following additional models require you to specify a liquid to go with them:
             return false;
         }
 
+		using var change = EnvironmentalExposureService.ChangingDefinitions(Gameworld);
         _overrideWeatherControllerId = controller.Id;
         _overrideWeatherController = controller;
+		Changed = true;
+		RefreshWeatherSubscriptions();
         actor.OutputHandler.Send(
             $"The {Name.Colour(Telnet.Cyan)} terrain will now use the {controller.Name.Colour(Telnet.BoldCyan)} weather controller.");
         return true;
     }
+
+	private void RefreshWeatherSubscriptions()
+	{
+		foreach (var cell in Gameworld.Cells.OfType<Cell>().Where(x => x.Overlays.Any(o => o.Terrain == this)))
+			cell.RefreshWeatherSubscriptions();
+	}
 
     private bool BuildingCommandForage(ICharacter actor, StringStack command)
     {

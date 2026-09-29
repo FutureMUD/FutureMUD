@@ -5122,6 +5122,43 @@ namespace MudSharp.Migrations
                     b.ToTable("Characters_Accents", (string)null);
                 });
 
+            modelBuilder.Entity("MudSharp.Models.CharacterAcquiredSpell", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("MagicSpellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("AcquiredUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("ControlledGrade")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("NextMasteryUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("ProfileVersion")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Provenance")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Provenance"), "utf8mb4");
+
+                    b.Property<long>("StateVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("CharacterId", "MagicSpellId");
+
+                    b.HasIndex("MagicSpellId");
+
+                    b.ToTable("CharacterAcquiredSpells");
+                });
+
             modelBuilder.Entity("MudSharp.Models.CharacterBody", b =>
                 {
                     b.Property<long>("CharacterId")
@@ -5210,6 +5247,28 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_CharacterBodySources_Bodies_idx");
 
                     b.ToTable("CharacterBodySources");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterCastingEnrolment", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<Guid>("CapabilityIdentity")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("CompletedStartingGrantVersion")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EnrolledUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("MagicCapabilityId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("CharacterId", "CapabilityIdentity");
+
+                    b.ToTable("CharacterCastingEnrolments");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterCombatSetting", b =>
@@ -5942,6 +6001,28 @@ namespace MudSharp.Migrations
                     b.HasIndex("MagicCapabilityId");
 
                     b.ToTable("CharacterMagicCapabilityStates");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterMagicSkillOpportunity", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("TraitDefinitionId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("NextOpportunityUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("StateVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("CharacterId", "TraitDefinitionId");
+
+                    b.HasIndex("TraitDefinitionId");
+
+                    b.ToTable("CharacterMagicSkillOpportunities");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterSignedLanguageVariety", b =>
@@ -15568,6 +15649,62 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_MagicCapabilities_MagicSchools_idx");
 
                     b.ToTable("MagicCapabilities");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MagicCastingOperation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<long>("ActorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("BodyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8mb4");
+
+                    b.Property<string>("Diagnostic")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Diagnostic"), "utf8mb4");
+
+                    b.Property<long>("MagicCapabilityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("MagicSpellId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ReserveId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Stage")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<long>("TraitDefinitionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UpdatedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId", "Stage");
+
+                    b.ToTable("MagicCastingOperations");
                 });
 
             modelBuilder.Entity("MudSharp.Models.MagicGatheringOperation", b =>
@@ -25960,6 +26097,14 @@ namespace MudSharp.Migrations
                     b.Property<long>("FeedClockTimeZoneId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<int>("ForecastHorizonDays")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(7);
+
+                    b.Property<string>("ForecastState")
+                        .HasColumnType("longtext");
+
                     b.Property<int>("HighestRecentPrecipitationLevel")
                         .HasColumnType("int(11)");
 
@@ -28882,6 +29027,25 @@ namespace MudSharp.Migrations
                     b.Navigation("Character");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.CharacterAcquiredSpell", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MudSharp.Models.MagicSpell", "MagicSpell")
+                        .WithMany()
+                        .HasForeignKey("MagicSpellId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+
+                    b.Navigation("MagicSpell");
+                });
+
             modelBuilder.Entity("MudSharp.Models.CharacterBody", b =>
                 {
                     b.HasOne("MudSharp.Models.Body", "Body")
@@ -28944,6 +29108,17 @@ namespace MudSharp.Migrations
                         .HasConstraintName("FK_CharacterBodySources_Characters");
 
                     b.Navigation("Body");
+
+                    b.Navigation("Character");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterCastingEnrolment", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Character");
                 });
@@ -29155,6 +29330,25 @@ namespace MudSharp.Migrations
                     b.Navigation("Character");
 
                     b.Navigation("MagicCapability");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterMagicSkillOpportunity", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MudSharp.Models.TraitDefinition", "TraitDefinition")
+                        .WithMany()
+                        .HasForeignKey("TraitDefinitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+
+                    b.Navigation("TraitDefinition");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterSignedLanguageVariety", b =>

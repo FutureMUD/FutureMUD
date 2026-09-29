@@ -7,10 +7,12 @@ using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
+using MudSharp.Magic.Casting;
+using System.Globalization;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public class SpellArmourEffect : CharacterSpellEffectTemplateBase
+public class SpellArmourEffect : CharacterSpellEffectTemplateBase, IMagicSpellEffectOperation
 {
 	public const string HelpText = @"You can use the following options with this effect:
 	#3part <which>#0 - toggles a bodypart shape being covered
@@ -60,6 +62,12 @@ public class SpellArmourEffect : CharacterSpellEffectTemplateBase
 	}
 
 	public MagicArmourConfiguration ArmourConfiguration { get; private set; } = null!;
+	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome, SpellPower power,
+		IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+	{
+		var child = GetOrApplyEffect(caster, target, outcome, power, parent, additionalParameters);
+		return new(child is null ? MagicEffectOperationStatus.Rejected : MagicEffectOperationStatus.Applied, child);
+	}
 
 	protected override string BuilderEffectType => "spellarmour";
 	protected override string ShowText => "Spell Armour";
@@ -287,6 +295,16 @@ public class SpellArmourEffect : CharacterSpellEffectTemplateBase
 	protected override IMagicSpellEffect CreateEffect(ICharacter caster, ICharacter target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
+		if (ArmourConfiguration.MaximumDamageAbsorbed is CastingExpression bound)
+		{
+			// Retained armour must keep this actor's resolved magnitude across saves and later damage callbacks.
+			var resolved = bound.EvaluateWith(caster, values: [("outcome", (int)outcome)]);
+			var configuration = new MagicArmourConfiguration(ArmourConfiguration)
+			{
+				MaximumDamageAbsorbed = new TraitExpression(resolved.ToString("R", CultureInfo.InvariantCulture), Gameworld)
+			};
+			return new SpellArmourProtectionEffect(target, parent, configuration);
+		}
 		return new SpellArmourProtectionEffect(target, parent, ArmourConfiguration);
 	}
 

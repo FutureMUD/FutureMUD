@@ -908,14 +908,24 @@ public partial class Character
 
     public CanMoveResponse CanMove(ICellExit exit, CanMoveFlags flags)
     {
-        // An Immwalk effect bypasses physical movement requirements, not the map itself. Keep
-        // the exit anchored to this cell and ensure that it has a viable layer transition before
-        // applying the staff traversal override below.
+		return CanMoveThroughExit(exit, flags, requireCurrentOrigin: true);
+    }
+
+	public CanMoveResponse CanMoveForPathPlanning(ICellExit exit, CanMoveFlags flags = CanMoveFlags.None)
+	{
+		return CanMoveThroughExit(exit, flags, requireCurrentOrigin: false);
+	}
+
+	private CanMoveResponse CanMoveThroughExit(ICellExit exit, CanMoveFlags flags, bool requireCurrentOrigin)
+    {
+        // Execution remains anchored to this cell, including for Immwalk. Planning may inspect
+        // a later edge without relocating the character; all other current-state checks remain
+        // shared, and normal movement must revalidate the edge when the character reaches it.
         if (exit is null ||
             exit.Origin is null ||
             exit.Destination is null ||
             Location is null ||
-            exit.Origin.Id != Location.Id ||
+            requireCurrentOrigin && exit.Origin.Id != Location.Id ||
             exit.MovementTransition(this).TransitionType == CellMovementTransition.NoViableTransition)
         {
             return new CanMoveResponse

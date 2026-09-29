@@ -147,6 +147,7 @@ public class NpcAiRegressionTests
 		origin.Setup(x => x.ExitsFor(null, true)).Returns([exit.Object]);
 		character.Setup(x => x.CanCross(exit.Object)).Returns((true, null!));
 		character.Setup(x => x.CanMove(exit.Object, It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
+		character.Setup(x => x.CanMoveForPathPlanning(exit.Object, It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
 		var home = new NpcHomeBaseEffect(character.Object);
 		home.SetHomeCell(destination.Object);
 		character.Setup(x => x.CombinedEffectsOfType<NpcHomeBaseEffect>()).Returns([home]);
@@ -1030,6 +1031,8 @@ public class NpcAiRegressionTests
 	[TestMethod]
 	public void WildlifeHunting_UsesSeenTargetsDropsUnreachablePreyAndPrioritisesCarrion()
 	{
+		string creatureSource = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..",
+			"..", "..", "MudSharpCore", "NPC", "AI", "CreatureAIBase.cs")));
 		string animalSource = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..",
 			"..", "..", "MudSharpCore", "NPC", "AI", "AnimalAI.cs")));
 		string groupSource = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..",
@@ -1060,11 +1063,11 @@ public class NpcAiRegressionTests
 			"return PredatorAIHelpers.FindLocalEdibleCorpse(character) is not null ||");
 		StringAssert.Contains(predatorStrategyBlock, "if (!WouldMove(ai, character))");
 
-		int observedCharacters = animalSource.IndexOf("private IEnumerable<ICharacter> ObservedCharacters",
+		int observedCharacters = creatureSource.IndexOf("protected IEnumerable<ICharacter> ObservedCharacters",
 			StringComparison.Ordinal);
-		int visibleAwarenessThreats = animalSource.IndexOf("private IEnumerable<ICharacter> VisibleAwarenessThreats",
+		int visibleAwarenessThreats = creatureSource.IndexOf("protected IEnumerable<ICharacter> VisibleAwarenessThreats",
 			StringComparison.Ordinal);
-		int shouldAvoidCell = animalSource.IndexOf("private bool ShouldAvoidCell", StringComparison.Ordinal);
+		int shouldAvoidCell = creatureSource.IndexOf("protected bool ShouldAvoidCell", StringComparison.Ordinal);
 		int visibleEcologyCharacters = animalSource.IndexOf("private IEnumerable<ICharacter> VisibleEcologyCharacters",
 			StringComparison.Ordinal);
 		int trySleepAtRefuge = animalSource.IndexOf("private bool TrySleepAtRefuge", StringComparison.Ordinal);
@@ -1074,7 +1077,7 @@ public class NpcAiRegressionTests
 		Assert.IsTrue(observedCharacters >= 0 && visibleAwarenessThreats >= 0 && shouldAvoidCell > visibleAwarenessThreats &&
 			visibleEcologyCharacters >= 0 && trySleepAtRefuge > visibleEcologyCharacters &&
 			contextualThreatCandidates >= 0 && hasProtectedYoung > contextualThreatCandidates);
-		string awarenessBlock = animalSource[visibleAwarenessThreats..shouldAvoidCell];
+		string awarenessBlock = creatureSource[visibleAwarenessThreats..shouldAvoidCell];
 		string ecologyBlock = animalSource[visibleEcologyCharacters..trySleepAtRefuge];
 		string contextualBlock = animalSource[contextualThreatCandidates..hasProtectedYoung];
 		StringAssert.Contains(awarenessBlock, "ObservedCharacters(character)");

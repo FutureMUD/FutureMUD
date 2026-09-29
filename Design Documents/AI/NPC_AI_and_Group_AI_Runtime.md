@@ -11,6 +11,8 @@ This document explains how FutureMUD's NPC AI stack is assembled today:
 
 This is the primary AI reference. The companion document [Event_System_for_AI_and_Hooks.md](./Event_System_for_AI_and_Hooks.md) covers the event and hook machinery that AI authors depend on.
 
+`AnimalAI` and `MonsterAI` are sibling controllers under `CreatureAIBase : PathingAIBase`. Shared mechanics cover observation, movement, home/refuge, threat assessment and bounded pursuit; Animal retains ecology and Wildlife group policy, while Monster owns configurable motives and schedules independent of needs. See [Monster AI](./Monster_AI.md) for commands, stock profiles and persistence. Monster definitions require one primary creature controller and cannot participate in Wildlife groups; auxiliary AIs remain supported.
+
 ## Scope
 This document covers:
 

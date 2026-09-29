@@ -4,9 +4,9 @@ using MudSharp.Construction;
 
 namespace MudSharp.NPC.AI;
 
-public partial class AnimalAI
+public abstract partial class CreatureAIBase
 {
-	private bool BuildingCommandHunting(ICharacter actor, StringStack command)
+	protected bool BuildingCommandHunting(ICharacter actor, StringStack command)
 	{
 		var section = command.PopForSwitch();
 		var option = command.PopForSwitch();

@@ -80,6 +80,10 @@ Legacy `PathBetween`/`ExitsBetween` adapters remain supported for paths made who
 
 ## Typed Path Execution
 
+The shared AI suitability predicate uses `ICharacterMover.CanMoveForPathPlanning` to inspect later exits without moving the actor. This shares the ordinary physical movement checks but omits the requirement that the inspected exit originate in the actor's current cell. Otherwise a two-exit route would fail at its second edge. It is a current-state estimate, not a simulation of future positions: terrain/layer transitions can still depend on the actor's present location. Existing AI door, key and obstruction policies can also accept a route requiring work before traversal.
+
+Planning never authorises movement. Each executed step still uses ordinary `CanMove` and `CanCross`, including current-origin, physical, door and access checks. A changed obstacle or movement condition can therefore stop a previously planned route safely.
+
 `FollowingPath` retains its existing exit queue for ordinary paths and additionally accepts an `ISpatialPath`. Its typed queue executes `CellExitStep` through the existing actor movement strategy and `LinearRouteStep` through `LinearRouteMovement`. A longitudinal step remains queued until the actor reaches its exact destination coordinate; the normal AI/patrol tick then advances to the next step.
 
 Typed followers pin every referenced RouteCell topology version. Before each action they revalidate the pins and the actor's exact expected origin. A `CellExitStep` additionally revalidates that the live exit side still exists, appears on the expected layer, passes the actor-specific suitability predicate, produces the compiled transition layer, and still has the required source/destination anchors and arrival coordinate. A `LinearRouteStep` revalidates its route identity, bounds, direction, and distance before movement starts. Any mismatch removes the following effect without attempting a substitute movement or silently rerouting.

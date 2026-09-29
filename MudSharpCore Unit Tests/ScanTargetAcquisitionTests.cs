@@ -76,11 +76,11 @@ public class ScanTargetAcquisitionTests
 		string source = System.IO.File.ReadAllText(System.IO.Path.GetFullPath(System.IO.Path.Combine(
 			AppContext.BaseDirectory, "..", "..", "..", "..", "MudSharpCore", "PerceptionEngine",
 			"ScanTargetAcquisition.cs")));
-		string animalAiSource = System.IO.File.ReadAllText(System.IO.Path.GetFullPath(System.IO.Path.Combine(
-			AppContext.BaseDirectory, "..", "..", "..", "..", "MudSharpCore", "NPC", "AI", "AnimalAI.cs")));
+		string creatureAiSource = System.IO.File.ReadAllText(System.IO.Path.GetFullPath(System.IO.Path.Combine(
+			AppContext.BaseDirectory, "..", "..", "..", "..", "MudSharpCore", "NPC", "AI", "CreatureAIBase.cs")));
 
 		StringAssert.Contains(source, "CellsAndDistancesInVicinity(maximumRange, true, true)");
-		StringAssert.Contains(animalAiSource,
+		StringAssert.Contains(creatureAiSource,
 			"Math.Min(Math.Max(0, EffectiveAwarenessRange), (int)character.MaximumPerceptionRange)");
 		StringAssert.Contains(source, "candidate.Cell.SpotDifficulty(observer)");
 		StringAssert.Contains(source, "candidate.Target.RoomLayer.CanBeSeenFromLayer(observer.RoomLayer)");

@@ -10,6 +10,7 @@ using Moq;
 using Moq.Protected;
 using MudSharp.Body;
 using MudSharp.Body.Needs;
+using MudSharp.Body.Traits;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
@@ -219,7 +220,17 @@ public class PredatorHuntingTests
 		var breaking = typeof(MudSharp.Combat.Strategies.DropperStrategy).GetMethod("HandleClinchBreaking", BindingFlags.Instance | BindingFlags.NonPublic)!;
 		Assert.IsNull(breaking.Invoke(strategy, [f.Actor.Object, true]));
 		var attacks = typeof(MudSharp.Combat.Strategies.DropperStrategy).GetMethod("HandleAttacks", BindingFlags.Instance | BindingFlags.NonPublic)!;
-		Assert.IsInstanceOfType(attacks.Invoke(strategy, [f.Actor.Object]), typeof(InitiateGrappleMove));
+		var staminaProperty = typeof(CombatBase).GetProperty("PowerMoveStaminaCost", BindingFlags.Static | BindingFlags.NonPublic)!;
+		var previousStaminaExpression = staminaProperty.GetValue(null);
+		try
+		{
+			staminaProperty.SetValue(null, Mock.Of<ITraitExpression>());
+			Assert.IsInstanceOfType(attacks.Invoke(strategy, [f.Actor.Object]), typeof(InitiateGrappleMove));
+		}
+		finally
+		{
+			staminaProperty.SetValue(null, previousStaminaExpression);
+		}
 	}
 
 	[TestMethod]
@@ -252,6 +263,7 @@ public class PredatorHuntingTests
 		f.Cell.Setup(x => x.ExitsFor(null, true)).Returns([exit.Object]);
 		f.Actor.Setup(x => x.CanCross(exit.Object)).Returns((true, null!));
 		f.Actor.Setup(x => x.CanMove(exit.Object, It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
+		f.Actor.Setup(x => x.CanMoveForPathPlanning(exit.Object, It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
 		var home = new NpcHomeBaseEffect(f.Actor.Object);
 		home.SetHomeCell(destination.Object);
 		f.Actor.Setup(x => x.CombinedEffectsOfType<NpcHomeBaseEffect>()).Returns([home]);
@@ -587,7 +599,7 @@ public class PredatorHuntingTests
 	{
 		var f = new Fixture(); f.Ai.Hunting.People = AnimalPeoplePreyPolicy.Eligible;
 		var hunt = new AnimalHuntEffect(f.Actor.Object, f.Ai, f.Target.Object) { Phase = AnimalHuntPhase.Shadowing };
-		f.Actor.Setup(x => x.EffectsOfType<AnimalHuntEffect>(It.IsAny<Predicate<AnimalHuntEffect>>())).Returns([hunt]);
+		f.Actor.Setup(x => x.EffectsOfType<CreaturePursuitEffect>(It.IsAny<Predicate<CreaturePursuitEffect>>())).Returns([hunt]);
 		Assert.IsNull(f.Ai.PreyRejection(f.Actor.Object, f.Target.Object, true));
 		Assert.IsTrue(f.Ai.AssessPrey(f.Actor.Object, f.Target.Object).Score >= f.Ai.HuntThreshold(f.Actor.Object, true));
 		var expired = typeof(AnimalAI).GetMethod("HuntExpired", BindingFlags.NonPublic | BindingFlags.Instance)!;

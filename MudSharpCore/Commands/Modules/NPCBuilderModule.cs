@@ -965,6 +965,12 @@ You can use the following sub-commands:
 				return;
 			}
 
+			if (group.GroupAIType is MudSharp.NPC.AI.Groups.GroupTypes.WildlifeGroupAIType &&
+			    target is INPC monsterNpc && monsterNpc.AIs.OfType<MudSharp.NPC.AI.MonsterAI>().Any())
+			{
+				actor.OutputHandler.Send("Monster AI is an individual controller and cannot participate in a Wildlife group.");
+				return;
+			}
             group.AddToGroup(target);
             actor.OutputHandler.Send($"You add {target.HowSeen(actor)} to the Group AI {group.Name.Colour(Telnet.Cyan)}.");
         }
@@ -1354,6 +1360,17 @@ The following options are available as filters with the #3list#0 subcommand:
                 return;
             }
 
+			if (MudSharp.NPC.AI.MonsterAI.AttachmentError(npc.AIs, ai) is { } conflict)
+			{
+				actor.OutputHandler.Send(conflict);
+				return;
+			}
+			if (ai is MudSharp.NPC.AI.MonsterAI && npc is INPC grouped &&
+			    grouped.GroupAI?.GroupAIType is MudSharp.NPC.AI.Groups.GroupTypes.WildlifeGroupAIType)
+			{
+				actor.OutputHandler.Send("Remove this NPC from its Wildlife group before attaching Monster AI.");
+				return;
+			}
             npc.AddAI(ai);
             actor.OutputHandler.Send($"You add the {ai.Name.ColourName()} AI to {target.HowSeen(actor)}.");
         }

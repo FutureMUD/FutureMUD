@@ -32,6 +32,10 @@
   </ItemGroup>
 
   <ItemGroup>
+	<Content Include="Assets\Manifests\Monster_AI_Recommendations.json">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	</Content>
 	<Content Include="Assets\Database\BlankDatabaseSnapshot.sql">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

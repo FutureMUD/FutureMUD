@@ -196,8 +196,8 @@ public class NPC : Character.Character, INPC
             return base.HandleEvent(type, arguments);
         }
 
-        // AI Events are only handled once. AI Events firing does not prevent regular hooks from firing.
-        bool AIEvents = _AIs.Any(x => x.HandleEvent(type, arguments));
+        // Observers do not consume events; ordinary AIs retain priority. Regular hooks still fire.
+        bool AIEvents = AIEventDispatcher.HandleEvent(_AIs, type, arguments);
         return base.HandleEvent(type, arguments) || AIEvents;
     }
 

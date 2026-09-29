@@ -294,7 +294,9 @@ public partial class Character
             AcquireTarget();
             if (CombatTarget == null)
             {
-                return false;
+                // Incapacitated or controlled opponents may be unable to acquire a target while
+                // somebody is still attacking them. They cannot end that opponent's combat turn.
+                return !Combat.CanFreelyLeaveCombat(this);
             }
         }
 

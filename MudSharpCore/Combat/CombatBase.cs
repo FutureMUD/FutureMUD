@@ -406,6 +406,7 @@ public abstract class CombatBase : ICombat
 			? null
 			: move.CharacterTargets.FirstOrDefault()?.ResponseToMove(move, perceiver);
 		CombatMoveResult result = move.ResolveMove(targetResponse);
+		if (!result.DefenderResponseWasUsed) targetResponse = null;
 		if (!ReferenceEquals(result, CombatMoveResult.Irrelevant))
 		{
 			FireOnUseProg(move);
@@ -434,6 +435,11 @@ public abstract class CombatBase : ICombat
 #endif
             tcharacter.SpendStamina(targetResponse.StaminaCost);
         }
+
+		foreach (var tactic in perceiver.EffectsOfType<ICombatTacticEffect>().ToList())
+		{
+			tactic.MoveResolved(move, result);
+		}
 
         if (perceiver.CombatTarget?.CheckCombatStatus() == false)
         {

@@ -491,6 +491,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 	$3 - the defense weapon, if any. This can be null, so use $?3 to check for null.
 	$4 - the ward weapon, if any. This can be null, so use $?4 to check for null.
 	{1} - the bodypart the attack targets";
+            case BuiltInCombatMoveType.AmbushAttack:
             case BuiltInCombatMoveType.NaturalWeaponAttack:
             case BuiltInCombatMoveType.ClinchUnarmedAttack:
             case BuiltInCombatMoveType.StaggeringBlowUnarmed:
@@ -677,6 +678,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
                 break;
             // 2 perceivers
             case BuiltInCombatMoveType.RetrieveItem:
+            case BuiltInCombatMoveType.AmbushAttack:
             case BuiltInCombatMoveType.NaturalWeaponAttack:
             case BuiltInCombatMoveType.ClinchUnarmedAttack:
             case BuiltInCombatMoveType.StaggeringBlowUnarmed:

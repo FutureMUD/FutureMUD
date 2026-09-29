@@ -1561,6 +1561,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  </CorpseModel>
  "
         };
+        OrganicCorpseMaterialSeederHelper.ApplyDefaults(_context, organicHumanCorpse);
         _context.CorpseModels.Add(organicHumanCorpse);
 
         #endregion region

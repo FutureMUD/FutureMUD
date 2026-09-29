@@ -160,6 +160,8 @@ public class WeaponAttack : CombatAction, IWeaponAttack
     {
         switch ((BuiltInCombatMoveType)attack.MoveType)
         {
+			case BuiltInCombatMoveType.AmbushAttack:
+				return new AmbushAttack(attack, gameworld);
             case BuiltInCombatMoveType.CoupDeGrace:
             case BuiltInCombatMoveType.ScreechAttack:
                 return new FixedBodypartWeaponAttack(attack, gameworld);
@@ -207,6 +209,8 @@ public class WeaponAttack : CombatAction, IWeaponAttack
     {
         switch (type)
         {
+			case BuiltInCombatMoveType.AmbushAttack:
+				return new AmbushAttack(gameworld, type);
             case BuiltInCombatMoveType.CoupDeGrace:
             case BuiltInCombatMoveType.ScreechAttack:
                 return new FixedBodypartWeaponAttack(gameworld, type);

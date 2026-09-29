@@ -1002,7 +1002,7 @@ public partial class MythicalAnimalSeeder
                 attributeProfile: BestialStats(6, 5, 5, 1, willpower: 2, perception: 2),
                 bodypartHealthMultiplier: 1.6,
                 canClimb: true,
-                combatStrategyKey: "Beast Skirmisher"
+                combatStrategyKey: "Beast Clincher"
             ),
             ["Giant Scorpion"] = BeastRace(
                 "Giant Scorpion",
@@ -1666,7 +1666,7 @@ public partial class MythicalAnimalSeeder
                 ],
                 attributeProfile: BestialStats(10, 9, 1, -1, willpower: 5, perception: 2, aura: 4),
                 bodypartHealthMultiplier: 2.0,
-                combatStrategyKey: "Beast Clincher"
+                combatStrategyKey: "Beast Drowner"
             )
         };
 

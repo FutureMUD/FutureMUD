@@ -768,6 +768,9 @@ namespace MudSharp.Events
 		CharacterSignsDirectTarget = 150,
 
 		[EventInfo("Fires on a visible perceivable witnessing directed signing.", ["character", "perceivable", "perceivable", "signedlanguage", "signedvariety", "text", "number"], ["signer", "target", "witness", "language", "variety", "message", "outcome"])]
-		CharacterSignsDirectWitness = 151
+		CharacterSignsDirectWitness = 151,
+
+		[EventInfo("Fires on a trap creator after its restraint payload actually catches prey. The creator must still perceive the prey before reacting.", ["character", "character", "text"], ["creator", "prey", "trapid"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Text])]
+		TrapCaughtPrey = 152
     }
 }

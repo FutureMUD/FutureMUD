@@ -302,7 +302,7 @@ public partial class AnimalSeeder
             The creature is best read through heavy shoulders, padded paws, deep jaws and muscle arranged for ambush and impact. Those features support a coiled, silent confidence that makes stillness feel dangerous, making the creature feel suited to its ground rather than merely placed there.
 
             They are not merely wildlife but territorial facts, the kind of animals that reshape routes, grazing patterns and local caution. A leopard can serve as background wildlife, valuable domestic animal, troublesome vermin or a serious hazard, depending on the scene and the way nearby people have learned to live with it.
-            """, combatStrategyKey: "Beast Skirmisher");
+            """, combatStrategyKey: "Beast Brawler");
         yield return Mammal("Panther", "Panther", "Toed Quadruped", SizeCategory.Small, 0.8, "Big Felid",
             "standard-mammal", "wolfpack",
             MammalPack("a panther cub", "a young male panther", "a young female panther", "a male panther", "a female panther",
@@ -316,7 +316,7 @@ public partial class AnimalSeeder
             Its profile is built around heavy shoulders, padded paws, deep jaws and muscle arranged for ambush and impact. In motion they are marked by a coiled, silent confidence that makes stillness feel dangerous, so even a quiet specimen suggests the instincts and pressures that shaped it.
 
             They are not merely wildlife but territorial facts, the kind of animals that reshape routes, grazing patterns and local caution. Around settlements, roads or camps, panthers add practical consequences: food, noise, labour, risk, nuisance or warning.
-            """, combatStrategyKey: "Beast Skirmisher");
+            """, combatStrategyKey: "Beast Brawler");
         yield return Mammal("Jaguar", "Jaguar", "Toed Quadruped", SizeCategory.Small, 0.8, "Big Felid",
             "standard-mammal", "wolfpack",
             MammalPack("a jaguar cub", "a young male jaguar", "a young female jaguar", "a male jaguar", "a female jaguar",

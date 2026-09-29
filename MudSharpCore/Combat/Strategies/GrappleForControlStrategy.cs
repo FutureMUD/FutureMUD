@@ -21,6 +21,7 @@ public class GrappleForControlStrategy : ClinchStrategy
 
     public ICombatMove AttemptGrappleForControlOnly(ICharacter ch)
     {
+		if (ch.EffectsOfType<IGrappling>().Any(x => x.Target == ch.CombatTarget)) return AttemptGrapple(ch);
         ICombatMove move;
         if ((move = AttemptStartClinch(ch, false)) != null)
         {

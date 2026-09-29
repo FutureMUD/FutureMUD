@@ -7,6 +7,7 @@ namespace MudSharp.Combat.Moves;
 
 public class ForcedMovementMove : CombatMoveBase
 {
+	private bool _releasedInsteadOfCarrying;
 	public ForcedMovementMove(
 		ICharacter assailant,
 		ICharacter target,
@@ -47,6 +48,7 @@ public class ForcedMovementMove : CombatMoveBase
 	public RoomLayer? Layer { get; }
 	public IMeleeWeapon Weapon { get; init; }
 	public INaturalAttack NaturalAttack { get; init; }
+	public bool RequiresFlight { get; init; }
 
 	public BuiltInCombatMoveType MoveType => Attack.MoveType;
 	public override string Description => $"{VerbPresentParticiple()} an opponent {(MovementType == ForcedMovementTypes.Exit ? "through an exit" : "to another layer")}";
@@ -61,9 +63,19 @@ public class ForcedMovementMove : CombatMoveBase
 	public override double StaminaCost => NaturalAttack is null
 		? MeleeWeaponAttack.MoveStaminaCost(Assailant, Attack)
 		: NaturalAttackMove.MoveStaminaCost(Assailant, NaturalAttack.Attack);
+	public override bool UsesStaminaWithResult(CombatMoveResult result) =>
+		!_releasedInsteadOfCarrying && base.UsesStaminaWithResult(result);
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		if (RequiresFlight && (!CombatForcedMovementUtilities.HasControlledGrapple(Assailant, CharacterTarget) ||
+		    !CombatForcedMovementUtilities.CanCarryFlying(Assailant, CharacterTarget) || !Assailant.CanSpendStamina(StaminaCost)))
+		{
+			_releasedInsteadOfCarrying = true;
+			var released = new DropGrappledTargetMove(Assailant, CharacterTarget).ResolveMove(null);
+			released.DefenderResponseWasUsed = false;
+			return released;
+		}
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		if (defenderMove is null)
 		{
@@ -179,7 +191,7 @@ public class ForcedMovementMove : CombatMoveBase
 			? CombatForcedMovementUtilities.TryForceExitMovement(Assailant, CharacterTarget, Exit, Verb,
 				successDegrees, out why)
 			: CombatForcedMovementUtilities.TryForceLayerMovement(Assailant, CharacterTarget, Layer!.Value, Verb,
-				successDegrees, out why);
+				successDegrees, out why, RequiresFlight);
 	}
 
 	private string VerbPresentParticiple()

@@ -71,7 +71,8 @@ public class Grappling : Effect, IGrappling
 
     private void Target_OnPositionChanged(IPerceivable owner)
     {
-        if (CharacterOwner.PositionState.Upright && !Target.PositionState.Upright)
+        if (CharacterOwner.PositionState.Upright && !Target.PositionState.Upright &&
+            !CharacterOwner.PositionState.In(PositionFlying.Instance, PositionClimbing.Instance, PositionSwimming.Instance))
         {
             CharacterOwner.PositionState = PositionKneeling.Instance;
         }

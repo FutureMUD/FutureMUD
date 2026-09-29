@@ -400,7 +400,7 @@ The syntax is:
 	#3freezetime#0 - freezes all in game clocks
 	#3unfreezetime#0 - resumes all in game clocks
 	#3flush#0 - flushes queued saves to the database (useful before persistence checks)
-	#3wildlife [here|<npc id>]#0 - reports live AnimalAI activity, habitat, needs and group-control state
+	#3wildlife [here|<npc id>] [prey id]#0 - reports live AnimalAI state and an optional prey assessment
 	#3wildlife hungry <npc id>#0 - makes a loaded wildlife NPC hungry for deterministic feeding and pack-hunt tests
 	#3wildlife group <group id>#0 - reports a wildlife group's activity, candidate and threat-filter state
 	#3cleartraps#0 - permanently deletes every installed trap and cancels its delayed payloads after confirmation
@@ -1181,6 +1181,7 @@ The syntax is:
 		IEnumerable<INPC> npcs;
 		if (ss.IsFinished || ss.Peek().EqualTo("here"))
 		{
+			if (!ss.IsFinished) ss.PopSpeech();
 			npcs = actor.Location.Characters.OfType<INPC>();
 		}
 		else if (long.TryParse(ss.PopSpeech(), out var npcId))
@@ -1196,8 +1197,20 @@ The syntax is:
 		}
 		else
 		{
-			actor.OutputHandler.Send($"The syntax is {"impdebug wildlife [here|<npc id>]".ColourCommand()}.");
+			actor.OutputHandler.Send($"The syntax is {"impdebug wildlife [here|<npc id>] [prey id]".ColourCommand()}.");
 			return;
+		}
+
+		ICharacter assessmentTarget = null;
+		if (!ss.IsFinished)
+		{
+			if (!long.TryParse(ss.PopSpeech(), out var preyId) ||
+			    (assessmentTarget = actor.Gameworld.Characters.Concat(actor.Gameworld.NPCs)
+				    .FirstOrDefault(x => x.Id == preyId)) is null)
+			{
+				actor.OutputHandler.Send("Specify the ID of a loaded character to inspect as prey.");
+				return;
+			}
 		}
 
 		var diagnostics = npcs
@@ -1222,6 +1235,11 @@ The syntax is:
 			foreach (AnimalAI animalAi in diagnostic.AnimalAis)
 			{
 				sb.AppendLine($"\t{animalAi.DebugSummary(npc)}");
+				if (animalAi.Hunting.Enabled)
+				{
+					var prey = assessmentTarget ?? npc.CombatTarget as ICharacter ?? animalAi.RankPrey(npc, npc.Location.Characters).FirstOrDefault();
+					sb.AppendLine(animalAi.HuntingDiagnostic(npc, prey, actor));
+				}
                 sb.AppendLine();
 			}
 

@@ -157,7 +157,7 @@ public sealed class NpcCharacterInstance : Character, INPC
 			return base.HandleEvent(type, arguments);
 		}
 
-		var aiEvents = _AIs.Any(x => x.HandleEvent(type, arguments));
+		var aiEvents = AIEventDispatcher.HandleEvent(_AIs, type, arguments);
 		return base.HandleEvent(type, arguments) || aiEvents;
 	}
 

@@ -8,6 +8,7 @@ Inherits [repository instructions](../AGENTS.md). This project is the interactiv
 - Keep each seeder's partials/private helpers in `Seeders/<SeederClassName>/`, and shared helpers in `Seeders/Utilities/`. Preserve namespaces when moving files.
 - Use and dispose `FuturemudDatabaseContext` for data access. Keep console questions and output clear.
 - Installer-wide assets live in `Assets/Database/` and `Assets/Manifests/`; preserve that layout in build and publish output.
+- Keep the project root for code, Markdown and project metadata. Put data and manifests in their owning subfolders, including external files displayed in Solution Explorer: set their `Link` paths and preserve existing embedded `LogicalName` values when regrouping them.
 
 ## Repeatability and stock ownership
 

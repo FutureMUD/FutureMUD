@@ -386,7 +386,8 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 
 	private static List<ICharacter> HuntingTargets(IGroupAI group, IEnumerable<ICharacter> members)
 	{
-		return members
+		var hunters = members.ToList();
+		return hunters
 			.SelectMany(member => member.Location
 				.LayerCharacters(member.RoomLayer)
 				.Concat(member.SeenTargets.OfType<ICharacter>())
@@ -395,7 +396,8 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 			.DistinctPhysicalInstances()
 			.Where(x => !group.GroupMembers.ContainsPhysicalInstance(x))
 			.Where(x => !group.GroupMembers.Any(y => y.Race.SameRace(x.Race)))
-			.Where(x => group.ConsidersThreat(x, group.Alertness))
+			.Where(x => hunters.OfType<INPC>().Any(npc => npc.AIs.OfType<AnimalAI>()
+				.Any(ai => ai.Hunting.Enabled && ai.CanHuntTarget(npc, x))) || group.ConsidersThreat(x, group.Alertness))
 			.ToList();
 	}
 
@@ -472,18 +474,28 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 
 	private void FocusAttack(IGroupAI group, IEnumerable<ICharacter> members, IEnumerable<ICharacter> threats)
 	{
-		ICharacter? target = threats.GetRandomElement();
+		var participants = members.ToList();
+		var candidates = threats.ToList();
+		ICharacter? target = Tactic.In(WildlifeGroupTactic.Hunting, WildlifeGroupTactic.Scavenging)
+			? participants.OfType<INPC>().SelectMany(npc => npc.AIs.OfType<AnimalAI>().Where(ai => ai.Hunting.Enabled)
+				.SelectMany(ai => ai.RankPrey(npc, candidates))).FirstOrDefault() ?? candidates.GetRandomElement()
+			: candidates.GetRandomElement();
 		if (target is null)
 		{
 			return;
 		}
 
-		foreach (ICharacter member in members.Where(x => RoleFor(group, x) != GroupRole.Child &&
+		foreach (ICharacter member in participants.Where(x => RoleFor(group, x) != GroupRole.Child &&
 		                                                  x.Combat is null && AnimalAI.CanGroupObserveTarget(x, target) &&
 		                                                  (!Tactic.In(WildlifeGroupTactic.Hunting,
 				                                                   WildlifeGroupTactic.Scavenging) ||
 			                                           AnimalAI.CanGroupHuntTarget(x, target))))
 		{
+			if (Tactic.In(WildlifeGroupTactic.Hunting, WildlifeGroupTactic.Scavenging))
+			{
+				AnimalAI.BeginGroupHunt(member, target);
+				continue;
+			}
 			PredatorAIHelpers.CheckForAttack(member, target, Gameworld.AlwaysTrueProg,
 				"1d600+900", string.Empty, false);
 		}

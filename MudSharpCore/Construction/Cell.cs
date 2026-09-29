@@ -1805,6 +1805,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         Difficulty difficulty = TreeFallDifficultyPerWind[weather.Wind];
         foreach (ICharacter ch in characters[RoomLayer.HighInTrees])
         {
+            if (MudSharp.Combat.Moves.CombatForcedMovementUtilities.IsSupportedByGrapple(ch)) continue;
             if (check.Check(ch, difficulty).FailureDegrees() <= 1)
             {
                 continue;
@@ -1815,6 +1816,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 
         foreach (ICharacter ch in characters[RoomLayer.InTrees])
         {
+            if (MudSharp.Combat.Moves.CombatForcedMovementUtilities.IsSupportedByGrapple(ch)) continue;
             if (check.Check(ch, difficulty).FailureDegrees() <= 1)
             {
                 continue;
@@ -1825,6 +1827,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 
         foreach (ICharacter ch in characters[RoomLayer.OnRooftops])
         {
+            if (MudSharp.Combat.Moves.CombatForcedMovementUtilities.IsSupportedByGrapple(ch)) continue;
             if (check.Check(ch, difficulty).FailureDegrees() <= 1)
             {
                 continue;

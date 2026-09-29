@@ -32,8 +32,13 @@ public class EnvenomingClinchAttack : ClinchNaturalAttackMove
                 Outcome.MajorFail => 0.0,
                 _ => 1.0
             };
-            Target.Body.HealthStrategy.InjectedLiquid(Target,
-                new Form.Material.LiquidMixture(envenoming.Liquid, envenoming.MaximumQuantity * multiplier, Gameworld));
+			var quantity = envenoming.MaximumQuantity * multiplier;
+			if (double.IsFinite(quantity) && quantity > 0 && envenoming.Liquid is not null)
+			{
+				Target.Body.HealthStrategy.InjectedLiquid(Target,
+					new Form.Material.LiquidMixture(envenoming.Liquid, quantity, Gameworld));
+				result.EnvenomDelivered = true;
+			}
         }
 
         return result;

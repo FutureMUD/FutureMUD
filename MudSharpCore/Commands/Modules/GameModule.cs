@@ -39,6 +39,7 @@ internal class GameModule : Module<ICharacter>
 
     internal static readonly BuiltInCombatMoveType[] NaturalAttackTypesForDisplay =
     [
+		BuiltInCombatMoveType.AmbushAttack,
         BuiltInCombatMoveType.NaturalWeaponAttack,
         BuiltInCombatMoveType.StaggeringBlowUnarmed,
         BuiltInCombatMoveType.DownedAttackUnarmed,

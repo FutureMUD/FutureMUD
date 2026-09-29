@@ -73,6 +73,7 @@ public sealed class TrapTriggerDefinition : ITrapTrigger
 		new("spotdifficulty", "<difficulty>", "difficulty to notice the trap when it triggers", "Hard"),
 		new("avoiddifficulty", "<difficulty>", "difficulty to avoid the trap once triggered", "Normal"),
 		new("filterprog", "<FutureProg ID|none>", "boolean FutureProg used to filter targets", "none"),
+		new("ignorecreator", "<true|false>", "whether the trap ignores its creator", "false"),
 		new("triggerecho", "<emote|none>", "emote shown when this trigger fires", "none")
 	];
 
@@ -131,6 +132,7 @@ public sealed class TrapTriggerDefinition : ITrapTrigger
 			"chance" => TrapParameterValidation.TryParseFiniteDouble(value, out var chance) && chance is >= 0.0 and <= 100.0,
 			"spotdifficulty" or "avoiddifficulty" => TrapParameterValidation.TryParseDefinedEnum<Difficulty>(value, out _),
 			"filterprog" => TrapParameterValidation.TryParsePositiveLong(value, out _),
+			"ignorecreator" => bool.TryParse(value, out _),
 			"movementtypes" => TrapParameterValidation.TryParseMovementTypes(value),
 			"minimumsize" or "maximumsize" => TrapParameterValidation.TryParseDefinedEnum<SizeCategory>(value, out _),
 			"maximumproximity" => TrapParameterValidation.TryParseDefinedEnum<Proximity>(value, out _),

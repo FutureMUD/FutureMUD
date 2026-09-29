@@ -17,6 +17,9 @@ public class DrownerStrategy : StandardMeleeStrategy
 
 	protected override ICombatMove HandleCombatMovement(IPerceiver combatant)
 	{
+		if (!combatant.MeleeRange || combatant.CombatTarget is { } distant &&
+		    (!combatant.ColocatedWith(distant) || combatant.RoomLayer != distant.RoomLayer))
+			return FullAdvanceStrategy.Instance.AttemptAdvance(combatant);
 		if (combatant is not ICharacter ch || ch.CombatTarget is not ICharacter target)
 		{
 			return StandardMeleeStrategy.Instance.ChooseMove(combatant);
@@ -38,6 +41,8 @@ public class DrownerStrategy : StandardMeleeStrategy
 
 	protected override ICombatMove HandleAttacks(IPerceiver combatant)
 	{
+		if (!combatant.MeleeRange || combatant.CombatTarget is not { } nearby ||
+		    !combatant.ColocatedWith(nearby) || combatant.RoomLayer != nearby.RoomLayer) return null;
 		if (combatant is not ICharacter ch || ch.CombatTarget is not ICharacter target)
 		{
 			return StandardMeleeStrategy.Instance.ChooseMove(combatant);
@@ -56,7 +61,7 @@ public class DrownerStrategy : StandardMeleeStrategy
 		return TryMoveTargetIntoWater(ch, target) ?? base.HandleAttacks(combatant);
 	}
 
-	private static bool TargetIsInnatelyWaterSafe(ICharacter target)
+	internal static bool TargetIsInnatelyWaterSafe(ICharacter target)
 	{
 		if (!target.Race.NeedsToBreathe)
 		{
@@ -121,6 +126,7 @@ public class DrownerStrategy : StandardMeleeStrategy
 
 	private static ICombatMove TryForcedLayerMove(ICharacter ch, ICharacter target, RoomLayer layer, ForcedMovementVerbs verb)
 	{
+		if (verb == ForcedMovementVerbs.Pull && !CombatForcedMovementUtilities.CanHaulTarget(ch, target)) return null;
 		var choice = CombatForcedMovementUtilities.FindBestForcedMovementAttack(ch, target, verb, ForcedMovementTypes.Layer);
 		return choice is null
 			? null
@@ -133,6 +139,7 @@ public class DrownerStrategy : StandardMeleeStrategy
 
 	private static ICombatMove TryForcedExitMove(ICharacter ch, ICharacter target, ICellExit exit, ForcedMovementVerbs verb)
 	{
+		if (verb == ForcedMovementVerbs.Pull && !CombatForcedMovementUtilities.CanHaulTarget(ch, target)) return null;
 		var choice = CombatForcedMovementUtilities.FindBestForcedMovementAttack(ch, target, verb, ForcedMovementTypes.Exit);
 		return choice is null
 			? null

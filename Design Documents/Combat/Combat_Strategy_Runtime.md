@@ -237,7 +237,11 @@ Expected active no-move cases: standard melee blockers, no local underwater laye
 
 ### Dropper
 
-A melee-family flying predator strategy. It behaves as `StandardMelee` unless the combatant can fly, can drag the target's weight, and is in the same location. It attempts to establish a controlled grapple, then uses authored forced layer-pull attacks to carry the target to the next higher viable layer. When no higher layer exists, it releases the grapple so the existing fall system handles the drop.
+A melee-family flying predator strategy. It behaves as `StandardMelee` unless the combatant has current flight capability, can lift the target and both participants' carried equipment, and is colocated with the target. Already-airborne predators remain eligible. It attempts to establish a controlled grapple, then uses authored forced layer-pull attacks to carry the target to the next higher viable layer. Each carry uses the authored move's stamina cost and rechecks control, burden, flight and movement blockers. When no higher viable layer exists, or carrying becomes impossible, it releases the grapple so the existing fall system handles the drop.
+
+It retains its clinch while establishing control. A controlled victim shares the capable carrier's support against falling; releasing the grip removes that support without granting the victim a flying or climbing posture. Tree and water pulls set the carrier's appropriate posture. Both `Dropper` and `Drowner` are also valid approach modes, so saved stock settings survive loading before melee starts.
+
+Both strategies approach before making ordinary melee attacks and reject stale melee contact across layers, while retaining the existing standard fallback for item targets. A flying dropper descends in flight through intervening tree layers. Relocation passes the requested layer to cell entry for the carrier, victim and any accompanying riders; a held victim's posture refresh preserves a flying, climbing or swimming carrier's posture.
 
 Expected active no-move cases: standard melee blockers, inability to fly or lift the target, no controlled grapple yet and grappling cannot progress, no higher viable layer, or no authored pull-layer attack for the current grapple range.
 
@@ -268,6 +272,8 @@ The shared path filter rejects impossible and fall exits. It rejects swim-only e
 Zero-gravity movement is enforced by `CanMove(exit, ...)` and movement helpers. Combat strategies should prefer normal movement APIs rather than bypassing them.
 
 ## Forced Positioning Moves
+
+Animal hunting can select a tactic move after mandatory combat actions but before ordinary strategy movement and attacks. The effect receives the resolved move result after the normal combat pipeline. In particular, venom withdrawal begins only on a positive injection receipt; it does not infer delivery from a successful swing. [Predator Hunting](../AI/Predator_Hunting.md) describes policy and configuration. `AmbushAttack` combines a legal layer transition with a defended natural strike and an optional opposed initial grapple; fuller control takes subsequent actions.
 
 Pushback attacks are authored weapon or natural attacks (`Pushback`, `PushbackUnarmed`, and `PushbackClinch`). They perform the normal attack roll and then an opposed `PushbackCheck` versus `OpposePushbackCheck`. On success they clear melee, clinch, and grapple contact between the attacker and target, remove the target from melee range for all combatants currently pressing them, and apply an outcome-scaled combat delay before the target can charge or otherwise re-engage. On a near miss, the target may still receive a smaller delay.
 

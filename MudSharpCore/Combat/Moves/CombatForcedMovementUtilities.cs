@@ -1,7 +1,9 @@
 ﻿using MudSharp.Character.Heritage;
 using MudSharp.Construction;
+using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects;
 using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.Movement;
@@ -28,6 +30,37 @@ public sealed class ForcedMovementAttackChoice
 public static class CombatForcedMovementUtilities
 {
 	private const double DefaultRouteCellPushbackMetresPerSuccessDegree = 1.0;
+
+	/// <summary>Current full burden and flight anatomy, independently of the ordinary command's already-flying/melee guards.</summary>
+	public static bool CanCarryFlying(ICharacter actor, ICharacter target)
+	{
+		return CanHaulTarget(actor, target) && actor.CanContinueFlying().Truth;
+	}
+
+	public static bool CanHaulTarget(ICharacter actor, ICharacter target)
+	{
+		return HasHaulingCapacity(actor, target) && actor.Movement is null &&
+		       !actor.CombinedEffectsOfType<IEffect>().Any(x => x.IsBlockingEffect("movement") || x.IsBlockingEffect("move") || x is BlockLayerChange) &&
+		       !actor.Body.AllItems.Any(x => x.PreventsMovement());
+	}
+
+	private static bool HasHaulingCapacity(ICharacter actor, ICharacter target)
+	{
+		var burden = target.Weight + target.Body.ExternalItems.Sum(x => x.Weight) + actor.Body.ExternalItems.Sum(x => x.Weight);
+		return CharacterState.Able.HasFlag(actor.State) && actor.RidingMount is null && actor.ColocatedWith(target) &&
+		       double.IsFinite(burden) && burden >= 0 && actor.MaximumDragWeight >= burden;
+	}
+
+	/// <summary>A held victim is supported by a capable carrier, without pretending the victim can climb or fly.</summary>
+	public static bool IsSupportedByGrapple(ICharacter target)
+	{
+		return target.CombinedEffectsOfType<IBeingGrappled>().Any(x => x.UnderControl &&
+			x.Grappling.CharacterOwner is { } carrier && !ReferenceEquals(carrier, target) &&
+			carrier.RoomLayer == target.RoomLayer && carrier.PositionState?.SafeFromFalling == true &&
+			HasHaulingCapacity(carrier, target) &&
+			(carrier.PositionState != PositionFlying.Instance || carrier.CanContinueFlying().Truth) &&
+			(carrier.PositionState != PositionClimbing.Instance || carrier.Race.CanClimb));
+	}
 
 	public static ForcedMovementAttackChoice FindBestForcedMovementAttack(
 		ICharacter actor,
@@ -296,6 +329,11 @@ public static class CombatForcedMovementUtilities
 
 		if (verb == ForcedMovementVerbs.Pull)
 		{
+			if (!CanHaulTarget(actor, target))
+			{
+				why = "You cannot haul that target with your current burden or movement restrictions.";
+				return false;
+			}
 			if (exit.Origin != actor.Location)
 			{
 				why = "You are not at that exit.";
@@ -342,7 +380,8 @@ public static class CombatForcedMovementUtilities
 		RoomLayer layer,
 		ForcedMovementVerbs verb,
 		int successDegrees,
-		out string why)
+		out string why,
+		bool requiresFlight = false)
 	{
 		why = string.Empty;
 		var terrain = target.Location.Terrain(target);
@@ -380,14 +419,25 @@ public static class CombatForcedMovementUtilities
 				return false;
 			}
 
-			if (!actor.CouldTransitionToLayer(layer))
+			var flying = requiresFlight || layer.In(RoomLayer.InAir, RoomLayer.HighInAir) ||
+			             actor.PositionState == PositionFlying.Instance && layer.IsHigherThan(actor.RoomLayer);
+			if (flying && (!HasControlledGrapple(actor, target) || !CanCarryFlying(actor, target)))
+			{
+				why = "You cannot carry that target in flight.";
+				return false;
+			}
+			if (!flying && (!CanHaulTarget(actor, target) || !actor.CouldTransitionToLayer(layer)))
 			{
 				why = $"You cannot move to the {layer.DescribeEnum().ColourValue()} layer.";
 				return false;
 			}
 
-			actor.Teleport(actor.Location, layer, false, false);
-			target.Teleport(actor.Location, layer, false, false);
+			if (flying) actor.PositionState = PositionFlying.Instance;
+			else if (actor.Location.IsSwimmingLayer(layer)) actor.PositionState = PositionSwimming.Instance;
+			else if (layer.In(RoomLayer.InTrees, RoomLayer.HighInTrees, RoomLayer.OnRooftops)) actor.PositionState = PositionClimbing.Instance;
+			var routePosition = actor.RoutePositionMetres;
+			actor.Teleport(actor.Location, layer, false, false, routePosition);
+			target.Teleport(actor.Location, layer, false, false, routePosition);
 			ZeroGravityMovementHelper.EnsureFloating(actor);
 			ZeroGravityMovementHelper.EnsureFloating(target);
 			PreserveCloseContact(actor, target, wasMelee, wasClinch, wasGrapple);

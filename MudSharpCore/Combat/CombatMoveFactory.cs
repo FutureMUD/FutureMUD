@@ -55,6 +55,8 @@ public static class CombatMoveFactory
 		{
 			switch (attack.Attack.MoveType)
 			{
+				case BuiltInCombatMoveType.AmbushAttack:
+					return new AmbushAttackMove(assailant, attack, singleTarget);
 				case BuiltInCombatMoveType.NaturalWeaponAttack:
 					return new NaturalAttackMove(assailant, attack, singleTarget);
 				case BuiltInCombatMoveType.EnvenomingAttack:

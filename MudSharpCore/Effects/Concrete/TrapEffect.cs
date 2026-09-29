@@ -278,6 +278,9 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	public override void Login()
 	{
 		base.Login();
+		// Item effects can be hydrated before their owner is placed in a cell. Reindex
+		// the receiver now that placement is complete, including repeated login cycles.
+		UnsubscribeProximityTriggers();
 		InitialiseRuntime(deferCellInitialisation: true);
 	}
 
@@ -742,6 +745,8 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 	private bool PassesTriggerFilter(ITrapTrigger trigger, ICharacter? target, IPerceivable? source)
 	{
+		if (target?.Id == CreatorId && trigger.Parameters.TryGetValue("ignorecreator", out var ignoreText) &&
+		    bool.TryParse(ignoreText, out var ignore) && ignore) return false;
 		if (trigger.Parameters.TryGetValue("filterprog", out var progText) &&
 		    long.TryParse(progText, out var progId))
 		{
@@ -1307,8 +1312,11 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		var description = payload.Parameters.TryGetValue("description", out var descriptionText)
 			? descriptionText
 			: "caught by a trap";
-		target.AddEffect(new TrapRestraintEffect(target, InstanceId, description), duration);
+		target.AddEffect(new TrapRestraintEffect(target, InstanceId, description, CreatorId,
+			(Owner as ICell ?? Owner.Location)?.Id ?? 0), duration);
 		RecordHarmCrime(target);
+		var creator = CreatorId > 0 ? Gameworld.TryGetCharacter(CreatorId, true) : null;
+		creator?.HandleEvent(EventType.TrapCaughtPrey, creator, target, InstanceId.ToString());
 	}
 
 	private void RecordHarmCrime(ICharacter target)

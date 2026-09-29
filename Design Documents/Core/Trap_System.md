@@ -1,5 +1,7 @@
 # Trap System
 
+Item-anchored proximity traps re-register their receiver on login after the anchor has been placed in the world. This restores detection for saved webs loaded before item placement; repeated login replaces the previous registration and does not replay capture events.
+
 Trap trigger and payload delays accept both XML Schema durations (for example `PT0S`) and invariant .NET time spans (for example `00:00:00`). Seeded templates use the invariant representation. This compatibility is significant for explosive exit traps: an invalid negative sentinel prevents payload resolution, while a valid zero delay detonates synchronously during exit traversal.
 
 ## Purpose and scope
@@ -80,6 +82,10 @@ Payload parameters are named so template XML remains extensible without schema c
 | Restraint | optional duration, description | Applies a timed movement-blocking TrapRestraintEffect |
 
 A payload can target the triggerer, all same-layer anchor occupants, or a snapshot excluding the triggerer. Delayed payloads retain intended target ID rather than dynamically choosing a later bystander.
+
+After a restraint payload is actually applied, the creator receives `TrapCaughtPrey` with creator, prey and trap-instance ID. Delayed restraints emit this event at application time, not trigger time. AnimalAI trap waiters verify matching restraint from their own trap before attacking. The common trigger option `ignorecreator` defaults to false; stock natural hunting traps set it true. `NaturalTrapAI`'s optional `home` setting anchors deployment to the NPC's home item and limits it to one active owned trap there; omitted legacy XML retains prior deployment behaviour.
+
+Applied restraints persist the creator and capture cell as well as the trap-instance ID. This keeps capture ownership verifiable after a spent trap removes itself. Old restraint XML without these fields still resolves ownership through an extant local trap. NaturalTrapAI observes its subscribed events before consuming AI handlers, allowing it to deploy alongside AnimalAI.
 
 ### Parameter syntax and validation
 

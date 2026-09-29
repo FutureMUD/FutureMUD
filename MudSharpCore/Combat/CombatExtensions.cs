@@ -536,6 +536,8 @@ public static class CombatExtensions
             case CombatStrategyMode.FullCover:
             case CombatStrategyMode.FullAdvance:
             case CombatStrategyMode.Swooper:
+            case CombatStrategyMode.Drowner:
+            case CombatStrategyMode.Dropper:
             case CombatStrategyMode.PhysicalAvoider:
 			case CombatStrategyMode.MountedCharge:
 			case CombatStrategyMode.MountedSkirmish:
@@ -1073,6 +1075,7 @@ public static class CombatExtensions
     {
         switch (type)
         {
+			case BuiltInCombatMoveType.AmbushAttack:
             case BuiltInCombatMoveType.UseWeaponAttack:
             case BuiltInCombatMoveType.NaturalWeaponAttack:
             case BuiltInCombatMoveType.Disarm:
@@ -1305,6 +1308,8 @@ public static class CombatExtensions
                 return "Swoop Attack";
             case BuiltInCombatMoveType.SwoopAttackUnarmed:
                 return "Unarmed Swoop Attack";
+			case BuiltInCombatMoveType.AmbushAttack:
+				return "Ambush Attack";
             case BuiltInCombatMoveType.EnvenomingAttack:
                 return "Envenoming Attack";
             case BuiltInCombatMoveType.EnvenomingAttackClinch:

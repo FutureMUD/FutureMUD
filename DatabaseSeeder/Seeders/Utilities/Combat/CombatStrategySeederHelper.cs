@@ -53,6 +53,15 @@ internal static class CombatStrategySeederHelper
         CharacterCombatSetting? existing = context.CharacterCombatSettings.FirstOrDefault(x => x.Name == strategyName);
         if (existing is not null)
         {
+			// Older runtime loaders misclassified these legal approach modes and persisted StandardRange.
+			var predatorMode = strategyName.EqualTo("Beast Dropper") ? CombatStrategyMode.Dropper :
+				strategyName.EqualTo("Beast Drowner") ? CombatStrategyMode.Drowner : (CombatStrategyMode?)null;
+			if (predatorMode is { } mode && existing.PreferredMeleeMode == (int)mode &&
+			    existing.PreferredRangedMode == (int)CombatStrategyMode.StandardRange)
+			{
+				existing.PreferredRangedMode = (int)mode;
+				context.SaveChanges();
+			}
 			if (strategyName.EqualToAny("Dual Wielder", "Dual Wielder (Auto)",
 				    "Dual Wield Clincher", "Dual Wield Clincher (Auto)",
 				    "Polearm Warder", "Polearm Warder (Auto)",

@@ -212,6 +212,27 @@ public class CombatStrategyRuntimeTests
 		Assert.IsInstanceOfType(move, typeof(NaturalAttackMove));
 	}
 
+	[DataTestMethod]
+	[DataRow(CombatStrategyMode.Dropper)]
+	[DataRow(CombatStrategyMode.Drowner)]
+	public void PredatorStrategy_ItemTarget_RetainsStandardExhaustionResponse(CombatStrategyMode mode)
+	{
+		var attack = CreateWeaponAttack(BuiltInCombatMoveType.UseWeaponAttack, CombatMoveIntentions.None);
+		var scenario = CreateSubdueMoveSelectionScenario([attack.Object], 1.0, _ => false);
+		var item = new Mock<IGameItem>();
+		scenario.Actor.Object.CombatTarget = item.Object;
+		scenario.Actor.Setup(x => x.ColocatedWith(item.Object)).Returns(true);
+		var expected = StandardMeleeStrategy.Instance.ChooseMove(scenario.Actor.Object);
+		// The existing melee item factory is unimplemented. Exercise a supported standard
+		// fallback response without treating that separate limitation as a new regression.
+		Assert.IsInstanceOfType(expected, typeof(TooExhaustedMove));
+		var strategy = mode == CombatStrategyMode.Dropper
+			? (ICombatStrategy)DropperStrategy.Instance : DrownerStrategy.Instance;
+		var actual = strategy.ChooseMove(scenario.Actor.Object);
+		Assert.IsNotNull(actual);
+		Assert.AreEqual(expected.GetType(), actual.GetType());
+	}
+
 	private static (Mock<ICharacter> Actor, Mock<ICharacter> Target)
 		CreateNonUprightNaturalAttackScenario(bool preferUpright, bool canStand, bool hasAttack)
 	{
@@ -386,6 +407,8 @@ public class CombatStrategyRuntimeTests
 
 		Assert.IsTrue(CombatStrategyMode.Drowner.IsMeleeStrategy());
 		Assert.IsTrue(CombatStrategyMode.Dropper.IsMeleeStrategy());
+		Assert.IsTrue(CombatStrategyMode.Dropper.IsRangedStrategy());
+		Assert.IsTrue(CombatStrategyMode.Drowner.IsRangedStrategy());
 		Assert.IsTrue(CombatStrategyMode.PhysicalAvoider.IsMeleeStrategy());
 		Assert.IsTrue(CombatStrategyMode.Subdue.IsMeleeStrategy());
 		Assert.IsTrue(CombatStrategyMode.PhysicalAvoider.IsRangedStrategy());

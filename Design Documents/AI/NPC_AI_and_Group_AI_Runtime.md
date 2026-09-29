@@ -202,7 +202,7 @@ Each registered group type supplies:
 #### Individual NPC AI
 Live NPC event dispatch is owned by `NPC`:
 
-- `NPC.HandleEvent(...)` forwards events to all attached AIs unless the NPC is dead, in stasis, or paused by `IPauseAIEffect`
+- `NPC.HandleEvent(...)` first notifies subscribed `IEventObserverAI` definitions, then forwards the event to ordinary AIs in attachment order until one handles it. Observer return values do not consume events. `NaturalTrapAI` uses this capability so a hunting AI cannot starve trap maintenance of its minute tick. Primary and secondary NPC instances share this dispatch policy, including the dead, stasis and `IPauseAIEffect` gates.
 - `NPC.HandlesEvent(...)` returns true if either the NPC itself or any attached AI claims the event
 
 Periodic tick wiring is explicit:
@@ -235,6 +235,8 @@ Group AI instances subscribe themselves directly on creation/load:
 `GroupAI` then delegates those ticks to its `GroupAIType`.
 
 ### Founder Live Wildlife Diagnostics
+Configurable prey policy, observable risk assessment, ambush/trap openings, extraction and venom withdrawal are documented in [Predator Hunting](./Predator_Hunting.md). These opt-in AnimalAI settings preserve legacy XML behaviour and keep per-NPC intent in a saving effect. Group hunts apply each member's prey eligibility; defensive reactions remain separate.
+
 For development and post-seed verification, Founder-level `impdebug` has a small retained wildlife toolkit:
 
 - `impdebug wildlife [here|<npc id>]` reports the live `AnimalAI` activity state and reason, local `SeasonGroup`, dormancy mode, habitat band, survival urgency, and group role/control/action.

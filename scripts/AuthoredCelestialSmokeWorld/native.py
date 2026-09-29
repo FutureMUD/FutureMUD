@@ -59,7 +59,12 @@ def main() -> int:
     parser.add_argument('--reuse-owned', type=pathlib.Path,
                         help='Resume a previously provisioned, still-running instance with a passing replay receipt.')
     parser.add_argument('--no-build', action='store_true', help='Use already built Debug engine and harness binaries.')
+    parser.add_argument('--smoke-script', type=pathlib.Path,
+                        help='Repository-owned alternate scenario to run against this same disposable seeded world.')
     args = parser.parse_args()
+    smoke_script = args.smoke_script.resolve() if args.smoke_script else pathlib.Path(__file__).with_name('smoke.py')
+    if not smoke_script.is_file() or not smoke_script.is_relative_to(repo / 'scripts'):
+        parser.error('Smoke script must be an existing file beneath this checkout\'s scripts directory.')
     if os.name != 'nt':
         parser.error('This provisioning wrapper requires Windows/MySQL 8. The numeric tests are portable.')
     base = (repo / '.artifacts/authored-celestials').resolve()
@@ -170,7 +175,7 @@ def main() -> int:
         smoke_env = os.environ.copy()
         smoke_env['PYTHONIOENCODING'] = 'utf-8'
         with (root / 'smoke.log').open('w', encoding='utf-8') as output:
-            smoke = run([sys.executable, '-B', '-u', str(pathlib.Path(__file__).with_name('smoke.py')),
+            smoke = run([sys.executable, '-B', '-u', str(smoke_script),
                          '--run-dir', str(root)], timeout=960, env=smoke_env, stdout=output, stderr=subprocess.STDOUT)
         result_code = smoke.returncode
         print(('PASS' if result_code == 0 else 'FAIL') + ': ' + str(root / 'smoke-latest.json'))

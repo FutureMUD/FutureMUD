@@ -843,7 +843,7 @@ public class MythicalAnimalSeederTemplateTests
         Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Giant Beetle"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Giant Ant"].CombatStrategyKey);
         Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Giant Mantis"].CombatStrategyKey);
-        Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Giant Spider"].CombatStrategyKey);
+        Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Giant Spider"].CombatStrategyKey);
         Assert.AreEqual("Beast Brawler", MythicalAnimalSeeder.TemplatesForTesting["Giant Scorpion"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Giant Centipede"].CombatStrategyKey);
         Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Ankheg"].CombatStrategyKey);
@@ -853,7 +853,7 @@ public class MythicalAnimalSeederTemplateTests
         Assert.AreEqual("Beast Dropper", MythicalAnimalSeeder.TemplatesForTesting["Giant Eagle"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Huorn"].CombatStrategyKey);
         Assert.AreEqual("Beast Drowner", MythicalAnimalSeeder.TemplatesForTesting["Bunyip"].CombatStrategyKey);
-        Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Yacumama"].CombatStrategyKey);
+        Assert.AreEqual("Beast Drowner", MythicalAnimalSeeder.TemplatesForTesting["Yacumama"].CombatStrategyKey);
     }
 
     [TestMethod]

@@ -1098,6 +1098,14 @@ public abstract class StrategyBase : ICombatStrategy
             return move;
         }
 
+		if (combatant is ICharacter tacticalCharacter)
+		{
+			foreach (var tactic in tacticalCharacter.EffectsOfType<ICombatTacticEffect>().ToList())
+			{
+				if (tactic.TrySelectMove(tacticalCharacter, out var tacticalMove)) return tacticalMove;
+			}
+		}
+
 		if (combatant is ICharacter attackPreferringCharacter &&
 		    !attackPreferringCharacter.CombatSettings.ManualPositionManagement &&
 		    !attackPreferringCharacter.CombatSettings.PreferToStandOverAttacking &&

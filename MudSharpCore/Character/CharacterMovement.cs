@@ -196,10 +196,10 @@ public partial class Character
             mover.RoomLayer = layer;
         }
 
-        target.Enter(this);
+        target.Enter(this, roomLayer: layer);
         foreach (ICharacter mover in otherMovers)
         {
-            target.Enter(mover);
+            target.Enter(mover, roomLayer: layer);
         }
 
         foreach (IGameItem item in otherItems)
@@ -486,10 +486,10 @@ public partial class Character
             case RoomLayer.InTrees:
             case RoomLayer.HighInTrees:
             case RoomLayer.OnRooftops:
-                return Race.CanClimb || CanFly().Truth;
+                return Race.CanClimb || (PositionState == PositionFlying.Instance ? CanContinueFlying().Truth : CanFly().Truth);
             case RoomLayer.InAir:
             case RoomLayer.HighInAir:
-                return CanFly().Truth;
+                return PositionState == PositionFlying.Instance ? CanContinueFlying().Truth : CanFly().Truth;
         }
 
         return base.CouldTransitionToLayer(otherLayer);
@@ -1543,7 +1543,8 @@ public partial class Character
             return false;
         }
 
-        if (CombinedEffectsOfType<IPreventFallingEffect>().Any(x => x.Applies()))
+        if (CombinedEffectsOfType<IPreventFallingEffect>().Any(x => x.Applies()) ||
+            MudSharp.Combat.Moves.CombatForcedMovementUtilities.IsSupportedByGrapple(this))
         {
             return false;
         }

@@ -78,6 +78,7 @@ public sealed class WildlifeCatalogueSeeder : IDatabaseSeeder
 				"Stock natural trap for burrowing ambush wildlife.");
 			EnsureAuxiliaryAis(context, progs, webTrap, burrowTrap);
 			EnsureGroupTemplates(context, progs);
+			PredatorCombatSeederHelper.Ensure(context);
 			context.SaveChanges();
 			transaction.Commit();
 
@@ -531,7 +532,8 @@ public sealed class WildlifeCatalogueSeeder : IDatabaseSeeder
 			new XAttribute("charges", 1),
 			new XAttribute("cooldown", TimeSpan.Zero),
 			new XElement("Triggers",
-				new XElement("Trigger", new XAttribute("type", TrapTriggerType.Proximity))),
+				new XElement("Trigger", new XAttribute("type", TrapTriggerType.Proximity),
+					new XElement("Parameter", new XAttribute("name", "ignorecreator"), true))),
 			new XElement("Payloads",
 				new XElement("Payload",
 					new XAttribute("type", TrapPayloadType.Restraint),
@@ -567,6 +569,7 @@ public sealed class WildlifeCatalogueSeeder : IDatabaseSeeder
 			ai.Name = name;
 			ai.Type = "NaturalTrap";
 			ai.Definition = new XElement("Definition",
+				new XElement("AnchorToHome", true),
 				new XElement("TrapTemplateId", trap.Id),
 				new XElement("TrapTemplateRevision", trap.Revision),
 				new XElement("DeployEnabledProg", progs.CanBuildShelter),
@@ -704,7 +707,12 @@ internal sealed record WildlifeAnimalProfile(
 	string PostureDuration = "1d20+20",
 	string? NestingSeason = null,
 	string? SeasonalHabitatSeason = null,
-	string? SeasonalHabitatProg = null)
+	string? SeasonalHabitatProg = null,
+	string? HuntOpening = null,
+	string HuntFollowup = "Fight",
+	string PeoplePrey = "Never",
+	string HuntAssessment = "Balanced",
+	string? HuntLayer = null)
 {
 	public string BuildDefinition(WildlifeSupportProgs progs, IReadOnlyDictionary<string, WildlifeCatalogueSeeder.ShelterSeedResult> shelters,
 		long alwaysTrueId, long alwaysFalseId, long alwaysOneId)
@@ -726,6 +734,13 @@ internal sealed record WildlifeAnimalProfile(
 
 		return new XElement("Definition",
 			new XComment(Description),
+			HuntOpening is null ? null : new XElement("Hunting", new XAttribute("version", 1), new XAttribute("enabled", true),
+				new XElement("People", PeoplePrey), new XElement("Selection", "Safest"),
+				new XElement("Opening", HuntOpening), new XElement("Followup", HuntFollowup),
+				new XElement("PreferredLayer", HuntLayer ?? ""), new XElement("Opportunistic", true),
+				new XElement("Engage", HuntAssessment == "Cautious" ? 70 : HuntAssessment == "Bold" ? 50 : 60),
+				new XElement("Abandon", HuntAssessment == "Cautious" ? 45 : HuntAssessment == "Bold" ? 25 : 35),
+				new XElement("Starvation", 10), new XElement("Range", 5), new XElement("TimeoutSeconds", 300), new XElement("LostSeconds", 60)),
 			new XElement("Movement",
 				new XAttribute("type", Movement),
 				new XElement("Range", MovementRange),
@@ -872,7 +887,7 @@ internal sealed record WildlifeRecommendation(
 /// data-first: it gives every installed normal animal and every explicitly eligible mythical
 /// beast one exact wild controller plus either a concrete group template or Solitary.
 /// </summary>
-internal static class WildlifeCatalogue
+internal static partial class WildlifeCatalogue
 {
 	public const string TerrestrialHabitatProg = "Wildlife AI - Terrestrial Habitat";
 	public const string GrasslandHabitatProg = "Wildlife AI - Grassland Habitat";
@@ -1338,7 +1353,7 @@ internal static class WildlifeCatalogue
 		return issues;
 	}
 
-	private static IReadOnlyList<WildlifeAnimalProfile> BuildIndividualProfiles()
+	private static IReadOnlyList<WildlifeAnimalProfile> BuildBaseIndividualProfiles()
 	{
 		return
 		[
@@ -1679,6 +1694,7 @@ internal static class WildlifeCatalogue
 
 	private static string MapNormalProfile(string raceName, string legacyProfile)
 	{
+		if (PredatorProfileFor(raceName) is { } predator) return predator;
 		if (legacyProfile == AnimalAIStockTemplates.SwimmingForager)
 		{
 			return raceName.In("Carp", "Koi", "Salmon") ? FreshwaterForager : MarineForager;
@@ -1729,6 +1745,7 @@ internal static class WildlifeCatalogue
 
 	private static string MapMythicalProfile(string raceName, string legacyProfile)
 	{
+		if (PredatorProfileFor(raceName) is { } predator) return predator;
 		if (raceName == "Giant Ant")
 		{
 			return ColonialInsect;

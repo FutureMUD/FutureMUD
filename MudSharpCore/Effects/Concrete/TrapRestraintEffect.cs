@@ -17,11 +17,13 @@ public sealed class TrapRestraintEffect : Effect
 		RegisterFactory("TrapRestraint", (effect, owner) => new TrapRestraintEffect(effect, owner));
 	}
 
-	public TrapRestraintEffect(ICharacter owner, Guid trapInstanceId, string description)
+	public TrapRestraintEffect(ICharacter owner, Guid trapInstanceId, string description, long creatorId = 0, long originCellId = 0)
 		: base(owner)
 	{
 		TrapInstanceId = trapInstanceId;
 		DescriptionText = description;
+		CreatorId = creatorId;
+		OriginCellId = originCellId;
 	}
 
 	private TrapRestraintEffect(XElement root, IPerceivable owner)
@@ -30,9 +32,13 @@ public sealed class TrapRestraintEffect : Effect
 		var effect = root.Element("Effect")!;
 		TrapInstanceId = Guid.Parse(effect.Element("TrapInstanceId")!.Value);
 		DescriptionText = effect.Element("Description")?.Value ?? "restrained by a trap";
+		CreatorId = long.TryParse(effect.Element("CreatorId")?.Value, out var creator) ? creator : 0;
+		OriginCellId = long.TryParse(effect.Element("OriginCellId")?.Value, out var cell) ? cell : 0;
 	}
 
 	public Guid TrapInstanceId { get; }
+	public long CreatorId { get; }
+	public long OriginCellId { get; }
 	public string DescriptionText { get; }
 
 	public override IEnumerable<string> Blocks => ["movement"];
@@ -54,6 +60,8 @@ public sealed class TrapRestraintEffect : Effect
 	{
 		return new XElement("Effect",
 			new XElement("TrapInstanceId", TrapInstanceId),
+			new XElement("CreatorId", CreatorId),
+			new XElement("OriginCellId", OriginCellId),
 			new XElement("Description", new XCData(DescriptionText)));
 	}
 }

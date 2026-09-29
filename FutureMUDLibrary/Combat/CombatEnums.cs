@@ -152,6 +152,7 @@ namespace MudSharp.Combat
 		VehicleCharge,
 		AquaticVehicleCharge,
 		MagicPowerSmashItem,
+		AmbushAttack,
 	}
 
     [Flags]

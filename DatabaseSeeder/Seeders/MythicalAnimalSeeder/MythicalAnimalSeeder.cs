@@ -130,6 +130,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             !hasMissingDietSettings)
         {
             RefreshExistingMythicalCombatBalance();
+			PredatorCombatSeederHelper.Ensure(context);
             CombatAuxiliarySeedResult auxiliaryResult = CombatAuxiliarySeederHelper.EnsureMythicalAuxiliaryLinks(_context);
 			NPCSkillPackageSeedResult packageResult = NPCSkillPackageSeederHelper.EnsureRacePackages(_context,
 				StockSkillPackageRaces());
@@ -160,6 +161,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		NPCSkillPackageSeedResult freshPackageResult = NPCSkillPackageSeederHelper.EnsureRacePackages(_context,
 			StockSkillPackageRaces());
         _context.SaveChanges();
+		PredatorCombatSeederHelper.Ensure(context);
         _context.Database.CommitTransaction();
         int skippedCount = Templates.Count - templatesToSeed.Count;
 

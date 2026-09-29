@@ -13,11 +13,12 @@ namespace MudSharp.NPC.AI;
 /// trap effect rather than a bespoke spider-web item, so natural hazards receive the same discovery, persistence,
 /// trigger, and payload behaviour as other domains.
 /// </summary>
-public sealed class NaturalTrapAI : ArtificialIntelligenceBase
+public sealed class NaturalTrapAI : ArtificialIntelligenceBase, IEventObserverAI
 {
 	public ITrapTemplate? TrapTemplate { get; private set; }
 	public IFutureProg DeployEnabledProg { get; private set; } = null!;
 	public IFutureProg SiteProg { get; private set; } = null!;
+	public bool AnchorToHome { get; private set; }
 
 	public NaturalTrapAI(ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
 	{
@@ -53,6 +54,7 @@ public sealed class NaturalTrapAI : ArtificialIntelligenceBase
 	protected override string SaveToXml()
 	{
 		return new XElement("Definition",
+			new XElement("AnchorToHome", AnchorToHome),
 			new XElement("TrapTemplateId", TrapTemplate?.Id ?? 0L),
 			new XElement("TrapTemplateRevision", TrapTemplate?.RevisionNumber ?? 0),
 			new XElement("DeployEnabledProg", DeployEnabledProg?.Id ?? 0L),
@@ -61,6 +63,7 @@ public sealed class NaturalTrapAI : ArtificialIntelligenceBase
 
 	private void LoadFromXml(XElement root)
 	{
+		AnchorToHome = bool.TryParse(root.Element("AnchorToHome")?.Value, out var anchorToHome) && anchorToHome;
 		var templateId = long.TryParse(root.Element("TrapTemplateId")?.Value, out var parsedTemplateId)
 			? parsedTemplateId
 			: 0L;
@@ -87,9 +90,23 @@ public sealed class NaturalTrapAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		var anchor = TrapEffect.IsValidAnchor(TrapTemplate!, character.Location) ? (IPerceivable)character.Location : character;
+		IPerceivable anchor;
+		if (AnchorToHome)
+		{
+			if (character.Movement is not null || character.Combat is not null || !CharacterState.Able.HasFlag(character.State)) return false;
+			var home = character.EffectsOfType<NpcHomeBaseEffect>().FirstOrDefault();
+			var item = home?.AnchorItem;
+			if (item is null || item.Deleted || item.Destroyed || item.Location != character.Location ||
+			    item.RoomLayer != character.RoomLayer || !TrapEffect.IsValidAnchor(TrapTemplate!, item)) return false;
+			anchor = item;
+		}
+		else
+		{
+			anchor = TrapEffect.IsValidAnchor(TrapTemplate!, character.Location) ? (IPerceivable)character.Location : character;
+		}
 		if (anchor.EffectsOfType<TrapEffect>()
-		    .Any(x => x.SourceKind == TrapSourceKind.Natural && x.State is not TrapState.Spent and not TrapState.Expired))
+		    .Any(x => x.SourceKind == TrapSourceKind.Natural && (!AnchorToHome || x.CreatorId == character.Id) &&
+		              x.State is not TrapState.Spent and not TrapState.Expired))
 		{
 			return false;
 		}
@@ -115,13 +132,15 @@ public sealed class NaturalTrapAI : ArtificialIntelligenceBase
 	public override string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder(base.Show(actor));
+		sb.AppendLine($"Anchor to Owned Home: {AnchorToHome.ToColouredString()}");
 		sb.AppendLine($"Natural Trap Template: {TrapTemplate?.Name.ColourName() ?? "None".ColourError()}");
 		sb.AppendLine($"Deploy Enabled Prog: {DeployEnabledProg.MXPClickableFunctionName()}");
 		sb.AppendLine($"Site Prog: {SiteProg.MXPClickableFunctionName()}");
 		return sb.ToString();
 	}
 
-	protected override string TypeHelpText => @"	#3template <traptemplate>#0 - selects the current natural trap template to maintain
+	protected override string TypeHelpText => @"	#3home#0 - toggles anchoring to the NPC's own shelter item
+	#3template <traptemplate>#0 - selects the current natural trap template to maintain
 	#3enabled <prog>#0 - sets a boolean prog with character parameter controlling deployment
 	#3site <prog>#0 - sets a boolean prog with character, location parameters selecting valid natural-trap cells";
 
@@ -129,6 +148,11 @@ public sealed class NaturalTrapAI : ArtificialIntelligenceBase
 	{
 		switch (command.PopForSwitch())
 		{
+			case "home":
+				AnchorToHome = !AnchorToHome;
+				Changed = true;
+				actor.OutputHandler.Send($"Anchor to owned home: {AnchorToHome.ToColouredString()}.");
+				return true;
 			case "template":
 				return BuildingCommandTemplate(actor, command);
 			case "enabled":

@@ -19,6 +19,11 @@ namespace MudSharp.Combat
         };
 
         public bool MoveWasSuccessful { get; init; }
+
+        /// <summary>A qualifying envenoming wound delivered a finite, positive injected dose.</summary>
+        public bool EnvenomDelivered { get; set; }
+        /// <summary>False when resolution replaced the selected attack with an action that used no defence.</summary>
+        public bool DefenderResponseWasUsed { get; set; } = true;
         public Difficulty RecoveryDifficulty { get; init; } = Difficulty.Automatic;
         public Outcome AttackerOutcome { get; init; } = Outcome.NotTested;
         public Outcome DefenderOutcome { get; init; } = Outcome.NotTested;

@@ -297,6 +297,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
             }
 
             RefreshExistingAnimalDietSettings();
+			PredatorCombatSeederHelper.Ensure(context);
             CombatAuxiliarySeedResult auxiliaryResult = CombatAuxiliarySeederHelper.EnsureAnimalAuxiliaryLinks(context);
 			NPCSkillPackageSeedResult packageResult = NPCSkillPackageSeederHelper.EnsureRacePackages(context,
 				StockSkillPackageRaces());
@@ -883,6 +884,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
         EnsureAnimalNeedsModelConfiguration(context);
 		context.SaveChanges();
         SeedAnimalAIStockTemplates();
+		PredatorCombatSeederHelper.Ensure(context);
         CombatAuxiliarySeedResult freshAuxiliaryResult = CombatAuxiliarySeederHelper.EnsureAnimalAuxiliaryLinks(context);
 		NPCSkillPackageSeedResult freshPackageResult = NPCSkillPackageSeederHelper.EnsureRacePackages(context,
 			StockSkillPackageRaces());
@@ -938,7 +940,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
         _cachedShapes.Clear();
         _hwModels.Clear();
         _sever = false;
-        _breathableAir = _context.Gases.First();
+        _breathableAir = CoreDataSeeder.EnsureBreathableAtmosphere(_context);
         // TODO - make these optional
         _saltWater = _context.Liquids.First(x => x.Name == "salt water");
         _brackishWater = _context.Liquids.First(x => x.Name == "brackish water");
@@ -1267,6 +1269,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 	</Descriptions>
   </CorpseModel>"
         };
+        OrganicCorpseMaterialSeederHelper.ApplyDefaults(_context, _defaultCorpseModel);
         _context.CorpseModels.Add(_defaultCorpseModel);
         _context.SaveChanges();
     }

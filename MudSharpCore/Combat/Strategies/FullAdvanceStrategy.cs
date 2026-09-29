@@ -16,6 +16,8 @@ public class FullAdvanceStrategy : RangeBaseStrategy
 
     public override CombatStrategyMode Mode => CombatStrategyMode.FullAdvance;
 
+	internal ICombatMove AttemptAdvance(IPerceiver combatant) => HandleCombatMovement(combatant);
+
     protected override ICombatMove HandleCombatMovement(IPerceiver combatant)
     {
         ICombatMove move = null;

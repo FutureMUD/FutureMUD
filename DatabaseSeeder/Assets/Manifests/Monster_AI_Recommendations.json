@@ -1,0 +1,2590 @@
+{
+  "Version": 1,
+  "Controller": "Monster",
+  "DefaultNeedsModel": "NoNeeds",
+  "StockOwnership": "Only these exact Monster - names are reconciled. Differently named clones and all attachments are preserved.",
+  "GroupPolicy": "Individual Monster AI only. Existing Wildlife groups retain Animal AI.",
+  "Profiles": [
+    "Monster - Aerial Hunter",
+    "Monster - Aquatic Ambusher",
+    "Monster - Armed Guardian",
+    "Monster - Bound Haunt",
+    "Monster - Burrow Ambusher",
+    "Monster - Conditional Hunter",
+    "Monster - Lair Guardian",
+    "Monster - Night Stalker",
+    "Monster - Powered Guardian",
+    "Monster - Relentless Pursuer",
+    "Monster - Trap Ambusher",
+    "Monster - Venom Ambusher"
+  ],
+  "Recommendations": [
+    {
+      "Pack": "Mythical",
+      "Race": "Ankheg",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Burrow Ambusher"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Acid Spit",
+        "Bite",
+        "Carnivore Bite"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind a home, shelter craft/site and anchor where construction is wanted; trap construction needs its own valid native trap setup."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Avian Person",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Elbow",
+        "Jab"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Sapient NPC motivations and social roles remain builder-authored; this recommendation does not impose hostility.",
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Basilisk",
+      "Disposition": "Retain Animal/wildlife",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Tail Slap"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "No petrification is supplied; these templates use their existing natural attacks.",
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Bunyip",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Aquatic Ambusher"
+      ],
+      "Movement": "Amphibious",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Claw Swipe",
+        "Tail Slap"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Use suitable aquatic habitat/layers and compatible hauling attacks; select Drowner combat settings when appropriate."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Centaur",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Armed Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Elbow",
+        "Head Ram",
+        "Hoof Stomp"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Sapient NPC motivations and social roles remain builder-authored; this recommendation does not impose hostility.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Cockatrice",
+      "Disposition": "Retain Animal/wildlife",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Beak Bite",
+        "Beak Peck",
+        "Talon Strike"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "No petrification is supplied; these templates use their existing natural attacks.",
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Colossal Worm",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Burrow Ambusher"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Tail Slap"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind a home, shelter craft/site and anchor where construction is wanted; trap construction needs its own valid native trap setup."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Dire-Bear",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Lair Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Claw Swipe"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Dire-Wolf",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Night Stalker"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Claw Swipe"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Dragon",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Lair Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Claw Swipe",
+        "Dragonfire Breath",
+        "Horn Gore",
+        "Tail Slap",
+        "Wing Buffet"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Existing breath attacks remain native combat attacks; no hoard accumulation or theft detection is supplied.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Dryad",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Elbow",
+        "Jab"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Sapient NPC motivations and social roles remain builder-authored; this recommendation does not impose hostility.",
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Eastern Dragon",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Lair Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Claw Swipe",
+        "Dragonfire Breath",
+        "Tail Slap"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Existing breath attacks remain native combat attacks; no hoard accumulation or theft detection is supplied.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Ent",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Armed Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Elbow",
+        "Jab"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Sapient NPC motivations and social roles remain builder-authored; this recommendation does not impose hostility.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Fell Beast",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Aerial Hunter"
+      ],
+      "Movement": "Fly",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Tail Slap",
+        "Talon Carry",
+        "Talon Strike",
+        "Wing Buffet"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Use flying terrain/layers, compatible hauling anatomy and sufficient lift capacity; dropping uses the NPC\u0027s Dropper combat strategy."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Garuda",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Aerial Hunter"
+      ],
+      "Movement": "Fly",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Beak Bite",
+        "Beak Peck",
+        "Talon Carry",
+        "Talon Strike"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Use flying terrain/layers, compatible hauling anatomy and sufficient lift capacity; dropping uses the NPC\u0027s Dropper combat strategy."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Giant Ant",
+      "Disposition": "Retain Animal/wildlife",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Giant Beetle",
+      "Disposition": "Retain Animal/wildlife",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Giant Centipede",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Venom Ambusher"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Giant Eagle",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Aerial Hunter"
+      ],
+      "Movement": "Fly",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Beak Bite",
+        "Beak Peck",
+        "Talon Carry",
+        "Talon Strike",
+        "Wing Buffet"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Use flying terrain/layers, compatible hauling anatomy and sufficient lift capacity; dropping uses the NPC\u0027s Dropper combat strategy."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Giant Mantis",
+      "Disposition": "Retain Animal/wildlife",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Claw Swipe"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Giant Scorpion",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Venom Ambusher"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Claw Swipe",
+        "Tail Spike"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Giant Spider",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Trap Ambusher"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Claw Swipe"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind a home, shelter craft/site and anchor where construction is wanted; trap construction needs its own valid native trap setup."
+      ],
+      "AuxiliaryAIs": [
+        "NaturalTrapAI, configured for an actual owned capture"
+      ],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Giant Worm",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Burrow Ambusher"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Tail Slap"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind a home, shelter craft/site and anchor where construction is wanted; trap construction needs its own valid native trap setup."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Griffin",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Aerial Hunter"
+      ],
+      "Movement": "Fly",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Aerial Sweep Through",
+        "Beak Bite",
+        "Beak Peck",
+        "Claw Swipe",
+        "Tail Slap",
+        "Talon Carry",
+        "Wing Buffet"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Use flying terrain/layers, compatible hauling anatomy and sufficient lift capacity; dropping uses the NPC\u0027s Dropper combat strategy."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Hippocamp",
+      "Disposition": "Retain Animal/wildlife",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Aquatic Charge",
+        "Herbivore Bite",
+        "Hoof Stomp",
+        "Tail Slap"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Hippogriff",
+      "Disposition": "Retain Animal/wildlife",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Aerial Sweep Through",
+        "Beak Bite",
+        "Beak Peck",
+        "Hoof Stomp",
+        "Wing Buffet"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Huorn",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Lair Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Elbow",
+        "Jab"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Manticore",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Night Stalker"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Claw Swipe",
+        "Tail Slap",
+        "Tail Spike",
+        "Wing Buffet"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Mermaid",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Tail Slap"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Sapient NPC motivations and social roles remain builder-authored; this recommendation does not impose hostility.",
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Minotaur",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Armed Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Elbow",
+        "Head Ram",
+        "Horn Gore"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Sapient NPC motivations and social roles remain builder-authored; this recommendation does not impose hostility.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Myconid",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Elbow",
+        "Jab"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Sapient NPC motivations and social roles remain builder-authored; this recommendation does not impose hostility.",
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Naga",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Armed Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Tail Slap"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Sapient NPC motivations and social roles remain builder-authored; this recommendation does not impose hostility.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Owlkin",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Elbow",
+        "Jab"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Sapient NPC motivations and social roles remain builder-authored; this recommendation does not impose hostility.",
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Pegacorn",
+      "Disposition": "Retain Animal/wildlife",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Hoof Stomp",
+        "Horn Gore"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Pegasus",
+      "Disposition": "Retain Animal/wildlife",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Head Ram",
+        "Hoof Stomp",
+        "Wing Buffet"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Phoenix",
+      "Disposition": "Retain Animal/wildlife",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Beak Bite",
+        "Beak Peck",
+        "Talon Strike"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "No resurrection or automatic fire powers are implemented by this AI.",
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Plantfolk",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Elbow",
+        "Jab"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Sapient NPC motivations and social roles remain builder-authored; this recommendation does not impose hostility.",
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Qilin",
+      "Disposition": "Retain Animal/wildlife",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Hoof Stomp",
+        "Horn Gore"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Selkie",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Sapient NPC motivations and social roles remain builder-authored; this recommendation does not impose hostility.",
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Unicorn",
+      "Disposition": "Retain Animal/wildlife",
+      "Profiles": [],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Hoof Stomp",
+        "Horn Gore"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Retain the current Animal/Wildlife or sapient role choice; mythical origin alone is not a reason for proactive aggression.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Warg",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Night Stalker"
+      ],
+      "Movement": "Review the race\u0027s existing movement and habitat",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Claw Swipe"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Wyvern",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Aerial Hunter"
+      ],
+      "Movement": "Fly",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Dragonfire Breath",
+        "Tail Slap",
+        "Talon Carry",
+        "Talon Strike",
+        "Wing Buffet"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Use flying terrain/layers, compatible hauling anatomy and sufficient lift capacity; dropping uses the NPC\u0027s Dropper combat strategy."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Mythical",
+      "Race": "Yacumama",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Aquatic Ambusher"
+      ],
+      "Movement": "Amphibious",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bite",
+        "Carnivore Bite",
+        "Tail Slap"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Use suitable aquatic habitat/layers and compatible hauling attacks; select Drowner combat settings when appropriate."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Ancestral Spirit",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Bound Haunt"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Deathly Pall",
+        "Grave Drag",
+        "Soul Chill",
+        "Spectral Touch",
+        "Wailing Dirge"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Balrog",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Abyssal Chain Lash",
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellfire Breath",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Bene Elohim",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Canticle of Awe",
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Mercy-Searing Grasp",
+        "Radiant Gaze",
+        "Radiant Touch",
+        "Seraphic Wingstorm",
+        "Wing Buffet",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Chayot HaKodesh",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Canticle of Awe",
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Mercy-Searing Grasp",
+        "Radiant Gaze",
+        "Radiant Touch",
+        "Seraphic Wingstorm",
+        "Starfire Breath",
+        "Trumpet Peal",
+        "Wing Buffet",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Cherubim",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Canticle of Awe",
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Mercy-Searing Grasp",
+        "Radiant Gaze",
+        "Radiant Touch",
+        "Seraphic Wingstorm",
+        "Wing Buffet",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Demigod",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Canticle of Awe",
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Mercy-Searing Grasp",
+        "Radiant Gaze",
+        "Radiant Touch",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Elemental Spirit",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Bound Haunt"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Deathly Pall",
+        "Grave Drag",
+        "Soul Chill",
+        "Spectral Touch",
+        "Wailing Dirge"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "No distinct elemental spell loadout is supplied.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Elohim",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Canticle of Awe",
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Mercy-Searing Grasp",
+        "Radiant Gaze",
+        "Radiant Touch",
+        "Seraphic Wingstorm",
+        "Wing Buffet",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Erelim",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Canticle of Awe",
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Mercy-Searing Grasp",
+        "Radiant Gaze",
+        "Radiant Touch",
+        "Seraphic Wingstorm",
+        "Starfire Breath",
+        "Trumpet Peal",
+        "Wing Buffet",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Fallen Bene Elohim",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Fallen Chayot HaKodesh",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Abyssal Chain Lash",
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellfire Breath",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Fallen Cherubim",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Fallen Elohim",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Fallen Erelim",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Abyssal Chain Lash",
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellfire Breath",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Fallen Hashmallim",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Abyssal Chain Lash",
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellfire Breath",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Fallen Ishim",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Fallen Malakhim",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Fallen Ophanim",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Fallen Choir",
+        "Hellfire Breath",
+        "Infernal Trip",
+        "Many-Eyed Ray",
+        "Soul Chill",
+        "Wheel Crush",
+        "Wheel of Judgment"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Fallen Seraphim",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Familiar",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Fiend",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Abyssal Chain Lash",
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellfire Breath",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Fury",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Abyssal Chain Lash",
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellfire Breath",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Ghost",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Bound Haunt"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Deathly Pall",
+        "Grave Drag",
+        "Soul Chill",
+        "Spectral Touch",
+        "Wailing Dirge"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Ghoul",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Night Stalker"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bone Rattle",
+        "Crypt Dust Breath",
+        "Deathly Pall",
+        "Fanged Bite",
+        "Grasp of the Dead",
+        "Grave Claw",
+        "Grave Drag"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Greater God",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Canticle of Awe",
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Mercy-Searing Grasp",
+        "Radiant Gaze",
+        "Radiant Touch",
+        "Seraphic Wingstorm",
+        "Starfire Breath",
+        "Trumpet Peal",
+        "Wing Buffet",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Hashmallim",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Canticle of Awe",
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Mercy-Searing Grasp",
+        "Radiant Gaze",
+        "Radiant Touch",
+        "Seraphic Wingstorm",
+        "Starfire Breath",
+        "Trumpet Peal",
+        "Wing Buffet",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Hellhound",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Night Stalker"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fanged Bite",
+        "Hellfire Breath",
+        "Hellish Headbutt",
+        "Infernal Claw",
+        "Infernal Trip"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Imp",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Incubus",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Ishim",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Canticle of Awe",
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Mercy-Searing Grasp",
+        "Radiant Gaze",
+        "Radiant Touch",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Lesser God",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Canticle of Awe",
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Mercy-Searing Grasp",
+        "Radiant Gaze",
+        "Radiant Touch",
+        "Seraphic Wingstorm",
+        "Starfire Breath",
+        "Trumpet Peal",
+        "Wing Buffet",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Lich",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Powered Guardian",
+        "Monster - Armed Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Bone Rattle",
+        "Crypt Dust Breath",
+        "Deathly Pall",
+        "Fanged Bite",
+        "Grasp of the Dead",
+        "Grave Claw",
+        "Grave Drag"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "No spellbook management, phylactery or automatic revival is supplied.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Malakhim",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Canticle of Awe",
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Mercy-Searing Grasp",
+        "Radiant Gaze",
+        "Radiant Touch",
+        "Seraphic Wingstorm",
+        "Wing Buffet",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Mummy",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Relentless Pursuer"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Bone Rattle",
+        "Crypt Dust Breath",
+        "Deathly Pall",
+        "Fanged Bite",
+        "Grasp of the Dead",
+        "Grave Claw",
+        "Grave Drag"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Nature Spirit",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Bound Haunt"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Deathly Pall",
+        "Grave Drag",
+        "Soul Chill",
+        "Spectral Touch",
+        "Wailing Dirge"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Ophanim",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Many-Eyed Ray",
+        "Radiant Gaze",
+        "Wheel Crush",
+        "Wheel of Judgment",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Seraphim",
+      "Disposition": "Builder-authored sapient role",
+      "Profiles": [
+        "Monster - Lair Guardian",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Canticle of Awe",
+        "Crown of Stars",
+        "Heavenly Choir",
+        "Mercy-Searing Grasp",
+        "Radiant Gaze",
+        "Radiant Touch",
+        "Seraphic Wingstorm",
+        "Starfire Breath",
+        "Trumpet Peal",
+        "Wing Buffet",
+        "Word of Command"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Skeleton",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Relentless Pursuer"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Bone Rattle",
+        "Crypt Dust Breath",
+        "Deathly Pall",
+        "Fanged Bite",
+        "Grasp of the Dead",
+        "Grave Claw",
+        "Grave Drag"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Specter",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Bound Haunt"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Deathly Pall",
+        "Grave Drag",
+        "Soul Chill",
+        "Spectral Touch",
+        "Wailing Dirge"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Spirit",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Bound Haunt"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Deathly Pall",
+        "Grave Drag",
+        "Soul Chill",
+        "Spectral Touch",
+        "Wailing Dirge"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Succubus",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter",
+        "Monster - Powered Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Barbed Tail Slap",
+        "Brimstone Spit",
+        "Damnation Barge",
+        "Fallen Choir",
+        "Fanged Bite",
+        "Hellish Headbutt",
+        "Horn Gore",
+        "Infernal Claw",
+        "Infernal Trip",
+        "Sinner\u0027s Clinch",
+        "Soul Hook"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon.",
+        "Attach authored MagicAttackPower/psionic combat powers and compatible combat percentages/resources separately."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Vampire",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Night Stalker",
+        "Monster - Armed Guardian"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Bone Rattle",
+        "Crypt Dust Breath",
+        "Deathly Pall",
+        "Fanged Bite",
+        "Grasp of the Dead",
+        "Grave Claw",
+        "Grave Drag"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "No blood drinking economy or sunlight behaviour is supplied.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Werewolf",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Crushing Pounce",
+        "Fanged Bite",
+        "Hamstring Snap",
+        "Wolf Trip"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "No lunar condition or transformation is imposed. Form merits and hunting conditions remain separate.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Werewolf Hybrid",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Conditional Hunter"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Crushing Pounce",
+        "Fanged Bite",
+        "Hamstring Snap",
+        "Raking Maul",
+        "Wolf Trip"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind a Boolean(Character) activity condition before use; optionally select game calendar dates or one local moon."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "No lunar condition or transformation is imposed. Form merits and hunting conditions remain separate.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Wraith",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Bound Haunt"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": true,
+      "NativeAttacks": [
+        "Deathly Pall",
+        "Grave Drag",
+        "Soul Chill",
+        "Spectral Touch",
+        "Wailing Dirge"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly.",
+        "Bind the home-location prog to the authored defended area; review warning and pursuit radii."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Natural attacks are present. Weapon use requires actual equipment, skills and compatible normal combat settings; no gear or powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Normal planar/corporeality targeting and movement restrictions remain authoritative.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    },
+    {
+      "Pack": "Supernatural",
+      "Race": "Zombie",
+      "Disposition": "Optional Monster encounter",
+      "Profiles": [
+        "Monster - Relentless Pursuer"
+      ],
+      "Movement": "Review the race\u0027s existing movement, body and planar profile",
+      "CanUseWeapons": false,
+      "NativeAttacks": [
+        "Bone Rattle",
+        "Crypt Dust Breath",
+        "Deathly Pall",
+        "Fanged Bite",
+        "Grasp of the Dead",
+        "Grave Claw",
+        "Grave Drag"
+      ],
+      "RequiredBindings": [
+        "Clone a stock definition; choose eligible targets/allies and the NPC\u0027s needs model explicitly."
+      ],
+      "AuxiliaryAIs": [],
+      "CombatSetup": "Use the existing natural attacks and anatomy. This race template does not permit weapons; no powers are granted.",
+      "Limitations": [
+        "Supernatural natural-attack names are not evidence of attached magic powers.",
+        "Individual AI only; do not attach Monster AI to an existing Wildlife group."
+      ]
+    }
+  ]
+}

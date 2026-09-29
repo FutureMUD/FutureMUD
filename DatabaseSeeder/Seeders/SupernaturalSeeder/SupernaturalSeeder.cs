@@ -86,6 +86,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		}
 
 		SeedFormMerits(summary);
+		MonsterAIStockTemplates.Seed(_context, "Supernatural");
 		CombatAuxiliarySeedResult auxiliaryResult = CombatAuxiliarySeederHelper.EnsureSupernaturalAuxiliaryLinks(_context);
 		NPCSkillPackageSeedResult packageResult = NPCSkillPackageSeederHelper.EnsureRacePackages(_context,
 			StockSkillPackageRaces());
@@ -108,6 +109,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		}
 
 		return HasMissingSupernaturalSupport(context) ||
+		       MonsterAIStockTemplates.HasMissing(context, "Supernatural") ||
 		       NPCSkillPackageSeederHelper.HasMissingStockRacePackages(context, StockSkillPackageRaces())
 			? ShouldSeedResult.ExtraPackagesAvailable
 			: ShouldSeedResult.MayAlreadyBeInstalled;

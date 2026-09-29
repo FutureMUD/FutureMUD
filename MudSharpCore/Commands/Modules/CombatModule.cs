@@ -3903,6 +3903,7 @@ The syntax to use this command is as follows:");
 	#3natural <percentage>#0 - configures the percentage chance of you using a natural attack move
 	#3auxiliary <percentage>#0 - configures the percentage chance of you using an auxiliary move
 	#3magic <percentage>#0 - configures the percentage chance of you using a magic attack move
+	#3psychic <percentage>#0 - configures the percentage chance of using an authored psionic combat power
 	#3manual <verb> <multiplier|off|clear>#0 - overrides NPC weighting for manual combat command bindings
 	#3prefer_armed <true/false>#0 - configures whether you prefer to fight armed and will seek to wield a weapon
 	#3prefer_favourite <true/false>#0 - configures whether you prefer to retrieve the weapon you're wielding rather than drawing a new one if you lose it
@@ -4242,7 +4243,23 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 
     private static void CombatConfigPsychic(ICharacter actor, StringStack command)
     {
-        actor.Send("Not available yet.");
+        if (command.IsFinished)
+        {
+            actor.Send("Syntax: combat config psychic <percentage>");
+            return;
+        }
+
+        if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out double value) ||
+            !double.IsFinite(value) || value < 0.0 || value > 1.0)
+        {
+            actor.Send($"You must enter a percentage between {0:P0} and {1:P0}.");
+            return;
+        }
+
+        actor.CombatSettings.PsychicUsePercentage = value;
+        actor.CombatSettings.Changed = true;
+        RebalanceCombatPercentages(actor, fixedPsychic: true);
+        ShowCurrentBalances(actor);
     }
 
     private static void RebalanceCombatPercentages(ICharacter actor, bool fixedWeapon = false,
@@ -4256,7 +4273,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
                    actor.CombatSettings.AuxiliaryPercentage;
         }
 
-        while (1.0 - total() > 0.00005)
+        while (Math.Abs(1.0 - total()) > 0.00005)
         {
             if (!fixedMagic && actor.CombatSettings.MagicUsePercentage > 0)
             {
@@ -4303,7 +4320,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
     {
         StringBuilder sb = new();
         sb.Append(
-            $"Your current move balance stands at: Weapon [{actor.CombatSettings.WeaponUsePercentage.ToString("P0", actor).Colour(Telnet.Green)}] Natural [{actor.CombatSettings.NaturalWeaponPercentage.ToString("P0", actor).Colour(Telnet.Green)}] Auxiliary [{actor.CombatSettings.AuxiliaryPercentage.ToString("P0", actor).Colour(Telnet.Green)}] Magic [{actor.CombatSettings.MagicUsePercentage.ToString("P0", actor).Colour(Telnet.Green)}]");
+            $"Your current move balance stands at: Weapon [{actor.CombatSettings.WeaponUsePercentage.ToString("P0", actor).Colour(Telnet.Green)}] Natural [{actor.CombatSettings.NaturalWeaponPercentage.ToString("P0", actor).Colour(Telnet.Green)}] Auxiliary [{actor.CombatSettings.AuxiliaryPercentage.ToString("P0", actor).Colour(Telnet.Green)}] Magic [{actor.CombatSettings.MagicUsePercentage.ToString("P0", actor).Colour(Telnet.Green)}] Psychic [{actor.CombatSettings.PsychicUsePercentage.ToString("P0", actor).Colour(Telnet.Green)}]");
         actor.Send(sb.ToString());
     }
 

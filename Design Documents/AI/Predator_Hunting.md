@@ -1,5 +1,7 @@
 # Predator Hunting
 
+The physical pursuit, assessment and tactic machinery is shared through `CreatureAIBase` and `CreaturePursuitEffect`. `AnimalAI` retains the food, starvation, people-prey and Wildlife group policy described here; its saved `AnimalHunt` key remains compatible. [Monster AI](./Monster_AI.md) uses the same openings and follow-ups with separate motives, target policy and saved `MonsterIntent` state. It does not inherit Animal needs conversion or group/ecology behavior.
+
 ## Ownership and compatibility
 
 `AnimalAI` owns prey policy, observation, assessment, preparation and the hunt lifecycle. Combat strategies and authored attacks own physical actions. `NaturalTrapAI` deploys traps; the trap system decides whether a victim was actually caught. These capabilities are independent: choosing an opening does not choose the follow-up tactic.

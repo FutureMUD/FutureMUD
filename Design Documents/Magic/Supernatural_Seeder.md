@@ -6,6 +6,8 @@ The Supernatural Seeder installs a builder-facing stock catalogue of angels, fal
 
 All seeded supernatural races are unavailable to normal chargen by default. Builders can enable them through the usual chargen, role, merit, or staff workflows after deciding how supernatural characters should fit their game.
 
+The seeder also installs its relevant stock `Monster` AI profiles. These are additional, individually attached controllers for guardians, haunts, nocturnal or conditional hunters, and bounded relentless pursuers. The [Monster AI guide](../AI/Monster_AI.md) describes setup and the [source-generated recommendation manifest](../../DatabaseSeeder/Assets/Manifests/Monster_AI_Recommendations.json) covers every supernatural and mythical race. Reruns reconcile the exact stock Monster names while preserving their IDs and custom clones. Existing Animal/Wildlife definitions and attachments are unchanged; gear, capabilities and powers are configured separately.
+
 The angelic catalogue follows Maimonides' ten ranks: Chayot HaKodesh, Ophanim, Erelim, Hashmallim, Seraphim, Malakhim, Elohim, Bene Elohim, Cherubim, and Ishim. The demon catalogue mirrors those fallen ranks and adds common stock demons such as incubus, succubus, fury, imp, familiar, fiend, and hellhound.
 
 ## Mechanics Seeded

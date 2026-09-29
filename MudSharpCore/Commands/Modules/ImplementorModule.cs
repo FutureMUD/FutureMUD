@@ -401,6 +401,7 @@ The syntax is:
 	#3unfreezetime#0 - resumes all in game clocks
 	#3flush#0 - flushes queued saves to the database (useful before persistence checks)
 	#3wildlife [here|<npc id>] [prey id]#0 - reports live AnimalAI state and an optional prey assessment
+	#3monster [here|<npc id>] [target id]#0 - reports Monster AI motives, activity, pursuit and combat setup
 	#3wildlife hungry <npc id>#0 - makes a loaded wildlife NPC hungry for deterministic feeding and pack-hunt tests
 	#3wildlife group <group id>#0 - reports a wildlife group's activity, candidate and threat-filter state
 	#3cleartraps#0 - permanently deletes every installed trap and cancels its delayed payloads after confirmation
@@ -439,6 +440,9 @@ The syntax is:
                 return;
 			case "wildlife":
 				DebugWildlife(actor, ss);
+				return;
+			case "monster":
+				DebugMonster(actor, ss);
 				return;
             case "payroll":
             case "employmentpayroll":
@@ -1161,6 +1165,29 @@ The syntax is:
 
         actor.OutputHandler.Send("The valid values are #3hour#0, #3minute#0, #3second#0, #35second#0, #310second#0, and #330second#0.".SubstituteANSIColour());
     }
+
+	private static void DebugMonster(ICharacter actor, StringStack ss)
+	{
+		IEnumerable<INPC> npcs;
+		if (ss.IsFinished || ss.PeekSpeech().EqualTo("here"))
+		{
+			if (!ss.IsFinished) ss.PopSpeech();
+			npcs = actor.Location.Characters.OfType<INPC>();
+		}
+		else if (long.TryParse(ss.PopSpeech(), out var id)) npcs = actor.Gameworld.NPCs.OfType<INPC>().Where(x => x.Id == id);
+		else { actor.OutputHandler.Send("Use impdebug monster [here|<npc id>] [target id]."); return; }
+		ICharacter target = null;
+		if (!ss.IsFinished)
+		{
+			if (!long.TryParse(ss.PopSpeech(), out var targetId) || !ss.IsFinished ||
+			    (target = actor.Gameworld.Characters.Concat(actor.Gameworld.NPCs).FirstOrDefault(x => x.Id == targetId)) is null)
+			{ actor.OutputHandler.Send("Specify the ID of one loaded character to assess."); return; }
+		}
+		var reports = npcs.SelectMany(npc => npc.AIs.OfType<MonsterAI>().Select(ai =>
+			$"#{npc.Id.ToString("N0", actor)}:{npc.InstanceId.ToString("N0", actor)} - {npc.HowSeen(actor)}\n{ai.DebugSummary(npc, target ?? npc.CombatTarget as ICharacter, actor)}")).ToList();
+		actor.OutputHandler.Send(reports.Count == 0 ? "There are no loaded NPCs with Monster AI in that scope." :
+			"Monster Runtime Diagnostics\n\n" + string.Join("\n", reports));
+	}
 
 	private static void DebugWildlife(ICharacter actor, StringStack ss)
 	{

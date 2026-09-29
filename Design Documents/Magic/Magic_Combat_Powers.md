@@ -6,6 +6,8 @@
 
 Invoke the configured verb through the power's school command. Manual attacks queue a selected combat action; strategies also select eligible powers through their magic and psychic attack channels. The move rechecks access, resources, stamina, target visibility, movement restrictions and range before committing. Invalidated queued attacks cost nothing. A committed attack pays once, including when it misses or is resisted.
 
+Use `combat config magic <percentage>` and `combat config psychic <percentage>` to configure the two automatic selection channels. The balance display includes both channels; changing a weight rebalances other non-fixed channels for totals above or below 100%. These settings do not grant powers or resources. Monster AI uses this same selection path with separately authored capabilities and loadouts.
+
 Ranged magic uses the natural ranged targeting contract, including sight, cover, room layers, RouteCell distance and vehicle boundaries. It needs neither ammunition nor a natural weapon. Psychic connections do not extend this range. Pull only establishes melee contact with a colocated opponent; it never transports characters between cells.
 
 An attack must hit before any control effect is attempted. Each effect then independently opposes the casting trait with the existing defender check. Resolution order is clinch breaking, disarm, stagger, knockdown, then movement. Applicability is rechecked between effects. Pull and pushback cannot coexist on one power.

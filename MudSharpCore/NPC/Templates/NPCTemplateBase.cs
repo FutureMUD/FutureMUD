@@ -437,6 +437,11 @@ public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate, IEdi
                 return true;
             }
 
+			if (MudSharp.NPC.AI.MonsterAI.AttachmentError(ArtificialIntelligences, ai) is { } conflict)
+			{
+				actor.OutputHandler.Send(conflict);
+				return false;
+			}
             ArtificialIntelligences.Add(ai);
         }
         else

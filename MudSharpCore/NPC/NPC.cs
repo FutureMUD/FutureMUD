@@ -328,6 +328,7 @@ public class NPC : Character.Character, INPC
     public void RemoveAI(IArtificialIntelligence ai)
     {
         ReleaseEventSubscriptions();
+		if (ai is MonsterAI monster) monster.Detach(this);
         _AIs.Remove(ai);
         RefreshLoadedNpcSecondaryInstances();
         AIChanged = true;

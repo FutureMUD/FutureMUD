@@ -115,6 +115,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         IReadOnlyDictionary<string, string> effectiveAnswers =
             CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
         LoadSharedSeederData(effectiveAnswers);
+		MonsterAIStockTemplates.Seed(_context, "Mythical");
         bool hasMissingDisfigurementTemplates = HasMissingMythicalDisfigurementTemplates(_context);
         bool hasMissingAnimalAiTemplates = HasMissingMythicalAnimalAIStockTemplates(_context);
         bool hasMissingDietSettings = HasMissingMythicalDietSettings(_context);
@@ -215,6 +216,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
                    HasMythicalSatiationLimitUpdates(context) ||
                    HasMissingMythicalAnimalAIStockTemplates(context) ||
                    HasMissingMythicalDietSettings(context) ||
+				   MonsterAIStockTemplates.HasMissing(context, "Mythical") ||
 			       NPCSkillPackageSeederHelper.HasMissingStockRacePackages(context, StockSkillPackageRaces())
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;

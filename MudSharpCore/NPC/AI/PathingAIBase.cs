@@ -707,7 +707,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
         return x =>
         {
-            if (ch.CanCross(x).Success && ch.CanMove(x))
+            if (ch.CanCross(x).Success && ch.CanMoveForPathPlanning(x))
             {
                 return true;
             }

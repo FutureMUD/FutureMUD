@@ -12,6 +12,7 @@ using MudSharp.Commands.Trees;
 using MudSharp.Communication.Language;
 using MudSharp.Community;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Editor;
@@ -227,6 +228,13 @@ namespace MudSharp.Character
 
     public interface ICharacterMover : IMove
     {
+		/// <summary>
+		/// Estimates traversal of a prospective path edge using the character's current body and movement state,
+		/// without requiring the edge's origin to be the character's present cell. This does not authorise movement;
+		/// every executed step must still pass ordinary CanMove and CanCross checks at its actual origin.
+		/// </summary>
+		CanMoveResponse CanMoveForPathPlanning(ICellExit exit, CanMoveFlags flags = CanMoveFlags.None);
+
         bool CanMovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable target,
             bool ignorePositionTargetChangeRestrictions = false, bool ignoreMovement = false);
         string WhyCannotMovePosition(IPositionState whichPosition, PositionModifier whichModifier,

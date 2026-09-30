@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -35,13 +37,25 @@ public class RunnerTests
 			Command("git", "add", ".");
 			Command("git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture");
 		}
-		private void Command(string file, params string[] args)
+		private void Command(string file, params string[] args) => Output(file, args);
+		public string Output(string file, params string[] args)
 		{
-			var info = new ProcessStartInfo(file) { WorkingDirectory = PathValue, UseShellExecute = false, RedirectStandardError = true };
+			var info = new ProcessStartInfo(file) { WorkingDirectory = PathValue, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
 			foreach (var arg in args) info.ArgumentList.Add(arg);
 			using var process = Process.Start(info)!;
-			process.WaitForExit();
-			if (process.ExitCode != 0) throw new InvalidOperationException(process.StandardError.ReadToEnd());
+			var stdout = Task.Factory.StartNew(() => process.StandardOutput.ReadToEnd(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+			var stderr = Task.Factory.StartNew(() => process.StandardError.ReadToEnd(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+			try
+			{
+				Assert.IsTrue(process.WaitForExit(15000), "Fixture command timed out.");
+				Assert.IsTrue(Task.WaitAll([stdout, stderr], 5000), "Fixture output incomplete.");
+				if (process.ExitCode != 0) throw new InvalidOperationException(stderr.Result);
+				return stdout.Result;
+			}
+			finally
+			{
+				if (!process.HasExited) { process.Kill(entireProcessTree: true); Assert.IsTrue(process.WaitForExit(5000)); }
+			}
 		}
 		public void Dispose()
 		{
@@ -54,18 +68,35 @@ public class RunnerTests
 	private static async Task<(int Exit, string Output, JsonDocument Json)> Run(Repo repo, string scenario, params string[] extra)
 	{
 		var start = new ProcessStartInfo("dotnet") { WorkingDirectory = repo.PathValue, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
-		var timeout = scenario == "timeout" ? "3" : "30";
+		var timeout = scenario == "timeout" ? "3" : scenario.Contains("hang", StringComparison.Ordinal) ? "5" : "30";
 		foreach (var arg in new[] { Reporter, "--repo", repo.PathValue, "--suite", "fast", "--project", "Sample Tests/Sample Tests.csproj", "--output-mode", "json", "--timeout-seconds", timeout }.Concat(extra)) start.ArgumentList.Add(arg);
 		start.Environment["FUTUREMUD_TEST_DOTNET"] = scenario == "missing-sdk" ? Path.Combine(repo.PathValue, "no-such-dotnet") : Fake;
-		start.Environment["FM_FAKE_SCENARIO"] = scenario;
+		start.Environment["FM_FAKE_SCENARIO"] = scenario.StartsWith("git-", StringComparison.Ordinal) ? scenario == "git-end-hang-fail" ? "fail" : "pass" : scenario;
+		if (scenario.StartsWith("git-", StringComparison.Ordinal))
+		{
+			var control = Path.Combine(repo.PathValue, ".artifacts", "git-control");
+			Directory.CreateDirectory(control);
+			start.Environment["FUTUREMUD_TEST_GIT"] = scenario == "git-missing" ? Path.Combine(control, "no-such-git") : GitProcessTests.Fake;
+			start.Environment["FM_FAKE_GIT_SCENARIO"] = scenario[4..];
+			start.Environment["FM_FAKE_GIT_CONTROL"] = control;
+			start.Environment["FM_FAKE_DOTNET_ACTIVITY"] = Path.Combine(control, "dotnet-activity");
+		}
 		start.Environment["FM_FAKE_TRX"] = Fixture;
 		start.Environment["DOTNET_PROCESSOR_COUNT"] = "2";
 		using var process = Process.Start(start)!;
+		var stdout = Task.Factory.StartNew(() => process.StandardOutput.ReadToEnd(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+		var stderr = Task.Factory.StartNew(() => process.StandardError.ReadToEnd(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 		using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(60));
-		try { await process.WaitForExitAsync(deadline.Token); }
-		catch (OperationCanceledException) { process.Kill(entireProcessTree: true); throw new AssertFailedException("Reporter hung."); }
-		var output = await process.StandardOutput.ReadToEndAsync();
-		var error = await process.StandardError.ReadToEndAsync();
+		try { await process.WaitForExitAsync(deadline.Token); await Task.WhenAll(stdout, stderr).WaitAsync(TimeSpan.FromSeconds(5)); }
+		catch (OperationCanceledException)
+		{
+			if (!process.HasExited) process.Kill(entireProcessTree: true);
+			await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(5));
+			await Task.WhenAll(stdout, stderr).WaitAsync(TimeSpan.FromSeconds(5));
+			throw new AssertFailedException("Reporter hung. " + stdout.Result + stderr.Result);
+		}
+		var output = stdout.Result;
+		var error = stderr.Result;
 		Assert.IsTrue(System.Text.Encoding.UTF8.GetByteCount(output + error) <= 8192, "Receipt exceeded 8 KiB.");
 		Assert.IsTrue(string.IsNullOrEmpty(error), error);
 		return (process.ExitCode, output, JsonDocument.Parse(output));
@@ -249,5 +280,85 @@ public class RunnerTests
 			Assert.IsTrue(result.Json.RootElement.GetProperty("source_stable").GetBoolean());
 			StringAssert.StartsWith(result.Json.RootElement.GetProperty("artifacts").GetProperty("summary").GetString()!, root);
 		}
+	}
+
+	[DataTestMethod]
+	[DataRow("git-missing", 2, "BLOCKED", "PREREQUISITE_UNAVAILABLE")]
+	[DataRow("git-failure", 3, "INCONCLUSIVE", "REPORTING_ERROR")]
+	[DataRow("git-initial-hang", 3, "INCONCLUSIVE", "TIMEOUT")]
+	[DataRow("git-end-hang", 3, "INCONCLUSIVE", "TIMEOUT")]
+	[DataRow("git-end-hang-fail", 1, "FAIL", "TIMEOUT")]
+	public async Task InvalidGitEvidenceCannotBecomePassingVerification(string scenario, int exit, string status, string issue)
+	{
+		using var repo = new Repo();
+		var elapsed = Stopwatch.StartNew();
+		var result = await Run(repo, scenario);
+		using (result.Json)
+		{
+			Assert.AreEqual(exit, result.Exit, result.Output);
+			var receipt = result.Json.RootElement;
+			Assert.AreEqual(status, receipt.GetProperty("status").GetString());
+			Assert.AreEqual(JsonValueKind.Null, receipt.GetProperty("source_stable").ValueKind);
+			Assert.AreEqual(JsonValueKind.Null, receipt.GetProperty("source_end").ValueKind);
+			Assert.IsTrue(receipt.GetProperty("issues").EnumerateArray().Any(x => x.GetProperty("kind").GetString() == issue), result.Output);
+			var control = Path.Combine(repo.PathValue, ".artifacts", "git-control");
+			if (scenario.Contains("end-hang", StringComparison.Ordinal))
+			{
+				Assert.IsTrue(receipt.GetProperty("counts").GetProperty(scenario.EndsWith("fail", StringComparison.Ordinal) ? "failed" : "passed").GetInt32() > 0);
+				Assert.IsTrue(receipt.GetProperty("issues").EnumerateArray().Any(x => x.GetProperty("kind").GetString() == "SOURCE_CHANGED"));
+				Assert.AreEqual(2, File.ReadAllLines(Path.Combine(control, "invocations")).Count(x => x == "diff --binary HEAD --"));
+			}
+			else
+			{
+				Assert.AreEqual("", receipt.GetProperty("source_start").GetString());
+				Assert.IsFalse(File.Exists(Path.Combine(control, "dotnet-activity")), "Build/test/SDK started without source evidence.");
+				if (File.Exists(Path.Combine(control, "invocations")))
+					Assert.AreEqual(scenario == "git-initial-hang" ? 3 : 1, File.ReadAllLines(Path.Combine(control, "invocations")).Length, "Repeated failed source capture.");
+			}
+			if (scenario.Contains("hang", StringComparison.Ordinal)) GitProcessTests.AssertExited(int.Parse(File.ReadAllText(Path.Combine(control, "pid"))));
+			using var ownership = new FileStream(Path.Combine(repo.PathValue, ".artifacts", "test-runs", ".worktree.lock"), FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+			Assert.IsTrue(elapsed.Elapsed < TimeSpan.FromSeconds(30), elapsed.Elapsed.ToString());
+		}
+	}
+
+	[TestMethod]
+	public async Task SuccessfulGitWarningsDoNotChangeStableFingerprint()
+	{
+		using var repo = new Repo();
+		var result = await Run(repo, "git-warnings");
+		using (result.Json)
+		{
+			Assert.AreEqual(0, result.Exit, result.Output);
+			Assert.IsTrue(result.Json.RootElement.GetProperty("source_stable").GetBoolean());
+			Assert.AreEqual(result.Json.RootElement.GetProperty("source_start").GetString(), result.Json.RootElement.GetProperty("source_end").GetString());
+		}
+	}
+
+	[TestMethod]
+	public async Task RealGitFingerprintRetainsPreFixHashInputs()
+	{
+		using var repo = new Repo();
+		File.AppendAllText(Path.Combine(repo.PathValue, "input.txt"), "\ntracked edit\n");
+		File.WriteAllText(Path.Combine(repo.PathValue, "untracked file with spaces.txt"), "untracked\0content\n");
+		File.WriteAllText(Path.Combine(repo.PathValue, "untracked.txt"), "second file");
+		var root = Path.Combine(repo.PathValue, "reports");
+		Directory.CreateDirectory(root);
+		File.WriteAllText(Path.Combine(root, "excluded.json"), "excluded");
+		using var expected = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+		void Add(string value) => expected.AppendData(Encoding.UTF8.GetBytes(value));
+		Add(repo.Output("git", "rev-parse", "HEAD"));
+		Add(repo.Output("git", "diff", "--binary", "HEAD", "--"));
+		foreach (var relative in repo.Output("git", "ls-files", "--others", "--exclude-standard", "-z").Split('\0', StringSplitOptions.RemoveEmptyEntries).Order(StringComparer.Ordinal))
+		{
+			var full = Path.GetFullPath(relative, repo.PathValue);
+			if (relative.StartsWith(".artifacts/", StringComparison.OrdinalIgnoreCase) || full.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) continue;
+			Add(relative);
+			expected.AppendData(SHA256.HashData(File.ReadAllBytes(full)));
+		}
+		const string project = "Sample Tests/Sample Tests.csproj";
+		Add(Path.GetRelativePath(repo.PathValue, Path.Combine(repo.PathValue, project)));
+		expected.AppendData(SHA256.HashData(File.ReadAllBytes(Path.Combine(repo.PathValue, project))));
+		Assert.AreEqual(Convert.ToHexString(expected.GetHashAndReset()).ToLowerInvariant(),
+			await Program.Fingerprint(repo.PathValue, [project], root, CancellationToken.None));
 	}
 }

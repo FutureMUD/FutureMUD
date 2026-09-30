@@ -147,8 +147,8 @@ internal static class Program
 			{
 				try
 				{
-					summary.Head = (await Git(repo, "rev-parse", "HEAD")).Trim();
-						summary.SourceStart = await Fingerprint(repo, projects, root);
+					summary.Head = (await Git(repo, deadline.Token, "rev-parse", "HEAD")).Trim();
+						summary.SourceStart = await Fingerprint(repo, projects, root, deadline.Token);
 					WriteJson(Path.Combine(dir, "source-start.json"), new { summary.Head, fingerprint = summary.SourceStart, utc = DateTimeOffset.UtcNow });
 					var dotnet = Environment.GetEnvironmentVariable("FUTUREMUD_TEST_DOTNET") ?? "dotnet";
 						summary.Sdk = (await RunVersion(dotnet, repo, dir, deadline.Token)).Trim();
@@ -193,14 +193,21 @@ internal static class Program
 					{
 						summary.Issues.Add(new Issue { Kind = ex is PrerequisiteException ? "PREREQUISITE_UNAVAILABLE" : ex is OperationCanceledException ? "TIMEOUT" : "REPORTING_ERROR", Detail = Clean(ex.Message, 300) });
 				}
-				try
+				if (!string.IsNullOrEmpty(summary.SourceStart)) try
 				{
-						summary.SourceEnd = await Fingerprint(repo, projects, root);
+						// Do not launch another child once the run deadline has expired.
+						deadline.Token.ThrowIfCancellationRequested();
+						summary.SourceEnd = await Fingerprint(repo, projects, root, deadline.Token);
 					summary.SourceStable = summary.SourceStart == summary.SourceEnd;
 					WriteJson(Path.Combine(dir, "source-end.json"), new { fingerprint = summary.SourceEnd, utc = DateTimeOffset.UtcNow });
 					if (summary.SourceStable != true) summary.Issues.Add(new Issue { Kind = "SOURCE_CHANGED" });
 				}
-				catch (Exception ex) { summary.Issues.Add(new Issue { Kind = "SOURCE_CHANGED", Detail = Clean(ex.Message, 300) }); }
+				catch (Exception ex)
+				{
+					summary.Issues.Add(new Issue { Kind = "SOURCE_CHANGED", Detail = Clean(ex.Message, 300) });
+					var kind = ex is OperationCanceledException ? "TIMEOUT" : ex is PrerequisiteException ? "PREREQUISITE_UNAVAILABLE" : "REPORTING_ERROR";
+					if (!summary.Issues.Any(x => x.Kind == kind)) summary.Issues.Add(new Issue { Kind = kind, Detail = Clean(ex.Message, 300) });
+				}
 			}
 		}
 		summary.EndedUtc = DateTimeOffset.UtcNow.ToString("O");
@@ -332,7 +339,7 @@ internal static class Program
 
 	private static string SafeKey(string value) => Regex.Replace(Path.GetFileNameWithoutExtension(value), "[^A-Za-z0-9_.-]", "_") + "-" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value)))[..8].ToLowerInvariant();
 	private static void WriteJson(string path, object value) => File.WriteAllText(path, JsonSerializer.Serialize(value, JsonOptions));
-	private static string Clean(string? value, int limit)
+	internal static string Clean(string? value, int limit)
 	{
 		var clean = Secrets.Replace(Control.Replace(value ?? "", " "), "$1=[redacted]");
 		return clean.Length <= limit ? clean : clean[..limit] + "…";
@@ -494,48 +501,45 @@ internal static class Program
 		return ReadPrefix(phase.Stdout, 100).Trim();
 	}
 
-	private static async Task<string> Git(string repo, params string[] arguments)
-	{
-		var start = new ProcessStartInfo("git") { WorkingDirectory = repo, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
-		foreach (var argument in arguments) start.ArgumentList.Add(argument);
-		using var process = Process.Start(start)!;
-		var output = await process.StandardOutput.ReadToEndAsync();
-		var error = await process.StandardError.ReadToEndAsync();
-		await process.WaitForExitAsync();
-		if (process.ExitCode != 0) throw new InvalidOperationException("git failed: " + Clean(error, 200));
-		return output;
-	}
+	private static Task<string> Git(string repo, CancellationToken cancellation, params string[] arguments) =>
+		GitProcess.Read(repo, arguments, cancellation, Environment.GetEnvironmentVariable("FUTUREMUD_TEST_GIT") ?? "git");
 
-	private static async Task<string> Fingerprint(string repo, IEnumerable<string> projects, string resultsRoot)
+	internal static async Task<string> Fingerprint(string repo, IEnumerable<string> projects, string resultsRoot, CancellationToken cancellation)
 	{
+		cancellation.ThrowIfCancellationRequested();
 		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 		void Add(string value) => hash.AppendData(Encoding.UTF8.GetBytes(value));
-		Add(await Git(repo, "rev-parse", "HEAD"));
-		Add(await Git(repo, "diff", "--binary", "HEAD", "--"));
-		foreach (var relative in (await Git(repo, "ls-files", "--others", "--exclude-standard", "-z")).Split('\0', StringSplitOptions.RemoveEmptyEntries).Order(StringComparer.Ordinal))
+		Add(await Git(repo, cancellation, "rev-parse", "HEAD"));
+		Add(await Git(repo, cancellation, "diff", "--binary", "HEAD", "--"));
+		foreach (var relative in (await Git(repo, cancellation, "ls-files", "--others", "--exclude-standard", "-z")).Split('\0', StringSplitOptions.RemoveEmptyEntries).Order(StringComparer.Ordinal))
 		{
+			cancellation.ThrowIfCancellationRequested();
 			if (relative.StartsWith(".artifacts/", StringComparison.OrdinalIgnoreCase)) continue;
 			var full = Path.GetFullPath(relative, repo);
 			if (full.StartsWith(resultsRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) continue;
 			if (!File.Exists(full)) continue;
 			Add(relative);
 			await using var file = File.OpenRead(full);
-			var digest = await SHA256.HashDataAsync(file);
+			var digest = await SHA256.HashDataAsync(file, cancellation);
 			hash.AppendData(digest);
 		}
 		foreach (var project in projects.Order(StringComparer.Ordinal))
 		{
+			cancellation.ThrowIfCancellationRequested();
 			var projectDirectory = Path.GetDirectoryName(Path.Combine(repo, project))!;
 			foreach (var path in Directory.EnumerateFiles(projectDirectory, "*", SearchOption.AllDirectories)
+				.Select(path => { cancellation.ThrowIfCancellationRequested(); return path; })
 				.Where(path => !Path.GetRelativePath(projectDirectory, path).Split(Path.DirectorySeparatorChar).Any(part => part is "bin" or "obj" or "TestResults" or "results"))
 				.Where(path => Path.GetExtension(path).ToLowerInvariant() is ".cs" or ".csproj" or ".json" or ".runsettings" or ".props" or ".targets" or ".config")
 				.Order(StringComparer.Ordinal))
 			{
+				cancellation.ThrowIfCancellationRequested();
 				Add(Path.GetRelativePath(repo, path));
 				await using var input = File.OpenRead(path);
-				hash.AppendData(await SHA256.HashDataAsync(input));
+				hash.AppendData(await SHA256.HashDataAsync(input, cancellation));
 			}
 		}
+		cancellation.ThrowIfCancellationRequested();
 		return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
 	}
 

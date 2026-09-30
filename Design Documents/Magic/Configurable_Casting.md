@@ -113,7 +113,12 @@ They use the prerequisite spell's trait binding in that route. Only explicit enr
 with a currently applicable permanent capability merit enables automatic prerequisite
 acquisition. Temporary capability attachment alone grants no roots or branches. Trait
 changes and acquired-grade changes notify a bounded reverse index, rather than polling
-all characters. Cloning a capability generates new policy/admission/edge identities and
+all characters. Newly acquired prerequisites are followed through that affected cascade
+in the same evaluation, independent of admission or queue order. Every edge must still
+meet its minimum controlled grade and route-bound raw proficiency, and quarantined
+prerequisites or grant inputs remain blocked. Only successful new acquisitions schedule
+downstream work; blocked candidates stop when no further grant can make them eligible.
+Cloning a capability generates new policy/admission/edge identities and
 keeps shared spell references. It does not clone player progress or enrolment.
 
 Validation rejects missing traits/resources/spells, non-character skills, duplicate

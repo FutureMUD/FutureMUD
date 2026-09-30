@@ -125,10 +125,10 @@ public sealed partial class MagicCastingService
 		{
 		var bodies = ProgressBodies(actor).ToArray();
 		var queue = new Queue<(long Capability, long Spell)>(affected);
-		HashSet<(long Capability, long Spell)> evaluated = [];
+		// Unmet prerequisites are provisional: a later grant may enqueue this admission again.
+		// Only new acquisitions schedule downstream edges, so the affected cascade remains bounded.
 		while (queue.TryDequeue(out var entry))
 		{
-			if (!evaluated.Add(entry)) continue;
 			if (_world.MagicCapabilities.Get(entry.Capability) is not IMagicCastingCapability c || c.CastingPolicy is not { Enabled: true } p ||
 				_store.Enrolment(owner.Id, p.Identity) is null) continue;
 			// Temporary effect attachment alone must never auto-acquire. Explicit enrolment plus permanent merit is required.

@@ -2,6 +2,8 @@ using System.Xml.Linq;
 
 var operation = args.FirstOrDefault();
 var scenario = Environment.GetEnvironmentVariable("FM_FAKE_SCENARIO") ?? "pass";
+var activity = Environment.GetEnvironmentVariable("FM_FAKE_DOTNET_ACTIVITY");
+if (activity is not null) File.AppendAllText(activity, operation + "\n");
 if (operation == "--version") { Console.WriteLine("10.0.401-fake"); return 0; }
 if (operation == "build")
 {

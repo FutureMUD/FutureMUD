@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase1C implemented and verified; parent independent exact-commit review pending before phase2 invocation adapters",
+  "selected_stage": "Phase1C compound capacity P2 repair verified; parent independent exact-commit re-review pending before phase2",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -134,7 +134,8 @@
       "status": "engine_implemented_and_verified_stock_mapping_and_full_balance_qualification_pending",
       "evidence": [
         "Armageddon_Stage1A_Verification.json: source efficiency",
-        "Armageddon_Stage1C_Verification.json: explicit native attribute capacity/invalidation and provisional16728-row energy matrix"
+        "Armageddon_Stage1C_Verification.json: explicit native attribute capacity/invalidation and provisional16728-row energy matrix",
+        "Armageddon_Stage1C_Compound_Verification.json: both-order compound application/removal and mixed legitimate resource accounting verified without refills"
       ]
     },
     {
@@ -275,7 +276,8 @@
       "required_result": "No free refill/duplicated reserve; correct method restrictions and environmental accounting; no Sorcerer passive leakage",
       "status": "partial_capacity_controlled_native_fixture_gathering_and_full_body_commands_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: native raw/effective invalidation, no refill, canonical focus ownership, owner-body fixture replacement and independent raw/effective reload passed; actual form/backup/login commands, stock gathering/environment and mapping NOT_RUN"
+        "Armageddon_Stage1C_Verification.json: native raw/effective invalidation, no refill, canonical focus ownership, owner-body fixture replacement and independent raw/effective reload passed; actual form/backup/login commands, stock gathering/environment and mapping NOT_RUN",
+        "Armageddon_Stage1C_Compound_Verification.json: real opposing compound boosts and 30 mixed native resource deltas pass both orders, genuine final caps, paid normal and prepared target/caster paths; full gathering/login/form commands remain NOT_RUN"
       ]
     },
     {
@@ -2072,7 +2074,8 @@
       "status": "failed_before_repair_passed_in_final_suites",
       "run_id": "20261002T110316Z-6c0abfd29874",
       "failed_before": 8,
-      "receipt": "Armageddon_Stage1C_Verification.json"
+      "receipt": "Armageddon_Stage1C_Verification.json",
+      "evidence_role": "historical_original_stage1C_parent_verified_before_compound_P2_repair"
     },
     {
       "name": "Stage1C historical build/focused/full failures",
@@ -2082,7 +2085,8 @@
         "20261002T112616Z-cd30135cdb65",
         "20261002T114738Z-01e01ca611ab"
       ],
-      "receipt": "Armageddon_Stage1C_Verification.json"
+      "receipt": "Armageddon_Stage1C_Verification.json",
+      "evidence_role": "historical_original_stage1C_parent_verified_before_compound_P2_repair"
     },
     {
       "name": "Stage1C final focused suite",
@@ -2092,7 +2096,8 @@
       "failed": 0,
       "skipped": 0,
       "source_fingerprint": "da91e1dfe5cb4d9f9a7a69ef47ee553eb2c68856cb29618d4e0ca82709683c59",
-      "receipt": "Armageddon_Stage1C_Verification.json"
+      "receipt": "Armageddon_Stage1C_Verification.json",
+      "evidence_role": "historical_original_stage1C_parent_verified_before_compound_P2_repair"
     },
     {
       "name": "Stage1C final full core/shared-library suites",
@@ -2102,18 +2107,64 @@
       "failed": 0,
       "skipped": 0,
       "source_fingerprint": "e59e12c9b9a25d00914efd7699d7e364f6f0e765e48836e4d9077f4b37d0aa1e",
-      "receipt": "Armageddon_Stage1C_Verification.json"
+      "receipt": "Armageddon_Stage1C_Verification.json",
+      "evidence_role": "historical_original_stage1C_parent_verified_before_compound_P2_repair"
     },
     {
       "name": "Stage1C controlled native acceptance, independent raw/effective reload and16728-row energy matrix",
       "status": "passed",
       "cleanup": "passed_4_owned_databases_and_temporary_mysql",
-      "receipt": "Armageddon_Stage1C_Verification.json"
+      "receipt": "Armageddon_Stage1C_Verification.json",
+      "evidence_role": "historical_original_stage1C_parent_verified_before_compound_P2_repair"
     },
     {
       "name": "Stage1C bounded independent re-review",
       "status": "no_remaining_actionable_findings_parent_exact_commit_review_pending",
-      "receipt": "Armageddon_Stage1C_Verification.json"
+      "receipt": "Armageddon_Stage1C_Verification.json",
+      "evidence_role": "historical_original_stage1C_parent_verified_before_compound_P2_repair"
+    },
+    {
+      "name": "Stage1C parent compound P2 failing-before regressions",
+      "status": "reproduced_repaired_final_suites_passed",
+      "run_id": "20261002T125851Z-eccaa257aab8",
+      "receipt": "Armageddon_Stage1C_Compound_Verification.json"
+    },
+    {
+      "name": "Stage1C mixed accounting failing-before regressions",
+      "status": "17_passed_14_failed_before_repair_final_suites_passed",
+      "run_id": "20261002T133046Z-752f1aef5df5",
+      "receipt": "Armageddon_Stage1C_Compound_Verification.json"
+    },
+    {
+      "name": "Stage1C compound repair final focused suite",
+      "status": "passed",
+      "run_id": "20261002T133403Z-3fc48b632162",
+      "passed": 222,
+      "failed": 0,
+      "skipped": 0,
+      "source_fingerprint": "01806504f075e332027a06ab36365d4c0f29002dd53b792c3d55fcb9f8a44a10",
+      "receipt": "Armageddon_Stage1C_Compound_Verification.json"
+    },
+    {
+      "name": "Stage1C compound repair final core/shared-library suites",
+      "status": "passed",
+      "run_id": "20261002T133603Z-86e8d8dd46ed",
+      "passed": 4773,
+      "failed": 0,
+      "skipped": 0,
+      "source_fingerprint": "e711588ddf081fbed63abf58fbcf17a97cdac4d808ef576f06636feb25955837",
+      "receipt": "Armageddon_Stage1C_Compound_Verification.json"
+    },
+    {
+      "name": "Stage1C compound/mixed native acceptance and prior capacity matrix",
+      "status": "passed",
+      "cleanup": "passed_4_owned_databases_and_temporary_mysql",
+      "receipt": "Armageddon_Stage1C_Compound_Verification.json"
+    },
+    {
+      "name": "Stage1C compound repair bounded independent re-review",
+      "status": "no_further_established_defect_parent_exact_commit_re_review_pending",
+      "receipt": "Armageddon_Stage1C_Compound_Verification.json"
     }
   ],
   "implementation_commits": [
@@ -2148,13 +2199,21 @@
     {
       "sha": "2972922b7212934b4bfd46cea39c14fab6e46924",
       "subject": "Add attribute-led casting capacity and affordability qualification"
+    },
+    {
+      "sha": "1ab739f6e7f1bce5f93f8c8a68c2c91c927ea9c1",
+      "subject": "Record Armageddon stage1C verification and review handoff"
+    },
+    {
+      "sha": "cb4db29ba2f57687b9e24c17141dedea0f8df4ac",
+      "subject": "Reconcile casting capacity after complete compound spell mutations"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_stage1C_independent_review",
-    "base": "43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39",
-    "implementation_head": "2972922b7212934b4bfd46cea39c14fab6e46924",
-    "receipt": "Armageddon_Stage1C_Verification.json",
+    "status": "awaiting_parent_stage1C_compound_fix_independent_re_review",
+    "base": "1ab739f6e7f1bce5f93f8c8a68c2c91c927ea9c1",
+    "implementation_head": "cb4db29ba2f57687b9e24c17141dedea0f8df4ac",
+    "receipt": "Armageddon_Stage1C_Compound_Verification.json",
     "next_stage_after_review": "Phase2 invocation adapters: target-free practice, genuine speech/formula parity, quiet and per-spell area policy",
     "no_later_stage_started": true
   },

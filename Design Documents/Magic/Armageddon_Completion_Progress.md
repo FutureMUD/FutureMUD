@@ -167,8 +167,9 @@ charm consultation is indexed in the ledger for phase3 and does not expand this 
 
 Review base: `43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39`.
 Implementation head: `2972922b7212934b4bfd46cea39c14fab6e46924`.
-The implementation changes 41 files. Parent independent exact-commit review remains
-pending; phase2 and later implementation have not begun.
+The implementation changes 41 files. Parent independently verified the original
+receipts, then identified the compound capacity P2 repaired below. This original checkpoint
+is historical; the repair awaits exact-commit re-review before phase2.
 
 Simple resources now optionally bind an explicit native body attribute and named trait
 expression with raw/effective basis. Builders, versioned XML and cloning preserve the
@@ -229,3 +230,43 @@ The next boundary after parent review is phase2 invocation adapters: target-free
 genuine speech/formula parity, quiet and per-spell area policies. The whole-plan ledger
 still retains 16 decisions, seven phases, 154 candidates and 25 exact native cases. No
 publication, merge, deployment or shared/production database operation occurred.
+
+## Stage 1C compound-capacity parent review repair
+
+Review base: `1ab739f6e7f1bce5f93f8c8a68c2c91c927ea9c1`. Fix commit: `cb4db29ba2f57687b9e24c17141dedea0f8df4ac`.
+Original stage1C receipts remain unchanged and historical. Parent review showed opposing
++5/-5 children could discard energy at an intermediate cap during application/removal.
+Complete application, expiration and aggregate removals now share the existing nested
+canonical-owner scope. Exceptions release scopes and the parent guard, then reconcile
+actual remaining effects without rollback or refunds. Completed increases never refill.
+
+Bounded review found a second manifestation: a legitimate resource delta between opposing
+boosts still clipped at the temporary maximum. Live configured-reserve arithmetic now
+uses actual funds and defers upper-cap clamping to completion, retaining finite/live-cap
+validation, zero floor and incomplete-restoration refusal. Other resources keep immediate
+caps. Both-order +7 credits retain 97, genuine final cap 70 clamps to 70, +50 under final
+cap 150 retains 140, and direct debits use actual funds without temporary clipping.
+
+The initial compound check executed 21 cases: 2 passed/19 failed. Four normal-cast failures
+were a missing fixture capability and were corrected without weakening route guards.
+The reconciliation-only candidate passed 191 cases, then mixed accounting regressions
+reproduced 14 failures out of 31. Final focused run `20261002T133403Z-3fc48b632162` passed
+**222**; aggregate run `20261002T133603Z-86e8d8dd46ed` passed **4,224 core + 549 library = 4,773**,
+zero failures/skips. Aggregate stable fingerprint: `e711588ddf081fbed63abf58fbcf17a97cdac4d808ef576f06636feb25955837`.
+The 61 new rows include both orders, neutral/final-decrease states, nesting, exceptions,
+idempotent disposal, all aggregate-removal overloads and mixed credit/debit accounting.
+
+Disposable native acceptance passed all prior baseline/capacity/reload scenarios plus
+12 compound applications, 14 complete removals and 30 mixed real native resource-delta
+cases. Normal non-admin command cases pay 25; prepared target/caster paths preserve
+legitimate credits/debits. A standalone resource effect credits 17 to 24. The unchanged
+82-spell affordability matrix retains 16,728 rows. Four owned databases and the owned
+temporary MySQL instance were cleaned up; an authorized read-only process check found
+zero remaining owned processes. All 53 frozen native inputs match after verification;
+unit/native core and library assembly hashes match. Bounded re-review established no
+further defect. See [Armageddon_Stage1C_Compound_Verification.json](Armageddon_Stage1C_Compound_Verification.json) for actual receipts, failures and hashes.
+
+Whole-plan status remains partial. Full login/form/backup commands, installed-world
+Telnet, stock gathering/crafting/installer/PRACTICE and complete balance qualification
+remain unverified. Parent independently re-reviews this fix/handoff before phase2;
+no later phase began. No publication, merge, deployment or shared/production DB access.

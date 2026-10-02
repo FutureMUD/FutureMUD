@@ -19,6 +19,12 @@ public partial class SkillLevelBasedMagicCapability
 	#3casting entry skill <spell> default#0
 	#3casting prerequisite add <spell> <prerequisite> <grade> <raw skill>#0
 	#3casting prerequisite remove <spell> <prerequisite>#0
+	#3casting prerequisite trait|traitremove <spell> <support skill> [raw skill]#0
+	#3casting support add <skill> <opening> <raw cap|native> on|off#0
+	#3casting support remove <skill>#0
+	#3casting support prerequisite spell <support skill> <spell> <grade> <raw skill>#0
+	#3casting support prerequisite trait <support skill> <support skill> <raw skill>#0
+	#3casting support prerequisite remove spell|trait <support skill> <source>#0
 	#3casting validate|show#0
 Removing admission preserves player knowledge. Starting grants require explicit staff enrolment.";
 
@@ -40,6 +46,8 @@ Removing admission preserves player knowledge. Starting grants require explicit 
 		}
 		var p = CastingPolicy ?? new MagicCastingPolicy(1, Guid.NewGuid(), false, ConcentrationTrait.Id,
 			0, 0, false, 1, Array.Empty<MagicCastingAdmission>());
+		if (action == "support" || action == "prerequisite" && command.PeekSpeech().ToLowerInvariant() is "trait" or "traitremove")
+			return BuildingCommandCastingSupport(actor, command, action, p);
 		try
 		{
 			switch (action)

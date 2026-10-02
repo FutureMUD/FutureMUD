@@ -5,8 +5,12 @@ namespace MudSharp.Magic.Casting;
 
 public sealed partial class MagicCastingService
 {
-	private readonly Dictionary<long, HashSet<(long Capability, long Spell)>> _spellEdges = [];
-	private readonly Dictionary<long, HashSet<(long Capability, long Spell)>> _traitEdges = [];
+	private readonly record struct ProgressionNode(long Capability, MagicCastingPrerequisiteKind Kind, long Id);
+	private static IEnumerable<ProgressionNode> ProgressionNodes(IMagicCastingCapability c) => c.CastingPolicy!.Admissions
+		.Select(x => new ProgressionNode(c.Id, MagicCastingPrerequisiteKind.Spell, x.SpellId))
+		.Concat(c.CastingPolicy.Supports.Select(x => new ProgressionNode(c.Id, MagicCastingPrerequisiteKind.SupportTrait, x.TraitId)));
+	private readonly Dictionary<long, HashSet<ProgressionNode>> _spellEdges = [];
+	private readonly Dictionary<long, HashSet<ProgressionNode>> _traitEdges = [];
 	private readonly Dictionary<long, HashSet<long>> _skillCapPolicies = [];
 	private readonly HashSet<long> _cappedSkills = [];
 	private bool _indexed;
@@ -65,24 +69,43 @@ public sealed partial class MagicCastingService
 	public MagicCastingGrant Enrol(ICharacter authority, ICharacter target, long capabilityId, string reason)
 	{
 		if (!authority.IsAdministrator() || string.IsNullOrWhiteSpace(reason)) return new(false, false, "Explicit staff authority and a reason are required for enrolment.");
+		return EnrolCore(target, capabilityId, $"staff {authority.Id}: {reason}", false);
+	}
+
+	internal MagicCastingGrant EnrolAuthorised(ICharacter target, long capabilityId, string provenance) =>
+		EnrolCore(target, capabilityId, provenance, true);
+
+	private MagicCastingGrant EnrolCore(ICharacter target, long capabilityId, string provenance, bool authored)
+	{
+		if (string.IsNullOrWhiteSpace(provenance) || provenance.Length > 1024) return new(false, false, "Enrolment needs provenance of at most 1024 characters.");
 		return MutateGrant(target, () =>
 		{
 			var owner = Owner(target);
 			if (_world.MagicCapabilities.Get(capabilityId) is not IMagicCastingCapability c || c.CastingPolicy is not { Enabled: true } p ||
 				!target.Capabilities.Any(x => x.Id == capabilityId)) return new(false, false, "The target needs the current enabled capability.");
+			if (authored && !target.Merits.OfType<IMagicCapabilityMerit>().Any(x => x.Applies(target) && x.Capabilities.Any(k => k.Id == capabilityId)))
+				return new(false, false, "Authored enrolment requires an applicable permanent capability merit.");
 			if (c.CastingConfigurationErrors().FirstOrDefault() is { } error) return new(false, false, error);
 			var previous = _store.Enrolment(owner.Id, p.Identity);
-			if ((previous?.StartingVersion ?? 0) >= p.StartingGrantVersion) return new(false, true, "Already enrolled; starting grants are not repeated.");
+			if ((previous?.StartingVersion ?? 0) >= p.StartingGrantVersion)
+			{
+				Reconcile(target);
+				EvaluateEdges(target, ProgressionNodes(c));
+				return new(false, true, "Already enrolled; starting grants are not repeated; authorised support openings are reconciled.");
+			}
 			var pending = previous ?? new CastingEnrolment(owner.Id, p.Identity, c.Id, _clock(), 0);
-			_store.Write(enrolment: pending);
+			CastingOperation? receipt = authored ? new(Guid.NewGuid(), owner.Id, target.InstanceId, target.Body.Id, c.Id, 0, 0,
+				p.ReserveResourceId, MagicCastingStateStore.EnrolmentRecorded, new XElement("Enrolment", new XAttribute("version", 1),
+					new XAttribute("identity", p.Identity), new XElement("Provenance", provenance)).ToString(SaveOptions.DisableFormatting), _clock(), _clock()) : null;
+			_store.Write(operation: receipt, enrolment: pending);
 			foreach (var root in p.Admissions.Where(x => x.Starting))
 			{
-				var grant = GrantCore(target, c.Id, root.SpellId, $"Enrolment {p.Identity}, staff {authority.Id}: {reason}");
+				var grant = GrantCore(target, c.Id, root.SpellId, $"Enrolment {p.Identity}, {provenance}");
 				if (!grant.Allowed) return grant;
 			}
 			_store.Write(enrolment: pending with { StartingVersion = p.StartingGrantVersion });
 			Reconcile(target);
-			EvaluateEdges(target, p.Admissions.Where(x => x.Prerequisites.Count > 0).Select(x => (c.Id, x.SpellId)));
+			EvaluateEdges(target, ProgressionNodes(c));
 			return new(true, true, "Enrolled; starting grants are durably recorded once.");
 		});
 	}
@@ -94,27 +117,34 @@ public sealed partial class MagicCastingService
 		foreach (var c in _world.MagicCapabilities.OfType<IMagicCastingCapability>().Where(x => x.CastingPolicy is not null))
 		{
 			var p = c.CastingPolicy!;
-			foreach (var admission in p.Admissions)
+			foreach (var binding in p.Admissions.Select(x => (Trait: x.TraitId ?? p.DefaultTraitId, Cap: x.RawSkillCap))
+				.Concat(p.Supports.Select(x => (Trait: x.TraitId, Cap: x.RawSkillCap))))
 			{
-				var traitId = admission.TraitId ?? p.DefaultTraitId;
-				if (!_skillCapPolicies.TryGetValue(traitId, out var policies)) _skillCapPolicies[traitId] = policies = [];
+				if (!_skillCapPolicies.TryGetValue(binding.Trait, out var policies)) _skillCapPolicies[binding.Trait] = policies = [];
 				policies.Add(c.Id);
-				if (admission.RawSkillCap.HasValue) _cappedSkills.Add(traitId);
+				if (binding.Cap.HasValue) _cappedSkills.Add(binding.Trait);
 			}
-			foreach (var a in p.Admissions)
-				foreach (var e in a.Prerequisites)
+			foreach (var node in ProgressionNodes(c))
+				foreach (var e in NodeEdges(p, node))
 				{
-					if (!_spellEdges.TryGetValue(e.SpellId, out var spells)) _spellEdges[e.SpellId] = spells = [];
-					spells.Add((c.Id, a.SpellId));
-					var prior = p.Admissions.FirstOrDefault(x => x.SpellId == e.SpellId);
-					if (prior is null) continue;
-					var traitId = prior.TraitId ?? p.DefaultTraitId;
-					if (!_traitEdges.TryGetValue(traitId, out var traits)) _traitEdges[traitId] = traits = [];
-					traits.Add((c.Id, a.SpellId));
+					if (e.Kind == MagicCastingPrerequisiteKind.Spell)
+					{
+						if (!_spellEdges.TryGetValue(e.SpellId, out var spells)) _spellEdges[e.SpellId] = spells = [];
+						spells.Add(node);
+					}
+					var traitId = e.Kind == MagicCastingPrerequisiteKind.SupportTrait ? e.TraitId :
+						p.Admissions.FirstOrDefault(x => x.SpellId == e.SpellId) is { } prior ? prior.TraitId ?? p.DefaultTraitId : (long?)null;
+					if (!traitId.HasValue) continue;
+					if (!_traitEdges.TryGetValue(traitId.Value, out var traits)) _traitEdges[traitId.Value] = traits = [];
+					traits.Add(node);
 				}
 		}
 		_indexed = true;
 	}
+
+	private static IReadOnlyList<MagicCastingPrerequisite> NodeEdges(MagicCastingPolicy p, ProgressionNode n) =>
+		n.Kind == MagicCastingPrerequisiteKind.Spell ? p.Admissions.First(x => x.SpellId == n.Id).Prerequisites :
+			p.Supports.First(x => x.TraitId == n.Id).Prerequisites;
 
 	public void NotifyProgress(ICharacter character, long? traitId = null, long? spellId = null)
 	{
@@ -125,38 +155,64 @@ public sealed partial class MagicCastingService
 		if (affected.Length > 0) lock (Guard(character)) EvaluateEdges(character, affected);
 	}
 
-	private void EvaluateEdges(ICharacter actor, IEnumerable<(long Capability, long Spell)> affected)
+	private bool PrerequisitesMet(ICharacter actor, MagicCastingPolicy p, IEnumerable<MagicCastingPrerequisite> edges) => edges.All(e =>
+	{
+		long traitId;
+		if (e.Kind == MagicCastingPrerequisiteKind.Spell)
+		{
+			var prior = p.Admissions.Single(x => x.SpellId == e.SpellId);
+			var state = Acquisition(actor, e.SpellId);
+			if (state is null || state.ControlledGrade < e.MinimumGrade) return false;
+			traitId = prior.TraitId ?? p.DefaultTraitId;
+		}
+		else
+		{
+			var support = p.Supports.Single(x => x.TraitId == e.TraitId);
+			var grant = _store.SupportGrant(Owner(actor).Id, p.Identity, support.Key);
+			if (grant is null || grant.TraitId != support.TraitId) return false;
+			traitId = support.TraitId;
+		}
+		var trait = _world.Traits.Get(traitId);
+		return Owner(actor).HasTrait(trait) && Owner(actor).TraitRawValue(trait) >= e.MinimumProficiency &&
+			QuarantineReason(actor, e.Kind == MagicCastingPrerequisiteKind.Spell ? e.SpellId : null, traitId, p.ReserveResourceId) is null;
+	});
+
+	private void EvaluateEdges(ICharacter actor, IEnumerable<ProgressionNode> affected)
 	{
 		EnsureIndex();
 		var owner = Owner(actor);
 		if (!_evaluatingProgress.TryAdd(owner.Id, 0)) return;
 		try
 		{
-		var bodies = ProgressBodies(actor).ToArray();
-		var queue = new Queue<(long Capability, long Spell)>(affected);
-		// Unmet prerequisites are provisional: a later grant may enqueue this admission again.
-		// Only new acquisitions schedule downstream edges, so the affected cascade remains bounded.
-		while (queue.TryDequeue(out var entry))
-		{
-			if (_world.MagicCapabilities.Get(entry.Capability) is not IMagicCastingCapability c || c.CastingPolicy is not { Enabled: true } p ||
-				_store.Enrolment(owner.Id, p.Identity) is null) continue;
-			// Temporary effect attachment alone must never auto-acquire. Explicit enrolment plus permanent merit is required.
-			var physical = bodies.FirstOrDefault(body => body.Capabilities.Any(x => x.Id == c.Id) &&
-				body.Merits.OfType<IMagicCapabilityMerit>().Any(x => x.Applies(body) && x.Capabilities.Any(k => k.Id == c.Id)));
-			if (physical is null) continue;
-			var a = p.Admissions.FirstOrDefault(x => x.SpellId == entry.Spell);
-			if (a is null || a.Prerequisites.Count == 0 || Acquisition(actor, a.SpellId) is not null || c.CastingConfigurationErrors().Count > 0) continue;
-			if (!a.Prerequisites.All(e =>
+			var bodies = ProgressBodies(actor).ToArray();
+			var queue = new Queue<ProgressionNode>(affected);
+			while (queue.TryDequeue(out var entry))
 			{
-				var prior = p.Admissions.Single(x => x.SpellId == e.SpellId);
-				var state = Acquisition(actor, e.SpellId);
-				return state is not null && state.ControlledGrade >= e.MinimumGrade &&
-					owner.TraitRawValue(_world.Traits.Get(prior.TraitId ?? p.DefaultTraitId)) >= e.MinimumProficiency &&
-					QuarantineReason(actor, e.SpellId, prior.TraitId ?? p.DefaultTraitId, p.ReserveResourceId) is null;
-			})) continue;
-			var result = GrantCore(physical, c.Id, a.SpellId, $"Capability {p.Identity}, admission {a.Key}: prerequisites satisfied.");
-			if (result.Changed && _spellEdges.TryGetValue(a.SpellId, out var next)) foreach (var edge in next) queue.Enqueue(edge);
-		}
+				if (_world.MagicCapabilities.Get(entry.Capability) is not IMagicCastingCapability c || c.CastingPolicy is not { Enabled: true } p ||
+					_store.Enrolment(owner.Id, p.Identity) is null || c.CastingConfigurationErrors().Count > 0) continue;
+				var physical = bodies.FirstOrDefault(body => body.Capabilities.Any(x => x.Id == c.Id) &&
+					body.Merits.OfType<IMagicCapabilityMerit>().Any(x => x.Applies(body) && x.Capabilities.Any(k => k.Id == c.Id)));
+				if (physical is null || !ProgressionNodes(c).Contains(entry)) continue;
+				var edges = NodeEdges(p, entry);
+				MagicCastingGrant result;
+				if (entry.Kind == MagicCastingPrerequisiteKind.Spell)
+				{
+					var admission = p.Admissions.Single(x => x.SpellId == entry.Id);
+					if (Acquisition(actor, entry.Id) is not null || edges.Count == 0 || !PrerequisitesMet(actor, p, edges)) continue;
+					result = GrantCore(physical, c.Id, entry.Id, $"Capability {p.Identity}, admission {admission.Key}: prerequisites satisfied.");
+				}
+				else
+				{
+					var support = p.Supports.Single(x => x.TraitId == entry.Id);
+					var authorised = _store.SupportGrant(owner.Id, p.Identity, support.Key);
+					if (authorised is not null && owner.HasTrait(_world.Traits.Get(support.TraitId))) continue;
+					if (authorised is null && (!support.Starting && edges.Count == 0 || !PrerequisitesMet(actor, p, edges))) continue;
+					result = GrantSupportCore(physical, c, support, $"Capability {p.Identity}, support {support.Key}: prerequisites satisfied.");
+				}
+				if (!result.Changed) continue;
+				var next = entry.Kind == MagicCastingPrerequisiteKind.Spell ? _spellEdges.GetValueOrDefault(entry.Id) : _traitEdges.GetValueOrDefault(entry.Id);
+				if (next is not null) foreach (var n in next) queue.Enqueue(n);
+			}
 		}
 		finally { _evaluatingProgress.TryRemove(owner.Id, out _); }
 	}

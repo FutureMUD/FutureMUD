@@ -147,7 +147,7 @@ public sealed partial class MagicCastingService
 		{
 			var op = _store.Operation(id) ?? _uncertain.GetValueOrDefault(id);
 			if (op is null || op.CharacterId != Owner(target).Id) return new(false, false, "No such operation for that canonical character.");
-			if (op.Stage is "Completed" or "Reconciled" or MagicCastingStateStore.SkillCapRecorded) return new(false, true, "Operation already finalised.");
+			if (MagicCastingStateStore.TerminalStages.Contains(op.Stage)) return new(false, true, "Operation already finalised.");
 			XElement? data = null;
 			try { data = XElement.Parse(op.Definition); } catch (System.Xml.XmlException) { /* Staff can acknowledge corrupt state, without inferring progress. */ }
 			var acquired = Acquisition(target, op.SpellId);

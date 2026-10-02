@@ -31,11 +31,11 @@ public sealed partial class MagicCastingService
 				foreach (var admission in c.CastingPolicy!.Admissions.Where(x => x.RawSkillCap.HasValue && Acquisition(actor, x.SpellId) is not null))
 					RecordSkillCap(actor, c, admission);
 		}
-		foreach (var id in current.Except(previous))
+		foreach (var id in current.Where(id => !previous.Contains(id) || ((IMagicCastingCapability)_world.MagicCapabilities.Get(id)!).CastingPolicy!.Supports.Count > 0))
 		{
 			var c = (IMagicCastingCapability)_world.MagicCapabilities.Get(id)!;
 			if (_store.Enrolment(owner.Id, c.CastingPolicy!.Identity) is null) continue;
-			lock (Guard(actor)) EvaluateEdges(actor, c.CastingPolicy.Admissions.Select(x => (id, x.SpellId)));
+			lock (Guard(actor)) EvaluateEdges(actor, ProgressionNodes(c));
 		}
 	}
 }

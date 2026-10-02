@@ -70,6 +70,12 @@ public class BranchingImprover : ClassicImprovement
         TraitUseType usetype)
     {
         double result = base.GetImprovement(person, trait, difficulty, outcome, usetype);
+		EvaluateBranches(person, trait);
+		return result;
+	}
+
+	internal void EvaluateBranches(IHaveTraits person, ITrait trait)
+	{
         foreach ((ITraitDefinition BaseTrait, double TraitValue, double OpenValue, ITraitDefinition BranchTrait) item in BranchMap)
         {
             if (person.TraitRawValue(item.BaseTrait) >= item.TraitValue && !person.HasTrait(item.BranchTrait))
@@ -80,7 +86,6 @@ public class BranchingImprover : ClassicImprovement
             }
         }
 
-        return result;
     }
 
     /// <inheritdoc />

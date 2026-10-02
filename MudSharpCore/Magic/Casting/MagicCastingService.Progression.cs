@@ -54,6 +54,12 @@ public sealed partial class MagicCastingService
 				if (admission.RawSkillCap is null) return null;
 				highest = Math.Max(highest, admission.RawSkillCap.Value);
 			}
+			foreach (var support in policy.Supports.Where(x => x.TraitId == traitId))
+			{
+				if (_store.SupportGrant(owner.Id, policy.Identity, support.Key) is not { } grant || grant.TraitId != traitId) continue;
+				if (support.RawSkillCap is null) return null;
+				highest = Math.Max(highest, support.RawSkillCap.Value);
+			}
 		}
 		return highest > 0 || cappedBefore ? highest : null;
 	}

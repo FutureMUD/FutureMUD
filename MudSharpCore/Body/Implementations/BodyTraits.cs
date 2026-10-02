@@ -149,7 +149,7 @@ public partial class Body
 
     public double TraitMaxValue(ITraitDefinition trait)
     {
-        return TraitMaxValue(_traits.FirstOrDefault(x => x.Definition == trait));
+        return TraitMaxValue(GetTrait(trait));
     }
 
     public double TraitMaxValue(ITrait trait)

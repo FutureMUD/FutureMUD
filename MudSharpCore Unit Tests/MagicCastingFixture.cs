@@ -179,11 +179,14 @@ internal sealed class CastingMemoryStore : IMagicCastingStateStore
 	public int Writes { get; private set; }
 	public Action<CastingOperation?>? BeforeWrite { get; set; }
 	public IReadOnlySet<long> CappedTraits(long characterId) => Operations.Values
-		.Where(x => x.CharacterId == characterId && x.Stage == MagicCastingStateStore.SkillCapRecorded).Select(x => x.TraitId).ToHashSet();
+		.Where(x => x.CharacterId == characterId && x.Stage is MagicCastingStateStore.SkillCapRecorded or MagicCastingStateStore.CappedSupportGranted).Select(x => x.TraitId).ToHashSet();
+	public CastingSupportAcquisition? SupportGrant(long characterId, Guid identity, Guid key) => Operations.Values
+		.Where(x => x.CharacterId == characterId && MagicCastingStateStore.IsSupportRecord(x.Stage)).Select(MagicCastingStateStore.ReadSupportGrant)
+		.SingleOrDefault(x => x.CapabilityIdentity == identity && x.GrantKey == key);
 	public AcquiredSpell? Acquisition(long characterId, long spellId) => Acquired.GetValueOrDefault((characterId, spellId));
 	public CastingSkillOpportunity? Opportunity(long characterId, long traitId) => Opportunities.GetValueOrDefault((characterId, traitId));
 	public CastingEnrolment? Enrolment(long characterId, Guid capabilityIdentity) => Enrolments.GetValueOrDefault((characterId, capabilityIdentity));
-	public IReadOnlyList<CastingOperation> Unresolved(long? characterId = null) => Operations.Values.Where(x => (!characterId.HasValue || x.CharacterId == characterId) && x.Stage is not ("Completed" or "Reconciled" or MagicCastingStateStore.SkillCapRecorded)).ToArray();
+	public IReadOnlyList<CastingOperation> Unresolved(long? characterId = null) => Operations.Values.Where(x => (!characterId.HasValue || x.CharacterId == characterId) && !MagicCastingStateStore.TerminalStages.Contains(x.Stage)).ToArray();
 	public CastingOperation? Operation(Guid id) => Operations.GetValueOrDefault(id);
 	public void Write(CastingOperation? operation = null, AcquiredSpell? acquired = null, CastingSkillOpportunity? opportunity = null, CastingEnrolment? enrolment = null)
 	{

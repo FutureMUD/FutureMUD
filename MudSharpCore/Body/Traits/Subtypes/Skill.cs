@@ -35,7 +35,13 @@ public class Skill : Trait, ISkill
     {
         Gameworld.LogManager.CustomLogEntry(LogEntryType.SkillUse, user, Definition, result, difficulty, usetype, bonuses);
 		var castingCap = _owner is ICharacter character ? Gameworld.MagicCasting?.RawSkillImprovementCap(character, Definition.Id) : null;
-		if (castingCap.HasValue && _value >= castingCap.Value) return false;
+		if (castingCap.HasValue && _value >= castingCap.Value)
+		{
+			// Ordinary native branching is independent of numerical improvement. Reaching the
+			// casting ceiling must not suppress a legitimate branch on the next skill use.
+			if (Improver is BranchingImprover branching) branching.EvaluateBranches(user, this);
+			return false;
+		}
         double improvement = Improver.GetImprovement(user, this, difficulty, result, usetype);
         double oldValue = _value;
 		if (castingCap.HasValue)

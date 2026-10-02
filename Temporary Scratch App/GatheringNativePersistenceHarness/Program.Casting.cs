@@ -37,12 +37,15 @@ internal static partial class GNHProgram
 	private sealed record CastingReader(string Database, FixtureIds Earth, FixtureIds Sorcerer, long Spell,
 		long EarthCapability, long SorcererCapability, long EarthSkill, long SorcererSkill, Guid? Operation,
 		int Grade, double Balance, int Unresolved, bool VerifyEffects = false, FixtureIds? SecondBody = null, long? SecondInstance = null,
-		DateTime? SkillDeadline = null, DateTime? MasteryDeadline = null, double RawSkill = 42, bool VerifyCapLoss = false);
+		DateTime? SkillDeadline = null, DateTime? MasteryDeadline = null, double RawSkill = 42, bool VerifyCapLoss = false,
+		long? SupportTrait = null, long? IdentifySpell = null);
 
 	private static int RunAllCastingAcceptanceChecks()
 	{
 		var baseline = RunCastingAcceptanceChecks();
-		return baseline == 0 ? RunCompletionProgressionAcceptanceChecks() : baseline;
+		if (baseline != 0) return baseline;
+		var progression = RunCompletionProgressionAcceptanceChecks();
+		return progression == 0 ? RunSupportProgressionAcceptanceChecks() : progression;
 	}
 
 	private static int RunCastingAcceptanceChecks()
@@ -319,6 +322,7 @@ internal static partial class GNHProgram
 		}
 		if (input.VerifyEffects || input.SecondBody is not null) VerifyCastingRuntimeReload(database, input);
 		if (input.VerifyCapLoss) VerifyCompletionCapLossReload(database, input);
+		if (input.SupportTrait.HasValue) VerifySupportProgressionReload(database, input);
 		Console.WriteLine($"ARM02-reader=passed grade:{state.ControlledGrade} balance:{input.Balance} unresolved:{input.Unresolved} operation:{input.Operation?.ToString() ?? "none"} process:{Environment.ProcessId}");
 		return 0;
 	}

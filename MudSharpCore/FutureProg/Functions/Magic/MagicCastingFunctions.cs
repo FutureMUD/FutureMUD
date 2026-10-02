@@ -16,7 +16,8 @@ internal sealed class MagicCastingFunction : BuiltInFunction
 		new("controlledspellgrade", N, [C, S], "Pure canonical controlled grade; zero means unacquired."),
 		new("canchannelspell", B, [C, K, S, N, B], "Pure route, grade and acting-body preflight. Does not check target, materials or payment and does not reserve a cast."),
 		new("channelspell", T, [C, K, S, N, B, T], "Runs the guarded paid normal casting service with native target syntax. Returns Refused, Failed, Succeeded or NeedsReview plus diagnostic."),
-		new("grantchannelspell", B, [C, K, S, T], "Explicit authored acquisition grant with mandatory provenance. Returns true if admitted and acquired/already acquired. Never use this mutation in an inspection policy.")
+		new("grantchannelspell", B, [C, K, S, T], "Explicit authored acquisition grant with mandatory provenance. Returns true if admitted and acquired/already acquired. Never use this mutation in an inspection policy."),
+		new("enrolchannelcasting", B, [C, K, T], "Explicit idempotent authored enrolment with permanent capability merit and provenance. Use in selected chargen-finalisation/NPC workflows, never queries.")
 	];
 	private readonly IFuturemud _world;
 	private readonly Contract _contract;
@@ -41,7 +42,15 @@ internal sealed class MagicCastingFunction : BuiltInFunction
 				Result = _contract.Name == "hasacquiredspell" ? new BooleanVariable(acquired is not null) : new NumberVariable(acquired?.ControlledGrade ?? 0);
 				return StatementResult.Normal;
 			}
-			var capability = Required<IMagicCapability>(1); var spell = Required<IMagicSpell>(2);
+			var capability = Required<IMagicCapability>(1);
+			if (_contract.Name == "enrolchannelcasting")
+			{
+				var reason = Value(2)?.ToString() ?? "";
+				if (string.IsNullOrWhiteSpace(reason)) throw new InvalidOperationException("An enrolment reason is required.");
+				Result = new BooleanVariable(service is MagicCastingService runtime && runtime.EnrolAuthorised(actor, capability.Id, $"FutureProg: {reason}").Allowed);
+				return StatementResult.Normal;
+			}
+			var spell = Required<IMagicSpell>(2);
 			if (_contract.Name == "grantchannelspell")
 			{
 				var reason = Value(3)?.ToString() ?? "";

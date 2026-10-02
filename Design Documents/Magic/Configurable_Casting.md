@@ -118,6 +118,13 @@ casting entry skill <spell> <opening> <raw cap> absolute|relative
 casting entry skill <spell> default
 casting prerequisite add <spell> <prerequisite spell> <minimum grade> <raw proficiency>
 casting prerequisite remove <spell> <prerequisite spell>
+casting prerequisite trait <spell> <scoped support skill> <raw proficiency>
+casting prerequisite traitremove <spell> <scoped support skill>
+casting support add <native skill> <opening> <raw cap|native> on|off
+casting support remove <native skill>
+casting support prerequisite spell <support skill> <source spell> <minimum grade> <raw proficiency>
+casting support prerequisite trait <support skill> <source support skill> <raw proficiency>
+casting support prerequisite remove spell|trait <support skill> <source>
 casting enable on|off
 casting validate
 casting show
@@ -139,10 +146,26 @@ changes and acquired-grade changes notify a bounded reverse index, rather than p
 all characters. Newly acquired prerequisites are followed through that affected cascade
 in the same evaluation, independent of admission or queue order. Every edge must still
 meet its minimum controlled grade and route-bound raw proficiency, and quarantined
-prerequisites or grant inputs remain blocked. Only successful new acquisitions schedule
-downstream work; blocked candidates stop when no further grant can make them eligible.
-Cloning a capability generates new policy/admission/edge identities and
+prerequisites or grant inputs remain blocked. Only successful new grants or repaired
+support openings schedule downstream work;
+blocked candidates stop when no further grant can make them eligible.
+Cloning a capability generates new policy/admission/support/edge identities and
 keeps shared spell references. It does not clone player progress or enrolment.
+
+Support skills are explicit capability-scoped grants, not spells. A typed trait edge
+requires the support's durable authorisation under this policy identity and stable grant
+key, its actual native skill and the declared raw threshold. Native trait possession alone
+does not supply that authorisation. All edges are AND requirements; cycles and duplicate
+typed sources fail validation across the combined spell/support graph. `on` marks an
+explicit starting support; `off` requires its authored prerequisite path. Optional mundane,
+language and psionic support mappings remain builder choices for the later stock installer.
+
+For the Component Crafting bridge, configure the native skill with opening 30/cap 90,
+add a spell prerequisite on Shadow Passage at raw 80, then a trait prerequisite on
+Read Enchantment at Component Crafting raw 80. Configure Read Enchantment's own admission
+with opening 30/cap 90. Bind the support skill to ordinary native crafting/gathering/skill-use
+checks and a suitable native improver. The real `ClassicImprovement` hook notifies the
+reverse index on gains; no extra polling or independent crafting system is introduced.
 
 For the source roster, use `casting entry skill <spell> 60 90 relative` for the four
 spell roots, `30 90 relative` for other spells, and `30 60 relative` for Mend Flesh.
@@ -153,11 +176,16 @@ absolute raw proficiency, independently of these mastery gates.
 
 Native skill use and positive skill writes (including ordinary lessons) use the highest
 cap of the character's applicable permanent, enrolled routes that bind an acquired spell
-to that skill. Temporary attachment does not raise it. A legitimate uncapped shared route
+or a durably authorised support to that skill. Temporary attachment does not raise it. A legitimate uncapped shared route
 retains the native ceiling. Losing all eligible capped routes inhibits new gains while
 retaining stored raw proficiency; it does not trim history or change the native check.
 The native skill definition's cap remains an additional ceiling, so author it high enough
 for every legitimate route. Pure cap queries do not enrol, acquire, open skills or save.
+Native branching remains available when numerical growth is capped; it never substitutes
+for canonical spell acquisition. Character-owned native maximum lookup follows canonical
+trait storage, so ordinary improvers can reach the configured source thresholds. Capped
+theoretical skills are rejected because their separate practical/theory values have no
+supported single raw-cap basis. Uncapped theoretical bindings retain their existing behavior.
 
 Validation rejects missing traits/resources/spells, non-character skills, duplicate
 admissions/edges/keys, cycles, invalid grade ranges and unsupported numerical fields.
@@ -178,6 +206,9 @@ grant is idempotent and opens a missing native skill at the admission's explicit
 or the profile's opening value when omitted (10 in the legacy fixture). If native skill persistence is interrupted after acquisition is recorded,
 the route refuses until the same explicit grant is retried; an existing skill is never
 used to infer acquisition. Removal of capability or admission retains acquired progress.
+Support authorisation commits before opening its missing native skill. Repeating enrolment
+or reconciling a legitimate permanent route repairs an interrupted support write/opening
+without repeating root grants, increasing existing proficiency or refilling reserves.
 
 A `NeedsReview` response contains the operation GUID and failure stage. The receipt
 quarantines the affected canonical spell, trait and all cost reserves, plus selected
@@ -197,11 +228,15 @@ Unrelated records remain usable.
 | `canchannelspell(character, magiccapability, magicspell, number, boolean)` | Boolean | Pure route/grade/body preflight only; excludes target, components and payment. |
 | `channelspell(character, magiccapability, magicspell, number, boolean, text)` | Text | Same guarded service as the player command; grade, overreach and native target arguments. Returns status and diagnostic. |
 | `grantchannelspell(character, magiccapability, magicspell, text)` | Boolean | Explicit authored grant with nonempty provenance, recorded as `FutureProg: <reason>`. |
+| `enrolchannelcasting(character, magiccapability, text)` | Boolean | Explicit idempotent authored enrolment with an applicable permanent capability merit and nonempty provenance. Reuses the staff enrolment service; select it in a chargen-finalisation or NPC-creation workflow. |
 
 These functions use native typed capability/spell variables, not display-name inference.
 Treat a grant Prog as an authored mutation, not an inspection hook. Pure queries never
 enrol, open skills, perform checks or save. A successful quote/preflight reserves nothing;
 execution revalidates the live physical body, route, target, materials, cost and balance.
+Authored enrolment records its reason in a terminal journal receipt and the initial spell
+grant provenance. Capability enumeration, inspection and temporary attachments never call
+this hook automatically. A failed authored enrolment can be retried directly.
 
 ## Persistence and extension seams
 
@@ -221,6 +256,15 @@ receipts and the staff acknowledgement command cannot alter them; they do not sp
 skill opportunities or mastery attempts. The first acquisition and its marker share the same
 state-store transaction, so marker failure cannot leave a newly acquired spell without cap history. No schema
 change is required. Cap queries load/cache this history without writing it.
+
+Support grants use deterministic per-character/policy/grant operation identities and
+versioned XML capturing the scoped key, trait, opening, cap and provenance. `SupportGranted`,
+`CappedSupportGranted` and `EnrolmentRecorded` are terminal stages alongside the existing
+cap marker. They are excluded from unresolved payment receipts; staff acknowledgement
+returns an unchanged result and cannot rewrite them. A capped support's opt-in history
+survives removal of its definition. Its existing native proficiency remains intact; no
+eligible enrolled permanent route means no further numerical gain. Malformed typed XML
+is refused while its unreadable definition remains safely preservable for builder repair.
 
 `IMagicCastingCapability`, `IControlledMagicSpell` and `IMagicCastingService` expose policy,
 profile, acquisition, routes and immutable resolved quotes. No route state is placed on

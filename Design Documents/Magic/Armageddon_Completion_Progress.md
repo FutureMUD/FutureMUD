@@ -30,12 +30,20 @@ fresh verification and keeps old PR receipts historical.
 - [x] Run focused and dependent automated suites and retain compact receipts/fingerprints.
 - [x] Run extended disposable native casting acceptance; retain exact payment/proficiency/grade/reload and cleanup proof.
 - [x] Make scoped local commits and record acceptance evidence.
+- [x] Implement phase 1B typed scoped support grants/prerequisites and authored enrolment.
+- [x] Repair review findings with failing-before regressions: exact-cap native branching, unsupported capped theoretical bindings, enrolment retries and malformed XML preservation.
+- [x] Repair the native-discovered character-skill maximum lookup; prove actual native improvement through the Component Crafting threshold on a second focused body.
+- [x] Run final full dependent suites and disposable native acceptance, preserving failures and cleanup proof.
+- [ ] Parent reviews the exact stage1B checkpoint before starting capacity stage1C.
+- [ ] Implement attribute-led capacity/invalidation and the full affordability matrix.
 
 ## Remaining work
 
-Phase 1 is **partial**, not complete. Scoped support-trait prerequisites/grants with provenance,
-Component Crafting's real progression bridge to Identify, the authored enrolment hook,
-attribute-led capacity mapping/invalidation and the full affordability matrix remain.
+Phase 1 is **partial**, not complete. Its scoped support engine bridge and authored enrolment
+hook are implemented and verified. Attribute-led capacity mapping/invalidation and the full
+affordability matrix remain for stage1C, after parent review of this checkpoint. Installing
+the exact support skills/improver/crafting bindings and selecting chargen/NPC workflows are
+later stock-installer integration gates; the controlled fixture does not qualify that stock.
 Phase 2 owns target-free practice and speech/formula/quiet/area adapters. In particular,
 manifestation reaching grade 7 at cap 60 is not evidence of stock practice reaching it.
 Phases 3â€“6 own effect/lifecycle gaps and the eight larger features, portable production,
@@ -66,7 +74,59 @@ owned databases and verified graceful shutdown/deletion of the owned local MySQL
 N07 has passed in the controlled native fixture. N03/N04 have partial fixture/automated
 evidence; the remaining full scenarios, especially stock PRACTICE N06, remain unqualified.
 This is not a full stock balance report or installed-world Telnet qualification.
-Post-suite changes are limited to the corrected harness assertions and receipt documentation;
+For those stage1A receipts, post-suite changes were limited to corrected harness assertions and receipt documentation;
 the tested production assembly fingerprints remain unchanged. No older PR count is reused.
 
 Local implementation commits: `50c556bf` (source reconciliation) and `c0bbaf51` (stage1A runtime/tests/receipts). A final documentation commit records this handoff.
+
+## Stage 1B checkpoint
+
+Review base: `c9f9750298f22b79919137fdb89fdfda8f54e601`.
+Implementation head: `ae72581076ce8b58af89ce43c705c683912ec91d`.
+The implementation commit changes 20 code/test/harness files and the builder guide.
+It contains the parent stage1A review corrections as new changes; earlier commits were
+preserved. A subsequent documentation commit records this receipt and whole-plan status.
+No capacity-stage implementation has begun. Parent review is required before advancing.
+
+The graph now validates typed spell and native support-trait sources together, including
+scope, stable keys, cycles and mixed diamonds. A durable support grant precedes native
+opening, captures its opening/cap/provenance, and remains terminal and immutable. Direct
+enrolment retry repairs interrupted grants/openings without repeating roots or filling a
+reserve. `enrolchannelcasting(character, magiccapability, text)` is the typed authored hook
+for a selected chargen/NPC workflow and requires an applicable permanent capability merit.
+
+Parent review found capped theoretical skills could bypass raw caps and an exact-cap
+early return could suppress native branching. Capped theoretical bindings now fail
+validation; uncapped behavior remains compatible. Native branching is evaluated independently
+of numerical gains at a casting ceiling. Local review also found direct enrolment retries
+could leave a missing support, terminal test assertions used the wrong result flag, and
+malformed typed XML could throw on save. These are repaired. Seven regression cases failed
+before the fixes and passed in the final suite.
+
+The first native attempt passed the baseline and stage1A checks, then failed the first
+actual parent skill improvement. Native maximum lookup used body-only storage and returned
+zero for a canonical character skill. A dedicated regression reproduced expected100/actual0.
+The lookup now uses the existing scoped `GetTrait` path, retaining body-owned/missing-trait
+and project cap behavior. Independent review confirmed this repair.
+
+Final run `20261002T094908Z-2a691ca59f10` passed **4,128 core + 543 shared-library = 4,671**
+tests, zero failures/skips. Its stable fingerprint is
+`829028cba43f3207bd08d767e0b02d766c3206410b7866c42baaca74bcdae3ec`.
+Earlier focused PASS: 117 tests; earlier full PASS: 4,670 tests before the maximum fix.
+All failing/build-failed runs remain in [stage1B verification](Armageddon_Stage1B_Verification.json).
+
+Native attempt2 passed the full baseline, stage1A and stage1B scenarios. Actual
+`ClassicImprovement` skill uses advanced the parent 30-to-80, opened support at30, then
+advanced support 30-to-80-to-90 through a second focused body. Identify acquired at grade1
+with opening30, without a dummy spell or a manual progress write. Repeated/second-body
+enrolment retained roots, skills and the spent reserve. Independent reload retained
+support raw90/cap90, Identify grade1 and reserve17, with no unresolved payment receipts.
+Both native attempts deleted three owned databases each and verified graceful shutdown
+and deletion of their owned temporary MySQL instances. Harness builds passed with zero
+warnings/errors. Native craft-command, stock installer and full Telnet qualification
+remain **not run**. Final executable sources/binary hashes are retained in the receipt;
+changes after verification are documentation and local commits only.
+
+N05 has controlled native fixture evidence; full installed-stock integration remains pending.
+The ledger still retains all 16 decisions, seven phases, 154 candidates and 25 acceptance
+scenarios. No publication, merge, deployment or shared/production database access occurred.

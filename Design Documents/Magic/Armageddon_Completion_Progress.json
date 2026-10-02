@@ -39,11 +39,8 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase 0 data reconciliation then phase 1A route openings/raw caps/cap-relative mastery/energy efficiency",
+  "selected_stage": "Phase1B dependencies implemented and verified; await exact-commit parent review before capacity stage1C",
   "phase1_remaining": [
-    "Scoped typed supporting-trait prerequisite and support-trait grants with provenance, cycles and durable repair",
-    "Native Component Crafting progression bridge to Identify",
-    "Authored enrolment hook",
     "Attribute-led mana capacity mapping/invalidation and complete affordability matrix"
   ],
   "phases": [
@@ -59,7 +56,7 @@
       "name": "Extend progression and energy",
       "scope": "`FutureMUDLibrary/Magic/IMagicCastingCapability.cs`, `IMagicCastingService.cs`, `ISpellNumericalContext.cs`; `MagicCastingService.Acquisition.cs`, `.Resources.cs`, `.Execution.cs`; capability casting builder; `MagicSpell.Grades.cs`, `.Casting.cs`; native improvement classes",
       "exit_evidence": "Typed support edges, source openings/caps, cap-aware maximum mastery, source-shaped efficiency, backwards compatibility and PR778 permutations pass",
-      "status": "partial_stage_1A_implemented_and_verified"
+      "status": "partial_stages_1A_1B_implemented_and_verified_capacity_pending"
     },
     {
       "id": 2,
@@ -229,7 +226,8 @@
       "required_result": "Correct child opens 30, capped 90, grade1; all sibling/diamond/order rules preserved; no guessed roots",
       "status": "partial_fixture_and_automated_evidence",
       "evidence": [
-        "Armageddon_Stage1A_Verification.json: shared native routes/baseline cascade tests/exact source inventory; installer and full source-tree gameplay pending"
+        "Armageddon_Stage1A_Verification.json: shared native routes/baseline cascade tests/exact source inventory; installer and full source-tree gameplay pending",
+        "Armageddon_Stage1B_Verification.json: mixed spell/support diamond permutations, cycle/refusal/interruption and canonical second-body regressions; complete installed source-tree scenario pending"
       ]
     },
     {
@@ -237,8 +235,10 @@
       "name": "Support branch",
       "scenario": "Acquire Shadow Passage, meet its threshold, improve Component Crafting to 80",
       "required_result": "Read Enchantment becomes acquired through the legitimate native support edge, without a fake spell or manual database edit",
-      "status": "not_run",
-      "evidence": []
+      "status": "passed_controlled_native_fixture_stock_integration_pending",
+      "evidence": [
+        "Armageddon_Stage1B_Verification.json: actual native parent/support improvements, scoped Identify grade1, second focused body and independent reload; installed stock crafting command/source-tree integration pending"
+      ]
     },
     {
       "id": "N06",
@@ -1820,6 +1820,38 @@
       "name": "Independent scoped code review",
       "status": "passed_after_four_repairs",
       "receipt": "Armageddon_Stage1A_Verification.json"
+    },
+    {
+      "name": "Stage1B final full core/shared-library suites",
+      "status": "passed",
+      "run_id": "20261002T094908Z-2a691ca59f10",
+      "passed": 4671,
+      "failed": 0,
+      "skipped": 0,
+      "source_fingerprint": "829028cba43f3207bd08d767e0b02d766c3206410b7866c42baaca74bcdae3ec",
+      "receipt": "Armageddon_Stage1B_Verification.json"
+    },
+    {
+      "name": "Stage1B failing-before review/native maximum regressions",
+      "status": "failed_before_repair_passed_in_final_suite",
+      "receipt": "Armageddon_Stage1B_Verification.json"
+    },
+    {
+      "name": "Stage1B native attempt1",
+      "status": "failed_native_maximum_lookup_repaired",
+      "cleanup": "passed",
+      "receipt": "Armageddon_Stage1B_Verification.json"
+    },
+    {
+      "name": "Stage1B native attempt2",
+      "status": "passed",
+      "cleanup": "passed",
+      "receipt": "Armageddon_Stage1B_Verification.json"
+    },
+    {
+      "name": "Stage1B bounded independent code re-review",
+      "status": "no_remaining_actionable_findings_parent_checkpoint_pending",
+      "receipt": "Armageddon_Stage1B_Verification.json"
     }
   ],
   "implementation_commits": [
@@ -1830,6 +1862,21 @@
     {
       "sha": "c0bbaf51d5031219cbf0c480f48b309892fe3f25",
       "subject": "Add capped casting progression and source energy efficiency"
+    },
+    {
+      "sha": "c9f9750298f22b79919137fdb89fdfda8f54e601",
+      "subject": "Record Armageddon stage 1A implementation handoff"
+    },
+    {
+      "sha": "ae72581076ce8b58af89ce43c705c683912ec91d",
+      "subject": "Add scoped support progression and authored casting enrolment"
     }
-  ]
+  ],
+  "next_checkpoint": {
+    "status": "awaiting_parent_review",
+    "base": "c9f9750298f22b79919137fdb89fdfda8f54e601",
+    "implementation_head": "ae72581076ce8b58af89ce43c705c683912ec91d",
+    "next_stage_after_review": "1C attribute-led capacity, invalidation and affordability matrix",
+    "no_later_stage_started": true
+  }
 }

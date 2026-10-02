@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase2C area engine/source examples implemented and verified; independent parent review pending; no phase3 started",
+  "selected_stage": "Phase2C independently accepted; Phase3A lifecycle/ownership foundation implemented and verified; parent review pending before native adapters/archival; whole phase3 remains partial",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -72,7 +72,7 @@
       "name": "Implement reusable effect and lifecycle gaps",
       "scope": "Shared lifecycle interfaces; `MudSharpCore/Magic/SpellEffects/`, `Effects/Concrete/SpellEffects/`, character instance service, items, native movement/AI/topology seams",
       "exit_evidence": "Eight larger features and shared small mechanisms with native ownership/restart/cleanup/command-authority tests",
-      "status": "pending"
+      "status": "lifecycle_ownership_foundation_implemented_verified_native_adapters_archival_eight_features_and_full_acceptance_pending"
     },
     {
       "id": 4,
@@ -179,7 +179,10 @@
       "id": "Q12",
       "requirement": "Source-informed per-spell/per-tier conjuration and summon lifetime; permanent, temporary cleanup and death-on-expiry modes",
       "limit": "No heavy temporary-NPC database accumulation; handle early death, remains, possessions, references and restart",
-      "status": "pending_complete_implementation"
+      "status": "durable_policy_ownership_and_body_boundary_verified_native_npc_modes_archival_full_gameplay_pending",
+      "evidence": [
+        "Armageddon_Stage3A_Verification.json: durable modes/ownership/early-death journal/restart and retired-body boundary; full NPC death/remains/foreign-goods evacuation/AI/heavy-state acceptance remains pending."
+      ]
     },
     {
       "id": "Q13",
@@ -345,7 +348,12 @@
       "scenario": "In a fixture explicitly configured to leave remains, kill a temporary guardian, retain corpse and foreign carried item, pass original expiry, restart, then decay corpse; separately exercise default dissipation",
       "required_result": "No resurrection/second death; foreign item conserved; temporary heavy graph eventually retired when references clear",
       "status": "not_run",
-      "evidence": []
+      "evidence": [],
+      "foundation_support": {
+        "receipt": "Armageddon_Stage3A_Verification.json",
+        "status": "bounded_foundation_support_only_full_scenario_not_run",
+        "scope": "Persisted dead-state/remains correlation and restart, policy journal modes, foreign-item body guards and 16 body-only retirement cycles; no native NPC death/decay/AI/timer acceptance."
+      }
     },
     {
       "id": "N15",
@@ -353,7 +361,12 @@
       "scenario": "Same template exercised as permanent, temporary cleanup and death-on-expiry",
       "required_result": "Correct persistence/death/remains behaviour and exactly one terminal transition; permanent creation survives its no-expiry contract",
       "status": "not_run",
-      "evidence": []
+      "evidence": [],
+      "foundation_support": {
+        "receipt": "Armageddon_Stage3A_Verification.json",
+        "status": "bounded_foundation_support_only_full_scenario_not_run",
+        "scope": "Persisted dead-state/remains correlation and restart, policy journal modes, foreign-item body guards and 16 body-only retirement cycles; no native NPC death/decay/AI/timer acceptance."
+      }
     },
     {
       "id": "N16",
@@ -361,7 +374,12 @@
       "scenario": "Repeated summon/use/kill/expire/restart with deterministic terminal checks",
       "required_result": "Stable eligible heavy-row/timer/subscription counts after cleanup; every retained record explained",
       "status": "not_run",
-      "evidence": []
+      "evidence": [],
+      "foundation_support": {
+        "receipt": "Armageddon_Stage3A_Verification.json",
+        "status": "bounded_foundation_support_only_full_scenario_not_run",
+        "scope": "Persisted dead-state/remains correlation and restart, policy journal modes, foreign-item body guards and 16 body-only retirement cycles; no native NPC death/decay/AI/timer acceptance."
+      }
     },
     {
       "id": "N17",
@@ -2310,6 +2328,38 @@
       "owned_processes_remaining": 0,
       "frozen_inputs_matching": 101,
       "receipt": "Armageddon_Stage2C_Verification.json"
+    },
+    {
+      "name": "Parent Phase2C independent review acceptance",
+      "status": "accepted",
+      "implementation": "a018aa29ea86d51691cebf489d2086cc0aebd9ab",
+      "receipt_head": "34c8df43c73dff75753ca1691b285225f6bb7dfb",
+      "historical_receipt_sha256": "7c2e980cf869b433444d53283186452828fa2f9cc413443676829cbc1673d2cf",
+      "scope": "Accepted before bounded phase3 lifecycle dependency work; all prior qualifications retained."
+    },
+    {
+      "name": "Phase3A lifecycle foundation and retired-body boundary",
+      "status": "passed_bounded_automated_and_controlled_native_parent_review_pending",
+      "focused": "20261002T211625Z-65bd8128d1ce",
+      "core_and_library_run": "20261002T212853Z-7d803836b3c3",
+      "database_run": "20261002T213817Z-e37d9a459c9a",
+      "counts": {
+        "focused": 51,
+        "core": 4377,
+        "library": 561,
+        "database": 64,
+        "aggregate_composite": 5002
+      },
+      "single_combined_run_passed": false,
+      "preserved_failed_run": "Three-project run had two TEMP access failures; Database64 passed afterward with owned process-local TEMP/TMP, no production changes.",
+      "native_markers": 123,
+      "prior_casting_markers": 107,
+      "lifecycle_markers": 16,
+      "owned_databases_cleaned": 8,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 133,
+      "binary_fingerprints": 14,
+      "receipt": "Armageddon_Stage3A_Verification.json"
     }
   ],
   "implementation_commits": [
@@ -2368,24 +2418,29 @@
     {
       "sha": "a018aa29ea86d51691cebf489d2086cc0aebd9ab",
       "subject": "Add explicit bounded source-specific area casting policies"
+    },
+    {
+      "sha": "65c41a99d8a6c296311bbaaf47149cf8e38a7163",
+      "subject": "Add durable spell-owned lifecycle foundation and safe body retirement"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase2C_review",
-    "base": "2875be7697e18c519bde9052e099696c3b0a3efc",
-    "scope": "Phase2C explicit per-spell area delivery",
-    "next_stage_after_review": "Phase3 reusable effect and lifecycle dependencies; obtain parent continuation scope",
-    "no_later_stage_started": true,
-    "implementation_head": "a018aa29ea86d51691cebf489d2086cc0aebd9ab",
-    "receipt": "Armageddon_Stage2C_Verification.json",
-    "implementation_verified": true
+    "status": "awaiting_parent_phase3A_review",
+    "base": "34c8df43c73dff75753ca1691b285225f6bb7dfb",
+    "scope": "Phase3A durable lifecycle/ownership foundation and safe retired-body boundary",
+    "implementation_head": "65c41a99d8a6c296311bbaaf47149cf8e38a7163",
+    "receipt": "Armageddon_Stage3A_Verification.json",
+    "implementation_verified": true,
+    "no_next_slice_started": true,
+    "next_stage_after_review": "Parent review of this immutable checkpoint, then bounded canonical NPC compaction/archival and native creation/post-death/remains-release adapters before the eight larger features and full N14-N16.",
+    "full_N14_N15_N16": "not_run"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
     "revision": "251f4114f05a9d923676686f9b191731e3cba167",
     "scope": "Later summons/projection lifecycle and persistent PC charm",
     "owner": "parent",
-    "status": "read-only consultation complete; recommendations deferred until phase3",
+    "status": "read-only consultation complete; durable ownership/reference/identity constraints applied to phase3A foundation; native adapters/archival and PC charm remain later work",
     "routing": "Parent can provide exact entry points and detailed evidence; recommendations must fit the approved brief rather than invent product requirements.",
     "key_constraints": [
       "provenance before on-load callbacks/world exposure; correlate persisted death/remains at a post-death integration point",
@@ -2395,5 +2450,12 @@
       "retain immutable control provenance in queued actions and recheck expiry/range/body/focus/conflicts at execution; reject unresolvable wrappers/expansions; cancel only grant-owned actions",
       "native restart/fault, early death/corpse expiry, foreign-item conservation, history, cache/timer/heavy-row steady state and forbidden-side-effect acceptance"
     ]
-  }
+  },
+  "phase3_remaining": [
+    "Provide bounded canonical NPC compaction/archival that preserves required primary-body FK compatibility, historical attribution and non-loading tombstones; full heavy actor graphs must not accumulate.",
+    "Attach atomic provenance to native NPC/item/instance/topology creation before exposure, then post-death/remains-release and restart/heartbeat reconciliation with exactly-once native death intent handling.",
+    "Implement automatic foreign goods/container/occupant evacuation with validated fallback, generated-possession economy/salvage policy and actor AI/subscription/timer release.",
+    "Qualify exact full N14/N15/N16 on actual NPC death, corpse decay/default dissipation, all three same-template modes, restart and heavy-row/runtime steady state.",
+    "Implement remaining reusable effects and all eight approved larger features; later charm work must preserve the per-spell PC toggle and resolved-executable whitelist/deferred authority."
+  ]
 }

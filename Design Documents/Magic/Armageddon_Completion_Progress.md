@@ -56,7 +56,13 @@ fresh verification and keeps old PR receipts historical.
 - [x] Implement explicit bounded per-spell area targeting, native eligibility/ward checks and immutable selection/payment receipts.
 - [x] Verify 29 area regressions, repair legacy stored-payload null-parent compatibility and pass final dependent/native suites.
 - [x] Commit the phase2C implementation and retain failed attempts, final fingerprints and native cleanup receipts.
-- [ ] Parent independently reviews phase2C before phase3.
+- [x] Parent independently accepts phase2C `a018aa29` / `34c8df43` before phase3.
+- [x] Implement phase3A immutable lifecycle origin/exact ownership and three durable lifetime policies before world exposure.
+- [x] Generate the EF9 migration/designer/snapshot and harden retired-body cleanup around foreign goods, references and canonical identity.
+- [x] Repair five bounded review findings for context isolation, missing death proof, unloaded effects, anatomy IDs and write suppression.
+- [x] Pass the relevant Core/shared/database suites and full prior casting plus lifecycle native acceptance; retain all earlier failures.
+- [x] Commit the foundation implementation and record immutable receipts/fingerprints with owned cleanup proof.
+- [ ] Parent independently reviews phase3A before native NPC adapters/archival and later features.
 
 ## Remaining work
 
@@ -415,5 +421,81 @@ full DeadSpeak lifecycle, non-empty material plans, stock/hostile AI/real-time/g
 portable production and the eight larger features remain explicit work. The controlled
 cell fixture mutates membership at commit; native movement and full output dispatch are
 not qualified. The whole16-decision/7-phase/154-candidate/25-case ledger remains intact.
-Await parent review of this immutable local checkpoint before phase3. No publication,
+Parent independently accepted this phase2C checkpoint before the phase3A foundation below. No publication,
 merge, deployment, shared/production database or settings/usage/reset action occurred.
+
+
+## Phase3A lifecycle and ownership foundation
+
+Base: `34c8df43c73dff75753ca1691b285225f6bb7dfb`.
+Implementation: `65c41a99d8a6c296311bbaaf47149cf8e38a7163`. Parent's exact phase2C acceptance is recorded in
+the ledger; its historical receipt remains unchanged. This is a bounded dependency
+checkpoint. Phase3 remains **partial** and the next native adapter slice has not started.
+
+The shared contract captures canonical creator, source/grade, stable lifecycle key,
+absolute UTC deadline/mode, bounded provenance and exact newly created entity claims.
+Entities and claims commit together in a fresh independent serializable transaction
+before runtime exposure. Durable versioned retirement intent, native persisted-death
+correlation, dependency holds and idempotent completion survive a separate process.
+Permanent creations release to ordinary durable existence. Generated possessions have
+explicit claims; inventory reachability confers no ownership.
+
+The retired-body boundary now refuses runtime/persisted possessions and live/unloaded
+physical references before mutation. It requires form/source or durable creation proof,
+preserves canonical identity, and removes save/scheduler/world participation only after
+the database commit. A native stale canonical-pointer case confirms that the current
+body pointer is moved before deleting the retired body. Known component and character,
+instance, body and item XML references are checked conservatively; anatomy/prototype IDs
+are distinct and malformed XML blocks deletion. See [the contract](Spell_Owned_Lifecycle.md).
+
+Five review findings are repaired: failed nested creation no longer leaks tracked rows
+to the caller; absent actor rows do not prove death; unloaded instance effects are guarded;
+anatomy IDs do not block unrelated bodies; independent writes cannot escape ambient
+suppression. The generated EF9.0.11 migration adds only two journal/claim tables and their
+indexes, with no destructive entity FK, and passed disposable application/model parity.
+
+Final project results are **4,377 Core + 561 shared-library + 64 database = 5,002 passed**,
+zero failures/skips in those selected project runs. This is composite evidence: the
+three-project run `20261002T212853Z-7d803836b3c3` passed Core/library but retained two
+database snapshot-test TEMP access failures. Database run `20261002T213817Z-e37d9a459c9a`
+then passed all64 with a unique owned process-local TEMP/TMP folder, restored afterward.
+No production code changed between them; only the final native stale-pointer fixture was
+added. Focused retirement/instance run `20261002T211625Z-65bd8128d1ce` passed51 before the
+last suppression repair; the full Core suite covers the final production version.
+
+Combined disposable native acceptance passed **123 markers: 107 prior casting + 16 lifecycle**,
+including atomic callback/provider rollback, borrowed/primary refusal, exact generated
+items, three policy journals, stale version/live completion guards, suppression, foreign
+item conservation, persisted death/remains correlation, restart and 16 body-only cycles.
+All eight owned databases were deleted, temporary MySQL was gracefully shut down/deleted,
+and read-only enumeration found zero owned MySQL/harness processes. All133 frozen inputs,
+five frozen native assemblies and 14 unit/native dependency/test assembly fingerprints
+match. The final lifecycle fixture retains one canonical character, its body, one legitimate
+permanent body, one conserved foreign item and original wound attribution. Twenty-two
+lightweight journals/24 claims remain evidence; one missing-death intent is quarantined.
+The earlier successful15-marker foundation run and every actual build/test failure remain
+in [the verification receipt](Armageddon_Stage3A_Verification.json).
+
+**Full N14/N15/N16 remain not run.** Persisted secondary Dead state and raw component XML
+qualify journal correlation and physical-reference guards, not actual NPC.Die, corpse
+creation/decay/default dissipation or the same native NPC template under all three modes.
+Body-only cycles do not qualify heavy NPC/AI/item/timer/subscription steady state. The
+creation, post-death/remains-release, foreign goods/container/occupant evacuation, safe
+fallback, runtime count/control/economy policy and heartbeat/autoload adapters remain work.
+Ordinary corpse deletion's existing inventory behavior is unchanged and unqualified.
+
+Next, provide bounded canonical NPC compaction/archival that accommodates the required
+primary-body FK, preserves crime/log/witness/dub/corpse/effect attribution and keeps
+tombstones out of active loading. Neither cascading canonical deletion nor indefinite
+full heavy actor graphs satisfy the plan. Then connect native creation/death/remains
+adapters and qualify N14-N16 before broader feature integration. PC charm and all eight
+approved larger features remain later work; charm must keep its per-spell PC toggle and
+resolved executable whitelist with deferred authority checks.
+
+Every phase1/phase2 stock, speech body/focus, output filtering, Telnet/login, wearable gag,
+full DeadSpeak, source protection/count/damage/nearby-fall, material/crafting/chargen,
+hostile-AI/real-time/gathering and balance gap remains explicit. Phases4-6 portable
+production, complete stock installer and full release qualification have not started.
+All16 decisions, seven phases, 154 candidates, 25 exact scenarios and 82+12 source rows
+remain intact. Await parent review of this immutable local phase3A checkpoint. No
+publication, merge, deployment, shared/production DB or settings/usage/reset action occurred.

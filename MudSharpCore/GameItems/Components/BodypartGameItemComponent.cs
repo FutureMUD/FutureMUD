@@ -613,8 +613,9 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
     {
         _originalCharacter = Gameworld.TryGetCharacter(OriginalCharacterId, true);
         _originalBody = Gameworld.Bodies.Get(_originalBodyId) ??
-                        _originalCharacter?.Bodies.FirstOrDefault(x => x.Id == _originalBodyId);
-        if (_originalBody == null && _originalCharacter != null)
+                        _originalCharacter?.Bodies.FirstOrDefault(x => x.Id == _originalBodyId) ??
+                        (_originalCharacter as MudSharp.Character.Character)?.LoadOwnedRetiredBody(_originalBodyId);
+        if (_originalBody == null && _originalCharacter != null && _originalBodyId == 0)
         {
             _originalBody = _originalCharacter.Body;
             _originalBodyId = _originalBody.Id;

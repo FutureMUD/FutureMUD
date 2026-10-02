@@ -62,6 +62,7 @@ public partial class Character
 
 	private void RetireBodyForm(IBody body)
 	{
+		RecordBodyRetirement(body);
 		_forms.RemoveAll(x => x.Body == body);
 		_formSources.RemoveAll(x => x.Body == body);
 		Changed = true;

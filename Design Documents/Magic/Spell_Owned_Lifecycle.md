@@ -64,7 +64,8 @@ operation. Persistent inventory, implant, prosthetic and lodged-item joins also 
 an adapter must explicitly conserve/rehome foreign goods before calling the boundary.
 
 A fresh serializable transaction validates current/other canonical character pointers,
-persisted instance rows, form/source ownership and creation-proven retiring ownership. The
+persisted instance rows, form/source ownership, durable ordinary retirement and
+creation-proven retiring ownership. The
 method does not infer ownership from `Body.Actor`, which secondary retirement can reassign.
 It scans persisted component and character/instance/body/item effect XML for physical-body
 reference fields, including unloaded corpses and secondary effects. Anatomy/prototype IDs
@@ -77,6 +78,20 @@ in one transaction. Save-abort and scheduler/world removal happen after the comm
 inventory item is deleted by this method. The canonical owner's current body and identity
 survive. Refused cleanup leaves inventory and scheduled save participation untouched.
 Staff dormant-form deletion now requires possessions to be moved out first.
+
+Ordinary backup death records exact body/character/UTC retirement provenance before removing
+the runtime form. The next form save validates persisted ownership and commits
+`CharacterBodyRetirements` together with canonical-body movement and form/source pruning.
+A failed save leaves those persisted mappings and pointers intact. This ordinary provenance
+does not create a spell lifecycle or claim. Borrowed bodies and the current body cannot be
+registered merely because their `Body.Actor` points to the character.
+
+After restart, corpse and severed-part loaders can resolve that exact retired body and its
+inventory from the durable ordinary record without restoring it as a controllable form.
+Unresolved positive non-final body IDs do not fall back to the surviving current body.
+The record is removed with successful validated body cleanup; foreign possessions or any
+other physical reference keep both body and provenance intact. Existing pre-migration
+retired bodies whose mappings are already gone are not assigned speculative ownership.
 
 ## Remaining acceptance and integration
 
@@ -100,3 +115,10 @@ heavy actor/AI/item/timer/subscription steady-state scenarios pass. The Phase3A 
 qualifies the durable protocol and real Character/Body retirement boundary on disposable
 MySQL, with a separate process for restart reconciliation; it does not substitute for those
 full gameplay scenarios.
+
+The ordinary backup regression fixture separately exercises the native backup transfer
+helper, an atomic form/remains save failure and retry, a separate-process real corpse reload
+without a retired-body preload, database possession/reference refusal and the real corpse
+component's final release callback. Its item host and world services are controlled fixtures;
+the persisted foreign inventory join is deliberately unloaded. It does not qualify a full
+command session, timed decay, native NPC death or the later summon adapters.

@@ -63,6 +63,8 @@ internal static partial class GNHProgram
 				["--speech-run"] => RunSpeechAcceptanceChecks(),
 				["--area-run"] => RunAreaAcceptanceChecks(),
 				["--lifecycle-run"] => RunLifecycleAcceptanceChecks(),
+				["--body-retirement-run"] => RunBodyRetirementAcceptanceChecks(),
+				["--body-retirement-reader", .. string[] retirementArguments] => RunBodyRetirementReader(retirementArguments),
 				["--lifecycle-reader", .. string[] lifecycleArguments] => RunLifecycleReader(lifecycleArguments),
 				["--area-reader", .. string[] areaReaderArguments] => RunAreaReader(areaReaderArguments),
 				["--speech-reader", .. string[] speechReaderArguments] => RunSpeechReader(speechReaderArguments),

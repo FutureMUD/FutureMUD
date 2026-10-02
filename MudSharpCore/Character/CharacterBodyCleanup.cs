@@ -90,9 +90,10 @@ public partial class Character
 				return false;
 			}
 
-			// Existing form ownership or a creation-proven retiring lifecycle must account for the body.
+			// Existing forms, durable ordinary retirement or a creation-proven retiring lifecycle must account for the body.
 			// Body.Actor alone is insufficient: secondary retirement can reassign a borrowed body to its owner.
 			if (formRows.Count == 0 && sourceRows.Count == 0 &&
+			    !FMDB.Context.CharacterBodyRetirements.Any(x => x.BodyId == body.Id && x.CharacterId == Id) &&
 			    !FMDB.Context.MagicSpellOwnedEntities.Any(x => x.Kind == (int)SpellOwnedEntityKind.Body &&
 				    x.EntityId == body.Id && x.Lifecycle.CreatorId == Id &&
 				    x.Lifecycle.Mode != (int)SpellLifecycleMode.Permanent &&
@@ -107,6 +108,7 @@ public partial class Character
 
 			FMDB.Context.CharacterBodies.RemoveRange(formRows);
 			FMDB.Context.CharacterBodySources.RemoveRange(sourceRows);
+			FMDB.Context.CharacterBodyRetirements.RemoveRange(FMDB.Context.CharacterBodyRetirements.Where(x => x.BodyId == body.Id));
 
 			FMDB.Context.Bodies.Remove(dbBody);
 			FMDB.Context.SaveChanges();
@@ -149,6 +151,7 @@ public partial class Character
 		}
 
 		Gameworld.SaveManager.Abort(body);
+		_pendingBodyRetirements?.Remove(body.Id);
 		Gameworld.EffectScheduler.Destroy(body);
 		Gameworld.Scheduler.Destroy(body);
 		Gameworld.Destroy(body);

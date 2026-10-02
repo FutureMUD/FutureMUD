@@ -145,6 +145,8 @@ This is still a one-active-body system. The old body remains in world as a corps
 
 Retired body cleanup is reference-driven. Deleting non-final remains asks the original character to reclaim the old body, but the body is only deleted if it is not the current body, no longer appears in the character's runtime forms or sources, is not targeted by an active body backup, and no other loaded corpse or severed bodypart still points at the same `OriginalBodyId`. Corpse deletion and severed-part deletion both use this path, so a butchered sleeve is retained while any physical trace remains and is reclaimed once the last trace is gone.
 
+Ordinary backup death retains exact body/character retirement provenance in `CharacterBodyRetirements`. Form save commits this record alongside the new canonical body pointer and removal of the old form/source mappings, after validating persisted ownership. After reboot, corpse and severed-part loaders use that provenance to recover the exact retired body and its inventory without making it a controllable form again. An unresolved positive non-final body ID is not redirected to the surviving current body. Successful cleanup consumes the record and body in the same transaction; persisted possessions, instances, effects and other physical references continue to block it. No spell ownership is fabricated for an ordinary backup, and already-unmapped legacy bodies receive no speculative ownership backfill.
+
 ### Loading and Compatibility
 
 Single-body characters are normalised into a default form at load time. The default form uses the current body, defaults voluntary switching to allowed, and uses the body prototype name as its alias.

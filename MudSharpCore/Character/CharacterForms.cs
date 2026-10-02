@@ -657,6 +657,7 @@ public partial class Character
 
 	private void SaveForms(MudSharp.Models.Character dbchar)
 	{
+		SaveBodyRetirements(dbchar);
 		dbchar.BodyId = Body.Id;
 
 		var removedForms = dbchar.CharacterBodies

@@ -331,8 +331,10 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         }
 
         _originalBody = Gameworld.Bodies.Get(_originalBodyId) ??
-                        _originalCharacter?.Bodies.FirstOrDefault(x => x.Id == _originalBodyId);
-        if (_originalBody == null && _originalCharacter != null)
+                        _originalCharacter?.Bodies.FirstOrDefault(x => x.Id == _originalBodyId) ??
+                        (_originalCharacter as MudSharp.Character.Character)?.LoadOwnedRetiredBody(_originalBodyId);
+        if (_originalBody == null && _originalCharacter != null &&
+            (_originalBodyId == 0 || RepresentsFinalCharacterDeath))
         {
             _originalBody = _originalCharacter.Body;
             _originalBodyId = _originalBody.Id;

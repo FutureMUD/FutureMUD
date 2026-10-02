@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase2C independently accepted; Phase3A lifecycle/ownership foundation implemented and verified; parent review pending before native adapters/archival; whole phase3 remains partial",
+  "selected_stage": "Phase3A P2 ordinary backup-body retirement correction implemented and verified; parent rereview pending; native adapters/archival and full phase3 remain partial",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -2360,6 +2360,31 @@
       "frozen_inputs_matching": 133,
       "binary_fingerprints": 14,
       "receipt": "Armageddon_Stage3A_Verification.json"
+    },
+    {
+      "id": "phase3A_ordinary_retirement_P2",
+      "status": "passed_bounded_automated_and_controlled_native_parent_rereview_pending",
+      "focused_core": "20261002T225830Z-1516a1770e66",
+      "focused_database": "20261002T225933Z-15a21c867a08",
+      "aggregate": "20261002T230052Z-ae8dd8f99fff",
+      "counts": {
+        "core": 4380,
+        "library": 561,
+        "database": 65,
+        "aggregate": 5006
+      },
+      "single_combined_run_passed": true,
+      "failing_before_native": "ordinary-attempt4",
+      "passing_after_native": "ordinary-attempt5",
+      "native_markers": 127,
+      "ordinary_markers": 4,
+      "prior_casting_markers": 107,
+      "lifecycle_markers": 16,
+      "owned_databases_cleaned": 9,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 142,
+      "binary_fingerprints": 14,
+      "receipt": "Armageddon_Stage3A_OrdinaryRetirement_Verification.json"
     }
   ],
   "implementation_commits": [
@@ -2422,14 +2447,18 @@
     {
       "sha": "65c41a99d8a6c296311bbaaf47149cf8e38a7163",
       "subject": "Add durable spell-owned lifecycle foundation and safe body retirement"
+    },
+    {
+      "sha": "8ab37546b050d895a31d3d3097e818da0a987d9b",
+      "subject": "Preserve ordinary retired-body provenance after backup death"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3A_review",
-    "base": "34c8df43c73dff75753ca1691b285225f6bb7dfb",
-    "scope": "Phase3A durable lifecycle/ownership foundation and safe retired-body boundary",
-    "implementation_head": "65c41a99d8a6c296311bbaaf47149cf8e38a7163",
-    "receipt": "Armageddon_Stage3A_Verification.json",
+    "status": "awaiting_parent_phase3A_ordinary_retirement_rereview",
+    "base": "a059338c9d15a8c7135c5192509f28e3c0f7a5ee",
+    "scope": "Phase3A P2 ordinary backup-body retirement correction",
+    "implementation_head": "8ab37546b050d895a31d3d3097e818da0a987d9b",
+    "receipt": "Armageddon_Stage3A_OrdinaryRetirement_Verification.json",
     "implementation_verified": true,
     "no_next_slice_started": true,
     "next_stage_after_review": "Parent review of this immutable checkpoint, then bounded canonical NPC compaction/archival and native creation/post-death/remains-release adapters before the eight larger features and full N14-N16.",

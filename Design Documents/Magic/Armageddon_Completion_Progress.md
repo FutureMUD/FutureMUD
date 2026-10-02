@@ -62,7 +62,7 @@ fresh verification and keeps old PR receipts historical.
 - [x] Repair five bounded review findings for context isolation, missing death proof, unloaded effects, anatomy IDs and write suppression.
 - [x] Pass the relevant Core/shared/database suites and full prior casting plus lifecycle native acceptance; retain all earlier failures.
 - [x] Commit the foundation implementation and record immutable receipts/fingerprints with owned cleanup proof.
-- [ ] Parent independently reviews phase3A before native NPC adapters/archival and later features.
+- [ ] Parent rereviews phase3A after the ordinary retirement P2 correction below.
 
 ## Remaining work
 
@@ -499,3 +499,38 @@ production, complete stock installer and full release qualification have not sta
 All16 decisions, seven phases, 154 candidates, 25 exact scenarios and 82+12 source rows
 remain intact. Await parent review of this immutable local phase3A checkpoint. No
 publication, merge, deployment, shared/production DB or settings/usage/reset action occurred.
+
+
+## Phase3A ordinary retirement P2 correction
+
+Parent review found a reachable ordinary backup-death regression: runtime retirement and
+the next save remove form/source ownership, so final non-final corpse release refused the
+body forever. Native `ordinary-attempt4` reproduced this before the repair: backup death,
+save, reload and both refusal guards passed, then eligible final release failed. That
+reproduction preloaded the exact retired body to isolate the missing ownership guard.
+
+Implementation: `8ab37546b050d895a31d3d3097e818da0a987d9b` on base `a059338c9d15a8c7135c5192509f28e3c0f7a5ee`. Exact ordinary
+body/character/UTC provenance now survives mapping removal and is committed with form
+save after persisted ownership validation. Corpse and severed-part loaders resolve the
+exact retired body and inventory after restart; successful guarded cleanup consumes its
+ordinary provenance. No spell claim is fabricated and no legacy ownership is guessed.
+See [the immutable correction receipt](Armageddon_Stage3A_OrdinaryRetirement_Verification.json). The original phase3A receipt
+and its TEMP failures/composite5,002 result remain unchanged.
+
+- [x] Reproduce the parent's P2 with actual backup transfer/form save/corpse release paths.
+- [x] Preserve ordinary provenance and exact restart resolution without a retired-body preload.
+- [x] Retain borrowed/current-body, possession and physical-reference refusal protections.
+- [x] Prove provider-failure rollback and fresh-scope retry on disposable MySQL.
+- [x] Pass focused Core85/database2 and one aggregate run: Core4,380 + library561 + database65 = 5,006; zero failures/skips, stable source.
+- [x] Pass final combined native127: prior casting107 + lifecycle16 + ordinary4; all nine owned databases and temporary instance cleaned, zero owned processes.
+- [x] Freeze142 source inputs, five native assemblies and 14 unit/native assembly fingerprints; retain every failed/reporting/build/fixture attempt.
+- [ ] Parent rereviews this immutable correction before the next implementation phase.
+
+The native ordinary reader uses the real corpse component and its Delete callback with
+controlled item/world hosts. It deliberately introduces an unloaded persisted foreign
+inventory join after loading, then explicitly rehomes the item before release. This
+qualifies the regression and guards, not automatic evacuation, loaded-inventory corpse
+deletion, a full command/Character.Die session or timed decay. **Full N14-N16 remain not
+run.** Canonical NPC compaction/archival and native creation/death/remains/foreign-goods/
+AI/restart adapters remain the next dependencies; all other recorded plan gaps persist.
+No next phase, publication, merge, deployment or shared/production database work occurred.

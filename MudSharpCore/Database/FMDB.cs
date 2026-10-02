@@ -32,6 +32,7 @@ public sealed class FMDB : IDisposable
 		public FuturemudDatabaseContext Context { get; set; }
 		public DbConnection Connection { get; set; }
 		public uint InstanceCount { get; set; }
+		public bool SuppressEfWrites { get; set; }
 	}
 
 	private sealed class IsolatedScope(DatabaseSession previous) : IDisposable
@@ -118,6 +119,7 @@ public sealed class FMDB : IDisposable
 	public static string ConnectionString { get; set; } = string.Empty;
 	public static string Provider { get; set; } = string.Empty;
 	public static bool IsIsolated => _ambientSession.Value is not null;
+	public static bool WritesAreSuppressed => CurrentSession?.SuppressEfWrites == true;
 
 	private static DatabaseSession CurrentSession => _ambientSession.Value ?? _defaultSession;
 
@@ -150,6 +152,24 @@ public sealed class FMDB : IDisposable
 			}
 
 			_ambientSession.Value = CreateSession(suppressEfWrites);
+			return new IsolatedScope(previous);
+		}
+	}
+
+	/// <summary>
+	/// Owns a fresh session even within an isolated caller. On disposal the caller's session is restored;
+	/// failed immediate transactions cannot leave tracked rows in the caller's deferred save context.
+	/// </summary>
+	public static IDisposable BeginIndependentScope(bool requireWrites = false)
+	{
+		lock (_lock)
+		{
+			if (requireWrites && WritesAreSuppressed)
+			{
+				throw new InvalidOperationException("The caller suppresses database writes; independent mutations are forbidden.");
+			}
+			var previous = _ambientSession.Value;
+			_ambientSession.Value = CreateSession(WritesAreSuppressed);
 			return new IsolatedScope(previous);
 		}
 	}
@@ -213,7 +233,8 @@ public sealed class FMDB : IDisposable
 			return new DatabaseSession
 			{
 				Context = context,
-				Connection = connection
+				Connection = connection,
+				SuppressEfWrites = suppressEfWrites
 			};
 		}
 		catch

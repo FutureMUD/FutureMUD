@@ -62,6 +62,8 @@ internal static partial class GNHProgram
 				["--practice-run"] => RunPracticeAcceptanceChecks(),
 				["--speech-run"] => RunSpeechAcceptanceChecks(),
 				["--area-run"] => RunAreaAcceptanceChecks(),
+				["--lifecycle-run"] => RunLifecycleAcceptanceChecks(),
+				["--lifecycle-reader", .. string[] lifecycleArguments] => RunLifecycleReader(lifecycleArguments),
 				["--area-reader", .. string[] areaReaderArguments] => RunAreaReader(areaReaderArguments),
 				["--speech-reader", .. string[] speechReaderArguments] => RunSpeechReader(speechReaderArguments),
 				["--practice-reader", .. string[] practiceReaderArguments] => RunPracticeReader(practiceReaderArguments),

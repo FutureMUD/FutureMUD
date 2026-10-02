@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase2A timed target-free paid practice implemented and verified; independent parent checkpoint review pending",
+  "selected_stage": "Phase2A native effect interruption repair implemented and verified; independent parent rereview pending",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -313,7 +313,8 @@
       "required_result": "No effects/target resistance/ward use; full configured payment once; no interrupted gain/refund/replay",
       "status": "partial_controlled_native_purity_interruption_restart_verified_full_hostile_AI_stock_pending",
       "evidence": [
-        "Phase2A: native nearby injured/warded actor, damage/caster templates and forbidden resistance check remain untouched; full configured payment, stop/focus/speech/capability/quit, separate-process pending recovery and stale timer terminal protection passed. Full hostile-AI/installed-world/Telnet and non-empty native materials pending. Armageddon_Stage2A_Verification.json"
+        "Phase2A: native nearby injured/warded actor, damage/caster templates and forbidden resistance check remain untouched; full configured payment, stop/focus/speech/capability/quit, separate-process pending recovery and stale timer terminal protection passed. Full hostile-AI/installed-world/Telnet and non-empty native materials pending. Armageddon_Stage2A_Verification.json",
+        "Phase2A review repair: native actor/body silence removal/expiry wholly between heartbeats, speech-free continuation, brief native hand restriction/hand-free policy and paralysis pass with payment/deadlines retained and no required-input check/progression. Full hostile-AI/installed stock/materials/Telnet remain pending. Armageddon_Stage2A_Effect_Interruption_Verification.json"
       ]
     },
     {
@@ -2223,6 +2224,23 @@
       "status": "two_P2_findings_repaired_no_further_actionable_defect_established",
       "failing_before_regression_run": "20261002T150325Z-d2fafc473a7b",
       "receipt": "Armageddon_Stage2A_Verification.json"
+    },
+    {
+      "name": "Phase2A effect interruption repair",
+      "status": "passed_bounded_automated_and_controlled_native",
+      "failing_before": "20261002T155737Z-66eb626bd389",
+      "focused": "20261002T160616Z-2073a9d46631",
+      "dependent": "20261002T161014Z-7da9009cb399",
+      "counts": {
+        "focused": 325,
+        "core": 4288,
+        "library": 549,
+        "aggregate": 4837
+      },
+      "owned_databases_cleaned": 5,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 77,
+      "receipt": "Armageddon_Stage2A_Effect_Interruption_Verification.json"
     }
   ],
   "implementation_commits": [
@@ -2269,17 +2287,23 @@
     {
       "sha": "99a9361340710f0e2a17cbc04ab5f3184076a9cc",
       "subject": "Add timed target-free paid practice to configured casting"
+    },
+    {
+      "sha": "c1c5f3c954f2e390f890bbeb908807ad15ba3f6c",
+      "subject": "Latch practice interruption on native physical effect changes"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase2A_independent_review",
+    "status": "awaiting_parent_phase2A_effect_interruption_rereview",
     "base": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
     "scope": "Timed target-free paid practice, configurable physical/material plan, shared progression and conservative interruption/restart recovery",
     "next_stage_after_review": "Phase2B genuine native speech/formula/command parity and quiet/volume; then spell-specific area policy",
     "no_later_stage_started": true,
-    "receipt": "Armageddon_Stage2A_Verification.json",
+    "receipt": "Armageddon_Stage2A_Effect_Interruption_Verification.json",
     "implementation_verified": true,
-    "implementation_head": "99a9361340710f0e2a17cbc04ab5f3184076a9cc"
+    "implementation_head": "99a9361340710f0e2a17cbc04ab5f3184076a9cc",
+    "review_base": "48dba6e9a61e984c449b62f87e73e40d7d95cffc",
+    "fix_commit": "c1c5f3c954f2e390f890bbeb908807ad15ba3f6c"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",

@@ -45,6 +45,8 @@ fresh verification and keeps old PR receipts historical.
 - [x] Repair bounded review finding: live staff reconciliation and stale timers cannot overwrite final receipts.
 - [x] Complete fresh phase2A focused/dependent and disposable native verification.
 - [x] Commit phase2A implementation and record its immutable acceptance receipt.
+- [x] Reproduce and repair parent P2: native effect-driven physical eligibility loss latches before check/progress.
+- [x] Verify the repair with fresh focused/full suites and disposable native effect scenarios.
 - [ ] Parent independently accepts the phase2A checkpoint before later adapters.
 
 ## Remaining work
@@ -306,3 +308,22 @@ Independent parent review of this immutable checkpoint precedes later invocation
 
 Phase2A implementation commit: `99a9361340710f0e2a17cbc04ab5f3184076a9cc`. The receipt commit records
 this exact head and preserved failures/fingerprints. No later adapter has started.
+
+## Phase2A native effect interruption repair
+
+Parent review found P2 brief native silence escaping heartbeat observation. Actual native
+silence reproduced four required-speech failures before repair; four speech-free cases passed.
+Effect lifecycle changes now notify practice immediately and latch required eligibility loss,
+including completion reentry; configured speech/hand opt-outs remain respected. Native
+body-part/limb restrictions and forced paralysis before health-state refresh are also covered.
+
+Fix commit: `c1c5f3c954f2e390f890bbeb908807ad15ba3f6c`; review base: `48dba6e9a61e984c449b62f87e73e40d7d95cffc`.
+Fresh evidence: [Armageddon_Stage2A_Effect_Interruption_Verification.json](Armageddon_Stage2A_Effect_Interruption_Verification.json). Focused 325 (64 practice), Core 4,288
+and Library 549/aggregate 4,837 passed with no failures/skips and stable source fingerprints.
+Full disposable casting acceptance passed 75 markers including 12 new native effect scenarios;
+five owned databases and the temporary MySQL instance were cleaned, with zero owned processes.
+All 77 frozen inputs and unit/native assembly hashes match. Native attempt 1 retained its
+failed lookup-count assertion and cleanup; the harness counter now counts actual check executions.
+Production and automated tests stayed unchanged after those suites. Original phase2A receipts are
+historical and unchanged. The minimal speech anatomy adapter, provisional tuning and existing
+installed-world/material/hostile-AI/real-time/login limits remain explicit. Parent rereview precedes later adapters.

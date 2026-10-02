@@ -1,0 +1,1119 @@
+{
+  "schema_version": 1,
+  "stage": "Phase2A timed target-free paid practice",
+  "status": "implemented_and_verified_parent_independent_checkpoint_review_pending",
+  "base_commit": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+  "implementation_head": "99a9361340710f0e2a17cbc04ab5f3184076a9cc",
+  "branch": "codex/armageddon-completion-phase1",
+  "source_authority": {
+    "library_file_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+    "file_id": "file_00000000273481fab2e542daf8801228",
+    "reported_version": 0,
+    "read_version_id": null,
+    "size_bytes": 131071,
+    "total_lines": 905,
+    "windows": [
+      [
+        1,
+        300
+      ],
+      [
+        301,
+        450
+      ],
+      [
+        451,
+        600
+      ],
+      [
+        601,
+        750
+      ],
+      [
+        751,
+        905
+      ]
+    ],
+    "has_more": false,
+    "complete_content_read": true,
+    "access_route": "Library read; full contiguous windows; no materialized substitute",
+    "read_complete_at_utc": "2026-10-02T07:41:07.312Z",
+    "rendered_content_utf8_bytes": 131070
+  },
+  "parent_prior_acceptance": {
+    "implementation": "cb4db29ba2f57687b9e24c17141dedea0f8df4ac",
+    "handoff": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+    "scope": "Compound stage1C independently cleared before phase2; historical receipts remain unchanged."
+  },
+  "implemented": [
+    "Immutable casting mode routes practice through the same admission/raw-cap/grade gates, explicit capability, combined energy payment, canonical ownership and shared progress helper.",
+    "Explicit opt-in practice policy and separate material plan with XML round trip, clone, builder help/validation; configurable enabled/duration/difficulty/energy/max/speech/hand/movement. No practice-specific stock maximum.",
+    "Durable operation/deadline and shared skill/mastery opportunities committed at start; transient general-blocking action and full energy/material debit once.",
+    "One target-free native casting check at completion; native skill improvement and successful next-grade mastery use shared deadlines. No target resolution, resistance, ward use, caster or target spell effects.",
+    "Retained focus, body/state/movement/death/quit/stop and live-input invalidation; captured-body inventory/wound and actor position events, heartbeat and final recheck; interrupted work retains payment/deadlines without gain or refund.",
+    "Restart quarantines pending/uncertain paid work and never automatically resumes/refunds/rerolls. Staff cannot reconcile live work; stale timers respect durable terminal state.",
+    "Cancellation holds the canonical mutation fence through inventory cleanup/flush/terminal write and checks durable terminal state again; re-entrant review defect reproduced failing-before and repaired."
+  ],
+  "review": {
+    "reviewer": "/root/fm_reviewer",
+    "base": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+    "scope": "Timed target-free paid practice, durable payment/progression/interruption/recovery and added native physical-input subscriptions",
+    "reviews": [
+      {
+        "finding": "Staff finalisation left a running timer able to overwrite a terminal receipt and progress",
+        "disposition": "repaired: refuse live/ongoing mutations and read durable terminal state before completion/cancellation",
+        "regressions": [
+          "Practice_StaffReconciliation_RefusesRunningWorkAndCannotRecoverInterruptedProgress",
+          "Practice_StaleAction_CannotOverwriteDurableFinalisation"
+        ]
+      },
+      {
+        "finding": "Re-entrant inventory cleanup could reconcile cancellation between active marker removal and final interruption write",
+        "disposition": "repaired: acquire/reuse owner mutation fence through finalisation/flush/terminal write; recheck durable terminal",
+        "failing_before_run": "20261002T150325Z-d2fafc473a7b",
+        "regression": "Practice_CancellationCleanup_RefusesReentrantStaffFinalisation"
+      },
+      {
+        "scope": "Native inventory/wound/position event timing and captured-body subscription cleanup",
+        "disposition": "no actionable defect established; native signals run after relevant state/cache/organ updates and all release paths unsubscribe"
+      }
+    ],
+    "final_disposition": "no_further_actionable_defect_established_in_bounded_review",
+    "limits": "Read-only source review, not independent test execution or parent acceptance. Installed stock, real-time scheduler, hostile AI and full Telnet/login remain qualification gates."
+  },
+  "final_focused": {
+    "status": "PASS",
+    "head": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+    "run_id": "20261002T151127Z-2a5df6a065fd",
+    "started_utc": "2026-10-02T15:11:27.8480179+00:00",
+    "ended_utc": "2026-10-02T15:12:10.9321662+00:00",
+    "duration_seconds": 43.0841685,
+    "sdk": "10.0.401",
+    "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+    "configuration": "Debug",
+    "filter": "FullyQualifiedName~MagicCasting|FullyQualifiedName~Armageddon|FullyQualifiedName~BodyInventoryInitialisation",
+    "build_switches": [
+      "-m:1",
+      "-p:RestoreBuildInParallel=false",
+      "-p:NuGetAudit=false",
+      "-p:NoWarn=NU1902%3BNU1510"
+    ],
+    "counts": {
+      "executed": 270,
+      "passed": 270,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 270
+    },
+    "source_start": "5641cc1493aed0a18d4d95e9b4a7be0bf3e064c633cd26a3cf8b20aa87e04b67",
+    "source_end": "5641cc1493aed0a18d4d95e9b4a7be0bf3e064c633cd26a3cf8b20aa87e04b67",
+    "source_stable": true,
+    "execution_complete": true,
+    "counts_complete": true,
+    "issues": [],
+    "receipt": ".artifacts/test-runs/20261002T151127Z-2a5df6a065fd/summary.json",
+    "receipt_sha256": "7ab39ff6678cc781b742134af46e8c2cef0df92b0b6091fd277f9624f184c730",
+    "projects": [
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 270,
+          "passed": 270,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 270
+        }
+      }
+    ],
+    "failing_tests": []
+  },
+  "final_dependent_suites": {
+    "status": "PASS",
+    "head": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+    "run_id": "20261002T151502Z-95d4a249ffa3",
+    "started_utc": "2026-10-02T15:15:02.1164813+00:00",
+    "ended_utc": "2026-10-02T15:15:59.8937080+00:00",
+    "duration_seconds": 57.7772497,
+    "sdk": "10.0.401",
+    "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+    "configuration": "Debug",
+    "filter": null,
+    "build_switches": [
+      "-m:1",
+      "-p:RestoreBuildInParallel=false",
+      "-p:NuGetAudit=false",
+      "-p:NoWarn=NU1902%3BNU1510"
+    ],
+    "counts": {
+      "executed": 4821,
+      "passed": 4821,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 4821
+    },
+    "source_start": "96831cc14fbc76116c6bfbb7c8978d1a755dcded6d97a2d5e79b155e83c4c2ff",
+    "source_end": "96831cc14fbc76116c6bfbb7c8978d1a755dcded6d97a2d5e79b155e83c4c2ff",
+    "source_stable": true,
+    "execution_complete": true,
+    "counts_complete": true,
+    "issues": [],
+    "receipt": ".artifacts/test-runs/20261002T151502Z-95d4a249ffa3/summary.json",
+    "receipt_sha256": "4d87f942efa9fccb1e998783c958b799c6cb5b43a58b073e3d9294307ff0b888",
+    "projects": [
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 4272,
+          "passed": 4272,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 4272
+        }
+      },
+      {
+        "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 549,
+          "passed": 549,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 549
+        }
+      }
+    ],
+    "failing_tests": []
+  },
+  "historical_attempts": [
+    {
+      "status": "FAIL",
+      "head": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+      "run_id": "20261002T143353Z-ebff98dab74d",
+      "started_utc": "2026-10-02T14:33:53.8797773+00:00",
+      "ended_utc": "2026-10-02T14:34:56.8776115+00:00",
+      "duration_seconds": 62.9978543,
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~MagicCastingPracticeTests",
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "counts": null,
+      "source_start": "9ce1cc0d05fb52ee4717f737cdcad8845f4369a2a70c4a8abc9aad53d2f859d7",
+      "source_end": "9ce1cc0d05fb52ee4717f737cdcad8845f4369a2a70c4a8abc9aad53d2f859d7",
+      "source_stable": true,
+      "execution_complete": false,
+      "counts_complete": false,
+      "issues": [
+        {
+          "kind": "BUILD_FAILED",
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "detail": "  Determining projects to restore...\r"
+        }
+      ],
+      "receipt": ".artifacts/test-runs/20261002T143353Z-ebff98dab74d/summary.json",
+      "receipt_sha256": "666d23edbd44c9f969eea79c3e3bbae21d5d6d7cf9729e4cd3b3f7e32ab59bed",
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "NOT_RUN",
+          "counts": null
+        }
+      ],
+      "failing_tests": []
+    },
+    {
+      "status": "FAIL",
+      "head": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+      "run_id": "20261002T144315Z-14d3fc63848c",
+      "started_utc": "2026-10-02T14:43:15.5046016+00:00",
+      "ended_utc": "2026-10-02T14:43:50.1258754+00:00",
+      "duration_seconds": 34.6212942,
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~MagicCastingPracticeTests",
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "counts": null,
+      "source_start": "7c466722216cf140c00e64bafd8e12ece933995f7076067adaa6797755c4e2fa",
+      "source_end": "7c466722216cf140c00e64bafd8e12ece933995f7076067adaa6797755c4e2fa",
+      "source_stable": true,
+      "execution_complete": false,
+      "counts_complete": false,
+      "issues": [
+        {
+          "kind": "BUILD_FAILED",
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "detail": "  Determining projects to restore...\r"
+        }
+      ],
+      "receipt": ".artifacts/test-runs/20261002T144315Z-14d3fc63848c/summary.json",
+      "receipt_sha256": "4d015a10233ac1929fec12eb579a350ce5190b84a0221fd29aef9a2d146c1077",
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "NOT_RUN",
+          "counts": null
+        }
+      ],
+      "failing_tests": []
+    },
+    {
+      "status": "FAIL",
+      "head": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+      "run_id": "20261002T144548Z-d83eff4a0af3",
+      "started_utc": "2026-10-02T14:45:48.4605663+00:00",
+      "ended_utc": "2026-10-02T14:46:30.7703881+00:00",
+      "duration_seconds": 42.3098425,
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~MagicCastingPracticeTests",
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "counts": {
+        "executed": 42,
+        "passed": 8,
+        "failed": 34,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 42
+      },
+      "source_start": "39ab908f740d593ffe85e235b02dee452a4805e6ff6e35d09826b34a2254d007",
+      "source_end": "39ab908f740d593ffe85e235b02dee452a4805e6ff6e35d09826b34a2254d007",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "issues": [
+        {
+          "kind": "TEST_FAILED",
+          "project": null,
+          "detail": "34 failing test records"
+        }
+      ],
+      "receipt": ".artifacts/test-runs/20261002T144548Z-d83eff4a0af3/summary.json",
+      "receipt_sha256": "10b24bc49f669c5211867c0f9e631b7b69cae221513f003ae3507b776d2de27a",
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "FAIL",
+          "counts": {
+            "executed": 42,
+            "passed": 8,
+            "failed": 34,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 42
+          }
+        }
+      ],
+      "failing_tests": [
+        "Practice_StaleAction_CannotOverwriteDurableFinalisation (False)",
+        "Practice_Restart_QuarantinesPersistedPrepaidActionWithoutResumeRefundOrReroll",
+        "Practice_LostLiveRequirements_CannotAwardProgressAtCompletion (configuration)",
+        "Practice_InterruptedAction_RetainsPaymentAndDeadlinesWithoutProgressOrReplay (body)",
+        "Practice_PaidCompletion_UsesOneTargetFreeCheckAndNeverAppliesSpellEffects",
+        "Practice_FaultBoundary_QuarantinesUncertainWorkWithoutAutomaticReplay (Committed,False,85)",
+        "Practice_FaultBoundary_QuarantinesUncertainWorkWithoutAutomaticReplay (ImprovingSkill,True,85)",
+        "Practice_PolicyRoundTripAndGradeSeven_KeepExplicitPowerMappingAndOrdinaryCap",
+        "Practice_FaultBoundary_QuarantinesUncertainWorkWithoutAutomaticReplay (CheckingPractice,True,85)",
+        "Practice_ConfiguredPhysicalPermissions_AreUsedWithoutWeakeningManifestation",
+        "Practice_ExplicitMaterialPlan_ExecutesOnceAndFinalisesAfterCompletionOrInterruption (True)",
+        "Practice_InterruptedAction_RetainsPaymentAndDeadlinesWithoutProgressOrReplay (focus)",
+        "Practice_ActionAttachmentFault_ReleasesCallbacksAndQuarantinesPayment",
+        "Practice_LostLiveRequirements_CannotAwardProgressAtCompletion (speech)",
+        "Practice_StaffReconciliation_RefusesRunningWorkAndCannotRecoverInterruptedProgress",
+        "Practice_InterruptedDuringCheck_CannotAwardSkillOrMastery",
+        "Practice_LostLiveRequirements_CannotAwardProgressAtCompletion (capability)",
+        "Practice_PrematureExpiry_ConsumesNoProgressAndCannotResetSharedOpportunities",
+        "Practice_FaultBoundary_QuarantinesUncertainWorkWithoutAutomaticReplay (Practising,False,85)",
+        "Quote_PracticeWithoutTarget_IsPureAndUsesFullSharedCost",
+        "Practice_LostLiveRequirements_CannotAwardProgressAtCompletion (hand)",
+        "Practice_FaultBoundary_QuarantinesUncertainWorkWithoutAutomaticReplay (PaymentMutated,False,85)",
+        "Practice_InterruptedAction_RetainsPaymentAndDeadlinesWithoutProgressOrReplay (quit)",
+        "Practice_InterruptedAction_RetainsPaymentAndDeadlinesWithoutProgressOrReplay (state)",
+        "Practice_StaleAction_CannotOverwriteDurableFinalisation (True)",
+        "Practice_AndManifestation_ShareSkillAndMasteryOpportunities (False)",
+        "Practice_InterruptedAction_RetainsPaymentAndDeadlinesWithoutProgressOrReplay (movement)",
+        "Practice_FaultBoundary_QuarantinesUncertainWorkWithoutAutomaticReplay (MasterySampledBeforeWrite,True,85)",
+        "Practice_AndManifestation_ShareSkillAndMasteryOpportunities (True)",
+        "Practice_FaultBoundary_QuarantinesUncertainWorkWithoutAutomaticReplay (Paying,False,100)",
+        "Practice_ExplicitMaterialPlan_ExecutesOnceAndFinalisesAfterCompletionOrInterruption (False)",
+        "Practice_InterruptedAction_RetainsPaymentAndDeadlinesWithoutProgressOrReplay (death)",
+        "Practice_InterruptedAction_RetainsPaymentAndDeadlinesWithoutProgressOrReplay (stop)",
+        "Practice_Invalidation_ImmediatelyCancelsWithoutWaitingForExpiry"
+      ]
+    },
+    {
+      "status": "FAIL",
+      "head": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+      "run_id": "20261002T145519Z-c27944ba3e5a",
+      "started_utc": "2026-10-02T14:55:19.5373797+00:00",
+      "ended_utc": "2026-10-02T14:55:30.9707631+00:00",
+      "duration_seconds": 11.4334044,
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~MagicCastingPracticeTests",
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "counts": {
+        "executed": 42,
+        "passed": 41,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 42
+      },
+      "source_start": "a50b3a582966bcb677236d31ac01a963733062912c765cf32bfd9ef620a2bcdb",
+      "source_end": "a50b3a582966bcb677236d31ac01a963733062912c765cf32bfd9ef620a2bcdb",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "issues": [
+        {
+          "kind": "TEST_FAILED",
+          "project": null,
+          "detail": "1 failing test records"
+        }
+      ],
+      "receipt": ".artifacts/test-runs/20261002T145519Z-c27944ba3e5a/summary.json",
+      "receipt_sha256": "2a9c9f72363ac6bad4e9da617d5b4821e99e6240fe61c4632480583eede6612a",
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "FAIL",
+          "counts": {
+            "executed": 42,
+            "passed": 41,
+            "failed": 1,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 42
+          }
+        }
+      ],
+      "failing_tests": [
+        "Practice_StaffReconciliation_RefusesRunningWorkAndCannotRecoverInterruptedProgress"
+      ]
+    },
+    {
+      "status": "PASS",
+      "head": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+      "run_id": "20261002T145737Z-e93016129602",
+      "started_utc": "2026-10-02T14:57:37.4405538+00:00",
+      "ended_utc": "2026-10-02T14:57:49.0693984+00:00",
+      "duration_seconds": 11.6288652,
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~MagicCastingPracticeTests",
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "counts": {
+        "executed": 45,
+        "passed": 45,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 45
+      },
+      "source_start": "a44f68661383b5fc11013b284f9a50a17e08774b213d40a1254a86b1ae502ee4",
+      "source_end": "a44f68661383b5fc11013b284f9a50a17e08774b213d40a1254a86b1ae502ee4",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "issues": [],
+      "receipt": ".artifacts/test-runs/20261002T145737Z-e93016129602/summary.json",
+      "receipt_sha256": "5fafba4bdc0c2eb1e2064f47980d32f67265cd0d3fc6911bed19cb0377d4ddf6",
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 45,
+            "passed": 45,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 45
+          }
+        }
+      ],
+      "failing_tests": []
+    },
+    {
+      "status": "FAIL",
+      "head": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+      "run_id": "20261002T150325Z-d2fafc473a7b",
+      "started_utc": "2026-10-02T15:03:25.2610078+00:00",
+      "ended_utc": "2026-10-02T15:03:36.4461290+00:00",
+      "duration_seconds": 11.1851411,
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~MagicCastingPracticeTests.Practice_CancellationCleanup_RefusesReentrantStaffFinalisation",
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "counts": {
+        "executed": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 1
+      },
+      "source_start": "77cab64b7ae87abeca973a9d68c2fd03181d5d8021d0666472dcec41a02e4c87",
+      "source_end": "77cab64b7ae87abeca973a9d68c2fd03181d5d8021d0666472dcec41a02e4c87",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "issues": [
+        {
+          "kind": "TEST_FAILED",
+          "project": null,
+          "detail": "1 failing test records"
+        }
+      ],
+      "receipt": ".artifacts/test-runs/20261002T150325Z-d2fafc473a7b/summary.json",
+      "receipt_sha256": "bd2c3a2c1242d0731bba4378bedf1a0e5c200be73611efb188af185f5a629467",
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "FAIL",
+          "counts": {
+            "executed": 1,
+            "passed": 0,
+            "failed": 1,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1
+          }
+        }
+      ],
+      "failing_tests": [
+        "Practice_CancellationCleanup_RefusesReentrantStaffFinalisation"
+      ]
+    },
+    {
+      "status": "FAIL",
+      "head": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+      "run_id": "20261002T150529Z-f2af667d2c28",
+      "started_utc": "2026-10-02T15:05:29.2034158+00:00",
+      "ended_utc": "2026-10-02T15:05:53.8938889+00:00",
+      "duration_seconds": 24.6904934,
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~MagicCasting|FullyQualifiedName~Armageddon|FullyQualifiedName~BodyInventoryInitialisation",
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "counts": {
+        "executed": 268,
+        "passed": 267,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 268
+      },
+      "source_start": "88dda44de2f8d76daeb310b3951842a07c00feda596f0c10f11b4e21d0a5496c",
+      "source_end": "88dda44de2f8d76daeb310b3951842a07c00feda596f0c10f11b4e21d0a5496c",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "issues": [
+        {
+          "kind": "TEST_FAILED",
+          "project": null,
+          "detail": "1 failing test records"
+        }
+      ],
+      "receipt": ".artifacts/test-runs/20261002T150529Z-f2af667d2c28/summary.json",
+      "receipt_sha256": "b80ed363f3ec42f1c238f805297ae8b0646a1bbe9035daabb2e11143c567dce2",
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "FAIL",
+          "counts": {
+            "executed": 268,
+            "passed": 267,
+            "failed": 1,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 268
+          }
+        }
+      ],
+      "failing_tests": [
+        "PlayerCommands_RefuseAmbiguityAndLaterModes_ExplicitRoutePays"
+      ]
+    }
+  ],
+  "historical_attempt_explanation": {
+    "20261002T143353Z-ebff98dab74d": "Missing Difficulty namespace; compiler FAIL, no tests executed.",
+    "20261002T144315Z-14d3fc63848c": "Missing test TraitUseType namespace; compiler FAIL, no tests executed.",
+    "20261002T144548Z-d83eff4a0af3": "8 pass/34 fail: default recursive mocks supplied non-null movement/combat; fixture corrected to intended idle state.",
+    "20261002T145519Z-c27944ba3e5a": "41 pass/1 fail: already-terminal reconciliation is Allowed with Changed=false; assertion corrected to existing idempotence contract and unchanged writes.",
+    "20261002T145737Z-e93016129602": "Intermediate 45 practice tests passed before later review regression and physical-event coverage.",
+    "20261002T150325Z-d2fafc473a7b": "Intentional failing-before re-entrant inventory cleanup regression: 0 pass/1 fail. Production cancellation fence then repaired.",
+    "20261002T150529Z-f2af667d2c28": "267 pass/1 fail: old integration contract expected practice unavailable. Updated to unauthored practice refusal/no payment while formula/quiet/area remain unavailable."
+  },
+  "native_acceptance": {
+    "status": "passed_controlled_native_fixture",
+    "mysql": "8.0.45",
+    "build": {
+      "status": "passed",
+      "warnings": 0,
+      "errors": 0,
+      "scope": "Targeted Debug harness --no-restore -m:1"
+    },
+    "final_log": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/native-attempt2.log",
+    "passed_markers": [
+      "ARM02-schema=passed blank-snapshot-import empty-casting-tables generated-migration-and-model-parity",
+      "ARM02-receipt=passed operation:7809ae9b-7f9d-4c81-b9ee-7bff8a5dc17d character:1 actor:1 body:1 capability:1 spell:1 trait:1 reserve:1 stage:Completed",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:69248",
+      "ARM02-native-cast=passed non-admin-command real-Skill real-Body payment:22.5 grade:3 separate-process-reload",
+      "ARM02-sorcerer=passed second-non-admin distinct-reserve:77.5 agility:-3 armour:92 gathering-only",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:79928",
+      "ARM02-second-body=passed focus detach restore single-passive-tick grade-one-cost:5 shared-opportunity native-gathering-canonical-credit-physical-costs",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:38132",
+      "ARM02-second-body-restart=passed persisted-instance-effects shared-skill shared-deadlines shared-reserve",
+      "ARM02-reader=passed grade:3 balance:72.5 unresolved:0 operation:none process:54496",
+      "ARM02-reader=passed grade:2 balance:100 unresolved:0 operation:none process:41940",
+      "ARM02-fault=passed stage:BeforePayment status:Refused operation:none no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:e7795975-a079-4588-9a2b-075afff61935 process:78616",
+      "ARM02-fault=passed stage:PaymentMutated status:NeedsReview operation:e7795975-a079-4588-9a2b-075afff61935 no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:2e72c10a-1a92-4e71-a5f1-664fab36406b process:67356",
+      "ARM02-fault=passed stage:EffectsExecuted status:NeedsReview operation:2e72c10a-1a92-4e71-a5f1-664fab36406b no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:67aaafbe-5f27-4f14-b7e8-e4890544d2a6 process:59076",
+      "ARM02-fault=passed stage:MasterySampledBeforeWrite status:NeedsReview operation:67aaafbe-5f27-4f14-b7e8-e4890544d2a6 no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:e2f2383c-9230-4089-8842-0f5b2fca4b8e process:34876",
+      "ARM02-fault=passed stage:MasterySampleRecorded status:NeedsReview operation:e2f2383c-9230-4089-8842-0f5b2fca4b8e no-replay-no-refund-no-reroll",
+      "ARM02-provider=passed operation:7c808565-7e6d-413d-b964-27d03dcf948c At SamplingMastery: An error occurred while saving the entity changes. See the inner exception for details. (ARM02 controlled provider sample failure)",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:7c808565-7e6d-413d-b964-27d03dcf948c process:31100",
+      "ARM02-auxiliary=passed Ember-Lance-native-wounds Wardcraft-native-tag-ward per-spell-trait shared-trait-edge native-school-preserved",
+      "ARM02-native=passed",
+      "ARM-COMP-opening-cap=passed native-Skill opening:30/60 cap:60 route-loss-history-preserved",
+      "ARM-COMP-efficiency=passed mastery:1 requested:1 cost:50 non-admin-command",
+      "ARM-COMP-efficiency=passed mastery:2 requested:1 cost:25 non-admin-command",
+      "ARM-COMP-cap-loss-reload=passed removed-admission cap:0 history:60 independent-process",
+      "ARM02-reader=passed grade:7 balance:18 unresolved:0 operation:none process:19128",
+      "ARM-COMP-native=passed cap:60 max-grade:7 efficiency:50/25/7 overreach-cost:75 balance:18 receipts:4 separate-process-reload practice:NOT_RUN",
+      "ARM-SUPPORT-cap-adoption=passed uncapped-original-grant same-policy-and-key cap:90 native-opening:30 separate-terminal-marker",
+      "ARM-SUPPORT-reload=passed native-Skill raw:90 cap:90 Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:False",
+      "ARM02-reader=passed grade:1 balance:17 unresolved:0 operation:none process:28032",
+      "ARM-SUPPORT-reload=passed native-Skill raw:90 cap:0 Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:True",
+      "ARM02-reader=passed grade:1 balance:17 unresolved:0 operation:none process:48508",
+      "ARM-SUPPORT-native=passed authored-enrolment parent-native-use:30-to-80 second-focused-body-support-native-use:30-to-80-to-90 Identify-grade:1 cap:90 no-dummy-spell no-refill terminal-immutable separate-process-reload craft-command:NOT_RUN",
+      "ARM-CAPACITY-matrix=passed rows:16728 spells:82 normal-pairs:28 overreach-pairs:6 profiles:2 scenarios:3 advanced-unaffordable:0 provisional-mapping-and-coefficients energy-envelope-only",
+      "ARM-CAPACITY-reload=passed persisted-explicit-raw-attribute-expression max:118 balance:17 enrolment-no-refill attribute-rise-max:121-balance:17 grade7-insufficient-spent-balance",
+      "ARM02-reader=passed grade:7 balance:17 unresolved:0 operation:none process:62200",
+      "ARM-CAPACITY-compound=passed both-child-orders normal-command-casts:4 prepared-targets:4 combined-target-caster:4 complete-removals:14 neutral-90-preserved final-application-decrease:70 final-removal-decrease:100 no-refill native-resource-delta:17-to-24 mixed-native-deltas:30 neutral-credit:97 final-decrease:70 final-increase-credit:140 negative-delta:83 large-debit:30 command-cost:25",
+      "ARM-CAPACITY-effective-reload=passed service-before-balance-inventory-effects-load persisted-bonuses:3+7 raw:10 max:200 saved-balance:150 preserved-until-complete bonus-removal-max:100-balance:100 production-restoration-scope full-character-login:NOT_RUN",
+      "ARM02-reader=passed grade:7 balance:150 unresolved:0 operation:none process:81932",
+      "ARM-CAPACITY-native=passed production-attribute-evaluator raw-and-effective immediate-clamp no-refill invalid-cap-payment-refusal canonical-focus owner-body-fixture-replacement grade7-normal:25 grade7-overreach:56.25 pairs:34 balance:17 max:118 separate-process-reload full-body-form-and-backup-command:NOT_RUN stock-mapping:PROVISIONAL",
+      "ARM-PRACTICE-grade=passed grade:1 raw:40 cap:60 balance:50 samples:0 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:2 raw:50 cap:60 balance:25 samples:1 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:3 raw:60 cap:60 balance:25 samples:2 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:4 raw:60 cap:60 balance:25 samples:3 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:5 raw:60 cap:60 balance:25 samples:4 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:6 raw:60 cap:60 balance:25 samples:5 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:7 raw:60 cap:60 balance:25 samples:6 duration:30 accelerated-clock",
+      "ARM-PRACTICE-restrictions=passed native-interval:1-blocks/20-improves maximum:6-refuses7 disabled:refuses",
+      "ARM-PRACTICE-interrupt=passed signal:stop balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:focus balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:speech balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:capability balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:quit balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-reader=passed process:66208 operation:b274c821-057c-4ca1-8749-4baa4ed7b4cf raw:60 grade:7 balance:93 deadline:2026-10-02T02:41:00.0000000Z no-resume/refund/reroll",
+      "ARM-PRACTICE-native=passed raw:30-to-60 controlled:1-to-7 actual-ClassicImprovement shared-deadlines target/caster/resistance/ward-purity separate-process-recovery stale-action-terminal-preserved stock-installed-world:NOT_RUN material-plan:explicit-empty"
+    ],
+    "owned_databases_cleaned": 5,
+    "temporary_mysql_cleanup": "gracefully_shut_down_and_deleted_verified_owned_instance",
+    "owned_processes_remaining": 0,
+    "process_check": {
+      "checked_utc": "2026-10-02T15:25:12.9170637Z",
+      "owned_processes": [],
+      "owned_process_count": 0
+    },
+    "practice": {
+      "raw_start": 30,
+      "raw_cap": 60,
+      "raw_final": 60,
+      "controlled_start": 1,
+      "controlled_final": 7,
+      "acquisition": "Compiled authored enrolment Prog for a non-admin with permanent capability merit; no raw/grade setter overrides.",
+      "progression": "Paid ordinary practice command, actual native Skill/ClassicImprovement. Difficulty interval1 blocks actual gain; authored interval20 permits it.",
+      "payment": "100-unit configured fixture reserve; source efficiency minimum7/scale1, overreach multiplier1, energy multiplier1; grade1 initial cost50, next-grade cost75, mastery7 grade1 floor7. Full configured cost at start.",
+      "purity": "Native injured/warded nearby actor unchanged; hostile damage and caster effect templates never applied; resistance lookup forbidden.",
+      "interruption": [
+        "native stop",
+        "focus reset",
+        "speech loss/heartbeat",
+        "capability loss/reconcile",
+        "native quit signal"
+      ],
+      "restart": "Independent reader process observes Practising/deadline/shared deadlines, raw60/grade7/balance93 and no saved timer; refuses replay, staff reconciles no sample, stale timer preserves Reconciled.",
+      "provisional_fixture_tuning": {
+        "duration_seconds": 30,
+        "skill_seconds": 60,
+        "mastery_seconds": 600,
+        "native_improvement_chance": 1,
+        "native_improvement_amount": 10,
+        "native_difficulty_interval": 20,
+        "controlled_check": "Pass",
+        "mastery_random_sample": 0.1,
+        "material_plan": "explicit_empty",
+        "clock": "accelerated"
+      }
+    },
+    "historical_native_attempt": {
+      "status": "failed_fixture_authoring",
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/native-attempt1.log",
+      "reason": "Restrictive interval1 check passed; interval0 was rejected by the existing native builder. Authored permissive positive interval20, then reran complete native acceptance.",
+      "cleanup": "one_owned_database_and_verified_temporary_mysql_cleaned"
+    },
+    "fingerprints": {
+      "base": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
+      "captured_utc": "2026-10-02T15:18:32.3309954Z",
+      "files": [
+        {
+          "path": "Design Documents/Magic/Armageddon_Capacity_Affordability_Scenarios.json",
+          "sha256": "1fba4f6781f8af2252ef484ca70686b8f808d9cd6152d0e74d140fb2953ab307"
+        },
+        {
+          "path": "Design Documents/Magic/Armageddon_Sorcerer_Source_Tree.json",
+          "sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496"
+        },
+        {
+          "path": "Design Documents/Magic/Configurable_Casting_Handover.md",
+          "sha256": "7eda3e9c0722788819f866bdd6d762f8115ead19bdc024e79bb83d2d029195eb"
+        },
+        {
+          "path": "Design Documents/Magic/Configurable_Casting.md",
+          "sha256": "32e16d2df895454842f544c9ba8a9f19b0cfeeaf543003f8dab7b81d2184c398"
+        },
+        {
+          "path": "FutureMUDLibrary Unit Tests/MagicResourceCapacityTests.cs",
+          "sha256": "5eba7122865c9e8caa6119d973a59441c2dfb4e995145ae4678f2eaa491f6359"
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/IMagicCastingCapability.cs",
+          "sha256": "3f1e27cba61e6c38afb192c18b8738a950b9872fe347fa75faa1c6af69d3576f"
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/IMagicCastingService.cs",
+          "sha256": "5945f8348135c18c6de61eca6dbcf0787656e8d5c08ccb31c86db2f2acf99cf9"
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/IMagicResourceCapacity.cs",
+          "sha256": "1e4de3d77197bfb14a85b4a6306af9cbe368bf1d017abf902b093c8e42ac175f"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/ArmageddonAffordabilityTests.cs",
+          "sha256": "b6614cf0cca731c9186f370a81fcb3c7753c6707a3e6050dc8c0e3e11a35ee08"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingCapacityTests.cs",
+          "sha256": "0554c6dfea70d4b2e7066c8578c8499540b58f0cfddb1d2d693cae535b4fc1ae"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingIntegrationTests.cs",
+          "sha256": "ffae3700075aa9154586995016fbf31d95eaf9241dc42a4e798e96f7d5fed6d8"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingOwnershipTests.cs",
+          "sha256": "002c3a861c2e4381e788003290214bd0c97d5d35f6b070661852aa8697fb9d4b"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingPracticeTests.cs",
+          "sha256": "9493438f7e3a80581bfa1ab4a380ac26a07291899dfbb07bd75202998447ad75"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingProgressionTests.cs",
+          "sha256": "819ab49e3f87e62fb69e54895bc0cc998b039bb8554e260ac9324fe73807c38f"
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyCharacteristics.cs",
+          "sha256": "a74eed054416a31a36fe150515b4d7eacdb6437e772a3974a62afaf6be30e098"
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyInventory.cs",
+          "sha256": "36caf6c3b06eb49e05bbc9c1f9357a630d50bd70ab13bd7b5c620c79ea2b4c59"
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyTraits.cs",
+          "sha256": "76e9328cbfe16877e3c4367e46ad3ee897f92e10cc64e688db2d8ea49583e0b5"
+        },
+        {
+          "path": "MudSharpCore/Body/Traits/Trait.cs",
+          "sha256": "d68d8ce1fba47bacbb4f7a1638eed6a703b13fb4bb1b6b0e3831d4f0f910e3d8"
+        },
+        {
+          "path": "MudSharpCore/Body/Traits/TraitExpression.cs",
+          "sha256": "8169bbac624e5a5b4bec9462b8850bf9e74e1bb3231f7ccf3f5d11339866ef76"
+        },
+        {
+          "path": "MudSharpCore/Character/Character.cs",
+          "sha256": "138fbfc69b1ac49885603b5414752fcfe41736f32c806542284f515c742df941"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterBodyBackups.cs",
+          "sha256": "a0fa6bcb7024daf8298deeb3db07cf80903bd0bffe07c3bcbe5a4af9e9ec6aa8"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterCastingResources.cs",
+          "sha256": "776621b9e0e22d45abd352da35b0b2a85582e0b8e6610ede5ac3cfbf821a36e9"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterForms.cs",
+          "sha256": "ec991fd011b1370b1a582144cf54d6382d50c0a97e63b82269c50e76592d2fa5"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterInstances.cs",
+          "sha256": "f84385a1607124d2f30d66f48c11b18ede1b708a7f2458795b8a5bc51e75bb83"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterMagic.cs",
+          "sha256": "251f12dcc51fe7100a36390df8ef7c438f8e4da9368d92a24ae3f9e9f20250ef"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterTraits.cs",
+          "sha256": "78bfac27a976536ce7a634b8d8e4ffa437fbe0f4547266a16bbad04e1a74ffc0"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterWork.cs",
+          "sha256": "ac0e4382f4a1557c4d5200435a46397520a7e7c6331579f962d1308def645cfa"
+        },
+        {
+          "path": "MudSharpCore/Character/Heritage/RaceBuilding.cs",
+          "sha256": "fac3aeb841e39177bb95b8ba048a179b373284bfad549b609b811e12cf059485"
+        },
+        {
+          "path": "MudSharpCore/Commands/Modules/MagicModule.Casting.cs",
+          "sha256": "33ebc785b543cb4ea632092777ed220db0de8b5c223cc207f2712389b6f65ee6"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/MagicSpellParent.cs",
+          "sha256": "99469beb8b5a3a481d20f123f0bea1df17c1706717cd9ba8c0ee48e848418187"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellTraitBoostEffect.cs",
+          "sha256": "93fd2ddf0850587fcfb6d63782dbe9e6e94e4c93239add1249467d21120f50f4"
+        },
+        {
+          "path": "MudSharpCore/Effects/EffectHandler.cs",
+          "sha256": "22c74eee0405fb7bbd157889411cde4e6b18acedfaf68df362413d123307801f"
+        },
+        {
+          "path": "MudSharpCore/Framework/PerceivedItem.cs",
+          "sha256": "a68c23bdba91740e3c4c8b3abeed20be1fcfc7644a584102dcb59d6ebafe7985"
+        },
+        {
+          "path": "MudSharpCore/GameItems/Components/ImplantBaseGameItemComponent.cs",
+          "sha256": "71374e6636b822f1340fb735eb30a54153ba4418b232472ec64840a647fce31e"
+        },
+        {
+          "path": "MudSharpCore/GameItems/Components/ImplantTraitChangerGameItemComponent.cs",
+          "sha256": "6b1f1f150446734951061bb601a4816fd6ee7f8717e7e21f7ec73d39820637fd"
+        },
+        {
+          "path": "MudSharpCore/GameItems/Components/WornTraitChangerGameItemComponent.cs",
+          "sha256": "a124984244c1fb4dbbd5c21608a9a0496554e1c71206f1aa6db62410670d002f"
+        },
+        {
+          "path": "MudSharpCore/GameItems/GameItemHealth.cs",
+          "sha256": "08276ef07aa2b78102f203aa28690aae58f61afec1796319cef9d0ef51b58791"
+        },
+        {
+          "path": "MudSharpCore/Health/Wounds/HealingSimpleWound.cs",
+          "sha256": "f6948b3aa0df696fc1d60a5a6a0635d21bf5a2fc5e4ab4866834da7829a4cf9e"
+        },
+        {
+          "path": "MudSharpCore/Health/Wounds/RobotWound.cs",
+          "sha256": "dc4c03a2113c535ed6b224bb9a57a8958361a004223a78d18c3044c1a3eb85f0"
+        },
+        {
+          "path": "MudSharpCore/Health/Wounds/SimpleOrganicWound.cs",
+          "sha256": "a0c1c2f2b76537b9cda8f95772aae39a9e7dbbcfe9c9b364360ad1dd12b4de42"
+        },
+        {
+          "path": "MudSharpCore/Health/Wounds/SimpleWound.cs",
+          "sha256": "185acf80f8d84d529edc40956a9a8bf1a8ffb00644ff6e33dd3d630418f914fe"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.cs",
+          "sha256": "ac4fbbc6c1caefa9af7325cfd3834c2c01536a52e83c95f98ec1c7144ea0254b"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.Execution.cs",
+          "sha256": "259857fe7ac403cc7f4433ffa5868decd32471b2ecade5c9efb03206e90aa99b"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.Practice.cs",
+          "sha256": "f39914ea87abf2ccc438b7424b09b12cbfdffaf41a410b0f9c971b787e19f1a0"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.Resources.cs",
+          "sha256": "230c71718cb7a3bffd65e0327f52fa9104ef346b8e89cd2450adc0cd528ee70e"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingStateStore.cs",
+          "sha256": "3aec45f4a1ef4908d4a47f6ba13c76dd206c3bc5ffa1907fff44714489e8ee58"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicPracticeAction.cs",
+          "sha256": "881b23aa0d37da31cb8ca7bc1b2549c46e0c9556a68d7a8330140bc912e06204"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Capacity.cs",
+          "sha256": "9b050d4912a58c0d7c888707ee4a991288406b163b743ee7b1ff7e16f014febd"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.cs",
+          "sha256": "d4121cc87f24d264e7859090b12f08f44c1e5e7e99080f4118a0ef15685f9f52"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Grades.Builder.cs",
+          "sha256": "4e828558e717e6bfab86c47604ddf96dc45cf8d60686cecb296b30c9d65adc63"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Grades.cs",
+          "sha256": "51d8225d0c6ec9ee43624b9576ad4177227ab88f19ad575f5f800463a344f1b6"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Practice.cs",
+          "sha256": "77f5a7b1c72bb9dcd5ff8b91d9dbcc54dbd9280ee8ef63afce8c66be187fea4c"
+        },
+        {
+          "path": "MudSharpCore/Magic/Resources/SimpleMagicResource.Capacity.cs",
+          "sha256": "4565cde0c2e262fe507997fc0f9cfb87fd09c531a184d267a1f5c8dd13c906e1"
+        },
+        {
+          "path": "MudSharpCore/Magic/Resources/SimpleMagicResource.cs",
+          "sha256": "c22b1d0318f84a09f316872695140033adfe81e890d122ad4b915738dc436284"
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/MagicResourceDeltaEffect.cs",
+          "sha256": "f84fc02af75920c88c8c3afb61f9183b7698b7579617ea9e62f82404923133c7"
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs",
+          "sha256": "3f3a7df4bf330e164909b956fbc6ebc16bc320f331f3080a44a8f33ebe4a1fae"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/GatheringNativePersistenceHarness.csproj",
+          "sha256": "7661c30a28f8b51fb82b2cc331808538f132948cd63654a2afa54e1dd02b8ffa"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.Casting.cs",
+          "sha256": "76da0ae25f75acf37d7b5cf897b7ea1716ab5ef8105edf9c84e292416ff3b5ea"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingCapacity.Compound.cs",
+          "sha256": "4188edfa5841aa822da5c66ac4812a7766cf4a5ca62b973244058cb0c0f626d0"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingCapacity.cs",
+          "sha256": "7f95fb1968c08354d60036760979cf307e0c4339aa12952dac074c45e4e8b495"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingFixtures.cs",
+          "sha256": "ab11b05832f5a146c100dbc2d4d2f7ce668d3f4eb5cdcd929fe45f8c538c9e69"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingLifecycle.cs",
+          "sha256": "b6455cfc72a303ca7635e67576e8ac2e84c264f07fdb375a854c76610a1903ee"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingPractice.cs",
+          "sha256": "33c82339c2d3cf55fa97a1adaae076937426ec6bc2524cc120aa2a8c98891c7d"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingProgression.cs",
+          "sha256": "7443fd9509206d2d69674c9a33c72d1b5221cf8255f9dd644795be3af2ca4893"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingSupport.cs",
+          "sha256": "de7ce1ab6a1ac548e5b5bb88b7a72eac5648f3673af6a0bf354ce1dad86c2bc0"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+          "sha256": "710d16a926fdacb144dcf5d18975d4c6be53dee7683edf2c15c85701ddc88d0a"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/README.md",
+          "sha256": "3d861a3b197925d1c5ddf110fb97dace8e455295c8d6c527a5cfaa8ce673466a"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+          "sha256": "f98b3a70ff6dbe8f0cbcf675d547f0ecfd44345d116f240f66f449d31ebd7e91"
+        }
+      ]
+    },
+    "binary_and_frozen_input_verification": {
+      "fingerprint_files": 68,
+      "mismatches": [],
+      "binaries": {
+        "native_harness": {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll",
+          "sha256": "7d5032d746c5555fe6b7f773937676efcc02b4bdf868207b91399c02419082cd"
+        },
+        "native_core": {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/MudSharp.dll",
+          "sha256": "d599a13567f3dd9ed4c4bdd0d85608eb5471a9cd4bf049959ccdaacb23342271"
+        },
+        "native_library": {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/FutureMUDLibrary.dll",
+          "sha256": "b1933fa0d7cd571852bfb4f2f1d5a1f37640d230492e961a1e1bb4b9a9ac9347"
+        },
+        "unit_core": {
+          "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+          "sha256": "d599a13567f3dd9ed4c4bdd0d85608eb5471a9cd4bf049959ccdaacb23342271"
+        },
+        "unit_library": {
+          "path": "FutureMUDLibrary Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+          "sha256": "b1933fa0d7cd571852bfb4f2f1d5a1f37640d230492e961a1e1bb4b9a9ac9347"
+        }
+      },
+      "native_unit_core_match": true,
+      "native_unit_library_match": true
+    }
+  },
+  "evidence_files": [
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/bounded-review.json",
+      "sha256": "dd07ce87d4755fcb50748aeb7bc3993c1c88908db89d3fc8cec4bd068c234eb0"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/build-attempt1-exit.json",
+      "sha256": "f9fe61483ea8becea839a5d9fc77047b77466e5d6e28fb659d295f0499c75394"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/build-attempt1.log",
+      "sha256": "984f347e3bea97544ca73c519f4742fcf8d545f80aec1e8036eee13291325fc9"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/build-attempt2-exit.json",
+      "sha256": "432045ee41bac995e955056a97a80305c993e9bdd3f1d046cd13e130d997358d"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/build-attempt2.log",
+      "sha256": "3130ee14d71b74c1f7e197c73796a1c3c09548b8854d1d7034cac8c5af59abc2"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/frozen-input-verification.json",
+      "sha256": "eb1876b7112febe8755ebd24d7f55429fbcc08601895a7c960d853f4ead72ba8"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/input-attempt1-fingerprints.json",
+      "sha256": "f6e1bdf38d0d804c17f2bdaeaac116ac9e65234db8057dcae2b3435627230cb5"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/input-fingerprints.json",
+      "sha256": "b678929e8059d85f5ee2bf81becea9feb5ad5766d9233959fcb4a3428dc00cbc"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/native-attempt1-exit.json",
+      "sha256": "1d372e0e52d804f189fbef8d2c13fdbb0b3d0be29943abd5f8568481d0e78f1c"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/native-attempt1.log",
+      "sha256": "cb8b374f447e03f43d1d6b0d58d36cdc298afea8a04a3ac2e024f25fc0e67592"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/native-attempt2-exit.json",
+      "sha256": "07d9df4e1e6ba9608b7f97eb96d14733a70a5081f77da081148c97a8bf160c16"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/native-attempt2.log",
+      "sha256": "89030314507071067e452f8aa9503c95958396cb3e0396f6152cb44e33e21188"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2A-practice/process-state-verification.json",
+      "sha256": "9501c42f3269db384fa771d6e177ebfba1936cb32e547438cdda2fde50409e57"
+    }
+  ],
+  "preserved_history": [
+    {
+      "path": "Design Documents/Magic/Armageddon_Stage1C_Compound_Verification.json",
+      "sha256": "379cbc082c042b8581bc79bd8d92b5cff2fef58112c3fe83d455e02d381de6c6"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Sorcerer_Source_Tree.json",
+      "sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496"
+    }
+  ],
+  "remaining_work": [
+    "Independent parent acceptance of the exact implementation/receipt commits before further phase2 checkpoints.",
+    "Phase2 genuine native player-origin speech/formula/command parity, origin tokens/no recursion/doublecast, native language/method/volume semantics and quiet policy; then source-specific area inclusion.",
+    "N06/N12 remain partial: installed Mend Flesh/stock practice and balance/gathering, full hostile-AI/ward scenario, non-empty native materials, real-time scheduling and real login/Telnet not run.",
+    "Stock capacity attribute/energy/support/crafting/chargen/NPC integration and installer/per-spell qualification remain phase1/phase5 gates.",
+    "Phases3-6 effect/lifecycle gaps, eight larger systems, portable production, full installer and complete release acceptance remain pending."
+  ],
+  "authorisation_and_preservation": {
+    "local_commits": "authorised",
+    "publication_merge_deploy_shared_or_production_db": "not_performed",
+    "primary_worktree": "C:/Users/Luke/source/repos/FutureMUD",
+    "primary_head": "aca21bfc39298199291933375226d8982352420d",
+    "primary_changes": "Only pre-existing untracked .artifacts/; unchanged and untouched.",
+    "model_settings_usage": "Parent centrally owns these; no changes/resets/purchases."
+  },
+  "blockers": []
+}

@@ -44,7 +44,8 @@ fresh verification and keeps old PR receipts historical.
 - [x] Implement phase2A target-free paid practice with an explicit separate plan and configurable physical policy.
 - [x] Repair bounded review finding: live staff reconciliation and stale timers cannot overwrite final receipts.
 - [x] Complete fresh phase2A focused/dependent and disposable native verification.
-- [ ] Commit phase2A and hand off its immutable acceptance receipt for independent parent review.
+- [x] Commit phase2A implementation and record its immutable acceptance receipt.
+- [ ] Parent independently accepts the phase2A checkpoint before later adapters.
 
 ## Remaining work
 
@@ -302,3 +303,6 @@ improvement chance1/amount10/interval20 and a 100-unit reserve with source overr
 multiplier1. These are provisional test choices. Non-empty native material plans, hostile AI,
 real-time scheduling, installed Mend Flesh and full login/Telnet remain qualification gates.
 Independent parent review of this immutable checkpoint precedes later invocation adapters.
+
+Phase2A implementation commit: `99a9361340710f0e2a17cbc04ab5f3184076a9cc`. The receipt commit records
+this exact head and preserved failures/fingerprints. No later adapter has started.

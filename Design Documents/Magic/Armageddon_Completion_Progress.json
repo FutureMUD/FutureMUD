@@ -2265,6 +2265,10 @@
     {
       "sha": "cb4db29ba2f57687b9e24c17141dedea0f8df4ac",
       "subject": "Reconcile casting capacity after complete compound spell mutations"
+    },
+    {
+      "sha": "99a9361340710f0e2a17cbc04ab5f3184076a9cc",
+      "subject": "Add timed target-free paid practice to configured casting"
     }
   ],
   "next_checkpoint": {
@@ -2274,7 +2278,8 @@
     "next_stage_after_review": "Phase2B genuine native speech/formula/command parity and quiet/volume; then spell-specific area policy",
     "no_later_stage_started": true,
     "receipt": "Armageddon_Stage2A_Verification.json",
-    "implementation_verified": true
+    "implementation_verified": true,
+    "implementation_head": "99a9361340710f0e2a17cbc04ab5f3184076a9cc"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",

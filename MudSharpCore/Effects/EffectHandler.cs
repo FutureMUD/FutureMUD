@@ -77,7 +77,7 @@ public class EffectHandler : IEffectHandler
         {
             EffectsChanged = true;
         }
-		NotifyAttributeCapacityChange(effect);
+		NotifyCastingInputChange(effect);
     }
 
     public void AddEffect(IEffect effect, TimeSpan duration)
@@ -105,7 +105,7 @@ public class EffectHandler : IEffectHandler
         }
 
         _effects.Remove(effect);
-		NotifyAttributeCapacityChange(effect);
+		NotifyCastingInputChange(effect);
         Gameworld.EffectScheduler.Unschedule(effect);
         if (effect.SavingEffect)
         {
@@ -129,11 +129,15 @@ public class EffectHandler : IEffectHandler
         }
     }
 
-	private void NotifyAttributeCapacityChange(IEffect effect)
+	private void NotifyCastingInputChange(IEffect effect)
 	{
-		if (effect is not ITraitBonusEffect && effect is not MudSharp.Effects.Concrete.PsychicSuppressionEffect) return;
+		var physicalInput = effect is ISilencedEffect or IBodypartIneffectiveEffect or ILimbIneffectiveEffect or IForceParalysisEffect;
+		var capacityInput = effect is ITraitBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect;
+		if (!physicalInput && !capacityInput) return;
 		var actor = Parent as MudSharp.Character.ICharacter ?? (Parent as MudSharp.Body.IBody)?.Actor;
-		if (actor is not null) Gameworld.MagicCasting?.NotifyCapacityChange(actor);
+		if (actor is null) return;
+		if (physicalInput) Gameworld.MagicCasting?.NotifyPracticeInputsChanged(actor);
+		if (capacityInput) Gameworld.MagicCasting?.NotifyCapacityChange(actor);
 	}
 
 	private IDisposable? DeferAttributeCapacityChanges(IEnumerable<IEffect> effects)

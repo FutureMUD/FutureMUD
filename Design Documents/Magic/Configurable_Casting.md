@@ -79,8 +79,14 @@ checks can still improve the native skill under its own improvement model.
 The provisional fixture takes 30 seconds and requires speech and a free hand; movement
 is forbidden. Native stop, focus change, death, quit, body/state changes, loss of the
 capability or required physical inputs interrupt it without progress or refund. Standard
-invalidation, native inventory/wound/position signals, a five-second validity heartbeat
-and a final live recheck cover the current inputs. Shared 60/600-second deadlines are consumed at commitment and survive
+invalidation, native inventory/wound/position signals and native effect changes recheck the
+current inputs immediately. Added or removed silence, body-part/limb restrictions and forced
+paralysis notify active practice after the effect list changes. Any required eligibility
+loss latches interruption, even if the effect is removed or expires before the next heartbeat
+or is changed re-entrantly during completion. Speech-free and hand-free profiles continue
+when their other requirements remain satisfied. Forced paralysis is checked before a later
+native health update changes character state. A five-second validity heartbeat and final
+live rechecks remain fallbacks. Shared 60/600-second deadlines are consumed at commitment and survive
 interruption. Pending operations persist their deadline and input/payment receipt, while
 their timer is transient. Restart quarantines uncertain paid work for staff reconciliation;
 it never resumes, refunds or rolls it automatically. Staff cannot reconcile live work.

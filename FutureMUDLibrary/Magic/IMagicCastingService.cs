@@ -50,6 +50,8 @@ public interface IMagicCastingService
 	void Reconcile(ICharacter actor);
 	/// <summary>Interrupts owned prepaid practice without refund or progress; does not resume work.</summary>
 	void InterruptPractice(ICharacter actor, string reason) { }
+	/// <summary>Rechecks owned prepaid practice after native physical eligibility changes; lost inputs latch interruption.</summary>
+	void NotifyPracticeInputsChanged(ICharacter actor) { }
 	/// <summary>Re-evaluates existing canonical reserve maxima without granting energy, knowledge or progression.</summary>
 	void NotifyCapacityChange(ICharacter actor) { }
 	/// <summary>Pure native improvement ceiling; null retains native policy. Never trims stored proficiency.</summary>

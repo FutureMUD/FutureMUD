@@ -25,6 +25,7 @@ public sealed partial class MagicCastingService
 		public MagicPracticeAction? Action { get; set; }
 		public ControlledSpellProfile Profile { get; } = prepared.Spell.GradeProfile!;
 		public bool Completing { get; set; }
+		public string? LostInputReason { get; set; }
 	}
 
 	private readonly ConcurrentDictionary<Guid, ActivePractice> _activePractices = new();
@@ -107,6 +108,7 @@ public sealed partial class MagicCastingService
 
 	private string? PracticeError(ActivePractice active)
 	{
+		if (active.LostInputReason is { } lost) return lost;
 		var actor = active.Intent.Actor; var captured = active.Prepared.Quote.Invocation!;
 		if (Owner(actor).Id != active.Operation.CharacterId || actor.InstanceId != active.Operation.ActorId || actor.Body?.Id != active.Operation.BodyId)
 			return "The practice identity, acting instance or body changed.";
@@ -147,6 +149,7 @@ public sealed partial class MagicCastingService
 				var captured = active.Prepared.Quote.Invocation!;
 				PracticeStage(active, "CheckingPractice");
 				if (StopFinalisedPractice(active)) return;
+				if (PracticeError(active) is { } beforeCheck) { CancelPractice(active, beforeCheck + " No progress or refund."); return; }
 				CheckOutcome check;
 				using (new CheckImprovementScope(actor))
 					check = _world.GetCheck(CheckType.CastSpellCheck).CheckAgainstAllDifficulties(actor, captured.Difficulty,
@@ -156,6 +159,7 @@ public sealed partial class MagicCastingService
 				active.Payload.SetAttributeValue("outcome", check.Outcome);
 				PracticeStage(active, "PracticeChecked");
 				if (StopFinalisedPractice(active)) return;
+				if (PracticeError(active) is { } beforeProgress) { CancelPractice(active, beforeProgress + " No progress or refund."); return; }
 				// The live action has completed; the owner guard now owns its at-most-once progress mutation.
 				_activePractices.TryRemove(active.Operation.Id, out _);
 				RecordProgress(active.Intent, active.Prepared, check, check.Outcome >= active.Prepared.Spell.MinimumSuccessThreshold,
@@ -218,14 +222,19 @@ public sealed partial class MagicCastingService
 	{
 		lock (Guard(actor))
 		{
-			foreach (var active in _activePractices.Values.Where(x => x.Operation.CharacterId == Owner(actor).Id && !x.Completing).ToArray())
+			foreach (var active in _activePractices.Values.Where(x => x.Operation.CharacterId == Owner(actor).Id).ToArray())
 				if (PracticeError(active) is { } reason)
 				{
+					active.LostInputReason ??= reason;
+					// Completion owns its mutation fence; its next live recheck observes the latched loss.
+					if (active.Completing) continue;
 					active.Intent.Actor.RemoveEffect(active.Action!, true);
 					CancelPractice(active, reason + " No progress or refund.");
 				}
 		}
 	}
+
+	public void NotifyPracticeInputsChanged(ICharacter actor) => ValidatePractices(actor);
 
 	public void InterruptPractice(ICharacter actor, string reason)
 	{

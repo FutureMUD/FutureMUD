@@ -80,6 +80,9 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		var practice = mode == MagicCastingMode.Practice ? profile.Practice : null;
 		if (mode == MagicCastingMode.Practice && practice is not { Enabled: true }) return "Practice is not enabled for this spell.";
 		if (practice?.MaximumGrade is { } maximum && grade > maximum) return "That grade exceeds this spell's configured practice maximum.";
+		if (practice is not null && (actor.State.HasFlag(CharacterState.Paralysed) ||
+			actor.CombinedEffectsOfType<MudSharp.Effects.Interfaces.IForceParalysisEffect>().Any(x => x.ShouldParalyse && x.Applies())))
+			return "Paralysis prevents you from continuing practice.";
 		if (practice is not null && (actor.Combat is not null || actor.Movement is not null && !practice.AllowMovement ||
 			actor.CombinedEffectsOfType<MudSharp.Effects.Interfaces.IActionEffect>().Any(x => x.IsBlockingEffect("general") &&
 				(x is not MagicPracticeAction action || action.OperationId != continuingOperation))))

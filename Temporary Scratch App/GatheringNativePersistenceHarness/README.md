@@ -33,7 +33,14 @@ sample with an accelerated clock prove raw 30-to-60 and controlled 1-to-7 throug
 practice alone. A restrictive native difficulty interval blocks real gain; a permissive
 one permits it. A nearby native injured/warded actor, damage/caster templates and forbidden
 resistance lookup check practice purity. Stop, focus reset, speech loss, capability loss
-and quit signals retain full payment. A separate process reconstructs pending prepaid
+and quit signals retain full payment. Actual native silence is added to body or character
+and removed or expired entirely between heartbeats; required speech loss must retain payment
+and both deadlines, write `PracticeInterrupted`, and perform no check or progression.
+Speech-free profiles also complete while silence remains. The minimal anatomy's communication
+adapter uses the production silence predicate; full vocal anatomy/volume remains unqualified.
+Native body-part effects similarly exercise live manipulation loss/restoration and hand-free
+policy, while brief native paralysis is checked before a health-state refresh.
+A separate process reconstructs pending prepaid
 work, checks shared deadlines and refuses automatic resume/refund/reroll; staff recovery
 leaves the old timer unable to overwrite its terminal receipt. Its material plan is
 explicitly empty; material execution/finalisation is covered by focused automated tests.

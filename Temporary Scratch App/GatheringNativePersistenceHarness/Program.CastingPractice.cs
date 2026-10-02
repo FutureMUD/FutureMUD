@@ -4,6 +4,8 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using MudSharp.Accounts;
+using MudSharp.Body;
+using MudSharp.Body.CommunicationStrategies;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Improvement;
 using MudSharp.Body.Traits.Subtypes;
@@ -27,6 +29,12 @@ internal static partial class GNHProgram
 {
 	private sealed record PracticeReader(string Database, FixtureIds Fixture, long Spell, long Capability,
 		long Trait, Guid Operation, DateTime Deadline, DateTime SkillDeadline, DateTime MasteryDeadline);
+
+	// The minimal living fixture has no vocal anatomy; retain native silence eligibility.
+	private sealed class PracticeFixtureCommunicationStrategy : HumanoidCommunicationStrategy
+	{
+		public override bool CanVocalise(IBody body) => !IsSilenced(body);
+	}
 
 	private static int RunPracticeAcceptanceChecks()
 	{
@@ -136,6 +144,76 @@ internal static partial class GNHProgram
 			Require(store.Operation(action.OperationId)!.Stage == "PracticeInterrupted" && actor.MagicResourceAmounts[source] == paid &&
 				samples == 6 && actor.TraitRawValue(trait) == 60 && !actor.EffectsOfType<MagicPracticeAction>().Any(), "Native interruption refunded, gained or replayed: " + signal);
 			Console.WriteLine($"ARM-PRACTICE-interrupt=passed signal:{signal} balance:{paid} no-progress no-refund no-replay");
+		}
+
+		var originalSpeech = native.Body.Communications;
+		Mock.Get(native.Body.Race).SetupGet(x => x.CommunicationStrategy).Returns(new PracticeFixtureCommunicationStrategy());
+		var nativeCastingCheck = Mock.Get(world.GetCheck(CheckType.CastSpellCheck));
+		int Checks() => nativeCastingCheck.Invocations.Count(x => x.Method.Name == nameof(ICheck.CheckAgainstAllDifficulties));
+		foreach (var requiresSpeech in new[] { true, false })
+		foreach (var bodyOwner in new[] { true, false })
+		foreach (var expire in new[] { true, false })
+		{
+			Require(spell.BuildingCommand(actor, new StringStack($"grades practice speech {requiresSpeech}")), "Speech policy refused.");
+			var action = Begin(1, false); var paid = actor.MagicResourceAmounts[source]; var checks = Checks();
+			var skillDeadline = store.Opportunity(actor.Id, trait.Id)!.NextUtc;
+			var masteryDeadline = service.Acquisition(actor, spell.Id)!.NextMasteryUtc;
+			Mock.Get(world.HeartbeatManager).Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+			IPerceivable owner = bodyOwner ? native.Body : actor;
+			var parent = new MagicSpellParent(owner, spell, actor); var silence = new SpellSilenceEffect(owner, parent);
+			parent.AddSpellEffect(silence); owner.AddEffect(parent); owner.AddEffect(silence);
+			Require(!native.Body.Communications.CanVocalise(native.Body), "Native silence did not deny speech.");
+			if (requiresSpeech)
+			{
+				if (expire) silence.ExpireEffect(); else owner.RemoveEffect(silence, true);
+				Require(native.Body.Communications.CanVocalise(native.Body), "Speech was not restored before the next heartbeat.");
+				Require(store.Operation(action.OperationId)!.Stage == "PracticeInterrupted", "Brief native silence did not latch interruption.");
+			}
+			now += TimeSpan.FromSeconds(30); action.ExpireEffect(); action.ExpireEffect();
+			Require(store.Operation(action.OperationId)!.Stage == (requiresSpeech ? "PracticeInterrupted" : "Completed") &&
+				Checks() == checks + (requiresSpeech ? 0 : 1), "Speech policy allowed a lost-input check or blocked speech-free practice.");
+			if (!requiresSpeech) { if (expire) silence.ExpireEffect(); else owner.RemoveEffect(silence, true); }
+			Require(actor.MagicResourceAmounts[source] == paid && samples == 6 && actor.TraitRawValue(trait) == 60 &&
+				store.Opportunity(actor.Id, trait.Id)!.NextUtc == skillDeadline && service.Acquisition(actor, spell.Id)!.NextMasteryUtc == masteryDeadline,
+				"Native silence reset payment, opportunities or progression.");
+			Console.WriteLine($"ARM-PRACTICE-native-silence=passed speech-required:{requiresSpeech} owner:{(bodyOwner ? "body" : "actor")} removal:{(expire ? "expiry" : "remove")} between-heartbeats checks:{Checks()-checks} balance:{paid} deadlines-preserved");
+		}
+		Require(spell.BuildingCommand(actor, new StringStack("grades practice speech true")), "Speech policy restore refused.");
+		Mock.Get(native.Body.Race).SetupGet(x => x.CommunicationStrategy).Returns(originalSpeech);
+		foreach (var requiresHand in new[] { true, false })
+		{
+			Require(spell.BuildingCommand(actor, new StringStack($"grades practice hand {requiresHand}")), "Hand policy refused.");
+			var action = Begin(1, false); var paid = actor.MagicResourceAmounts[source]; var checks = Checks();
+			var skillDeadline = store.Opportunity(actor.Id, trait.Id)!.NextUtc;
+			var masteryDeadline = service.Acquisition(actor, spell.Id)!.NextMasteryUtc;
+			Mock.Get(world.HeartbeatManager).Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+			var restrictions = native.Body.FunctioningFreeHands.Select(hand => new BodypartExcessivelyDamaged(native.Body, hand)).ToArray();
+			Require(restrictions.Length > 0, "Native hand fixture has no manipulators.");
+			foreach (var restriction in restrictions) native.Body.AddEffect(restriction);
+			Require(!native.Body.FunctioningFreeHands.Any(), "Native body-part effects did not inhibit manipulation.");
+			foreach (var restriction in restrictions) native.Body.RemoveEffect(restriction);
+			Require(native.Body.FunctioningFreeHands.Any(), "Native hand eligibility was not restored between heartbeats.");
+			now += TimeSpan.FromSeconds(30); action.ExpireEffect(); action.ExpireEffect();
+			Require(store.Operation(action.OperationId)!.Stage == (requiresHand ? "PracticeInterrupted" : "Completed") &&
+				Checks() == checks + (requiresHand ? 0 : 1) && actor.MagicResourceAmounts[source] == paid && samples == 6 &&
+				store.Opportunity(actor.Id, trait.Id)!.NextUtc == skillDeadline && service.Acquisition(actor, spell.Id)!.NextMasteryUtc == masteryDeadline,
+				"Native manipulation effect refunded, progressed, checked lost inputs or reset a deadline.");
+			Console.WriteLine($"ARM-PRACTICE-native-manipulation=passed hand-required:{requiresHand} between-heartbeats checks:{Checks()-checks} balance:{paid} deadlines-preserved");
+		}
+		Require(spell.BuildingCommand(actor, new StringStack("grades practice hand true")), "Hand policy restore refused.");
+		foreach (var bodyOwner in new[] { true, false })
+		{
+			var action = Begin(1, false); var paid = actor.MagicResourceAmounts[source]; var checks = Checks();
+			var skillDeadline = store.Opportunity(actor.Id, trait.Id)!.NextUtc;
+			var masteryDeadline = service.Acquisition(actor, spell.Id)!.NextMasteryUtc;
+			IPerceivable owner = bodyOwner ? native.Body : actor;
+			var parent = new MagicSpellParent(owner, spell, actor); var paralysis = new SpellParalysisEffect(owner, parent);
+			parent.AddSpellEffect(paralysis); owner.AddEffect(parent); owner.AddEffect(paralysis); paralysis.ExpireEffect();
+			now += TimeSpan.FromSeconds(30); action.ExpireEffect(); action.ExpireEffect();
+			Require(store.Operation(action.OperationId)!.Stage == "PracticeInterrupted" && Checks() == checks &&
+				actor.MagicResourceAmounts[source] == paid && samples == 6 && store.Opportunity(actor.Id, trait.Id)!.NextUtc == skillDeadline &&
+				service.Acquisition(actor, spell.Id)!.NextMasteryUtc == masteryDeadline, "Brief native paralysis escaped eligibility validation.");
+			Console.WriteLine($"ARM-PRACTICE-native-paralysis=passed owner:{(bodyOwner ? "body" : "actor")} before-health-refresh checks:0 balance:{paid} deadlines-preserved");
 		}
 		var pending = Begin(1, false); var state = service.Acquisition(actor, spell.Id)!;
 		FlushCasting(native);

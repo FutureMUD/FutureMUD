@@ -6,9 +6,13 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
+using MudSharp.Body.CommunicationStrategies;
+using MudSharp.Body.PartProtos;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems.Inventory;
@@ -416,5 +420,140 @@ public class MagicCastingPracticeTests
 		Assert.AreEqual("PracticeInterrupted", f.Store.Operation(start.OperationId!.Value)!.Stage);
 		Assert.AreEqual(0, effects.Count); f.Now += TimeSpan.FromSeconds(30); action.ExpireEffect();
 		Assert.AreEqual(85.0, f.Balances[f.Resources[1]]); Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.SkillUses); Assert.AreEqual(0, f.Samples);
+	}
+
+	private static (EffectHandler Actor, EffectHandler Body) NativeInputEffects(MagicCastingFixture f, List<IEffect> actions)
+
+	{
+		var actor = new EffectHandler(f.Actor.Object); var body = new EffectHandler(f.Body.Object);
+		f.World.SetupGet(x => x.MagicCasting).Returns(f.Service);
+		f.Body.SetupGet(x => x.Actor).Returns(f.Actor.Object);
+		f.Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback<IEffect>(actor.AddEffect);
+		f.Actor.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>())).Callback<IEffect, bool>((effect, fire) =>
+		{
+			if (actions.Remove(effect)) { if (fire) effect.RemovalEffect(); }
+			else actor.RemoveEffect(effect, fire);
+		});
+		f.Body.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback<IEffect>(body.AddEffect);
+		f.Body.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>())).Callback<IEffect, bool>(body.RemoveEffect);
+		f.Body.Setup(x => x.CombinedEffectsOfType<ISilencedEffect>()).Returns(() =>
+			actor.Effects.Concat(body.Effects).OfType<ISilencedEffect>());
+		f.Body.SetupGet(x => x.Communications).Returns(RobotCommunicationStrategy.Instance);
+		f.Body.Setup(x => x.OrganFunction<SpeechSynthesizer>()).Returns(1.0);
+		return (actor, body);
+	}
+
+	[DataTestMethod]
+	[DataRow(true, true, false)]
+	[DataRow(true, false, false)]
+	[DataRow(true, true, true)]
+	[DataRow(true, false, true)]
+	[DataRow(false, true, false)]
+	[DataRow(false, false, false)]
+	[DataRow(false, true, true)]
+	[DataRow(false, false, true)]
+	public void Practice_NativeSilenceBetweenHeartbeats_LatchesRequiredSpeechLoss(bool requiresSpeech, bool bodyOwner, bool expire)
+	{
+		var (f, actions) = Setup(); NativeInputEffects(f, actions);
+		Assert.IsTrue(f.Spell.BuildingCommand(f.Actor.Object, new StringStack($"grades practice speech {requiresSpeech}")));
+		Assert.IsTrue(f.Body.Object.Communications.CanVocalise(f.Body.Object));
+		var start = f.Service.Cast(Intent(f)); Assert.AreEqual(MagicCastingStatus.Started, start.Status, start.Message);
+		var action = actions.OfType<MagicPracticeAction>().Single();
+		var skillDeadline = f.Store.Opportunity(100, 1)!.NextUtc;
+		var masteryDeadline = f.Service.Acquisition(f.Actor.Object, 1)!.NextMasteryUtc;
+		Mock.Get(f.World.Object.HeartbeatManager).Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+		IPerceivable owner = bodyOwner ? f.Body.Object : f.Actor.Object;
+		var parent = new MagicSpellParent(owner, f.Spell, f.Actor.Object);
+		var silence = new SpellSilenceEffect(owner, parent); parent.AddSpellEffect(silence);
+		owner.AddEffect(parent); owner.AddEffect(silence);
+		Assert.IsFalse(f.Body.Object.Communications.CanVocalise(f.Body.Object));
+		if (expire) silence.ExpireEffect(); else owner.RemoveEffect(silence, true);
+		Assert.IsTrue(f.Body.Object.Communications.CanVocalise(f.Body.Object));
+		Assert.AreEqual(requiresSpeech ? "PracticeInterrupted" : "Practising", f.Store.Operation(start.OperationId!.Value)!.Stage);
+		f.Now += TimeSpan.FromSeconds(30); action.ExpireEffect(); action.ExpireEffect();
+		Assert.AreEqual(requiresSpeech ? "PracticeInterrupted" : "Completed", f.Store.Operation(start.OperationId.Value)!.Stage);
+		Assert.AreEqual(85.0, f.Balances[f.Resources[1]]);
+		Assert.AreEqual(skillDeadline, f.Store.Opportunity(100, 1)!.NextUtc);
+		Assert.AreEqual(masteryDeadline, f.Service.Acquisition(f.Actor.Object, 1)!.NextMasteryUtc);
+		Assert.AreEqual(requiresSpeech ? 0 : 1, f.Rolls); Assert.AreEqual(requiresSpeech ? 0 : 1, f.SkillUses);
+		Assert.AreEqual(requiresSpeech ? 0 : 1, f.Samples);
+	}
+
+	[DataTestMethod]
+	[DataRow("CheckingPractice", 0)]
+	[DataRow("PracticeChecked", 1)]
+	public void Practice_NativeSilenceDuringCompletion_LatchesLossBeforeCheckOrProgress(string stage, int checks)
+	{
+		var (f, actions) = Setup(); NativeInputEffects(f, actions);
+		var start = f.Service.Cast(Intent(f)); var action = actions.OfType<MagicPracticeAction>().Single();
+		var skillDeadline = f.Store.Opportunity(100, 1)!.NextUtc;
+		var masteryDeadline = f.Service.Acquisition(f.Actor.Object, 1)!.NextMasteryUtc;
+		f.Checkpoint = checkpoint =>
+		{
+			if (checkpoint != stage) return;
+			var parent = new MagicSpellParent(f.Actor.Object, f.Spell, f.Actor.Object);
+			var silence = new SpellSilenceEffect(f.Actor.Object, parent); parent.AddSpellEffect(silence);
+			f.Actor.Object.AddEffect(parent); f.Actor.Object.AddEffect(silence); silence.ExpireEffect();
+		};
+		f.Now += TimeSpan.FromSeconds(30); action.ExpireEffect(); action.ExpireEffect();
+		Assert.IsTrue(f.Body.Object.Communications.CanVocalise(f.Body.Object));
+		Assert.AreEqual("PracticeInterrupted", f.Store.Operation(start.OperationId!.Value)!.Stage);
+		Assert.AreEqual(85.0, f.Balances[f.Resources[1]]); Assert.AreEqual(checks, f.Rolls);
+		Assert.AreEqual(0, f.SkillUses); Assert.AreEqual(0, f.Samples);
+		Assert.AreEqual(skillDeadline, f.Store.Opportunity(100, 1)!.NextUtc);
+		Assert.AreEqual(masteryDeadline, f.Service.Acquisition(f.Actor.Object, 1)!.NextMasteryUtc);
+	}
+
+	[DataTestMethod]
+	[DataRow(true, false)]
+	[DataRow(true, true)]
+	[DataRow(false, false)]
+	[DataRow(false, true)]
+	public void Practice_NativeManipulationEffectsBetweenHeartbeats_LatchRequiredHandLoss(bool requiresHand, bool limbRestriction)
+	{
+		var (f, actions) = Setup(); var (_, body) = NativeInputEffects(f, actions);
+		Assert.IsTrue(f.Spell.BuildingCommand(f.Actor.Object, new StringStack($"grades practice hand {requiresHand}")));
+		var hands = f.Body.Object.FunctioningFreeHands.ToArray(); var limb = Mock.Of<ILimb>();
+		f.Body.SetupGet(x => x.FunctioningFreeHands).Returns(() => hands.Where(hand =>
+			!body.Effects.OfType<IBodypartIneffectiveEffect>().Any(x => x.Applies() && x.Bodypart == hand) &&
+			!body.Effects.OfType<ILimbIneffectiveEffect>().Any(x => x.Applies(limb) && x.AppliesToLimb(limb))));
+		f.Body.Setup(x => x.GetLimbFor(It.IsAny<IBodypart>())).Returns(limb);
+		var start = f.Service.Cast(Intent(f)); var action = actions.OfType<MagicPracticeAction>().Single();
+		var skillDeadline = f.Store.Opportunity(100, 1)!.NextUtc;
+		var masteryDeadline = f.Service.Acquisition(f.Actor.Object, 1)!.NextMasteryUtc;
+		Mock.Get(f.World.Object.HeartbeatManager).Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+		IEffect restriction = limbRestriction ? new LimbDamageEffect(f.Body.Object, limb) : new BodypartExcessivelyDamaged(f.Body.Object, hands.Single());
+		f.Body.Object.AddEffect(restriction); Assert.IsFalse(f.Body.Object.FunctioningFreeHands.Any());
+		f.Body.Object.RemoveEffect(restriction); Assert.IsTrue(f.Body.Object.FunctioningFreeHands.Any());
+		Assert.AreEqual(requiresHand ? "PracticeInterrupted" : "Practising", f.Store.Operation(start.OperationId!.Value)!.Stage);
+		f.Now += TimeSpan.FromSeconds(30); action.ExpireEffect(); action.ExpireEffect();
+		Assert.AreEqual(requiresHand ? "PracticeInterrupted" : "Completed", f.Store.Operation(start.OperationId.Value)!.Stage);
+		Assert.AreEqual(85.0, f.Balances[f.Resources[1]]); Assert.AreEqual(requiresHand ? 0 : 1, f.Rolls);
+		Assert.AreEqual(requiresHand ? 0 : 1, f.SkillUses); Assert.AreEqual(requiresHand ? 0 : 1, f.Samples);
+		Assert.AreEqual(skillDeadline, f.Store.Opportunity(100, 1)!.NextUtc);
+		Assert.AreEqual(masteryDeadline, f.Service.Acquisition(f.Actor.Object, 1)!.NextMasteryUtc);
+	}
+
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void Practice_NativeParalysisBetweenHealthUpdates_CancelsBeforeStateRefresh(bool bodyOwner)
+	{
+		var (f, actions) = Setup(); var (actorEffects, bodyEffects) = NativeInputEffects(f, actions);
+		f.Actor.Setup(x => x.CombinedEffectsOfType<IForceParalysisEffect>()).Returns(() =>
+			actorEffects.Effects.Concat(bodyEffects.Effects).OfType<IForceParalysisEffect>());
+		var start = f.Service.Cast(Intent(f)); var action = actions.OfType<MagicPracticeAction>().Single();
+		var skillDeadline = f.Store.Opportunity(100, 1)!.NextUtc;
+		var masteryDeadline = f.Service.Acquisition(f.Actor.Object, 1)!.NextMasteryUtc;
+		IPerceivable owner = bodyOwner ? f.Body.Object : f.Actor.Object;
+		var parent = new MagicSpellParent(owner, f.Spell, f.Actor.Object);
+		var paralysis = new SpellParalysisEffect(owner, parent); parent.AddSpellEffect(paralysis);
+		owner.AddEffect(parent); owner.AddEffect(paralysis);
+		Assert.AreEqual(CharacterState.Awake, f.Actor.Object.State); paralysis.ExpireEffect();
+		f.Now += TimeSpan.FromSeconds(30); action.ExpireEffect(); action.ExpireEffect();
+		Assert.AreEqual("PracticeInterrupted", f.Store.Operation(start.OperationId!.Value)!.Stage);
+		Assert.AreEqual(85.0, f.Balances[f.Resources[1]]); Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.SkillUses); Assert.AreEqual(0, f.Samples);
+		Assert.AreEqual(skillDeadline, f.Store.Opportunity(100, 1)!.NextUtc);
+		Assert.AreEqual(masteryDeadline, f.Service.Acquisition(f.Actor.Object, 1)!.NextMasteryUtc);
 	}
 }

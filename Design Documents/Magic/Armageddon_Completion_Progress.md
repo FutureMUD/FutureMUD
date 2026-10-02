@@ -3,7 +3,7 @@
 Authority: Library `libfile_a4606cd0097081918d6c9d9e220e6da0`, version 0,
 `Armageddon_Magic_Completion_Implementation_Brief.md`, reported 131071 bytes.
 All 905 lines were read through supported Library content reads in contiguous windows
-1–300, 301–450, 451–600, 601–750, 751–905; the final result had `has_more=false`.
+1â€“300, 301â€“450, 451â€“600, 601â€“750, 751â€“905; the final result had `has_more=false`.
 The reader reports a null version ID; resolved file ID is
 `file_00000000273481fab2e542daf8801228`, matching the supplied version-0 input.
 No metadata-less substitute input file was created. The previous Windows materialization
@@ -16,7 +16,7 @@ additional unmerged commits relative to this baseline. Work uses the isolated br
 Local commits are authorized; publication, merge, deployment and shared/production DB access are not.
 
 The machine-readable [whole-plan ledger](Armageddon_Completion_Progress.json) retains all
-16 approved decisions, phases 0–6, 154 candidate dispositions and 25 exact native cases.
+16 approved decisions, phases 0â€“6, 154 candidate dispositions and 25 exact native cases.
 No required larger feature or candidate is omitted. It separates implementation from
 fresh verification and keeps old PR receipts historical.
 
@@ -29,7 +29,7 @@ fresh verification and keeps old PR receipts historical.
 - [x] Add builders, XML round trips, scoped native skill handling, numerical mastery inputs and focused regression coverage.
 - [x] Run focused and dependent automated suites and retain compact receipts/fingerprints.
 - [x] Run extended disposable native casting acceptance; retain exact payment/proficiency/grade/reload and cleanup proof.
-- [ ] Make scoped local commits and record acceptance evidence.
+- [x] Make scoped local commits and record acceptance evidence.
 
 ## Remaining work
 
@@ -38,7 +38,7 @@ Component Crafting's real progression bridge to Identify, the authored enrolment
 attribute-led capacity mapping/invalidation and the full affordability matrix remain.
 Phase 2 owns target-free practice and speech/formula/quiet/area adapters. In particular,
 manifestation reaching grade 7 at cap 60 is not evidence of stock practice reaching it.
-Phases 3–6 own effect/lifecycle gaps and the eight larger features, portable production,
+Phases 3â€“6 own effect/lifecycle gaps and the eight larger features, portable production,
 the complete optional stock installer and full native release qualification.
 
 The selected native harness uses real native Character/Body/Skill objects, production
@@ -68,3 +68,5 @@ evidence; the remaining full scenarios, especially stock PRACTICE N06, remain un
 This is not a full stock balance report or installed-world Telnet qualification.
 Post-suite changes are limited to the corrected harness assertions and receipt documentation;
 the tested production assembly fingerprints remain unchanged. No older PR count is reused.
+
+Local implementation commits: `50c556bf` (source reconciliation) and `c0bbaf51` (stage1A runtime/tests/receipts). A final documentation commit records this handoff.

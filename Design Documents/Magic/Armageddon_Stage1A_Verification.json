@@ -82,5 +82,15 @@
     "attempt1": "passed; 0 warnings/errors",
     "attempt2": "passed; 0 warnings/errors"
   },
-  "full_plan_native_qualification": "pending; N07 source curve passed in controlled native fixture; no full stock/installed-world qualification"
+  "full_plan_native_qualification": "pending; N07 source curve passed in controlled native fixture; no full stock/installed-world qualification",
+  "implementation_commits": [
+    {
+      "sha": "50c556bf0d950c6b97e25dc9d742d5ec043673b2",
+      "subject": "Reconcile approved Armageddon Sorcerer source inventory"
+    },
+    {
+      "sha": "c0bbaf51d5031219cbf0c480f48b309892fe3f25",
+      "subject": "Add capped casting progression and source energy efficiency"
+    }
+  ]
 }

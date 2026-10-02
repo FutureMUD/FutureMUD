@@ -15,6 +15,7 @@ using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
 using System.Net;
 using MudSharp.Magic.Vancian;
+using MudSharp.Magic.Casting;
 
 #nullable enable
 #nullable disable warnings
@@ -1662,8 +1663,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		using var capacityChanges = new SpellCapacityBatch();
 		var rejuvenatedCells = new HashSet<long>();
 		bool ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects,
-			OpposedOutcomeDegree effectOutcome, bool echoTarget = false, bool intended = false)
+			OpposedOutcomeDegree effectOutcome, bool echoTarget = false, bool intended = false, Func<bool>? stillEligible = null)
 		{
+			if (stillEligible?.Invoke() == false) return false;
 			var templates = effects.ToArray();
 			var prepared = new Dictionary<IMagicSpellEffectTemplate, IMagicSpellEffectApplication>();
 			if (templates.OfType<SpellEffects.RejuvenateLandEffect>().Count() > 1)
@@ -1684,39 +1686,52 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			}
 			if (echoTarget && !string.IsNullOrEmpty(TargetEmote))
 				effectTarget.OutputHandler.Handle(new EmoteOutput(new Emote(TargetEmote, magician, magician, effectTarget), flags: TargetEmoteFlags));
+			if (stillEligible?.Invoke() == false) return false;
 			capacityChanges.Include(effectTarget);
 			MagicSpellParent head = new(effectTarget, this, magician, power, effectOutcome) { ResolvedDuration = duration };
-			foreach (IMagicSpellEffectTemplate effect in templates)
+			var resolvedAny = templates.Length == 0;
+			try
 			{
-				IMagicSpellEffect? child;
-				if (prepared.TryGetValue(effect, out var application)) child = application.Create(head);
-				else if (invocation?.Configured is { } reporting && effect is IMagicSpellEffectOperation operation)
+				foreach (IMagicSpellEffectTemplate effect in templates)
 				{
-					var report = operation.Apply(magician, effectTarget, effectOutcome, power, head, additionalParameters);
-					child = report.Effect;
-					if (intended && report.Status == MagicEffectOperationStatus.Applied) reporting.AppliedIntendedOperation = true;
+					if (stillEligible?.Invoke() == false) break;
+					resolvedAny = true;
+					IMagicSpellEffect? child;
+					if (prepared.TryGetValue(effect, out var application)) child = application.Create(head);
+					else if (invocation?.Configured is { } reporting && effect is IMagicSpellEffectOperation operation)
+					{
+						var report = operation.Apply(magician, effectTarget, effectOutcome, power, head, additionalParameters);
+						child = report.Effect;
+						if (intended && report.Status == MagicEffectOperationStatus.Applied) reporting.AppliedIntendedOperation = true;
+					}
+					else child = effect.GetOrApplyEffect(magician, effectTarget, effectOutcome, power, head, additionalParameters);
+					if (child == null)
+					{
+						continue;
+					}
+
+					head.AddSpellEffect(child);
+					effectTarget.AddEffect(child);
 				}
-				else child = effect.GetOrApplyEffect(magician, effectTarget, effectOutcome, power, head, additionalParameters);
-				if (child == null)
-				{
-					continue;
-				}
-
-                effectTarget.AddEffect(child);
-                head.AddSpellEffect(child);
-            }
-
-            if (AppliedEffectsAreExclusive)
-            {
-                effectTarget.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id);
-            }
-
-            // It's possible that all of the spell effects were instantaneous, in which case do not apply the effect
-            if (head.SpellEffects.Any())
-			{
-				effectTarget.AddEffect(head, duration);
 			}
-			return true;
+			catch (Exception applicationError)
+			{
+				try { FinaliseParent(); }
+				catch (Exception parentError)
+				{
+					throw new AggregateException("Spell partial application and parent lifetime finalisation failed.", applicationError, parentError);
+				}
+				throw;
+			}
+			FinaliseParent();
+
+			void FinaliseParent()
+			{
+				if (resolvedAny && AppliedEffectsAreExclusive)
+					effectTarget.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id);
+				if (head.SpellEffects.Any()) effectTarget.AddEffect(head, duration);
+			}
+			return resolvedAny;
 		}
 
 		void EchoInterdiction(IPerceivable originalTarget, MagicInterdictionResult interdiction, bool reflected)
@@ -1767,8 +1782,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			return true;
 		}
 
-		bool TargetWasRejected(IPerceivable originalTarget, bool mayReflect)
+		bool TargetWasRejected(IPerceivable originalTarget, bool mayReflect, ConfiguredAreaApplication? area = null)
 		{
+			if (area?.StillEligible() == false) return true;
 			MagicInterdictionResult? interdiction =
 				MagicInterdictionHelper.GetInterdiction(magician, originalTarget, School, mayReflect,
 					_spellEffects.OfType<IMagicInterdictionTagProvider>().SelectMany(x => x.MagicInterdictionTags),
@@ -1792,19 +1808,30 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			{
 				EchoInterdiction(originalTarget, interdiction, true);
 			}
-
-			return !ApplySpellEffect(actualTarget, _spellEffects, outcome.Degree, true, !reflected);
+			using var damageScope = area is null ? null : new SpellAreaDamageScope(magician, actualTarget, this, area.DamageMultiplier);
+			return !ApplySpellEffect(actualTarget, _spellEffects, outcome.Degree, true, !reflected, area is null ? null : area.StillEligible);
 		}
 
 		if (target is PerceivableGroup pg)
 		{
 			var groupHasMembers = false;
 			var groupHasResolvedTarget = false;
-			foreach (IPerceivable individual in pg.Members)
+			var areaApplications = invocation?.Configured?.AreaApplications;
+			if (areaApplications is not null)
 			{
-				groupHasMembers = true;
-				var targetWasRejected = TargetWasRejected(individual, false);
-				groupHasResolvedTarget |= !targetWasRejected;
+				foreach (var application in areaApplications)
+				{
+					groupHasMembers = true;
+					groupHasResolvedTarget |= !TargetWasRejected(application.Target, false, application);
+				}
+			}
+			else
+			{
+				foreach (IPerceivable individual in pg.Members)
+				{
+					groupHasMembers = true;
+					groupHasResolvedTarget |= !TargetWasRejected(individual, false);
+				}
 			}
 
 			if (groupHasMembers && !groupHasResolvedTarget)

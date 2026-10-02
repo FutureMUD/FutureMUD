@@ -4897,9 +4897,9 @@ Key: `arm.spell.leaping_lightning`. Native school: **Lightning**. Target: `chara
 
 **Provenance:** Historical `Chain Lightning`, skill ID 172, coded family Lightning; `armageddon_magic_psionics_reference_second_pass.md:2291`; `historical_not_live_parity`.
 
-**Observable effect:** Strike an initial target and distinct nearby targets with diminishing electrical harm.
+**Observable effect:** Make bounded repeated random strikes against eligible cell characters; the caster can be selected at quarter damage, other targets take full damage, and the source Energy Shield protection must be authored. The approved completion brief supersedes the earlier distinct-target/falloff proposal preserved as historical fields in the JSON inventory.
 
-**Scaling:** Up to min(g+1,8) distinct targets in one cell; damage 5*g*0.75^jump native units, jump starts at zero. Energy base B=9; `B * grade * overreach_multiplier * quiet_multiplier * area_multiplier`.
+**Scaling:** Explicit bounded random selection with replacement, caster damage x0.25 and others x1; no implicit distinct-target requirement or diminishing falloff. The phase2C policy fixture uses three hits and native `grade*4` damage for verification only. Exact stock counts, damage and energy require source-informed authoring; the older `min(g+1,8)` / `0.75^jump` / B=9 proposal is not the approved source contract.
 
 **Membership/acquisition:**
 - Lightning: acquired `arm.spell.lightning_lance`, controlled grade >= 2, its route skill >= 20. Membership evidence: `coded_element_association_not_learnlist`. Default trait `arm.spell.leaping_lightning.skill`; shared option `arm.skill.lightning_casting`.
@@ -4916,7 +4916,7 @@ Key: `arm.spell.leaping_lightning`. Native school: **Lightning**. Target: `chara
 
 **Coverage:** `small_missing_primitive`; `proposed_gap_candidate`; approval `awaiting_roster_approval`. Traced existing effect method(s) for listed primitives; the complete proposed content and casting policy are not implemented.
 
-**Boundary/gap:** Needs bounded chain selection/falloff; an undifferentiated group is an unapproved substitute.
+**Boundary/gap:** The phase2C runtime supplies bounded repeated random selection, explicit caster attenuation, physical-body deduplication and live native eligibility/ward checks. Installed Leaping Lightning, Energy Shield binding and final source stock values remain unqualified.
 
 **Runtime evidence:**
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
@@ -4924,10 +4924,10 @@ Key: `arm.spell.leaping_lightning`. Native school: **Lightning**. Target: `chara
 **Minimum acceptance â€” ARM-R-172 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Leaping Lightning, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Leaping Lightning at grade 2 through the explicit route.
 
 - Commit 18 designated energy units once; preserve native school Lightning.
-- Strike an initial target and distinct nearby targets with diminishing electrical harm.
-- At grade 2 apply only this scaling contract: Up to min(g+1,8) distinct targets in one cell; damage 5*g*0.75^jump native units, jump starts at zero.
+- Execute the approved bounded repeated random source policy, allowing repeated bodies, quarter caster damage and full other-target damage.
+- Qualify authored stock hit counts/damage/energy and native Energy Shield protection; the three-hit `grade*4` fixture does not complete this stock scenario.
 - Reject absent admission or invalid body/target before payment; a resisted paid invocation cannot bypass costs or duplicate advancement.
-- Boundary assertion: Needs bounded chain selection/falloff; an undifferentiated group is an unapproved substitute.
+- Boundary assertion: Source inclusion, repeated-hit selection, native protection and one canonical payment/check/progression must remain explicit. The legacy 18-unit proposal above is historical and does not establish stock cost.
 
 Historical metadata (not proposed policy): element Lightning; sphere Conjuration; mood Destructive; targets no explicit target; minimum position Fighting; minimum mana 0; base power 15; components none.
 

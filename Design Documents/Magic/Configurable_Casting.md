@@ -28,8 +28,12 @@ earth practice "Stone Skin" grade 3 overreach via "Earth Adept"
 earth quiet "Stone Skin" grade 2 on self via "Earth Adept"
 earth formula kral fm-near fm-earth fm-protect fm-shape on self via "Earth Adept"
 earth quiet formula kral stone on self via "Earth Adept"
+earth area "Earthquake" grade 3 overreach on here via "Earth Adept"
+earth area formula kral quake overreach on here via "Earth Adept"
+earth quiet area "Earthquake" grade 2 on here via "Earth Adept"
 say kral fm-near fm-earth fm-protect fm-shape on self via "Earth Adept"
 whisper kral stone on self via "Earth Adept"
+say area kral quake overreach on here via "Earth Adept"
 ```
 
 Replace `earth` with the admitting capability's school verb. Spell and capability names
@@ -120,9 +124,39 @@ designated energy by 2 and adds one difficulty step, each once; fixed secondary 
 unchanged. Native speech anatomy, gagging, mute merits, silence and volume requirements
 still apply, as do the free hand and existing permissions. Visible casting emotes and
 effects retain their normal output. Builders can author native method modifiers, but
-unmapped methods and quiet/practice/area combinations refuse. Area policies remain the
-next separate phase2 checkpoint. Existing legacy casting and independent spell-backed
+unmapped methods and quiet/practice combinations refuse. Area and quiet-area require
+their own explicitly authored native method. Existing legacy casting and independent spell-backed
 powers/Vancian routes retain their own syntax and payment rules.
+
+Area is an explicit per-spell character delivery variant. It requires exactly `on here`
+and leaves ordinary selected-character, cell and exit effects on their existing routes.
+Each policy declares caster/allies/others, scope, layer, grounding, staff and planar gates,
+an optional native boolean target/caster Prog, physical-body or canonical-identity deduplication,
+selection and application bounds, and separate caster/other damage multipliers. Physical-body
+deduplication preserves separate bodies sharing one character identity. The native trigger's
+self/filter permissions, live planar reach, target wards and resistance remain authoritative.
+Area group reflection uses the existing group fail disposition, with reflection depth zero.
+
+A paid invocation captures one bounded candidate list and one selected application order;
+quotes consume no selection randomness. Raw inputs are bounded at 512, authored eligible
+targets and applications at 1..256. Overflow or an empty pre-payment list refuses without
+payment. Removed, moved or otherwise ineligible targets are skipped by live checks before
+each application and child effect; new arrivals are never appended. Random selection with
+replacement permits repeated hits on the same body. Payment, casting check, skill opportunity
+and mastery are committed once for the whole invocation, including distinct sibling bodies.
+All-target rejection retains payment and lockout and grants no mastery. Selected identity,
+instance, body, multiplier and ordering persist in the immutable operation journal; restart
+does not select again or replay damage. Partially attached persistent children retain their
+scheduled parent lifetime on eligibility loss or exception; uncertain paid failures quarantine.
+
+The three source examples are partial policies: Earthquake includes allies/others at full
+damage and the caster at one-third; Chain Lightning permits repeated random hits with the
+caster at one-quarter and other bodies at full damage; room Fireball excludes the caster
+and includes allies/others. Native layer, grounding, staff/plane mappings and the Chain
+fixture's three-hit bound are provisional. Specific historical race/protection predicates,
+Energy Shield/Stone Skin bindings, nearby Earthquake falls and final stock damage/counts
+still require source-informed authoring and native qualification. Attenuation applies only
+to the matching invocation's native damage/pain/stun, leaving catalogue templates unchanged.
 
 ## Builders
 
@@ -158,6 +192,21 @@ grades incantation alias add|remove <single token>
 grades incantation method <Say|Whisper|Talk|LoudSay|Yell|Shout|Sing> <positive energy multiplier> <difficulty steps -10..10>
 grades incantation method <native method> off
 grades incantation provenance <source label>
+grades area fixture <earthquake|chainlightning|roomfireball>
+grades area off
+grades area include <caster|allies|others> <true|false>
+grades area damage <caster|others> <non-negative multiplier>
+grades area scope <RoomCharacters|ImmediateCharacters>
+grades area selection <Ordered|RandomWithReplacement|RandomDistinct>
+grades area identity <PhysicalBody|CanonicalCharacter>
+grades area plane <MagicReach|PhysicalAndMagicReach>
+grades area targets <1..256>
+grades area applications <1..256>
+grades area <layer|grounded|staff> <true|false>
+grades area filter <native boolean target/caster Prog|none>
+grades area method <Say|Whisper|Talk|LoudSay|Yell|Shout|Sing> <positive total energy multiplier> <difficulty steps -10..10>
+grades area method <native method> off
+grades area provenance <source label>
 grades scalar add <target|caster> <zero-based effect index> boost Bonus <expression>
 grades scalar remove <target|caster> <zero-based effect index>
 ```
@@ -179,6 +228,16 @@ XML retains its unreadable definition for repair and refuses readiness. The nati
 fixes its actual AudioVolume: Say/Decent, Whisper/Quiet, Talk/Quiet, LoudSay/Loud,
 Yell/VeryLoud, Shout/ExtremelyLoud, Sing/Loud. Difficulty adjustments apply before the
 native bounds. These coefficients are engineering tuning, not installed stock balance.
+
+Area XML is optional and validates atomically with the grade profile. The examples enable
+Say with total designated-energy x1 and difficulty +0. A native character trigger is required;
+including the caster also requires its self permission. `staff true` excludes administrators.
+Whole-room scope refuses spatial RouteCells; `ImmediateCharacters` must be authored explicitly
+to use their native vicinity query. Area method values are complete modifiers, applied once:
+quiet-area uses its authored Whisper entry instead of multiplying ordinary quiet and area
+tables together. Add `grades area method Whisper 2 1` and an incantation language/vocabulary
+to enable the provisional quiet-area example. For school formula syntax, omit the extra
+`area` word after `area formula`; genuine spoken formulas start with `area`.
 
 Complete-target checking is enabled only for authored incantations. Self, room and party
 triggers require the exact selectors `self`, `here` and `party`; exit and character/exit

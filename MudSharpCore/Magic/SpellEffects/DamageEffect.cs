@@ -185,7 +185,8 @@ public class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperatio
         {
             return new(MagicEffectOperationStatus.Rejected, null);
         }
-        double amount = DamageExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) });
+		var amount = MudSharp.Magic.Casting.SpellAreaDamageScope.ScaleDamage(caster, target, Spell,
+			DamageExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) }));
         IBodypart part = BodypartId != 0 ? tch.Body.Bodyparts.FirstOrDefault(x => x.Id == BodypartId) : null;
         if (part == null && Limb != (LimbType)(-1))
         {

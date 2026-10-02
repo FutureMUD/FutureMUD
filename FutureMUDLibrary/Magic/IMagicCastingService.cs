@@ -13,7 +13,7 @@ public sealed record AcquiredSpell(long CharacterId, long SpellId, int Controlle
 public sealed record MagicCastingRoute(long CapabilityId, Guid AdmissionId, long SpellId, long TraitId,
 	long ReserveId, bool Available, string Reason);
 
-public enum MagicCastingMode { Manifest, Practice }
+public enum MagicCastingMode { Manifest, Practice, Area }
 public sealed record MagicCastingIntent(ICharacter Actor, long CapabilityId, long SpellId, int Grade,
 	bool Overreach, string Targets, MagicCastingMode Mode = MagicCastingMode.Manifest, string Method = "Say",
 	Guid? OriginId = null, MagicCastingSpeech? Speech = null);
@@ -26,7 +26,8 @@ public sealed record ResolvedMagicCastingInvocation(Guid Id, long ActorId, long 
 	long TraitId, long ReserveHolderId, long ReserveId, int Grade, SpellPower Power, bool Overreach,
 	Difficulty Difficulty, string TargetSpecification, IReadOnlyList<SpellAdditionalParameter> TargetParameters,
 	IReadOnlyList<MagicCastingCost> Costs, int ConfigurationVersion, int ProfileVersion, int ControlledGrade = 1,
-	MagicCastingMode Mode = MagicCastingMode.Manifest, MagicCastingDelivery? Delivery = null);
+	MagicCastingMode Mode = MagicCastingMode.Manifest, MagicCastingDelivery? Delivery = null,
+	ResolvedMagicCastingArea? Area = null);
 
 public sealed record MagicCastingQuote(ResolvedMagicCastingInvocation? Invocation, string Reason)
 {

@@ -17,16 +17,18 @@ public sealed partial class MagicCastingService : IMagicCastingService
 	private readonly IMagicCastingStateStore _store;
 	private readonly Func<DateTime> _clock;
 	private readonly Func<double> _random;
+	private readonly Func<int, int> _areaRandom;
 	private readonly Action<string>? _checkpoint;
 	private readonly Action? _flush;
 	private readonly ConcurrentDictionary<long, object> _guards = new();
 	private readonly ConcurrentDictionary<long, byte> _mutating = new();
 	private readonly ConcurrentDictionary<Guid, CastingOperation> _uncertain = new();
 	public MagicCastingService(IFuturemud world, IMagicCastingStateStore? store = null, Func<DateTime>? clock = null,
-		Func<double>? random = null, Action<string>? checkpoint = null, Action? flush = null)
+		Func<double>? random = null, Action<string>? checkpoint = null, Action? flush = null, Func<int, int>? areaRandom = null)
 	{
 		_world = world; _store = store ?? new MagicCastingStateStore(); _clock = clock ?? (() => DateTime.UtcNow);
 		_random = random ?? Random.Shared.NextDouble; _checkpoint = checkpoint; _flush = flush;
+		_areaRandom = areaRandom ?? Random.Shared.Next;
 	}
 	public static ICharacter Owner(ICharacter actor) => actor.Identity?.PrimaryInstance ?? actor;
 	private object Guard(ICharacter actor) => _guards.GetOrAdd(Owner(actor).Id, _ => new object());
@@ -78,6 +80,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		var requiredProficiency = a.RequiredProficiency(g);
 		if (overreach && Owner(actor).TraitRawValue(trait) < requiredProficiency) return $"Overreach into grade {grade} requires raw proficiency {requiredProficiency}.";
 		if (!Enum.IsDefined(mode)) return "Unknown casting mode.";
+		if (mode == MagicCastingMode.Area && profile.Area is null) return "Area casting is unavailable until a separate explicit area policy is authored.";
 		var practice = mode == MagicCastingMode.Practice ? profile.Practice : null;
 		if (mode == MagicCastingMode.Practice && practice is not { Enabled: true }) return "Practice is not enabled for this spell.";
 		if (practice?.MaximumGrade is { } maximum && grade > maximum) return "That grade exceeds this spell's configured practice maximum.";
@@ -88,7 +91,10 @@ public sealed partial class MagicCastingService : IMagicCastingService
 			actor.CombinedEffectsOfType<MudSharp.Effects.Interfaces.IActionEffect>().Any(x => x.IsBlockingEffect("general") &&
 				(x is not MagicPracticeAction action || action.OperationId != continuingOperation))))
 			return "Finish or stop other blocking work, movement or combat before practising.";
-		var deliverySteps = mode == MagicCastingMode.Manifest ? profile.Incantation?.Deliveries.SingleOrDefault(x => x.Method.EqualTo(method))?.DifficultySteps ?? 0 : 0;
+		var deliveryPolicy = mode == MagicCastingMode.Area ? profile.Area!.Deliveries.SingleOrDefault(x => x.Method.EqualTo(method)) :
+			mode == MagicCastingMode.Manifest ? profile.Incantation?.Deliveries.SingleOrDefault(x => x.Method.EqualTo(method)) : null;
+		if (mode == MagicCastingMode.Area && deliveryPolicy is null) return "That native speech/area combination is not explicitly enabled for this spell.";
+		var deliverySteps = deliveryPolicy?.DifficultySteps ?? 0;
 		var steps = (long)(practice?.Difficulty ?? s.CastingDifficulty) + g.DifficultySteps + (overreach ? profile.OverreachDifficultySteps : 0) + deliverySteps;
 		if (steps < 0 || steps >= (int)Difficulty.Impossible || !Enum.IsDefined((Difficulty)steps)) return "The resolved casting difficulty is impossible or out of range.";
 		difficulty = (Difficulty)steps;
@@ -105,7 +111,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 	}
 
 	private sealed record Prepared(MagicCastingQuote Quote, MagicSpell Spell, SpellTargetResolution Target,
-		IReadOnlyList<CastingPayment> Payments, long[] Items, string Configuration);
+		IReadOnlyList<CastingPayment> Payments, long[] Items, string Configuration, AreaPlan? Area = null);
 	public MagicCastingQuote Quote(MagicCastingIntent intent)
 	{
 		try { return Prepare(intent).Quote; }
@@ -124,7 +130,9 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		var power = spell.GradeProfile!.Grades.Single(x => x.Grade == intent.Grade).Power;
 		if (intent.Mode == MagicCastingMode.Practice && !string.IsNullOrWhiteSpace(intent.Targets))
 			throw new InvalidOperationException("Practice is target-free; do not specify a target.");
-		var target = intent.Mode == MagicCastingMode.Practice ? new SpellTargetResolution(null, []) :
+		var area = intent.Mode == MagicCastingMode.Area ? PrepareArea(intent, spell) : null;
+		var target = area is not null ? new SpellTargetResolution(new PerceivableGroup(area.Candidates.Select(x => (IPerceivable)x.Target).ToArray()), []) :
+			intent.Mode == MagicCastingMode.Practice ? new SpellTargetResolution(null, []) :
 			SpellTargetCapture.Resolve(actor, spell, power, new StringStack(intent.Targets), spell.GradeProfile.Incantation is not null);
 		if (target is null) throw new InvalidOperationException("No valid target was resolved.");
 		var targets = target.Target is PerceivableGroup group ? group.Members : target.Target is { } single ? new[] { single } : [];
@@ -143,7 +151,8 @@ public sealed partial class MagicCastingService : IMagicCastingService
 					.EvaluateWith(actor, trait, TraitBonusContext.SpellCost, ("self", ReferenceEquals(actor, target.Target) ? 1 : 0));
 			var destination = resource.Id == policy.SourceResourceId ? _world.MagicResources.Get(policy.ReserveResourceId)! : resource;
 			if (resource.Id == policy.SourceResourceId && intent.Overreach) amount *= spell.GradeProfile.OverreachMultiplier;
-			if (resource.Id == policy.SourceResourceId && delivery is not null) amount *= delivery.EnergyMultiplier;
+			if (resource.Id == policy.SourceResourceId)
+				amount *= area?.Policy.Deliveries.Single(x => x.Method.EqualTo(intent.Method)).EnergyMultiplier ?? delivery?.EnergyMultiplier ?? 1;
 			if (intent.Mode == MagicCastingMode.Practice && resource.Id == policy.SourceResourceId) amount *= spell.GradeProfile.Practice!.EnergyMultiplier;
 			if (!double.IsFinite(amount) || amount < 0) throw new InvalidOperationException($"cost/{resource.Id}: amount must be finite and non-negative.");
 			var holder = destination.Id == policy.ReserveResourceId ? Owner(actor) : ReserveHolder(actor, destination.Id);
@@ -169,8 +178,8 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		var invocation = new ResolvedMagicCastingInvocation(intent.OriginId ?? Guid.NewGuid(), actor.InstanceId, actor.Body.Id, Owner(actor).Id,
 			capability.Id, policy.Identity, admission.Key, spell.Id, spell.School.Id, trait.Id, Owner(actor).Id, policy.ReserveResourceId,
 			intent.Grade, power, intent.Overreach, difficulty, intent.Targets, Array.AsReadOnly(target.Parameters),
-			Array.AsReadOnly(payments.Select(x => new MagicCastingCost(x.Holder.Id, x.Resource.Id, x.Amount)).ToArray()), policy.Version, spell.GradeProfile.Version, controlledGrade, intent.Mode, delivery);
-		return new(new(invocation, "Advisory quote; casting revalidates all inputs."), copy, target, payments.AsReadOnly(), items, CaptureConfiguration(spell));
+			Array.AsReadOnly(payments.Select(x => new MagicCastingCost(x.Holder.Id, x.Resource.Id, x.Amount)).ToArray()), policy.Version, spell.GradeProfile.Version, controlledGrade, intent.Mode, delivery, area?.Receipt);
+		return new(new(invocation, "Advisory quote; casting revalidates all inputs."), copy, target, payments.AsReadOnly(), items, CaptureConfiguration(spell), area);
 	}
 
 	private static string CaptureConfiguration(MagicSpell spell)

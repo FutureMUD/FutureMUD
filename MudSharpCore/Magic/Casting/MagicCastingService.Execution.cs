@@ -38,6 +38,7 @@ public sealed partial class MagicCastingService
 					new XAttribute("skillEligible", skillEligible), new XAttribute("masteryEligible", masteryEligible),
 					new XAttribute("skillBefore", owner.TraitRawValue(_world.Traits.Get(resolved.TraitId))),
 					new XElement("Targets", new XCData(intent.Targets)),
+					prepared.Area is { } area ? AreaReceipt(area) : null,
 					resolved.Delivery is { } delivery ? new XElement("Speech", new XAttribute("origin", resolved.Id),
 						new XAttribute("kind", delivery.UsesOriginalSpeech ? "PlayerInput" : "GeneratedCasting"),
 						new XAttribute("method", delivery.Method), new XAttribute("volume", (int)delivery.Volume),
@@ -66,8 +67,17 @@ public sealed partial class MagicCastingService
 					var live = Prepare(intent);
 					if (!Equivalent(prepared, live)) throw new InvalidOperationException("The route, prices, body, target or component inputs changed before commitment; request a fresh cast.");
 					EmitIncantation(actor, resolved.Id, resolved.Delivery);
-					if (!Equivalent(prepared, Prepare(intent))) throw new InvalidOperationException("The native incantation changed casting eligibility or inputs before payment.");
 					_checkpoint?.Invoke("BeforePayment");
+					var committed = Prepare(intent);
+					if (!Equivalent(prepared, committed)) throw new InvalidOperationException("The native incantation changed casting eligibility or inputs before payment.");
+					if (committed.Area is { } areaPlan)
+					{
+						// Select exactly once, after final revalidation. Quotes and recovery never draw or replay.
+						var applications = SelectAreaApplications(areaPlan);
+						payload.Element("Area")!.ReplaceWith(AreaReceipt(areaPlan, applications));
+						execution.AreaApplications = Array.AsReadOnly(applications.Select(x => new ConfiguredAreaApplication(
+							x.Target, x.Receipt.DamageMultiplier, () => AreaStillEligible(actor, x, areaPlan, prepared.Spell))).ToArray());
+					}
 					operation = new(resolved.Id, owner.Id, actor.InstanceId, actor.Body.Id, resolved.CapabilityId, resolved.SpellId,
 						resolved.TraitId, resolved.ReserveId, "Paying", payload.ToString(SaveOptions.DisableFormatting), now, now);
 					_store.Write(operation,
@@ -147,6 +157,10 @@ public sealed partial class MagicCastingService
 	{
 		var x = a.Quote.Invocation!; var y = b.Quote.Invocation!;
 		return a.Configuration == b.Configuration && x.Mode == y.Mode && x.Delivery == y.Delivery && x.ActorId == y.ActorId && x.BodyId == y.BodyId && x.CapabilityIdentity == y.CapabilityIdentity && x.AdmissionId == y.AdmissionId &&
+			(a.Area is null && b.Area is null || a.Area is { } areaA && b.Area is { } areaB &&
+				ReferenceEquals(areaA.Location, areaB.Location) && ReferenceEquals(areaA.CasterBody, areaB.CasterBody) &&
+				areaA.CasterLayer == areaB.CasterLayer && areaA.Candidates.Select(t => t.Receipt).SequenceEqual(areaB.Candidates.Select(t => t.Receipt)) &&
+				areaA.Candidates.Select(t => t.Body).SequenceEqual(areaB.Candidates.Select(t => t.Body), ReferenceEqualityComparer.Instance)) &&
 			x.ProfileVersion == y.ProfileVersion && x.TraitId == y.TraitId && x.Grade == y.Grade && x.ControlledGrade == y.ControlledGrade && x.Difficulty == y.Difficulty &&
 			x.Costs.SequenceEqual(y.Costs) && a.Items.Order().SequenceEqual(b.Items.Order()) &&
 			Targets(a.Target).SequenceEqual(Targets(b.Target), ReferenceEqualityComparer.Instance) && a.Target.Parameters.SequenceEqual(b.Target.Parameters);

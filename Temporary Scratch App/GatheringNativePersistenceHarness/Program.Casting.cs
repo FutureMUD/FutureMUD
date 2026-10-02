@@ -52,7 +52,9 @@ internal static partial class GNHProgram
 		var capacity = RunCapacityAcceptanceChecks();
 		if (capacity != 0) return capacity;
 		var practice = RunPracticeAcceptanceChecks();
-		return practice == 0 ? RunSpeechAcceptanceChecks() : practice;
+		if (practice != 0) return practice;
+		var speech = RunSpeechAcceptanceChecks();
+		return speech == 0 ? RunAreaAcceptanceChecks() : speech;
 	}
 
 	private static int RunCastingAcceptanceChecks()

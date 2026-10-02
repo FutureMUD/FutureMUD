@@ -61,6 +61,8 @@ internal static partial class GNHProgram
 				["--casting-run"] => RunAllCastingAcceptanceChecks(),
 				["--practice-run"] => RunPracticeAcceptanceChecks(),
 				["--speech-run"] => RunSpeechAcceptanceChecks(),
+				["--area-run"] => RunAreaAcceptanceChecks(),
+				["--area-reader", .. string[] areaReaderArguments] => RunAreaReader(areaReaderArguments),
 				["--speech-reader", .. string[] speechReaderArguments] => RunSpeechReader(speechReaderArguments),
 				["--practice-reader", .. string[] practiceReaderArguments] => RunPracticeReader(practiceReaderArguments),
 				["--casting-reader", .. string[] readerArguments] => RunCastingReader(readerArguments),

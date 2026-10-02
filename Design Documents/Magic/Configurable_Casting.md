@@ -266,6 +266,14 @@ survives removal of its definition. Its existing native proficiency remains inta
 eligible enrolled permanent route means no further numerical gain. Malformed typed XML
 is refused while its unreadable definition remains safely preservable for builder repair.
 
+When valid XML adds a cap to an already granted uncapped support under the same policy
+identity and support key, reconciliation records a separate terminal `SkillCapRecorded`
+marker. It captures the support key, original grant operation and adopted cap without
+rewriting the immutable grant's opening, original cap or provenance. Existing native skill
+presence does not skip this adoption. Marker failures leave the grant and proficiency
+intact and can be retried; after successful adoption, route loss or support removal still
+inhibits gains after restart. Cap inspection remains read-only.
+
 `IMagicCastingCapability`, `IControlledMagicSpell` and `IMagicCastingService` expose policy,
 profile, acquisition, routes and immutable resolved quotes. No route state is placed on
 the global spell. Typed numerical adapters bind the acting body's effective route trait,

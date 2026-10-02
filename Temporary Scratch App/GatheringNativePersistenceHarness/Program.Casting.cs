@@ -38,7 +38,7 @@ internal static partial class GNHProgram
 		long EarthCapability, long SorcererCapability, long EarthSkill, long SorcererSkill, Guid? Operation,
 		int Grade, double Balance, int Unresolved, bool VerifyEffects = false, FixtureIds? SecondBody = null, long? SecondInstance = null,
 		DateTime? SkillDeadline = null, DateTime? MasteryDeadline = null, double RawSkill = 42, bool VerifyCapLoss = false,
-		long? SupportTrait = null, long? IdentifySpell = null);
+		long? SupportTrait = null, long? IdentifySpell = null, Guid? SupportGrantKey = null, bool SupportCapRemoved = false);
 
 	private static int RunAllCastingAcceptanceChecks()
 	{

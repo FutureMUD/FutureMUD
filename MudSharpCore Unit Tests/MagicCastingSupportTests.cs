@@ -4,6 +4,7 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body.Traits;
+using MudSharp.Body.Traits.Improvement;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character;
 using MudSharp.Framework;
@@ -12,6 +13,7 @@ using MudSharp.Magic;
 using MudSharp.Magic.Capabilities;
 using MudSharp.Magic.Casting;
 using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.RPG.Checks;
 
 #nullable enable
 namespace MudSharp_Unit_Tests;
@@ -159,6 +161,86 @@ public class MagicCastingSupportTests
 		Assert.IsTrue(f.Earth.BuildingCommand(f.Actor.Object, new StringStack("casting support remove 3")));
 		f.Restart(); Assert.AreEqual(0.0, f.Service.RawSkillImprovementCap(f.Actor.Object, 3));
 		Assert.AreEqual(84.0, f.Skills[3]); Assert.AreEqual(0, f.Store.Unresolved().Count);
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void TypedSupport_UncappedGrantAdoptsCap_ReconcilePreservesHistoryAfterRouteLossOrRemoval(bool removeDefinition)
+	{
+		var (f, capability, receipt) = UncappedSupportBridge();
+		var capped = ReloadSupportCap(f, capability, 90);
+		Assert.AreEqual(capability.CastingPolicy!.Identity, capped.CastingPolicy!.Identity);
+		Assert.AreEqual(capability.CastingPolicy.Supports.Single().Key, capped.CastingPolicy.Supports.Single().Key);
+		Assert.AreEqual(90.0, f.Service.RawSkillImprovementCap(f.Actor.Object, 3));
+		f.Service.Reconcile(f.Actor.Object);
+		Assert.IsTrue(f.Store.CappedTraits(100).Contains(3), "Cap adoption must survive the original uncapped grant.");
+		Assert.AreEqual(receipt, f.Store.Operation(receipt.Id), "The original grant remains immutable and uncapped.");
+		var marker = f.Store.Operations.Values.Single(x => x.Stage == MagicCastingStateStore.SkillCapRecorded && x.TraitId == 3);
+		var writes = f.Store.Writes;
+		f.Service.Reconcile(f.Actor.Object);
+		Assert.IsFalse(f.Service.ReconcileOperation(f.Staff.Object, f.Actor.Object, marker.Id, "cannot erase adopted cap").Changed);
+		Assert.AreEqual(writes, f.Store.Writes);
+		var improver = new Mock<IImprovementModel>(); improver.SetupGet(x => x.Id).Returns(99);
+		improver.Setup(x => x.GetImprovement(It.IsAny<IHaveTraits>(), It.IsAny<ITrait>(), It.IsAny<Difficulty>(), It.IsAny<Outcome>(), It.IsAny<TraitUseType>())).Returns(5);
+		f.World.SetupGet(x => x.ImprovementModels).Returns(MagicCastingFixture.Collection(() => new[] { improver.Object }));
+		var definition = new SkillDefinition(new MudSharp.Models.TraitDefinition { Id = 3, Name = "Adopted support", ImproverId = 99,
+			Type = (int)TraitType.Skill, OwnerScope = (int)TraitOwnerScope.Character }, f.World.Object) { Cap = new TraitExpression("100", f.World.Object) };
+		var skill = new Skill(definition, 84, f.Actor.Object);
+		skill.Value += 10; Assert.AreEqual(90.0, skill.RawValue);
+		if (removeDefinition)
+		{
+			Assert.IsTrue(capped.BuildingCommand(f.Actor.Object, new StringStack("casting prerequisite traitremove 2 3")));
+			Assert.IsTrue(capped.BuildingCommand(f.Actor.Object, new StringStack("casting support remove 3")));
+		}
+		else f.ActiveCapabilities.Clear();
+		f.Restart();
+		Assert.AreEqual(0.0, f.Service.RawSkillImprovementCap(f.Actor.Object, 3));
+		skill.Value += 10;
+		Assert.IsFalse(skill.TraitUsed(f.Actor.Object, Outcome.Pass, Difficulty.Normal, TraitUseType.Practical, []));
+		Assert.AreEqual(90.0, skill.RawValue); Assert.AreEqual(84.0, f.Skills[3]);
+		Assert.AreEqual(receipt, f.Store.Operation(receipt.Id)); Assert.AreEqual(marker, f.Store.Operation(marker.Id));
+		Assert.AreEqual(writes, f.Store.Writes); Assert.AreEqual(0, f.Store.Unresolved().Count);
+	}
+
+	[TestMethod]
+	public void TypedSupport_CapAdoptionFailedWrite_LeavesGrantIntactAndReconcileRetryRecordsHistory()
+	{
+		var (f, capability, receipt) = UncappedSupportBridge();
+		ReloadSupportCap(f, capability, 90);
+		f.Store.BeforeWrite = op => { if (op?.Stage == MagicCastingStateStore.SkillCapRecorded) throw new InvalidOperationException("cap adoption marker unavailable"); };
+		Assert.ThrowsException<InvalidOperationException>(() => f.Service.Reconcile(f.Actor.Object));
+		Assert.IsFalse(f.Store.CappedTraits(100).Contains(3));
+		Assert.AreEqual(receipt, f.Store.Operation(receipt.Id)); Assert.AreEqual(84.0, f.Skills[3]);
+		f.Store.BeforeWrite = null; f.Restart(); f.Service.Reconcile(f.Actor.Object);
+		Assert.IsTrue(f.Store.CappedTraits(100).Contains(3));
+		f.ActiveCapabilities.Clear(); f.Restart();
+		Assert.AreEqual(0.0, f.Service.RawSkillImprovementCap(f.Actor.Object, 3));
+		Assert.AreEqual(receipt, f.Store.Operation(receipt.Id)); Assert.AreEqual(84.0, f.Skills[3]);
+	}
+
+	private static (MagicCastingFixture Fixture, SkillLevelBasedMagicCapability Capability, CastingOperation Receipt) UncappedSupportBridge()
+	{
+		var f = Bridge(); var capability = ReloadSupportCap(f, f.Earth, null);
+		f.Skills[1] = 80; f.Skills[3] = 84;
+		Assert.IsTrue(f.Service.Enrol(f.Staff.Object, f.Actor.Object, capability.Id, "uncapped native support").Allowed);
+		var receipt = f.Store.Operations.Values.Single(x => MagicCastingStateStore.IsSupportRecord(x.Stage));
+		Assert.AreEqual(MagicCastingStateStore.SupportGranted, receipt.Stage);
+		Assert.IsNull(f.Store.SupportGrant(100, capability.CastingPolicy!.Identity, capability.CastingPolicy.Supports.Single().Key)!.RawSkillCap);
+		Assert.IsFalse(f.Store.CappedTraits(100).Contains(3));
+		return (f, capability, receipt);
+	}
+
+	private static SkillLevelBasedMagicCapability ReloadSupportCap(MagicCastingFixture f, SkillLevelBasedMagicCapability capability, double? rawCap)
+	{
+		var xml = XElement.Parse(capability.SaveToXml()).Element("Casting")!;
+		xml.Element("SupportGrant")!.SetAttributeValue("rawCap", rawCap);
+		f.Capabilities.Remove(capability);
+		var reloaded = f.NewCapability(capability.Id, 1, 11, true, xml);
+		f.ActiveCapabilities.Clear(); f.ActiveCapabilities.Add(reloaded);
+		f.Service.DefinitionsChanged();
+		Assert.AreEqual(0, reloaded.CastingConfigurationErrors().Count);
+		return reloaded;
 	}
 
 	[TestMethod]

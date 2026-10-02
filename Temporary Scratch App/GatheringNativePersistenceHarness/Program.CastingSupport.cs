@@ -1,3 +1,4 @@
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using MudSharp.Accounts;
@@ -57,7 +58,7 @@ internal static partial class GNHProgram
 		foreach (var command in new[] { $"casting trait {parentTrait.Id}", $"casting resources {native.Resource.Id} {native.Resource.Id} gather",
 			$"casting entry add {parent.Id}", $"casting entry starting {parent.Id} on", $"casting entry skill {parent.Id} 30 90 relative",
 			$"casting entry add {identify.Id}", $"casting entry trait {identify.Id} {identifyTrait.Id}", $"casting entry skill {identify.Id} 30 90 relative",
-			$"casting support add {supportTrait.Id} 30 90 off", $"casting support prerequisite spell {supportTrait.Id} {parent.Id} 1 80",
+			$"casting support add {supportTrait.Id} 30 native off", $"casting support prerequisite spell {supportTrait.Id} {parent.Id} 1 80",
 			$"casting prerequisite trait {identify.Id} {supportTrait.Id} 80", "casting enable on" })
 			Require(capPolicy.BuildingCommand(actor, new StringStack(command)), "Support builder refused: " + command);
 		var other = (SkillLevelBasedMagicCapability)capPolicy.Clone("ARM Support Alternate");
@@ -79,6 +80,31 @@ internal static partial class GNHProgram
 			$"Parent native use failed: raw {primary.RawValue}, native maximum {actor.TraitMaxValue(parentTrait)}, casting cap {service.RawSkillImprovementCap(actor, parentTrait.Id)}.");
 		Require(actor.TraitRawValue(parentTrait) == 80 && actor.GetTrait(supportTrait) is Skill && actor.TraitRawValue(supportTrait) == 30,
 			"Parent native use did not authorise/open Component Crafting at 30.");
+		var supportKey = capPolicy.CastingPolicy!.Supports.Single().Key;
+		var uncappedGrant = store.SupportGrant(actor.Id, capPolicy.CastingPolicy.Identity, supportKey)!;
+		var originalReceipt = store.Operation(uncappedGrant.OperationId)!;
+		Require(uncappedGrant.RawSkillCap is null && originalReceipt.Stage == MagicCastingStateStore.SupportGranted &&
+			!store.CappedTraits(actor.Id).Contains(supportTrait.Id), "Support did not begin with an uncapped immutable grant.");
+		var definitionXml = XElement.Parse(capPolicy.SaveToXml());
+		definitionXml.Element("Casting")!.Element("SupportGrant")!.SetAttributeValue("rawCap", 90);
+		SkillLevelBasedMagicCapability reloadedPolicy;
+		using (var db = NewIndependentContext(database.ConnectionString))
+		{
+			var model = db.MagicCapabilities.Single(x => x.Id == capPolicy.Id);
+			model.Definition = definitionXml.ToString(); db.SaveChanges();
+			reloadedPolicy = (SkillLevelBasedMagicCapability)MagicCapabilityFactory.LoadCapability(model, world);
+		}
+		Require(reloadedPolicy.CastingPolicy!.Identity == capPolicy.CastingPolicy.Identity &&
+			reloadedPolicy.CastingPolicy.Supports.Single().Key == supportKey && reloadedPolicy.CastingConfigurationErrors().Count == 0,
+			"Support cap reload changed its scope or produced invalid XML.");
+		((All<IMagicCapability>)world.MagicCapabilities).Remove(capPolicy);
+		((All<IMagicCapability>)world.MagicCapabilities).Add(reloadedPolicy); capPolicy = reloadedPolicy;
+		actor.SetMerits([NativeRuntime.NewCapabilityMerit(capPolicy), NativeRuntime.NewCapabilityMerit(other)]);
+		service.DefinitionsChanged(); service.Reconcile(actor);
+		Require(store.CappedTraits(actor.Id).Contains(supportTrait.Id) && service.RawSkillImprovementCap(actor, supportTrait.Id) == 90 &&
+			store.Operation(originalReceipt.Id) == originalReceipt && actor.TraitRawValue(supportTrait) == 30,
+			"Reloaded cap adoption lost durable history, changed the grant or reset the native skill.");
+		Console.WriteLine("ARM-SUPPORT-cap-adoption=passed uncapped-original-grant same-policy-and-key cap:90 native-opening:30 separate-terminal-marker");
 		var secondary = CreateSupportFocusedBody(database, native, second, capPolicy, other);
 		Require(ReferenceEquals(actor.GetTrait(supportTrait), secondary.Actor.GetTrait(supportTrait)), "Second body copied support skill state.");
 		var support = (Skill)actor.GetTrait(supportTrait);
@@ -94,7 +120,8 @@ internal static partial class GNHProgram
 		Require(enrol.ExecuteBool(actor, other), "Second enrolled route refused.");
 		actor.AddResource(native.Resource, 17); FlushCasting(native);
 		var writes = store.SupportGrant(actor.Id, capPolicy.CastingPolicy!.Identity, capPolicy.CastingPolicy.Supports.Single().Key)!;
-		Require(writes.OpeningSkill == 30 && writes.RawSkillCap == 90 && store.Unresolved(actor.Id).Count == 0, "Support durable grant/terminal exclusion failed.");
+		Require(writes == uncappedGrant && store.Operation(writes.OperationId) == originalReceipt && store.Unresolved(actor.Id).Count == 0,
+			"Support cap adoption rewrote its original grant or left an unresolved receipt.");
 		Require(enrol.ExecuteBool(actor, capPolicy) && actor.TraitRawValue(supportTrait) == 90 && actor.MagicResourceAmounts[native.Resource] == 17,
 			"Repeat authored enrolment reset a skill or refilled a reserve.");
 		using (var read = NewIndependentContext(database.ConnectionString))
@@ -106,14 +133,30 @@ internal static partial class GNHProgram
 		}
 		var staff = new Mock<ICharacter>(); staff.Setup(x => x.IsAdministrator(PermissionLevel.JuniorAdmin)).Returns(true);
 		Require(!service.ReconcileOperation(staff.Object, actor, writes.OperationId, "cannot erase terminal grant").Changed &&
-			store.Operation(writes.OperationId)?.Stage == MagicCastingStateStore.CappedSupportGranted, "Terminal support grant was mutable.");
+			store.Operation(writes.OperationId) == originalReceipt, "Terminal support grant was mutable.");
+		using (var read = NewIndependentContext(database.ConnectionString))
+		{
+			var marker = read.MagicCastingOperations.AsNoTracking().Single(x => x.CharacterId == actor.Id &&
+				x.Stage == MagicCastingStateStore.SkillCapRecorded && x.TraitDefinitionId == supportTrait.Id);
+			Require(!service.ReconcileOperation(staff.Object, actor, marker.Id, "cannot erase cap adoption").Changed &&
+				(Guid)XElement.Parse(marker.Definition).Attribute("grant")! == writes.OperationId, "Cap adoption marker lost immutable grant provenance.");
+		}
 		actor.SetMerits([]); secondary.Actor.SetMerits([]); Require(!enrol.ExecuteBool(actor, capPolicy), "Temporary/absent merit enrolled through authored hook.");
 		Require(service.RawSkillImprovementCap(actor, supportTrait.Id) == 0 && !support.TraitUsed(actor, Outcome.Pass, Difficulty.Normal, TraitUseType.Practical, []),
 			"Lost permanent route allowed a support gain.");
 		actor.SetMerits([NativeRuntime.NewCapabilityMerit(capPolicy), NativeRuntime.NewCapabilityMerit(other)]);
 		secondary.Actor.SetMerits([NativeRuntime.NewCapabilityMerit(capPolicy), NativeRuntime.NewCapabilityMerit(other)]); FlushCasting(native);
 		RunCastingReaderProcess(new(database.Name, first, second, parent.Id, capPolicy.Id, other.Id, parentTrait.Id, identifyTrait.Id,
-			null, 1, 17, 0, RawSkill: 80, SupportTrait: supportTrait.Id, IdentifySpell: identify.Id));
+			null, 1, 17, 0, RawSkill: 80, SupportTrait: supportTrait.Id, IdentifySpell: identify.Id, SupportGrantKey: supportKey));
+		actor.SetMerits([NativeRuntime.NewCapabilityMerit(capPolicy)]); secondary.Actor.SetMerits([NativeRuntime.NewCapabilityMerit(capPolicy)]);
+		Require(capPolicy.BuildingCommand(actor, new StringStack($"casting prerequisite traitremove {identify.Id} {supportTrait.Id}")) &&
+			capPolicy.BuildingCommand(actor, new StringStack($"casting support remove {supportTrait.Id}")), "Adopted support removal refused.");
+		service.Reconcile(secondary.Actor); support.Value += 10;
+		Require(service.RawSkillImprovementCap(secondary.Actor, supportTrait.Id) == 0 && actor.TraitRawValue(supportTrait) == 90 &&
+			!support.TraitUsed(secondary.Actor, Outcome.Pass, Difficulty.Normal, TraitUseType.Practical, []), "Removed support released its adopted cap or erased proficiency.");
+		FlushCasting(native);
+		RunCastingReaderProcess(new(database.Name, first, second, parent.Id, capPolicy.Id, other.Id, parentTrait.Id, identifyTrait.Id,
+			null, 1, 17, 0, RawSkill: 80, SupportTrait: supportTrait.Id, IdentifySpell: identify.Id, SupportGrantKey: supportKey, SupportCapRemoved: true));
 		Console.WriteLine("ARM-SUPPORT-native=passed authored-enrolment parent-native-use:30-to-80 second-focused-body-support-native-use:30-to-80-to-90 Identify-grade:1 cap:90 no-dummy-spell no-refill terminal-immutable separate-process-reload craft-command:NOT_RUN");
 		return 0;
 	}
@@ -158,13 +201,22 @@ internal static partial class GNHProgram
 		var world = native.World; var actor = native.Actor; var cap = (IMagicCastingCapability)CastingRequired(world.MagicCapabilities.Get(input.EarthCapability));
 		actor.SetMerits([NativeRuntime.NewCapabilityMerit(cap)]);
 		var service = new MagicCastingService(world, flush: () => FlushCasting(native)); native.WorldMock.SetupGet(x => x.MagicCasting).Returns(service);
-		var store = new MagicCastingStateStore(); var grant = cap.CastingPolicy!.Supports.Single();
-		Require(store.SupportGrant(actor.Id, cap.CastingPolicy.Identity, grant.Key)?.RawSkillCap == 90, "Restart lost scoped native support authorisation.");
+		var store = new MagicCastingStateStore(); var grantKey = input.SupportGrantKey ?? cap.CastingPolicy!.Supports.Single().Key;
+		var grant = store.SupportGrant(actor.Id, cap.CastingPolicy!.Identity, grantKey);
+		Require(grant is not null && grant.RawSkillCap is null && store.Operation(grant.OperationId)?.Stage == MagicCastingStateStore.SupportGranted &&
+			store.CappedTraits(actor.Id).Contains(input.SupportTrait!.Value), "Restart lost the uncapped grant or its later durable cap adoption.");
 		Require(actor.GetTrait(world.Traits.Get(input.SupportTrait!.Value)) is Skill && actor.TraitRawValue(world.Traits.Get(input.SupportTrait.Value)) == 90,
 			"Restart lost native support value.");
-		Require(service.RawSkillImprovementCap(actor, input.SupportTrait.Value) == 90 && service.Acquisition(actor, input.IdentifySpell!.Value)?.ControlledGrade == 1,
+		var expectedCap = input.SupportCapRemoved ? 0 : 90;
+		Require(service.RawSkillImprovementCap(actor, input.SupportTrait.Value) == expectedCap && service.Acquisition(actor, input.IdentifySpell!.Value)?.ControlledGrade == 1,
 			"Restart lost support cap or Identify grade.");
+		if (input.SupportCapRemoved)
+		{
+			var skill = (Skill)actor.GetTrait(world.Traits.Get(input.SupportTrait.Value)); skill.Value += 10;
+			Require(!cap.CastingPolicy.Supports.Any(x => x.TraitId == input.SupportTrait) && skill.RawValue == 90 &&
+				!skill.TraitUsed(actor, Outcome.Pass, Difficulty.Normal, TraitUseType.Practical, []), "Restart allowed a removed support gain or changed its proficiency.");
+		}
 		Require(store.Unresolved(actor.Id).Count == 0 && actor.MagicResourceAmounts[native.Resource] == 17, "Restart mutated support/resource state.");
-		Console.WriteLine("ARM-SUPPORT-reload=passed native-Skill raw:90 cap:90 Identify-grade:1 balance:17 scoped-grant terminal-history");
+		Console.WriteLine($"ARM-SUPPORT-reload=passed native-Skill raw:90 cap:{expectedCap} Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:{input.SupportCapRemoved}");
 	}
 }

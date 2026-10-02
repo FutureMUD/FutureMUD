@@ -3,6 +3,24 @@ namespace MudSharp.Magic.Casting;
 
 public sealed partial class MagicCastingService
 {
+	private void RecordSupportSkillCap(ICharacter actor, IMagicCastingCapability capability, MagicCastingSupportGrant support)
+	{
+		var owner = Owner(actor);
+		var policy = capability.CastingPolicy!;
+		if (support.RawSkillCap is not { } cap || _store.Enrolment(owner.Id, policy.Identity) is null ||
+			CapHistory(owner.Id).Contains(support.TraitId) ||
+			_store.SupportGrant(owner.Id, policy.Identity, support.Key) is not { } grant || grant.TraitId != support.TraitId) return;
+		var now = _clock();
+		// A definition may opt an existing uncapped support into a cap. Preserve the immutable
+		// acquisition receipt and journal the adoption separately before reconciling its native skill.
+		var definition = new XElement("SkillCap", new XAttribute("version", 1), new XAttribute("identity", policy.Identity),
+			new XAttribute("support", support.Key), new XAttribute("grant", grant.OperationId), new XAttribute("rawCap", cap));
+		_store.Write(operation: new(Guid.NewGuid(), owner.Id, actor.InstanceId, actor.Body.Id, capability.Id, 0,
+			support.TraitId, policy.ReserveResourceId, MagicCastingStateStore.SkillCapRecorded,
+			definition.ToString(SaveOptions.DisableFormatting), now, now));
+		_capHistory[owner.Id] = CapHistory(owner.Id).Append(support.TraitId).ToHashSet();
+	}
+
 	private MagicCastingGrant GrantSupportCore(ICharacter actor, IMagicCastingCapability capability, MagicCastingSupportGrant support, string provenance)
 	{
 		var owner = Owner(actor); var policy = capability.CastingPolicy!;

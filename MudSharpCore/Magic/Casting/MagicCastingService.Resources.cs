@@ -28,8 +28,12 @@ public sealed partial class MagicCastingService
 			var c = (IMagicCastingCapability)_world.MagicCapabilities.Get(id)!;
 			if (c.CastingConfigurationErrors().Count > 0) continue;
 			lock (Guard(actor))
+			{
 				foreach (var admission in c.CastingPolicy!.Admissions.Where(x => x.RawSkillCap.HasValue && Acquisition(actor, x.SpellId) is not null))
 					RecordSkillCap(actor, c, admission);
+				foreach (var support in c.CastingPolicy.Supports.Where(x => x.RawSkillCap.HasValue))
+					RecordSupportSkillCap(actor, c, support);
+			}
 		}
 		foreach (var id in current.Where(id => !previous.Contains(id) || ((IMagicCastingCapability)_world.MagicCapabilities.Get(id)!).CastingPolicy!.Supports.Count > 0))
 		{

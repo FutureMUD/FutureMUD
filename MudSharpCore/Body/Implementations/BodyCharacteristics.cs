@@ -291,6 +291,7 @@ public partial class Body
 
         _merits.Add(merit);
         MeritsChanged = true;
+		if (merit is MudSharp.RPG.Merits.Interfaces.ITraitBonusMerit && Actor?.Gameworld is { } world) world.MagicCasting?.NotifyCapacityChange(Actor);
         return true;
     }
 
@@ -303,6 +304,7 @@ public partial class Body
 
         _merits.Remove(merit);
         MeritsChanged = true;
+		if (merit is MudSharp.RPG.Merits.Interfaces.ITraitBonusMerit && Actor?.Gameworld is { } world) world.MagicCasting?.NotifyCapacityChange(Actor);
         return true;
     }
 

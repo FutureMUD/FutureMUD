@@ -512,7 +512,8 @@ internal static partial class GNHProgram
 		public IMagicResource Resource { get; }
 		public IMagicGatheringCapability Capability { get; }
 
-		public static NativeRuntime Load(FixtureIds fixture, string connectionString, bool casting = false)
+		public static NativeRuntime Load(FixtureIds fixture, string connectionString, bool casting = false,
+			Action<NativeRuntime>? beforeMagicLoad = null)
 		{
 			using FuturemudDatabaseContext context = NewIndependentContext(connectionString);
 			Db.Character character = context.Characters
@@ -621,15 +622,24 @@ internal static partial class GNHProgram
 			world.SetupGet(x => x.MagicCapabilities).Returns(capabilities);
 
 			NativeHarnessCharacter actor = NativeHarnessCharacter.Create(world.Object, character.Id, cell.Object, culture.Object);
+			using var capacityRestoration = (IDisposable)typeof(RuntimeCharacter).GetMethod("DeferCastingCapacityReconciliation", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(actor, [false])!;
 			RuntimeBody body = new(bodyModel, world.Object, actor);
 			actor.AttachBody(body);
 			SetPrivateField(body, "_currentBloodVolumeLitres", 5.0);
 			body.TotalBloodVolumeLitres = 5.0;
 			SetPrivateField(body, "_healthTickActive", true);
+			var runtime = new NativeRuntime(world, actor, body, resource, capability);
+			beforeMagicLoad?.Invoke(runtime);
 			actor.LoadMagic(character);
 			actor.SetMerits([NewCapabilityMerit(capability)]);
-
-			return new NativeRuntime(world, actor, body, resource, capability);
+			if (beforeMagicLoad is not null)
+			{
+				body.RecalculateItemHelpers();
+				actor.RestoreCastingEffects(character.EffectData);
+			}
+			capacityRestoration.Dispose();
+			world.Object.MagicCasting?.NotifyCapacityChange(actor);
+			return runtime;
 		}
 
 		private static Mock<ITraitExpression> NewTraitExpression(long id, IFuturemud world)
@@ -787,7 +797,7 @@ internal static partial class GNHProgram
 		{
 		}
 
-		public override double ResourceCap(IHaveMagicResource thing) => 100.0;
+		public override double ResourceCap(IHaveMagicResource thing) => HasAttributeCapacity ? base.ResourceCap(thing) : 100.0;
 	}
 
 	private sealed class NativeHarnessCharacter : RuntimeCharacter

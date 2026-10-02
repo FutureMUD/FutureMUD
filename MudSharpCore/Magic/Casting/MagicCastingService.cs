@@ -84,6 +84,8 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		if (!actor.Body.FunctioningFreeHands.Any()) return "You need a functioning free hand to manipulate this casting.";
 		if (actor.CombinedEffectsOfType<MagicSpellLockout>().Any(x => x.Applies(s.School))) return "You are currently locked out from casting this spell.";
 		if (ReserveConflict(actor, p.ReserveResourceId)) return "This reserve has incompatible passive and gathering-only entitlements.";
+		if (!MagicResourceCapacity.TryGetCap(_world.MagicResources.Get(p.ReserveResourceId)!, Owner(actor), out _, out var capError))
+			return $"The reserve capacity is invalid: {capError}";
 		return QuarantineReason(actor, spellId, trait.Id, p.ReserveResourceId);
 	}
 
@@ -127,7 +129,11 @@ public sealed partial class MagicCastingService : IMagicCastingService
 			.OrderBy(x => x.Holder.Id).ThenBy(x => x.Resource.Id).ToList();
 		foreach (var cost in payments)
 		{
-			if (!double.IsFinite(cost.Amount) || !cost.Holder.CanUseResource(cost.Resource, cost.Amount)) throw new InvalidOperationException($"Insufficient {cost.Resource.Name} for the combined cost.");
+			if (!MagicResourceCapacity.TryGetCap(cost.Resource, cost.Holder, out var cap, out var capError))
+				throw new InvalidOperationException($"The {cost.Resource.Name} capacity is invalid: {capError}");
+			var balance = cost.Holder.MagicResourceAmounts.GetValueOrDefault(cost.Resource);
+			if (!double.IsFinite(cost.Amount) || !double.IsFinite(balance) || Math.Min(balance, cap) < cost.Amount ||
+				!cost.Holder.CanUseResource(cost.Resource, cost.Amount)) throw new InvalidOperationException($"Insufficient {cost.Resource.Name} for the combined cost.");
 			if (QuarantineReason(actor, reserveId: cost.Resource.Id) is { } q) throw new InvalidOperationException(q);
 		}
 		var plan = spell.InventoryPlanTemplate.CreatePlan(actor);

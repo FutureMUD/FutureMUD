@@ -138,6 +138,36 @@ them; new configured balances initialise to zero. Gathering still pays through t
 body's existing gathering pipeline. Passive entitlement permits configured generators;
 it does not create one or replenish a reserve immediately.
 
+For a `SimpleMagicResource`, these resource-builder arguments opt into explicit
+attribute capacity:
+
+```text
+capattribute <native body attribute> <trait expression> [raw|effective]
+capattribute none
+```
+
+`variable` binds the selected attribute. Other expression parameters must explicitly
+bind native body attributes. Skills, mastery, extended options, unknown parameters and
+random functions are rejected. Omitted basis means `effective`; select `raw` explicitly
+when bonuses should not affect capacity. The configured reserve uses its canonical
+holder's current body, so focusing another instance does not substitute its attributes.
+The optional versioned `AttributeCapacity` XML retains the IDs and basis. Invalid or
+unreadable configuration fails closed and is preserved for repair. Existing resources
+without this XML retain their cap Prog; `capattribute none` or `cap <prog>` restores that
+path. Item/cell capacity retains the existing Prog/environment behavior.
+
+Attribute and standard effective-modifier mutations reconcile existing maxima. A lower
+valid cap removes excess balance; a higher cap grants no energy. Constructors, effect
+restoration and body transitions defer this reconciliation until all contributors have
+loaded. Quotes/preflight remain pure and require both a valid finite, non-negative cap
+and sufficient actual balance, bounded by that maximum. Invalid caps/balances cannot
+fund a configured cast or receive normal credits. No enrolment, attachment, route change
+or reconciliation refills the reserve. Custom state-dependent Progs/modifiers must call
+`NotifyCapacityChange` after their mutation; live accounting also validates the cap.
+
+See [capacity and affordability](Armageddon_Capacity_Affordability.md) for provisional
+attribute scenarios, the complete 82-spell energy envelope and native verification limits.
+
 Prerequisites belong to their particular capability and require every listed edge.
 They use the prerequisite spell's trait binding in that route. Only explicit enrolment
 with a currently applicable permanent capability merit enables automatic prerequisite

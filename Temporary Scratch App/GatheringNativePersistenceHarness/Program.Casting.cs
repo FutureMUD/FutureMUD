@@ -38,14 +38,17 @@ internal static partial class GNHProgram
 		long EarthCapability, long SorcererCapability, long EarthSkill, long SorcererSkill, Guid? Operation,
 		int Grade, double Balance, int Unresolved, bool VerifyEffects = false, FixtureIds? SecondBody = null, long? SecondInstance = null,
 		DateTime? SkillDeadline = null, DateTime? MasteryDeadline = null, double RawSkill = 42, bool VerifyCapLoss = false,
-		long? SupportTrait = null, long? IdentifySpell = null, Guid? SupportGrantKey = null, bool SupportCapRemoved = false);
+		long? SupportTrait = null, long? IdentifySpell = null, Guid? SupportGrantKey = null, bool SupportCapRemoved = false,
+		long? CapacityAttribute = null, long? CapacityExpression = null, double? Capacity = null, bool CapacityRaw = true);
 
 	private static int RunAllCastingAcceptanceChecks()
 	{
 		var baseline = RunCastingAcceptanceChecks();
 		if (baseline != 0) return baseline;
 		var progression = RunCompletionProgressionAcceptanceChecks();
-		return progression == 0 ? RunSupportProgressionAcceptanceChecks() : progression;
+		if (progression != 0) return progression;
+		var support = RunSupportProgressionAcceptanceChecks();
+		return support == 0 ? RunCapacityAcceptanceChecks() : support;
 	}
 
 	private static int RunCastingAcceptanceChecks()
@@ -323,6 +326,7 @@ internal static partial class GNHProgram
 		if (input.VerifyEffects || input.SecondBody is not null) VerifyCastingRuntimeReload(database, input);
 		if (input.VerifyCapLoss) VerifyCompletionCapLossReload(database, input);
 		if (input.SupportTrait.HasValue) VerifySupportProgressionReload(database, input);
+		if (input.Capacity.HasValue) VerifyCapacityReload(database, input);
 		Console.WriteLine($"ARM02-reader=passed grade:{state.ControlledGrade} balance:{input.Balance} unresolved:{input.Unresolved} operation:{input.Operation?.ToString() ?? "none"} process:{Environment.ProcessId}");
 		return 0;
 	}

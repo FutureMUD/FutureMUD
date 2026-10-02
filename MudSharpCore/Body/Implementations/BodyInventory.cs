@@ -3452,6 +3452,7 @@ public partial class Body
                                         .Select(x => x.Parent))
                         .Concat(Wounds.Where(x => parts.Contains(x.Bodypart)).SelectNotNull(x => x.Lodged))
                         .Distinct().ToList();
+		if (Actor?.Gameworld is { } world) world.MagicCasting?.NotifyCapacityChange(Actor);
     }
 
     private List<IGameItem> _allItems = new();

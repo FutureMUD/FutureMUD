@@ -17,6 +17,7 @@ using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Effects;
 using MudSharp.Body;
 using MudSharp.Communication.Language;
+using MudSharp.Effects.Interfaces;
 using ConcreteCharacter = MudSharp.Character.Character;
 
 #nullable enable
@@ -111,9 +112,119 @@ public class MagicCastingOwnershipTests
 		Assert.AreEqual(1, primary.MagicResourceGenerators.Count());
 	}
 
+	[TestMethod]
+	public void NativeReserve_ReconciliationClampsOnlyDown_NoRefillOnCapRiseOrRouteChanges()
+	{
+		var f = new MagicCastingFixture(); var actor = Holder.Create(f.World.Object, 100); actor.Available.Add(f.Earth);
+		actor.ReconcileCastingResources(); actor.AddResource(f.Resources[1], 77);
+		Assert.AreEqual(77.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(It.IsAny<IHaveMagicResource>())).Returns(10);
+		actor.ReconcileCastingResources(); Assert.AreEqual(10.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(It.IsAny<IHaveMagicResource>())).Returns(200);
+		actor.Available.Clear(); actor.ReconcileCastingResources(); actor.Available.Add(f.Earth); actor.ReconcileCastingResources();
+		Assert.AreEqual(10.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		Assert.IsFalse(actor.CanUseResource(f.Resources[1], 11));
+	}
+
+	[DataTestMethod]
+	[DataRow(double.NaN)]
+	[DataRow(double.PositiveInfinity)]
+	[DataRow(-1.0)]
+	public void NativeReserve_InvalidCapRejectsCreditAndDebitWithoutCorruptingSpentBalance(double invalid)
+	{
+		var f = new MagicCastingFixture(); var actor = Holder.Create(f.World.Object, 100); actor.Available.Add(f.Earth);
+		actor.ReconcileCastingResources(); actor.AddResource(f.Resources[1], 17);
+		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(It.IsAny<IHaveMagicResource>())).Returns(invalid);
+		actor.AddResource(f.Resources[1], 5);
+		Assert.AreEqual(17.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		Assert.IsFalse(actor.CanUseResource(f.Resources[1], 5)); Assert.IsFalse(actor.UseResource(f.Resources[1], 5));
+		actor.ReconcileCastingResources(); Assert.AreEqual(17.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(It.IsAny<IHaveMagicResource>())).Returns(10);
+		actor.ReconcileCastingResources(); Assert.AreEqual(10.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(It.IsAny<IHaveMagicResource>())).Returns(100);
+		actor.ReconcileCastingResources(); Assert.AreEqual(10.0, actor.MagicResourceAmounts[f.Resources[1]]);
+	}
+
+	[TestMethod]
+	public void NativeReserve_EffectiveAttributePenaltyClampsImmediately_ExpiryDoesNotRefill()
+	{
+		var f = new MagicCastingFixture(); var actor = Holder.Create(f.World.Object, 100); actor.Available.Add(f.Earth);
+		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(actor)).Returns(() =>
+			100 + actor.EffectsOfType<ITraitBonusEffect>().Sum(x => x.GetBonus(f.NativeSkill.Object, TraitBonusContext.None)));
+		actor.ReconcileCastingResources(); actor.AddResource(f.Resources[1], 100);
+		var penalty = new Mock<ITraitBonusEffect>();
+		penalty.Setup(x => x.GetBonus(It.IsAny<ITrait>(), It.IsAny<TraitBonusContext>())).Returns(-50);
+		actor.AddEffect(penalty.Object);
+		Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]], "Applying a penalty clamps before any accounting action.");
+		actor.RemoveEffect(penalty.Object);
+		Assert.AreEqual(100.0, f.Resources[1].ResourceCap(actor));
+		Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]], "Removing a penalty restores the maximum without restoring spent energy.");
+	}
+
+	[TestMethod]
+	public void NativeReserve_NegativeBalanceRejectsOrdinaryCreditUntilExplicitRepair()
+	{
+		var f = new MagicCastingFixture(); var actor = Holder.Create(f.World.Object, 100); actor.Available.Add(f.Earth);
+		actor.ReconcileCastingResources();
+		((DoubleCounter<IMagicResource>)typeof(ConcreteCharacter).GetField("_magicResourceAmounts", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(actor)!)[f.Resources[1]] = -5;
+		actor.AddResource(f.Resources[1], 10);
+		Assert.AreEqual(-5.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		Assert.IsFalse(actor.CanUseResource(f.Resources[1], 0)); Assert.IsFalse(actor.UseResource(f.Resources[1], 0));
+		actor.ReconcileCastingResources(); Assert.AreEqual(-5.0, actor.MagicResourceAmounts[f.Resources[1]]);
+	}
+
 	private sealed class NativeCheck(MudSharp.Models.Check model, IFuturemud world) : StandardCheck(model, world)
 	{
 		public CheckOutcome Resolve(ICharacter actor, ITraitDefinition trait) => HandleStandardCheck(actor, actor, Outcome.Pass, Difficulty.Normal, trait);
+	}
+
+	[TestMethod]
+	public void NativeReserve_AttributeMeritRemovalRestoresMaximumWithoutRefilling()
+	{
+		var f = new MagicCastingFixture(); var actor = Holder.Create(f.World.Object, 100); actor.Available.Add(f.Earth);
+		var merit = new Mock<ITraitBonusMerit>(); merit.SetupGet(x => x.MeritScope).Returns(MeritScope.Character);
+		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(actor)).Returns(() => actor.Merits.Contains(merit.Object) ? 50 : 100);
+		actor.ReconcileCastingResources(); actor.AddResource(f.Resources[1], 100);
+		Assert.IsTrue(actor.AddMerit(merit.Object)); Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		Assert.IsTrue(actor.RemoveMerit(merit.Object)); Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]]);
+	}
+
+	[DataTestMethod]
+	[DataRow(70.0, 150.0)]
+	[DataRow(-10.0, 120.0)]
+	public void NativeReserve_LoadRestorationDefersPartialInventoryAndEffectCaps_ThenClampsOnce(double secondBonus, double finalBalance)
+	{
+		var f = new MagicCastingFixture(); var actor = Holder.Create(f.World.Object, 100); actor.Available.Add(f.Earth);
+		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(actor)).Returns(() =>
+			100 + actor.EffectsOfType<ITraitBonusEffect>().Sum(x => x.GetBonus(f.NativeSkill.Object, TraitBonusContext.None)));
+		actor.ReconcileCastingResources();
+		var balances = (DoubleCounter<IMagicResource>)typeof(ConcreteCharacter).GetField("_magicResourceAmounts", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(actor)!;
+		balances[f.Resources[1]] = 150; // Restored balance; contributors follow inventory in production load order.
+		using (actor.DeferCastingCapacityReconciliation())
+		{
+			actor.ReconcileCastingResources(); Assert.AreEqual(150.0, actor.MagicResourceAmounts[f.Resources[1]]);
+			foreach (var bonus in new[] { 30.0, secondBonus })
+			{
+				var effect = new Mock<ITraitBonusEffect>(); effect.Setup(x => x.GetBonus(It.IsAny<ITrait>(), It.IsAny<TraitBonusContext>())).Returns(bonus);
+				actor.AddEffect(effect.Object); Assert.AreEqual(150.0, actor.MagicResourceAmounts[f.Resources[1]]);
+			}
+		}
+		Assert.AreEqual(finalBalance, actor.MagicResourceAmounts[f.Resources[1]]);
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void NativeReserve_LabourHoursChangeClampsAtActivationThreshold(bool projectHours)
+	{
+		var f = new MagicCastingFixture(); var actor = Holder.Create(f.World.Object, 100); actor.Available.Add(f.Earth);
+		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(actor)).Returns(() =>
+			(projectHours ? actor.CurrentProjectProjectHours : actor.CurrentProjectHours) >= 1 ? 50 : 100);
+		actor.ReconcileCastingResources(); actor.AddResource(f.Resources[1], 100);
+		if (projectHours) actor.CurrentProjectProjectHours = 1; else actor.CurrentProjectHours = 1;
+		Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		if (projectHours) actor.CurrentProjectProjectHours = 0; else actor.CurrentProjectHours = 0;
+		Assert.AreEqual(100.0, f.Resources[1].ResourceCap(actor)); Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]]);
 	}
 
 	private sealed class Holder : ConcreteCharacter

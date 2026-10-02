@@ -19,6 +19,7 @@ public sealed partial class MagicCastingService
 			XElement? payload = null;
 			try
 			{
+				NotifyCapacityChange(actor);
 				var prepared = Prepare(intent);
 				var resolved = prepared.Quote.Invocation!;
 				var profile = prepared.Spell.GradeProfile!;

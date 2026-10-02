@@ -46,6 +46,8 @@ public interface IMagicCastingService
 	MagicCastingGrant Enrol(ICharacter authority, ICharacter target, long capabilityId, string reason);
 	void NotifyProgress(ICharacter character, long? traitId = null, long? spellId = null);
 	void Reconcile(ICharacter actor);
+	/// <summary>Re-evaluates existing canonical reserve maxima without granting energy, knowledge or progression.</summary>
+	void NotifyCapacityChange(ICharacter actor) { }
 	/// <summary>Pure native improvement ceiling; null retains native policy. Never trims stored proficiency.</summary>
 	double? RawSkillImprovementCap(ICharacter actor, long traitId) => null;
 	string? QuarantineReason(ICharacter actor, long? spellId = null, long? traitId = null, long? reserveId = null,

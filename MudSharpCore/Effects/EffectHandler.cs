@@ -77,6 +77,7 @@ public class EffectHandler : IEffectHandler
         {
             EffectsChanged = true;
         }
+		NotifyAttributeCapacityChange(effect);
     }
 
     public void AddEffect(IEffect effect, TimeSpan duration)
@@ -104,6 +105,7 @@ public class EffectHandler : IEffectHandler
         }
 
         _effects.Remove(effect);
+		NotifyAttributeCapacityChange(effect);
         Gameworld.EffectScheduler.Unschedule(effect);
         if (effect.SavingEffect)
         {
@@ -124,6 +126,13 @@ public class EffectHandler : IEffectHandler
             RemoveEffect(effect);
         }
     }
+
+	private void NotifyAttributeCapacityChange(IEffect effect)
+	{
+		if (effect is not ITraitBonusEffect && effect is not MudSharp.Effects.Concrete.PsychicSuppressionEffect) return;
+		var actor = Parent as MudSharp.Character.ICharacter ?? (Parent as MudSharp.Body.IBody)?.Actor;
+		if (actor is not null) Gameworld.MagicCasting?.NotifyCapacityChange(actor);
+	}
 
     public void RemoveAllEffects(Predicate<IEffect> predicate, bool fireRemovalAction = false)
     {

@@ -437,6 +437,8 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     protected void LoadEffects(XElement effects)
     {
+		var capacityActor = (this as ICharacter ?? (this as MudSharp.Body.IBody)?.Actor) as MudSharp.Character.Character;
+		using var capacityRestoration = capacityActor?.DeferCastingCapacityReconciliation(false);
         bool removedAnyEffects = false;
         foreach (XElement effect in effects.Elements("Effect"))
         {
@@ -460,6 +462,8 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         {
             EffectsChanged = true;
         }
+		capacityRestoration?.Dispose();
+		capacityActor?.ReconcileCastingResourceCapacities();
     }
 
     private bool _effectsChanged;

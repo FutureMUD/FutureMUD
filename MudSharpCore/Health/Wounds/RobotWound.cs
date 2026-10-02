@@ -347,6 +347,7 @@ public class RobotWound : PerceivedItem, IContinuousExposureWound
         {
             _currentDamage = Math.Max(0.0, value);
             Changed = true;
+			(Parent as MudSharp.GameItems.GameItem)?.NotifyImplantAttributeCapacityChange();
         }
     }
 

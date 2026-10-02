@@ -869,6 +869,7 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
             double oldDamage = _currentDamage;
             _currentDamage = Math.Max(0.0, value);
             Changed = true;
+			(Parent as MudSharp.GameItems.GameItem)?.NotifyImplantAttributeCapacityChange();
             if (oldDamage < _currentDamage && Bodypart is IOrganProto)
             {
                 CheckForOrganBleeding();

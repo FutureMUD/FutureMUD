@@ -212,6 +212,7 @@ public class MagicCastingProgressionTests
 		Assert.IsTrue(f.Spells[0].BuildingCommand(f.Actor.Object, new StringStack("grades overreach 1.5 1")));
 		Assert.IsFalse(f.Service.Quote(f.Intent(2)).Allowed); // 112.5 source + 10 fixed secondary exceeds 100.
 		f.Balances[f.Resources[1]] = 200;
+		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(It.IsAny<IHaveMagicResource>())).Returns(200);
 		Assert.AreEqual(122.5, f.Service.Quote(f.Intent(2)).Invocation!.Costs.Single().Amount);
 	}
 

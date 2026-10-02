@@ -84,6 +84,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         EffectHandler = new EffectHandler(this);
         QueuedMoveCommands = new Queue<string>();
         Gameworld = gameworld;
+        using var capacityRestoration = DeferCastingCapacityReconciliation(false);
         LoadFromDatabase(character);
         CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
         _loginDateTime = character.LastLoginTime ?? DateTime.MinValue;
@@ -102,6 +103,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         (Body as MudSharp.Body.Implementations.Body)?.SanitizeIncompatibleHealthState(true);
         InitialiseStamina();
         LoadHooks(character.HooksPerceivables, "Character");
+        capacityRestoration.Dispose();
+        ReconcileCastingResourceCapacities();
     }
 
     public Character(long characterId, IFuturemud game)
@@ -113,6 +116,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
     {
         _noSave = true;
         Gameworld = gameworld;
+        using var capacityRestoration = DeferCastingCapacityReconciliation(false);
         Account = template.Account;
         Location = Gameworld.Cells.Get(template.SelectedStartingLocation?.Id ?? 0);
         Culture = template.SelectedCulture;
@@ -326,6 +330,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
         CurrentStamina = MaximumStamina;
         Gameworld.SaveManager.AddInitialisation(this);
+        capacityRestoration.Dispose();
+        ReconcileCastingResourceCapacities();
     }
 
 	internal static IReadOnlyCollection<ISignedLanguage> ResolveSignedLanguagesForTemplate(IFuturemud gameworld,

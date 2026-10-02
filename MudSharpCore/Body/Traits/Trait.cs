@@ -1,5 +1,6 @@
 ﻿using MudSharp.Database;
 using MudSharp.RPG.Checks;
+using MudSharp.Body.Traits.Subtypes;
 
 namespace MudSharp.Body.Traits;
 
@@ -136,5 +137,7 @@ public abstract class Trait : FrameworkItem, ITrait
         Changed = true;
 		if (Definition.OwnerScope == TraitOwnerScope.Character && Owner is ICharacter character)
 			Gameworld.MagicCasting?.NotifyProgress(character, traitId: Definition.Id);
+		if (Definition is IAttributeDefinition && Owner is IBody { Actor: { } actor })
+			Gameworld.MagicCasting?.NotifyCapacityChange(actor);
     }
 }

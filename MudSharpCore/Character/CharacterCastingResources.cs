@@ -8,6 +8,29 @@ namespace MudSharp.Character;
 
 public partial class Character
 {
+	private int _castingCapacityRestorationDepth;
+	internal bool CastingCapacityRestorationActive => _castingCapacityRestorationDepth > 0;
+	internal IDisposable DeferCastingCapacityReconciliation(bool reconcileOnDispose = true) =>
+		new CapacityRestorationScope(MagicCastingService.Owner(this) as Character ?? this, reconcileOnDispose);
+
+	private sealed class CapacityRestorationScope : IDisposable
+	{
+		private Character? _actor;
+		private readonly bool _reconcileOnDispose;
+		public CapacityRestorationScope(Character actor, bool reconcileOnDispose)
+		{
+			_actor = actor;
+			_reconcileOnDispose = reconcileOnDispose;
+			actor._castingCapacityRestorationDepth++;
+		}
+		public void Dispose()
+		{
+			var actor = _actor;
+			_actor = null;
+			if (actor is not null && --actor._castingCapacityRestorationDepth == 0 && _reconcileOnDispose) actor.ReconcileCastingResourceCapacities();
+		}
+	}
+
 	private readonly Dictionary<IMagicResourceRegenerator, HeartbeatManagerDelegate> _castingGenerators = [];
 	private bool IsCastingReserve(IMagicResource resource) => MagicCastingService.IsConfiguredReserve(Gameworld, resource.Id);
 	private ICharacter CastingResourceOwner(IMagicResource resource) => IsCastingReserve(resource) ? MagicCastingService.Owner(this) : this;
@@ -55,6 +78,7 @@ public partial class Character
 			if (resource is null) continue;
 			if (!_magicResourceAmounts.ContainsKey(resource)) { _magicResourceAmounts[resource] = 0; ResourcesChanged = true; }
 		}
+		ReconcileCastingResourceCapacities();
 		foreach (var instance in Identity?.Instances.OfType<Character>() ?? [this])
 		{
 			foreach (var generator in instance._magicResourceGenerators.Where(instance.IsCastingGenerator).ToArray()) instance.RemoveMagicResourceGenerator(generator);
@@ -85,6 +109,21 @@ public partial class Character
 			};
 			_castingGenerators.Add(generator, callback);
 			Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += callback;
+		}
+	}
+
+	internal void ReconcileCastingResourceCapacities()
+	{
+		if (_castingCapacityRestorationDepth > 0) return;
+		var owner = MagicCastingService.Owner(this);
+		if (!ReferenceEquals(owner, this)) { (owner as Character)?.ReconcileCastingResourceCapacities(); return; }
+		foreach (var resource in _magicResourceAmounts.Keys.Where(IsCastingReserve).ToArray())
+		{
+			if (!MagicResourceCapacity.TryGetCap(resource, this, out var cap, out _)) continue;
+			var balance = _magicResourceAmounts[resource];
+			// Invalid configurations retain recoverable balances; a valid lower maximum only removes excess.
+			if (!double.IsFinite(balance) || balance <= cap) continue;
+			_magicResourceAmounts[resource] = cap; ResourcesChanged = true;
 		}
 	}
 

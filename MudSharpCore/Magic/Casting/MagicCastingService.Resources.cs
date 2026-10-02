@@ -42,4 +42,10 @@ public sealed partial class MagicCastingService
 			lock (Guard(actor)) EvaluateEdges(actor, ProgressionNodes(c));
 		}
 	}
+
+	public void NotifyCapacityChange(ICharacter actor)
+	{
+		lock (Guard(actor))
+			(Owner(actor) as MudSharp.Character.Character)?.ReconcileCastingResourceCapacities();
+	}
 }

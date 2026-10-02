@@ -97,13 +97,22 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 
     public override void RemovalEffect()
     {
+		using var capacityChange = (Owner as MudSharp.Character.Character ??
+			(Owner as MudSharp.Body.IBody)?.Actor as MudSharp.Character.Character)
+			?.DeferCastingCapacityReconciliationForMutation();
         _removingSpellEffects = true;
-        foreach (IMagicSpellEffect effect in _spellEffects.ToList())
-        {
-            Owner.RemoveEffect(effect, true);
-        }
-        _spellEffects.Clear();
-        _removingSpellEffects = false;
+		try
+		{
+			foreach (IMagicSpellEffect effect in _spellEffects.ToList())
+			{
+				Owner.RemoveEffect(effect, true);
+			}
+			_spellEffects.Clear();
+		}
+		finally
+		{
+			_removingSpellEffects = false;
+		}
     }
 
     #endregion

@@ -32,6 +32,21 @@ Custom modifiers or arbitrary cap Progs can depend on external state without dis
 events; their mutation paths must notify capacity changes. Quotes evaluate without writes
 and live accounting validates the current cap and actual funds.
 
+Complete spell application batches target and caster modifiers per canonical owner.
+Parent removal/expiration and aggregate removals use the same nested reconciliation scope.
+With raw attribute 10, capacity `variable*10`, balance 90 and opposing +5/-5 children,
+the completed operation preserves balance 90/capacity 100 in either child order. A genuine
+final decrease clamps against the completed maximum; increases never refill. Live mutation
+batching keeps ordinary resource effects usable while incomplete reconstruction still
+refuses accounting. Configured-reserve credits and debits use actual funds and defer
+upper-cap clamping until the live operation completes, after validating finite amounts
+and the current capacity. An intervening +7 credit produces balance 97/capacity 100 in
+either opposing-modifier order; final capacity 70 clamps to 70, and final capacity 150
+retains a legitimate +50 credit at balance 140. Invalid capacities still refuse credits
+and debits. Other resources retain immediate clamping.
+Exceptions release the scope and parent removal guard; the remaining
+actual effects determine capacity, without rollback or refunds.
+
 ## Provisional energy scenarios
 
 [Scenario input](Armageddon_Capacity_Affordability_Scenarios.json) records all assumptions.

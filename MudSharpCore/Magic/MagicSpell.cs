@@ -1657,6 +1657,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		OpposedOutcome baseOutcome = new(result[CastingDifficulty].Outcome, Outcome.NotTested);
 		bool allowReflection = Trigger.TargetTypes == "character";
 
+		using var capacityChanges = new SpellCapacityBatch();
 		var rejuvenatedCells = new HashSet<long>();
 		bool ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects,
 			OpposedOutcomeDegree effectOutcome, bool echoTarget = false, bool intended = false)
@@ -1681,6 +1682,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			}
 			if (echoTarget && !string.IsNullOrEmpty(TargetEmote))
 				effectTarget.OutputHandler.Handle(new EmoteOutput(new Emote(TargetEmote, magician, magician, effectTarget), flags: TargetEmoteFlags));
+			capacityChanges.Include(effectTarget);
 			MagicSpellParent head = new(effectTarget, this, magician, power, effectOutcome) { ResolvedDuration = duration };
 			foreach (IMagicSpellEffectTemplate effect in templates)
 			{
@@ -1848,6 +1850,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 
 	private void ResolvePreparedSpell(ICharacter magician, IPerceivable target, SpellPower power, CheckOutcome attackOutcome, bool attackPayload = false)
 	{
+		using var capacityChanges = new SpellCapacityBatch();
 		if (target is null && _spellEffects.Any(x => x.RequiresTarget))
 		{
 			return;
@@ -1889,6 +1892,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 					new Emote(TargetEmote, magician, magician, target), flags: TargetEmoteFlags));
 			}
 
+			capacityChanges.Include(target);
 			var head = new MagicSpellParent(target, this, magician, power, effectOutcome);
 			foreach (var effect in _spellEffects)
 			{
@@ -1918,6 +1922,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			return;
 		}
 
+		capacityChanges.Include(magician);
 		var casterOutcome = attackPayload ? new OpposedOutcome(attackOutcome, Outcome.NotTested).Degree : OpposedOutcomeDegree.None;
 		var casterHead = new MagicSpellParent(magician, this, magician, power, casterOutcome);
 		foreach (var effect in _casterSpellEffects)

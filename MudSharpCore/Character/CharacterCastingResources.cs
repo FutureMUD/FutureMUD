@@ -8,26 +8,35 @@ namespace MudSharp.Character;
 
 public partial class Character
 {
+	private int _castingCapacityReconciliationDepth;
 	private int _castingCapacityRestorationDepth;
 	internal bool CastingCapacityRestorationActive => _castingCapacityRestorationDepth > 0;
+	private bool CastingCapacityMutationActive => _castingCapacityReconciliationDepth > 0 && !CastingCapacityRestorationActive;
 	internal IDisposable DeferCastingCapacityReconciliation(bool reconcileOnDispose = true) =>
-		new CapacityRestorationScope(MagicCastingService.Owner(this) as Character ?? this, reconcileOnDispose);
+		new CapacityRestorationScope(MagicCastingService.Owner(this) as Character ?? this, reconcileOnDispose, true);
+	internal IDisposable DeferCastingCapacityReconciliationForMutation() =>
+		new CapacityRestorationScope(MagicCastingService.Owner(this) as Character ?? this, true, false);
 
 	private sealed class CapacityRestorationScope : IDisposable
 	{
 		private Character? _actor;
 		private readonly bool _reconcileOnDispose;
-		public CapacityRestorationScope(Character actor, bool reconcileOnDispose)
+		private readonly bool _preventResourceUse;
+		public CapacityRestorationScope(Character actor, bool reconcileOnDispose, bool preventResourceUse)
 		{
 			_actor = actor;
 			_reconcileOnDispose = reconcileOnDispose;
-			actor._castingCapacityRestorationDepth++;
+			_preventResourceUse = preventResourceUse;
+			actor._castingCapacityReconciliationDepth++;
+			if (preventResourceUse) actor._castingCapacityRestorationDepth++;
 		}
 		public void Dispose()
 		{
 			var actor = _actor;
 			_actor = null;
-			if (actor is not null && --actor._castingCapacityRestorationDepth == 0 && _reconcileOnDispose) actor.ReconcileCastingResourceCapacities();
+			if (actor is null) return;
+			if (_preventResourceUse) actor._castingCapacityRestorationDepth--;
+			if (--actor._castingCapacityReconciliationDepth == 0 && _reconcileOnDispose) actor.ReconcileCastingResourceCapacities();
 		}
 	}
 
@@ -114,7 +123,7 @@ public partial class Character
 
 	internal void ReconcileCastingResourceCapacities()
 	{
-		if (_castingCapacityRestorationDepth > 0) return;
+		if (_castingCapacityReconciliationDepth > 0) return;
 		var owner = MagicCastingService.Owner(this);
 		if (!ReferenceEquals(owner, this)) { (owner as Character)?.ReconcileCastingResourceCapacities(); return; }
 		foreach (var resource in _magicResourceAmounts.Keys.Where(IsCastingReserve).ToArray())

@@ -172,8 +172,12 @@ public partial class Character : IMagicUser
 		var owner = CastingResourceOwner(resource);
 		if (!ReferenceEquals(owner, this)) return owner.CanUseResource(resource, amount);
 		if (IsCastingReserve(resource))
-			return double.IsFinite(amount) && amount >= 0 && double.IsFinite(_magicResourceAmounts[resource]) &&
-				MagicResourceCapacity.TryGetCap(resource, this, out var cap, out _) && Math.Min(_magicResourceAmounts[resource], cap) >= amount;
+		{
+			if (!double.IsFinite(amount) || amount < 0 || !double.IsFinite(_magicResourceAmounts[resource]) ||
+				!MagicResourceCapacity.TryGetCap(resource, this, out var cap, out _)) return false;
+			var available = CastingCapacityMutationActive ? _magicResourceAmounts[resource] : Math.Min(_magicResourceAmounts[resource], cap);
+			return available >= amount;
+		}
         return _magicResourceAmounts[resource] >= amount;
     }
 
@@ -185,7 +189,7 @@ public partial class Character : IMagicUser
 		{
 			if (!double.IsFinite(amount) || amount < 0 || !double.IsFinite(_magicResourceAmounts[resource]) ||
 				!MagicResourceCapacity.TryGetCap(resource, this, out var cap, out _)) return false;
-			var available = Math.Min(_magicResourceAmounts[resource], cap);
+			var available = CastingCapacityMutationActive ? _magicResourceAmounts[resource] : Math.Min(_magicResourceAmounts[resource], cap);
 			if (available < amount) return false;
 			_magicResourceAmounts[resource] = available - amount; ResourcesChanged = true;
 			return true;
@@ -220,8 +224,9 @@ public partial class Character : IMagicUser
 		if (!double.IsFinite(old) || IsCastingReserve(resource) && old < 0) return;
         var credited = old + amount;
 		if (!double.IsFinite(credited)) return;
+		// A compound mutation applies legitimate deltas before its completed maximum clamps the reserve.
         _magicResourceAmounts[resource] = Math.Max(0.0,
-            Math.Min(credited, cap));
+			IsCastingReserve(resource) && CastingCapacityMutationActive ? credited : Math.Min(credited, cap));
         if (old != _magicResourceAmounts[resource])
         {
             ResourcesChanged = true;

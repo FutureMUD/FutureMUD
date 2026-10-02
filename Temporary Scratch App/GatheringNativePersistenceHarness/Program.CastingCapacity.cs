@@ -152,6 +152,7 @@ internal static partial class GNHProgram
 		FlushCasting(native);
 		RunCastingReaderProcess(new(database.Name, first, second, spell.Id, cap.Id, other.Id, skill.Id, otherSkill.Id,
 			null, 7, 17, 0, RawSkill: 90, CapacityAttribute: attribute.Id, CapacityExpression: expression.Id, Capacity: 118));
+		VerifyCompoundCapacityChanges(native, spell, attribute, expression, reserve, cap, () => now = now.AddHours(2));
 		Require(expression.BuildingCommand(actor, new StringStack("formula variable*10")) && actor.SetTraitValue(attribute, 10) &&
 			reserve.BuildingCommand(actor, new StringStack($"capattribute {attribute.Id} {expression.Id} effective")), "Effective reload fixture setup refused.");
 		var savedBoosts = new MagicSpellParent(actor, spell, actor);

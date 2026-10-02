@@ -18,6 +18,8 @@ using MudSharp.Effects;
 using MudSharp.Body;
 using MudSharp.Communication.Language;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete.SpellEffects;
 using ConcreteCharacter = MudSharp.Character.Character;
 
 #nullable enable
@@ -225,6 +227,312 @@ public class MagicCastingOwnershipTests
 		Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]]);
 		if (projectHours) actor.CurrentProjectProjectHours = 0; else actor.CurrentProjectHours = 0;
 		Assert.AreEqual(100.0, f.Resources[1].ResourceCap(actor)); Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]]);
+	}
+
+	[DataTestMethod]
+	[DataRow(true, false, 5.0, 90.0, 90.0)]
+	[DataRow(false, false, 5.0, 90.0, 90.0)]
+	[DataRow(true, true, 5.0, 90.0, 90.0)]
+	[DataRow(false, true, 5.0, 90.0, 90.0)]
+	[DataRow(true, false, 8.0, 140.0, 100.0)]
+	[DataRow(false, false, 8.0, 140.0, 100.0)]
+	public void NativeReserve_CompoundSpellRemoval_ReconcilesCompletedStateOnce(bool positiveFirst, bool expire,
+		double positive, double balance, double expectedBalance)
+	{
+		var (f, actor) = CompoundCapacityFixture();
+		var parent = new MagicSpellParent(actor, f.Spell, actor);
+		var bonuses = positiveFirst ? new[] { positive, positive == 5 ? -5.0 : -3.0 } : new[] { positive == 5 ? -5.0 : -3.0, positive };
+		using (actor.DeferCastingCapacityReconciliation())
+		{
+			foreach (var bonus in bonuses)
+			{
+				var child = new SpellTraitBoostEffect(actor, parent, null!) { Trait = f.Traits[0], Bonus = bonus };
+				parent.AddSpellEffect(child); actor.AddEffect(child);
+			}
+			actor.AddEffect(parent);
+		}
+		actor.AddResource(f.Resources[1], balance);
+		Mock.Get(f.Resources[1]).Invocations.Clear();
+		if (expire) parent.ExpireEffect(); else actor.RemoveEffect(parent, true);
+		Assert.AreEqual(expectedBalance, actor.MagicResourceAmounts[f.Resources[1]]);
+		Mock.Get(f.Resources[1]).Verify(x => x.ResourceCap(actor), Times.Once);
+		Assert.AreEqual(100.0, f.Resources[1].ResourceCap(actor));
+		Assert.IsFalse(actor.Effects.Contains(parent)); Assert.IsFalse(parent.SpellEffects.Any());
+		actor.ReconcileCastingResources();
+		Assert.AreEqual(expectedBalance, actor.MagicResourceAmounts[f.Resources[1]], "Reconciliation cannot refill after removal.");
+	}
+
+	[DataTestMethod]
+	[DataRow("cast", true, -5.0, 90.0)]
+	[DataRow("cast", false, -5.0, 90.0)]
+	[DataRow("cast", true, -8.0, 70.0)]
+	[DataRow("cast", false, -8.0, 70.0)]
+	[DataRow("target", true, -5.0, 90.0)]
+	[DataRow("target", false, -5.0, 90.0)]
+	[DataRow("caster", true, -5.0, 90.0)]
+	[DataRow("caster", false, -5.0, 90.0)]
+	[DataRow("combined", true, -5.0, 90.0)]
+	[DataRow("combined", false, -5.0, 90.0)]
+	[DataRow("combined", true, -8.0, 70.0)]
+	[DataRow("combined", false, -8.0, 70.0)]
+	public void NativeReserve_CompoundSpellApplication_ReconcilesCompletedStateOnce(string mode, bool positiveFirst,
+		double negative, double expectedBalance)
+	{
+		var (f, actor) = CompoundCapacityFixture(); actor.AddResource(f.Resources[1], 90);
+		var bonuses = positiveFirst ? new[] { 5.0, negative } : new[] { negative, 5.0 };
+		var spell = f.NewSpell(10, "Compound test", string.Concat(bonuses.Select(b => $"<Effect type='boost' trait='1' bonus='{b}' context='0' />")));
+		Set(spell, "<EffectDurationExpression>k__BackingField", new TraitExpression("600", f.World.Object));
+		if (mode == "caster")
+		{
+			((List<IMagicSpellEffectTemplate>)spell.CasterSpellEffects).AddRange(spell.SpellEffects);
+			((List<IMagicSpellEffectTemplate>)spell.SpellEffects).Clear();
+		}
+		if (mode == "combined")
+		{
+			var effects = (List<IMagicSpellEffectTemplate>)spell.SpellEffects;
+			((List<IMagicSpellEffectTemplate>)spell.CasterSpellEffects).Add(effects[1]); effects.RemoveAt(1);
+		}
+		Mock.Get(f.Resources[1]).Invocations.Clear();
+		if (mode == "cast")
+		{
+			f.ActiveCapabilities.Add(Mock.Of<IMagicCapability>(x => x.School == f.School));
+			spell.CastSpell(f.Actor.Object, actor, SpellPower.Standard);
+		}
+		else spell.ResolveTriggeredSpell(actor, mode == "caster" ? null! : actor, SpellPower.Standard);
+		Assert.AreEqual(2, actor.EffectsOfType<SpellTraitBoostEffect>().Count(), string.Join("; ", f.Messages));
+		Assert.AreEqual(expectedBalance, actor.MagicResourceAmounts[f.Resources[1]]);
+		Mock.Get(f.Resources[1]).Verify(x => x.ResourceCap(actor), Times.Once);
+		Assert.AreEqual((10 + 5 + negative) * 10, f.Resources[1].ResourceCap(actor));
+		actor.RemoveAllEffects<MagicSpellParent>(fireRemovalAction: true);
+		Assert.AreEqual(expectedBalance, actor.MagicResourceAmounts[f.Resources[1]], "A capacity rise cannot restore lost energy.");
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void NativeReserve_CompoundSpellApplication_ExceptionReleasesNestedScopeAndClampsRemainingState(bool nested)
+	{
+		var (f, actor) = CompoundCapacityFixture(); actor.AddResource(f.Resources[1], 90);
+		var spell = f.NewSpell(10, "Interrupted compound", "<Effect type='boost' trait='1' bonus='-5' context='0' />");
+		Set(spell, "<EffectDurationExpression>k__BackingField", new TraitExpression("600", f.World.Object));
+		var failure = new Mock<IMagicSpellEffectTemplate>();
+		failure.Setup(x => x.GetOrApplyEffect(It.IsAny<ICharacter>(), It.IsAny<IPerceivable>(), It.IsAny<OpposedOutcomeDegree>(),
+			It.IsAny<SpellPower>(), It.IsAny<IMagicSpellEffectParent>(), It.IsAny<SpellAdditionalParameter[]>())).Throws(new InvalidOperationException("test application interruption"));
+		((List<IMagicSpellEffectTemplate>)spell.SpellEffects).Add(failure.Object);
+		using (nested ? actor.DeferCastingCapacityReconciliation() : null)
+		{
+			Assert.ThrowsException<InvalidOperationException>(() => spell.ResolveTriggeredSpell(actor, actor, SpellPower.Standard));
+			Assert.AreEqual(nested ? 90.0 : 50.0, actor.MagicResourceAmounts[f.Resources[1]]);
+			Assert.AreEqual(nested, actor.CastingCapacityRestorationActive);
+		}
+		Assert.IsFalse(actor.CastingCapacityRestorationActive);
+		Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		actor.RemoveAllEffects<SpellTraitBoostEffect>(fireRemovalAction: true);
+		Assert.AreEqual(100.0, f.Resources[1].ResourceCap(actor));
+		Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]], "Exception recovery does not refill energy.");
+	}
+
+	[TestMethod]
+	public void NativeReserve_CompoundSpellRemoval_ExceptionResetsParentGuardAndAllowsRetry()
+	{
+		var (f, actor) = CompoundCapacityFixture();
+		var parent = new MagicSpellParent(actor, f.Spell, actor);
+		var failure = new Mock<IMagicSpellEffect>(); var firstAttempt = true;
+		failure.Setup(x => x.RemovalEffect()).Callback(() =>
+		{
+			if (firstAttempt) { firstAttempt = false; throw new InvalidOperationException("test removal interruption"); }
+			parent.RemoveSpellEffect(failure.Object);
+		});
+		using (actor.DeferCastingCapacityReconciliation())
+		{
+			var positive = new SpellTraitBoostEffect(actor, parent, null!) { Trait = f.Traits[0], Bonus = 5 };
+			var negative = new SpellTraitBoostEffect(actor, parent, null!) { Trait = f.Traits[0], Bonus = -5 };
+			foreach (var child in new IMagicSpellEffect[] { positive, failure.Object, negative }) { parent.AddSpellEffect(child); actor.AddEffect(child); }
+			actor.AddEffect(parent);
+		}
+		actor.AddResource(f.Resources[1], 90);
+		Assert.ThrowsException<InvalidOperationException>(() => actor.RemoveEffect(parent, true));
+		Assert.IsFalse((bool)typeof(MagicSpellParent).GetField("_removingSpellEffects", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(parent)!);
+		Assert.IsFalse(actor.CastingCapacityRestorationActive);
+		Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]], "The interrupted operation retains a genuine lower remaining maximum.");
+		actor.RemoveEffect(parent, true);
+		Assert.IsFalse(parent.SpellEffects.Any()); Assert.AreEqual(100.0, f.Resources[1].ResourceCap(actor));
+		Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]]);
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void NativeReserve_CompoundSpellApplication_NestedCompletionWaitsForOutermostScope(bool restoration)
+	{
+		var (f, actor) = CompoundCapacityFixture(); actor.AddResource(f.Resources[1], 90);
+		var spell = f.NewSpell(10, "Nested compound", "<Effect type='boost' trait='1' bonus='-8' context='0' /><Effect type='boost' trait='1' bonus='5' context='0' />");
+		Set(spell, "<EffectDurationExpression>k__BackingField", new TraitExpression("600", f.World.Object));
+		var outer = restoration ? actor.DeferCastingCapacityReconciliation() : actor.DeferCastingCapacityReconciliationForMutation();
+		using (outer)
+		{
+			spell.ResolveTriggeredSpell(actor, actor, SpellPower.Standard);
+			Assert.AreEqual(restoration, actor.CastingCapacityRestorationActive);
+			Assert.AreEqual(90.0, actor.MagicResourceAmounts[f.Resources[1]]);
+			Mock.Get(f.Resources[1]).Invocations.Clear();
+		}
+		outer.Dispose();
+		Assert.IsFalse(actor.CastingCapacityRestorationActive);
+		Assert.AreEqual(70.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		Mock.Get(f.Resources[1]).Verify(x => x.ResourceCap(actor), Times.Once, "Repeated disposal must not release or reconcile twice.");
+		actor.RemoveAllEffects<MagicSpellParent>(fireRemovalAction: true);
+		Assert.AreEqual(70.0, actor.MagicResourceAmounts[f.Resources[1]]);
+	}
+
+	[TestMethod]
+	public void NativeReserve_CompoundSpellApplication_MutationBatchKeepsOrdinaryResourceEffectsAvailable()
+	{
+		var (f, actor) = CompoundCapacityFixture(); actor.AddResource(f.Resources[1], 17);
+		var spell = f.NewSpell(10, "Resource delta", "");
+		Set(spell, "<EffectDurationExpression>k__BackingField", new TraitExpression("600", f.World.Object));
+		var delta = new Mock<IMagicSpellEffectTemplate>();
+		delta.Setup(x => x.GetOrApplyEffect(It.IsAny<ICharacter>(), actor, It.IsAny<OpposedOutcomeDegree>(),
+			It.IsAny<SpellPower>(), It.IsAny<IMagicSpellEffectParent>(), It.IsAny<SpellAdditionalParameter[]>()))
+			.Callback(() =>
+			{
+				Assert.IsFalse(actor.CastingCapacityRestorationActive, "A complete live actor is not an incomplete reconstruction.");
+				actor.AddResource(f.Resources[1], 7);
+			}).Returns((IMagicSpellEffect)null!);
+		((List<IMagicSpellEffectTemplate>)spell.SpellEffects).Add(delta.Object);
+		spell.ResolveTriggeredSpell(actor, actor, SpellPower.Standard);
+		Assert.AreEqual(24.0, actor.MagicResourceAmounts[f.Resources[1]]);
+	}
+
+	[DataTestMethod]
+	[DataRow("generic", true)]
+	[DataRow("generic", false)]
+	[DataRow("predicate", true)]
+	[DataRow("predicate", false)]
+	[DataRow("all", true)]
+	[DataRow("all", false)]
+	public void NativeReserve_CompoundSpellRemoval_AggregateRemovalBatchesAllSelectedParents(string mode, bool positiveFirst)
+	{
+		var (f, actor) = CompoundCapacityFixture();
+		using (actor.DeferCastingCapacityReconciliation())
+		{
+			foreach (var bonus in positiveFirst ? new[] { 5.0, -5.0 } : new[] { -5.0, 5.0 })
+			{
+				var parent = new MagicSpellParent(actor, f.Spell, actor);
+				var child = new SpellTraitBoostEffect(actor, parent, null!) { Trait = f.Traits[0], Bonus = bonus };
+				parent.AddSpellEffect(child); actor.AddEffect(child); actor.AddEffect(parent);
+			}
+		}
+		actor.AddResource(f.Resources[1], 90); Mock.Get(f.Resources[1]).Invocations.Clear();
+		if (mode == "generic") actor.RemoveAllEffects<MagicSpellParent>(fireRemovalAction: true);
+		else if (mode == "predicate") actor.RemoveAllEffects(x => x is MagicSpellParent, true);
+		else actor.RemoveAllEffects();
+		Assert.AreEqual(90.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		Mock.Get(f.Resources[1]).Verify(x => x.ResourceCap(actor), Times.Once);
+		Assert.IsFalse(actor.Effects.Any());
+	}
+
+	[DataTestMethod]
+	[DataRow("cast", true, 5.0, -5.0, 7.0, 97.0)]
+	[DataRow("cast", false, 5.0, -5.0, 7.0, 97.0)]
+	[DataRow("target", true, 5.0, -5.0, 7.0, 97.0)]
+	[DataRow("target", false, 5.0, -5.0, 7.0, 97.0)]
+	[DataRow("combined", true, 5.0, -5.0, 7.0, 97.0)]
+	[DataRow("combined", false, 5.0, -5.0, 7.0, 97.0)]
+	[DataRow("cast", true, 5.0, -8.0, 7.0, 70.0)]
+	[DataRow("cast", false, 5.0, -8.0, 7.0, 70.0)]
+	[DataRow("target", true, 5.0, -8.0, 7.0, 70.0)]
+	[DataRow("target", false, 5.0, -8.0, 7.0, 70.0)]
+	[DataRow("combined", true, 5.0, -8.0, 7.0, 70.0)]
+	[DataRow("combined", false, 5.0, -8.0, 7.0, 70.0)]
+	[DataRow("cast", true, 10.0, -5.0, 50.0, 140.0)]
+	[DataRow("cast", false, 10.0, -5.0, 50.0, 140.0)]
+	[DataRow("target", true, 10.0, -5.0, 50.0, 140.0)]
+	[DataRow("target", false, 10.0, -5.0, 50.0, 140.0)]
+	[DataRow("combined", true, 10.0, -5.0, 50.0, 140.0)]
+	[DataRow("combined", false, 10.0, -5.0, 50.0, 140.0)]
+	[DataRow("cast", true, 5.0, -5.0, -7.0, 83.0)]
+	[DataRow("cast", false, 5.0, -5.0, -7.0, 83.0)]
+	[DataRow("target", true, 5.0, -5.0, -7.0, 83.0)]
+	[DataRow("target", false, 5.0, -5.0, -7.0, 83.0)]
+	[DataRow("combined", true, 5.0, -5.0, -7.0, 83.0)]
+	[DataRow("combined", false, 5.0, -5.0, -7.0, 83.0)]
+	public void NativeReserve_CompoundSpellMixedDelta_ClampsLegitimateArithmeticAgainstCompletedMaximum(string mode,
+		bool positiveFirst, double positive, double negative, double amount, double expectedBalance)
+	{
+		var (f, actor) = CompoundCapacityFixture(); actor.AddResource(f.Resources[1], 90);
+		var first = positiveFirst ? positive : negative; var second = positiveFirst ? negative : positive;
+		var spell = f.NewSpell(10, "Mixed compound", $"<Effect type='boost' trait='1' bonus='{first}' context='0' /><Effect type='boost' trait='1' bonus='{second}' context='0' />");
+		Set(spell, "<EffectDurationExpression>k__BackingField", new TraitExpression("600", f.World.Object));
+		var effects = (List<IMagicSpellEffectTemplate>)spell.SpellEffects;
+		var delta = new Mock<IMagicSpellEffectTemplate>();
+		delta.Setup(x => x.GetOrApplyEffect(It.IsAny<ICharacter>(), actor, It.IsAny<OpposedOutcomeDegree>(),
+			It.IsAny<SpellPower>(), It.IsAny<IMagicSpellEffectParent>(), It.IsAny<SpellAdditionalParameter[]>()))
+			.Callback(() => actor.AddResource(f.Resources[1], amount)).Returns((IMagicSpellEffect)null!);
+		effects.Insert(1, delta.Object);
+		if (mode == "combined") { ((List<IMagicSpellEffectTemplate>)spell.CasterSpellEffects).Add(effects[2]); effects.RemoveAt(2); }
+		if (mode == "cast")
+		{
+			f.ActiveCapabilities.Add(Mock.Of<IMagicCapability>(x => x.School == f.School));
+			spell.CastSpell(f.Actor.Object, actor, SpellPower.Standard);
+		}
+		else spell.ResolveTriggeredSpell(actor, actor, SpellPower.Standard);
+		Assert.AreEqual(2, actor.EffectsOfType<SpellTraitBoostEffect>().Count());
+		Assert.AreEqual((10 + positive + negative) * 10, f.Resources[1].ResourceCap(actor));
+		Assert.AreEqual(expectedBalance, actor.MagicResourceAmounts[f.Resources[1]]);
+		actor.RemoveAllEffects<MagicSpellParent>(fireRemovalAction: true);
+		Assert.AreEqual(Math.Min(expectedBalance, 100), actor.MagicResourceAmounts[f.Resources[1]], "Cleanup clamps a genuine decrease without refilling.");
+	}
+
+	[DataTestMethod]
+	[DataRow(true, 7.0)]
+	[DataRow(false, 7.0)]
+	[DataRow(true, 60.0)]
+	[DataRow(false, 60.0)]
+	public void NativeReserve_CompoundSpellMixedDebit_UsesActualFundsWithoutTransientClipping(bool positiveFirst, double amount)
+	{
+		var (f, actor) = CompoundCapacityFixture(); actor.AddResource(f.Resources[1], 90);
+		var spell = f.NewSpell(10, "Debit compound", positiveFirst
+			? "<Effect type='boost' trait='1' bonus='5' context='0' /><Effect type='boost' trait='1' bonus='-5' context='0' />"
+			: "<Effect type='boost' trait='1' bonus='-5' context='0' /><Effect type='boost' trait='1' bonus='5' context='0' />");
+		Set(spell, "<EffectDurationExpression>k__BackingField", new TraitExpression("600", f.World.Object));
+		var debit = new Mock<IMagicSpellEffectTemplate>();
+		debit.Setup(x => x.GetOrApplyEffect(It.IsAny<ICharacter>(), actor, It.IsAny<OpposedOutcomeDegree>(),
+			It.IsAny<SpellPower>(), It.IsAny<IMagicSpellEffectParent>(), It.IsAny<SpellAdditionalParameter[]>()))
+			.Callback(() => { Assert.IsTrue(actor.CanUseResource(f.Resources[1], amount)); Assert.IsTrue(actor.UseResource(f.Resources[1], amount)); })
+			.Returns((IMagicSpellEffect)null!);
+		((List<IMagicSpellEffectTemplate>)spell.SpellEffects).Insert(1, debit.Object);
+		spell.ResolveTriggeredSpell(actor, actor, SpellPower.Standard);
+		Assert.AreEqual(90 - amount, actor.MagicResourceAmounts[f.Resources[1]]);
+		actor.RemoveAllEffects<MagicSpellParent>(fireRemovalAction: true);
+		Assert.AreEqual(90 - amount, actor.MagicResourceAmounts[f.Resources[1]]);
+	}
+
+	[DataTestMethod]
+	[DataRow(double.NaN)]
+	[DataRow(double.PositiveInfinity)]
+	[DataRow(-1.0)]
+	public void NativeReserve_CompoundSpellMixedAccounting_InvalidCapacityStillRefusesCreditAndDebit(double invalid)
+	{
+		var (f, actor) = CompoundCapacityFixture(); actor.AddResource(f.Resources[1], 17);
+		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(actor)).Returns(invalid);
+		using (actor.DeferCastingCapacityReconciliationForMutation())
+		{
+			actor.AddResource(f.Resources[1], 7);
+			Assert.IsFalse(actor.CanUseResource(f.Resources[1], 0)); Assert.IsFalse(actor.UseResource(f.Resources[1], 0));
+			Assert.AreEqual(17.0, actor.MagicResourceAmounts[f.Resources[1]]);
+		}
+		Assert.AreEqual(17.0, actor.MagicResourceAmounts[f.Resources[1]]);
+	}
+
+	private static (MagicCastingFixture Fixture, Holder Actor) CompoundCapacityFixture()
+	{
+		var f = new MagicCastingFixture(); var actor = Holder.Create(f.World.Object, 100); actor.Available.Add(f.Earth);
+		Set(actor, "<OutputHandler>k__BackingField", f.Actor.Object.OutputHandler);
+		f.NativeSkill.SetupGet(x => x.Definition).Returns(f.Traits[0]);
+		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(actor)).Returns(() =>
+			10 * (10 + actor.EffectsOfType<ITraitBonusEffect>().Sum(x => x.GetBonus(f.NativeSkill.Object, TraitBonusContext.None))));
+		actor.ReconcileCastingResources();
+		return (f, actor);
 	}
 
 	private sealed class Holder : ConcreteCharacter

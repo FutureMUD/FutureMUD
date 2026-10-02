@@ -165,6 +165,20 @@ fund a configured cast or receive normal credits. No enrolment, attachment, rout
 or reconciliation refills the reserve. Custom state-dependent Progs/modifiers must call
 `NotifyCapacityChange` after their mutation; live accounting also validates the cap.
 
+Compound spell application batches reconciliation across all target and caster children
+for each canonical owner. Complete parent removal/expiration and aggregate effect removals
+likewise reconcile after the selected children are removed. Opposing modifiers therefore
+cannot discard energy at a transient intermediate maximum. A genuine completed decrease
+still clamps once; a completed increase never refills. These mutation batches nest with
+load/body restoration, release on exceptions and preserve ordinary resource-effect accounting.
+During a live mutation, configured-reserve credits and debits validate finite amounts,
+valid current capacity and actual funds, then defer their upper-cap clamp to completion.
+A +7 resource child between opposing +5/-5 modifiers therefore credits balance 90 to 97
+in either order. Genuine final decreases still remove excess; invalid capacities still
+refuse accounting. Other resources keep their existing immediate maximum.
+An interrupted operation reconciles the effects actually remaining; it does not roll back
+effects or restore energy. Incomplete reconstruction retains its stricter accounting refusal.
+
 See [capacity and affordability](Armageddon_Capacity_Affordability.md) for provisional
 attribute scenarios, the complete 82-spell energy envelope and native verification limits.
 

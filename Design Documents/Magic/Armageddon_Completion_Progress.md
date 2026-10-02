@@ -34,7 +34,8 @@ fresh verification and keeps old PR receipts historical.
 - [x] Repair review findings with failing-before regressions: exact-cap native branching, unsupported capped theoretical bindings, enrolment retries and malformed XML preservation.
 - [x] Repair the native-discovered character-skill maximum lookup; prove actual native improvement through the Component Crafting threshold on a second focused body.
 - [x] Run final full dependent suites and disposable native acceptance, preserving failures and cleanup proof.
-- [ ] Parent reviews the exact stage1B checkpoint before starting capacity stage1C.
+- [x] Repair uncapped-support cap adoption with durable terminal history, failing-before regressions and native removal/restart proof.
+- [ ] Parent re-reviews the exact cap-adoption fix before starting capacity stage1C.
 - [ ] Implement attribute-led capacity/invalidation and the full affordability matrix.
 
 ## Remaining work
@@ -130,3 +131,28 @@ changes after verification are documentation and local commits only.
 N05 has controlled native fixture evidence; full installed-stock integration remains pending.
 The ledger still retains all 16 decisions, seven phases, 154 candidates and 25 acceptance
 scenarios. No publication, merge, deployment or shared/production database access occurred.
+
+## Stage 1B cap-adoption review fix
+
+Review base: `251f4114f05a9d923676686f9b191731e3cba167`. Fix commit: `07202fe48f20640027e0a045c13426a9830f6f67`.
+Parent review identified an existing uncapped support that adopted cap90 under the same
+policy identity/key could lose cap history after route loss/removal. Reconciliation now
+records a separate terminal marker that references the original grant. The immutable
+grant, existing proficiency and read-only cap-query contract remain intact. Marker writes
+are idempotent and retryable.
+
+Three new cases failed before the repair. Focused passing-after: **121 tests**. Full
+passing-after: **4,131 core + 543 shared-library = 4,674**, zero failures/skips, stable
+fingerprint `10547b1224b39ca09d1a8e7204ccbb5c9ecb2f70a5837a11bb4f2f9d990442e9`.
+Disposable native acceptance passed the baseline, stage1A and extended stage1B scenario,
+including actual native use through a second focused body, same-key XML cap adoption,
+immutable receipts, route loss and two independent reloads: active raw90/cap90 and removed
+support raw90/cap0, both retaining Identify grade1 and reserve17. Three owned databases
+and the owned temporary MySQL instance were cleaned up. Bounded independent review found
+no actionable issue. Actual receipts, failures and fingerprints are in
+[Armageddon_Stage1B_CapAdoption_Verification.json](Armageddon_Stage1B_CapAdoption_Verification.json); older stage1B receipts remain historical.
+
+Parent exact-commit re-review remains pending. Stage1C has not begun; phase1 and the whole
+plan remain partial. Stock crafting/installer/Telnet, PRACTICE N06 and phases2-6 are not
+qualified by this fixture. The later lifecycle/charm consultation is indexed in the ledger
+for phase3 and does not expand this fix.

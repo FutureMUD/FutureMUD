@@ -1,0 +1,214 @@
+{
+  "stage": "1B review fix: durable cap adoption for an existing uncapped support grant",
+  "base_commit": "251f4114f05a9d923676686f9b191731e3cba167",
+  "implementation_head": "07202fe48f20640027e0a045c13426a9830f6f67",
+  "branch": "codex/armageddon-completion-phase1",
+  "review_finding": "Same-policy/same-key uncapped support XML adopts cap90; an existing native skill skipped first-grant persistence, so subsequent route loss/removal/restart lost the opt-in history.",
+  "repair": "Reconcile independently journals SkillCapRecorded for an enrolled matching scoped support grant before progression evaluation; immutable original receipt and proficiency are retained; cache updates only after successful write.",
+  "changed_files": {
+    "code_test_harness": 5,
+    "builder_documentation": 1
+  },
+  "failing_before": {
+    "status": "FAIL",
+    "head": "251f4114f05a9d923676686f9b191731e3cba167",
+    "run_id": "20261002T102752Z-37d0397227b5",
+    "counts": {
+      "executed": 3,
+      "passed": 0,
+      "failed": 3,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 3
+    },
+    "source_start": "a201a43346af7b6a7005d95c96805d79fa8d37f7868cdd2c81fe28ec3cabfb72",
+    "source_end": "a201a43346af7b6a7005d95c96805d79fa8d37f7868cdd2c81fe28ec3cabfb72",
+    "source_stable": true,
+    "execution_complete": true,
+    "counts_complete": true,
+    "receipt": ".artifacts/test-runs/20261002T102752Z-37d0397227b5/summary.json",
+    "projects": [
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "counts": {
+          "executed": 3,
+          "passed": 0,
+          "failed": 3,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 3
+        }
+      }
+    ]
+  },
+  "focused_passing_after": {
+    "status": "PASS",
+    "head": "251f4114f05a9d923676686f9b191731e3cba167",
+    "run_id": "20261002T103456Z-2643b428767f",
+    "counts": {
+      "executed": 121,
+      "passed": 121,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 121
+    },
+    "source_start": "7da2def8f88edd8c2c9950c0b57494da15e9e511be5ef63a96e9c6099985183a",
+    "source_end": "7da2def8f88edd8c2c9950c0b57494da15e9e511be5ef63a96e9c6099985183a",
+    "source_stable": true,
+    "execution_complete": true,
+    "counts_complete": true,
+    "receipt": ".artifacts/test-runs/20261002T103456Z-2643b428767f/summary.json",
+    "projects": [
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "counts": {
+          "executed": 121,
+          "passed": 121,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 121
+        }
+      }
+    ]
+  },
+  "core_library_final": {
+    "status": "PASS",
+    "head": "251f4114f05a9d923676686f9b191731e3cba167",
+    "run_id": "20261002T103636Z-223e82578f17",
+    "counts": {
+      "executed": 4674,
+      "passed": 4674,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 4674
+    },
+    "source_start": "10547b1224b39ca09d1a8e7204ccbb5c9ecb2f70a5837a11bb4f2f9d990442e9",
+    "source_end": "10547b1224b39ca09d1a8e7204ccbb5c9ecb2f70a5837a11bb4f2f9d990442e9",
+    "source_stable": true,
+    "execution_complete": true,
+    "counts_complete": true,
+    "receipt": ".artifacts/test-runs/20261002T103636Z-223e82578f17/summary.json",
+    "projects": [
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "counts": {
+          "executed": 4131,
+          "passed": 4131,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 4131
+        }
+      },
+      {
+        "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "counts": {
+          "executed": 543,
+          "passed": 543,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 543
+        }
+      }
+    ]
+  },
+  "covered_regressions": [
+    "uncapped-to-same-key-capped XML reload with no other capped binding",
+    "reconcile then permanent-route loss and service restart inhibits gains without erasing proficiency",
+    "reconcile then support definition removal and service restart inhibits gains without erasing proficiency",
+    "marker and original grant remain terminal/immutable; repeat reconcile does not write",
+    "failed marker write retains the grant/skill and restart plus explicit retry records history"
+  ],
+  "independent_review": {
+    "status": "no_actionable_findings_in_bounded_local_review",
+    "parent_checkpoint": "pending exact-commit re-review before stage1C"
+  },
+  "native_build": {
+    "status": "passed",
+    "warnings": 0,
+    "errors": 0,
+    "log": ".artifacts/test-runs/native-armageddon-20261002-cap-adoption/build-attempt1.log",
+    "sha256": "3c1c984e94e0039e4caeea37fc2b6f00c34fa8c0a025e5aaa6e01bf59ca52393"
+  },
+  "native": {
+    "status": "passed",
+    "log": ".artifacts/test-runs/native-armageddon-20261002-cap-adoption/native-attempt1.log",
+    "sha256": "f8ad0c176a2a9c88639741765920fd4d3af5ae8cc7b8b8a8570c375403567b26",
+    "owned_database_cleanup_count": 3,
+    "temporary_mysql_cleanup": "passed",
+    "assertions": [
+      "baseline and stage1A native acceptance retained",
+      "uncapped SupportGranted receipt persists before cap adoption",
+      "valid XML reload preserves policy identity/grant key and adopts cap90 with a separate terminal marker",
+      "actual native parent/support use through second focused body reaches Identify grade1 and support90",
+      "original grant and adoption marker cannot be rewritten by staff acknowledgement",
+      "permanent-route loss inhibits actual native support gains",
+      "independent-process active-route reload retains raw90/cap90/Identify1/balance17",
+      "support removal retains raw90 and inhibits native writes/use",
+      "second independent-process removed-support reload retains raw90/cap0/Identify1/balance17"
+    ]
+  },
+  "verified_code_manifest": {
+    "FutureMUDLibrary/Magic/IMagicCastingCapability.cs": "ce83e77a5f137d7ea2c6b2bb57d7bc8de8f6c722ccffb8f71458c16ed9dab713",
+    "MudSharpCore Unit Tests/MagicCastingFixture.cs": "0de948ace833478f779a0710abd00d8463a339ae725a75eb4a7bfffc0707d534",
+    "MudSharpCore Unit Tests/MagicCastingReviewTests.cs": "68352df0c60052f0dbf2ae2327b57bcc2509b9923c63e28b4d19bb6fcce0c73f",
+    "MudSharpCore Unit Tests/MagicCastingSupportTests.cs": "b13b33d4982a63ae0d2a3c662a64254179be34e9a3876c5cb4c34eacb30f0271",
+    "MudSharpCore/Body/Implementations/BodyTraits.cs": "c5d304bfa13c7586516eaa268c301cbd8b08b3c8dc002e650328135cb33b07c6",
+    "MudSharpCore/Body/Traits/Improvement/BranchingImprover.cs": "461c65d51fb1d3a9a2e08f26a3e7c3d66bc45a051098e5e1323d71a12116b725",
+    "MudSharpCore/Body/Traits/Subtypes/Skill.cs": "590cce48d5a420ad7b8df02033d7cb83875c24b2ee58c54afde1d530e6bc2b2c",
+    "MudSharpCore/FutureProg/Functions/Magic/MagicCastingFunctions.cs": "28e67ff016ace1e69b06e0770d3ccfed383dcf656dad85cb7aeff233069f9384",
+    "MudSharpCore/Magic/Capabilities/SkillLevelBasedMagicCapability.Casting.Builder.cs": "0884a9b1b1c24a2d2217b148df8d8460385efff45ac5a679205b7f5db343be16",
+    "MudSharpCore/Magic/Capabilities/SkillLevelBasedMagicCapability.Casting.Support.Builder.cs": "67a643b731eda6004dacea28101cbcc298eb283a58087a8bcb91ed5236b76e53",
+    "MudSharpCore/Magic/Capabilities/SkillLevelBasedMagicCapability.Casting.Support.cs": "4d84c55d30a22f205163f67ef824c647205b8324d1dd33b2dfaf35e19f4d7f24",
+    "MudSharpCore/Magic/Capabilities/SkillLevelBasedMagicCapability.Casting.cs": "1a48923dae8eed95c148fdad271b38cdd0910665b797cf4ecb8e25324010c6bd",
+    "MudSharpCore/Magic/Casting/MagicCastingService.Acquisition.cs": "f265f3bc74fdfdc0a9e9c91b5f163a9054535f541a59a6e3b5d6029b23ad3030",
+    "MudSharpCore/Magic/Casting/MagicCastingService.Execution.cs": "a4faeb98029e59870d5b0a7e1cf2de83be2f5c1f13204ea3d263528f1d3adb19",
+    "MudSharpCore/Magic/Casting/MagicCastingService.Progression.cs": "018148f18aa500c25011df825a60eca844c42fc8e16882fc2546120d9139ccb3",
+    "MudSharpCore/Magic/Casting/MagicCastingService.Resources.cs": "2d9f00ccbd0f941f74bc62903bd5b033abb65b399abc4e9c2d2ce624537cb7cf",
+    "MudSharpCore/Magic/Casting/MagicCastingService.Support.cs": "f6008dc192a22060fa642da55ea61842a19c799803e7cf0996f0adc9b30199a4",
+    "MudSharpCore/Magic/Casting/MagicCastingStateStore.cs": "7aa48c6897561261e9a1fa35a5b4343cbcc1057b57349c0115dca62c2ca326a1",
+    "Temporary Scratch App/GatheringNativePersistenceHarness/Program.Casting.cs": "43541a6213bd67972f4f81942c76d79a405fe0f35903b2340e9026ca21f3a0ff",
+    "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingSupport.cs": "de7ce1ab6a1ac548e5b5bb88b7a72eac5648f3673af6a0bf354ce1dad86c2bc0"
+  },
+  "verified_code_manifest_sha256": "c9da471aec1e6ff71903c227810faa84449197b1caefd65793f1e0ef24d49adc",
+  "native_binary_sha256": {
+    "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll": "809c481de526591cc832b38ccd3cc09c6339f3cd58bd3b5bc2da38abab3a40c6",
+    "MudSharpCore/bin/Debug/net10.0/MudSharp.dll": "304a23477af8e2080e8bc97a76692d7fc6b6e132e90de4cf86f0a930cc355424",
+    "FutureMUDLibrary/bin/Debug/net10.0/FutureMUDLibrary.dll": "4f2209c5f503ac08787faf6b837b041205d0d1eefafad72917d4a8e12aaabd67"
+  },
+  "post_verification_changes": "Local commit and documentation/receipts only; executable source and binary hashes checked unchanged after native acceptance and implementation commit.",
+  "toolchain": {
+    "sdk": "10.0.401",
+    "mysql": "8.0.45 owned temporary loopback instance",
+    "local_build_options": [
+      "-m:1",
+      "-p:RestoreBuildInParallel=false",
+      "-p:NuGetAudit=false",
+      "-p:NoWarn=NU1902%3BNU1510"
+    ],
+    "audit_status": "not run; local repository wrapper options are not security-audit evidence"
+  },
+  "not_run": [
+    "stage1C capacity/invalidation/affordability matrix",
+    "stock crafting command/installer/Telnet qualification",
+    "stock PRACTICE N06",
+    "phases2-6"
+  ],
+  "boundaries": {
+    "publication": false,
+    "merge": false,
+    "deployment": false,
+    "shared_or_production_database": false
+  }
+}

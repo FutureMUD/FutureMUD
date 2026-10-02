@@ -246,5 +246,11 @@
     "branch": "codex/monster-ai-v1",
     "head": "aca21bfc39298199291933375226d8982352420d",
     "status": "only prior untracked .artifacts/"
+  },
+  "historical_after_review_fix": {
+    "base": "251f4114f05a9d923676686f9b191731e3cba167",
+    "implementation_head": "07202fe48f20640027e0a045c13426a9830f6f67",
+    "current_receipt": "Armageddon_Stage1B_CapAdoption_Verification.json",
+    "scope": "Original stage1B evidence remains historical and unchanged; parent subsequently identified cap adoption and the new receipt records its repair."
   }
 }

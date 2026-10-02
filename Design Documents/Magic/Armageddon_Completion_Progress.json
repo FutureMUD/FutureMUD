@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase1B dependencies implemented and verified; await exact-commit parent review before capacity stage1C",
+  "selected_stage": "Phase1B cap-adoption review fix implemented and verified; awaiting parent exact-commit re-review before capacity stage1C",
   "phase1_remaining": [
     "Attribute-led mana capacity mapping/invalidation and complete affordability matrix"
   ],
@@ -237,7 +237,8 @@
       "required_result": "Read Enchantment becomes acquired through the legitimate native support edge, without a fake spell or manual database edit",
       "status": "passed_controlled_native_fixture_stock_integration_pending",
       "evidence": [
-        "Armageddon_Stage1B_Verification.json: actual native parent/support improvements, scoped Identify grade1, second focused body and independent reload; installed stock crafting command/source-tree integration pending"
+        "Armageddon_Stage1B_Verification.json: actual native parent/support improvements, scoped Identify grade1, second focused body and independent reload; installed stock crafting command/source-tree integration pending",
+        "Armageddon_Stage1B_CapAdoption_Verification.json: uncapped same-key support cap adoption, actual native use, loss/removal, raw90/cap0 independent reload and retained immutable grant; stock integration pending"
       ]
     },
     {
@@ -1852,6 +1853,44 @@
       "name": "Stage1B bounded independent code re-review",
       "status": "no_remaining_actionable_findings_parent_checkpoint_pending",
       "receipt": "Armageddon_Stage1B_Verification.json"
+    },
+    {
+      "name": "Support cap adoption failing-before regressions",
+      "status": "failed_before_repair_passed_after",
+      "run_id": "20261002T102752Z-37d0397227b5",
+      "failed_before": 3,
+      "receipt": "Armageddon_Stage1B_CapAdoption_Verification.json"
+    },
+    {
+      "name": "Support cap adoption focused suite",
+      "status": "passed",
+      "run_id": "20261002T103456Z-2643b428767f",
+      "passed": 121,
+      "failed": 0,
+      "skipped": 0,
+      "source_fingerprint": "7da2def8f88edd8c2c9950c0b57494da15e9e511be5ef63a96e9c6099985183a",
+      "receipt": "Armageddon_Stage1B_CapAdoption_Verification.json"
+    },
+    {
+      "name": "Support cap adoption full core/shared-library suites",
+      "status": "passed",
+      "run_id": "20261002T103636Z-223e82578f17",
+      "passed": 4674,
+      "failed": 0,
+      "skipped": 0,
+      "source_fingerprint": "10547b1224b39ca09d1a8e7204ccbb5c9ecb2f70a5837a11bb4f2f9d990442e9",
+      "receipt": "Armageddon_Stage1B_CapAdoption_Verification.json"
+    },
+    {
+      "name": "Support cap adoption disposable native acceptance and two independent reloads",
+      "status": "passed",
+      "cleanup": "passed",
+      "receipt": "Armageddon_Stage1B_CapAdoption_Verification.json"
+    },
+    {
+      "name": "Support cap adoption bounded independent review",
+      "status": "no_actionable_findings_parent_re_review_pending",
+      "receipt": "Armageddon_Stage1B_CapAdoption_Verification.json"
     }
   ],
   "implementation_commits": [
@@ -1870,13 +1909,34 @@
     {
       "sha": "ae72581076ce8b58af89ce43c705c683912ec91d",
       "subject": "Add scoped support progression and authored casting enrolment"
+    },
+    {
+      "sha": "07202fe48f20640027e0a045c13426a9830f6f67",
+      "subject": "Preserve cap adoption history for existing support grants"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_review",
-    "base": "c9f9750298f22b79919137fdb89fdfda8f54e601",
-    "implementation_head": "ae72581076ce8b58af89ce43c705c683912ec91d",
+    "status": "awaiting_parent_cap_adoption_re_review",
+    "base": "251f4114f05a9d923676686f9b191731e3cba167",
+    "implementation_head": "07202fe48f20640027e0a045c13426a9830f6f67",
+    "receipt": "Armageddon_Stage1B_CapAdoption_Verification.json",
     "next_stage_after_review": "1C attribute-led capacity, invalidation and affordability matrix",
     "no_later_stage_started": true
+  },
+  "deferred_consultation": {
+    "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
+    "revision": "251f4114f05a9d923676686f9b191731e3cba167",
+    "scope": "Later summons/projection lifecycle and persistent PC charm",
+    "owner": "parent",
+    "status": "read-only consultation complete; recommendations deferred until phase3",
+    "routing": "Parent can provide exact entry points and detailed evidence; recommendations must fit the approved brief rather than invent product requirements.",
+    "key_constraints": [
+      "provenance before on-load callbacks/world exposure; correlate persisted death/remains at a post-death integration point",
+      "durable idempotent evacuation of foreign possessions before destructive cleanup; retain recoverable state when no safe destination exists",
+      "preserve crime/history attribution and corpse OriginalCharacter/OriginalBody references; ownership-proven deletion or non-loadable tombstones as appropriate; projections retire only owned instances",
+      "authorize charm at resolved executable/action boundaries with ordinary target permissions, per-spell PC toggle and stable explicit whitelist",
+      "retain immutable control provenance in queued actions and recheck expiry/range/body/focus/conflicts at execution; reject unresolvable wrappers/expansions; cancel only grant-owned actions",
+      "native restart/fault, early death/corpse expiry, foreign-item conservation, history, cache/timer/heavy-row steady state and forbidden-side-effect acceptance"
+    ]
   }
 }

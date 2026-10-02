@@ -52,7 +52,11 @@ fresh verification and keeps old PR receipts historical.
 - [x] Repair parser, authority, malformed-XML and replay findings with focused regressions.
 - [x] Run controlled native speech anatomy, queue, hearing, quiet, callback/relay and restart scenarios.
 - [x] Complete final dependent/native checks and immutable phase2B receipts/local commits.
-- [ ] Parent independently reviews phase2B before the separate area-policy checkpoint.
+- [x] Parent independently accepts phase2B `0377cd48` / `2875be76` before area policy.
+- [x] Implement explicit bounded per-spell area targeting, native eligibility/ward checks and immutable selection/payment receipts.
+- [x] Verify 29 area regressions, repair legacy stored-payload null-parent compatibility and pass final dependent/native suites.
+- [x] Commit the phase2C implementation and retain failed attempts, final fingerprints and native cleanup receipts.
+- [ ] Parent independently reviews phase2C before phase3.
 
 ## Remaining work
 
@@ -375,3 +379,41 @@ See [Armageddon_Stage2B_Verification.json](Armageddon_Stage2B_Verification.json)
 Bounded re-review established no further actionable P1/P2 defect. Await parent review
 of this immutable checkpoint before the separate area-policy stage. No publication,
 merge, deployment, shared/production DB, settings or usage/reset operation occurred.
+
+## Phase2C explicit area checkpoint
+
+Base: `2875be7697e18c519bde9052e099696c3b0a3efc`. Implementation: `a018aa29ea86d51691cebf489d2086cc0aebd9ab`. Optional per-spell
+area policy declares caster/allies/others, body/identity semantics, bounded scope and
+selection, layers/ground/staff/planes, native filter Prog, damage and total method modifiers.
+Named/formula/original speech area enters the normal guarded pipeline. One captured list
+and selected order retain normal target wards/resistance, one canonical payment/check and
+progression, live per-hit eligibility and immutable restart receipts. Partial persistent
+children retain their scheduled parent on eligibility loss or exception.
+
+Earthquake source includes caster at one-third and allies/others at full damage; Chain
+Lightning permits repeated random hits and quarter caster damage; room Fireball excludes
+the caster while including allies. Three-hit count and grade*4 native fixture damage,
+ground/layer/staff/plane mappings and normal/quiet-area tuning are provisional. Complete
+historical protections, Energy Shield/Stone Skin binding, nearby Earthquake falls/messages,
+final stock source values and all other source delivery variants remain qualification work.
+The Leaping Lightning Markdown entry now identifies the approved repeated-hit contract.
+
+Final run `20261002T201728Z-d1bff731e9ab` passed **4,913** dependent tests, zero
+failures/skips, with stable fingerprint `6a55c6a35dc64401037845dfebce2dddbb2f02cefebc52e52e2aad2e56e82f7a`. All29 area tests and
+36 area/Vancian effect tests pass; the retained failed full run exposed and led to repair
+of legacy null-parent damage. Full native acceptance passed **107** markers,
+including nine area markers, separate-process11body/sixjournal reconstruction, native
+source ratios/protection, shared-identity bodies, dynamic membership and paid rejection.
+Seven owned databases and the temporary MySQL instance were cleaned; zero owned processes
+remain. All101 frozen inputs and unit/native Core/library assemblies match. Earlier failed
+managed/native attempts and unchanged historical receipts remain available.
+
+See [Armageddon_Stage2C_Verification.json](Armageddon_Stage2C_Verification.json) for exact
+receipts and boundaries. N11/Q10/candidate evidence is partial stock qualification.
+Speech body/focus switching, production output filtering, full Telnet/login, wearable gag,
+full DeadSpeak lifecycle, non-empty material plans, stock/hostile AI/real-time/gathering,
+portable production and the eight larger features remain explicit work. The controlled
+cell fixture mutates membership at commit; native movement and full output dispatch are
+not qualified. The whole16-decision/7-phase/154-candidate/25-case ledger remains intact.
+Await parent review of this immutable local checkpoint before phase3. No publication,
+merge, deployment, shared/production database or settings/usage/reset action occurred.

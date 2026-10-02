@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase2B speech/formula/quiet implemented and verified; independent parent review pending; area separate",
+  "selected_stage": "Phase2C area engine/source examples implemented and verified; independent parent review pending; no phase3 started",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -65,7 +65,7 @@
       "name": "Finish invocation adapters",
       "scope": "`MudSharpCore/Commands/Modules/MagicModule.Casting.cs`, communication module/body strategy integration, `CharacterCommunication.cs`, language/emote hooks, magic casting service",
       "exit_evidence": "Genuine speech/name/formula parity, no recursion, quiet policy, explicit area modes and side-effect-free practice",
-      "status": "practice_and_speech_formula_quiet_engine_checkpoints_implemented_and_verified_area_and_stock_qualification_pending"
+      "status": "practice_speech_formula_quiet_area_engine_checkpoints_implemented_verified_full_native_and_stock_qualification_pending"
     },
     {
       "id": 3,
@@ -163,9 +163,10 @@
       "id": "Q10",
       "requirement": "Quiet costs more and is harder; volume/method difficulty configurable; area defined per spell from source",
       "limit": "No universal ally immunity or caster exclusion; visible effects and magical detection remain",
-      "status": "quiet_volume_engine_implemented_and_verified_area_and_stock_qualification_pending",
+      "status": "quiet_volume_area_engine_verified_stock_source_policies_and_balance_pending",
       "evidence": [
-        "Armageddon_Stage2B_Verification.json: native Whisper quiet and custom method modifiers, physical restrictions and visible gesture verified; source-specific area and stock coefficients remain pending."
+        "Armageddon_Stage2B_Verification.json: native Whisper quiet and custom method modifiers, physical restrictions and visible gesture verified; source-specific area and stock coefficients remain pending.",
+        "Armageddon_Stage2C_Verification.json: explicit per-spell caster/allies/others, Earthquake1/3, Chain repeated hits/caster1/4, room Fireball caster exclusion and physical/canonical guards; remaining source/stock qualification explicit."
       ]
     },
     {
@@ -313,9 +314,10 @@
       "name": "Quiet and area",
       "scenario": "Whisper an eligible spell; execute Earthquake, Chain Lightning and room Fireball policies",
       "required_result": "Quoted modifiers and physical volume apply; visible effects remain; source-specific caster policies differ correctly",
-      "status": "partial_native_quiet_verified_source_specific_area_pending",
+      "status": "partial_native_quiet_and_three_area_policies_verified_stock_and_full_session_pending",
       "evidence": [
-        "Phase2B: Native Whisper quiet x2/+1, custom x1.25/+2 and visible gestures pass with native physical eligibility. Source-specific area policies remain not implemented or run. Armageddon_Stage2B_Verification.json"
+        "Phase2B: Native Whisper quiet x2/+1, custom x1.25/+2 and visible gestures pass with native physical eligibility. Source-specific area policies remain not implemented or run. Armageddon_Stage2B_Verification.json",
+        "Phase2C: nine controlled native area markers plus separate-process11body/sixjournal reload; original quiet evidence retained. Complete stock source behavior remains partial. Armageddon_Stage2C_Verification.json"
       ]
     },
     {
@@ -454,7 +456,8 @@
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Stage2C room Fireball delivery variant native caster exclusion/full ally damage passes; this does not qualify the selected-character Ember Lance stock scenario."
       ]
     },
     {
@@ -892,9 +895,10 @@
       "group": "Gap",
       "required_behavior": "Grounded-target earthquake and fall policy; local caster receives one-third source damage with authored protections; nearby-cell messages/falls are separate",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "partial_area_engine_and_native_fixture_stock_falls_protections_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Stage2C: native local caster4/ally12, ground/layer/staff/plane/filter/ward exclusions and stable physical targeting verified; nearby falls/full source protections and installed stock remain pending."
       ]
     },
     {
@@ -1574,9 +1578,10 @@
       "group": "Gap",
       "required_behavior": "Source-informed bounded repeated random target selection; caster possible at quarter damage and Energy Shield protection; do not silently impose distinct targets or diminishing falloff",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "partial_area_engine_and_native_fixture_stock_values_and_energy_shield_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Stage2C: native repeated random hits, quarter caster, full ally damage and immutable selected order verified; three-hit count provisional, EnergyShield/final source values/stock pending."
       ]
     },
     {
@@ -2278,6 +2283,33 @@
       "owned_processes_remaining": 0,
       "frozen_inputs_matching": 93,
       "receipt": "Armageddon_Stage2B_Verification.json"
+    },
+    {
+      "name": "Parent Phase2B independent review acceptance",
+      "status": "accepted",
+      "implementation": "0377cd487a745bc04124ff7d683baf882083c620",
+      "receipt_head": "2875be7697e18c519bde9052e099696c3b0a3efc"
+    },
+    {
+      "name": "Phase2C area and legacy compatibility",
+      "status": "passed_bounded_automated_and_controlled_native",
+      "focused": "20261002T201621Z-405422f8b983",
+      "dependent": "20261002T201728Z-d1bff731e9ab",
+      "counts": {
+        "executed": 4913,
+        "passed": 4913,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 4913
+      },
+      "native_markers": 107,
+      "area_markers": 9,
+      "owned_databases_cleaned": 7,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 101,
+      "receipt": "Armageddon_Stage2C_Verification.json"
     }
   ],
   "implementation_commits": [
@@ -2332,16 +2364,20 @@
     {
       "sha": "0377cd487a745bc04124ff7d683baf882083c620",
       "subject": "Add native speech formula and quiet casting with origin guards"
+    },
+    {
+      "sha": "a018aa29ea86d51691cebf489d2086cc0aebd9ab",
+      "subject": "Add explicit bounded source-specific area casting policies"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase2B_review",
-    "base": "36f271b43112a50f347ff9a1f5323ba067e4b0b2",
-    "scope": "Speech/formula/quiet immutable implementation and verification checkpoint",
-    "next_stage_after_review": "Phase2C separate per-spell source-specific area policies",
+    "status": "awaiting_parent_phase2C_review",
+    "base": "2875be7697e18c519bde9052e099696c3b0a3efc",
+    "scope": "Phase2C explicit per-spell area delivery",
+    "next_stage_after_review": "Phase3 reusable effect and lifecycle dependencies; obtain parent continuation scope",
     "no_later_stage_started": true,
-    "implementation_head": "0377cd487a745bc04124ff7d683baf882083c620",
-    "receipt": "Armageddon_Stage2B_Verification.json",
+    "implementation_head": "a018aa29ea86d51691cebf489d2086cc0aebd9ab",
+    "receipt": "Armageddon_Stage2C_Verification.json",
     "implementation_verified": true
   },
   "deferred_consultation": {

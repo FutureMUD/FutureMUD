@@ -1,8 +1,8 @@
 # ARM-01 candidate repertoire register
 
-Canonical data: [Armageddon_Repertoire.json](Armageddon_Repertoire.json). Runtime revision: `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
+Canonical data: [Armageddon_Repertoire.json](Armageddon_Repertoire.json). Historical inventory preparation revision: `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`. Current implementation baseline: `b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38`.
 
-Status: proposed roster, balance and adaptations awaiting approval. This rendering is generated from the JSON; source labels are provenance, not stock player-facing names.
+Status: approved completion scope; runtime, stock and native qualification remain in progress. The exact selected roster is in [Armageddon_Sorcerer_Source_Tree.json](Armageddon_Sorcerer_Source_Tree.json); all 154 dispositions and 25 native cases are tracked in [Armageddon_Completion_Progress.json](Armageddon_Completion_Progress.json). This completion authority supersedes historical proposal text below. This rendering is generated from the JSON; source labels are provenance, not stock player-facing names.
 
 154 entries: 152 historical magic IDs and 2 explicit additions. These are inventory counts, not completion percentages. Shared memberships appear on a single spell record.
 
@@ -16,160 +16,160 @@ All grade, resource, practice, variant and production defaults are in [the desig
 
 | Key | Generic name | Memberships | Effect coverage | Release proposal |
 | --- | --- | --- | --- | --- |
-| `arm.spell.sense_enchantment` | [Sense Enchantment](#sense-enchantment) | Fire, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.ember_lance` | [Ember Lance](#ember-lance) | Fire, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.cinder_rain` | [Cinder Rain](#cinder-rain) | Fire | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.hovering_light` | [Hovering Light](#hovering-light) | Fire, Sorcerer | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.unravel_enchantment` | [Unravel Enchantment](#unravel-enchantment) | Fire, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.pillar_of_flame` | [Pillar of Flame](#pillar-of-flame) | Fire | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.consuming_flame` | [Consuming Flame](#consuming-flame) | Fire | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.kindle_enchantment` | [Kindle Enchantment](#kindle-enchantment) | Fire | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.custodian_glyph` | [Custodian Glyph](#custodian-glyph) | Fire | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.fireworks` | [Fireworks](#fireworks) | Fire | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.borrowed_tongues` | [Borrowed Tongues](#borrowed-tongues) | Fire, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.burning_draught_curse` | [Burning Draught Curse](#burning-draught-curse) | Fire | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.desiccate` | [Desiccate](#desiccate) | Fire | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.flame_knife` | [Flame Knife](#flame-knife) | Fire | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.flame_barrier` | [Flame Barrier](#flame-barrier) | Fire | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.flame_mantle` | [Flame Mantle](#flame-mantle) | Fire | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.ember_seed` | [Ember Seed](#ember-seed) | Fire | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.daylight` | [Daylight](#daylight) | Fire | existing_primitive_configuration | proposed_adaptation |
-| `arm.spell.immolate` | [Immolate](#immolate) | Fire | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.draw_water` | [Draw Water](#draw-water) | Water, Sorcerer | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.sense_toxin` | [Sense Toxin](#sense-toxin) | Water, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.mend_flesh` | [Mend Flesh](#mend-flesh) | Water, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.venom_touch` | [Venom Touch](#venom-touch) | Water | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.sheltering_veil` | [Sheltering Veil](#sheltering-veil) | Water | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.purge_toxin` | [Purge Toxin](#purge-toxin) | Water, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.still_anger` | [Still Anger](#still-anger) | Water | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.spring_haven` | [Spring Haven](#spring-haven) | Water | larger_supporting_system | proposed_defer |
-| `arm.spell.unyielding_veil` | [Unyielding Veil](#unyielding-veil) | Water | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.read_attunement` | [Read Attunement](#read-attunement) | Water | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.thunderclap` | [Thunderclap](#thunderclap) | Water | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.hush_hearing` | [Hush Hearing](#hush-hearing) | Water | existing_primitive_configuration | proposed_include |
-| `arm.spell.seal_voice` | [Seal Voice](#seal-voice) | Water | existing_primitive_configuration | proposed_include |
-| `arm.spell.vital_siphon` | [Vital Siphon](#vital-siphon) | Water | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.thorn_barrier` | [Thorn Barrier](#thorn-barrier) | Water | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.draw_wine` | [Draw Wine](#draw-wine) | Water | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.headlong_revel` | [Headlong Revel](#headlong-revel) | Water | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.clear_head` | [Clear Head](#clear-head) | Water | existing_primitive_configuration | proposed_include |
-| `arm.spell.wither_growth` | [Wither Growth](#wither-growth) | Water | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.distant_mirage` | [Distant Mirage](#distant-mirage) | Water | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.mist_shield` | [Mist Shield](#mist-shield) | Water | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.restorative_mud` | [Restorative Mud](#restorative-mud) | Water | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.purge_disease` | [Purge Disease](#purge-disease) | Water | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.water_breathing` | [Water Breathing](#water-breathing) | Water | existing_primitive_configuration | proposed_include |
-| `arm.spell.earthen_ward` | [Earthen Ward](#earthen-ward) | Earth, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.sustain_meal` | [Sustain Meal](#sustain-meal) | Earth, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.ground_tremor` | [Ground Tremor](#ground-tremor) | Earth | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.heavy_slumber` | [Heavy Slumber](#heavy-slumber) | Earth, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.earthen_strength` | [Earthen Strength](#earthen-strength) | Earth, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.sand_knife` | [Sand Knife](#sand-knife) | Earth | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.stone_skin` | [Stone Skin](#stone-skin) | Earth, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.sapping_weight` | [Sapping Weight](#sapping-weight) | Earth, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.trace_the_path` | [Trace the Path](#trace-the-path) | Earth | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.burrow_refuge` | [Burrow Refuge](#burrow-refuge) | Earth | larger_supporting_system | proposed_defer |
-| `arm.spell.clouded_will` | [Clouded Will](#clouded-will) | Earth, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.roused_fury` | [Roused Fury](#roused-fury) | Earth | existing_primitive_configuration | proposed_include |
-| `arm.spell.earth_mount` | [Earth Mount](#earth-mount) | Earth | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.sand_barrier` | [Sand Barrier](#sand-barrier) | Earth | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.return_tether` | [Return Tether](#return-tether) | Earth | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.threshold_alarm` | [Threshold Alarm](#threshold-alarm) | Earth | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.fleet_step` | [Fleet Step](#fleet-step) | Earth | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.sand_shelter` | [Sand Shelter](#sand-shelter) | Earth | larger_supporting_system | proposed_defer |
-| `arm.spell.clay_sentinel` | [Clay Sentinel](#clay-sentinel) | Earth | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.sand_effigy` | [Sand Effigy](#sand-effigy) | Earth | larger_supporting_system | proposed_defer |
-| `arm.spell.shatter_stone` | [Shatter Stone](#shatter-stone) | Earth | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.restore_object` | [Restore Object](#restore-object) | Earth | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.waystep` | [Waystep](#waystep) | Wind, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.pierce_concealment` | [Pierce Concealment](#pierce-concealment) | Wind, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.veil_from_sight` | [Veil from Sight](#veil-from-sight) | Wind, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.draw_traveller` | [Draw Traveller](#draw-traveller) | Wind, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.join_traveller` | [Join Traveller](#join-traveller) | Wind, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.buoyant_lift` | [Buoyant Lift](#buoyant-lift) | Wind, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.scouring_gust` | [Scouring Gust](#scouring-gust) | Wind | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.gust_hands` | [Gust Hands](#gust-hands) | Wind | existing_primitive_configuration | proposed_include |
-| `arm.spell.banish_traveller` | [Banish Traveller](#banish-traveller) | Wind | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.air_guardian` | [Air Guardian](#air-guardian) | Wind | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.exchange_places` | [Exchange Places](#exchange-places) | Wind | existing_primitive_configuration | proposed_include |
-| `arm.spell.windborne_flight` | [Windborne Flight](#windborne-flight) | Wind, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.seeking_wind` | [Seeking Wind](#seeking-wind) | Wind | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.gentle_descent` | [Gentle Descent](#gentle-descent) | Wind, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.driving_gust` | [Driving Gust](#driving-gust) | Wind | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.wind_barrier` | [Wind Barrier](#wind-barrier) | Wind | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.wind_mantle` | [Wind Mantle](#wind-mantle) | Wind | existing_primitive_configuration | proposed_include |
-| `arm.spell.wind_hammer` | [Wind Hammer](#wind-hammer) | Wind | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.false_presence` | [False Presence](#false-presence) | Wind | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.wind_shield` | [Wind Shield](#wind-shield) | Wind | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.wind_courier` | [Wind Courier](#wind-courier) | Wind | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.reveal_the_hidden` | [Reveal the Hidden](#reveal-the-hidden) | Wind | existing_primitive_configuration | proposed_include |
-| `arm.spell.anchor_rune` | [Anchor Rune](#anchor-rune) | Wind | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.shroud_eyes` | [Shroud Eyes](#shroud-eyes) | Shadow, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.clear_eyes` | [Clear Eyes](#clear-eyes) | Shadow, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.lift_hex` | [Lift Hex](#lift-hex) | Shadow, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.dread_presence` | [Dread Presence](#dread-presence) | Shadow, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.night_eyes` | [Night Eyes](#night-eyes) | Shadow, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.walking_shadow` | [Walking Shadow](#walking-shadow) | Shadow | larger_supporting_system | proposed_defer |
-| `arm.spell.shadow_passage` | [Shadow Passage](#shadow-passage) | Shadow, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.see_the_unbodied` | [See the Unbodied](#see-the-unbodied) | Shadow, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.cooling_shade` | [Cooling Shade](#cooling-shade) | Shadow | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.deep_darkness` | [Deep Darkness](#deep-darkness) | Shadow, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.clinging_hex` | [Clinging Hex](#clinging-hex) | Shadow, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.haunting_shape` | [Haunting Shape](#haunting-shape) | Shadow | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.shadow_blade` | [Shadow Blade](#shadow-blade) | Shadow | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.shadowplay` | [Shadowplay](#shadowplay) | Shadow | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.shadow_mantle` | [Shadow Mantle](#shadow-mantle) | Shadow | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.draw_into_flesh` | [Draw into Flesh](#draw-into-flesh) | Shadow, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.champion_blade` | [Champion Blade](#champion-blade) | Shadow | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.lightning_lance` | [Lightning Lance](#lightning-lance) | Lightning, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.second_breath` | [Second Breath](#second-breath) | Lightning, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.wakeful_mind` | [Wakeful Mind](#wakeful-mind) | Lightning, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.leadfoot` | [Leadfoot](#leadfoot) | Lightning | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.steal_breath` | [Steal Breath](#steal-breath) | Lightning | existing_primitive_configuration | proposed_include |
-| `arm.spell.still_limbs` | [Still Limbs](#still-limbs) | Lightning, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.leaping_lightning` | [Leaping Lightning](#leaping-lightning) | Lightning | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.storm_locus` | [Storm Locus](#storm-locus) | Lightning | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.charged_aegis` | [Charged Aegis](#charged-aegis) | Lightning | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.luminous_trail` | [Luminous Trail](#luminous-trail) | Lightning | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.quickened_healing` | [Quickened Healing](#quickened-healing) | Lightning, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.lightning_pace` | [Lightning Pace](#lightning-pace) | Lightning | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.spark_lash` | [Spark Lash](#spark-lash) | Lightning | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.sky_lantern` | [Sky Lantern](#sky-lantern) | Lightning | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.storm_spear` | [Storm Spear](#storm-spear) | Lightning | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.raise_servitor` | [Raise Servitor](#raise-servitor) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.call_outsider` | [Call Outsider](#call-outsider) | Void, Sorcerer | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.arcane_mark` | [Arcane Mark](#arcane-mark) | Void, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.feign_death` | [Feign Death](#feign-death) | Void | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.silence_the_mind` | [Silence the Mind](#silence-the-mind) | Void, Sorcerer | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.devouring_touch` | [Devouring Touch](#devouring-touch) | Void | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.compelling_regard` | [Compelling Regard](#compelling-regard) | Void | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.unmaking_ward` | [Unmaking Ward](#unmaking-ward) | Void | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.severing_refuge` | [Severing Refuge](#severing-refuge) | Void | larger_supporting_system | proposed_defer |
-| `arm.spell.apex_bane` | [Apex Bane](#apex-bane) | Void | larger_supporting_system | proposed_defer |
-| `arm.spell.empty_aura` | [Empty Aura](#empty-aura) | Void, Sorcerer | existing_primitive_configuration | proposed_include |
-| `arm.spell.linked_threshold` | [Linked Threshold](#linked-threshold) | Void | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.bar_the_elements` | [Bar the Elements](#bar-the-elements) | Void | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.turn_the_elements` | [Turn the Elements](#turn-the-elements) | Void | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.folded_pocket` | [Folded Pocket](#folded-pocket) | Void | larger_supporting_system | proposed_defer |
-| `arm.spell.veil_of_elements` | [Veil of Elements](#veil-of-elements) | Void | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.cross_the_veil` | [Cross the Veil](#cross-the-veil) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.borrow_the_dead` | [Borrow the Dead](#borrow-the-dead) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.open_threshold` | [Open Threshold](#open-threshold) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.read_enchantment` | [Read Enchantment](#read-enchantment) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.blade_barrier` | [Blade Barrier](#blade-barrier) | Void | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.mind_scour` | [Mind Scour](#mind-scour) | Void | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.phantasm` | [Phantasm](#phantasm) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.unbodied_journey` | [Unbodied Journey](#unbodied-journey) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.erode_object` | [Erode Object](#erode-object) | Void | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.leeching_edge` | [Leeching Edge](#leeching-edge) | Void | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.voice_of_remains` | [Voice of Remains](#voice-of-remains) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.echo_servant` | [Echo Servant](#echo-servant) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.drowning_grip` | [Drowning Grip](#drowning-grip) | Water | small_missing_primitive | proposed_gap_candidate |
-| `arm.spell.sow_sickness` | [Sow Sickness](#sow-sickness) | Water, Void | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.caustic_spray` | [Caustic Spray](#caustic-spray) | Water | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.gather_puddle` | [Gather Puddle](#gather-puddle) | Water | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.wardcraft` | [Wardcraft](#wardcraft) | Earth, Water, Void, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
-| `arm.spell.renew_earth` | [Renew Earth](#renew-earth) | Earth, Water, Sorcerer | existing_primitive_plus_bounded_policy_content | proposed_adaptation |
+| `arm.spell.sense_enchantment` | [Sense Enchantment](#sense-enchantment) | Fire, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.ember_lance` | [Ember Lance](#ember-lance) | Fire, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.cinder_rain` | [Cinder Rain](#cinder-rain) | Fire | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.hovering_light` | [Hovering Light](#hovering-light) | Fire, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.unravel_enchantment` | [Unravel Enchantment](#unravel-enchantment) | Fire, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.pillar_of_flame` | [Pillar of Flame](#pillar-of-flame) | Fire | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.consuming_flame` | [Consuming Flame](#consuming-flame) | Fire, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.kindle_enchantment` | [Kindle Enchantment](#kindle-enchantment) | Fire, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.custodian_glyph` | [Custodian Glyph](#custodian-glyph) | Fire, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.fireworks` | [Fireworks](#fireworks) | Fire | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.borrowed_tongues` | [Borrowed Tongues](#borrowed-tongues) | Fire, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.burning_draught_curse` | [Burning Draught Curse](#burning-draught-curse) | Fire | small_missing_primitive | required_completion_candidate |
+| `arm.spell.desiccate` | [Desiccate](#desiccate) | Fire | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.flame_knife` | [Flame Knife](#flame-knife) | Fire, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.flame_barrier` | [Flame Barrier](#flame-barrier) | Fire, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.flame_mantle` | [Flame Mantle](#flame-mantle) | Fire | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.ember_seed` | [Ember Seed](#ember-seed) | Fire | small_missing_primitive | required_completion_candidate |
+| `arm.spell.daylight` | [Daylight](#daylight) | Fire | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.immolate` | [Immolate](#immolate) | Fire, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.draw_water` | [Draw Water](#draw-water) | Water, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.sense_toxin` | [Sense Toxin](#sense-toxin) | Water, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.mend_flesh` | [Mend Flesh](#mend-flesh) | Water, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.venom_touch` | [Venom Touch](#venom-touch) | Water, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.sheltering_veil` | [Sheltering Veil](#sheltering-veil) | Water, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.purge_toxin` | [Purge Toxin](#purge-toxin) | Water, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.still_anger` | [Still Anger](#still-anger) | Water, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.spring_haven` | [Spring Haven](#spring-haven) | Water | larger_supporting_system | required_completion_candidate |
+| `arm.spell.unyielding_veil` | [Unyielding Veil](#unyielding-veil) | Water, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.read_attunement` | [Read Attunement](#read-attunement) | Water, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.thunderclap` | [Thunderclap](#thunderclap) | Water | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.hush_hearing` | [Hush Hearing](#hush-hearing) | Water | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.seal_voice` | [Seal Voice](#seal-voice) | Water | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.vital_siphon` | [Vital Siphon](#vital-siphon) | Water | small_missing_primitive | required_completion_candidate |
+| `arm.spell.thorn_barrier` | [Thorn Barrier](#thorn-barrier) | Water | small_missing_primitive | required_completion_candidate |
+| `arm.spell.draw_wine` | [Draw Wine](#draw-wine) | Water, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.headlong_revel` | [Headlong Revel](#headlong-revel) | Water | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.clear_head` | [Clear Head](#clear-head) | Water | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.wither_growth` | [Wither Growth](#wither-growth) | Water | small_missing_primitive | required_completion_candidate |
+| `arm.spell.distant_mirage` | [Distant Mirage](#distant-mirage) | Water | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.mist_shield` | [Mist Shield](#mist-shield) | Water | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.restorative_mud` | [Restorative Mud](#restorative-mud) | Water | small_missing_primitive | required_completion_candidate |
+| `arm.spell.purge_disease` | [Purge Disease](#purge-disease) | Water | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.water_breathing` | [Water Breathing](#water-breathing) | Water, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.earthen_ward` | [Earthen Ward](#earthen-ward) | Earth | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.sustain_meal` | [Sustain Meal](#sustain-meal) | Earth, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.ground_tremor` | [Ground Tremor](#ground-tremor) | Earth, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.heavy_slumber` | [Heavy Slumber](#heavy-slumber) | Earth, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.earthen_strength` | [Earthen Strength](#earthen-strength) | Earth, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.sand_knife` | [Sand Knife](#sand-knife) | Earth | small_missing_primitive | required_completion_candidate |
+| `arm.spell.stone_skin` | [Stone Skin](#stone-skin) | Earth, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.sapping_weight` | [Sapping Weight](#sapping-weight) | Earth | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.trace_the_path` | [Trace the Path](#trace-the-path) | Earth | small_missing_primitive | required_completion_candidate |
+| `arm.spell.burrow_refuge` | [Burrow Refuge](#burrow-refuge) | Earth, Sorcerer | larger_supporting_system | required_completion_candidate |
+| `arm.spell.clouded_will` | [Clouded Will](#clouded-will) | Earth, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.roused_fury` | [Roused Fury](#roused-fury) | Earth, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.earth_mount` | [Earth Mount](#earth-mount) | Earth, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.sand_barrier` | [Sand Barrier](#sand-barrier) | Earth, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.return_tether` | [Return Tether](#return-tether) | Earth | small_missing_primitive | required_completion_candidate |
+| `arm.spell.threshold_alarm` | [Threshold Alarm](#threshold-alarm) | Earth, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.fleet_step` | [Fleet Step](#fleet-step) | Earth, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.sand_shelter` | [Sand Shelter](#sand-shelter) | Earth | larger_supporting_system | required_completion_candidate |
+| `arm.spell.clay_sentinel` | [Clay Sentinel](#clay-sentinel) | Earth | small_missing_primitive | required_completion_candidate |
+| `arm.spell.sand_effigy` | [Sand Effigy](#sand-effigy) | Earth, Sorcerer | larger_supporting_system | required_completion_candidate |
+| `arm.spell.shatter_stone` | [Shatter Stone](#shatter-stone) | Earth | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.restore_object` | [Restore Object](#restore-object) | Earth, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.waystep` | [Waystep](#waystep) | Wind, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.pierce_concealment` | [Pierce Concealment](#pierce-concealment) | Wind, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.veil_from_sight` | [Veil from Sight](#veil-from-sight) | Wind, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.draw_traveller` | [Draw Traveller](#draw-traveller) | Wind, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.join_traveller` | [Join Traveller](#join-traveller) | Wind, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.buoyant_lift` | [Buoyant Lift](#buoyant-lift) | Wind, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.scouring_gust` | [Scouring Gust](#scouring-gust) | Wind | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.gust_hands` | [Gust Hands](#gust-hands) | Wind, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.banish_traveller` | [Banish Traveller](#banish-traveller) | Wind, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.air_guardian` | [Air Guardian](#air-guardian) | Wind, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.exchange_places` | [Exchange Places](#exchange-places) | Wind | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.windborne_flight` | [Windborne Flight](#windborne-flight) | Wind, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.seeking_wind` | [Seeking Wind](#seeking-wind) | Wind | small_missing_primitive | required_completion_candidate |
+| `arm.spell.gentle_descent` | [Gentle Descent](#gentle-descent) | Wind | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.driving_gust` | [Driving Gust](#driving-gust) | Wind, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.wind_barrier` | [Wind Barrier](#wind-barrier) | Wind, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.wind_mantle` | [Wind Mantle](#wind-mantle) | Wind, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.wind_hammer` | [Wind Hammer](#wind-hammer) | Wind | small_missing_primitive | required_completion_candidate |
+| `arm.spell.false_presence` | [False Presence](#false-presence) | Wind | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.wind_shield` | [Wind Shield](#wind-shield) | Wind | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.wind_courier` | [Wind Courier](#wind-courier) | Wind, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.reveal_the_hidden` | [Reveal the Hidden](#reveal-the-hidden) | Wind, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.anchor_rune` | [Anchor Rune](#anchor-rune) | Wind, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.shroud_eyes` | [Shroud Eyes](#shroud-eyes) | Shadow, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.clear_eyes` | [Clear Eyes](#clear-eyes) | Shadow, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.lift_hex` | [Lift Hex](#lift-hex) | Shadow, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.dread_presence` | [Dread Presence](#dread-presence) | Shadow, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.night_eyes` | [Night Eyes](#night-eyes) | Shadow, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.walking_shadow` | [Walking Shadow](#walking-shadow) | Shadow, Sorcerer | larger_supporting_system | required_completion_candidate |
+| `arm.spell.shadow_passage` | [Shadow Passage](#shadow-passage) | Shadow, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.see_the_unbodied` | [See the Unbodied](#see-the-unbodied) | Shadow, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.cooling_shade` | [Cooling Shade](#cooling-shade) | Shadow | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.deep_darkness` | [Deep Darkness](#deep-darkness) | Shadow, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.clinging_hex` | [Clinging Hex](#clinging-hex) | Shadow, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.haunting_shape` | [Haunting Shape](#haunting-shape) | Shadow | small_missing_primitive | required_completion_candidate |
+| `arm.spell.shadow_blade` | [Shadow Blade](#shadow-blade) | Shadow | small_missing_primitive | required_completion_candidate |
+| `arm.spell.shadowplay` | [Shadowplay](#shadowplay) | Shadow | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.shadow_mantle` | [Shadow Mantle](#shadow-mantle) | Shadow | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.draw_into_flesh` | [Draw into Flesh](#draw-into-flesh) | Shadow, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.champion_blade` | [Champion Blade](#champion-blade) | Shadow | small_missing_primitive | required_completion_candidate |
+| `arm.spell.lightning_lance` | [Lightning Lance](#lightning-lance) | Lightning, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.second_breath` | [Second Breath](#second-breath) | Lightning | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.wakeful_mind` | [Wakeful Mind](#wakeful-mind) | Lightning | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.leadfoot` | [Leadfoot](#leadfoot) | Lightning, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.steal_breath` | [Steal Breath](#steal-breath) | Lightning, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.still_limbs` | [Still Limbs](#still-limbs) | Lightning, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.leaping_lightning` | [Leaping Lightning](#leaping-lightning) | Lightning, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.storm_locus` | [Storm Locus](#storm-locus) | Lightning | small_missing_primitive | required_completion_candidate |
+| `arm.spell.charged_aegis` | [Charged Aegis](#charged-aegis) | Lightning, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.luminous_trail` | [Luminous Trail](#luminous-trail) | Lightning | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.quickened_healing` | [Quickened Healing](#quickened-healing) | Lightning | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.lightning_pace` | [Lightning Pace](#lightning-pace) | Lightning, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.spark_lash` | [Spark Lash](#spark-lash) | Lightning | small_missing_primitive | required_completion_candidate |
+| `arm.spell.sky_lantern` | [Sky Lantern](#sky-lantern) | Lightning | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.storm_spear` | [Storm Spear](#storm-spear) | Lightning, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.raise_servitor` | [Raise Servitor](#raise-servitor) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.call_outsider` | [Call Outsider](#call-outsider) | Void, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.arcane_mark` | [Arcane Mark](#arcane-mark) | Void, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.feign_death` | [Feign Death](#feign-death) | Void, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.silence_the_mind` | [Silence the Mind](#silence-the-mind) | Void | small_missing_primitive | required_completion_candidate |
+| `arm.spell.devouring_touch` | [Devouring Touch](#devouring-touch) | Void | small_missing_primitive | required_completion_candidate |
+| `arm.spell.compelling_regard` | [Compelling Regard](#compelling-regard) | Void | small_missing_primitive | required_completion_candidate |
+| `arm.spell.unmaking_ward` | [Unmaking Ward](#unmaking-ward) | Void | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.severing_refuge` | [Severing Refuge](#severing-refuge) | Void | larger_supporting_system | required_completion_candidate |
+| `arm.spell.apex_bane` | [Apex Bane](#apex-bane) | Void | larger_supporting_system | required_completion_candidate |
+| `arm.spell.empty_aura` | [Empty Aura](#empty-aura) | Void, Sorcerer | existing_primitive_configuration | required_completion_candidate |
+| `arm.spell.linked_threshold` | [Linked Threshold](#linked-threshold) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.bar_the_elements` | [Bar the Elements](#bar-the-elements) | Void | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.turn_the_elements` | [Turn the Elements](#turn-the-elements) | Void | small_missing_primitive | required_completion_candidate |
+| `arm.spell.folded_pocket` | [Folded Pocket](#folded-pocket) | Void | larger_supporting_system | required_completion_candidate |
+| `arm.spell.veil_of_elements` | [Veil of Elements](#veil-of-elements) | Void | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.cross_the_veil` | [Cross the Veil](#cross-the-veil) | Void | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.borrow_the_dead` | [Borrow the Dead](#borrow-the-dead) | Void | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.open_threshold` | [Open Threshold](#open-threshold) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.read_enchantment` | [Read Enchantment](#read-enchantment) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.blade_barrier` | [Blade Barrier](#blade-barrier) | Void, Sorcerer | small_missing_primitive | required_completion_candidate |
+| `arm.spell.mind_scour` | [Mind Scour](#mind-scour) | Void | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.phantasm` | [Phantasm](#phantasm) | Void | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.unbodied_journey` | [Unbodied Journey](#unbodied-journey) | Void | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.erode_object` | [Erode Object](#erode-object) | Void | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.leeching_edge` | [Leeching Edge](#leeching-edge) | Void | small_missing_primitive | required_completion_candidate |
+| `arm.spell.voice_of_remains` | [Voice of Remains](#voice-of-remains) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.echo_servant` | [Echo Servant](#echo-servant) | Void, Sorcerer | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.drowning_grip` | [Drowning Grip](#drowning-grip) | Water | small_missing_primitive | required_completion_candidate |
+| `arm.spell.sow_sickness` | [Sow Sickness](#sow-sickness) | Water, Void | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.caustic_spray` | [Caustic Spray](#caustic-spray) | Water | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.gather_puddle` | [Gather Puddle](#gather-puddle) | Water | existing_primitive_plus_bounded_policy_content | required_completion_candidate |
+| `arm.spell.wardcraft` | [Wardcraft](#wardcraft) | Earth, Water, Void | existing_primitive_plus_bounded_policy_content | optional_builder_addition |
+| `arm.spell.renew_earth` | [Renew Earth](#renew-earth) | Earth, Water | existing_primitive_plus_bounded_policy_content | optional_builder_addition |
 
 ## Detailed entries
 
@@ -204,7 +204,7 @@ Key: `arm.spell.sense_enchantment`. Native school: **Fire**. Target: `character`
 **Runtime evidence:**
 - `detectmagick`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:717](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L717), `DetectMagickEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-8 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Sense Enchantment, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sense Enchantment at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-8 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Sense Enchantment, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sense Enchantment at grade 2 through the explicit route.
 
 - Commit 6 designated energy units once; preserve native school Fire.
 - Reveal perceptible magical effects to the recipient.
@@ -247,7 +247,7 @@ Key: `arm.spell.ember_lance`. Native school: **Fire**. Target: `character`. Life
 **Runtime evidence:**
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-11 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Ember Lance, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Ember Lance at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-11 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Ember Lance, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Ember Lance at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Fire.
 - Strike one visible target with fire damage.
@@ -290,7 +290,7 @@ Key: `arm.spell.cinder_rain`. Native school: **Fire**. Target: `characters`. Lif
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `burning`: [MudSharpCore/Magic/SpellEffects/PersistentSensoryCombatSpellEffects.cs:131](../../MudSharpCore/Magic/SpellEffects/PersistentSensoryCombatSpellEffects.cs#L131), `BurningEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-21 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Cinder Rain, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Cinder Rain at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-21 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Cinder Rain, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Cinder Rain at grade 2 through the explicit route.
 
 - Commit 18 designated energy units once; preserve native school Fire.
 - Burn eligible others in the current cell with an initial fire strike and timed burning.
@@ -334,7 +334,7 @@ Key: `arm.spell.hovering_light`. Native school: **Fire**. Target: `character`. L
 - `createitem`: [MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs:103](../../MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs#L103), `CreateItemEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `glow`: [MudSharpCore/Magic/SpellEffects/GlowEffect.cs:211](../../MudSharpCore/Magic/SpellEffects/GlowEffect.cs#L211), `GlowEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-27 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Hovering Light, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Hovering Light at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-27 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Hovering Light, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Hovering Light at grade 2 through the explicit route.
 
 - Commit 6 designated energy units once; preserve native school Fire.
 - Create one temporary light around the recipient.
@@ -377,7 +377,7 @@ Key: `arm.spell.unravel_enchantment`. Native school: **Fire**. Target: `perceiva
 **Runtime evidence:**
 - `dispelmagic`: [MudSharpCore/Magic/SpellEffects/DispelMagicEffect.cs:165](../../MudSharpCore/Magic/SpellEffects/DispelMagicEffect.cs#L165), `DispelMagicEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-29 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Unravel Enchantment, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible perceivable. Invoke Unravel Enchantment at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-29 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Unravel Enchantment, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible perceivable. Invoke Unravel Enchantment at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Fire.
 - Contest and remove spell-owned effects matching configured dispel keys.
@@ -419,7 +419,7 @@ Key: `arm.spell.pillar_of_flame`. Native school: **Fire**. Target: `character`. 
 **Runtime evidence:**
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-32 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Pillar of Flame, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Pillar of Flame at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-32 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Pillar of Flame, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Pillar of Flame at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Fire.
 - Deliver a stronger single-target fire strike.
@@ -461,7 +461,7 @@ Key: `arm.spell.consuming_flame`. Native school: **Fire**. Target: `character`. 
 **Runtime evidence:**
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-40 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Consuming Flame, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Consuming Flame at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-40 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Consuming Flame, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Consuming Flame at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Fire.
 - Deliver an intense fire strike requiring a consumed reagent.
@@ -503,7 +503,7 @@ Key: `arm.spell.kindle_enchantment`. Native school: **Fire**. Target: `item`. Li
 **Runtime evidence:**
 - `itemenchant`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:668](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L668), `ItemEnchantEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-47 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Kindle Enchantment, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Kindle Enchantment at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-47 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Kindle Enchantment, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Kindle Enchantment at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Fire.
 - Temporarily improve a selected weapon's damage through native enchantment hooks.
@@ -545,7 +545,7 @@ Key: `arm.spell.custodian_glyph`. Native school: **Fire**. Target: `item`. Lifec
 **Runtime evidence:**
 - `magictag`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:91](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L91), `MagicTagEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-51 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Custodian Glyph, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Custodian Glyph at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-51 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Custodian Glyph, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Custodian Glyph at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Fire.
 - Mark an item so unauthorised taking is refused while the glyph lasts.
@@ -588,7 +588,7 @@ Key: `arm.spell.fireworks`. Native school: **Fire**. Target: `room`. Lifecycle: 
 - `phantomillusion`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:1994](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L1994), `PhantomIllusionEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `roomlight`: [MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs:188](../../MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs#L188), `RoomLightEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-66 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Fireworks, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Fireworks at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-66 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Fireworks, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Fireworks at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Fire.
 - Display an audience-visible burst of coloured flame and light without physical damage.
@@ -631,7 +631,7 @@ Key: `arm.spell.borrowed_tongues`. Native school: **Fire**. Target: `character`.
 **Runtime evidence:**
 - `comprehendlanguage`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:825](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L825), `ComprehendLanguageEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-68 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Borrowed Tongues, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Borrowed Tongues at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-68 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Borrowed Tongues, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Borrowed Tongues at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Fire.
 - Allow comprehension of speech without granting fluent speech.
@@ -673,7 +673,7 @@ Key: `arm.spell.burning_draught_curse`. Native school: **Fire**. Target: `charac
 **Runtime evidence:**
 - No direct manifestation primitive established; retain the explicit gap.
 
-**Minimum acceptance — ARM-R-179 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Burning Draught Curse, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Burning Draught Curse at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-179 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Burning Draught Curse, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Burning Draught Curse at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Fire.
 - Make later drinking inflict configured burning harm instead of ordinary refreshment.
@@ -716,7 +716,7 @@ Key: `arm.spell.desiccate`. Native school: **Fire**. Target: `character`. Lifecy
 - `needdelta`: [MudSharpCore/Magic/SpellEffects/NeedDeltaEffect.cs:154](../../MudSharpCore/Magic/SpellEffects/NeedDeltaEffect.cs#L154), `NeedDeltaEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-180 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Desiccate, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Desiccate at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-180 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Desiccate, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Desiccate at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Fire.
 - Reduce hydration and apply a small fire injury.
@@ -758,7 +758,7 @@ Key: `arm.spell.flame_knife`. Native school: **Fire**. Target: `character`. Life
 **Runtime evidence:**
 - `createitem`: [MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs:103](../../MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs#L103), `CreateItemEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-320 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Flame Knife, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Flame Knife at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-320 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Flame Knife, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Flame Knife at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Fire.
 - Place a temporary fire-themed knife in the recipient's inventory.
@@ -800,7 +800,7 @@ Key: `arm.spell.flame_barrier`. Native school: **Fire**. Target: `exit`. Lifecyc
 **Runtime evidence:**
 - `exitbarrier`: [MudSharpCore/Magic/SpellEffects/ExitBarrierEffect.cs:55](../../MudSharpCore/Magic/SpellEffects/ExitBarrierEffect.cs#L55), `ExitBarrierEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-338 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Flame Barrier, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible exit. Invoke Flame Barrier at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-338 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Flame Barrier, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible exit. Invoke Flame Barrier at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Fire.
 - Block an exit with a timed barrier and burn actors who attempt to cross.
@@ -843,7 +843,7 @@ Key: `arm.spell.flame_mantle`. Native school: **Fire**. Target: `character`. Lif
 - `spellarmour`: [MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs:287](../../MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs#L287), `SpellArmourEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `glow`: [MudSharpCore/Magic/SpellEffects/GlowEffect.cs:211](../../MudSharpCore/Magic/SpellEffects/GlowEffect.cs#L211), `GlowEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-351 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Flame Mantle, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Flame Mantle at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-351 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Flame Mantle, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Flame Mantle at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Fire.
 - Apply a finite protective armour layer with a visible warm glow.
@@ -885,7 +885,7 @@ Key: `arm.spell.ember_seed`. Native school: **Fire**. Target: `character`. Lifec
 **Runtime evidence:**
 - `createitem`: [MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs:103](../../MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs#L103), `CreateItemEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-435 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Ember Seed, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Ember Seed at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-435 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Ember Seed, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Ember Seed at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Fire.
 - Create one temporary ember seed carrying a configured fire payload.
@@ -927,7 +927,7 @@ Key: `arm.spell.daylight`. Native school: **Fire**. Target: `room`. Lifecycle: `
 **Runtime evidence:**
 - `roomlight`: [MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs:188](../../MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs#L188), `RoomLightEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-452 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Daylight, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Daylight at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-452 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Daylight, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Daylight at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Fire.
 - Increase room illumination for a bounded duration.
@@ -969,7 +969,7 @@ Key: `arm.spell.immolate`. Native school: **Fire**. Target: `character`. Lifecyc
 **Runtime evidence:**
 - `burning`: [MudSharpCore/Magic/SpellEffects/PersistentSensoryCombatSpellEffects.cs:131](../../MudSharpCore/Magic/SpellEffects/PersistentSensoryCombatSpellEffects.cs#L131), `BurningEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-458 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Immolate, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Immolate at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-458 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Immolate, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Immolate at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Fire.
 - Apply timed fire injury ticks to the target.
@@ -1012,7 +1012,7 @@ Key: `arm.spell.draw_water`. Native school: **Water**. Target: `item`. Lifecycle
 **Runtime evidence:**
 - `createliquid`: [MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.cs:88](../../MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.cs#L88), `CreateLiquidEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-5 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Draw Water, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Draw Water at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-5 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Draw Water, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Draw Water at grade 2 through the explicit route.
 
 - Commit 6 designated energy units once; preserve native school Water.
 - Add clean water to an accessible drink container up to capacity.
@@ -1055,7 +1055,7 @@ Key: `arm.spell.sense_toxin`. Native school: **Water**. Target: `character`. Lif
 **Runtime evidence:**
 - `detectpoison`: [MudSharpCore/Magic/SpellEffects/DetectPoisonEffect.cs:34](../../MudSharpCore/Magic/SpellEffects/DetectPoisonEffect.cs#L34), `DetectPoisonEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-9 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Sense Toxin, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sense Toxin at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-9 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Sense Toxin, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sense Toxin at grade 2 through the explicit route.
 
 - Commit 6 designated energy units once; preserve native school Water.
 - Let the recipient inspect detectable active and latent drug poison state.
@@ -1098,7 +1098,7 @@ Key: `arm.spell.mend_flesh`. Native school: **Water**. Target: `character`. Life
 **Runtime evidence:**
 - `heal`: [MudSharpCore/Magic/SpellEffects/HealEffect.cs:173](../../MudSharpCore/Magic/SpellEffects/HealEffect.cs#L173), `HealEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-12 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Mend Flesh, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Mend Flesh at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-12 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Mend Flesh, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Mend Flesh at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Water.
 - Heal existing eligible wounds, worst first, within the numeric healing budget.
@@ -1140,7 +1140,7 @@ Key: `arm.spell.venom_touch`. Native school: **Water**. Target: `character`. Lif
 **Runtime evidence:**
 - `poison`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs:146](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs#L146), `PoisonEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-15 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Venom Touch, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Venom Touch at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-15 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Venom Touch, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Venom Touch at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Water.
 - Introduce a configured stock toxin through an explicit vector.
@@ -1182,7 +1182,7 @@ Key: `arm.spell.sheltering_veil`. Native school: **Water**. Target: `character`.
 **Runtime evidence:**
 - `spellarmour`: [MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs:287](../../MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs#L287), `SpellArmourEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-17 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Sheltering Veil, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sheltering Veil at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-17 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Sheltering Veil, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sheltering Veil at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Water.
 - Give the target a finite protective envelope against configured damage.
@@ -1225,7 +1225,7 @@ Key: `arm.spell.purge_toxin`. Native school: **Water**. Target: `character`. Lif
 **Runtime evidence:**
 - `removepoison`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs:307](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs#L307), `RemovePoisonEffect.RemoveEffects` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-22 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Purge Toxin, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Purge Toxin at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-22 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Purge Toxin, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Purge Toxin at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Water.
 - Remove matching spell-owned poison effects and their originator-linked drug doses.
@@ -1267,7 +1267,7 @@ Key: `arm.spell.still_anger`. Native school: **Water**. Target: `character`. Lif
 **Runtime evidence:**
 - `pacifism`: [MudSharpCore/Magic/SpellEffects/PacifismSpellEffect.cs:99](../../MudSharpCore/Magic/SpellEffects/PacifismSpellEffect.cs#L99), `PacifismSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-30 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Still Anger, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Still Anger at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-30 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Still Anger, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Still Anger at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Water.
 - Apply native pacifism to suppress aggressive behaviour for a duration.
@@ -1310,7 +1310,7 @@ Key: `arm.spell.spring_haven`. Native school: **Water**. Target: `room`. Lifecyc
 - `createliquid`: [MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.cs:88](../../MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.cs#L88), `CreateLiquidEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `roomtemperature`: [MudSharpCore/Magic/SpellEffects/RoomTemperatureEffect.cs:191](../../MudSharpCore/Magic/SpellEffects/RoomTemperatureEffect.cs#L191), `RoomTemperatureEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-37 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Spring Haven, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Spring Haven at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-37 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Spring Haven, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Spring Haven at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Water.
 - Create a temporary sheltered watering place without permanent terrain mutation.
@@ -1352,7 +1352,7 @@ Key: `arm.spell.unyielding_veil`. Native school: **Water**. Target: `character`.
 **Runtime evidence:**
 - `spellarmour`: [MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs:287](../../MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs#L287), `SpellArmourEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-53 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Unyielding Veil, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Unyielding Veil at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-53 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Unyielding Veil, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Unyielding Veil at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Water.
 - Provide a stronger but finite armour pool.
@@ -1394,7 +1394,7 @@ Key: `arm.spell.read_attunement`. Native school: **Water**. Target: `character`.
 **Runtime evidence:**
 - `identify`: [MudSharpCore/Magic/SpellEffects/ArmageddonInformationSpellEffects.cs:191](../../MudSharpCore/Magic/SpellEffects/ArmageddonInformationSpellEffects.cs#L191), `IdentifySpellEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-54 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Read Attunement, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Read Attunement at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-54 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Read Attunement, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Read Attunement at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Water.
 - Report an explicitly configured relationship between a target and elemental traditions.
@@ -1437,7 +1437,7 @@ Key: `arm.spell.thunderclap`. Native school: **Water**. Target: `characters`. Li
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `deafness`: [MudSharpCore/Magic/SpellEffects/DeafnessEffect.cs:70](../../MudSharpCore/Magic/SpellEffects/DeafnessEffect.cs#L70), `DeafnessEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-62 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Thunderclap, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Thunderclap at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-62 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Thunderclap, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Thunderclap at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Water.
 - Strike local eligible others with sonic harm and temporary deafness.
@@ -1479,7 +1479,7 @@ Key: `arm.spell.hush_hearing`. Native school: **Water**. Target: `character`. Li
 **Runtime evidence:**
 - `deafness`: [MudSharpCore/Magic/SpellEffects/DeafnessEffect.cs:70](../../MudSharpCore/Magic/SpellEffects/DeafnessEffect.cs#L70), `DeafnessEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-73 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Hush Hearing, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Hush Hearing at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-73 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Hush Hearing, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Hush Hearing at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Water.
 - Temporarily suppress the recipient's hearing.
@@ -1521,7 +1521,7 @@ Key: `arm.spell.seal_voice`. Native school: **Water**. Target: `character`. Life
 **Runtime evidence:**
 - `silence`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:168](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L168), `SilenceEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-74 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Seal Voice, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Seal Voice at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-74 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Seal Voice, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Seal Voice at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Water.
 - Prevent normal speech through the native magical silence status.
@@ -1564,7 +1564,7 @@ Key: `arm.spell.vital_siphon`. Native school: **Water**. Target: `character`. Li
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `heal`: [MudSharpCore/Magic/SpellEffects/HealEffect.cs:173](../../MudSharpCore/Magic/SpellEffects/HealEffect.cs#L173), `HealEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-85 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Vital Siphon, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Vital Siphon at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-85 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Vital Siphon, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Vital Siphon at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Water.
 - Harm a target and heal the caster by no more than the harm actually delivered.
@@ -1606,7 +1606,7 @@ Key: `arm.spell.thorn_barrier`. Native school: **Water**. Target: `exit`. Lifecy
 **Runtime evidence:**
 - `exitbarrier`: [MudSharpCore/Magic/SpellEffects/ExitBarrierEffect.cs:55](../../MudSharpCore/Magic/SpellEffects/ExitBarrierEffect.cs#L55), `ExitBarrierEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-349 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Thorn Barrier, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible exit. Invoke Thorn Barrier at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-349 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Thorn Barrier, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible exit. Invoke Thorn Barrier at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Water.
 - Block an exit with temporary thorns that injure crossing attempts.
@@ -1648,7 +1648,7 @@ Key: `arm.spell.draw_wine`. Native school: **Water**. Target: `item`. Lifecycle:
 **Runtime evidence:**
 - `createliquid`: [MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.cs:88](../../MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.cs#L88), `CreateLiquidEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-372 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Draw Wine, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Draw Wine at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-372 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Draw Wine, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Draw Wine at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Water.
 - Add configured wine to an accessible drink container without exceeding capacity.
@@ -1690,7 +1690,7 @@ Key: `arm.spell.headlong_revel`. Native school: **Water**. Target: `character`. 
 **Runtime evidence:**
 - `needdelta`: [MudSharpCore/Magic/SpellEffects/NeedDeltaEffect.cs:154](../../MudSharpCore/Magic/SpellEffects/NeedDeltaEffect.cs#L154), `NeedDeltaEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-377 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Headlong Revel, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Headlong Revel at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-377 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Headlong Revel, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Headlong Revel at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Water.
 - Increase native drunkenness without conjuring permanent drink objects.
@@ -1732,7 +1732,7 @@ Key: `arm.spell.clear_head`. Native school: **Water**. Target: `character`. Life
 **Runtime evidence:**
 - `needdelta`: [MudSharpCore/Magic/SpellEffects/NeedDeltaEffect.cs:154](../../MudSharpCore/Magic/SpellEffects/NeedDeltaEffect.cs#L154), `NeedDeltaEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-378 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Clear Head, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Clear Head at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-378 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Clear Head, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Clear Head at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Water.
 - Reduce native drunkenness toward zero.
@@ -1774,7 +1774,7 @@ Key: `arm.spell.wither_growth`. Native school: **Water**. Target: `item`. Lifecy
 **Runtime evidence:**
 - `itemdamage`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:345](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L345), `ItemDamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-379 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Wither Growth, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Wither Growth at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-379 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Wither Growth, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Wither Growth at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Water.
 - Damage a targeted plant-like item through an explicit material/tag gate.
@@ -1816,7 +1816,7 @@ Key: `arm.spell.distant_mirage`. Native school: **Water**. Target: `room`. Lifec
 **Runtime evidence:**
 - `phantomillusion`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:1994](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L1994), `PhantomIllusionEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-382 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Distant Mirage, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Distant Mirage at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-382 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Distant Mirage, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Distant Mirage at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Water.
 - Show selected viewers a non-interactive misleading scene.
@@ -1858,7 +1858,7 @@ Key: `arm.spell.mist_shield`. Native school: **Water**. Target: `character`. Lif
 **Runtime evidence:**
 - `spellarmour`: [MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs:287](../../MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs#L287), `SpellArmourEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-427 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Mist Shield, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Mist Shield at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-427 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Mist Shield, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Mist Shield at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Water.
 - Surround a character with a finite mist-themed protective layer.
@@ -1900,7 +1900,7 @@ Key: `arm.spell.restorative_mud`. Native school: **Water**. Target: `item`. Life
 **Runtime evidence:**
 - `heal`: [MudSharpCore/Magic/SpellEffects/HealEffect.cs:173](../../MudSharpCore/Magic/SpellEffects/HealEffect.cs#L173), `HealEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-429 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Restorative Mud, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Restorative Mud at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-429 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Restorative Mud, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Restorative Mud at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Water.
 - Produce one paid topical healing dose in a mud carrier.
@@ -1942,7 +1942,7 @@ Key: `arm.spell.purge_disease`. Native school: **Water**. Target: `character`. L
 **Runtime evidence:**
 - `removedisease`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs:633](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs#L633), `RemoveDiseaseEffect.RemoveEffects` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-431 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Purge Disease, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Purge Disease at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-431 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Purge Disease, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Purge Disease at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Water.
 - Remove a matching spell-owned disease effect and its tracked native infection.
@@ -1984,7 +1984,7 @@ Key: `arm.spell.water_breathing`. Native school: **Water**. Target: `character`.
 **Runtime evidence:**
 - `waterbreathing`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:501](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L501), `WaterBreathingEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-443 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Water Breathing, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Water Breathing at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-443 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Water Breathing, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Water Breathing at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Water.
 - Allow compatible breathing underwater while the spell lasts.
@@ -2027,7 +2027,7 @@ Key: `arm.spell.earthen_ward`. Native school: **Earth**. Target: `character`. Li
 **Runtime evidence:**
 - `spellarmour`: [MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs:287](../../MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs#L287), `SpellArmourEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-1 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Earthen Ward, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Earthen Ward at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-1 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Earthen Ward, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Earthen Ward at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Earth.
 - Apply a finite earthen protective armour layer.
@@ -2070,7 +2070,7 @@ Key: `arm.spell.sustain_meal`. Native school: **Earth**. Target: `character`. Li
 **Runtime evidence:**
 - `createitem`: [MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs:103](../../MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs#L103), `CreateItemEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-4 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Sustain Meal, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sustain Meal at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-4 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Sustain Meal, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sustain Meal at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Earth.
 - Create edible stock food with specified nutrition in the recipient's inventory or at their feet.
@@ -2112,7 +2112,7 @@ Key: `arm.spell.ground_tremor`. Native school: **Earth**. Target: `characters`. 
 **Runtime evidence:**
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-10 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Ground Tremor, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Ground Tremor at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-10 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Ground Tremor, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Ground Tremor at grade 2 through the explicit route.
 
 - Commit 18 designated energy units once; preserve native school Earth.
 - Shake grounded local targets, injuring them and testing for a fall.
@@ -2155,7 +2155,7 @@ Key: `arm.spell.heavy_slumber`. Native school: **Earth**. Target: `character`. L
 **Runtime evidence:**
 - `sleep`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:222](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L222), `SleepEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-18 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Heavy Slumber, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Heavy Slumber at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-18 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Heavy Slumber, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Heavy Slumber at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Earth.
 - Put a susceptible target into native magical sleep.
@@ -2198,7 +2198,7 @@ Key: `arm.spell.earthen_strength`. Native school: **Earth**. Target: `character`
 **Runtime evidence:**
 - `boost`: [MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs:160](../../MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs#L160), `TraitBoostEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-19 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Earthen Strength, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Earthen Strength at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-19 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Earthen Strength, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Earthen Strength at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Earth.
 - Increase the configured strength trait for a duration.
@@ -2240,7 +2240,7 @@ Key: `arm.spell.sand_knife`. Native school: **Earth**. Target: `character`. Life
 **Runtime evidence:**
 - `createitem`: [MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs:103](../../MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs#L103), `CreateItemEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-33 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Sand Knife, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sand Knife at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-33 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Sand Knife, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sand Knife at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Earth.
 - Create one temporary sand knife.
@@ -2284,7 +2284,7 @@ Key: `arm.spell.stone_skin`. Native school: **Earth**. Target: `character`. Life
 - `spellarmour`: [MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs:287](../../MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs#L287), `SpellArmourEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `boost`: [MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs:160](../../MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs#L160), `TraitBoostEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-34 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Stone Skin, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Stone Skin at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-34 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Stone Skin, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Stone Skin at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Earth.
 - Apply stone-like protection with an agility penalty.
@@ -2327,7 +2327,7 @@ Key: `arm.spell.sapping_weight`. Native school: **Earth**. Target: `character`. 
 **Runtime evidence:**
 - `boost`: [MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs:160](../../MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs#L160), `TraitBoostEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-35 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Sapping Weight, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sapping Weight at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-35 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Sapping Weight, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sapping Weight at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Earth.
 - Apply a negative modifier to the configured strength trait.
@@ -2369,7 +2369,7 @@ Key: `arm.spell.trace_the_path`. Native school: **Earth**. Target: `character`. 
 **Runtime evidence:**
 - No direct manifestation primitive established; retain the explicit gap.
 
-**Minimum acceptance — ARM-R-39 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Trace the Path, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Trace the Path at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-39 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Trace the Path, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Trace the Path at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Earth.
 - Reveal a permitted bounded route toward a known target.
@@ -2411,7 +2411,7 @@ Key: `arm.spell.burrow_refuge`. Native school: **Earth**. Target: `room`. Lifecy
 **Runtime evidence:**
 - No direct manifestation primitive established; retain the explicit gap.
 
-**Minimum acceptance — ARM-R-46 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Burrow Refuge, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Burrow Refuge at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-46 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Burrow Refuge, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Burrow Refuge at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Earth.
 - Create a temporary underground refuge with a safe return route.
@@ -2454,7 +2454,7 @@ Key: `arm.spell.clouded_will`. Native school: **Earth**. Target: `character`. Li
 **Runtime evidence:**
 - `magicresourcedelta`: [MudSharpCore/Magic/SpellEffects/MagicResourceDeltaEffect.cs:75](../../MudSharpCore/Magic/SpellEffects/MagicResourceDeltaEffect.cs#L75), `MagicResourceDeltaEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-48 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Clouded Will, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Clouded Will at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-48 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Clouded Will, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Clouded Will at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Earth.
 - Reduce the target's explicitly configured magical reserve.
@@ -2496,7 +2496,7 @@ Key: `arm.spell.roused_fury`. Native school: **Earth**. Target: `character`. Lif
 **Runtime evidence:**
 - `rage`: [MudSharpCore/Magic/SpellEffects/RageSpellEffect.cs:100](../../MudSharpCore/Magic/SpellEffects/RageSpellEffect.cs#L100), `RageSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-49 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Roused Fury, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Roused Fury at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-49 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Roused Fury, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Roused Fury at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Earth.
 - Apply native rage intensity for a duration.
@@ -2538,7 +2538,7 @@ Key: `arm.spell.earth_mount`. Native school: **Earth**. Target: `room`. Lifecycl
 **Runtime evidence:**
 - `createnpc`: [MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs:80](../../MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs#L80), `CreateNPCEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-56 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Earth Mount, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Earth Mount at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-56 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Earth Mount, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Earth Mount at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Earth.
 - Create a rideable temporary earth creature belonging to its summoner.
@@ -2580,7 +2580,7 @@ Key: `arm.spell.sand_barrier`. Native school: **Earth**. Target: `exit`. Lifecyc
 **Runtime evidence:**
 - `exitbarrier`: [MudSharpCore/Magic/SpellEffects/ExitBarrierEffect.cs:55](../../MudSharpCore/Magic/SpellEffects/ExitBarrierEffect.cs#L55), `ExitBarrierEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-64 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Sand Barrier, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible exit. Invoke Sand Barrier at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-64 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Sand Barrier, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible exit. Invoke Sand Barrier at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Earth.
 - Block a chosen exit temporarily with packed sand.
@@ -2622,7 +2622,7 @@ Key: `arm.spell.return_tether`. Native school: **Earth**. Target: `character`. L
 **Runtime evidence:**
 - `teleporttarget`: [MudSharpCore/Magic/SpellEffects/TeleportTargetEffect.cs:75](../../MudSharpCore/Magic/SpellEffects/TeleportTargetEffect.cs#L75), `TeleportTargetEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-65 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Return Tether, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Return Tether at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-65 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Return Tether, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Return Tether at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Earth.
 - Record the caster's position and return them after a bounded delay if still eligible.
@@ -2664,7 +2664,7 @@ Key: `arm.spell.threshold_alarm`. Native school: **Earth**. Target: `room`. Life
 **Runtime evidence:**
 - `roomflag`: [MudSharpCore/Magic/SpellEffects/RoomFlagEffect.cs:138](../../MudSharpCore/Magic/SpellEffects/RoomFlagEffect.cs#L138), `RoomFlagEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-70 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Threshold Alarm, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Threshold Alarm at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-70 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Threshold Alarm, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Threshold Alarm at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Earth.
 - Notify the configured owner of eligible entry through a room alarm.
@@ -2707,7 +2707,7 @@ Key: `arm.spell.fleet_step`. Native school: **Earth**. Target: `character`. Life
 - `boost`: [MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs:160](../../MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs#L160), `TraitBoostEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `staminaexpendrate`: [MudSharpCore/Magic/SpellEffects/StaminaExpenditureSpellEffect.cs:88](../../MudSharpCore/Magic/SpellEffects/StaminaExpenditureSpellEffect.cs#L88), `StaminaExpenditureSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-90 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Fleet Step, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Fleet Step at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-90 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Fleet Step, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Fleet Step at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Earth.
 - Increase movement speed and reduce locomotion effort for a duration.
@@ -2749,7 +2749,7 @@ Key: `arm.spell.sand_shelter`. Native school: **Earth**. Target: `room`. Lifecyc
 **Runtime evidence:**
 - `createitem`: [MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs:103](../../MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs#L103), `CreateItemEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-249 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Sand Shelter, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Sand Shelter at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-249 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Sand Shelter, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Sand Shelter at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Earth.
 - Create a temporary physically usable shelter with occupants safely released on expiry.
@@ -2791,7 +2791,7 @@ Key: `arm.spell.clay_sentinel`. Native school: **Earth**. Target: `room`. Lifecy
 **Runtime evidence:**
 - `createnpc`: [MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs:80](../../MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs#L80), `CreateNPCEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-319 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Clay Sentinel, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Clay Sentinel at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-319 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Clay Sentinel, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Clay Sentinel at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Earth.
 - Animate a controlled temporary clay guardian.
@@ -2834,7 +2834,7 @@ Key: `arm.spell.sand_effigy`. Native school: **Earth**. Target: `item`. Lifecycl
 - `createitem`: [MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs:103](../../MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs#L103), `CreateItemEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `createclone`: [MudSharpCore/Magic/SpellEffects/CopyCloneSpellEffects.cs:749](../../MudSharpCore/Magic/SpellEffects/CopyCloneSpellEffects.cs#L749), `CloneSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-411 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Sand Effigy, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Sand Effigy at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-411 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Sand Effigy, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Sand Effigy at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Earth.
 - Make an effigy that temporarily projects an immobile copy with shared identity restrictions.
@@ -2876,7 +2876,7 @@ Key: `arm.spell.shatter_stone`. Native school: **Earth**. Target: `item`. Lifecy
 **Runtime evidence:**
 - `itemdamage`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:345](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L345), `ItemDamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-447 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Shatter Stone, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Shatter Stone at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-447 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Shatter Stone, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Shatter Stone at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Earth.
 - Damage a stone-tagged item with a finite damage budget.
@@ -2918,7 +2918,7 @@ Key: `arm.spell.restore_object`. Native school: **Earth**. Target: `item`. Lifec
 **Runtime evidence:**
 - No direct manifestation primitive established; retain the explicit gap.
 
-**Minimum acceptance — ARM-R-455 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Restore Object, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Restore Object at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-455 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Restore Object, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Restore Object at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Earth.
 - Repair eligible item damage without duplicating material or resetting quality.
@@ -2961,7 +2961,7 @@ Key: `arm.spell.waystep`. Native school: **Wind**. Target: `room`. Lifecycle: `i
 **Runtime evidence:**
 - `teleport`: [MudSharpCore/Magic/SpellEffects/TeleportEffect.cs:78](../../MudSharpCore/Magic/SpellEffects/TeleportEffect.cs#L78), `TeleportEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-2 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Waystep, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Waystep at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-2 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Waystep, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Waystep at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Wind.
 - Move the caster to an explicitly resolved permitted cell.
@@ -3004,7 +3004,7 @@ Key: `arm.spell.pierce_concealment`. Native school: **Wind**. Target: `character
 **Runtime evidence:**
 - `detectinvisible`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:609](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L609), `DetectInvisibleEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-7 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Pierce Concealment, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Pierce Concealment at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-7 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Pierce Concealment, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Pierce Concealment at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Wind.
 - Let the recipient perceive eligible invisible entities.
@@ -3047,7 +3047,7 @@ Key: `arm.spell.veil_from_sight`. Native school: **Wind**. Target: `character`. 
 **Runtime evidence:**
 - `invisibility`: [MudSharpCore/Magic/SpellEffects/InvisibilityEffect.cs:161](../../MudSharpCore/Magic/SpellEffects/InvisibilityEffect.cs#L161), `InvisibilityEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-13 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Veil from Sight, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Veil from Sight at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-13 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Veil from Sight, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Veil from Sight at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Wind.
 - Apply native invisibility to the recipient.
@@ -3090,7 +3090,7 @@ Key: `arm.spell.draw_traveller`. Native school: **Wind**. Target: `character`. L
 **Runtime evidence:**
 - `teleporttarget`: [MudSharpCore/Magic/SpellEffects/TeleportTargetEffect.cs:75](../../MudSharpCore/Magic/SpellEffects/TeleportTargetEffect.cs#L75), `TeleportTargetEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-20 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Draw Traveller, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Draw Traveller at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-20 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Draw Traveller, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Draw Traveller at grade 2 through the explicit route.
 
 - Commit 18 designated energy units once; preserve native school Wind.
 - Move a permitted remote character to the caster's current cell.
@@ -3133,7 +3133,7 @@ Key: `arm.spell.join_traveller`. Native school: **Wind**. Target: `room`. Lifecy
 **Runtime evidence:**
 - `teleport`: [MudSharpCore/Magic/SpellEffects/TeleportEffect.cs:78](../../MudSharpCore/Magic/SpellEffects/TeleportEffect.cs#L78), `TeleportEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-23 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Join Traveller, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Join Traveller at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-23 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Join Traveller, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Join Traveller at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Wind.
 - Move the caster to a permitted cell resolved from another character.
@@ -3176,7 +3176,7 @@ Key: `arm.spell.buoyant_lift`. Native school: **Wind**. Target: `character`. Lif
 **Runtime evidence:**
 - `levitate`: [MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs:95](../../MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs#L95), `LevitationEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-26 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Buoyant Lift, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Buoyant Lift at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-26 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Buoyant Lift, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Buoyant Lift at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Wind.
 - Apply native persistent levitation.
@@ -3219,7 +3219,7 @@ Key: `arm.spell.scouring_gust`. Native school: **Wind**. Target: `characters`. L
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `staminadelta`: [MudSharpCore/Magic/SpellEffects/StaminaDeltaSpellEffect.cs:94](../../MudSharpCore/Magic/SpellEffects/StaminaDeltaSpellEffect.cs#L94), `StaminaDeltaSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-41 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Scouring Gust, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Scouring Gust at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-41 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Scouring Gust, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Scouring Gust at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Wind.
 - Inflict wind-themed injury and stamina loss on eligible local targets.
@@ -3261,7 +3261,7 @@ Key: `arm.spell.gust_hands`. Native school: **Wind**. Target: `character_and_exi
 **Runtime evidence:**
 - `handsofwind`: [MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs:554](../../MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs#L554), `ForcedPathMovementEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-42 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Gust Hands, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character_and_exit. Invoke Gust Hands at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-42 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Gust Hands, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character_and_exit. Invoke Gust Hands at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Wind.
 - Move the target along an explicitly selected traversable path.
@@ -3303,7 +3303,7 @@ Key: `arm.spell.banish_traveller`. Native school: **Wind**. Target: `character_a
 **Runtime evidence:**
 - `teleporttarget`: [MudSharpCore/Magic/SpellEffects/TeleportTargetEffect.cs:75](../../MudSharpCore/Magic/SpellEffects/TeleportTargetEffect.cs#L75), `TeleportTargetEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-45 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Banish Traveller, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character_and_room. Invoke Banish Traveller at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-45 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Banish Traveller, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character_and_room. Invoke Banish Traveller at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Wind.
 - Send a target to a configured permitted destination after resistance.
@@ -3345,7 +3345,7 @@ Key: `arm.spell.air_guardian`. Native school: **Wind**. Target: `room`. Lifecycl
 **Runtime evidence:**
 - `createnpc`: [MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs:80](../../MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs#L80), `CreateNPCEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-50 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Air Guardian, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Air Guardian at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-50 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Air Guardian, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Air Guardian at grade 2 through the explicit route.
 
 - Commit 18 designated energy units once; preserve native school Wind.
 - Create a temporary protective air creature.
@@ -3387,7 +3387,7 @@ Key: `arm.spell.exchange_places`. Native school: **Wind**. Target: `character`. 
 **Runtime evidence:**
 - `transference`: [MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs:767](../../MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs#L767), `TransferenceEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-52 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Exchange Places, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Exchange Places at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-52 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Exchange Places, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Exchange Places at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Wind.
 - Swap caster and target spatial locations when native validation allows.
@@ -3430,7 +3430,7 @@ Key: `arm.spell.windborne_flight`. Native school: **Wind**. Target: `character`.
 **Runtime evidence:**
 - `flying`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:447](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L447), `FlyingEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-60 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Windborne Flight, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Windborne Flight at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-60 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Windborne Flight, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Windborne Flight at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Wind.
 - Grant the native magical flight status.
@@ -3472,7 +3472,7 @@ Key: `arm.spell.seeking_wind`. Native school: **Wind**. Target: `room`. Lifecycl
 **Runtime evidence:**
 - `createnpc`: [MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs:80](../../MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs#L80), `CreateNPCEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-61 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Seeking Wind, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Seeking Wind at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-61 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Seeking Wind, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Seeking Wind at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Wind.
 - Summon a temporary tracker with a specifically authorised quarry.
@@ -3515,7 +3515,7 @@ Key: `arm.spell.gentle_descent`. Native school: **Wind**. Target: `character`. L
 **Runtime evidence:**
 - `featherfall`: [MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs:288](../../MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs#L288), `FeatherFallEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-71 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Gentle Descent, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Gentle Descent at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-71 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Gentle Descent, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Gentle Descent at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Wind.
 - Reduce falling harm through the native featherfall effect.
@@ -3557,7 +3557,7 @@ Key: `arm.spell.driving_gust`. Native school: **Wind**. Target: `character_and_e
 **Runtime evidence:**
 - `forcedexitmovement`: [MudSharpCore/Magic/SpellEffects/ForcedExitMovementEffect.cs:55](../../MudSharpCore/Magic/SpellEffects/ForcedExitMovementEffect.cs#L55), `ForcedExitMovementEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-84 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Driving Gust, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character_and_exit. Invoke Driving Gust at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-84 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Driving Gust, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character_and_exit. Invoke Driving Gust at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Wind.
 - Force a target one eligible step through a chosen exit.
@@ -3599,7 +3599,7 @@ Key: `arm.spell.wind_barrier`. Native school: **Wind**. Target: `exit`. Lifecycl
 **Runtime evidence:**
 - `exitbarrier`: [MudSharpCore/Magic/SpellEffects/ExitBarrierEffect.cs:55](../../MudSharpCore/Magic/SpellEffects/ExitBarrierEffect.cs#L55), `ExitBarrierEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-347 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Wind Barrier, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible exit. Invoke Wind Barrier at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-347 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Wind Barrier, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible exit. Invoke Wind Barrier at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Wind.
 - Block passage through one exit with a wind-themed barrier.
@@ -3641,7 +3641,7 @@ Key: `arm.spell.wind_mantle`. Native school: **Wind**. Target: `character`. Life
 **Runtime evidence:**
 - `spellarmour`: [MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs:287](../../MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs#L287), `SpellArmourEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-350 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Wind Mantle, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Wind Mantle at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-350 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Wind Mantle, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Wind Mantle at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Wind.
 - Apply a finite wind-themed armour layer.
@@ -3684,7 +3684,7 @@ Key: `arm.spell.wind_hammer`. Native school: **Wind**. Target: `character_and_ex
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `forcedexitmovement`: [MudSharpCore/Magic/SpellEffects/ForcedExitMovementEffect.cs:55](../../MudSharpCore/Magic/SpellEffects/ForcedExitMovementEffect.cs#L55), `ForcedExitMovementEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-373 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Wind Hammer, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character_and_exit. Invoke Wind Hammer at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-373 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Wind Hammer, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character_and_exit. Invoke Wind Hammer at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Wind.
 - Strike and then move a target through a selected exit only if the hit resolves.
@@ -3726,7 +3726,7 @@ Key: `arm.spell.false_presence`. Native school: **Wind**. Target: `character`. L
 **Runtime evidence:**
 - `invisibility`: [MudSharpCore/Magic/SpellEffects/InvisibilityEffect.cs:161](../../MudSharpCore/Magic/SpellEffects/InvisibilityEffect.cs#L161), `InvisibilityEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-380 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired False Presence, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke False Presence at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-380 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired False Presence, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke False Presence at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Wind.
 - Hide the target's visible presence for a duration.
@@ -3768,7 +3768,7 @@ Key: `arm.spell.wind_shield`. Native school: **Wind**. Target: `character`. Life
 **Runtime evidence:**
 - `spellarmour`: [MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs:287](../../MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs#L287), `SpellArmourEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-426 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Wind Shield, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Wind Shield at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-426 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Wind Shield, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Wind Shield at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Wind.
 - Protect a character with a wind-themed armour envelope.
@@ -3810,7 +3810,7 @@ Key: `arm.spell.wind_courier`. Native school: **Wind**. Target: `room`. Lifecycl
 **Runtime evidence:**
 - `createnpc`: [MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs:80](../../MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs#L80), `CreateNPCEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-448 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Wind Courier, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Wind Courier at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-448 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Wind Courier, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Wind Courier at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Wind.
 - Create a temporary courier that delivers a bounded message to an authorised recipient.
@@ -3852,7 +3852,7 @@ Key: `arm.spell.reveal_the_hidden`. Native school: **Wind**. Target: `character`
 **Runtime evidence:**
 - `dispelinvisibility`: [MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs:469](../../MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs#L469), `RemoveInvisibilityEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-453 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Reveal the Hidden, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Reveal the Hidden at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-453 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Reveal the Hidden, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Reveal the Hidden at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Wind.
 - Remove eligible spell invisibility from the target.
@@ -3895,7 +3895,7 @@ Key: `arm.spell.anchor_rune`. Native school: **Wind**. Target: `item`. Lifecycle
 - `magictag`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:91](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L91), `MagicTagEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `portalnetwork`: [MudSharpCore/Magic/SpellEffects/PortalTopologySpellEffect.cs:82](../../MudSharpCore/Magic/SpellEffects/PortalTopologySpellEffect.cs#L82), `PortalTopologySpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-456 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Anchor Rune, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Anchor Rune at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-456 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Anchor Rune, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Anchor Rune at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Wind.
 - Mark an owned item as an explicitly registered travel anchor.
@@ -3938,7 +3938,7 @@ Key: `arm.spell.shroud_eyes`. Native school: **Shadow**. Target: `character`. Li
 **Runtime evidence:**
 - `blindness`: [MudSharpCore/Magic/SpellEffects/BlindnessEffect.cs:72](../../MudSharpCore/Magic/SpellEffects/BlindnessEffect.cs#L72), `BlindnessEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-3 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Shroud Eyes, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Shroud Eyes at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-3 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Shroud Eyes, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Shroud Eyes at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Shadow.
 - Apply native magical blindness.
@@ -3981,7 +3981,7 @@ Key: `arm.spell.clear_eyes`. Native school: **Shadow**. Target: `character`. Lif
 **Runtime evidence:**
 - `removeblindness`: [MudSharpCore/Magic/SpellEffects/BlindnessEffect.cs:148](../../MudSharpCore/Magic/SpellEffects/BlindnessEffect.cs#L148), `RemoveBlindnessEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-6 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Clear Eyes, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Clear Eyes at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-6 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Clear Eyes, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Clear Eyes at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Shadow.
 - Remove spell-induced blindness through the native removal effect.
@@ -4024,7 +4024,7 @@ Key: `arm.spell.lift_hex`. Native school: **Shadow**. Target: `character`. Lifec
 **Runtime evidence:**
 - `removecurse`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:583](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L583), `RemoveCurseEffect.RemoveEffects` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-16 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Lift Hex, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Lift Hex at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-16 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Lift Hex, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Lift Hex at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Shadow.
 - Remove the eligible magical curse status.
@@ -4067,7 +4067,7 @@ Key: `arm.spell.dread_presence`. Native school: **Shadow**. Target: `character`.
 **Runtime evidence:**
 - `fear`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:339](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L339), `FearEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-24 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Dread Presence, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Dread Presence at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-24 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Dread Presence, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Dread Presence at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Shadow.
 - Apply native magical fear to a susceptible target.
@@ -4110,7 +4110,7 @@ Key: `arm.spell.night_eyes`. Native school: **Shadow**. Target: `character`. Lif
 **Runtime evidence:**
 - `infravision`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:771](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L771), `InfravisionEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-31 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Night Eyes, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Night Eyes at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-31 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Night Eyes, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Night Eyes at grade 2 through the explicit route.
 
 - Commit 6 designated energy units once; preserve native school Shadow.
 - Grant native infravision for a duration.
@@ -4153,7 +4153,7 @@ Key: `arm.spell.walking_shadow`. Native school: **Shadow**. Target: `self`. Life
 - `astralprojection`: [MudSharpCore/Magic/SpellEffects/AstralProjectionSpellEffect.cs:165](../../MudSharpCore/Magic/SpellEffects/AstralProjectionSpellEffect.cs#L165), `AstralProjectionSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `createcopy`: [MudSharpCore/Magic/SpellEffects/CopyCloneSpellEffects.cs:143](../../MudSharpCore/Magic/SpellEffects/CopyCloneSpellEffects.cs#L143), `CopySpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-38 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Walking Shadow, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible self. Invoke Walking Shadow at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-38 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Walking Shadow, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible self. Invoke Walking Shadow at grade 2 through the explicit route.
 
 - Commit 24 designated energy units once; preserve native school Shadow.
 - Send a controllable shadow while the original body remains subject to its own restrictions.
@@ -4196,7 +4196,7 @@ Key: `arm.spell.shadow_passage`. Native school: **Shadow**. Target: `character`.
 **Runtime evidence:**
 - `planarstate`: [MudSharpCore/Magic/SpellEffects/PlanarStateSpellEffects.cs:110](../../MudSharpCore/Magic/SpellEffects/PlanarStateSpellEffects.cs#L110), `PlanarStateSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-43 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Shadow Passage, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Shadow Passage at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-43 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Shadow Passage, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Shadow Passage at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Shadow.
 - Apply an approved ethereal planar-presence overlay.
@@ -4239,7 +4239,7 @@ Key: `arm.spell.see_the_unbodied`. Native school: **Shadow**. Target: `character
 **Runtime evidence:**
 - `detectethereal`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:663](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L663), `DetectEtherealEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-44 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired See the Unbodied, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke See the Unbodied at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-44 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired See the Unbodied, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke See the Unbodied at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Shadow.
 - Expose eligible ethereal entities to the recipient's perception.
@@ -4282,7 +4282,7 @@ Key: `arm.spell.cooling_shade`. Native school: **Shadow**. Target: `room`. Lifec
 - `roomtemperature`: [MudSharpCore/Magic/SpellEffects/RoomTemperatureEffect.cs:191](../../MudSharpCore/Magic/SpellEffects/RoomTemperatureEffect.cs#L191), `RoomTemperatureEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `roomlight`: [MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs:188](../../MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs#L188), `RoomLightEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-59 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Cooling Shade, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Cooling Shade at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-59 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Cooling Shade, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Cooling Shade at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Shadow.
 - Reduce local light and temperature for a bounded duration.
@@ -4325,7 +4325,7 @@ Key: `arm.spell.deep_darkness`. Native school: **Shadow**. Target: `room`. Lifec
 **Runtime evidence:**
 - `roomlight`: [MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs:188](../../MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs#L188), `RoomLightEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-170 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Deep Darkness, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Deep Darkness at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-170 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Deep Darkness, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Deep Darkness at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Shadow.
 - Reduce room illumination through the native light effect.
@@ -4368,7 +4368,7 @@ Key: `arm.spell.clinging_hex`. Native school: **Shadow**. Target: `character`. L
 **Runtime evidence:**
 - `curse`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:555](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L555), `CurseEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-176 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Clinging Hex, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Clinging Hex at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-176 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Clinging Hex, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Clinging Hex at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Shadow.
 - Apply the configured native curse modifier.
@@ -4410,7 +4410,7 @@ Key: `arm.spell.haunting_shape`. Native school: **Shadow**. Target: `room`. Life
 **Runtime evidence:**
 - `createnpc`: [MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs:80](../../MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs#L80), `CreateNPCEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-370 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Haunting Shape, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Haunting Shape at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-370 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Haunting Shape, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Haunting Shape at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Shadow.
 - Summon a temporary unsettling shadow creature.
@@ -4452,7 +4452,7 @@ Key: `arm.spell.shadow_blade`. Native school: **Shadow**. Target: `character`. L
 **Runtime evidence:**
 - `createitem`: [MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs:103](../../MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs#L103), `CreateItemEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-375 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Shadow Blade, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Shadow Blade at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-375 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Shadow Blade, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Shadow Blade at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Shadow.
 - Create a temporary shadow-themed sword.
@@ -4494,7 +4494,7 @@ Key: `arm.spell.shadowplay`. Native school: **Shadow**. Target: `room`. Lifecycl
 **Runtime evidence:**
 - `phantomillusion`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:1994](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L1994), `PhantomIllusionEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-384 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Shadowplay, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Shadowplay at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-384 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Shadowplay, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Shadowplay at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Shadow.
 - Display a non-interactive shadow scene to the selected audience.
@@ -4536,7 +4536,7 @@ Key: `arm.spell.shadow_mantle`. Native school: **Shadow**. Target: `character`. 
 **Runtime evidence:**
 - `spellarmour`: [MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs:287](../../MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs#L287), `SpellArmourEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-434 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Shadow Mantle, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Shadow Mantle at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-434 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Shadow Mantle, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Shadow Mantle at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Shadow.
 - Apply a finite shadow-themed protective layer.
@@ -4579,7 +4579,7 @@ Key: `arm.spell.draw_into_flesh`. Native school: **Shadow**. Target: `character`
 **Runtime evidence:**
 - `removeplanarstate`: [MudSharpCore/Magic/SpellEffects/PlanarStateSpellEffects.cs:175](../../MudSharpCore/Magic/SpellEffects/PlanarStateSpellEffects.cs#L175), `RemovePlanarStateSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-454 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Draw into Flesh, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Draw into Flesh at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-454 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Draw into Flesh, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Draw into Flesh at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Shadow.
 - Remove an eligible spell-owned ethereal overlay.
@@ -4622,7 +4622,7 @@ Key: `arm.spell.champion_blade`. Native school: **Shadow**. Target: `character`.
 - `createitem`: [MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs:103](../../MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs#L103), `CreateItemEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `itemenchant`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:668](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L668), `ItemEnchantEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-488 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Champion Blade, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Champion Blade at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-488 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Shadow admission, acquired Champion Blade, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Champion Blade at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Shadow.
 - Create a temporary enchanted sword with an explicitly selected combat profile.
@@ -4665,7 +4665,7 @@ Key: `arm.spell.lightning_lance`. Native school: **Lightning**. Target: `charact
 **Runtime evidence:**
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-14 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Lightning Lance, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Lightning Lance at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-14 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Lightning Lance, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Lightning Lance at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Lightning.
 - Strike a target with electrical damage.
@@ -4708,7 +4708,7 @@ Key: `arm.spell.second_breath`. Native school: **Lightning**. Target: `character
 **Runtime evidence:**
 - `staminadelta`: [MudSharpCore/Magic/SpellEffects/StaminaDeltaSpellEffect.cs:94](../../MudSharpCore/Magic/SpellEffects/StaminaDeltaSpellEffect.cs#L94), `StaminaDeltaSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-25 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Second Breath, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Second Breath at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-25 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Second Breath, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Second Breath at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Lightning.
 - Restore a bounded amount of stamina.
@@ -4751,7 +4751,7 @@ Key: `arm.spell.wakeful_mind`. Native school: **Lightning**. Target: `character`
 **Runtime evidence:**
 - `insomnia`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:285](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L285), `InsomniaEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-67 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Wakeful Mind, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Wakeful Mind at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-67 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Wakeful Mind, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Wakeful Mind at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Lightning.
 - Apply native magical wakefulness and its sleep interaction.
@@ -4794,7 +4794,7 @@ Key: `arm.spell.leadfoot`. Native school: **Lightning**. Target: `character`. Li
 - `boost`: [MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs:160](../../MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs#L160), `TraitBoostEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `staminaexpendrate`: [MudSharpCore/Magic/SpellEffects/StaminaExpenditureSpellEffect.cs:88](../../MudSharpCore/Magic/SpellEffects/StaminaExpenditureSpellEffect.cs#L88), `StaminaExpenditureSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-76 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Leadfoot, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Leadfoot at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-76 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Leadfoot, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Leadfoot at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Lightning.
 - Slow locomotion while applying an agility penalty.
@@ -4836,7 +4836,7 @@ Key: `arm.spell.steal_breath`. Native school: **Lightning**. Target: `character`
 **Runtime evidence:**
 - `staminadelta`: [MudSharpCore/Magic/SpellEffects/StaminaDeltaSpellEffect.cs:94](../../MudSharpCore/Magic/SpellEffects/StaminaDeltaSpellEffect.cs#L94), `StaminaDeltaSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-87 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Steal Breath, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Steal Breath at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-87 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Steal Breath, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Steal Breath at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Lightning.
 - Remove a bounded amount of the target's stamina.
@@ -4879,7 +4879,7 @@ Key: `arm.spell.still_limbs`. Native school: **Lightning**. Target: `character`.
 **Runtime evidence:**
 - `paralysis`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs:393](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs#L393), `ParalysisEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-171 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Still Limbs, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Still Limbs at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-171 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Still Limbs, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Still Limbs at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Lightning.
 - Apply native magical paralysis after resistance.
@@ -4921,7 +4921,7 @@ Key: `arm.spell.leaping_lightning`. Native school: **Lightning**. Target: `chara
 **Runtime evidence:**
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-172 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Leaping Lightning, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Leaping Lightning at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-172 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Leaping Lightning, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Leaping Lightning at grade 2 through the explicit route.
 
 - Commit 18 designated energy units once; preserve native school Lightning.
 - Strike an initial target and distinct nearby targets with diminishing electrical harm.
@@ -4963,7 +4963,7 @@ Key: `arm.spell.storm_locus`. Native school: **Lightning**. Target: `room`. Life
 **Runtime evidence:**
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-173 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Storm Locus, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Storm Locus at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-173 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Storm Locus, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Storm Locus at grade 2 through the explicit route.
 
 - Commit 24 designated energy units once; preserve native school Lightning.
 - Maintain a local electrical hazard that strikes eligible occupants on bounded ticks.
@@ -5005,7 +5005,7 @@ Key: `arm.spell.charged_aegis`. Native school: **Lightning**. Target: `character
 **Runtime evidence:**
 - `spellarmour`: [MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs:287](../../MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs#L287), `SpellArmourEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-174 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Charged Aegis, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Charged Aegis at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-174 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Charged Aegis, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Charged Aegis at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Lightning.
 - Provide finite protection against configured electrical harm.
@@ -5047,7 +5047,7 @@ Key: `arm.spell.luminous_trail`. Native school: **Lightning**. Target: `characte
 **Runtime evidence:**
 - `trackmark`: [MudSharpCore/Magic/SpellEffects/PersistentSensoryCombatSpellEffects.cs:433](../../MudSharpCore/Magic/SpellEffects/PersistentSensoryCombatSpellEffects.cs#L433), `TrackMarkEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-177 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Luminous Trail, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Luminous Trail at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-177 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Luminous Trail, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Luminous Trail at grade 2 through the explicit route.
 
 - Commit 10 designated energy units once; preserve native school Lightning.
 - Make native tracks left by the target easier to observe.
@@ -5090,7 +5090,7 @@ Key: `arm.spell.quickened_healing`. Native school: **Lightning**. Target: `chara
 **Runtime evidence:**
 - `healingrate`: [MudSharpCore/Magic/SpellEffects/HealingRateSpellEffect.cs:126](../../MudSharpCore/Magic/SpellEffects/HealingRateSpellEffect.cs#L126), `HealingRateSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-178 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Quickened Healing, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Quickened Healing at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-178 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Quickened Healing, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Quickened Healing at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Lightning.
 - Increase native natural healing rates for a duration.
@@ -5133,7 +5133,7 @@ Key: `arm.spell.lightning_pace`. Native school: **Lightning**. Target: `characte
 - `boost`: [MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs:160](../../MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs#L160), `TraitBoostEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `staminaexpendrate`: [MudSharpCore/Magic/SpellEffects/StaminaExpenditureSpellEffect.cs:88](../../MudSharpCore/Magic/SpellEffects/StaminaExpenditureSpellEffect.cs#L88), `StaminaExpenditureSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-188 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Lightning Pace, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Lightning Pace at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-188 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Lightning Pace, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Lightning Pace at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Lightning.
 - Improve agility and actual movement speed for a duration.
@@ -5175,7 +5175,7 @@ Key: `arm.spell.spark_lash`. Native school: **Lightning**. Target: `character`. 
 **Runtime evidence:**
 - `createitem`: [MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs:103](../../MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs#L103), `CreateItemEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-374 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Spark Lash, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Spark Lash at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-374 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Spark Lash, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Spark Lash at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Lightning.
 - Create a temporary lightning-themed whip.
@@ -5218,7 +5218,7 @@ Key: `arm.spell.sky_lantern`. Native school: **Lightning**. Target: `room`. Life
 - `phantomillusion`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:1994](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L1994), `PhantomIllusionEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `roomlight`: [MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs:188](../../MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs#L188), `RoomLightEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-381 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Sky Lantern, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Sky Lantern at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-381 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Sky Lantern, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Sky Lantern at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Lightning.
 - Show a luminous sky display where location policy permits.
@@ -5260,7 +5260,7 @@ Key: `arm.spell.storm_spear`. Native school: **Lightning**. Target: `character`.
 **Runtime evidence:**
 - `createitem`: [MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs:103](../../MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs#L103), `CreateItemEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-444 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Storm Spear, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Storm Spear at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-444 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Lightning admission, acquired Storm Spear, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Storm Spear at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Lightning.
 - Create a temporary lightning-themed spear.
@@ -5303,7 +5303,7 @@ Key: `arm.spell.raise_servitor`. Native school: **Void**. Target: `corpse`. Life
 **Runtime evidence:**
 - `animatecorpse`: [MudSharpCore/Magic/SpellEffects/DirectPossessionSpellEffects.cs:762](../../MudSharpCore/Magic/SpellEffects/DirectPossessionSpellEffects.cs#L762), `AnimateCorpseSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-28 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Raise Servitor, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible corpse. Invoke Raise Servitor at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-28 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Raise Servitor, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible corpse. Invoke Raise Servitor at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Void.
 - Animate an eligible corpse with selected AI and restore its corpse lifecycle on expiry.
@@ -5346,7 +5346,7 @@ Key: `arm.spell.call_outsider`. Native school: **Void**. Target: `room`. Lifecyc
 **Runtime evidence:**
 - `createnpc`: [MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs:80](../../MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs#L80), `CreateNPCEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-36 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Call Outsider, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Call Outsider at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-36 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Call Outsider, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Call Outsider at grade 2 through the explicit route.
 
 - Commit 24 designated energy units once; preserve native school Void.
 - Summon a temporary otherworldly creature under explicit control policy.
@@ -5389,7 +5389,7 @@ Key: `arm.spell.arcane_mark`. Native school: **Void**. Target: `item`. Lifecycle
 **Runtime evidence:**
 - `magictag`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:91](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L91), `MagicTagEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-55 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Arcane Mark, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Arcane Mark at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-55 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Arcane Mark, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Arcane Mark at grade 2 through the explicit route.
 
 - Commit 6 designated energy units once; preserve native school Void.
 - Attach bounded spell-owned magical metadata to an item.
@@ -5431,7 +5431,7 @@ Key: `arm.spell.feign_death`. Native school: **Void**. Target: `character`. Life
 **Runtime evidence:**
 - No direct manifestation primitive established; retain the explicit gap.
 
-**Minimum acceptance — ARM-R-57 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Feign Death, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Feign Death at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-57 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Feign Death, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Feign Death at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Void.
 - Simulate death convincingly to configured observations while preserving the living character.
@@ -5474,7 +5474,7 @@ Key: `arm.spell.silence_the_mind`. Native school: **Void**. Target: `character`.
 **Runtime evidence:**
 - `personaltagward`: [MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs:267](../../MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs#L267), `PersonalTagWardEffect.CreateWardEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-58 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Silence the Mind, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Silence the Mind at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-58 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Silence the Mind, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Silence the Mind at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Void.
 - Suppress selected psionic actions and suspend relevant active links.
@@ -5517,7 +5517,7 @@ Key: `arm.spell.devouring_touch`. Native school: **Void**. Target: `character`. 
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `heal`: [MudSharpCore/Magic/SpellEffects/HealEffect.cs:173](../../MudSharpCore/Magic/SpellEffects/HealEffect.cs#L173), `HealEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-63 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Devouring Touch, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Devouring Touch at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-63 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Devouring Touch, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Devouring Touch at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Void.
 - Drain delivered vitality into bounded healing for the caster.
@@ -5559,7 +5559,7 @@ Key: `arm.spell.compelling_regard`. Native school: **Void**. Target: `character`
 **Runtime evidence:**
 - `forcecommand`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:1580](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L1580), `ForceCommandEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-69 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Compelling Regard, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Compelling Regard at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-69 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Compelling Regard, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Compelling Regard at grade 2 through the explicit route.
 
 - Commit 18 designated energy units once; preserve native school Void.
 - Establish bounded, resistible influence over allowed NPC behaviour.
@@ -5601,7 +5601,7 @@ Key: `arm.spell.unmaking_ward`. Native school: **Void**. Target: `character`. Li
 **Runtime evidence:**
 - `personaltagward`: [MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs:267](../../MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs#L267), `PersonalTagWardEffect.CreateWardEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-72 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Unmaking Ward, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Unmaking Ward at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-72 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Unmaking Ward, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Unmaking Ward at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Void.
 - Intercept explicitly tagged elemental spell effects against the wearer.
@@ -5643,7 +5643,7 @@ Key: `arm.spell.severing_refuge`. Native school: **Void**. Target: `room`. Lifec
 **Runtime evidence:**
 - `roomtagward`: [MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs:218](../../MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs#L218), `RoomTagWardEffect.CreateWardEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-75 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Severing Refuge, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Severing Refuge at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-75 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Severing Refuge, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Severing Refuge at grade 2 through the explicit route.
 
 - Commit 24 designated energy units once; preserve native school Void.
 - Create a temporary refuge with explicitly defined isolation from selected elemental interactions.
@@ -5685,7 +5685,7 @@ Key: `arm.spell.apex_bane`. Native school: **Void**. Target: `character`. Lifecy
 **Runtime evidence:**
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-83 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Apex Bane, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Apex Bane at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-83 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Apex Bane, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Apex Bane at grade 2 through the explicit route.
 
 - Commit 24 designated energy units once; preserve native school Void.
 - Harm a builder-tagged class of exceptional magical beings under explicit eligibility rules.
@@ -5728,7 +5728,7 @@ Key: `arm.spell.empty_aura`. Native school: **Void**. Target: `character`. Lifec
 **Runtime evidence:**
 - `magicresourcedelta`: [MudSharpCore/Magic/SpellEffects/MagicResourceDeltaEffect.cs:75](../../MudSharpCore/Magic/SpellEffects/MagicResourceDeltaEffect.cs#L75), `MagicResourceDeltaEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-86 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Empty Aura, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Empty Aura at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-86 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Empty Aura, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Empty Aura at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Void.
 - Reduce a specifically configured target reserve without crediting the caster.
@@ -5770,7 +5770,7 @@ Key: `arm.spell.linked_threshold`. Native school: **Void**. Target: `room`. Life
 **Runtime evidence:**
 - `portalnetwork`: [MudSharpCore/Magic/SpellEffects/PortalTopologySpellEffect.cs:82](../../MudSharpCore/Magic/SpellEffects/PortalTopologySpellEffect.cs#L82), `PortalTopologySpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-181 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Linked Threshold, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Linked Threshold at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-181 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Linked Threshold, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Linked Threshold at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Void.
 - Create a bounded linked travel connection between authorised anchors.
@@ -5812,7 +5812,7 @@ Key: `arm.spell.bar_the_elements`. Native school: **Void**. Target: `room`. Life
 **Runtime evidence:**
 - `roomtagward`: [MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs:218](../../MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs#L218), `RoomTagWardEffect.CreateWardEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-183 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Bar the Elements, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Bar the Elements at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-183 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Bar the Elements, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Bar the Elements at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Void.
 - Refuse explicitly tagged elemental interactions in the cell.
@@ -5854,7 +5854,7 @@ Key: `arm.spell.turn_the_elements`. Native school: **Void**. Target: `character`
 **Runtime evidence:**
 - `personaltagward`: [MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs:267](../../MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs#L267), `PersonalTagWardEffect.CreateWardEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-184 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Turn the Elements, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Turn the Elements at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-184 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Turn the Elements, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Turn the Elements at grade 2 through the explicit route.
 
 - Commit 18 designated energy units once; preserve native school Void.
 - Redirect an eligible elemental attack to its source once under configured rules.
@@ -5896,7 +5896,7 @@ Key: `arm.spell.folded_pocket`. Native school: **Void**. Target: `item`. Lifecyc
 **Runtime evidence:**
 - No direct manifestation primitive established; retain the explicit gap.
 
-**Minimum acceptance — ARM-R-185 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Folded Pocket, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Folded Pocket at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-185 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Folded Pocket, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Folded Pocket at grade 2 through the explicit route.
 
 - Commit 24 designated energy units once; preserve native school Void.
 - Create a carried pocket-space container with safe contents and collapse rules.
@@ -5939,7 +5939,7 @@ Key: `arm.spell.veil_of_elements`. Native school: **Void**. Target: `room`. Life
 - `roomlight`: [MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs:188](../../MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs#L188), `RoomLightEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `phantomillusion`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:1994](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L1994), `PhantomIllusionEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-186 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Veil of Elements, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Veil of Elements at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-186 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Veil of Elements, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Veil of Elements at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Void.
 - Obscure a cell with a configured non-physical elemental mist.
@@ -5982,7 +5982,7 @@ Key: `arm.spell.cross_the_veil`. Native school: **Void**. Target: `character`. L
 **Runtime evidence:**
 - `planeshift`: [MudSharpCore/Magic/SpellEffects/PlanarStateSpellEffects.cs:110](../../MudSharpCore/Magic/SpellEffects/PlanarStateSpellEffects.cs#L110), `PlanarStateSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-187 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Cross the Veil, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Cross the Veil at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-187 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Cross the Veil, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Cross the Veil at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Void.
 - Apply an approved native planar-presence transition.
@@ -6025,7 +6025,7 @@ Key: `arm.spell.borrow_the_dead`. Native school: **Void**. Target: `corpse`. Lif
 **Runtime evidence:**
 - `possesscorpse`: [MudSharpCore/Magic/SpellEffects/DirectPossessionSpellEffects.cs:416](../../MudSharpCore/Magic/SpellEffects/DirectPossessionSpellEffects.cs#L416), `PossessCorpseSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-247 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Borrow the Dead, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible corpse. Invoke Borrow the Dead at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-247 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Borrow the Dead, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible corpse. Invoke Borrow the Dead at grade 2 through the explicit route.
 
 - Commit 24 designated energy units once; preserve native school Void.
 - Control an eligible corpse through the native shared-identity possession mechanism.
@@ -6068,7 +6068,7 @@ Key: `arm.spell.open_threshold`. Native school: **Void**. Target: `room`. Lifecy
 **Runtime evidence:**
 - `portal`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:1367](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L1367), `PortalSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-248 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Open Threshold, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Open Threshold at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-248 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Open Threshold, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Open Threshold at grade 2 through the explicit route.
 
 - Commit 18 designated energy units once; preserve native school Void.
 - Create a transient permitted exit between resolved cells.
@@ -6111,7 +6111,7 @@ Key: `arm.spell.read_enchantment`. Native school: **Void**. Target: `character`.
 **Runtime evidence:**
 - `identify`: [MudSharpCore/Magic/SpellEffects/ArmageddonInformationSpellEffects.cs:191](../../MudSharpCore/Magic/SpellEffects/ArmageddonInformationSpellEffects.cs#L191), `IdentifySpellEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-337 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Read Enchantment, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Read Enchantment at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-337 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Read Enchantment, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Read Enchantment at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Void.
 - Let the recipient see authored information about permitted targets through LOOK.
@@ -6153,7 +6153,7 @@ Key: `arm.spell.blade_barrier`. Native school: **Void**. Target: `exit`. Lifecyc
 **Runtime evidence:**
 - `exitbarrier`: [MudSharpCore/Magic/SpellEffects/ExitBarrierEffect.cs:55](../../MudSharpCore/Magic/SpellEffects/ExitBarrierEffect.cs#L55), `ExitBarrierEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-348 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Blade Barrier, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible exit. Invoke Blade Barrier at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-348 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Blade Barrier, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible exit. Invoke Blade Barrier at grade 2 through the explicit route.
 
 - Commit 18 designated energy units once; preserve native school Void.
 - Block passage with a timed barrier that cuts crossing attempts.
@@ -6195,7 +6195,7 @@ Key: `arm.spell.mind_scour`. Native school: **Void**. Target: `character`. Lifec
 **Runtime evidence:**
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-376 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Mind Scour, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Mind Scour at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-376 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Mind Scour, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Mind Scour at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Void.
 - Apply configured psychic injury through normal spell resistance.
@@ -6238,7 +6238,7 @@ Key: `arm.spell.phantasm`. Native school: **Void**. Target: `room`. Lifecycle: `
 **Runtime evidence:**
 - `phantomillusion`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:1994](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L1994), `PhantomIllusionEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-383 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Phantasm, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Phantasm at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-383 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Phantasm, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Phantasm at grade 2 through the explicit route.
 
 - Commit 12 designated energy units once; preserve native school Void.
 - Display an audience-filtered, non-interactive apparition in the cell.
@@ -6281,7 +6281,7 @@ Key: `arm.spell.unbodied_journey`. Native school: **Void**. Target: `self`. Life
 **Runtime evidence:**
 - `astralprojection`: [MudSharpCore/Magic/SpellEffects/AstralProjectionSpellEffect.cs:165](../../MudSharpCore/Magic/SpellEffects/AstralProjectionSpellEffect.cs#L165), `AstralProjectionSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-422 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Unbodied Journey, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible self. Invoke Unbodied Journey at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-422 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Unbodied Journey, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible self. Invoke Unbodied Journey at grade 2 through the explicit route.
 
 - Commit 24 designated energy units once; preserve native school Void.
 - Create a focusable native projection while the anchor body remains.
@@ -6323,7 +6323,7 @@ Key: `arm.spell.erode_object`. Native school: **Void**. Target: `item`. Lifecycl
 **Runtime evidence:**
 - `itemdamage`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:345](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L345), `ItemDamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-467 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Erode Object, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Erode Object at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-467 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Erode Object, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Erode Object at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Void.
 - Inflict finite material-gated damage on an item.
@@ -6365,7 +6365,7 @@ Key: `arm.spell.leeching_edge`. Native school: **Void**. Target: `item`. Lifecyc
 **Runtime evidence:**
 - `itemenchant`: [MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs:668](../../MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs#L668), `ItemEnchantEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-468 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Leeching Edge, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Leeching Edge at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-468 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Leeching Edge, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item. Invoke Leeching Edge at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Void.
 - Enchant a weapon to heal its wielder by a bounded share of actual damage dealt.
@@ -6408,7 +6408,7 @@ Key: `arm.spell.voice_of_remains`. Native school: **Void**. Target: `corpse`. Li
 **Runtime evidence:**
 - `deadspeak`: [MudSharpCore/Magic/SpellEffects/ArmageddonInformationSpellEffects.cs:547](../../MudSharpCore/Magic/SpellEffects/ArmageddonInformationSpellEffects.cs#L547), `DeadSpeakSpellEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-469 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Voice of Remains, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible corpse. Invoke Voice of Remains at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-469 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Voice of Remains, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible corpse. Invoke Voice of Remains at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Void.
 - Raise a temporary corpse speech proxy using native corpse restoration rules.
@@ -6451,7 +6451,7 @@ Key: `arm.spell.echo_servant`. Native school: **Void**. Target: `character`. Lif
 **Runtime evidence:**
 - `reciteproxy`: [MudSharpCore/Magic/SpellEffects/ArmageddonInformationSpellEffects.cs:327](../../MudSharpCore/Magic/SpellEffects/ArmageddonInformationSpellEffects.cs#L327), `ReciteProxySpellEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-489 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Echo Servant, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Echo Servant at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-489 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Echo Servant, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Echo Servant at grade 2 through the explicit route.
 
 - Commit 14 designated energy units once; preserve native school Void.
 - Relay authorised speech through a selected proxy using native language-aware output.
@@ -6493,7 +6493,7 @@ Key: `arm.spell.drowning_grip`. Native school: **Water**. Target: `character`. L
 **Runtime evidence:**
 - No direct manifestation primitive established; retain the explicit gap.
 
-**Minimum acceptance — ARM-R-428 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Drowning Grip, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Drowning Grip at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-428 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Drowning Grip, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Drowning Grip at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Water.
 - Interfere with breathing through a bounded, resistible temporary effect.
@@ -6536,7 +6536,7 @@ Key: `arm.spell.sow_sickness`. Native school: **Water**. Target: `character`. Li
 **Runtime evidence:**
 - `disease`: [MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs:467](../../MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs#L467), `DiseaseEffect.CreateEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-430 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Sow Sickness, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sow Sickness at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-430 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Sow Sickness, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Sow Sickness at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Water.
 - Apply one configured native disease to a susceptible target.
@@ -6578,7 +6578,7 @@ Key: `arm.spell.caustic_spray`. Native school: **Water**. Target: `characters`. 
 **Runtime evidence:**
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-432 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Caustic Spray, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Caustic Spray at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-432 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Caustic Spray, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible characters. Invoke Caustic Spray at grade 2 through the explicit route.
 
 - Commit 16 designated energy units once; preserve native school Water.
 - Strike explicitly selected local targets with acid-type damage.
@@ -6620,7 +6620,7 @@ Key: `arm.spell.gather_puddle`. Native school: **Water**. Target: `room`. Lifecy
 **Runtime evidence:**
 - `createliquid`: [MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.cs:88](../../MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.cs#L88), `CreateLiquidEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-433 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Gather Puddle, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Gather Puddle at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-433 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Water admission, acquired Gather Puddle, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Gather Puddle at grade 2 through the explicit route.
 
 - Commit 6 designated energy units once; preserve native school Water.
 - Create or top up a native clean-water puddle in the current cell.
@@ -6665,7 +6665,7 @@ Key: `arm.spell.wardcraft`. Native school: **Earth**. Target: `character`. Lifec
 **Runtime evidence:**
 - `personaltagward`: [MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs:267](../../MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs#L267), `PersonalTagWardEffect.CreateWardEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-10001 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Wardcraft, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Wardcraft at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-10001 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Wardcraft, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Wardcraft at grade 2 through the explicit route.
 
 - Commit 8 designated energy units once; preserve native school Earth.
 - Apply a basic tag-scoped personal ward shared across admitted traditions.
@@ -6705,7 +6705,7 @@ Key: `arm.spell.renew_earth`. Native school: **Earth**. Target: `room`. Lifecycl
 **Runtime evidence:**
 - `rejuvenateland`: [MudSharpCore/Magic/SpellEffects/RejuvenateLandEffect.cs:152](../../MudSharpCore/Magic/SpellEffects/RejuvenateLandEffect.cs#L152), `RejuvenateLandEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
-**Minimum acceptance — ARM-R-10002 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Renew Earth, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Renew Earth at grade 2 through the explicit route.
+**Minimum acceptance â€” ARM-R-10002 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Earth admission, acquired Renew Earth, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible room. Invoke Renew Earth at grade 2 through the explicit route.
 
 - Commit 20 designated energy units once; preserve native school Earth.
 - Apply a bounded scar-repair treatment to the eligible physical cell.

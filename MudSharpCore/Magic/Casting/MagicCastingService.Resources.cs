@@ -23,6 +23,14 @@ public sealed partial class MagicCastingService
 			.Select(x => x.Id).ToHashSet();
 		var previous = _permanentEntitlements.GetValueOrDefault(owner.Id) ?? [];
 		_permanentEntitlements[owner.Id] = current;
+		foreach (var id in current)
+		{
+			var c = (IMagicCastingCapability)_world.MagicCapabilities.Get(id)!;
+			if (c.CastingConfigurationErrors().Count > 0) continue;
+			lock (Guard(actor))
+				foreach (var admission in c.CastingPolicy!.Admissions.Where(x => x.RawSkillCap.HasValue && Acquisition(actor, x.SpellId) is not null))
+					RecordSkillCap(actor, c, admission);
+		}
 		foreach (var id in current.Except(previous))
 		{
 			var c = (IMagicCastingCapability)_world.MagicCapabilities.Get(id)!;

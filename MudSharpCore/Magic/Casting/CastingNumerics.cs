@@ -7,7 +7,7 @@ namespace MudSharp.Magic.Casting;
 
 /// <summary>Live route bindings are installed only on an invocation's detached spell.</summary>
 internal sealed class CastingExpression(ITraitExpression source, ITraitDefinition trait, int grade,
-	SpellPower power, string location, IFuturemud gameworld) : TraitExpression("0", gameworld)
+	SpellPower power, string location, IFuturemud gameworld, int controlledGrade) : TraitExpression("0", gameworld)
 {
 	private readonly TraitExpression _expression = Snapshot(source, gameworld, location);
 
@@ -39,6 +39,7 @@ internal sealed class CastingExpression(ITraitExpression source, ITraitDefinitio
 			.ToDictionary(x => x.Key, x => (object)x.Value, StringComparer.OrdinalIgnoreCase);
 		foreach (var (name, value) in values) inputs[name] = value;
 		inputs["grade"] = grade; inputs["power"] = (int)power;
+		inputs["mastery"] = controlledGrade;
 		if (!_expression.Formula.TryEvaluateDoubleWith(inputs, out var result, out var error))
 			throw new InvalidOperationException($"{location}: {error}");
 		return result;
@@ -85,11 +86,11 @@ internal static class CastingNumerics
 		if (expression is null || expression.HasErrors()) { yield return $"{location}: missing or invalid expression."; yield break; }
 		if (expression is not TraitExpression) yield return $"{location}: unsupported numerical expression implementation.";
 		if (expression.Parameters.Values.Any(x => x.Trait is null)) yield return $"{location}: missing trait reference.";
-		var allowed = new[] { "variable", "grade", "power" }.Concat(contextParameters);
+		var allowed = new[] { "variable", "grade", "power", "mastery" }.Concat(contextParameters);
 		foreach (var name in expression.NonTraitParameters.Where(x => !allowed.Contains(x, StringComparer.OrdinalIgnoreCase)))
 			yield return $"{location}: unsupported numerical parameter {name}.";
 	}
 
 	public static ITraitExpression Bind(ITraitExpression expression, ITraitDefinition trait, int grade, SpellPower power,
-		string field, IFuturemud world) => new CastingExpression(expression, trait, grade, power, field, world);
+		string field, IFuturemud world, int? controlledGrade = null) => new CastingExpression(expression, trait, grade, power, field, world, controlledGrade ?? grade);
 }

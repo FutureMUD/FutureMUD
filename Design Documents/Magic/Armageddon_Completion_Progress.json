@@ -1,0 +1,1825 @@
+{
+  "schema_version": 1,
+  "task": "Armageddon Magic Completion",
+  "source": {
+    "library_file_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+    "file_id": "file_00000000273481fab2e542daf8801228",
+    "reported_version": 0,
+    "read_version_id": null,
+    "size_bytes": 131071,
+    "total_lines": 905,
+    "windows": [
+      [
+        1,
+        300
+      ],
+      [
+        301,
+        450
+      ],
+      [
+        451,
+        600
+      ],
+      [
+        601,
+        750
+      ],
+      [
+        751,
+        905
+      ]
+    ],
+    "has_more": false,
+    "complete_content_read": true,
+    "access_route": "Library read; full contiguous windows; no materialized substitute",
+    "read_complete_at_utc": "2026-10-02T07:41:07.312Z",
+    "rendered_content_utf8_bytes": 131070
+  },
+  "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
+  "implementation_branch": "codex/armageddon-completion-phase1",
+  "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
+  "selected_stage": "Phase 0 data reconciliation then phase 1A route openings/raw caps/cap-relative mastery/energy efficiency",
+  "phase1_remaining": [
+    "Scoped typed supporting-trait prerequisite and support-trait grants with provenance, cycles and durable repair",
+    "Native Component Crafting progression bridge to Identify",
+    "Authored enrolment hook",
+    "Attribute-led mana capacity mapping/invalidation and complete affordability matrix"
+  ],
+  "phases": [
+    {
+      "id": 0,
+      "name": "Rebase and reconcile",
+      "scope": "Current `master`, `Design Documents/Magic/Armageddon_Casting_*.md`, `Armageddon_Repertoire.json/.md`, existing A-D10 work if landed",
+      "exit_evidence": "Current commit and delivery matrix; no redo of PR771/778; complete 154 disposition plus exact 82 membership",
+      "status": "completed"
+    },
+    {
+      "id": 1,
+      "name": "Extend progression and energy",
+      "scope": "`FutureMUDLibrary/Magic/IMagicCastingCapability.cs`, `IMagicCastingService.cs`, `ISpellNumericalContext.cs`; `MagicCastingService.Acquisition.cs`, `.Resources.cs`, `.Execution.cs`; capability casting builder; `MagicSpell.Grades.cs`, `.Casting.cs`; native improvement classes",
+      "exit_evidence": "Typed support edges, source openings/caps, cap-aware maximum mastery, source-shaped efficiency, backwards compatibility and PR778 permutations pass",
+      "status": "partial_stage_1A_implemented_and_verified"
+    },
+    {
+      "id": 2,
+      "name": "Finish invocation adapters",
+      "scope": "`MudSharpCore/Commands/Modules/MagicModule.Casting.cs`, communication module/body strategy integration, `CharacterCommunication.cs`, language/emote hooks, magic casting service",
+      "exit_evidence": "Genuine speech/name/formula parity, no recursion, quiet policy, explicit area modes and side-effect-free practice",
+      "status": "pending"
+    },
+    {
+      "id": 3,
+      "name": "Implement reusable effect and lifecycle gaps",
+      "scope": "Shared lifecycle interfaces; `MudSharpCore/Magic/SpellEffects/`, `Effects/Concrete/SpellEffects/`, character instance service, items, native movement/AI/topology seams",
+      "exit_evidence": "Eight larger features and shared small mechanisms with native ownership/restart/cleanup/command-authority tests",
+      "status": "pending"
+    },
+    {
+      "id": 4,
+      "name": "Finish portable production",
+      "scope": "`MagicSpell.Production.cs`, existing snapshot compatibility and numerical context, game-item component/prototype families, substance machinery",
+      "exit_evidence": "Focus/charged separation, caster-only stock, configurable eligibility, reproduce-power recharge, no stock scroll dependency",
+      "status": "pending"
+    },
+    {
+      "id": 5,
+      "name": "Author full stock and installer",
+      "scope": "New owning `DatabaseSeeder/Seeders/ArmageddonMagicSeeder/` or equivalent agreed name; shared ownership framework; manifests; replay metadata and profiles",
+      "exit_evidence": "Complete usable stock, exact 82, classless and optional-class installs, safe reruns and conflict receipts",
+      "status": "pending"
+    },
+    {
+      "id": 6,
+      "name": "Native release qualification",
+      "scope": "Core/library/seeder/persistence test owners, disposable MySQL fixtures and ordinary non-admin installed-world scenarios; update guides/receipts",
+      "exit_evidence": "All production-readiness gates below, complete per-spell evidence, balance report and no hidden unrun blockers",
+      "status": "pending"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "Q01",
+      "requirement": "Recognisable, standalone usable magic adapted to FutureMUD, with builder customisation",
+      "limit": "Do not preserve an unsuitable historical mechanism merely for literal parity; do not replace defining gameplay with cosmetic output",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q02",
+      "requirement": "Include Spring Haven, Burrow Refuge, Sand Shelter, Sand Effigy, Walking Shadow, Severing Refuge, Apex Bane and Folded Pocket",
+      "limit": "All eight are release requirements",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q03",
+      "requirement": "Replace guessed Sorcerer membership with the selected historical 82-spell roster",
+      "limit": "Do not union Armor, Planeshift, Wardcraft, Renew Earth or other guessed entries into it",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q04",
+      "requirement": "Support general free-choice Sorcerer, restricted Preserver and restricted Defiler",
+      "limit": "Exact gathering-method matrices remain configurable engineering policy, not separately approved lore",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q05",
+      "requirement": "Individual spell skills, source openings, source raw caps and source parent branching thresholds",
+      "limit": "Keep raw proficiency distinct from controlled casting grade; extend native improvement compatibly if necessary",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q06",
+      "requirement": "Attribute-led mana capacity and mastery-driven casting efficiency",
+      "limit": "No approved fixed coefficients, race mapping or practice-driven pool growth",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q07",
+      "requirement": "Historical automatic branching; teacher-only routes are optional builder policy",
+      "limit": "Do not impose new mandatory lesson gates on the stock historical tree",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q08",
+      "requirement": "Stock practice can reach the highest normal grade",
+      "limit": "No practice-specific stock cap; ordinary maximum grades and raw caps still exist",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q09",
+      "requirement": "Actual historical POWER words; command casting and genuine speech-triggered casting; language-aware echo",
+      "limit": "Both enter the same guarded pipeline; generated output never triggers a second cast",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q10",
+      "requirement": "Quiet costs more and is harder; volume/method difficulty configurable; area defined per spell from source",
+      "limit": "No universal ally immunity or caster exclusion; visible effects and magical detection remain",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q11",
+      "requirement": "Stock charm can affect PCs; each spell can disable PC targets; IC command whitelist for PCs and NPCs",
+      "limit": "Reject account/settings/OOC/builder commands and all alias/indirect dispatch bypasses",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q12",
+      "requirement": "Source-informed per-spell/per-tier conjuration and summon lifetime; permanent, temporary cleanup and death-on-expiry modes",
+      "limit": "No heavy temporary-NPC database accumulation; handle early death, remains, possessions, references and restart",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q13",
+      "requirement": "Per-item activation eligibility: caster, magic type, spell knowledge or anyone; stock wands/staves caster-only",
+      "limit": "Historical unrestricted activation does not override this explicit stock choice",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q14",
+      "requirement": "Recharging caster must legitimately reproduce stored power",
+      "limit": "Capacities, timings, prices and failure rates remain tunable proposals",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q15",
+      "requirement": "No spell scrolls in the Armageddon stock installer",
+      "limit": "Optional separate scroll-learning support must enforce prerequisites and never copy maker mastery",
+      "status": "pending_complete_implementation"
+    },
+    {
+      "id": "Q16",
+      "requirement": "Complete usable capabilities, merits, templates, foci and supplies; optional matching classes if classes are enabled; short integration guide",
+      "limit": "Builder connects chargen and places NPCs; safe ownership-aware reruns do not update players",
+      "status": "pending_complete_implementation"
+    }
+  ],
+  "native_acceptance": [
+    {
+      "id": "N01",
+      "name": "Fresh classless install",
+      "scenario": "Install prerequisites and package with classes off; builder attaches a capability/merit to a test character and enrols through the supported path",
+      "required_result": "All dependencies usable; no required class; no production/player-wide grant; zero initial reserve until earned",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N02",
+      "name": "Optional classes",
+      "scenario": "Classes enabled, opt into matching roles, choose one on a disposable new character",
+      "required_result": "Correct merit/support/enrolment wiring; existing roles/settings/players untouched",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N03",
+      "name": "Shared spell routes",
+      "scenario": "Elementalist and Sorcerer invoke one native shared spell with explicit route",
+      "required_result": "Same spell/native school; correct independent reserve/trait; no auto-route based on richest pool",
+      "status": "partial_fixture_and_automated_evidence",
+      "evidence": [
+        "Armageddon_Stage1A_Verification.json: shared native routes/baseline cascade tests/exact source inventory; installer and full source-tree gameplay pending"
+      ]
+    },
+    {
+      "id": "N04",
+      "name": "Exact source tree",
+      "scenario": "Sorcerer roots 60; advance Sense Enchantment from below 80 to 80",
+      "required_result": "Correct child opens 30, capped 90, grade1; all sibling/diamond/order rules preserved; no guessed roots",
+      "status": "partial_fixture_and_automated_evidence",
+      "evidence": [
+        "Armageddon_Stage1A_Verification.json: shared native routes/baseline cascade tests/exact source inventory; installer and full source-tree gameplay pending"
+      ]
+    },
+    {
+      "id": "N05",
+      "name": "Support branch",
+      "scenario": "Acquire Shadow Passage, meet its threshold, improve Component Crafting to 80",
+      "required_result": "Read Enchantment becomes acquired through the legitimate native support edge, without a fake spell or manual database edit",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N06",
+      "name": "Low cap maximum",
+      "scenario": "Practice Mend Flesh from legitimate acquisition through normal progression to maximum controlled grade",
+      "required_result": "Raw skill never exceeds60; grade 7 is attainable without a separate practice cap or manifest requirement",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N07",
+      "name": "Source efficiency",
+      "scenario": "Controlled grades1,2,7 request grade1, with a source minimum7",
+      "required_result": "Reference pre-modifier curve 50,25,7; actual configured costs match displayed quote; no double grade multiplier",
+      "status": "passed_controlled_native_fixture",
+      "evidence": [
+        "Armageddon_Stage1A_Verification.json: native_attempt2; non-admin grade1 quotes/commands cost50/25/7"
+      ],
+      "full_stock_qualification": "pending"
+    },
+    {
+      "id": "N08",
+      "name": "Capacity and gathering",
+      "scenario": "Change cap-driving attribute, remove/re-add capability, switch bodies, gather with Sorcerer/Preserver/Defiler",
+      "required_result": "No free refill/duplicated reserve; correct method restrictions and environmental accounting; no Sorcerer passive leakage",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N09",
+      "name": "Formula parity",
+      "scenario": "Named grade3 cast, command formula using `kral`, actual spoken equivalent",
+      "required_result": "Same admission/grade/cost pipeline, one invocation each, correct native language echo; listener receives only perceptible speech",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N10",
+      "name": "Echo recursion",
+      "scenario": "Cast near another listener/relay/proxy with matching formula hooks",
+      "required_result": "Generated output never recasts; overhearing never grants knowledge; repeated callback cannot debit twice",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N11",
+      "name": "Quiet and area",
+      "scenario": "Whisper an eligible spell; execute Earthquake, Chain Lightning and room Fireball policies",
+      "required_result": "Quoted modifiers and physical volume apply; visible effects remain; source-specific caster policies differ correctly",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N12",
+      "name": "Practice purity",
+      "scenario": "Practice hostile magic beside warded, injured and hostile actors; interrupt and restart",
+      "required_result": "No effects/target resistance/ward use; full configured payment once; no interrupted gain/refund/replay",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N13",
+      "name": "PC charm",
+      "scenario": "Charm a consenting test PC fixture, order allowed IC action then alias to forbidden settings/builder/OOC command",
+      "required_result": "Allowed gameplay executes under ordinary gates; all forbidden final commands refuse on PC and NPC; no privilege crossover",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N14",
+      "name": "Summon early death",
+      "scenario": "In a fixture explicitly configured to leave remains, kill a temporary guardian, retain corpse and foreign carried item, pass original expiry, restart, then decay corpse; separately exercise default dissipation",
+      "required_result": "No resurrection/second death; foreign item conserved; temporary heavy graph eventually retired when references clear",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N15",
+      "name": "Lifecycle modes",
+      "scenario": "Same template exercised as permanent, temporary cleanup and death-on-expiry",
+      "required_result": "Correct persistence/death/remains behaviour and exactly one terminal transition; permanent creation survives its no-expiry contract",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N16",
+      "name": "High-volume retirement",
+      "scenario": "Repeated summon/use/kill/expire/restart with deterministic terminal checks",
+      "required_result": "Stable eligible heavy-row/timer/subscription counts after cleanup; every retained record explained",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N17",
+      "name": "Occupied shelters",
+      "scenario": "Use Spring Haven, Burrow Refuge and Sand Shelter; expire/destroy while occupied",
+      "required_result": "Real shelter utility/finite water; no stranded/deleted actors or foreign possessions; safe fallback when anchor missing",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N18",
+      "name": "Effigy and shadow",
+      "scenario": "Create each, switch focus, damage/sever source and restart",
+      "required_result": "Correct instance identity, anchor and focus; canonical skills/resources not duplicated; owner survives temporary collapse as configured",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N19",
+      "name": "Ward and bane",
+      "scenario": "Use Severing Refuge against allowed/blocked element interactions; Apex Bane against eligible/ineligible beings",
+      "required_result": "Functional bounded ward and resisted category attack, not cosmetic effects or name checks",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N20",
+      "name": "Pocket conservation",
+      "scenario": "Fill Folded Pocket, attempt pocket nesting/body entry, transfer and collapse after restart",
+      "required_result": "Capacity enforced, nesting/living targets rejected, all foreign contents released exactly once",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N21",
+      "name": "Permanent tier exception",
+      "scenario": "Exercise timed Flame Knife tier and configured highest-tier permanent output with real component",
+      "required_result": "Correct source-informed per-tier output; timed gear cannot yield permanent salvage; permanent output properly paid",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N22",
+      "name": "Item activation",
+      "scenario": "Caster and non-caster use stock charged wand; builder changes one test item to anyone; try depleted charge then explicit focus",
+      "required_result": "Stock caster gate, configurable exception, preserved captured potency; no free fallback or acquired/mastery gains",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N23",
+      "name": "Recharge",
+      "scenario": "Qualified producer, wrong magic type, unacquired spell, insufficient grade and insufficient reproducible potency",
+      "required_result": "Only legitimate producer succeeds; bounded charge/payment commit, no mixed payload or duplicate charge after restart",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N24",
+      "name": "Rerun safety",
+      "scenario": "Rename/edit stock; intentionally delete/retire one entry; clone another; interrupt install; rerun",
+      "required_result": "Preserve edits/clones/players, report conflicts, honour retirement, repair only owned partial work and preserve stable IDs",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "N25",
+      "name": "Cross-feature uncertain failure",
+      "scenario": "Inject provider failure after debit/effect/progression or lifecycle transition; retry via another body/route and restart",
+      "required_result": "Conservative quarantine/reconciliation, no replay/refund/double grade/second corpse; unrelated records remain usable",
+      "status": "not_run",
+      "evidence": []
+    }
+  ],
+  "candidates": [
+    {
+      "key": "arm.spell.sense_enchantment",
+      "name": "Sense Enchantment",
+      "group": "Primitive",
+      "required_behavior": "Reveal perceptible magical effects to the recipient.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.ember_lance",
+      "name": "Ember Lance",
+      "group": "Policy",
+      "required_behavior": "Strike one visible target with fire damage.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.cinder_rain",
+      "name": "Cinder Rain",
+      "group": "Policy",
+      "required_behavior": "Burn eligible others in the current cell with an initial fire strike and timed burning.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.hovering_light",
+      "name": "Hovering Light",
+      "group": "Gap",
+      "required_behavior": "Create one temporary light around the recipient. Generic creation does not prove auto-equip or linked cleanup; use a worn-light lifecycle adapter or approve a glow-only substitute.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.unravel_enchantment",
+      "name": "Unravel Enchantment",
+      "group": "Policy",
+      "required_behavior": "Contest and remove spell-owned effects matching configured dispel keys.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.pillar_of_flame",
+      "name": "Pillar of Flame",
+      "group": "Policy",
+      "required_behavior": "Deliver a stronger single-target fire strike.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.consuming_flame",
+      "name": "Consuming Flame",
+      "group": "Policy",
+      "required_behavior": "Deliver an intense fire strike requiring a consumed reagent.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.kindle_enchantment",
+      "name": "Kindle Enchantment",
+      "group": "Policy",
+      "required_behavior": "Temporarily improve a selected weapon's damage through native enchantment hooks.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.custodian_glyph",
+      "name": "Custodian Glyph",
+      "group": "Gap",
+      "required_behavior": "Mark an item so unauthorised taking is refused while the glyph lasts. Metadata alone does not intercept taking; requires a bounded inventory permission effect.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.fireworks",
+      "name": "Fireworks",
+      "group": "Policy",
+      "required_behavior": "Display an audience-visible burst of coloured flame and light without physical damage.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.borrowed_tongues",
+      "name": "Borrowed Tongues",
+      "group": "Primitive",
+      "required_behavior": "Allow comprehension of speech without granting fluent speech.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.burning_draught_curse",
+      "name": "Burning Draught Curse",
+      "group": "Gap",
+      "required_behavior": "Make later drinking inflict configured burning harm instead of ordinary refreshment. Needs an ingestion event interceptor; an immediate damage or need delta is not equivalent.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.desiccate",
+      "name": "Desiccate",
+      "group": "Policy",
+      "required_behavior": "Reduce hydration and apply a small fire injury.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.flame_knife",
+      "name": "Flame Knife",
+      "group": "Gap",
+      "required_behavior": "Timed low-tier fire weapon; mon component-consuming permanent staff output; source-informed prototypes and explicit per-tier ownership/cleanup",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.flame_barrier",
+      "name": "Flame Barrier",
+      "group": "Gap",
+      "required_behavior": "Block an exit with a timed barrier and burn actors who attempt to cross. Blocking exists; traversal fire damage and both-side output require a bounded adapter.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.flame_mantle",
+      "name": "Flame Mantle",
+      "group": "Policy",
+      "required_behavior": "Apply a finite protective armour layer with a visible warm glow.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.ember_seed",
+      "name": "Ember Seed",
+      "group": "Gap",
+      "required_behavior": "Create one temporary ember seed carrying a configured fire payload. Creation alone is insufficient for delayed activation, paid payload and cleanup.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.daylight",
+      "name": "Daylight",
+      "group": "Primitive",
+      "required_behavior": "Increase room illumination for a bounded duration.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.immolate",
+      "name": "Immolate",
+      "group": "Policy",
+      "required_behavior": "Apply timed fire injury ticks to the target.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.draw_water",
+      "name": "Draw Water",
+      "group": "Gap",
+      "required_behavior": "Add clean water to an accessible drink container up to capacity. Current CreateLiquidEffect empty-container capacity/null path needs a focused correction before claiming this complete.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.sense_toxin",
+      "name": "Sense Toxin",
+      "group": "Primitive",
+      "required_behavior": "Let the recipient inspect detectable active and latent drug poison state.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.mend_flesh",
+      "name": "Mend Flesh",
+      "group": "Primitive",
+      "required_behavior": "Heal existing eligible wounds, worst first, within the numeric healing budget.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.venom_touch",
+      "name": "Venom Touch",
+      "group": "Policy",
+      "required_behavior": "Introduce a configured stock toxin through an explicit vector.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.sheltering_veil",
+      "name": "Sheltering Veil",
+      "group": "Policy",
+      "required_behavior": "Give the target a finite protective envelope against configured damage.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.purge_toxin",
+      "name": "Purge Toxin",
+      "group": "Policy",
+      "required_behavior": "Remove matching spell-owned poison effects and their originator-linked drug doses.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.still_anger",
+      "name": "Still Anger",
+      "group": "Policy",
+      "required_behavior": "Apply native pacifism to suppress aggressive behaviour for a duration.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.spring_haven",
+      "name": "Spring Haven",
+      "group": "Larger",
+      "required_behavior": "Real temporary sheltered watering place, finite usable water, terrain admission and occupancy-safe lifecycle",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.unyielding_veil",
+      "name": "Unyielding Veil",
+      "group": "Policy",
+      "required_behavior": "Provide a stronger but finite armour pool.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.read_attunement",
+      "name": "Read Attunement",
+      "group": "Gap",
+      "required_behavior": "Report an explicitly configured relationship between a target and elemental traditions. Requires an agreed attunement vocabulary and bounded query; historical setting relationships are unresolved.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.thunderclap",
+      "name": "Thunderclap",
+      "group": "Policy",
+      "required_behavior": "Strike local eligible others with sonic harm and temporary deafness.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.hush_hearing",
+      "name": "Hush Hearing",
+      "group": "Primitive",
+      "required_behavior": "Temporarily suppress the recipient's hearing.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.seal_voice",
+      "name": "Seal Voice",
+      "group": "Primitive",
+      "required_behavior": "Prevent normal speech through the native magical silence status.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.vital_siphon",
+      "name": "Vital Siphon",
+      "group": "Gap",
+      "required_behavior": "Harm a target and heal the caster by no more than the harm actually delivered. Requires linked measured transfer; independent damage and caster-heal effects would over-credit resisted harm.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.thorn_barrier",
+      "name": "Thorn Barrier",
+      "group": "Gap",
+      "required_behavior": "Block an exit with temporary thorns that injure crossing attempts. Traversal injury/entanglement and reciprocal presentation need explicit support.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.draw_wine",
+      "name": "Draw Wine",
+      "group": "Gap",
+      "required_behavior": "Add configured wine to an accessible drink container without exceeding capacity. Same empty-container path concern as Draw Water; never silently convert incompatible mixtures.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.headlong_revel",
+      "name": "Headlong Revel",
+      "group": "Policy",
+      "required_behavior": "Increase native drunkenness without conjuring permanent drink objects.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.clear_head",
+      "name": "Clear Head",
+      "group": "Primitive",
+      "required_behavior": "Reduce native drunkenness toward zero.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.wither_growth",
+      "name": "Wither Growth",
+      "group": "Gap",
+      "required_behavior": "Damage a targeted plant-like item through an explicit material/tag gate. Source sap transfer and living land/crop accounting are not ordinary item damage; no ecological debit bypass.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.distant_mirage",
+      "name": "Distant Mirage",
+      "group": "Policy",
+      "required_behavior": "Show selected viewers a non-interactive misleading scene.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.mist_shield",
+      "name": "Mist Shield",
+      "group": "Policy",
+      "required_behavior": "Surround a character with a finite mist-themed protective layer.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.restorative_mud",
+      "name": "Restorative Mud",
+      "group": "Gap",
+      "required_behavior": "Produce one paid topical healing dose in a mud carrier. Exposure payload is feasible, but preset manufacturing and frozen-grade binding are not implemented.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.purge_disease",
+      "name": "Purge Disease",
+      "group": "Policy",
+      "required_behavior": "Remove a matching spell-owned disease effect and its tracked native infection.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.water_breathing",
+      "name": "Water Breathing",
+      "group": "Primitive",
+      "required_behavior": "Allow compatible breathing underwater while the spell lasts.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.earthen_ward",
+      "name": "Earthen Ward",
+      "group": "Primitive",
+      "required_behavior": "Apply a finite earthen protective armour layer.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.sustain_meal",
+      "name": "Sustain Meal",
+      "group": "Policy",
+      "required_behavior": "Create finite usable food with source-informed magical expiry plus ordinary consumption; no automatic permanence or recreation of consumed units",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.ground_tremor",
+      "name": "Ground Tremor",
+      "group": "Gap",
+      "required_behavior": "Grounded-target earthquake and fall policy; local caster receives one-third source damage with authored protections; nearby-cell messages/falls are separate",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.heavy_slumber",
+      "name": "Heavy Slumber",
+      "group": "Primitive",
+      "required_behavior": "Put a susceptible target into native magical sleep.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.earthen_strength",
+      "name": "Earthen Strength",
+      "group": "Primitive",
+      "required_behavior": "Increase the configured strength trait for a duration.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.sand_knife",
+      "name": "Sand Knife",
+      "group": "Gap",
+      "required_behavior": "Timed low-tier sand weapon; mon component-consuming permanent staff output; source-informed prototypes and explicit per-tier ownership/cleanup",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.stone_skin",
+      "name": "Stone Skin",
+      "group": "Policy",
+      "required_behavior": "Apply stone-like protection with an agility penalty.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.sapping_weight",
+      "name": "Sapping Weight",
+      "group": "Primitive",
+      "required_behavior": "Apply a negative modifier to the configured strength trait.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.trace_the_path",
+      "name": "Trace the Path",
+      "group": "Gap",
+      "required_behavior": "Reveal a permitted bounded route toward a known target. Needs a permission-aware path information effect; teleport and track tokens are not proof of this behavior.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.burrow_refuge",
+      "name": "Burrow Refuge",
+      "group": "Larger",
+      "required_behavior": "Enterable temporary underground topology, terrain gate, safe return, occupied expiry and restart cleanup",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.clouded_will",
+      "name": "Clouded Will",
+      "group": "Policy",
+      "required_behavior": "Reduce the target's explicitly configured magical reserve.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.roused_fury",
+      "name": "Roused Fury",
+      "group": "Primitive",
+      "required_behavior": "Apply native rage intensity for a duration.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.earth_mount",
+      "name": "Earth Mount",
+      "group": "Gap",
+      "required_behavior": "Create a rideable temporary earth creature belonging to its summoner. NPC creation is present; mount control and expiry with riders need bounded lifecycle work.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.sand_barrier",
+      "name": "Sand Barrier",
+      "group": "Policy",
+      "required_behavior": "Block a chosen exit temporarily with packed sand.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.return_tether",
+      "name": "Return Tether",
+      "group": "Gap",
+      "required_behavior": "Record the caster's position and return them after a bounded delay if still eligible. Needs durable delayed-return identity and cancellation semantics; not time reversal of health or inventory.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.threshold_alarm",
+      "name": "Threshold Alarm",
+      "group": "Policy",
+      "required_behavior": "Notify the configured owner of eligible entry through a room alarm.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.fleet_step",
+      "name": "Fleet Step",
+      "group": "Gap",
+      "required_behavior": "Increase movement speed and reduce locomotion effort for a duration. Trait bonuses and stamina multipliers alone do not establish movement-delay modification.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.sand_shelter",
+      "name": "Sand Shelter",
+      "group": "Larger",
+      "required_behavior": "Physically usable shelter with protection/occupancy and foreign-content-preserving teardown",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.clay_sentinel",
+      "name": "Clay Sentinel",
+      "group": "Gap",
+      "required_behavior": "Animate a controlled temporary clay guardian. Needs creator command eligibility and teardown; historical golem summary is insufficient to infer those details.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.sand_effigy",
+      "name": "Sand Effigy",
+      "group": "Larger",
+      "required_behavior": "Bounded source-item-to-projection link using canonical identity, immobile copy/focus/anchor restrictions and safe collapse",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.shatter_stone",
+      "name": "Shatter Stone",
+      "group": "Policy",
+      "required_behavior": "Damage a stone-tagged item with a finite damage budget.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.restore_object",
+      "name": "Restore Object",
+      "group": "Gap",
+      "required_behavior": "Repair eligible item damage without duplicating material or resetting quality. MendEffect treats wounds; an item-repair adapter is still required.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.waystep",
+      "name": "Waystep",
+      "group": "Policy",
+      "required_behavior": "Move the caster to an explicitly resolved permitted cell.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.pierce_concealment",
+      "name": "Pierce Concealment",
+      "group": "Primitive",
+      "required_behavior": "Let the recipient perceive eligible invisible entities.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.veil_from_sight",
+      "name": "Veil from Sight",
+      "group": "Primitive",
+      "required_behavior": "Apply native invisibility to the recipient.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.draw_traveller",
+      "name": "Draw Traveller",
+      "group": "Policy",
+      "required_behavior": "Move a permitted remote character to the caster's current cell.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.join_traveller",
+      "name": "Join Traveller",
+      "group": "Policy",
+      "required_behavior": "Move the caster to a permitted cell resolved from another character.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.buoyant_lift",
+      "name": "Buoyant Lift",
+      "group": "Primitive",
+      "required_behavior": "Apply native persistent levitation.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.scouring_gust",
+      "name": "Scouring Gust",
+      "group": "Policy",
+      "required_behavior": "Inflict wind-themed injury and stamina loss on eligible local targets.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.gust_hands",
+      "name": "Gust Hands",
+      "group": "Primitive",
+      "required_behavior": "Move the target along an explicitly selected traversable path.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.banish_traveller",
+      "name": "Banish Traveller",
+      "group": "Policy",
+      "required_behavior": "Send a target to a configured permitted destination after resistance.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.air_guardian",
+      "name": "Air Guardian",
+      "group": "Gap",
+      "required_behavior": "Create a temporary protective air creature. NPC creation does not establish guarding commands, summon ownership or safe expiry.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.exchange_places",
+      "name": "Exchange Places",
+      "group": "Primitive",
+      "required_behavior": "Swap caster and target spatial locations when native validation allows.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.windborne_flight",
+      "name": "Windborne Flight",
+      "group": "Primitive",
+      "required_behavior": "Grant the native magical flight status.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.seeking_wind",
+      "name": "Seeking Wind",
+      "group": "Gap",
+      "required_behavior": "Summon a temporary tracker with a specifically authorised quarry. Tracking AI and target authority/lifecycle are required; creating an NPC is not sufficient.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.gentle_descent",
+      "name": "Gentle Descent",
+      "group": "Primitive",
+      "required_behavior": "Reduce falling harm through the native featherfall effect.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.driving_gust",
+      "name": "Driving Gust",
+      "group": "Policy",
+      "required_behavior": "Force a target one eligible step through a chosen exit.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.wind_barrier",
+      "name": "Wind Barrier",
+      "group": "Policy",
+      "required_behavior": "Block passage through one exit with a wind-themed barrier.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.wind_mantle",
+      "name": "Wind Mantle",
+      "group": "Primitive",
+      "required_behavior": "Apply a finite wind-themed armour layer.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.wind_hammer",
+      "name": "Wind Hammer",
+      "group": "Gap",
+      "required_behavior": "Strike and then move a target through a selected exit only if the hit resolves. Requires ordered linked outcome handling; two independent effects could push a rejected target.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.false_presence",
+      "name": "False Presence",
+      "group": "Policy",
+      "required_behavior": "Hide the target's visible presence for a duration.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.wind_shield",
+      "name": "Wind Shield",
+      "group": "Policy",
+      "required_behavior": "Protect a character with a wind-themed armour envelope.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.wind_courier",
+      "name": "Wind Courier",
+      "group": "Gap",
+      "required_behavior": "Create a temporary courier that delivers a bounded message to an authorised recipient. Needs delivery/recipient permissions and summon expiry; no arbitrary command proxy.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.reveal_the_hidden",
+      "name": "Reveal the Hidden",
+      "group": "Primitive",
+      "required_behavior": "Remove eligible spell invisibility from the target.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.anchor_rune",
+      "name": "Anchor Rune",
+      "group": "Policy",
+      "required_behavior": "Mark an owned item as an explicitly registered travel anchor.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.shroud_eyes",
+      "name": "Shroud Eyes",
+      "group": "Primitive",
+      "required_behavior": "Apply native magical blindness.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.clear_eyes",
+      "name": "Clear Eyes",
+      "group": "Primitive",
+      "required_behavior": "Remove spell-induced blindness through the native removal effect.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.lift_hex",
+      "name": "Lift Hex",
+      "group": "Primitive",
+      "required_behavior": "Remove the eligible magical curse status.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.dread_presence",
+      "name": "Dread Presence",
+      "group": "Primitive",
+      "required_behavior": "Apply native magical fear to a susceptible target.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.night_eyes",
+      "name": "Night Eyes",
+      "group": "Primitive",
+      "required_behavior": "Grant native infravision for a duration.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.walking_shadow",
+      "name": "Walking Shadow",
+      "group": "Larger",
+      "required_behavior": "Controllable shadow instance with original body, canonical progress/resources, focus/anchor/plane limits and safe collapse",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.shadow_passage",
+      "name": "Shadow Passage",
+      "group": "Policy",
+      "required_behavior": "Apply an approved ethereal planar-presence overlay.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.see_the_unbodied",
+      "name": "See the Unbodied",
+      "group": "Primitive",
+      "required_behavior": "Expose eligible ethereal entities to the recipient's perception.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.cooling_shade",
+      "name": "Cooling Shade",
+      "group": "Policy",
+      "required_behavior": "Reduce local light and temperature for a bounded duration.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.deep_darkness",
+      "name": "Deep Darkness",
+      "group": "Primitive",
+      "required_behavior": "Reduce room illumination through the native light effect.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.clinging_hex",
+      "name": "Clinging Hex",
+      "group": "Primitive",
+      "required_behavior": "Apply the configured native curse modifier.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.haunting_shape",
+      "name": "Haunting Shape",
+      "group": "Gap",
+      "required_behavior": "Summon a temporary unsettling shadow creature. Source summons an actor; phantom room text is only an unapproved alternative, not complete coverage.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.shadow_blade",
+      "name": "Shadow Blade",
+      "group": "Gap",
+      "required_behavior": "Timed low-tier shadow sword; mon component-consuming permanent staff output; source-informed prototypes and explicit per-tier ownership/cleanup",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.shadowplay",
+      "name": "Shadowplay",
+      "group": "Policy",
+      "required_behavior": "Display a non-interactive shadow scene to the selected audience.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.shadow_mantle",
+      "name": "Shadow Mantle",
+      "group": "Policy",
+      "required_behavior": "Apply a finite shadow-themed protective layer.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.draw_into_flesh",
+      "name": "Draw into Flesh",
+      "group": "Policy",
+      "required_behavior": "Remove an eligible spell-owned ethereal overlay.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.champion_blade",
+      "name": "Champion Blade",
+      "group": "Gap",
+      "required_behavior": "Create a temporary enchanted sword with an explicitly selected combat profile. No summoned-hero linkage without a separate lifecycle adapter.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.lightning_lance",
+      "name": "Lightning Lance",
+      "group": "Policy",
+      "required_behavior": "Strike a target with electrical damage.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.second_breath",
+      "name": "Second Breath",
+      "group": "Primitive",
+      "required_behavior": "Restore a bounded amount of stamina.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.wakeful_mind",
+      "name": "Wakeful Mind",
+      "group": "Primitive",
+      "required_behavior": "Apply native magical wakefulness and its sleep interaction.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.leadfoot",
+      "name": "Leadfoot",
+      "group": "Gap",
+      "required_behavior": "Slow locomotion while applying an agility penalty. A bounded movement-delay modifier is missing; trait penalties alone are not the whole behavior.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.steal_breath",
+      "name": "Steal Breath",
+      "group": "Primitive",
+      "required_behavior": "Remove a bounded amount of the target's stamina.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.still_limbs",
+      "name": "Still Limbs",
+      "group": "Primitive",
+      "required_behavior": "Apply native magical paralysis after resistance.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.leaping_lightning",
+      "name": "Leaping Lightning",
+      "group": "Gap",
+      "required_behavior": "Source-informed bounded repeated random target selection; caster possible at quarter damage and Energy Shield protection; do not silently impose distinct targets or diminishing falloff",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.storm_locus",
+      "name": "Storm Locus",
+      "group": "Gap",
+      "required_behavior": "Maintain a local electrical hazard that strikes eligible occupants on bounded ticks. Needs a spell-owned hazard lifecycle, not an environmental resource heartbeat.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.charged_aegis",
+      "name": "Charged Aegis",
+      "group": "Policy",
+      "required_behavior": "Provide finite protection against configured electrical harm.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.luminous_trail",
+      "name": "Luminous Trail",
+      "group": "Policy",
+      "required_behavior": "Make native tracks left by the target easier to observe.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.quickened_healing",
+      "name": "Quickened Healing",
+      "group": "Primitive",
+      "required_behavior": "Increase native natural healing rates for a duration.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.lightning_pace",
+      "name": "Lightning Pace",
+      "group": "Gap",
+      "required_behavior": "Improve agility and actual movement speed for a duration. Requires the same bounded speed modifier as Fleet Step; no implicit cancellation of all movement effects.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.spark_lash",
+      "name": "Spark Lash",
+      "group": "Gap",
+      "required_behavior": "Timed low-tier lightning whip; mon component-consuming permanent staff output; use executable source over stale object comment",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.sky_lantern",
+      "name": "Sky Lantern",
+      "group": "Policy",
+      "required_behavior": "Show a luminous sky display where location policy permits.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.storm_spear",
+      "name": "Storm Spear",
+      "group": "Gap",
+      "required_behavior": "Create a temporary lightning-themed spear. Placement and expiry need explicit handling; questionable source rune references are not treated as spear semantics.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.raise_servitor",
+      "name": "Raise Servitor",
+      "group": "Policy",
+      "required_behavior": "Animate an eligible corpse with selected AI and restore its corpse lifecycle on expiry.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.call_outsider",
+      "name": "Call Outsider",
+      "group": "Gap",
+      "required_behavior": "Summon a temporary otherworldly creature under explicit control policy. Historical Gate summons a creature; a portal effect is not equivalent coverage.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.arcane_mark",
+      "name": "Arcane Mark",
+      "group": "Primitive",
+      "required_behavior": "Attach bounded spell-owned magical metadata to an item.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.feign_death",
+      "name": "Feign Death",
+      "group": "Gap",
+      "required_behavior": "Simulate death convincingly to configured observations while preserving the living character. Needs coordinated appearance, physiological observation and action restrictions; a corpse description alone is insufficient.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.silence_the_mind",
+      "name": "Silence the Mind",
+      "group": "Gap",
+      "required_behavior": "Suppress selected psionic actions and suspend relevant active links. Interception exists; active-link teardown and all relevant psionic entry points need explicit coverage.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.devouring_touch",
+      "name": "Devouring Touch",
+      "group": "Gap",
+      "required_behavior": "Drain delivered vitality into bounded healing for the caster. Requires measured transfer and configured target restrictions; no dragon cosmology imported.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.compelling_regard",
+      "name": "Compelling Regard",
+      "group": "Gap",
+      "required_behavior": "Persistent resisted PC/NPC charm with per-spell PC toggle and final-command IC whitelist; block privileged/OOC/account/alias bypasses",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.unmaking_ward",
+      "name": "Unmaking Ward",
+      "group": "Policy",
+      "required_behavior": "Intercept explicitly tagged elemental spell effects against the wearer.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.severing_refuge",
+      "name": "Severing Refuge",
+      "group": "Larger",
+      "required_behavior": "Usable refuge with defined builder-configurable elemental ward scope and safe temporary topology",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.apex_bane",
+      "name": "Apex Bane",
+      "group": "Larger",
+      "required_behavior": "Resisted bounded attack against builder-tagged exceptional magical beings, with explicit eligible/ineligible tests",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.empty_aura",
+      "name": "Empty Aura",
+      "group": "Primitive",
+      "required_behavior": "Reduce a specifically configured target reserve without crediting the caster.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.linked_threshold",
+      "name": "Linked Threshold",
+      "group": "Policy",
+      "required_behavior": "Create a bounded linked travel connection between authorised anchors.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.bar_the_elements",
+      "name": "Bar the Elements",
+      "group": "Policy",
+      "required_behavior": "Refuse explicitly tagged elemental interactions in the cell.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.turn_the_elements",
+      "name": "Turn the Elements",
+      "group": "Gap",
+      "required_behavior": "Redirect an eligible elemental attack to its source once under configured rules. A rejecting ward is not reflection; needs bounded redirect and recursion prevention.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.folded_pocket",
+      "name": "Folded Pocket",
+      "group": "Larger",
+      "required_behavior": "Finite items-only pocket storage; no nesting/living occupants; persist access/ownership and conserve contents on collapse",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.veil_of_elements",
+      "name": "Veil of Elements",
+      "group": "Policy",
+      "required_behavior": "Obscure a cell with a configured non-physical elemental mist.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.cross_the_veil",
+      "name": "Cross the Veil",
+      "group": "Policy",
+      "required_behavior": "Apply an approved native planar-presence transition.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.borrow_the_dead",
+      "name": "Borrow the Dead",
+      "group": "Policy",
+      "required_behavior": "Control an eligible corpse through the native shared-identity possession mechanism.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.open_threshold",
+      "name": "Open Threshold",
+      "group": "Policy",
+      "required_behavior": "Create a transient permitted exit between resolved cells.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.read_enchantment",
+      "name": "Read Enchantment",
+      "group": "Policy",
+      "required_behavior": "Let the recipient see authored information about permitted targets through LOOK.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.blade_barrier",
+      "name": "Blade Barrier",
+      "group": "Gap",
+      "required_behavior": "Block passage with a timed barrier that cuts crossing attempts. Traversal damage needs an explicit adapter; bare blocking is an unapproved reduction.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.mind_scour",
+      "name": "Mind Scour",
+      "group": "Policy",
+      "required_behavior": "Apply configured psychic injury through normal spell resistance.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.phantasm",
+      "name": "Phantasm",
+      "group": "Policy",
+      "required_behavior": "Display an audience-filtered, non-interactive apparition in the cell.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.unbodied_journey",
+      "name": "Unbodied Journey",
+      "group": "Policy",
+      "required_behavior": "Create a focusable native projection while the anchor body remains.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.erode_object",
+      "name": "Erode Object",
+      "group": "Policy",
+      "required_behavior": "Inflict finite material-gated damage on an item.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.leeching_edge",
+      "name": "Leeching Edge",
+      "group": "Gap",
+      "required_behavior": "Enchant a weapon to heal its wielder by a bounded share of actual damage dealt. Existing flat enchantment bonuses are not a per-hit measured lifesteal hook.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.voice_of_remains",
+      "name": "Voice of Remains",
+      "group": "Policy",
+      "required_behavior": "Raise a temporary corpse speech proxy using native corpse restoration rules.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.echo_servant",
+      "name": "Echo Servant",
+      "group": "Policy",
+      "required_behavior": "Relay authorised speech through a selected proxy using native language-aware output.",
+      "selected_sorcerer": true,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.drowning_grip",
+      "name": "Drowning Grip",
+      "group": "Gap",
+      "required_behavior": "Interfere with breathing through a bounded, resistible temporary effect. Source entry has no bound function; hypoxia rather than generic damage needs a specific adapter and acceptance.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.sow_sickness",
+      "name": "Sow Sickness",
+      "group": "Policy",
+      "required_behavior": "Apply one configured native disease to a susceptible target.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.caustic_spray",
+      "name": "Caustic Spray",
+      "group": "Policy",
+      "required_behavior": "Strike explicitly selected local targets with acid-type damage.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.gather_puddle",
+      "name": "Gather Puddle",
+      "group": "Policy",
+      "required_behavior": "Create or top up a native clean-water puddle in the current cell.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.wardcraft",
+      "name": "Wardcraft",
+      "group": "Policy addition",
+      "required_behavior": "Apply a basic tag-scoped personal ward; explicit FutureMUD addition, optional builder stock, never selected historical Sorcerer membership.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    },
+    {
+      "key": "arm.spell.renew_earth",
+      "name": "Renew Earth",
+      "group": "Policy addition",
+      "required_behavior": "Apply bounded scar repair to the eligible cell; explicit FutureMUD addition, optional builder stock, never selected historical Sorcerer membership.",
+      "selected_sorcerer": false,
+      "status": "pending_runtime_stock_and_native_acceptance",
+      "evidence": []
+    }
+  ],
+  "checks": [
+    {
+      "name": "Full core and shared-library suites",
+      "status": "passed",
+      "run_id": "20261002T082534Z-b4268c55ca99",
+      "passed": 4653,
+      "failed": 0,
+      "skipped": 0,
+      "source_fingerprint": "3bac28b0ff653d227067c771d403a5ca551dc47003199d1d6cca606c57a4f3ff",
+      "receipt": "Armageddon_Stage1A_Verification.json"
+    },
+    {
+      "name": "Native casting acceptance attempt1",
+      "status": "failed_harness_assertion_corrected",
+      "application_source_changed": false,
+      "cleanup": "passed",
+      "receipt": "Armageddon_Stage1A_Verification.json"
+    },
+    {
+      "name": "Native casting acceptance attempt2",
+      "status": "passed",
+      "cleanup": "passed",
+      "receipt": "Armageddon_Stage1A_Verification.json"
+    },
+    {
+      "name": "Independent scoped code review",
+      "status": "passed_after_four_repairs",
+      "receipt": "Armageddon_Stage1A_Verification.json"
+    }
+  ]
+}

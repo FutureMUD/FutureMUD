@@ -7,6 +7,8 @@ public sealed partial class MagicCastingService
 {
 	private readonly Dictionary<long, HashSet<(long Capability, long Spell)>> _spellEdges = [];
 	private readonly Dictionary<long, HashSet<(long Capability, long Spell)>> _traitEdges = [];
+	private readonly Dictionary<long, HashSet<long>> _skillCapPolicies = [];
+	private readonly HashSet<long> _cappedSkills = [];
 	private bool _indexed;
 	private readonly System.Collections.Concurrent.ConcurrentDictionary<long, byte> _evaluatingProgress = new();
 	public void DefinitionsChanged()
@@ -53,9 +55,9 @@ public sealed partial class MagicCastingService
 		var existing = Acquisition(target, spellId);
 		// Persist authorisation before opening the skill. A retry repairs a missing skill after a failed native save;
 		// native skill presence can never serve as an implicit grant after a failed acquisition write.
-		if (existing is null)
-			_store.Write(acquired: new(owner.Id, spellId, 1, spell.GradeProfile!.Version, _clock(), provenance, DateTime.UnixEpoch, 0));
-		if (!owner.HasTrait(trait)) { owner.AddTrait(trait, spell.GradeProfile!.OpeningSkill); Flush(target); }
+		RecordSkillCap(target, c, admission, existing is null
+			? new(owner.Id, spellId, 1, spell.GradeProfile!.Version, _clock(), provenance, DateTime.UnixEpoch, 0) : null);
+		if (!owner.HasTrait(trait)) { owner.AddTrait(trait, admission.OpeningSkill ?? spell.GradeProfile!.OpeningSkill); Flush(target); }
 		if (existing is not null) return new(false, true, "Already acquired; proficiency is retained.");
 		return new(true, true, "Spell acquired at controlled grade 1.");
 	}
@@ -88,10 +90,17 @@ public sealed partial class MagicCastingService
 	private void EnsureIndex()
 	{
 		if (_indexed) return;
-		_spellEdges.Clear(); _traitEdges.Clear();
+		_spellEdges.Clear(); _traitEdges.Clear(); _skillCapPolicies.Clear(); _cappedSkills.Clear();
 		foreach (var c in _world.MagicCapabilities.OfType<IMagicCastingCapability>().Where(x => x.CastingPolicy is not null))
 		{
 			var p = c.CastingPolicy!;
+			foreach (var admission in p.Admissions)
+			{
+				var traitId = admission.TraitId ?? p.DefaultTraitId;
+				if (!_skillCapPolicies.TryGetValue(traitId, out var policies)) _skillCapPolicies[traitId] = policies = [];
+				policies.Add(c.Id);
+				if (admission.RawSkillCap.HasValue) _cappedSkills.Add(traitId);
+			}
 			foreach (var a in p.Admissions)
 				foreach (var e in a.Prerequisites)
 				{

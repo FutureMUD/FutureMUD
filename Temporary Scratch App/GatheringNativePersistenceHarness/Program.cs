@@ -58,7 +58,7 @@ internal static partial class GNHProgram
 				["--probe"] => Probe(),
 				["--schema"] => InspectFreshSchema(),
 				["--run"] => RunAcceptanceChecks(),
-				["--casting-run"] => RunCastingAcceptanceChecks(),
+				["--casting-run"] => RunAllCastingAcceptanceChecks(),
 				["--casting-reader", .. string[] readerArguments] => RunCastingReader(readerArguments),
 				["--reader", .. string[] readerArguments] => RunReader(readerArguments),
 				["--land-run"] => RunNativeOrganicAcceptanceChecks(),

@@ -23,7 +23,7 @@ public sealed record ResolvedMagicCastingInvocation(Guid Id, long ActorId, long 
 	long CapabilityId, Guid CapabilityIdentity, Guid AdmissionId, long SpellId, long NativeSchoolId,
 	long TraitId, long ReserveHolderId, long ReserveId, int Grade, SpellPower Power, bool Overreach,
 	Difficulty Difficulty, string TargetSpecification, IReadOnlyList<SpellAdditionalParameter> TargetParameters,
-	IReadOnlyList<MagicCastingCost> Costs, int ConfigurationVersion, int ProfileVersion);
+	IReadOnlyList<MagicCastingCost> Costs, int ConfigurationVersion, int ProfileVersion, int ControlledGrade = 1);
 
 public sealed record MagicCastingQuote(ResolvedMagicCastingInvocation? Invocation, string Reason)
 {
@@ -46,6 +46,8 @@ public interface IMagicCastingService
 	MagicCastingGrant Enrol(ICharacter authority, ICharacter target, long capabilityId, string reason);
 	void NotifyProgress(ICharacter character, long? traitId = null, long? spellId = null);
 	void Reconcile(ICharacter actor);
+	/// <summary>Pure native improvement ceiling; null retains native policy. Never trims stored proficiency.</summary>
+	double? RawSkillImprovementCap(ICharacter actor, long traitId) => null;
 	string? QuarantineReason(ICharacter actor, long? spellId = null, long? traitId = null, long? reserveId = null,
 		IEnumerable<long>? itemIds = null);
 }

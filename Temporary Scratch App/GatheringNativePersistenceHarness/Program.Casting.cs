@@ -37,7 +37,13 @@ internal static partial class GNHProgram
 	private sealed record CastingReader(string Database, FixtureIds Earth, FixtureIds Sorcerer, long Spell,
 		long EarthCapability, long SorcererCapability, long EarthSkill, long SorcererSkill, Guid? Operation,
 		int Grade, double Balance, int Unresolved, bool VerifyEffects = false, FixtureIds? SecondBody = null, long? SecondInstance = null,
-		DateTime? SkillDeadline = null, DateTime? MasteryDeadline = null);
+		DateTime? SkillDeadline = null, DateTime? MasteryDeadline = null, double RawSkill = 42, bool VerifyCapLoss = false);
+
+	private static int RunAllCastingAcceptanceChecks()
+	{
+		var baseline = RunCastingAcceptanceChecks();
+		return baseline == 0 ? RunCompletionProgressionAcceptanceChecks() : baseline;
+	}
 
 	private static int RunCastingAcceptanceChecks()
 	{
@@ -301,7 +307,7 @@ internal static partial class GNHProgram
 		Require(state.ControlledGrade == input.Grade, "Restart grade mismatch.");
 		Require(store.Unresolved(input.Earth.CharacterId).Count == input.Unresolved, "Restart receipt mismatch.");
 		using var read = NewIndependentContext(database.ConnectionString);
-		Require(read.CharacterTraits.AsNoTracking().Single(x => x.CharacterId == input.Earth.CharacterId && x.TraitDefinitionId == input.EarthSkill).Value == 42, "Restart native skill mismatch.");
+		Require(read.CharacterTraits.AsNoTracking().Single(x => x.CharacterId == input.Earth.CharacterId && x.TraitDefinitionId == input.EarthSkill).Value == input.RawSkill, "Restart native skill mismatch.");
 		Require(read.CharactersMagicResources.AsNoTracking().Single(x => x.CharacterId == input.Earth.CharacterId && x.MagicResourceId == input.Earth.ResourceId).Amount == input.Balance, "Restart balance mismatch.");
 		Require(read.CharacterCastingEnrolments.Count(x => x.CharacterId == input.Earth.CharacterId) == 2, "Restart enrolment mismatch.");
 		if (input.SkillDeadline is { } skillDeadline) Require(store.Opportunity(input.Earth.CharacterId, input.EarthSkill)!.NextUtc == skillDeadline, "Restart skill deadline mismatch.");
@@ -312,6 +318,7 @@ internal static partial class GNHProgram
 			VerifyCastingQuarantineReload(database, input);
 		}
 		if (input.VerifyEffects || input.SecondBody is not null) VerifyCastingRuntimeReload(database, input);
+		if (input.VerifyCapLoss) VerifyCompletionCapLossReload(database, input);
 		Console.WriteLine($"ARM02-reader=passed grade:{state.ControlledGrade} balance:{input.Balance} unresolved:{input.Unresolved} operation:{input.Operation?.ToString() ?? "none"} process:{Environment.ProcessId}");
 		return 0;
 	}

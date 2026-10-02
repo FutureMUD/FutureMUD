@@ -18,7 +18,13 @@ public interface IMagicCastingCapability : IMagicCapability
 public sealed record MagicCastingPrerequisite(Guid Key, long SpellId, int MinimumGrade, double MinimumProficiency);
 
 public sealed record MagicCastingAdmission(Guid Key, long SpellId, long? TraitId, bool Starting,
-	int MinimumGrade, int MaximumGrade, IReadOnlyList<MagicCastingPrerequisite> Prerequisites);
+	int MinimumGrade, int MaximumGrade, IReadOnlyList<MagicCastingPrerequisite> Prerequisites,
+	double? OpeningSkill = null, double? RawSkillCap = null, bool CapRelativeProficiency = false)
+{
+	public double RequiredProficiency(ControlledSpellGrade grade) => CapRelativeProficiency
+		? grade.MinimumProficiency * RawSkillCap!.Value / 100.0
+		: grade.MinimumProficiency;
+}
 
 public sealed record MagicCastingPolicy(int Version, Guid Identity, bool Enabled, long DefaultTraitId,
 	long SourceResourceId, long ReserveResourceId, bool PassiveEntitlement, int StartingGrantVersion,
@@ -32,7 +38,7 @@ public sealed record SpellScalarBinding(string List, int Index, string Effect, s
 public sealed record ControlledSpellProfile(int Version, IReadOnlyList<ControlledSpellGrade> Grades,
 	double OverreachMultiplier, int OverreachDifficultySteps, double MasteryChance,
 	TimeSpan MasteryInterval, TimeSpan SkillInterval, double OpeningSkill,
-	IReadOnlyList<SpellScalarBinding> ScalarBindings);
+	IReadOnlyList<SpellScalarBinding> ScalarBindings, ControlledSpellEfficiency? Efficiency = null);
 
 public interface IControlledMagicSpell : IMagicSpell
 {

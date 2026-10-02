@@ -12,6 +12,7 @@ public sealed record CastingOperation(Guid Id, long CharacterId, long ActorId, l
 
 public interface IMagicCastingStateStore
 {
+	IReadOnlySet<long> CappedTraits(long characterId);
 	AcquiredSpell? Acquisition(long characterId, long spellId);
 	CastingSkillOpportunity? Opportunity(long characterId, long traitId);
 	CastingEnrolment? Enrolment(long characterId, Guid capabilityIdentity);
@@ -24,6 +25,13 @@ public interface IMagicCastingStateStore
 /// <summary>Immediate isolated writes. Progress and the operation stage cross one optimistic transaction.</summary>
 public sealed class MagicCastingStateStore : IMagicCastingStateStore
 {
+	public const string SkillCapRecorded = "SkillCapRecorded";
+	public IReadOnlySet<long> CappedTraits(long characterId)
+	{
+		using (new FMDB()) return FMDB.Context.MagicCastingOperations.AsNoTracking()
+			.Where(x => x.CharacterId == characterId && x.Stage == SkillCapRecorded)
+			.Select(x => x.TraitDefinitionId).Distinct().ToHashSet();
+	}
 	public AcquiredSpell? Acquisition(long characterId, long spellId)
 	{
 		using (new FMDB())
@@ -52,7 +60,7 @@ public sealed class MagicCastingStateStore : IMagicCastingStateStore
 	public IReadOnlyList<CastingOperation> Unresolved(long? characterId = null)
 	{
 		using (new FMDB()) return FMDB.Context.MagicCastingOperations.AsNoTracking().Where(x => (!characterId.HasValue || x.CharacterId == characterId) &&
-			x.Stage != "Completed" && x.Stage != "Reconciled").AsEnumerable().Select(Read).ToArray();
+			x.Stage != "Completed" && x.Stage != "Reconciled" && x.Stage != SkillCapRecorded).AsEnumerable().Select(Read).ToArray();
 	}
 	public CastingOperation? Operation(Guid id)
 	{

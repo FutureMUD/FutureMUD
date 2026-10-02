@@ -30,6 +30,7 @@ public sealed partial class MagicCastingService
 				payload = new XElement("Casting", new XAttribute("version", 1), new XAttribute("admission", resolved.AdmissionId),
 					new XAttribute("identity", resolved.CapabilityIdentity), new XAttribute("grade", resolved.Grade),
 					new XAttribute("profile", resolved.ProfileVersion), new XAttribute("priorGrade", acquired.ControlledGrade),
+					new XAttribute("controlledGrade", resolved.ControlledGrade),
 					new XAttribute("skillEligible", skillEligible), new XAttribute("masteryEligible", masteryEligible),
 					new XAttribute("skillBefore", owner.TraitRawValue(_world.Traits.Get(resolved.TraitId))),
 					new XElement("Targets", new XCData(intent.Targets)),
@@ -129,7 +130,7 @@ public sealed partial class MagicCastingService
 	{
 		var x = a.Quote.Invocation!; var y = b.Quote.Invocation!;
 		return a.Configuration == b.Configuration && x.ActorId == y.ActorId && x.BodyId == y.BodyId && x.CapabilityIdentity == y.CapabilityIdentity && x.AdmissionId == y.AdmissionId &&
-			x.ProfileVersion == y.ProfileVersion && x.TraitId == y.TraitId && x.Grade == y.Grade && x.Difficulty == y.Difficulty &&
+			x.ProfileVersion == y.ProfileVersion && x.TraitId == y.TraitId && x.Grade == y.Grade && x.ControlledGrade == y.ControlledGrade && x.Difficulty == y.Difficulty &&
 			x.Costs.SequenceEqual(y.Costs) && a.Items.Order().SequenceEqual(b.Items.Order()) &&
 			Targets(a.Target).SequenceEqual(Targets(b.Target), ReferenceEqualityComparer.Instance) && a.Target.Parameters.SequenceEqual(b.Target.Parameters);
 
@@ -146,7 +147,7 @@ public sealed partial class MagicCastingService
 		{
 			var op = _store.Operation(id) ?? _uncertain.GetValueOrDefault(id);
 			if (op is null || op.CharacterId != Owner(target).Id) return new(false, false, "No such operation for that canonical character.");
-			if (op.Stage is "Completed" or "Reconciled") return new(false, true, "Operation already finalised.");
+			if (op.Stage is "Completed" or "Reconciled" or MagicCastingStateStore.SkillCapRecorded) return new(false, true, "Operation already finalised.");
 			XElement? data = null;
 			try { data = XElement.Parse(op.Definition); } catch (System.Xml.XmlException) { /* Staff can acknowledge corrupt state, without inferring progress. */ }
 			var acquired = Acquisition(target, op.SpellId);

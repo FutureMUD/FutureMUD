@@ -1,0 +1,86 @@
+{
+  "core_library": {
+    "status": "passed",
+    "run_id": "20261002T082534Z-b4268c55ca99",
+    "passed": 4653,
+    "core_passed": 4110,
+    "library_passed": 543,
+    "failed": 0,
+    "skipped": 0,
+    "source_fingerprint": "3bac28b0ff653d227067c771d403a5ca551dc47003199d1d6cca606c57a4f3ff",
+    "source_stable": true,
+    "receipt": ".artifacts/test-runs/20261002T082534Z-b4268c55ca99/summary.json"
+  },
+  "focused_runs": [
+    {
+      "status": "passed",
+      "run_id": "20261002T080456Z-7d076c66d33f",
+      "passed": 93,
+      "source_fingerprint": "2f0fd9ce3a6204d67048cc3bca667f8e0c399b69bc30fd6ec0e7c81d73b04045"
+    },
+    {
+      "status": "passed",
+      "run_id": "20261002T082139Z-f647a5ab5bd9",
+      "passed": 99,
+      "source_fingerprint": "e4e642c8a31b6afc48537e8d85cdd478593720ccd99c9ba7129a4dbcd3308c49"
+    }
+  ],
+  "independent_review": {
+    "status": "passed_after_repairs",
+    "findings_resolved": 4,
+    "scope": "caps, XML/builders compatibility, source efficiency, controlled mastery bindings, durable cap markers"
+  },
+  "native_attempt1": {
+    "status": "failed",
+    "baseline_status": "passed",
+    "assertion": "Harness expected balance50 after mastery6/request7; approved pre-modifier curve charges75 and leaves25.",
+    "application_source_changed": false,
+    "cleanup_status": "passed",
+    "log": ".artifacts/test-runs/native-armageddon-20261002-stage1A/native-attempt1.log"
+  },
+  "post_suite_change": "Native harness expected balances corrected only; production source unchanged. Receipt documentation follows checks.",
+  "binaries_before_retry": {
+    "harness": "4D5C4023D8036BD45BE630172DC69E83610039FD0DFEFEBF45E6F61940284841",
+    "core": "28365665B2944C123CA0AA05E072F66B9E25C381B96FA3E67A520805FCD57A46",
+    "library": "119AC2ED8A3C7B21FF14EDE2D6774BD13CA0E99BA8BA4F1EB38836CFEFEED898"
+  },
+  "native_attempt2": {
+    "status": "passed",
+    "exit_code": 0,
+    "baseline_status": "passed",
+    "checks": [
+      "blank snapshot import and migration/model parity",
+      "native Character/Body/Skill openings 30/60 and cap60",
+      "lost permanent route inhibits gains and preserves stored raw60",
+      "non-admin quote/commit source efficiency50/25/7",
+      "grade6 to7 success with one mastery sample, cost75",
+      "grade8 refusal",
+      "four completed paid receipts",
+      "separate reader process grade7/balance18/raw60/enrolments2",
+      "removed admission cap0 persists after restart"
+    ],
+    "database_cleanup": "deleted-owned-database (both fixtures)",
+    "instance_cleanup": "gracefully-shut-down-and-deleted-owned-instance",
+    "log": ".artifacts/test-runs/native-armageddon-20261002-stage1A/native-attempt2.log",
+    "limitations": [
+      "controlled native fixture with production objects/builders/command adapter and disposable MySQL",
+      "no installed-stock Telnet scenario",
+      "stock PRACTICE (N06) not run",
+      "full82 stock/154 candidates not implemented"
+    ]
+  },
+  "completed_utc": "2026-10-02 08:37:40 UTC",
+  "final_artifact_sha256": {
+    ".artifacts/test-runs/native-armageddon-20261002-stage1A/native-attempt1.log": "52390f3f5979accc8867f5c02d4727bdd6247447e6ed641a686eb4c7e6c212b2",
+    ".artifacts/test-runs/native-armageddon-20261002-stage1A/native-attempt2.log": "16f2e541510ae10a8e184b2d917568350afcdb0065f2af1bd050553bdd266ca3",
+    "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll": "4c53a1e8d2274a89ec3191132edb6b5c250296978f0398679ea7cf521eb7237b",
+    "MudSharpCore/bin/Debug/net10.0/MudSharp.dll": "28365665b2944c123ca0aa05e072f66b9e25c381b96fa3e67a520805fcd57a46",
+    "FutureMUDLibrary/bin/Debug/net10.0/FutureMUDLibrary.dll": "119ac2ed8a3c7b21ff14ede2d6774bd13ca0e99ba8ba4f1eb38836cfefeed898"
+  },
+  "production_assemblies_unchanged_after_suite": true,
+  "native_builds": {
+    "attempt1": "passed; 0 warnings/errors",
+    "attempt2": "passed; 0 warnings/errors"
+  },
+  "full_plan_native_qualification": "pending; N07 source curve passed in controlled native fixture; no full stock/installed-world qualification"
+}

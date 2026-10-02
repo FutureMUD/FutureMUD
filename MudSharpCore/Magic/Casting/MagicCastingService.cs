@@ -73,7 +73,8 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		if (grade > acquired.ControlledGrade && (!overreach || grade != acquired.ControlledGrade + 1))
 			return "Only the single next grade may be attempted with explicit overreach.";
 		if (overreach && grade != acquired.ControlledGrade + 1) return "Overreach must request exactly your next uncontrolled grade.";
-		if (overreach && Owner(actor).TraitRawValue(trait) < g.MinimumProficiency) return $"Overreach into grade {grade} requires raw proficiency {g.MinimumProficiency}.";
+		var requiredProficiency = a.RequiredProficiency(g);
+		if (overreach && Owner(actor).TraitRawValue(trait) < requiredProficiency) return $"Overreach into grade {grade} requires raw proficiency {requiredProficiency}.";
 		var steps = (long)s.CastingDifficulty + g.DifficultySteps + (overreach ? profile.OverreachDifficultySteps : 0);
 		if (steps < 0 || steps >= (int)Difficulty.Impossible || !Enum.IsDefined((Difficulty)steps)) return "The resolved casting difficulty is impossible or out of range.";
 		difficulty = (Difficulty)steps;
@@ -107,11 +108,14 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		var targets = target.Target is PerceivableGroup group ? group.Members : target.Target is { } single ? new[] { single } : [];
 		foreach (var individual in targets)
 			if (!actor.CanInteractPlanar(individual, PlanarInteractionKind.Magic)) throw new InvalidOperationException("Your current plane cannot reach a target with magic.");
-		var copy = spell.CastingCopy(actor, trait, intent.Grade, power, difficulty);
+		var controlledGrade = Acquisition(actor, spell.Id)!.ControlledGrade;
+		var copy = spell.CastingCopy(actor, trait, intent.Grade, power, difficulty, controlledGrade);
 		List<CastingPayment> payments = [];
 		foreach (var (resource, expression) in copy.CastingCosts)
 		{
-			var amount = expression.EvaluateWith(actor, trait, TraitBonusContext.SpellCost, ("self", ReferenceEquals(actor, target.Target) ? 1 : 0));
+			var amount = resource.Id == policy.SourceResourceId && spell.GradeProfile.Efficiency is { } efficiency
+				? efficiency.Cost(controlledGrade, intent.Grade)
+				: expression.EvaluateWith(actor, trait, TraitBonusContext.SpellCost, ("self", ReferenceEquals(actor, target.Target) ? 1 : 0));
 			var destination = resource.Id == policy.SourceResourceId ? _world.MagicResources.Get(policy.ReserveResourceId)! : resource;
 			if (resource.Id == policy.SourceResourceId && intent.Overreach) amount *= spell.GradeProfile.OverreachMultiplier;
 			if (!double.IsFinite(amount) || amount < 0) throw new InvalidOperationException($"cost/{resource.Id}: amount must be finite and non-negative.");
@@ -134,7 +138,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		var invocation = new ResolvedMagicCastingInvocation(Guid.NewGuid(), actor.InstanceId, actor.Body.Id, Owner(actor).Id,
 			capability.Id, policy.Identity, admission.Key, spell.Id, spell.School.Id, trait.Id, Owner(actor).Id, policy.ReserveResourceId,
 			intent.Grade, power, intent.Overreach, difficulty, intent.Targets, Array.AsReadOnly(target.Parameters),
-			Array.AsReadOnly(payments.Select(x => new MagicCastingCost(x.Holder.Id, x.Resource.Id, x.Amount)).ToArray()), policy.Version, spell.GradeProfile.Version);
+			Array.AsReadOnly(payments.Select(x => new MagicCastingCost(x.Holder.Id, x.Resource.Id, x.Amount)).ToArray()), policy.Version, spell.GradeProfile.Version, controlledGrade);
 		var expressions = spell.CastingCosts.Values.Append(spell.EffectDurationExpression)
 			.Concat(spell.SpellEffects.Concat(spell.CasterSpellEffects).SelectMany(ScrollSpellCompatibility.Expressions).Select(x => x.Expression))
 			.Where(x => x is not null).Select(x => new

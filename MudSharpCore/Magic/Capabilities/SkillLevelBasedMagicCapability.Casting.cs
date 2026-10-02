@@ -25,7 +25,8 @@ public partial class SkillLevelBasedMagicCapability
 					(bool)x.Attribute("starting")!, (int)x.Attribute("min")!, (int)x.Attribute("max")!,
 					Array.AsReadOnly(x.Elements("Prerequisite").Select(e => new MagicCastingPrerequisite(
 						Guid.Parse((string)e.Attribute("key")!), (long)e.Attribute("spell")!, (int)e.Attribute("grade")!,
-						(double)e.Attribute("proficiency")!)).ToArray()))).ToArray()));
+						(double)e.Attribute("proficiency")!)).ToArray()), (double?)x.Attribute("opening"),
+					(double?)x.Attribute("rawCap"), (bool?)x.Attribute("capRelative") ?? false)).ToArray()));
 		}
 		catch (Exception ex)
 		{
@@ -45,6 +46,9 @@ public partial class SkillLevelBasedMagicCapability
 			p.Admissions.Select(x => new XElement("Admission", new XAttribute("key", x.Key), new XAttribute("spell", x.SpellId),
 				x.TraitId.HasValue ? new XAttribute("trait", x.TraitId.Value) : null, new XAttribute("starting", x.Starting),
 				new XAttribute("min", x.MinimumGrade), new XAttribute("max", x.MaximumGrade),
+				x.OpeningSkill.HasValue ? new XAttribute("opening", x.OpeningSkill.Value) : null,
+				x.RawSkillCap.HasValue ? new XAttribute("rawCap", x.RawSkillCap.Value) : null,
+				x.CapRelativeProficiency ? new XAttribute("capRelative", true) : null,
 				x.Prerequisites.Select(e => new XElement("Prerequisite", new XAttribute("key", e.Key),
 					new XAttribute("spell", e.SpellId), new XAttribute("grade", e.MinimumGrade), new XAttribute("proficiency", e.MinimumProficiency)))))));
 	}
@@ -77,6 +81,11 @@ public partial class SkillLevelBasedMagicCapability
 		foreach (var a in p.Admissions)
 		{
 			CheckTrait(a.TraitId ?? p.DefaultTraitId, $"Admission {a.Key}");
+			if (a.OpeningSkill is { } opening && (!double.IsFinite(opening) || opening < 0) ||
+				a.RawSkillCap is { } cap && (!double.IsFinite(cap) || cap <= 0) ||
+				a.OpeningSkill is { } opened && a.RawSkillCap is { } ceiling && opened > ceiling ||
+				a.CapRelativeProficiency && a.RawSkillCap is null)
+				errors.Add($"Admission {a.Key}: invalid opening, raw cap or cap-relative proficiency policy.");
 			if (Gameworld.MagicSpells.Get(a.SpellId) is not IControlledMagicSpell spell || spell.GradeProfile is null)
 				errors.Add($"Admission {a.Key}: missing spell/grade profile {a.SpellId}.");
 			else
@@ -85,6 +94,10 @@ public partial class SkillLevelBasedMagicCapability
 				if (!spell.CastingCosts.Any(x => x.Key.Id == p.SourceResourceId)) errors.Add($"Spell {a.SpellId}: missing designated cost resource {p.SourceResourceId}.");
 				if (a.MinimumGrade < 1 || a.MaximumGrade < a.MinimumGrade || a.MaximumGrade > spell.GradeProfile.Grades.Count)
 					errors.Add($"Admission {a.Key}: invalid grade range.");
+				if (a.CapRelativeProficiency && spell.GradeProfile.Grades.Any(x => x.MinimumProficiency > 100))
+					errors.Add($"Admission {a.Key}: cap-relative thresholds must be percentages from 0 to 100.");
+				if (a.RawSkillCap is { } rawCap && (a.OpeningSkill ?? spell.GradeProfile.OpeningSkill) > rawCap)
+					errors.Add($"Admission {a.Key}: opening exceeds its raw cap.");
 			}
 			if (a.Prerequisites.Count > 512 || a.Prerequisites.Select(x => x.SpellId).Distinct().Count() != a.Prerequisites.Count)
 				errors.Add($"Admission {a.Key}: duplicate or excessive prerequisites.");
@@ -128,6 +141,7 @@ public partial class SkillLevelBasedMagicCapability
 			foreach (var a in p.Admissions)
 			{
 				sb.AppendLine($"  {a.Key}: spell {a.SpellId}, trait {a.TraitId ?? p.DefaultTraitId}, grades {a.MinimumGrade}-{a.MaximumGrade}, starting {a.Starting.ToColouredString()}");
+				sb.AppendLine($"    Opening: {a.OpeningSkill?.ToString("N2", actor) ?? "profile default"}; raw improvement cap: {a.RawSkillCap?.ToString("N2", actor) ?? "native"}; proficiency gates: {(a.CapRelativeProficiency ? "percent of route cap" : "absolute raw skill")}");
 				foreach (var e in a.Prerequisites) sb.AppendLine($"    {e.Key}: spell {e.SpellId}, grade {e.MinimumGrade}, raw skill {e.MinimumProficiency.ToString("N2", actor)}");
 			}
 		}

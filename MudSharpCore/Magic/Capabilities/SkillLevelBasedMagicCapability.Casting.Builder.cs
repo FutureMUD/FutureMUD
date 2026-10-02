@@ -15,6 +15,8 @@ public partial class SkillLevelBasedMagicCapability
 	#3casting entry trait <spell> <skill|default>#0
 	#3casting entry starting <spell> on|off#0
 	#3casting entry grades <spell> <min> <max>#0
+	#3casting entry skill <spell> <opening> <raw cap> absolute|relative#0
+	#3casting entry skill <spell> default#0
 	#3casting prerequisite add <spell> <prerequisite> <grade> <raw skill>#0
 	#3casting prerequisite remove <spell> <prerequisite>#0
 	#3casting validate|show#0
@@ -91,6 +93,19 @@ Removing admission preserves player knowledge. Starting grants require explicit 
 									(Gameworld.Traits.GetByIdOrName(arg) ?? throw new FormatException("No such skill.")).Id }; break;
 							case "grades": entries[position] = admission with { MinimumGrade = int.Parse(command.PopSpeech(), CultureInfo.InvariantCulture),
 								MaximumGrade = int.Parse(command.PopSpeech(), CultureInfo.InvariantCulture) }; break;
+							case "skill":
+								var openingArgument = command.PopSpeech();
+								if (openingArgument.EqualTo("default"))
+									entries[position] = admission with { OpeningSkill = null, RawSkillCap = null, CapRelativeProficiency = false };
+								else
+								{
+									var opening = double.Parse(openingArgument, CultureInfo.InvariantCulture);
+									var cap = double.Parse(command.PopSpeech(), CultureInfo.InvariantCulture);
+									var scale = command.PopSpeech().ToLowerInvariant();
+									if (scale is not ("absolute" or "relative")) throw new FormatException("Specify absolute or relative proficiency gates.");
+									entries[position] = admission with { OpeningSkill = opening, RawSkillCap = cap, CapRelativeProficiency = scale == "relative" };
+								}
+								break;
 							default: throw new FormatException("Unknown entry edit.");
 						}
 					}

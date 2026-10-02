@@ -45,11 +45,16 @@ public sealed record ControlledSpellGrade(int Grade, SpellPower Power, double Mi
 
 public sealed record SpellScalarBinding(string List, int Index, string Effect, string Field, string Expression);
 
+/// <summary>Explicit practice policy; a null maximum uses the ordinary admission/profile range.</summary>
+public sealed record ControlledSpellPractice(bool Enabled, Difficulty Difficulty, TimeSpan Duration,
+	double EnergyMultiplier, int? MaximumGrade, bool RequiresSpeech, bool RequiresFreeHand, bool AllowMovement);
+
 /// <summary>One shared grade meaning per spell; capability admissions may only narrow its range.</summary>
 public sealed record ControlledSpellProfile(int Version, IReadOnlyList<ControlledSpellGrade> Grades,
 	double OverreachMultiplier, int OverreachDifficultySteps, double MasteryChance,
 	TimeSpan MasteryInterval, TimeSpan SkillInterval, double OpeningSkill,
-	IReadOnlyList<SpellScalarBinding> ScalarBindings, ControlledSpellEfficiency? Efficiency = null);
+	IReadOnlyList<SpellScalarBinding> ScalarBindings, ControlledSpellEfficiency? Efficiency = null,
+	ControlledSpellPractice? Practice = null);
 
 public interface IControlledMagicSpell : IMagicSpell
 {

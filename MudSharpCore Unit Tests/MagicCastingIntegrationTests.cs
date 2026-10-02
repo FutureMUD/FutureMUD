@@ -33,11 +33,14 @@ public class MagicCastingIntegrationTests
 		var f = new MagicCastingFixture(); f.Acquire();
 		MagicModule.MagicGeneric(f.Actor.Object, "earth cast \"Stone Skin\" grade 3 overreach on self");
 		Assert.IsTrue(f.Messages.Last().Contains("Multiple routes")); Assert.AreEqual(0, f.Rolls);
-		foreach (var mode in new[] { "practice", "formula", "quiet", "area" })
+		foreach (var mode in new[] { "formula", "quiet", "area" })
 		{
 			MagicModule.MagicGeneric(f.Actor.Object, "earth " + mode);
 			Assert.IsTrue(f.Messages.Last().Contains("unavailable"));
 		}
+		MagicModule.MagicGeneric(f.Actor.Object, "earth practice \"Stone Skin\" grade 3 overreach via Earth");
+		Assert.IsTrue(f.Messages.Last().Contains("Practice is not enabled"));
+		Assert.AreEqual(100.0, f.Balances[f.Resources[1]]); Assert.AreEqual(0, f.Rolls);
 		MagicModule.MagicGeneric(f.Actor.Object, "earth cast \"Stone Skin\" standard");
 		Assert.AreEqual(0, f.Rolls);
 		MagicModule.MagicGeneric(f.Actor.Object, "earth cast \"Stone Skin\" grade 3 overreach on self via Earth");

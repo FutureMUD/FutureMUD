@@ -10,6 +10,7 @@ public sealed partial class MagicCastingService
 {
 	public MagicCastingResult Cast(MagicCastingIntent intent)
 	{
+		if (intent.Mode == MagicCastingMode.Practice) return StartPractice(intent);
 		var actor = intent.Actor;
 		var owner = Owner(actor);
 		lock (Guard(actor))
@@ -72,32 +73,9 @@ public sealed partial class MagicCastingService
 				payload.SetAttributeValue("outcome", execution.CheckResult?.Outcome.ToString() ?? "Unknown");
 				payload.SetAttributeValue("applied", execution.AppliedIntendedOperation);
 				Stage("EffectsExecuted");
-				if (skillEligible && execution.CheckResult is { } check)
-				{
-					Stage("ImprovingSkill");
-					owner.GetTrait(_world.Traits.Get(resolved.TraitId)).TraitUsed(owner, check.Outcome,
-						resolved.Difficulty.Lowest(_world.GetCheck(CheckType.CastSpellCheck).MaximumDifficultyForImprovement),
-						TraitUseType.Practical, check.ActiveBonuses ?? []);
-					Flush(actor);
-					Stage("SkillRecorded");
-				}
-				if (masteryEligible && invocation.Status == MagicInvocationStatus.Succeeded && execution.AppliedIntendedOperation &&
-					execution.CheckResult?.Outcome >= prepared.Spell.MinimumSuccessThreshold)
-				{
-					Stage("SamplingMastery");
-					var sample = _random();
-					if (!double.IsFinite(sample) || sample is < 0 or >= 1) throw new InvalidOperationException("Invalid mastery random sample.");
-					_checkpoint?.Invoke("MasterySampledBeforeWrite");
-					payload.SetAttributeValue("masterySample", sample);
-					payload.SetAttributeValue("masteryAdvance", sample < profile.MasteryChance);
-					Stage("MasterySampleRecorded");
-					if (sample < profile.MasteryChance)
-					{
-						var current = Acquisition(actor, intent.SpellId)!;
-						_store.Write(operation, current with { ControlledGrade = intent.Grade });
-						_checkpoint?.Invoke("GradePersisted");
-					}
-				}
+				RecordProgress(intent, prepared, execution.CheckResult,
+					invocation.Status == MagicInvocationStatus.Succeeded && execution.AppliedIntendedOperation,
+					skillEligible, masteryEligible, payload, Stage, () => operation!);
 				Flush(actor);
 				Stage("Completed");
 				return new(invocation.Status == MagicInvocationStatus.Succeeded ? MagicCastingStatus.Succeeded : MagicCastingStatus.Failed,
@@ -127,10 +105,38 @@ public sealed partial class MagicCastingService
 		}
 	}
 
+	private void RecordProgress(MagicCastingIntent intent, Prepared prepared, CheckOutcome? check,
+		bool successfulOperation, bool skillEligible, bool masteryEligible, XElement payload,
+		Action<string> stage, Func<CastingOperation> operation, ControlledSpellProfile? capturedProfile = null)
+	{
+		var actor = intent.Actor; var owner = Owner(actor); var resolved = prepared.Quote.Invocation!;
+		if (skillEligible && check is not null)
+		{
+			stage("ImprovingSkill");
+			owner.GetTrait(_world.Traits.Get(resolved.TraitId)).TraitUsed(owner, check.Outcome,
+				resolved.Difficulty.Lowest(_world.GetCheck(CheckType.CastSpellCheck).MaximumDifficultyForImprovement),
+				TraitUseType.Practical, check.ActiveBonuses ?? []);
+			Flush(actor); stage("SkillRecorded");
+		}
+		var profile = capturedProfile ?? prepared.Spell.GradeProfile!;
+		if (!masteryEligible || !successfulOperation || check is null || check.Outcome < prepared.Spell.MinimumSuccessThreshold) return;
+		stage("SamplingMastery");
+		var sample = _random();
+		if (!double.IsFinite(sample) || sample is < 0 or >= 1) throw new InvalidOperationException("Invalid mastery random sample.");
+		_checkpoint?.Invoke("MasterySampledBeforeWrite");
+		payload.SetAttributeValue("masterySample", sample);
+		payload.SetAttributeValue("masteryAdvance", sample < profile.MasteryChance);
+		stage("MasterySampleRecorded");
+		if (sample >= profile.MasteryChance) return;
+		var current = Acquisition(actor, intent.SpellId)!;
+		_store.Write(operation(), current with { ControlledGrade = intent.Grade });
+		_checkpoint?.Invoke("GradePersisted");
+	}
+
 	private static bool Equivalent(Prepared a, Prepared b)
 	{
 		var x = a.Quote.Invocation!; var y = b.Quote.Invocation!;
-		return a.Configuration == b.Configuration && x.ActorId == y.ActorId && x.BodyId == y.BodyId && x.CapabilityIdentity == y.CapabilityIdentity && x.AdmissionId == y.AdmissionId &&
+		return a.Configuration == b.Configuration && x.Mode == y.Mode && x.ActorId == y.ActorId && x.BodyId == y.BodyId && x.CapabilityIdentity == y.CapabilityIdentity && x.AdmissionId == y.AdmissionId &&
 			x.ProfileVersion == y.ProfileVersion && x.TraitId == y.TraitId && x.Grade == y.Grade && x.ControlledGrade == y.ControlledGrade && x.Difficulty == y.Difficulty &&
 			x.Costs.SequenceEqual(y.Costs) && a.Items.Order().SequenceEqual(b.Items.Order()) &&
 			Targets(a.Target).SequenceEqual(Targets(b.Target), ReferenceEqualityComparer.Instance) && a.Target.Parameters.SequenceEqual(b.Target.Parameters);
@@ -148,6 +154,8 @@ public sealed partial class MagicCastingService
 		{
 			var op = _store.Operation(id) ?? _uncertain.GetValueOrDefault(id);
 			if (op is null || op.CharacterId != Owner(target).Id) return new(false, false, "No such operation for that canonical character.");
+			if (_activePractices.ContainsKey(id) || _mutating.ContainsKey(Owner(target).Id))
+				return new(false, false, "Casting work is still running. Stop the live action before reconciling its operation.");
 			if (MagicCastingStateStore.TerminalStages.Contains(op.Stage)) return new(false, true, "Operation already finalised.");
 			XElement? data = null;
 			try { data = XElement.Parse(op.Definition); } catch (System.Xml.XmlException) { /* Staff can acknowledge corrupt state, without inferring progress. */ }

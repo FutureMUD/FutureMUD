@@ -13,8 +13,9 @@ public sealed record AcquiredSpell(long CharacterId, long SpellId, int Controlle
 public sealed record MagicCastingRoute(long CapabilityId, Guid AdmissionId, long SpellId, long TraitId,
 	long ReserveId, bool Available, string Reason);
 
+public enum MagicCastingMode { Manifest, Practice }
 public sealed record MagicCastingIntent(ICharacter Actor, long CapabilityId, long SpellId, int Grade,
-	bool Overreach, string Targets);
+	bool Overreach, string Targets, MagicCastingMode Mode = MagicCastingMode.Manifest);
 
 public sealed record MagicCastingCost(long HolderId, long ResourceId, double Amount);
 
@@ -23,14 +24,15 @@ public sealed record ResolvedMagicCastingInvocation(Guid Id, long ActorId, long 
 	long CapabilityId, Guid CapabilityIdentity, Guid AdmissionId, long SpellId, long NativeSchoolId,
 	long TraitId, long ReserveHolderId, long ReserveId, int Grade, SpellPower Power, bool Overreach,
 	Difficulty Difficulty, string TargetSpecification, IReadOnlyList<SpellAdditionalParameter> TargetParameters,
-	IReadOnlyList<MagicCastingCost> Costs, int ConfigurationVersion, int ProfileVersion, int ControlledGrade = 1);
+	IReadOnlyList<MagicCastingCost> Costs, int ConfigurationVersion, int ProfileVersion, int ControlledGrade = 1,
+	MagicCastingMode Mode = MagicCastingMode.Manifest);
 
 public sealed record MagicCastingQuote(ResolvedMagicCastingInvocation? Invocation, string Reason)
 {
 	public bool Allowed => Invocation is not null;
 }
 
-public enum MagicCastingStatus { Refused, Failed, Succeeded, NeedsReview }
+public enum MagicCastingStatus { Refused, Failed, Succeeded, NeedsReview, Started }
 public sealed record MagicCastingResult(MagicCastingStatus Status, string Message, Guid? OperationId = null);
 public sealed record MagicCastingGrant(bool Changed, bool Allowed, string Message);
 
@@ -46,6 +48,8 @@ public interface IMagicCastingService
 	MagicCastingGrant Enrol(ICharacter authority, ICharacter target, long capabilityId, string reason);
 	void NotifyProgress(ICharacter character, long? traitId = null, long? spellId = null);
 	void Reconcile(ICharacter actor);
+	/// <summary>Interrupts owned prepaid practice without refund or progress; does not resume work.</summary>
+	void InterruptPractice(ICharacter actor, string reason) { }
 	/// <summary>Re-evaluates existing canonical reserve maxima without granting energy, knowledge or progression.</summary>
 	void NotifyCapacityChange(ICharacter actor) { }
 	/// <summary>Pure native improvement ceiling; null retains native policy. Never trims stored proficiency.</summary>

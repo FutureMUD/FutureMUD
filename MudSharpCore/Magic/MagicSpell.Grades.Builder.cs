@@ -24,6 +24,7 @@ public partial class MagicSpell
 				case "mastery": p = p with { MasteryChance = Number(), MasteryInterval = TimeSpan.FromSeconds(Number()) }; break;
 				case "skill": p = p with { SkillInterval = TimeSpan.FromSeconds(Number()), OpeningSkill = Number() }; break;
 				case "overreach": p = p with { OverreachMultiplier = Number(), OverreachDifficultySteps = Integer() }; break;
+				case "practice": return BuildingCommandPractice(actor, command, p);
 				case "efficiency":
 					var efficiencyMode = command.PopSpeech().ToLowerInvariant();
 					p = p with { Efficiency = efficiencyMode switch
@@ -56,6 +57,7 @@ public partial class MagicSpell
 	#3grades overreach <cost multiplier> <difficulty steps>#0
 	#3grades efficiency source <minimum 0..50> <positive scale>#0
 	#3grades efficiency off#0
+	#3grades practice <fixture|enabled|duration|difficulty|energy|max|speech|hand|movement|plan>#0
 	#3grades scalar add <target|caster> <zero-based index> boost Bonus <expression>#0
 	#3grades scalar remove <target|caster> <zero-based index>#0".SubstituteANSIColour()); return false;
 			}

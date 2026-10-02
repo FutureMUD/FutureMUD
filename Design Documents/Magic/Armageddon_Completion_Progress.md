@@ -40,7 +40,11 @@ fresh verification and keeps old PR receipts historical.
 - [x] Repair bounded review findings for effective penalties, backup activation, invalid balances and reconstruction/effect load order.
 - [x] Verify stage1C with focused/full automated suites, disposable native raw/effective reconstruction and the 16,728-row provisional energy matrix.
 - [x] Retain final frozen inputs, matching unit/native assembly hashes, earlier failures and owned-process/database cleanup proof.
-- [ ] Parent independently reviews the exact stage1C implementation and durable handoff before phase2.
+- [x] Parent independently accepts the exact compound stage1C repair `cb4db29` and handoff `6b79f66` before phase2.
+- [x] Implement phase2A target-free paid practice with an explicit separate plan and configurable physical policy.
+- [x] Repair bounded review finding: live staff reconciliation and stale timers cannot overwrite final receipts.
+- [x] Complete fresh phase2A focused/dependent and disposable native verification.
+- [ ] Commit phase2A and hand off its immutable acceptance receipt for independent parent review.
 
 ## Remaining work
 
@@ -268,5 +272,33 @@ further defect. See [Armageddon_Stage1C_Compound_Verification.json](Armageddon_S
 
 Whole-plan status remains partial. Full login/form/backup commands, installed-world
 Telnet, stock gathering/crafting/installer/PRACTICE and complete balance qualification
-remain unverified. Parent independently re-reviews this fix/handoff before phase2;
-no later phase began. No publication, merge, deployment or shared/production DB access.
+remain unverified. At that stage1C handoff, parent review preceded phase2; the parent
+has since cleared `cb4db29` / `6b79f66` and authorized phase2. No publication, merge,
+deployment or shared/production DB access.
+
+## Phase 2A checkpoint
+
+Selected base: `6b79f66d27fced8782b786c36eafe6f6c9fb7076`. Target-free practice is
+implemented in the shared casting service with payment and shared deadlines at start,
+one native check at the durable completion deadline, no target/caster/resistance effects,
+and conservative interruption/restart handling. Policy, duration, energy, maximum grade
+and the separate material plan are authored explicitly. Defaults remain provisional;
+there is no separate stock practice maximum. Automated and controlled native verification
+passed: 270 focused tests and 4,821 dependent tests (4,272 Core / 549 library), no failures/skips.
+The disposable native run passed prior casting/progression/support/capacity plus practice,
+including actual native raw30-to60 and controlled1-to7 through paid practice alone,
+configurable native interval/max/disable restrictions, target/caster/ward/resistance purity,
+interruption and separate-process pending recovery. Five owned databases and the temporary
+MySQL instance were cleaned up; zero owned processes remain. All 68 frozen inputs and
+unit/native core/library assembly hashes match. Two review P2s were repaired; cancellation
+was reproduced failing-before and its regression now passes. Earlier failures are retained.
+See [phase2A verification](Armageddon_Stage2A_Verification.json) for exact receipts and limits.
+Formula, actual speech, quiet/volume and area adapters have not started.
+The whole 16-decision, 7-phase, 154-candidate, 25-scenario ledger remains intact.
+
+N06/N12 have controlled native fixture evidence; their complete stock scenarios remain
+partial. The fixture uses accelerated time, controlled casting/mastery outcomes, native
+improvement chance1/amount10/interval20 and a 100-unit reserve with source overreach
+multiplier1. These are provisional test choices. Non-empty native material plans, hostile AI,
+real-time scheduling, installed Mend Flesh and full login/Telnet remain qualification gates.
+Independent parent review of this immutable checkpoint precedes later invocation adapters.

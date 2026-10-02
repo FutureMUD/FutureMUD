@@ -138,6 +138,8 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
         _name = name;
         Blurb = rhs.Blurb;
 		GradeProfile = rhs.GradeProfile;
+		PracticeInventoryPlanTemplate = rhs.PracticeInventoryPlanTemplate is null ? null :
+			new InventoryPlanTemplate(rhs.PracticeInventoryPlanTemplate.SaveToXml(), Gameworld);
 		_gradeLoadError = rhs._gradeLoadError;
 		_unreadableGradeProfile = rhs._unreadableGradeProfile is null ? null : new XElement(rhs._unreadableGradeProfile);
 		SpellLevel = rhs.SpellLevel;

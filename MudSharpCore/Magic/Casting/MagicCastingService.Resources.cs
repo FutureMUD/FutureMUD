@@ -41,11 +41,15 @@ public sealed partial class MagicCastingService
 			if (_store.Enrolment(owner.Id, c.CastingPolicy!.Identity) is null) continue;
 			lock (Guard(actor)) EvaluateEdges(actor, ProgressionNodes(c));
 		}
+		ValidatePractices(actor);
 	}
 
 	public void NotifyCapacityChange(ICharacter actor)
 	{
 		lock (Guard(actor))
+		{
 			(Owner(actor) as MudSharp.Character.Character)?.ReconcileCastingResourceCapacities();
+			ValidatePractices(actor);
+		}
 	}
 }

@@ -48,7 +48,9 @@ internal static partial class GNHProgram
 		var progression = RunCompletionProgressionAcceptanceChecks();
 		if (progression != 0) return progression;
 		var support = RunSupportProgressionAcceptanceChecks();
-		return support == 0 ? RunCapacityAcceptanceChecks() : support;
+		if (support != 0) return support;
+		var capacity = RunCapacityAcceptanceChecks();
+		return capacity == 0 ? RunPracticeAcceptanceChecks() : capacity;
 	}
 
 	private static int RunCastingAcceptanceChecks()

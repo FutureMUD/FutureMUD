@@ -361,6 +361,7 @@ public partial class Character
 
 	internal void SetFocusedInstance(ICharacterInstance? instance)
 	{
+		Gameworld.MagicCasting?.InterruptPractice(this, "Focus changed; practice gives no progress or refund.");
 		InterruptVancianWork();
 		_focusedInstance = instance is null || instance.IsPrimaryInstance ? null : instance;
 		Gameworld.MagicCasting?.Reconcile(this);

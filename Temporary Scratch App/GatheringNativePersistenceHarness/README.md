@@ -24,3 +24,18 @@ The Land extension authors a capability through the production editor and comple
 The ARM-02 casting extension uses `-CastingOnly` to exercise production builders, the non-admin school command, casting and gathering services, canonical second-body skill/resource ownership, detached Stone Skin scalars, delivered Ember Lance wounds and Wardcraft prerequisites. Separate reader processes verify persistence and conservative recovery after payment/effect/progression faults, including a real provider-trigger failure after mastery sampling. The minimal living anatomy includes real functioning brain/heart prototypes; check outcomes and mastery randomness remain controlled. This is native command/service persistence acceptance, not a full installed-world Telnet smoke. See [the casting handover](../../Design%20Documents/Magic/Configurable_Casting_Handover.md) for requirements and evidence. `-RefreshSnapshot` additionally refreshes the maintained blank database snapshot in a separate disposable `fm_snap_*` schema; build DatabaseSeeder first.
 
 The output records the base revision and dirty/clean worktree state, MySQL version, generated database names, fixture and operation IDs, expected/observed channels, and cleanup result. Cleanup first verifies the temporary server's data directory and the database ownership marker; it removes only resources created by that run.
+
+The phase2A practice extension is included in `-CastingOnly`, or selected alone with
+`-PracticeOnly` after rebuilding the harness. It uses real native Character/Body/Skill
+and ClassicImprovement objects, an authored enrolment Prog, the non-admin practice command,
+and MySQL operation/resource/trait persistence. A controlled successful check and mastery
+sample with an accelerated clock prove raw 30-to-60 and controlled 1-to-7 through paid
+practice alone. A restrictive native difficulty interval blocks real gain; a permissive
+one permits it. A nearby native injured/warded actor, damage/caster templates and forbidden
+resistance lookup check practice purity. Stop, focus reset, speech loss, capability loss
+and quit signals retain full payment. A separate process reconstructs pending prepaid
+work, checks shared deadlines and refuses automatic resume/refund/reroll; staff recovery
+leaves the old timer unable to overwrite its terminal receipt. Its material plan is
+explicitly empty; material execution/finalisation is covered by focused automated tests.
+This controlled cap60 fixture is not an installed Mend Flesh, full hostile-AI scenario,
+real-time scheduler or Telnet/login stock qualification.

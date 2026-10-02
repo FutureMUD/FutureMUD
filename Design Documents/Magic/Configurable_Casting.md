@@ -24,6 +24,7 @@ earth spells
 earth spell "Stone Skin"
 earth cast "Stone Skin" grade 2 on self
 earth cast "Stone Skin" grade 3 overreach on self via "Earth Adept"
+earth practice "Stone Skin" grade 3 overreach via "Earth Adept"
 ```
 
 Replace `earth` with the admitting capability's school verb. Spell and capability names
@@ -67,9 +68,25 @@ mastery chance. Empty groups, all-target rejection, no-op blindness removal, who
 absorbed damage, unknown effect reports and caster effects alone do not qualify. A failed
 native check can still improve its skill under the native improvement model.
 
-`practice`, `formula`, `quiet` and `area` are unavailable. They do not select an ordinary
-manifestation. Existing legacy casting and independent spell-backed powers/Vancian routes
-retain their own syntax and payment rules.
+An explicitly authored `practice` mode trains without targets or spell effects. It uses
+the same admission, raw-cap gates, source efficiency, combined payment and shared skill/mastery
+opportunities as manifestation. It pays the complete configured energy and its separate
+material plan at the start, then requires retained focus and the configured physical
+conditions for the whole action. It performs one target-free casting check at completion;
+a successful check may sample mastery without requiring a manifested effect. Failed
+checks can still improve the native skill under its own improvement model.
+
+The provisional fixture takes 30 seconds and requires speech and a free hand; movement
+is forbidden. Native stop, focus change, death, quit, body/state changes, loss of the
+capability or required physical inputs interrupt it without progress or refund. Standard
+invalidation, native inventory/wound/position signals, a five-second validity heartbeat
+and a final live recheck cover the current inputs. Shared 60/600-second deadlines are consumed at commitment and survive
+interruption. Pending operations persist their deadline and input/payment receipt, while
+their timer is transient. Restart quarantines uncertain paid work for staff reconciliation;
+it never resumes, refunds or rolls it automatically. Staff cannot reconcile live work.
+
+`formula`, `quiet` and `area` remain pending later phase2 checkpoints. Existing legacy
+casting and independent spell-backed powers/Vancian routes retain their own syntax and payment rules.
 
 ## Builders
 
@@ -86,6 +103,17 @@ grades skill <seconds> <opening skill>
 grades overreach <cost multiplier> <difficulty steps>
 grades efficiency source <minimum 0..50> <positive energy scale>
 grades efficiency off
+grades practice fixture
+grades practice enabled <true|false>
+grades practice duration <seconds>
+grades practice difficulty <native difficulty>
+grades practice energy <positive designated-energy multiplier>
+grades practice max <1..7|none>
+grades practice speech <true|false>
+grades practice hand <true|false>
+grades practice movement <true|false>
+grades practice plan add <native inventory action>
+grades practice plan remove <one-based index>
 grades scalar add <target|caster> <zero-based effect index> boost Bonus <expression>
 grades scalar remove <target|caster> <zero-based effect index>
 ```
@@ -145,6 +173,17 @@ attribute capacity:
 capattribute <native body attribute> <trait expression> [raw|effective]
 capattribute none
 ```
+
+Practice is opt-in; old profiles do not enable it implicitly. `grades practice fixture`
+authors an explicit empty practice material plan, separate from the manifestation plan,
+and leaves its maximum unset so the ordinary admission/profile range applies. All fixture
+numbers are provisional tuning. `energy` modifies the designated source cost; fixed
+secondary costs still aggregate normally. The native skill's `ClassicImprovement` builder
+`interval` setting and casting check improvement limits still govern actual raw gains.
+Author and verify an appropriate profile for stock practice; a separate stock practice
+maximum must not be introduced. Invalid policy/XML prevents readiness and preserves the
+unreadable XML for repair. Practice plan edits reject trailing input without changing the
+saved plan.
 
 `variable` binds the selected attribute. Other expression parameters must explicitly
 bind native body attributes. Skills, mastery, extended options, unknown parameters and

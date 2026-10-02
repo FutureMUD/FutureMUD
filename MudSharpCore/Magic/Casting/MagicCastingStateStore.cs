@@ -30,7 +30,7 @@ public sealed class MagicCastingStateStore : IMagicCastingStateStore
 {
 	public const string SkillCapRecorded = "SkillCapRecorded";
 	public const string SupportGranted = "SupportGranted", CappedSupportGranted = "CappedSupportGranted", EnrolmentRecorded = "EnrolmentRecorded";
-	public static IReadOnlyList<string> TerminalStages { get; } = Array.AsReadOnly(new[] { "Completed", "Reconciled", SkillCapRecorded, SupportGranted, CappedSupportGranted, EnrolmentRecorded });
+	public static IReadOnlyList<string> TerminalStages { get; } = Array.AsReadOnly(new[] { "Completed", "PracticeInterrupted", "Reconciled", SkillCapRecorded, SupportGranted, CappedSupportGranted, EnrolmentRecorded });
 	public static bool IsSupportRecord(string stage) => stage is SupportGranted or CappedSupportGranted;
 	public CastingSupportAcquisition? SupportGrant(long characterId, Guid identity, Guid key)
 	{

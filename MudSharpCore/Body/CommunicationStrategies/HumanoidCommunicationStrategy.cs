@@ -1,10 +1,11 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Events;
 using MudSharp.Form.Audio;
+using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Checks;
@@ -261,7 +262,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
     {
         if (!CanVocalise(body, AudioVolume.Loud))
         {
-            body.OutputHandler.Send(WhyCannotVocalise(body));
+            body.OutputHandler.Send(WhyCannotVocalise(body, AudioVolume.Loud));
             return;
         }
 
@@ -273,9 +274,10 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             return;
         }
 
+        var speechEmission = MagicSpeechContext.Capture(body.Actor, "LoudSay", AudioVolume.Loud, body.CurrentLanguage, message);
         SpokenLanguageInfo langinfo = new(body.CurrentLanguage, body.CurrentAccent, AudioVolume.Loud, message,
             body.Gameworld.GetCheck(CheckType.SpokenLanguageSpeakCheck)
-                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target);
+                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target, provenance: speechEmission?.Provenance);
         string actionText;
         if (target == null)
         {
@@ -296,14 +298,14 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
             emote));
-        HandleSpeechEvents(body, target, message, AudioVolume.Loud, body.CurrentLanguage, body.CurrentAccent);
+        HandleSpeechEvents(body, target, message, AudioVolume.Loud, body.CurrentLanguage, body.CurrentAccent, speechEmission);
     }
 
     public virtual void Talk(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         if (!CanVocalise(body, AudioVolume.Quiet))
         {
-            body.OutputHandler.Send(WhyCannotVocalise(body));
+            body.OutputHandler.Send(WhyCannotVocalise(body, AudioVolume.Quiet));
             return;
         }
 
@@ -315,9 +317,10 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             return;
         }
 
+        var speechEmission = MagicSpeechContext.Capture(body.Actor, "Talk", AudioVolume.Quiet, body.CurrentLanguage, message);
         SpokenLanguageInfo langinfo = new(body.CurrentLanguage, body.CurrentAccent, AudioVolume.Quiet, message,
             body.Gameworld.GetCheck(CheckType.SpokenLanguageSpeakCheck)
-                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target);
+                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target, provenance: speechEmission?.Provenance);
         string actionText;
         if (target == null)
         {
@@ -338,14 +341,14 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
             emote));
-        HandleSpeechEvents(body, target, message, AudioVolume.Quiet, body.CurrentLanguage, body.CurrentAccent);
+        HandleSpeechEvents(body, target, message, AudioVolume.Quiet, body.CurrentLanguage, body.CurrentAccent, speechEmission);
     }
 
     public void Transmit(IBody body, IGameItem target, string message, IEmote? emote = null)
     {
         if (!CanVocalise(body, AudioVolume.Quiet))
         {
-            body.OutputHandler.Send(WhyCannotVocalise(body));
+            body.OutputHandler.Send(WhyCannotVocalise(body, AudioVolume.Quiet));
             return;
         }
 
@@ -391,7 +394,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
     {
         if (!CanVocalise(body, AudioVolume.VeryLoud))
         {
-            body.OutputHandler.Send(WhyCannotVocalise(body));
+            body.OutputHandler.Send(WhyCannotVocalise(body, AudioVolume.VeryLoud));
             return;
         }
 
@@ -426,14 +429,15 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             return;
         }
 
+        var speechEmission = MagicSpeechContext.Capture(body.Actor, "Yell", AudioVolume.VeryLoud, body.CurrentLanguage, message);
         SpokenLanguageInfo langinfo = new(body.CurrentLanguage, body.CurrentAccent, AudioVolume.VeryLoud,
             message,
             body.Gameworld.GetCheck(CheckType.SpokenLanguageSpeakCheck)
-                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target);
+                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target, provenance: speechEmission?.Provenance);
         SpokenLanguageInfo otherRoomLanginfo = new(body.CurrentLanguage, body.CurrentAccent, AudioVolume.Faint,
             message,
             body.Gameworld.GetCheck(CheckType.SpokenLanguageSpeakCheck)
-                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target);
+                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target, provenance: speechEmission?.Provenance?.AsRelay());
         string actionText;
         if (target == null)
         {
@@ -454,7 +458,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
             emote));
-        HandleSpeechEvents(body, target, message, AudioVolume.Loud, body.CurrentLanguage, body.CurrentAccent);
+        HandleSpeechEvents(body, target, message, AudioVolume.Loud, body.CurrentLanguage, body.CurrentAccent, speechEmission);
         foreach (RoomLayer layer in body.Location.Terrain(null).TerrainLayers.Except(body.RoomLayer))
         {
             string layerText = layer.IsHigherThan(body.RoomLayer) ? "from below" : "from above";
@@ -484,7 +488,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
     {
         if (!CanVocalise(body, AudioVolume.Decent))
         {
-            body.OutputHandler.Send(WhyCannotVocalise(body));
+            body.OutputHandler.Send(WhyCannotVocalise(body, AudioVolume.Decent));
             return;
         }
 
@@ -496,9 +500,10 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             return;
         }
 
+        var speechEmission = MagicSpeechContext.Capture(body.Actor, "Say", AudioVolume.Decent, body.CurrentLanguage, message);
         SpokenLanguageInfo langinfo = new(body.CurrentLanguage, body.CurrentAccent, AudioVolume.Decent, message,
             body.Gameworld.GetCheck(CheckType.SpokenLanguageSpeakCheck)
-                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target);
+                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target, provenance: speechEmission?.Provenance);
         string actionText;
         if (target == null)
         {
@@ -519,14 +524,14 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
             emote));
-        HandleSpeechEvents(body, target, message, AudioVolume.Decent, body.CurrentLanguage, body.CurrentAccent);
+        HandleSpeechEvents(body, target, message, AudioVolume.Decent, body.CurrentLanguage, body.CurrentAccent, speechEmission);
     }
 
     public virtual void Whisper(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         if (!CanVocalise(body, AudioVolume.Quiet))
         {
-            body.OutputHandler.Send(WhyCannotVocalise(body));
+            body.OutputHandler.Send(WhyCannotVocalise(body, AudioVolume.Quiet));
             return;
         }
 
@@ -538,9 +543,10 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             return;
         }
 
+        var speechEmission = MagicSpeechContext.Capture(body.Actor, "Whisper", AudioVolume.Quiet, body.CurrentLanguage, message);
         SpokenLanguageInfo langinfo = new(body.CurrentLanguage, body.CurrentAccent, AudioVolume.Quiet, message,
             body.Gameworld.GetCheck(CheckType.SpokenLanguageSpeakCheck)
-                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target);
+                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target, provenance: speechEmission?.Provenance);
         string actionText;
         if (target == null)
         {
@@ -561,14 +567,14 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
             emote));
-        HandleSpeechEvents(body, target, message, AudioVolume.Quiet, body.CurrentLanguage, body.CurrentAccent);
+        HandleSpeechEvents(body, target, message, AudioVolume.Quiet, body.CurrentLanguage, body.CurrentAccent, speechEmission);
     }
 
     public virtual void Shout(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         if (!CanVocalise(body, AudioVolume.ExtremelyLoud))
         {
-            body.OutputHandler.Send(WhyCannotVocalise(body));
+            body.OutputHandler.Send(WhyCannotVocalise(body, AudioVolume.ExtremelyLoud));
             return;
         }
 
@@ -603,18 +609,19 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             return;
         }
 
+        var speechEmission = MagicSpeechContext.Capture(body.Actor, "Shout", AudioVolume.ExtremelyLoud, body.CurrentLanguage, message);
         SpokenLanguageInfo langinfo = new(body.CurrentLanguage, body.CurrentAccent, AudioVolume.ExtremelyLoud,
             message,
             body.Gameworld.GetCheck(CheckType.SpokenLanguageSpeakCheck)
-                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target);
+                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target, provenance: speechEmission?.Provenance);
         SpokenLanguageInfo secondRoomLanginfo = new(body.CurrentLanguage, body.CurrentAccent, AudioVolume.Decent,
             message,
             body.Gameworld.GetCheck(CheckType.SpokenLanguageSpeakCheck)
-                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target);
+                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target, provenance: speechEmission?.Provenance?.AsRelay());
         SpokenLanguageInfo thirdRoomLanginfo = new(body.CurrentLanguage, body.CurrentAccent, AudioVolume.Faint,
             message,
             body.Gameworld.GetCheck(CheckType.SpokenLanguageSpeakCheck)
-                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target);
+                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target, provenance: speechEmission?.Provenance?.AsRelay());
         string actionText;
         if (target == null)
         {
@@ -636,7 +643,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
             emote));
         HandleSpeechEvents(body, target, message, AudioVolume.ExtremelyLoud, body.CurrentLanguage,
-            body.CurrentAccent);
+            body.CurrentAccent, speechEmission);
         foreach (RoomLayer layer in body.Location.Terrain(null).TerrainLayers.Except(body.RoomLayer))
         {
             string layerText = layer.IsHigherThan(body.RoomLayer) ? "from below" : "from above";
@@ -687,7 +694,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
     {
         if (!CanVocalise(body, AudioVolume.Loud))
         {
-            body.OutputHandler.Send(WhyCannotVocalise(body));
+            body.OutputHandler.Send(WhyCannotVocalise(body, AudioVolume.Loud));
             return;
         }
 
@@ -700,9 +707,10 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             return;
         }
 
+        var speechEmission = MagicSpeechContext.Capture(body.Actor, "Sing", AudioVolume.Loud, body.CurrentLanguage, message);
         SpokenLanguageInfo langinfo = new(body.CurrentLanguage, body.CurrentAccent, AudioVolume.Loud, message,
             body.Gameworld.GetCheck(CheckType.SpokenLanguageSpeakCheck)
-                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target);
+                .Check(body.Actor, Difficulty.Normal, body.CurrentLanguage.LinkedTrait), body.Actor, target, provenance: speechEmission?.Provenance);
         string actionText;
         if (target == null)
         {
@@ -723,12 +731,13 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
             emote));
-        HandleSpeechEvents(body, target, message, AudioVolume.Loud, body.CurrentLanguage, body.CurrentAccent);
+        HandleSpeechEvents(body, target, message, AudioVolume.Loud, body.CurrentLanguage, body.CurrentAccent, speechEmission);
     }
 
     private static void HandleSpeechEvents(IBody body, IPerceivable target, string message, AudioVolume volume,
-        ILanguage language, IAccent accent)
+        ILanguage language, IAccent accent, NativeSpeechEmission? speechEmission = null)
     {
+        speechEmission?.Invoke();
         body.AccentDifficulty(accent, true);
         if (target == null)
         {

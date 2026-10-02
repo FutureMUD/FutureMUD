@@ -29,6 +29,25 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicCastingPracticeTests
 {
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void OriginReceipt_CompletedPracticeOrManifest_CannotBeOverwrittenByReplayedPractice(bool priorManifest)
+	{
+		var (f, effects) = Setup(); var id = Guid.NewGuid();
+		if (priorManifest)
+			Assert.AreEqual(MagicCastingStatus.Succeeded, f.Service.Cast(f.Intent(1, false) with { OriginId = id }).Status);
+		else
+		{
+			Assert.AreEqual(MagicCastingStatus.Started, f.Service.Cast(Intent(f) with { OriginId = id }).Status);
+			f.Now += TimeSpan.FromSeconds(30); effects.OfType<MagicPracticeAction>().Single().ExpireEffect();
+		}
+		var terminal = f.Store.Operation(id)!; var balance = f.Balances[f.Resources[1]]; var writes = f.Store.Writes; var rolls = f.Rolls;
+		f.Restart();
+		Assert.AreEqual(MagicCastingStatus.Refused, f.Service.Cast(Intent(f) with { OriginId = id }).Status);
+		Assert.AreEqual(terminal, f.Store.Operation(id)); Assert.AreEqual(balance, f.Balances[f.Resources[1]]);
+		Assert.AreEqual(writes, f.Store.Writes); Assert.AreEqual(rolls, f.Rolls); Assert.IsFalse(effects.OfType<MagicPracticeAction>().Any());
+	}
 	private static (MagicCastingFixture Fixture, List<IEffect> Effects) Setup()
 	{
 		var f = new MagicCastingFixture(); var effects = new List<IEffect>();

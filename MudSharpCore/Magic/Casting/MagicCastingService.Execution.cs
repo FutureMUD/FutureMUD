@@ -15,6 +15,8 @@ public sealed partial class MagicCastingService
 		var owner = Owner(actor);
 		lock (Guard(actor))
 		{
+			if (intent.OriginId is { } originId && (_store.Operation(originId) is not null || _uncertain.ContainsKey(originId)))
+				return new(MagicCastingStatus.Refused, "That invocation origin has already been consumed; it cannot cast again.", originId);
 			if (!_mutating.TryAdd(owner.Id, 0)) return new(MagicCastingStatus.Refused, "A casting mutation is already active for this identity.");
 			CastingOperation? operation = null;
 			XElement? payload = null;
@@ -36,6 +38,12 @@ public sealed partial class MagicCastingService
 					new XAttribute("skillEligible", skillEligible), new XAttribute("masteryEligible", masteryEligible),
 					new XAttribute("skillBefore", owner.TraitRawValue(_world.Traits.Get(resolved.TraitId))),
 					new XElement("Targets", new XCData(intent.Targets)),
+					resolved.Delivery is { } delivery ? new XElement("Speech", new XAttribute("origin", resolved.Id),
+						new XAttribute("kind", delivery.UsesOriginalSpeech ? "PlayerInput" : "GeneratedCasting"),
+						new XAttribute("method", delivery.Method), new XAttribute("volume", (int)delivery.Volume),
+						new XAttribute("language", delivery.LanguageId), new XAttribute("energy", delivery.EnergyMultiplier),
+						new XAttribute("difficulty", delivery.DifficultySteps), new XCData(delivery.Incantation),
+						new XElement("Formula", new XCData(intent.Speech?.FormulaText ?? delivery.Incantation))) : null,
 					prepared.Payments.Select(x => new XElement("Cost", new XAttribute("holder", x.Holder.Id),
 						new XAttribute("resource", x.Resource.Id), new XAttribute("amount", x.Amount),
 						new XAttribute("before", x.Holder.MagicResourceAmounts.GetValueOrDefault(x.Resource)))),
@@ -57,6 +65,8 @@ public sealed partial class MagicCastingService
 					// The quote is advisory. Re-resolve body, permission, target, inventory and prices under the owner guard.
 					var live = Prepare(intent);
 					if (!Equivalent(prepared, live)) throw new InvalidOperationException("The route, prices, body, target or component inputs changed before commitment; request a fresh cast.");
+					EmitIncantation(actor, resolved.Id, resolved.Delivery);
+					if (!Equivalent(prepared, Prepare(intent))) throw new InvalidOperationException("The native incantation changed casting eligibility or inputs before payment.");
 					_checkpoint?.Invoke("BeforePayment");
 					operation = new(resolved.Id, owner.Id, actor.InstanceId, actor.Body.Id, resolved.CapabilityId, resolved.SpellId,
 						resolved.TraitId, resolved.ReserveId, "Paying", payload.ToString(SaveOptions.DisableFormatting), now, now);
@@ -136,7 +146,7 @@ public sealed partial class MagicCastingService
 	private static bool Equivalent(Prepared a, Prepared b)
 	{
 		var x = a.Quote.Invocation!; var y = b.Quote.Invocation!;
-		return a.Configuration == b.Configuration && x.Mode == y.Mode && x.ActorId == y.ActorId && x.BodyId == y.BodyId && x.CapabilityIdentity == y.CapabilityIdentity && x.AdmissionId == y.AdmissionId &&
+		return a.Configuration == b.Configuration && x.Mode == y.Mode && x.Delivery == y.Delivery && x.ActorId == y.ActorId && x.BodyId == y.BodyId && x.CapabilityIdentity == y.CapabilityIdentity && x.AdmissionId == y.AdmissionId &&
 			x.ProfileVersion == y.ProfileVersion && x.TraitId == y.TraitId && x.Grade == y.Grade && x.ControlledGrade == y.ControlledGrade && x.Difficulty == y.Difficulty &&
 			x.Costs.SequenceEqual(y.Costs) && a.Items.Order().SequenceEqual(b.Items.Order()) &&
 			Targets(a.Target).SequenceEqual(Targets(b.Target), ReferenceEqualityComparer.Instance) && a.Target.Parameters.SequenceEqual(b.Target.Parameters);

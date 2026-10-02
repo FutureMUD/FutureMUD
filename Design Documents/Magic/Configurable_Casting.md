@@ -25,6 +25,11 @@ earth spell "Stone Skin"
 earth cast "Stone Skin" grade 2 on self
 earth cast "Stone Skin" grade 3 overreach on self via "Earth Adept"
 earth practice "Stone Skin" grade 3 overreach via "Earth Adept"
+earth quiet "Stone Skin" grade 2 on self via "Earth Adept"
+earth formula kral fm-near fm-earth fm-protect fm-shape on self via "Earth Adept"
+earth quiet formula kral stone on self via "Earth Adept"
+say kral fm-near fm-earth fm-protect fm-shape on self via "Earth Adept"
+whisper kral stone on self via "Earth Adept"
 ```
 
 Replace `earth` with the admitting capability's school verb. Spell and capability names
@@ -91,8 +96,33 @@ interruption. Pending operations persist their deadline and input/payment receip
 their timer is transient. Restart quarantines uncertain paid work for staff reconciliation;
 it never resumes, refunds or rolls it automatically. Staff cannot reconcile live work.
 
-`formula`, `quiet` and `area` remain pending later phase2 checkpoints. Existing legacy
-casting and independent spell-backed powers/Vancian routes retain their own syntax and payment rules.
+Formula, genuine speech and quiet casting require an authored incantation profile. The
+examples above use explicitly labelled FutureMUD category aliases and the spell alias
+`stone`; they are not a recovered historical vocabulary. POWER is fixed: grades 1 through 7
+are `wek`, `yuqa`, `kral`, `een`, `pav`, `sul`, `mon`, mapped explicitly to the seven native
+SpellPower values above. A full formula has one POWER plus the spell's REACH, ELEMENT,
+SPHERE and MOOD words in any order. A concise formula has POWER plus one authored spell
+alias. Both require `[overreach] on <complete native target> [via <capability>]` and the
+actor must know and select the profile's native spoken language. Unknown, duplicate,
+ambiguous or incomplete words refuse. Route selection never uses available energy.
+
+Named and formula commands speak one phrase through the native body, language and hearing
+pipeline before paying. Actual player speech uses its original utterance without a second
+echo. Only the original player's complete command can supply executable speech authority;
+hearing, emotes, scripted speech, output callbacks and relays do not. A listener's own
+explicit repetition is a separate paid invocation. Native quote syntax is retained for
+formula and target resolution while the speech output keeps its ordinary presentation.
+Operation origins are consumed once, including after restart and across practice/manifest
+entry points. Pure quotes do not emit words, check, pay or add effects.
+
+Quiet uses native `Whisper` and `AudioVolume.Quiet`. The provisional fixture multiplies
+designated energy by 2 and adds one difficulty step, each once; fixed secondary costs are
+unchanged. Native speech anatomy, gagging, mute merits, silence and volume requirements
+still apply, as do the free hand and existing permissions. Visible casting emotes and
+effects retain their normal output. Builders can author native method modifiers, but
+unmapped methods and quiet/practice/area combinations refuse. Area policies remain the
+next separate phase2 checkpoint. Existing legacy casting and independent spell-backed
+powers/Vancian routes retain their own syntax and payment rules.
 
 ## Builders
 
@@ -120,6 +150,14 @@ grades practice hand <true|false>
 grades practice movement <true|false>
 grades practice plan add <native inventory action>
 grades practice plan remove <one-based index>
+grades incantation fixture <native language> <reach> <element> <sphere> <mood> <alias>
+grades incantation off
+grades incantation language <native language>
+grades incantation word <reach|element|sphere|mood> <single token>
+grades incantation alias add|remove <single token>
+grades incantation method <Say|Whisper|Talk|LoudSay|Yell|Shout|Sing> <positive energy multiplier> <difficulty steps -10..10>
+grades incantation method <native method> off
+grades incantation provenance <source label>
 grades scalar add <target|caster> <zero-based effect index> boost Bonus <expression>
 grades scalar remove <target|caster> <zero-based effect index>
 ```
@@ -131,6 +169,24 @@ leave the binding's expected `boost` token, index, `Bonus` field and trait valid
 readiness fails. Only this typed scalar adapter is supported. Omitting a binding retains
 the authored fixed bonus. A detached invocation receives -1 at grade 1 and -3 at grade 3;
 the catalogue scalar and saved template remain unchanged.
+
+The incantation fixture enables Say (energy x1, difficulty +0) and Whisper (x2, +1).
+Its four category words are labelled `FutureMUD aliases` until the builder records a
+source-backed provenance label. Words and aliases must be distinct single tokens and
+cannot collide with POWER or command delimiters. POWER cannot be changed by this builder.
+Language, vocabulary, methods and finite positive modifiers validate atomically; malformed
+XML retains its unreadable definition for repair and refuses readiness. The native method
+fixes its actual AudioVolume: Say/Decent, Whisper/Quiet, Talk/Quiet, LoudSay/Loud,
+Yell/VeryLoud, Shout/ExtremelyLoud, Sing/Loud. Difficulty adjustments apply before the
+native bounds. These coefficients are engineering tuning, not installed stock balance.
+
+Complete-target checking is enabled only for authored incantations. Self, room and party
+triggers require the exact selectors `self`, `here` and `party`; exit and character/exit
+triggers must consume all target arguments. Native character, item, corpse, local item,
+vicinity and character-vicinity parsers use their complete native target text. The
+character-Prog-room trigger also uses complete character text. Other Prog target adapters
+need an explicit complete-target mapping and fail readiness until it exists. Existing
+legacy/Vancian target parsing is unchanged.
 
 Grade profiles are shared by every route admitting the spell. A capability can narrow
 the grade range, but cannot replace grade meanings. Existing acquired profile versions
@@ -370,6 +426,16 @@ grade, canonical controlled mastery (`mastery`) and unchanged native power in a 
 `degrees` and `success`; supported effect expressions allow native `outcome`. Scalar
 bindings are evaluated before the check and accept only `variable`, `grade`, `power`, `mastery` and
 explicit trait references. Unsupported fields/parameters fail readiness with their location.
+
+Incantation configuration is optional, versioned XML within the existing controlled-grade
+definition; no new database migration is required. Paid operation XML captures the native
+method, volume, language, modifiers, actual words and original formula syntax alongside
+the existing canonical identity, grade, targets, materials and payment receipt. Native
+SpokenLanguageInfo carries correlation metadata; copied/relayed language payloads retain
+the origin but mark it as relay. That metadata grants no casting authority: executable
+authority is a single-use scoped token from the original player command. Generated casting
+speech and re-entrant callbacks cannot consume it, and existing terminal operation receipts
+prevent the same origin from being paid again.
 
 `IMagicSpellEffectOperation` is optional: `Applied`, `NoChange`, `Rejected` or `Unknown`,
 plus an optional child effect. The five ARM-02 adapters use one application path. Damage

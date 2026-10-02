@@ -29,6 +29,7 @@ internal static class CommandExecutionGuards
 
 	public static bool ExecuteForcedCommand(ICharacter target, string command)
 	{
+		using var commandOrigin = MagicSpeechContext.Suppress();
 		if (!ShouldExecuteAsMortal(target))
 		{
 			return target.ExecuteCommand(command);
@@ -48,6 +49,7 @@ internal static class CommandExecutionGuards
 
 	public static void OutOfContextExecuteForcedCommand(ICharacter target, string command)
 	{
+		using var commandOrigin = MagicSpeechContext.Suppress();
 		if (!ShouldExecuteAsMortal(target))
 		{
 			target.OutOfContextExecuteCommand(command);

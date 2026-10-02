@@ -35,6 +35,8 @@ public sealed partial class MagicCastingService
 		var actor = intent.Actor; var owner = Owner(actor);
 		lock (Guard(actor))
 		{
+			if (intent.OriginId is { } originId && (_store.Operation(originId) is not null || _uncertain.ContainsKey(originId)))
+				return new(MagicCastingStatus.Refused, "That invocation origin has already been consumed; it cannot practise again.", originId);
 			if (!_mutating.TryAdd(owner.Id, 0)) return new(MagicCastingStatus.Refused, "A casting mutation is already active for this identity.");
 			ActivePractice? active = null;
 			try

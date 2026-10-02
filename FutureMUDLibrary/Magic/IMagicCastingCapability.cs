@@ -54,7 +54,7 @@ public sealed record ControlledSpellProfile(int Version, IReadOnlyList<Controlle
 	double OverreachMultiplier, int OverreachDifficultySteps, double MasteryChance,
 	TimeSpan MasteryInterval, TimeSpan SkillInterval, double OpeningSkill,
 	IReadOnlyList<SpellScalarBinding> ScalarBindings, ControlledSpellEfficiency? Efficiency = null,
-	ControlledSpellPractice? Practice = null);
+	ControlledSpellPractice? Practice = null, ControlledSpellIncantation? Incantation = null);
 
 public interface IControlledMagicSpell : IMagicSpell
 {

@@ -60,6 +60,8 @@ internal static partial class GNHProgram
 				["--run"] => RunAcceptanceChecks(),
 				["--casting-run"] => RunAllCastingAcceptanceChecks(),
 				["--practice-run"] => RunPracticeAcceptanceChecks(),
+				["--speech-run"] => RunSpeechAcceptanceChecks(),
+				["--speech-reader", .. string[] speechReaderArguments] => RunSpeechReader(speechReaderArguments),
 				["--practice-reader", .. string[] practiceReaderArguments] => RunPracticeReader(practiceReaderArguments),
 				["--casting-reader", .. string[] readerArguments] => RunCastingReader(readerArguments),
 				["--reader", .. string[] readerArguments] => RunReader(readerArguments),
@@ -515,7 +517,7 @@ internal static partial class GNHProgram
 		public IMagicGatheringCapability Capability { get; }
 
 		public static NativeRuntime Load(FixtureIds fixture, string connectionString, bool casting = false,
-			Action<NativeRuntime>? beforeMagicLoad = null)
+			Action<NativeRuntime>? beforeMagicLoad = null, bool vocalAnatomy = false)
 		{
 			using FuturemudDatabaseContext context = NewIndependentContext(connectionString);
 			Db.Character character = context.Characters
@@ -563,6 +565,8 @@ internal static partial class GNHProgram
 			{
 				var speech = new Mock<MudSharp.Strategies.BodyStratagies.IBodyCommunicationStrategy>();
 				speech.Setup(x => x.CanVocalise(It.IsAny<IBody>())).Returns(true);
+				speech.Setup(x => x.CanVocalise(It.IsAny<IBody>(), It.IsAny<MudSharp.Form.Audio.AudioVolume>()))
+					.Returns<IBody, MudSharp.Form.Audio.AudioVolume>((body, _) => speech.Object.CanVocalise(body));
 				race.SetupGet(x => x.CommunicationStrategy).Returns(speech.Object);
 			}
 			var races = new All<IRace>();
@@ -574,7 +578,7 @@ internal static partial class GNHProgram
 			ethnicities.Add(ethnicity.Object);
 			world.SetupGet(x => x.Ethnicities).Returns(ethnicities);
 
-			Mock<IBodyPrototype> bodyPrototype = NewBodyPrototype(bodyModel.BodyPrototypeId, world.Object, bodypart.Object, casting);
+			Mock<IBodyPrototype> bodyPrototype = NewBodyPrototype(bodyModel.BodyPrototypeId, world.Object, bodypart.Object, casting, vocalAnatomy);
 			var bodyPrototypes = new All<IBodyPrototype>();
 			bodyPrototypes.Add(bodyPrototype.Object);
 			world.SetupGet(x => x.BodyPrototypes).Returns(bodyPrototypes);
@@ -677,7 +681,7 @@ internal static partial class GNHProgram
 			return bodypart;
 		}
 
-		private static Mock<IBodyPrototype> NewBodyPrototype(long id, IFuturemud world, IBodypart bodypart, bool livingAnatomy = false)
+		private static Mock<IBodyPrototype> NewBodyPrototype(long id, IFuturemud world, IBodypart bodypart, bool livingAnatomy = false, bool vocalAnatomy = false)
 		{
 			var prototype = new Mock<IBodyPrototype>(MockBehavior.Loose);
 			// Real damage runs the living health strategy, which requires functioning brain and heart organs.
@@ -691,7 +695,17 @@ internal static partial class GNHProgram
 				? [new BrainProto(OrganModel(bodypart.Id + 1, "harness brain"), world),
 					new HeartProto(OrganModel(bodypart.Id + 2, "harness heart"), world)]
 				: [];
-			var allParts = new[] { bodypart }.Concat(organs).ToArray();
+			var external = new[] { bodypart };
+			if (vocalAnatomy)
+			{
+				var vocalId = 1000000000L + id * 100;
+				organs = organs.Concat(new IOrganProto[] { new TracheaProto(OrganModel(vocalId + 1, "harness trachea"), world),
+					new SpeechSynthesizer(OrganModel(vocalId + 2, "harness synthesizer"), world), new EarProto(OrganModel(vocalId + 3, "harness ear"), world) }).ToArray();
+				external = external.Concat(new IBodypart[] { new MouthProto(OrganModel(vocalId + 4, "harness mouth"), world),
+					new TongueProto(OrganModel(vocalId + 5, "harness tongue"), world) }).ToArray();
+				foreach (var part in external.OfType<BodypartPrototype>()) { part.SetBodyProto(prototype.Object); ((All<IBodypart>)world.BodypartPrototypes).Add(part); }
+			}
+			var allParts = external.Concat(organs).ToArray();
 			if (livingAnatomy)
 			{
 				Mock.Get((IExternalBodypart)bodypart).SetupGet(x => x.Organs).Returns(organs);
@@ -707,9 +721,9 @@ internal static partial class GNHProgram
 			prototype.SetupGet(x => x.Name).Returns("Harness body prototype");
 			prototype.SetupGet(x => x.Gameworld).Returns(world);
 			prototype.Setup(x => x.BodypartsFor(It.IsAny<IRace>(), It.IsAny<Gender>())).Returns(allParts);
-			prototype.SetupGet(x => x.AllBodyparts).Returns(new[] { bodypart });
+			prototype.SetupGet(x => x.AllBodyparts).Returns(external);
 			prototype.SetupGet(x => x.AllBodypartsBonesAndOrgans).Returns(allParts);
-			prototype.SetupGet(x => x.AllExternalBodyparts).Returns(new[] { (IExternalBodypart)bodypart });
+			prototype.SetupGet(x => x.AllExternalBodyparts).Returns(external.Cast<IExternalBodypart>());
 			prototype.SetupGet(x => x.Organs).Returns(organs);
 			prototype.SetupGet(x => x.Bones).Returns(Array.Empty<IBone>());
 			prototype.SetupGet(x => x.Limbs).Returns(Array.Empty<ILimb>());
@@ -851,9 +865,14 @@ internal static partial class GNHProgram
 		public void SetMerits(IEnumerable<IMerit> merits) => SetPrivateField(this, "_merits", merits.ToList());
 		public void RestoreCastingEffects(string xml) => LoadEffects(XElement.Parse(xml));
 
-		// The isolated fixture has no installed hooks, combat, or attached items. The normal event pipeline therefore
-		// has no observer work to perform after ProcessPassiveWound has run its native wound lifecycle.
-		public override bool HandleEvent(EventType type, params dynamic[] arguments) => false;
+		public bool NativeSpeechEvents { get; set; }
+
+		// Only the speech fixture initialises native hooks and witnesses. Other isolated fixtures have no observers.
+		public override bool HandleEvent(EventType type, params dynamic[] arguments) =>
+			NativeSpeechEvents && type is EventType.CharacterSpeaks or EventType.CharacterSpeaksWitness or
+				EventType.CharacterSpeaksDirect or EventType.CharacterSpeaksDirectTarget or
+				EventType.CharacterSpeaksDirectWitness or EventType.CharacterSpeaksNearbyWitness
+				? base.HandleEvent(type, arguments) : false;
 
 		public override void Save()
 		{

@@ -31,8 +31,10 @@ public class MouthOnlyCommunicationStrategy : HumanoidCommunicationStrategy, IBo
             return false;
         }
 
-        return !body.Actor.Merits.OfType<IMuteMerit>().Any(x => x.Applies(body.Actor));
+        return !IsSilenced(body) && !body.Actor.Merits.OfType<IMuteMerit>().Any(x => x.Applies(body.Actor));
     }
+
+	public override string WhyCannotVocalise(IBody body) => IsSilenced(body) ? SilenceReason : base.WhyCannotVocalise(body);
 
     public override PermitLanguageOptions VocalisationOption(IBody body, AudioVolume volume)
     {

@@ -2223,6 +2223,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     bool IControllable.ExecuteCommand(string command)
     {
+		using var commandOrigin = MagicSpeechContext.CharacterCommand(this);
 		if (!IsPrimaryInstance && State.IsConscious() && !State.HasFlag(CharacterState.Sleeping) && Identity?.PrimaryInstance is Character primary)
 			primary.InterruptVancianWork();
         Gameworld?.LogManager.LogCharacterCommand(this, command);
@@ -2346,6 +2347,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public virtual void OutOfContextExecuteCommand(string command)
     {
+		using var commandOrigin = MagicSpeechContext.Suppress();
         if (Controller != null)
         {
             Controller.HandleCommand(command);

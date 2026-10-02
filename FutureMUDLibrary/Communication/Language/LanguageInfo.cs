@@ -97,12 +97,14 @@ namespace MudSharp.Communication.Language
     {
 		public new ILanguage Language => (ILanguage)base.Language;
         public SpokenLanguageInfo(ILanguage language, IAccent accent, AudioVolume volume, string text,
-            Outcome originoutcome, IPerceivable origin, IPerceivable target, IPerceivable proxy = null)
+            Outcome originoutcome, IPerceivable origin, IPerceivable target, IPerceivable proxy = null,
+			SpeechProvenance provenance = null)
             : base(language, text, originoutcome, origin, proxy)
         {
             Accent = accent;
             Volume = volume;
             Target = target;
+			Provenance = provenance;
         }
 
         public SpokenLanguageInfo(SpokenLanguageInfo rhs, AudioVolume newVolume, IPerceivable proxy)
@@ -111,7 +113,10 @@ namespace MudSharp.Communication.Language
             Accent = rhs.Accent;
             Volume = newVolume;
             Target = rhs.Target;
+			Provenance = rhs.Provenance is { } source ? source with { Kind = SpeechOriginKind.Relay } : null;
         }
+
+		public SpeechProvenance Provenance { get; }
 
         public IAccent Accent { get; protected set; }
         public AudioVolume Volume { get; protected set; }

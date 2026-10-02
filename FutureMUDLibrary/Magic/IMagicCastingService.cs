@@ -15,7 +15,8 @@ public sealed record MagicCastingRoute(long CapabilityId, Guid AdmissionId, long
 
 public enum MagicCastingMode { Manifest, Practice }
 public sealed record MagicCastingIntent(ICharacter Actor, long CapabilityId, long SpellId, int Grade,
-	bool Overreach, string Targets, MagicCastingMode Mode = MagicCastingMode.Manifest);
+	bool Overreach, string Targets, MagicCastingMode Mode = MagicCastingMode.Manifest, string Method = "Say",
+	Guid? OriginId = null, MagicCastingSpeech? Speech = null);
 
 public sealed record MagicCastingCost(long HolderId, long ResourceId, double Amount);
 
@@ -25,7 +26,7 @@ public sealed record ResolvedMagicCastingInvocation(Guid Id, long ActorId, long 
 	long TraitId, long ReserveHolderId, long ReserveId, int Grade, SpellPower Power, bool Overreach,
 	Difficulty Difficulty, string TargetSpecification, IReadOnlyList<SpellAdditionalParameter> TargetParameters,
 	IReadOnlyList<MagicCastingCost> Costs, int ConfigurationVersion, int ProfileVersion, int ControlledGrade = 1,
-	MagicCastingMode Mode = MagicCastingMode.Manifest);
+	MagicCastingMode Mode = MagicCastingMode.Manifest, MagicCastingDelivery? Delivery = null);
 
 public sealed record MagicCastingQuote(ResolvedMagicCastingInvocation? Invocation, string Reason)
 {
@@ -44,6 +45,9 @@ public interface IMagicCastingService
 	string? Preflight(ICharacter actor, long capabilityId, long spellId, int grade, bool overreach);
 	MagicCastingQuote Quote(MagicCastingIntent intent);
 	MagicCastingResult Cast(MagicCastingIntent intent);
+	/// <summary>Resolves a complete authored formula into the same guarded paid casting pipeline.</summary>
+	MagicCastingResult? CastFormula(ICharacter actor, string formula, string method = "Say", long? schoolId = null,
+		MagicCastingSpeech? speech = null) => new(MagicCastingStatus.Refused, "Formula casting is unavailable.");
 	MagicCastingGrant Grant(ICharacter authority, ICharacter target, long capabilityId, long spellId, string reason);
 	MagicCastingGrant Enrol(ICharacter authority, ICharacter target, long capabilityId, string reason);
 	void NotifyProgress(ICharacter character, long? traitId = null, long? spellId = null);

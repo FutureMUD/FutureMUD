@@ -107,6 +107,8 @@ internal sealed class MagicCastingFixture
 		Body.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1));
 		Body.SetupGet(x => x.FunctioningFreeHands).Returns(new[] { new Mock<IGrab>().Object });
 		Body.Setup(x => x.Communications.CanVocalise(Body.Object)).Returns(true);
+		Body.Setup(x => x.Communications.CanVocalise(Body.Object, It.IsAny<MudSharp.Form.Audio.AudioVolume>()))
+			.Returns(() => Body.Object.Communications.CanVocalise(Body.Object));
 		Actor.Setup(x => x.CombinedEffectsOfType<MagicSpellLockout>()).Returns([]);
 		Actor.Setup(x => x.EffectsOfType<IMagicInterdictionEffect>(It.IsAny<Predicate<IMagicInterdictionEffect>>())).Returns([]);
 		Actor.Setup(x => x.TraitRawValue(It.IsAny<ITraitDefinition>())).Returns<ITraitDefinition>(x => Skills.GetValueOrDefault(x.Id));

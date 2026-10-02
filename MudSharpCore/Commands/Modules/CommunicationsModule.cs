@@ -575,6 +575,7 @@ The syntax is:
             return;
         }
 
+		using var speechOrigin = MagicSpeechContext.AuthorizeNativeSpeech(actor, "Say", message, ss.RemainingArgument);
         actor.Body.Say(null, message, emote);
     }
 
@@ -659,6 +660,7 @@ The syntax is:
         message = splitMessage.Select(x => x.ProperSentences())
                                                     .ListToString(separator: "\n ", conjunction: "", twoItemJoiner: "\n ");
 
+		using var speechOrigin = MagicSpeechContext.AuthorizeNativeSpeech(actor, "Sing", message, ss.RemainingArgument);
         actor.Body.Sing(null, message, emote);
     }
 
@@ -718,6 +720,7 @@ The syntax is:
 
         message = splitMessage.Select(x => x.ProperSentences())
                                                     .ListToString(separator: "\n ", conjunction: "", twoItemJoiner: "\n ");
+		using var speechOrigin = MagicSpeechContext.AuthorizeNativeSpeech(actor, "Sing", message, ss.RemainingArgument);
         actor.Body.Sing(ptarget, message, emote);
     }
 
@@ -777,6 +780,7 @@ The syntax is:
             return;
         }
 
+		using var speechOrigin = MagicSpeechContext.AuthorizeNativeSpeech(actor, "Talk", message, ss.RemainingArgument);
         actor.Body.Talk(target, message, emote);
     }
 
@@ -1166,6 +1170,7 @@ The syntax is:
             return;
         }
 
+		using var speechOrigin = MagicSpeechContext.AuthorizeNativeSpeech(actor, "Say", message, ss.RemainingArgument);
         actor.Body.Say(ptarget, message, emote);
     }
 
@@ -1262,6 +1267,7 @@ The syntax is:
             return;
         }
 
+		using var speechOrigin = MagicSpeechContext.AuthorizeNativeSpeech(actor, "Shout", message, ss.RemainingArgument);
         actor.Body.Shout(target, message, emote);
     }
 
@@ -1450,6 +1456,7 @@ The syntax is:
             return;
         }
 
+		using var speechOrigin = MagicSpeechContext.AuthorizeNativeSpeech(actor, "LoudSay", message, ss.RemainingArgument);
         actor.Body.LoudSay(target, message, emote);
     }
 
@@ -1509,6 +1516,7 @@ The syntax is:
             return;
         }
 
+		using var speechOrigin = MagicSpeechContext.AuthorizeNativeSpeech(actor, "Yell", message, ss.RemainingArgument);
         actor.Body.Yell(target, message, emote);
     }
 
@@ -1568,6 +1576,7 @@ The syntax is:
             return;
         }
 
+		using var speechOrigin = MagicSpeechContext.AuthorizeNativeSpeech(actor, "Whisper", message, ss.RemainingArgument);
         actor.Body.Whisper(target, message, emote);
     }
 

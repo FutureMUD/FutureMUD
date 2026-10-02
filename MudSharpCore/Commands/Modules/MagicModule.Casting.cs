@@ -12,9 +12,21 @@ public partial class MagicModule
 		var capabilities = actor.Gameworld.MagicCapabilities.OfType<IMagicCastingCapability>()
 			.Where(x => x.School.Id == school.Id && x.HasCastingPolicy).ToArray();
 		if (capabilities.Length == 0) return false;
-		if (command.EqualToAny("formula", "quiet", "area"))
+		if (command.EqualTo("area"))
 		{
-			actor.OutputHandler.Send("Formula, quiet and area casting are unavailable in this implementation slice."); return true;
+			actor.OutputHandler.Send("Area casting is unavailable until a separate explicit area policy is authored."); return true;
+		}
+		var method = "Say";
+		if (command.EqualTo("quiet"))
+		{
+			method = "Whisper";
+			if (input.IsFinished) { actor.OutputHandler.Send("Quiet casting is unavailable without an authored incantation policy and a complete named cast or formula."); return true; }
+			if (input.PeekSpeech().EqualToAny("practice", "area")) { actor.OutputHandler.Send("That quiet mode combination is not explicitly enabled."); return true; }
+			command = input.PeekSpeech().EqualTo("formula") ? input.PopSpeech() : "cast";
+		}
+		if (command.EqualTo("formula"))
+		{
+			actor.OutputHandler.Send(service.CastFormula(actor, input.RemainingArgument, method, school.Id)?.Message ?? "No complete authored formula matches."); return true;
 		}
 		var admitted = capabilities.SelectMany(x => x.CastingPolicy?.Admissions ?? []).Select(x => x.SpellId).ToHashSet();
 		if (command.EqualTo("spells"))
@@ -38,7 +50,7 @@ public partial class MagicModule
 		var selected = actor.Gameworld.MagicSpells.Where(x => x.Name.EqualTo(spellText) || x.Id.ToString() == spellText).ToArray();
 		if (selected.Length != 1 || !admitted.Contains(selected[0].Id))
 		{
-			if (!practice) return false;
+			if (!practice && method == "Say") return false;
 			actor.OutputHandler.Send("No unique explicitly admitted spell matches that practice request."); return true;
 		}
 		var chosen = selected[0];
@@ -49,11 +61,17 @@ public partial class MagicModule
 			AppendRoutes(sb, chosen.Id);
 			sb.AppendLine($"{school.SchoolVerb} cast \"{chosen.Name}\" grade <1..7> [overreach] on <target> [via <capability>]");
 			sb.AppendLine($"{school.SchoolVerb} practice \"{chosen.Name}\" grade <1..7> [overreach] [via <capability>] (target-free, explicitly authored practice only)");
+			if (chosen is MagicSpell { GradeProfile.Incantation: { } incantation })
+			{
+				sb.AppendLine($"{school.SchoolVerb} quiet \"{chosen.Name}\" grade <1..7> [overreach] on <target> [via <capability>]");
+				sb.AppendLine($"{school.SchoolVerb} formula <POWER> {string.Join(" ", incantation.CategoryWords)} [overreach] on <target> [via <capability>] (five words in any order)");
+				sb.AppendLine($"Native speech or POWER + alias: {string.Join(", ", incantation.Aliases)}; select {actor.Gameworld.Languages.Get(incantation.LanguageId)?.Name}. Category vocabulary: {incantation.VocabularyProvenance}.");
+			}
 			actor.OutputHandler.Send(sb.ToString()); return true;
 		}
 		if (!args.PopSpeech().EqualTo("grade"))
 		{
-			if (!practice && chosen is MagicSpell native && native.HasLegacyRoute(actor)) return false;
+			if (!practice && method == "Say" && chosen is MagicSpell native && native.HasLegacyRoute(actor)) return false;
 			actor.OutputHandler.Send(practice ? "Practice requires grade <1..7> and optional overreach; it is target-free." :
 				"Configured casting requires grade <1..7>, optional overreach, and on <target>."); return true;
 		}
@@ -82,7 +100,7 @@ public partial class MagicModule
 		if (routes.Length != 1)
 		{ actor.OutputHandler.Send(routes.Length == 0 ? "No current explicitly admitted route matches that capability." : "Multiple routes admit that spell. Select via <capability>; energy does not select a route."); return true; }
 		actor.OutputHandler.Send(service.Cast(new(actor, routes[0].Id, chosen.Id, grade, overreach, string.Join(" ", targets),
-			practice ? MagicCastingMode.Practice : MagicCastingMode.Manifest)).Message);
+			practice ? MagicCastingMode.Practice : MagicCastingMode.Manifest, Method: method)).Message);
 		return true;
 
 		void AppendRoutes(StringBuilder sb, long spellId)

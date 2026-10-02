@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$RefreshSnapshot)
+param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$RefreshSnapshot)
 
 $ErrorActionPreference = 'Stop'
 
@@ -120,11 +120,11 @@ try {
 	}
 	& dotnet $harnessDll --probe
 	$runExit = $LASTEXITCODE
-	if (-not $LandOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and $runExit -eq 0) {
+	if (-not $LandOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and $runExit -eq 0) {
 		& dotnet $harnessDll --run
 		$runExit = $LASTEXITCODE
 	}
-	if ($runExit -eq 0 -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly) {
+	if ($runExit -eq 0 -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly) {
 		& dotnet $harnessDll --land-run
 		$runExit = $LASTEXITCODE
 	}
@@ -138,6 +138,10 @@ try {
 	}
 	if ($runExit -eq 0 -and $PracticeOnly) {
 		& dotnet $harnessDll --practice-run
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $SpeechOnly) {
+		& dotnet $harnessDll --speech-run
 		$runExit = $LASTEXITCODE
 	}
 	Write-Output "nativeHarnessExit=$runExit"

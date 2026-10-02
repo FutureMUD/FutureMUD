@@ -39,9 +39,11 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase1B cap-adoption review fix implemented and verified; awaiting parent exact-commit re-review before capacity stage1C",
+  "selected_stage": "Phase1C implemented and verified; parent independent exact-commit review pending before phase2 invocation adapters",
   "phase1_remaining": [
-    "Attribute-led mana capacity mapping/invalidation and complete affordability matrix"
+    "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
+    "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
+    "Extend provisional energy envelopes for quiet/area/method/secondary/material costs when authored; remaining72 candidate minima and full per-effect stock qualification pending."
   ],
   "phases": [
     {
@@ -56,7 +58,7 @@
       "name": "Extend progression and energy",
       "scope": "`FutureMUDLibrary/Magic/IMagicCastingCapability.cs`, `IMagicCastingService.cs`, `ISpellNumericalContext.cs`; `MagicCastingService.Acquisition.cs`, `.Resources.cs`, `.Execution.cs`; capability casting builder; `MagicSpell.Grades.cs`, `.Casting.cs`; native improvement classes",
       "exit_evidence": "Typed support edges, source openings/caps, cap-aware maximum mastery, source-shaped efficiency, backwards compatibility and PR778 permutations pass",
-      "status": "partial_stages_1A_1B_implemented_and_verified_capacity_pending"
+      "status": "engine_stages_1A_1B_1C_implemented_and_verified_stock_and_full_native_integration_pending"
     },
     {
       "id": 2,
@@ -129,7 +131,11 @@
       "id": "Q06",
       "requirement": "Attribute-led mana capacity and mastery-driven casting efficiency",
       "limit": "No approved fixed coefficients, race mapping or practice-driven pool growth",
-      "status": "pending_complete_implementation"
+      "status": "engine_implemented_and_verified_stock_mapping_and_full_balance_qualification_pending",
+      "evidence": [
+        "Armageddon_Stage1A_Verification.json: source efficiency",
+        "Armageddon_Stage1C_Verification.json: explicit native attribute capacity/invalidation and provisional16728-row energy matrix"
+      ]
     },
     {
       "id": "Q07",
@@ -216,7 +222,8 @@
       "required_result": "Same spell/native school; correct independent reserve/trait; no auto-route based on richest pool",
       "status": "partial_fixture_and_automated_evidence",
       "evidence": [
-        "Armageddon_Stage1A_Verification.json: shared native routes/baseline cascade tests/exact source inventory; installer and full source-tree gameplay pending"
+        "Armageddon_Stage1A_Verification.json: shared native routes/baseline cascade tests/exact source inventory; installer and full source-tree gameplay pending",
+        "Armageddon_Stage1C_Verification.json: optional attribute capacity/legacy XML compatibility and canonical focus ownership; complete installed multi-tradition routes pending"
       ]
     },
     {
@@ -256,7 +263,8 @@
       "required_result": "Reference pre-modifier curve 50,25,7; actual configured costs match displayed quote; no double grade multiplier",
       "status": "passed_controlled_native_fixture",
       "evidence": [
-        "Armageddon_Stage1A_Verification.json: native_attempt2; non-admin grade1 quotes/commands cost50/25/7"
+        "Armageddon_Stage1A_Verification.json: native_attempt2; non-admin grade1 quotes/commands cost50/25/7",
+        "Armageddon_Stage1C_Verification.json: normal grade7 pays25 and grade7 Overreach pays56.25 with source-minimum50 under provisional native scale; all34 quote pairs and16728-row energy envelope matrix pass; full stock qualification pending"
       ],
       "full_stock_qualification": "pending"
     },
@@ -265,8 +273,10 @@
       "name": "Capacity and gathering",
       "scenario": "Change cap-driving attribute, remove/re-add capability, switch bodies, gather with Sorcerer/Preserver/Defiler",
       "required_result": "No free refill/duplicated reserve; correct method restrictions and environmental accounting; no Sorcerer passive leakage",
-      "status": "not_run",
-      "evidence": []
+      "status": "partial_capacity_controlled_native_fixture_gathering_and_full_body_commands_pending",
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: native raw/effective invalidation, no refill, canonical focus ownership, owner-body fixture replacement and independent raw/effective reload passed; actual form/backup/login commands, stock gathering/environment and mapping NOT_RUN"
+      ]
     },
     {
       "id": "N09",
@@ -413,7 +423,9 @@
       "required_behavior": "Reveal perceptible magical effects to the recipient.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.ember_lance",
@@ -422,7 +434,9 @@
       "required_behavior": "Strike one visible target with fire damage.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.cinder_rain",
@@ -440,7 +454,9 @@
       "required_behavior": "Create one temporary light around the recipient. Generic creation does not prove auto-equip or linked cleanup; use a worn-light lifecycle adapter or approve a glow-only substitute.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.unravel_enchantment",
@@ -449,7 +465,9 @@
       "required_behavior": "Contest and remove spell-owned effects matching configured dispel keys.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.pillar_of_flame",
@@ -467,7 +485,9 @@
       "required_behavior": "Deliver an intense fire strike requiring a consumed reagent.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.kindle_enchantment",
@@ -476,7 +496,9 @@
       "required_behavior": "Temporarily improve a selected weapon's damage through native enchantment hooks.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.custodian_glyph",
@@ -485,7 +507,9 @@
       "required_behavior": "Mark an item so unauthorised taking is refused while the glyph lasts. Metadata alone does not intercept taking; requires a bounded inventory permission effect.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.fireworks",
@@ -503,7 +527,9 @@
       "required_behavior": "Allow comprehension of speech without granting fluent speech.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.burning_draught_curse",
@@ -530,7 +556,9 @@
       "required_behavior": "Timed low-tier fire weapon; mon component-consuming permanent staff output; source-informed prototypes and explicit per-tier ownership/cleanup",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.flame_barrier",
@@ -539,7 +567,9 @@
       "required_behavior": "Block an exit with a timed barrier and burn actors who attempt to cross. Blocking exists; traversal fire damage and both-side output require a bounded adapter.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.flame_mantle",
@@ -575,7 +605,9 @@
       "required_behavior": "Apply timed fire injury ticks to the target.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.draw_water",
@@ -584,7 +616,9 @@
       "required_behavior": "Add clean water to an accessible drink container up to capacity. Current CreateLiquidEffect empty-container capacity/null path needs a focused correction before claiming this complete.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.sense_toxin",
@@ -593,7 +627,9 @@
       "required_behavior": "Let the recipient inspect detectable active and latent drug poison state.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.mend_flesh",
@@ -602,7 +638,9 @@
       "required_behavior": "Heal existing eligible wounds, worst first, within the numeric healing budget.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.venom_touch",
@@ -611,7 +649,9 @@
       "required_behavior": "Introduce a configured stock toxin through an explicit vector.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.sheltering_veil",
@@ -620,7 +660,9 @@
       "required_behavior": "Give the target a finite protective envelope against configured damage.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.purge_toxin",
@@ -629,7 +671,9 @@
       "required_behavior": "Remove matching spell-owned poison effects and their originator-linked drug doses.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.still_anger",
@@ -638,7 +682,9 @@
       "required_behavior": "Apply native pacifism to suppress aggressive behaviour for a duration.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.spring_haven",
@@ -656,7 +702,9 @@
       "required_behavior": "Provide a stronger but finite armour pool.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.read_attunement",
@@ -665,7 +713,9 @@
       "required_behavior": "Report an explicitly configured relationship between a target and elemental traditions. Requires an agreed attunement vocabulary and bounded query; historical setting relationships are unresolved.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.thunderclap",
@@ -719,7 +769,9 @@
       "required_behavior": "Add configured wine to an accessible drink container without exceeding capacity. Same empty-container path concern as Draw Water; never silently convert incompatible mixtures.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.headlong_revel",
@@ -791,7 +843,9 @@
       "required_behavior": "Allow compatible breathing underwater while the spell lasts.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.earthen_ward",
@@ -809,7 +863,9 @@
       "required_behavior": "Create finite usable food with source-informed magical expiry plus ordinary consumption; no automatic permanence or recreation of consumed units",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.ground_tremor",
@@ -818,7 +874,9 @@
       "required_behavior": "Grounded-target earthquake and fall policy; local caster receives one-third source damage with authored protections; nearby-cell messages/falls are separate",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.heavy_slumber",
@@ -827,7 +885,9 @@
       "required_behavior": "Put a susceptible target into native magical sleep.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.earthen_strength",
@@ -836,7 +896,9 @@
       "required_behavior": "Increase the configured strength trait for a duration.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.sand_knife",
@@ -854,7 +916,9 @@
       "required_behavior": "Apply stone-like protection with an agility penalty.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.sapping_weight",
@@ -881,7 +945,9 @@
       "required_behavior": "Enterable temporary underground topology, terrain gate, safe return, occupied expiry and restart cleanup",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.clouded_will",
@@ -890,7 +956,9 @@
       "required_behavior": "Reduce the target's explicitly configured magical reserve.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.roused_fury",
@@ -899,7 +967,9 @@
       "required_behavior": "Apply native rage intensity for a duration.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.earth_mount",
@@ -908,7 +978,9 @@
       "required_behavior": "Create a rideable temporary earth creature belonging to its summoner. NPC creation is present; mount control and expiry with riders need bounded lifecycle work.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.sand_barrier",
@@ -917,7 +989,9 @@
       "required_behavior": "Block a chosen exit temporarily with packed sand.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.return_tether",
@@ -935,7 +1009,9 @@
       "required_behavior": "Notify the configured owner of eligible entry through a room alarm.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.fleet_step",
@@ -944,7 +1020,9 @@
       "required_behavior": "Increase movement speed and reduce locomotion effort for a duration. Trait bonuses and stamina multipliers alone do not establish movement-delay modification.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.sand_shelter",
@@ -971,7 +1049,9 @@
       "required_behavior": "Bounded source-item-to-projection link using canonical identity, immobile copy/focus/anchor restrictions and safe collapse",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.shatter_stone",
@@ -989,7 +1069,9 @@
       "required_behavior": "Repair eligible item damage without duplicating material or resetting quality. MendEffect treats wounds; an item-repair adapter is still required.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.waystep",
@@ -998,7 +1080,9 @@
       "required_behavior": "Move the caster to an explicitly resolved permitted cell.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.pierce_concealment",
@@ -1007,7 +1091,9 @@
       "required_behavior": "Let the recipient perceive eligible invisible entities.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.veil_from_sight",
@@ -1016,7 +1102,9 @@
       "required_behavior": "Apply native invisibility to the recipient.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.draw_traveller",
@@ -1025,7 +1113,9 @@
       "required_behavior": "Move a permitted remote character to the caster's current cell.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.join_traveller",
@@ -1034,7 +1124,9 @@
       "required_behavior": "Move the caster to a permitted cell resolved from another character.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.buoyant_lift",
@@ -1043,7 +1135,9 @@
       "required_behavior": "Apply native persistent levitation.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.scouring_gust",
@@ -1061,7 +1155,9 @@
       "required_behavior": "Move the target along an explicitly selected traversable path.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.banish_traveller",
@@ -1070,7 +1166,9 @@
       "required_behavior": "Send a target to a configured permitted destination after resistance.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.air_guardian",
@@ -1079,7 +1177,9 @@
       "required_behavior": "Create a temporary protective air creature. NPC creation does not establish guarding commands, summon ownership or safe expiry.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.exchange_places",
@@ -1097,7 +1197,9 @@
       "required_behavior": "Grant the native magical flight status.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.seeking_wind",
@@ -1124,7 +1226,9 @@
       "required_behavior": "Force a target one eligible step through a chosen exit.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.wind_barrier",
@@ -1133,7 +1237,9 @@
       "required_behavior": "Block passage through one exit with a wind-themed barrier.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.wind_mantle",
@@ -1142,7 +1248,9 @@
       "required_behavior": "Apply a finite wind-themed armour layer.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.wind_hammer",
@@ -1178,7 +1286,9 @@
       "required_behavior": "Create a temporary courier that delivers a bounded message to an authorised recipient. Needs delivery/recipient permissions and summon expiry; no arbitrary command proxy.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.reveal_the_hidden",
@@ -1187,7 +1297,9 @@
       "required_behavior": "Remove eligible spell invisibility from the target.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.anchor_rune",
@@ -1196,7 +1308,9 @@
       "required_behavior": "Mark an owned item as an explicitly registered travel anchor.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.shroud_eyes",
@@ -1205,7 +1319,9 @@
       "required_behavior": "Apply native magical blindness.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.clear_eyes",
@@ -1214,7 +1330,9 @@
       "required_behavior": "Remove spell-induced blindness through the native removal effect.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.lift_hex",
@@ -1223,7 +1341,9 @@
       "required_behavior": "Remove the eligible magical curse status.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.dread_presence",
@@ -1232,7 +1352,9 @@
       "required_behavior": "Apply native magical fear to a susceptible target.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.night_eyes",
@@ -1241,7 +1363,9 @@
       "required_behavior": "Grant native infravision for a duration.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.walking_shadow",
@@ -1250,7 +1374,9 @@
       "required_behavior": "Controllable shadow instance with original body, canonical progress/resources, focus/anchor/plane limits and safe collapse",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.shadow_passage",
@@ -1259,7 +1385,9 @@
       "required_behavior": "Apply an approved ethereal planar-presence overlay.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.see_the_unbodied",
@@ -1268,7 +1396,9 @@
       "required_behavior": "Expose eligible ethereal entities to the recipient's perception.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.cooling_shade",
@@ -1286,7 +1416,9 @@
       "required_behavior": "Reduce room illumination through the native light effect.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.clinging_hex",
@@ -1295,7 +1427,9 @@
       "required_behavior": "Apply the configured native curse modifier.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.haunting_shape",
@@ -1340,7 +1474,9 @@
       "required_behavior": "Remove an eligible spell-owned ethereal overlay.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.champion_blade",
@@ -1358,7 +1494,9 @@
       "required_behavior": "Strike a target with electrical damage.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.second_breath",
@@ -1385,7 +1523,9 @@
       "required_behavior": "Slow locomotion while applying an agility penalty. A bounded movement-delay modifier is missing; trait penalties alone are not the whole behavior.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.steal_breath",
@@ -1394,7 +1534,9 @@
       "required_behavior": "Remove a bounded amount of the target's stamina.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.still_limbs",
@@ -1403,7 +1545,9 @@
       "required_behavior": "Apply native magical paralysis after resistance.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.leaping_lightning",
@@ -1412,7 +1556,9 @@
       "required_behavior": "Source-informed bounded repeated random target selection; caster possible at quarter damage and Energy Shield protection; do not silently impose distinct targets or diminishing falloff",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.storm_locus",
@@ -1430,7 +1576,9 @@
       "required_behavior": "Provide finite protection against configured electrical harm.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.luminous_trail",
@@ -1457,7 +1605,9 @@
       "required_behavior": "Improve agility and actual movement speed for a duration. Requires the same bounded speed modifier as Fleet Step; no implicit cancellation of all movement effects.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.spark_lash",
@@ -1484,7 +1634,9 @@
       "required_behavior": "Create a temporary lightning-themed spear. Placement and expiry need explicit handling; questionable source rune references are not treated as spear semantics.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.raise_servitor",
@@ -1493,7 +1645,9 @@
       "required_behavior": "Animate an eligible corpse with selected AI and restore its corpse lifecycle on expiry.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.call_outsider",
@@ -1502,7 +1656,9 @@
       "required_behavior": "Summon a temporary otherworldly creature under explicit control policy. Historical Gate summons a creature; a portal effect is not equivalent coverage.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.arcane_mark",
@@ -1511,7 +1667,9 @@
       "required_behavior": "Attach bounded spell-owned magical metadata to an item.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.feign_death",
@@ -1520,7 +1678,9 @@
       "required_behavior": "Simulate death convincingly to configured observations while preserving the living character. Needs coordinated appearance, physiological observation and action restrictions; a corpse description alone is insufficient.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.silence_the_mind",
@@ -1583,7 +1743,9 @@
       "required_behavior": "Reduce a specifically configured target reserve without crediting the caster.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.linked_threshold",
@@ -1592,7 +1754,9 @@
       "required_behavior": "Create a bounded linked travel connection between authorised anchors.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.bar_the_elements",
@@ -1655,7 +1819,9 @@
       "required_behavior": "Create a transient permitted exit between resolved cells.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.read_enchantment",
@@ -1664,7 +1830,9 @@
       "required_behavior": "Let the recipient see authored information about permitted targets through LOOK.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.blade_barrier",
@@ -1673,7 +1841,9 @@
       "required_behavior": "Block passage with a timed barrier that cuts crossing attempts. Traversal damage needs an explicit adapter; bare blocking is an unapproved reduction.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.mind_scour",
@@ -1727,7 +1897,9 @@
       "required_behavior": "Raise a temporary corpse speech proxy using native corpse restoration rules.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.echo_servant",
@@ -1736,7 +1908,9 @@
       "required_behavior": "Relay authorised speech through a selected proxy using native language-aware output.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "evidence": [
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+      ]
     },
     {
       "key": "arm.spell.drowning_grip",
@@ -1889,8 +2063,57 @@
     },
     {
       "name": "Support cap adoption bounded independent review",
-      "status": "no_actionable_findings_parent_re_review_pending",
-      "receipt": "Armageddon_Stage1B_CapAdoption_Verification.json"
+      "status": "no_actionable_findings_parent_re_review_accepted",
+      "receipt": "Armageddon_Stage1B_CapAdoption_Verification.json",
+      "parent_review": "accepted_before_stage1C"
+    },
+    {
+      "name": "Stage1C accounting failing-before regressions",
+      "status": "failed_before_repair_passed_in_final_suites",
+      "run_id": "20261002T110316Z-6c0abfd29874",
+      "failed_before": 8,
+      "receipt": "Armageddon_Stage1C_Verification.json"
+    },
+    {
+      "name": "Stage1C historical build/focused/full failures",
+      "status": "repaired_final_suites_passed",
+      "run_ids": [
+        "20261002T111536Z-f15fe95fd2d5",
+        "20261002T112616Z-cd30135cdb65",
+        "20261002T114738Z-01e01ca611ab"
+      ],
+      "receipt": "Armageddon_Stage1C_Verification.json"
+    },
+    {
+      "name": "Stage1C final focused suite",
+      "status": "passed",
+      "run_id": "20261002T115918Z-982ab9f13976",
+      "passed": 161,
+      "failed": 0,
+      "skipped": 0,
+      "source_fingerprint": "da91e1dfe5cb4d9f9a7a69ef47ee553eb2c68856cb29618d4e0ca82709683c59",
+      "receipt": "Armageddon_Stage1C_Verification.json"
+    },
+    {
+      "name": "Stage1C final full core/shared-library suites",
+      "status": "passed",
+      "run_id": "20261002T120321Z-9ee0b38ac9dc",
+      "passed": 4712,
+      "failed": 0,
+      "skipped": 0,
+      "source_fingerprint": "e59e12c9b9a25d00914efd7699d7e364f6f0e765e48836e4d9077f4b37d0aa1e",
+      "receipt": "Armageddon_Stage1C_Verification.json"
+    },
+    {
+      "name": "Stage1C controlled native acceptance, independent raw/effective reload and16728-row energy matrix",
+      "status": "passed",
+      "cleanup": "passed_4_owned_databases_and_temporary_mysql",
+      "receipt": "Armageddon_Stage1C_Verification.json"
+    },
+    {
+      "name": "Stage1C bounded independent re-review",
+      "status": "no_remaining_actionable_findings_parent_exact_commit_review_pending",
+      "receipt": "Armageddon_Stage1C_Verification.json"
     }
   ],
   "implementation_commits": [
@@ -1913,14 +2136,26 @@
     {
       "sha": "07202fe48f20640027e0a045c13426a9830f6f67",
       "subject": "Preserve cap adoption history for existing support grants"
+    },
+    {
+      "sha": "251f4114f05a9d923676686f9b191731e3cba167",
+      "subject": "Record reviewed Armageddon stage1B checkpoint and verification"
+    },
+    {
+      "sha": "43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39",
+      "subject": "Record support cap adoption verification and review checkpoint"
+    },
+    {
+      "sha": "2972922b7212934b4bfd46cea39c14fab6e46924",
+      "subject": "Add attribute-led casting capacity and affordability qualification"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_cap_adoption_re_review",
-    "base": "251f4114f05a9d923676686f9b191731e3cba167",
-    "implementation_head": "07202fe48f20640027e0a045c13426a9830f6f67",
-    "receipt": "Armageddon_Stage1B_CapAdoption_Verification.json",
-    "next_stage_after_review": "1C attribute-led capacity, invalidation and affordability matrix",
+    "status": "awaiting_parent_stage1C_independent_review",
+    "base": "43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39",
+    "implementation_head": "2972922b7212934b4bfd46cea39c14fab6e46924",
+    "receipt": "Armageddon_Stage1C_Verification.json",
+    "next_stage_after_review": "Phase2 invocation adapters: target-free practice, genuine speech/formula parity, quiet and per-spell area policy",
     "no_later_stage_started": true
   },
   "deferred_consultation": {

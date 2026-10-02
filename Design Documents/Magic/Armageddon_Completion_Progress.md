@@ -35,16 +35,21 @@ fresh verification and keeps old PR receipts historical.
 - [x] Repair the native-discovered character-skill maximum lookup; prove actual native improvement through the Component Crafting threshold on a second focused body.
 - [x] Run final full dependent suites and disposable native acceptance, preserving failures and cleanup proof.
 - [x] Repair uncapped-support cap adoption with durable terminal history, failing-before regressions and native removal/restart proof.
-- [ ] Parent re-reviews the exact cap-adoption fix before starting capacity stage1C.
-- [ ] Implement attribute-led capacity/invalidation and the full affordability matrix.
+- [x] Parent accepts the exact cap-adoption fix before starting capacity stage1C.
+- [x] Implement explicit native attribute-led capacity, standard invalidation and guarded accounting with legacy compatibility.
+- [x] Repair bounded review findings for effective penalties, backup activation, invalid balances and reconstruction/effect load order.
+- [x] Verify stage1C with focused/full automated suites, disposable native raw/effective reconstruction and the 16,728-row provisional energy matrix.
+- [x] Retain final frozen inputs, matching unit/native assembly hashes, earlier failures and owned-process/database cleanup proof.
+- [ ] Parent independently reviews the exact stage1C implementation and durable handoff before phase2.
 
 ## Remaining work
 
-Phase 1 is **partial**, not complete. Its scoped support engine bridge and authored enrolment
-hook are implemented and verified. Attribute-led capacity mapping/invalidation and the full
-affordability matrix remain for stage1C, after parent review of this checkpoint. Installing
-the exact support skills/improver/crafting bindings and selecting chargen/NPC workflows are
-later stock-installer integration gates; the controlled fixture does not qualify that stock.
+Phase 1 engine stages 1A, 1B and 1C are implemented and verified. Full phase1 integration
+remains **partial**: the stock installer must select and qualify its native mental/spiritual
+attribute, authored capacity/energy coefficients, support skills/improver/crafting bindings
+and chargen/NPC workflows. Gathering restrictions/environmental accounting and full native
+login/form/backup scenarios remain qualification gates. The controlled fixture and provisional
+energy envelopes do not qualify installed stock or all per-spell gameplay.
 Phase 2 owns target-free practice and speech/formula/quiet/area adapters. In particular,
 manifestation reaching grade 7 at cap 60 is not evidence of stock practice reaching it.
 Phases 3â€“6 own effect/lifecycle gaps and the eight larger features, portable production,
@@ -87,7 +92,8 @@ Implementation head: `ae72581076ce8b58af89ce43c705c683912ec91d`.
 The implementation commit changes 20 code/test/harness files and the builder guide.
 It contains the parent stage1A review corrections as new changes; earlier commits were
 preserved. A subsequent documentation commit records this receipt and whole-plan status.
-No capacity-stage implementation has begun. Parent review is required before advancing.
+At this historical checkpoint capacity-stage implementation had not begun. Parent review
+was satisfied, including the cap-adoption correction below, before stage1C.
 
 The graph now validates typed spell and native support-trait sources together, including
 scope, stable keys, cycles and mixed diamonds. A durable support grant precedes native
@@ -152,7 +158,74 @@ and the owned temporary MySQL instance were cleaned up. Bounded independent revi
 no actionable issue. Actual receipts, failures and fingerprints are in
 [Armageddon_Stage1B_CapAdoption_Verification.json](Armageddon_Stage1B_CapAdoption_Verification.json); older stage1B receipts remain historical.
 
-Parent exact-commit re-review remains pending. Stage1C has not begun; phase1 and the whole
-plan remain partial. Stock crafting/installer/Telnet, PRACTICE N06 and phases2-6 are not
-qualified by this fixture. The later lifecycle/charm consultation is indexed in the ledger
-for phase3 and does not expand this fix.
+Parent accepted the exact cap-adoption correction before stage1C. This receipt remains
+historical; phase1 integration and the whole plan remain partial. Stock crafting/installer/
+Telnet, PRACTICE N06 and phases2-6 are not qualified by this fixture. The later lifecycle/
+charm consultation is indexed in the ledger for phase3 and does not expand this fix.
+
+## Stage 1C capacity checkpoint
+
+Review base: `43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39`.
+Implementation head: `2972922b7212934b4bfd46cea39c14fab6e46924`.
+The implementation changes 41 files. Parent independent exact-commit review remains
+pending; phase2 and later implementation have not begun.
+
+Simple resources now optionally bind an explicit native body attribute and named trait
+expression with raw/effective basis. Builders, versioned XML and cloning preserve the
+configuration; legacy configurations retain their existing Prog path. Configured malformed,
+impure, negative or nonfinite capacity fails closed. A canonical reserve uses its owner's
+current body, even while another instance is focused. Valid decreases clamp existing funds;
+rises, repeated enrolment and route reattachment grant no energy. Quotes remain read-only
+and use both actual funds and current maximum. Live accounting refuses invalid maxima or
+balances before payment/progression, retaining recoverable values.
+
+Standard mutation hooks cover native attributes, trait bonus/suppression effects, merits,
+inventory/implants, implant power and health, component revisions, labour, racial bonuses
+and mapped expression edits. Nested restoration scopes defer clamping until a complete
+successful character/effect reconstruction or body transition. Custom modifiers and arbitrary
+state-dependent Progs must notify their own mutations. See the owning
+[builder guide](Configurable_Casting.md) and [capacity guide](Armageddon_Capacity_Affordability.md).
+
+Bounded review found and repaired effective-penalty invalidation, backup activation,
+negative-balance credit and partial-load clamping. The full suite also exposed an empty-body
+inventory guard regression, which was repaired. The final bounded re-review found no
+remaining actionable defect. Earlier failing/build-failed runs are retained, including
+eight failing-before accounting regressions and the old overreach fixture's correct cap 100
+refusal; the fixture now sets both cap and balance 200 for a 112.5+10 cost.
+
+Final focused run `20261002T115918Z-982ab9f13976`: **161 passed, zero failed/skipped**.
+Final full run `20261002T120321Z-9ee0b38ac9dc`: **4,163 core + 549 shared-library = 4,712
+passed**, zero failed/skipped. Full stable source fingerprint:
+`e59e12c9b9a25d00914efd7699d7e364f6f0e765e48836e4d9077f4b37d0aa1e`.
+
+Disposable native acceptance passed baseline/stages1A/1B and the new capacity scenarios.
+Raw/effective changes and expression edits clamp valid decreases without refill; invalid
+capacity refuses payment/mastery. Canonical focus ownership, fixture owner-body replacement,
+route disable/detach/reattach and repeated enrolment passed. Normal grade 7 paid 25 and grade 7
+Overreach paid 56.25 with printed minimum 50 under the provisional native scale. Independent
+raw reload retained explicit mapping/max 118/balance 17; a maximum rise 121 kept 17. Independent
+effective reload installed the live service before balance/inventory/effect restoration:
+raw 10 plus saved bonuses 3+7 preserved balance 150/max 200 until completion; removing the bonuses
+then clamped balance 100/max 100. This exercised the production restoration scope without
+claiming that full Character login or actual form/backup commands were run.
+
+The matrix covers **82 spells x 34 grade pairs x three capacities x two profiles = 16,728
+rows**. Native attribute probes 4/11.5/19 produce maxima 48/95.5/118. Lower-cap refusals are
+1,129 source-reference and 492 provisional-native; ordinary/advanced refusals are zero for
+both profiles. `ARM02 Agility`, the coefficients and zero-secondary-cost profiles are
+engineering fixtures, not approved stock choices. Quiet/area remain unavailable and
+unqualified; the other 72 candidates and authored secondary/material costs need later work.
+
+Native exit 0 and cleanup passed: four owned databases deleted, temporary MySQL gracefully
+shut down/deleted, zero owned harness processes after the reconnect check. No duplicate run
+was started. Forty final input hashes match after verification and the implementation commit;
+unit/native core and library assemblies match. Subsequent changes are documentation/receipts
+only. [Stage1C verification](Armageddon_Stage1C_Verification.json) retains exact test receipts,
+earlier failures, native logs, matrix/input/assembly hashes, cleanup and all limits.
+
+N07 retains controlled native evidence; N08 is now partial capacity fixture evidence, with
+stock gathering/environment, full login/form/backup and installed-world Telnet not run.
+The next boundary after parent review is phase2 invocation adapters: target-free practice,
+genuine speech/formula parity, quiet and per-spell area policies. The whole-plan ledger
+still retains 16 decisions, seven phases, 154 candidates and 25 exact native cases. No
+publication, merge, deployment or shared/production database operation occurred.

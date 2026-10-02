@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase2A native effect interruption repair implemented and verified; independent parent rereview pending",
+  "selected_stage": "Phase2B speech/formula/quiet implemented and verified; independent parent review pending; area separate",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -65,7 +65,7 @@
       "name": "Finish invocation adapters",
       "scope": "`MudSharpCore/Commands/Modules/MagicModule.Casting.cs`, communication module/body strategy integration, `CharacterCommunication.cs`, language/emote hooks, magic casting service",
       "exit_evidence": "Genuine speech/name/formula parity, no recursion, quiet policy, explicit area modes and side-effect-free practice",
-      "status": "practice_checkpoint_implemented_and_verified_speech_formula_quiet_area_pending"
+      "status": "practice_and_speech_formula_quiet_engine_checkpoints_implemented_and_verified_area_and_stock_qualification_pending"
     },
     {
       "id": 3,
@@ -154,13 +154,19 @@
       "id": "Q09",
       "requirement": "Actual historical POWER words; command casting and genuine speech-triggered casting; language-aware echo",
       "limit": "Both enter the same guarded pipeline; generated output never triggers a second cast",
-      "status": "pending_complete_implementation"
+      "status": "speech_formula_engine_implemented_focused_and_controlled_native_verified_stock_qualification_pending",
+      "evidence": [
+        "Armageddon_Stage2B_Verification.json: exact POWER, all120 formula permutations, named/formula/original native speech parity, hearing and origin/callback/relay/restart guards; stock/full-session qualification pending."
+      ]
     },
     {
       "id": "Q10",
       "requirement": "Quiet costs more and is harder; volume/method difficulty configurable; area defined per spell from source",
       "limit": "No universal ally immunity or caster exclusion; visible effects and magical detection remain",
-      "status": "pending_complete_implementation"
+      "status": "quiet_volume_engine_implemented_and_verified_area_and_stock_qualification_pending",
+      "evidence": [
+        "Armageddon_Stage2B_Verification.json: native Whisper quiet and custom method modifiers, physical restrictions and visible gesture verified; source-specific area and stock coefficients remain pending."
+      ]
     },
     {
       "id": "Q11",
@@ -287,24 +293,30 @@
       "name": "Formula parity",
       "scenario": "Named grade3 cast, command formula using `kral`, actual spoken equivalent",
       "required_result": "Same admission/grade/cost pipeline, one invocation each, correct native language echo; listener receives only perceptible speech",
-      "status": "not_run",
-      "evidence": []
+      "status": "passed_controlled_native_fixture_stock_and_full_session_pending",
+      "evidence": [
+        "Phase2B: Native named grade3, unordered kral formula and original network speech use one utterance/check/payment and same trait effect; selected language, native whisper, two listeners, unknown language and deafness exercised. Armageddon_Stage2B_Verification.json"
+      ]
     },
     {
       "id": "N10",
       "name": "Echo recursion",
       "scenario": "Cast near another listener/relay/proxy with matching formula hooks",
       "required_result": "Generated output never recasts; overhearing never grants knowledge; repeated callback cannot debit twice",
-      "status": "not_run",
-      "evidence": []
+      "status": "passed_controlled_native_callback_relay_fixture_full_lifecycle_pending",
+      "evidence": [
+        "Phase2B: Generated/ordinary speech authority guards, self-output nested command, native event effect Body.Say, actual ReciteProxy, concrete DeadSpeak forwarding and durable restart replay refuse extra casts; listener own repetition pays separately. Full corpse lifecycle remains pending. Armageddon_Stage2B_Verification.json"
+      ]
     },
     {
       "id": "N11",
       "name": "Quiet and area",
       "scenario": "Whisper an eligible spell; execute Earthquake, Chain Lightning and room Fireball policies",
       "required_result": "Quoted modifiers and physical volume apply; visible effects remain; source-specific caster policies differ correctly",
-      "status": "not_run",
-      "evidence": []
+      "status": "partial_native_quiet_verified_source_specific_area_pending",
+      "evidence": [
+        "Phase2B: Native Whisper quiet x2/+1, custom x1.25/+2 and visible gestures pass with native physical eligibility. Source-specific area policies remain not implemented or run. Armageddon_Stage2B_Verification.json"
+      ]
     },
     {
       "id": "N12",
@@ -2241,6 +2253,31 @@
       "owned_processes_remaining": 0,
       "frozen_inputs_matching": 77,
       "receipt": "Armageddon_Stage2A_Effect_Interruption_Verification.json"
+    },
+    {
+      "name": "Parent Phase2A review acceptance",
+      "status": "accepted",
+      "fix": "c1c5f3c954f2e390f890bbeb908807ad15ba3f6c",
+      "receipt_head": "36f271b43112a50f347ff9a1f5323ba067e4b0b2",
+      "scope": "Exact effect interruption repair accepted before speech/formula/quiet; existing qualifications retained."
+    },
+    {
+      "name": "Phase2B speech/formula/quiet",
+      "status": "passed_bounded_automated_and_controlled_native",
+      "focused": "20261002T182131Z-b748c8f81c56",
+      "dependent": "20261002T183411Z-d8b3bab556f7",
+      "counts": {
+        "focused": 353,
+        "core": 4335,
+        "library": 549,
+        "aggregate": 4884
+      },
+      "native_markers": 98,
+      "speech_markers": 23,
+      "owned_databases_cleaned": 6,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 93,
+      "receipt": "Armageddon_Stage2B_Verification.json"
     }
   ],
   "implementation_commits": [
@@ -2291,19 +2328,21 @@
     {
       "sha": "c1c5f3c954f2e390f890bbeb908807ad15ba3f6c",
       "subject": "Latch practice interruption on native physical effect changes"
+    },
+    {
+      "sha": "0377cd487a745bc04124ff7d683baf882083c620",
+      "subject": "Add native speech formula and quiet casting with origin guards"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase2A_effect_interruption_rereview",
-    "base": "6b79f66d27fced8782b786c36eafe6f6c9fb7076",
-    "scope": "Timed target-free paid practice, configurable physical/material plan, shared progression and conservative interruption/restart recovery",
-    "next_stage_after_review": "Phase2B genuine native speech/formula/command parity and quiet/volume; then spell-specific area policy",
+    "status": "awaiting_parent_phase2B_review",
+    "base": "36f271b43112a50f347ff9a1f5323ba067e4b0b2",
+    "scope": "Speech/formula/quiet immutable implementation and verification checkpoint",
+    "next_stage_after_review": "Phase2C separate per-spell source-specific area policies",
     "no_later_stage_started": true,
-    "receipt": "Armageddon_Stage2A_Effect_Interruption_Verification.json",
-    "implementation_verified": true,
-    "implementation_head": "99a9361340710f0e2a17cbc04ab5f3184076a9cc",
-    "review_base": "48dba6e9a61e984c449b62f87e73e40d7d95cffc",
-    "fix_commit": "c1c5f3c954f2e390f890bbeb908807ad15ba3f6c"
+    "implementation_head": "0377cd487a745bc04124ff7d683baf882083c620",
+    "receipt": "Armageddon_Stage2B_Verification.json",
+    "implementation_verified": true
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",

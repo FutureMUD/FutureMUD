@@ -47,7 +47,12 @@ fresh verification and keeps old PR receipts historical.
 - [x] Commit phase2A implementation and record its immutable acceptance receipt.
 - [x] Reproduce and repair parent P2: native effect-driven physical eligibility loss latches before check/progress.
 - [x] Verify the repair with fresh focused/full suites and disposable native effect scenarios.
-- [ ] Parent independently accepts the phase2A checkpoint before later adapters.
+- [x] Parent independently accepts phase2A fix `c1c5f3c` and receipt `36f271b4` before later adapters.
+- [x] Implement phase2B exact POWER, authored full/alias formulas, native speech provenance and quiet/volume policy.
+- [x] Repair parser, authority, malformed-XML and replay findings with focused regressions.
+- [x] Run controlled native speech anatomy, queue, hearing, quiet, callback/relay and restart scenarios.
+- [x] Complete final dependent/native checks and immutable phase2B receipts/local commits.
+- [ ] Parent independently reviews phase2B before the separate area-policy checkpoint.
 
 ## Remaining work
 
@@ -296,7 +301,7 @@ MySQL instance were cleaned up; zero owned processes remain. All 68 frozen input
 unit/native core/library assembly hashes match. Two review P2s were repaired; cancellation
 was reproduced failing-before and its regression now passes. Earlier failures are retained.
 See [phase2A verification](Armageddon_Stage2A_Verification.json) for exact receipts and limits.
-Formula, actual speech, quiet/volume and area adapters have not started.
+At this historical phase2A checkpoint, formula, actual speech, quiet/volume and area adapters had not started.
 The whole 16-decision, 7-phase, 154-candidate, 25-scenario ledger remains intact.
 
 N06/N12 have controlled native fixture evidence; their complete stock scenarios remain
@@ -307,7 +312,7 @@ real-time scheduling, installed Mend Flesh and full login/Telnet remain qualific
 Independent parent review of this immutable checkpoint precedes later invocation adapters.
 
 Phase2A implementation commit: `99a9361340710f0e2a17cbc04ab5f3184076a9cc`. The receipt commit records
-this exact head and preserved failures/fingerprints. No later adapter has started.
+this exact head and preserved failures/fingerprints. No later adapter had started at that checkpoint.
 
 ## Phase2A native effect interruption repair
 
@@ -326,4 +331,47 @@ All 77 frozen inputs and unit/native assembly hashes match. Native attempt 1 ret
 failed lookup-count assertion and cleanup; the harness counter now counts actual check executions.
 Production and automated tests stayed unchanged after those suites. Original phase2A receipts are
 historical and unchanged. The minimal speech anatomy adapter, provisional tuning and existing
-installed-world/material/hostile-AI/real-time/login limits remain explicit. Parent rereview precedes later adapters.
+installed-world/material/hostile-AI/real-time/login limits remain explicit. Parent accepted
+`c1c5f3c` / `36f271b4` and authorized the speech/formula/quiet checkpoint; those receipts remain historical.
+
+## Phase2B speech, formula and quiet checkpoint
+
+Selected base: `36f271b43112a50f347ff9a1f5323ba067e4b0b2`. Exact POWER words
+`wek yuqa kral een pav sul mon` map grades1-7 explicitly to native SpellPower. Optional
+per-spell language/vocabulary XML supports five categories in any order and POWER/spell
+aliases, with source labels for the four authored category words. Named/formula commands
+and original player speech share the canonical route, grade, payment, physical and target
+permission pipeline. Commands produce one native language-aware utterance; speech uses
+the original. Scoped single-use player authority, generated/relay correlation and durable
+origin receipts prevent output, overhearing, scripts, effects and duplicate callbacks from
+casting again. Native quote syntax remains available for multiword composite targets.
+
+Quiet is native Whisper with provisional energy x2 and difficulty +1, both configurable
+per native method and applied once. Native vocal anatomy, synthesizer volume, silence,
+gagging, mute merits and manipulation remain authoritative. Unsupported combinations and
+unmapped complete-target adapters refuse. Legacy/Vancian/power/prog routes retain their
+independent contracts. Area is deliberately the next separate checkpoint.
+
+Focused managed verification passed 353 tests with zero failures/skips. The controlled
+native speech run passed named/full formula/original TCP-queue speech, native alias,
+Whisper parity and custom modifiers, physical refusals, two eligible listeners, unknown
+language, deafness, self-output/effect callbacks, actual ReciteProxy and concrete DeadSpeak
+forwarding, plus a separate-process profile/receipt reload. Full Corpse/DeadSpeak lifecycle,
+native wearable gagging, installed-world login/Telnet, stock/material/hostile-AI/real-time
+and complete source-specific area policies remain unqualified.
+
+Implementation commit: `0377cd487a745bc04124ff7d683baf882083c620`. Final full run `20261002T183411Z-d8b3bab556f7`
+passed **4,335 Core + 549 shared library = 4,884** tests, zero failures/skips,
+with stable fingerprint `80043b339f5e9ca7da82a7ed9c667aecccde0eeabb21c3779495624436bdb491`.
+Full disposable casting acceptance passed **98 markers, including 23 speech markers**
+across six fresh owned databases; verified temporary MySQL cleanup and zero owned
+processes. All 93 frozen code/harness inputs and unit/native core/library assemblies
+match. Eight failed intermediate speech runs, the initial full-native mock failure
+and managed failing-before/build failures
+are retained alongside the passing-after receipts. The guide documents player syntax,
+builder validation, native authority and persistence.
+
+See [Armageddon_Stage2B_Verification.json](Armageddon_Stage2B_Verification.json) for exact evidence and qualifications.
+Bounded re-review established no further actionable P1/P2 defect. Await parent review
+of this immutable checkpoint before the separate area-policy stage. No publication,
+merge, deployment, shared/production DB, settings or usage/reset operation occurred.

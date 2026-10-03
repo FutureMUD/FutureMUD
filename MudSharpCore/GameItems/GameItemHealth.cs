@@ -577,6 +577,20 @@ public partial class GameItem : IHaveWounds
 
     public IGameItem Die()
     {
+		if (Deleted || Destroyed) return null;
+		if (SpellCreationOrigin?.IsTemporary == true)
+		{
+			if (Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return this;
+			if (!_spellOwnedDeathObserversNotified)
+			{
+				_spellOwnedDeathObserversNotified = true;
+				OnDeath?.Invoke(this);
+			}
+			if (Gameworld.SpellOwnedItems.TryPrepareRemoval(this, out _) != true) return this;
+			Delete();
+			if (!Deleted) return this;
+			Destroyed = true; EndHealthTick(); return null;
+		}
         if (InInventoryOf == null)
         {
             OutputHandler.Handle(new EmoteOutput(new Emote("@ have|has been destroyed!", this)));

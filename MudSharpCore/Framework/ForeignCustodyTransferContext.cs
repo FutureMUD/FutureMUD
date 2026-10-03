@@ -18,6 +18,9 @@ internal static class ForeignCustodyTransferContext
 	private static readonly AsyncLocal<Scope?> Current = new();
 
 	internal static Scope Enter(IBody body, IEnumerable<IGameItem> items, ICell destination)
+		=> EnterRemoval(body, items, destination);
+
+	internal static Scope EnterRemoval(IBody? body, IEnumerable<IGameItem> items, ICell? destination)
 	{
 		if (Current.Value is not null) throw new InvalidOperationException("Nested foreign custody transfers require a separate adapter.");
 		var scope = new Scope(body, new HashSet<IGameItem>(items, ReferenceEqualityComparer.Instance), destination);
@@ -91,11 +94,11 @@ internal static class ForeignCustodyTransferContext
 			throw new InvalidOperationException("A native custody transaction cannot flush unrelated save queues.");
 	}
 
-	internal sealed class Scope(IBody body, HashSet<IGameItem> items, ICell destination) : IDisposable
+	internal sealed class Scope(IBody? body, HashSet<IGameItem> items, ICell? destination) : IDisposable
 	{
-		internal IBody Body { get; } = body;
+		internal IBody? Body { get; } = body;
 		internal HashSet<IGameItem> Items { get; } = items;
-		internal ICell Destination { get; } = destination;
+		internal ICell? Destination { get; } = destination;
 		internal List<Action> SaveRollbacks { get; } = [];
 		internal void RestorePendingSaves(Action<Action> recover)
 		{

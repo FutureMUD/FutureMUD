@@ -7,7 +7,7 @@ namespace MudSharp.Magic;
 
 public enum SpellLifecycleMode { Permanent, TemporaryCleanup, DeathOnExpiry }
 public enum SpellLifecycleState { Active, Retiring, RemainsPending, Completed }
-public enum SpellRetirementReason { Expiry, Dispel, Dismissal, CapabilityLoss, Logout, EarlyDeath }
+public enum SpellRetirementReason { Expiry, Dispel, Dismissal, CapabilityLoss, Logout, EarlyDeath, EarlyItemRemoval }
 public enum SpellOwnedEntityKind { GameItem, AutonomousCharacter, CharacterInstance, Body, Cell, Exit }
 public enum SpellOwnedEntityRole { CreatedEntity, GeneratedPossession }
 
@@ -83,6 +83,9 @@ public static class SpellLifecycleTransitions
 		{
 			throw new InvalidOperationException("Permanent creations are ordinary durable entities and cannot be expired.");
 		}
+		if (reason == SpellRetirementReason.EarlyItemRemoval &&
+			(lifecycle.Entities.Count != 1 || lifecycle.Entities[0].Kind != SpellOwnedEntityKind.GameItem))
+			throw new ArgumentException("Early item removal requires one exact generated item, never actor death correlation.");
 		if (reason == SpellRetirementReason.Expiry && nowUtc < lifecycle.Origin.DeadlineUtc)
 		{
 			throw new InvalidOperationException("The absolute lifetime deadline has not passed.");

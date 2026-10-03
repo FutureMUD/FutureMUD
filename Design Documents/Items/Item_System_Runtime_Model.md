@@ -529,6 +529,16 @@ Item ownership is a generic `(framework item type, id)` reference, separate from
 
 Ownership is copied through stack and commodity splits, deep copies, morphs, destroyed-item replacements, and component-driven spent-item replacements. Stackable items, commodities, and currency piles may merge only when both ownership references match, including both being unowned. Currency get, put, drop, and give operations likewise select coins from one ownership group and copy that reference to the reconstructed pile rather than consolidating differently titled money. Creation factories do not infer title from their loader argument; commands and subsystems assign ownership at the acquisition boundary where the recipient or commissioning host is known.
 
+Opted-in spell creation also exposes an immutable `SpellCreationOrigin`, separate from this
+legal owner reference and physical custody. Temporary native leaf items retain their source
+and absolute expiry through title transfer, holding, wielding and containment. They refuse
+ordinary copy, merge, split, replacement and prototype updates until those conversions have
+a lifecycle adapter. Exact removal updates the custodian and deletes the owned row together;
+foreign contents or uncertain persisted custody retain a recoverable hold. Permanent spell
+output has no expiry and remains ordinary durable material. See
+[Spell Owned Lifecycle](../Magic/Spell_Owned_Lifecycle.md#created-leaf-items) for the supported
+component graph and restart guarantees.
+
 ## Update Behaviour
 ### Prototype update checks
 `GameItemProto.CheckForComponentPrototypeUpdates()` updates a prototype if any attached component prototype has moved from current to revised or obsolete.

@@ -1,4 +1,4 @@
-﻿
+
 using MudSharp.Construction;
 
 namespace MudSharp.GameItems.Inventory.Plans;
@@ -63,7 +63,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
         item =
             executor.Body.HeldItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
                     (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         if (item != null)
         {
@@ -74,7 +74,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
         item =
             executor.Body.WieldedItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
                     (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         if (item != null)
         {
@@ -85,7 +85,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
         item =
             executor.Body.WornItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && executor.Body.CanRemoveItem(x) &&
+                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && executor.Body.CanRemoveItem(x) &&
                     (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         if (item != null)
         {
@@ -99,7 +99,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
                         x =>
                             x.ConnectedItems.FirstOrDefault(
                                 y =>
-                                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(y.Parent) && y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
                                     (y.Parent.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity)?.Parent)
                     .FirstOrDefault(x => x != null);
         if (item != null)
@@ -113,7 +113,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
                             (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         if (item != null)
         {
@@ -127,7 +127,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
                     .SelectMany(x => x.Contents)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
                             (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         if (item != null)
         {
@@ -138,7 +138,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
         item =
             (executor.Location?.GameItemsInImmediateVicinity(executor) ?? []).FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
                     x.IsItemType<IHoldable>() &&
                     x.GetItemType<IHoldable>().IsHoldable &&
                     (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
@@ -154,7 +154,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
                         x =>
                             x.ConnectedItems.FirstOrDefault(
                                 y =>
-                                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(y.Parent) && y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
                                     (y.Parent.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity)?.Parent)
                     .FirstOrDefault(x => x != null);
         if (item != null)
@@ -168,7 +168,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
                             (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         if (item != null)
         {
@@ -182,7 +182,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
                     .SelectMany(x => x.Contents)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
                             (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         return item;
     }

@@ -256,8 +256,61 @@ an already-used archival schema.
 Phase3A supplies the shared persistence and safe body-retirement boundary for the approved
 Armageddon completion plan. Phase3B2A attaches explicit `createnpc` creation and death
 correlation to it; Phase3B2B supplies the simple-NPC retirement adapter above.
-`createitem`, corpse animation, projections and other topology still need their native
-adapters and acceptance. Legacy spell creation behavior is retained.
+Phase3C1 supplies the bounded plain-item `createitem` adapter described below. Corpse
+animation, projections and other topology still need their native adapters and acceptance.
+Legacy spell creation behavior is retained.
+
+### Created leaf items
+
+`createitem` optionally persists a version-one lifecycle definition. Builders select
+`effect <n> lifecycle permanent` or `temporarycleanup`, set `family <name>` and, for timed
+output, `lifetime <expression>` in real seconds. `permanent <grade> <prototype>` selects a
+distinct permanent prototype at one exact grade from 1 through 7; `permanent none` clears
+that override. `lifecycle legacy` retains existing item creation. Malformed stored lifecycle
+XML remains intact for repair and refuses admission.
+
+The adapter admits one current, loadable native item with no skin, load string, morph,
+on-load program or default item hook. Its component graph must contain `Holdable` and may
+also contain the native `MeleeWeapon` and `Salvageable` components. Wield programs and other
+component families require a further adapter. A finite positive lifetime is sampled once
+from the selected-grade casting copy before payment and reused for the absolute UTC
+deadline. Historical event delays are not implicitly converted to seconds.
+
+Private item and component inserts, quality and the exact creation claim commit together
+before world publication or placement. Caller write suppression is authoritative; creation
+does not flush unrelated dirty state. An origin cannot replay creation. Temporary output
+retains its immutable origin and deadline through ordinary custody, equipment and legal
+title changes. Permanent output completes its lifecycle after activation and has no expiry.
+
+Temporary output refuses copy, merge, split, morph/replacement, prototype update and
+conversion into ordinary crafting inputs, casting material, salvage products, shop stock,
+sale proceeds or auction lots. Value guards also inspect temporary items inside or attached
+to an otherwise ordinary host. These refusals occur before payment or input reservation.
+The simple adapter deliberately refuses unsupported conversions; food consumption, liquid
+mixing and worn lights still need their own value-preserving adapters.
+
+Exact temporary leaf deletion commits custodian changes and the item row deletion in one
+private transaction. A loaded native container or sheath, native body, or location with a
+custody rollback adapter is required. Typed snapshots and the save journal restore runtime
+membership after a detach callback or provider failure. Dependencies and raw custodian
+membership are checked again after detachment, so callback-introduced foreign material or
+same-body reacquisition prevents deletion. Unknown effects, hooks, attachments, lodged
+goods, implants, prostheses or cold persisted custody retain an explained retirement hold.
+Loading the exact persisted custodian permits retry without resetting the deadline.
+
+`Die()` performs the first removal check before native destruction flags or observers. It
+rechecks after death observers, and a live held attempt invokes those observers only once.
+This once-only state is an in-memory guard; manual death callback behavior across a restart
+is not qualified by this slice. After commit, reconciliation retries runtime release from
+the exact durable intent. Post-payment publication uncertainty remains a casting review
+case, with no refund or automatic replay. Permanent post-placement recovery is not qualified.
+
+Controlled native acceptance exercises a paid grade-three timed melee weapon and a distinct
+paid grade-seven permanent staff, native holding/wielding, callback holds, actual SQL delete
+failure and a second-process custody reload before retry. These are replacement fixtures,
+not installed Armageddon stock, combat statistics or elemental payload acceptance. Food,
+water/wine capacity and mixing, Hovering Light, Storm Spear primary-hand placement and
+the remaining item families remain separate completion requirements.
 
 ### Staff corpse maintenance
 

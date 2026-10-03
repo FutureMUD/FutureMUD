@@ -29,6 +29,9 @@ namespace MudSharp.GameItems
 
         IGameItemProto Prototype { get; }
 #nullable enable
+		SpellOwnedItemOrigin? SpellCreationOrigin => null;
+#nullable restore
+#nullable enable
         /// <summary>
         /// Instance short description, or null to inherit the skin/prototype description.
         /// </summary>

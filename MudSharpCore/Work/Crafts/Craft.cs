@@ -843,7 +843,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 
             if (_craftInputConsumedPhases[input.Id] < fromPhase)
             {
-                List<IPerceivable> makeup = input.ScoutInput(character).ToList();
+                List<IPerceivable> makeup = input.ScoutInput(character).Where(x => !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x)).ToList();
                 if (!makeup.Any())
                 {
                     missingInputs.Add(input);
@@ -859,7 +859,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
                 continue;
             }
 
-            List<IPerceivable> targets = input.ScoutInput(character).ToList();
+            List<IPerceivable> targets = input.ScoutInput(character).Where(x => !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x)).ToList();
             if (!targets.Any())
             {
                 missingInputs.Add(input);

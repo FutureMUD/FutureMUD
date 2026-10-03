@@ -209,6 +209,7 @@ Runtime safety invariants:
 - permanent-shop public stock comes from shopfront-held items and shallow shopfront/stockroom display paths, not private workshops or deeply nested private containers
 - merchandise repricing permits ordinary reductions and rejects unsafe markup multipliers rather than allowing decimal arithmetic to crash command handling
 - item preview follows normal container visibility rules; closed opaque containers do not reveal contents through shop preview
+- temporary spell-created material, including a temporary child or attachment of ordinary merchandise, is refused by shop stock admission, sale and purchase guards before payment or custody changes; auction listing applies the same value guard
 
 Partial stack and commodity retrieval preserve shop display identity. Stock removal resolves that merchandise before generic prototype matching, values the actual split, and does not decrement a residual commodity pile for a split never separately indexed. Read-only commodity previews never enter the world or save queue. Source lawful/access checks run before splitting or debiting. See [Physical Manipulation Audit](../Items/Physical_Manipulation_Audit.md).
 

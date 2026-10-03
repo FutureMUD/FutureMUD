@@ -985,6 +985,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 
     public IGameItem LoadDestroyedItem(IGameItem originalItem)
     {
+		if (originalItem.SpellCreationOrigin?.IsTemporary == true) return null;
         if (_onDestroyedGameItemProto == 0)
         {
             return null;
@@ -1019,6 +1020,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 
     public IGameItem LoadMorphedItem(IGameItem originalItem)
     {
+		if (originalItem.SpellCreationOrigin?.IsTemporary == true) return null;
         if (_onMorphGameItemProto == 0)
         {
             return null;

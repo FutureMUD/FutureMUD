@@ -45,9 +45,9 @@ internal static partial class GNHProgram
 		SpellOwnedLifecycleStore Store, Scheduler Scheduler, HeartbeatManager Heartbeats, All<IGameItem> Items,
 		Dictionary<long, GameItemProto> Prototypes);
 
-	private static RetirementHost PrepareRetirementHost(TestDatabase database, FixtureIds fixture, HarnessClock clock)
+	private static RetirementHost PrepareRetirementHost(TestDatabase database, FixtureIds fixture, HarnessClock clock, bool wielding = false)
 	{
-		var native = NativeRuntime.Load(fixture, database.ConnectionString, true);
+		var native = NativeRuntime.Load(fixture, database.ConnectionString, true, wielding: wielding);
 		ConfigureCastingWorld(native, database.ConnectionString, false); PrepareLifecycleRuntime(native);
 		var roots = ArchiveRoots(); ConfigureArchiveWorld(native, roots, fixture, database.ConnectionString);
 		var scheduler = new Scheduler(clock); var heartbeats = new HeartbeatManager(native.World);
@@ -102,9 +102,25 @@ internal static partial class GNHProgram
 		native.WorldMock.SetupGet(x => x.ItemComponentProtos).Returns(componentCatalogue.Object);
 		var catalogue = new Mock<IUneditableRevisableAll<IGameItemProto>>();
 		catalogue.Setup(x => x.Get(It.IsAny<long>(), It.IsAny<int>())).Returns<long, int>((id, _) => prototypes.GetValueOrDefault(id)!);
+		if (wielding)
+		{
+			catalogue.Setup(x => x.Get(It.IsAny<long>())).Returns<long>(id => prototypes.GetValueOrDefault(id)!);
+			catalogue.Setup(x => x.GetEnumerator()).Returns(() => prototypes.Values.Cast<IGameItemProto>().GetEnumerator());
+			catalogue.Setup(x => x.GetByIdOrName(It.IsAny<string>(), It.IsAny<bool>()))
+				.Returns<string, bool>((text, _) => prototypes.Values.Cast<IGameItemProto>().GetByIdOrName(text)!);
+		}
 		native.WorldMock.SetupGet(x => x.ItemProtos).Returns(catalogue.Object);
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
+			if (wielding)
+			{
+				var weapons = new All<MudSharp.Combat.IWeaponType>();
+				foreach (var model in db.WeaponTypes.AsNoTracking()) weapons.Add(new MudSharp.Combat.WeaponType(model, native.World));
+				native.WorldMock.SetupGet(x => x.WeaponTypes).Returns(weapons);
+				var tags = new All<ITag>();
+				foreach (var model in db.Tags.AsNoTracking()) tags.Add(new Tag(model, native.World));
+				native.WorldMock.SetupGet(x => x.Tags).Returns(tags);
+			}
 			((All<IHealthStrategy>)native.World.HealthStrategies).Add(BaseHealthStrategy.LoadStrategy(
 				db.HealthStrategies.Single(x => x.Name == "ARM03B2B item health"), native.World));
 			foreach (var model in db.GameItemComponentProtos.Include(x => x.EditableItem).Where(x => x.Name.StartsWith("ARM03B2B")))
@@ -113,13 +129,14 @@ internal static partial class GNHProgram
 				{
 					"Corpse" => typeof(CorpseGameItemComponentProto), "Container" => typeof(ContainerGameItemComponentProto),
 					"Holdable" => typeof(HoldableGameItemComponentProto), "Belt" => typeof(BeltGameItemComponentProto),
+					"MeleeWeapon" => typeof(MeleeWeaponGameItemComponentProto), "Salvageable" => typeof(SalvageableGameItemComponentProto),
 					"Beltable" => typeof(BeltableGameItemComponentProto), "Stackable" => typeof(StackableGameItemComponentProto), "Simple Lock" => typeof(SimpleLockGameItemComponentProto),
 					_ => throw new InvalidOperationException("Unknown owned fixture component")
 				};
 				componentPrototypes.Add(model.Id, (IGameItemComponentProto)type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
 					null, [typeof(Db.GameItemComponentProto), typeof(IFuturemud)], null)!.Invoke([model, native.World]));
 			}
-			foreach (var model in db.GameItemProtos.Include(x => x.EditableItem).Include(x => x.GameItemProtosGameItemComponentProtos).Where(x => x.Name.StartsWith("ARM03B2B")))
+			foreach (var model in db.GameItemProtos.Include(x => x.EditableItem).Include(x => x.GameItemProtosTags).Include(x => x.GameItemProtosGameItemComponentProtos).Where(x => x.Name.StartsWith("ARM03B2B")))
 				prototypes.Add(model.Id, new GameItemProto(model, native.World));
 		}
 		if (prototypes.Values.SingleOrDefault(x => x.Name == "ARM03B2B corpse") is { } corpsePrototype)

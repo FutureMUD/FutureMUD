@@ -142,6 +142,9 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		// Practice never clones/binds effect templates or invokes their target/caster application paths.
 		var copy = intent.Mode == MagicCastingMode.Practice ? spell : spell.CastingCopy(actor, trait, intent.Grade, power, difficulty, controlledGrade);
 		if (intent.Mode != MagicCastingMode.Practice) copy.InvocationOriginId = intent.OriginId;
+		if (intent.Mode != MagicCastingMode.Practice)
+			foreach (var itemCreation in copy.SpellEffects.Concat(copy.CasterSpellEffects).OfType<MudSharp.Magic.SpellEffects.CreateItemEffect>())
+				if (!itemCreation.ValidateInvocation(actor, out var itemError)) throw new InvalidOperationException(itemError);
 		List<CastingPayment> payments = [];
 		foreach (var (resource, expression) in copy.CastingCosts)
 		{

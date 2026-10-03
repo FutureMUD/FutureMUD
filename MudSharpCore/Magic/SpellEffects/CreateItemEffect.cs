@@ -9,7 +9,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public class CreateItemEffect : IMagicSpellEffectTemplate
+public partial class CreateItemEffect : IMagicSpellEffectTemplate, IMagicSpellEffectAdmission
 {
     public static void RegisterFactory()
     {
@@ -43,6 +43,7 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
         _itemSkinId = long.Parse(root.Element("ItemSkinId").Value);
         Quantity = int.Parse(root.Element("Quantity").Value);
         LoadString = root.Element("LoadString").Value;
+		LoadLifecycle(root.Element("Lifecycle"));
     }
     public IFuturemud Gameworld => Spell.Gameworld;
 
@@ -70,7 +71,8 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
             new XElement("ItemPrototypeId", _itemPrototypeId),
             new XElement("ItemSkinId", _itemSkinId),
             new XElement("Quantity", Quantity),
-            new XElement("LoadString", new XCData(LoadString))
+            new XElement("LoadString", new XCData(LoadString)),
+			SaveLifecycle()
         );
     }
 
@@ -103,6 +105,12 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
     public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
         SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
     {
+		if (LifecycleMode is not null || _lifecycleLoadError is not null)
+		{
+			if (!TryPrepareApplication(caster, target, outcome, power, TimeSpan.Zero, out var application, out var error))
+				throw new InvalidOperationException(error);
+			return application!.Create(parent);
+		}
         IGameItemProto prototype = ItemPrototype;
         if (prototype is null)
         {
@@ -222,6 +230,10 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
 	#3load <text>#0 - sets the load argument (same as #3item load <item>#0 command)
 	#3load none#0 - clears the load argument
 	#3quality <formula>#0 - sets the formula for item quality. See below for possible parameters.
+	#3lifecycle legacy|permanent|temporarycleanup#0 - sets explicit plain-item creation policy
+	#3family <name>#0 - sets the creation lifecycle family
+	#3lifetime <formula>#0 - sets the lifetime in real seconds (constant or route-bound grade/power/mastery/traits)
+	#3permanent <grade 1-7> <proto>|none#0 - selects a permanent output at one exact configured grade
 
 Parameters for quality formula:
 
@@ -235,11 +247,19 @@ Parameters for quality formula:
             ("Skin", ItemSkin?.EditHeader() ?? "None".ColourError()),
             ("Quantity", Quantity.ToStringN0(actor).ColourValue()),
             ("Quality", ItemQuality.OriginalExpression.ColourCommand()),
-            ("Load String", string.IsNullOrWhiteSpace(LoadString) ? "None".ColourError() : LoadString.ColourCommand()));
+            ("Load String", string.IsNullOrWhiteSpace(LoadString) ? "None".ColourError() : LoadString.ColourCommand()),
+			("Lifecycle", LifecycleMode?.ToString().ColourName() ?? "Legacy"),
+			("Family", LifecycleFamily.ColourValue()),
+			("Lifetime Seconds", LifetimeExpression?.OriginalFormulaText.ColourCommand() ?? "None"),
+			("Permanent Grade", PermanentGrade?.ToString().ColourValue() ?? "None"),
+			("Permanent Prototype", PermanentPrototype?.EditHeaderColour(actor) ?? "None"),
+			("Validation", DefinitionError?.ColourError() ?? "Valid".ColourValue()));
     }
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
+		if (command.PeekSpeech().ToLowerInvariant() is "lifecycle" or "family" or "lifetime" or "permanent")
+			return BuildingCommandLifecycle(actor, command);
         switch (command.PopSpeech().ToLowerInvariant())
         {
             case "item":

@@ -668,6 +668,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
 
     public void AddAuctionItem(AuctionItem item)
     {
+		if (item.Item is { } goods) SpellOwnedItemValuePolicy.RequireOrdinaryValue(goods, "auction listing");
         _activeAuctionItems.Add(item);
         Changed = true;
     }

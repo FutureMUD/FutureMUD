@@ -222,8 +222,10 @@ public abstract class BaseInput : LateInitialisingItem, ICraftInput
 
         public void ConsumeInput(IEnumerable<IGameItem> items)
         {
+			var candidates = items.ToArray();
+			foreach (var candidate in candidates) SpellOwnedItemValuePolicy.RequireOrdinaryValue(candidate, "craft input reservation");
             int cumulativeQuantity = 0;
-            foreach (IGameItem item in items)
+            foreach (IGameItem item in candidates)
             {
                 IGameItem target = item.DropsWhole(Quantity - cumulativeQuantity)
                     ? item

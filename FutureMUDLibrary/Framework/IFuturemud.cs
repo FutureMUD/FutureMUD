@@ -102,6 +102,7 @@ namespace MudSharp.Framework
 		MudSharp.Magic.IMagicCastingService? MagicCasting => null;
 		ICharacterArchiveService? CharacterArchives => null;
 		MudSharp.Magic.ISpellOwnedNpcService? SpellOwnedNpcs => null;
+		MudSharp.Magic.ISpellOwnedItemService? SpellOwnedItems => null;
 #nullable restore annotations
         void ReleasePrimedGameItems();
         void PrimeGameItems();

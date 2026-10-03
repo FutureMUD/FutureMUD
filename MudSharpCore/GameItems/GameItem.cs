@@ -88,6 +88,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public bool CheckPrototypeForUpdate()
     {
+		if (SpellCreationOrigin?.IsTemporary == true) return false;
         if (Prototype.Status == RevisionStatus.Obsolete || Prototype.Status == RevisionStatus.Revised)
         {
             IGameItemProto newProto =
@@ -917,6 +918,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         Register(new IgnorantItemOutputHandler(this));
         Gameworld = game;
         _id = item.Id;
+		SpellCreationOrigin = game.SpellOwnedItems?.FindOrigin(item.Id);
         Prototype = game.ItemProtos.Get(item.GameItemProtoId, item.GameItemProtoRevision);
         if (Prototype == null)
         {
@@ -1003,8 +1005,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         StartHealthTick();
     }
 
-    public GameItem(IGameItemProto proto, ICharacter? loader = null, ItemQuality quality = ItemQuality.Standard)
+    public GameItem(IGameItemProto proto, ICharacter? loader = null, ItemQuality quality = ItemQuality.Standard,
+		bool deferSpellInitialisation = false)
     {
+		_noSave = deferSpellInitialisation;
         Register(new IgnorantItemOutputHandler(this));
         if (proto == null)
         {
@@ -1025,13 +1029,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         foreach (IGameItemComponentProto component in proto.Components)
         {
-            _components.Add(component.CreateNew(this, loader));
+            _components.Add(component.CreateNew(this, loader, temporary: deferSpellInitialisation));
         }
 
         List<IHook> hooks = Gameworld.DefaultHooks.Where(
             x => x.Applies(this, "GameItem")).Select(x => x.Hook).ToList();
 
-        if (hooks.Any())
+		if (deferSpellInitialisation && hooks.Any()) throw new InvalidOperationException("Lifecycle weapons require a prototype without applicable default hooks.");
+        if (!deferSpellInitialisation && hooks.Any())
         {
             foreach (IHook hook in hooks)
             {
@@ -1040,8 +1045,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         }
 
         SetState(PositionUndefined.Instance);
-        Gameworld.SaveManager.AddInitialisation(this);
-        foreach (IGameItemComponent comp in Components)
+		if (!deferSpellInitialisation) Gameworld.SaveManager.AddInitialisation(this);
+        foreach (IGameItemComponent comp in deferSpellInitialisation ? Enumerable.Empty<IGameItemComponent>() : Components)
         {
             comp.FinaliseLoad();
         }
@@ -1056,6 +1061,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public GameItem(GameItem rhs, bool temporary = false, bool preserveMorphTime = false)
     {
+		if (!temporary) SpellOwnedItemValuePolicy.RequireOrdinaryValue(rhs, "copying");
+		SpellCreationOrigin = rhs.SpellCreationOrigin;
         if (temporary)
         {
             _noSave = true;
@@ -1778,6 +1785,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     {
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
         if (Deleted || _notifyingDeletionObservers) return;
+		if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return;
         if (_deletionObserverFailure is not null)
             throw new InvalidOperationException("Deletion observers failed; native removal remains held.", _deletionObserverFailure);
         if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _) == false) return;
@@ -1799,6 +1807,13 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             finally { _notifyingDeletionObservers = false; }
         }
         if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _) == false) return;
+        if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return;
+        if (SpellCreationOrigin?.IsTemporary == true) { DeleteSpellOwnedItem(); return; }
+        DeleteNative();
+    }
+
+    private void DeleteNative(bool persistedAlready = false)
+    {
         ReleaseEvents();
         if (GetItemType<ICorpse>()?.OriginalBody?.Actor.State.HasFlag(CharacterState.Dead) == true) EndHealthTick();
         Changed = false;
@@ -1833,7 +1848,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             wound.Delete();
         }
 
-        if (_id != 0)
+        if (_id != 0 && !persistedAlready)
         {
             using (new FMDB())
             {
@@ -1864,6 +1879,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         }
 
         Deleted = true;
+		Gameworld.SpellOwnedItems?.ObserveRemoval(this);
     }
 
     protected override void ReleaseEvents()
@@ -2220,6 +2236,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public bool CanMerge(IGameItem otherItem)
     {
+		if (SpellCreationOrigin?.IsTemporary == true || otherItem.SpellCreationOrigin?.IsTemporary == true) return false;
         if (Deleted)
         {
             return false;
@@ -2269,6 +2286,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void Merge(IGameItem otherItem)
     {
+		SpellOwnedItemValuePolicy.RequireOrdinaryValue(this, "merging");
+		SpellOwnedItemValuePolicy.RequireOrdinaryValue(otherItem, "merging");
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
 		ForeignCustodyTransferContext.EnsureItem(otherItem, destructive: true);
         IStackable thisStackable = GetItemType<IStackable>();
@@ -2515,6 +2534,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem DropByWeight(ICell location, double weight)
     {
+		if (!DropsWholeByWeight(weight)) SpellOwnedItemValuePolicy.RequireOrdinaryValue(this, "splitting");
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: !DropsWholeByWeight(weight));
         if (DropsWholeByWeight(weight))
         {
@@ -2543,6 +2563,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem GetByWeight(IBody getter, double weight)
     {
+		if (!DropsWholeByWeight(weight)) SpellOwnedItemValuePolicy.RequireOrdinaryValue(this, "splitting");
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: !DropsWholeByWeight(weight));
         if (DropsWholeByWeight(weight))
         {
@@ -2913,6 +2934,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     private void Morph(IGameItem item)
     {
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
+		if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return;
         if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _, morphing: true) == false) return;
         IGameItem newItem = Prototype.LoadMorphedItem(this);
         ICell location = TrueLocations.FirstOrDefault();

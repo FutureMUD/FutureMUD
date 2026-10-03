@@ -466,6 +466,7 @@ public abstract partial class Shop : SaveableItem, IShop
 
     public void AddToStock(ICharacter actor, IGameItem item, IMerchandise merch)
     {
+		SpellOwnedItemValuePolicy.RequireOrdinaryValue(item, "stocking for sale");
         item.SetOwner(this);
         item.AddEffect(new ItemOnDisplayInShop(item, this, merch));
         actor?.OutputHandler.Send(
@@ -589,6 +590,7 @@ public abstract partial class Shop : SaveableItem, IShop
     public (bool Truth, string Reason) CanSell(ICharacter actor, IMerchandise merchandise, IPaymentMethod method,
         IGameItem item)
     {
+		if (SpellOwnedItemValuePolicy.ContainsTemporaryValue(item)) return (false, SpellOwnedItemValuePolicy.Refusal);
         if (!IsTrading && !actor.IsAdministrator())
         {
             return (false, "the store is currently closed");
@@ -686,6 +688,7 @@ public abstract partial class Shop : SaveableItem, IShop
 
     public void Sell(ICharacter actor, IMerchandise merchandise, IPaymentMethod method, IGameItem item)
     {
+		SpellOwnedItemValuePolicy.RequireOrdinaryValue(item, "selling");
         item.AddEffect(new ItemOnDisplayInShop(item, this, merchandise));
         item.SetOwner(this);
         IShopPriceCalculation calculation = GetPriceCalculation(actor, merchandise, item.Quantity, ShopDealApplicability.Buy);
@@ -724,6 +727,7 @@ public abstract partial class Shop : SaveableItem, IShop
         }
 
         List<IGameItem> stockedItems = StockedItems(merchandise).ToList();
+		if (stockedItems.Any(SpellOwnedItemValuePolicy.ContainsTemporaryValue)) return (false, SpellOwnedItemValuePolicy.Refusal);
 
         if (!stockedItems.Any())
         {
@@ -845,6 +849,7 @@ public abstract partial class Shop : SaveableItem, IShop
         IPaymentMethod method, IEnumerable<IGameItem> exactStockItems)
     {
         List<IGameItem> exactItems = exactStockItems.Distinct().ToList();
+		if (exactItems.Any(SpellOwnedItemValuePolicy.ContainsTemporaryValue)) return (false, SpellOwnedItemValuePolicy.Refusal);
         if (!exactItems.Any())
         {
             return (false, "no exact stock items were selected for the purchase.");
@@ -896,6 +901,7 @@ public abstract partial class Shop : SaveableItem, IShop
                 : StockedItems(merchandise))
             .Where(x => x.GetItemType<ICommodity>() is { } commodity && merchandise.IsMerchandiseForCommodity(commodity))
             .ToList();
+		if (candidateStock.Any(SpellOwnedItemValuePolicy.ContainsTemporaryValue)) return (false, SpellOwnedItemValuePolicy.Refusal);
         var stockedIds = StockedItems(merchandise).Select(x => x.Id).ToHashSet();
         if (candidateStock.Any(x => !stockedIds.Contains(x.Id)))
         {

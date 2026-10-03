@@ -278,7 +278,9 @@ public class ConditionRepairInput : BaseInput
 
         public void ConsumeInput(IEnumerable<IGameItem> items)
         {
-            foreach (IGameItem item in items)
+			var candidates = items.ToArray();
+			foreach (var candidate in candidates) SpellOwnedItemValuePolicy.RequireOrdinaryValue(candidate, "craft repair input reservation");
+            foreach (IGameItem item in candidates)
             {
                 IGameItem target = item;
                 item.InInventoryOf?.Take(target);

@@ -1756,6 +1756,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
     private InventoryPlanActionResult ConsumeItem(ICharacter actor, IGameItem item, int quantity,
         object originalReference)
     {
+		SpellOwnedItemValuePolicy.RequireOrdinaryValue(item, "component consumption");
         IGameItem container = item.ContainedIn;
         IStackable stack = item.GetItemType<IStackable>();
         if (stack != null)

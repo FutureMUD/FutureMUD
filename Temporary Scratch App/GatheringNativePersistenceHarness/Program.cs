@@ -25,6 +25,7 @@ using MudSharp.Framework.Scheduling;
 using MudSharp.Form.Shape;
 using MudSharp.Form.Material;
 using MudSharp.FutureProg;
+using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Health.Strategies;
 using MudSharp.Health.Wounds;
@@ -68,6 +69,9 @@ internal static partial class GNHProgram
 				["--npc-archive-maintenance-run"] => RunNpcArchiveMaintenanceChecks(),
 				["--spell-owned-npc-run"] => RunSpellOwnedNpcAcceptanceChecks(),
 				["--spell-owned-retirement-run"] => RunSpellOwnedNpcRetirementChecks(),
+				["--spell-owned-item-run"] => RunSpellOwnedItemChecks(),
+				["--spell-owned-item-reader", .. string[] itemArguments] => RunSpellOwnedItemReader(itemArguments),
+				["--spell-owned-item-removal-reader", .. string[] removalArguments] => RunSpellOwnedItemRemovalReader(removalArguments),
 				["--spell-owned-retirement-reader", .. string[] ownedRetirementArguments] => RunSpellOwnedRetirementReader(ownedRetirementArguments),
 				["--spell-owned-npc-reader", .. string[] nativeNpcArguments] => RunSpellOwnedNpcReader(nativeNpcArguments),
 				["--npc-archive-reader", .. string[] archiveArguments] => RunNpcArchiveReader(archiveArguments),
@@ -538,7 +542,7 @@ internal static partial class GNHProgram
 		public IMagicGatheringCapability Capability { get; }
 
 		public static NativeRuntime Load(FixtureIds fixture, string connectionString, bool casting = false,
-			Action<NativeRuntime>? beforeMagicLoad = null, bool vocalAnatomy = false)
+			Action<NativeRuntime>? beforeMagicLoad = null, bool vocalAnatomy = false, bool wielding = false)
 		{
 			using FuturemudDatabaseContext context = NewIndependentContext(connectionString);
 			Db.Character character = context.Characters
@@ -569,8 +573,23 @@ internal static partial class GNHProgram
 
 			Mock<IExternalBodypart> bodypart = NewBodypart(fixture.BodypartId, world.Object);
 			if (casting) bodypart.As<IGrab>();
+			Mock<IExternalBodypart>? extraBodypart = null;
+			if (wielding)
+			{
+				// The item fixture needs one hand for a real held component and another for casting.
+				extraBodypart = NewBodypart(fixture.BodypartId + 3, world.Object);
+				foreach (var hand in new[] { bodypart, extraBodypart })
+				{
+					hand.As<IGrab>();
+					var wield = hand.As<IWield>();
+					wield.Setup(x => x.CanWield(It.IsAny<IGameItem>(), It.IsAny<IInventory>())).Returns(IWieldItemWieldResult.Success);
+					wield.Setup(x => x.Hands(It.IsAny<IGameItem>())).Returns(1);
+					wield.Setup(x => x.SelfUnwielder()).Returns(true);
+				}
+			}
 			var bodyparts = new All<IBodypart>();
 			bodyparts.Add(bodypart.Object);
+			if (extraBodypart is not null) bodyparts.Add(extraBodypart.Object);
 			world.SetupGet(x => x.BodypartPrototypes).Returns(bodyparts);
 			Require(ReferenceEquals(bodyparts.Get(fixture.BodypartId), bodypart.Object),
 				"The fixture did not register the supported body part in the native world catalogue.");
@@ -599,7 +618,7 @@ internal static partial class GNHProgram
 			ethnicities.Add(ethnicity.Object);
 			world.SetupGet(x => x.Ethnicities).Returns(ethnicities);
 
-			Mock<IBodyPrototype> bodyPrototype = NewBodyPrototype(bodyModel.BodyPrototypeId, world.Object, bodypart.Object, casting, vocalAnatomy);
+			Mock<IBodyPrototype> bodyPrototype = NewBodyPrototype(bodyModel.BodyPrototypeId, world.Object, bodypart.Object, casting, vocalAnatomy, extraBodypart?.Object);
 			var bodyPrototypes = new All<IBodyPrototype>();
 			bodyPrototypes.Add(bodyPrototype.Object);
 			world.SetupGet(x => x.BodyPrototypes).Returns(bodyPrototypes);
@@ -702,7 +721,7 @@ internal static partial class GNHProgram
 			return bodypart;
 		}
 
-		private static Mock<IBodyPrototype> NewBodyPrototype(long id, IFuturemud world, IBodypart bodypart, bool livingAnatomy = false, bool vocalAnatomy = false)
+		private static Mock<IBodyPrototype> NewBodyPrototype(long id, IFuturemud world, IBodypart bodypart, bool livingAnatomy = false, bool vocalAnatomy = false, IBodypart? extraBodypart = null)
 		{
 			var prototype = new Mock<IBodyPrototype>(MockBehavior.Loose);
 			// Real damage runs the living health strategy, which requires functioning brain and heart organs.
@@ -716,7 +735,7 @@ internal static partial class GNHProgram
 				? [new BrainProto(OrganModel(bodypart.Id + 1, "harness brain"), world),
 					new HeartProto(OrganModel(bodypart.Id + 2, "harness heart"), world)]
 				: [];
-			var external = new[] { bodypart };
+			var external = extraBodypart is null ? new[] { bodypart } : new[] { bodypart, extraBodypart };
 			if (vocalAnatomy)
 			{
 				var vocalId = 1000000000L + id * 100;

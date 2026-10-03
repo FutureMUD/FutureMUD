@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot)
+param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$SpellOwnedItemOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot)
 
 $ErrorActionPreference = 'Stop'
 
@@ -151,11 +151,11 @@ try {
 	}
 	Invoke-OwnedHarness '--probe'
 	$runExit = $LASTEXITCODE
-	if (-not $OwnershipOnly -and -not $SpellOwnedRetirementOnly -and -not $LandOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and -not $SpellOwnedNpcOnly -and $runExit -eq 0) {
+	if (-not $SpellOwnedItemOnly -and -not $OwnershipOnly -and -not $SpellOwnedRetirementOnly -and -not $LandOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and -not $SpellOwnedNpcOnly -and $runExit -eq 0) {
 		Invoke-OwnedHarness '--run'
 		$runExit = $LASTEXITCODE
 	}
-	if ($runExit -eq 0 -and -not $OwnershipOnly -and -not $SpellOwnedRetirementOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and -not $SpellOwnedNpcOnly) {
+	if ($runExit -eq 0 -and -not $SpellOwnedItemOnly -and -not $OwnershipOnly -and -not $SpellOwnedRetirementOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and -not $SpellOwnedNpcOnly) {
 		Invoke-OwnedHarness '--land-run'
 		$runExit = $LASTEXITCODE
 	}
@@ -205,6 +205,10 @@ try {
 	}
 	if ($runExit -eq 0 -and $SpellOwnedRetirementOnly) {
 		Invoke-OwnedHarness '--spell-owned-retirement-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $SpellOwnedItemOnly) {
+		Invoke-OwnedHarness '--spell-owned-item-run'
 		$runExit = $LASTEXITCODE
 	}
 	Write-Output "nativeHarnessExit=$runExit"

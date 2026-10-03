@@ -68,6 +68,9 @@ public static class ScrollSpellCompatibility
 			case CreateNPCEffect { LifetimeExpression: { } expression } x:
 				yield return ("LifetimeSeconds", expression, e => x.LifetimeExpression = e);
 				break;
+			case CreateItemEffect { LifetimeExpression: { } itemExpression } x:
+				yield return ("LifetimeSeconds", itemExpression, e => x.LifetimeExpression = e);
+				break;
 		}
 	}
 	public static IReadOnlyList<string> Errors(IMagicSpell spell, bool requireOptIn = true)

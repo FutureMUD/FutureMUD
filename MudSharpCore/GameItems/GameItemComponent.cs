@@ -305,6 +305,12 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
         _id = item.Id;
     }
 
+	internal void ActivateCommittedSpellComponent(Models.GameItemComponent row)
+	{
+		CompleteCommittedInitialisation(row);
+		_noSave = false;
+	}
+
     protected abstract void UpdateComponentNewPrototype(IGameItemComponentProto newProto);
     protected abstract string SaveToXml();
 

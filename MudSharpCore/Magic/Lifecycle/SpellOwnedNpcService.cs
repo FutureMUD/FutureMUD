@@ -17,7 +17,7 @@ using RuntimeNpc = MudSharp.NPC.NPC;
 namespace MudSharp.Magic.Lifecycle;
 
 /// <summary>Native construction and post-persistence death proof; no destructive retirement work.</summary>
-public sealed class SpellOwnedNpcService(IFuturemud world) : ISpellOwnedNpcService
+public sealed partial class SpellOwnedNpcService(IFuturemud world) : ISpellOwnedNpcService
 {
 	private readonly SpellOwnedLifecycleStore _store = new();
 	private long _lastInspectedNpcId;

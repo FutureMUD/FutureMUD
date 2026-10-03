@@ -13,7 +13,7 @@ public partial class Futuremud
 
 	private void ReconcileSpellOwnedNpcDeaths()
 	{
-		try { SpellOwnedNpcs.ReconcilePersistedDeaths(RuntimeClock.UtcNow); }
+		try { SpellOwnedNpcs.ReconcileRetirements(RuntimeClock.UtcNow); }
 		catch (Exception ex) { SystemMessage("Spell-owned NPC death reconciliation needs attention: " + ex.Message, true); }
 	}
 }

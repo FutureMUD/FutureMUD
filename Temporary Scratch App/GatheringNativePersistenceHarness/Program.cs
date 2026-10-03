@@ -53,6 +53,7 @@ internal static partial class GNHProgram
 	{
 		try
 		{
+			OwnedConnections.Install();
 			return args switch
 			{
 				["--probe"] => Probe(),
@@ -66,6 +67,8 @@ internal static partial class GNHProgram
 				["--npc-archive-run"] => RunNpcArchiveAcceptanceChecks(),
 				["--npc-archive-maintenance-run"] => RunNpcArchiveMaintenanceChecks(),
 				["--spell-owned-npc-run"] => RunSpellOwnedNpcAcceptanceChecks(),
+				["--spell-owned-retirement-run"] => RunSpellOwnedNpcRetirementChecks(),
+				["--spell-owned-retirement-reader", .. string[] ownedRetirementArguments] => RunSpellOwnedRetirementReader(ownedRetirementArguments),
 				["--spell-owned-npc-reader", .. string[] nativeNpcArguments] => RunSpellOwnedNpcReader(nativeNpcArguments),
 				["--npc-archive-reader", .. string[] archiveArguments] => RunNpcArchiveReader(archiveArguments),
 				["--body-retirement-run"] => RunBodyRetirementAcceptanceChecks(),
@@ -108,6 +111,7 @@ internal static partial class GNHProgram
 	{
 		using var database = TestDatabase.OpenServerConnection();
 		Console.WriteLine($"MySQL server reachable; version={database.ServerVersion}; test connection contains no selected database.");
+		OwnedConnections.CheckRefusals();
 		return 0;
 	}
 
@@ -324,14 +328,18 @@ internal static partial class GNHProgram
 
 	private static FuturemudDatabaseContext NewIndependentContext(string connectionString)
 	{
+		using var candidate = new MySqlConnector.MySqlConnection(connectionString);
+		OwnedConnections.Validate("independent-context-before-autodetect", candidate);
 		DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+			.AddInterceptors(new FMDB.ValidatedConnectionInterceptor((boundary, connection) => OwnedConnections.ValidateIndependentConnection(boundary, connection, connectionString)))
 			.Options;
 		return new FuturemudDatabaseContext(options);
 	}
 
 	private static void ConfigureNativeDatabase(string connectionString)
 	{
+		OwnedConnections.SetActive(connectionString);
 		FMDB.ConnectionString = connectionString;
 		FMDB.Provider = "mysql";
 	}
@@ -951,6 +959,7 @@ internal static partial class GNHProgram
 		private readonly string _ownershipToken;
 		private bool _created;
 		private bool _disposed;
+		private bool _markerReady;
 
 		private TestDatabase(MySqlConnectionStringBuilder serverBuilder, string name, string ownershipToken, string serverVersion)
 		{
@@ -970,7 +979,9 @@ internal static partial class GNHProgram
 		{
 			MySqlConnectionStringBuilder builder = ServerConnectionBuilder();
 			using var connection = new MySqlConnection(builder.ConnectionString);
+			OwnedConnections.Validate("probe-before-connect", connection, allowServer: true);
 			connection.Open();
+			OwnedConnections.Validate("probe-connected", connection, allowServer: true);
 			using MySqlCommand command = connection.CreateCommand();
 			command.CommandText = "SELECT VERSION();";
 			string version = Convert.ToString(command.ExecuteScalar()) ?? "unknown";
@@ -986,7 +997,9 @@ internal static partial class GNHProgram
 
 			MySqlConnectionStringBuilder builder = ServerConnectionBuilder();
 			using var server = new MySqlConnection(builder.ConnectionString);
+			OwnedConnections.Validate("reader-server-before-connect", server, allowServer: true);
 			server.Open();
+			OwnedConnections.Validate("reader-server-connected", server, allowServer: true);
 			using MySqlCommand versionCommand = server.CreateCommand();
 			versionCommand.CommandText = "SELECT VERSION();";
 			string version = Convert.ToString(versionCommand.ExecuteScalar()) ?? "unknown";
@@ -998,14 +1011,9 @@ internal static partial class GNHProgram
 				throw new InvalidOperationException("The requested owned database no longer exists.");
 			}
 
-			var database = new TestDatabase(builder, name, string.Empty, version);
-			using MySqlConnection connection = database.OpenDatabase();
-			using MySqlCommand markerCommand = connection.CreateCommand();
-			markerCommand.CommandText = $"SELECT COUNT(*) FROM `{OwnershipTable}`;";
-			if (Convert.ToInt32(markerCommand.ExecuteScalar()) < 1)
-			{
-				throw new InvalidOperationException("The reader refuses a database without a harness ownership marker.");
-			}
+			var database = new TestDatabase(builder, name, string.Empty, version) { _markerReady = true };
+			using var connection = new MySqlConnection(database.ConnectionString);
+			OwnedConnections.RegisterReaderDatabase(connection, name);
 
 			return database;
 		}
@@ -1021,7 +1029,9 @@ internal static partial class GNHProgram
 			string name = GenerateName(prefix);
 			string token = Convert.ToHexString(RandomNumberGenerator.GetBytes(20)).ToLowerInvariant();
 			using var server = new MySqlConnection(builder.ConnectionString);
+			OwnedConnections.Validate("create-server-before-connect", server, allowServer: true);
 			server.Open();
+			OwnedConnections.Validate("create-server-connected", server, allowServer: true);
 			string version;
 			using (MySqlCommand versionCommand = server.CreateCommand())
 			{
@@ -1049,8 +1059,11 @@ internal static partial class GNHProgram
 					createCommand.ExecuteNonQuery();
 				}
 				database._created = true;
+				OwnedConnections.Register(name, token, ready: false);
 				database.ImportSupportedSnapshot();
 				database.WriteOwnershipMarker();
+				database._markerReady = true;
+				OwnedConnections.Register(name, token, ready: true);
 				return database;
 			}
 			catch (Exception bootstrapFailure)
@@ -1136,7 +1149,9 @@ internal static partial class GNHProgram
 			}
 
 			using var server = new MySqlConnection(_serverBuilder.ConnectionString);
+			OwnedConnections.Validate("cleanup-server-before-connect", server, allowServer: true);
 			server.Open();
+			OwnedConnections.Validate("cleanup-server-connected", server, allowServer: true);
 			if (!DatabaseExists(server, Name))
 			{
 				Console.WriteLine("cleanup=database-already-absent");
@@ -1162,6 +1177,8 @@ internal static partial class GNHProgram
 				throw new FileNotFoundException("The supported blank database snapshot was not found.", snapshot);
 			}
 
+			using var candidate = new MySqlConnector.MySqlConnection(DatabaseConnectionString());
+			OwnedConnections.Validate("snapshot-import-service", candidate, bootstrap: true);
 			new DatabaseUpgradeCoordinator().ImportBlankDatabaseSnapshot(DatabaseConnectionString(), snapshot,
 				SnapshotDatabasePlaceholder);
 		}
@@ -1200,7 +1217,9 @@ internal static partial class GNHProgram
 		private MySqlConnection OpenDatabase()
 		{
 			var connection = new MySqlConnection(DatabaseConnectionString());
+			OwnedConnections.Validate("owned-database-before-connect", connection, bootstrap: !_markerReady);
 			connection.Open();
+			OwnedConnections.Validate("owned-database-connected", connection, bootstrap: !_markerReady);
 			return connection;
 		}
 
@@ -1240,7 +1259,7 @@ internal static partial class GNHProgram
 			return $"{prefix}{DateTime.UtcNow:yyyyMMddHHmmss}_{Convert.ToHexString(RandomNumberGenerator.GetBytes(5)).ToLowerInvariant()}";
 		}
 
-		private static bool HasOwnedPrefix(string name)
+		internal static bool HasOwnedPrefix(string name)
 		{
 			return name.StartsWith("futuremud_gather_gc_", StringComparison.Ordinal) ||
 			       name.StartsWith("futuremud_land_", StringComparison.Ordinal);

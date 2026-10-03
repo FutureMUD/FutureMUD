@@ -1747,10 +1747,30 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     }
 
     public bool Deleted { get; private set; }
+	private bool _deletionObserversNotified;
+	private bool _notifyingDeletionObservers;
+	private Exception _deletionObserverFailure;
 
 
     public void Delete()
     {
+        if (Deleted || _notifyingDeletionObservers) return;
+        if (_deletionObserverFailure is not null)
+            throw new InvalidOperationException("Deletion observers failed; native removal remains held.", _deletionObserverFailure);
+        if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _) == false) return;
+        // Deletion callbacks can change possessions. Recheck before invoking components
+        // whose native deletion would recursively destroy an owned corpse's inventory.
+        if (!_deletionObserversNotified)
+        {
+            _notifyingDeletionObservers = true;
+            _deletionObserversNotified = true;
+            try { NotifyDeletionObservers(); }
+            catch (Exception ex) { _deletionObserverFailure = ex; throw; }
+            finally { _notifyingDeletionObservers = false; }
+        }
+        if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _) == false) return;
+        ReleaseEvents();
+        if (GetItemType<ICorpse>()?.OriginalBody?.Actor.State.HasFlag(CharacterState.Dead) == true) EndHealthTick();
         Changed = false;
         _noSave = true;
         Gameworld.SaveManager.Abort(this);
@@ -1761,7 +1781,6 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         InvalidatePositionTargets();
         SoftReleasePositionTarget();
-        PerceivableDeleted();
         ContainedIn?.Take(this);
         ContainedIn = null;
         InInventoryOf?.Take(this);
@@ -2852,6 +2871,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     private void Morph(IGameItem item)
     {
+        if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _, morphing: true) == false) return;
         IGameItem newItem = Prototype.LoadMorphedItem(this);
         ICell location = TrueLocations.FirstOrDefault();
 		var originalSpatialLocation = location is null

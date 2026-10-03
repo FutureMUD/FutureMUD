@@ -2,8 +2,9 @@
 
 Phase3B1 adds the conservative canonical NPC archival boundary described below. Phase3B2A
 connects explicit `createnpc` lifecycle provenance to native simple-template construction and
-persisted death/remains recovery. Ordinary corpse deletion/decay, foreign-item evacuation and
-the scheduled retirement worker remain later adapter work. Full N14-N16 remains outstanding.
+persisted death/remains recovery. Phase3B2B connects bounded simple-NPC retirement to
+native death, ordinary corpse deletion/decay, conserved foreign custody and canonical
+archival. Complete installed-world N14-N16 and the other creation adapters remain outstanding.
 
 ## Native NPC creation and death recovery
 
@@ -67,15 +68,82 @@ malformed candidates, changed bodies or a census over 256 candidate component ro
 The candidate census includes numeric XML character references, whose decoded body IDs must
 not be mistaken for absence merely because the raw serialized digits differ.
 Observation cancels the need for a second native death; retries do not change existing remains,
-recast, delete rows or replay callbacks. This service does not evacuate custody or retire anything.
+recast, delete rows or replay callbacks. Persisted death recovery itself does not evacuate
+custody; the separate retirement pass below consumes that correlation.
 
 Native acceptance uses real maintained-snapshot MySQL, `SimpleNPCTemplate`, production new
 NPC/Body/primary insertion, the real SaveManager, native `NPC.Die`, `GameItemProto.CreateNew`
 and corpse factory/component persistence, plus a separate-process persisted reader. World,
 catalogue and cell hosts are controlled. It qualifies creation ordering, rollback, activation
-quarantine and early-death correlation only. Full `GameItem.Delete`, timed decay, foreign
-goods/container/occupant evacuation, actual `Character.Quit`, expiry death/dissipation,
-installed-world command sessions and full N14/N15/N16 remain not run.
+quarantine and early-death correlation. The retirement fixture additionally exercises
+actual `GameItem.Delete`, positive minute decay and scheduled morph-to-nothing,
+`Character.Quit`, expiry policies, nested foreign custody and separate-process retries.
+Installed-world command sessions, other topology adapters and full N14/N15/N16 remain pending.
+
+## Bounded simple-NPC retirement and foreign custody
+
+Startup and the minute heartbeat call `ReconcileRetirements` after death recovery. Each
+UTC pass requires writable authority before loading graphs or invoking native callbacks,
+accepts a limit of 1-1000 and rotates an autonomous-character ID cursor. A stable held
+row does not repeatedly occupy the first slot or require diagnostic/version churn to
+let a later eligible row progress. Only one exact accountless native NPC/body ownership
+pair is admitted. Activation-pending, ambiguous and unsupported claims retain their graph.
+
+Expiry first commits retirement intent. Connected controllers, runtime relationships,
+dependent instances and bodyguard references hold before native death or evacuation.
+`temporarycleanup` conserves foreign goods before `Die` and suppresses the ordinary
+corpse, including early native death. `deathonexpiry` calls native death once and keeps
+its configured ordinary corpse and exact body until decay/removal releases them.
+Original expiry never kills an already-dead NPC again or removes a retained corpse.
+Permanent creations remain ordinary durable NPCs without an expiry deadline.
+
+The custody census walks ordinary inventory, nested containers, installed locks, belts,
+firearm attachments and severed-part contents by reference and persisted ID. It refuses
+cycles, duplicate IDs, unregistered/deleted items, foreign worlds, connected/projection
+topology, unsettled structural edits and any unloaded persisted possession. Body-root
+implants, prosthetics and lodged items require separate detachment adapters. Census
+reachability proves what must be conserved, never that those items belong to the spell.
+
+Evacuation requires a validated same-world persisted destination. Missing destinations
+retain the live body or remains and all custody; no automatic fallback is invented.
+A serializable independent transaction revalidates the exact lifecycle/version/body,
+moves only foreign roots through native `Take`/`Get`/spatial insertion, rechecks callbacks,
+saves the empty body and roots, and commits exactly one cell join per root. Children,
+locks, attachments, legal ownership and foreign item identities are conserved without
+recursive deletion or subtree saves. Failed provider writes retain persisted body joins
+and retry roots/dirty flags; a restart reloads the uncommitted joins ordinarily.
+Post-callback proof also compares exact containment pointers and typed relations by
+component, attachment slot and wound. The same item IDs cannot authorize a child moving
+between containers or between installed locks and contents. Original relations remain
+in the same-process retry snapshot, and changed structural flags are restored on refusal,
+including callbacks that explicitly saved components and cleared their flags before rollback.
+
+Owned corpse deletion checks conservation both before and after `OnDeleted`. Observers
+are attempted once; reentrant deletion returns, and an observer exception latches a
+hold without replaying its possibly partial side effects. A failed second check keeps
+the corpse, live event subscriptions and minute decay. Event release, destructive flags,
+health tick shutdown and component deletion occur only after both checks pass.
+`MorphTargetId` exposes positive replacement targets so owned remains refuse a replacement
+morph before new-item construction, output, transfer or activation. Morph-to-nothing uses
+the conserved ordinary deletion path; replacement transfer remains an explicit adapter gap.
+
+After persisted remains are gone and foreign custody is committed, unadapted effects or
+remaining runtime dependants hold. Eligible graphs run actual `Quit`, the existing
+canonical archive boundary and journal completion. If completion fails after archival,
+a retry verifies the archive's exact original body/lifecycle, releases any cached graph
+and completes without another death, corpse, item creation or custody transfer.
+
+Disposable native acceptance qualifies early configured death/remains across original
+expiry, a separate-process dead-body/item reload, positive decay and scheduled deletion,
+plus separate default dissipation. It also covers all three policies on the same real
+simple template, read-only refusal, controller/destination holds, callback conservation,
+replacement refusal, provider rollback and post-archive completion failure/retry.
+Same-ID reparenting with explicit native component saves is refused before custody commit
+or death; a separate owned process reloads and conserves the original persisted topology.
+Sixteen repeated native cycles conserve the heavy-row, runtime-root, scheduler and
+heartbeat census while retaining explained permanent identity and canonical history.
+World/catalogue/cell hosts are controlled; high-volume N16, every-cycle restart,
+installed stock commands, occupied hosts and cross-body detachment remain unqualified.
 
 ## Canonical NPC archival boundary
 
@@ -142,8 +210,9 @@ an already-used archival schema.
 
 Phase3A supplies the shared persistence and safe body-retirement boundary for the approved
 Armageddon completion plan. Phase3B2A attaches explicit `createnpc` creation and death
-correlation to it; `createitem`, corpse animation, projections and destructive retirement
-still need their native adapters and acceptance. Legacy spell creation behavior is retained.
+correlation to it; Phase3B2B supplies the simple-NPC retirement adapter above.
+`createitem`, corpse animation, projections and other topology still need their native
+adapters and acceptance. Legacy spell creation behavior is retained.
 
 ### Staff corpse maintenance
 
@@ -275,10 +344,10 @@ the assigned recovery report unchanged. These guards create no retirement or spe
 ## Remaining acceptance and integration
 
 Full summon retirement still needs additional native creation/materialization adapters,
-corpse-release integration, foreign goods/container/occupant evacuation, safe destination
-fallback, AI/subscription release, count/control policy and economy/salvage guards. Current
-ordinary corpse deletion still deletes external inventory; this foundation does not qualify
-temporary summon corpse behavior or change that path.
+generated-possession and occupant/topology conservation, safe destination fallback,
+count/control policy and economy/salvage guards. The simple-NPC adapter conserves proven
+foreign custody before owned corpse deletion. Ordinary corpses without removal-authorized
+spell ownership retain their existing component deletion behavior.
 
 Canonical NPC deletion remains unsafe: crime/log history and serialized corpse, witness,
 dub and effect identities can outlive physical graphs. The archival boundary above keeps
@@ -290,11 +359,10 @@ The lightweight lifecycle/claim journal deliberately has no entity FKs and does 
 canonical deletion. Bounded journal retention/archival is a later explicit policy; these
 receipt tables currently retain ownership evidence rather than purging it automatically.
 
-Native N14-N16 remain unqualified until actual NPC death/remains/decay/restart and repeated
-heavy actor/AI/item/timer/subscription steady-state scenarios pass. The Phase3A harness
-qualifies the durable protocol and real Character/Body retirement boundary on disposable
-MySQL, with a separate process for restart reconciliation; it does not substitute for those
-full gameplay scenarios.
+N14 and N15 have the bounded controlled native coverage described above. N16 has sixteen
+native steady-state cycles and separate fault/decay readers; high-volume installed-world
+acceptance and restart on every cycle remain pending. Earlier Phase3A persistence/body
+checks remain supporting evidence, not substitutes for complete installed gameplay.
 
 The ordinary backup regression fixture separately exercises the native backup transfer
 helper, an atomic form/remains save failure and retry, a separate-process real corpse reload

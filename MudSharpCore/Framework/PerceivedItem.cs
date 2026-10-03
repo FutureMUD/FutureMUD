@@ -759,9 +759,11 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     protected void PerceivableDeleted()
     {
-        OnDeleted?.Invoke(this);
+        NotifyDeletionObservers();
         ReleaseEvents();
     }
+
+	protected void NotifyDeletionObservers() => OnDeleted?.Invoke(this);
 
     private bool _positionChanged;
 

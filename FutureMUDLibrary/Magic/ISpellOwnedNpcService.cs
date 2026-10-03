@@ -15,4 +15,7 @@ public interface ISpellOwnedNpcService
 	ICharacter Create(INPCTemplate template, SpatialLocation location, SpellLifecycleOrigin origin);
 	void ObserveNativeDeath(ICharacter character, IGameItem? remains);
 	int ReconcilePersistedDeaths(DateTime nowUtc, int limit = 100);
+	bool SuppressNativeRemains(ICharacter character);
+	bool TryPrepareRemainsRemoval(IGameItem remains, out string diagnostic, bool morphing = false);
+	int ReconcileRetirements(DateTime nowUtc, int limit = 100);
 }

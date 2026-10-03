@@ -33,6 +33,8 @@ public partial class Character
 
     public event PerceivableEvent OnDeath;
 
+	protected virtual bool SuppressNativeRemains => false;
+
     public virtual IGameItem Die()
     {
         if (IsArchived) return null;
@@ -135,7 +137,7 @@ public partial class Character
         // Set HealthModel to Dead
         IGameItem corpse = null;
         ICorpseModel corpseModel = Race.CorpseModel; // TODO - overriding this
-        if (corpseModel?.CreateCorpse == true)
+        if (corpseModel?.CreateCorpse == true && !SuppressNativeRemains)
         {
             corpse = CorpseGameItemComponentProto.CreateNewCorpse(this);
             Corpse = corpse.GetItemType<ICorpse>();

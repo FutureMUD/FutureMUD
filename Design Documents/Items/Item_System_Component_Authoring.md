@@ -333,6 +333,16 @@ Not every component needs these, but authors should deliberately consider them:
 - `ComponentBuoyancy(...)`
 - `WarnBeforePurge`
 
+Component `Delete` may recursively destroy children, so keep conservation checks at
+the parent orchestration boundary before it invokes components. Removal-authorized
+spell-owned corpses run that check both before and after deletion observers. A held
+attempt preserves live events/decay and never reaches component destruction. Observers
+are attempted once; a thrown observer latches a refusal rather than replaying partial
+side effects. Positive corpse replacement morphs require a verified transfer adapter
+and currently hold before replacement construction or activation. Container, lock and
+attachment reachability does not authorize deleting foreign objects. See
+[spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md).
+
 ### Runtime state versus proto state
 Use this rule consistently:
 - if the value is authored once and reused by many items, it belongs on the proto

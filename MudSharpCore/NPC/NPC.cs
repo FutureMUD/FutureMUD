@@ -195,6 +195,8 @@ public class NPC : Character.Character, INPC
 
     #region Overrides of Character
 
+	protected override bool SuppressNativeRemains => Gameworld.SpellOwnedNpcs?.SuppressNativeRemains(this) == true;
+
     public override IGameItem Die()
     {
         ReleaseEventSubscriptions();

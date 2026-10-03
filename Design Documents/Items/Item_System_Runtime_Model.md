@@ -60,6 +60,13 @@ Item-facing event surfaces include:
 
 Inventory transfers can also be dispatched to an explicit witness set. This is used by stealth commands such as `palm` and `steal`: the underlying `Get` and `Put` mutations still raise the normal character/item inventory events, but witness variants are limited to characters who passed the stealth notice checks instead of automatically echoing to every event handler in the cell.
 
+Deletion attempts `OnDeleted` once before releasing item events. Reentrant deletion
+returns. An observer exception retains events and latches a refusal so a retry cannot
+repeat partial callback side effects. For a removal-authorized spell-owned corpse,
+the native lifecycle service checks foreign-custody conservation before and after
+observers. A held second check retains the corpse and its minute decay; destructive
+flags, component recursion and event/health tick release wait for successful checks.
+
 ### RouteCell spatial location
 
 A top-level item in a linear RouteCell has an exact persisted `RoutePositionMetres` in addition to its cell and layer. Its effective location is therefore `(cell, layer, metres-along-cell)`. In an ordinary cell the coordinate remains null and all existing placement behavior is unchanged.
@@ -570,6 +577,13 @@ Item prototypes can define morph behaviour:
 - emit a morph emote
 
 Morph timing is tracked on live items, and new items may preserve register values depending on prototype settings.
+
+`IGameItemProto.MorphTargetId` is null for morph-to-nothing and identifies a positive
+replacement target. Removal-authorized spell-owned remains preflight morphing before
+loading a replacement, emitting output or transferring/activating items. Positive
+replacement morphs hold until a verified transfer adapter exists; morph-to-nothing
+uses the ordinary deletion path after foreign-custody conservation. See
+[spell-owned retirement](../Magic/Spell_Owned_Lifecycle.md).
 
 ### Destroyed items
 Item prototypes can also define a replacement prototype to load when the item is destroyed.

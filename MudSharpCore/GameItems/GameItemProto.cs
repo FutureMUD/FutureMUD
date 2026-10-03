@@ -1013,6 +1013,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
     private long _onMorphGameItemProto;
     public string MorphEmote { get; set; }
     public bool Morphs { get; set; }
+	public long? MorphTargetId => _onMorphGameItemProto > 0 ? _onMorphGameItemProto : null;
     public TimeSpan MorphTimeSpan { get; set; }
 	public bool RefrigerationSensitive { get; set; }
 

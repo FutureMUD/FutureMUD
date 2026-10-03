@@ -10,6 +10,30 @@ namespace MudSharp.Database;
 
 public sealed class FMDB : IDisposable
 {
+	internal sealed class ValidatedConnectionInterceptor(Action<string, DbConnection> validate) : DbConnectionInterceptor
+	{
+		public override InterceptionResult ConnectionOpening(DbConnection connection, ConnectionEventData eventData,
+			InterceptionResult result)
+		{
+			validate("ef-opening", connection);
+			return result;
+		}
+		public override void ConnectionOpened(DbConnection connection, ConnectionEndEventData eventData) =>
+			validate("ef-opened", connection);
+		public override ValueTask<InterceptionResult> ConnectionOpeningAsync(DbConnection connection,
+			ConnectionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
+		{
+			validate("ef-opening-async", connection);
+			return ValueTask.FromResult(result);
+		}
+		public override Task ConnectionOpenedAsync(DbConnection connection, ConnectionEndEventData eventData,
+			CancellationToken cancellationToken = default)
+		{
+			validate("ef-opened-async", connection);
+			return Task.CompletedTask;
+		}
+	}
+
 	private sealed class SuppressEfWritesInterceptor : SaveChangesInterceptor
 	{
 		public static SuppressEfWritesInterceptor Instance { get; } = new();
@@ -73,6 +97,7 @@ public sealed class FMDB : IDisposable
 		lock (_lock)
 		{
 			_session = CurrentSession ?? InitialiseContext();
+			ValidateSession("reuse", _session);
 			_session.InstanceCount++;
 		}
 	}
@@ -120,6 +145,17 @@ public sealed class FMDB : IDisposable
 	public static string Provider { get; set; } = string.Empty;
 	public static bool IsIsolated => _ambientSession.Value is not null;
 	public static bool WritesAreSuppressed => CurrentSession?.SuppressEfWrites == true;
+
+	// Acceptance hosts can reject an unowned endpoint before provider autodetection or a
+	// reused session is used. The live engine installs no validator and retains its normal path.
+	internal static Action<string, DbConnection> ConnectionValidator { get; set; }
+
+	private static void ValidateSession(string boundary, DatabaseSession session)
+	{
+		if (ConnectionValidator is not { } validate) return;
+		validate(boundary + "-explicit", session.Connection);
+		validate(boundary + "-context", session.Context.Database.GetDbConnection());
+	}
 
 	private static DatabaseSession CurrentSession => _ambientSession.Value ?? _defaultSession;
 
@@ -216,9 +252,16 @@ public sealed class FMDB : IDisposable
 
 	private static DatabaseSession CreateSession(bool suppressEfWrites = false)
 	{
+		if (ConnectionValidator is { } validate)
+		{
+			using var candidate = new MySqlConnection(ConnectionString);
+			validate("new-session-before-autodetect", candidate);
+		}
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseLazyLoadingProxies()
 			.UseMySql(ConnectionString, ServerVersion.AutoDetect(ConnectionString));
+		if (ConnectionValidator is { } sessionValidator)
+			options.AddInterceptors(new ValidatedConnectionInterceptor(sessionValidator));
 		if (suppressEfWrites)
 		{
 			options.AddInterceptors(SuppressEfWritesInterceptor.Instance);
@@ -229,6 +272,8 @@ public sealed class FMDB : IDisposable
 		try
 		{
 			connection.Open();
+			ConnectionValidator?.Invoke("new-session-opened", connection);
+			ConnectionValidator?.Invoke("new-session-context", context.Database.GetDbConnection());
 			connection.StateChange += OnStateChange;
 			return new DatabaseSession
 			{

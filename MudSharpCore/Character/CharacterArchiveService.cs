@@ -299,7 +299,7 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 		return true;
 	}
 
-	private static bool HasRuntimeDependants(ICharacter character)
+	internal static bool HasRuntimeDependants(ICharacter character)
 	{
 		var world = character.Gameworld;
 		return character.Combat is not null || character.Movement is not null || character.Party is not null ||

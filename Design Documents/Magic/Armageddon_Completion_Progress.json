@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3B3 historical authorship implemented/verified; parent independent review pending",
+  "selected_stage": "Phase3C1 created leaf weapon lifecycle/value adapter implemented and verified; parent checkpoint review pending",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -491,8 +491,10 @@
       "name": "Permanent tier exception",
       "scenario": "Exercise timed Flame Knife tier and configured highest-tier permanent output with real component",
       "required_result": "Correct source-informed per-tier output; timed gear cannot yield permanent salvage; permanent output properly paid",
-      "status": "not_run",
-      "evidence": []
+      "status": "controlled_native_dependency_partial_installed_stock_not_run",
+      "evidence": [
+        "Armageddon_Stage3C_NativeItems_Verification.json"
+      ]
     },
     {
       "id": "N22",
@@ -523,8 +525,10 @@
       "name": "Cross-feature uncertain failure",
       "scenario": "Inject provider failure after debit/effect/progression or lifecycle transition; retry via another body/route and restart",
       "required_result": "Conservative quarantine/reconciliation, no replay/refund/double grade/second corpse; unrelated records remain usable",
-      "status": "not_run",
-      "evidence": []
+      "status": "controlled_native_dependency_partial_installed_stock_not_run",
+      "evidence": [
+        "Armageddon_Stage3C_NativeItems_Verification.json"
+      ]
     }
   ],
   "candidates": [
@@ -2804,7 +2808,7 @@
     },
     {
       "id": "phase3B3_historical_authorship",
-      "status": "implemented_verified_parent_independent_review_pending",
+      "status": "implemented_verified_parent_independently_accepted_bounded_authorship",
       "implementation": "88cf4d4a73b669cc4c90b7a2f3d1ce20edcb824a",
       "base": "1e3d6771f2a3771591268557d44c072d4e0c9d59",
       "receipt": "Armageddon_Stage3B_HistoricalAuthorship_Verification.json",
@@ -2873,7 +2877,87 @@
       "weak_authorship_does_not_retain_actor": true,
       "parent_accepted_retirement_P2_protocols_preserved": true,
       "prior_eleven_receipts_909_artifacts_twentyfour_helpers_unchanged": true,
-      "installed_world_high_volume_every_cycle_restart_not_qualified": true
+      "installed_world_high_volume_every_cycle_restart_not_qualified": true,
+      "followup": "Parent accepted 88cf4d4a/ec618c6b and authorized the next finite stock lifecycle prerequisite; immutable prior receipt retained."
+    },
+    {
+      "id": "phase3C1_native_created_leaf_items",
+      "status": "implemented_verified_parent_independent_review_pending",
+      "implementation": "9e65d0a4b2fe75422d36dea299d787e21a9ae42c",
+      "base": "ec618c6bf046bf1fcfde4364fe0d48866070700e",
+      "receipt": "Armageddon_Stage3C_NativeItems_Verification.json",
+      "managed_runs": {
+        "item_focused": "20261003T233108Z-9212675dc307",
+        "lifecycle_library": "20261003T233134Z-20410b01374e",
+        "focused_core": "20261003T233159Z-10e029bc8994",
+        "focused_database": "20261003T233232Z-fb38ce2e7f61",
+        "installer_snapshot_focused": "20261003T233304Z-e9f0055eb376",
+        "fast_all_ten_projects": "20261003T233335Z-08632ba3362c"
+      },
+      "counts": {
+        "item_focused": {
+          "executed": 18,
+          "passed": 18,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 18
+        },
+        "lifecycle_library": {
+          "executed": 13,
+          "passed": 13,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 13
+        },
+        "focused_core": {
+          "executed": 489,
+          "passed": 489,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 489
+        },
+        "focused_database": {
+          "executed": 3,
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 3
+        },
+        "installer_snapshot_focused": {
+          "executed": 9,
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 9
+        },
+        "fast_all_ten_projects": {
+          "executed": 6868,
+          "passed": 6868,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6868
+        }
+      },
+      "native_markers": 250,
+      "item_markers": 21,
+      "owned_databases_cleaned": 15,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 282,
+      "binary_fingerprints": 19,
+      "prior_twelve_receipts_1127_artifacts_thirty_helpers_unchanged": true,
+      "installed_stock_N21_N25_not_qualified": true
     }
   ],
   "implementation_commits": [
@@ -2980,21 +3064,25 @@
     {
       "sha": "88cf4d4a73b669cc4c90b7a2f3d1ce20edcb824a",
       "subject": "Preserve historical writing and drawing authorship through NPC archival"
+    },
+    {
+      "sha": "9e65d0a4b2fe75422d36dea299d787e21a9ae42c",
+      "subject": "Add owned created leaf weapons with conserved native expiry and value guards"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3B3_independent_review",
-    "base": "1e3d6771f2a3771591268557d44c072d4e0c9d59",
-    "implementation_head": "88cf4d4a73b669cc4c90b7a2f3d1ce20edcb824a",
-    "receipt": "Armageddon_Stage3B_HistoricalAuthorship_Verification.json",
+    "status": "awaiting_parent_phase3C1_independent_review",
+    "base": "ec618c6bf046bf1fcfde4364fe0d48866070700e",
+    "implementation_head": "9e65d0a4b2fe75422d36dea299d787e21a9ae42c",
+    "receipt": "Armageddon_Stage3C_NativeItems_Verification.json",
     "implementation_verified": true,
     "previous_admission_parent_accepted": true,
-    "scope": "Classified writing/drawing historical canonical references, weak runtime caches, archive-aware reading/filtering/copying and native lifecycle acceptance",
+    "scope": "Owned one-item creation, prepared lifetime, permanent-grade output, native custody/expiry rollback and economy/casting-material refusal",
     "required_connection_ownership": "Explicit owned MySQL server/database validation at every native process/service boundary before use; no shared/default database; sanitized evidence",
     "N14_N15": "controlled_native_pass_full_installed_stock_pending",
     "N16": "partial_high_volume_pending",
     "independent_checkpoint_review_before_further_features": true,
-    "next_stage_after_review": "Select the next finite stock-required item, corpse-animation, projection, riding/guarding/control or topology adapter from the ledger; full installed/high-volume acceptance and later phases remain mandatory.",
+    "next_stage_after_review": "Choose the next stock-facing created-item food/liquid/light/placement profile, corpse animation or canonical projection prerequisite; retain required rider/guard/control/topology and full N14-N16 gates.",
     "parent_accepted_durable_removal_P2_preserved": true,
     "parent_accepted_retirement_P2_protocols_preserved": true
   },
@@ -3016,11 +3104,11 @@
   },
   "phase3_remaining": [
     "Writing/TrueAuthor/Drawings history is boundedly verified; extend other identity-bearing histories only with native need/evidence, preserving unknown-reference holds and ownership.",
-    "Required stock: created items and consumption/water/staff durability/economy, corpse animation, canonical projections and occupied/connected topology; selected source and full candidate inventory determine exact adapters. Variable/prosthetic/role-adjusted/extra-body NPC generalization is conditional on stock choosing it.",
+    "Bounded native created leaf weapon lifecycle/value and grade7 permanent output are verified. Required remaining stock items: actual profiles and duration conversion, food consumption/counts, water/wine capacity/mixing, HoveringLight wear support and automatic Storm Spear primary-hand placement; corpse animation, canonical projections and occupied/connected topology remain mandatory. Variable/prosthetic/role-adjusted/extra-body NPC generalization remains conditional on stock choosing it.",
     "Complete generated-possession economy/salvage and occupant/cross-body detachment/replacement-morph adapters plus approved per-cast counts, Gate follower-risk/control, Guardian guarding, Mount riding and Courier delivery. Safe destinations must use configured fallback OR recoverable holding with diagnostics (brief255); automatic fallback is not mandatory.",
     "Complete installed stock command/world N14/N15 and high-volume N16 with per-cycle restart; controlled native early death/decay/restart, same-template modes and sixteen heavy/runtime cycles are verified.",
     "Implement remaining reusable effects and all eight approved larger features; later charm must retain the per-spell PC toggle, resolved executable whitelist and queued-action provenance.",
-    "Admission audit: resolved lifetime (including known constant-zero invalid lifetime) and dynamic spawn validation remain post-check application refusals. Qualify their prepayment treatment without changing opposed-outcome semantics in a separate boundary."
+    "Created leaf items now prepare and bind their finite positive selected-grade lifetime before payment. NPC resolved lifetime (including known constant-zero invalid lifetime) and dynamic spawn validation remain post-check application refusals; qualify their prepayment treatment without changing opposed-outcome semantics in a separate boundary."
   ],
   "phase3_dependency_checklist": [
     {
@@ -3067,9 +3155,15 @@
     },
     {
       "id": "historical_authorship",
-      "status": "bounded_native_verified_parent_review_pending",
+      "status": "bounded_native_parent_independently_accepted",
       "receipt": "Armageddon_Stage3B_HistoricalAuthorship_Verification.json",
       "acceptance": "Writing/TrueAuthor/Drawing retained canonical IDs and content, weak actor caches, durable cross-process archival precedence, archived full-name filters, actual native retirement, copy/ordinary Flush and fresh readers without physical actor materialization."
+    },
+    {
+      "id": "created_leaf_weapon_lifecycle_value",
+      "status": "bounded_native_verified_parent_review_pending",
+      "receipt": "Armageddon_Stage3C_NativeItems_Verification.json",
+      "acceptance": "Actual native quantity-one private item/components and exact ownership, paid grade3 timed and grade7 permanent replacement weapon fixtures, real component/resource payment, immutable deadline/equipment, refusal of value conversion, callback/provider rollback and fresh-process expiry/quarantine. Stock profiles/event conversion/other item adapters remain pending."
     }
   ]
 }

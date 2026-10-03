@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3B1 canonical NPC archival boundary implemented and verified; all Phase3A P2s parent-closed; independent parent review pending before Phase3B2 native adapters",
+  "selected_stage": "Phase3B1 parent P2 staff maintenance correction implemented and verified; independent parent rereview pending before Phase3B2 native adapters",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -182,7 +182,8 @@
       "status": "durable_policy_ownership_body_and_bounded_archival_verified_full_native_modes_remains_evacuation_gameplay_pending",
       "evidence": [
         "Armageddon_Stage3A_Verification.json: durable modes/ownership/early-death journal/restart and retired-body boundary; full NPC death/remains/foreign-goods evacuation/AI/heavy-state acceptance remains pending.",
-        "Armageddon_Stage3B_Archival_Verification.json: bounded NPC death/archival/history/fault/restart/controller release verified; full N14-N16 and creation/remains/evacuation adapters not run."
+        "Armageddon_Stage3B_Archival_Verification.json: bounded NPC death/archival/history/fault/restart/controller release verified; full N14-N16 and creation/remains/evacuation adapters not run.",
+        "Armageddon_Stage3B_Maintenance_Verification.json: manual maintenance retains unqualified/held NPCs, archives exact eligible lifecycles and guarantees temporary-PC cleanup; full lifecycle adapters and N14-N16 remain pending."
       ]
     },
     {
@@ -359,6 +360,10 @@
         "receipt": "Armageddon_Stage3B_Archival_Verification.json",
         "status": "bounded_support_only_full_scenario_not_run",
         "scope": "Controlled no-remains production NPC death/archival, holds, transaction/post-commit faults, persisted-dead reload, five archives/four weak-GC repeats and independent reader; native creation/remains/evacuation/high-volume acceptance pending."
+      },
+      "maintenance_compatibility_support": {
+        "receipt": "Armageddon_Stage3B_Maintenance_Verification.json",
+        "status": "bounded_support_only_full_scenario_not_run"
       }
     },
     {
@@ -377,6 +382,10 @@
         "receipt": "Armageddon_Stage3B_Archival_Verification.json",
         "status": "bounded_support_only_full_scenario_not_run",
         "scope": "Controlled no-remains production NPC death/archival, holds, transaction/post-commit faults, persisted-dead reload, five archives/four weak-GC repeats and independent reader; native creation/remains/evacuation/high-volume acceptance pending."
+      },
+      "maintenance_compatibility_support": {
+        "receipt": "Armageddon_Stage3B_Maintenance_Verification.json",
+        "status": "bounded_support_only_full_scenario_not_run"
       }
     },
     {
@@ -395,6 +404,10 @@
         "receipt": "Armageddon_Stage3B_Archival_Verification.json",
         "status": "bounded_support_only_full_scenario_not_run",
         "scope": "Controlled no-remains production NPC death/archival, holds, transaction/post-commit faults, persisted-dead reload, five archives/four weak-GC repeats and independent reader; native creation/remains/evacuation/high-volume acceptance pending."
+      },
+      "maintenance_compatibility_support": {
+        "receipt": "Armageddon_Stage3B_Maintenance_Verification.json",
+        "status": "bounded_support_only_full_scenario_not_run"
       }
     },
     {
@@ -2464,7 +2477,7 @@
     },
     {
       "id": "phase3B1_canonical_archival",
-      "status": "implemented_and_verified_parent_independent_review_pending",
+      "status": "parent_review_found_maintenance_P2_repaired_in_followup_pending_rereview",
       "implementation": "5177e5dab90750339b6c32ce10829483f86e96b9",
       "focused_core": "20261003T041925Z-830b4f302099",
       "focused_database": "20261003T040947Z-eba98cb1d216",
@@ -2486,6 +2499,31 @@
       "binary_fingerprints": 19,
       "receipt": "Armageddon_Stage3B_Archival_Verification.json",
       "retained_fast_failure": "20261003T041020Z-c207e3eecfc9",
+      "full_N14_N15_N16": "not_run",
+      "followup_receipt": "Armageddon_Stage3B_Maintenance_Verification.json"
+    },
+    {
+      "id": "phase3B1_maintenance_P2",
+      "status": "implemented_and_verified_parent_independent_rereview_pending",
+      "implementation": "ee6c54e195a05c65eac442c4127457646cf2d66e",
+      "base": "324a9a2abefb840440056f8111c389bacc440ee9",
+      "receipt": "Armageddon_Stage3B_Maintenance_Verification.json",
+      "focused_core": "20261003T063724Z-fcfe58e1356d",
+      "fast_all_ten_projects": "20261003T063743Z-5d02bfbadd39",
+      "counts": {
+        "focused_core": 49,
+        "fast": 6791,
+        "failed": 0,
+        "skipped": 0
+      },
+      "new_core_cases": 19,
+      "native_markers": 170,
+      "maintenance_markers": 8,
+      "owned_databases_cleaned": 12,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 203,
+      "binary_fingerprints": 19,
+      "prior_five_receipts_unchanged": true,
       "full_N14_N15_N16": "not_run"
     }
   ],
@@ -2565,14 +2603,18 @@
     {
       "sha": "5177e5dab90750339b6c32ce10829483f86e96b9",
       "subject": "Archive proven dead spell NPCs while preserving canonical history"
+    },
+    {
+      "sha": "ee6c54e195a05c65eac442c4127457646cf2d66e",
+      "subject": "Retain unqualified dead NPCs during staff corpse maintenance"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3B1_archival_independent_review",
-    "base": "7900ab041aeec82711960ad99d8c8294a91e6d05",
-    "scope": "Phase3B1 canonical spell-NPC archival/compaction boundary",
-    "implementation_head": "5177e5dab90750339b6c32ce10829483f86e96b9",
-    "receipt": "Armageddon_Stage3B_Archival_Verification.json",
+    "status": "awaiting_parent_phase3B1_maintenance_P2_independent_rereview",
+    "base": "324a9a2abefb840440056f8111c389bacc440ee9",
+    "scope": "Phase3B1 parent P2 maintenance compatibility correction",
+    "implementation_head": "ee6c54e195a05c65eac442c4127457646cf2d66e",
+    "receipt": "Armageddon_Stage3B_Maintenance_Verification.json",
     "implementation_verified": true,
     "no_later_feature_slice_started": true,
     "next_stage_after_review": "Phase3B2: native creation provenance before callbacks, post-death/remains-release/restart worker wiring, durable foreign goods/container/occupant evacuation and no-safe-destination holds; historical author adapters where needed; qualify full N14-N16 before broader features.",

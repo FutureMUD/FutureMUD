@@ -62,7 +62,7 @@ fresh verification and keeps old PR receipts historical.
 - [x] Repair five bounded review findings for context isolation, missing death proof, unloaded effects, anatomy IDs and write suppression.
 - [x] Pass the relevant Core/shared/database suites and full prior casting plus lifecycle native acceptance; retain all earlier failures.
 - [x] Commit the foundation implementation and record immutable receipts/fingerprints with owned cleanup proof.
-- [ ] Parent rereviews phase3A after the legacy compatibility P2 correction below.
+- [x] Parent independently accepted phase3A and all three P2 corrections before Phase3B1.
 
 ## Remaining work
 
@@ -645,3 +645,41 @@ The first final native launch failed on a Windows PowerShell5.1 MySQL warning be
 gameplay; exact owned-process/datadir verification then safely cleaned that instance.
 The PowerShell7 final rerun passed. No shared/production database query or mutation
 completed, and no publication, merge or deployment occurred.
+
+
+## Phase3B1 maintenance compatibility P2 correction
+
+Parent review of `5177e5da` / `324a9a2a` found that staff `debug cleanupcorpses`
+still deleted bodies underneath canonical characters. The disposable failing-before
+run reproduces `CK_Characters_BodyOrArchive` after an earlier corpse cull and leaves
+statistics paused. The correction `ee6c54e195a05c65eac442c4127457646cf2d66e` retains ordinary/unqualified
+and reference-held dead NPCs with truthful reports, and routes only creation-proven,
+death-correlated eligible lifecycles through the existing archive service. The schema
+and its protective constraints are unchanged.
+
+The shared maintenance scope tracks PCs before registration, attempts every temporary
+PC Quit in finally, restores statistics and preserves both causes if cleanup also fails.
+The active read-only orphan report uses the same scope; destructive orphan deletion
+remains disabled. Related form/backup/remains cleanup keeps its guarded ownership and
+reference holds. See [the immutable maintenance receipt](Armageddon_Stage3B_Maintenance_Verification.json).
+
+- [x] Reproduce the original body constraint conflict and repair conservative NPC retention/reporting.
+- [x] Review related maintenance callers and update their owning docs.
+- [x] Pass 19 new eligibility/cleanup cases; focused core 49 and all ten fast projects 6,791, zero failures/skips.
+- [x] Pass combined native 170: casting 107, lifecycle 16, ordinary 4, legacy 13, runtime 11, archival 11 and maintenance 8.
+- [x] Verify scheduled command, ordinary body/history, held foreign references, exact eligible archival and truthful archived 1/retained 2/failed 0.
+- [x] Verify temporary PC cleanup/statistics after success, partial registration, exit preload, orphan report, and mixed Quit(false)/throwing failures.
+- [x] Match 203 source inputs and 19 assemblies, including shared managed/native copies; clean 12 owned databases and the TEMP instance.
+- [x] Preserve all five prior immutable receipts, the unrelated primary checkout and every whole-plan inventory/scenario.
+- [ ] Parent independently rereviews the exact correction and handoff before Phase3B2.
+- [ ] Implement native creation/remains/restart/evacuation and historical-author adapters; qualify full N14/N15/N16 and remaining approved phases.
+
+Earlier failed fixture/build attempts remain in the receipt. The failing-before copied
+PC was Creating, so that run does not prove a loaded-PC leak; the final Active-PC fixture
+does exercise temporary loading/cleanup. Loose mock equality was corrected and both
+lookup and enumeration removal are checked. Preflight save flush, offline-PC Quit and
+corpse-item Delete are explicit controlled hosts. These results do not qualify actual
+Character.Quit, full GameItem.Delete, installed-world gameplay or **full N14-N16**.
+No later feature slice, publication, merge, deployment or shared/production DB mutation
+was started. All seven phases, 16 decisions, 154 candidates, 25 scenarios and 82+12 source
+rows remain present; existing phase1/2 stock gaps and phases4-6 remain pending.

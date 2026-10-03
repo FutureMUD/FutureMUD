@@ -118,6 +118,32 @@ public class ClanBudgetLengthTests
 		Assert.AreEqual("supplies", fixture.Context.ClanBudgetTransactions.Single().Reason);
 	}
 
+	[DataTestMethod]
+	[DataRow(5, false)]
+	[DataRow(10, true)]
+	public void BudgetDraw_LegacyBankContract_RequiresPreparedCapabilityOnlyForBankFunds(int virtualBalance, bool accepted)
+	{
+		using var fixture = new BudgetFixture();
+		fixture.AddBudget("office budget", true, virtualBalance);
+		var account = new Mock<IBankAccount>();
+		account.SetupGet(x => x.Currency).Returns(fixture.Currency.Object);
+		fixture.Budget.SetupGet(x => x.BankAccount).Returns(account.Object);
+		var reason = accepted ? new string('r', 1000) : "supplies";
+		fixture.Draw(reason);
+		if (accepted)
+		{
+			Assert.AreEqual(reason, fixture.Context.ClanBudgetTransactions.Single().Reason);
+			Assert.AreEqual(0M, VirtualCashLedger.Balance(fixture.Clan, fixture.Currency.Object));
+		}
+		else
+		{
+			fixture.AssertRejectedWithoutMutation();
+			Assert.IsTrue(fixture.Messages.Single().Contains("validated withdrawal description"));
+			fixture.Currency.Verify(x => x.Describe(5M, CurrencyDescriptionPatternType.ShortDecimal), Times.Never);
+		}
+		account.Verify(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+	}
+
 	[TestMethod]
 	public void BudgetDraw_LongCurrencyDescriptionAndBudgetName_CountsAllFixedAndFormattedText()
 	{

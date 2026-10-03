@@ -63,8 +63,6 @@ public interface IBankAccount : IFrameworkItem, ISaveable, IProgVariable
     (bool Truth, string Error) CanWithdraw(decimal amount, bool ignoreCurrencyReserves);
     void Withdraw(decimal amount);
     void WithdrawFromTransaction(decimal amount, string transactionReference);
-	/// <summary>Uses an already prepared description without reevaluating currency formatting progs.</summary>
-	void WithdrawFromTransaction(decimal amount, string transactionReference, string transactionDescription);
     void WithdrawFromTransfer(decimal amount, string toBankCode, int toAccount, string transferReference);
     void Deposit(decimal amount);
     void DepositFromTransaction(decimal amount, string transactionReference);

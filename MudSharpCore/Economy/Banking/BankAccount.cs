@@ -13,7 +13,7 @@ using System.Runtime.CompilerServices;
 
 namespace MudSharp.Economy.Banking;
 
-public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
+public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime, IPreparedBankAccountWithdrawal
 {
 	public const int MaximumTransactionDescriptionLength = 255;
 

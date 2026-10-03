@@ -338,8 +338,26 @@ public static class VirtualCashLedger
 		MudDateTime? mudDateTime,
 		out string error,
 		IFrameworkItem? reference = null,
-		string? referenceText = null,
-		string? bankTransactionDescription = null)
+		string? referenceText = null)
+	{
+		return Debit(owner, currency, amount, actor, counterparty, destinationKind, reason, bankAccount,
+			mudDateTime, out error, reference, referenceText, null);
+	}
+
+	public static bool Debit(
+		IFrameworkItem owner,
+		ICurrency currency,
+		decimal amount,
+		ICharacter? actor,
+		IFrameworkItem? counterparty,
+		string destinationKind,
+		string reason,
+		IBankAccount? bankAccount,
+		MudDateTime? mudDateTime,
+		out string error,
+		IFrameworkItem? reference,
+		string? referenceText,
+		string? bankTransactionDescription)
 	{
 		if (!CanDebit(owner, currency, amount, bankAccount, out error))
 		{
@@ -349,6 +367,13 @@ public static class VirtualCashLedger
 		if (amount <= 0.0M)
 		{
 			return true;
+		}
+
+		var preparedBankAccount = bankAccount as IPreparedBankAccountWithdrawal;
+		if (bankTransactionDescription is not null && preparedBankAccount is null)
+		{
+			error = "That bank account cannot use a prepared transaction description.";
+			return false;
 		}
 
 		var bankAmount = 0.0M;
@@ -442,7 +467,7 @@ public static class VirtualCashLedger
 		}
 		else
 		{
-			bankAccount.WithdrawFromTransaction(bankAmount, reason, bankTransactionDescription);
+			preparedBankAccount!.WithdrawFromTransaction(bankAmount, reason, bankTransactionDescription);
 		}
 		bankAccount.Bank.CurrencyReserves[currency] -= bankAmount;
 		bankAccount.Bank.Changed = true;

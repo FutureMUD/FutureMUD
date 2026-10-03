@@ -400,6 +400,12 @@ public partial class Clan
 		string? bankTransactionDescription = null;
 		if (bankAmount > 0.0M && bankAccount?.Currency == budget.Currency)
 		{
+			if (bankAccount is not IPreparedBankAccountWithdrawal)
+			{
+				actor.OutputHandler.Send("That bank account cannot use the validated withdrawal description.");
+				return;
+			}
+
 			bankTransactionDescription = BankAccount.DescribeWithdrawalFromTransaction(bankAccount.Currency, bankAmount, ledgerReason);
 			if (bankTransactionDescription.Length > BankAccount.MaximumTransactionDescriptionLength)
 			{
@@ -418,6 +424,7 @@ public partial class Clan
 
 		if (!VirtualCashLedger.Debit(budget.Clan, budget.Currency, amount, actor, budget, "Cash",
 			    ledgerReason, bankAccount, Calendar.CurrentDateTime, out var error,
+			    reference: null, referenceText: null,
 			    bankTransactionDescription: bankTransactionDescription))
 		{
 			actor.OutputHandler.Send(error);

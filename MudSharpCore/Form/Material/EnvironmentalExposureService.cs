@@ -112,16 +112,16 @@ public sealed class EnvironmentalExposureService
 		if (_world.SaveManager?.MudBootingMode == true) return;
 		if ((target is IGameItem trackedItem ? trackedItem.LocationLevelPerceivable?.Location : target.Location) is Cell physicalCell)
 			_weatherCells.Add(physicalCell);
-		if (target is IGameItem remains && remains.GetItemType<ICorpse>() is { } corpse)
+		if (target is IGameItem remains && remains.GetItemType<ICorpse>()?.OriginalBody is { } remainsBody)
 		{
-			if (!_resumed.TryGetValue(corpse.OriginalBody, out _))
+			if (!_resumed.TryGetValue(remainsBody, out _))
 			{
-				_resumed.Add(corpse.OriginalBody, new object());
-				DryAt(corpse.OriginalBody.SurfaceLiquidState, corpse.OriginalBody, Clock());
+				_resumed.Add(remainsBody, new object());
+				DryAt(remainsBody.SurfaceLiquidState, remainsBody, Clock());
 			}
-			_remains.Remove(corpse.OriginalBody);
-			_remains.Add(corpse.OriginalBody, remains);
-			_active.Remove(corpse.OriginalBody);
+			_remains.Remove(remainsBody);
+			_remains.Add(remainsBody, remains);
+			_active.Remove(remainsBody);
 		}
 		if (_advancing) { _pending.Add(Subject(target)); return; }
 		Advance(Clock());

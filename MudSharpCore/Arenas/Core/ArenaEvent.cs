@@ -1669,7 +1669,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             .Where(item => !item.Deleted)
             .Where(item =>
             {
-                if (item.GetItemType<ICorpse>() is { } corpse && npcIds.Contains(corpse.OriginalCharacter.Id))
+                if (item.GetItemType<ICorpse>()?.OriginalCharacter is { } owner && npcIds.Contains(owner.Id))
                 {
                     return true;
                 }

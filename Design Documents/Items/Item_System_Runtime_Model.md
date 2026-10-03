@@ -592,6 +592,19 @@ staff final-corpse cleanup skips it. Corpse-target surgery additionally requires
 resolved owner's body to match the exact corpse body. Release leaves the survivor's inventory intact and
 continues to require independently proven authority before deleting a retired body.
 
+Runtime consumers treat unresolved anatomy as a supported remains state. Exposure refresh
+and registration keep ordinary item tracking while omitting the missing body registration.
+Eating and item/currency gifting refuse before nutrition, events or inventory transfers.
+The shared physical-body target helper rejects unresolved corpses before staff commands can
+take a held implant. Corpse-backed actor targeting, dressing and resurrection require a
+resolved final corpse whose body matches the owner's current body; independently visible
+actors and physical operations on other resolved bodies remain available. Global staff
+resurrection and arena cleanup scans skip missing-owner corpses safely.
+
+Persisted severed-part wounds can still be inspected without their original body or owner.
+Descriptions do not borrow a surviving owner's activity, and admin treatment indicators
+read only the exact part body when it resolves. Inspection preserves stored bleeding state.
+
 ## Real Example: Container
 `ContainerGameItemComponentProto` is a representative example of a typical editable component proto:
 - stores builder-editable values like weight limit, max size, transparency, and preposition

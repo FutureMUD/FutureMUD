@@ -2444,6 +2444,11 @@ public partial class Body
 
     public bool CanGive(IGameItem item, ICorpse target, int quantity = 0)
     {
+		if (target.Body is null)
+		{
+			return false;
+		}
+
         var manipulation = Actor.CanManipulateItem(target.Parent);
         if (!manipulation.Truth)
         {
@@ -2461,6 +2466,11 @@ public partial class Body
 
     public string WhyCannotGive(IGameItem item, ICorpse target, int quantity = 0)
     {
+		if (target.Body is null)
+		{
+			return "You cannot give anything to these remains because their original body can no longer be identified.";
+		}
+
         var manipulation = Actor.CanManipulateItem(target.Parent);
         if (!manipulation.Truth)
         {
@@ -2536,9 +2546,9 @@ public partial class Body
         givenItem.InvokeInventoryChange(wasWielded ? InventoryState.Wielded : InventoryState.Held,
             InventoryState.Dropped);
 
-        // Final-death corpses preserve the old legacy character-gift event path. Non-final remains are a body item,
-        // not the live owner, so do not dispatch character receiver/witness events against the surviving character.
-        if (target.RepresentsFinalCharacterDeath)
+		// Character receiver events require the corpse's exact body to still be the final-death owner's body.
+		// Other resolved remains accept physical gifts without dispatching those events against a survivor.
+        if (target.GetOriginalCharacterWithMatchingBody() is not null)
         {
             HandleEvent(EventType.CharacterGiveItemGiver, Actor, target.OriginalCharacter, givenItem);
             target.OriginalCharacter.HandleEvent(EventType.CharacterGiveItemReceiver, Actor, target.OriginalCharacter,
@@ -4341,6 +4351,11 @@ public partial class Body
 
     public bool CanGive(ICurrency currency, ICorpse target, decimal amount, bool exact)
     {
+		if (target.Body is null)
+		{
+			return false;
+		}
+
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
         if (!targetCoins.Any())
@@ -4359,6 +4374,11 @@ public partial class Body
 
     public string WhyCannotGive(ICurrency currency, ICorpse target, decimal amount, bool exact)
     {
+		if (target.Body is null)
+		{
+			return "You cannot give anything to these remains because their original body can no longer be identified.";
+		}
+
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()), amount);
         if (!targetCoins.Any())
         {

@@ -37,6 +37,14 @@ At the highest level:
 This design makes health heavily simulation-oriented. The system cares about where damage landed, what bodypart or organ was affected, whether bleeding was controlled, whether the patient can breathe, what drugs are active, what items are available, and what medical knowledge and checks exist in the world.
 
 ## Subsystem Map
+
+Remains can retain unresolved original-body or owner references after loading legacy data.
+Physical staff body targeting rejects such corpses before taking an implant. Corpse-based
+resurrection requires the exact corpse body to match the owner's current body before
+healing, restoration or resurrection. Persisted organic wounds on severed parts remain
+inspectable without borrowing a surviving owner's activity or treatment effects; admin
+treatment indicators use only the exact part body when available.
+
 | Subsystem | Core runtime types | Player or admin surface | Stock seeded defaults |
 | --- | --- | --- | --- |
 | Bodies and anatomy | `IBody`, race bodypart and organ definitions, `Body`, `BodyBiology` | Character health, wound visibility, organ function, death, severing, sever formulas | Seeded mainly in `HumanSeeder`, `AnimalSeeder`, `MythicalAnimalSeeder`, and `RobotSeeder` |

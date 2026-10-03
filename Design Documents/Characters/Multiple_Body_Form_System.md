@@ -126,7 +126,7 @@ The shipped remains contexts are:
 | `SpentClone` | Reserved for clone bodies or failed vessels that remain physically meaningful but are not a dead character. |
 | `Other` | Fallback for game-specific remains contexts. |
 
-Legacy targeting that asks for an actor-or-corpse only resolves final-death corpses back to their original character. Body-specific command paths should use the body-target helper and operate on the corpse's body instead. This avoids the sleeve bug where a command targets an old corpse but accidentally mutates the surviving character's new current body.
+Legacy targeting that asks for an actor-or-corpse only resolves a final-death corpse back to its original character when its exact body resolves and matches that character's current body. Dressing and corpse-based resurrection use the same validation. Independently visible live actors remain targetable. Body-specific command paths use the body-target helper, which rejects unresolved anatomy but permits physical operations on other resolved corpse bodies. This avoids a command targeting an old corpse and mutating the surviving character's new current body.
 
 Butchery and skinning use the original body's race and butchery profile. This matters for transformation and sleeve stories where the surviving character's current race or body may differ from the remains in the room.
 

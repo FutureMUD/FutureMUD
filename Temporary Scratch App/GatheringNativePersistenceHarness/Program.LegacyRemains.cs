@@ -24,7 +24,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 internal static partial class GNHProgram
 {
 	private sealed record LegacyRemainsReader(string Database, FixtureIds Fixture, long BodyId, long ItemId,
-		bool Corpse, bool MissingBody, bool CurrentBody, bool FinalDeath);
+		bool Corpse, bool MissingBody, bool CurrentBody, bool FinalDeath, bool MissingOwner = false, long? WoundId = null);
 
 	private static string LegacyRemainsDefinition(FixtureIds fixture, long bodyId, bool corpse, bool finalDeath) => corpse
 		? $"<Definition><OriginalCharacter>{fixture.CharacterId}</OriginalCharacter><OriginalBody>{bodyId}</OriginalBody><RemainsContext>{(finalDeath ? 0 : 2)}</RemainsContext><Model>1</Model><DecayPoints>0</DecayPoints><DecayState>0</DecayState><TimeOfDeath>2026-10-02T12:00:00Z</TimeOfDeath></Definition>"
@@ -40,18 +40,31 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			var oldBody = AddLifecycleBody(db, fixture.BodyId); oldBody.Weight = 60000; db.SaveChanges();
-			foreach (var (corpse, missing, current, finalDeath) in new[]
+			foreach (var (corpse, missing, current, finalDeath, missingOwner) in new[]
 			{
-				(true, false, false, false), (false, false, false, false),
-				(true, true, false, false), (false, true, false, false),
-				(true, false, true, false), (false, false, true, false), (true, false, true, true)
+				(true, false, false, false, false), (false, false, false, false, false),
+				(true, true, false, false, false), (false, true, false, false, false),
+				(true, false, true, false, false), (false, false, true, false, false), (true, false, true, true, false),
+				(true, true, false, true, false), (true, false, false, true, true), (false, false, false, false, true),
+				(true, false, false, true, false)
 			})
 			{
 				var item = NewLifecycleItem(); db.GameItems.Add(item); db.SaveChanges();
 				var bodyId = current ? fixture.BodyId : missing ? oldBody.Id + 1000000 : oldBody.Id;
-				db.GameItemComponents.Add(new() { GameItemId = item.Id, GameItemComponentProtoId = 0,
-					Definition = LegacyRemainsDefinition(fixture, bodyId, corpse, finalDeath) });
-				inputs.Add(new(database.Name, fixture, bodyId, item.Id, corpse, missing, current, finalDeath));
+				long? woundId = null;
+				if (!corpse)
+				{
+					var wound = new Db.Wound { GameItemId = item.Id, BodypartProtoId = fixture.BodypartId,
+						OriginalDamage = 7, CurrentDamage = 7, CurrentPain = 11, CurrentStun = 13,
+						DamageType = (int)DamageType.Slashing, ActorOriginId = fixture.CharacterId,
+						WoundType = "SimpleOrganic", RealTimeOfWound = DateTime.UtcNow,
+						ExtraInformation = $"<Definition><DamageDescription>cut</DamageDescription><BleedStatus>{(int)BleedStatus.Bleeding}</BleedStatus></Definition>" };
+					db.Wounds.Add(wound); db.SaveChanges(); woundId = wound.Id;
+				}
+				var definition = LegacyRemainsDefinition(fixture, bodyId, corpse, finalDeath);
+				if (woundId.HasValue) definition = definition.Replace("<Wounds/>", $"<Wounds><Wound>{woundId}</Wound></Wounds>");
+				db.GameItemComponents.Add(new() { GameItemId = item.Id, GameItemComponentProtoId = 0, Definition = definition });
+				inputs.Add(new(database.Name, fixture, bodyId, item.Id, corpse, missing, current, finalDeath, missingOwner, woundId));
 			}
 			db.SaveChanges();
 			Require(!db.CharacterBodyRetirements.Any() && !db.MagicSpellOwnedEntities.Any() &&
@@ -74,7 +87,7 @@ internal static partial class GNHProgram
 			Console.Error.WriteLine($"legacy-reader-failed corpse:{input.Corpse} missing-body:{input.MissingBody} current-body:{input.CurrentBody} final-death:{input.FinalDeath}: {error.GetAwaiter().GetResult()}");
 		}
 		Require(allPassed, "Legacy remains reload/presentation/release acceptance failed; all reader failures are retained above.");
-		Console.WriteLine("ARM03-legacy-acceptance=passed seven-separate-process-readers exact-read-without-cleanup-authority safe-unresolved-body context-specific-current-body-validation");
+		Console.WriteLine("ARM03-legacy-acceptance=passed eleven-separate-process-readers exact-read-without-cleanup-authority safe-unresolved-body context-specific-current-body-validation runtime-consumer-boundaries");
 		return 0;
 	}
 
@@ -86,7 +99,7 @@ internal static partial class GNHProgram
 		ConfigureCastingWorld(native, database.ConnectionString, false); PrepareLifecycleRuntime(native); LoadRetirementForms(database, native);
 		var bodies = new All<IBody>(); bodies.Add(native.Actor.Body); native.WorldMock.SetupGet(x => x.Bodies).Returns(bodies);
 		native.WorldMock.Setup(x => x.Add(It.IsAny<IBody>())).Callback<IBody>(body => bodies.Add(body));
-		native.WorldMock.Setup(x => x.TryGetCharacter(input.Fixture.CharacterId, It.IsAny<bool>())).Returns(native.Actor);
+		native.WorldMock.Setup(x => x.TryGetCharacter(input.Fixture.CharacterId, It.IsAny<bool>())).Returns(input.MissingOwner ? null! : native.Actor);
 		var model = new Mock<ICorpseModel>(MockBehavior.Strict);
 		model.SetupGet(x => x.Id).Returns(1); model.SetupGet(x => x.EdiblePercentage).Returns(0.5);
 		model.Setup(x => x.GetDecayState(It.IsAny<double>())).Returns(DecayState.Fresh);
@@ -106,6 +119,7 @@ internal static partial class GNHProgram
 			var part = new BodypartGameItemComponent(stored, prototype, parent.Object); component = part;
 			parent.Setup(x => x.GetItemType<IButcherable>()).Returns(part);
 			parent.Setup(x => x.GetItemType<ISeveredBodypart>()).Returns(part);
+			parent.Setup(x => x.GetItemType<ICorpse>()).Returns((ICorpse)null!);
 			parent.SetupGet(x => x.Components).Returns([part]);
 		}
 		var items = new All<IGameItem>(); items.Add(parent.Object); native.WorldMock.SetupGet(x => x.Items).Returns(items);
@@ -119,7 +133,7 @@ internal static partial class GNHProgram
 		Require(remains.OriginalBodyId == input.BodyId && double.IsFinite(weight) && weight >= 0 && double.IsFinite(buoyancy) &&
 			(input.CurrentBody || !ReferenceEquals(remains.OriginalBody, native.Actor.CurrentBody)),
 			"Legacy remains changed identity, redirected to current body or produced invalid physical values.");
-		var unresolved = input.MissingBody || input.Corpse && input.CurrentBody && !input.FinalDeath;
+		var unresolved = input.MissingOwner || input.MissingBody || input.Corpse && input.CurrentBody && !input.FinalDeath;
 		if (unresolved)
 		{
 			Require(remains.OriginalBody is null && remains.OriginalRace is null && weight == 0 && !string.IsNullOrWhiteSpace(description),
@@ -140,6 +154,7 @@ internal static partial class GNHProgram
 			Require(double.IsFinite(item.IlluminationProvided), "Legacy corpse item illumination was unsafe.");
 			if (unresolved) Require(!item.PassiveSufferDamage(Mock.Of<IDamage>()).Any(), "Unresolved corpse forwarded damage to a survivor.");
 		}
+		VerifyLegacyRemainsRuntimeBoundaries(input, native, parent, component, unresolved);
 		component.Delete();
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
@@ -147,10 +162,11 @@ internal static partial class GNHProgram
 				db.Bodies.Any(x => x.Id == input.Fixture.BodyId) && db.Wounds.Any(x => x.Id == input.Fixture.ExistingWoundId && x.ActorOriginId == input.Fixture.CharacterId) &&
 				(input.MissingBody || db.Bodies.Any(x => x.Id == input.BodyId)) && !db.CharacterBodyRetirements.Any() && !db.MagicSpellOwnedEntities.Any(),
 				"Legacy release deleted an unowned body or changed canonical identity, history or ownership metadata.");
+			Require(!input.WoundId.HasValue || !db.Wounds.Any(x => x.Id == input.WoundId.Value), "Part release did not delete its own persisted wound.");
 			db.GameItems.Remove(db.GameItems.Find(input.ItemId)!); db.SaveChanges();
 		}
 		var marker = input.Corpse ? "corpse" : "part";
-		var scenario = input.MissingBody ? "missing-" : input.CurrentBody ? input.FinalDeath ? "final-current-" : "current-" : "";
+		var scenario = LegacyRemainsScenario(input);
 		Console.WriteLine($"ARM03-legacy-{scenario}{marker}=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred");
 		return 0;
 	}

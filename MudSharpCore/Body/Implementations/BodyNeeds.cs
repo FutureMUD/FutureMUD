@@ -517,6 +517,11 @@ public partial class Body : IHaveNeeds, IEat
 
     public (bool Success, string ErrorMessage) CanEat(ICorpse corpse, double bites)
     {
+		if (corpse.Body is null)
+		{
+			return (false, "You cannot eat these remains because their original body can no longer be identified.");
+		}
+
         var access = Actor.CanReachItem(corpse.Parent);
         if (!access.Truth)
         {
@@ -540,6 +545,11 @@ public partial class Body : IHaveNeeds, IEat
 
     public (bool Success, string ErrorMessage) CanEat(ISeveredBodypart bodypart, double bites)
     {
+		if (bodypart.OriginalBody is null)
+		{
+			return (false, "You cannot eat these remains because their original body can no longer be identified.");
+		}
+
         var access = Actor.CanReachItem(bodypart.Parent);
         if (!access.Truth)
         {

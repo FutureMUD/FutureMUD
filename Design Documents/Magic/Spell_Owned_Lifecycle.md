@@ -107,6 +107,13 @@ whose body matches the corpse's exact body, so it cannot operate on a surviving 
 Release does not touch a survivor's current inventory
 or authorize deletion of an unproven body.
 
+The runtime boundary also preserves unresolved remains during exposure registration and
+refresh, scavenger eating, gifting, staff body targeting, wound inspection and morgue
+recovery. Anatomy-dependent operations refuse before consumption or transfers; ordinary
+item exposure continues. Legacy character operations require a final corpse with a
+matching resolved current body. Morgue refusal leaves custody, effects, estate state and
+the assigned recovery report unchanged. These guards create no retirement or spell proof.
+
 ## Remaining acceptance and integration
 
 Full summon retirement still needs durable native creation/materialization, post-death and

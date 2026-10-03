@@ -516,6 +516,14 @@ This integrates economy and legal runtime behavior:
 - if no estate exists, the corpse is still stored and its belongings remain on the corpse
 - `morgue` commands in the office list releasable corpses and personally owned belongings
 
+Morgue intake refuses a final corpse with an unresolved original body or owner, or a body
+different from the owner's current body, before
+estate lookup, removal from custody, relocation, effects, stripping or probate changes.
+`TryIntakeCorpse` reports custody success separately from the optional estate: a valid
+intake without an estate still succeeds. Recovery only emits its success emote and marks
+the report completed after successful intake. Refused unresolved remains retain their
+location, effects, estate state and assigned recovery report for later resolution.
+
 ## Important Runtime Flows
 ### Currency Parsing and Description
 The runtime currently separates money input from money display.

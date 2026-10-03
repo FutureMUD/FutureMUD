@@ -138,12 +138,16 @@ public class CorpseRecoveryPatrolStrategy : PatrolStrategyBase
             return;
         }
 
+		if (!MorgueService.TryIntakeCorpse(report.EconomicZone, corpseItem, out _))
+		{
+			return;
+		}
+
         patrol.PatrolLeader.OutputHandler.Handle(new EmoteOutput(new Emote(
             Gameworld.GetStaticString("CorpseRecoveryPatrolEmote"),
             patrol.PatrolLeader,
             patrol.PatrolLeader,
             corpseItem)));
-        MorgueService.IntakeCorpse(report.EconomicZone, corpseItem);
         report.MarkCompleted();
         patrol.ActiveCorpseRecoveryReport = null;
         patrol.ConcludePatrol();

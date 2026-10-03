@@ -2962,16 +2962,14 @@ The syntax is as follows:
                 return;
             }
 
+			var corpses = actor.Gameworld.Items
+				.SelectNotNull(x => x.GetItemType<ICorpse>())
+				.Where(x => x.GetOriginalCharacterWithMatchingBody()?.Id == value)
+				.ToList();
             character.Resurrect(actor.Location);
 
-            // First, check to see if there are any corpses of this character already in the world
-            foreach (ICorpse corpseitem in actor.Gameworld.Items.SelectNotNull(x => x.GetItemType<ICorpse>()).ToList())
+            foreach (ICorpse corpseitem in corpses)
             {
-                if (!corpseitem.RepresentsFinalCharacterDeath || corpseitem.OriginalCharacter.Id != value)
-                {
-                    continue;
-                }
-
                 corpseitem.Parent.Delete();
             }
         }
@@ -2997,7 +2995,14 @@ The syntax is as follows:
                 return;
             }
 
-            character = corpse.OriginalCharacter.Resurrect(actor.Location);
+			character = corpse.GetOriginalCharacterWithMatchingBody();
+			if (character is null)
+			{
+				actor.Send("Those remains' original body or owner can no longer be identified as the same character body.");
+				return;
+			}
+
+            character = character.Resurrect(actor.Location);
             item.Delete();
         }
 

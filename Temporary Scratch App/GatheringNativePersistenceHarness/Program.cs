@@ -63,6 +63,8 @@ internal static partial class GNHProgram
 				["--speech-run"] => RunSpeechAcceptanceChecks(),
 				["--area-run"] => RunAreaAcceptanceChecks(),
 				["--lifecycle-run"] => RunLifecycleAcceptanceChecks(),
+				["--npc-archive-run"] => RunNpcArchiveAcceptanceChecks(),
+				["--npc-archive-reader", .. string[] archiveArguments] => RunNpcArchiveReader(archiveArguments),
 				["--body-retirement-run"] => RunBodyRetirementAcceptanceChecks(),
 				["--legacy-remains-run"] => RunLegacyRemainsAcceptanceChecks(),
 				["--legacy-remains-reader", .. string[] legacyArguments] => RunLegacyRemainsReader(legacyArguments),
@@ -1048,9 +1050,14 @@ internal static partial class GNHProgram
 				database.WriteOwnershipMarker();
 				return database;
 			}
-			catch
+			catch (Exception bootstrapFailure)
 			{
-				database.Dispose();
+				try { database.Dispose(); }
+				catch (Exception cleanupFailure)
+				{
+					throw new AggregateException("Owned snapshot bootstrap failed; database cleanup also refused without its matching marker.",
+						bootstrapFailure, cleanupFailure);
+				}
 				throw;
 			}
 		}

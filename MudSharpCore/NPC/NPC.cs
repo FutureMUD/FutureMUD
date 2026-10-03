@@ -178,7 +178,14 @@ public class NPC : Character.Character, INPC
             Changed = true;
         }
 
-        return base.Die();
+		var controller = Controller as NPCController;
+		var remains = base.Die();
+		if (State.HasFlag(CharacterState.Dead) &&
+		    (controller?.Actor is null || ReferenceEquals(controller.Actor, this)))
+		{
+			controller?.Dispose();
+		}
+		return remains;
     }
 
     #endregion
@@ -268,6 +275,11 @@ public class NPC : Character.Character, INPC
     /// <summary>Tells the object to perform whatever save action it needs to do</summary>
     public override void Save()
     {
+        if (IsArchived || FMDB.Context.Characters.Any(x => x.Id == Id && x.IsArchived))
+        {
+            base.Save();
+            return;
+        }
         if (UsesProductionWildlifeNeeds)
         {
             var dbcharacter = FMDB.Context.Characters.Find(Id);

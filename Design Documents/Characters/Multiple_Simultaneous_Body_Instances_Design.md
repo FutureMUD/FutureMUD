@@ -9,6 +9,12 @@
 
 ## 1. Executive Summary
 
+Current archival exception: a proven final-death spell-owned autonomous NPC can retain its
+canonical identity as an archived row with no `BodyId`. Ordinary live identities still
+require a body. Archived rows never load as PCs, NPCs or secondary instances. Additional
+instances and anchors retain the heavy graph until their adapters release them. See
+[Spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md) for the bounded Phase3B1 contract.
+
 FutureMUD currently supports one `ICharacter` owning multiple `IBody` forms, with logic for provisioning, maintaining, and switching between those forms. The current system is deliberately conservative: there is only one active body in the world at a time, and inactive bodies are dormant form records rather than independent room occupants. This is appropriate for werewolf-style transformation, robot/organic switching, ghost forms, animal polymorphs, and death backup flows, but it is not sufficient for astral projection, mirror images, magical copies, multiple controllable shells, or simultaneous clone bodies.
 
 The core change proposed by this document is to introduce a world-presence layer:

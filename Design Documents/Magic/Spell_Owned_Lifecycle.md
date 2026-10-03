@@ -1,5 +1,72 @@
 # Spell-owned lifecycle foundation
 
+Phase3B1 adds the conservative canonical NPC archival boundary described below. Native
+template creation, ordinary corpse deletion/decay, foreign-item evacuation and the scheduled
+retirement worker remain later adapter work. Full N14–N16 acceptance remains outstanding.
+
+## Canonical NPC archival boundary
+
+The world's optional `CharacterArchives` service supplies historical readers; missing-victim
+display in a world without that service does not create a database connection.
+`ICharacterArchiveService.Find` reads immutable attribution without constructing a character,
+body, controller or AI. `TryArchiveNpc` requires a native accountless NPC, one exact autonomous
+character/body ownership pair, a non-permanent retiring lifecycle, persisted native death and
+its post-death correlation. A pre-death notification provides no removal authority. Permanent
+entities, borrowed identities, secondary instances, projections and mismatched claims refuse
+without acquiring compaction authority.
+
+The boundary uses a fresh serializable FMDB transaction and restores the caller's context.
+It holds possessions, generated/remains rows, effects, additional forms, live instances,
+foreign form/source/retirement ownership, anchored dependants, polymorphic item custody,
+lodged items, infections and unclassified foreign-key relationships. Runtime group roles,
+guards, followers, mounts, position/seen-target links, combat, movement, additional loaded
+copies and connected player focus also hold the graph. Refusals within the proven lifecycle
+persist a bounded diagnostic and leave physical state, saves and foreign goods untouched.
+
+Metadata-driven FK checks allow removal only of audited directly owned NPC/body state.
+Canonical command logs, finalized crime attribution and external wound-origin IDs
+survive. Every unfinished criminal crime holds, including stale crimes that a witness could
+report again. Writing (including composite/graffiti author caches), drawings,
+hospital/bank/estate/clan/track and other unsupported relationships hold until their own
+history/runtime adapters are reviewed. Inventory reachability does not establish ownership.
+
+The bounded serialized scan covers definitions, effects, data/value fields, route motion,
+computer process state/result/wait arguments, tattoos, injury extras, procedure parameters,
+employment payload/arguments, strategy data and land-detail JSON. XML leaf/attribute values
+and decoded JSON values/keys are checked for canonical/body/instance/wound references;
+malformed or oversized payloads hold. Numeric namespace collisions may conservatively hold.
+This is explicit support for the audited persisted surfaces, not proof about arbitrary new
+extension encodings. New identity-bearing surfaces require classification before enabling
+compaction for them.
+
+Unmapped numeric ID properties are checked as well; non-receipt references without a
+classified FK/key hold rather than relying on their field name to imply ownership.
+The instance's generated `EmbodiedBodyId` and `PrimaryCharacterId` uniqueness keys are
+classified only when every matching row is already in the audited removal set.
+
+On success, `Characters` retains its canonical ID, bounded identity fields and dead state,
+sets `IsArchived`, clears its physical body pointer and active outfit/position data, and gains
+a bounded `CharacterArchives` record with original body, lifecycle, UTC time, name,
+descriptions, wound summary and provenance. Only audited heavy rows and the empty body are
+removed. The body FK is restrictive; a check permits a missing body only for archived rows.
+The canonical archive FK prevents deleting historical identity through a cascade.
+
+Runtime save abort (including duplicate and delayed queue entries), heartbeat/effect/scheduler release and final removal from active/cached
+actor and body roots occur after commit. Archived constructors/loaders refuse materialization;
+fresh save guards plus the canonical marker's concurrency token protect stale tracked writers.
+NPC death disposes its original controller after persisted death; archival also disposes a
+controller attached by a dead-graph reload. Both observer directions, context, actor and output
+perceiver references are detached, so retained monitors cannot expose or root the heavy actor.
+Crime's criminal cache is weak and its history display uses the immutable archive when needed.
+Already-archived retries must match the exact receipt and missing heavy graph. Lifecycle
+completion requires that same canonical/archive/body proof, rather than treating a tombstone
+as a live owned actor or inferring death from an absent row.
+
+The generated schema migration, designer, model snapshot and maintained blank-database dump
+form one release unit. Downgrade is safe only before archives exist: removed bodies cannot be
+recreated by the generated `Down` migration. Recover a pre-compaction backup when reverting
+an already-used archival schema.
+
 Phase3A supplies the shared persistence and safe body-retirement boundary for the approved
 Armageddon completion plan. It does not yet attach this contract to `createnpc`, `createitem`,
 corpse animation, projections or the game heartbeat. Their native adapters and acceptance

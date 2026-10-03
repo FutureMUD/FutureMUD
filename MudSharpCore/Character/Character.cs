@@ -80,6 +80,10 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         {
             throw new ApplicationException("Trying to load non existent character");
         }
+		if (character.IsArchived || character.BodyId is null)
+		{
+			throw new InvalidOperationException("Archived identities cannot be materialised as characters.");
+		}
 
         EffectHandler = new EffectHandler(this);
         QueuedMoveCommands = new Queue<string>();
@@ -598,6 +602,14 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public override void Save()
     {
+        if (IsArchived) { Changed = false; return; }
+		if (FMDB.Context.Characters.AsNoTracking().Any(x => x.Id == Id && x.IsArchived))
+		{
+			IsArchived = true;
+			_noSave = true;
+			Changed = false;
+			return;
+		}
         Models.Character dbchar = FMDB.Context.Characters.Find(Id);
         if (dbchar == null)
         {
@@ -615,6 +627,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 #endif
         }
 
+		if (dbchar.IsArchived) { IsArchived = true; _noSave = true; Changed = false; return; }
         SaveCompatibilityWorldPresence(dbchar);
         dbchar.CurrencyId = Currency?.Id;
         dbchar.Gender = (short)Gender.Enum;

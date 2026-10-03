@@ -945,9 +945,16 @@ public partial class Body : PerceiverItem, IBody
 
     public override void Save()
     {
+        if (Actor is MudSharp.Character.Character { IsArchived: true }) { Changed = false; return; }
         try
         {
             Models.Body dbentity = FMDB.Context.Bodies.Find(Id);
+            if (dbentity is null && FMDB.Context.CharacterArchives.Any(x => x.OriginalBodyId == Id))
+            {
+                _noSave = true;
+                Changed = false;
+                return;
+            }
             dbentity.Height = Height;
             dbentity.Weight = Weight;
             dbentity.Position = PositionState.Id;

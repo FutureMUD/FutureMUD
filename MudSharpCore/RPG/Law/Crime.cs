@@ -286,7 +286,13 @@ public partial class Crime : LateInitialisingItem, ICrime
     }
 
     public long CriminalId { get; }
-    private ICharacter _criminal = null!;
+    private WeakReference<ICharacter>? _criminalReference;
+    private ICharacter? _criminal
+    {
+        get => _criminalReference?.TryGetTarget(out var actor) == true &&
+               actor is not MudSharp.Character.Character { IsArchived: true } ? actor : null;
+        set => _criminalReference = value is null ? null : new(value);
+    }
 
     private void TryLoadCharacter()
     {
@@ -298,7 +304,7 @@ public partial class Crime : LateInitialisingItem, ICrime
         _criminal = Gameworld.TryGetCharacter(CriminalId, true);
     }
 
-    public ICharacter Criminal
+    public ICharacter? Criminal
     {
         get
         {
@@ -686,7 +692,8 @@ public partial class Crime : LateInitialisingItem, ICrime
 
     public string DescribeCrimeAtTrial(IPerceiver voyeur)
     {
-        string victimDesc = DescribeVictimAtTrial(Victim);
+        string victimDesc = Victim is { } victim ? DescribeVictimAtTrial(victim) :
+            Gameworld.CharacterArchives?.Find(VictimId ?? 0)?.DisplayName ?? "an unnamed victim";
         string locationAddendum =
             CrimeLocation != null ?
                 $" at {CrimeLocation.CurrentOverlay.CellName}" :
@@ -706,6 +713,7 @@ public partial class Crime : LateInitialisingItem, ICrime
     public string DescribeCrime(IPerceiver voyeur)
     {
         string victimDesc = Victim?.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee) ??
+                         Gameworld.CharacterArchives?.Find(VictimId ?? 0)?.ShortDescription ??
                          "unnamed victims".ColourCharacter();
         string locationAddendum = CrimeLocation != null ? $" at {CrimeLocation.CurrentOverlay.CellName.ColourRoom()}" : "";
         string thirdPartyDesc = ThirdParty?.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "an unidentified thing".ColourObject();
@@ -714,6 +722,8 @@ public partial class Crime : LateInitialisingItem, ICrime
 
     public string ShowCrimeInfo(ICharacter enforcer)
     {
+        var criminal = Criminal;
+        var criminalArchive = criminal is null ? Gameworld.CharacterArchives?.Find(CriminalId) : null;
         StringBuilder sb = new();
         sb.AppendLine($"Crime #{Id.ToStringN0(enforcer)}".GetLineWithTitleInner(enforcer, Telnet.BoldOrange, Telnet.BoldWhite));
         sb.AppendLine();
@@ -725,22 +735,23 @@ public partial class Crime : LateInitialisingItem, ICrime
         sb.AppendLine();
         if (CriminalIdentityIsKnown)
         {
-            sb.AppendLine($"Criminal: {Criminal.HowSeen(enforcer, flags: PerceiveIgnoreFlags.TrueDescription)}");
-            sb.AppendLine($"Criminal Name: {Criminal.PersonalName.GetName(NameStyle.FullWithNickname).ColourName()}");
+            sb.AppendLine($"Criminal: {criminal?.HowSeen(enforcer, flags: PerceiveIgnoreFlags.TrueDescription) ?? criminalArchive?.ShortDescription ?? CriminalShortDescription}");
+            sb.AppendLine($"Criminal Name: {(criminal?.PersonalName.GetName(NameStyle.FullWithNickname) ?? criminalArchive?.DisplayName ?? "an unidentified person").ColourName()}");
             if (enforcer.IsAdministrator())
             {
-                sb.AppendLine($"Staff Actor Ref: {Criminal.RenderStaffActorReference()}");
+                sb.AppendLine($"Staff Actor Ref: {(criminal is null ? $"C#{CriminalId.ToStringN0(enforcer)} (archived or unavailable)" : criminal.RenderStaffActorReference())}");
             }
             sb.AppendLine("Criminal Description:");
             sb.AppendLine();
-            sb.AppendLine(Criminal.HowSeen(enforcer, type: DescriptionType.Full, flags: PerceiveIgnoreFlags.TrueDescription).Wrap(enforcer.InnerLineFormatLength, "\t"));
+            sb.AppendLine((criminal?.HowSeen(enforcer, type: DescriptionType.Full, flags: PerceiveIgnoreFlags.TrueDescription) ??
+                           criminalArchive?.FullDescription ?? CriminalDescription).Wrap(enforcer.InnerLineFormatLength, "\t"));
         }
         else
         {
             if (enforcer.IsAdministrator())
             {
                 sb.AppendLine($"Criminal Identity Known: {false.ToColouredString()}");
-                sb.AppendLine($"Loaded Identity Ref: {Criminal.RenderStaffActorReference()}");
+                sb.AppendLine($"Loaded Identity Ref: {(criminal is null ? $"C#{CriminalId.ToStringN0(enforcer)} (archived or unavailable)" : criminal.RenderStaffActorReference())}");
             }
             sb.AppendLine($"Criminal: {CriminalShortDescription.ColourCharacter()}");
             sb.AppendLine("Criminal Description:");
@@ -760,7 +771,8 @@ public partial class Crime : LateInitialisingItem, ICrime
         sb.AppendLine();
         if (Victim is null)
         {
-            sb.AppendLine("Victim: #6Unknown Persons#0".SubstituteANSIColour());
+            var victimArchive = Gameworld.CharacterArchives?.Find(VictimId ?? 0);
+            sb.AppendLine($"Victim: {(victimArchive?.DisplayName ?? "Unknown Persons").ColourCharacter()}");
         }
         else
         {

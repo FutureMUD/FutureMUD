@@ -64,8 +64,9 @@ public class SaveManager : ISaveManager
 
     public void Abort(ISaveable item)
     {
-        _saveStack.Remove(item);
-        _initialisationQueue.Remove(item as ILateInitialisingItem);
+        _saveStack.RemoveAll(x => ReferenceEquals(x, item));
+        _delayedSaveStack.RemoveAll(x => ReferenceEquals(x, item));
+        _initialisationQueue.RemoveAll(x => ReferenceEquals(x, item));
         if (_lazyLoaders.Contains(item))
         {
             _lazyLoaders = new Queue<ILazyLoadDuringIdleTime>(_lazyLoaders.ExceptCovariant(item).ToList());
@@ -82,7 +83,7 @@ public class SaveManager : ISaveManager
 
     public bool IsQueued(ISaveable saveable)
     {
-        return _saveStack.Contains(saveable) || _initialisationQueue.Contains(saveable) ||
+        return _saveStack.Contains(saveable) || _delayedSaveStack.Contains(saveable) || _initialisationQueue.Contains(saveable) ||
                _lazyLoaders.Contains(saveable);
     }
 

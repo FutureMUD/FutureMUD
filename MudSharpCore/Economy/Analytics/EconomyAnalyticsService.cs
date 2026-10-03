@@ -570,8 +570,8 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 			{
 				var ids = batch.ToList();
 				foreach (var character in FMDB.Context.Characters.AsNoTracking()
-					         .Where(x => ids.Contains(x.BodyId))
-					         .Select(x => new { x.BodyId, x.Id, x.Location }))
+					         .Where(x => !x.IsArchived && x.BodyId != null && ids.Contains(x.BodyId.Value))
+					         .Select(x => new { BodyId = x.BodyId.Value, x.Id, x.Location }))
 				{
 					bodyCustodians.TryAdd(character.BodyId, (character.Id, character.Location));
 				}

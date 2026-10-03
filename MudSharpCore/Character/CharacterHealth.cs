@@ -35,6 +35,7 @@ public partial class Character
 
     public virtual IGameItem Die()
     {
+        if (IsArchived) return null;
         // Reasons why character can't die
         if (IsAdministrator())
         {
@@ -180,6 +181,7 @@ public partial class Character
 
     public ICharacter Resurrect(ICell location)
     {
+        if (IsArchived) return null;
         Location?.Leave(this);
         Location = location;
         location.Enter(this);

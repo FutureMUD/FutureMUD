@@ -1,5 +1,11 @@
 # Multiple Body Form System
 
+Spell-owned canonical NPC archival is a separate final-death boundary documented in
+[`Spell_Owned_Lifecycle.md`](../Magic/Spell_Owned_Lifecycle.md). It preserves the canonical ID
+while releasing a proven empty physical body. Foreign form/source/ordinary-retirement rows,
+borrowed bodies and additional instances hold compaction. An archived identity has no active
+body and cannot be loaded, resurrected or switched through ordinary form APIs.
+
 ## Purpose
 
 The multiple body form system lets one character own more than one physical body and switch which body is currently active. The initial design driver was transformation content such as werewolves, ghosts, astral forms, robots, animal polymorphs, and other cases where the same character identity needs a different anatomy, health model, appearance, or racial package.

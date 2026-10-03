@@ -2958,7 +2958,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                                       .Include(x => x.Character.Body.Wounds)
                                       .ThenInclude(x => x.Infections)
                           */
-                          where !((CharacterState)npc.Character.State).HasFlag(CharacterState.Dead)
+                          where !npc.Character.IsArchived && !((CharacterState)npc.Character.State).HasFlag(CharacterState.Dead)
                           select npc).ToList();
 #if DEBUG
         sw.Stop();

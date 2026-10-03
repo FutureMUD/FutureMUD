@@ -124,7 +124,7 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 			if (current.State == SpellLifecycleState.Completed) return false;
 			if (current.RequiresNativeDeath) throw new InvalidOperationException("Required native death has not been correlated; retirement must remain pending.");
 			if (current.Origin.Mode != SpellLifecycleMode.Permanent &&
-			    (current.State == SpellLifecycleState.Active || current.Entities.Any(EntityExists) ||
+			    (current.State == SpellLifecycleState.Active || current.Entities.Any(x => EntityExists(x, current)) ||
 			     current.RemainsItemId is { } remains && FMDB.Context.GameItems.Any(x => x.Id == remains)))
 			{
 				throw new InvalidOperationException("Retirement is incomplete: owned rows or dependent remains still exist.");
@@ -151,10 +151,10 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 		return Read(row);
 	}
 
-	private static bool EntityExists(SpellOwnedEntity entity) => entity.Kind switch
+	private static bool EntityExists(SpellOwnedEntity entity, SpellOwnedLifecycle lifecycle) => entity.Kind switch
 	{
 		SpellOwnedEntityKind.GameItem => FMDB.Context.GameItems.Any(x => x.Id == entity.Id),
-		SpellOwnedEntityKind.AutonomousCharacter => FMDB.Context.Characters.Any(x => x.Id == entity.Id),
+		SpellOwnedEntityKind.AutonomousCharacter => !HasCompactedIdentity(entity.Id, lifecycle),
 		SpellOwnedEntityKind.CharacterInstance => FMDB.Context.CharacterInstances.Any(x => x.Id == entity.Id),
 		SpellOwnedEntityKind.Body => FMDB.Context.Bodies.Any(x => x.Id == entity.Id),
 		SpellOwnedEntityKind.Cell => FMDB.Context.Cells.Any(x => x.Id == entity.Id),
@@ -162,16 +162,32 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 		_ => throw new InvalidOperationException("Unknown owned entity kind; retirement is blocked.")
 	};
 
+	private static bool HasCompactedIdentity(long characterId, SpellOwnedLifecycle lifecycle)
+	{
+		if (lifecycle.DeathObservedUtc is null ||
+		    lifecycle.Entities.Count(x => x.Kind == SpellOwnedEntityKind.AutonomousCharacter) != 1 ||
+		    lifecycle.Entities.Count(x => x.Kind == SpellOwnedEntityKind.Body) != 1) return false;
+		var bodyId = lifecycle.Entities.Single(x => x.Kind == SpellOwnedEntityKind.Body).Id;
+		return FMDB.Context.Characters.Any(x => x.Id == characterId && x.IsArchived && x.BodyId == null) &&
+		       FMDB.Context.CharacterArchives.Any(x => x.CharacterId == characterId &&
+			       x.LifecycleId == lifecycle.Origin.Id && x.OriginalBodyId == bodyId) &&
+		       !FMDB.Context.Bodies.Any(x => x.Id == bodyId) &&
+		       !FMDB.Context.Npcs.Any(x => x.CharacterId == characterId) &&
+		       !FMDB.Context.CharacterInstances.Any(x => x.CharacterId == characterId) &&
+		       !FMDB.Context.CharacterBodies.Any(x => x.CharacterId == characterId) &&
+		       !FMDB.Context.CharacterBodySources.Any(x => x.CharacterId == characterId);
+	}
+
 	private static long PersistedDeadActorBody(SpellOwnedEntity actor)
 	{
 		var state = actor.Kind == SpellOwnedEntityKind.AutonomousCharacter
 			? FMDB.Context.Characters.Where(x => x.Id == actor.Id).Select(x => new { x.BodyId, x.State }).SingleOrDefault()
-			: FMDB.Context.CharacterInstances.Where(x => x.Id == actor.Id).Select(x => new { x.BodyId, x.State }).SingleOrDefault();
+			: FMDB.Context.CharacterInstances.Where(x => x.Id == actor.Id).Select(x => new { BodyId = (long?)x.BodyId, x.State }).SingleOrDefault();
 		if (state is null || !((CharacterState)state.State).HasFlag(CharacterState.Dead))
 		{
 			throw new InvalidOperationException("Native death must be persisted before observation; absence alone is not death proof.");
 		}
-		return state.BodyId;
+		return state.BodyId ?? throw new InvalidOperationException("Archived identities have no native physical body.");
 	}
 
 	private static bool IsRemainsForBody(string definition, long bodyId)
@@ -188,7 +204,7 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 	}
 
 	private static DateTime Utc(DateTime value) => DateTime.SpecifyKind(value, DateTimeKind.Utc);
-	private static SpellOwnedLifecycle Read(MagicSpellLifecycle row)
+	internal static SpellOwnedLifecycle Read(MagicSpellLifecycle row)
 	{
 		var origin = new SpellLifecycleOrigin(row.Id, row.SpellId, row.Grade, row.CreatorId, row.Family,
 			(SpellLifecycleMode)row.Mode, Utc(row.CreatedUtc), row.DeadlineUtc is { } deadline ? Utc(deadline) : null, row.Provenance);

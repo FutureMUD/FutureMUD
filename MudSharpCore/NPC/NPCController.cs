@@ -14,20 +14,22 @@ public class NPCController : IFuturemudAccountController, IFuturemudPlayerContro
 
     public void HandleCommand(string command)
     {
-        if (_context.HandleSubContext(command))
+        var context = _context;
+        if (context is null || context.HandleSubContext(command) || !ReferenceEquals(context, _context))
         {
             return;
         }
 
-        _context.ExecuteCommand(command);
-
-        if (_context.NextContext == null)
+        context.ExecuteCommand(command);
+        if (!ReferenceEquals(context, _context)) return;
+        var nextContext = context.NextContext;
+        if (nextContext == null)
         {
             return;
         }
 
-        _context.LoseControl(this);
-        _context = _context.NextContext;
+        context.LoseControl(this);
+        _context = nextContext;
         _context.AssumeControl(this);
     }
 
@@ -43,6 +45,13 @@ public class NPCController : IFuturemudAccountController, IFuturemudPlayerContro
         {
             RemoveObservee(observee);
         }
+		foreach (var observer in _observedBy.ToList())
+		{
+			observer.RemoveObservee(this);
+		}
+		_observedBy.Clear();
+		Actor = null;
+		OutputHandler.Register(null);
 
         GC.SuppressFinalize(this);
     }
@@ -171,7 +180,7 @@ public class NPCController : IFuturemudAccountController, IFuturemudPlayerContro
 
     public void CuePrompt()
     {
-        if (_context.HasPrompt)
+        if (_context?.HasPrompt == true)
         {
             OutputHandler.Send(_context.Prompt, false);
         }

@@ -64,6 +64,7 @@ internal static partial class GNHProgram
 				["--area-run"] => RunAreaAcceptanceChecks(),
 				["--lifecycle-run"] => RunLifecycleAcceptanceChecks(),
 				["--npc-archive-run"] => RunNpcArchiveAcceptanceChecks(),
+				["--npc-archive-maintenance-run"] => RunNpcArchiveMaintenanceChecks(),
 				["--npc-archive-reader", .. string[] archiveArguments] => RunNpcArchiveReader(archiveArguments),
 				["--body-retirement-run"] => RunBodyRetirementAcceptanceChecks(),
 				["--legacy-remains-run"] => RunLegacyRemainsAcceptanceChecks(),

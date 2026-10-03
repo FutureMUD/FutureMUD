@@ -545,6 +545,23 @@ It can:
 
 The builder-facing `comp update` workflow exists to force these update passes across prototypes and items.
 
+## Staff maintenance and canonical NPC retention
+
+`debug cleanupcorpses` still identifies superfluous final-death corpses through their
+resolved owner/body and existing decay policy. Its subsequent dead-NPC pass retains and
+reports unqualified identities instead of deleting their bodies alone. Only an exact
+creation-proven retiring lifecycle with correlated native death can reach the guarded
+NPC archive service. Foreign goods, serialized remains, historical and runtime references
+retain the graph; failed archival attempts are reported separately from retained or
+successfully archived NPCs. See [spell-owned lifecycle boundaries](../Magic/Spell_Owned_Lifecycle.md).
+
+The active `debug orphans` report and corpse maintenance both guarantee cleanup of the
+temporary offline PCs they acquired, including partial preload failures. Every temporary
+PC receives a quit attempt, statistics recording resumes in `finally`, and cleanup
+failure remains visible. The disabled destructive orphan-item cleanup is not re-enabled.
+Existing corpse inventory deletion is not qualified for foreign-goods evacuation by
+these changes; native summon creation/remains/decay/evacuation adapters remain pending.
+
 ## Morphing, Destruction, and Replacement
 ### Morphing
 Item prototypes can define morph behaviour:

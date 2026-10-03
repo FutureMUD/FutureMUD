@@ -72,6 +72,24 @@ Armageddon completion plan. It does not yet attach this contract to `createnpc`,
 corpse animation, projections or the game heartbeat. Their native adapters and acceptance
 remain later dependency stages. Existing spell creation behavior is unchanged in this slice.
 
+### Staff corpse maintenance
+
+`debug cleanupcorpses` retains ordinary dead NPC identities, bodies and history when no
+unique creation-proven retiring lifecycle exists. It reports each retained identity and
+its reason. Permanent, active, uncorrelated, ambiguous, foreign-body, projection and
+topology cases do not reach archival. An exact eligible NPC is passed to the existing
+archive service, whose reference and transaction guards remain authoritative. A service
+hold retains the graph and diagnostic; no lifecycle or death evidence is fabricated.
+The summary distinguishes archived, retained and failed attempts. A post-commit runtime
+failure is reported as failed, without claiming that the physical graph survived.
+
+Maintenance never removes a canonical NPC's body alone. The restrictive body FK and
+body-or-archive check remain unchanged. Both corpse cleanup and the active orphan report
+track temporary offline PCs before registration, clean them in `finally`, attempt every
+quit even if one fails, and restore statistics recording. Partial preload failures use
+the same cleanup. Destructive orphan-item cleanup remains disabled. This is a manual
+staff maintenance boundary, not automatic summon creation/remains/evacuation integration.
+
 ## Creation and ownership
 
 `ISpellOwnedLifecycleStore` exposes immutable lifecycle origin and exact created entities.
@@ -189,11 +207,12 @@ fallback, AI/subscription release, count/control policy and economy/salvage guar
 ordinary corpse deletion still deletes external inventory; this foundation does not qualify
 temporary summon corpse behavior or change that path.
 
-Canonical NPC deletion is unsafe today: Bodies -> Characters and Characters -> Crimes/logs
-cascade, while corpse, witness, dub and effect identities can remain serialized outside FKs.
-Do not use cascading deletes for temporary NPCs. The next slice must provide bounded
-compaction/archival accommodation for the required primary-body FK, meaningful attribution
-and non-loading tombstones. A retained full Character/Body graph is not final acceptance.
+Canonical NPC deletion remains unsafe: crime/log history and serialized corpse, witness,
+dub and effect identities can outlive physical graphs. The archival boundary above keeps
+canonical identity and restricts body deletion; no maintenance caller may bypass it with
+a body-only or cascading canonical delete. Native creation/remains/restart integration and
+historical author adapters remain pending. A retained full Character/Body graph is a
+conservative hold, not final high-volume retirement acceptance.
 The lightweight lifecycle/claim journal deliberately has no entity FKs and does not authorize
 canonical deletion. Bounded journal retention/archival is a later explicit policy; these
 receipt tables currently retain ownership evidence rather than purging it automatically.

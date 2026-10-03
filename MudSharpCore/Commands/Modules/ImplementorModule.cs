@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Arenas;
@@ -58,7 +58,7 @@ namespace MudSharp.Commands.Modules;
 ///     Implementor Module is for commands designed to be executed either by the implementor only or used primarily in
 ///     testing
 /// </summary>
-public class ImplementorModule : Module<ICharacter>
+public partial class ImplementorModule : Module<ICharacter>
 {
     private ImplementorModule()
         : base("Implementor")
@@ -848,10 +848,14 @@ The syntax is:
 
     private static void DebugOrphans(ICharacter actor)
     {
+        WithAllPCsLoaded(actor.Gameworld, () => DebugOrphansLoaded(actor));
+    }
+
+    private static void DebugOrphansLoaded(ICharacter actor)
+    {
         StringBuilder sb = new();
         actor.OutputHandler.Send("Show items that are potentially orphans...");
         actor.Gameworld.ForceOutgoingMessages();
-        IEnumerable<ICharacter> loadedPCs = EnsureAllPCsAreLoaded(actor.Gameworld);
         actor.OutputHandler.Send("Ensuring that all items are loaded...");
         actor.Gameworld.ForceOutgoingMessages();
         List<long> ids = new();
@@ -947,7 +951,6 @@ The syntax is:
         }
 
         actor.OutputHandler.Send(sb.ToString());
-        CleanupAllPCsLoaded(actor.Gameworld, loadedPCs);
     }
 
     private static void DebugExportCrafts(ICharacter actor, StringStack ss)
@@ -2608,15 +2611,30 @@ div.function-generalhelp {
 
     private static void CleanupAllPCsLoaded(IFuturemud gameworld, IEnumerable<ICharacter> loadedPCs)
     {
-        foreach (ICharacter character in loadedPCs)
+        List<Exception> failures = new();
+        try
         {
-            character.Quit(true);
+            foreach (ICharacter character in loadedPCs)
+            {
+                try
+                {
+                    if (!character.Quit(true)) failures.Add(new InvalidOperationException($"Temporary PC #{character.Id} did not quit."));
+                }
+                catch (Exception ex)
+                {
+                    failures.Add(ex);
+                }
+            }
+        }
+        finally
+        {
+            gameworld.GameStatistics.RecordPlayersPaused = false;
         }
 
-        gameworld.GameStatistics.RecordPlayersPaused = false;
+        if (failures.Count != 0) throw new AggregateException("Temporary maintenance PC cleanup was incomplete.", failures);
     }
 
-    private static IEnumerable<ICharacter> EnsureAllPCsAreLoaded(IFuturemud gameworld)
+    private static void EnsureAllPCsAreLoaded(IFuturemud gameworld, List<ICharacter> loadedPCs)
     {
         gameworld.GameStatistics.RecordPlayersPaused = true;
 
@@ -2628,7 +2646,6 @@ div.function-generalhelp {
         Thread.Sleep(100);
 
         // Next, let's load up all the offline but alive PCs so that their inventory is counted.
-        List<ICharacter> loadedPCs = new();
         List<long> onlinePCIDs = gameworld.Characters.Select(x => x.Id).ToList();
         gameworld.SystemMessage("Loading offline PCs so their inventory is accounted for...", true);
         using (new FMDB())
@@ -2638,6 +2655,7 @@ div.function-generalhelp {
                     .Include(x => x.NpcsCharacter)
                     .Where(
                         x =>
+                            !x.IsArchived && x.BodyId != null &&
                             x.NpcsCharacter.Count == 0 &&
                             x.Guest == null &&
                             !onlinePCIDs.Contains(x.Id) &&
@@ -2652,8 +2670,9 @@ div.function-generalhelp {
                 {
                     any = true;
                     ICharacter character = gameworld.TryGetCharacter(pc.Id, true);
-                    character.Register(new NonPlayerOutputHandler());
+                    if (character is null) continue;
                     loadedPCs.Add(character);
+                    character.Register(new NonPlayerOutputHandler());
                     gameworld.Add(character, false);
                 }
 
@@ -2686,78 +2705,52 @@ div.function-generalhelp {
         // Next, we make sure all exits have been loaded so we can consider their doors
         gameworld.ExitManager.PreloadCriticalExits();
 
-        return loadedPCs;
     }
 
     private static void DebugCleanupCorpses(ICharacter actor)
     {
         void DoCleanupCorpses()
         {
-            IEnumerable<ICharacter> loadedPCs = EnsureAllPCsAreLoaded(actor.Gameworld);
-
-            // Next we delete all corpses whose players are alive again, as well as skeletal remains of NPCs
-            int pcs = 0, npcs = 0;
-            actor.Gameworld.SystemMessage("Identifying superfluous corpses...", true);
-            List<ICorpse> corpses = actor.Gameworld.Items.SelectNotNull(x => x.GetItemType<ICorpse>()).ToList();
-            foreach (ICorpse corpse in corpses)
+            WithAllPCsLoaded(actor.Gameworld, () =>
             {
-                if (!corpse.RepresentsFinalCharacterDeath || corpse.OriginalCharacter is null || corpse.Body is null)
+                // Next we delete all corpses whose players are alive again, as well as skeletal remains of NPCs
+                int pcs = 0, npcs = 0;
+                actor.Gameworld.SystemMessage("Identifying superfluous corpses...", true);
+                List<ICorpse> corpses = actor.Gameworld.Items.Where(x => !x.Deleted).SelectNotNull(x => x.GetItemType<ICorpse>()).ToList();
+                foreach (ICorpse corpse in corpses)
                 {
-                    continue;
-                }
-
-                if (corpse.OriginalCharacter.Status != CharacterStatus.Deceased)
-                {
-                    corpse.Parent.Delete();
-                    pcs += 1;
-                    continue;
-                }
-
-                if (corpse.Decay == DecayState.Skeletal && corpse.OriginalCharacter is INPC)
-                {
-                    corpse.Parent.Delete();
-                    npcs += 1;
-                    continue;
-                }
-            }
-
-            actor.Gameworld.SystemMessage($"Removed {pcs} superfluous PC Corpses and {npcs} superfluous NPC corpses.",
-                true);
-
-            // Make sure that the messaging thread gets a chance to resume and send out echoes
-            actor.Gameworld.ForceOutgoingMessages();
-            Thread.Sleep(100);
-
-            List<ISeveredBodypart> severed = actor.Gameworld.Items.SelectNotNull(x => x.GetItemType<ISeveredBodypart>()).ToList();
-            List<Npc> npcsToRemove = new();
-            using (new FMDB())
-            {
-                foreach (Npc npc in FMDB.Context.Npcs.Include(x => x.Character.Body)
-                                        .Where(x => x.Character.State == (int)CharacterState.Dead).ToList())
-                {
-                    if (corpses.Any(x => x.RepresentsFinalCharacterDeath && x.OriginalCharacter?.Id == npc.CharacterId))
+                    if (!corpse.RepresentsFinalCharacterDeath || corpse.OriginalCharacter is null || corpse.Body is null)
                     {
                         continue;
                     }
 
-                    if (severed.Any(x => x.OriginalCharacterId == npc.CharacterId))
+                    if (corpse.OriginalCharacter.Status != CharacterStatus.Deceased)
                     {
+                        corpse.Parent.Delete();
+                        pcs += 1;
                         continue;
                     }
 
-                    npcsToRemove.Add(npc);
+                    if (corpse.Decay == DecayState.Skeletal && corpse.OriginalCharacter is INPC)
+                    {
+                        corpse.Parent.Delete();
+                        npcs += 1;
+                        continue;
+                    }
                 }
 
-                FMDB.Context.Bodies.RemoveRange(npcsToRemove.Select(x => x.Character.Body));
-                FMDB.Context.SaveChanges();
-            }
+                actor.Gameworld.SystemMessage($"Removed {pcs} superfluous PC Corpses and {npcs} superfluous NPC corpses.",
+                    true);
 
-            actor.Gameworld.SystemMessage($"Removed {npcsToRemove.Count} dead NPCs.", true);
-            // Make sure that the messaging thread gets a chance to resume and send out echoes
-            actor.Gameworld.ForceOutgoingMessages();
-            Thread.Sleep(100);
+                // Make sure that the messaging thread gets a chance to resume and send out echoes
+                actor.Gameworld.ForceOutgoingMessages();
+                Thread.Sleep(100);
 
-            CleanupAllPCsLoaded(actor.Gameworld, loadedPCs);
+                CleanupDeadMaintenanceNpcs(actor.Gameworld);
+                // Make sure that the messaging thread gets a chance to resume and send out echoes
+                actor.Gameworld.ForceOutgoingMessages();
+                Thread.Sleep(100);
+            });
         }
 
         actor.Send(

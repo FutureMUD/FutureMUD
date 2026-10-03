@@ -365,7 +365,7 @@ An implementor uses `body addform` to add a robot, wolf, bird, ghost, or other r
 
 ### Staff Deletes an Incorrect Dormant Form
 
-An implementor uses `body delform <character> <form> confirm` to remove an incorrectly provisioned dormant form. The command refuses to delete the current body, any form with a live embodied instance, any form referenced by persisted instance rows, any form referenced by body backup effects, or any form whose body still has corpse/remains-style physical references. A successful delete removes the form metadata, source mappings for that body, the dormant body row, and any items on that dormant body.
+An implementor uses `body delform <character> <form> confirm` to remove an incorrectly provisioned dormant form. The command refuses to delete the current body, any form with a live embodied instance, any form referenced by persisted instance rows, any form referenced by body backup effects, or any form whose body still has corpse/remains-style physical references. Possessions must be moved out first; runtime and persisted inventory, implants, prosthetics and lodged items block removal. A successful delete removes the allowed form/source metadata and the empty dormant body while preserving the canonical identity, current body and foreign goods.
 
 ### A Racial Merit Grants a Reusable Form
 

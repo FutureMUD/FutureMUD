@@ -588,10 +588,60 @@ still completes. See [the immutable runtime receipt](Armageddon_Stage3A_RuntimeR
 - [x] Pass combined native 151: casting 107 + lifecycle 16 + ordinary 4 + legacy 13 + runtime 11; eleven independent persisted readers.
 - [x] Verify ten owned databases and TEMP MySQL cleanup, zero owned processes, 171 frozen inputs and 14 assembly fingerprints.
 - [x] Preserve all three prior immutable receipts, whole-plan inventories, retirement/proof guards and the unrelated primary checkout.
-- [ ] Parent independently rereviews this runtime correction before the next slice.
+- [x] Parent independently cleared this runtime correction and all three Phase3A P2s before Phase3B1.
 
 Native item/custody/report/world services are controlled. Positive nutrition/recovery and
 staff resurrection/arena cases are managed checks; complete AnimalAI, estate capture,
 NPC death, corpse creation/decay, automatic foreign-goods evacuation and full N14-N16
 remain unrun or pending. No next phase, publication, merge, deployment or shared/production
 database action occurred.
+
+
+## Phase3B1 canonical NPC archival boundary
+
+Implementation `5177e5dab90750339b6c32ce10829483f86e96b9` on `7900ab041aeec82711960ad99d8c8294a91e6d05`
+preserves canonical identity and bounded historical descriptions/wounds while compacting
+only a proven dead spell-owned autonomous NPC. Generated migration
+`20261003023907_SpellNpcArchival` permits a bodyless archived tombstone and restricts
+physical-body deletion from cascading into canonical history. The maintained blank SQL
+snapshot/manifest are refreshed. Archived actors cannot load, save, die or resurrect.
+Generated Down is qualified before archival only; after compaction a pre-compaction
+backup is required to restore the physical graph.
+
+Foreign custody, unloaded foreign form/source/retirement rows, unfinished crimes,
+Writing/TrueAuthor and Drawing history, malformed or matching serialized references,
+unknown scalar/relationship rows, scan limits and runtime dependants retain durable holds.
+Finalized crime, log and external wound attribution survive; finalized crime displays read
+retained identity through the world service. Successful commit releases owned physical
+rows, save queues, controllers, subscriptions and world caches; exact retry completes
+runtime release after a post-commit fault. Ownership never clears a reference by itself.
+See [the immutable archival receipt](Armageddon_Stage3B_Archival_Verification.json).
+
+- [x] Preserve the four previous immutable receipts and record parent clearance of all Phase3A P2s.
+- [x] Pass 29 new core and two database regressions; focused core30, database2 and snapshot9.
+- [x] Pass the mandatory whole fast manifest: 10 projects, 6,772 passes, zero failures/skips, stable sources.
+- [x] Pass combined native162: casting107, lifecycle16, ordinary4, legacy13, runtime11 and archival11.
+- [x] Prove real persisted NPC.Die, pre-death refusal, atomic trigger rollback, durable post-commit retry, history, stale-save refusal and independent archive reader.
+- [x] Prove four repeated no-remains deaths including persisted-dead reload, five bounded archives, heavy rows at baseline and weak actor graphs released with retained controller probes.
+- [x] Match 200 frozen source inputs and 19 assemblies; clean all 11 final owned databases and the TEMP instance; retain failed attempts and cleanup evidence.
+- [x] Verify the unrelated primary checkout is unchanged and zero task-owned native processes remain.
+- [ ] Parent independently reviews Phase3B1 before the next feature slice.
+- [ ] Connect native creation, post-death/remains/restart and foreign-goods/container/occupant evacuation adapters; add historical author adapters before removing their holds.
+- [ ] Qualify complete N14/N15/N16 and all later approved features/stock/release gates.
+
+This native fixture uses controlled catalogues, lifecycle-owned EF creation and a race
+that produces no remains. The serialized corpse reference hold is not corpse creation,
+full GameItem.Delete or timed decay. Four repeats do not qualify high-volume N16. All
+three same-template native modes, default dissipation, native creation-before-callbacks,
+automatic foreign evacuation, installed sessions and **full N14-N16 remain not run**.
+All seven phases,16 decisions,154 candidates,25 exact native scenarios and82+12 source
+rows are preserved. Phase1/2 stock/integration gaps and phases4-6 remain pending.
+
+All earlier failed build/fixture/test attempts are retained. The first full fast run had
+6,770 passes and one missing-victim regression: constructing the archive service tried
+the default provider autodetection handshake, which was denied before a query or write.
+World-service routing fixed it; the unchanged regression and complete fast rerun pass.
+The first final native launch failed on a Windows PowerShell5.1 MySQL warning before
+gameplay; exact owned-process/datadir verification then safely cleaned that instance.
+The PowerShell7 final rerun passed. No shared/production database query or mutation
+completed, and no publication, merge or deployment occurred.

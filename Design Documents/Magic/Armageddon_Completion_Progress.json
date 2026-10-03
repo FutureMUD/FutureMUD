@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3A unresolved-remains runtime boundary correction implemented and verified; prior provenance and component P2s closed; parent runtime rereview pending; no next slice started",
+  "selected_stage": "Phase3B1 canonical NPC archival boundary implemented and verified; all Phase3A P2s parent-closed; independent parent review pending before Phase3B2 native adapters",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -72,7 +72,7 @@
       "name": "Implement reusable effect and lifecycle gaps",
       "scope": "Shared lifecycle interfaces; `MudSharpCore/Magic/SpellEffects/`, `Effects/Concrete/SpellEffects/`, character instance service, items, native movement/AI/topology seams",
       "exit_evidence": "Eight larger features and shared small mechanisms with native ownership/restart/cleanup/command-authority tests",
-      "status": "lifecycle_ownership_foundation_implemented_verified_native_adapters_archival_eight_features_and_full_acceptance_pending"
+      "status": "lifecycle_and_bounded_canonical_archival_implemented_verified_native_creation_remains_evacuation_eight_features_and_full_acceptance_pending"
     },
     {
       "id": 4,
@@ -179,9 +179,10 @@
       "id": "Q12",
       "requirement": "Source-informed per-spell/per-tier conjuration and summon lifetime; permanent, temporary cleanup and death-on-expiry modes",
       "limit": "No heavy temporary-NPC database accumulation; handle early death, remains, possessions, references and restart",
-      "status": "durable_policy_ownership_and_body_boundary_verified_native_npc_modes_archival_full_gameplay_pending",
+      "status": "durable_policy_ownership_body_and_bounded_archival_verified_full_native_modes_remains_evacuation_gameplay_pending",
       "evidence": [
-        "Armageddon_Stage3A_Verification.json: durable modes/ownership/early-death journal/restart and retired-body boundary; full NPC death/remains/foreign-goods evacuation/AI/heavy-state acceptance remains pending."
+        "Armageddon_Stage3A_Verification.json: durable modes/ownership/early-death journal/restart and retired-body boundary; full NPC death/remains/foreign-goods evacuation/AI/heavy-state acceptance remains pending.",
+        "Armageddon_Stage3B_Archival_Verification.json: bounded NPC death/archival/history/fault/restart/controller release verified; full N14-N16 and creation/remains/evacuation adapters not run."
       ]
     },
     {
@@ -353,6 +354,11 @@
         "receipt": "Armageddon_Stage3A_Verification.json",
         "status": "bounded_foundation_support_only_full_scenario_not_run",
         "scope": "Persisted dead-state/remains correlation and restart, policy journal modes, foreign-item body guards and 16 body-only retirement cycles; no native NPC death/decay/AI/timer acceptance."
+      },
+      "archival_boundary_support": {
+        "receipt": "Armageddon_Stage3B_Archival_Verification.json",
+        "status": "bounded_support_only_full_scenario_not_run",
+        "scope": "Controlled no-remains production NPC death/archival, holds, transaction/post-commit faults, persisted-dead reload, five archives/four weak-GC repeats and independent reader; native creation/remains/evacuation/high-volume acceptance pending."
       }
     },
     {
@@ -366,6 +372,11 @@
         "receipt": "Armageddon_Stage3A_Verification.json",
         "status": "bounded_foundation_support_only_full_scenario_not_run",
         "scope": "Persisted dead-state/remains correlation and restart, policy journal modes, foreign-item body guards and 16 body-only retirement cycles; no native NPC death/decay/AI/timer acceptance."
+      },
+      "archival_boundary_support": {
+        "receipt": "Armageddon_Stage3B_Archival_Verification.json",
+        "status": "bounded_support_only_full_scenario_not_run",
+        "scope": "Controlled no-remains production NPC death/archival, holds, transaction/post-commit faults, persisted-dead reload, five archives/four weak-GC repeats and independent reader; native creation/remains/evacuation/high-volume acceptance pending."
       }
     },
     {
@@ -379,6 +390,11 @@
         "receipt": "Armageddon_Stage3A_Verification.json",
         "status": "bounded_foundation_support_only_full_scenario_not_run",
         "scope": "Persisted dead-state/remains correlation and restart, policy journal modes, foreign-item body guards and 16 body-only retirement cycles; no native NPC death/decay/AI/timer acceptance."
+      },
+      "archival_boundary_support": {
+        "receipt": "Armageddon_Stage3B_Archival_Verification.json",
+        "status": "bounded_support_only_full_scenario_not_run",
+        "scope": "Controlled no-remains production NPC death/archival, holds, transaction/post-commit faults, persisted-dead reload, five archives/four weak-GC repeats and independent reader; native creation/remains/evacuation/high-volume acceptance pending."
       }
     },
     {
@@ -2339,7 +2355,7 @@
     },
     {
       "name": "Phase3A lifecycle foundation and retired-body boundary",
-      "status": "passed_bounded_automated_and_controlled_native_parent_review_pending",
+      "status": "passed_bounded_automated_and_controlled_native_parent_accepted_with_P2_corrections",
       "focused": "20261002T211625Z-65bd8128d1ce",
       "core_and_library_run": "20261002T212853Z-7d803836b3c3",
       "database_run": "20261002T213817Z-e37d9a459c9a",
@@ -2412,7 +2428,7 @@
     },
     {
       "id": "phase3A_runtime_remains_P2",
-      "status": "passed_bounded_managed_and_controlled_native_parent_rereview_pending",
+      "status": "closed_by_parent_independent_rereview",
       "focused_core": "20261003T010951Z-affd7622eef4",
       "aggregate": "20261003T011057Z-53fe87e20274",
       "counts": {
@@ -2435,7 +2451,42 @@
       "owned_processes_remaining": 0,
       "frozen_inputs_matching": 171,
       "binary_fingerprints": 14,
-      "receipt": "Armageddon_Stage3A_RuntimeRemains_Verification.json"
+      "receipt": "Armageddon_Stage3A_RuntimeRemains_Verification.json",
+      "followup": "Parent cleared all three Phase3A P2s before Phase3B1; original receipt is immutable and unchanged."
+    },
+    {
+      "id": "parent_phase3A_clearance",
+      "status": "accepted",
+      "implementation": "18252348ab3cc8b6753fc022886100045212390b",
+      "handoff": "7900ab041aeec82711960ad99d8c8294a91e6d05",
+      "all_three_P2s_closed": true,
+      "receipt_sha256": "3c1c464c50d8f662862e1e0d8990ded630a13b76a12d0b50d6b5b4719e96e384"
+    },
+    {
+      "id": "phase3B1_canonical_archival",
+      "status": "implemented_and_verified_parent_independent_review_pending",
+      "implementation": "5177e5dab90750339b6c32ce10829483f86e96b9",
+      "focused_core": "20261003T041925Z-830b4f302099",
+      "focused_database": "20261003T040947Z-eba98cb1d216",
+      "focused_snapshot": "20261003T041001Z-a3eee625b413",
+      "fast_all_ten_projects": "20261003T041956Z-9b65656d7c4e",
+      "counts": {
+        "focused_core": 30,
+        "focused_database": 2,
+        "focused_snapshot": 9,
+        "fast": 6772,
+        "failed": 0,
+        "skipped": 0
+      },
+      "native_markers": 162,
+      "archival_markers": 11,
+      "owned_databases_cleaned": 11,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 200,
+      "binary_fingerprints": 19,
+      "receipt": "Armageddon_Stage3B_Archival_Verification.json",
+      "retained_fast_failure": "20261003T041020Z-c207e3eecfc9",
+      "full_N14_N15_N16": "not_run"
     }
   ],
   "implementation_commits": [
@@ -2510,17 +2561,21 @@
     {
       "sha": "18252348ab3cc8b6753fc022886100045212390b",
       "subject": "Guard unresolved remains across runtime consumers and custody"
+    },
+    {
+      "sha": "5177e5dab90750339b6c32ce10829483f86e96b9",
+      "subject": "Archive proven dead spell NPCs while preserving canonical history"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3A_runtime_remains_rereview",
-    "base": "f320f08bcf11b991a8418036a128bdefa421abf4",
-    "scope": "Phase3A P2 unresolved-remains runtime compatibility boundary",
-    "implementation_head": "18252348ab3cc8b6753fc022886100045212390b",
-    "receipt": "Armageddon_Stage3A_RuntimeRemains_Verification.json",
+    "status": "awaiting_parent_phase3B1_archival_independent_review",
+    "base": "7900ab041aeec82711960ad99d8c8294a91e6d05",
+    "scope": "Phase3B1 canonical spell-NPC archival/compaction boundary",
+    "implementation_head": "5177e5dab90750339b6c32ce10829483f86e96b9",
+    "receipt": "Armageddon_Stage3B_Archival_Verification.json",
     "implementation_verified": true,
-    "no_next_slice_started": true,
-    "next_stage_after_review": "Parent review of this immutable checkpoint, then bounded canonical NPC compaction/archival and native creation/post-death/remains-release adapters before the eight larger features and full N14-N16.",
+    "no_later_feature_slice_started": true,
+    "next_stage_after_review": "Phase3B2: native creation provenance before callbacks, post-death/remains-release/restart worker wiring, durable foreign goods/container/occupant evacuation and no-safe-destination holds; historical author adapters where needed; qualify full N14-N16 before broader features.",
     "full_N14_N15_N16": "not_run"
   },
   "deferred_consultation": {
@@ -2528,7 +2583,7 @@
     "revision": "251f4114f05a9d923676686f9b191731e3cba167",
     "scope": "Later summons/projection lifecycle and persistent PC charm",
     "owner": "parent",
-    "status": "read-only consultation complete; durable ownership/reference/identity constraints applied to phase3A foundation; native adapters/archival and PC charm remain later work",
+    "status": "Durable ownership/reference/canonical and physical identity constraints applied to phase3A and bounded phase3B1 archival; native creation/remains/evacuation adapters and PC charm remain later work.",
     "routing": "Parent can provide exact entry points and detailed evidence; recommendations must fit the approved brief rather than invent product requirements.",
     "key_constraints": [
       "provenance before on-load callbacks/world exposure; correlate persisted death/remains at a post-death integration point",
@@ -2540,9 +2595,9 @@
     ]
   },
   "phase3_remaining": [
-    "Provide bounded canonical NPC compaction/archival that preserves required primary-body FK compatibility, historical attribution and non-loading tombstones; full heavy actor graphs must not accumulate.",
+    "Wire the verified bounded canonical archive into native lifecycle/remains/restart reconciliation; add explicit historical Writing/Drawings author adapters before releasing their current durable physical holds; preserve all unknown-reference holds.",
     "Attach atomic provenance to native NPC/item/instance/topology creation before exposure, then post-death/remains-release and restart/heartbeat reconciliation with exactly-once native death intent handling.",
-    "Implement automatic foreign goods/container/occupant evacuation with validated fallback, generated-possession economy/salvage policy and actor AI/subscription/timer release.",
+    "Implement automatic foreign goods/container/occupant evacuation with validated fallback and generated-possession economy/salvage policy; extend verified bounded actor/controller/queue/subscription release to complete native lifecycle adapters.",
     "Qualify exact full N14/N15/N16 on actual NPC death, corpse decay/default dissipation, all three same-template modes, restart and heavy-row/runtime steady state.",
     "Implement remaining reusable effects and all eight approved larger features; later charm work must preserve the per-spell PC toggle and resolved-executable whitelist/deferred authority."
   ]

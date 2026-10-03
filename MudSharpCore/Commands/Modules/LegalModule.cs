@@ -444,6 +444,7 @@ The syntax is:
             {
                 yield return new LegalSetupIssue("Problem", "Patrol Route",
                     $"{RouteLabel(route, actor, detailed)} cannot begin: {reason}.");
+                continue;
             }
 
             string staffingReason = WhyCannotStaffPatrolRoute(route, enforcerCounts, actor, detailed);

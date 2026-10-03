@@ -12,19 +12,19 @@ namespace MudSharp.TimeAndDate.Intervals
         private const int MaxOrdinalMonthSearches = 10000;
 
         private static readonly Regex LegacyParseRegex =
-            new(@"^every\s*(?<amount>[0-9]+)*\s*(?<interval>minutes?|hours?|days?|months?|weekdays?|weeks?|years?)(?:\s+(?<modifier>[+-]?\d+))*\s*$",
+            new(@"^every\s*(?<amount>[0-9]+)?\s*(?<interval>minutes?|hours?|days?|months?|weekdays?|weeks?|years?)(?:\s+(?<modifier>[+-]?\d+))*\s*$",
                 RegexOptions.IgnoreCase);
 
         private static readonly Regex OrdinalDayParseRegex =
-            new(@"^every\s*(?<amount>[0-9]+)*\s*months?\s+on\s+(?:the\s+)?(?:(?<last>last)\s+day|day\s+(?<day>\d+)|(?<ordinal>\d+)(?:st|nd|rd|th)?)\s*$",
+            new(@"^every\s*(?<amount>[0-9]+)?\s*months?\s+on\s+(?:the\s+)?(?:(?<last>last)\s+day|day\s+(?<day>\d+)|(?<ordinal>\d+)(?:st|nd|rd|th)?)\s*$",
                 RegexOptions.IgnoreCase);
 
         private static readonly Regex OrdinalWeekdayParseRegex =
-            new(@"^every\s*(?<amount>[0-9]+)*\s*months?\s+on\s+(?:the\s+)?(?<ordinal>\d+)(?:st|nd|rd|th)?(?<orlast>\s+or\s+last)?\s+(?<weekday>.+?)\s*$",
+            new(@"^every\s*(?<amount>[0-9]+)?\s*months?\s+on\s+(?:the\s+)?(?<ordinal>\d+)(?:st|nd|rd|th)?(?<orlast>\s+or\s+last)?\s+(?<weekday>.+?)\s*$",
                 RegexOptions.IgnoreCase);
 
         private static readonly Regex LastWeekdayParseRegex =
-            new(@"^every\s*(?<amount>[0-9]+)*\s*months?\s+on\s+(?:the\s+)?last\s+(?<weekday>.+?)\s*$",
+            new(@"^every\s*(?<amount>[0-9]+)?\s*months?\s+on\s+(?:the\s+)?last\s+(?<weekday>.+?)\s*$",
                 RegexOptions.IgnoreCase);
 
         public IntervalType Type { get; init; }
@@ -107,10 +107,8 @@ namespace MudSharp.TimeAndDate.Intervals
                 return false;
             }
 
-            int amount = ParseAmount(match);
-            if (amount <= 0)
+            if (!TryParseAmount(match, out int amount, out error))
             {
-                error = "The interval amount must be greater than zero.";
                 return false;
             }
 
@@ -171,10 +169,8 @@ namespace MudSharp.TimeAndDate.Intervals
                 return false;
             }
 
-            int amount = ParseAmount(match);
-            if (amount <= 0)
+            if (!TryParseAmount(match, out int amount, out error))
             {
-                error = "The interval amount must be greater than zero.";
                 return false;
             }
 
@@ -186,7 +182,12 @@ namespace MudSharp.TimeAndDate.Intervals
             else
             {
                 string value = match.Groups["day"].Success ? match.Groups["day"].Value : match.Groups["ordinal"].Value;
-                day = int.Parse(value);
+                if (!int.TryParse(value, out day))
+                {
+                    error = $"The day of month must be a whole number no greater than {int.MaxValue:N0}.";
+                    return false;
+                }
+
                 if (day <= 0)
                 {
                     error = "The day of month must be greater than zero.";
@@ -213,10 +214,8 @@ namespace MudSharp.TimeAndDate.Intervals
                 return false;
             }
 
-            int amount = ParseAmount(match);
-            if (amount <= 0)
+            if (!TryParseAmount(match, out int amount, out error))
             {
-                error = "The interval amount must be greater than zero.";
                 return false;
             }
 
@@ -245,14 +244,17 @@ namespace MudSharp.TimeAndDate.Intervals
                 return false;
             }
 
-            int amount = ParseAmount(match);
-            if (amount <= 0)
+            if (!TryParseAmount(match, out int amount, out error))
             {
-                error = "The interval amount must be greater than zero.";
                 return false;
             }
 
-            int ordinal = int.Parse(match.Groups["ordinal"].Value);
+            if (!int.TryParse(match.Groups["ordinal"].Value, out int ordinal))
+            {
+                error = $"The ordinal must be a whole number no greater than {int.MaxValue:N0}.";
+                return false;
+            }
+
             if (ordinal <= 0)
             {
                 error = "The ordinal must be greater than zero.";
@@ -277,9 +279,23 @@ namespace MudSharp.TimeAndDate.Intervals
             return true;
         }
 
-        private static int ParseAmount(Match match)
+        private static bool TryParseAmount(Match match, out int amount, out string error)
         {
-            return match.Groups["amount"].Length > 0 ? int.Parse(match.Groups["amount"].Value) : 1;
+            amount = 1;
+            error = string.Empty;
+            if (match.Groups["amount"].Length > 0 && !int.TryParse(match.Groups["amount"].Value, out amount))
+            {
+                error = $"The interval amount must be a whole number no greater than {int.MaxValue:N0}.";
+                return false;
+            }
+
+            if (amount <= 0)
+            {
+                error = "The interval amount must be greater than zero.";
+                return false;
+            }
+
+            return true;
         }
 
         private static bool TryParseWeekday(string text, ICalendar calendar, out int weekday, out string error)

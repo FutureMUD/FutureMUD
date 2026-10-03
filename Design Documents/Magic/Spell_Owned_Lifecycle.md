@@ -18,6 +18,20 @@ prostheses, role trait adjustments and merit-provided extra bodies refuse until 
 creation adapters exist. Role trait adjustments currently mutate independently queued
 traits and invoke native callbacks; refusing them preserves their ordinary creation semantics.
 
+Configured casting checks deterministic creation eligibility before preparing inventory or
+committing payment. Admission and native Character/Body constructors share scoped merit
+composition: selected merits, role additions, body-merit deduplication and one-level combo
+children in authored order. Effective additional-body merits refuse before spending resources
+or materials, opening a casting operation or advancing skill/mastery opportunities. The
+service revalidates the same rules before construction; the deferred constructor retains its
+additional-body guard. Withdrawn approval, a mismatched template world and an unavailable
+native lifecycle service also refuse during configuration validation. Ordinary creation keeps
+its existing role/trait timing and merit composition; extra-body ownership remains deferred.
+
+Resolved temporary lifetime and spawn validation remain effect-application checks after the
+casting result. Lifetime expressions may depend on opposed outcome. This admission correction
+does not move their evaluation or qualify a complete installed gameplay session.
+
 Preparation allocates a stable creation key and canonical creator ID. A fresh serializable
 transaction inserts the production NPC/Character/Body/primary instance graph and exact
 autonomous-character/body claims with UTC creation/deadline, source spell, selected grade,

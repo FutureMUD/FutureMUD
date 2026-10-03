@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
@@ -108,56 +108,13 @@ public partial class Body : PerceiverItem, IBody
         }
 
         List<ComboMerit> comboMerits = new();
-        foreach (ICharacterMerit merit in template.SelectedMerits)
-        {
-            if (merit is ComboMerit cm)
-            {
-                comboMerits.Add(cm);
-            }
-
-            if (merit.MeritScope != MeritScope.Body)
-            {
-                continue;
-            }
-
-            _merits.Add(merit);
-        }
-
+        CharacterTemplateMerits.AddSelected(template.SelectedMerits, MeritScope.Body, _merits, comboMerits);
         foreach (IChargenRole role in template.SelectedRoles)
         {
-            foreach (IMerit merit in role.AdditionalMerits)
-            {
-                if (Merits.Contains(merit))
-                {
-                    continue;
-                }
-
-                if (merit is ComboMerit cm)
-                {
-                    comboMerits.Add(cm);
-                }
-
-                if (merit.MeritScope != MeritScope.Body)
-                {
-                    continue;
-                }
-
-                _merits.Add(merit);
-            }
+            CharacterTemplateMerits.AddRole(role.AdditionalMerits, MeritScope.Body, _merits, comboMerits);
         }
 
-        foreach (ComboMerit merit in comboMerits)
-        {
-            foreach (ICharacterMerit included in merit.CharacterMerits.Where(x => x.MeritScope == MeritScope.Body))
-            {
-                if (_merits.Contains(included))
-                {
-                    continue;
-                }
-
-                _merits.Add(included);
-            }
-        }
+        CharacterTemplateMerits.ExpandCombos(comboMerits, MeritScope.Body, _merits);
 
         foreach (ISelectedTattoo tattoo in template.SelectedTattoos)
         {

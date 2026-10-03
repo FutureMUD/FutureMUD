@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Body;
@@ -166,20 +166,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         InitialisePrimaryInstanceDefaults();
 
         List<ComboMerit> comboMerits = new();
-        foreach (ICharacterMerit merit in template.SelectedMerits)
-        {
-            if (merit is ComboMerit cm)
-            {
-                comboMerits.Add(cm);
-            }
-
-            if (merit.MeritScope != MeritScope.Character)
-            {
-                continue;
-            }
-
-            _merits.Add(merit);
-        }
+        CharacterTemplateMerits.AddSelected(template.SelectedMerits, MeritScope.Character, _merits, comboMerits);
 
         foreach (IChargenRole role in template.SelectedRoles)
         {
@@ -232,39 +219,10 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                 Body.SetTraitValue(adjustment.Key, Body.TraitRawValue(adjustment.Key) + adjustment.Value.amount);
             }
 
-            foreach (IMerit merit in role.AdditionalMerits)
-            {
-                if (Merits.Contains(merit))
-                {
-                    continue;
-                }
-
-                if (merit is ComboMerit cm)
-                {
-                    comboMerits.Add(cm);
-                }
-
-                if (merit.MeritScope != MeritScope.Character)
-                {
-                    continue;
-                }
-
-                _merits.Add(merit);
-            }
+            CharacterTemplateMerits.AddRole(role.AdditionalMerits, MeritScope.Character, _merits, comboMerits, Body.Merits);
         }
 
-        foreach (ComboMerit merit in comboMerits)
-        {
-            foreach (ICharacterMerit included in merit.CharacterMerits.Where(x => x.MeritScope == MeritScope.Character))
-            {
-                if (_merits.Contains(included))
-                {
-                    continue;
-                }
-
-                _merits.Add(included);
-            }
-        }
+        CharacterTemplateMerits.ExpandCombos(comboMerits, MeritScope.Character, _merits);
 
         EnsureNativeCreationHasNoAdditionalForms();
         EnsureProvisionedFormsFromMerits();

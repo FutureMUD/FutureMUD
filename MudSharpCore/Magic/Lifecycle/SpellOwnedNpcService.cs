@@ -30,15 +30,13 @@ public sealed class SpellOwnedNpcService(IFuturemud world) : ISpellOwnedNpcServi
 		if (!ReferenceEquals(template.Gameworld, world) || !RouteSpatialService.Instance.TryValidateLocation(location, out var error))
 			throw new ArgumentException("The native template or spawn location is invalid.");
 		if (_store.Find(origin.Id) is not null) throw new InvalidOperationException("This native creation cannot be replayed.");
-		if (template is not SimpleNPCTemplate)
-			throw new InvalidOperationException("This creation adapter currently requires a simple native NPC template; variable-template predicate and save mutations need a separate adapter.");
+		if (NativeNpcCreationEligibility.TemplateError(template, world) is { } templateError)
+			throw new InvalidOperationException(templateError);
 		// Template preparation may evaluate authored selection predicates. It is outside the row factory;
 		// the private actor has no controller, subscriptions, queued initialisation or world/cell presence.
 		var characterTemplate = template.GetCharacterTemplate(location.Cell);
-		if (characterTemplate.Account?.Id is not (null or 0) || characterTemplate.SelectedProstheses.Any())
-			throw new InvalidOperationException("Native spell creation requires an accountless NPC template without unadapted prosthetic creation.");
-		if (characterTemplate.SelectedRoles.Any(x => x.TraitAdjustments.Any()))
-			throw new InvalidOperationException("Native spell creation needs an explicit deferred adapter for role trait adjustments.");
+		if (NativeNpcCreationEligibility.CharacterTemplateError(characterTemplate) is { } eligibilityError)
+			throw new InvalidOperationException(eligibilityError);
 		var npc = new RuntimeNpc(world, characterTemplate, template, deferInitialisation: true);
 		npc.MoveTo(location, noSave: true);
 		object? inserted = null;

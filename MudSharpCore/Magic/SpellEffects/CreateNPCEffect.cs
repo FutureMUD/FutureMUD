@@ -75,8 +75,8 @@ public sealed class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicSpellEffe
 	public ITraitExpression? LifetimeExpression { get; internal set; }
 	public string? DefinitionError => _loadError ?? (LifecycleMode is null ? null :
 		string.IsNullOrWhiteSpace(LifecycleFamily) || LifecycleFamily.Length > 128 ? "Set a lifecycle family of at most 128 characters." :
-		NPCTemplate is not SimpleNPCTemplate ? "Lifecycle creation currently requires a simple native NPC template." :
-		((SimpleNPCTemplate)NPCTemplate).SelectedRoles.Any(x => x.TraitAdjustments.Any()) ? "Lifecycle creation needs an explicit deferred adapter for role trait adjustments." :
+		NativeNpcCreationEligibility.TemplateError(NPCTemplate, Gameworld) is { } templateError ? templateError :
+		Gameworld.SpellOwnedNpcs is null ? "Spell-owned native NPC creation is unavailable." :
 		LifecycleMode != SpellLifecycleMode.Permanent && (LifetimeExpression is null || LifetimeExpression.HasErrors()) ? "Set a valid temporary lifetime expression in real seconds." : null);
 
     public XElement SaveToXml()

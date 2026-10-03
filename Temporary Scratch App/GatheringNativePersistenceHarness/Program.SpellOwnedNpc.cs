@@ -106,6 +106,7 @@ internal static partial class GNHProgram
 		native.World.SaveManager.Abort(template);
 		templates.Setup(x => x.Get(template.Id)).Returns(template); templates.Setup(x => x.Get(template.Id, 0)).Returns(template);
 		templates.Setup(x => x.GetByIdOrName(template.Id.ToString(), true)).Returns(template);
+		VerifyNativeNpcAdmission(database, native, template);
 		var spell = new MagicSpell("ARM03B2A native provenance", native.Capability.School);
 		var location = native.Actor.SpatialLocation;
 		SpellLifecycleOrigin Origin(SpellLifecycleMode mode = SpellLifecycleMode.DeathOnExpiry)

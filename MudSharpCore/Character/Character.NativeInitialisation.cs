@@ -2,7 +2,7 @@
 
 using MudSharp.Body.Needs;
 using MudSharp.CharacterCreation;
-using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.Magic.Lifecycle;
 using MudSharp.Communication.Language;
 using MudSharp.Framework.Save;
 
@@ -51,8 +51,8 @@ public partial class Character
 
 	private void EnsureNativeCreationHasNoAdditionalForms()
 	{
-		if (_deferredNativeInitialisation && _merits.OfType<IAdditionalBodyFormMerit>().Any())
-			throw new InvalidOperationException("Spell-owned NPC creation needs an explicit ownership adapter for merit-provided additional bodies.");
+		if (_deferredNativeInitialisation && NativeNpcCreationEligibility.AdditionalFormsError(_merits) is { } error)
+			throw new InvalidOperationException(error);
 	}
 
 	protected void ReleaseUnpublishedNativeCharacter()

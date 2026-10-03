@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3B1 parent P2 staff maintenance correction implemented and verified; independent parent rereview pending before Phase3B2 native adapters",
+  "selected_stage": "Phase3B2A native NPC creation and persisted death/remains correlation implemented and verified; independent parent review pending before dependent custody/remains adapters",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -72,7 +72,7 @@
       "name": "Implement reusable effect and lifecycle gaps",
       "scope": "Shared lifecycle interfaces; `MudSharpCore/Magic/SpellEffects/`, `Effects/Concrete/SpellEffects/`, character instance service, items, native movement/AI/topology seams",
       "exit_evidence": "Eight larger features and shared small mechanisms with native ownership/restart/cleanup/command-authority tests",
-      "status": "lifecycle_and_bounded_canonical_archival_implemented_verified_native_creation_remains_evacuation_eight_features_and_full_acceptance_pending"
+      "status": "native_simple_npc_creation_death_and_bounded_archival_verified_remaining_creation_retirement_evacuation_eight_features_and_full_acceptance_pending"
     },
     {
       "id": 4,
@@ -183,7 +183,8 @@
       "evidence": [
         "Armageddon_Stage3A_Verification.json: durable modes/ownership/early-death journal/restart and retired-body boundary; full NPC death/remains/foreign-goods evacuation/AI/heavy-state acceptance remains pending.",
         "Armageddon_Stage3B_Archival_Verification.json: bounded NPC death/archival/history/fault/restart/controller release verified; full N14-N16 and creation/remains/evacuation adapters not run.",
-        "Armageddon_Stage3B_Maintenance_Verification.json: manual maintenance retains unqualified/held NPCs, archives exact eligible lifecycles and guarantees temporary-PC cleanup; full lifecycle adapters and N14-N16 remain pending."
+        "Armageddon_Stage3B_Maintenance_Verification.json: manual maintenance retains unqualified/held NPCs, archives exact eligible lifecycles and guarantees temporary-PC cleanup; full lifecycle adapters and N14-N16 remain pending.",
+        "Armageddon_Stage3B_NativeNpc_Verification.json: native simple-template creation and persisted early-death/remains restart correlation qualified; destructive retirement/foreign evacuation/full N14-N16 pending."
       ]
     },
     {
@@ -364,6 +365,10 @@
       "maintenance_compatibility_support": {
         "receipt": "Armageddon_Stage3B_Maintenance_Verification.json",
         "status": "bounded_support_only_full_scenario_not_run"
+      },
+      "native_creation_death_support": {
+        "receipt": "Armageddon_Stage3B_NativeNpc_Verification.json",
+        "status": "bounded_support_only_full_scenario_not_run"
       }
     },
     {
@@ -386,6 +391,10 @@
       "maintenance_compatibility_support": {
         "receipt": "Armageddon_Stage3B_Maintenance_Verification.json",
         "status": "bounded_support_only_full_scenario_not_run"
+      },
+      "native_creation_death_support": {
+        "receipt": "Armageddon_Stage3B_NativeNpc_Verification.json",
+        "status": "bounded_support_only_full_scenario_not_run"
       }
     },
     {
@@ -407,6 +416,10 @@
       },
       "maintenance_compatibility_support": {
         "receipt": "Armageddon_Stage3B_Maintenance_Verification.json",
+        "status": "bounded_support_only_full_scenario_not_run"
+      },
+      "native_creation_death_support": {
+        "receipt": "Armageddon_Stage3B_NativeNpc_Verification.json",
         "status": "bounded_support_only_full_scenario_not_run"
       }
     },
@@ -2477,7 +2490,7 @@
     },
     {
       "id": "phase3B1_canonical_archival",
-      "status": "parent_review_found_maintenance_P2_repaired_in_followup_pending_rereview",
+      "status": "parent_independently_accepted",
       "implementation": "5177e5dab90750339b6c32ce10829483f86e96b9",
       "focused_core": "20261003T041925Z-830b4f302099",
       "focused_database": "20261003T040947Z-eba98cb1d216",
@@ -2500,11 +2513,12 @@
       "receipt": "Armageddon_Stage3B_Archival_Verification.json",
       "retained_fast_failure": "20261003T041020Z-c207e3eecfc9",
       "full_N14_N15_N16": "not_run",
-      "followup_receipt": "Armageddon_Stage3B_Maintenance_Verification.json"
+      "followup_receipt": "Armageddon_Stage3B_Maintenance_Verification.json",
+      "parent_acceptance_followup": "Armageddon_Stage3B_NativeNpc_Verification.json"
     },
     {
       "id": "phase3B1_maintenance_P2",
-      "status": "implemented_and_verified_parent_independent_rereview_pending",
+      "status": "parent_independently_accepted",
       "implementation": "ee6c54e195a05c65eac442c4127457646cf2d66e",
       "base": "324a9a2abefb840440056f8111c389bacc440ee9",
       "receipt": "Armageddon_Stage3B_Maintenance_Verification.json",
@@ -2524,6 +2538,31 @@
       "frozen_inputs_matching": 203,
       "binary_fingerprints": 19,
       "prior_five_receipts_unchanged": true,
+      "full_N14_N15_N16": "not_run",
+      "parent_acceptance_followup": "Armageddon_Stage3B_NativeNpc_Verification.json"
+    },
+    {
+      "id": "phase3B2A_native_creation_death",
+      "status": "implemented_and_verified_parent_independent_review_pending",
+      "implementation": "af044cb81bb724948cfe1bddd683a41a970871a4",
+      "base": "90bd869fe26e102afeeb94b1c56a0170d77f4ee7",
+      "receipt": "Armageddon_Stage3B_NativeNpc_Verification.json",
+      "focused_core": "20261003T092004Z-05f7017208a0",
+      "fast_all_ten_projects": "20261003T092109Z-cb8eda813ecc",
+      "counts": {
+        "focused_core": 63,
+        "fast": 6800,
+        "failed": 0,
+        "skipped": 0
+      },
+      "new_core_cases": 9,
+      "native_markers": 184,
+      "adapter_markers": 14,
+      "owned_databases_cleaned": 13,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 217,
+      "binary_fingerprints": 19,
+      "prior_six_receipts_unchanged": true,
       "full_N14_N15_N16": "not_run"
     }
   ],
@@ -2607,18 +2646,22 @@
     {
       "sha": "ee6c54e195a05c65eac442c4127457646cf2d66e",
       "subject": "Retain unqualified dead NPCs during staff corpse maintenance"
+    },
+    {
+      "sha": "af044cb81bb724948cfe1bddd683a41a970871a4",
+      "subject": "Connect native spell NPC creation and persisted death recovery"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3B1_maintenance_P2_independent_rereview",
-    "base": "324a9a2abefb840440056f8111c389bacc440ee9",
-    "scope": "Phase3B1 parent P2 maintenance compatibility correction",
-    "implementation_head": "ee6c54e195a05c65eac442c4127457646cf2d66e",
-    "receipt": "Armageddon_Stage3B_Maintenance_Verification.json",
+    "status": "awaiting_parent_phase3B2A_native_adapter_independent_review",
+    "base": "90bd869fe26e102afeeb94b1c56a0170d77f4ee7",
+    "scope": "Phase3B2A native NPC creation and persisted death/remains correlation",
+    "implementation_head": "af044cb81bb724948cfe1bddd683a41a970871a4",
+    "receipt": "Armageddon_Stage3B_NativeNpc_Verification.json",
     "implementation_verified": true,
-    "no_later_feature_slice_started": true,
-    "next_stage_after_review": "Phase3B2: native creation provenance before callbacks, post-death/remains-release/restart worker wiring, durable foreign goods/container/occupant evacuation and no-safe-destination holds; historical author adapters where needed; qualify full N14-N16 before broader features.",
-    "full_N14_N15_N16": "not_run"
+    "no_dependent_retirement_slice_started": true,
+    "full_N14_N15_N16": "not_run",
+    "next_stage_after_review": "Conserve foreign inventory/container/occupant custody with exact safe-destination holds, then integrate actual remains deletion/decay and expiry death/dissipation; independently qualify full N14/N15/N16 before further approved phases."
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -2637,10 +2680,49 @@
     ]
   },
   "phase3_remaining": [
-    "Wire the verified bounded canonical archive into native lifecycle/remains/restart reconciliation; add explicit historical Writing/Drawings author adapters before releasing their current durable physical holds; preserve all unknown-reference holds.",
-    "Attach atomic provenance to native NPC/item/instance/topology creation before exposure, then post-death/remains-release and restart/heartbeat reconciliation with exactly-once native death intent handling.",
+    "Connect the bounded canonical archive to complete native retirement/remains-release; add historical Writing/Drawings author adapters before releasing their current durable physical holds and preserve all unknown-reference holds.",
+    "Extend atomic before-exposure provenance to variable/prosthetic/role-trait-adjustment/extra-body NPCs and native item/instance/topology creation. Complete remains-release and expiry/restart/heartbeat exactly-once death/dissipation adapters; simple NPC creation and persisted early-death correlation are verified at this checkpoint.",
     "Implement automatic foreign goods/container/occupant evacuation with validated fallback and generated-possession economy/salvage policy; extend verified bounded actor/controller/queue/subscription release to complete native lifecycle adapters.",
     "Qualify exact full N14/N15/N16 on actual NPC death, corpse decay/default dissipation, all three same-template modes, restart and heavy-row/runtime steady state.",
     "Implement remaining reusable effects and all eight approved larger features; later charm work must preserve the per-spell PC toggle and resolved-executable whitelist/deferred authority."
+  ],
+  "phase3_dependency_checklist": [
+    {
+      "id": "simple_npc_creation",
+      "status": "implemented_verified_parent_review_pending",
+      "receipt": "Armageddon_Stage3B_NativeNpc_Verification.json",
+      "acceptance": "Production creation graph/exact claims before runtime exposure; activation rollback/quarantine, raw skills and selected-grade absolute lifetime; stable replay refusal."
+    },
+    {
+      "id": "persisted_npc_death_recovery",
+      "status": "implemented_verified_parent_review_pending",
+      "receipt": "Armageddon_Stage3B_NativeNpc_Verification.json",
+      "acceptance": "Actual NPC.Die/corpse factory insertion, persisted early-death restart without heavy materialization, exact/encoded remains correlation and conservative ambiguity/malformed holds."
+    },
+    {
+      "id": "foreign_custody_evacuation",
+      "status": "pending",
+      "acceptance": "Conserve foreign inventory/container/occupant IDs exactly once, validate safe destinations and persist no-safe-destination holds."
+    },
+    {
+      "id": "remains_release_decay",
+      "status": "pending",
+      "acceptance": "Integrate and qualify actual GameItem.Delete and timed decay after custody conservation; preserve valid retained remains/body history."
+    },
+    {
+      "id": "expiry_death_and_dissipation",
+      "status": "pending",
+      "acceptance": "Production expiry/restart worker with durable death-on-expiry intent and separate no-corpse cleanup mode, no repeated death/corpse/loot."
+    },
+    {
+      "id": "other_creation_history_and_policy",
+      "status": "pending",
+      "acceptance": "Other native creation families, historical authors and approved count/control/economy/salvage/AI/subscription adapters."
+    },
+    {
+      "id": "full_N14_N15_N16",
+      "status": "not_run",
+      "acceptance": "Complete exact brief scenarios: early death/foreign corpse custody/decay/restart, three same-template modes, high-volume heavy/runtime steady state."
+    }
   ]
 }

@@ -625,7 +625,7 @@ See [the immutable archival receipt](Armageddon_Stage3B_Archival_Verification.js
 - [x] Prove four repeated no-remains deaths including persisted-dead reload, five bounded archives, heavy rows at baseline and weak actor graphs released with retained controller probes.
 - [x] Match 200 frozen source inputs and 19 assemblies; clean all 11 final owned databases and the TEMP instance; retain failed attempts and cleanup evidence.
 - [x] Verify the unrelated primary checkout is unchanged and zero task-owned native processes remain.
-- [ ] Parent independently reviews Phase3B1 before the next feature slice.
+- [x] Parent independently accepted Phase3B1 and its maintenance correction before Phase3B2A.
 - [ ] Connect native creation, post-death/remains/restart and foreign-goods/container/occupant evacuation adapters; add historical author adapters before removing their holds.
 - [ ] Qualify complete N14/N15/N16 and all later approved features/stock/release gates.
 
@@ -671,7 +671,7 @@ reference holds. See [the immutable maintenance receipt](Armageddon_Stage3B_Main
 - [x] Verify temporary PC cleanup/statistics after success, partial registration, exit preload, orphan report, and mixed Quit(false)/throwing failures.
 - [x] Match 203 source inputs and 19 assemblies, including shared managed/native copies; clean 12 owned databases and the TEMP instance.
 - [x] Preserve all five prior immutable receipts, the unrelated primary checkout and every whole-plan inventory/scenario.
-- [ ] Parent independently rereviews the exact correction and handoff before Phase3B2.
+- [x] Parent independently cleared the maintenance correction at ee6c54e1 / 90bd869f before Phase3B2A.
 - [ ] Implement native creation/remains/restart/evacuation and historical-author adapters; qualify full N14/N15/N16 and remaining approved phases.
 
 Earlier failed fixture/build attempts remain in the receipt. The failing-before copied
@@ -683,3 +683,41 @@ Character.Quit, full GameItem.Delete, installed-world gameplay or **full N14-N16
 No later feature slice, publication, merge, deployment or shared/production DB mutation
 was started. All seven phases, 16 decisions, 154 candidates, 25 scenarios and 82+12 source
 rows remain present; existing phase1/2 stock gaps and phases4-6 remain pending.
+
+
+## Phase3B2A native NPC creation and persisted death recovery
+
+Implementation `af044cb81bb724948cfe1bddd683a41a970871a4` on accepted base `90bd869fe26e102afeeb94b1c56a0170d77f4ee7` connects opt-in
+`createnpc` policy to real simple-template NPC/Body/primary construction. Stable prepared
+creation keys and exact claims commit before runtime exposure; activation begins in persisted
+Stasis, finalizes atomically and releases partial runtime roots on failure. Loading/replay
+refuses incomplete identities. Canonical creator, selected grade, absolute lifetime and
+template/invocation provenance survive; legacy XML remains compatible.
+
+Actual native death and saved corpse body XML feed a bounded startup/minute correlation
+adapter. Early-dead Active records are recovered before expiry without loading heavy graphs.
+Ambiguous or malformed remains hold, and native already-dead retry returns one existing
+corpse without another death callback. Permanent creation releases to ordinary durable
+existence. No destructive cleanup or automatic custody movement is enabled by this checkpoint.
+See [the immutable native adapter receipt](Armageddon_Stage3B_NativeNpc_Verification.json).
+
+- [x] Parent independently cleared the previous archival and maintenance checkpoints.
+- [x] Qualify real SaveManager isolation, complete creation rollback, partial-hook activation failure, durable Stasis and restart materialization refusal.
+- [x] Qualify actual builder/effect grade 3 lifetime 180s independently of control 1s, with both on-load callbacks reading committed provenance.
+- [x] Qualify real NPC.Die and GameItemProto/corpse factory persistence, forced journal failure, separate-process retry, conservative remains holds and one-death/one-corpse replay.
+- [x] Qualify actual starting knowledge queue suppression/committed identities, complete rollback and exact real save queues; refuse role trait adjustments before admission/construction.
+- [x] Pass nine new regressions, focused core 63 and all ten fast projects 6,800; zero failures/skips, stable inputs.
+- [x] Pass 184 combined native checks: casting 107, lifecycle 16, ordinary 4, legacy 13, runtime 11, archival 11, maintenance 8 and adapter 14.
+- [x] Match 217 sources and 19 assemblies; clean 13 owned databases/TEMP MySQL and verify zero owned processes and the untouched primary checkout.
+- [x] Preserve six prior immutable receipts and all seven phases, 16 decisions, 154 candidates, 25 scenarios and 82+12 source rows.
+- [ ] Parent independently reviews this exact checkpoint before dependent custody/remains work.
+- [ ] Implement foreign-goods/container/occupant evacuation with exact safe destinations/holds and actual GameItem.Delete/decay integration.
+- [ ] Implement expiry death/dissipation and remaining creation/history/count/control/economy adapters; qualify full N14/N15/N16 and later stock/release phases.
+
+World/catalogue/cell hosts are controlled. Variable templates, prostheses, role trait adjustments and extra bodies
+refuse until adapted; loadout items are not owned by reachability. Full GameItem.Delete,
+timed decay, foreign evacuation, actual Character.Quit, expiry worker, installed sessions
+and **full N14-N16 remain not run**. Temporary and dead owned graphs remain conservatively
+held until their retirement adapters exist. Earlier compile and fixture failures are retained.
+No dependent feature slice, publication, merge, deployment or shared/production DB mutation
+occurred; existing phase1/2 stock gaps and phases4-6 remain pending.

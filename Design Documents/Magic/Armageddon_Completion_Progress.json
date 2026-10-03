@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3B2C retirement P2 correction implemented/verified; parent independent review pending",
+  "selected_stage": "Phase3B2D retirement dirty-state P2 correction implemented/verified; parent independent review pending",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -354,7 +354,8 @@
       "status": "controlled_native_PASS_installed_stock_session_pending",
       "evidence": [
         "Armageddon_Stage3B_NpcRetirement_Verification.json",
-        "Armageddon_Stage3B_NpcRetirement_P2_Verification.json"
+        "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
+        "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json"
       ],
       "foundation_support": {
         "receipt": "Armageddon_Stage3A_Verification.json",
@@ -388,7 +389,8 @@
       "status": "controlled_native_same_template_PASS_installed_stock_session_pending",
       "evidence": [
         "Armageddon_Stage3B_NpcRetirement_Verification.json",
-        "Armageddon_Stage3B_NpcRetirement_P2_Verification.json"
+        "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
+        "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json"
       ],
       "foundation_support": {
         "receipt": "Armageddon_Stage3A_Verification.json",
@@ -422,7 +424,8 @@
       "status": "partial_sixteen_native_cycles_and_separate_fault_decay_restarts_high_volume_pending",
       "evidence": [
         "Armageddon_Stage3B_NpcRetirement_Verification.json",
-        "Armageddon_Stage3B_NpcRetirement_P2_Verification.json"
+        "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
+        "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json"
       ],
       "foundation_support": {
         "receipt": "Armageddon_Stage3A_Verification.json",
@@ -2715,6 +2718,84 @@
       "failing_before_native_receipts_retained": true,
       "native_ordinary_flush_recovery_and_same_process_restart_no_replay_verified": true,
       "prior_nine_receipts_528_artifacts_twelve_helpers_unchanged": true,
+      "installed_world_high_volume_every_cycle_restart_not_qualified": true,
+      "followup": "Parent rereview closed durable-removal P2 and found remaining consumed dirty-state P2; corrected separately by Phase3B2D. Original immutable Phase3B2C receipt preserved; independent dirty-state corrective review pending."
+    },
+    {
+      "id": "phase3B2D_retirement_dirty_state_P2",
+      "status": "implemented_verified_parent_independent_review_pending",
+      "implementation": "6d794bc17adfd1cec560e4d45ced6f33310386f3",
+      "base": "c622611630f02e0640ce92327272dcfe6d6b235d",
+      "receipt": "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json",
+      "save_journal_focused": "20261003T192155Z-d6f1a178f516",
+      "focused_core": "20261003T193428Z-3be4b6496f78",
+      "focused_database": "20261003T193518Z-2e9deee55ae9",
+      "installer_snapshot_focused": "20261003T193542Z-329b4af5eba4",
+      "fast_all_ten_projects": "20261003T193607Z-1a70208ddc51",
+      "counts": {
+        "save_journal_focused": {
+          "executed": 5,
+          "passed": 5,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 5
+        },
+        "focused_core": {
+          "executed": 455,
+          "passed": 455,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 455
+        },
+        "focused_database": {
+          "executed": 3,
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 3
+        },
+        "installer_snapshot_focused": {
+          "executed": 9,
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 9
+        },
+        "fast_all_ten_projects": {
+          "executed": 6839,
+          "passed": 6839,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6839
+        }
+      },
+      "new_core_cases": 5,
+      "native_markers": 225,
+      "dirty_state_markers": 6,
+      "owned_databases_cleaned": 14,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 249,
+      "binary_fingerprints": 19,
+      "parent_P2s": [
+        "Rollback consumed foreign item resource and body stamina dirty flags, causing ordinary Flush to lose live changes"
+      ],
+      "parent_accepted_durable_removal_P2_preserved": true,
+      "failing_before_native_receipts_retained": true,
+      "native_resource_stamina_ordinary_flush_fresh_process_reload_verified": true,
+      "native_repeated_callback_and_direct_save_magic_verified": true,
+      "all_thirteen_body_and_five_item_dirty_flags_rearmed": true,
+      "needs_counter_and_later_live_progress_preserved": true,
+      "prior_ten_receipts_744_artifacts_eighteen_helpers_unchanged": true,
       "installed_world_high_volume_every_cycle_restart_not_qualified": true
     }
   ],
@@ -2814,21 +2895,26 @@
     {
       "sha": "9b05379d9194b308c2b941ae743562c1b6b9a112",
       "subject": "Restore rejected native custody and journal exact remains removal"
+    },
+    {
+      "sha": "6d794bc17adfd1cec560e4d45ced6f33310386f3",
+      "subject": "Preserve pending save state after rejected foreign custody transfer"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3B2C_independent_review",
-    "base": "689630e8733cd0ed35500a86ae7b9838defd3749",
-    "implementation_head": "9b05379d9194b308c2b941ae743562c1b6b9a112",
-    "receipt": "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
+    "status": "awaiting_parent_phase3B2D_independent_review",
+    "base": "c622611630f02e0640ce92327272dcfe6d6b235d",
+    "implementation_head": "6d794bc17adfd1cec560e4d45ced6f33310386f3",
+    "receipt": "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json",
     "implementation_verified": true,
     "previous_admission_parent_accepted": true,
-    "scope": "Corrective runtime custody restoration and durable exact corpse removal intent; no new feature slice",
+    "scope": "Corrective pending save-state journal across native custody save graph; preserve accepted durable remains-removal protocol; no new feature slice",
     "required_connection_ownership": "Explicit owned MySQL server/database validation at every native process/service boundary before use; no shared/default database; sanitized evidence",
     "N14_N15": "controlled_native_pass_full_installed_stock_pending",
     "N16": "partial_high_volume_pending",
     "independent_checkpoint_review_before_further_features": true,
-    "next_stage_after_review": "Extend approved creation/topology/history/policy adapters and full installed/high-volume acceptance; then remaining reusable effects/eight larger features and later stock/release phases."
+    "next_stage_after_review": "Extend approved creation/topology/history/policy adapters and full installed/high-volume acceptance; then remaining reusable effects/eight larger features and later stock/release phases.",
+    "parent_accepted_durable_removal_P2_preserved": true
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -2872,13 +2958,13 @@
       "id": "foreign_custody_evacuation",
       "status": "bounded_native_P2_correction_verified_parent_review_pending_other_adapters_full_acceptance_pending",
       "acceptance": "Conserve foreign inventory/container/occupant IDs exactly once, validate safe destinations and persist no-safe-destination holds.",
-      "receipt": "Armageddon_Stage3B_NpcRetirement_P2_Verification.json"
+      "receipt": "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json"
     },
     {
       "id": "remains_release_decay",
       "status": "bounded_native_P2_correction_verified_parent_review_pending_other_adapters_full_acceptance_pending",
       "acceptance": "Integrate and qualify actual GameItem.Delete and timed decay after custody conservation; preserve valid retained remains/body history.",
-      "receipt": "Armageddon_Stage3B_NpcRetirement_P2_Verification.json"
+      "receipt": "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json"
     },
     {
       "id": "expiry_death_and_dissipation",

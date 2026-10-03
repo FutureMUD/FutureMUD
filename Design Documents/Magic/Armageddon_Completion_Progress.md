@@ -825,3 +825,25 @@ EF 9 migration adds three nullable UTC columns. See [Armageddon_Stage3B_NpcRetir
 N14/N15 remain controlled native qualification; full installed stock sessions, high-volume
 N16 and restart on every cycle remain pending. Earlier admission failure cause/endpoint
 remain unknown. No publication, merge, deployment or shared/production database was used.
+
+
+## Phase3B2D retirement dirty-state P2 correction - parent review pending
+
+Local implementation `6d794bc17adfd1cec560e4d45ced6f33310386f3` journals save metadata before native custody
+saves consume it, rearms pending flags and queue entries after rollback, and preserves
+current resource/stamina values plus live needs batching progress. The accepted durable
+remains-removal protocol is unchanged. See [Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json](Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json).
+
+- [x] Retain failing-before proof: runtime resource/stamina 67/83 but persisted 80/100 after ordinary Flush.
+- [x] Audit all 13 body save sections, five item sections, shared Changed/no-save state and component saves; include direct SaveMagic and fence unrelated queue drains.
+- [x] Pass five save-journal cases, 455 focused core cases, three database checks, nine snapshot checks and 6,839 cases across all ten Fast projects; zero final failures or skips.
+- [x] Pass 225 combined native markers, including six dirty-state markers and the accepted durable-removal coverage, with 14 owned database cleanups and zero remaining owned processes.
+- [x] Preserve resource/stamina 67/83 and repeated-callback 60/73 through refusal, ordinary Flush and fresh-process reload with original custody; no foreign queue Abort.
+- [x] Preserve all captured dirty flags and needs counters, including changes between repeated callback saves.
+- [x] Preserve ten immutable receipts, 744 old artifacts, eighteen old helpers and all seven phases, 16 decisions, 154 candidates, 82+12 source rows and 25 native scenarios.
+- [ ] Parent independently reviews this exact corrective checkpoint before any next feature slice.
+
+Other save sections receive flag-restoration coverage, not individual native content-change
+qualification. N14/N15 remain controlled native; installed stock sessions, high-volume N16
+and restart on every cycle remain pending. Earlier admission failure cause/endpoint remain
+unknown. No publication, merge, deployment or shared/production database was used.
